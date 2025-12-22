@@ -114,8 +114,28 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Example')),
+      appBar: AppBar(
+        title: const Text('WhatChord'),
+
+        backgroundColor: cs.surfaceContainerLow,
+        foregroundColor: cs.onSurface,
+        scrolledUnderElevation: 0,
+
+        actions: [
+          IconButton(
+            tooltip: 'Settings',
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -125,6 +145,46 @@ class HomePage extends ConsumerWidget {
             const Expanded(child: KeyboardPlaceholder()),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Settings'),
+        backgroundColor: cs.surfaceContainerLow,
+        foregroundColor: cs.onSurface,
+        scrolledUnderElevation: 0,
+      ),
+      body: ListView(
+        children: const [
+          // Placeholder items for now; replace later with real toggles/providers.
+          ListTile(
+            title: Text('MIDI input'),
+            subtitle: Text('Not configured'),
+            trailing: Icon(Icons.chevron_right),
+          ),
+          Divider(height: 1),
+          ListTile(
+            title: Text('Keyboard behavior'),
+            subtitle: Text('Scale/scroll (future)'),
+            trailing: Icon(Icons.chevron_right),
+          ),
+          Divider(height: 1),
+          ListTile(
+            title: Text('Note naming'),
+            subtitle: Text('Sharps/flats (future)'),
+            trailing: Icon(Icons.chevron_right),
+          ),
+        ],
       ),
     );
   }
