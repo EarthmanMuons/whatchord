@@ -3,8 +3,37 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final helloWorldProvider = Provider((_) => 'Hello world');
 
+@immutable
+class MusicalKey {
+  final String label;
+
+  const MusicalKey._(this.label);
+
+  static const c = MusicalKey._('C');
+  static const g = MusicalKey._('G');
+  static const d = MusicalKey._('D');
+  static const a = MusicalKey._('A');
+  static const e = MusicalKey._('E');
+
+  static const values = <MusicalKey>[c, g, d, a, e];
+
+  @override
+  String toString() => label;
+}
+
+final selectedKeyProvider = NotifierProvider<SelectedKeyNotifier, MusicalKey>(
+  SelectedKeyNotifier.new,
+);
+
+class SelectedKeyNotifier extends Notifier<MusicalKey> {
+  @override
+  MusicalKey build() => MusicalKey.c;
+
+  void setKey(MusicalKey key) => state = key;
+}
+
 void main() {
-  runApp(ProviderScope(child: MyApp()));
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends ConsumerWidget {
@@ -18,7 +47,7 @@ class MyApp extends ConsumerWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
       ),
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }
@@ -63,12 +92,13 @@ class AnalysisPlaceholder extends StatelessWidget {
   }
 }
 
-class KeyFunctionBarPlaceholder extends StatelessWidget {
+class KeyFunctionBarPlaceholder extends ConsumerWidget {
   const KeyFunctionBarPlaceholder({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
+    final selectedKey = ref.watch(selectedKeyProvider);
 
     return Material(
       color: cs.surfaceContainerLow,
@@ -78,6 +108,7 @@ class KeyFunctionBarPlaceholder extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
+              // Left: tap to pick key
               InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: () {
@@ -85,7 +116,13 @@ class KeyFunctionBarPlaceholder extends StatelessWidget {
                     context: context,
                     showDragHandle: true,
                     builder: (context) {
-                      return const _KeyPickerSheetPlaceholder();
+                      return _KeyPickerSheet(
+                        selected: selectedKey,
+                        onSelected: (key) {
+                          ref.read(selectedKeyProvider.notifier).setKey(key);
+                          Navigator.of(context).pop();
+                        },
+                      );
                     },
                   );
                 },
@@ -95,7 +132,7 @@ class KeyFunctionBarPlaceholder extends StatelessWidget {
                     horizontal: 8,
                   ),
                   child: Text(
-                    'Key: C',
+                    'Key: ${selectedKey.label}',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
@@ -103,6 +140,7 @@ class KeyFunctionBarPlaceholder extends StatelessWidget {
 
               const Spacer(),
 
+              // Right: placeholder for roman numeral/function display
               Text(
                 'I  ii  iii  IV  V  vi  vii°',
                 style: Theme.of(
@@ -117,20 +155,24 @@ class KeyFunctionBarPlaceholder extends StatelessWidget {
   }
 }
 
-class _KeyPickerSheetPlaceholder extends StatelessWidget {
-  const _KeyPickerSheetPlaceholder();
+class _KeyPickerSheet extends StatelessWidget {
+  final MusicalKey selected;
+  final ValueChanged<MusicalKey> onSelected;
+
+  const _KeyPickerSheet({required this.selected, required this.onSelected});
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: ListView(
         shrinkWrap: true,
-        children: const [
-          ListTile(title: Text('C')),
-          ListTile(title: Text('G')),
-          ListTile(title: Text('D')),
-          ListTile(title: Text('A')),
-          ListTile(title: Text('E')),
+        children: [
+          for (final key in MusicalKey.values)
+            ListTile(
+              title: Text(key.label),
+              trailing: key == selected ? const Icon(Icons.check) : null,
+              onTap: () => onSelected(key),
+            ),
         ],
       ),
     );
