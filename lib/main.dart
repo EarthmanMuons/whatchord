@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'features/piano/piano.dart';
 
 @immutable
 class ChordAnalysis {
@@ -142,7 +143,7 @@ class HomePage extends ConsumerWidget {
             const AnalysisSection(),
             const KeyFunctionBarPlaceholder(),
             const Divider(height: 1),
-            const Expanded(child: KeyboardPlaceholder()),
+            const Expanded(child: PianoKeyboard()),
           ],
         ),
       ),
@@ -500,20 +501,6 @@ class _HarmonicFunctionIndicator extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class KeyboardPlaceholder extends StatelessWidget {
-  const KeyboardPlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Keyboard placeholder',
-        style: Theme.of(context).textTheme.bodyLarge,
       ),
     );
   }
