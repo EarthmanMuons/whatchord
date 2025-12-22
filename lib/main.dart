@@ -475,7 +475,9 @@ class _HarmonicFunctionIndicator extends StatelessWidget {
     final baseStyle = theme.textTheme.labelLarge;
     final textStyle = baseStyle?.copyWith(
       fontSize: (baseStyle.fontSize ?? 14) + 2,
-      color: isActive ? cs.primary : cs.onSurfaceVariant,
+      color: isActive
+          ? cs.primary
+          : cs.onSurfaceVariant.withValues(alpha: 0.65),
       fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
     );
 
