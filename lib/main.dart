@@ -12,13 +12,20 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final String value = ref.watch(helloWorldProvider);
+    return const MaterialApp(home: HomePage());
+  }
+}
 
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Example')),
-        body: Center(child: Text(value)),
-      ),
+class HomePage extends ConsumerWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final value = ref.watch(helloWorldProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Example')),
+      body: Center(child: Text(value)),
     );
   }
 }
