@@ -36,6 +36,7 @@ class HomePage extends ConsumerWidget {
         child: Column(
           children: [
             AnalysisPlaceholder(text: value),
+            const KeyFunctionBarPlaceholder(),
             const Divider(height: 1),
             const Expanded(child: KeyboardPlaceholder()),
           ],
@@ -57,6 +58,80 @@ class AnalysisPlaceholder extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(text, style: Theme.of(context).textTheme.headlineSmall),
+      ),
+    );
+  }
+}
+
+class KeyFunctionBarPlaceholder extends StatelessWidget {
+  const KeyFunctionBarPlaceholder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return Material(
+      color: cs.surfaceContainerLow,
+      child: SizedBox(
+        height: 56,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () {
+                  showModalBottomSheet<void>(
+                    context: context,
+                    showDragHandle: true,
+                    builder: (context) {
+                      return const _KeyPickerSheetPlaceholder();
+                    },
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 8,
+                  ),
+                  child: Text(
+                    'Key: C',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+              ),
+
+              const Spacer(),
+
+              Text(
+                'I  ii  iii  IV  V  vi  vii°',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _KeyPickerSheetPlaceholder extends StatelessWidget {
+  const _KeyPickerSheetPlaceholder();
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: ListView(
+        shrinkWrap: true,
+        children: const [
+          ListTile(title: Text('C')),
+          ListTile(title: Text('G')),
+          ListTile(title: Text('D')),
+          ListTile(title: Text('A')),
+          ListTile(title: Text('E')),
+        ],
       ),
     );
   }
