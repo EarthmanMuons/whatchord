@@ -32,7 +32,46 @@ class HomePage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Example')),
-      body: Center(child: Text(value)),
+      body: SafeArea(
+        child: Column(
+          children: [
+            AnalysisPlaceholder(text: value),
+            const Divider(height: 1),
+            const Expanded(child: KeyboardPlaceholder()),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AnalysisPlaceholder extends StatelessWidget {
+  final String text;
+
+  const AnalysisPlaceholder({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(text, style: Theme.of(context).textTheme.headlineSmall),
+      ),
+    );
+  }
+}
+
+class KeyboardPlaceholder extends StatelessWidget {
+  const KeyboardPlaceholder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        'Keyboard placeholder',
+        style: Theme.of(context).textTheme.bodyLarge,
+      ),
     );
   }
 }
