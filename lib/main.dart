@@ -65,6 +65,30 @@ class SelectedKeyNotifier extends Notifier<MusicalKey> {
   void setKey(MusicalKey key) => state = key;
 }
 
+enum HarmonicFunction {
+  one('I'),
+  two('ii'),
+  three('iii'),
+  four('IV'),
+  five('V'),
+  six('vi'),
+  seven('vii°');
+
+  final String label;
+  const HarmonicFunction(this.label);
+}
+
+final activeFunctionProvider = Provider<HarmonicFunction?>((ref) {
+  final key = ref.watch(selectedKeyProvider);
+  final analysis = ref.watch(chordAnalysisProvider);
+
+  // Stub logic
+  if (analysis.chordName.startsWith(key.label)) {
+    return HarmonicFunction.one;
+  }
+  return null;
+});
+
 void main() {
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -273,6 +297,7 @@ class KeyFunctionBarPlaceholder extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final selectedKey = ref.watch(selectedKeyProvider);
+    final active = ref.watch(activeFunctionProvider);
 
     return Material(
       color: cs.surfaceContainerLow,
@@ -282,7 +307,6 @@ class KeyFunctionBarPlaceholder extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              // Left: tap to pick key
               InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: () {
@@ -311,16 +335,8 @@ class KeyFunctionBarPlaceholder extends ConsumerWidget {
                   ),
                 ),
               ),
-
               const Spacer(),
-
-              // Right: placeholder for roman numeral/function display
-              Text(
-                'I  ii  iii  IV  V  vi  vii°',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-              ),
+              RomanNumeralsDisplay(active: active),
             ],
           ),
         ),
@@ -349,6 +365,64 @@ class _KeyPickerSheet extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+class RomanNumeralsDisplay extends StatelessWidget {
+  final HarmonicFunction? active;
+
+  const RomanNumeralsDisplay({super.key, required this.active});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Wrap(
+      spacing: 10,
+      children: [
+        for (final fn in HarmonicFunction.values)
+          _HarmonicFunctionPill(
+            label: fn.label,
+            isActive: fn == active,
+            theme: theme,
+            cs: cs,
+          ),
+      ],
+    );
+  }
+}
+
+class _HarmonicFunctionPill extends StatelessWidget {
+  final String label;
+  final bool isActive;
+  final ThemeData theme;
+  final ColorScheme cs;
+
+  const _HarmonicFunctionPill({
+    required this.label,
+    required this.isActive,
+    required this.theme,
+    required this.cs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = theme.textTheme.labelLarge?.copyWith(
+      color: isActive ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+    );
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 120),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: isActive ? cs.primaryContainer : cs.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: isActive ? cs.primary : cs.outlineVariant),
+      ),
+      child: Text(label, style: textStyle),
     );
   }
 }
