@@ -30,7 +30,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
 
   // "Active" state example:
   return const ChordAnalysis(
-    chordName: 'C maj7 / E',
+    chordName: 'Cmaj7 / E',
     inversionLabel: '1st inversion',
     noteNames: ['E', 'G', 'B', 'C'],
   );
@@ -307,36 +307,37 @@ class KeyFunctionBarPlaceholder extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () {
+              FilledButton.tonalIcon(
+                onPressed: () {
                   showModalBottomSheet<void>(
                     context: context,
                     showDragHandle: true,
-                    builder: (context) {
-                      return _KeyPickerSheet(
-                        selected: selectedKey,
-                        onSelected: (key) {
-                          ref.read(selectedKeyProvider.notifier).setKey(key);
-                          Navigator.of(context).pop();
-                        },
-                      );
-                    },
+                    builder: (context) => _KeyPickerSheet(
+                      selected: selectedKey,
+                      onSelected: (key) {
+                        ref.read(selectedKeyProvider.notifier).setKey(key);
+                        Navigator.of(context).pop();
+                      },
+                    ),
                   );
                 },
-                child: Padding(
+                label: Text('Key: ${selectedKey.label}'),
+                style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
                     vertical: 12,
-                    horizontal: 8,
                   ),
-                  child: Text(
-                    'Key: ${selectedKey.label}',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                  visualDensity: VisualDensity.compact,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ),
-              const Spacer(),
-              RomanNumeralsDisplay(active: active),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: HarmonicFunctionStrip(active: active),
+                ),
+              ),
             ],
           ),
         ),
@@ -369,60 +370,75 @@ class _KeyPickerSheet extends StatelessWidget {
   }
 }
 
-class RomanNumeralsDisplay extends StatelessWidget {
+class HarmonicFunctionStrip extends StatelessWidget {
   final HarmonicFunction? active;
+  final values = HarmonicFunction.values;
 
-  const RomanNumeralsDisplay({super.key, required this.active});
+  const HarmonicFunctionStrip({super.key, required this.active});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (int i = 0; i < values.length; i++) ...[
+            _HarmonicFunctionIndicator(
+              label: values[i].label,
+              isActive: values[i] == active,
+            ),
+            if (i < values.length - 1) const SizedBox(width: 12),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _HarmonicFunctionIndicator extends StatelessWidget {
+  final String label;
+  final bool isActive;
+
+  const _HarmonicFunctionIndicator({
+    required this.label,
+    required this.isActive,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    return Wrap(
-      spacing: 10,
-      children: [
-        for (final fn in HarmonicFunction.values)
-          _HarmonicFunctionPill(
-            label: fn.label,
-            isActive: fn == active,
-            theme: theme,
-            cs: cs,
-          ),
-      ],
-    );
-  }
-}
-
-class _HarmonicFunctionPill extends StatelessWidget {
-  final String label;
-  final bool isActive;
-  final ThemeData theme;
-  final ColorScheme cs;
-
-  const _HarmonicFunctionPill({
-    required this.label,
-    required this.isActive,
-    required this.theme,
-    required this.cs,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final textStyle = theme.textTheme.labelLarge?.copyWith(
-      color: isActive ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+    final baseStyle = theme.textTheme.labelLarge;
+    final textStyle = baseStyle?.copyWith(
+      fontSize: (baseStyle.fontSize ?? 14) + 2,
+      color: isActive ? cs.primary : cs.onSurfaceVariant,
       fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
     );
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 120),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-      decoration: BoxDecoration(
-        color: isActive ? cs.primaryContainer : cs.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: isActive ? cs.primary : cs.outlineVariant),
+    return SizedBox(
+      height: 56,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Text(label, style: textStyle),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 120),
+                height: 3,
+                width: 18,
+                decoration: BoxDecoration(
+                  color: isActive ? cs.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
-      child: Text(label, style: textStyle),
     );
   }
 }
