@@ -273,7 +273,9 @@ class NoteChipsArea extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: cs.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: cs.outlineVariant),
+                        border: Border.all(
+                          color: cs.outlineVariant.withValues(alpha: 0.6),
+                        ),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
