@@ -46,7 +46,7 @@ class PianoKeyboardPainter extends CustomPainter {
 
   // Bias magnitudes as fractions of white key width.
   static const double _smallBlackKeyBiasRatio = 0.10; // C#, D#
-  static const double _largeBlackKeyBiasRatio = 0.16; // F#, A#
+  static const double _largeBlackKeyBiasRatio = 0.15; // F#, A#
 
   // MIDI pitch classes (C=0).
   static const int _pcC = 0;
