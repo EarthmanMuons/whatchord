@@ -10,7 +10,7 @@ class WhatChordLayoutSpec {
 
   // Keyboard
   final int whiteKeyCount;
-  final double keyboardHeight;
+  final double whiteKeyAspectRatio;
   final int startMidiNote;
 
   // Analysis
@@ -32,7 +32,7 @@ class WhatChordLayoutSpec {
   const WhatChordLayoutSpec({
     required this.isLandscape,
     required this.whiteKeyCount,
-    required this.keyboardHeight,
+    this.whiteKeyAspectRatio = 7.0,
     required this.startMidiNote,
     required this.analysisPadding,
     required this.chordCardMaxWidth,
@@ -54,7 +54,7 @@ class WhatChordLayoutSpec {
 
         // Full 88-key piano view: 52 white keys from A0 (MIDI 21) to C8.
         whiteKeyCount: 52,
-        keyboardHeight: 110,
+        whiteKeyAspectRatio: 7.0,
         startMidiNote: 21, // A0
         analysisPadding: EdgeInsets.fromLTRB(16, 16, 8, 16),
         chordCardMaxWidth: 520,
@@ -76,7 +76,6 @@ class WhatChordLayoutSpec {
       isLandscape: false,
 
       whiteKeyCount: 21,
-      keyboardHeight: 150,
       startMidiNote: 48, // C3
 
       analysisPadding: EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -768,11 +767,23 @@ class KeyboardSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final active = ref.watch(activeMidiNotesProvider);
 
-    return PianoKeyboard(
-      whiteKeyCount: spec.whiteKeyCount,
-      startMidiNote: spec.startMidiNote,
-      activeMidiNotes: active,
-      height: spec.keyboardHeight,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final whiteKeyWidth = width / spec.whiteKeyCount;
+
+        var height = whiteKeyWidth * spec.whiteKeyAspectRatio;
+
+        // Guardrails to prevent extremes.
+        height = height.clamp(90.0, 200.0);
+
+        return PianoKeyboard(
+          whiteKeyCount: spec.whiteKeyCount,
+          startMidiNote: spec.startMidiNote,
+          activeMidiNotes: active,
+          height: height,
+        );
+      },
     );
   }
 }
