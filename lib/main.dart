@@ -13,7 +13,7 @@ class WhatChordLayoutSpec {
   final double keyboardHeight;
   final int startMidiNote;
 
-  // Analysis/Card
+  // Analysis
   final EdgeInsets analysisPadding;
   final double chordCardMaxWidth;
   final int topSpacerFlex;
@@ -26,7 +26,7 @@ class WhatChordLayoutSpec {
   // Chips
   final EdgeInsets noteChipsPadding;
 
-  // Function bar sizing
+  // Function bar
   final double functionBarHeight;
 
   const WhatChordLayoutSpec({
@@ -54,18 +54,21 @@ class WhatChordLayoutSpec {
 
         // Full 88-key piano view: 52 white keys from A0 (MIDI 21) to C8.
         whiteKeyCount: 52,
-        keyboardHeight: 100,
+        keyboardHeight: 110,
         startMidiNote: 21, // A0
-
         analysisPadding: EdgeInsets.fromLTRB(16, 16, 8, 16),
         chordCardMaxWidth: 520,
         topSpacerFlex: 1,
         bottomSpacerFlex: 1,
         compactChordCard: false,
 
-        controlPanePadding: EdgeInsets.fromLTRB(8, 10, 16, 10),
-        noteChipsPadding: EdgeInsets.fromLTRB(0, 0, 0, 6),
-        functionBarHeight: 52,
+        controlPanePadding: EdgeInsets.fromLTRB(8, 12, 16, 12),
+
+        // In landscape, let the outer right-pane padding do the work
+        // so the chips don't get double-padded.
+        noteChipsPadding: EdgeInsets.zero,
+
+        functionBarHeight: 56,
       );
     }
 
@@ -83,7 +86,9 @@ class WhatChordLayoutSpec {
       compactChordCard: false,
 
       controlPanePadding: EdgeInsets.zero,
+
       noteChipsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+
       functionBarHeight: 56,
     );
   }
@@ -273,7 +278,6 @@ class _HomePortrait extends StatelessWidget {
       children: [
         Expanded(child: AnalysisSection(spec: spec)),
 
-        // Bottom pinned cluster
         SafeArea(
           top: false,
           child: Column(
@@ -300,40 +304,34 @@ class _HomeLandscape extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Two-pane top: chord card on left, controls on right
+        // Top region: split between chord card (left) and note chips (right).
         Expanded(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Left pane: chord card
               Expanded(flex: 6, child: AnalysisSection(spec: spec)),
 
-              // Right pane: chips + key + harmonic
               Expanded(
                 flex: 7,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 10, 16, 6),
-                      child: NoteChipsArea(spec: spec),
-                    ),
-
-                    KeyFunctionBarPlaceholder(height: spec.functionBarHeight),
-                  ],
+                child: Padding(
+                  padding: spec.controlPanePadding,
+                  child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: NoteChipsArea(spec: spec),
+                  ),
                 ),
               ),
             ],
           ),
         ),
 
-        // Full-width keyboard at bottom
+        // Bottom region: full-width function bar + keyboard.
         SafeArea(
           top: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              KeyFunctionBarPlaceholder(height: spec.functionBarHeight),
               const Divider(height: 1),
               KeyboardSection(spec: spec),
             ],
