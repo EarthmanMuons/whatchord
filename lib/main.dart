@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'features/piano/piano.dart';
 
@@ -284,29 +285,33 @@ class HomePage extends ConsumerWidget {
     final spec = WhatChordLayoutSpec.from(context);
 
     return _SystemUiModeController(
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('WhatChord'),
-          backgroundColor: cs.surfaceContainerLow,
-          foregroundColor: cs.onSurface,
-          scrolledUnderElevation: 0,
-          actions: [
-            const MidiStatusPill(),
-            IconButton(
-              tooltip: 'Settings',
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
-                );
-              },
-            ),
-          ],
-        ),
-        body: SafeArea(
-          child: spec.isLandscape
-              ? _HomeLandscape(spec: spec)
-              : _HomePortrait(spec: spec),
+      child: _WakelockMidiGate(
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('WhatChord'),
+            backgroundColor: cs.surfaceContainerLow,
+            foregroundColor: cs.onSurface,
+            scrolledUnderElevation: 0,
+            actions: [
+              const MidiStatusPill(),
+              IconButton(
+                tooltip: 'Settings',
+                icon: const Icon(Icons.settings),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SettingsPage(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          body: SafeArea(
+            child: spec.isLandscape
+                ? _HomeLandscape(spec: spec)
+                : _HomePortrait(spec: spec),
+          ),
         ),
       ),
     );
@@ -432,6 +437,49 @@ class _SystemUiModeControllerState extends State<_SystemUiModeController>
 
   @override
   Widget build(BuildContext context) {
+    return widget.child;
+  }
+}
+
+class _WakelockMidiGate extends ConsumerStatefulWidget {
+  const _WakelockMidiGate({required this.child});
+
+  final Widget child;
+
+  @override
+  ConsumerState<_WakelockMidiGate> createState() => _WakelockMidiGateState();
+}
+
+class _WakelockMidiGateState extends ConsumerState<_WakelockMidiGate> {
+  bool? _lastApplied;
+
+  @override
+  void dispose() {
+    // Safety: ensure wakelock is off when leaving this subtree.
+    WakelockPlus.disable();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final shouldKeepAwake = ref.watch(
+      midiConnectionProvider.select(
+        (s) =>
+            s.status == MidiConnectionStatus.connected ||
+            s.status == MidiConnectionStatus.connecting,
+      ),
+    );
+
+    if (_lastApplied != shouldKeepAwake) {
+      _lastApplied = shouldKeepAwake;
+
+      // Avoid doing platform work in the middle of the build pipeline.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        WakelockPlus.toggle(enable: shouldKeepAwake);
+      });
+    }
+
     return widget.child;
   }
 }
