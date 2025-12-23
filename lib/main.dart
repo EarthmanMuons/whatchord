@@ -5,6 +5,91 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/piano/piano.dart';
 
 @immutable
+class WhatChordLayoutSpec {
+  final bool isLandscape;
+
+  // Keyboard
+  final int whiteKeyCount;
+  final double keyboardHeight;
+  final int startMidiNote;
+
+  // Analysis/Card
+  final EdgeInsets analysisPadding;
+  final double chordCardMaxWidth;
+  final int topSpacerFlex;
+  final int bottomSpacerFlex;
+  final bool compactChordCard;
+
+  // Right-side controls (landscape)
+  final EdgeInsets controlPanePadding;
+
+  // Chips
+  final EdgeInsets noteChipsPadding;
+
+  // Function bar sizing
+  final double functionBarHeight;
+
+  const WhatChordLayoutSpec({
+    required this.isLandscape,
+    required this.whiteKeyCount,
+    required this.keyboardHeight,
+    required this.startMidiNote,
+    required this.analysisPadding,
+    required this.chordCardMaxWidth,
+    required this.topSpacerFlex,
+    required this.bottomSpacerFlex,
+    required this.compactChordCard,
+    required this.controlPanePadding,
+    required this.noteChipsPadding,
+    required this.functionBarHeight,
+  });
+
+  static WhatChordLayoutSpec from(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final isLandscape = mq.orientation == Orientation.landscape;
+
+    if (isLandscape) {
+      return const WhatChordLayoutSpec(
+        isLandscape: true,
+
+        // Full 88-key piano view: 52 white keys from A0 (MIDI 21) to C8.
+        whiteKeyCount: 52,
+        keyboardHeight: 100,
+        startMidiNote: 21, // A0
+
+        analysisPadding: EdgeInsets.fromLTRB(16, 16, 8, 16),
+        chordCardMaxWidth: 520,
+        topSpacerFlex: 1,
+        bottomSpacerFlex: 1,
+        compactChordCard: false,
+
+        controlPanePadding: EdgeInsets.fromLTRB(8, 10, 16, 10),
+        noteChipsPadding: EdgeInsets.fromLTRB(0, 0, 0, 6),
+        functionBarHeight: 52,
+      );
+    }
+
+    return const WhatChordLayoutSpec(
+      isLandscape: false,
+
+      whiteKeyCount: 21,
+      keyboardHeight: 150,
+      startMidiNote: 48, // C3
+
+      analysisPadding: EdgeInsets.fromLTRB(16, 16, 16, 16),
+      chordCardMaxWidth: 520,
+      topSpacerFlex: 2,
+      bottomSpacerFlex: 3,
+      compactChordCard: false,
+
+      controlPanePadding: EdgeInsets.zero,
+      noteChipsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      functionBarHeight: 56,
+    );
+  }
+}
+
+@immutable
 class ChordAnalysis {
   final String chordName;
   final String? inversionLabel;
@@ -16,14 +101,6 @@ class ChordAnalysis {
 }
 
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
-  // Stub data for UI layout work. Replace later with real analysis.
-  // "Idle" state example:
-  // return const ChordAnalysis(
-  //   chordName: '— — —',
-  //   inversionLabel: null,
-  // );
-
-  // "Active" state example:
   return const ChordAnalysis(
     chordName: 'Cmaj / E',
     inversionLabel: '1st inversion',
@@ -40,7 +117,6 @@ final activeMidiNotesProvider = Provider<Set<int>>((ref) {
 /// TODO: Expand this for enharmonics, octave display, ordering rules, etc.
 final noteNamesProvider = Provider<List<String>>((ref) {
   final activeMidi = ref.watch(activeMidiNotesProvider);
-
   final sorted = activeMidi.toList()..sort();
   return [for (final midi in sorted) _midiToNoteName(midi)];
 });
@@ -155,6 +231,7 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
+    final spec = WhatChordLayoutSpec.from(context);
 
     return _SystemUiModeController(
       child: Scaffold(
@@ -176,25 +253,93 @@ class HomePage extends ConsumerWidget {
           ],
         ),
         body: SafeArea(
+          child: spec.isLandscape
+              ? _HomeLandscape(spec: spec)
+              : _HomePortrait(spec: spec),
+        ),
+      ),
+    );
+  }
+}
+
+class _HomePortrait extends StatelessWidget {
+  const _HomePortrait({required this.spec});
+
+  final WhatChordLayoutSpec spec;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(child: AnalysisSection(spec: spec)),
+
+        // Bottom pinned cluster
+        SafeArea(
+          top: false,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Expanded(child: AnalysisSection()),
-              SafeArea(
-                top: false,
+              NoteChipsArea(spec: spec),
+              KeyFunctionBarPlaceholder(height: spec.functionBarHeight),
+              const Divider(height: 1),
+              KeyboardSection(spec: spec),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HomeLandscape extends StatelessWidget {
+  const _HomeLandscape({required this.spec});
+
+  final WhatChordLayoutSpec spec;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Two-pane top: chord card on left, controls on right
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Left pane: chord card
+              Expanded(flex: 6, child: AnalysisSection(spec: spec)),
+
+              // Right pane: chips + key + harmonic
+              Expanded(
+                flex: 7,
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    NoteChipsArea(),
-                    KeyFunctionBarPlaceholder(),
-                    Divider(height: 1),
-                    KeyboardSection(),
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 10, 16, 6),
+                      child: NoteChipsArea(spec: spec),
+                    ),
+
+                    KeyFunctionBarPlaceholder(height: spec.functionBarHeight),
                   ],
                 ),
               ),
             ],
           ),
         ),
-      ),
+
+        // Full-width keyboard at bottom
+        SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Divider(height: 1),
+              KeyboardSection(spec: spec),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -226,8 +371,10 @@ class _SystemUiModeControllerState extends State<_SystemUiModeController>
     _lastOrientation = orientation;
 
     if (orientation == Orientation.landscape) {
+      // Hide status bar (and other overlays) only in landscape.
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
     } else {
+      // Restore in portrait.
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     }
   }
@@ -261,7 +408,6 @@ class SettingsPage extends StatelessWidget {
       ),
       body: ListView(
         children: const [
-          // Placeholder items for now; replace later with real toggles/providers.
           ListTile(
             title: Text('MIDI input'),
             subtitle: Text('Not configured'),
@@ -286,33 +432,33 @@ class SettingsPage extends StatelessWidget {
 }
 
 class AnalysisSection extends ConsumerWidget {
-  const AnalysisSection({super.key});
+  const AnalysisSection({super.key, required this.spec});
+
+  final WhatChordLayoutSpec spec;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final analysis = ref.watch(chordAnalysisProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: spec.analysisPadding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Spacer(flex: 2),
+          Spacer(flex: spec.topSpacerFlex),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: ChordIdentityCard(
-                  chordName: analysis.chordName,
-                  inversionLabel: analysis.inversionLabel,
-                ),
+          Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: spec.chordCardMaxWidth),
+              child: ChordIdentityCard(
+                chordName: analysis.chordName,
+                inversionLabel: analysis.inversionLabel,
+                compact: spec.compactChordCard,
               ),
             ),
           ),
 
-          const Spacer(flex: 3),
+          Spacer(flex: spec.bottomSpacerFlex),
         ],
       ),
     );
@@ -322,11 +468,13 @@ class AnalysisSection extends ConsumerWidget {
 class ChordIdentityCard extends StatelessWidget {
   final String chordName;
   final String? inversionLabel;
+  final bool compact;
 
   const ChordIdentityCard({
     super.key,
     required this.chordName,
     required this.inversionLabel,
+    required this.compact,
   });
 
   @override
@@ -337,26 +485,32 @@ class ChordIdentityCard extends StatelessWidget {
     final hasInversion =
         inversionLabel != null && inversionLabel!.trim().isNotEmpty;
 
-    final chordStyle = theme.textTheme.displayMedium!.copyWith(
-      color: cs.onPrimary,
-      fontWeight: FontWeight.w600,
-      height: 1.0,
-    );
+    final chordStyle =
+        (compact
+                ? theme.textTheme.headlineLarge
+                : theme.textTheme.displayMedium)!
+            .copyWith(
+              color: cs.onPrimary,
+              fontWeight: FontWeight.w600,
+              height: 1.0,
+            );
 
-    final inversionStyle = theme.textTheme.titleMedium!.copyWith(
-      color: cs.onPrimary.withValues(alpha: 0.85),
-      height: 1.1,
-    );
+    final inversionStyle =
+        (compact ? theme.textTheme.titleSmall : theme.textTheme.titleMedium)!
+            .copyWith(color: cs.onPrimary.withValues(alpha: 0.85), height: 1.1);
 
-    const minCardHeight = 124.0;
+    final minCardHeight = compact ? 96.0 : 124.0;
+    final padding = compact
+        ? const EdgeInsets.symmetric(horizontal: 18, vertical: 14)
+        : const EdgeInsets.symmetric(horizontal: 28, vertical: 18);
 
     return Card(
       elevation: 0,
       color: cs.primary,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: minCardHeight),
+        constraints: BoxConstraints(minHeight: minCardHeight),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
+          padding: padding,
           child: hasInversion
               ? Column(
                   mainAxisSize: MainAxisSize.min,
@@ -365,8 +519,10 @@ class ChordIdentityCard extends StatelessWidget {
                       chordName,
                       textAlign: TextAlign.center,
                       style: chordStyle,
+                      maxLines: compact ? 1 : 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 18),
+                    SizedBox(height: compact ? 10 : 18),
                     Text(
                       inversionLabel!,
                       textAlign: TextAlign.center,
@@ -390,7 +546,9 @@ class ChordIdentityCard extends StatelessWidget {
 }
 
 class NoteChipsArea extends ConsumerWidget {
-  const NoteChipsArea({super.key});
+  const NoteChipsArea({super.key, required this.spec});
+
+  final WhatChordLayoutSpec spec;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -399,11 +557,10 @@ class NoteChipsArea extends ConsumerWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    // Reserve roughly one row worth of vertical space (prevents the keyboard from jumping).
     const minHeight = 44.0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: spec.noteChipsPadding,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: minHeight),
         child: noteNames.isEmpty
@@ -448,7 +605,9 @@ class NoteChipsArea extends ConsumerWidget {
 }
 
 class KeyFunctionBarPlaceholder extends ConsumerWidget {
-  const KeyFunctionBarPlaceholder({super.key});
+  const KeyFunctionBarPlaceholder({super.key, required this.height});
+
+  final double height;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -459,7 +618,7 @@ class KeyFunctionBarPlaceholder extends ConsumerWidget {
     return Material(
       color: cs.surfaceContainerLow,
       child: SizedBox(
-        height: 56,
+        height: height,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
@@ -603,18 +762,19 @@ class _HarmonicFunctionIndicator extends StatelessWidget {
 }
 
 class KeyboardSection extends ConsumerWidget {
-  const KeyboardSection({super.key});
+  const KeyboardSection({super.key, required this.spec});
+
+  final WhatChordLayoutSpec spec;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final active = ref.watch(activeMidiNotesProvider);
 
     return PianoKeyboard(
-      whiteKeyCount: 21,
-      startMidiNote: 48, // C3
+      whiteKeyCount: spec.whiteKeyCount,
+      startMidiNote: spec.startMidiNote,
       activeMidiNotes: active,
-      height: 150,
-      showNoteDebugLabels: false,
+      height: spec.keyboardHeight,
     );
   }
 }
