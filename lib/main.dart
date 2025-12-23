@@ -143,7 +143,7 @@ class HomePage extends ConsumerWidget {
             const AnalysisSection(),
             const KeyFunctionBarPlaceholder(),
             const Divider(height: 1),
-            const Expanded(child: PianoKeyboard()),
+            const Expanded(child: KeyboardSection()),
           ],
         ),
       ),
@@ -504,6 +504,30 @@ class _HarmonicFunctionIndicator extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class KeyboardSection extends StatelessWidget {
+  const KeyboardSection({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Example: C major triad pitch classes: C (0), E (4), G (7)
+    const active = <int>{0, 4, 7};
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: const [
+        Divider(height: 1),
+        PianoKeyboard(
+          whiteKeyCount: 21,
+          startMidiNote: 48, // C3
+          activePitchClasses: active,
+          height: 180,
+          showNoteDebugLabels: false,
+        ),
+      ],
     );
   }
 }
