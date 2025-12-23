@@ -5,6 +5,10 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'features/piano/piano.dart';
 
+final layoutSpecProvider = Provider<WhatChordLayoutSpec>((ref) {
+  throw UnimplementedError('layoutSpecProvider must be overridden');
+});
+
 @immutable
 class WhatChordLayoutSpec {
   final bool isLandscape;
@@ -284,33 +288,53 @@ class HomePage extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final spec = WhatChordLayoutSpec.from(context);
 
-    return _SystemUiModeController(
-      child: _WakelockMidiGate(
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('WhatChord'),
-            backgroundColor: cs.surfaceContainerLow,
-            foregroundColor: cs.onSurface,
-            scrolledUnderElevation: 0,
-            actions: [
-              const MidiStatusPill(),
-              IconButton(
-                tooltip: 'Settings',
-                icon: const Icon(Icons.settings),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const SettingsPage(),
+    // Optional: ignore left/right cutout safe-area insets in landscape so the UI
+    // can span the full width (e.g., camera hole area).
+    final mq = MediaQuery.of(context);
+    final mqFullWidth = spec.isLandscape
+        ? mq.copyWith(
+            padding: mq.padding.copyWith(left: 0, right: 0),
+            viewPadding: mq.viewPadding.copyWith(left: 0, right: 0),
+          )
+        : mq;
+
+    return ProviderScope(
+      overrides: [layoutSpecProvider.overrideWithValue(spec)],
+      child: MediaQuery(
+        data: mqFullWidth,
+        child: _SystemUiModeController(
+          child: _WakelockMidiGate(
+            child: Scaffold(
+              appBar: AppBar(
+                titleSpacing: spec.isLandscape ? 28 : null,
+                title: const Text('WhatChord'),
+                backgroundColor: cs.surfaceContainerLow,
+                foregroundColor: cs.onSurface,
+                scrolledUnderElevation: 0,
+                actions: [
+                  const MidiStatusPill(),
+                  Padding(
+                    padding: EdgeInsets.only(right: spec.isLandscape ? 12 : 0),
+                    child: IconButton(
+                      tooltip: 'Settings',
+                      icon: const Icon(Icons.settings),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const SettingsPage(),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
-            ],
-          ),
-          body: SafeArea(
-            child: spec.isLandscape
-                ? _HomeLandscape(spec: spec)
-                : _HomePortrait(spec: spec),
+              body: SafeArea(
+                child: spec.isLandscape
+                    ? const _HomeLandscape()
+                    : const _HomePortrait(),
+              ),
+            ),
           ),
         ),
       ),
@@ -318,26 +342,25 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-class _HomePortrait extends StatelessWidget {
-  const _HomePortrait({required this.spec});
-
-  final WhatChordLayoutSpec spec;
+class _HomePortrait extends ConsumerWidget {
+  const _HomePortrait({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final spec = ref.watch(layoutSpecProvider);
     return Column(
       children: [
-        Expanded(child: AnalysisSection(spec: spec)),
+        const Expanded(child: AnalysisSection()),
 
         SafeArea(
           top: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              NoteChipsArea(spec: spec),
+              const NoteChipsArea(),
               KeyFunctionBarPlaceholder(height: spec.functionBarHeight),
               const Divider(height: 1),
-              KeyboardSection(spec: spec),
+              const KeyboardSection(),
             ],
           ),
         ),
@@ -346,13 +369,12 @@ class _HomePortrait extends StatelessWidget {
   }
 }
 
-class _HomeLandscape extends StatelessWidget {
-  const _HomeLandscape({required this.spec});
-
-  final WhatChordLayoutSpec spec;
+class _HomeLandscape extends ConsumerWidget {
+  const _HomeLandscape({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final spec = ref.watch(layoutSpecProvider);
     return Column(
       children: [
         // Top region: split between chord card (left) and note chips (right).
@@ -360,7 +382,7 @@ class _HomeLandscape extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(flex: 6, child: AnalysisSection(spec: spec)),
+              const Expanded(flex: 6, child: AnalysisSection()),
 
               Expanded(
                 flex: 7,
@@ -368,7 +390,7 @@ class _HomeLandscape extends StatelessWidget {
                   padding: spec.controlPanePadding,
                   child: Align(
                     alignment: Alignment.bottomLeft,
-                    child: NoteChipsArea(spec: spec),
+                    child: const NoteChipsArea(),
                   ),
                 ),
               ),
@@ -384,7 +406,7 @@ class _HomeLandscape extends StatelessWidget {
             children: [
               KeyFunctionBarPlaceholder(height: spec.functionBarHeight),
               const Divider(height: 1),
-              KeyboardSection(spec: spec),
+              const KeyboardSection(),
             ],
           ),
         ),
@@ -393,52 +415,63 @@ class _HomeLandscape extends StatelessWidget {
   }
 }
 
-class _SystemUiModeController extends StatefulWidget {
+class _SystemUiModeController extends ConsumerStatefulWidget {
   const _SystemUiModeController({required this.child});
 
   final Widget child;
 
   @override
-  State<_SystemUiModeController> createState() =>
+  ConsumerState<_SystemUiModeController> createState() =>
       _SystemUiModeControllerState();
 }
 
-class _SystemUiModeControllerState extends State<_SystemUiModeController>
-    with WidgetsBindingObserver {
-  Orientation? _lastOrientation;
+class _SystemUiModeControllerState
+    extends ConsumerState<_SystemUiModeController> {
+  bool? _lastIsLandscape;
+  late final ProviderSubscription<WhatChordLayoutSpec> _layoutSub;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _layoutSub = ref.listenManual<WhatChordLayoutSpec>(layoutSpecProvider, (
+      prev,
+      next,
+    ) {
+      _applySystemUi(next.isLandscape);
+    });
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _updateSystemUi();
+    final spec = ref.read(layoutSpecProvider);
+    _applySystemUi(spec.isLandscape);
   }
 
-  void _updateSystemUi() {
-    final orientation = MediaQuery.of(context).orientation;
+  void _applySystemUi(bool isLandscape) {
+    if (_lastIsLandscape == isLandscape) return;
+    _lastIsLandscape = isLandscape;
 
-    if (orientation == _lastOrientation) return;
-    _lastOrientation = orientation;
-
-    if (orientation == Orientation.landscape) {
-      // Hide status bar (and other overlays) only in landscape.
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    if (isLandscape) {
+      SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: const [],
+      );
     } else {
-      // Restore in portrait.
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     }
   }
 
   @override
   void dispose() {
-    // Restore system UI when leaving the page.
+    _layoutSub.close();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
+  Widget build(BuildContext context) => widget.child;
 }
 
 class _WakelockMidiGate extends ConsumerStatefulWidget {
@@ -683,13 +716,12 @@ class SettingsPage extends StatelessWidget {
 }
 
 class AnalysisSection extends ConsumerWidget {
-  const AnalysisSection({super.key, required this.spec});
-
-  final WhatChordLayoutSpec spec;
+  const AnalysisSection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final analysis = ref.watch(chordAnalysisProvider);
+    final spec = ref.watch(layoutSpecProvider);
 
     return Padding(
       padding: spec.analysisPadding,
@@ -789,13 +821,12 @@ class ChordIdentityCard extends StatelessWidget {
 }
 
 class NoteChipsArea extends ConsumerWidget {
-  const NoteChipsArea({super.key, required this.spec});
-
-  final WhatChordLayoutSpec spec;
+  const NoteChipsArea({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final noteNames = ref.watch(noteNamesProvider);
+    final spec = ref.watch(layoutSpecProvider);
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -1005,13 +1036,12 @@ class _HarmonicFunctionIndicator extends StatelessWidget {
 }
 
 class KeyboardSection extends ConsumerWidget {
-  const KeyboardSection({super.key, required this.spec});
-
-  final WhatChordLayoutSpec spec;
+  const KeyboardSection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final active = ref.watch(activeMidiNotesProvider);
+    final spec = ref.watch(layoutSpecProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
