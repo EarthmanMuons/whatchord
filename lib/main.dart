@@ -144,6 +144,17 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       setStatus(MidiConnectionStatus.error, message: message);
 }
 
+final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
+  ThemeModeNotifier.new,
+);
+
+class ThemeModeNotifier extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() => ThemeMode.system;
+
+  void setThemeMode(ThemeMode mode) => state = mode;
+}
+
 @immutable
 class ChordAnalysis {
   final String chordName;
@@ -269,12 +280,26 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+
     return MaterialApp(
       title: 'WhatChord',
       debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigo,
+          brightness: Brightness.light,
+        ),
       ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.indigo,
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: themeMode,
+
       home: const HomePage(),
     );
   }
@@ -676,12 +701,21 @@ class _MidiStatusDotState extends State<_MidiStatusDot>
   }
 }
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
+  String _themeModeLabel(ThemeMode mode) {
+    return switch (mode) {
+      ThemeMode.system => 'System',
+      ThemeMode.light => 'Light',
+      ThemeMode.dark => 'Dark',
+    };
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
+    final currentMode = ref.watch(themeModeProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -691,7 +725,26 @@ class SettingsPage extends StatelessWidget {
         scrolledUnderElevation: 0,
       ),
       body: ListView(
-        children: const [
+        children: [
+          ListTile(
+            title: Text('Theme'),
+            subtitle: Text(_themeModeLabel(currentMode)),
+            trailing: Icon(Icons.chevron_right),
+            onTap: () {
+              showModalBottomSheet<void>(
+                context: context,
+                showDragHandle: true,
+                builder: (context) => _ThemeModeSheet(
+                  selected: currentMode,
+                  onSelected: (mode) {
+                    ref.read(themeModeProvider.notifier).setThemeMode(mode);
+                    Navigator.of(context).pop();
+                  },
+                ),
+              );
+            },
+          ),
+          Divider(height: 1),
           ListTile(
             title: Text('MIDI input'),
             subtitle: Text('Not configured'),
@@ -710,6 +763,45 @@ class SettingsPage extends StatelessWidget {
             trailing: Icon(Icons.chevron_right),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ThemeModeSheet extends StatelessWidget {
+  const _ThemeModeSheet({required this.selected, required this.onSelected});
+
+  final ThemeMode selected;
+  final ValueChanged<ThemeMode> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: RadioGroup<ThemeMode>(
+        groupValue: selected,
+        onChanged: (ThemeMode? mode) {
+          if (mode != null) {
+            onSelected(mode);
+          }
+        },
+        child: ListView(
+          shrinkWrap: true,
+          children: const [
+            RadioListTile<ThemeMode>(
+              title: Text('System'),
+              subtitle: Text('Follow device setting'),
+              value: ThemeMode.system,
+            ),
+            RadioListTile<ThemeMode>(
+              title: Text('Light'),
+              value: ThemeMode.light,
+            ),
+            RadioListTile<ThemeMode>(
+              title: Text('Dark'),
+              value: ThemeMode.dark,
+            ),
+          ],
+        ),
       ),
     );
   }
