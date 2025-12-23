@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'features/piano/piano.dart';
@@ -128,7 +129,7 @@ final activeFunctionProvider = Provider<HarmonicFunction?>((ref) {
   return null;
 });
 
-void main() {
+void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -155,47 +156,92 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('WhatChord'),
-        backgroundColor: cs.surfaceContainerLow,
-        foregroundColor: cs.onSurface,
-        scrolledUnderElevation: 0,
-        actions: [
-          IconButton(
-            tooltip: 'Settings',
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Expandable analysis area (chips are no longer inside AnalysisSection).
-            const Expanded(child: AnalysisSection()),
-
-            // Bottom pinned cluster with safe bottom inset protection.
-            SafeArea(
-              top: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  NoteChipsArea(),
-                  KeyFunctionBarPlaceholder(),
-                  Divider(height: 1),
-                  KeyboardSection(),
-                ],
-              ),
+    return _SystemUiModeController(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('WhatChord'),
+          backgroundColor: cs.surfaceContainerLow,
+          foregroundColor: cs.onSurface,
+          scrolledUnderElevation: 0,
+          actions: [
+            IconButton(
+              tooltip: 'Settings',
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
+                );
+              },
             ),
           ],
         ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              const Expanded(child: AnalysisSection()),
+              SafeArea(
+                top: false,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    NoteChipsArea(),
+                    KeyFunctionBarPlaceholder(),
+                    Divider(height: 1),
+                    KeyboardSection(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
+  }
+}
+
+class _SystemUiModeController extends StatefulWidget {
+  const _SystemUiModeController({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_SystemUiModeController> createState() =>
+      _SystemUiModeControllerState();
+}
+
+class _SystemUiModeControllerState extends State<_SystemUiModeController>
+    with WidgetsBindingObserver {
+  Orientation? _lastOrientation;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateSystemUi();
+  }
+
+  void _updateSystemUi() {
+    final orientation = MediaQuery.of(context).orientation;
+
+    if (orientation == _lastOrientation) return;
+    _lastOrientation = orientation;
+
+    if (orientation == Orientation.landscape) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    } else {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
+  }
+
+  @override
+  void dispose() {
+    // Restore system UI when leaving the page.
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
 
