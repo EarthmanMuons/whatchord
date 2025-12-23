@@ -4,7 +4,7 @@ class PianoKeyboardPainter extends CustomPainter {
   PianoKeyboardPainter({
     required this.whiteKeyCount,
     required this.startMidiNote,
-    required this.activePitchClasses,
+    required this.activeMidiNotes,
     required this.whiteKeyColor,
     required this.whiteKeyActiveColor,
     required this.whiteKeyBorderColor,
@@ -15,13 +15,15 @@ class PianoKeyboardPainter extends CustomPainter {
     required this.debugLabelColor,
     this.drawBackground = true,
     this.drawFeltStrip = true,
-    this.feltColor = const Color(0xFF4A0E0E), // dark red "felt"
+    this.feltColor = const Color(0xFF800020),
     this.feltHeight = 2.0,
   });
 
   final int whiteKeyCount;
   final int startMidiNote;
-  final Set<int> activePitchClasses;
+
+  /// Active *MIDI note numbers* (e.g., 60 for middle C).
+  final Set<int> activeMidiNotes;
 
   final Color whiteKeyColor;
   final Color whiteKeyActiveColor;
@@ -33,24 +35,16 @@ class PianoKeyboardPainter extends CustomPainter {
   final bool showNoteDebugLabels;
   final Color debugLabelColor;
 
-  /// If true, paints a rectangular background behind keys.
   final bool drawBackground;
 
-  /// If true, paints a thin "felt" strip at the top edge.
   final bool drawFeltStrip;
-
-  /// Color of the felt strip (dark red by default).
   final Color feltColor;
-
-  /// Height in logical pixels of the felt strip.
   final double feltHeight;
 
-  // Geometry ratios (tune after you see it rendered).
-  static const double _blackKeyWidthRatio = 0.62; // relative to white width
-  static const double _blackKeyHeightRatio = 0.62; // relative to total height
+  static const double _blackKeyWidthRatio = 0.62;
+  static const double _blackKeyHeightRatio = 0.62;
 
   // Bias magnitudes as fractions of white key width.
-  // Upper group (C#/D#) should be subtler than lower group.
   static const double _smallBlackKeyBiasRatio = 0.10; // C#, D#
   static const double _largeBlackKeyBiasRatio = 0.16; // F#, A#
 
@@ -73,8 +67,6 @@ class PianoKeyboardPainter extends CustomPainter {
     _pcB,
   ];
 
-  // Black key exists after these white pitch classes: C, D, F, G, A
-  // No black key after E (E->F) and B (B->C).
   static bool _hasBlackAfterWhitePc(int whitePc) {
     return whitePc == _pcC ||
         whitePc == _pcD ||
@@ -94,14 +86,13 @@ class PianoKeyboardPainter extends CustomPainter {
     int midi = startMidiNote;
     for (int i = 0; i < whiteIndex; i++) {
       final pc = _whitePcForIndex(i);
-      // Diatonic white-step semitone distances.
       final step = (pc == _pcE || pc == _pcB) ? 1 : 2;
       midi += step;
     }
     return midi;
   }
 
-  bool _isActivePc(int pc) => activePitchClasses.contains(pc);
+  bool _isActiveMidi(int midi) => activeMidiNotes.contains(midi);
 
   double _blackCenterBiasForPc(int blackPc, double whiteKeyW) {
     switch (blackPc) {
@@ -109,12 +100,10 @@ class PianoKeyboardPainter extends CustomPainter {
         return -whiteKeyW * _smallBlackKeyBiasRatio;
       case 3: // D#
         return whiteKeyW * _smallBlackKeyBiasRatio;
-
       case 6: // F#
         return -whiteKeyW * _largeBlackKeyBiasRatio;
       case 10: // A#
         return whiteKeyW * _largeBlackKeyBiasRatio;
-
       case 8: // G#
       default:
         return 0.0;
@@ -125,19 +114,11 @@ class PianoKeyboardPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final w = size.width;
     final h = size.height;
-
     if (whiteKeyCount <= 0 || w <= 0 || h <= 0) return;
 
-    // Background (optional; useful to define bounds during layout tests).
     if (drawBackground) {
       final bgPaint = Paint()..color = backgroundColor;
       canvas.drawRect(Offset.zero & size, bgPaint);
-    }
-
-    // Felt strip at the very top edge (optional).
-    if (drawFeltStrip && feltHeight > 0) {
-      final feltPaint = Paint()..color = feltColor;
-      canvas.drawRect(Rect.fromLTWH(0, 0, w, feltHeight), feltPaint);
     }
 
     final whiteKeyW = w / whiteKeyCount;
@@ -145,19 +126,19 @@ class PianoKeyboardPainter extends CustomPainter {
     final blackKeyW = whiteKeyW * _blackKeyWidthRatio;
     final blackKeyH = whiteKeyH * _blackKeyHeightRatio;
 
-    // White keys: fill + border.
     final whiteFillPaint = Paint()..style = PaintingStyle.fill;
     final whiteBorderPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0
       ..color = whiteKeyBorderColor;
 
+    // White keys
     for (int i = 0; i < whiteKeyCount; i++) {
       final x = i * whiteKeyW;
       final rect = Rect.fromLTWH(x, 0, whiteKeyW, whiteKeyH);
 
-      final pc = _whitePcForIndex(i);
-      whiteFillPaint.color = _isActivePc(pc)
+      final midi = _whiteMidiForIndex(i);
+      whiteFillPaint.color = _isActiveMidi(midi)
           ? whiteKeyActiveColor
           : whiteKeyColor;
 
@@ -165,30 +146,35 @@ class PianoKeyboardPainter extends CustomPainter {
       canvas.drawRect(rect, whiteBorderPaint);
     }
 
-    // Black keys: draw on top.
-    // Important: no rounding; keep straight edges (especially at top).
+    // Black keys
     final blackFillPaint = Paint()..style = PaintingStyle.fill;
 
     for (int i = 0; i < whiteKeyCount - 1; i++) {
       final whitePc = _whitePcForIndex(i);
       if (!_hasBlackAfterWhitePc(whitePc)) continue;
 
-      final boundaryX = (i + 1) * whiteKeyW; // boundary between white i and i+1
-      final blackPc = (whitePc + 1) % 12;
+      final whiteMidi = _whiteMidiForIndex(i);
+      final blackMidi = whiteMidi + 1;
+      final blackPc = blackMidi % 12;
 
+      final boundaryX = (i + 1) * whiteKeyW;
       final centerX = boundaryX + _blackCenterBiasForPc(blackPc, whiteKeyW);
-      double blackLeft = centerX - (blackKeyW / 2.0);
 
-      // Clamp so we never paint outside the component.
+      double blackLeft = centerX - (blackKeyW / 2.0);
       blackLeft = blackLeft.clamp(0.0, w - blackKeyW);
 
       final rect = Rect.fromLTWH(blackLeft, 0, blackKeyW, blackKeyH);
 
-      blackFillPaint.color = _isActivePc(blackPc)
+      blackFillPaint.color = _isActiveMidi(blackMidi)
           ? blackKeyActiveColor
           : blackKeyColor;
-
       canvas.drawRect(rect, blackFillPaint);
+    }
+
+    // Felt strip LAST so it stays visible.
+    if (drawFeltStrip && feltHeight > 0) {
+      final feltPaint = Paint()..color = feltColor;
+      canvas.drawRect(Rect.fromLTWH(0, 0, w, feltHeight), feltPaint);
     }
 
     if (showNoteDebugLabels) {
@@ -204,50 +190,15 @@ class PianoKeyboardPainter extends CustomPainter {
 
     for (int i = 0; i < whiteKeyCount; i++) {
       final midi = _whiteMidiForIndex(i);
-      final pc = midi % 12;
-      final label = _pcName(pc);
-
       textPainter.text = TextSpan(
-        text: label,
+        text: midi.toString(),
         style: TextStyle(color: debugLabelColor, fontSize: 10),
       );
       textPainter.layout(minWidth: whiteKeyW, maxWidth: whiteKeyW);
-
-      final x = i * whiteKeyW;
-      final y = size.height - textPainter.height - 4;
-
-      textPainter.paint(canvas, Offset(x, y));
-    }
-  }
-
-  String _pcName(int pc) {
-    switch (pc) {
-      case 0:
-        return 'C';
-      case 1:
-        return 'C#';
-      case 2:
-        return 'D';
-      case 3:
-        return 'D#';
-      case 4:
-        return 'E';
-      case 5:
-        return 'F';
-      case 6:
-        return 'F#';
-      case 7:
-        return 'G';
-      case 8:
-        return 'G#';
-      case 9:
-        return 'A';
-      case 10:
-        return 'A#';
-      case 11:
-        return 'B';
-      default:
-        return '?';
+      textPainter.paint(
+        canvas,
+        Offset(i * whiteKeyW, size.height - textPainter.height - 4),
+      );
     }
   }
 
@@ -267,7 +218,7 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.blackKeyActiveColor != blackKeyActiveColor ||
         oldDelegate.showNoteDebugLabels != showNoteDebugLabels ||
         oldDelegate.debugLabelColor != debugLabelColor ||
-        !_setEquals(oldDelegate.activePitchClasses, activePitchClasses);
+        !_setEquals(oldDelegate.activeMidiNotes, activeMidiNotes);
   }
 
   bool _setEquals(Set<int> a, Set<int> b) {

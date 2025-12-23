@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'features/piano/piano.dart';
 
 @immutable
 class ChordAnalysis {
   final String chordName;
   final String? inversionLabel;
-  final List<String> noteNames;
 
-  const ChordAnalysis({
-    required this.chordName,
-    required this.inversionLabel,
-    required this.noteNames,
-  });
-
-  bool get hasNotes => noteNames.isNotEmpty;
+  const ChordAnalysis({required this.chordName, required this.inversionLabel});
 
   bool get hasInversion =>
       inversionLabel != null && inversionLabel!.trim().isNotEmpty;
@@ -26,16 +20,60 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   // return const ChordAnalysis(
   //   chordName: '— — —',
   //   inversionLabel: null,
-  //   noteNames: [],
   // );
 
   // "Active" state example:
   return const ChordAnalysis(
-    chordName: 'Cmaj7 / E',
+    chordName: 'Cmaj / E',
     inversionLabel: '1st inversion',
-    noteNames: ['E', 'G', 'B', 'C'],
   );
 });
+
+/// Stub data for UI layout work. Replace later with real MIDI input/provider output.
+final activeMidiNotesProvider = Provider<Set<int>>((ref) {
+  return <int>{64, 67, 72}; // E4 G4 C5
+});
+
+/// Derived note names for chips.
+/// For Phase 1, this is a simple mapping from active MIDI notes -> pitch-class names.
+/// TODO: Expand this for enharmonics, octave display, ordering rules, etc.
+final noteNamesProvider = Provider<List<String>>((ref) {
+  final activeMidi = ref.watch(activeMidiNotesProvider);
+
+  final sorted = activeMidi.toList()..sort();
+  return [for (final midi in sorted) _midiToNoteName(midi)];
+});
+
+String _midiToNoteName(int midiNote) {
+  switch (midiNote % 12) {
+    case 0:
+      return 'C';
+    case 1:
+      return 'C#';
+    case 2:
+      return 'D';
+    case 3:
+      return 'D#';
+    case 4:
+      return 'E';
+    case 5:
+      return 'F';
+    case 6:
+      return 'F#';
+    case 7:
+      return 'G';
+    case 8:
+      return 'G#';
+    case 9:
+      return 'A';
+    case 10:
+      return 'A#';
+    case 11:
+      return 'B';
+    default:
+      return '?';
+  }
+}
 
 @immutable
 class MusicalKey {
@@ -120,11 +158,9 @@ class HomePage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('WhatChord'),
-
         backgroundColor: cs.surfaceContainerLow,
         foregroundColor: cs.onSurface,
         scrolledUnderElevation: 0,
-
         actions: [
           IconButton(
             tooltip: 'Settings',
@@ -140,10 +176,22 @@ class HomePage extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            const AnalysisSection(),
-            const KeyFunctionBarPlaceholder(),
-            const Divider(height: 1),
-            const Expanded(child: KeyboardSection()),
+            // Expandable analysis area (chips are no longer inside AnalysisSection).
+            const Expanded(child: AnalysisSection()),
+
+            // Bottom pinned cluster with safe bottom inset protection.
+            SafeArea(
+              top: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  NoteChipsArea(),
+                  KeyFunctionBarPlaceholder(),
+                  Divider(height: 1),
+                  KeyboardSection(),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -203,6 +251,8 @@ class AnalysisSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          const Spacer(flex: 2),
+
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Center(
@@ -216,12 +266,7 @@ class AnalysisSection extends ConsumerWidget {
             ),
           ),
 
-          const SizedBox(height: 12),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: NoteChipsArea(noteNames: analysis.noteNames),
-          ),
+          const Spacer(flex: 3),
         ],
       ),
     );
@@ -298,57 +343,60 @@ class ChordIdentityCard extends StatelessWidget {
   }
 }
 
-class NoteChipsArea extends StatelessWidget {
-  final List<String> noteNames;
-
-  const NoteChipsArea({super.key, required this.noteNames});
+class NoteChipsArea extends ConsumerWidget {
+  const NoteChipsArea({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final noteNames = ref.watch(noteNamesProvider);
+
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
     // Reserve roughly one row worth of vertical space (prevents the keyboard from jumping).
     const minHeight = 44.0;
 
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: minHeight),
-      child: noteNames.isEmpty
-          ? Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Play notes…',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: cs.onSurfaceVariant,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: minHeight),
+        child: noteNames.isEmpty
+            ? Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Play notes…',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: cs.onSurfaceVariant,
+                  ),
+                ),
+              )
+            : Align(
+                alignment: Alignment.centerLeft,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final note in noteNames)
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: cs.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: cs.outlineVariant.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          child: Text(note, style: theme.textTheme.titleMedium),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-            )
-          : Align(
-              alignment: Alignment.centerLeft,
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final note in noteNames)
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: cs.surfaceContainerLow,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: cs.outlineVariant.withValues(alpha: 0.6),
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        child: Text(note, style: theme.textTheme.titleMedium),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+      ),
     );
   }
 }
@@ -508,26 +556,19 @@ class _HarmonicFunctionIndicator extends StatelessWidget {
   }
 }
 
-class KeyboardSection extends StatelessWidget {
+class KeyboardSection extends ConsumerWidget {
   const KeyboardSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Example: C major triad pitch classes: C (0), E (4), G (7)
-    const active = <int>{0, 4, 7};
+  Widget build(BuildContext context, WidgetRef ref) {
+    final active = ref.watch(activeMidiNotesProvider);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: const [
-        Divider(height: 1),
-        PianoKeyboard(
-          whiteKeyCount: 21,
-          startMidiNote: 48, // C3
-          activePitchClasses: active,
-          height: 180,
-          showNoteDebugLabels: false,
-        ),
-      ],
+    return PianoKeyboard(
+      whiteKeyCount: 21,
+      startMidiNote: 48, // C3
+      activeMidiNotes: active,
+      height: 150,
+      showNoteDebugLabels: false,
     );
   }
 }
