@@ -18,7 +18,6 @@ class WhatChordLayoutSpec {
   final double chordCardMaxWidth;
   final int topSpacerFlex;
   final int bottomSpacerFlex;
-  final bool compactChordCard;
 
   // Right-side controls (landscape)
   final EdgeInsets controlPanePadding;
@@ -38,7 +37,6 @@ class WhatChordLayoutSpec {
     required this.chordCardMaxWidth,
     required this.topSpacerFlex,
     required this.bottomSpacerFlex,
-    required this.compactChordCard,
     required this.controlPanePadding,
     required this.noteChipsPadding,
     required this.functionBarHeight,
@@ -60,7 +58,6 @@ class WhatChordLayoutSpec {
         chordCardMaxWidth: 520,
         topSpacerFlex: 1,
         bottomSpacerFlex: 1,
-        compactChordCard: false,
 
         controlPanePadding: EdgeInsets.fromLTRB(8, 12, 16, 12),
 
@@ -82,7 +79,6 @@ class WhatChordLayoutSpec {
       chordCardMaxWidth: 520,
       topSpacerFlex: 2,
       bottomSpacerFlex: 3,
-      compactChordCard: false,
 
       controlPanePadding: EdgeInsets.zero,
 
@@ -450,7 +446,6 @@ class AnalysisSection extends ConsumerWidget {
               child: ChordIdentityCard(
                 chordName: analysis.chordName,
                 inversionLabel: analysis.inversionLabel,
-                compact: spec.compactChordCard,
               ),
             ),
           ),
@@ -465,13 +460,11 @@ class AnalysisSection extends ConsumerWidget {
 class ChordIdentityCard extends StatelessWidget {
   final String chordName;
   final String? inversionLabel;
-  final bool compact;
 
   const ChordIdentityCard({
     super.key,
     required this.chordName,
     required this.inversionLabel,
-    required this.compact,
   });
 
   @override
@@ -482,24 +475,19 @@ class ChordIdentityCard extends StatelessWidget {
     final hasInversion =
         inversionLabel != null && inversionLabel!.trim().isNotEmpty;
 
-    final chordStyle =
-        (compact
-                ? theme.textTheme.headlineLarge
-                : theme.textTheme.displayMedium)!
-            .copyWith(
-              color: cs.onPrimary,
-              fontWeight: FontWeight.w600,
-              height: 1.0,
-            );
+    final chordStyle = theme.textTheme.displayMedium!.copyWith(
+      color: cs.onPrimary,
+      fontWeight: FontWeight.w600,
+      height: 1.0,
+    );
 
-    final inversionStyle =
-        (compact ? theme.textTheme.titleSmall : theme.textTheme.titleMedium)!
-            .copyWith(color: cs.onPrimary.withValues(alpha: 0.85), height: 1.1);
+    final inversionStyle = theme.textTheme.titleMedium!.copyWith(
+      color: cs.onPrimary.withValues(alpha: 0.85),
+      height: 1.1,
+    );
 
-    final minCardHeight = compact ? 96.0 : 124.0;
-    final padding = compact
-        ? const EdgeInsets.symmetric(horizontal: 18, vertical: 14)
-        : const EdgeInsets.symmetric(horizontal: 28, vertical: 18);
+    final minCardHeight = 124.0;
+    final padding = const EdgeInsets.symmetric(horizontal: 28, vertical: 18);
 
     return Card(
       elevation: 0,
@@ -516,10 +504,10 @@ class ChordIdentityCard extends StatelessWidget {
                       chordName,
                       textAlign: TextAlign.center,
                       style: chordStyle,
-                      maxLines: compact ? 1 : 2,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: compact ? 10 : 18),
+                    SizedBox(height: 18),
                     Text(
                       inversionLabel!,
                       textAlign: TextAlign.center,
