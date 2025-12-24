@@ -479,7 +479,17 @@ class HomePage extends ConsumerWidget {
             child: Scaffold(
               appBar: AppBar(
                 titleSpacing: spec.isLandscape ? 28 : null,
-                title: const Text('WhatChord'),
+                title: const Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(text: 'What'),
+                      TextSpan(
+                        text: 'Chord',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
                 backgroundColor: cs.surfaceContainerLow,
                 foregroundColor: cs.onSurface,
                 scrolledUnderElevation: 0,
