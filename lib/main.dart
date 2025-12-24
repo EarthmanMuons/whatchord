@@ -1384,6 +1384,7 @@ class KeyFunctionBarPlaceholder extends ConsumerWidget {
                     ),
                   );
                 },
+                icon: const Icon(Icons.music_note),
                 label: Text('Key: ${selectedKey.label}'),
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
