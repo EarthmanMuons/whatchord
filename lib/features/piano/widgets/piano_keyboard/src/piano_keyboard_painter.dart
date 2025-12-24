@@ -138,9 +138,9 @@ class PianoKeyboardPainter extends CustomPainter {
       final rect = Rect.fromLTWH(x, 0, whiteKeyW, whiteKeyH);
 
       final midi = _whiteMidiForIndex(i);
-      whiteFillPaint.color = _isActiveMidi(midi)
-          ? whiteKeyActiveColor
-          : whiteKeyColor;
+      final isActive = _isActiveMidi(midi);
+
+      whiteFillPaint.color = isActive ? whiteKeyActiveColor : whiteKeyColor;
 
       canvas.drawRect(rect, whiteFillPaint);
       canvas.drawRect(rect, whiteBorderPaint);
