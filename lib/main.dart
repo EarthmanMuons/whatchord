@@ -241,7 +241,7 @@ class ThemeModeNotifier extends Notifier<ThemeMode> {
 
 @immutable
 class ChordAnalysis {
-  final String chordName;
+  final ChordNameParts chordName;
   final String? inversionLabel;
 
   const ChordAnalysis({required this.chordName, required this.inversionLabel});
@@ -252,7 +252,7 @@ class ChordAnalysis {
 
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   return const ChordAnalysis(
-    chordName: 'Cmaj / E',
+    chordName: ChordNameParts(root: 'C', remainder: 'maj', slashBass: 'E'),
     inversionLabel: '1st inversion',
   );
 });
@@ -412,7 +412,7 @@ final activeFunctionProvider = Provider<HarmonicFunction?>((ref) {
   final analysis = ref.watch(chordAnalysisProvider);
 
   // Stub logic
-  if (analysis.chordName.startsWith(key.label)) {
+  if (analysis.chordName.toDisplayString().startsWith(key.label)) {
     return HarmonicFunction.one;
   }
   return null;
@@ -973,7 +973,7 @@ class AnalysisSection extends ConsumerWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: spec.chordCardMaxWidth),
               child: ChordIdentityCard(
-                chordName: analysis.chordName,
+                chord: analysis.chordName,
                 inversionLabel: analysis.inversionLabel,
               ),
             ),
@@ -986,13 +986,33 @@ class AnalysisSection extends ConsumerWidget {
   }
 }
 
+@immutable
+class ChordNameParts {
+  final String root; // e.g., "C", "F#", "Bb"
+  final String remainder; // e.g., "maj", "m7(b5)", "sus4", "" (optional)
+  final String? slashBass; // e.g., "E" in "Cmaj / E" (no leading " / ")
+
+  const ChordNameParts({
+    required this.root,
+    this.remainder = '',
+    this.slashBass,
+  });
+
+  bool get hasSlash => slashBass != null && slashBass!.trim().isNotEmpty;
+
+  String toDisplayString() {
+    final base = '$root$remainder';
+    return hasSlash ? '$base / ${slashBass!}' : base;
+  }
+}
+
 class ChordIdentityCard extends StatelessWidget {
-  final String chordName;
+  final ChordNameParts chord;
   final String? inversionLabel;
 
   const ChordIdentityCard({
     super.key,
-    required this.chordName,
+    required this.chord,
     required this.inversionLabel,
   });
 
@@ -1010,6 +1030,8 @@ class ChordIdentityCard extends StatelessWidget {
       height: 1.0,
     );
 
+    final rootStyle = chordStyle.copyWith(fontWeight: FontWeight.w900);
+
     final inversionStyle = theme.textTheme.titleMedium!.copyWith(
       color: cs.onPrimary.withValues(alpha: 0.85),
       height: 1.1,
@@ -1017,6 +1039,27 @@ class ChordIdentityCard extends StatelessWidget {
 
     final minCardHeight = 124.0;
     final padding = const EdgeInsets.symmetric(horizontal: 28, vertical: 18);
+
+    Widget chordText() {
+      final spans = <InlineSpan>[
+        TextSpan(text: chord.root, style: rootStyle),
+        if (chord.remainder.isNotEmpty) ...[
+          const TextSpan(text: '\u200A'), // hair space
+          TextSpan(text: chord.remainder),
+        ],
+        if (chord.hasSlash) ...[
+          const TextSpan(text: ' / '),
+          TextSpan(text: chord.slashBass),
+        ],
+      ];
+
+      return Text.rich(
+        TextSpan(style: chordStyle, children: spans),
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
 
     return Card(
       elevation: 0,
@@ -1029,14 +1072,8 @@ class ChordIdentityCard extends StatelessWidget {
               ? Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      chordName,
-                      textAlign: TextAlign.center,
-                      style: chordStyle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 18),
+                    chordText(),
+                    const SizedBox(height: 18),
                     Text(
                       inversionLabel!,
                       textAlign: TextAlign.center,
@@ -1046,13 +1083,7 @@ class ChordIdentityCard extends StatelessWidget {
                     ),
                   ],
                 )
-              : Center(
-                  child: Text(
-                    chordName,
-                    textAlign: TextAlign.center,
-                    style: chordStyle,
-                  ),
-                ),
+              : Center(child: chordText()),
         ),
       ),
     );
