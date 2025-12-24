@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'features/piano/piano.dart';
@@ -144,6 +145,89 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       setStatus(MidiConnectionStatus.error, message: message);
 }
 
+@immutable
+class MidiHoldState {
+  final Set<int> pressed; // keys physically down
+  final Set<int> sustained; // released while pedal is down
+  final bool sustainDown;
+
+  const MidiHoldState({
+    required this.pressed,
+    required this.sustained,
+    required this.sustainDown,
+  });
+
+  Set<int> get activeNotes => {...pressed, ...sustained};
+
+  MidiHoldState copyWith({
+    Set<int>? pressed,
+    Set<int>? sustained,
+    bool? sustainDown,
+  }) {
+    return MidiHoldState(
+      pressed: pressed ?? this.pressed,
+      sustained: sustained ?? this.sustained,
+      sustainDown: sustainDown ?? this.sustainDown,
+    );
+  }
+}
+
+final midiHoldProvider = NotifierProvider<MidiHoldNotifier, MidiHoldState>(
+  MidiHoldNotifier.new,
+);
+
+class MidiHoldNotifier extends Notifier<MidiHoldState> {
+  @override
+  MidiHoldState build() {
+    // Stub defaults for UI testing; replace as you wire in real MIDI.
+    return MidiHoldState(
+      pressed: <int>{64, 67, 72}, // E4 G4 C5
+      sustained: <int>{64},
+      sustainDown: true,
+    );
+  }
+
+  // Call from MIDI Note On
+  void noteOn(int midiNote) {
+    final nextPressed = {...state.pressed, midiNote};
+
+    // If a sustained note is re-pressed, it should no longer be “sustained”.
+    final nextSustained = {...state.sustained}..remove(midiNote);
+
+    state = state.copyWith(pressed: nextPressed, sustained: nextSustained);
+  }
+
+  // Call from MIDI Note Off
+  void noteOff(int midiNote) {
+    if (!state.pressed.contains(midiNote)) return;
+
+    final nextPressed = {...state.pressed}..remove(midiNote);
+
+    if (state.sustainDown) {
+      final nextSustained = {...state.sustained, midiNote};
+      state = state.copyWith(pressed: nextPressed, sustained: nextSustained);
+    } else {
+      state = state.copyWith(pressed: nextPressed);
+    }
+  }
+
+  // Call from MIDI CC64 (sustain)
+  // Conventional threshold: >= 64 is down, < 64 is up.
+  void setSustainDown(bool down) {
+    if (down == state.sustainDown) return;
+
+    if (!down) {
+      // Pedal released: all pedal-held notes stop sounding.
+      state = state.copyWith(sustainDown: false, sustained: <int>{});
+    } else {
+      state = state.copyWith(sustainDown: true);
+    }
+  }
+
+  // Convenience for CC64 values.
+  void handleSustainValue(int value) => setSustainDown(value >= 64);
+}
+
 final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
   ThemeModeNotifier.new,
 );
@@ -175,7 +259,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
 
 /// Stub data for UI layout work. Replace later with real MIDI input/provider output.
 final activeMidiNotesProvider = Provider<Set<int>>((ref) {
-  return <int>{64, 67, 72}; // E4 G4 C5
+  return ref.watch(midiHoldProvider.select((s) => s.activeNotes));
 });
 
 /// Derived note names for chips.
@@ -217,6 +301,69 @@ String _midiToNoteName(int midiNote) {
       return '?';
   }
 }
+
+enum NoteChipKind { sustainIndicator, note }
+
+enum NoteChipHold { pressed, sustained }
+
+@immutable
+class NoteChipModel {
+  final String id; // stable identity for diff/animations
+  final NoteChipKind kind;
+  final String label; // note name or empty for sustain
+  final NoteChipHold? hold; // null for sustain indicator
+
+  const NoteChipModel._({
+    required this.id,
+    required this.kind,
+    required this.label,
+    required this.hold,
+  });
+
+  const NoteChipModel.sustain()
+    : this._(
+        id: 'sustain',
+        kind: NoteChipKind.sustainIndicator,
+        label: '',
+        hold: null,
+      );
+
+  factory NoteChipModel.note({
+    required int midiNote,
+    required String label,
+    required NoteChipHold hold,
+  }) {
+    return NoteChipModel._(
+      id: 'note_$midiNote',
+      kind: NoteChipKind.note,
+      label: label,
+      hold: hold,
+    );
+  }
+}
+
+final noteChipModelsProvider = Provider<List<NoteChipModel>>((ref) {
+  final hold = ref.watch(midiHoldProvider);
+
+  final models = <NoteChipModel>[];
+  if (hold.sustainDown) {
+    models.add(const NoteChipModel.sustain());
+  }
+
+  final activeSorted = hold.activeNotes.toList()..sort();
+  for (final midi in activeSorted) {
+    final isPressed = hold.pressed.contains(midi);
+    models.add(
+      NoteChipModel.note(
+        midiNote: midi,
+        label: _midiToNoteName(midi),
+        hold: isPressed ? NoteChipHold.pressed : NoteChipHold.sustained,
+      ),
+    );
+  }
+
+  return models;
+});
 
 @immutable
 class MusicalKey {
@@ -912,24 +1059,95 @@ class ChordIdentityCard extends StatelessWidget {
   }
 }
 
-class NoteChipsArea extends ConsumerWidget {
+class NoteChipsArea extends ConsumerStatefulWidget {
   const NoteChipsArea({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final noteNames = ref.watch(noteNamesProvider);
+  ConsumerState<NoteChipsArea> createState() => _NoteChipsAreaState();
+}
+
+class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
+  final _listKey = GlobalKey<AnimatedListState>();
+
+  late List<NoteChipModel> _items;
+  ProviderSubscription<List<NoteChipModel>>? _sub;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _items = ref.read(noteChipModelsProvider);
+
+    _sub = ref.listenManual<List<NoteChipModel>>(noteChipModelsProvider, (
+      prev,
+      next,
+    ) {
+      if (!mounted) return;
+      _applyDiff(next);
+    });
+  }
+
+  @override
+  void dispose() {
+    _sub?.close();
+    super.dispose();
+  }
+
+  void _applyDiff(List<NoteChipModel> next) {
+    final currentIds = _items.map((e) => e.id).toList();
+    final nextIds = next.map((e) => e.id).toList();
+
+    // 1) Remove items that no longer exist (reverse order keeps indices valid).
+    for (int i = _items.length - 1; i >= 0; i--) {
+      final id = _items[i].id;
+      if (!nextIds.contains(id)) {
+        final removed = _items.removeAt(i);
+        _listKey.currentState?.removeItem(
+          i,
+          (context, animation) => _buildAnimatedChip(removed, animation),
+          duration: const Duration(milliseconds: 120),
+        );
+      }
+    }
+
+    // 2) Insert new items in forward order at their target indices.
+    for (int i = 0; i < next.length; i++) {
+      final id = next[i].id;
+      if (!currentIds.contains(id)) {
+        _items.insert(i, next[i]);
+        _listKey.currentState?.insertItem(
+          i,
+          duration: const Duration(milliseconds: 140),
+        );
+      }
+    }
+
+    // 3) Update existing items (pressed <-> sustained transitions, etc.).
+    // Ensure _items matches next order/content.
+    // Our order is stable (sustain at 0 + ascending MIDI), so this is safe.
+    setState(() {
+      _items = next;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final spec = ref.watch(layoutSpecProvider);
+    final models = ref.watch(noteChipModelsProvider);
+    final hold = ref.watch(midiHoldProvider);
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
     const minHeight = 44.0;
 
+    final showPrompt = models.isEmpty && !hold.sustainDown;
+
     return Padding(
       padding: spec.noteChipsPadding,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: minHeight),
-        child: noteNames.isEmpty
+        child: showPrompt
             ? Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -939,33 +1157,165 @@ class NoteChipsArea extends ConsumerWidget {
                   ),
                 ),
               )
-            : Align(
-                alignment: Alignment.centerLeft,
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    for (final note in noteNames)
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: cs.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: cs.outlineVariant.withValues(alpha: 0.6),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 6,
-                          ),
-                          child: Text(note, style: theme.textTheme.titleMedium),
-                        ),
-                      ),
-                  ],
+            : SizedBox(
+                height: minHeight,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: SizedBox(
+                    height: minHeight,
+                    child: AnimatedList(
+                      key: _listKey,
+                      initialItemCount: _items.length,
+                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: true,
+                      physics: const BouncingScrollPhysics(),
+                      itemBuilder: (context, index, animation) {
+                        final model = _items[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: _buildAnimatedChip(model, animation),
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ),
       ),
+    );
+  }
+
+  Widget _buildAnimatedChip(NoteChipModel model, Animation<double> animation) {
+    // Use a SizeTransition for smooth insertion/removal, plus a slight slide/fade.
+    final curved = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOutCubic,
+    );
+
+    final slideFrom = model.kind == NoteChipKind.sustainIndicator
+        ? const Offset(-0.20, 0) // sustain pill slides in from left
+        : const Offset(0.0, 0); // notes just fade/size in
+
+    return SizeTransition(
+      sizeFactor: curved,
+      axis: Axis.horizontal,
+      child: FadeTransition(
+        opacity: curved,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: slideFrom,
+            end: Offset.zero,
+          ).animate(curved),
+          child: _NoteChip(model: model),
+        ),
+      ),
+    );
+  }
+}
+
+class SustainPedalMark extends StatelessWidget {
+  const SustainPedalMark({super.key});
+
+  static const double slotWidth = 36;
+  static const double glyphSize = 32;
+  static const Offset opticalOffset = Offset(0, -3);
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return IgnorePointer(
+      child: Semantics(
+        label: 'Sustain pedal held',
+        child: Tooltip(
+          message: 'Sustain pedal held',
+          child: SizedBox(
+            width: slotWidth,
+            height: double.infinity,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Transform.translate(
+                offset: opticalOffset,
+                child: SvgPicture.asset(
+                  'assets/glyphs/keyboard_pedal_ped.svg',
+                  width: glyphSize,
+                  height: glyphSize,
+                  alignment: Alignment.centerLeft,
+                  colorFilter: ColorFilter.mode(
+                    cs.onSurfaceVariant,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NoteChip extends ConsumerWidget {
+  const _NoteChip({required this.model});
+
+  final NoteChipModel model;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    if (model.kind == NoteChipKind.sustainIndicator) {
+      return const SustainPedalMark();
+    }
+
+    final hold = ref.watch(midiHoldProvider);
+    final sustainDown = hold.sustainDown;
+
+    final isSustainedNote =
+        model.kind == NoteChipKind.note && model.hold == NoteChipHold.sustained;
+
+    final bgColor = model.kind == NoteChipKind.sustainIndicator
+        ? Colors.transparent
+        : cs.surfaceContainerLow;
+
+    final fgColor = model.kind == NoteChipKind.sustainIndicator
+        ? cs.onSurfaceVariant
+        : cs.onSurface;
+
+    // Slightly darken all note borders when sustain is down,
+    // and darken further (or thicken) for sustained notes.
+    final borderColor = model.kind == NoteChipKind.sustainIndicator
+        ? cs.outlineVariant
+        : (isSustainedNote
+              ? cs.outlineVariant.withValues(alpha: 0.92)
+              : cs.outlineVariant.withValues(alpha: sustainDown ? 0.78 : 0.60));
+
+    final borderWidth = isSustainedNote ? 1.6 : 1.0;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 120),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: borderColor, width: borderWidth),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      child: model.kind == NoteChipKind.sustainIndicator
+          ? Tooltip(
+              message: 'Sustain pedal held',
+              child: Semantics(
+                label: 'Sustain pedal held',
+                child: Icon(
+                  Icons.keyboard_double_arrow_down_rounded,
+                  size: 18,
+                  color: fgColor,
+                ),
+              ),
+            )
+          : Text(
+              model.label,
+              style: theme.textTheme.titleMedium?.copyWith(color: fgColor),
+            ),
     );
   }
 }
