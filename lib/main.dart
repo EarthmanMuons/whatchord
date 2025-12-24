@@ -540,7 +540,7 @@ class _HomePortrait extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const NoteChipsArea(),
-              KeyFunctionBarPlaceholder(height: spec.functionBarHeight),
+              KeyFunctionBar(height: spec.functionBarHeight),
               const Divider(height: 1),
               const KeyboardSection(),
             ],
@@ -586,7 +586,7 @@ class _HomeLandscape extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              KeyFunctionBarPlaceholder(height: spec.functionBarHeight),
+              KeyFunctionBar(height: spec.functionBarHeight),
               const Divider(height: 1),
               const KeyboardSection(),
             ],
@@ -1361,8 +1361,8 @@ class _NoteChip extends ConsumerWidget {
   }
 }
 
-class KeyFunctionBarPlaceholder extends ConsumerWidget {
-  const KeyFunctionBarPlaceholder({super.key, required this.height});
+class KeyFunctionBar extends ConsumerWidget {
+  const KeyFunctionBar({super.key, required this.height});
 
   final double height;
 
