@@ -624,9 +624,10 @@ class _HomePortrait extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final spec = ref.watch(layoutSpecProvider);
+
     return Column(
       children: [
-        const Expanded(child: AnalysisSection()),
+        const Flexible(fit: FlexFit.loose, child: AnalysisSection()),
 
         SafeArea(
           top: false,
@@ -653,13 +654,12 @@ class _HomeLandscape extends ConsumerWidget {
     final spec = ref.watch(layoutSpecProvider);
     return Column(
       children: [
-        // Top region: split between chord card (left) and note chips (right).
-        Expanded(
+        Flexible(
+          fit: FlexFit.loose,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Expanded(flex: 6, child: AnalysisSection()),
-
               Expanded(
                 flex: 7,
                 child: Padding(
@@ -674,7 +674,6 @@ class _HomeLandscape extends ConsumerWidget {
           ),
         ),
 
-        // Bottom region: full-width function bar + keyboard.
         SafeArea(
           top: false,
           child: Column(
@@ -1476,24 +1475,32 @@ class KeyFunctionBar extends ConsumerWidget {
             children: [
               FilledButton.tonalIcon(
                 onPressed: () async {
-                  Future<void> openSheet() async {
-                    final spec = ref.read(layoutSpecProvider);
+                  final navigator = Navigator.of(context, rootNavigator: true);
+                  final container = ProviderScope.containerOf(context);
 
-                    final result = await showModalBottomSheet<Object?>(
-                      context: context,
-                      showDragHandle: true,
-                      isScrollControlled: spec.isLandscape,
-                      builder: (context) =>
-                          const _KeyPickerSheet(closeOnSelect: false),
+                  while (navigator.mounted) {
+                    final spec = container.read(layoutSpecProvider);
+
+                    final result = await navigator.push<Object?>(
+                      ModalBottomSheetRoute(
+                        builder: (context) => _KeyPickerSheet(
+                          closeOnSelect: false,
+                          initialIsLandscape: spec.isLandscape,
+                        ),
+                        isScrollControlled: spec.isLandscape,
+                        showDragHandle: true,
+                      ),
                     );
 
-                    if (result == _KeyPickerSheetResult.reopen &&
-                        context.mounted) {
-                      await openSheet();
-                    }
-                  }
+                    if (!navigator.mounted) return;
 
-                  await openSheet();
+                    if (result != _KeyPickerSheetResult.reopen) {
+                      return;
+                    }
+
+                    // Yield to avoid reopening in the same frame as pop.
+                    await Future<void>.delayed(Duration.zero);
+                  }
                 },
                 icon: const Icon(Icons.music_note),
                 label: Text('Key: ${selectedKey.longLabel}'),
@@ -1525,9 +1532,11 @@ enum _KeyPickerSheetResult { reopen }
 
 class _KeyPickerSheet extends ConsumerStatefulWidget {
   final bool closeOnSelect;
+  final bool initialIsLandscape;
 
   const _KeyPickerSheet({
-    this.closeOnSelect = false, // recommended default
+    required this.initialIsLandscape,
+    this.closeOnSelect = false,
   });
 
   @override
@@ -1558,13 +1567,12 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
       _centerSelectedRow();
     });
 
-    // NEW: if orientation changes while open, request reopen.
     _layoutSub = ref.listenManual<WhatChordLayoutSpec>(layoutSpecProvider, (
       prev,
       next,
     ) {
       if (prev == null) return;
-      if (prev.isLandscape != next.isLandscape) {
+      if (next.isLandscape != widget.initialIsLandscape) {
         if (Navigator.of(context).canPop()) {
           Navigator.of(context).pop(_KeyPickerSheetResult.reopen);
         }
