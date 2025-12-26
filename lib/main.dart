@@ -6,9 +6,19 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'features/piano/piano.dart';
 
-final layoutSpecProvider = Provider<WhatChordLayoutSpec>((ref) {
-  throw UnimplementedError('layoutSpecProvider must be overridden');
-});
+final layoutSpecProvider =
+    NotifierProvider<LayoutSpecNotifier, WhatChordLayoutSpec>(
+      LayoutSpecNotifier.new,
+    );
+
+class LayoutSpecNotifier extends Notifier<WhatChordLayoutSpec> {
+  @override
+  WhatChordLayoutSpec build() => WhatChordLayoutSpec.fallback;
+
+  void setSpec(WhatChordLayoutSpec spec) {
+    if (state != spec) state = spec;
+  }
+}
 
 @immutable
 class WhatChordLayoutSpec {
@@ -48,6 +58,22 @@ class WhatChordLayoutSpec {
     required this.functionBarHeight,
   });
 
+  /// Safe default used before MediaQuery is available.
+  /// Choose portrait defaults since they’re most conservative.
+  static const WhatChordLayoutSpec fallback = WhatChordLayoutSpec(
+    isLandscape: false,
+    whiteKeyCount: 21,
+    whiteKeyAspectRatio: 7.0,
+    startMidiNote: 48, // C3
+    analysisPadding: EdgeInsets.fromLTRB(16, 16, 16, 16),
+    chordCardMaxWidth: 520,
+    topSpacerFlex: 2,
+    bottomSpacerFlex: 3,
+    controlPanePadding: EdgeInsets.zero,
+    noteChipsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    functionBarHeight: 56,
+  );
+
   static WhatChordLayoutSpec from(BuildContext context) {
     final mq = MediaQuery.of(context);
     final isLandscape = mq.orientation == Orientation.landscape;
@@ -60,6 +86,7 @@ class WhatChordLayoutSpec {
         whiteKeyCount: 52,
         whiteKeyAspectRatio: 7.0,
         startMidiNote: 21, // A0
+
         analysisPadding: EdgeInsets.fromLTRB(16, 16, 8, 16),
         chordCardMaxWidth: 520,
         topSpacerFlex: 1,
@@ -79,6 +106,7 @@ class WhatChordLayoutSpec {
       isLandscape: false,
 
       whiteKeyCount: 21,
+      whiteKeyAspectRatio: 7.0,
       startMidiNote: 48, // C3
 
       analysisPadding: EdgeInsets.fromLTRB(16, 16, 16, 16),
@@ -93,6 +121,38 @@ class WhatChordLayoutSpec {
       functionBarHeight: 56,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other is WhatChordLayoutSpec &&
+            other.isLandscape == isLandscape &&
+            other.whiteKeyCount == whiteKeyCount &&
+            other.whiteKeyAspectRatio == whiteKeyAspectRatio &&
+            other.startMidiNote == startMidiNote &&
+            other.analysisPadding == analysisPadding &&
+            other.chordCardMaxWidth == chordCardMaxWidth &&
+            other.topSpacerFlex == topSpacerFlex &&
+            other.bottomSpacerFlex == bottomSpacerFlex &&
+            other.controlPanePadding == controlPanePadding &&
+            other.noteChipsPadding == noteChipsPadding &&
+            other.functionBarHeight == functionBarHeight);
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    isLandscape,
+    whiteKeyCount,
+    whiteKeyAspectRatio,
+    startMidiNote,
+    analysisPadding,
+    chordCardMaxWidth,
+    topSpacerFlex,
+    bottomSpacerFlex,
+    controlPanePadding,
+    noteChipsPadding,
+    functionBarHeight,
+  );
 }
 
 enum MidiConnectionStatus { disconnected, connecting, connected, error }
@@ -434,6 +494,23 @@ final activeFunctionProvider = Provider<HarmonicFunction?>((ref) {
   return null;
 });
 
+class _LayoutSpecSynchronizer extends ConsumerWidget {
+  final Widget child;
+
+  const _LayoutSpecSynchronizer({required this.child});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final spec = WhatChordLayoutSpec.from(context);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(layoutSpecProvider.notifier).setSpec(spec);
+    });
+
+    return child;
+  }
+}
+
 void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -463,6 +540,10 @@ class MyApp extends ConsumerWidget {
       ),
       themeMode: themeMode,
 
+      builder: (context, child) {
+        return _LayoutSpecSynchronizer(child: child ?? const SizedBox.shrink());
+      },
+
       home: const HomePage(),
     );
   }
@@ -473,11 +554,11 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final spec = ref.watch(layoutSpecProvider);
     final cs = Theme.of(context).colorScheme;
-    final spec = WhatChordLayoutSpec.from(context);
 
-    // Optional: ignore left/right cutout safe-area insets in landscape so the UI
-    // can span the full width (e.g., camera hole area).
+    // ignore left/right cutout safe-area insets in landscape so the UI can span
+    // the full width (e.g., camera hole area).
     final mq = MediaQuery.of(context);
     final mqFullWidth = spec.isLandscape
         ? mq.copyWith(
@@ -486,52 +567,49 @@ class HomePage extends ConsumerWidget {
           )
         : mq;
 
-    return ProviderScope(
-      overrides: [layoutSpecProvider.overrideWithValue(spec)],
-      child: MediaQuery(
-        data: mqFullWidth,
-        child: _SystemUiModeController(
-          child: _WakelockMidiGate(
-            child: Scaffold(
-              appBar: AppBar(
-                titleSpacing: spec.isLandscape ? 28 : null,
-                title: const Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(text: 'What'),
-                      TextSpan(
-                        text: 'Chord',
-                        style: TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ],
+    return MediaQuery(
+      data: mqFullWidth,
+      child: _SystemUiModeController(
+        child: _WakelockMidiGate(
+          child: Scaffold(
+            appBar: AppBar(
+              titleSpacing: spec.isLandscape ? 28 : null,
+              title: const Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(text: 'What'),
+                    TextSpan(
+                      text: 'Chord',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              backgroundColor: cs.surfaceContainerLow,
+              foregroundColor: cs.onSurface,
+              scrolledUnderElevation: 0,
+              actions: [
+                const MidiStatusPill(),
+                Padding(
+                  padding: EdgeInsets.only(right: spec.isLandscape ? 12 : 0),
+                  child: IconButton(
+                    tooltip: 'Settings',
+                    icon: const Icon(Icons.settings),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const SettingsPage(),
+                        ),
+                      );
+                    },
                   ),
                 ),
-                backgroundColor: cs.surfaceContainerLow,
-                foregroundColor: cs.onSurface,
-                scrolledUnderElevation: 0,
-                actions: [
-                  const MidiStatusPill(),
-                  Padding(
-                    padding: EdgeInsets.only(right: spec.isLandscape ? 12 : 0),
-                    child: IconButton(
-                      tooltip: 'Settings',
-                      icon: const Icon(Icons.settings),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => const SettingsPage(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              body: SafeArea(
-                child: spec.isLandscape
-                    ? const _HomeLandscape()
-                    : const _HomePortrait(),
-              ),
+              ],
+            ),
+            body: SafeArea(
+              child: spec.isLandscape
+                  ? const _HomeLandscape()
+                  : const _HomePortrait(),
             ),
           ),
         ),
@@ -1397,13 +1475,25 @@ class KeyFunctionBar extends ConsumerWidget {
           child: Row(
             children: [
               FilledButton.tonalIcon(
-                onPressed: () {
-                  showModalBottomSheet<void>(
-                    context: context,
-                    showDragHandle: true,
-                    builder: (context) =>
-                        const _KeyPickerSheet(closeOnSelect: false),
-                  );
+                onPressed: () async {
+                  Future<void> openSheet() async {
+                    final spec = ref.read(layoutSpecProvider);
+
+                    final result = await showModalBottomSheet<Object?>(
+                      context: context,
+                      showDragHandle: true,
+                      isScrollControlled: spec.isLandscape,
+                      builder: (context) =>
+                          const _KeyPickerSheet(closeOnSelect: false),
+                    );
+
+                    if (result == _KeyPickerSheetResult.reopen &&
+                        context.mounted) {
+                      await openSheet();
+                    }
+                  }
+
+                  await openSheet();
                 },
                 icon: const Icon(Icons.music_note),
                 label: Text('Key: ${selectedKey.longLabel}'),
@@ -1431,6 +1521,8 @@ class KeyFunctionBar extends ConsumerWidget {
   }
 }
 
+enum _KeyPickerSheetResult { reopen }
+
 class _KeyPickerSheet extends ConsumerStatefulWidget {
   final bool closeOnSelect;
 
@@ -1452,18 +1544,31 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
   late final ScrollController _controller;
   late final List<KeySignatureRow> _rows;
 
+  ProviderSubscription<WhatChordLayoutSpec>? _layoutSub;
+
   @override
   void initState() {
     super.initState();
 
     _rows = _buildOrderedRows();
-
-    // Initial offset is approximate; we’ll center after the first frame.
     _controller = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _centerSelectedRow();
+    });
+
+    // NEW: if orientation changes while open, request reopen.
+    _layoutSub = ref.listenManual<WhatChordLayoutSpec>(layoutSpecProvider, (
+      prev,
+      next,
+    ) {
+      if (prev == null) return;
+      if (prev.isLandscape != next.isLandscape) {
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop(_KeyPickerSheetResult.reopen);
+        }
+      }
     });
   }
 
@@ -1510,6 +1615,7 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
 
   @override
   void dispose() {
+    _layoutSub?.close();
     _controller.dispose();
     super.dispose();
   }
@@ -1517,6 +1623,7 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final selected = ref.watch(selectedKeyProvider);
+    final spec = ref.watch(layoutSpecProvider);
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -1526,86 +1633,103 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
       cs.surface,
     );
 
-    return SafeArea(
-      child: CustomScrollView(
-        controller: _controller,
-        slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _KeyPickerHeaderDelegate(
-              extent: _headerExtent,
-              chipWidth: _chipWidth,
+    final mq = MediaQuery.of(context);
+
+    final mqSheet = spec.isLandscape
+        ? mq.copyWith(
+            padding: mq.padding.copyWith(left: 0, right: 0),
+            viewPadding: mq.viewPadding.copyWith(left: 0, right: 0),
+          )
+        : mq;
+
+    return MediaQuery(
+      data: mqSheet,
+      child: SafeArea(
+        // Also safe: explicitly disable left/right safe area in landscape.
+        left: !spec.isLandscape,
+        right: !spec.isLandscape,
+        child: CustomScrollView(
+          controller: _controller,
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _KeyPickerHeaderDelegate(
+                extent: _headerExtent,
+                chipWidth: _chipWidth,
+                brightness: cs.brightness,
+                backgroundColor: cs.surfaceContainerLow,
+              ),
             ),
-          ),
-          SliverFixedExtentList(
-            itemExtent: _rowExtent,
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final row = _rows[index % _rows.length];
-              final major = row.relativeMajor;
-              final minor = row.relativeMinor;
+            SliverFixedExtentList(
+              itemExtent: _rowExtent,
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final row = _rows[index % _rows.length];
+                final major = row.relativeMajor;
+                final minor = row.relativeMinor;
 
-              final rowSelected = selected == major || selected == minor;
-              final majorSelected = selected == major;
-              final minorSelected = selected == minor;
+                final rowSelected = selected == major || selected == minor;
+                final majorSelected = selected == major;
+                final minorSelected = selected == minor;
 
-              return DecoratedBox(
-                decoration: BoxDecoration(
-                  color: rowSelected ? selectedRowBg : Colors.transparent,
-                ),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                row.signatureLabel,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: cs.onSurfaceVariant,
+                return DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: rowSelected ? selectedRowBg : Colors.transparent,
+                  ),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  row.signatureLabel,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: cs.onSurfaceVariant,
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              width: _chipWidth,
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: _KeyChoiceChip(
-                                  label: major.label,
-                                  selected: majorSelected,
-                                  onTap: () => _selectKey(major),
+                              SizedBox(
+                                width: _chipWidth,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: _KeyChoiceChip(
+                                    label: major.label,
+                                    selected: majorSelected,
+                                    onTap: () => _selectKey(major),
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            SizedBox(
-                              width: _chipWidth,
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: _KeyChoiceChip(
-                                  label: minor.label,
-                                  selected: minorSelected,
-                                  onTap: () => _selectKey(minor),
+                              const SizedBox(width: 12),
+                              SizedBox(
+                                width: _chipWidth,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: _KeyChoiceChip(
+                                    label: minor.label,
+                                    selected: minorSelected,
+                                    onTap: () => _selectKey(minor),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Divider(height: 1),
-                    ),
-                  ],
-                ),
-              );
-            }, childCount: _rows.length * _loopMultiplier),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 12)),
-        ],
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Divider(height: 1),
+                      ),
+                    ],
+                  ),
+                );
+              }, childCount: _rows.length * _loopMultiplier),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 12)),
+          ],
+        ),
       ),
     );
   }
@@ -1672,10 +1796,14 @@ class _KeyChoiceChip extends StatelessWidget {
 class _KeyPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double extent;
   final double chipWidth;
+  final Brightness brightness;
+  final Color backgroundColor;
 
   const _KeyPickerHeaderDelegate({
     required this.extent,
     required this.chipWidth,
+    required this.brightness,
+    required this.backgroundColor,
   });
 
   @override
@@ -1693,15 +1821,13 @@ class _KeyPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final bg = cs.surface.withValues(alpha: overlapsContent ? 0.98 : 0.94);
-
     final headerStyle = theme.textTheme.titleMedium?.copyWith(
       fontWeight: FontWeight.w600,
       color: cs.onSurface,
     );
 
     return Material(
-      color: bg,
+      color: backgroundColor, // opaque, theme-derived
       child: Column(
         children: [
           Expanded(
@@ -1742,7 +1868,10 @@ class _KeyPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(covariant _KeyPickerHeaderDelegate oldDelegate) {
-    return oldDelegate.extent != extent || oldDelegate.chipWidth != chipWidth;
+    return oldDelegate.extent != extent ||
+        oldDelegate.chipWidth != chipWidth ||
+        oldDelegate.brightness != brightness ||
+        oldDelegate.backgroundColor != backgroundColor;
   }
 }
 
