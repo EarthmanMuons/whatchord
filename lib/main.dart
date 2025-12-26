@@ -365,22 +365,38 @@ final noteChipModelsProvider = Provider<List<NoteChipModel>>((ref) {
   return models;
 });
 
+enum KeyMode { major, minor }
+
 @immutable
 class MusicalKey {
-  final String label;
+  final String tonic; // e.g. "C", "F#", "Bb"
+  final KeyMode mode;
 
-  const MusicalKey._(this.label);
+  const MusicalKey(this.tonic, this.mode);
 
-  static const c = MusicalKey._('C');
-  static const g = MusicalKey._('G');
-  static const d = MusicalKey._('D');
-  static const a = MusicalKey._('A');
-  static const e = MusicalKey._('E');
+  bool get isMajor => mode == KeyMode.major;
+  bool get isMinor => mode == KeyMode.minor;
 
-  static const values = <MusicalKey>[c, g, d, a, e];
+  /// Display label for the button and chips.
+  /// Matches your sketch convention: majors uppercase-ish, minors lowercase-ish.
+  String get label => isMajor ? tonic : tonic.toLowerCase();
+
+  String get longLabel =>
+      isMajor ? '$tonic major' : '${tonic.toLowerCase()} minor';
 
   @override
-  String toString() => label;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MusicalKey &&
+          runtimeType == other.runtimeType &&
+          tonic == other.tonic &&
+          mode == other.mode;
+
+  @override
+  int get hashCode => Object.hash(tonic, mode);
+
+  @override
+  String toString() => longLabel;
 }
 
 final selectedKeyProvider = NotifierProvider<SelectedKeyNotifier, MusicalKey>(
@@ -389,7 +405,7 @@ final selectedKeyProvider = NotifierProvider<SelectedKeyNotifier, MusicalKey>(
 
 class SelectedKeyNotifier extends Notifier<MusicalKey> {
   @override
-  MusicalKey build() => MusicalKey.c;
+  MusicalKey build() => const MusicalKey('C', KeyMode.major);
 
   void setKey(MusicalKey key) => state = key;
 }
@@ -1385,17 +1401,12 @@ class KeyFunctionBar extends ConsumerWidget {
                   showModalBottomSheet<void>(
                     context: context,
                     showDragHandle: true,
-                    builder: (context) => _KeyPickerSheet(
-                      selected: selectedKey,
-                      onSelected: (key) {
-                        ref.read(selectedKeyProvider.notifier).setKey(key);
-                        Navigator.of(context).pop();
-                      },
-                    ),
+                    builder: (context) =>
+                        const _KeyPickerSheet(closeOnSelect: false),
                   );
                 },
                 icon: const Icon(Icons.music_note),
-                label: Text('Key: ${selectedKey.label}'),
+                label: Text('Key: ${selectedKey.longLabel}'),
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -1420,27 +1431,318 @@ class KeyFunctionBar extends ConsumerWidget {
   }
 }
 
-class _KeyPickerSheet extends StatelessWidget {
-  final MusicalKey selected;
-  final ValueChanged<MusicalKey> onSelected;
+class _KeyPickerSheet extends ConsumerStatefulWidget {
+  final bool closeOnSelect;
 
-  const _KeyPickerSheet({required this.selected, required this.onSelected});
+  const _KeyPickerSheet({
+    this.closeOnSelect = false, // recommended default
+  });
+
+  @override
+  ConsumerState<_KeyPickerSheet> createState() => _KeyPickerSheetState();
+}
+
+class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
+  static const _loopMultiplier = 200;
+
+  static const double _rowExtent = 62.0;
+  static const double _headerExtent = 46.0;
+  static const double _chipWidth = 64.0;
+
+  late final ScrollController _controller;
+  late final List<KeySignatureRow> _rows;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _rows = _buildOrderedRows();
+
+    // Initial offset is approximate; we’ll center after the first frame.
+    _controller = ScrollController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _centerSelectedRow();
+    });
+  }
+
+  List<KeySignatureRow> _buildOrderedRows() {
+    KeySignatureRow rowFor(int acc) =>
+        keySignatureRows.firstWhere((r) => r.accidentals == acc);
+
+    return <KeySignatureRow>[
+      for (var n = 7; n >= 1; n--) rowFor(n), // 7♯ … 1♯
+      rowFor(0), // 0
+      for (var n = 1; n <= 7; n++) rowFor(-n), // 1♭ … 7♭
+    ];
+  }
+
+  int _baseIndexForSelected(MusicalKey selected) {
+    final i = _rows.indexWhere(
+      (row) => row.relativeMajor == selected || row.relativeMinor == selected,
+    );
+    if (i >= 0) return i;
+
+    return _rows.indexWhere((row) => row.accidentals == 0);
+  }
+
+  void _centerSelectedRow() {
+    if (!_controller.hasClients) return;
+
+    final selected = ref.read(selectedKeyProvider);
+    final viewport = _controller.position.viewportDimension;
+
+    final base = _baseIndexForSelected(selected);
+    final middleStart = _rows.length * (_loopMultiplier ~/ 2);
+    final selectedIndex = middleStart + base;
+
+    final target =
+        (selectedIndex * _rowExtent) - (viewport / 2) + (_rowExtent / 2);
+
+    _controller.jumpTo(
+      target.clamp(
+        _controller.position.minScrollExtent,
+        _controller.position.maxScrollExtent,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final selected = ref.watch(selectedKeyProvider);
+
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    final selectedRowBg = Color.alphaBlend(
+      cs.primary.withValues(alpha: 0.06),
+      cs.surface,
+    );
+
     return SafeArea(
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          for (final key in MusicalKey.values)
-            ListTile(
-              title: Text(key.label),
-              trailing: key == selected ? const Icon(Icons.check) : null,
-              onTap: () => onSelected(key),
+      child: CustomScrollView(
+        controller: _controller,
+        slivers: [
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _KeyPickerHeaderDelegate(
+              extent: _headerExtent,
+              chipWidth: _chipWidth,
             ),
+          ),
+          SliverFixedExtentList(
+            itemExtent: _rowExtent,
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final row = _rows[index % _rows.length];
+              final major = row.relativeMajor;
+              final minor = row.relativeMinor;
+
+              final rowSelected = selected == major || selected == minor;
+              final majorSelected = selected == major;
+              final minorSelected = selected == minor;
+
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  color: rowSelected ? selectedRowBg : Colors.transparent,
+                ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                row.signatureLabel,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: cs.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: _chipWidth,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: _KeyChoiceChip(
+                                  label: major.label,
+                                  selected: majorSelected,
+                                  onTap: () => _selectKey(major),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            SizedBox(
+                              width: _chipWidth,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: _KeyChoiceChip(
+                                  label: minor.label,
+                                  selected: minorSelected,
+                                  onTap: () => _selectKey(minor),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Divider(height: 1),
+                    ),
+                  ],
+                ),
+              );
+            }, childCount: _rows.length * _loopMultiplier),
+          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 12)),
         ],
       ),
     );
+  }
+
+  Future<void> _selectKey(MusicalKey key) async {
+    ref.read(selectedKeyProvider.notifier).setKey(key);
+
+    if (!widget.closeOnSelect) return;
+
+    // If you do close, let the UI update be visible first.
+    await Future<void>.delayed(const Duration(milliseconds: 120));
+    if (mounted) Navigator.of(context).pop();
+  }
+}
+
+class _KeyChoiceChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _KeyChoiceChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    final side = BorderSide(
+      color: selected ? cs.primary : cs.outlineVariant,
+      width: selected ? 1.5 : 1.0,
+    );
+
+    return ChoiceChip(
+      label: SizedBox(
+        width: 44,
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.clip,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+      selected: selected,
+      onSelected: (_) => onTap(),
+      showCheckmark: false,
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: side,
+      ),
+    );
+  }
+}
+
+class _KeyPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final double extent;
+  final double chipWidth;
+
+  const _KeyPickerHeaderDelegate({
+    required this.extent,
+    required this.chipWidth,
+  });
+
+  @override
+  double get minExtent => extent;
+
+  @override
+  double get maxExtent => extent;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    final bg = cs.surface.withValues(alpha: overlapsContent ? 0.98 : 0.94);
+
+    final headerStyle = theme.textTheme.titleMedium?.copyWith(
+      fontWeight: FontWeight.w600,
+      color: cs.onSurface,
+    );
+
+    return Material(
+      color: bg,
+      child: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Expanded(child: Text('Signature', style: headerStyle)),
+                  SizedBox(
+                    width: chipWidth,
+                    child: Text(
+                      'Major',
+                      textAlign: TextAlign.center,
+                      style: headerStyle,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: chipWidth,
+                    child: Text(
+                      'Minor',
+                      textAlign: TextAlign.center,
+                      style: headerStyle,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(height: 1),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _KeyPickerHeaderDelegate oldDelegate) {
+    return oldDelegate.extent != extent || oldDelegate.chipWidth != chipWidth;
   }
 }
 
@@ -1468,6 +1770,110 @@ class HarmonicFunctionStrip extends StatelessWidget {
     );
   }
 }
+
+@immutable
+class KeySignatureRow {
+  /// Negative = flats, positive = sharps. e.g. -2 means 2 flats, +3 means 3 sharps.
+  final int accidentals;
+
+  final MusicalKey relativeMajor;
+  final MusicalKey relativeMinor;
+
+  const KeySignatureRow({
+    required this.accidentals,
+    required this.relativeMajor,
+    required this.relativeMinor,
+  });
+
+  String get signatureLabel {
+    if (accidentals == 0) return 'no sharps/flats';
+    final n = accidentals.abs();
+    final word = n == 1 ? '1' : '$n';
+    return accidentals > 0
+        ? '$word sharp${n == 1 ? '' : 's'}'
+        : '$word flat${n == 1 ? '' : 's'}';
+  }
+}
+
+/// Circle-of-fifths-ish ordering that also includes the “full” 15 signatures:
+/// 7 flats ... 0 ... 7 sharps
+const keySignatureRows = <KeySignatureRow>[
+  KeySignatureRow(
+    accidentals: -7,
+    relativeMajor: MusicalKey('C♭', KeyMode.major),
+    relativeMinor: MusicalKey('A♭', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: -6,
+    relativeMajor: MusicalKey('G♭', KeyMode.major),
+    relativeMinor: MusicalKey('E♭', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: -5,
+    relativeMajor: MusicalKey('D♭', KeyMode.major),
+    relativeMinor: MusicalKey('B♭', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: -4,
+    relativeMajor: MusicalKey('A♭', KeyMode.major),
+    relativeMinor: MusicalKey('F', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: -3,
+    relativeMajor: MusicalKey('E♭', KeyMode.major),
+    relativeMinor: MusicalKey('C', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: -2,
+    relativeMajor: MusicalKey('B♭', KeyMode.major),
+    relativeMinor: MusicalKey('G', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: -1,
+    relativeMajor: MusicalKey('F', KeyMode.major),
+    relativeMinor: MusicalKey('D', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 0,
+    relativeMajor: MusicalKey('C', KeyMode.major),
+    relativeMinor: MusicalKey('A', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 1,
+    relativeMajor: MusicalKey('G', KeyMode.major),
+    relativeMinor: MusicalKey('E', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 2,
+    relativeMajor: MusicalKey('D', KeyMode.major),
+    relativeMinor: MusicalKey('B', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 3,
+    relativeMajor: MusicalKey('A', KeyMode.major),
+    relativeMinor: MusicalKey('F♯', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 4,
+    relativeMajor: MusicalKey('E', KeyMode.major),
+    relativeMinor: MusicalKey('C♯', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 5,
+    relativeMajor: MusicalKey('B', KeyMode.major),
+    relativeMinor: MusicalKey('G♯', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 6,
+    relativeMajor: MusicalKey('F♯', KeyMode.major),
+    relativeMinor: MusicalKey('D♯', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 7,
+    relativeMajor: MusicalKey('C♯', KeyMode.major),
+    relativeMinor: MusicalKey('A♯', KeyMode.minor),
+  ),
+];
 
 class _HarmonicFunctionIndicator extends StatelessWidget {
   final String label;
