@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'features/piano/piano.dart';
 
@@ -288,16 +289,27 @@ class MidiHoldNotifier extends Notifier<MidiHoldState> {
   void handleSustainValue(int value) => setSustainDown(value >= 64);
 }
 
-final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
-  ThemeModeNotifier.new,
-);
+enum AppPalette { blue, green, indigo, purple }
 
-class ThemeModeNotifier extends Notifier<ThemeMode> {
-  @override
-  ThemeMode build() => ThemeMode.system;
-
-  void setThemeMode(ThemeMode mode) => state = mode;
+extension AppPaletteLabel on AppPalette {
+  String get label => switch (this) {
+    AppPalette.blue => 'Blue',
+    AppPalette.green => 'Green',
+    AppPalette.indigo => 'Indigo',
+    AppPalette.purple => 'Purple',
+  };
 }
+
+extension AppPaletteSeed on AppPalette {
+  Color get seedColor => switch (this) {
+    AppPalette.blue => Colors.blue,
+    AppPalette.green => Colors.green,
+    AppPalette.indigo => Colors.indigo,
+    AppPalette.purple => Colors.purple,
+  };
+}
+
+enum ChordNotation { standard, jazz }
 
 @immutable
 class ChordAnalysis {
@@ -437,8 +449,6 @@ class MusicalKey {
   bool get isMajor => mode == KeyMode.major;
   bool get isMinor => mode == KeyMode.minor;
 
-  /// Display label for the button and chips.
-  /// Matches your sketch convention: majors uppercase-ish, minors lowercase-ish.
   String get label => isMajor ? tonic : tonic.toLowerCase();
 
   String get longLabel => isMajor ? '$tonic major' : '$tonic minor';
@@ -521,19 +531,21 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
 
+    final seedColor = ref.watch(seedColorProvider) ?? Colors.indigo;
+
     return MaterialApp(
       title: 'WhatChord',
       debugShowCheckedModeBanner: false,
 
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.indigo,
+          seedColor: seedColor,
           brightness: Brightness.light,
         ),
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.indigo,
+          seedColor: seedColor,
           brightness: Brightness.dark,
         ),
       ),
@@ -950,21 +962,51 @@ class _MidiStatusDotState extends State<_MidiStatusDot>
   }
 }
 
+class ThemeModeNotifier extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() => ThemeMode.system;
+  void setThemeMode(ThemeMode mode) => state = mode;
+}
+
+final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
+  ThemeModeNotifier.new,
+);
+
+class ChordNotationNotifier extends Notifier<ChordNotation> {
+  @override
+  ChordNotation build() => ChordNotation.standard;
+  void setNotation(ChordNotation v) => state = v;
+}
+
+final chordNotationProvider =
+    NotifierProvider<ChordNotationNotifier, ChordNotation>(
+      ChordNotationNotifier.new,
+    );
+
+class AppPaletteNotifier extends Notifier<AppPalette> {
+  @override
+  AppPalette build() => AppPalette.indigo; // default as requested
+  void setPalette(AppPalette v) => state = v;
+}
+
+final appPaletteProvider = NotifierProvider<AppPaletteNotifier, AppPalette>(
+  AppPaletteNotifier.new,
+);
+
+final seedColorProvider = Provider<Color>((ref) {
+  return ref.watch(appPaletteProvider).seedColor;
+});
+
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
-
-  String _themeModeLabel(ThemeMode mode) {
-    return switch (mode) {
-      ThemeMode.system => 'System',
-      ThemeMode.light => 'Light',
-      ThemeMode.dark => 'Dark',
-    };
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
-    final currentMode = ref.watch(themeModeProvider);
+
+    final themeMode = ref.watch(themeModeProvider);
+    final chordNotation = ref.watch(chordNotationProvider);
+    final palette = ref.watch(appPaletteProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -974,42 +1016,157 @@ class SettingsPage extends ConsumerWidget {
         scrolledUnderElevation: 0,
       ),
       body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         children: [
+          const _SectionHeader(title: 'Input'),
           ListTile(
-            title: Text('Theme'),
-            subtitle: Text(_themeModeLabel(currentMode)),
-            trailing: Icon(Icons.chevron_right),
+            leading: const Icon(Icons.piano),
+            title: const Text('MIDI input'),
+            subtitle: const Text('Not configured (placeholder)'),
+            trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              showModalBottomSheet<void>(
-                context: context,
-                showDragHandle: true,
-                builder: (context) => _ThemeModeSheet(
-                  selected: currentMode,
-                  onSelected: (mode) {
-                    ref.read(themeModeProvider.notifier).setThemeMode(mode);
-                    Navigator.of(context).pop();
-                  },
-                ),
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('MIDI config placeholder')),
               );
             },
           ),
-          Divider(height: 1),
-          ListTile(
-            title: Text('MIDI input'),
-            subtitle: Text('Not configured'),
-            trailing: Icon(Icons.chevron_right),
+
+          const SizedBox(height: 16),
+          const _SectionHeader(title: 'Chord display'),
+          RadioGroup<ChordNotation>(
+            groupValue: chordNotation,
+            onChanged: (ChordNotation? v) {
+              if (v == null) return;
+              ref.read(chordNotationProvider.notifier).setNotation(v);
+            },
+            child: const Column(
+              children: [
+                RadioListTile<ChordNotation>(
+                  title: Text('Standard notation'),
+                  subtitle: Text('E.g., Cmaj7, F#m7b5'),
+                  value: ChordNotation.standard,
+                ),
+                RadioListTile<ChordNotation>(
+                  title: Text('Jazz notation'),
+                  subtitle: Text('E.g., CΔ7, F#ø7 (stub)'),
+                  value: ChordNotation.jazz,
+                ),
+              ],
+            ),
           ),
-          Divider(height: 1),
-          ListTile(
-            title: Text('Keyboard behavior'),
-            subtitle: Text('Scale/scroll (future)'),
-            trailing: Icon(Icons.chevron_right),
+
+          const SizedBox(height: 16),
+          const _SectionHeader(title: 'Appearance'),
+          const _SubsectionLabel(title: 'Theme'),
+          RadioGroup<ThemeMode>(
+            groupValue: themeMode,
+            onChanged: (ThemeMode? mode) {
+              if (mode == null) return;
+              ref.read(themeModeProvider.notifier).setThemeMode(mode);
+            },
+            child: const Column(
+              children: [
+                RadioListTile<ThemeMode>(
+                  title: Text('System'),
+                  subtitle: Text('Follow device setting'),
+                  value: ThemeMode.system,
+                ),
+                RadioListTile<ThemeMode>(
+                  title: Text('Light'),
+                  value: ThemeMode.light,
+                ),
+                RadioListTile<ThemeMode>(
+                  title: Text('Dark'),
+                  value: ThemeMode.dark,
+                ),
+              ],
+            ),
           ),
-          Divider(height: 1),
+
+          const SizedBox(height: 8),
+          const _SubsectionLabel(title: 'Color palette'),
           ListTile(
-            title: Text('Note naming'),
-            subtitle: Text('Sharps/flats (future)'),
-            trailing: Icon(Icons.chevron_right),
+            leading: const Icon(Icons.palette_outlined),
+            title: const Text('Color palette'),
+            subtitle: Text(palette.label),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () async {
+              final selected = await showModalBottomSheet<AppPalette>(
+                context: context,
+                showDragHandle: true,
+                builder: (context) {
+                  final current = palette;
+                  return SafeArea(
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        for (final p in AppPalette.values)
+                          ListTile(
+                            title: Text(p.label),
+                            trailing: (p == current)
+                                ? const Icon(Icons.check)
+                                : null,
+                            onTap: () => Navigator.of(context).pop(p),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              );
+
+              if (selected != null) {
+                ref.read(appPaletteProvider.notifier).setPalette(selected);
+              }
+            },
+          ),
+
+          const SizedBox(height: 16),
+          const _SectionHeader(title: 'About'),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('WhatChord'),
+            subtitle: const Text('Version 0.1.0'),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.code),
+            title: const Text('Source code'),
+            subtitle: const Text('View on GitHub'),
+            trailing: const Icon(Icons.open_in_new),
+            onTap: () {
+              final messenger = ScaffoldMessenger.of(context);
+              final uri = Uri.parse(
+                'https://github.com/EarthmanMuons/what_chord',
+              );
+
+              Future<void> open() async {
+                try {
+                  final ok = await launchUrl(
+                    uri,
+                    mode: LaunchMode.externalApplication,
+                  );
+
+                  if (!ok) {
+                    if (!context.mounted) return;
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('Could not open link')),
+                    );
+                  }
+                } on PlatformException {
+                  if (!context.mounted) return;
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Could not open link')),
+                  );
+                } catch (_) {
+                  if (!context.mounted) return;
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Could not open link')),
+                  );
+                }
+              }
+
+              open();
+            },
           ),
         ],
       ),
@@ -1017,40 +1174,40 @@ class SettingsPage extends ConsumerWidget {
   }
 }
 
-class _ThemeModeSheet extends StatelessWidget {
-  const _ThemeModeSheet({required this.selected, required this.onSelected});
-
-  final ThemeMode selected;
-  final ValueChanged<ThemeMode> onSelected;
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title});
+  final String title;
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: RadioGroup<ThemeMode>(
-        groupValue: selected,
-        onChanged: (ThemeMode? mode) {
-          if (mode != null) {
-            onSelected(mode);
-          }
-        },
-        child: ListView(
-          shrinkWrap: true,
-          children: const [
-            RadioListTile<ThemeMode>(
-              title: Text('System'),
-              subtitle: Text('Follow device setting'),
-              value: ThemeMode.system,
-            ),
-            RadioListTile<ThemeMode>(
-              title: Text('Light'),
-              value: ThemeMode.light,
-            ),
-            RadioListTile<ThemeMode>(
-              title: Text('Dark'),
-              value: ThemeMode.dark,
-            ),
-          ],
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: Text(
+        title.toUpperCase(),
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          color: cs.onSurfaceVariant,
+          letterSpacing: 0.8,
         ),
+      ),
+    );
+  }
+}
+
+class _SubsectionLabel extends StatelessWidget {
+  const _SubsectionLabel({required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 4),
+      child: Text(
+        title,
+        style: Theme.of(
+          context,
+        ).textTheme.titleSmall?.copyWith(color: cs.onSurface),
       ),
     );
   }

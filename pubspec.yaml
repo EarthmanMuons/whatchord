@@ -37,6 +37,8 @@ dependencies:
   flutter_riverpod: ^3.0.3
   wakelock_plus: ^1.4.0
   flutter_svg: ^2.2.3
+  url_launcher: ^6.3.2
+  package_info_plus: ^9.0.0
 
 dev_dependencies:
   flutter_test:
