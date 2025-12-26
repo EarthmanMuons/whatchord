@@ -441,8 +441,7 @@ class MusicalKey {
   /// Matches your sketch convention: majors uppercase-ish, minors lowercase-ish.
   String get label => isMajor ? tonic : tonic.toLowerCase();
 
-  String get longLabel =>
-      isMajor ? '$tonic major' : '${tonic.toLowerCase()} minor';
+  String get longLabel => isMajor ? '$tonic major' : '$tonic minor';
 
   @override
   bool operator ==(Object other) =>
@@ -1835,7 +1834,7 @@ class _KeyPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
     );
 
     return Material(
-      color: backgroundColor, // opaque, theme-derived
+      color: backgroundColor,
       child: Column(
         children: [
           Expanded(
@@ -1867,7 +1866,7 @@ class _KeyPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
           ),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Divider(height: 1),
+            child: Divider(height: 1, thickness: 2),
           ),
         ],
       ),
