@@ -1521,34 +1521,20 @@ class KeyFunctionBar extends ConsumerWidget {
                   if (!context.mounted) return;
 
                   final navigator = Navigator.of(context, rootNavigator: true);
+                  final isLandscape =
+                      MediaQuery.of(context).orientation ==
+                      Orientation.landscape;
 
-                  bool computeIsLandscape() {
-                    final size = MediaQuery.sizeOf(context);
-                    return size.width > size.height;
-                  }
-
-                  while (true) {
-                    final isLandscape = computeIsLandscape();
-
-                    final result = await navigator.push<Object?>(
-                      ModalBottomSheetRoute(
-                        builder: (_) => _KeyPickerSheet(
-                          closeOnSelect: false,
-                          initialIsLandscape: isLandscape,
-                        ),
-                        isScrollControlled: isLandscape,
-                        showDragHandle: true,
+                  navigator.push(
+                    ModalBottomSheetRoute(
+                      builder: (_) => _KeyPickerSheet(
+                        closeOnSelect: false,
+                        initialIsLandscape: isLandscape,
                       ),
-                    );
-
-                    if (!context.mounted) return;
-                    if (result != _KeyPickerSheetResult.reopen) return;
-
-                    // Allow rotation/layout to settle
-                    await Future<void>.delayed(Duration.zero);
-
-                    if (!context.mounted) return;
-                  }
+                      isScrollControlled: true,
+                      showDragHandle: true,
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.music_note),
                 label: Text('Key: ${selectedKey.longLabel}'),
@@ -1561,6 +1547,7 @@ class KeyFunctionBar extends ConsumerWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ),
+
               const SizedBox(width: 12),
               Expanded(
                 child: Align(
@@ -1575,8 +1562,6 @@ class KeyFunctionBar extends ConsumerWidget {
     );
   }
 }
-
-enum _KeyPickerSheetResult { reopen }
 
 class _KeyPickerSheet extends ConsumerStatefulWidget {
   final bool closeOnSelect;
@@ -1601,6 +1586,8 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
   late final ScrollController _controller;
   late final List<KeySignatureRow> _rows;
 
+  bool? _lastIsLandscape;
+
   @override
   void initState() {
     super.initState();
@@ -1612,6 +1599,161 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
       if (!mounted) return;
       _centerSelectedRow();
     });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  bool _computeIsLandscape() {
+    final constraints = MediaQuery.of(context).size;
+    return constraints.width > constraints.height;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = ref.watch(selectedKeyProvider);
+
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    final selectedRowBg = Color.alphaBlend(
+      cs.primary.withValues(alpha: 0.06),
+      cs.surface,
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isLandscapeNow = constraints.maxWidth > constraints.maxHeight;
+
+        // Detect orientation change and recenter if needed
+        if (_lastIsLandscape != null && _lastIsLandscape != isLandscapeNow) {
+          _lastIsLandscape = isLandscapeNow;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            _centerSelectedRow();
+          });
+        } else {
+          _lastIsLandscape = isLandscapeNow; // Set on first pass
+        }
+
+        final mq = MediaQuery.of(context);
+
+        // Always strip left/right for full-width expansion (existing, for full internal use of route space)
+        final mqAdjusted = isLandscapeNow
+            ? mq.copyWith(
+                padding: mq.padding.copyWith(left: 0, right: 0),
+                viewPadding: mq.viewPadding.copyWith(left: 0, right: 0),
+              )
+            : mq;
+
+        final screenHeight = mqAdjusted.size.height;
+        final sheetHeight = isLandscapeNow
+            ? screenHeight // Full height in landscape
+            : screenHeight * 0.5; // Half height in portrait
+
+        return MediaQuery(
+          data: mqAdjusted,
+          child: SafeArea(
+            left: !isLandscapeNow,
+            right: !isLandscapeNow,
+            child: SizedBox(
+              height: sheetHeight,
+              child: CustomScrollView(
+                controller: _controller,
+                slivers: [
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _KeyPickerHeaderDelegate(
+                      extent: _headerExtent,
+                      chipWidth: _chipWidth,
+                      brightness: cs.brightness,
+                      backgroundColor: cs.surfaceContainerLow,
+                    ),
+                  ),
+                  SliverFixedExtentList(
+                    itemExtent: _rowExtent,
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final row = _rows[index % _rows.length];
+                      final major = row.relativeMajor;
+                      final minor = row.relativeMinor;
+
+                      final rowSelected =
+                          selected == major || selected == minor;
+                      final majorSelected = selected == major;
+                      final minorSelected = selected == minor;
+
+                      return DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: rowSelected
+                              ? selectedRowBg
+                              : Colors.transparent,
+                        ),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        row.signatureLabel,
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              color: cs.onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: _chipWidth,
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        child: _KeyChoiceChip(
+                                          label: major.label,
+                                          selected: majorSelected,
+                                          onTap: () => _selectKey(major),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    SizedBox(
+                                      width: _chipWidth,
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        child: _KeyChoiceChip(
+                                          label: minor.label,
+                                          selected: minorSelected,
+                                          onTap: () => _selectKey(minor),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Divider(height: 1),
+                            ),
+                          ],
+                        ),
+                      );
+                    }, childCount: _rows.length * _loopMultiplier),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 12)),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   List<KeySignatureRow> _buildOrderedRows() {
@@ -1652,146 +1794,6 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
         _controller.position.minScrollExtent,
         _controller.position.maxScrollExtent,
       ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final selected = ref.watch(selectedKeyProvider);
-
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    final selectedRowBg = Color.alphaBlend(
-      cs.primary.withValues(alpha: 0.06),
-      cs.surface,
-    );
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isLandscapeNow = constraints.maxWidth > constraints.maxHeight;
-
-        // If the orientation changed since the sheet was opened, close and ask
-        // the caller to reopen so it can adjust route params (scrollControlled, etc.).
-        if (isLandscapeNow != widget.initialIsLandscape) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            final nav = Navigator.of(context);
-            if (nav.canPop()) {
-              nav.pop(_KeyPickerSheetResult.reopen);
-            }
-          });
-        }
-
-        final mq = MediaQuery.of(context);
-
-        final mqSheet = isLandscapeNow
-            ? mq.copyWith(
-                padding: mq.padding.copyWith(left: 0, right: 0),
-                viewPadding: mq.viewPadding.copyWith(left: 0, right: 0),
-              )
-            : mq;
-
-        return MediaQuery(
-          data: mqSheet,
-          child: SafeArea(
-            // Explicitly disable left/right safe area in landscape.
-            left: !isLandscapeNow,
-            right: !isLandscapeNow,
-            child: CustomScrollView(
-              controller: _controller,
-              slivers: [
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _KeyPickerHeaderDelegate(
-                    extent: _headerExtent,
-                    chipWidth: _chipWidth,
-                    brightness: cs.brightness,
-                    backgroundColor: cs.surfaceContainerLow,
-                  ),
-                ),
-                SliverFixedExtentList(
-                  itemExtent: _rowExtent,
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final row = _rows[index % _rows.length];
-                    final major = row.relativeMajor;
-                    final minor = row.relativeMinor;
-
-                    final rowSelected = selected == major || selected == minor;
-                    final majorSelected = selected == major;
-                    final minorSelected = selected == minor;
-
-                    return DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: rowSelected ? selectedRowBg : Colors.transparent,
-                      ),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      row.signatureLabel,
-                                      style: theme.textTheme.bodyMedium
-                                          ?.copyWith(
-                                            color: cs.onSurfaceVariant,
-                                          ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: _chipWidth,
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: _KeyChoiceChip(
-                                        label: major.label,
-                                        selected: majorSelected,
-                                        onTap: () => _selectKey(major),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  SizedBox(
-                                    width: _chipWidth,
-                                    child: Align(
-                                      alignment: Alignment.center,
-                                      child: _KeyChoiceChip(
-                                        label: minor.label,
-                                        selected: minorSelected,
-                                        onTap: () => _selectKey(minor),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: Divider(height: 1),
-                          ),
-                        ],
-                      ),
-                    );
-                  }, childCount: _rows.length * _loopMultiplier),
-                ),
-                const SliverToBoxAdapter(child: SizedBox(height: 12)),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
