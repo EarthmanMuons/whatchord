@@ -556,7 +556,7 @@ final noteChipModelsProvider = Provider<List<NoteChipModel>>((ref) {
   return models;
 });
 
-void main() async {
+void main() {
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -841,6 +841,7 @@ class SettingsPage extends ConsumerWidget {
 }
 
 class _HomePortrait extends ConsumerWidget {
+  // ignore: unused_element_parameter
   const _HomePortrait({super.key});
 
   @override
@@ -869,6 +870,7 @@ class _HomePortrait extends ConsumerWidget {
 }
 
 class _HomeLandscape extends ConsumerWidget {
+  // ignore: unused_element_parameter
   const _HomeLandscape({super.key});
 
   @override
