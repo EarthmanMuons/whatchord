@@ -964,16 +964,10 @@ class KeyFunctionBar extends ConsumerWidget {
                   if (!context.mounted) return;
 
                   final navigator = Navigator.of(context, rootNavigator: true);
-                  final isLandscape =
-                      MediaQuery.of(context).orientation ==
-                      Orientation.landscape;
 
                   navigator.push(
                     ModalBottomSheetRoute(
-                      builder: (_) => _KeyPickerSheet(
-                        closeOnSelect: false,
-                        initialIsLandscape: isLandscape,
-                      ),
+                      builder: (_) => _KeyPickerSheet(),
                       isScrollControlled: true,
                       showDragHandle: true,
                     ),
@@ -1752,13 +1746,7 @@ class _SubsectionLabel extends StatelessWidget {
 }
 
 class _KeyPickerSheet extends ConsumerStatefulWidget {
-  final bool closeOnSelect;
-  final bool initialIsLandscape;
-
-  const _KeyPickerSheet({
-    required this.initialIsLandscape,
-    this.closeOnSelect = false,
-  });
+  const _KeyPickerSheet();
 
   @override
   ConsumerState<_KeyPickerSheet> createState() => _KeyPickerSheetState();
@@ -1811,15 +1799,16 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
       builder: (context, constraints) {
         final isLandscapeNow = constraints.maxWidth > constraints.maxHeight;
 
-        // Detect orientation change and recenter if needed
-        if (_lastIsLandscape != null && _lastIsLandscape != isLandscapeNow) {
-          _lastIsLandscape = isLandscapeNow;
+        final didChange =
+            _lastIsLandscape != null && _lastIsLandscape != isLandscapeNow;
+
+        _lastIsLandscape = isLandscapeNow;
+
+        if (didChange) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
             _centerSelectedRow();
           });
-        } else {
-          _lastIsLandscape = isLandscapeNow; // Set on first pass
         }
 
         final mq = MediaQuery.of(context);
@@ -1852,7 +1841,6 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
                     delegate: _KeyPickerHeaderDelegate(
                       extent: _headerExtent,
                       chipWidth: _chipWidth,
-                      brightness: cs.brightness,
                       backgroundColor: cs.surfaceContainerLow,
                     ),
                   ),
@@ -1980,14 +1968,8 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
     );
   }
 
-  Future<void> _selectKey(MusicalKey key) async {
+  void _selectKey(MusicalKey key) {
     ref.read(selectedKeyProvider.notifier).setKey(key);
-
-    if (!widget.closeOnSelect) return;
-
-    // If you do close, let the UI update be visible first.
-    await Future<void>.delayed(const Duration(milliseconds: 120));
-    if (mounted) Navigator.of(context).pop();
   }
 }
 
@@ -2042,13 +2024,11 @@ class _KeyChoiceChip extends StatelessWidget {
 class _KeyPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double extent;
   final double chipWidth;
-  final Brightness brightness;
   final Color backgroundColor;
 
   const _KeyPickerHeaderDelegate({
     required this.extent,
     required this.chipWidth,
-    required this.brightness,
     required this.backgroundColor,
   });
 
@@ -2116,7 +2096,6 @@ class _KeyPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(covariant _KeyPickerHeaderDelegate oldDelegate) {
     return oldDelegate.extent != extent ||
         oldDelegate.chipWidth != chipWidth ||
-        oldDelegate.brightness != brightness ||
         oldDelegate.backgroundColor != backgroundColor;
   }
 }
