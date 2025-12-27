@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'features/piano/piano.dart';
+
+final appVersionProvider = FutureProvider<String>((ref) async {
+  final info = await PackageInfo.fromPlatform();
+  return info.version;
+});
 
 final layoutSpecProvider =
     NotifierProvider<LayoutSpecNotifier, WhatChordLayoutSpec>(
@@ -1048,7 +1054,7 @@ class SettingsPage extends ConsumerWidget {
                 ),
                 RadioListTile<ChordNotation>(
                   title: Text('Jazz notation'),
-                  subtitle: Text('E.g., CΔ7, F#ø7 (stub)'),
+                  subtitle: Text('E.g., CΔ7, F#ø7'),
                   value: ChordNotation.jazz,
                 ),
               ],
@@ -1125,7 +1131,13 @@ class SettingsPage extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('WhatChord'),
-            subtitle: const Text('Version 0.1.0'),
+            subtitle: ref
+                .watch(appVersionProvider)
+                .when(
+                  data: (version) => Text('Version $version'),
+                  loading: () => const Text('Version —'),
+                  error: (_, _) => const Text('Version unavailable'),
+                ),
           ),
 
           ListTile(
