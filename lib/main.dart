@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -8,13 +9,347 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'features/piano/piano.dart';
 
+enum MidiConnectionStatus { disconnected, connecting, connected, error }
+
+@immutable
+class MidiConnectionState {
+  final MidiConnectionStatus status;
+
+  /// Optional details (e.g., last error, device name, etc.)
+  final String? message;
+
+  const MidiConnectionState({required this.status, this.message});
+
+  bool get isConnected => status == MidiConnectionStatus.connected;
+
+  MidiConnectionState copyWith({
+    MidiConnectionStatus? status,
+    String? message,
+  }) {
+    return MidiConnectionState(
+      status: status ?? this.status,
+      message: message ?? this.message,
+    );
+  }
+}
+
+@immutable
+class MidiHoldState {
+  final Set<int> pressed; // keys physically down
+  final Set<int> sustained; // released while pedal is down
+  final bool sustainDown;
+
+  const MidiHoldState({
+    required this.pressed,
+    required this.sustained,
+    required this.sustainDown,
+  });
+
+  Set<int> get activeNotes => {...pressed, ...sustained};
+
+  MidiHoldState copyWith({
+    Set<int>? pressed,
+    Set<int>? sustained,
+    bool? sustainDown,
+  }) {
+    return MidiHoldState(
+      pressed: pressed ?? this.pressed,
+      sustained: sustained ?? this.sustained,
+      sustainDown: sustainDown ?? this.sustainDown,
+    );
+  }
+}
+
+enum AppPalette { blue, green, indigo, purple }
+
+extension AppPaletteLabel on AppPalette {
+  String get label => switch (this) {
+    AppPalette.blue => 'Blue',
+    AppPalette.green => 'Green',
+    AppPalette.indigo => 'Indigo',
+    AppPalette.purple => 'Purple',
+  };
+}
+
+extension AppPaletteSeed on AppPalette {
+  Color get seedColor => switch (this) {
+    AppPalette.blue => Colors.blue,
+    AppPalette.green => Colors.green,
+    AppPalette.indigo => Colors.indigo,
+    AppPalette.purple => Colors.purple,
+  };
+}
+
+enum ChordNotation { standard, jazz }
+
+@immutable
+class ChordNameParts {
+  final String root; // e.g., "C", "F#", "Bb"
+  final String remainder; // e.g., "maj", "m7(b5)", "sus4", "" (optional)
+  final String? slashBass; // e.g., "E" in "Cmaj / E" (no leading " / ")
+
+  const ChordNameParts({
+    required this.root,
+    this.remainder = '',
+    this.slashBass,
+  });
+
+  bool get hasSlash => slashBass != null && slashBass!.trim().isNotEmpty;
+
+  String toDisplayString() {
+    final base = '$root$remainder';
+    return hasSlash ? '$base / ${slashBass!}' : base;
+  }
+}
+
+@immutable
+class ChordAnalysis {
+  final ChordNameParts chordName;
+  final String? inversionLabel;
+
+  const ChordAnalysis({required this.chordName, required this.inversionLabel});
+
+  bool get hasInversion =>
+      inversionLabel != null && inversionLabel!.trim().isNotEmpty;
+}
+
+enum NoteChipKind { sustainIndicator, note }
+
+enum NoteChipHold { pressed, sustained }
+
+@immutable
+class NoteChipModel {
+  final String id; // stable identity for diff/animations
+  final NoteChipKind kind;
+  final String label; // note name or empty for sustain
+  final NoteChipHold? hold; // null for sustain indicator
+
+  const NoteChipModel._({
+    required this.id,
+    required this.kind,
+    required this.label,
+    required this.hold,
+  });
+
+  const NoteChipModel.sustain()
+    : this._(
+        id: 'sustain',
+        kind: NoteChipKind.sustainIndicator,
+        label: '',
+        hold: null,
+      );
+
+  factory NoteChipModel.note({
+    required int midiNote,
+    required String label,
+    required NoteChipHold hold,
+  }) {
+    return NoteChipModel._(
+      id: 'note_$midiNote',
+      kind: NoteChipKind.note,
+      label: label,
+      hold: hold,
+    );
+  }
+}
+
+enum KeyMode { major, minor }
+
+@immutable
+class MusicalKey {
+  final String tonic; // e.g. "C", "F#", "Bb"
+  final KeyMode mode;
+
+  const MusicalKey(this.tonic, this.mode);
+
+  bool get isMajor => mode == KeyMode.major;
+  bool get isMinor => mode == KeyMode.minor;
+
+  String get label => isMajor ? tonic : tonic.toLowerCase();
+
+  String get longLabel => isMajor ? '$tonic major' : '$tonic minor';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MusicalKey &&
+          runtimeType == other.runtimeType &&
+          tonic == other.tonic &&
+          mode == other.mode;
+
+  @override
+  int get hashCode => Object.hash(tonic, mode);
+
+  @override
+  String toString() => longLabel;
+}
+
+final selectedKeyProvider = NotifierProvider<SelectedKeyNotifier, MusicalKey>(
+  SelectedKeyNotifier.new,
+);
+
+class SelectedKeyNotifier extends Notifier<MusicalKey> {
+  @override
+  MusicalKey build() => const MusicalKey('C', KeyMode.major);
+
+  void setKey(MusicalKey key) => state = key;
+}
+
+enum HarmonicFunction {
+  one('I'),
+  two('ii'),
+  three('iii'),
+  four('IV'),
+  five('V'),
+  six('vi'),
+  seven('vii°');
+
+  final String label;
+  const HarmonicFunction(this.label);
+}
+
+@immutable
+class KeySignatureRow {
+  /// Negative = flats, positive = sharps. e.g. -2 means 2 flats, +3 means 3 sharps.
+  final int accidentals;
+
+  final MusicalKey relativeMajor;
+  final MusicalKey relativeMinor;
+
+  const KeySignatureRow({
+    required this.accidentals,
+    required this.relativeMajor,
+    required this.relativeMinor,
+  });
+
+  String get signatureLabel {
+    if (accidentals == 0) return 'no sharps/flats';
+    final n = accidentals.abs();
+    final word = n == 1 ? '1' : '$n';
+    return accidentals > 0
+        ? '$word sharp${n == 1 ? '' : 's'}'
+        : '$word flat${n == 1 ? '' : 's'}';
+  }
+}
+
+/// Circle-of-fifths-ish ordering that also includes the “full” 15 signatures:
+/// 7 flats ... 0 ... 7 sharps
+const keySignatureRows = <KeySignatureRow>[
+  KeySignatureRow(
+    accidentals: -7,
+    relativeMajor: MusicalKey('C♭', KeyMode.major),
+    relativeMinor: MusicalKey('A♭', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: -6,
+    relativeMajor: MusicalKey('G♭', KeyMode.major),
+    relativeMinor: MusicalKey('E♭', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: -5,
+    relativeMajor: MusicalKey('D♭', KeyMode.major),
+    relativeMinor: MusicalKey('B♭', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: -4,
+    relativeMajor: MusicalKey('A♭', KeyMode.major),
+    relativeMinor: MusicalKey('F', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: -3,
+    relativeMajor: MusicalKey('E♭', KeyMode.major),
+    relativeMinor: MusicalKey('C', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: -2,
+    relativeMajor: MusicalKey('B♭', KeyMode.major),
+    relativeMinor: MusicalKey('G', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: -1,
+    relativeMajor: MusicalKey('F', KeyMode.major),
+    relativeMinor: MusicalKey('D', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 0,
+    relativeMajor: MusicalKey('C', KeyMode.major),
+    relativeMinor: MusicalKey('A', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 1,
+    relativeMajor: MusicalKey('G', KeyMode.major),
+    relativeMinor: MusicalKey('E', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 2,
+    relativeMajor: MusicalKey('D', KeyMode.major),
+    relativeMinor: MusicalKey('B', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 3,
+    relativeMajor: MusicalKey('A', KeyMode.major),
+    relativeMinor: MusicalKey('F♯', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 4,
+    relativeMajor: MusicalKey('E', KeyMode.major),
+    relativeMinor: MusicalKey('C♯', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 5,
+    relativeMajor: MusicalKey('B', KeyMode.major),
+    relativeMinor: MusicalKey('G♯', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 6,
+    relativeMajor: MusicalKey('F♯', KeyMode.major),
+    relativeMinor: MusicalKey('D♯', KeyMode.minor),
+  ),
+  KeySignatureRow(
+    accidentals: 7,
+    relativeMajor: MusicalKey('C♯', KeyMode.major),
+    relativeMinor: MusicalKey('A♯', KeyMode.minor),
+  ),
+];
+
 final appVersionProvider = FutureProvider<String>((ref) async {
   final info = await PackageInfo.fromPlatform();
   return info.version;
 });
 
-final layoutSpecProvider = Provider<WhatChordLayoutSpec>((ref) {
-  throw StateError('layoutSpecProvider must be overridden in HomePage');
+class ThemeModeNotifier extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() => ThemeMode.system;
+  void setThemeMode(ThemeMode mode) => state = mode;
+}
+
+final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
+  ThemeModeNotifier.new,
+);
+
+class ChordNotationNotifier extends Notifier<ChordNotation> {
+  @override
+  ChordNotation build() => ChordNotation.standard;
+  void setNotation(ChordNotation v) => state = v;
+}
+
+final chordNotationProvider =
+    NotifierProvider<ChordNotationNotifier, ChordNotation>(
+      ChordNotationNotifier.new,
+    );
+
+class AppPaletteNotifier extends Notifier<AppPalette> {
+  @override
+  AppPalette build() => AppPalette.indigo;
+  void setPalette(AppPalette v) => state = v;
+}
+
+final appPaletteProvider = NotifierProvider<AppPaletteNotifier, AppPalette>(
+  AppPaletteNotifier.new,
+);
+
+final seedColorProvider = Provider<Color>((ref) {
+  return ref.watch(appPaletteProvider).seedColor;
 });
 
 @immutable
@@ -72,29 +407,9 @@ const landscapeSpec = WhatChordLayoutSpec(
   functionBarHeight: 56,
 );
 
-enum MidiConnectionStatus { disconnected, connecting, connected, error }
-
-@immutable
-class MidiConnectionState {
-  final MidiConnectionStatus status;
-
-  /// Optional details (e.g., last error, device name, etc.)
-  final String? message;
-
-  const MidiConnectionState({required this.status, this.message});
-
-  bool get isConnected => status == MidiConnectionStatus.connected;
-
-  MidiConnectionState copyWith({
-    MidiConnectionStatus? status,
-    String? message,
-  }) {
-    return MidiConnectionState(
-      status: status ?? this.status,
-      message: message ?? this.message,
-    );
-  }
-}
+final layoutSpecProvider = Provider<WhatChordLayoutSpec>((ref) {
+  throw StateError('layoutSpecProvider must be overridden in HomePage');
+});
 
 final midiConnectionProvider =
     NotifierProvider<MidiConnectionNotifier, MidiConnectionState>(
@@ -120,33 +435,6 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   void markDisconnected() => setStatus(MidiConnectionStatus.disconnected);
   void markError(String message) =>
       setStatus(MidiConnectionStatus.error, message: message);
-}
-
-@immutable
-class MidiHoldState {
-  final Set<int> pressed; // keys physically down
-  final Set<int> sustained; // released while pedal is down
-  final bool sustainDown;
-
-  const MidiHoldState({
-    required this.pressed,
-    required this.sustained,
-    required this.sustainDown,
-  });
-
-  Set<int> get activeNotes => {...pressed, ...sustained};
-
-  MidiHoldState copyWith({
-    Set<int>? pressed,
-    Set<int>? sustained,
-    bool? sustainDown,
-  }) {
-    return MidiHoldState(
-      pressed: pressed ?? this.pressed,
-      sustained: sustained ?? this.sustained,
-      sustainDown: sustainDown ?? this.sustainDown,
-    );
-  }
 }
 
 final midiHoldProvider = NotifierProvider<MidiHoldNotifier, MidiHoldState>(
@@ -205,38 +493,10 @@ class MidiHoldNotifier extends Notifier<MidiHoldState> {
   void handleSustainValue(int value) => setSustainDown(value >= 64);
 }
 
-enum AppPalette { blue, green, indigo, purple }
-
-extension AppPaletteLabel on AppPalette {
-  String get label => switch (this) {
-    AppPalette.blue => 'Blue',
-    AppPalette.green => 'Green',
-    AppPalette.indigo => 'Indigo',
-    AppPalette.purple => 'Purple',
-  };
-}
-
-extension AppPaletteSeed on AppPalette {
-  Color get seedColor => switch (this) {
-    AppPalette.blue => Colors.blue,
-    AppPalette.green => Colors.green,
-    AppPalette.indigo => Colors.indigo,
-    AppPalette.purple => Colors.purple,
-  };
-}
-
-enum ChordNotation { standard, jazz }
-
-@immutable
-class ChordAnalysis {
-  final ChordNameParts chordName;
-  final String? inversionLabel;
-
-  const ChordAnalysis({required this.chordName, required this.inversionLabel});
-
-  bool get hasInversion =>
-      inversionLabel != null && inversionLabel!.trim().isNotEmpty;
-}
+/// Stub data for UI layout work. Replace later with real MIDI input/provider output.
+final activeMidiNotesProvider = Provider<Set<int>>((ref) {
+  return ref.watch(midiHoldProvider.select((s) => s.activeNotes));
+});
 
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   return const ChordAnalysis(
@@ -245,90 +505,16 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   );
 });
 
-/// Stub data for UI layout work. Replace later with real MIDI input/provider output.
-final activeMidiNotesProvider = Provider<Set<int>>((ref) {
-  return ref.watch(midiHoldProvider.select((s) => s.activeNotes));
-});
+final activeFunctionProvider = Provider<HarmonicFunction?>((ref) {
+  final key = ref.watch(selectedKeyProvider);
+  final analysis = ref.watch(chordAnalysisProvider);
 
-/// Derived note names for chips.
-/// For Phase 1, this is a simple mapping from active MIDI notes -> pitch-class names.
-/// TODO: Expand this for enharmonics, octave display, ordering rules, etc.
-final noteNamesProvider = Provider<List<String>>((ref) {
-  final activeMidi = ref.watch(activeMidiNotesProvider);
-  final sorted = activeMidi.toList()..sort();
-  return [for (final midi in sorted) _midiToNoteName(midi)];
-});
-
-String _midiToNoteName(int midiNote) {
-  switch (midiNote % 12) {
-    case 0:
-      return 'C';
-    case 1:
-      return 'C#';
-    case 2:
-      return 'D';
-    case 3:
-      return 'D#';
-    case 4:
-      return 'E';
-    case 5:
-      return 'F';
-    case 6:
-      return 'F#';
-    case 7:
-      return 'G';
-    case 8:
-      return 'G#';
-    case 9:
-      return 'A';
-    case 10:
-      return 'A#';
-    case 11:
-      return 'B';
-    default:
-      return '?';
+  // Stub logic
+  if (analysis.chordName.toDisplayString().startsWith(key.label)) {
+    return HarmonicFunction.one;
   }
-}
-
-enum NoteChipKind { sustainIndicator, note }
-
-enum NoteChipHold { pressed, sustained }
-
-@immutable
-class NoteChipModel {
-  final String id; // stable identity for diff/animations
-  final NoteChipKind kind;
-  final String label; // note name or empty for sustain
-  final NoteChipHold? hold; // null for sustain indicator
-
-  const NoteChipModel._({
-    required this.id,
-    required this.kind,
-    required this.label,
-    required this.hold,
-  });
-
-  const NoteChipModel.sustain()
-    : this._(
-        id: 'sustain',
-        kind: NoteChipKind.sustainIndicator,
-        label: '',
-        hold: null,
-      );
-
-  factory NoteChipModel.note({
-    required int midiNote,
-    required String label,
-    required NoteChipHold hold,
-  }) {
-    return NoteChipModel._(
-      id: 'note_$midiNote',
-      kind: NoteChipKind.note,
-      label: label,
-      hold: hold,
-    );
-  }
-}
+  return null;
+});
 
 final noteChipModelsProvider = Provider<List<NoteChipModel>>((ref) {
   final hold = ref.watch(midiHoldProvider);
@@ -351,72 +537,6 @@ final noteChipModelsProvider = Provider<List<NoteChipModel>>((ref) {
   }
 
   return models;
-});
-
-enum KeyMode { major, minor }
-
-@immutable
-class MusicalKey {
-  final String tonic; // e.g. "C", "F#", "Bb"
-  final KeyMode mode;
-
-  const MusicalKey(this.tonic, this.mode);
-
-  bool get isMajor => mode == KeyMode.major;
-  bool get isMinor => mode == KeyMode.minor;
-
-  String get label => isMajor ? tonic : tonic.toLowerCase();
-
-  String get longLabel => isMajor ? '$tonic major' : '$tonic minor';
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MusicalKey &&
-          runtimeType == other.runtimeType &&
-          tonic == other.tonic &&
-          mode == other.mode;
-
-  @override
-  int get hashCode => Object.hash(tonic, mode);
-
-  @override
-  String toString() => longLabel;
-}
-
-final selectedKeyProvider = NotifierProvider<SelectedKeyNotifier, MusicalKey>(
-  SelectedKeyNotifier.new,
-);
-
-class SelectedKeyNotifier extends Notifier<MusicalKey> {
-  @override
-  MusicalKey build() => const MusicalKey('C', KeyMode.major);
-
-  void setKey(MusicalKey key) => state = key;
-}
-
-enum HarmonicFunction {
-  one('I'),
-  two('ii'),
-  three('iii'),
-  four('IV'),
-  five('V'),
-  six('vi'),
-  seven('vii°');
-
-  final String label;
-  const HarmonicFunction(this.label);
-}
-
-final activeFunctionProvider = Provider<HarmonicFunction?>((ref) {
-  final key = ref.watch(selectedKeyProvider);
-  final analysis = ref.watch(chordAnalysisProvider);
-
-  // Stub logic
-  if (analysis.chordName.toDisplayString().startsWith(key.label)) {
-    return HarmonicFunction.one;
-  }
-  return null;
 });
 
 void main() async {
@@ -520,6 +640,189 @@ class HomePage extends ConsumerWidget {
   }
 }
 
+class SettingsPage extends ConsumerWidget {
+  const SettingsPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+
+    final themeMode = ref.watch(themeModeProvider);
+    final chordNotation = ref.watch(chordNotationProvider);
+    final palette = ref.watch(appPaletteProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Settings'),
+        backgroundColor: cs.surfaceContainerLow,
+        foregroundColor: cs.onSurface,
+        scrolledUnderElevation: 0,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        children: [
+          const _SectionHeader(title: 'Input'),
+          ListTile(
+            leading: const Icon(Icons.piano),
+            title: const Text('MIDI input'),
+            subtitle: const Text('Not configured (placeholder)'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('MIDI config placeholder')),
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
+          const _SectionHeader(title: 'Chord display'),
+          RadioGroup<ChordNotation>(
+            groupValue: chordNotation,
+            onChanged: (ChordNotation? v) {
+              if (v == null) return;
+              ref.read(chordNotationProvider.notifier).setNotation(v);
+            },
+            child: const Column(
+              children: [
+                RadioListTile<ChordNotation>(
+                  title: Text('Standard notation'),
+                  subtitle: Text('E.g., Cmaj7, F#m7b5'),
+                  value: ChordNotation.standard,
+                ),
+                RadioListTile<ChordNotation>(
+                  title: Text('Jazz notation'),
+                  subtitle: Text('E.g., CΔ7, F#ø7'),
+                  value: ChordNotation.jazz,
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 16),
+          const _SectionHeader(title: 'Appearance'),
+          const _SubsectionLabel(title: 'Theme'),
+          RadioGroup<ThemeMode>(
+            groupValue: themeMode,
+            onChanged: (ThemeMode? mode) {
+              if (mode == null) return;
+              ref.read(themeModeProvider.notifier).setThemeMode(mode);
+            },
+            child: const Column(
+              children: [
+                RadioListTile<ThemeMode>(
+                  title: Text('System'),
+                  subtitle: Text('Follow device setting'),
+                  value: ThemeMode.system,
+                ),
+                RadioListTile<ThemeMode>(
+                  title: Text('Light'),
+                  value: ThemeMode.light,
+                ),
+                RadioListTile<ThemeMode>(
+                  title: Text('Dark'),
+                  value: ThemeMode.dark,
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 8),
+          const _SubsectionLabel(title: 'Color palette'),
+          ListTile(
+            leading: const Icon(Icons.palette_outlined),
+            title: const Text('Color palette'),
+            subtitle: Text(palette.label),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () async {
+              final selected = await showModalBottomSheet<AppPalette>(
+                context: context,
+                showDragHandle: true,
+                builder: (context) {
+                  final current = palette;
+                  return SafeArea(
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        for (final p in AppPalette.values)
+                          ListTile(
+                            title: Text(p.label),
+                            trailing: (p == current)
+                                ? const Icon(Icons.check)
+                                : null,
+                            onTap: () => Navigator.of(context).pop(p),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              );
+
+              if (selected != null) {
+                ref.read(appPaletteProvider.notifier).setPalette(selected);
+              }
+            },
+          ),
+
+          const SizedBox(height: 16),
+          const _SectionHeader(title: 'About'),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('WhatChord'),
+            subtitle: ref
+                .watch(appVersionProvider)
+                .when(
+                  data: (version) => Text('Version $version'),
+                  loading: () => const Text('Version —'),
+                  error: (_, _) => const Text('Version unavailable'),
+                ),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.code),
+            title: const Text('Source code'),
+            subtitle: const Text('View on GitHub'),
+            trailing: const Icon(Icons.open_in_new),
+            onTap: () {
+              final messenger = ScaffoldMessenger.of(context);
+              final uri = Uri.parse(
+                'https://github.com/EarthmanMuons/what_chord',
+              );
+
+              Future<void> open() async {
+                try {
+                  final ok = await launchUrl(
+                    uri,
+                    mode: LaunchMode.externalApplication,
+                  );
+
+                  if (!ok) {
+                    if (!context.mounted) return;
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('Could not open link')),
+                    );
+                  }
+                } on PlatformException {
+                  if (!context.mounted) return;
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Could not open link')),
+                  );
+                } catch (_) {
+                  if (!context.mounted) return;
+                  messenger.showSnackBar(
+                    const SnackBar(content: Text('Could not open link')),
+                  );
+                }
+              }
+
+              open();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _HomePortrait extends ConsumerWidget {
   const _HomePortrait({super.key});
 
@@ -588,6 +891,127 @@ class _HomeLandscape extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class AnalysisSection extends ConsumerWidget {
+  const AnalysisSection({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final analysis = ref.watch(chordAnalysisProvider);
+    final spec = ref.watch(layoutSpecProvider);
+
+    return Padding(
+      padding: spec.analysisPadding,
+      child: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: spec.chordCardMaxWidth),
+            child: ChordIdentityCard(
+              chord: analysis.chordName,
+              inversionLabel: analysis.inversionLabel,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class KeyFunctionBar extends ConsumerWidget {
+  const KeyFunctionBar({super.key, required this.height});
+  final double height;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final selectedKey = ref.watch(selectedKeyProvider);
+    final active = ref.watch(activeFunctionProvider);
+
+    return Material(
+      color: cs.surfaceContainerLow,
+      child: SizedBox(
+        height: height,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              FilledButton.tonalIcon(
+                onPressed: () async {
+                  if (!context.mounted) return;
+
+                  final navigator = Navigator.of(context, rootNavigator: true);
+                  final isLandscape =
+                      MediaQuery.of(context).orientation ==
+                      Orientation.landscape;
+
+                  navigator.push(
+                    ModalBottomSheetRoute(
+                      builder: (_) => _KeyPickerSheet(
+                        closeOnSelect: false,
+                        initialIsLandscape: isLandscape,
+                      ),
+                      isScrollControlled: true,
+                      showDragHandle: true,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.music_note),
+                label: Text('Key: ${selectedKey.longLabel}'),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                  visualDensity: VisualDensity.compact,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+              ),
+
+              const SizedBox(width: 12),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: HarmonicFunctionStrip(active: active),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class KeyboardSection extends ConsumerWidget {
+  const KeyboardSection({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final active = ref.watch(activeMidiNotesProvider);
+    final spec = ref.watch(layoutSpecProvider);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final whiteKeyWidth = width / spec.whiteKeyCount;
+
+        var height = whiteKeyWidth * spec.whiteKeyAspectRatio;
+
+        // Guardrails to prevent extremes.
+        height = height.clamp(90.0, 200.0);
+
+        return PianoKeyboard(
+          whiteKeyCount: spec.whiteKeyCount,
+          startMidiNote: spec.startMidiNote,
+          activeMidiNotes: active,
+          height: height,
+        );
+      },
     );
   }
 }
@@ -846,310 +1270,6 @@ class _MidiStatusDotState extends State<_MidiStatusDot>
         decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
       ),
     );
-  }
-}
-
-class ThemeModeNotifier extends Notifier<ThemeMode> {
-  @override
-  ThemeMode build() => ThemeMode.system;
-  void setThemeMode(ThemeMode mode) => state = mode;
-}
-
-final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
-  ThemeModeNotifier.new,
-);
-
-class ChordNotationNotifier extends Notifier<ChordNotation> {
-  @override
-  ChordNotation build() => ChordNotation.standard;
-  void setNotation(ChordNotation v) => state = v;
-}
-
-final chordNotationProvider =
-    NotifierProvider<ChordNotationNotifier, ChordNotation>(
-      ChordNotationNotifier.new,
-    );
-
-class AppPaletteNotifier extends Notifier<AppPalette> {
-  @override
-  AppPalette build() => AppPalette.indigo;
-  void setPalette(AppPalette v) => state = v;
-}
-
-final appPaletteProvider = NotifierProvider<AppPaletteNotifier, AppPalette>(
-  AppPaletteNotifier.new,
-);
-
-final seedColorProvider = Provider<Color>((ref) {
-  return ref.watch(appPaletteProvider).seedColor;
-});
-
-class SettingsPage extends ConsumerWidget {
-  const SettingsPage({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-
-    final themeMode = ref.watch(themeModeProvider);
-    final chordNotation = ref.watch(chordNotationProvider);
-    final palette = ref.watch(appPaletteProvider);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-        backgroundColor: cs.surfaceContainerLow,
-        foregroundColor: cs.onSurface,
-        scrolledUnderElevation: 0,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-        children: [
-          const _SectionHeader(title: 'Input'),
-          ListTile(
-            leading: const Icon(Icons.piano),
-            title: const Text('MIDI input'),
-            subtitle: const Text('Not configured (placeholder)'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('MIDI config placeholder')),
-              );
-            },
-          ),
-
-          const SizedBox(height: 16),
-          const _SectionHeader(title: 'Chord display'),
-          RadioGroup<ChordNotation>(
-            groupValue: chordNotation,
-            onChanged: (ChordNotation? v) {
-              if (v == null) return;
-              ref.read(chordNotationProvider.notifier).setNotation(v);
-            },
-            child: const Column(
-              children: [
-                RadioListTile<ChordNotation>(
-                  title: Text('Standard notation'),
-                  subtitle: Text('E.g., Cmaj7, F#m7b5'),
-                  value: ChordNotation.standard,
-                ),
-                RadioListTile<ChordNotation>(
-                  title: Text('Jazz notation'),
-                  subtitle: Text('E.g., CΔ7, F#ø7'),
-                  value: ChordNotation.jazz,
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16),
-          const _SectionHeader(title: 'Appearance'),
-          const _SubsectionLabel(title: 'Theme'),
-          RadioGroup<ThemeMode>(
-            groupValue: themeMode,
-            onChanged: (ThemeMode? mode) {
-              if (mode == null) return;
-              ref.read(themeModeProvider.notifier).setThemeMode(mode);
-            },
-            child: const Column(
-              children: [
-                RadioListTile<ThemeMode>(
-                  title: Text('System'),
-                  subtitle: Text('Follow device setting'),
-                  value: ThemeMode.system,
-                ),
-                RadioListTile<ThemeMode>(
-                  title: Text('Light'),
-                  value: ThemeMode.light,
-                ),
-                RadioListTile<ThemeMode>(
-                  title: Text('Dark'),
-                  value: ThemeMode.dark,
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 8),
-          const _SubsectionLabel(title: 'Color palette'),
-          ListTile(
-            leading: const Icon(Icons.palette_outlined),
-            title: const Text('Color palette'),
-            subtitle: Text(palette.label),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () async {
-              final selected = await showModalBottomSheet<AppPalette>(
-                context: context,
-                showDragHandle: true,
-                builder: (context) {
-                  final current = palette;
-                  return SafeArea(
-                    child: ListView(
-                      shrinkWrap: true,
-                      children: [
-                        for (final p in AppPalette.values)
-                          ListTile(
-                            title: Text(p.label),
-                            trailing: (p == current)
-                                ? const Icon(Icons.check)
-                                : null,
-                            onTap: () => Navigator.of(context).pop(p),
-                          ),
-                      ],
-                    ),
-                  );
-                },
-              );
-
-              if (selected != null) {
-                ref.read(appPaletteProvider.notifier).setPalette(selected);
-              }
-            },
-          ),
-
-          const SizedBox(height: 16),
-          const _SectionHeader(title: 'About'),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('WhatChord'),
-            subtitle: ref
-                .watch(appVersionProvider)
-                .when(
-                  data: (version) => Text('Version $version'),
-                  loading: () => const Text('Version —'),
-                  error: (_, _) => const Text('Version unavailable'),
-                ),
-          ),
-
-          ListTile(
-            leading: const Icon(Icons.code),
-            title: const Text('Source code'),
-            subtitle: const Text('View on GitHub'),
-            trailing: const Icon(Icons.open_in_new),
-            onTap: () {
-              final messenger = ScaffoldMessenger.of(context);
-              final uri = Uri.parse(
-                'https://github.com/EarthmanMuons/what_chord',
-              );
-
-              Future<void> open() async {
-                try {
-                  final ok = await launchUrl(
-                    uri,
-                    mode: LaunchMode.externalApplication,
-                  );
-
-                  if (!ok) {
-                    if (!context.mounted) return;
-                    messenger.showSnackBar(
-                      const SnackBar(content: Text('Could not open link')),
-                    );
-                  }
-                } on PlatformException {
-                  if (!context.mounted) return;
-                  messenger.showSnackBar(
-                    const SnackBar(content: Text('Could not open link')),
-                  );
-                } catch (_) {
-                  if (!context.mounted) return;
-                  messenger.showSnackBar(
-                    const SnackBar(content: Text('Could not open link')),
-                  );
-                }
-              }
-
-              open();
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title});
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 8),
-      child: Text(
-        title.toUpperCase(),
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: cs.onSurfaceVariant,
-          letterSpacing: 0.8,
-        ),
-      ),
-    );
-  }
-}
-
-class _SubsectionLabel extends StatelessWidget {
-  const _SubsectionLabel({required this.title});
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 4, bottom: 4),
-      child: Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.titleSmall?.copyWith(color: cs.onSurface),
-      ),
-    );
-  }
-}
-
-class AnalysisSection extends ConsumerWidget {
-  const AnalysisSection({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final analysis = ref.watch(chordAnalysisProvider);
-    final spec = ref.watch(layoutSpecProvider);
-
-    return Padding(
-      padding: spec.analysisPadding,
-      child: SizedBox.expand(
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.center,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: spec.chordCardMaxWidth),
-            child: ChordIdentityCard(
-              chord: analysis.chordName,
-              inversionLabel: analysis.inversionLabel,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-@immutable
-class ChordNameParts {
-  final String root; // e.g., "C", "F#", "Bb"
-  final String remainder; // e.g., "maj", "m7(b5)", "sus4", "" (optional)
-  final String? slashBass; // e.g., "E" in "Cmaj / E" (no leading " / ")
-
-  const ChordNameParts({
-    required this.root,
-    this.remainder = '',
-    this.slashBass,
-  });
-
-  bool get hasSlash => slashBass != null && slashBass!.trim().isNotEmpty;
-
-  String toDisplayString() {
-    final base = '$root$remainder';
-    return hasSlash ? '$base / ${slashBass!}' : base;
   }
 }
 
@@ -1498,66 +1618,115 @@ class _NoteChip extends ConsumerWidget {
   }
 }
 
-class KeyFunctionBar extends ConsumerWidget {
-  const KeyFunctionBar({super.key, required this.height});
-  final double height;
+class HarmonicFunctionStrip extends StatelessWidget {
+  final HarmonicFunction? active;
+  final values = HarmonicFunction.values;
+
+  const HarmonicFunctionStrip({super.key, required this.active});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-    final selectedKey = ref.watch(selectedKeyProvider);
-    final active = ref.watch(activeFunctionProvider);
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (int i = 0; i < values.length; i++) ...[
+            _HarmonicFunctionIndicator(
+              label: values[i].label,
+              isActive: values[i] == active,
+            ),
+            if (i < values.length - 1) const SizedBox(width: 12),
+          ],
+        ],
+      ),
+    );
+  }
+}
 
-    return Material(
-      color: cs.surfaceContainerLow,
-      child: SizedBox(
-        height: height,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              FilledButton.tonalIcon(
-                onPressed: () async {
-                  if (!context.mounted) return;
+class _HarmonicFunctionIndicator extends StatelessWidget {
+  final String label;
+  final bool isActive;
 
-                  final navigator = Navigator.of(context, rootNavigator: true);
-                  final isLandscape =
-                      MediaQuery.of(context).orientation ==
-                      Orientation.landscape;
+  const _HarmonicFunctionIndicator({
+    required this.label,
+    required this.isActive,
+  });
 
-                  navigator.push(
-                    ModalBottomSheetRoute(
-                      builder: (_) => _KeyPickerSheet(
-                        closeOnSelect: false,
-                        initialIsLandscape: isLandscape,
-                      ),
-                      isScrollControlled: true,
-                      showDragHandle: true,
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.music_note),
-                label: Text('Key: ${selectedKey.longLabel}'),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                  visualDensity: VisualDensity.compact,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    final baseStyle = theme.textTheme.labelLarge;
+    final textStyle = baseStyle?.copyWith(
+      fontSize: (baseStyle.fontSize ?? 14) + 2,
+      color: isActive
+          ? cs.primary
+          : cs.onSurfaceVariant.withValues(alpha: 0.65),
+      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+    );
+
+    return SizedBox(
+      height: 56,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Text(label, style: textStyle),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 120),
+                height: 3,
+                width: 18,
+                decoration: BoxDecoration(
+                  color: isActive ? cs.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(999),
                 ),
               ),
-
-              const SizedBox(width: 12),
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: HarmonicFunctionStrip(active: active),
-                ),
-              ),
-            ],
+            ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: Text(
+        title.toUpperCase(),
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          color: cs.onSurfaceVariant,
+          letterSpacing: 0.8,
         ),
+      ),
+    );
+  }
+}
+
+class _SubsectionLabel extends StatelessWidget {
+  const _SubsectionLabel({required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 4),
+      child: Text(
+        title,
+        style: Theme.of(
+          context,
+        ).textTheme.titleSmall?.copyWith(color: cs.onSurface),
       ),
     );
   }
@@ -1605,11 +1774,6 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  bool _computeIsLandscape() {
-    final constraints = MediaQuery.of(context).size;
-    return constraints.width > constraints.height;
   }
 
   @override
@@ -1938,210 +2102,33 @@ class _KeyPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-class HarmonicFunctionStrip extends StatelessWidget {
-  final HarmonicFunction? active;
-  final values = HarmonicFunction.values;
-
-  const HarmonicFunctionStrip({super.key, required this.active});
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          for (int i = 0; i < values.length; i++) ...[
-            _HarmonicFunctionIndicator(
-              label: values[i].label,
-              isActive: values[i] == active,
-            ),
-            if (i < values.length - 1) const SizedBox(width: 12),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-@immutable
-class KeySignatureRow {
-  /// Negative = flats, positive = sharps. e.g. -2 means 2 flats, +3 means 3 sharps.
-  final int accidentals;
-
-  final MusicalKey relativeMajor;
-  final MusicalKey relativeMinor;
-
-  const KeySignatureRow({
-    required this.accidentals,
-    required this.relativeMajor,
-    required this.relativeMinor,
-  });
-
-  String get signatureLabel {
-    if (accidentals == 0) return 'no sharps/flats';
-    final n = accidentals.abs();
-    final word = n == 1 ? '1' : '$n';
-    return accidentals > 0
-        ? '$word sharp${n == 1 ? '' : 's'}'
-        : '$word flat${n == 1 ? '' : 's'}';
-  }
-}
-
-/// Circle-of-fifths-ish ordering that also includes the “full” 15 signatures:
-/// 7 flats ... 0 ... 7 sharps
-const keySignatureRows = <KeySignatureRow>[
-  KeySignatureRow(
-    accidentals: -7,
-    relativeMajor: MusicalKey('C♭', KeyMode.major),
-    relativeMinor: MusicalKey('A♭', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: -6,
-    relativeMajor: MusicalKey('G♭', KeyMode.major),
-    relativeMinor: MusicalKey('E♭', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: -5,
-    relativeMajor: MusicalKey('D♭', KeyMode.major),
-    relativeMinor: MusicalKey('B♭', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: -4,
-    relativeMajor: MusicalKey('A♭', KeyMode.major),
-    relativeMinor: MusicalKey('F', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: -3,
-    relativeMajor: MusicalKey('E♭', KeyMode.major),
-    relativeMinor: MusicalKey('C', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: -2,
-    relativeMajor: MusicalKey('B♭', KeyMode.major),
-    relativeMinor: MusicalKey('G', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: -1,
-    relativeMajor: MusicalKey('F', KeyMode.major),
-    relativeMinor: MusicalKey('D', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: 0,
-    relativeMajor: MusicalKey('C', KeyMode.major),
-    relativeMinor: MusicalKey('A', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: 1,
-    relativeMajor: MusicalKey('G', KeyMode.major),
-    relativeMinor: MusicalKey('E', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: 2,
-    relativeMajor: MusicalKey('D', KeyMode.major),
-    relativeMinor: MusicalKey('B', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: 3,
-    relativeMajor: MusicalKey('A', KeyMode.major),
-    relativeMinor: MusicalKey('F♯', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: 4,
-    relativeMajor: MusicalKey('E', KeyMode.major),
-    relativeMinor: MusicalKey('C♯', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: 5,
-    relativeMajor: MusicalKey('B', KeyMode.major),
-    relativeMinor: MusicalKey('G♯', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: 6,
-    relativeMajor: MusicalKey('F♯', KeyMode.major),
-    relativeMinor: MusicalKey('D♯', KeyMode.minor),
-  ),
-  KeySignatureRow(
-    accidentals: 7,
-    relativeMajor: MusicalKey('C♯', KeyMode.major),
-    relativeMinor: MusicalKey('A♯', KeyMode.minor),
-  ),
-];
-
-class _HarmonicFunctionIndicator extends StatelessWidget {
-  final String label;
-  final bool isActive;
-
-  const _HarmonicFunctionIndicator({
-    required this.label,
-    required this.isActive,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    final baseStyle = theme.textTheme.labelLarge;
-    final textStyle = baseStyle?.copyWith(
-      fontSize: (baseStyle.fontSize ?? 14) + 2,
-      color: isActive
-          ? cs.primary
-          : cs.onSurfaceVariant.withValues(alpha: 0.65),
-      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-    );
-
-    return SizedBox(
-      height: 56,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Text(label, style: textStyle),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 120),
-                height: 3,
-                width: 18,
-                decoration: BoxDecoration(
-                  color: isActive ? cs.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class KeyboardSection extends ConsumerWidget {
-  const KeyboardSection({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final active = ref.watch(activeMidiNotesProvider);
-    final spec = ref.watch(layoutSpecProvider);
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final whiteKeyWidth = width / spec.whiteKeyCount;
-
-        var height = whiteKeyWidth * spec.whiteKeyAspectRatio;
-
-        // Guardrails to prevent extremes.
-        height = height.clamp(90.0, 200.0);
-
-        return PianoKeyboard(
-          whiteKeyCount: spec.whiteKeyCount,
-          startMidiNote: spec.startMidiNote,
-          activeMidiNotes: active,
-          height: height,
-        );
-      },
-    );
+String _midiToNoteName(int midiNote) {
+  switch (midiNote % 12) {
+    case 0:
+      return 'C';
+    case 1:
+      return 'C#';
+    case 2:
+      return 'D';
+    case 3:
+      return 'D#';
+    case 4:
+      return 'E';
+    case 5:
+      return 'F';
+    case 6:
+      return 'F#';
+    case 7:
+      return 'G';
+    case 8:
+      return 'G#';
+    case 9:
+      return 'A';
+    case 10:
+      return 'A#';
+    case 11:
+      return 'B';
+    default:
+      return '?';
   }
 }
