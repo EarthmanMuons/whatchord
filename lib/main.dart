@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -58,6 +59,21 @@ class MidiHoldState {
       sustainDown: sustainDown ?? this.sustainDown,
     );
   }
+
+  static const _setEq = SetEquality<int>();
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MidiHoldState &&
+          runtimeType == other.runtimeType &&
+          sustainDown == other.sustainDown &&
+          _setEq.equals(pressed, other.pressed) &&
+          _setEq.equals(sustained, other.sustained);
+
+  @override
+  int get hashCode =>
+      Object.hash(sustainDown, _setEq.hash(pressed), _setEq.hash(sustained));
 }
 
 enum AppPalette { blue, green, indigo, purple }
@@ -495,7 +511,8 @@ class MidiHoldNotifier extends Notifier<MidiHoldState> {
 
 /// Stub data for UI layout work. Replace later with real MIDI input/provider output.
 final activeMidiNotesProvider = Provider<Set<int>>((ref) {
-  return ref.watch(midiHoldProvider.select((s) => s.activeNotes));
+  final hold = ref.watch(midiHoldProvider);
+  return {...hold.pressed, ...hold.sustained};
 });
 
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
