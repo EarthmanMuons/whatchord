@@ -1444,15 +1444,19 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
   @override
   Widget build(BuildContext context) {
     final spec = ref.watch(layoutSpecProvider);
-    final models = ref.watch(noteChipModelsProvider);
-    final hold = ref.watch(midiHoldProvider);
+    final modelsEmpty = ref.watch(
+      noteChipModelsProvider.select((models) => models.isEmpty),
+    );
+    final sustainDown = ref.watch(
+      midiHoldProvider.select((s) => s.sustainDown),
+    );
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
     const minHeight = 44.0;
 
-    final showPrompt = models.isEmpty && !hold.sustainDown;
+    final showPrompt = modelsEmpty && _items.isEmpty && !sustainDown;
 
     return Padding(
       padding: spec.noteChipsPadding,
@@ -1462,7 +1466,7 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
             ? Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Play notes…',
+                  'Play some notes…',
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: cs.onSurfaceVariant,
                   ),
@@ -1470,25 +1474,18 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
               )
             : SizedBox(
                 height: minHeight,
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: SizedBox(
-                    height: minHeight,
-                    child: AnimatedList(
-                      key: _listKey,
-                      initialItemCount: _items.length,
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      physics: const BouncingScrollPhysics(),
-                      itemBuilder: (context, index, animation) {
-                        final model = _items[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: _buildAnimatedChip(model, animation),
-                        );
-                      },
-                    ),
-                  ),
+                child: AnimatedList(
+                  key: _listKey,
+                  initialItemCount: _items.length,
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  itemBuilder: (context, index, animation) {
+                    final model = _items[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: _buildAnimatedChip(model, animation),
+                    );
+                  },
                 ),
               ),
       ),
