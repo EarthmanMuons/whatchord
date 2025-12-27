@@ -428,9 +428,8 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final seedColor = ref.watch(seedColorProvider);
     final themeMode = ref.watch(themeModeProvider);
-
-    final seedColor = ref.watch(seedColorProvider) ?? Colors.indigo;
 
     return MaterialApp(
       title: 'WhatChord',
@@ -873,7 +872,7 @@ final chordNotationProvider =
 
 class AppPaletteNotifier extends Notifier<AppPalette> {
   @override
-  AppPalette build() => AppPalette.indigo; // default as requested
+  AppPalette build() => AppPalette.indigo;
   void setPalette(AppPalette v) => state = v;
 }
 
