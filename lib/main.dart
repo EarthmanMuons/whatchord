@@ -13,24 +13,12 @@ final appVersionProvider = FutureProvider<String>((ref) async {
   return info.version;
 });
 
-final layoutSpecProvider =
-    NotifierProvider<LayoutSpecNotifier, WhatChordLayoutSpec>(
-      LayoutSpecNotifier.new,
-    );
-
-class LayoutSpecNotifier extends Notifier<WhatChordLayoutSpec> {
-  @override
-  WhatChordLayoutSpec build() => WhatChordLayoutSpec.fallback;
-
-  void setSpec(WhatChordLayoutSpec spec) {
-    if (state != spec) state = spec;
-  }
-}
+final layoutSpecProvider = Provider<WhatChordLayoutSpec>((ref) {
+  throw StateError('layoutSpecProvider must be overridden in HomePage');
+});
 
 @immutable
 class WhatChordLayoutSpec {
-  final bool isLandscape;
-
   // Keyboard
   final int whiteKeyCount;
   final double whiteKeyAspectRatio;
@@ -39,8 +27,6 @@ class WhatChordLayoutSpec {
   // Analysis
   final EdgeInsets analysisPadding;
   final double chordCardMaxWidth;
-  final int topSpacerFlex;
-  final int bottomSpacerFlex;
 
   // Right-side controls (landscape)
   final EdgeInsets controlPanePadding;
@@ -52,115 +38,39 @@ class WhatChordLayoutSpec {
   final double functionBarHeight;
 
   const WhatChordLayoutSpec({
-    required this.isLandscape,
     required this.whiteKeyCount,
     this.whiteKeyAspectRatio = 7.0,
     required this.startMidiNote,
     required this.analysisPadding,
     required this.chordCardMaxWidth,
-    required this.topSpacerFlex,
-    required this.bottomSpacerFlex,
     required this.controlPanePadding,
     required this.noteChipsPadding,
     required this.functionBarHeight,
   });
-
-  /// Safe default used before MediaQuery is available.
-  /// Choose portrait defaults since they’re most conservative.
-  static const WhatChordLayoutSpec fallback = WhatChordLayoutSpec(
-    isLandscape: false,
-    whiteKeyCount: 21,
-    whiteKeyAspectRatio: 7.0,
-    startMidiNote: 48, // C3
-    analysisPadding: EdgeInsets.fromLTRB(16, 16, 16, 16),
-    chordCardMaxWidth: 520,
-    topSpacerFlex: 2,
-    bottomSpacerFlex: 3,
-    controlPanePadding: EdgeInsets.zero,
-    noteChipsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-    functionBarHeight: 56,
-  );
-
-  static WhatChordLayoutSpec from(BuildContext context) {
-    final mq = MediaQuery.of(context);
-    final isLandscape = mq.orientation == Orientation.landscape;
-
-    if (isLandscape) {
-      return const WhatChordLayoutSpec(
-        isLandscape: true,
-
-        // Full 88-key piano view: 52 white keys from A0 (MIDI 21) to C8.
-        whiteKeyCount: 52,
-        whiteKeyAspectRatio: 7.0,
-        startMidiNote: 21, // A0
-
-        analysisPadding: EdgeInsets.fromLTRB(16, 16, 8, 16),
-        chordCardMaxWidth: 520,
-        topSpacerFlex: 1,
-        bottomSpacerFlex: 1,
-
-        controlPanePadding: EdgeInsets.fromLTRB(8, 12, 16, 12),
-
-        // In landscape, let the outer right-pane padding do the work
-        // so the chips don't get double-padded.
-        noteChipsPadding: EdgeInsets.zero,
-
-        functionBarHeight: 56,
-      );
-    }
-
-    return const WhatChordLayoutSpec(
-      isLandscape: false,
-
-      whiteKeyCount: 21,
-      whiteKeyAspectRatio: 7.0,
-      startMidiNote: 48, // C3
-
-      analysisPadding: EdgeInsets.fromLTRB(16, 16, 16, 16),
-      chordCardMaxWidth: 520,
-      topSpacerFlex: 2,
-      bottomSpacerFlex: 3,
-
-      controlPanePadding: EdgeInsets.zero,
-
-      noteChipsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-
-      functionBarHeight: 56,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other is WhatChordLayoutSpec &&
-            other.isLandscape == isLandscape &&
-            other.whiteKeyCount == whiteKeyCount &&
-            other.whiteKeyAspectRatio == whiteKeyAspectRatio &&
-            other.startMidiNote == startMidiNote &&
-            other.analysisPadding == analysisPadding &&
-            other.chordCardMaxWidth == chordCardMaxWidth &&
-            other.topSpacerFlex == topSpacerFlex &&
-            other.bottomSpacerFlex == bottomSpacerFlex &&
-            other.controlPanePadding == controlPanePadding &&
-            other.noteChipsPadding == noteChipsPadding &&
-            other.functionBarHeight == functionBarHeight);
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    isLandscape,
-    whiteKeyCount,
-    whiteKeyAspectRatio,
-    startMidiNote,
-    analysisPadding,
-    chordCardMaxWidth,
-    topSpacerFlex,
-    bottomSpacerFlex,
-    controlPanePadding,
-    noteChipsPadding,
-    functionBarHeight,
-  );
 }
+
+const portraitSpec = WhatChordLayoutSpec(
+  whiteKeyCount: 21,
+  whiteKeyAspectRatio: 7.0,
+  startMidiNote: 48, // C3
+  analysisPadding: EdgeInsets.fromLTRB(16, 16, 16, 16),
+  chordCardMaxWidth: 520,
+  controlPanePadding: EdgeInsets.zero,
+  noteChipsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+  functionBarHeight: 56,
+);
+
+const landscapeSpec = WhatChordLayoutSpec(
+  // Full 88-key view: 52 white keys from A0 (MIDI 21) to C8.
+  whiteKeyCount: 52,
+  whiteKeyAspectRatio: 7.0,
+  startMidiNote: 21, // A0
+  analysisPadding: EdgeInsets.fromLTRB(16, 16, 8, 16),
+  chordCardMaxWidth: 520,
+  controlPanePadding: EdgeInsets.fromLTRB(8, 12, 16, 12),
+  noteChipsPadding: EdgeInsets.zero,
+  functionBarHeight: 56,
+);
 
 enum MidiConnectionStatus { disconnected, connecting, connected, error }
 
@@ -509,23 +419,6 @@ final activeFunctionProvider = Provider<HarmonicFunction?>((ref) {
   return null;
 });
 
-class _LayoutSpecSynchronizer extends ConsumerWidget {
-  final Widget child;
-
-  const _LayoutSpecSynchronizer({required this.child});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final spec = WhatChordLayoutSpec.from(context);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(layoutSpecProvider.notifier).setSpec(spec);
-    });
-
-    return child;
-  }
-}
-
 void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -557,10 +450,6 @@ class MyApp extends ConsumerWidget {
       ),
       themeMode: themeMode,
 
-      builder: (context, child) {
-        return _LayoutSpecSynchronizer(child: child ?? const SizedBox.shrink());
-      },
-
       home: const HomePage(),
     );
   }
@@ -571,66 +460,63 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final spec = ref.watch(layoutSpecProvider);
     final cs = Theme.of(context).colorScheme;
 
-    // ignore left/right cutout safe-area insets in landscape so the UI can span
-    // the full width (e.g., camera hole area).
-    final mq = MediaQuery.of(context);
-    final mqFullWidth = spec.isLandscape
-        ? mq.copyWith(
-            padding: mq.padding.copyWith(left: 0, right: 0),
-            viewPadding: mq.viewPadding.copyWith(left: 0, right: 0),
-          )
-        : mq;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isLandscape = constraints.maxWidth > constraints.maxHeight;
+        final spec = isLandscape ? landscapeSpec : portraitSpec;
 
-    return MediaQuery(
-      data: mqFullWidth,
-      child: _SystemUiModeController(
-        child: _WakelockMidiGate(
-          child: Scaffold(
-            appBar: AppBar(
-              titleSpacing: spec.isLandscape ? 28 : null,
-              title: const Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: 'What'),
-                    TextSpan(
-                      text: 'Chord',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-              ),
-              backgroundColor: cs.surfaceContainerLow,
-              foregroundColor: cs.onSurface,
-              scrolledUnderElevation: 0,
-              actions: [
-                const MidiStatusPill(),
-                Padding(
-                  padding: EdgeInsets.only(right: spec.isLandscape ? 12 : 0),
-                  child: IconButton(
-                    tooltip: 'Settings',
-                    icon: const Icon(Icons.settings),
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const SettingsPage(),
+        final mq = MediaQuery.of(context);
+        final mqFullWidth = isLandscape
+            ? mq.copyWith(
+                padding: mq.padding.copyWith(left: 0, right: 0),
+                viewPadding: mq.viewPadding.copyWith(left: 0, right: 0),
+              )
+            : mq;
+
+        return ProviderScope(
+          overrides: [layoutSpecProvider.overrideWithValue(spec)],
+          child: MediaQuery(
+            data: mqFullWidth,
+            child: _SystemUiModeController(
+              isLandscape: isLandscape,
+              child: _WakelockMidiGate(
+                child: Scaffold(
+                  appBar: AppBar(
+                    titleSpacing: isLandscape ? 28 : null,
+                    // ...
+                    backgroundColor: cs.surfaceContainerLow,
+                    foregroundColor: cs.onSurface,
+                    actions: [
+                      const MidiStatusPill(),
+                      Padding(
+                        padding: EdgeInsets.only(right: isLandscape ? 12 : 0),
+                        child: IconButton(
+                          tooltip: 'Settings',
+                          icon: const Icon(Icons.settings),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const SettingsPage(),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                      ),
+                    ],
+                  ),
+                  body: SafeArea(
+                    child: isLandscape
+                        ? const _HomeLandscape()
+                        : const _HomePortrait(),
                   ),
                 ),
-              ],
-            ),
-            body: SafeArea(
-              child: spec.isLandscape
-                  ? const _HomeLandscape()
-                  : const _HomePortrait(),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -707,43 +593,40 @@ class _HomeLandscape extends ConsumerWidget {
   }
 }
 
-class _SystemUiModeController extends ConsumerStatefulWidget {
-  const _SystemUiModeController({required this.child});
+class _SystemUiModeController extends StatefulWidget {
+  const _SystemUiModeController({
+    required this.child,
+    required this.isLandscape,
+  });
 
   final Widget child;
+  final bool isLandscape;
 
   @override
-  ConsumerState<_SystemUiModeController> createState() =>
+  State<_SystemUiModeController> createState() =>
       _SystemUiModeControllerState();
 }
 
-class _SystemUiModeControllerState
-    extends ConsumerState<_SystemUiModeController> {
-  bool? _lastIsLandscape;
-  late final ProviderSubscription<WhatChordLayoutSpec> _layoutSub;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _layoutSub = ref.listenManual<WhatChordLayoutSpec>(layoutSpecProvider, (
-      prev,
-      next,
-    ) {
-      _applySystemUi(next.isLandscape);
-    });
-  }
+class _SystemUiModeControllerState extends State<_SystemUiModeController> {
+  bool? _last;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final spec = ref.read(layoutSpecProvider);
-    _applySystemUi(spec.isLandscape);
+    _apply(widget.isLandscape);
   }
 
-  void _applySystemUi(bool isLandscape) {
-    if (_lastIsLandscape == isLandscape) return;
-    _lastIsLandscape = isLandscape;
+  @override
+  void didUpdateWidget(covariant _SystemUiModeController oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isLandscape != widget.isLandscape) {
+      _apply(widget.isLandscape);
+    }
+  }
+
+  void _apply(bool isLandscape) {
+    if (_last == isLandscape) return;
+    _last = isLandscape;
 
     if (isLandscape) {
       SystemChrome.setEnabledSystemUIMode(
@@ -757,7 +640,6 @@ class _SystemUiModeControllerState
 
   @override
   void dispose() {
-    _layoutSub.close();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
@@ -1235,23 +1117,18 @@ class AnalysisSection extends ConsumerWidget {
 
     return Padding(
       padding: spec.analysisPadding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Spacer(flex: spec.topSpacerFlex),
-
-          Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: spec.chordCardMaxWidth),
-              child: ChordIdentityCard(
-                chord: analysis.chordName,
-                inversionLabel: analysis.inversionLabel,
-              ),
+      child: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: spec.chordCardMaxWidth),
+            child: ChordIdentityCard(
+              chord: analysis.chordName,
+              inversionLabel: analysis.inversionLabel,
             ),
           ),
-
-          Spacer(flex: spec.bottomSpacerFlex),
-        ],
+        ),
       ),
     );
   }
@@ -1624,7 +1501,6 @@ class _NoteChip extends ConsumerWidget {
 
 class KeyFunctionBar extends ConsumerWidget {
   const KeyFunctionBar({super.key, required this.height});
-
   final double height;
 
   @override
@@ -1643,31 +1519,36 @@ class KeyFunctionBar extends ConsumerWidget {
             children: [
               FilledButton.tonalIcon(
                 onPressed: () async {
-                  final navigator = Navigator.of(context, rootNavigator: true);
-                  final container = ProviderScope.containerOf(context);
+                  if (!context.mounted) return;
 
-                  while (navigator.mounted) {
-                    final spec = container.read(layoutSpecProvider);
+                  final navigator = Navigator.of(context, rootNavigator: true);
+
+                  bool computeIsLandscape() {
+                    final size = MediaQuery.sizeOf(context);
+                    return size.width > size.height;
+                  }
+
+                  while (true) {
+                    final isLandscape = computeIsLandscape();
 
                     final result = await navigator.push<Object?>(
                       ModalBottomSheetRoute(
-                        builder: (context) => _KeyPickerSheet(
+                        builder: (_) => _KeyPickerSheet(
                           closeOnSelect: false,
-                          initialIsLandscape: spec.isLandscape,
+                          initialIsLandscape: isLandscape,
                         ),
-                        isScrollControlled: spec.isLandscape,
+                        isScrollControlled: isLandscape,
                         showDragHandle: true,
                       ),
                     );
 
-                    if (!navigator.mounted) return;
+                    if (!context.mounted) return;
+                    if (result != _KeyPickerSheetResult.reopen) return;
 
-                    if (result != _KeyPickerSheetResult.reopen) {
-                      return;
-                    }
-
-                    // Yield to avoid reopening in the same frame as pop.
+                    // Allow rotation/layout to settle
                     await Future<void>.delayed(Duration.zero);
+
+                    if (!context.mounted) return;
                   }
                 },
                 icon: const Icon(Icons.music_note),
@@ -1721,8 +1602,6 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
   late final ScrollController _controller;
   late final List<KeySignatureRow> _rows;
 
-  ProviderSubscription<WhatChordLayoutSpec>? _layoutSub;
-
   @override
   void initState() {
     super.initState();
@@ -1733,18 +1612,6 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _centerSelectedRow();
-    });
-
-    _layoutSub = ref.listenManual<WhatChordLayoutSpec>(layoutSpecProvider, (
-      prev,
-      next,
-    ) {
-      if (prev == null) return;
-      if (next.isLandscape != widget.initialIsLandscape) {
-        if (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop(_KeyPickerSheetResult.reopen);
-        }
-      }
     });
   }
 
@@ -1791,7 +1658,6 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
 
   @override
   void dispose() {
-    _layoutSub?.close();
     _controller.dispose();
     super.dispose();
   }
@@ -1799,7 +1665,6 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final selected = ref.watch(selectedKeyProvider);
-    final spec = ref.watch(layoutSpecProvider);
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -1809,104 +1674,125 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
       cs.surface,
     );
 
-    final mq = MediaQuery.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isLandscapeNow = constraints.maxWidth > constraints.maxHeight;
 
-    final mqSheet = spec.isLandscape
-        ? mq.copyWith(
-            padding: mq.padding.copyWith(left: 0, right: 0),
-            viewPadding: mq.viewPadding.copyWith(left: 0, right: 0),
-          )
-        : mq;
+        // If the orientation changed since the sheet was opened, close and ask
+        // the caller to reopen so it can adjust route params (scrollControlled, etc.).
+        if (isLandscapeNow != widget.initialIsLandscape) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            final nav = Navigator.of(context);
+            if (nav.canPop()) {
+              nav.pop(_KeyPickerSheetResult.reopen);
+            }
+          });
+        }
 
-    return MediaQuery(
-      data: mqSheet,
-      child: SafeArea(
-        // Also safe: explicitly disable left/right safe area in landscape.
-        left: !spec.isLandscape,
-        right: !spec.isLandscape,
-        child: CustomScrollView(
-          controller: _controller,
-          slivers: [
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _KeyPickerHeaderDelegate(
-                extent: _headerExtent,
-                chipWidth: _chipWidth,
-                brightness: cs.brightness,
-                backgroundColor: cs.surfaceContainerLow,
-              ),
-            ),
-            SliverFixedExtentList(
-              itemExtent: _rowExtent,
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final row = _rows[index % _rows.length];
-                final major = row.relativeMajor;
-                final minor = row.relativeMinor;
+        final mq = MediaQuery.of(context);
 
-                final rowSelected = selected == major || selected == minor;
-                final majorSelected = selected == major;
-                final minorSelected = selected == minor;
+        final mqSheet = isLandscapeNow
+            ? mq.copyWith(
+                padding: mq.padding.copyWith(left: 0, right: 0),
+                viewPadding: mq.viewPadding.copyWith(left: 0, right: 0),
+              )
+            : mq;
 
-                return DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: rowSelected ? selectedRowBg : Colors.transparent,
+        return MediaQuery(
+          data: mqSheet,
+          child: SafeArea(
+            // Explicitly disable left/right safe area in landscape.
+            left: !isLandscapeNow,
+            right: !isLandscapeNow,
+            child: CustomScrollView(
+              controller: _controller,
+              slivers: [
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _KeyPickerHeaderDelegate(
+                    extent: _headerExtent,
+                    chipWidth: _chipWidth,
+                    brightness: cs.brightness,
+                    backgroundColor: cs.surfaceContainerLow,
                   ),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  row.signatureLabel,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: cs.onSurfaceVariant,
-                                  ),
-                                ),
+                ),
+                SliverFixedExtentList(
+                  itemExtent: _rowExtent,
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final row = _rows[index % _rows.length];
+                    final major = row.relativeMajor;
+                    final minor = row.relativeMinor;
+
+                    final rowSelected = selected == major || selected == minor;
+                    final majorSelected = selected == major;
+                    final minorSelected = selected == minor;
+
+                    return DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: rowSelected ? selectedRowBg : Colors.transparent,
+                      ),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
                               ),
-                              SizedBox(
-                                width: _chipWidth,
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: _KeyChoiceChip(
-                                    label: major.label,
-                                    selected: majorSelected,
-                                    onTap: () => _selectKey(major),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      row.signatureLabel,
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(
+                                            color: cs.onSurfaceVariant,
+                                          ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              SizedBox(
-                                width: _chipWidth,
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: _KeyChoiceChip(
-                                    label: minor.label,
-                                    selected: minorSelected,
-                                    onTap: () => _selectKey(minor),
+                                  SizedBox(
+                                    width: _chipWidth,
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: _KeyChoiceChip(
+                                        label: major.label,
+                                        selected: majorSelected,
+                                        onTap: () => _selectKey(major),
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 12),
+                                  SizedBox(
+                                    width: _chipWidth,
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: _KeyChoiceChip(
+                                        label: minor.label,
+                                        selected: minorSelected,
+                                        onTap: () => _selectKey(minor),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: Divider(height: 1),
+                          ),
+                        ],
                       ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Divider(height: 1),
-                      ),
-                    ],
-                  ),
-                );
-              }, childCount: _rows.length * _loopMultiplier),
+                    );
+                  }, childCount: _rows.length * _loopMultiplier),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 12)),
+              ],
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 12)),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
