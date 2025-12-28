@@ -110,7 +110,7 @@ class ChordNameParts {
     this.slashBass,
   });
 
-  bool get hasSlash => slashBass != null && slashBass!.trim().isNotEmpty;
+  bool get hasSlash => slashBass?.trim().isNotEmpty ?? false;
 
   String toDisplayString() {
     final base = '$root$remainder';
