@@ -1405,14 +1405,19 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
   }
 
   void _applyDiff(List<NoteChipModel> next) {
-    final currentIds = _items.map((e) => e.id).toList();
-    final nextIds = next.map((e) => e.id).toList();
+    // Use sets for O(1) membership checks and keep them in sync as we mutate _items.
+    final nextIdSet = next.map((e) => e.id).toSet();
+    final currentIdSet = _items.map((e) => e.id).toSet();
+
+    // For fast in-place updates of existing items by id (pressed <-> sustained).
+    final nextById = <String, NoteChipModel>{for (final m in next) m.id: m};
 
     // 1) Remove items that no longer exist (reverse order keeps indices valid).
     for (int i = _items.length - 1; i >= 0; i--) {
       final id = _items[i].id;
-      if (!nextIds.contains(id)) {
+      if (!nextIdSet.contains(id)) {
         final removed = _items.removeAt(i);
+        currentIdSet.remove(id);
         _listKey.currentState?.removeItem(
           i,
           (context, animation) => _buildAnimatedChip(removed, animation),
@@ -1424,8 +1429,9 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
     // 2) Insert new items in forward order at their target indices.
     for (int i = 0; i < next.length; i++) {
       final id = next[i].id;
-      if (!currentIds.contains(id)) {
+      if (!currentIdSet.contains(id)) {
         _items.insert(i, next[i]);
+        currentIdSet.add(id);
         _listKey.currentState?.insertItem(
           i,
           duration: const Duration(milliseconds: 140),
@@ -1433,11 +1439,16 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
       }
     }
 
-    // 3) Update existing items (pressed <-> sustained transitions, etc.).
-    // Ensure _items matches next order/content.
-    // Our order is stable (sustain at 0 + ascending MIDI), so this is safe.
+    // 3) Update existing items in-place (e.g., pressed <-> sustained) without
+    // replacing the backing list reference that AnimatedList is using.
+    // Assumes order is stable after steps (1) and (2).
     setState(() {
-      _items = next;
+      for (int i = 0; i < _items.length; i++) {
+        final updated = nextById[_items[i].id];
+        if (updated != null) {
+          _items[i] = updated;
+        }
+      }
     });
   }
 
@@ -1513,7 +1524,7 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
             begin: slideFrom,
             end: Offset.zero,
           ).animate(curved),
-          child: _NoteChip(model: model),
+          child: _NoteChip(key: ValueKey(model.id), model: model),
         ),
       ),
     );
@@ -1563,7 +1574,7 @@ class SustainPedalMark extends StatelessWidget {
 }
 
 class _NoteChip extends ConsumerWidget {
-  const _NoteChip({required this.model});
+  const _NoteChip({super.key, required this.model});
 
   final NoteChipModel model;
 
