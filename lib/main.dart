@@ -1837,7 +1837,7 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
         final screenHeight = mqAdjusted.size.height;
         final sheetHeight = isLandscapeNow
             ? screenHeight // Full height in landscape
-            : screenHeight * 0.5; // Half height in portrait
+            : screenHeight * 0.42; // Roughly half height in portrait
 
         return MediaQuery(
           data: mqAdjusted,
