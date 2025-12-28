@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class PianoKeyboardPainter extends CustomPainter {
   PianoKeyboardPainter({
     required this.whiteKeyCount,
-    required this.startMidiNote,
+    required this.firstMidiNote,
     required this.activeMidiNotes,
     required this.whiteKeyColor,
     required this.whiteKeyActiveColor,
@@ -20,7 +20,7 @@ class PianoKeyboardPainter extends CustomPainter {
   });
 
   final int whiteKeyCount;
-  final int startMidiNote;
+  final int firstMidiNote;
 
   /// Active *MIDI note numbers* (e.g., 60 for middle C).
   final Set<int> activeMidiNotes;
@@ -76,14 +76,14 @@ class PianoKeyboardPainter extends CustomPainter {
   }
 
   int _whitePcForIndex(int whiteIndex) {
-    final startPc = startMidiNote % 12;
+    final startPc = firstMidiNote % 12;
     final startPos = _whitePitchClassesInOctave.indexOf(startPc);
     final normalizedStartPos = startPos < 0 ? 0 : startPos;
     return _whitePitchClassesInOctave[(normalizedStartPos + whiteIndex) % 7];
   }
 
   int _whiteMidiForIndex(int whiteIndex) {
-    int midi = startMidiNote;
+    int midi = firstMidiNote;
     for (int i = 0; i < whiteIndex; i++) {
       final pc = _whitePcForIndex(i);
       final step = (pc == _pcE || pc == _pcB) ? 1 : 2;
@@ -205,7 +205,7 @@ class PianoKeyboardPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant PianoKeyboardPainter oldDelegate) {
     return oldDelegate.whiteKeyCount != whiteKeyCount ||
-        oldDelegate.startMidiNote != startMidiNote ||
+        oldDelegate.firstMidiNote != firstMidiNote ||
         oldDelegate.drawBackground != drawBackground ||
         oldDelegate.drawFeltStrip != drawFeltStrip ||
         oldDelegate.feltColor != feltColor ||

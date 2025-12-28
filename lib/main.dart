@@ -35,45 +35,48 @@ class MidiConnectionState {
 }
 
 @immutable
-class MidiHoldState {
+class MidiNoteState {
   final Set<int> pressed; // keys physically down
-  final Set<int> sustained; // released while pedal is down
-  final bool sustainDown;
+  final Set<int> sustained; // keys released while pedal down
+  final bool isPedalDown;
 
-  const MidiHoldState({
+  const MidiNoteState({
     required this.pressed,
     required this.sustained,
-    required this.sustainDown,
+    required this.isPedalDown,
   });
 
   Set<int> get activeNotes => {...pressed, ...sustained};
 
-  MidiHoldState copyWith({
+  MidiNoteState copyWith({
     Set<int>? pressed,
     Set<int>? sustained,
-    bool? sustainDown,
+    bool? isPedalDown,
   }) {
-    return MidiHoldState(
+    return MidiNoteState(
       pressed: pressed ?? this.pressed,
       sustained: sustained ?? this.sustained,
-      sustainDown: sustainDown ?? this.sustainDown,
+      isPedalDown: isPedalDown ?? this.isPedalDown,
     );
   }
 
-  static const _setEq = SetEquality<int>();
+  static const _noteSetEquality = SetEquality<int>();
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MidiHoldState &&
+      other is MidiNoteState &&
           runtimeType == other.runtimeType &&
-          sustainDown == other.sustainDown &&
-          _setEq.equals(pressed, other.pressed) &&
-          _setEq.equals(sustained, other.sustained);
+          isPedalDown == other.isPedalDown &&
+          _noteSetEquality.equals(pressed, other.pressed) &&
+          _noteSetEquality.equals(sustained, other.sustained);
 
   @override
-  int get hashCode =>
-      Object.hash(sustainDown, _setEq.hash(pressed), _setEq.hash(sustained));
+  int get hashCode => Object.hash(
+    isPedalDown,
+    _noteSetEquality.hash(pressed),
+    _noteSetEquality.hash(sustained),
+  );
 }
 
 enum AppPalette { blue, green, indigo, purple }
@@ -96,99 +99,94 @@ extension AppPaletteSeed on AppPalette {
   };
 }
 
-enum ChordNotation { standard, jazz }
+enum ChordSymbolStyle { standard, jazz }
 
 @immutable
-class ChordNameParts {
+class ChordSymbol {
   final String root; // e.g., "C", "F#", "Bb"
-  final String remainder; // e.g., "maj", "m7(b5)", "sus4", "" (optional)
-  final String? slashBass; // e.g., "E" in "Cmaj / E" (no leading " / ")
+  final String quality; // e.g., "maj", "m7(b5)", "sus4", "" (optional)
+  final String? bass; // e.g., "E" in "Cmaj / E" (no leading " / ")
 
-  const ChordNameParts({
-    required this.root,
-    this.remainder = '',
-    this.slashBass,
-  });
+  const ChordSymbol({required this.root, this.quality = '', this.bass});
 
-  bool get hasSlash => slashBass?.trim().isNotEmpty ?? false;
+  bool get hasBass => bass?.trim().isNotEmpty ?? false;
 
-  String toDisplayString() {
-    final base = '$root$remainder';
-    return hasSlash ? '$base / ${slashBass!}' : base;
+  String format() {
+    final base = '$root$quality';
+    return hasBass ? '$base / ${bass!}' : base;
   }
 }
 
 @immutable
 class ChordAnalysis {
-  final ChordNameParts chordName;
-  final String? inversionLabel;
+  final ChordSymbol symbol;
+  final String? inversion;
 
-  const ChordAnalysis({required this.chordName, required this.inversionLabel});
+  const ChordAnalysis({required this.symbol, required this.inversion});
 
-  bool get hasInversion =>
-      inversionLabel != null && inversionLabel!.trim().isNotEmpty;
+  bool get hasInversion => inversion != null && inversion!.trim().isNotEmpty;
 }
 
-enum NoteChipKind { sustainIndicator, note }
+enum ActiveNoteIndicatorKind { pedal, note }
 
-enum NoteChipHold { pressed, sustained }
+enum ActiveNoteIndicatorState { physicallyDown, pedalSustained }
 
 @immutable
-class NoteChipModel {
+class ActiveNoteIndicator {
   final String id; // stable identity for diff/animations
-  final NoteChipKind kind;
-  final String label; // note name or empty for sustain
-  final NoteChipHold? hold; // null for sustain indicator
+  final ActiveNoteIndicatorKind kind;
+  final ActiveNoteIndicatorState? state; // null for sustain pedal
+  final String noteLabel; // note name or empty for sustain pedal
 
-  const NoteChipModel._({
+  const ActiveNoteIndicator._({
     required this.id,
     required this.kind,
-    required this.label,
-    required this.hold,
+    required this.noteLabel,
+    required this.state,
   });
 
-  const NoteChipModel.sustain()
+  const ActiveNoteIndicator.sustain()
     : this._(
         id: 'sustain',
-        kind: NoteChipKind.sustainIndicator,
-        label: '',
-        hold: null,
+        kind: ActiveNoteIndicatorKind.pedal,
+        noteLabel: '',
+        state: null,
       );
 
-  factory NoteChipModel.note({
+  factory ActiveNoteIndicator.note({
     required int midiNote,
     required String label,
-    required NoteChipHold hold,
+    required ActiveNoteIndicatorState state,
   }) {
-    return NoteChipModel._(
+    return ActiveNoteIndicator._(
       id: 'note_$midiNote',
-      kind: NoteChipKind.note,
-      label: label,
-      hold: hold,
+      kind: ActiveNoteIndicatorKind.note,
+      noteLabel: label,
+      state: state,
     );
   }
 }
 
-enum KeyMode { major, minor }
+enum TonalityMode { major, minor }
 
 @immutable
-class MusicalKey {
+class Tonality {
   final String tonic; // e.g. "C", "F#", "Bb"
-  final KeyMode mode;
+  final TonalityMode mode;
 
-  const MusicalKey(this.tonic, this.mode);
+  const Tonality(this.tonic, this.mode);
 
-  bool get isMajor => mode == KeyMode.major;
-  bool get isMinor => mode == KeyMode.minor;
+  bool get isMajor => mode == TonalityMode.major;
+  bool get isMinor => mode == TonalityMode.minor;
 
   String get label => isMajor ? tonic : tonic.toLowerCase();
 
-  String get longLabel => isMajor ? '$tonic major' : '$tonic minor';
+  String get displayName => isMajor ? '$tonic major' : '$tonic minor';
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MusicalKey &&
+      other is Tonality &&
           runtimeType == other.runtimeType &&
           tonic == other.tonic &&
           mode == other.mode;
@@ -197,21 +195,22 @@ class MusicalKey {
   int get hashCode => Object.hash(tonic, mode);
 
   @override
-  String toString() => longLabel;
+  String toString() => displayName;
 }
 
-final selectedKeyProvider = NotifierProvider<SelectedKeyNotifier, MusicalKey>(
-  SelectedKeyNotifier.new,
-);
+final selectedTonalityProvider =
+    NotifierProvider<SelectedTonalityNotifier, Tonality>(
+      SelectedTonalityNotifier.new,
+    );
 
-class SelectedKeyNotifier extends Notifier<MusicalKey> {
+class SelectedTonalityNotifier extends Notifier<Tonality> {
   @override
-  MusicalKey build() => const MusicalKey('C', KeyMode.major);
+  Tonality build() => const Tonality('C', TonalityMode.major);
 
-  void setKey(MusicalKey key) => state = key;
+  void setTonality(Tonality tonality) => state = tonality;
 }
 
-enum HarmonicFunction {
+enum ScaleDegree {
   one('I'),
   two('ii'),
   three('iii'),
@@ -220,111 +219,110 @@ enum HarmonicFunction {
   six('vi'),
   seven('vii°');
 
-  final String label;
-  const HarmonicFunction(this.label);
+  final String romanNumeral;
+  const ScaleDegree(this.romanNumeral);
 }
 
 @immutable
-class KeySignatureRow {
+class KeySignature {
   /// Negative = flats, positive = sharps. e.g. -2 means 2 flats, +3 means 3 sharps.
-  final int accidentals;
+  final int accidentalCount;
+  final Tonality relativeMajor;
+  final Tonality relativeMinor;
 
-  final MusicalKey relativeMajor;
-  final MusicalKey relativeMinor;
-
-  const KeySignatureRow({
-    required this.accidentals,
+  const KeySignature({
+    required this.accidentalCount,
     required this.relativeMajor,
     required this.relativeMinor,
   });
 
-  String get signatureLabel {
-    if (accidentals == 0) return 'no sharps/flats';
-    final n = accidentals.abs();
-    final word = n == 1 ? '1' : '$n';
-    return accidentals > 0
-        ? '$word sharp${n == 1 ? '' : 's'}'
-        : '$word flat${n == 1 ? '' : 's'}';
+  String get label {
+    if (accidentalCount == 0) return 'no sharps/flats';
+    final n = accidentalCount.abs();
+    final countText = n == 1 ? '1' : '$n';
+    return accidentalCount > 0
+        ? '$countText sharp${n == 1 ? '' : 's'}'
+        : '$countText flat${n == 1 ? '' : 's'}';
   }
 }
 
 /// Circle-of-fifths-ish ordering that also includes the “full” 15 signatures:
 /// 7 flats ... 0 ... 7 sharps
-const keySignatureRows = <KeySignatureRow>[
-  KeySignatureRow(
-    accidentals: -7,
-    relativeMajor: MusicalKey('C♭', KeyMode.major),
-    relativeMinor: MusicalKey('A♭', KeyMode.minor),
+const keySignatureRows = <KeySignature>[
+  KeySignature(
+    accidentalCount: -7,
+    relativeMajor: Tonality('C♭', TonalityMode.major),
+    relativeMinor: Tonality('A♭', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: -6,
-    relativeMajor: MusicalKey('G♭', KeyMode.major),
-    relativeMinor: MusicalKey('E♭', KeyMode.minor),
+  KeySignature(
+    accidentalCount: -6,
+    relativeMajor: Tonality('G♭', TonalityMode.major),
+    relativeMinor: Tonality('E♭', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: -5,
-    relativeMajor: MusicalKey('D♭', KeyMode.major),
-    relativeMinor: MusicalKey('B♭', KeyMode.minor),
+  KeySignature(
+    accidentalCount: -5,
+    relativeMajor: Tonality('D♭', TonalityMode.major),
+    relativeMinor: Tonality('B♭', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: -4,
-    relativeMajor: MusicalKey('A♭', KeyMode.major),
-    relativeMinor: MusicalKey('F', KeyMode.minor),
+  KeySignature(
+    accidentalCount: -4,
+    relativeMajor: Tonality('A♭', TonalityMode.major),
+    relativeMinor: Tonality('F', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: -3,
-    relativeMajor: MusicalKey('E♭', KeyMode.major),
-    relativeMinor: MusicalKey('C', KeyMode.minor),
+  KeySignature(
+    accidentalCount: -3,
+    relativeMajor: Tonality('E♭', TonalityMode.major),
+    relativeMinor: Tonality('C', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: -2,
-    relativeMajor: MusicalKey('B♭', KeyMode.major),
-    relativeMinor: MusicalKey('G', KeyMode.minor),
+  KeySignature(
+    accidentalCount: -2,
+    relativeMajor: Tonality('B♭', TonalityMode.major),
+    relativeMinor: Tonality('G', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: -1,
-    relativeMajor: MusicalKey('F', KeyMode.major),
-    relativeMinor: MusicalKey('D', KeyMode.minor),
+  KeySignature(
+    accidentalCount: -1,
+    relativeMajor: Tonality('F', TonalityMode.major),
+    relativeMinor: Tonality('D', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: 0,
-    relativeMajor: MusicalKey('C', KeyMode.major),
-    relativeMinor: MusicalKey('A', KeyMode.minor),
+  KeySignature(
+    accidentalCount: 0,
+    relativeMajor: Tonality('C', TonalityMode.major),
+    relativeMinor: Tonality('A', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: 1,
-    relativeMajor: MusicalKey('G', KeyMode.major),
-    relativeMinor: MusicalKey('E', KeyMode.minor),
+  KeySignature(
+    accidentalCount: 1,
+    relativeMajor: Tonality('G', TonalityMode.major),
+    relativeMinor: Tonality('E', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: 2,
-    relativeMajor: MusicalKey('D', KeyMode.major),
-    relativeMinor: MusicalKey('B', KeyMode.minor),
+  KeySignature(
+    accidentalCount: 2,
+    relativeMajor: Tonality('D', TonalityMode.major),
+    relativeMinor: Tonality('B', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: 3,
-    relativeMajor: MusicalKey('A', KeyMode.major),
-    relativeMinor: MusicalKey('F♯', KeyMode.minor),
+  KeySignature(
+    accidentalCount: 3,
+    relativeMajor: Tonality('A', TonalityMode.major),
+    relativeMinor: Tonality('F♯', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: 4,
-    relativeMajor: MusicalKey('E', KeyMode.major),
-    relativeMinor: MusicalKey('C♯', KeyMode.minor),
+  KeySignature(
+    accidentalCount: 4,
+    relativeMajor: Tonality('E', TonalityMode.major),
+    relativeMinor: Tonality('C♯', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: 5,
-    relativeMajor: MusicalKey('B', KeyMode.major),
-    relativeMinor: MusicalKey('G♯', KeyMode.minor),
+  KeySignature(
+    accidentalCount: 5,
+    relativeMajor: Tonality('B', TonalityMode.major),
+    relativeMinor: Tonality('G♯', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: 6,
-    relativeMajor: MusicalKey('F♯', KeyMode.major),
-    relativeMinor: MusicalKey('D♯', KeyMode.minor),
+  KeySignature(
+    accidentalCount: 6,
+    relativeMajor: Tonality('F♯', TonalityMode.major),
+    relativeMinor: Tonality('D♯', TonalityMode.minor),
   ),
-  KeySignatureRow(
-    accidentals: 7,
-    relativeMajor: MusicalKey('C♯', KeyMode.major),
-    relativeMinor: MusicalKey('A♯', KeyMode.minor),
+  KeySignature(
+    accidentalCount: 7,
+    relativeMajor: Tonality('C♯', TonalityMode.major),
+    relativeMinor: Tonality('A♯', TonalityMode.minor),
   ),
 ];
 
@@ -343,15 +341,15 @@ final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
   ThemeModeNotifier.new,
 );
 
-class ChordNotationNotifier extends Notifier<ChordNotation> {
+class ChordSymbolNotifier extends Notifier<ChordSymbolStyle> {
   @override
-  ChordNotation build() => ChordNotation.standard;
-  void setNotation(ChordNotation v) => state = v;
+  ChordSymbolStyle build() => ChordSymbolStyle.standard;
+  void setStyle(ChordSymbolStyle style) => state = style;
 }
 
-final chordNotationProvider =
-    NotifierProvider<ChordNotationNotifier, ChordNotation>(
-      ChordNotationNotifier.new,
+final chordSymbolProvider =
+    NotifierProvider<ChordSymbolNotifier, ChordSymbolStyle>(
+      ChordSymbolNotifier.new,
     );
 
 class AppPaletteNotifier extends Notifier<AppPalette> {
@@ -369,58 +367,54 @@ final seedColorProvider = Provider<Color>((ref) {
 });
 
 @immutable
-class WhatChordLayoutSpec {
-  // Keyboard
-  final int whiteKeyCount;
-  final double whiteKeyAspectRatio;
-  final int startMidiNote;
-
+class HomeLayoutSpec {
   // Analysis
   final EdgeInsets analysisPadding;
   final double chordCardMaxWidth;
+  final EdgeInsets detailsSectionPadding; // right panel (landscape)
+  final EdgeInsets inputStatePadding;
 
-  // Right-side controls (landscape)
-  final EdgeInsets controlPanePadding;
+  // Tonality
+  final double tonalityBarHeight;
 
-  // Chips
-  final EdgeInsets noteChipsPadding;
+  // Keyboard
+  final int whiteKeyCount;
+  final double whiteKeyAspectRatio;
+  final int firstMidiNote;
 
-  // Function bar
-  final double functionBarHeight;
-
-  const WhatChordLayoutSpec({
-    required this.whiteKeyCount,
-    this.whiteKeyAspectRatio = 7.0,
-    required this.startMidiNote,
+  const HomeLayoutSpec({
     required this.analysisPadding,
     required this.chordCardMaxWidth,
-    required this.controlPanePadding,
-    required this.noteChipsPadding,
-    required this.functionBarHeight,
+    required this.detailsSectionPadding,
+    required this.inputStatePadding,
+    required this.tonalityBarHeight,
+    required this.whiteKeyCount,
+    this.whiteKeyAspectRatio = 7.0,
+    required this.firstMidiNote,
   });
 }
 
-const portraitSpec = WhatChordLayoutSpec(
-  whiteKeyCount: 21,
-  whiteKeyAspectRatio: 7.0,
-  startMidiNote: 48, // C3
+const portraitLayoutSpec = HomeLayoutSpec(
   analysisPadding: EdgeInsets.fromLTRB(16, 16, 16, 16),
   chordCardMaxWidth: 520,
-  controlPanePadding: EdgeInsets.zero,
-  noteChipsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-  functionBarHeight: 56,
+  detailsSectionPadding: EdgeInsets.zero,
+  inputStatePadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+  tonalityBarHeight: 56,
+  whiteKeyCount: 21,
+  whiteKeyAspectRatio: 7.0,
+  firstMidiNote: 48, // C3
 );
 
-const landscapeSpec = WhatChordLayoutSpec(
+const landscapeLayoutSpec = HomeLayoutSpec(
+  analysisPadding: EdgeInsets.fromLTRB(16, 16, 8, 16),
+  chordCardMaxWidth: 520,
+  detailsSectionPadding: EdgeInsets.fromLTRB(8, 12, 16, 12),
+  inputStatePadding: EdgeInsets.zero,
+  tonalityBarHeight: 56,
   // Full 88-key view: 52 white keys from A0 (MIDI 21) to C8.
   whiteKeyCount: 52,
   whiteKeyAspectRatio: 7.0,
-  startMidiNote: 21, // A0
-  analysisPadding: EdgeInsets.fromLTRB(16, 16, 8, 16),
-  chordCardMaxWidth: 520,
-  controlPanePadding: EdgeInsets.fromLTRB(8, 12, 16, 12),
-  noteChipsPadding: EdgeInsets.zero,
-  functionBarHeight: 56,
+  firstMidiNote: 21, // A0
 );
 
 final midiConnectionProvider =
@@ -449,18 +443,19 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       setStatus(MidiConnectionStatus.error, message: message);
 }
 
-final midiHoldProvider = NotifierProvider<MidiHoldNotifier, MidiHoldState>(
-  MidiHoldNotifier.new,
-);
+final midiNoteStateProvider =
+    NotifierProvider<MidiNoteStateNotifier, MidiNoteState>(
+      MidiNoteStateNotifier.new,
+    );
 
-class MidiHoldNotifier extends Notifier<MidiHoldState> {
+class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
   @override
-  MidiHoldState build() {
+  MidiNoteState build() {
     // Stub defaults for UI testing; replace as you wire in real MIDI.
-    return MidiHoldState(
+    return MidiNoteState(
       pressed: <int>{64, 67, 72}, // E4 G4 C5
       sustained: <int>{64},
-      sustainDown: true,
+      isPedalDown: true,
     );
   }
 
@@ -480,7 +475,7 @@ class MidiHoldNotifier extends Notifier<MidiHoldState> {
 
     final nextPressed = {...state.pressed}..remove(midiNote);
 
-    if (state.sustainDown) {
+    if (state.isPedalDown) {
       final nextSustained = {...state.sustained, midiNote};
       state = state.copyWith(pressed: nextPressed, sustained: nextSustained);
     } else {
@@ -491,13 +486,13 @@ class MidiHoldNotifier extends Notifier<MidiHoldState> {
   // Call from MIDI CC64 (sustain)
   // Conventional threshold: >= 64 is down, < 64 is up.
   void setSustainDown(bool down) {
-    if (down == state.sustainDown) return;
+    if (down == state.isPedalDown) return;
 
     if (!down) {
       // Pedal released: all pedal-held notes stop sounding.
-      state = state.copyWith(sustainDown: false, sustained: <int>{});
+      state = state.copyWith(isPedalDown: false, sustained: <int>{});
     } else {
-      state = state.copyWith(sustainDown: true);
+      state = state.copyWith(isPedalDown: true);
     }
   }
 
@@ -507,44 +502,46 @@ class MidiHoldNotifier extends Notifier<MidiHoldState> {
 
 /// Stub data for UI layout work. Replace later with real MIDI input/provider output.
 final activeMidiNotesProvider = Provider<Set<int>>((ref) {
-  final hold = ref.watch(midiHoldProvider);
-  return {...hold.pressed, ...hold.sustained};
+  final state = ref.watch(midiNoteStateProvider);
+  return {...state.pressed, ...state.sustained};
 });
 
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   return const ChordAnalysis(
-    chordName: ChordNameParts(root: 'C', remainder: 'maj', slashBass: 'E'),
-    inversionLabel: '1st inversion',
+    symbol: ChordSymbol(root: 'C', quality: 'maj', bass: 'E'),
+    inversion: '1st inversion',
   );
 });
 
-final activeFunctionProvider = Provider<HarmonicFunction?>((ref) {
-  final key = ref.watch(selectedKeyProvider);
+final activeScaleDegreeProvider = Provider<ScaleDegree?>((ref) {
+  final tonality = ref.watch(selectedTonalityProvider);
   final analysis = ref.watch(chordAnalysisProvider);
 
   // Stub logic
-  if (analysis.chordName.toDisplayString().startsWith(key.label)) {
-    return HarmonicFunction.one;
+  if (analysis.symbol.format().startsWith(tonality.label)) {
+    return ScaleDegree.one;
   }
   return null;
 });
 
-final noteChipModelsProvider = Provider<List<NoteChipModel>>((ref) {
-  final hold = ref.watch(midiHoldProvider);
+final activeNotesProvider = Provider<List<ActiveNoteIndicator>>((ref) {
+  final hold = ref.watch(midiNoteStateProvider);
 
-  final models = <NoteChipModel>[];
-  if (hold.sustainDown) {
-    models.add(const NoteChipModel.sustain());
+  final models = <ActiveNoteIndicator>[];
+  if (hold.isPedalDown) {
+    models.add(const ActiveNoteIndicator.sustain());
   }
 
   final activeSorted = hold.activeNotes.toList()..sort();
   for (final midi in activeSorted) {
     final isPressed = hold.pressed.contains(midi);
     models.add(
-      NoteChipModel.note(
+      ActiveNoteIndicator.note(
         midiNote: midi,
         label: _midiToNoteName(midi),
-        hold: isPressed ? NoteChipHold.pressed : NoteChipHold.sustained,
+        state: isPressed
+            ? ActiveNoteIndicatorState.physicallyDown
+            : ActiveNoteIndicatorState.pedalSustained,
       ),
     );
   }
@@ -597,7 +594,7 @@ class HomePage extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isLandscape = constraints.maxWidth > constraints.maxHeight;
-        final spec = isLandscape ? landscapeSpec : portraitSpec;
+        final spec = isLandscape ? landscapeLayoutSpec : portraitLayoutSpec;
 
         final mq = MediaQuery.of(context);
         final mqFullWidth = isLandscape
@@ -609,9 +606,9 @@ class HomePage extends ConsumerWidget {
 
         return MediaQuery(
           data: mqFullWidth,
-          child: _SystemUiModeController(
+          child: _EdgeToEdgeController(
             isLandscape: isLandscape,
-            child: _WakelockMidiGate(
+            child: _WakelockController(
               child: Scaffold(
                 appBar: AppBar(
                   titleSpacing: isLandscape ? 28 : null,
@@ -668,7 +665,7 @@ class SettingsPage extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     final themeMode = ref.watch(themeModeProvider);
-    final chordNotation = ref.watch(chordNotationProvider);
+    final chordNotation = ref.watch(chordSymbolProvider);
     final palette = ref.watch(appPaletteProvider);
 
     return Scaffold(
@@ -696,23 +693,23 @@ class SettingsPage extends ConsumerWidget {
 
           const SizedBox(height: 16),
           const _SectionHeader(title: 'Chord display'),
-          RadioGroup<ChordNotation>(
+          RadioGroup<ChordSymbolStyle>(
             groupValue: chordNotation,
-            onChanged: (ChordNotation? v) {
-              if (v == null) return;
-              ref.read(chordNotationProvider.notifier).setNotation(v);
+            onChanged: (ChordSymbolStyle? style) {
+              if (style == null) return;
+              ref.read(chordSymbolProvider.notifier).setStyle(style);
             },
             child: const Column(
               children: [
-                RadioListTile<ChordNotation>(
+                RadioListTile<ChordSymbolStyle>(
                   title: Text('Standard notation'),
                   subtitle: Text('E.g., Cmaj7, F#m7b5'),
-                  value: ChordNotation.standard,
+                  value: ChordSymbolStyle.standard,
                 ),
-                RadioListTile<ChordNotation>(
+                RadioListTile<ChordSymbolStyle>(
                   title: Text('Jazz notation'),
                   subtitle: Text('E.g., CΔ7, F#ø7'),
-                  value: ChordNotation.jazz,
+                  value: ChordSymbolStyle.jazz,
                 ),
               ],
             ),
@@ -846,7 +843,7 @@ class SettingsPage extends ConsumerWidget {
 class _HomePortrait extends ConsumerWidget {
   // ignore: unused_element_parameter
   const _HomePortrait({super.key, required this.spec});
-  final WhatChordLayoutSpec spec;
+  final HomeLayoutSpec spec;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -862,8 +859,8 @@ class _HomePortrait extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              NoteChipsArea(padding: spec.noteChipsPadding),
-              KeyFunctionBar(height: spec.functionBarHeight),
+              ActiveNotesRow(padding: spec.inputStatePadding),
+              TonalityBar(height: spec.tonalityBarHeight),
               const Divider(height: 1),
               KeyboardSection(spec: spec),
             ],
@@ -877,7 +874,7 @@ class _HomePortrait extends ConsumerWidget {
 class _HomeLandscape extends ConsumerWidget {
   // ignore: unused_element_parameter
   const _HomeLandscape({super.key, required this.spec});
-  final WhatChordLayoutSpec spec;
+  final HomeLayoutSpec spec;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -892,10 +889,10 @@ class _HomeLandscape extends ConsumerWidget {
               Expanded(
                 flex: 7,
                 child: Padding(
-                  padding: spec.controlPanePadding,
+                  padding: spec.detailsSectionPadding,
                   child: Align(
                     alignment: Alignment.bottomLeft,
-                    child: NoteChipsArea(padding: spec.noteChipsPadding),
+                    child: ActiveNotesRow(padding: spec.inputStatePadding),
                   ),
                 ),
               ),
@@ -908,7 +905,7 @@ class _HomeLandscape extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              KeyFunctionBar(height: spec.functionBarHeight),
+              TonalityBar(height: spec.tonalityBarHeight),
               const Divider(height: 1),
               KeyboardSection(spec: spec),
             ],
@@ -921,7 +918,7 @@ class _HomeLandscape extends ConsumerWidget {
 
 class AnalysisSection extends ConsumerWidget {
   const AnalysisSection({super.key, required this.spec});
-  final WhatChordLayoutSpec spec;
+  final HomeLayoutSpec spec;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -935,9 +932,9 @@ class AnalysisSection extends ConsumerWidget {
           alignment: Alignment.center,
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: spec.chordCardMaxWidth),
-            child: ChordIdentityCard(
-              chord: analysis.chordName,
-              inversionLabel: analysis.inversionLabel,
+            child: ChordCard(
+              symbol: analysis.symbol,
+              inversion: analysis.inversion,
             ),
           ),
         ),
@@ -946,15 +943,15 @@ class AnalysisSection extends ConsumerWidget {
   }
 }
 
-class KeyFunctionBar extends ConsumerWidget {
-  const KeyFunctionBar({super.key, required this.height});
+class TonalityBar extends ConsumerWidget {
+  const TonalityBar({super.key, required this.height});
   final double height;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
-    final selectedKey = ref.watch(selectedKeyProvider);
-    final active = ref.watch(activeFunctionProvider);
+    final selectedTonality = ref.watch(selectedTonalityProvider);
+    final active = ref.watch(activeScaleDegreeProvider);
 
     return Material(
       color: cs.surfaceContainerLow,
@@ -972,14 +969,14 @@ class KeyFunctionBar extends ConsumerWidget {
 
                   navigator.push(
                     ModalBottomSheetRoute(
-                      builder: (_) => _KeyPickerSheet(),
+                      builder: (_) => _TonalityPickerSheet(),
                       isScrollControlled: true,
                       showDragHandle: true,
                     ),
                   );
                 },
                 icon: const Icon(Icons.music_note),
-                label: Text('Key: ${selectedKey.longLabel}'),
+                label: Text('Key: ${selectedTonality.displayName}'),
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -994,7 +991,7 @@ class KeyFunctionBar extends ConsumerWidget {
               Expanded(
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: HarmonicFunctionStrip(active: active),
+                  child: ScaleDegrees(active: active),
                 ),
               ),
             ],
@@ -1007,7 +1004,7 @@ class KeyFunctionBar extends ConsumerWidget {
 
 class KeyboardSection extends ConsumerWidget {
   const KeyboardSection({super.key, required this.spec});
-  final WhatChordLayoutSpec spec;
+  final HomeLayoutSpec spec;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1025,7 +1022,7 @@ class KeyboardSection extends ConsumerWidget {
 
         return PianoKeyboard(
           whiteKeyCount: spec.whiteKeyCount,
-          startMidiNote: spec.startMidiNote,
+          firstMidiNote: spec.firstMidiNote,
           activeMidiNotes: active,
           height: height,
         );
@@ -1034,40 +1031,36 @@ class KeyboardSection extends ConsumerWidget {
   }
 }
 
-class _SystemUiModeController extends StatefulWidget {
-  const _SystemUiModeController({
-    required this.child,
-    required this.isLandscape,
-  });
+class _EdgeToEdgeController extends StatefulWidget {
+  const _EdgeToEdgeController({required this.child, required this.isLandscape});
 
   final Widget child;
   final bool isLandscape;
 
   @override
-  State<_SystemUiModeController> createState() =>
-      _SystemUiModeControllerState();
+  State<_EdgeToEdgeController> createState() => _EdgeToEdgeControllerState();
 }
 
-class _SystemUiModeControllerState extends State<_SystemUiModeController> {
-  bool? _last;
+class _EdgeToEdgeControllerState extends State<_EdgeToEdgeController> {
+  bool? _wasLandscape;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _apply(widget.isLandscape);
+    _updateSystemUiMode(widget.isLandscape);
   }
 
   @override
-  void didUpdateWidget(covariant _SystemUiModeController oldWidget) {
+  void didUpdateWidget(covariant _EdgeToEdgeController oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.isLandscape != widget.isLandscape) {
-      _apply(widget.isLandscape);
+      _updateSystemUiMode(widget.isLandscape);
     }
   }
 
-  void _apply(bool isLandscape) {
-    if (_last == isLandscape) return;
-    _last = isLandscape;
+  void _updateSystemUiMode(bool isLandscape) {
+    if (_wasLandscape == isLandscape) return;
+    _wasLandscape = isLandscape;
 
     if (isLandscape) {
       SystemChrome.setEnabledSystemUIMode(
@@ -1089,17 +1082,18 @@ class _SystemUiModeControllerState extends State<_SystemUiModeController> {
   Widget build(BuildContext context) => widget.child;
 }
 
-class _WakelockMidiGate extends ConsumerStatefulWidget {
-  const _WakelockMidiGate({required this.child});
+class _WakelockController extends ConsumerStatefulWidget {
+  const _WakelockController({required this.child});
 
   final Widget child;
 
   @override
-  ConsumerState<_WakelockMidiGate> createState() => _WakelockMidiGateState();
+  ConsumerState<_WakelockController> createState() =>
+      _WakelockControllerState();
 }
 
-class _WakelockMidiGateState extends ConsumerState<_WakelockMidiGate> {
-  bool? _lastApplied;
+class _WakelockControllerState extends ConsumerState<_WakelockController> {
+  bool? _lastWakelockEnabled;
 
   @override
   void dispose() {
@@ -1110,7 +1104,7 @@ class _WakelockMidiGateState extends ConsumerState<_WakelockMidiGate> {
 
   @override
   Widget build(BuildContext context) {
-    final shouldKeepAwake = ref.watch(
+    final shouldEnableWakelock = ref.watch(
       midiConnectionProvider.select(
         (s) =>
             s.status == MidiConnectionStatus.connected ||
@@ -1118,13 +1112,13 @@ class _WakelockMidiGateState extends ConsumerState<_WakelockMidiGate> {
       ),
     );
 
-    if (_lastApplied != shouldKeepAwake) {
-      _lastApplied = shouldKeepAwake;
+    if (_lastWakelockEnabled != shouldEnableWakelock) {
+      _lastWakelockEnabled = shouldEnableWakelock;
 
       // Avoid doing platform work in the middle of the build pipeline.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        WakelockPlus.toggle(enable: shouldKeepAwake);
+        WakelockPlus.toggle(enable: shouldEnableWakelock);
       });
     }
 
@@ -1293,23 +1287,18 @@ class _MidiStatusDotState extends State<_MidiStatusDot>
   }
 }
 
-class ChordIdentityCard extends StatelessWidget {
-  final ChordNameParts chord;
-  final String? inversionLabel;
+class ChordCard extends StatelessWidget {
+  final ChordSymbol symbol;
+  final String? inversion;
 
-  const ChordIdentityCard({
-    super.key,
-    required this.chord,
-    required this.inversionLabel,
-  });
+  const ChordCard({super.key, required this.symbol, required this.inversion});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final hasInversion =
-        inversionLabel != null && inversionLabel!.trim().isNotEmpty;
+    final hasInversion = inversion != null && inversion!.trim().isNotEmpty;
 
     final chordStyle = theme.textTheme.displayMedium!.copyWith(
       color: cs.onPrimary,
@@ -1329,14 +1318,14 @@ class ChordIdentityCard extends StatelessWidget {
 
     Widget chordText() {
       final spans = <InlineSpan>[
-        TextSpan(text: chord.root, style: rootStyle),
-        if (chord.remainder.isNotEmpty) ...[
+        TextSpan(text: symbol.root, style: rootStyle),
+        if (symbol.quality.isNotEmpty) ...[
           const TextSpan(text: '\u200A'), // hair space
-          TextSpan(text: chord.remainder),
+          TextSpan(text: symbol.quality),
         ],
-        if (chord.hasSlash) ...[
+        if (symbol.hasBass) ...[
           const TextSpan(text: ' / '),
-          TextSpan(text: chord.slashBass),
+          TextSpan(text: symbol.bass),
         ],
       ];
 
@@ -1362,7 +1351,7 @@ class ChordIdentityCard extends StatelessWidget {
                     chordText(),
                     const SizedBox(height: 18),
                     Text(
-                      inversionLabel!,
+                      inversion!,
                       textAlign: TextAlign.center,
                       style: inversionStyle,
                       maxLines: 1,
@@ -1377,27 +1366,27 @@ class ChordIdentityCard extends StatelessWidget {
   }
 }
 
-class NoteChipsArea extends ConsumerStatefulWidget {
-  const NoteChipsArea({super.key, required this.padding});
+class ActiveNotesRow extends ConsumerStatefulWidget {
+  const ActiveNotesRow({super.key, required this.padding});
   final EdgeInsets padding;
 
   @override
-  ConsumerState<NoteChipsArea> createState() => _NoteChipsAreaState();
+  ConsumerState<ActiveNotesRow> createState() => _ActiveNotesRowState();
 }
 
-class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
+class _ActiveNotesRowState extends ConsumerState<ActiveNotesRow> {
   final _listKey = GlobalKey<AnimatedListState>();
 
-  late List<NoteChipModel> _items;
-  ProviderSubscription<List<NoteChipModel>>? _sub;
+  late List<ActiveNoteIndicator> _items;
+  ProviderSubscription<List<ActiveNoteIndicator>>? _sub;
 
   @override
   void initState() {
     super.initState();
 
-    _items = ref.read(noteChipModelsProvider);
+    _items = ref.read(activeNotesProvider);
 
-    _sub = ref.listenManual<List<NoteChipModel>>(noteChipModelsProvider, (
+    _sub = ref.listenManual<List<ActiveNoteIndicator>>(activeNotesProvider, (
       prev,
       next,
     ) {
@@ -1412,13 +1401,15 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
     super.dispose();
   }
 
-  void _applyDiff(List<NoteChipModel> next) {
+  void _applyDiff(List<ActiveNoteIndicator> next) {
     // Use sets for O(1) membership checks and keep them in sync as we mutate _items.
     final nextIdSet = next.map((e) => e.id).toSet();
     final currentIdSet = _items.map((e) => e.id).toSet();
 
     // For fast in-place updates of existing items by id (pressed <-> sustained).
-    final nextById = <String, NoteChipModel>{for (final m in next) m.id: m};
+    final nextById = <String, ActiveNoteIndicator>{
+      for (final m in next) m.id: m,
+    };
 
     // 1) Remove items that no longer exist (reverse order keeps indices valid).
     for (int i = _items.length - 1; i >= 0; i--) {
@@ -1463,10 +1454,10 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
   @override
   Widget build(BuildContext context) {
     final modelsEmpty = ref.watch(
-      noteChipModelsProvider.select((models) => models.isEmpty),
+      activeNotesProvider.select((models) => models.isEmpty),
     );
     final sustainDown = ref.watch(
-      midiHoldProvider.select((s) => s.sustainDown),
+      midiNoteStateProvider.select((s) => s.isPedalDown),
     );
 
     final theme = Theme.of(context);
@@ -1510,14 +1501,17 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
     );
   }
 
-  Widget _buildAnimatedChip(NoteChipModel model, Animation<double> animation) {
+  Widget _buildAnimatedChip(
+    ActiveNoteIndicator model,
+    Animation<double> animation,
+  ) {
     // Use a SizeTransition for smooth insertion/removal, plus a slight slide/fade.
     final curved = CurvedAnimation(
       parent: animation,
       curve: Curves.easeOutCubic,
     );
 
-    final slideFrom = model.kind == NoteChipKind.sustainIndicator
+    final slideFrom = model.kind == ActiveNoteIndicatorKind.pedal
         ? const Offset(-0.20, 0) // sustain pill slides in from left
         : const Offset(0.0, 0); // notes just fade/size in
 
@@ -1531,15 +1525,15 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
             begin: slideFrom,
             end: Offset.zero,
           ).animate(curved),
-          child: _NoteChip(key: ValueKey(model.id), model: model),
+          child: _ActiveNote(key: ValueKey(model.id), model: model),
         ),
       ),
     );
   }
 }
 
-class SustainPedalMark extends StatelessWidget {
-  const SustainPedalMark({super.key});
+class PedalIndicator extends StatelessWidget {
+  const PedalIndicator({super.key});
 
   static const double slotWidth = 36;
   static const double glyphSize = 32;
@@ -1580,37 +1574,38 @@ class SustainPedalMark extends StatelessWidget {
   }
 }
 
-class _NoteChip extends ConsumerWidget {
-  const _NoteChip({super.key, required this.model});
+class _ActiveNote extends ConsumerWidget {
+  const _ActiveNote({super.key, required this.model});
 
-  final NoteChipModel model;
+  final ActiveNoteIndicator model;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    if (model.kind == NoteChipKind.sustainIndicator) {
-      return const SustainPedalMark();
+    if (model.kind == ActiveNoteIndicatorKind.pedal) {
+      return const PedalIndicator();
     }
 
-    final hold = ref.watch(midiHoldProvider);
-    final sustainDown = hold.sustainDown;
+    final hold = ref.watch(midiNoteStateProvider);
+    final sustainDown = hold.isPedalDown;
 
     final isSustainedNote =
-        model.kind == NoteChipKind.note && model.hold == NoteChipHold.sustained;
+        model.kind == ActiveNoteIndicatorKind.note &&
+        model.state == ActiveNoteIndicatorState.pedalSustained;
 
-    final bgColor = model.kind == NoteChipKind.sustainIndicator
+    final bgColor = model.kind == ActiveNoteIndicatorKind.pedal
         ? Colors.transparent
         : cs.surfaceContainerLow;
 
-    final fgColor = model.kind == NoteChipKind.sustainIndicator
+    final fgColor = model.kind == ActiveNoteIndicatorKind.pedal
         ? cs.onSurfaceVariant
         : cs.onSurface;
 
     // Slightly darken all note borders when sustain is down,
     // and darken further (or thicken) for sustained notes.
-    final borderColor = model.kind == NoteChipKind.sustainIndicator
+    final borderColor = model.kind == ActiveNoteIndicatorKind.pedal
         ? cs.outlineVariant
         : (isSustainedNote
               ? cs.outlineVariant.withValues(alpha: 0.92)
@@ -1626,7 +1621,7 @@ class _NoteChip extends ConsumerWidget {
         border: Border.all(color: borderColor, width: borderWidth),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      child: model.kind == NoteChipKind.sustainIndicator
+      child: model.kind == ActiveNoteIndicatorKind.pedal
           ? Tooltip(
               message: 'Sustain pedal held',
               child: Semantics(
@@ -1639,18 +1634,18 @@ class _NoteChip extends ConsumerWidget {
               ),
             )
           : Text(
-              model.label,
+              model.noteLabel,
               style: theme.textTheme.titleMedium?.copyWith(color: fgColor),
             ),
     );
   }
 }
 
-class HarmonicFunctionStrip extends StatelessWidget {
-  final HarmonicFunction? active;
-  final values = HarmonicFunction.values;
+class ScaleDegrees extends StatelessWidget {
+  final ScaleDegree? active;
+  final values = ScaleDegree.values;
 
-  const HarmonicFunctionStrip({super.key, required this.active});
+  const ScaleDegrees({super.key, required this.active});
 
   @override
   Widget build(BuildContext context) {
@@ -1659,8 +1654,8 @@ class HarmonicFunctionStrip extends StatelessWidget {
       child: Row(
         children: [
           for (int i = 0; i < values.length; i++) ...[
-            _HarmonicFunctionIndicator(
-              label: values[i].label,
+            _ScaleDegreeIndicator(
+              label: values[i].romanNumeral,
               isActive: values[i] == active,
             ),
             if (i < values.length - 1) const SizedBox(width: 12),
@@ -1671,14 +1666,11 @@ class HarmonicFunctionStrip extends StatelessWidget {
   }
 }
 
-class _HarmonicFunctionIndicator extends StatelessWidget {
+class _ScaleDegreeIndicator extends StatelessWidget {
   final String label;
   final bool isActive;
 
-  const _HarmonicFunctionIndicator({
-    required this.label,
-    required this.isActive,
-  });
+  const _ScaleDegreeIndicator({required this.label, required this.isActive});
 
   @override
   Widget build(BuildContext context) {
@@ -1760,22 +1752,23 @@ class _SubsectionLabel extends StatelessWidget {
   }
 }
 
-class _KeyPickerSheet extends ConsumerStatefulWidget {
-  const _KeyPickerSheet();
+class _TonalityPickerSheet extends ConsumerStatefulWidget {
+  const _TonalityPickerSheet();
 
   @override
-  ConsumerState<_KeyPickerSheet> createState() => _KeyPickerSheetState();
+  ConsumerState<_TonalityPickerSheet> createState() =>
+      _TonalityPickerSheetState();
 }
 
-class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
+class _TonalityPickerSheetState extends ConsumerState<_TonalityPickerSheet> {
   static const _loopMultiplier = 200;
 
-  static const double _rowExtent = 62.0;
-  static const double _headerExtent = 46.0;
+  static const double _rowHeight = 62.0;
+  static const double _headerHeight = 46.0;
   static const double _chipWidth = 64.0;
 
   late final ScrollController _controller;
-  late final List<KeySignatureRow> _rows;
+  late final List<KeySignature> _rows;
 
   bool? _lastIsLandscape;
 
@@ -1800,7 +1793,7 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final selected = ref.watch(selectedKeyProvider);
+    final selected = ref.watch(selectedTonalityProvider);
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -1812,14 +1805,14 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isLandscapeNow = constraints.maxWidth > constraints.maxHeight;
+        final isLandscape = constraints.maxWidth > constraints.maxHeight;
 
-        final didChange =
-            _lastIsLandscape != null && _lastIsLandscape != isLandscapeNow;
+        final didOrientationChange =
+            _lastIsLandscape != null && _lastIsLandscape != isLandscape;
 
-        _lastIsLandscape = isLandscapeNow;
+        _lastIsLandscape = isLandscape;
 
-        if (didChange) {
+        if (didOrientationChange) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
             _centerSelectedRow();
@@ -1829,7 +1822,7 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
         final mq = MediaQuery.of(context);
 
         // Always strip left/right for full-width expansion (existing, for full internal use of route space)
-        final mqAdjusted = isLandscapeNow
+        final mqAdjusted = isLandscape
             ? mq.copyWith(
                 padding: mq.padding.copyWith(left: 0, right: 0),
                 viewPadding: mq.viewPadding.copyWith(left: 0, right: 0),
@@ -1837,15 +1830,15 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
             : mq;
 
         final screenHeight = mqAdjusted.size.height;
-        final sheetHeight = isLandscapeNow
+        final sheetHeight = isLandscape
             ? screenHeight // Full height in landscape
             : screenHeight * 0.42; // Roughly half height in portrait
 
         return MediaQuery(
           data: mqAdjusted,
           child: SafeArea(
-            left: !isLandscapeNow,
-            right: !isLandscapeNow,
+            left: !isLandscape,
+            right: !isLandscape,
             child: SizedBox(
               height: sheetHeight,
               child: CustomScrollView(
@@ -1853,14 +1846,14 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
                 slivers: [
                   SliverPersistentHeader(
                     pinned: true,
-                    delegate: _KeyPickerHeaderDelegate(
-                      extent: _headerExtent,
+                    delegate: _TonalityPickerHeaderDelegate(
+                      extent: _headerHeight,
                       chipWidth: _chipWidth,
                       backgroundColor: cs.surfaceContainerLow,
                     ),
                   ),
                   SliverFixedExtentList(
-                    itemExtent: _rowExtent,
+                    itemExtent: _rowHeight,
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final row = _rows[index % _rows.length];
                       final major = row.relativeMajor;
@@ -1889,7 +1882,7 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
                                   children: [
                                     Expanded(
                                       child: Text(
-                                        row.signatureLabel,
+                                        row.label,
                                         style: theme.textTheme.bodyMedium
                                             ?.copyWith(
                                               color: cs.onSurfaceVariant,
@@ -1900,10 +1893,10 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
                                       width: _chipWidth,
                                       child: Align(
                                         alignment: Alignment.center,
-                                        child: _KeyChoiceChip(
+                                        child: _TonalityChoiceChip(
                                           label: major.label,
                                           selected: majorSelected,
-                                          onTap: () => _selectKey(major),
+                                          onTap: () => _selectTonality(major),
                                         ),
                                       ),
                                     ),
@@ -1912,10 +1905,10 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
                                       width: _chipWidth,
                                       child: Align(
                                         alignment: Alignment.center,
-                                        child: _KeyChoiceChip(
+                                        child: _TonalityChoiceChip(
                                           label: minor.label,
                                           selected: minorSelected,
-                                          onTap: () => _selectKey(minor),
+                                          onTap: () => _selectTonality(minor),
                                         ),
                                       ),
                                     ),
@@ -1942,30 +1935,30 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
     );
   }
 
-  List<KeySignatureRow> _buildOrderedRows() {
-    KeySignatureRow rowFor(int acc) =>
-        keySignatureRows.firstWhere((r) => r.accidentals == acc);
+  List<KeySignature> _buildOrderedRows() {
+    KeySignature rowFor(int acc) =>
+        keySignatureRows.firstWhere((r) => r.accidentalCount == acc);
 
-    return <KeySignatureRow>[
+    return <KeySignature>[
       for (var n = 7; n >= 1; n--) rowFor(n), // 7♯ … 1♯
       rowFor(0), // 0
       for (var n = 1; n <= 7; n++) rowFor(-n), // 1♭ … 7♭
     ];
   }
 
-  int _baseIndexForSelected(MusicalKey selected) {
+  int _baseIndexForSelected(Tonality selected) {
     final i = _rows.indexWhere(
       (row) => row.relativeMajor == selected || row.relativeMinor == selected,
     );
     if (i >= 0) return i;
 
-    return _rows.indexWhere((row) => row.accidentals == 0);
+    return _rows.indexWhere((row) => row.accidentalCount == 0);
   }
 
   void _centerSelectedRow() {
     if (!_controller.hasClients) return;
 
-    final selected = ref.read(selectedKeyProvider);
+    final selected = ref.read(selectedTonalityProvider);
     final viewport = _controller.position.viewportDimension;
 
     final base = _baseIndexForSelected(selected);
@@ -1973,7 +1966,7 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
     final selectedIndex = middleStart + base;
 
     final target =
-        (selectedIndex * _rowExtent) - (viewport / 2) + (_rowExtent / 2);
+        (selectedIndex * _rowHeight) - (viewport / 2) + (_rowHeight / 2);
 
     _controller.jumpTo(
       target.clamp(
@@ -1983,17 +1976,17 @@ class _KeyPickerSheetState extends ConsumerState<_KeyPickerSheet> {
     );
   }
 
-  void _selectKey(MusicalKey key) {
-    ref.read(selectedKeyProvider.notifier).setKey(key);
+  void _selectTonality(Tonality tonality) {
+    ref.read(selectedTonalityProvider.notifier).setTonality(tonality);
   }
 }
 
-class _KeyChoiceChip extends StatelessWidget {
+class _TonalityChoiceChip extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
 
-  const _KeyChoiceChip({
+  const _TonalityChoiceChip({
     required this.label,
     required this.selected,
     required this.onTap,
@@ -2036,12 +2029,12 @@ class _KeyChoiceChip extends StatelessWidget {
   }
 }
 
-class _KeyPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
+class _TonalityPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double extent;
   final double chipWidth;
   final Color backgroundColor;
 
-  const _KeyPickerHeaderDelegate({
+  const _TonalityPickerHeaderDelegate({
     required this.extent,
     required this.chipWidth,
     required this.backgroundColor,
@@ -2108,7 +2101,7 @@ class _KeyPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  bool shouldRebuild(covariant _KeyPickerHeaderDelegate oldDelegate) {
+  bool shouldRebuild(covariant _TonalityPickerHeaderDelegate oldDelegate) {
     return oldDelegate.extent != extent ||
         oldDelegate.chipWidth != chipWidth ||
         oldDelegate.backgroundColor != backgroundColor;
