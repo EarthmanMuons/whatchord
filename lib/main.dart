@@ -1137,10 +1137,12 @@ class MidiStatusPill extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-    final midi = ref.watch(midiConnectionProvider);
+    final status = ref.watch(midiConnectionProvider.select((s) => s.status));
+    final message = ref.watch(midiConnectionProvider.select((s) => s.message));
 
-    final (label, bg, fg, border) = switch (midi.status) {
+    final cs = Theme.of(context).colorScheme;
+
+    final (label, bg, fg, border) = switch (status) {
       MidiConnectionStatus.connected => (
         'MIDI: Connected',
         cs.secondaryContainer,
@@ -1167,8 +1169,8 @@ class MidiStatusPill extends ConsumerWidget {
       ),
     };
 
-    final tooltip = midi.message?.trim().isNotEmpty == true
-        ? '$label\n${midi.message}'
+    final tooltip = message?.trim().isNotEmpty == true
+        ? '$label\n$message'
         : label;
 
     return Semantics(
@@ -1186,7 +1188,7 @@ class MidiStatusPill extends ConsumerWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _MidiStatusDot(status: midi.status, colorScheme: cs),
+                _MidiStatusDot(status: status, colorScheme: cs),
                 const SizedBox(width: 8),
                 Text(
                   label,
