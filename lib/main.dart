@@ -423,10 +423,6 @@ const landscapeSpec = WhatChordLayoutSpec(
   functionBarHeight: 56,
 );
 
-final layoutSpecProvider = Provider<WhatChordLayoutSpec>((ref) {
-  throw StateError('layoutSpecProvider must be overridden in HomePage');
-});
-
 final midiConnectionProvider =
     NotifierProvider<MidiConnectionNotifier, MidiConnectionState>(
       MidiConnectionNotifier.new,
@@ -611,42 +607,49 @@ class HomePage extends ConsumerWidget {
               )
             : mq;
 
-        return ProviderScope(
-          overrides: [layoutSpecProvider.overrideWithValue(spec)],
-          child: MediaQuery(
-            data: mqFullWidth,
-            child: _SystemUiModeController(
-              isLandscape: isLandscape,
-              child: _WakelockMidiGate(
-                child: Scaffold(
-                  appBar: AppBar(
-                    titleSpacing: isLandscape ? 28 : null,
-                    // ...
-                    backgroundColor: cs.surfaceContainerLow,
-                    foregroundColor: cs.onSurface,
-                    actions: [
-                      const MidiStatusPill(),
-                      Padding(
-                        padding: EdgeInsets.only(right: isLandscape ? 12 : 0),
-                        child: IconButton(
-                          tooltip: 'Settings',
-                          icon: const Icon(Icons.settings),
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) => const SettingsPage(),
-                              ),
-                            );
-                          },
+        return MediaQuery(
+          data: mqFullWidth,
+          child: _SystemUiModeController(
+            isLandscape: isLandscape,
+            child: _WakelockMidiGate(
+              child: Scaffold(
+                appBar: AppBar(
+                  titleSpacing: isLandscape ? 28 : null,
+                  title: const Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(text: 'What'),
+                        TextSpan(
+                          text: 'Chord',
+                          style: TextStyle(fontWeight: FontWeight.w600),
                         ),
+                      ],
+                    ),
+                  ),
+                  backgroundColor: cs.surfaceContainerLow,
+                  foregroundColor: cs.onSurface,
+                  actions: [
+                    const MidiStatusPill(),
+                    Padding(
+                      padding: EdgeInsets.only(right: isLandscape ? 12 : 0),
+                      child: IconButton(
+                        tooltip: 'Settings',
+                        icon: const Icon(Icons.settings),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const SettingsPage(),
+                            ),
+                          );
+                        },
                       ),
-                    ],
-                  ),
-                  body: SafeArea(
-                    child: isLandscape
-                        ? const _HomeLandscape()
-                        : const _HomePortrait(),
-                  ),
+                    ),
+                  ],
+                ),
+                body: SafeArea(
+                  child: isLandscape
+                      ? _HomeLandscape(spec: spec)
+                      : _HomePortrait(spec: spec),
                 ),
               ),
             ),
@@ -842,25 +845,27 @@ class SettingsPage extends ConsumerWidget {
 
 class _HomePortrait extends ConsumerWidget {
   // ignore: unused_element_parameter
-  const _HomePortrait({super.key});
+  const _HomePortrait({super.key, required this.spec});
+  final WhatChordLayoutSpec spec;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final spec = ref.watch(layoutSpecProvider);
-
     return Column(
       children: [
-        const Flexible(fit: FlexFit.loose, child: AnalysisSection()),
+        Flexible(
+          fit: FlexFit.loose,
+          child: AnalysisSection(spec: spec),
+        ),
 
         SafeArea(
           top: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const NoteChipsArea(),
+              NoteChipsArea(padding: spec.noteChipsPadding),
               KeyFunctionBar(height: spec.functionBarHeight),
               const Divider(height: 1),
-              const KeyboardSection(),
+              KeyboardSection(spec: spec),
             ],
           ),
         ),
@@ -871,11 +876,11 @@ class _HomePortrait extends ConsumerWidget {
 
 class _HomeLandscape extends ConsumerWidget {
   // ignore: unused_element_parameter
-  const _HomeLandscape({super.key});
+  const _HomeLandscape({super.key, required this.spec});
+  final WhatChordLayoutSpec spec;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final spec = ref.watch(layoutSpecProvider);
     return Column(
       children: [
         Flexible(
@@ -883,14 +888,14 @@ class _HomeLandscape extends ConsumerWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Expanded(flex: 6, child: AnalysisSection()),
+              Expanded(flex: 6, child: AnalysisSection(spec: spec)),
               Expanded(
                 flex: 7,
                 child: Padding(
                   padding: spec.controlPanePadding,
                   child: Align(
                     alignment: Alignment.bottomLeft,
-                    child: const NoteChipsArea(),
+                    child: NoteChipsArea(padding: spec.noteChipsPadding),
                   ),
                 ),
               ),
@@ -905,7 +910,7 @@ class _HomeLandscape extends ConsumerWidget {
             children: [
               KeyFunctionBar(height: spec.functionBarHeight),
               const Divider(height: 1),
-              const KeyboardSection(),
+              KeyboardSection(spec: spec),
             ],
           ),
         ),
@@ -915,12 +920,12 @@ class _HomeLandscape extends ConsumerWidget {
 }
 
 class AnalysisSection extends ConsumerWidget {
-  const AnalysisSection({super.key});
+  const AnalysisSection({super.key, required this.spec});
+  final WhatChordLayoutSpec spec;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final analysis = ref.watch(chordAnalysisProvider);
-    final spec = ref.watch(layoutSpecProvider);
 
     return Padding(
       padding: spec.analysisPadding,
@@ -1001,12 +1006,12 @@ class KeyFunctionBar extends ConsumerWidget {
 }
 
 class KeyboardSection extends ConsumerWidget {
-  const KeyboardSection({super.key});
+  const KeyboardSection({super.key, required this.spec});
+  final WhatChordLayoutSpec spec;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final active = ref.watch(activeMidiNotesProvider);
-    final spec = ref.watch(layoutSpecProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1371,7 +1376,8 @@ class ChordIdentityCard extends StatelessWidget {
 }
 
 class NoteChipsArea extends ConsumerStatefulWidget {
-  const NoteChipsArea({super.key});
+  const NoteChipsArea({super.key, required this.padding});
+  final EdgeInsets padding;
 
   @override
   ConsumerState<NoteChipsArea> createState() => _NoteChipsAreaState();
@@ -1454,7 +1460,6 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
 
   @override
   Widget build(BuildContext context) {
-    final spec = ref.watch(layoutSpecProvider);
     final modelsEmpty = ref.watch(
       noteChipModelsProvider.select((models) => models.isEmpty),
     );
@@ -1470,7 +1475,7 @@ class _NoteChipsAreaState extends ConsumerState<NoteChipsArea> {
     final showPrompt = modelsEmpty && _items.isEmpty && !sustainDown;
 
     return Padding(
-      padding: spec.noteChipsPadding,
+      padding: widget.padding,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: minHeight),
         child: showPrompt
