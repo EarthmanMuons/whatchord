@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  universal_ble
   url_launcher_windows
 )
 

@@ -40,6 +40,8 @@ dependencies:
   url_launcher: ^6.3.2
   package_info_plus: ^9.0.0
   collection: ^1.19.1
+  flutter_midi_command: ^0.5.3
+  shared_preferences: ^2.5.4
 
 dev_dependencies:
   flutter_test:

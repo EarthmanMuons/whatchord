@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  flutter_midi_command_linux
   url_launcher_linux
 )
 
