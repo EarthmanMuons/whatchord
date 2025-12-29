@@ -840,7 +840,6 @@ class _HomePortrait extends ConsumerWidget {
           fit: FlexFit.loose,
           child: AnalysisSection(config: config),
         ),
-
         SafeArea(
           top: false,
           child: Column(
@@ -873,20 +872,10 @@ class _HomeLandscape extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(flex: 6, child: AnalysisSection(config: config)),
-              Expanded(
-                flex: 7,
-                child: Padding(
-                  padding: config.detailsSectionPadding,
-                  child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: ActiveInput(padding: config.activeInputPadding),
-                  ),
-                ),
-              ),
+              Expanded(flex: 7, child: DetailsSection(config: config)),
             ],
           ),
         ),
-
         SafeArea(
           top: false,
           child: Column(
@@ -925,6 +914,22 @@ class AnalysisSection extends ConsumerWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class DetailsSection extends ConsumerWidget {
+  const DetailsSection({super.key, required this.config});
+  final HomeLayoutConfig config;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Padding(
+      padding: config.detailsSectionPadding,
+      child: Align(
+        alignment: Alignment.bottomLeft,
+        child: ActiveInput(padding: config.activeInputPadding), // ⭐
       ),
     );
   }
