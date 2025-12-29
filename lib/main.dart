@@ -8,6 +8,10 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import 'features/midi/models/bluetooth_state.dart';
+import 'features/midi/providers/midi_providers.dart';
+import 'features/midi/services/stub_midi_service.dart';
+
 import 'features/piano/piano.dart';
 
 enum MidiConnectionStatus { disconnected, connecting, connected, error }
@@ -413,16 +417,42 @@ final midiConnectionProvider =
 class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   @override
   MidiConnectionState build() {
-    // Stub default. Replace with persisted/bootstrapped status later.
-    return const MidiConnectionState(status: MidiConnectionStatus.connected);
+    // Watch the connected device from the service
+    final device = ref.watch(connectedMidiDeviceProvider);
+
+    // Watch bluetooth state and handle errors
+    ref.listen(bluetoothStateStreamProvider, (previous, next) {
+      next.when(
+        data: (BluetoothState state) {
+          if (state == BluetoothState.off) {
+            setStatus(MidiConnectionStatus.error, message: 'Bluetooth is off');
+          } else if (state == BluetoothState.unauthorized) {
+            setStatus(
+              MidiConnectionStatus.error,
+              message: 'Bluetooth permission required',
+            );
+          }
+        },
+        loading: () {},
+        error: (_, __) {},
+      );
+    });
+
+    // Update status based on connected device
+    if (device != null && device.isConnected) {
+      return MidiConnectionState(
+        status: MidiConnectionStatus.connected,
+        message: device.name,
+      );
+    }
+
+    return const MidiConnectionState(status: MidiConnectionStatus.disconnected);
   }
 
-  /// Call this when your MIDI layer reports a new connection state.
   void setStatus(MidiConnectionStatus status, {String? message}) {
     state = state.copyWith(status: status, message: message);
   }
 
-  /// Optional helpers for later (or for quick UI testing).
   void markConnecting() => setStatus(MidiConnectionStatus.connecting);
   void markConnected({String? deviceName}) =>
       setStatus(MidiConnectionStatus.connected, message: deviceName);
@@ -576,6 +606,9 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
 
+    // Initialize MIDI service on first build.
+    ref.watch(midiServiceInitProvider);
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isLandscape = constraints.maxWidth > constraints.maxHeight;
@@ -669,11 +702,13 @@ class SettingsPage extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.piano),
             title: const Text('MIDI input'),
-            subtitle: const Text('Not configured (placeholder)'),
+            subtitle: _buildMidiSubtitle(ref),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('MIDI config placeholder')),
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const MidiSettingsPage(),
+                ),
               );
             },
           ),
@@ -823,6 +858,215 @@ class SettingsPage extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMidiSubtitle(WidgetRef ref) {
+    final connectionState = ref.watch(midiConnectionProvider);
+    final mode = ref.watch(midiModeProvider);
+
+    if (connectionState.isConnected) {
+      return Text('${connectionState.message ?? 'Connected'} (${mode.name})');
+    }
+
+    return Text('Not connected (${mode.name})');
+  }
+}
+
+class MidiSettingsPage extends ConsumerStatefulWidget {
+  const MidiSettingsPage({super.key});
+
+  @override
+  ConsumerState<MidiSettingsPage> createState() => _MidiSettingsPageState();
+}
+
+class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final mode = ref.watch(midiModeProvider);
+    final connectionState = ref.watch(midiConnectionProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('MIDI Input'),
+        backgroundColor: cs.surfaceContainerLow,
+        foregroundColor: cs.onSurface,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Mode Toggle (Development only - can remove in production)
+          Card(
+            child: SwitchListTile(
+              title: const Text('Use Real MIDI Hardware'),
+              subtitle: Text('Current mode: ${mode.name}'),
+              value: mode == MidiMode.real,
+              onChanged: (_) {
+                ref.read(midiModeProvider.notifier).toggle();
+              },
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Connection Status
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Connection Status',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _buildStatusIndicator(connectionState.status),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          connectionState.isConnected
+                              ? 'Connected to ${connectionState.message}'
+                              : switch (connectionState.status) {
+                                  MidiConnectionStatus.connecting =>
+                                    'Connecting...',
+                                  MidiConnectionStatus.error =>
+                                    connectionState.message ?? 'Error',
+                                  _ => 'Not connected',
+                                },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Test Section (only in stub mode)
+          if (mode == MidiMode.stub) ...[
+            const _SectionHeader(title: 'Testing'),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Stub Mode Test Controls',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.music_note),
+                      label: const Text('Play C Major Chord'),
+                      onPressed: _testCMajorChord,
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.music_note),
+                      label: const Text('Play F Major Chord'),
+                      onPressed: _testFMajorChord,
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.piano),
+                      label: const Text('Test Sustain Pedal'),
+                      onPressed: _testSustainPedal,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+
+          // Real MIDI controls
+          if (mode == MidiMode.real) ...[
+            const _SectionHeader(title: 'Device Management'),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.search),
+              label: const Text('Scan for Devices'),
+              onPressed: () {
+                // TODO: Navigate to device picker (Phase 2)
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Device scanner coming in Phase 2!'),
+                  ),
+                );
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _testCMajorChord() {
+    final service = ref.read(midiServiceProvider);
+    if (service is StubMidiService) {
+      service.simulateNoteOn(60); // C4
+      service.simulateNoteOn(64); // E4
+      service.simulateNoteOn(67); // G4
+
+      Future.delayed(const Duration(seconds: 2), () {
+        service.simulateNoteOff(60);
+        service.simulateNoteOff(64);
+        service.simulateNoteOff(67);
+      });
+    }
+  }
+
+  void _testFMajorChord() {
+    final service = ref.read(midiServiceProvider);
+    if (service is StubMidiService) {
+      service.simulateNoteOn(65); // F4
+      service.simulateNoteOn(69); // A4
+      service.simulateNoteOn(72); // C5
+
+      Future.delayed(const Duration(seconds: 2), () {
+        service.simulateNoteOff(65);
+        service.simulateNoteOff(69);
+        service.simulateNoteOff(72);
+      });
+    }
+  }
+
+  void _testSustainPedal() {
+    final service = ref.read(midiServiceProvider);
+    if (service is StubMidiService) {
+      // Press pedal
+      service.simulatePedal(true);
+
+      // Press and release a note while pedal is down
+      service.simulateNoteOn(60);
+      Future.delayed(const Duration(milliseconds: 500), () {
+        service.simulateNoteOff(60); // Note should sustain
+      });
+
+      // Release pedal after 2 seconds
+      Future.delayed(const Duration(seconds: 2), () {
+        service.simulatePedal(false); // Note should stop
+      });
+    }
+  }
+
+  Widget _buildStatusIndicator(MidiConnectionStatus status) {
+    final color = switch (status) {
+      MidiConnectionStatus.connected => Colors.green,
+      MidiConnectionStatus.connecting => Colors.orange,
+      MidiConnectionStatus.error => Colors.red,
+      MidiConnectionStatus.disconnected => Colors.grey,
+    };
+
+    return Container(
+      width: 12,
+      height: 12,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }
