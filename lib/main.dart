@@ -127,44 +127,32 @@ class ChordAnalysis {
   bool get hasInversion => inversion != null && inversion!.trim().isNotEmpty;
 }
 
-enum ActiveNoteIndicatorKind { pedal, note }
-
-enum ActiveNoteIndicatorState { physicallyDown, pedalSustained }
-
 @immutable
-class ActiveNoteIndicator {
-  final String id; // stable identity for diff/animations
-  final ActiveNoteIndicatorKind kind;
-  final ActiveNoteIndicatorState? state; // null for sustain pedal
-  final String noteLabel; // note name or empty for sustain pedal
+class ActiveNote {
+  final int midiNote;
+  final String label; // e.g., "C4", "F#5"
+  final bool isSustained; // true if held by pedal, false if currently pressed
 
-  const ActiveNoteIndicator._({
-    required this.id,
-    required this.kind,
-    required this.noteLabel,
-    required this.state,
+  const ActiveNote({
+    required this.midiNote,
+    required this.label,
+    required this.isSustained,
   });
 
-  const ActiveNoteIndicator.sustain()
-    : this._(
-        id: 'sustain',
-        kind: ActiveNoteIndicatorKind.pedal,
-        noteLabel: '',
-        state: null,
-      );
+  /// Stable ID for AnimatedList diffing.
+  String get id => 'note_$midiNote';
 
-  factory ActiveNoteIndicator.note({
-    required int midiNote,
-    required String label,
-    required ActiveNoteIndicatorState state,
-  }) {
-    return ActiveNoteIndicator._(
-      id: 'note_$midiNote',
-      kind: ActiveNoteIndicatorKind.note,
-      noteLabel: label,
-      state: state,
-    );
-  }
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ActiveNote &&
+          runtimeType == other.runtimeType &&
+          midiNote == other.midiNote &&
+          label == other.label &&
+          isSustained == other.isSustained;
+
+  @override
+  int get hashCode => Object.hash(midiNote, label, isSustained);
 }
 
 enum TonalityMode { major, minor }
@@ -372,7 +360,7 @@ class HomeLayoutConfig {
   final EdgeInsets analysisPadding;
   final double chordCardMaxWidth;
   final EdgeInsets detailsSectionPadding; // right panel (landscape)
-  final EdgeInsets inputStatePadding;
+  final EdgeInsets activeInputPadding;
 
   // Tonality
   final double tonalityBarHeight;
@@ -386,7 +374,7 @@ class HomeLayoutConfig {
     required this.analysisPadding,
     required this.chordCardMaxWidth,
     required this.detailsSectionPadding,
-    required this.inputStatePadding,
+    required this.activeInputPadding,
     required this.tonalityBarHeight,
     required this.whiteKeyCount,
     this.whiteKeyAspectRatio = 7.0,
@@ -398,7 +386,7 @@ const portraitLayoutConfig = HomeLayoutConfig(
   analysisPadding: EdgeInsets.fromLTRB(16, 16, 16, 16),
   chordCardMaxWidth: 520,
   detailsSectionPadding: EdgeInsets.zero,
-  inputStatePadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+  activeInputPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
   tonalityBarHeight: 56,
   whiteKeyCount: 21,
   whiteKeyAspectRatio: 7.0,
@@ -409,7 +397,7 @@ const landscapeLayoutConfig = HomeLayoutConfig(
   analysisPadding: EdgeInsets.fromLTRB(16, 16, 8, 16),
   chordCardMaxWidth: 520,
   detailsSectionPadding: EdgeInsets.fromLTRB(8, 12, 16, 12),
-  inputStatePadding: EdgeInsets.zero,
+  activeInputPadding: EdgeInsets.zero,
   tonalityBarHeight: 56,
   // Full 88-key view: 52 white keys from A0 (MIDI 21) to C8.
   whiteKeyCount: 52,
@@ -451,25 +439,23 @@ final midiNoteStateProvider =
 class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
   @override
   MidiNoteState build() {
-    // Stub defaults for UI testing; replace as you wire in real MIDI.
+    // Stub defaults for UI testing; replace when wiring real MIDI.
     return MidiNoteState(
-      pressed: <int>{64, 67, 72}, // E4 G4 C5
-      sustained: <int>{64},
+      pressed: {64, 67, 72}, // E4 G4 C5
+      sustained: {64},
       isPedalDown: true,
     );
   }
 
-  // Call from MIDI Note On
   void noteOn(int midiNote) {
     final nextPressed = {...state.pressed, midiNote};
 
-    // If a sustained note is re-pressed, it should no longer be “sustained”.
+    // If a sustained note is re-pressed, remove it from sustained.
     final nextSustained = {...state.sustained}..remove(midiNote);
 
     state = state.copyWith(pressed: nextPressed, sustained: nextSustained);
   }
 
-  // Call from MIDI Note Off
   void noteOff(int midiNote) {
     if (!state.pressed.contains(midiNote)) return;
 
@@ -483,27 +469,51 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
     }
   }
 
-  // Call from MIDI CC64 (sustain)
-  // Conventional threshold: >= 64 is down, < 64 is up.
-  void setSustainDown(bool down) {
+  void setPedalDown(bool down) {
     if (down == state.isPedalDown) return;
 
     if (!down) {
-      // Pedal released: all pedal-held notes stop sounding.
+      // Pedal released: clear all sustained notes.
       state = state.copyWith(isPedalDown: false, sustained: <int>{});
     } else {
       state = state.copyWith(isPedalDown: true);
     }
   }
 
-  // Convenience for CC64 values.
-  void handleSustainValue(int value) => setSustainDown(value >= 64);
+  // Convenience for MIDI CC64 values (sustain pedal).
+  // Convention: >= 64 is down, < 64 is up.
+  void handlePedalValue(int value) => setPedalDown(value >= 64);
 }
 
-/// Stub data for UI layout work. Replace later with real MIDI input/provider output.
-final activeMidiNotesProvider = Provider<Set<int>>((ref) {
+// All notes currently sounding (for piano keyboard highlighting).
+final activeNotesProvider = Provider<Set<int>>((ref) {
   final state = ref.watch(midiNoteStateProvider);
-  return {...state.pressed, ...state.sustained};
+  return state.activeNotes;
+});
+
+// Sustain pedal state (for display in ActiveInput).
+final isPedalDownProvider = Provider<bool>((ref) {
+  return ref.watch(midiNoteStateProvider.select((s) => s.isPedalDown));
+});
+
+// Active notes for display in ActiveInput, sorted by pitch.
+final activeNotesListProvider = Provider<List<ActiveNote>>((ref) {
+  final state = ref.watch(midiNoteStateProvider);
+
+  final notes = <ActiveNote>[];
+  final activeSorted = state.activeNotes.toList()..sort();
+
+  for (final midi in activeSorted) {
+    notes.add(
+      ActiveNote(
+        midiNote: midi,
+        label: _midiToNoteName(midi),
+        isSustained: state.sustained.contains(midi),
+      ),
+    );
+  }
+
+  return notes;
 });
 
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
@@ -522,31 +532,6 @@ final activeScaleDegreeProvider = Provider<ScaleDegree?>((ref) {
     return ScaleDegree.one;
   }
   return null;
-});
-
-final activeNotesProvider = Provider<List<ActiveNoteIndicator>>((ref) {
-  final hold = ref.watch(midiNoteStateProvider);
-
-  final models = <ActiveNoteIndicator>[];
-  if (hold.isPedalDown) {
-    models.add(const ActiveNoteIndicator.sustain());
-  }
-
-  final activeSorted = hold.activeNotes.toList()..sort();
-  for (final midi in activeSorted) {
-    final isPressed = hold.pressed.contains(midi);
-    models.add(
-      ActiveNoteIndicator.note(
-        midiNote: midi,
-        label: _midiToNoteName(midi),
-        state: isPressed
-            ? ActiveNoteIndicatorState.physicallyDown
-            : ActiveNoteIndicatorState.pedalSustained,
-      ),
-    );
-  }
-
-  return models;
 });
 
 void main() {
@@ -861,7 +846,7 @@ class _HomePortrait extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ActiveNotesRow(padding: config.inputStatePadding),
+              ActiveInput(padding: config.activeInputPadding),
               TonalityBar(height: config.tonalityBarHeight),
               const Divider(height: 1),
               KeyboardSection(config: config),
@@ -894,7 +879,7 @@ class _HomeLandscape extends ConsumerWidget {
                   padding: config.detailsSectionPadding,
                   child: Align(
                     alignment: Alignment.bottomLeft,
-                    child: ActiveNotesRow(padding: config.inputStatePadding),
+                    child: ActiveInput(padding: config.activeInputPadding),
                   ),
                 ),
               ),
@@ -1010,7 +995,7 @@ class KeyboardSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final active = ref.watch(activeMidiNotesProvider);
+    final active = ref.watch(activeNotesProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1368,86 +1353,90 @@ class ChordCard extends StatelessWidget {
   }
 }
 
-class ActiveNotesRow extends ConsumerStatefulWidget {
-  const ActiveNotesRow({super.key, required this.padding});
+class ActiveInput extends ConsumerStatefulWidget {
+  const ActiveInput({super.key, required this.padding});
   final EdgeInsets padding;
 
   @override
-  ConsumerState<ActiveNotesRow> createState() => _ActiveNotesRowState();
+  ConsumerState<ActiveInput> createState() => _ActiveInputState();
 }
 
-class _ActiveNotesRowState extends ConsumerState<ActiveNotesRow> {
+class _ActiveInputState extends ConsumerState<ActiveInput> {
   final _listKey = GlobalKey<AnimatedListState>();
-
-  late List<ActiveNoteIndicator> _items;
-  ProviderSubscription<List<ActiveNoteIndicator>>? _sub;
+  late List<ActiveNote> _notes;
+  late bool _pedal;
+  ProviderSubscription<List<ActiveNote>>? _notesSub;
+  ProviderSubscription<bool>? _pedalSub;
 
   @override
   void initState() {
     super.initState();
 
-    _items = ref.read(activeNotesProvider);
+    _notes = ref.read(activeNotesListProvider);
+    _pedal = ref.read(isPedalDownProvider);
 
-    _sub = ref.listenManual<List<ActiveNoteIndicator>>(activeNotesProvider, (
+    _notesSub = ref.listenManual<List<ActiveNote>>(activeNotesListProvider, (
       prev,
       next,
     ) {
       if (!mounted) return;
-      _applyDiff(next);
+      _applyNotesDiff(next);
+    });
+
+    _pedalSub = ref.listenManual<bool>(isPedalDownProvider, (prev, next) {
+      if (!mounted) return;
+      setState(() => _pedal = next);
     });
   }
 
   @override
   void dispose() {
-    _sub?.close();
+    _notesSub?.close();
+    _pedalSub?.close();
     super.dispose();
   }
 
-  void _applyDiff(List<ActiveNoteIndicator> next) {
-    // Use sets for O(1) membership checks and keep them in sync as we mutate _items.
+  void _applyNotesDiff(List<ActiveNote> next) {
     final nextIdSet = next.map((e) => e.id).toSet();
-    final currentIdSet = _items.map((e) => e.id).toSet();
+    final currentIdSet = _notes.map((e) => e.id).toSet();
 
-    // For fast in-place updates of existing items by id (pressed <-> sustained).
-    final nextById = <String, ActiveNoteIndicator>{
-      for (final m in next) m.id: m,
-    };
+    final nextById = <String, ActiveNote>{for (final n in next) n.id: n};
 
-    // 1) Remove items that no longer exist (reverse order keeps indices valid).
-    for (int i = _items.length - 1; i >= 0; i--) {
-      final id = _items[i].id;
+    // Remove notes that no longer exist
+    for (int i = _notes.length - 1; i >= 0; i--) {
+      final id = _notes[i].id;
       if (!nextIdSet.contains(id)) {
-        final removed = _items.removeAt(i);
+        final removed = _notes.removeAt(i);
         currentIdSet.remove(id);
         _listKey.currentState?.removeItem(
-          i,
-          (context, animation) => _buildAnimatedChip(removed, animation),
+          // Offset by 1 if pedal is showing
+          _pedal ? i + 1 : i,
+          (context, animation) => _buildAnimatedNoteChip(removed, animation),
           duration: const Duration(milliseconds: 120),
         );
       }
     }
 
-    // 2) Insert new items in forward order at their target indices.
+    // Insert new notes
     for (int i = 0; i < next.length; i++) {
       final id = next[i].id;
       if (!currentIdSet.contains(id)) {
-        _items.insert(i, next[i]);
+        _notes.insert(i, next[i]);
         currentIdSet.add(id);
         _listKey.currentState?.insertItem(
-          i,
+          // Offset by 1 if pedal is showing
+          _pedal ? i + 1 : i,
           duration: const Duration(milliseconds: 140),
         );
       }
     }
 
-    // 3) Update existing items in-place (e.g., pressed <-> sustained) without
-    // replacing the backing list reference that AnimatedList is using.
-    // Assumes order is stable after steps (1) and (2).
+    // Update existing notes in-place (for pressed <-> sustained transitions)
     setState(() {
-      for (int i = 0; i < _items.length; i++) {
-        final updated = nextById[_items[i].id];
+      for (int i = 0; i < _notes.length; i++) {
+        final updated = nextById[_notes[i].id];
         if (updated != null) {
-          _items[i] = updated;
+          _notes[i] = updated;
         }
       }
     });
@@ -1455,19 +1444,12 @@ class _ActiveNotesRowState extends ConsumerState<ActiveNotesRow> {
 
   @override
   Widget build(BuildContext context) {
-    final modelsEmpty = ref.watch(
-      activeNotesProvider.select((models) => models.isEmpty),
-    );
-    final sustainDown = ref.watch(
-      midiNoteStateProvider.select((s) => s.isPedalDown),
-    );
-
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
     const minHeight = 44.0;
 
-    final showPrompt = modelsEmpty && _items.isEmpty && !sustainDown;
+    final showPrompt = _notes.isEmpty && !_pedal;
 
     return Padding(
       padding: widget.padding,
@@ -1487,14 +1469,23 @@ class _ActiveNotesRowState extends ConsumerState<ActiveNotesRow> {
                 height: minHeight,
                 child: AnimatedList(
                   key: _listKey,
-                  initialItemCount: _items.length,
+                  initialItemCount: _pedal ? _notes.length + 1 : _notes.length,
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   itemBuilder: (context, index, animation) {
-                    final model = _items[index];
+                    // Pedal always at index 0 when showing
+                    if (_pedal && index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: _buildAnimatedPedalIndicator(animation),
+                      );
+                    }
+
+                    final noteIndex = _pedal ? index - 1 : index;
+                    final note = _notes[noteIndex];
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
-                      child: _buildAnimatedChip(model, animation),
+                      child: _buildAnimatedNoteChip(note, animation),
                     );
                   },
                 ),
@@ -1503,19 +1494,11 @@ class _ActiveNotesRowState extends ConsumerState<ActiveNotesRow> {
     );
   }
 
-  Widget _buildAnimatedChip(
-    ActiveNoteIndicator model,
-    Animation<double> animation,
-  ) {
-    // Use a SizeTransition for smooth insertion/removal, plus a slight slide/fade.
+  Widget _buildAnimatedPedalIndicator(Animation<double> animation) {
     final curved = CurvedAnimation(
       parent: animation,
       curve: Curves.easeOutCubic,
     );
-
-    final slideFrom = model.kind == ActiveNoteIndicatorKind.pedal
-        ? const Offset(-0.20, 0) // sustain pill slides in from left
-        : const Offset(0.0, 0); // notes just fade/size in
 
     return SizeTransition(
       sizeFactor: curved,
@@ -1524,11 +1507,27 @@ class _ActiveNotesRowState extends ConsumerState<ActiveNotesRow> {
         opacity: curved,
         child: SlideTransition(
           position: Tween<Offset>(
-            begin: slideFrom,
+            begin: const Offset(-0.20, 0),
             end: Offset.zero,
           ).animate(curved),
-          child: _ActiveNote(key: ValueKey(model.id), model: model),
+          child: const PedalIndicator(key: ValueKey('sustain')),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedNoteChip(ActiveNote note, Animation<double> animation) {
+    final curved = CurvedAnimation(
+      parent: animation,
+      curve: Curves.easeOutCubic,
+    );
+
+    return SizeTransition(
+      sizeFactor: curved,
+      axis: Axis.horizontal,
+      child: FadeTransition(
+        opacity: curved,
+        child: NoteChip(key: ValueKey(note.id), note: note),
       ),
     );
   }
@@ -1545,27 +1544,25 @@ class PedalIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    return IgnorePointer(
-      child: Semantics(
-        label: 'Sustain pedal held',
-        child: Tooltip(
-          message: 'Sustain pedal held',
-          child: SizedBox(
-            width: slotWidth,
-            height: double.infinity,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Transform.translate(
-                offset: opticalOffset,
-                child: SvgPicture.asset(
-                  'assets/glyphs/keyboard_pedal_ped.svg',
-                  width: glyphSize,
-                  height: glyphSize,
-                  alignment: Alignment.centerLeft,
-                  colorFilter: ColorFilter.mode(
-                    cs.onSurfaceVariant,
-                    BlendMode.srcIn,
-                  ),
+    return Semantics(
+      label: 'Sustain pedal held',
+      child: Tooltip(
+        message: 'Sustain pedal held',
+        child: SizedBox(
+          width: slotWidth,
+          height: double.infinity,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Transform.translate(
+              offset: opticalOffset,
+              child: SvgPicture.asset(
+                'assets/glyphs/keyboard_pedal_ped.svg',
+                width: glyphSize,
+                height: glyphSize,
+                alignment: Alignment.centerLeft,
+                colorFilter: ColorFilter.mode(
+                  cs.onSurfaceVariant,
+                  BlendMode.srcIn,
                 ),
               ),
             ),
@@ -1576,44 +1573,28 @@ class PedalIndicator extends StatelessWidget {
   }
 }
 
-class _ActiveNote extends ConsumerWidget {
-  const _ActiveNote({super.key, required this.model});
-
-  final ActiveNoteIndicator model;
+class NoteChip extends ConsumerWidget {
+  const NoteChip({super.key, required this.note});
+  final ActiveNote note;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    if (model.kind == ActiveNoteIndicatorKind.pedal) {
-      return const PedalIndicator();
-    }
+    final isPedalDown = ref.watch(isPedalDownProvider);
 
-    final hold = ref.watch(midiNoteStateProvider);
-    final sustainDown = hold.isPedalDown;
+    final bgColor = cs.surfaceContainerLow;
+    final fgColor = cs.onSurface;
 
-    final isSustainedNote =
-        model.kind == ActiveNoteIndicatorKind.note &&
-        model.state == ActiveNoteIndicatorState.pedalSustained;
+    // Visual feedback for sustain state:
+    // - Slightly darker borders when pedal is down
+    // - Even darker/thicker borders for sustained notes
+    final borderColor = note.isSustained
+        ? cs.outlineVariant.withValues(alpha: 0.92)
+        : cs.outlineVariant.withValues(alpha: isPedalDown ? 0.78 : 0.60);
 
-    final bgColor = model.kind == ActiveNoteIndicatorKind.pedal
-        ? Colors.transparent
-        : cs.surfaceContainerLow;
-
-    final fgColor = model.kind == ActiveNoteIndicatorKind.pedal
-        ? cs.onSurfaceVariant
-        : cs.onSurface;
-
-    // Slightly darken all note borders when sustain is down,
-    // and darken further (or thicken) for sustained notes.
-    final borderColor = model.kind == ActiveNoteIndicatorKind.pedal
-        ? cs.outlineVariant
-        : (isSustainedNote
-              ? cs.outlineVariant.withValues(alpha: 0.92)
-              : cs.outlineVariant.withValues(alpha: sustainDown ? 0.78 : 0.60));
-
-    final borderWidth = isSustainedNote ? 1.6 : 1.0;
+    final borderWidth = note.isSustained ? 1.6 : 1.0;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 120),
@@ -1623,22 +1604,10 @@ class _ActiveNote extends ConsumerWidget {
         border: Border.all(color: borderColor, width: borderWidth),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      child: model.kind == ActiveNoteIndicatorKind.pedal
-          ? Tooltip(
-              message: 'Sustain pedal held',
-              child: Semantics(
-                label: 'Sustain pedal held',
-                child: Icon(
-                  Icons.keyboard_double_arrow_down_rounded,
-                  size: 18,
-                  color: fgColor,
-                ),
-              ),
-            )
-          : Text(
-              model.noteLabel,
-              style: theme.textTheme.titleMedium?.copyWith(color: fgColor),
-            ),
+      child: Text(
+        note.label,
+        style: theme.textTheme.titleMedium?.copyWith(color: fgColor),
+      ),
     );
   }
 }
@@ -2111,32 +2080,19 @@ class _TonalityPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
 }
 
 String _midiToNoteName(int midiNote) {
-  switch (midiNote % 12) {
-    case 0:
-      return 'C';
-    case 1:
-      return 'C#';
-    case 2:
-      return 'D';
-    case 3:
-      return 'D#';
-    case 4:
-      return 'E';
-    case 5:
-      return 'F';
-    case 6:
-      return 'F#';
-    case 7:
-      return 'G';
-    case 8:
-      return 'G#';
-    case 9:
-      return 'A';
-    case 10:
-      return 'A#';
-    case 11:
-      return 'B';
-    default:
-      return '?';
-  }
+  const noteNames = [
+    'C',
+    'C♯',
+    'D',
+    'D♯',
+    'E',
+    'F',
+    'F♯',
+    'G',
+    'G♯',
+    'A',
+    'A♯',
+    'B',
+  ];
+  return noteNames[midiNote % 12];
 }
