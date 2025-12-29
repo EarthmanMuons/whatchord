@@ -485,19 +485,19 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
   void handlePedalValue(int value) => setPedalDown(value >= 64);
 }
 
-// All notes currently sounding (for piano keyboard highlighting).
-final activeNotesProvider = Provider<Set<int>>((ref) {
+// Raw MIDI note numbers for keyboard highlighting.
+final activeMidiNotesProvider = Provider<Set<int>>((ref) {
   final state = ref.watch(midiNoteStateProvider);
   return state.activeNotes;
 });
 
-// Sustain pedal state (for display in ActiveInput).
+// Sustain pedal state for display.
 final isPedalDownProvider = Provider<bool>((ref) {
   return ref.watch(midiNoteStateProvider.select((s) => s.isPedalDown));
 });
 
-// Active notes for display in ActiveInput, sorted by pitch.
-final activeNotesListProvider = Provider<List<ActiveNote>>((ref) {
+// Rich note objects for display, sorted by pitch.
+final activeNotesProvider = Provider<List<ActiveNote>>((ref) {
   final state = ref.watch(midiNoteStateProvider);
 
   final notes = <ActiveNote>[];
@@ -1000,7 +1000,7 @@ class KeyboardSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final active = ref.watch(activeNotesProvider);
+    final activeMidiNotes = ref.watch(activeMidiNotesProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -1015,7 +1015,7 @@ class KeyboardSection extends ConsumerWidget {
         return PianoKeyboard(
           whiteKeyCount: config.whiteKeyCount,
           firstMidiNote: config.firstMidiNote,
-          activeMidiNotes: active,
+          activeMidiNotes: activeMidiNotes,
           height: height,
         );
       },
@@ -1377,10 +1377,10 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
   void initState() {
     super.initState();
 
-    _notes = ref.read(activeNotesListProvider);
+    _notes = ref.read(activeNotesProvider);
     _pedal = ref.read(isPedalDownProvider);
 
-    _notesSub = ref.listenManual<List<ActiveNote>>(activeNotesListProvider, (
+    _notesSub = ref.listenManual<List<ActiveNote>>(activeNotesProvider, (
       prev,
       next,
     ) {
