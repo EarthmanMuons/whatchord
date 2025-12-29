@@ -191,8 +191,17 @@ class MidiConnectionActions {
   MidiService get _service => _ref.read(midiServiceProvider);
   MidiPreferences get _prefs => _ref.read(midiPreferencesProvider).requireValue;
 
+  /// Ensure service is initialized before performing action.
+  Future<void> _ensureInitialized() async {
+    final initialized = await _ref.read(midiServiceInitProvider.future);
+    if (!initialized) {
+      throw const MidiException('Failed to initialize MIDI service');
+    }
+  }
+
   /// Start scanning for devices.
   Future<void> startScanning() async {
+    await _ensureInitialized();
     await _service.startScanning();
   }
 
@@ -203,6 +212,7 @@ class MidiConnectionActions {
 
   /// Connect to a device and save it as the last connected device.
   Future<void> connect(MidiDevice device) async {
+    await _ensureInitialized();
     await _service.connect(device);
     await _prefs.setLastDevice(device);
   }
@@ -216,6 +226,7 @@ class MidiConnectionActions {
 
   /// Manually trigger a reconnection attempt.
   Future<bool> reconnect() async {
+    await _ensureInitialized();
     final lastDeviceId = _prefs.getLastDeviceId();
     if (lastDeviceId == null) return false;
 

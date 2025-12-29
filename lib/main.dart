@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -9,8 +10,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'features/midi/models/bluetooth_state.dart';
+import 'features/midi/models/midi_message.dart';
 import 'features/midi/providers/midi_providers.dart';
 import 'features/midi/services/stub_midi_service.dart';
+import 'features/midi/widgets/midi_device_picker.dart';
 
 import 'features/piano/piano.dart';
 
@@ -469,12 +472,56 @@ final midiNoteStateProvider =
 class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
   @override
   MidiNoteState build() {
-    // Stub defaults for UI testing; replace when wiring real MIDI.
-    return MidiNoteState(
-      pressed: {64, 67, 72}, // E4 G4 C5
-      sustained: {64},
-      isPedalDown: true,
+    // Start with empty state
+    final initialState = const MidiNoteState(
+      pressed: {},
+      sustained: {},
+      isPedalDown: false,
     );
+
+    // Listen to MIDI messages and update state
+    ref.listen(midiMessageStreamProvider, (previous, next) {
+      next.when(
+        data: (message) {
+          if (message != null) {
+            _handleMidiMessage(message);
+          }
+        },
+        loading: () {},
+        error: (error, stack) {
+          print('MIDI message error: $error');
+        },
+      );
+    });
+
+    return initialState;
+  }
+
+  void _handleMidiMessage(MidiMessage message) {
+    switch (message.type) {
+      case MidiMessageType.noteOn:
+        if (message.note != null) {
+          noteOn(message.note!);
+        }
+        break;
+
+      case MidiMessageType.noteOff:
+        if (message.note != null) {
+          noteOff(message.note!);
+        }
+        break;
+
+      case MidiMessageType.controlChange:
+        // CC64 is the sustain pedal
+        if (message.controller == 64 && message.value != null) {
+          handlePedalValue(message.value!);
+        }
+        break;
+
+      default:
+        // Ignore other message types
+        break;
+    }
   }
 
   void noteOn(int midiNote) {
@@ -608,6 +655,82 @@ class HomePage extends ConsumerWidget {
 
     // Initialize MIDI service on first build.
     ref.watch(midiServiceInitProvider);
+
+    // Listen for connection state changes and show feedback.
+    ref.listen(midiConnectionProvider, (previous, next) {
+      // Only show notifications if the state actually changed
+      if (previous?.status == next.status) return;
+
+      // Show error notifications
+      if (next.status == MidiConnectionStatus.error) {
+        // Extract clean error message
+        final errorMsg = next.message ?? 'MIDI connection error';
+        final cleanMsg = errorMsg
+            .replaceAll('MidiException: ', '')
+            .replaceAll('Exception: ', '');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text(cleanMsg)),
+              ],
+            ),
+            backgroundColor: cs.error,
+            action: SnackBarAction(
+              label: 'Settings',
+              textColor: Colors.white,
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
+                );
+              },
+            ),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+
+      // Show connection success
+      if (previous?.status != MidiConnectionStatus.connected &&
+          next.status == MidiConnectionStatus.connected) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text('MIDI Connected: ${next.message ?? "Device"}'),
+                ),
+              ],
+            ),
+            backgroundColor: cs.primaryContainer,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+
+      // Show disconnection
+      if (previous?.status == MidiConnectionStatus.connected &&
+          next.status == MidiConnectionStatus.disconnected) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.bluetooth_disabled, color: Colors.white),
+                SizedBox(width: 12),
+                Text('MIDI disconnected'),
+              ],
+            ),
+            backgroundColor: cs.surfaceContainerHighest,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    });
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -886,6 +1009,7 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
     final cs = Theme.of(context).colorScheme;
     final mode = ref.watch(midiModeProvider);
     final connectionState = ref.watch(midiConnectionProvider);
+    final isInitializing = ref.watch(midiServiceInitProvider).isLoading;
 
     return Scaffold(
       appBar: AppBar(
@@ -946,6 +1070,10 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
             ),
           ),
 
+          // Live MIDI Preview (shows current notes)
+          const SizedBox(height: 16),
+          const _MidiLivePreview(),
+
           const SizedBox(height: 24),
 
           // Test Section (only in stub mode)
@@ -961,7 +1089,14 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
                       'Stub Mode Test Controls',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Watch the preview above to see MIDI events',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     ElevatedButton.icon(
                       icon: const Icon(Icons.music_note),
                       label: const Text('Play C Major Chord'),
@@ -988,18 +1123,67 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
           // Real MIDI controls
           if (mode == MidiMode.real) ...[
             const _SectionHeader(title: 'Device Management'),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.search),
-              label: const Text('Scan for Devices'),
-              onPressed: () {
-                // TODO: Navigate to device picker (Phase 2)
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Device scanner coming in Phase 2!'),
+
+            // Connection info
+            if (connectionState.isConnected)
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.bluetooth_connected),
+                  title: const Text('Connected Device'),
+                  subtitle: Text(connectionState.message ?? 'Unknown'),
+                  trailing: ElevatedButton(
+                    onPressed: () async {
+                      final actions = ref.read(midiConnectionActionsProvider);
+                      await actions.disconnect();
+
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Disconnected')),
+                        );
+                      }
+                    },
+                    child: const Text('Disconnect'),
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+
+            const SizedBox(height: 16),
+
+            // Scan button
+            if (isInitializing)
+              const Card(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      SizedBox(width: 12),
+                      Text('Initializing MIDI service...'),
+                    ],
+                  ),
+                ),
+              )
+            else
+              ElevatedButton.icon(
+                icon: const Icon(Icons.bluetooth_searching),
+                label: Text(
+                  connectionState.isConnected
+                      ? 'Connect Different Device'
+                      : 'Scan for Devices',
+                ),
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    showDragHandle: true,
+                    isScrollControlled: true,
+                    builder: (_) => const MidiDevicePicker(),
+                  );
+                },
+              ),
           ],
         ],
       ),
@@ -1008,51 +1192,85 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
 
   void _testCMajorChord() {
     final service = ref.read(midiServiceProvider);
-    if (service is StubMidiService) {
-      service.simulateNoteOn(60); // C4
-      service.simulateNoteOn(64); // E4
-      service.simulateNoteOn(67); // G4
+    if (service is! StubMidiService) return;
 
-      Future.delayed(const Duration(seconds: 2), () {
-        service.simulateNoteOff(60);
-        service.simulateNoteOff(64);
-        service.simulateNoteOff(67);
-      });
-    }
+    // Play all notes
+    service.simulateNoteOn(60); // C4
+    Future.delayed(const Duration(milliseconds: 50), () {
+      service.simulateNoteOn(64); // E4
+    });
+    Future.delayed(const Duration(milliseconds: 100), () {
+      service.simulateNoteOn(67); // G4
+    });
+
+    // Release all notes after 2 seconds
+    Future.delayed(const Duration(seconds: 2), () {
+      service.simulateNoteOff(60);
+    });
+    Future.delayed(const Duration(seconds: 2, milliseconds: 50), () {
+      service.simulateNoteOff(64);
+    });
+    Future.delayed(const Duration(seconds: 2, milliseconds: 100), () {
+      service.simulateNoteOff(67);
+    });
   }
 
   void _testFMajorChord() {
     final service = ref.read(midiServiceProvider);
-    if (service is StubMidiService) {
-      service.simulateNoteOn(65); // F4
-      service.simulateNoteOn(69); // A4
-      service.simulateNoteOn(72); // C5
+    if (service is! StubMidiService) return;
 
-      Future.delayed(const Duration(seconds: 2), () {
-        service.simulateNoteOff(65);
-        service.simulateNoteOff(69);
-        service.simulateNoteOff(72);
-      });
-    }
+    service.simulateNoteOn(65); // F4
+    Future.delayed(const Duration(milliseconds: 50), () {
+      service.simulateNoteOn(69); // A4
+    });
+    Future.delayed(const Duration(milliseconds: 100), () {
+      service.simulateNoteOn(72); // C5
+    });
+
+    Future.delayed(const Duration(seconds: 2), () {
+      service.simulateNoteOff(65);
+    });
+    Future.delayed(const Duration(seconds: 2, milliseconds: 50), () {
+      service.simulateNoteOff(69);
+    });
+    Future.delayed(const Duration(seconds: 2, milliseconds: 100), () {
+      service.simulateNoteOff(72);
+    });
   }
 
   void _testSustainPedal() {
     final service = ref.read(midiServiceProvider);
-    if (service is StubMidiService) {
-      // Press pedal
-      service.simulatePedal(true);
+    if (service is! StubMidiService) return;
 
-      // Press and release a note while pedal is down
-      service.simulateNoteOn(60);
-      Future.delayed(const Duration(milliseconds: 500), () {
-        service.simulateNoteOff(60); // Note should sustain
-      });
+    // Press pedal
+    service.simulatePedal(true);
 
-      // Release pedal after 2 seconds
-      Future.delayed(const Duration(seconds: 2), () {
-        service.simulatePedal(false); // Note should stop
-      });
-    }
+    // Play chord while pedal is down
+    Future.delayed(const Duration(milliseconds: 200), () {
+      service.simulateNoteOn(60); // C4
+    });
+    Future.delayed(const Duration(milliseconds: 250), () {
+      service.simulateNoteOn(64); // E4
+    });
+    Future.delayed(const Duration(milliseconds: 300), () {
+      service.simulateNoteOn(67); // G4
+    });
+
+    // Release notes (they should sustain because pedal is down)
+    Future.delayed(const Duration(milliseconds: 800), () {
+      service.simulateNoteOff(60);
+    });
+    Future.delayed(const Duration(milliseconds: 850), () {
+      service.simulateNoteOff(64);
+    });
+    Future.delayed(const Duration(milliseconds: 900), () {
+      service.simulateNoteOff(67);
+    });
+
+    // Release pedal (notes should stop)
+    Future.delayed(const Duration(milliseconds: 2500), () {
+      service.simulatePedal(false);
+    });
   }
 
   Widget _buildStatusIndicator(MidiConnectionStatus status) {
@@ -1067,6 +1285,101 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
       width: 12,
       height: 12,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+  }
+}
+
+class _MidiLivePreview extends ConsumerWidget {
+  const _MidiLivePreview();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final activeNotes = ref.watch(activeNotesProvider);
+    final isPedalDown = ref.watch(isPedalDownProvider);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.visibility, size: 20, color: cs.primary),
+                const SizedBox(width: 8),
+                Text(
+                  'Live MIDI Preview',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // Pedal indicator - only show when pedal is down
+            if (isPedalDown)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: Row(
+                  children: [
+                    PedalIndicator(),
+                    SizedBox(width: 8),
+                    Text('Sustain pedal held'),
+                  ],
+                ),
+              ),
+
+            // Active notes display
+            if (activeNotes.isEmpty && !isPedalDown)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  'No active notes',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
+                ),
+              )
+            else if (activeNotes.isNotEmpty)
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final note in activeNotes)
+                    Chip(
+                      label: Text(note.label),
+                      backgroundColor: note.isSustained
+                          ? cs.secondaryContainer.withValues(alpha: 0.6)
+                          : cs.primaryContainer,
+                      labelStyle: TextStyle(
+                        color: note.isSustained
+                            ? cs.onSecondaryContainer.withValues(alpha: 0.8)
+                            : cs.onPrimaryContainer,
+                        fontWeight: note.isSustained
+                            ? FontWeight.w500
+                            : FontWeight.w600,
+                      ),
+                      side: note.isSustained
+                          ? BorderSide(color: cs.outline.withValues(alpha: 0.5))
+                          : BorderSide.none,
+                    ),
+                ],
+              )
+            else if (isPedalDown)
+              // Show placeholder when pedal is down but no notes
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  'Pedal down, waiting for notes...',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1404,30 +1717,38 @@ class MidiStatusPill extends ConsumerWidget {
         : label;
 
     return Semantics(
-      label: 'MIDI connection status',
-      value: label,
+      label: 'MIDI connection status. Tap to configure.',
+      button: true,
       child: Tooltip(
         message: tooltip,
-        child: DecoratedBox(
-          decoration: ShapeDecoration(
-            color: bg,
-            shape: StadiumBorder(side: BorderSide(color: border)),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _MidiStatusDot(status: status, colorScheme: cs),
-                const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: fg,
-                    fontWeight: FontWeight.w600,
+        child: InkWell(
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()),
+            );
+          },
+          borderRadius: BorderRadius.circular(999),
+          child: DecoratedBox(
+            decoration: ShapeDecoration(
+              color: bg,
+              shape: StadiumBorder(side: BorderSide(color: border)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _MidiStatusDot(status: status, colorScheme: cs),
+                  const SizedBox(width: 8),
+                  Text(
+                    label,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: fg,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

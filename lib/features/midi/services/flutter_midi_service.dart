@@ -155,7 +155,7 @@ class FlutterMidiService implements MidiService {
     }
 
     try {
-      await stopScanning();
+      // DON'T stop scanning yet - we need the device list!
 
       final devices = await _midi.devices;
       final nativeDevice = devices?.firstWhere(
@@ -167,10 +167,16 @@ class FlutterMidiService implements MidiService {
         throw const MidiException('Device not found');
       }
 
+      // Connect to the device
       await _midi.connectToDevice(nativeDevice);
 
-      // Wait a moment for connection to establish
-      await Future.delayed(const Duration(milliseconds: 500));
+      // NOW stop scanning (after connection attempt)
+      if (_isScanning) {
+        await stopScanning();
+      }
+
+      // Wait for connection to establish
+      await Future.delayed(const Duration(milliseconds: 800));
 
       // Verify connection
       final updatedDevices = await _midi.devices;
