@@ -367,7 +367,7 @@ final seedColorProvider = Provider<Color>((ref) {
 });
 
 @immutable
-class HomeLayoutSpec {
+class HomeLayoutConfig {
   // Analysis
   final EdgeInsets analysisPadding;
   final double chordCardMaxWidth;
@@ -382,7 +382,7 @@ class HomeLayoutSpec {
   final double whiteKeyAspectRatio;
   final int firstMidiNote;
 
-  const HomeLayoutSpec({
+  const HomeLayoutConfig({
     required this.analysisPadding,
     required this.chordCardMaxWidth,
     required this.detailsSectionPadding,
@@ -394,7 +394,7 @@ class HomeLayoutSpec {
   });
 }
 
-const portraitLayoutSpec = HomeLayoutSpec(
+const portraitLayoutConfig = HomeLayoutConfig(
   analysisPadding: EdgeInsets.fromLTRB(16, 16, 16, 16),
   chordCardMaxWidth: 520,
   detailsSectionPadding: EdgeInsets.zero,
@@ -405,7 +405,7 @@ const portraitLayoutSpec = HomeLayoutSpec(
   firstMidiNote: 48, // C3
 );
 
-const landscapeLayoutSpec = HomeLayoutSpec(
+const landscapeLayoutConfig = HomeLayoutConfig(
   analysisPadding: EdgeInsets.fromLTRB(16, 16, 8, 16),
   chordCardMaxWidth: 520,
   detailsSectionPadding: EdgeInsets.fromLTRB(8, 12, 16, 12),
@@ -594,7 +594,9 @@ class HomePage extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isLandscape = constraints.maxWidth > constraints.maxHeight;
-        final spec = isLandscape ? landscapeLayoutSpec : portraitLayoutSpec;
+        final config = isLandscape
+            ? landscapeLayoutConfig
+            : portraitLayoutConfig;
 
         final mq = MediaQuery.of(context);
         final mqFullWidth = isLandscape
@@ -645,8 +647,8 @@ class HomePage extends ConsumerWidget {
                 ),
                 body: SafeArea(
                   child: isLandscape
-                      ? _HomeLandscape(spec: spec)
-                      : _HomePortrait(spec: spec),
+                      ? _HomeLandscape(config: config)
+                      : _HomePortrait(config: config),
                 ),
               ),
             ),
@@ -842,8 +844,8 @@ class SettingsPage extends ConsumerWidget {
 
 class _HomePortrait extends ConsumerWidget {
   // ignore: unused_element_parameter
-  const _HomePortrait({super.key, required this.spec});
-  final HomeLayoutSpec spec;
+  const _HomePortrait({super.key, required this.config});
+  final HomeLayoutConfig config;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -851,7 +853,7 @@ class _HomePortrait extends ConsumerWidget {
       children: [
         Flexible(
           fit: FlexFit.loose,
-          child: AnalysisSection(spec: spec),
+          child: AnalysisSection(config: config),
         ),
 
         SafeArea(
@@ -859,10 +861,10 @@ class _HomePortrait extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ActiveNotesRow(padding: spec.inputStatePadding),
-              TonalityBar(height: spec.tonalityBarHeight),
+              ActiveNotesRow(padding: config.inputStatePadding),
+              TonalityBar(height: config.tonalityBarHeight),
               const Divider(height: 1),
-              KeyboardSection(spec: spec),
+              KeyboardSection(config: config),
             ],
           ),
         ),
@@ -873,8 +875,8 @@ class _HomePortrait extends ConsumerWidget {
 
 class _HomeLandscape extends ConsumerWidget {
   // ignore: unused_element_parameter
-  const _HomeLandscape({super.key, required this.spec});
-  final HomeLayoutSpec spec;
+  const _HomeLandscape({super.key, required this.config});
+  final HomeLayoutConfig config;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -885,14 +887,14 @@ class _HomeLandscape extends ConsumerWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(flex: 6, child: AnalysisSection(spec: spec)),
+              Expanded(flex: 6, child: AnalysisSection(config: config)),
               Expanded(
                 flex: 7,
                 child: Padding(
-                  padding: spec.detailsSectionPadding,
+                  padding: config.detailsSectionPadding,
                   child: Align(
                     alignment: Alignment.bottomLeft,
-                    child: ActiveNotesRow(padding: spec.inputStatePadding),
+                    child: ActiveNotesRow(padding: config.inputStatePadding),
                   ),
                 ),
               ),
@@ -905,9 +907,9 @@ class _HomeLandscape extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TonalityBar(height: spec.tonalityBarHeight),
+              TonalityBar(height: config.tonalityBarHeight),
               const Divider(height: 1),
-              KeyboardSection(spec: spec),
+              KeyboardSection(config: config),
             ],
           ),
         ),
@@ -917,21 +919,21 @@ class _HomeLandscape extends ConsumerWidget {
 }
 
 class AnalysisSection extends ConsumerWidget {
-  const AnalysisSection({super.key, required this.spec});
-  final HomeLayoutSpec spec;
+  const AnalysisSection({super.key, required this.config});
+  final HomeLayoutConfig config;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final analysis = ref.watch(chordAnalysisProvider);
 
     return Padding(
-      padding: spec.analysisPadding,
+      padding: config.analysisPadding,
       child: SizedBox.expand(
         child: FittedBox(
           fit: BoxFit.scaleDown,
           alignment: Alignment.center,
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: spec.chordCardMaxWidth),
+            constraints: BoxConstraints(maxWidth: config.chordCardMaxWidth),
             child: ChordCard(
               symbol: analysis.symbol,
               inversion: analysis.inversion,
@@ -1003,8 +1005,8 @@ class TonalityBar extends ConsumerWidget {
 }
 
 class KeyboardSection extends ConsumerWidget {
-  const KeyboardSection({super.key, required this.spec});
-  final HomeLayoutSpec spec;
+  const KeyboardSection({super.key, required this.config});
+  final HomeLayoutConfig config;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -1013,16 +1015,16 @@ class KeyboardSection extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final whiteKeyWidth = width / spec.whiteKeyCount;
+        final whiteKeyWidth = width / config.whiteKeyCount;
 
-        var height = whiteKeyWidth * spec.whiteKeyAspectRatio;
+        var height = whiteKeyWidth * config.whiteKeyAspectRatio;
 
         // Guardrails to prevent extremes.
         height = height.clamp(90.0, 200.0);
 
         return PianoKeyboard(
-          whiteKeyCount: spec.whiteKeyCount,
-          firstMidiNote: spec.firstMidiNote,
+          whiteKeyCount: config.whiteKeyCount,
+          firstMidiNote: config.firstMidiNote,
           activeMidiNotes: active,
           height: height,
         );
