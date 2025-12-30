@@ -12,8 +12,10 @@ import 'features/midi/models/bluetooth_state.dart';
 import 'features/midi/models/midi_connection_state.dart';
 import 'features/midi/models/midi_message.dart';
 import 'features/midi/models/midi_note_state.dart';
-import 'features/midi/providers/midi_providers.dart';
 import 'features/midi/providers/midi_lifecycle_controller.dart';
+import 'features/midi/widgets/midi_status_card.dart';
+import 'features/midi/providers/midi_link_manager.dart';
+import 'features/midi/providers/midi_providers.dart';
 import 'features/midi/services/stub_midi_service.dart';
 import 'features/midi/widgets/midi_device_picker.dart';
 
@@ -592,10 +594,8 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
 
-    // Initialize MIDI service on first build.
+    // Initialize MIDI service and install lifecycle + reconnect behavior.
     ref.watch(midiServiceInitProvider);
-
-    // Install MIDI lifecycle + auto-reconnect controller.
     ref.watch(midiLifecycleControllerProvider);
 
     // Listen for connection state changes and show feedback.
@@ -949,8 +949,8 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final mode = ref.watch(midiModeProvider);
     final connectionState = ref.watch(midiConnectionProvider);
+    final link = ref.watch(midiLinkManagerProvider);
     final isInitializing = ref.watch(midiServiceInitProvider).isLoading;
 
     return Scaffold(
@@ -962,365 +962,94 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Mode Toggle (Development only - can remove in production)
-          Card(
-            child: SwitchListTile(
-              title: const Text('Use Real MIDI Hardware'),
-              subtitle: Text('Current mode: ${mode.name}'),
-              value: mode == MidiMode.real,
-              onChanged: (_) {
-                ref.read(midiModeProvider.notifier).toggle();
-              },
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Connection Status
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Connection Status',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      _buildStatusIndicator(connectionState.status),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          connectionState.isConnected
-                              ? 'Connected to ${connectionState.message}'
-                              : switch (connectionState.status) {
-                                  MidiConnectionStatus.connecting =>
-                                    'Connecting...',
-                                  MidiConnectionStatus.error =>
-                                    connectionState.message ?? 'Error',
-                                  _ => 'Not connected',
-                                },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Live MIDI Preview (shows current notes)
-          const SizedBox(height: 16),
-          const _MidiLivePreview(),
+          MidiStatusCard(connectionState: connectionState, link: link),
 
           const SizedBox(height: 24),
 
-          // Test Section (only in stub mode)
-          if (mode == MidiMode.stub) ...[
-            const _SectionHeader(title: 'Testing'),
+          const _SectionHeader(title: 'Device'),
+
+          // Connection info
+          if (connectionState.isConnected)
             Card(
+              child: ListTile(
+                leading: const Icon(Icons.bluetooth_connected),
+                title: const Text('Connected Device'),
+                subtitle: Text(connectionState.message ?? 'Unknown'),
+                trailing: ElevatedButton(
+                  onPressed: () async {
+                    final actions = ref.read(midiConnectionActionsProvider);
+                    await actions.disconnect();
+
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Disconnected')),
+                      );
+                    }
+                  },
+                  child: const Text('Disconnect'),
+                ),
+              ),
+            ),
+
+          const SizedBox(height: 16),
+
+          // Scan button
+          if (isInitializing)
+            const Card(
               child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Stub Mode Test Controls',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Watch the preview above to see MIDI events',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.music_note),
-                      label: const Text('Play C Major Chord'),
-                      onPressed: _testCMajorChord,
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.music_note),
-                      label: const Text('Play F Major Chord'),
-                      onPressed: _testFMajorChord,
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.piano),
-                      label: const Text('Test Sustain Pedal'),
-                      onPressed: _testSustainPedal,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-
-          // Real MIDI controls
-          if (mode == MidiMode.real) ...[
-            const _SectionHeader(title: 'Device Management'),
-
-            // Connection info
-            if (connectionState.isConnected)
-              Card(
-                child: ListTile(
-                  leading: const Icon(Icons.bluetooth_connected),
-                  title: const Text('Connected Device'),
-                  subtitle: Text(connectionState.message ?? 'Unknown'),
-                  trailing: ElevatedButton(
-                    onPressed: () async {
-                      final actions = ref.read(midiConnectionActionsProvider);
-                      await actions.disconnect();
-
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Disconnected')),
-                        );
-                      }
-                    },
-                    child: const Text('Disconnect'),
-                  ),
-                ),
-              ),
-
-            const SizedBox(height: 16),
-
-            // Scan button
-            if (isInitializing)
-              const Card(
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      SizedBox(width: 12),
-                      Text('Initializing MIDI service...'),
-                    ],
-                  ),
-                ),
-              )
-            else
-              ElevatedButton.icon(
-                icon: const Icon(Icons.bluetooth_searching),
-                label: Text(
-                  connectionState.isConnected
-                      ? 'Connect Different Device'
-                      : 'Scan for Devices',
-                ),
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    showDragHandle: true,
-                    isScrollControlled: true,
-                    builder: (_) => const MidiDevicePicker(),
-                  );
-                },
-              ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  void _testCMajorChord() {
-    final service = ref.read(midiServiceProvider);
-    if (service is! StubMidiService) return;
-
-    // Play all notes
-    service.simulateNoteOn(60); // C4
-    Future.delayed(const Duration(milliseconds: 50), () {
-      service.simulateNoteOn(64); // E4
-    });
-    Future.delayed(const Duration(milliseconds: 100), () {
-      service.simulateNoteOn(67); // G4
-    });
-
-    // Release all notes after 2 seconds
-    Future.delayed(const Duration(seconds: 2), () {
-      service.simulateNoteOff(60);
-    });
-    Future.delayed(const Duration(seconds: 2, milliseconds: 50), () {
-      service.simulateNoteOff(64);
-    });
-    Future.delayed(const Duration(seconds: 2, milliseconds: 100), () {
-      service.simulateNoteOff(67);
-    });
-  }
-
-  void _testFMajorChord() {
-    final service = ref.read(midiServiceProvider);
-    if (service is! StubMidiService) return;
-
-    service.simulateNoteOn(65); // F4
-    Future.delayed(const Duration(milliseconds: 50), () {
-      service.simulateNoteOn(69); // A4
-    });
-    Future.delayed(const Duration(milliseconds: 100), () {
-      service.simulateNoteOn(72); // C5
-    });
-
-    Future.delayed(const Duration(seconds: 2), () {
-      service.simulateNoteOff(65);
-    });
-    Future.delayed(const Duration(seconds: 2, milliseconds: 50), () {
-      service.simulateNoteOff(69);
-    });
-    Future.delayed(const Duration(seconds: 2, milliseconds: 100), () {
-      service.simulateNoteOff(72);
-    });
-  }
-
-  void _testSustainPedal() {
-    final service = ref.read(midiServiceProvider);
-    if (service is! StubMidiService) return;
-
-    // Press pedal
-    service.simulatePedal(true);
-
-    // Play chord while pedal is down
-    Future.delayed(const Duration(milliseconds: 200), () {
-      service.simulateNoteOn(60); // C4
-    });
-    Future.delayed(const Duration(milliseconds: 250), () {
-      service.simulateNoteOn(64); // E4
-    });
-    Future.delayed(const Duration(milliseconds: 300), () {
-      service.simulateNoteOn(67); // G4
-    });
-
-    // Release notes (they should sustain because pedal is down)
-    Future.delayed(const Duration(milliseconds: 800), () {
-      service.simulateNoteOff(60);
-    });
-    Future.delayed(const Duration(milliseconds: 850), () {
-      service.simulateNoteOff(64);
-    });
-    Future.delayed(const Duration(milliseconds: 900), () {
-      service.simulateNoteOff(67);
-    });
-
-    // Release pedal (notes should stop)
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      service.simulatePedal(false);
-    });
-  }
-
-  Widget _buildStatusIndicator(MidiConnectionStatus status) {
-    final color = switch (status) {
-      MidiConnectionStatus.connected => Colors.green,
-      MidiConnectionStatus.connecting => Colors.orange,
-      MidiConnectionStatus.error => Colors.red,
-      MidiConnectionStatus.disconnected => Colors.grey,
-    };
-
-    return Container(
-      width: 12,
-      height: 12,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-    );
-  }
-}
-
-class _MidiLivePreview extends ConsumerWidget {
-  const _MidiLivePreview();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-    final activeNotes = ref.watch(activeNotesProvider);
-    final isPedalDown = ref.watch(isPedalDownProvider);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.visibility, size: 20, color: cs.primary),
-                const SizedBox(width: 8),
-                Text(
-                  'Live MIDI Preview',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            // Pedal indicator - only show when pedal is down
-            if (isPedalDown)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    SizedBox(height: 40, child: const PedalIndicator()),
-                    const SizedBox(width: 8),
-                    const Text('Sustain pedal held'),
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: 12),
+                    Text('Initializing MIDI service...'),
                   ],
                 ),
               ),
-
-            // Active notes display
-            if (activeNotes.isEmpty && !isPedalDown)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  'No active notes',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: cs.onSurfaceVariant),
-                ),
-              )
-            else if (activeNotes.isNotEmpty)
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final note in activeNotes)
-                    Chip(
-                      label: Text(note.label),
-                      backgroundColor: note.isSustained
-                          ? cs.secondaryContainer.withValues(alpha: 0.6)
-                          : cs.primaryContainer,
-                      labelStyle: TextStyle(
-                        color: note.isSustained
-                            ? cs.onSecondaryContainer.withValues(alpha: 0.8)
-                            : cs.onPrimaryContainer,
-                        fontWeight: note.isSustained
-                            ? FontWeight.w500
-                            : FontWeight.w600,
-                      ),
-                      side: note.isSustained
-                          ? BorderSide(color: cs.outline.withValues(alpha: 0.5))
-                          : BorderSide.none,
-                    ),
-                ],
-              )
-            else if (isPedalDown)
-              // Show placeholder when pedal is down but no notes
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                child: Text(
-                  'Pedal down, waiting for notes...',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: cs.onSurfaceVariant,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
+            )
+          else
+            ElevatedButton.icon(
+              icon: const Icon(Icons.bluetooth_searching),
+              label: Text(
+                connectionState.isConnected
+                    ? 'Connect Different Device'
+                    : 'Scan for Devices',
               ),
-          ],
-        ),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  showDragHandle: true,
+                  isScrollControlled: true,
+                  builder: (_) => const MidiDevicePicker(),
+                );
+              },
+            ),
+
+          const SizedBox(height: 24),
+          const _SectionHeader(title: 'Reset'),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.restart_alt),
+              title: const Text('Forget last device'),
+              subtitle: const Text(
+                'Clears the stored device so you can start fresh.',
+              ),
+              onTap: () async {
+                final prefs = await ref.read(midiPreferencesProvider.future);
+                await prefs.clearLastDevice(); // add this method (below)
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Last device cleared')),
+                  );
+                }
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
