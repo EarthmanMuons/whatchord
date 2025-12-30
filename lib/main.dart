@@ -16,7 +16,8 @@ import 'features/midi/models/midi_note_state.dart';
 import 'features/midi/providers/midi_lifecycle_controller.dart';
 import 'features/midi/providers/midi_link_manager.dart';
 import 'features/midi/providers/midi_providers.dart';
-import 'features/midi/widgets/last_device_tile.dart';
+import 'features/midi/providers/midi_settings_state.dart';
+import 'features/midi/widgets/saved_device_card.dart';
 import 'features/midi/widgets/midi_device_picker.dart';
 import 'features/midi/widgets/midi_status_card.dart';
 
@@ -1026,9 +1027,11 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
     final link = ref.watch(midiLinkManagerProvider);
     final isInitializing = ref.watch(midiServiceInitProvider).isLoading;
 
+    final s = ref.watch(midiSettingsStateProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MIDI Input'),
+        title: const Text('MIDI Settings'),
         backgroundColor: cs.surfaceContainerLow,
         foregroundColor: cs.onSurface,
       ),
@@ -1036,38 +1039,13 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
         padding: const EdgeInsets.all(16),
         children: [
           MidiStatusCard(connectionState: connectionState, link: link),
-          LastDeviceTile(),
+
+          SavedDeviceCard(),
 
           const SizedBox(height: 24),
-
           const _SectionHeader(title: 'Device'),
-
-          // Connection info
-          if (connectionState.isConnected)
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.bluetooth_connected),
-                title: const Text('Connected Device'),
-                subtitle: Text(connectionState.message ?? 'Unknown'),
-                trailing: ElevatedButton(
-                  onPressed: () async {
-                    final actions = ref.read(midiConnectionActionsProvider);
-                    await actions.disconnect();
-
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Disconnected')),
-                      );
-                    }
-                  },
-                  child: const Text('Disconnect'),
-                ),
-              ),
-            ),
-
           const SizedBox(height: 16),
 
-          // Scan button
           if (isInitializing)
             const Card(
               child: Padding(
@@ -1090,7 +1068,7 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
               icon: const Icon(Icons.bluetooth_searching),
               label: Text(
                 connectionState.isConnected
-                    ? 'Connect Different Device'
+                    ? 'Connect to Different Device'
                     : 'Scan for Devices',
               ),
               onPressed: () {
@@ -1103,33 +1081,15 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
               },
             ),
 
-          const SizedBox(height: 24),
-          const _SectionHeader(title: 'Reset'),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.restart_alt),
-              title: const Text('Forget last device'),
-              subtitle: const Text(
-                'Clears the stored device so you can start fresh.',
-              ),
-              onTap: () async {
-                final prefs = await ref.read(midiPreferencesProvider.future);
-                await prefs.clearLastDevice(); // add this method (below)
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Last device cleared')),
-                  );
-                }
-              },
-            ),
-          ),
-
           if (kDebugMode) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: 24),
+            const _SectionHeader(title: 'Advanced (debug)'),
+            const SizedBox(height: 8),
+
             Card(
               child: ListTile(
                 leading: const Icon(Icons.delete_sweep_outlined),
-                title: const Text('Clear all MIDI data (debug)'),
+                title: const Text('Clear all MIDI data'),
                 subtitle: const Text(
                   'Clears MIDI preferences, last device, and reconnect settings.',
                 ),
