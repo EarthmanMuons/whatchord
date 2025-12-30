@@ -76,6 +76,9 @@ class FlutterMidiService implements MidiService {
         await _refreshConnectedDeviceFromNative();
       });
 
+      await _updateDeviceList();
+      await _refreshConnectedDeviceFromNative();
+
       _connectedDeviceController.add(_connectedDevice);
 
       _isInitialized = true;
@@ -145,9 +148,11 @@ class FlutterMidiService implements MidiService {
       final devices = await _midi.devices;
 
       final midiDevices =
-          devices?.where((d) => d.type == 'BLE').map(_convertDevice).toList() ??
+          devices
+              ?.where((d) => _isBleType(d.type))
+              .map(_convertDevice)
+              .toList() ??
           [];
-
       _devicesController.add(midiDevices);
     } catch (e) {
       debugPrint('Error updating device list: $e');
@@ -220,11 +225,6 @@ class FlutterMidiService implements MidiService {
       // Connect to the device
       await _midi.connectToDevice(nativeDevice);
 
-      // NOW stop scanning (after connection attempt)
-      if (_isScanning) {
-        await stopScanning();
-      }
-
       // Wait for connection to establish
       await Future.delayed(const Duration(milliseconds: 800));
 
@@ -236,6 +236,10 @@ class FlutterMidiService implements MidiService {
 
       if (connectedDevice?.connected ?? false) {
         _setConnectedDevice(device.copyWith(isConnected: true));
+
+        if (_isScanning) {
+          await stopScanning();
+        }
       } else {
         throw const MidiException('Connection failed - device not responding');
       }
@@ -272,18 +276,49 @@ class FlutterMidiService implements MidiService {
       await initialize();
     }
 
-    try {
-      final devices = await _midi.devices;
-      final targetDevice = devices?.firstWhere(
-        (d) => d.id == deviceId && d.type == 'BLE',
-        orElse: () => throw const MidiException('Device not found'),
-      );
+    fmc.MidiDevice? findTarget(List<fmc.MidiDevice>? devices) {
+      if (devices == null) return null;
+      for (final d in devices) {
+        if (d.id == deviceId && _isBleType(d.type)) return d;
+      }
+      return null;
+    }
 
-      if (targetDevice == null) {
-        return false;
+    Future<fmc.MidiDevice?> pollForTarget({
+      Duration timeout = const Duration(seconds: 4),
+      Duration interval = const Duration(milliseconds: 250),
+    }) async {
+      final deadline = DateTime.now().add(timeout);
+      while (DateTime.now().isBefore(deadline)) {
+        final devices = await _midi.devices;
+        final t = findTarget(devices);
+        if (t != null) return t;
+        await Future.delayed(interval);
+      }
+      return null;
+    }
+
+    try {
+      // Cheap check first (may work if scan is already running elsewhere).
+      var target = findTarget(await _midi.devices);
+
+      if (target == null) {
+        // Start scanning and KEEP it running until connect() finishes.
+        _isScanning = true;
+        await _midi.startScanningForBluetoothDevices();
+
+        // Update device stream while scanning.
+        await _updateDeviceList();
+
+        target = await pollForTarget();
+
+        // Do NOT stop scanning here.
+        // connect() will stop scanning after it connects (or after failure handling).
       }
 
-      await connect(_convertDevice(targetDevice));
+      if (target == null) return false;
+
+      await connect(_convertDevice(target));
       return true;
     } catch (e) {
       debugPrint('Auto-reconnect failed: $e');
@@ -302,6 +337,11 @@ class FlutterMidiService implements MidiService {
       type: nativeDevice.type,
       isConnected: nativeDevice.connected,
     );
+  }
+
+  bool _isBleType(String type) {
+    final t = type.trim().toLowerCase();
+    return t == 'ble' || t == 'bluetooth' || t.contains('ble');
   }
 
   void _handleBluetoothStateChange(fmc.BluetoothState state) {
