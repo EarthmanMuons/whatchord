@@ -599,78 +599,109 @@ class HomePage extends ConsumerWidget {
     ref.watch(midiLifecycleControllerProvider);
 
     // Listen for connection state changes and show feedback.
-    ref.listen(midiConnectionProvider, (previous, next) {
-      // Only show notifications if the state actually changed
-      if (previous?.status == next.status) return;
+    ref.listen(midiLinkManagerProvider, (prev, next) {
+      if (prev?.phase == next.phase && prev?.message == next.message) return;
 
-      // Show error notifications
-      if (next.status == MidiConnectionStatus.error) {
-        // Extract clean error message
-        final errorMsg = next.message ?? 'MIDI connection error';
-        final cleanMsg = errorMsg
-            .replaceAll('MidiException: ', '')
-            .replaceAll('Exception: ', '');
+      final messenger = ScaffoldMessenger.of(context);
 
-        ScaffoldMessenger.of(context).showSnackBar(
+      void show(
+        String text, {
+        Color? bg,
+        int seconds = 3,
+        SnackBarAction? action,
+      }) {
+        messenger.showSnackBar(
           SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.error_outline, color: Colors.white),
-                const SizedBox(width: 12),
-                Expanded(child: Text(cleanMsg)),
-              ],
-            ),
-            backgroundColor: cs.error,
-            action: SnackBarAction(
-              label: 'Settings',
-              textColor: Colors.white,
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
-                );
-              },
-            ),
-            duration: const Duration(seconds: 5),
+            content: Text(text),
+            backgroundColor: bg,
+            duration: Duration(seconds: seconds),
+            action: action,
           ),
         );
       }
 
-      // Show connection success
-      if (previous?.status != MidiConnectionStatus.connected &&
-          next.status == MidiConnectionStatus.connected) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle_outline, color: Colors.white),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text('MIDI Connected: ${next.message ?? "Device"}'),
+      // Connected (show once when transitioning into connected)
+      if (prev?.phase != MidiLinkPhase.connected &&
+          next.phase == MidiLinkPhase.connected) {
+        final deviceName = next.device?.name;
+        show(
+          deviceName != null ? 'MIDI connected: $deviceName' : 'MIDI connected',
+          bg: cs.primaryContainer,
+          seconds: 2,
+        );
+        return;
+      }
+
+      // Device unavailable (show once when transitioning into unavailable)
+      if (prev?.phase != MidiLinkPhase.deviceUnavailable &&
+          next.phase == MidiLinkPhase.deviceUnavailable) {
+        show(
+          next.message ?? 'MIDI device unavailable',
+          bg: cs.surfaceContainerHighest,
+          seconds: 4,
+          action: SnackBarAction(
+            label: 'MIDI Settings',
+            textColor: Colors.white,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const MidiSettingsPage(),
                 ),
-              ],
-            ),
-            backgroundColor: cs.primaryContainer,
-            duration: const Duration(seconds: 2),
+              );
+            },
           ),
         );
+        return;
       }
 
-      // Show disconnection
-      if (previous?.status == MidiConnectionStatus.connected &&
-          next.status == MidiConnectionStatus.disconnected) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.bluetooth_disabled, color: Colors.white),
-                SizedBox(width: 12),
-                Text('MIDI disconnected'),
-              ],
-            ),
-            backgroundColor: cs.surfaceContainerHighest,
-            duration: const Duration(seconds: 2),
+      // Bluetooth unavailable (show once per transition)
+      if (prev?.phase != MidiLinkPhase.bluetoothUnavailable &&
+          next.phase == MidiLinkPhase.bluetoothUnavailable) {
+        show(
+          next.message ?? 'Bluetooth unavailable',
+          bg: cs.error,
+          seconds: 5,
+          action: SnackBarAction(
+            label: 'Settings',
+            textColor: Colors.white,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
+              );
+            },
           ),
         );
+        return;
+      }
+
+      // Error (show once per transition)
+      if (prev?.phase != MidiLinkPhase.error &&
+          next.phase == MidiLinkPhase.error) {
+        show(
+          next.message ?? 'MIDI error',
+          bg: cs.error,
+          seconds: 5,
+          action: SnackBarAction(
+            label: 'MIDI Settings',
+            textColor: Colors.white,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const MidiSettingsPage(),
+                ),
+              );
+            },
+          ),
+        );
+        return;
+      }
+
+      // Optional: disconnection toast (only if we were connected and now idle)
+      if (prev?.phase == MidiLinkPhase.connected &&
+          (next.phase == MidiLinkPhase.idle ||
+              next.phase == MidiLinkPhase.connecting ||
+              next.phase == MidiLinkPhase.retrying)) {
+        show('MIDI disconnected', bg: cs.surfaceContainerHighest, seconds: 2);
       }
     });
 
