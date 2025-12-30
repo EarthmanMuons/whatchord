@@ -139,6 +139,7 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
         state = state.copyWith(
           phase: MidiLinkPhase.error,
           message: 'MIDI service failed to initialize',
+          nextDelay: null,
         );
         return;
       }
@@ -150,7 +151,22 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
       if (!prefs.getAutoReconnect()) return;
 
       final lastDeviceId = prefs.getLastDeviceId();
-      if (lastDeviceId == null) return;
+      if (lastDeviceId == null) {
+        // Nothing to reconnect to. Keep the UI clean after a reset.
+        _cancelRetry();
+
+        // Only override state if we were showing reconnect-related phases.
+        if (state.phase == MidiLinkPhase.connecting ||
+            state.phase == MidiLinkPhase.retrying ||
+            state.phase == MidiLinkPhase.deviceUnavailable ||
+            state.phase == MidiLinkPhase.error) {
+          state = const MidiLinkState.idle();
+        } else {
+          // Clear any stale messaging/delay without forcing a phase change.
+          state = state.copyWith(message: null, nextDelay: null, attempt: 0);
+        }
+        return;
+      }
 
       // If already connected to the last device, do nothing.
       final current = ref
