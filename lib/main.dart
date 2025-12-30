@@ -607,13 +607,26 @@ class HomePage extends ConsumerWidget {
       void show(
         String text, {
         Color? bg,
+        Color? fg,
         int seconds = 3,
         SnackBarAction? action,
       }) {
+        final trimmed = text.trim();
+        if (trimmed.isEmpty) return;
+
+        // Prevent “spam”/re-show loops from feeling undismissable.
+        messenger.hideCurrentSnackBar();
+
         messenger.showSnackBar(
           SnackBar(
-            content: Text(text),
+            content: Text(trimmed),
             backgroundColor: bg,
+            behavior: SnackBarBehavior.floating,
+            showCloseIcon: true,
+            closeIconColor: fg,
+            contentTextStyle: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: fg),
             duration: Duration(seconds: seconds),
             action: action,
           ),
@@ -627,6 +640,7 @@ class HomePage extends ConsumerWidget {
         show(
           deviceName != null ? 'MIDI connected: $deviceName' : 'MIDI connected',
           bg: cs.primaryContainer,
+          fg: cs.onPrimaryContainer,
           seconds: 2,
         );
         return;
@@ -635,13 +649,18 @@ class HomePage extends ConsumerWidget {
       // Device unavailable (show once when transitioning into unavailable)
       if (prev?.phase != MidiLinkPhase.deviceUnavailable &&
           next.phase == MidiLinkPhase.deviceUnavailable) {
+        final msg = (next.message?.trim().isNotEmpty ?? false)
+            ? next.message!.trim()
+            : 'MIDI device unavailable';
+
         show(
-          next.message ?? 'MIDI device unavailable',
+          msg,
           bg: cs.surfaceContainerHighest,
+          fg: cs.onSurface,
           seconds: 4,
           action: SnackBarAction(
             label: 'MIDI Settings',
-            textColor: Colors.white,
+            textColor: cs.primary,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute<void>(
@@ -659,11 +678,12 @@ class HomePage extends ConsumerWidget {
           next.phase == MidiLinkPhase.bluetoothUnavailable) {
         show(
           next.message ?? 'Bluetooth unavailable',
-          bg: cs.error,
+          bg: cs.errorContainer,
+          fg: cs.onErrorContainer,
           seconds: 5,
           action: SnackBarAction(
             label: 'Settings',
-            textColor: Colors.white,
+            textColor: cs.onErrorContainer,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
@@ -679,11 +699,12 @@ class HomePage extends ConsumerWidget {
           next.phase == MidiLinkPhase.error) {
         show(
           next.message ?? 'MIDI error',
-          bg: cs.error,
+          bg: cs.errorContainer,
+          fg: cs.onErrorContainer,
           seconds: 5,
           action: SnackBarAction(
             label: 'MIDI Settings',
-            textColor: Colors.white,
+            textColor: cs.onErrorContainer,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute<void>(
@@ -701,7 +722,12 @@ class HomePage extends ConsumerWidget {
           (next.phase == MidiLinkPhase.idle ||
               next.phase == MidiLinkPhase.connecting ||
               next.phase == MidiLinkPhase.retrying)) {
-        show('MIDI disconnected', bg: cs.surfaceContainerHighest, seconds: 2);
+        show(
+          'MIDI disconnected',
+          bg: cs.surfaceContainerHighest,
+          fg: cs.onSurface,
+          seconds: 2,
+        );
       }
     });
 
