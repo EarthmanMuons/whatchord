@@ -16,6 +16,12 @@ class FlutterMidiService implements MidiService {
 
   final _bluetoothController = StreamController<BluetoothState>.broadcast();
 
+  List<MidiDevice>? _lastDevices;
+  Timer? _setupDebounce;
+  DateTime? _lastDeviceRefreshAt;
+  Future<void>? _deviceRefreshInFlight;
+  static const _minRefreshInterval = Duration(milliseconds: 700);
+
   MidiDevice? _connectedDevice;
   bool _isScanning = false;
   bool _isInitialized = false;
@@ -69,11 +75,17 @@ class FlutterMidiService implements MidiService {
         _handleBluetoothStateChange(state);
       });
 
-      _setupChangeSub = _midi.onMidiSetupChanged?.listen((String _) async {
-        // When setup changes (device discovered, connected, or disconnected),
-        // update the device list AND refresh our connected-device signal.
-        await _updateDeviceList();
-        await _refreshConnectedDeviceFromNative();
+      _setupChangeSub = _midi.onMidiSetupChanged?.listen((String _) {
+        _setupDebounce?.cancel();
+        _setupDebounce = Timer(const Duration(milliseconds: 250), () async {
+          // If we're already connected, don't keep re-listing devices during scan noise.
+          if (_connectedDevice?.isConnected == true) {
+            await _refreshConnectedDeviceFromNative();
+            return;
+          }
+          await _updateDeviceList();
+          await _refreshConnectedDeviceFromNative();
+        });
       });
 
       await _updateDeviceList();
@@ -100,6 +112,8 @@ class FlutterMidiService implements MidiService {
     await _connectedDeviceController.close();
     await _bluetoothController.close();
 
+    _setupDebounce?.cancel();
+    _setupDebounce = null;
     _isInitialized = false;
   }
 
@@ -109,41 +123,70 @@ class FlutterMidiService implements MidiService {
 
   @override
   Future<void> startScanning() async {
-    if (!_isInitialized) {
-      throw const MidiException('Service not initialized');
-    }
+    if (!_isInitialized) throw const MidiException('Service not initialized');
+    await ensureScanning();
+  }
 
-    if (_isScanning) return;
+  Completer<void>? _scanCompleter;
 
-    _isScanning = true;
+  Future<void> ensureScanning() async {
+    final c = _scanCompleter;
+    if (c != null) return c.future;
+
+    _scanCompleter = Completer<void>();
 
     try {
-      // Start BLE scanning
       await _midi.startScanningForBluetoothDevices();
-
-      // Get initial device list immediately
-      // (further updates come from onMidiSetupChanged stream)
-      _updateDeviceList();
-    } catch (e) {
+      _isScanning = true;
+      await _updateDeviceList();
+      _scanCompleter!.complete();
+    } catch (e, st) {
+      _scanCompleter!.completeError(e, st);
+      _scanCompleter = null;
       _isScanning = false;
-      throw MidiException('Failed to start scanning', e);
+      rethrow;
     }
   }
 
   @override
-  Future<void> stopScanning() async {
-    if (!_isScanning) return;
+  Future<void> stopScanning() => stopScanningSafe();
 
-    _isScanning = false;
+  Future<void> stopScanningSafe() async {
+    if (!_isScanning && _scanCompleter == null) return;
 
     try {
       _midi.stopScanningForBluetoothDevices();
     } catch (e) {
       debugPrint('Warning: Error stopping MIDI scan: $e');
+    } finally {
+      _isScanning = false;
+      _scanCompleter = null;
     }
   }
 
-  Future<void> _updateDeviceList() async {
+  Future<void> _updateDeviceList() {
+    // If a refresh is already running, reuse it.
+    final inflight = _deviceRefreshInFlight;
+    if (inflight != null) return inflight;
+
+    // Throttle refresh rate.
+    final last = _lastDeviceRefreshAt;
+    final now = DateTime.now();
+    if (last != null && now.difference(last) < _minRefreshInterval) {
+      return Future.value();
+    }
+
+    _lastDeviceRefreshAt = now;
+
+    final fut = _updateDeviceListImpl();
+    _deviceRefreshInFlight = fut;
+
+    return fut.whenComplete(() {
+      _deviceRefreshInFlight = null;
+    });
+  }
+
+  Future<void> _updateDeviceListImpl() async {
     try {
       final devices = await _midi.devices;
 
@@ -153,6 +196,8 @@ class FlutterMidiService implements MidiService {
               .map(_convertDevice)
               .toList() ??
           [];
+
+      _lastDevices = midiDevices;
       _devicesController.add(midiDevices);
     } catch (e) {
       debugPrint('Error updating device list: $e');
@@ -236,10 +281,7 @@ class FlutterMidiService implements MidiService {
 
       if (connectedDevice?.connected ?? false) {
         _setConnectedDevice(device.copyWith(isConnected: true));
-
-        if (_isScanning) {
-          await stopScanning();
-        }
+        await stopScanningSafe();
       } else {
         throw const MidiException('Connection failed - device not responding');
       }
@@ -276,49 +318,22 @@ class FlutterMidiService implements MidiService {
       await initialize();
     }
 
-    fmc.MidiDevice? findTarget(List<fmc.MidiDevice>? devices) {
-      if (devices == null) return null;
-      for (final d in devices) {
-        if (d.id == deviceId && _isBleType(d.type)) return d;
-      }
-      return null;
-    }
-
-    Future<fmc.MidiDevice?> pollForTarget({
-      Duration timeout = const Duration(seconds: 4),
-      Duration interval = const Duration(milliseconds: 250),
-    }) async {
-      final deadline = DateTime.now().add(timeout);
-      while (DateTime.now().isBefore(deadline)) {
-        final devices = await _midi.devices;
-        final t = findTarget(devices);
-        if (t != null) return t;
-        await Future.delayed(interval);
-      }
-      return null;
-    }
-
     try {
-      // Cheap check first (may work if scan is already running elsewhere).
-      var target = findTarget(await _midi.devices);
+      // Ensure scanning is running (idempotent if you gate it).
+      await ensureScanning();
 
-      if (target == null) {
-        // Start scanning and KEEP it running until connect() finishes.
-        _isScanning = true;
-        await _midi.startScanningForBluetoothDevices();
+      // Force at least one device list push immediately.
+      await _updateDeviceList();
 
-        // Update device stream while scanning.
-        await _updateDeviceList();
+      // Wait for the target to appear via the devices stream.
+      final device = await _waitForDeviceOnStream(
+        deviceId,
+        timeout: const Duration(seconds: 6),
+      );
 
-        target = await pollForTarget();
+      if (device == null) return false;
 
-        // Do NOT stop scanning here.
-        // connect() will stop scanning after it connects (or after failure handling).
-      }
-
-      if (target == null) return false;
-
-      await connect(_convertDevice(target));
+      await connect(device);
       return true;
     } catch (e) {
       debugPrint('Auto-reconnect failed: $e');
@@ -358,5 +373,36 @@ class FlutterMidiService implements MidiService {
   void _setConnectedDevice(MidiDevice? device) {
     _connectedDevice = device;
     _connectedDeviceController.add(_connectedDevice);
+  }
+
+  MidiDevice? _findDeviceInList(List<MidiDevice> devices, String id) {
+    for (final d in devices) {
+      if (d.id == id) return d;
+    }
+    return null;
+  }
+
+  Future<MidiDevice?> _waitForDeviceOnStream(
+    String deviceId, {
+    Duration timeout = const Duration(seconds: 6),
+  }) async {
+    // Fast path: if we already have a recent list, check it first.
+    final current = _lastDevices;
+    if (current != null) {
+      final hit = _findDeviceInList(current, deviceId);
+      if (hit != null) return hit;
+    }
+
+    try {
+      // Wait until availableDevices emits a list containing the deviceId.
+      return await availableDevices
+          .map((devices) => _findDeviceInList(devices, deviceId))
+          .where((d) => d != null)
+          .cast<MidiDevice>()
+          .first
+          .timeout(timeout);
+    } on TimeoutException {
+      return null;
+    }
   }
 }

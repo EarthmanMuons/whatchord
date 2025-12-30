@@ -59,6 +59,9 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
   static const int _maxAttempts = 5;
   static const Duration _maxBackoff = Duration(seconds: 16);
 
+  bool _startupAttempted = false;
+  DateTime? _lastAutoReconnectAt;
+
   Timer? _retryTimer;
   bool _backgrounded = false;
   bool _attemptInFlight = false;
@@ -131,6 +134,22 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
     if (_backgrounded) return;
     if (_attemptInFlight) return;
 
+    // Only run the startup auto-reconnect sequence once per app run.
+    if (reason == 'startup') {
+      if (_startupAttempted) return;
+      _startupAttempted = true;
+    }
+
+    // Rate-limit other auto triggers (resume, bt-ready, etc.).
+    final now = DateTime.now();
+    final last = _lastAutoReconnectAt;
+    if (reason != 'startup' &&
+        last != null &&
+        now.difference(last) < const Duration(seconds: 5)) {
+      return;
+    }
+    _lastAutoReconnectAt = now;
+
     _attemptInFlight = true;
     try {
       // Ensure service is initialized.
@@ -187,18 +206,26 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
         return;
       }
 
-      // If a previous manual scan is still running, stop it before reconnecting.
-      // (Auto-reconnect should be quiet and not leave background work running.)
-      await ref.read(midiConnectionActionsProvider).stopScanning();
-
-      await _reconnectWithBackoff(lastDeviceId);
+      await _reconnectWithBackoff(
+        lastDeviceId,
+        initialDelay: reason == 'startup'
+            ? const Duration(milliseconds: 600)
+            : Duration.zero,
+      );
     } finally {
       _attemptInFlight = false;
     }
   }
 
-  Future<void> _reconnectWithBackoff(String deviceId) async {
+  Future<void> _reconnectWithBackoff(
+    String deviceId, {
+    Duration? initialDelay,
+  }) async {
     _cancelRetry();
+
+    if (initialDelay != null && initialDelay > Duration.zero) {
+      await _sleep(initialDelay);
+    }
 
     for (var attempt = 1; attempt <= _maxAttempts; attempt++) {
       if (_backgrounded) return;
@@ -213,30 +240,31 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
       );
 
       final ok = await _service.reconnect(deviceId);
-      if (ok) {
-        // connectedMidiDeviceProvider listener will transition us to connected.
-        return;
+
+      // Quiet down scanning between attempts.
+      // Safe because reconnect() owns scanning through connect now.
+      try {
+        await _service.stopScanning();
+      } catch (_) {
+        // ignore
       }
 
+      if (ok) return;
+
       // If we can see the devices list, check whether the last device appears.
-      final devices = ref
-          .read(availableMidiDevicesProvider)
-          .when(data: (d) => d, loading: () => null, error: (_, _) => null);
-      final seen = devices?.any((d) => d.id == deviceId) ?? false;
-      if (!seen) {
-        // Surface a more helpful message; we still respect the finite attempt count.
+      bool? seen;
+      if (attempt == 1 || attempt == _maxAttempts) {
+        final devices = ref
+            .read(availableMidiDevicesProvider)
+            .when(data: (d) => d, loading: () => null, error: (_, _) => null);
+        seen = devices?.any((d) => d.id == deviceId);
+      }
+
+      if (seen == false) {
         state = state.copyWith(
           phase: MidiLinkPhase.deviceUnavailable,
           message: 'Last device not found. Make sure it is powered on.',
         );
-      }
-
-      if (attempt == _maxAttempts) {
-        state = state.copyWith(
-          phase: MidiLinkPhase.deviceUnavailable,
-          message: 'Unable to reconnect. You can try again or pick a device.',
-        );
-        return;
       }
 
       final delay = _backoffForAttempt(attempt);
