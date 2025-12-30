@@ -151,7 +151,7 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
       if (!prefs.getAutoReconnect()) return;
 
       final lastDeviceId = prefs.getLastDeviceId();
-      if (lastDeviceId == null) {
+      if (lastDeviceId == null || lastDeviceId.trim().isEmpty) {
         // Nothing to reconnect to. Keep the UI clean after a reset.
         _cancelRetry();
 
@@ -271,6 +271,13 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
     final c = Completer<void>();
     _retryTimer = Timer(d, c.complete);
     return c.future;
+  }
+
+  /// Cancels any pending retry and normalizes public state back to idle.
+  /// Useful after "Forget last device" or "Clear MIDI data" actions.
+  void resetToIdle() {
+    _cancelRetry();
+    state = const MidiLinkState.idle();
   }
 
   void _cancelRetry() {

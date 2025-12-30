@@ -14,10 +14,11 @@ import 'features/midi/models/midi_connection_state.dart';
 import 'features/midi/models/midi_message.dart';
 import 'features/midi/models/midi_note_state.dart';
 import 'features/midi/providers/midi_lifecycle_controller.dart';
-import 'features/midi/widgets/midi_status_card.dart';
 import 'features/midi/providers/midi_link_manager.dart';
 import 'features/midi/providers/midi_providers.dart';
+import 'features/midi/widgets/last_device_tile.dart';
 import 'features/midi/widgets/midi_device_picker.dart';
+import 'features/midi/widgets/midi_status_card.dart';
 
 import 'features/piano/piano.dart';
 
@@ -1035,6 +1036,7 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
         padding: const EdgeInsets.all(16),
         children: [
           MidiStatusCard(connectionState: connectionState, link: link),
+          LastDeviceTile(),
 
           const SizedBox(height: 24),
 
