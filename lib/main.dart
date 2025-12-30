@@ -9,18 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import 'features/midi/models/bluetooth_state.dart';
-import 'features/midi/models/midi_connection_state.dart';
-import 'features/midi/models/midi_message.dart';
-import 'features/midi/models/midi_note_state.dart';
-import 'features/midi/providers/midi_lifecycle_controller.dart';
-import 'features/midi/providers/midi_link_manager.dart';
-import 'features/midi/providers/midi_providers.dart';
-import 'features/midi/providers/midi_settings_state.dart';
-import 'features/midi/widgets/saved_device_card.dart';
-import 'features/midi/widgets/midi_device_picker.dart';
-import 'features/midi/widgets/midi_status_card.dart';
-
+import 'features/midi/midi.dart';
 import 'features/piano/piano.dart';
 
 enum AppPalette { blue, green, indigo, purple }
