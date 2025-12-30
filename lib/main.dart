@@ -13,6 +13,7 @@ import 'features/midi/models/midi_connection_state.dart';
 import 'features/midi/models/midi_message.dart';
 import 'features/midi/models/midi_note_state.dart';
 import 'features/midi/providers/midi_providers.dart';
+import 'features/midi/providers/midi_lifecycle_controller.dart';
 import 'features/midi/services/stub_midi_service.dart';
 import 'features/midi/widgets/midi_device_picker.dart';
 
@@ -593,6 +594,9 @@ class HomePage extends ConsumerWidget {
 
     // Initialize MIDI service on first build.
     ref.watch(midiServiceInitProvider);
+
+    // Install MIDI lifecycle + auto-reconnect controller.
+    ref.watch(midiLifecycleControllerProvider);
 
     // Listen for connection state changes and show feedback.
     ref.listen(midiConnectionProvider, (previous, next) {

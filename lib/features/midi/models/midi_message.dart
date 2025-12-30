@@ -52,7 +52,6 @@ class MidiParser {
     if (bytes.isEmpty) return null;
 
     final status = bytes[0] & 0xF0;
-    final channel = bytes[0] & 0x0F;
 
     switch (status) {
       case 0x90: // Note On

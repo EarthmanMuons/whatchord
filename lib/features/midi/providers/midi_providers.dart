@@ -103,21 +103,7 @@ final midiServiceInitProvider = FutureProvider<bool>((ref) async {
   final service = ref.watch(midiServiceProvider);
 
   try {
-    final initialized = await service.initialize();
-
-    if (initialized) {
-      final prefs = await ref.read(midiPreferencesProvider.future);
-      final autoReconnect = prefs.getAutoReconnect();
-
-      if (autoReconnect) {
-        final lastDeviceId = prefs.getLastDeviceId();
-        if (lastDeviceId != null) {
-          unawaited(service.reconnect(lastDeviceId));
-        }
-      }
-    }
-
-    return initialized;
+    return await service.initialize();
   } catch (e) {
     print('MIDI initialization failed: $e');
     return false;
