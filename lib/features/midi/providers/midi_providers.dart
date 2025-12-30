@@ -9,79 +9,15 @@ import '../models/midi_message.dart';
 import '../persistence/midi_preferences.dart';
 import '../services/flutter_midi_service.dart';
 import '../services/midi_service.dart';
-import '../services/stub_midi_service.dart';
-
-// ============================================================
-// MIDI Mode (Stub vs Real)
-// ============================================================
-
-enum MidiMode { stub, real }
-
-extension MidiModeExtension on MidiMode {
-  String get persistenceKey => name;
-
-  static MidiMode fromString(String value) {
-    return MidiMode.values.firstWhere(
-      (mode) => mode.name == value,
-      orElse: () => MidiMode.stub,
-    );
-  }
-}
-
-/// Provider for MIDI mode preference (stub vs real).
-final midiModeProvider = NotifierProvider<MidiModeNotifier, MidiMode>(
-  MidiModeNotifier.new,
-);
-
-class MidiModeNotifier extends Notifier<MidiMode> {
-  @override
-  MidiMode build() {
-    // Load persisted mode asynchronously
-    final prefsAsync = ref.watch(midiPreferencesProvider);
-
-    return prefsAsync.when(
-      data: (prefs) {
-        final modeStr = prefs.getMidiMode();
-        return MidiModeExtension.fromString(modeStr);
-      },
-      loading: () => MidiMode.stub, // Default while loading
-      error: (_, _) => MidiMode.stub, // Fallback on error
-    );
-  }
-
-  Future<void> setMode(MidiMode mode) async {
-    final prefs = await ref.read(midiPreferencesProvider.future);
-    await prefs.setMidiMode(mode.persistenceKey);
-    state = mode;
-  }
-
-  void toggle() {
-    final newMode = state == MidiMode.stub ? MidiMode.real : MidiMode.stub;
-    setMode(newMode);
-  }
-}
-
-// ============================================================
-// Preferences
-// ============================================================
 
 /// Provider for MIDI preferences.
 final midiPreferencesProvider = FutureProvider<MidiPreferences>((ref) async {
   return MidiPreferences.create();
 });
 
-// ============================================================
-// MIDI Service
-// ============================================================
-
-/// Provider for the active MIDI service (stub or real).
+/// Provider for the active MIDI service.
 final midiServiceProvider = Provider<MidiService>((ref) {
-  final mode = ref.watch(midiModeProvider);
-
-  final service = switch (mode) {
-    MidiMode.stub => StubMidiService(),
-    MidiMode.real => FlutterMidiService(),
-  };
+  final service = FlutterMidiService();
 
   // Ensure disposal
   ref.onDispose(() {

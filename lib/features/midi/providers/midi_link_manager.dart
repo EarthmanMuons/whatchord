@@ -166,9 +166,14 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
         state = state.copyWith(
           phase: MidiLinkPhase.bluetoothUnavailable,
           message: bt.displayName,
+          nextDelay: null,
         );
         return;
       }
+
+      // If a previous manual scan is still running, stop it before reconnecting.
+      // (Auto-reconnect should be quiet and not leave background work running.)
+      await ref.read(midiConnectionActionsProvider).stopScanning();
 
       await _reconnectWithBackoff(lastDeviceId);
     } finally {
@@ -185,6 +190,7 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
       state = MidiLinkState(
         phase: attempt == 1 ? MidiLinkPhase.connecting : MidiLinkPhase.retrying,
         attempt: attempt,
+        nextDelay: null,
         message: attempt == 1
             ? 'Reconnecting…'
             : 'Reconnecting (attempt $attempt)…',

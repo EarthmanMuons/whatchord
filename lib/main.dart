@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -16,7 +17,6 @@ import 'features/midi/providers/midi_lifecycle_controller.dart';
 import 'features/midi/widgets/midi_status_card.dart';
 import 'features/midi/providers/midi_link_manager.dart';
 import 'features/midi/providers/midi_providers.dart';
-import 'features/midi/services/stub_midi_service.dart';
 import 'features/midi/widgets/midi_device_picker.dart';
 
 import 'features/piano/piano.dart';
@@ -619,14 +619,16 @@ class HomePage extends ConsumerWidget {
 
         messenger.showSnackBar(
           SnackBar(
-            content: Text(trimmed),
+            content: Text(
+              trimmed,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: fg),
+            ),
             backgroundColor: bg,
             behavior: SnackBarBehavior.floating,
             showCloseIcon: true,
             closeIconColor: fg,
-            contentTextStyle: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: fg),
             duration: Duration(seconds: seconds),
             action: action,
           ),
@@ -985,13 +987,26 @@ class SettingsPage extends ConsumerWidget {
 
   Widget _buildMidiSubtitle(WidgetRef ref) {
     final connectionState = ref.watch(midiConnectionProvider);
-    final mode = ref.watch(midiModeProvider);
+    final link = ref.watch(midiLinkManagerProvider);
 
     if (connectionState.isConnected) {
-      return Text('${connectionState.message ?? 'Connected'} (${mode.name})');
+      return Text(connectionState.message ?? 'Connected');
     }
 
-    return Text('Not connected (${mode.name})');
+    final text = switch (link.phase) {
+      MidiLinkPhase.connecting => 'Connecting…',
+      MidiLinkPhase.retrying =>
+        link.nextDelay != null
+            ? 'Reconnecting (next in ${link.nextDelay!.inSeconds}s)…'
+            : 'Reconnecting…',
+      MidiLinkPhase.bluetoothUnavailable => 'Bluetooth unavailable',
+      MidiLinkPhase.deviceUnavailable => 'Device unavailable',
+      MidiLinkPhase.error => link.message ?? 'Error',
+      MidiLinkPhase.idle => 'Not connected',
+      MidiLinkPhase.connected => 'Connected', // shouldn’t happen here, but safe
+    };
+
+    return Text(text);
   }
 }
 
@@ -1106,6 +1121,34 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
               },
             ),
           ),
+
+          if (kDebugMode) ...[
+            const SizedBox(height: 12),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.delete_sweep_outlined),
+                title: const Text('Clear all MIDI data (debug)'),
+                subtitle: const Text(
+                  'Clears MIDI preferences, last device, and reconnect settings.',
+                ),
+                onTap: () async {
+                  final prefs = await ref.read(midiPreferencesProvider.future);
+                  await prefs.clearAllMidiData();
+
+                  // Also stop any ongoing scan and disconnect to ensure a clean slate.
+                  final actions = ref.read(midiConnectionActionsProvider);
+                  await actions.stopScanning();
+                  await actions.disconnect();
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('MIDI data cleared')),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
         ],
       ),
     );

@@ -10,7 +10,6 @@ class MidiPreferences {
   static const _keyLastDeviceId = 'midi_last_device_id';
   static const _keyLastDevice = 'midi_last_device';
   static const _keyLastConnectedAtMs = 'midi_last_connected_at_ms';
-  static const _keyMidiMode = 'midi_mode';
   static const _keyAutoReconnect = 'midi_auto_reconnect';
 
   final SharedPreferences _prefs;
@@ -67,20 +66,15 @@ class MidiPreferences {
   Future<void> clearLastDevice() async {
     await _prefs.remove(_keyLastDeviceId);
     await _prefs.remove(_keyLastDevice);
+    await _prefs.remove(_keyLastConnectedAtMs);
   }
 
-  // ============================================================
-  // MIDI Mode (Stub vs Real)
-  // ============================================================
-
-  /// Get the MIDI mode ('stub' or 'real').
-  String getMidiMode() {
-    return _prefs.getString(_keyMidiMode) ?? 'stub';
-  }
-
-  /// Set the MIDI mode.
-  Future<void> setMidiMode(String mode) async {
-    await _prefs.setString(_keyMidiMode, mode);
+  /// Clear all persisted MIDI-related state (useful for rapid dev iteration).
+  Future<void> clearAllMidiData() async {
+    await _prefs.remove(_keyLastDeviceId);
+    await _prefs.remove(_keyLastDevice);
+    await _prefs.remove(_keyLastConnectedAtMs);
+    await _prefs.remove(_keyAutoReconnect);
   }
 
   // ============================================================

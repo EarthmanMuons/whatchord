@@ -145,10 +145,14 @@ class StubMidiService implements MidiService {
       await initialize();
     }
 
-    final device = _stubDevices.firstWhere(
-      (d) => d.id == deviceId,
-      orElse: () => throw const MidiException('Device not found'),
-    );
+    MidiDevice? device;
+    for (final d in _stubDevices) {
+      if (d.id == deviceId) {
+        device = d;
+        break;
+      }
+    }
+    if (device == null) return false;
 
     try {
       await connect(device);
