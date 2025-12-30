@@ -169,9 +169,9 @@ final bluetoothStateStreamProvider = StreamProvider<BluetoothState>((ref) {
 // ============================================================
 
 /// Provider for the currently connected MIDI device.
-final connectedMidiDeviceProvider = Provider<MidiDevice?>((ref) {
+final connectedMidiDeviceProvider = StreamProvider<MidiDevice?>((ref) {
   final service = ref.watch(midiServiceProvider);
-  return service.connectedDevice;
+  return service.connectedDeviceStream;
 });
 
 // ============================================================
@@ -214,7 +214,14 @@ class MidiConnectionActions {
   Future<void> connect(MidiDevice device) async {
     await _ensureInitialized();
     await _service.connect(device);
-    await _prefs.setLastDevice(device);
+
+    final connected = _service.connectedDevice;
+    if (connected != null && connected.isConnected) {
+      await _prefs.setLastDevice(connected);
+    } else {
+      // Fallback: persist what we attempted, marked connected.
+      await _prefs.setLastDevice(device.copyWith(isConnected: true));
+    }
   }
 
   /// Disconnect from the current device.

@@ -10,6 +10,7 @@ import 'midi_service.dart';
 /// Provides simulated devices and MIDI messages without real hardware.
 class StubMidiService implements MidiService {
   final _devicesController = StreamController<List<MidiDevice>>.broadcast();
+  final _connectedDeviceController = StreamController<MidiDevice?>.broadcast();
   final _midiDataController = StreamController<Uint8List>.broadcast();
   final _bluetoothController = StreamController<BluetoothState>.broadcast();
 
@@ -35,6 +36,10 @@ class StubMidiService implements MidiService {
 
   @override
   Stream<List<MidiDevice>> get availableDevices => _devicesController.stream;
+
+  @override
+  Stream<MidiDevice?> get connectedDeviceStream =>
+      _connectedDeviceController.stream;
 
   @override
   Stream<Uint8List> get midiDataStream => _midiDataController.stream;
@@ -66,6 +71,8 @@ class StubMidiService implements MidiService {
     // Emit initial Bluetooth state
     _bluetoothController.add(BluetoothState.on);
 
+    _connectedDeviceController.add(_connectedDevice);
+
     _isInitialized = true;
     return true;
   }
@@ -76,6 +83,7 @@ class StubMidiService implements MidiService {
     _simulationTimer?.cancel();
 
     await _devicesController.close();
+    await _connectedDeviceController.close();
     await _midiDataController.close();
     await _bluetoothController.close();
 
@@ -119,7 +127,7 @@ class StubMidiService implements MidiService {
     // Simulate connection delay
     await Future.delayed(const Duration(milliseconds: 800));
 
-    _connectedDevice = device.copyWith(isConnected: true);
+    _setConnectedDevice(device.copyWith(isConnected: true));
 
     // Start simulating MIDI input
     _startMidiSimulation();
@@ -127,7 +135,7 @@ class StubMidiService implements MidiService {
 
   @override
   Future<void> disconnect() async {
-    _connectedDevice = null;
+    _setConnectedDevice(null);
     _simulationTimer?.cancel();
   }
 
@@ -148,6 +156,11 @@ class StubMidiService implements MidiService {
     } catch (e) {
       return false;
     }
+  }
+
+  void _setConnectedDevice(MidiDevice? device) {
+    _connectedDevice = device;
+    _connectedDeviceController.add(_connectedDevice);
   }
 
   // ============================================================

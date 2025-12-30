@@ -12,6 +12,8 @@ class FlutterMidiService implements MidiService {
   final fmc.MidiCommand _midi = fmc.MidiCommand();
 
   final _devicesController = StreamController<List<MidiDevice>>.broadcast();
+  final _connectedDeviceController = StreamController<MidiDevice?>.broadcast();
+
   final _bluetoothController = StreamController<BluetoothState>.broadcast();
 
   MidiDevice? _connectedDevice;
@@ -27,6 +29,10 @@ class FlutterMidiService implements MidiService {
 
   @override
   Stream<List<MidiDevice>> get availableDevices => _devicesController.stream;
+
+  @override
+  Stream<MidiDevice?> get connectedDeviceStream =>
+      _connectedDeviceController.stream;
 
   @override
   Stream<Uint8List> get midiDataStream {
@@ -63,11 +69,14 @@ class FlutterMidiService implements MidiService {
         _handleBluetoothStateChange(state);
       });
 
-      _setupChangeSub = _midi.onMidiSetupChanged?.listen((_) {
+      _setupChangeSub = _midi.onMidiSetupChanged?.listen((String _) async {
         // When setup changes (device discovered, connected, or disconnected),
-        // update the device list
-        _updateDeviceList();
+        // update the device list AND refresh our connected-device signal.
+        await _updateDeviceList();
+        await _refreshConnectedDeviceFromNative();
       });
+
+      _connectedDeviceController.add(_connectedDevice);
 
       _isInitialized = true;
       return true;
@@ -85,6 +94,7 @@ class FlutterMidiService implements MidiService {
     await _setupChangeSub?.cancel();
 
     await _devicesController.close();
+    await _connectedDeviceController.close();
     await _bluetoothController.close();
 
     _isInitialized = false;
@@ -144,6 +154,46 @@ class FlutterMidiService implements MidiService {
     }
   }
 
+  Future<void> _refreshConnectedDeviceFromNative() async {
+    try {
+      final devices = await _midi.devices; // may be null
+      final native = devices;
+
+      if (native == null || native.isEmpty) {
+        _setConnectedDevice(null);
+        return;
+      }
+
+      // If we already believe we're connected, confirm it still is.
+      if (_connectedDevice != null) {
+        final match = native
+            .where((d) => d.id == _connectedDevice!.id)
+            .toList();
+        if (match.isNotEmpty && match.first.connected) {
+          // Ensure our model reflects connected=true (and emit a fresh value).
+          _setConnectedDevice(_connectedDevice!.copyWith(isConnected: true));
+          return;
+        }
+      }
+
+      // Otherwise, select any currently-connected BLE device (if any).
+      final connectedBle = native
+          .where((d) => d.type == 'BLE' && d.connected)
+          .toList();
+      if (connectedBle.isEmpty) {
+        _setConnectedDevice(null);
+        return;
+      }
+
+      _setConnectedDevice(
+        _convertDevice(connectedBle.first).copyWith(isConnected: true),
+      );
+    } catch (e) {
+      // If querying native devices fails, keep things conservative.
+      _setConnectedDevice(null);
+    }
+  }
+
   // ============================================================
   // Connection Management
   // ============================================================
@@ -185,7 +235,7 @@ class FlutterMidiService implements MidiService {
       );
 
       if (connectedDevice?.connected ?? false) {
-        _connectedDevice = device.copyWith(isConnected: true);
+        _setConnectedDevice(device.copyWith(isConnected: true));
       } else {
         throw const MidiException('Connection failed - device not responding');
       }
@@ -209,10 +259,10 @@ class FlutterMidiService implements MidiService {
         _midi.disconnectDevice(nativeDevice);
       }
 
-      _connectedDevice = null;
+      _setConnectedDevice(null);
     } catch (e) {
       print('Warning: Error disconnecting MIDI device: $e');
-      _connectedDevice = null;
+      _setConnectedDevice(null);
     }
   }
 
@@ -263,5 +313,10 @@ class FlutterMidiService implements MidiService {
     };
 
     _bluetoothController.add(btState);
+  }
+
+  void _setConnectedDevice(MidiDevice? device) {
+    _connectedDevice = device;
+    _connectedDeviceController.add(_connectedDevice);
   }
 }

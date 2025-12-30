@@ -368,19 +368,23 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
           }
         },
         loading: () {},
-        error: (_, __) {},
+        error: (_, _) {},
       );
     });
 
     // Update status based on the connected device provider.
     ref.listen(connectedMidiDeviceProvider, (prev, next) {
-      if (next != null && next.isConnected) {
-        markConnected(deviceName: next.name);
-      } else {
-        // If Bluetooth is off/unauthorized, bluetooth listener will push error.
-        // Otherwise treat it as disconnected.
-        markDisconnected();
-      }
+      next.when(
+        data: (device) {
+          if (device != null && device.isConnected) {
+            markConnected(deviceName: device.name);
+          } else {
+            markDisconnected();
+          }
+        },
+        loading: () {},
+        error: (_, _) => markDisconnected(),
+      );
     });
 
     return const MidiConnectionState(status: MidiConnectionStatus.disconnected);

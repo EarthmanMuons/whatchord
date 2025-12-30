@@ -18,6 +18,12 @@ abstract class MidiService {
   /// Updates when devices are discovered or removed during scanning.
   Stream<List<MidiDevice>> get availableDevices;
 
+  /// Stream of the currently connected device.
+  ///
+  /// Emits the connected [MidiDevice] when a connection is established and
+  /// `null` when disconnected.
+  Stream<MidiDevice?> get connectedDeviceStream;
+
   /// Stream of raw MIDI data packets.
   ///
   /// Each emission is a complete MIDI message as [Uint8List].

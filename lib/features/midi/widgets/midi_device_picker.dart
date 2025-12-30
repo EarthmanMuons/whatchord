@@ -106,7 +106,10 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     final cs = theme.colorScheme;
 
     final devicesAsync = ref.watch(availableMidiDevicesProvider);
-    final connectedDevice = ref.watch(connectedMidiDeviceProvider);
+    final connectedDevice = ref
+        .watch(connectedMidiDeviceProvider)
+        .asData
+        ?.value;
 
     return SafeArea(
       child: Column(
