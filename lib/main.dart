@@ -1318,13 +1318,13 @@ class _MidiLivePreview extends ConsumerWidget {
 
             // Pedal indicator - only show when pedal is down
             if (isPedalDown)
-              const Padding(
-                padding: EdgeInsets.only(bottom: 12),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
                 child: Row(
                   children: [
-                    PedalIndicator(),
-                    SizedBox(width: 8),
-                    Text('Sustain pedal held'),
+                    SizedBox(height: 40, child: const PedalIndicator()),
+                    const SizedBox(width: 8),
+                    const Text('Sustain pedal held'),
                   ],
                 ),
               ),
