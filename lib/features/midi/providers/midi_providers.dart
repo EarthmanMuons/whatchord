@@ -45,7 +45,7 @@ class MidiModeNotifier extends Notifier<MidiMode> {
         return MidiModeExtension.fromString(modeStr);
       },
       loading: () => MidiMode.stub, // Default while loading
-      error: (_, __) => MidiMode.stub, // Fallback on error
+      error: (_, _) => MidiMode.stub, // Fallback on error
     );
   }
 
@@ -97,20 +97,21 @@ final midiServiceProvider = Provider<MidiService>((ref) {
 
 /// Provider that manages MIDI service initialization.
 final midiServiceInitProvider = FutureProvider<bool>((ref) async {
+  // Ensure persistence coordinator is installed early.
+  ref.watch(midiPersistenceCoordinatorProvider);
+
   final service = ref.watch(midiServiceProvider);
 
   try {
     final initialized = await service.initialize();
 
     if (initialized) {
-      // Attempt auto-reconnect if enabled
       final prefs = await ref.read(midiPreferencesProvider.future);
       final autoReconnect = prefs.getAutoReconnect();
 
       if (autoReconnect) {
         final lastDeviceId = prefs.getLastDeviceId();
         if (lastDeviceId != null) {
-          // Fire and forget - don't block initialization
           unawaited(service.reconnect(lastDeviceId));
         }
       }
@@ -150,7 +151,7 @@ final midiMessageStreamProvider = StreamProvider<MidiMessage?>((ref) {
   return dataStream.when(
     data: (bytes) => Stream.value(MidiParser.parse(bytes)),
     loading: () => const Stream.empty(),
-    error: (_, __) => const Stream.empty(),
+    error: (_, _) => const Stream.empty(),
   );
 });
 
@@ -174,6 +175,37 @@ final connectedMidiDeviceProvider = StreamProvider<MidiDevice?>((ref) {
   return service.connectedDeviceStream;
 });
 
+/// Keeps persisted "last device" in sync with the actual connected device stream.
+final midiPersistenceCoordinatorProvider = Provider<void>((ref) {
+  final prefsAsync = ref.watch(midiPreferencesProvider);
+  if (!prefsAsync.hasValue) return;
+
+  final prefs = prefsAsync.requireValue;
+
+  String? lastPersistedDeviceId;
+
+  ref.listen<AsyncValue<MidiDevice?>>(connectedMidiDeviceProvider, (
+    prev,
+    next,
+  ) async {
+    // Only persist on a successful data emission
+    final device = next.when(
+      data: (d) => d,
+      loading: () => null,
+      error: (_, _) => null,
+    );
+
+    // Persist only when actually connected
+    if (device == null || !device.isConnected) return;
+
+    // Dedupe on device id (most practical)
+    if (device.id == lastPersistedDeviceId) return;
+    lastPersistedDeviceId = device.id;
+
+    await prefs.setLastDevice(device);
+  });
+});
+
 // ============================================================
 // Connection Actions
 // ============================================================
@@ -189,7 +221,6 @@ class MidiConnectionActions {
   const MidiConnectionActions(this._ref);
 
   MidiService get _service => _ref.read(midiServiceProvider);
-  MidiPreferences get _prefs => _ref.read(midiPreferencesProvider).requireValue;
 
   /// Ensure service is initialized before performing action.
   Future<void> _ensureInitialized() async {
@@ -214,27 +245,18 @@ class MidiConnectionActions {
   Future<void> connect(MidiDevice device) async {
     await _ensureInitialized();
     await _service.connect(device);
-
-    final connected = _service.connectedDevice;
-    if (connected != null && connected.isConnected) {
-      await _prefs.setLastDevice(connected);
-    } else {
-      // Fallback: persist what we attempted, marked connected.
-      await _prefs.setLastDevice(device.copyWith(isConnected: true));
-    }
   }
 
   /// Disconnect from the current device.
   Future<void> disconnect() async {
     await _service.disconnect();
-    // Optionally clear last device:
-    // await _prefs.clearLastDevice();
   }
 
   /// Manually trigger a reconnection attempt.
   Future<bool> reconnect() async {
     await _ensureInitialized();
-    final lastDeviceId = _prefs.getLastDeviceId();
+    final prefs = await _ref.read(midiPreferencesProvider.future);
+    final lastDeviceId = prefs.getLastDeviceId();
     if (lastDeviceId == null) return false;
 
     return _service.reconnect(lastDeviceId);

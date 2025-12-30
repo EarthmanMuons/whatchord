@@ -8,6 +8,7 @@ import '../models/midi_device.dart';
 class MidiPreferences {
   static const _keyLastDeviceId = 'midi_last_device_id';
   static const _keyLastDevice = 'midi_last_device';
+  static const _keyLastConnectedAtMs = 'midi_last_connected_at_ms';
   static const _keyMidiMode = 'midi_mode';
   static const _keyAutoReconnect = 'midi_auto_reconnect';
 
@@ -48,10 +49,17 @@ class MidiPreferences {
     }
   }
 
+  int? getLastConnectedAtMs() => _prefs.getInt(_keyLastConnectedAtMs);
+
   /// Save the last connected device.
   Future<void> setLastDevice(MidiDevice device) async {
-    await _prefs.setString(_keyLastDeviceId, device.id);
-    await _prefs.setString(_keyLastDevice, jsonEncode(device.toJson()));
+    final toStore = device.copyWith(isConnected: false);
+    await _prefs.setString(_keyLastDeviceId, toStore.id);
+    await _prefs.setString(_keyLastDevice, jsonEncode(toStore.toJson()));
+    await _prefs.setInt(
+      _keyLastConnectedAtMs,
+      DateTime.now().millisecondsSinceEpoch,
+    );
   }
 
   /// Clear the last connected device.
