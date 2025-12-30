@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -44,7 +45,7 @@ class MidiPreferences {
       final map = jsonDecode(json) as Map<String, dynamic>;
       return MidiDevice.fromJson(map);
     } catch (e) {
-      print('Error decoding last device: $e');
+      debugPrint('Error decoding last device: $e');
       return null;
     }
   }

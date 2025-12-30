@@ -428,7 +428,7 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
         },
         loading: () {},
         error: (error, stack) {
-          print('MIDI message error: $error');
+          debugPrint('MIDI message error: $error');
         },
       );
     });

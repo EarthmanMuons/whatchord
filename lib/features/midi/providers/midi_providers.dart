@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -105,7 +105,7 @@ final midiServiceInitProvider = FutureProvider<bool>((ref) async {
   try {
     return await service.initialize();
   } catch (e) {
-    print('MIDI initialization failed: $e');
+    debugPrint('MIDI initialization failed: $e');
     return false;
   }
 });

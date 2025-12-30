@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_device.dart';
@@ -56,7 +57,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     try {
       await actions.stopScanning();
     } catch (e) {
-      print('Error stopping scan: $e');
+      debugPrint('Error stopping scan: $e');
     }
   }
 

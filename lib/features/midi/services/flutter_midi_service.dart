@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_midi_command/flutter_midi_command.dart' as fmc;
 
@@ -136,7 +136,7 @@ class FlutterMidiService implements MidiService {
     try {
       _midi.stopScanningForBluetoothDevices();
     } catch (e) {
-      print('Warning: Error stopping MIDI scan: $e');
+      debugPrint('Warning: Error stopping MIDI scan: $e');
     }
   }
 
@@ -150,7 +150,7 @@ class FlutterMidiService implements MidiService {
 
       _devicesController.add(midiDevices);
     } catch (e) {
-      print('Error updating device list: $e');
+      debugPrint('Error updating device list: $e');
     }
   }
 
@@ -261,7 +261,7 @@ class FlutterMidiService implements MidiService {
 
       _setConnectedDevice(null);
     } catch (e) {
-      print('Warning: Error disconnecting MIDI device: $e');
+      debugPrint('Warning: Error disconnecting MIDI device: $e');
       _setConnectedDevice(null);
     }
   }
@@ -286,7 +286,7 @@ class FlutterMidiService implements MidiService {
       await connect(_convertDevice(targetDevice));
       return true;
     } catch (e) {
-      print('Auto-reconnect failed: $e');
+      debugPrint('Auto-reconnect failed: $e');
       return false;
     }
   }
