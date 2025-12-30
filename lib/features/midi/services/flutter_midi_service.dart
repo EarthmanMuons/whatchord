@@ -78,20 +78,11 @@ class FlutterMidiService implements MidiService {
       _setupChangeSub = _midi.onMidiSetupChanged?.listen((String _) {
         _setupDebounce?.cancel();
         _setupDebounce = Timer(const Duration(milliseconds: 250), () async {
-          // If we're already connected, don't keep re-listing devices during scan noise.
-          if (_connectedDevice?.isConnected == true) {
-            await _refreshConnectedDeviceFromNative();
-            return;
-          }
           await _updateDeviceList();
-          await _refreshConnectedDeviceFromNative();
         });
       });
 
       await _updateDeviceList();
-      await _refreshConnectedDeviceFromNative();
-
-      _connectedDeviceController.add(_connectedDevice);
 
       _isInitialized = true;
       return true;
@@ -199,16 +190,13 @@ class FlutterMidiService implements MidiService {
 
       _lastDevices = midiDevices;
       _devicesController.add(midiDevices);
-    } catch (e) {
-      debugPrint('Error updating device list: $e');
-    }
-  }
 
-  Future<void> _refreshConnectedDeviceFromNative() async {
-    try {
-      final devices = await _midi.devices; // may be null
+      // Keep connectedDevice in sync with native state, using the same snapshot.
       final native = devices;
-
+      if (_connectedDevice == null) {
+        // Important: don't auto-adopt arbitrary "connected" BLE devices reported by the OS/plugin.
+        return;
+      }
       if (native == null || native.isEmpty) {
         _setConnectedDevice(null);
         return;
@@ -225,21 +213,9 @@ class FlutterMidiService implements MidiService {
           return;
         }
       }
-
-      // Otherwise, select any currently-connected BLE device (if any).
-      final connectedBle = native
-          .where((d) => d.type == 'BLE' && d.connected)
-          .toList();
-      if (connectedBle.isEmpty) {
-        _setConnectedDevice(null);
-        return;
-      }
-
-      _setConnectedDevice(
-        _convertDevice(connectedBle.first).copyWith(isConnected: true),
-      );
     } catch (e) {
-      // If querying native devices fails, keep things conservative.
+      debugPrint('Error updating device list: $e');
+      // If we can't query native devices, clear connection state.
       _setConnectedDevice(null);
     }
   }
