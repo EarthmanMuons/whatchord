@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -10,81 +9,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import 'features/midi/models/bluetooth_state.dart';
+import 'features/midi/models/midi_connection_state.dart';
 import 'features/midi/models/midi_message.dart';
+import 'features/midi/models/midi_note_state.dart';
 import 'features/midi/providers/midi_providers.dart';
 import 'features/midi/services/stub_midi_service.dart';
 import 'features/midi/widgets/midi_device_picker.dart';
 
 import 'features/piano/piano.dart';
-
-enum MidiConnectionStatus { disconnected, connecting, connected, error }
-
-@immutable
-class MidiConnectionState {
-  final MidiConnectionStatus status;
-
-  /// Optional details (e.g., last error, device name, etc.)
-  final String? message;
-
-  const MidiConnectionState({required this.status, this.message});
-
-  bool get isConnected => status == MidiConnectionStatus.connected;
-
-  MidiConnectionState copyWith({
-    MidiConnectionStatus? status,
-    String? message,
-  }) {
-    return MidiConnectionState(
-      status: status ?? this.status,
-      message: message ?? this.message,
-    );
-  }
-}
-
-@immutable
-class MidiNoteState {
-  final Set<int> pressed; // keys physically down
-  final Set<int> sustained; // keys released while pedal down
-  final bool isPedalDown;
-
-  const MidiNoteState({
-    required this.pressed,
-    required this.sustained,
-    required this.isPedalDown,
-  });
-
-  Set<int> get activeNotes => {...pressed, ...sustained};
-
-  MidiNoteState copyWith({
-    Set<int>? pressed,
-    Set<int>? sustained,
-    bool? isPedalDown,
-  }) {
-    return MidiNoteState(
-      pressed: pressed ?? this.pressed,
-      sustained: sustained ?? this.sustained,
-      isPedalDown: isPedalDown ?? this.isPedalDown,
-    );
-  }
-
-  static const _noteSetEquality = SetEquality<int>();
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MidiNoteState &&
-          runtimeType == other.runtimeType &&
-          isPedalDown == other.isPedalDown &&
-          _noteSetEquality.equals(pressed, other.pressed) &&
-          _noteSetEquality.equals(sustained, other.sustained);
-
-  @override
-  int get hashCode => Object.hash(
-    isPedalDown,
-    _noteSetEquality.hash(pressed),
-    _noteSetEquality.hash(sustained),
-  );
-}
 
 enum AppPalette { blue, green, indigo, purple }
 
@@ -420,8 +352,7 @@ final midiConnectionProvider =
 class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   @override
   MidiConnectionState build() {
-    // Watch the connected device from the service
-    final device = ref.watch(connectedMidiDeviceProvider);
+    debugPrint('[MidiConnectionNotifier] build()');
 
     // Watch bluetooth state and handle errors
     ref.listen(bluetoothStateStreamProvider, (previous, next) {
@@ -441,13 +372,16 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       );
     });
 
-    // Update status based on connected device
-    if (device != null && device.isConnected) {
-      return MidiConnectionState(
-        status: MidiConnectionStatus.connected,
-        message: device.name,
-      );
-    }
+    // Update status based on the connected device provider.
+    ref.listen(connectedMidiDeviceProvider, (prev, next) {
+      if (next != null && next.isConnected) {
+        markConnected(deviceName: next.name);
+      } else {
+        // If Bluetooth is off/unauthorized, bluetooth listener will push error.
+        // Otherwise treat it as disconnected.
+        markDisconnected();
+      }
+    });
 
     return const MidiConnectionState(status: MidiConnectionStatus.disconnected);
   }
