@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:what_chord/features/midi/providers/midi_ui_status.dart';
 
-import '../models/midi_connection_state.dart';
 import '../providers/midi_link_manager.dart';
 
 class MidiStatusCard extends StatelessWidget {
-  const MidiStatusCard({
-    super.key,
-    required this.connectionState,
-    required this.link,
-  });
+  const MidiStatusCard({super.key, required this.ui});
 
-  final MidiConnectionState connectionState;
-  final MidiLinkState link;
+  final MidiUiStatus ui;
 
   @override
   Widget build(BuildContext context) {
@@ -23,24 +18,17 @@ class MidiStatusCard extends StatelessWidget {
       color: cs.onSurfaceVariant,
     );
 
-    final headline = switch (link.phase) {
-      MidiLinkPhase.connected => 'Connected',
-      MidiLinkPhase.connecting => 'Connecting…',
-      MidiLinkPhase.retrying => 'Reconnecting…',
-      MidiLinkPhase.bluetoothUnavailable => 'Bluetooth unavailable',
-      MidiLinkPhase.deviceUnavailable => 'Device unavailable',
-      MidiLinkPhase.error => 'Error',
-      MidiLinkPhase.idle =>
-        connectionState.isConnected ? 'Connected' : 'Not connected',
-    };
-
-    final detailLines = <String>[
-      if (!connectionState.isConnected &&
-          link.message?.trim().isNotEmpty == true)
-        link.message!.trim(),
-      if (link.phase == MidiLinkPhase.retrying && link.attempt > 0)
-        'Attempt ${link.attempt}${link.nextDelay != null ? " • Next in ${link.nextDelay!.inSeconds}s" : ""}',
+    // Always a list (possibly empty) so the rendering code is simple.
+    final subtitleLines = <String>[
+      if (ui.phase == MidiLinkPhase.retrying && ui.attempt != null)
+        'Attempt ${ui.attempt}',
+      if (ui.phase == MidiLinkPhase.retrying && ui.nextDelay != null)
+        'Next retry in ${ui.nextDelay!.inSeconds}s',
+      // If you later want error details etc, add more lines here.
     ];
+
+    // Text() requires a non-null String.
+    final detailText = ui.detail ?? ui.label;
 
     return Card(
       child: Padding(
@@ -52,14 +40,14 @@ class MidiStatusCard extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                _buildDotForLink(link, cs),
+                _buildDotForPhase(ui, cs),
                 const SizedBox(width: 12),
-                Expanded(child: Text(headline)),
+                Expanded(child: Text(detailText)),
               ],
             ),
-            if (detailLines.isNotEmpty) ...[
+            if (subtitleLines.isNotEmpty) ...[
               const SizedBox(height: 12),
-              for (final line in detailLines)
+              for (final line in subtitleLines)
                 Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Text(line, style: bodyStyle),
@@ -71,15 +59,21 @@ class MidiStatusCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDotForLink(MidiLinkState link, ColorScheme cs) {
-    final color = switch (link.phase) {
-      MidiLinkPhase.connected => Colors.green,
-      MidiLinkPhase.connecting => cs.secondary,
-      MidiLinkPhase.retrying => cs.secondary,
-      MidiLinkPhase.bluetoothUnavailable => cs.error,
-      MidiLinkPhase.deviceUnavailable => cs.onSurfaceVariant,
+  Widget _buildDotForPhase(MidiUiStatus ui, ColorScheme cs) {
+    // Keep dot semantics consistent with pill tone mapping:
+    // - normal/busy -> secondary
+    // - error/unavailable -> error
+    // - idle -> muted
+    final color = switch (ui.phase) {
+      MidiLinkPhase.connected => Colors.green.shade600,
+
+      MidiLinkPhase.connecting || MidiLinkPhase.retrying => cs.secondary,
+
+      MidiLinkPhase.bluetoothUnavailable ||
+      MidiLinkPhase.deviceUnavailable ||
       MidiLinkPhase.error => cs.error,
-      MidiLinkPhase.idle => cs.onSurfaceVariant,
+
+      MidiLinkPhase.idle => cs.onSurfaceVariant.withValues(alpha: 0.6),
     };
 
     return Container(

@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:what_chord/features/midi/providers/midi_ui_status.dart';
 
 import 'features/midi/midi.dart';
 import 'features/piano/piano.dart';
@@ -337,64 +338,6 @@ const landscapeLayoutConfig = HomeLayoutConfig(
   whiteKeyAspectRatio: 7.0,
   firstMidiNote: 21, // A0
 );
-
-final midiConnectionProvider =
-    NotifierProvider<MidiConnectionNotifier, MidiConnectionState>(
-      MidiConnectionNotifier.new,
-    );
-
-class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
-  @override
-  MidiConnectionState build() {
-    debugPrint('[MidiConnectionNotifier] build()');
-
-    // Watch bluetooth state and handle errors
-    ref.listen(bluetoothStateStreamProvider, (previous, next) {
-      next.when(
-        data: (BluetoothState state) {
-          if (state == BluetoothState.off) {
-            setStatus(MidiConnectionStatus.error, message: 'Bluetooth is off');
-          } else if (state == BluetoothState.unauthorized) {
-            setStatus(
-              MidiConnectionStatus.error,
-              message: 'Bluetooth permission required',
-            );
-          }
-        },
-        loading: () {},
-        error: (_, _) {},
-      );
-    });
-
-    // Update status based on the connected device provider.
-    ref.listen(connectedMidiDeviceProvider, (prev, next) {
-      next.when(
-        data: (device) {
-          if (device != null && device.isConnected) {
-            markConnected(deviceName: device.name);
-          } else {
-            markDisconnected();
-          }
-        },
-        loading: () {},
-        error: (_, _) => markDisconnected(),
-      );
-    });
-
-    return const MidiConnectionState(status: MidiConnectionStatus.disconnected);
-  }
-
-  void setStatus(MidiConnectionStatus status, {String? message}) {
-    state = state.copyWith(status: status, message: message);
-  }
-
-  void markConnecting() => setStatus(MidiConnectionStatus.connecting);
-  void markConnected({String? deviceName}) =>
-      setStatus(MidiConnectionStatus.connected, message: deviceName);
-  void markDisconnected() => setStatus(MidiConnectionStatus.disconnected);
-  void markError(String message) =>
-      setStatus(MidiConnectionStatus.error, message: message);
-}
 
 final midiNoteStateProvider =
     NotifierProvider<MidiNoteStateNotifier, MidiNoteState>(
@@ -977,27 +920,8 @@ class SettingsPage extends ConsumerWidget {
   }
 
   Widget _buildMidiSubtitle(WidgetRef ref) {
-    final connectionState = ref.watch(midiConnectionProvider);
-    final link = ref.watch(midiLinkManagerProvider);
-
-    if (connectionState.isConnected) {
-      return Text(connectionState.message ?? 'Connected');
-    }
-
-    final text = switch (link.phase) {
-      MidiLinkPhase.connecting => 'Connecting…',
-      MidiLinkPhase.retrying =>
-        link.nextDelay != null
-            ? 'Reconnecting (next in ${link.nextDelay!.inSeconds}s)…'
-            : 'Reconnecting…',
-      MidiLinkPhase.bluetoothUnavailable => 'Bluetooth unavailable',
-      MidiLinkPhase.deviceUnavailable => 'Device unavailable',
-      MidiLinkPhase.error => link.message ?? 'Error',
-      MidiLinkPhase.idle => 'Not connected',
-      MidiLinkPhase.connected => 'Connected', // shouldn’t happen here, but safe
-    };
-
-    return Text(text);
+    final ui = ref.watch(midiUiStatusProvider);
+    return Text(ui.detail ?? ui.label);
   }
 }
 
@@ -1012,11 +936,8 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final connectionState = ref.watch(midiConnectionProvider);
-    final link = ref.watch(midiLinkManagerProvider);
+    final ui = ref.watch(midiUiStatusProvider);
     final isInitializing = ref.watch(midiServiceInitProvider).isLoading;
-
-    final s = ref.watch(midiSettingsStateProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -1027,7 +948,7 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          MidiStatusCard(connectionState: connectionState, link: link),
+          MidiStatusCard(ui: ui),
 
           const SizedBox(height: 16),
           const _SectionHeader(title: 'Device'),
@@ -1057,9 +978,7 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
               child: ListTile(
                 leading: const Icon(Icons.add_link),
                 title: Text(
-                  connectionState.isConnected
-                      ? 'Choose different device'
-                      : 'Choose device',
+                  ui.isConnected ? 'Choose different device' : 'Choose device',
                 ),
                 subtitle: const Text('Scan for and select a MIDI device'),
                 trailing: const Icon(Icons.chevron_right),
@@ -1381,11 +1300,7 @@ class _WakelockControllerState extends ConsumerState<_WakelockController> {
   @override
   Widget build(BuildContext context) {
     final shouldEnableWakelock = ref.watch(
-      midiConnectionProvider.select(
-        (s) =>
-            s.status == MidiConnectionStatus.connected ||
-            s.status == MidiConnectionStatus.connecting,
-      ),
+      midiUiStatusProvider.select((s) => s.keepAwake),
     );
 
     if (_lastWakelockEnabled != shouldEnableWakelock) {
@@ -1402,80 +1317,94 @@ class _WakelockControllerState extends ConsumerState<_WakelockController> {
   }
 }
 
+enum _PillTone { normal, error, muted }
+
 class MidiStatusPill extends ConsumerWidget {
   const MidiStatusPill({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final status = ref.watch(midiConnectionProvider.select((s) => s.status));
-    final message = ref.watch(midiConnectionProvider.select((s) => s.message));
-
     final cs = Theme.of(context).colorScheme;
 
-    final (label, bg, fg, border) = switch (status) {
-      MidiConnectionStatus.connected => (
-        'MIDI: Connected',
+    final ui = ref.watch(midiUiStatusProvider);
+
+    final tone = switch (ui.phase) {
+      MidiLinkPhase.connected ||
+      MidiLinkPhase.connecting ||
+      MidiLinkPhase.retrying => _PillTone.normal,
+
+      MidiLinkPhase.error ||
+      MidiLinkPhase.bluetoothUnavailable ||
+      MidiLinkPhase.deviceUnavailable => _PillTone.error,
+
+      MidiLinkPhase.idle => _PillTone.muted,
+    };
+
+    final (bg, fg, border) = switch (tone) {
+      _PillTone.normal => (
         cs.secondaryContainer,
         cs.onSecondaryContainer,
         cs.outlineVariant.withValues(alpha: 0.35),
       ),
-      MidiConnectionStatus.connecting => (
-        'MIDI: Connecting…',
-        cs.secondaryContainer,
-        cs.onSecondaryContainer,
-        cs.outlineVariant.withValues(alpha: 0.35),
-      ),
-      MidiConnectionStatus.error => (
-        'MIDI: Error',
+
+      _PillTone.error => (
         cs.errorContainer,
         cs.onErrorContainer,
         cs.outlineVariant.withValues(alpha: 0.35),
       ),
-      MidiConnectionStatus.disconnected => (
-        'MIDI: Disconnected',
+
+      _PillTone.muted => (
         cs.surfaceContainerHigh,
         cs.onSurfaceVariant,
         cs.outlineVariant.withValues(alpha: 0.55),
       ),
     };
 
-    final tooltip = message?.trim().isNotEmpty == true
-        ? '$label\n$message'
-        : label;
+    final dotColor = ui.phase == MidiLinkPhase.connected
+        ? Colors.green.shade600
+        : switch (tone) {
+            _PillTone.normal => cs.secondary,
+            _PillTone.error => cs.error,
+            _PillTone.muted => cs.onSurfaceVariant.withValues(alpha: 0.6),
+          };
+
+    final pulse = switch (ui.phase) {
+      MidiLinkPhase.connecting || MidiLinkPhase.retrying => true,
+      _ => false,
+    };
+
+    final label = ui.label;
 
     return Semantics(
       label: 'MIDI connection status. Tap to configure.',
       button: true,
-      child: Tooltip(
-        message: tooltip,
-        child: InkWell(
-          onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()),
-            );
-          },
-          borderRadius: BorderRadius.circular(999),
-          child: DecoratedBox(
-            decoration: ShapeDecoration(
-              color: bg,
-              shape: StadiumBorder(side: BorderSide(color: border)),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _MidiStatusDot(status: status, colorScheme: cs),
-                  const SizedBox(width: 8),
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: fg,
-                      fontWeight: FontWeight.w600,
-                    ),
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()),
+          );
+        },
+        borderRadius: BorderRadius.circular(999),
+        child: DecoratedBox(
+          decoration: ShapeDecoration(
+            color: bg,
+            shape: StadiumBorder(side: BorderSide(color: border)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _MidiStatusDot(color: dotColor, pulse: pulse),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: fg,
+                    fontWeight: FontWeight.w600,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -1485,10 +1414,11 @@ class MidiStatusPill extends ConsumerWidget {
 }
 
 class _MidiStatusDot extends StatefulWidget {
-  const _MidiStatusDot({required this.status, required this.colorScheme});
+  // ignore: unused_element_parameter
+  const _MidiStatusDot({required this.color, required this.pulse, super.key});
 
-  final MidiConnectionStatus status;
-  final ColorScheme colorScheme;
+  final Color color;
+  final bool pulse;
 
   @override
   State<_MidiStatusDot> createState() => _MidiStatusDotState();
@@ -1505,24 +1435,23 @@ class _MidiStatusDotState extends State<_MidiStatusDot>
       vsync: this,
       duration: const Duration(milliseconds: 900),
     );
-
-    _syncAnimation();
+    _sync();
   }
 
   @override
   void didUpdateWidget(covariant _MidiStatusDot oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.status != widget.status) {
-      _syncAnimation();
+    if (oldWidget.pulse != widget.pulse) {
+      _sync();
     }
   }
 
-  void _syncAnimation() {
-    if (widget.status == MidiConnectionStatus.connecting) {
+  void _sync() {
+    if (widget.pulse) {
       _controller.repeat(reverse: true);
     } else {
       _controller.stop();
-      _controller.value = 0; // reset to “rest” state
+      _controller.value = 0; // rest state
     }
   }
 
@@ -1534,30 +1463,17 @@ class _MidiStatusDotState extends State<_MidiStatusDot>
 
   @override
   Widget build(BuildContext context) {
-    final dotColor = switch (widget.status) {
-      MidiConnectionStatus.connected => Colors.green.shade600,
-      MidiConnectionStatus.connecting => widget.colorScheme.secondary,
-      MidiConnectionStatus.error => widget.colorScheme.error,
-      MidiConnectionStatus.disconnected =>
-        widget.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
-    };
-
-    // Pulse only when connecting; otherwise it will sit at the base values.
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
         final t = _controller.value; // 0..1
-        final scale = 1.0 + (0.20 * t); // up to 1.20x
-        final opacity = 0.70 + (0.30 * t); // 0.70..1.00
+        final scale = 1.0 + (0.20 * t);
+        final opacity = widget.pulse ? (0.70 + (0.30 * t)) : 1.0;
 
         return Opacity(
-          opacity: widget.status == MidiConnectionStatus.connecting
-              ? opacity
-              : 1.0,
+          opacity: opacity,
           child: Transform.scale(
-            scale: widget.status == MidiConnectionStatus.connecting
-                ? scale
-                : 1.0,
+            scale: widget.pulse ? scale : 1.0,
             child: child,
           ),
         );
@@ -1565,7 +1481,7 @@ class _MidiStatusDotState extends State<_MidiStatusDot>
       child: Container(
         width: 10,
         height: 10,
-        decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+        decoration: BoxDecoration(color: widget.color, shape: BoxShape.circle),
       ),
     );
   }

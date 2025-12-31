@@ -79,7 +79,8 @@ class FlutterMidiService implements MidiService {
         debugPrint('onMidiSetupChanged');
         _setupDebounce?.cancel();
         _setupDebounce = Timer(const Duration(milliseconds: 250), () async {
-          await _updateDeviceList();
+          final bypass = _isScanning; // only bypass when scan is active
+          await _updateDeviceList(bypassThrottle: bypass);
         });
       });
 
@@ -135,7 +136,7 @@ class FlutterMidiService implements MidiService {
       _isScanning = true;
 
       // Do one immediate list refresh after scan start.
-      await _updateDeviceList();
+      await _updateDeviceList(bypassThrottle: true);
 
       c.complete();
     } catch (e, st) {
