@@ -35,14 +35,25 @@ class SavedDeviceCard extends ConsumerWidget {
     }
 
     // If there is no last device persisted, do not render the card at all.
-    if (!s.hasLast) {
+    if (!s.hasLast && !s.isConnected) {
       return const SizedBox.shrink();
     }
 
+    // Prefer the *current* connected device name first.
+    final connectedName = s.link.device?.name.trim().isNotEmpty == true
+        ? s.link.device!.name.trim()
+        : (s.connected?.name.trim().isNotEmpty == true
+              ? s.connected!.name.trim()
+              : null);
+
+    // Then fall back to persisted last-device name (if present).
     final last = s.lastDevice;
-    final title = (last?.name.trim().isNotEmpty == true)
-        ? last!.name
-        : 'Saved device';
+    final lastName = (last?.name.trim().isNotEmpty == true)
+        ? last!.name.trim()
+        : null;
+
+    // Final title resolution.
+    final title = connectedName ?? lastName ?? 'Saved device';
 
     return Card(
       child: ListTile(
