@@ -223,8 +223,8 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
         attempt: attempt,
         nextDelay: null,
         message: attempt == 1
-            ? 'Reconnecting…'
-            : 'Reconnecting (attempt $attempt)…',
+            ? 'Reconnecting to saved device…'
+            : 'Reconnecting to saved device (attempt $attempt)…',
       );
 
       final ok = await _service.reconnect(deviceId);
@@ -243,7 +243,7 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
       if (seen == false) {
         state = state.copyWith(
           phase: MidiLinkPhase.deviceUnavailable,
-          message: 'Last device not found. Make sure it is powered on.',
+          message: 'Saved device not found. Make sure it is powered on.',
         );
       }
 

@@ -1,5 +1,5 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_device.dart';
@@ -17,10 +17,14 @@ class MidiDevicePicker extends ConsumerStatefulWidget {
 class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
   bool _isConnecting = false;
   String? _error;
+  late final MidiConnectionActions _actions;
+  Timer? _scanStartTimer;
 
   @override
   void initState() {
     super.initState();
+    _actions = ref.read(midiConnectionActionsProvider);
+
     // Start scanning when the picker opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startScanning();
@@ -29,20 +33,31 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
 
   @override
   void dispose() {
+    // If we scheduled a delayed scan start, cancel it.
+    _scanStartTimer?.cancel();
+
     // Stop scanning when the picker closes
     _stopScanning();
     super.dispose();
   }
 
   Future<void> _startScanning() async {
-    final actions = ref.read(midiConnectionActionsProvider);
-
     setState(() => _error = null);
 
     try {
-      // Wait a moment for initialization to complete
-      await Future.delayed(const Duration(milliseconds: 300));
-      await actions.startScanning();
+      // Wait a moment for initialization to complete, but make it cancelable.
+      _scanStartTimer?.cancel();
+      _scanStartTimer = Timer(const Duration(milliseconds: 300), () async {
+        if (!mounted) return;
+        try {
+          await _actions.startScanning();
+        } catch (e) {
+          if (!mounted) return;
+          setState(() {
+            _error = e.toString().replaceAll('MidiException: ', '');
+          });
+        }
+      });
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -53,9 +68,8 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
   }
 
   Future<void> _stopScanning() async {
-    final actions = ref.read(midiConnectionActionsProvider);
     try {
-      await actions.stopScanning();
+      await _actions.stopScanning();
     } catch (e) {
       debugPrint('Error stopping scan: $e');
     }

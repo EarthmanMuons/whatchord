@@ -1029,11 +1029,11 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
         children: [
           MidiStatusCard(connectionState: connectionState, link: link),
 
-          SavedDeviceCard(),
-
-          const SizedBox(height: 24),
-          const _SectionHeader(title: 'Device'),
           const SizedBox(height: 16),
+          const _SectionHeader(title: 'Device'),
+
+          SavedDeviceCard(),
+          const SizedBox(height: 12),
 
           if (isInitializing)
             const Card(
@@ -1053,25 +1053,30 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
               ),
             )
           else
-            ElevatedButton.icon(
-              icon: const Icon(Icons.bluetooth_searching),
-              label: Text(
-                connectionState.isConnected
-                    ? 'Connect to Different Device'
-                    : 'Scan for Devices',
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.add_link),
+                title: Text(
+                  connectionState.isConnected
+                      ? 'Choose different device'
+                      : 'Choose device',
+                ),
+                subtitle: const Text('Scan for and select a MIDI device'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: isInitializing
+                    ? null
+                    : () {
+                        showModalBottomSheet(
+                          context: context,
+                          showDragHandle: true,
+                          builder: (_) => const MidiDevicePicker(),
+                        );
+                      },
               ),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  showDragHandle: true,
-                  isScrollControlled: true,
-                  builder: (_) => const MidiDevicePicker(),
-                );
-              },
             ),
 
           if (kDebugMode) ...[
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             const _SectionHeader(title: 'Advanced (debug)'),
             const SizedBox(height: 8),
 

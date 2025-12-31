@@ -44,17 +44,10 @@ class SavedDeviceCard extends ConsumerWidget {
         ? last!.name
         : 'Saved device';
 
-    // In release UX, I’d typically avoid showing the raw id prominently.
-    // For now, we’ll keep it as subtitle since you already do.
-    final subtitle = s.lastDeviceId;
-
     return Card(
       child: ListTile(
         leading: const Icon(Icons.bluetooth),
         title: Text(title),
-        subtitle: (subtitle != null && subtitle.trim().isNotEmpty)
-            ? Text(subtitle)
-            : null,
         trailing: Wrap(
           spacing: 8,
           crossAxisAlignment: WrapCrossAlignment.center,
@@ -65,6 +58,14 @@ class SavedDeviceCard extends ConsumerWidget {
             // - Otherwise => no primary action (or a disabled label)
             if (s.isConnectedToLast)
               FilledButton.tonal(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  visualDensity: VisualDensity.compact,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
                 onPressed: s.isLinkBusy
                     ? null
                     : () async {
@@ -79,13 +80,23 @@ class SavedDeviceCard extends ConsumerWidget {
                       },
                 child: const Text('Disconnect'),
               )
-            else if (!s.isConnected && s.canReconnect)
+            else if (!s.isConnected && s.hasLast)
               FilledButton.tonal(
-                onPressed: () {
-                  ref
-                      .read(midiLinkManagerProvider.notifier)
-                      .tryAutoReconnect(reason: 'manual');
-                },
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                  visualDensity: VisualDensity.compact,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                onPressed: s.isLinkBusy
+                    ? null
+                    : () {
+                        ref
+                            .read(midiLinkManagerProvider.notifier)
+                            .tryAutoReconnect(reason: 'manual');
+                      },
                 child: const Text('Reconnect'),
               ),
 

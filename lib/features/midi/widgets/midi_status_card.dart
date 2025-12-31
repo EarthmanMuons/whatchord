@@ -35,8 +35,6 @@ class MidiStatusCard extends StatelessWidget {
     };
 
     final detailLines = <String>[
-      if (connectionState.isConnected)
-        'Device: ${connectionState.message ?? "Unknown"}',
       if (!connectionState.isConnected &&
           link.message?.trim().isNotEmpty == true)
         link.message!.trim(),
