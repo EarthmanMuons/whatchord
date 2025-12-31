@@ -105,13 +105,17 @@ class SavedDeviceCard extends ConsumerWidget {
               onSelected: (action) async {
                 switch (action) {
                   case _SavedDeviceMenuAction.forget:
+                    // 1) Make transport truthfully disconnected (drives picker checkmark)
+                    await ref.read(midiConnectionActionsProvider).disconnect();
+
+                    // 2) Clear preference (drives saved-device UI / labels)
                     final prefs = await ref.read(
                       midiPreferencesProvider.future,
                     );
                     await prefs.clearLastDevice();
 
-                    // Recommended: keep link state clean after forgetting.
-                    ref.read(midiLinkManagerProvider.notifier).resetToIdle();
+                    // 3) Ensure anything derived from prefs re-reads immediately
+                    ref.invalidate(midiPreferencesProvider);
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
