@@ -1,0 +1,36 @@
+import 'package:flutter/material.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../midi/midi.dart';
+import '../../../piano/piano.dart';
+import '../../models/home_layout_config.dart';
+
+class KeyboardSection extends ConsumerWidget {
+  const KeyboardSection({super.key, required this.config});
+  final HomeLayoutConfig config;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final activeMidiNotes = ref.watch(activeMidiNotesProvider);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final whiteKeyWidth = width / config.whiteKeyCount;
+
+        var height = whiteKeyWidth * config.whiteKeyAspectRatio;
+
+        // Guardrails to prevent extremes.
+        height = height.clamp(90.0, 200.0);
+
+        return PianoKeyboard(
+          whiteKeyCount: config.whiteKeyCount,
+          firstMidiNote: config.firstMidiNote,
+          activeMidiNotes: activeMidiNotes,
+          height: height,
+        );
+      },
+    );
+  }
+}
