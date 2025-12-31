@@ -206,26 +206,14 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
         return;
       }
 
-      await _reconnectWithBackoff(
-        lastDeviceId,
-        initialDelay: reason == 'startup'
-            ? const Duration(milliseconds: 600)
-            : Duration.zero,
-      );
+      await _reconnectWithBackoff(lastDeviceId);
     } finally {
       _attemptInFlight = false;
     }
   }
 
-  Future<void> _reconnectWithBackoff(
-    String deviceId, {
-    Duration? initialDelay,
-  }) async {
+  Future<void> _reconnectWithBackoff(String deviceId) async {
     _cancelRetry();
-
-    if (initialDelay != null && initialDelay > Duration.zero) {
-      await _sleep(initialDelay);
-    }
 
     for (var attempt = 1; attempt <= _maxAttempts; attempt++) {
       if (_backgrounded) return;
@@ -240,14 +228,6 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
       );
 
       final ok = await _service.reconnect(deviceId);
-
-      // Quiet down scanning between attempts.
-      // Safe because reconnect() owns scanning through connect now.
-      try {
-        await _service.stopScanning();
-      } catch (_) {
-        // ignore
-      }
 
       if (ok) return;
 

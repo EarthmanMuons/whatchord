@@ -24,9 +24,14 @@ class _MidiLifecycleController with WidgetsBindingObserver {
     _ref.read(midiServiceInitProvider);
 
     // Attempt reconnect at startup (foreground).
-    _ref
-        .read(midiLinkManagerProvider.notifier)
-        .tryAutoReconnect(reason: 'startup');
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      if (_ref.mounted) {
+        _ref
+            .read(midiLinkManagerProvider.notifier)
+            .tryAutoReconnect(reason: 'startup');
+      }
+    });
   }
 
   void _detach() {
@@ -45,12 +50,13 @@ class _MidiLifecycleController with WidgetsBindingObserver {
         break;
 
       case AppLifecycleState.inactive:
+        // Often transient (permission dialogs, app switcher). Avoid scan churn.
+        break;
+
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
         link.setBackgrounded(true);
-
-        // Stop scanning while backgrounded; the device picker can restart it.
         actions.stopScanning();
         break;
     }

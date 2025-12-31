@@ -76,6 +76,7 @@ class FlutterMidiService implements MidiService {
       });
 
       _setupChangeSub = _midi.onMidiSetupChanged?.listen((String _) {
+        debugPrint('onMidiSetupChanged');
         _setupDebounce?.cancel();
         _setupDebounce = Timer(const Duration(milliseconds: 250), () async {
           await _updateDeviceList();
@@ -118,24 +119,31 @@ class FlutterMidiService implements MidiService {
     await ensureScanning();
   }
 
-  Completer<void>? _scanCompleter;
+  Completer<void>? _scanInFlight;
 
   Future<void> ensureScanning() async {
-    final c = _scanCompleter;
-    if (c != null) return c.future;
+    if (_isScanning) return;
 
-    _scanCompleter = Completer<void>();
+    final inFlight = _scanInFlight;
+    if (inFlight != null) return inFlight.future;
+
+    final c = Completer<void>();
+    _scanInFlight = c;
 
     try {
       await _midi.startScanningForBluetoothDevices();
       _isScanning = true;
+
+      // Do one immediate list refresh after scan start.
       await _updateDeviceList();
-      _scanCompleter!.complete();
+
+      c.complete();
     } catch (e, st) {
-      _scanCompleter!.completeError(e, st);
-      _scanCompleter = null;
       _isScanning = false;
+      c.completeError(e, st);
       rethrow;
+    } finally {
+      _scanInFlight = null;
     }
   }
 
@@ -143,7 +151,7 @@ class FlutterMidiService implements MidiService {
   Future<void> stopScanning() => stopScanningSafe();
 
   Future<void> stopScanningSafe() async {
-    if (!_isScanning && _scanCompleter == null) return;
+    if (!_isScanning) return;
 
     try {
       _midi.stopScanningForBluetoothDevices();
@@ -151,30 +159,30 @@ class FlutterMidiService implements MidiService {
       debugPrint('Warning: Error stopping MIDI scan: $e');
     } finally {
       _isScanning = false;
-      _scanCompleter = null;
     }
   }
 
-  Future<void> _updateDeviceList() {
+  Future<void> _updateDeviceList({bool bypassThrottle = false}) {
+    debugPrint('_updateDeviceList()');
+
     // If a refresh is already running, reuse it.
     final inflight = _deviceRefreshInFlight;
     if (inflight != null) return inflight;
 
-    // Throttle refresh rate.
     final last = _lastDeviceRefreshAt;
     final now = DateTime.now();
-    if (last != null && now.difference(last) < _minRefreshInterval) {
+
+    if (!bypassThrottle &&
+        last != null &&
+        now.difference(last) < _minRefreshInterval) {
       return Future.value();
     }
 
+    // Throttle refresh rate.
     _lastDeviceRefreshAt = now;
-
     final fut = _updateDeviceListImpl();
     _deviceRefreshInFlight = fut;
-
-    return fut.whenComplete(() {
-      _deviceRefreshInFlight = null;
-    });
+    return fut.whenComplete(() => _deviceRefreshInFlight = null);
   }
 
   Future<void> _updateDeviceListImpl() async {
@@ -299,13 +307,10 @@ class FlutterMidiService implements MidiService {
       await ensureScanning();
 
       // Force at least one device list push immediately.
-      await _updateDeviceList();
+      await _updateDeviceList(bypassThrottle: true);
 
       // Wait for the target to appear via the devices stream.
-      final device = await _waitForDeviceOnStream(
-        deviceId,
-        timeout: const Duration(seconds: 6),
-      );
+      final device = await _waitForDevice(deviceId);
 
       if (device == null) return false;
 
@@ -358,19 +363,31 @@ class FlutterMidiService implements MidiService {
     return null;
   }
 
-  Future<MidiDevice?> _waitForDeviceOnStream(
+  Future<MidiDevice?> _waitForDevice(
     String deviceId, {
     Duration timeout = const Duration(seconds: 6),
+    Duration refreshInterval = const Duration(milliseconds: 250),
   }) async {
-    // Fast path: if we already have a recent list, check it first.
+    // Fast path.
     final current = _lastDevices;
     if (current != null) {
       final hit = _findDeviceInList(current, deviceId);
       if (hit != null) return hit;
     }
 
+    Timer? pump;
     try {
-      // Wait until availableDevices emits a list containing the deviceId.
+      // Pump device snapshots while waiting so the stream actually has
+      // opportunities to emit a list containing the device.
+      pump = Timer.periodic(refreshInterval, (_) {
+        // fire-and-forget: _updateDeviceList already coalesces inflight calls
+        // and should bypass/minimize throttling during reconnect.
+        _updateDeviceList(bypassThrottle: true);
+      });
+
+      // Also do one immediate refresh.
+      await _updateDeviceList(bypassThrottle: true);
+
       return await availableDevices
           .map((devices) => _findDeviceInList(devices, deviceId))
           .where((d) => d != null)
@@ -379,6 +396,8 @@ class FlutterMidiService implements MidiService {
           .timeout(timeout);
     } on TimeoutException {
       return null;
+    } finally {
+      pump?.cancel();
     }
   }
 }
