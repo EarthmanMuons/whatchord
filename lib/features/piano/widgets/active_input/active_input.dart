@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/midi/midi.dart'
@@ -18,9 +17,11 @@ class ActiveInput extends ConsumerStatefulWidget {
 }
 
 class _ActiveInputState extends ConsumerState<ActiveInput> {
-  final _listKey = GlobalKey<AnimatedListState>();
+  final _notesKey = GlobalKey<SliverAnimatedListState>();
+
   late List<ActiveNote> _notes;
   late bool _pedal;
+
   ProviderSubscription<List<ActiveNote>>? _notesSub;
   ProviderSubscription<bool>? _pedalSub;
 
@@ -55,45 +56,43 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
   void _applyNotesDiff(List<ActiveNote> next) {
     final nextIdSet = next.map((e) => e.id).toSet();
     final currentIdSet = _notes.map((e) => e.id).toSet();
-
     final nextById = <String, ActiveNote>{for (final n in next) n.id: n};
 
-    // Remove notes that no longer exist
+    // 1) Remove notes that no longer exist (reverse order keeps indices valid).
     for (int i = _notes.length - 1; i >= 0; i--) {
       final id = _notes[i].id;
       if (!nextIdSet.contains(id)) {
         final removed = _notes.removeAt(i);
         currentIdSet.remove(id);
-        _listKey.currentState?.removeItem(
-          // Offset by 1 if pedal is showing
-          _pedal ? i + 1 : i,
-          (context, animation) => _buildAnimatedNoteChip(removed, animation),
+
+        _notesKey.currentState?.removeItem(
+          i,
+          (context, animation) =>
+              _buildPaddedAnimatedNoteChip(removed, animation),
           duration: const Duration(milliseconds: 120),
         );
       }
     }
 
-    // Insert new notes
+    // 2) Insert new notes at their target indices.
     for (int i = 0; i < next.length; i++) {
       final id = next[i].id;
       if (!currentIdSet.contains(id)) {
         _notes.insert(i, next[i]);
         currentIdSet.add(id);
-        _listKey.currentState?.insertItem(
-          // Offset by 1 if pedal is showing
-          _pedal ? i + 1 : i,
+
+        _notesKey.currentState?.insertItem(
+          i,
           duration: const Duration(milliseconds: 140),
         );
       }
     }
 
-    // Update existing notes in-place (for pressed <-> sustained transitions)
+    // 3) Update existing notes in-place (pressed <-> sustained transitions).
     setState(() {
       for (int i = 0; i < _notes.length; i++) {
         final updated = nextById[_notes[i].id];
-        if (updated != null) {
-          _notes[i] = updated;
-        }
+        if (updated != null) _notes[i] = updated;
       }
     });
   }
@@ -104,7 +103,6 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
     final cs = theme.colorScheme;
 
     const minHeight = 44.0;
-
     final showPrompt = _notes.isEmpty && !_pedal;
 
     return Padding(
@@ -123,52 +121,73 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
               )
             : SizedBox(
                 height: minHeight,
-                child: AnimatedList(
-                  key: _listKey,
-                  initialItemCount: _pedal ? _notes.length + 1 : _notes.length,
+                child: CustomScrollView(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
-                  itemBuilder: (context, index, animation) {
-                    // Pedal always at index 0 when showing
-                    if (_pedal && index == 0) {
-                      return Padding(
+                  slivers: [
+                    // Pedal sliver: exists independently of note indices.
+                    SliverToBoxAdapter(
+                      child: Padding(
                         padding: const EdgeInsets.only(right: 8),
-                        child: _buildAnimatedPedalIndicator(animation),
-                      );
-                    }
+                        child: _buildAnimatedPedal(),
+                      ),
+                    ),
 
-                    final noteIndex = _pedal ? index - 1 : index;
-                    final note = _notes[noteIndex];
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: _buildAnimatedNoteChip(note, animation),
-                    );
-                  },
+                    // Notes sliver: pure note list, no offset math.
+                    SliverAnimatedList(
+                      key: _notesKey,
+                      initialItemCount: _notes.length,
+                      itemBuilder: (context, index, animation) {
+                        final note = _notes[index];
+                        return _buildPaddedAnimatedNoteChip(note, animation);
+                      },
+                    ),
+                  ],
                 ),
               ),
       ),
     );
   }
 
-  Widget _buildAnimatedPedalIndicator(Animation<double> animation) {
-    final curved = CurvedAnimation(
-      parent: animation,
-      curve: Curves.easeOutCubic,
+  Widget _buildAnimatedPedal() {
+    // Keep the pedal animation local to the pedal; no impact on note indices.
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 140),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeOutCubic,
+      transitionBuilder: (child, animation) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+        );
+        return SizeTransition(
+          sizeFactor: curved,
+          axis: Axis.horizontal,
+          child: FadeTransition(
+            opacity: curved,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(-0.20, 0),
+                end: Offset.zero,
+              ).animate(curved),
+              child: child,
+            ),
+          ),
+        );
+      },
+      child: _pedal
+          ? const PedalIndicator(key: ValueKey('sustain'))
+          : const SizedBox.shrink(key: ValueKey('no-sustain')),
     );
+  }
 
-    return SizeTransition(
-      sizeFactor: curved,
-      axis: Axis.horizontal,
-      child: FadeTransition(
-        opacity: curved,
-        child: SlideTransition(
-          position: Tween<Offset>(
-            begin: const Offset(-0.20, 0),
-            end: Offset.zero,
-          ).animate(curved),
-          child: const PedalIndicator(key: ValueKey('sustain')),
-        ),
-      ),
+  Widget _buildPaddedAnimatedNoteChip(
+    ActiveNote note,
+    Animation<double> animation,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: _buildAnimatedNoteChip(note, animation),
     );
   }
 
