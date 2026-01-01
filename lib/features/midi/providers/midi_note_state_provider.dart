@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/active_note.dart';
+import 'package:what_chord/features/piano/models/active_note.dart';
+
 import '../models/midi_message.dart';
 import '../models/midi_note_state.dart';
 import 'midi_providers.dart';

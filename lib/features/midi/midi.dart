@@ -1,4 +1,3 @@
-export 'models/active_note.dart';
 export 'models/bluetooth_state.dart';
 export 'models/midi_message.dart';
 export 'models/midi_note_state.dart';

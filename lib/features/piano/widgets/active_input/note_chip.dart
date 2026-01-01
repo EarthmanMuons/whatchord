@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/features/midi/midi.dart';
+import 'package:what_chord/features/midi/midi.dart' show isPedalDownProvider;
+
+import '../../models/active_note.dart';
 
 class NoteChip extends ConsumerWidget {
   const NoteChip({super.key, required this.note});
