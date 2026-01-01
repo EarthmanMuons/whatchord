@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../theory/theory.dart';
+import 'package:what_chord/features/theory/theory.dart';
 
 class TonalityBar extends ConsumerWidget {
   const TonalityBar({super.key, required this.height});

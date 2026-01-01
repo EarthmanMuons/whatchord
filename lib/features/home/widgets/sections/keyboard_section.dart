@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../midi/midi.dart';
-import '../../../piano/piano.dart';
+import 'package:what_chord/features/midi/midi.dart';
+import 'package:what_chord/features/piano/piano.dart';
+
 import '../../models/home_layout_config.dart';
 
 class KeyboardSection extends ConsumerWidget {

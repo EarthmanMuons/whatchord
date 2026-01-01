@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../core/theme/theme.dart';
-import '../../../core/utils/utils.dart';
-import '../../../core/widgets/widgets.dart';
-import '../../midi/midi.dart';
-import '../../theory/theory.dart';
+import 'package:what_chord/core/theme/theme.dart';
+import 'package:what_chord/core/utils/utils.dart';
+import 'package:what_chord/core/widgets/widgets.dart';
+import 'package:what_chord/features/midi/midi.dart';
+import 'package:what_chord/features/theory/theory.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});

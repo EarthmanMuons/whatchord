@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../theory/theory.dart';
+import 'package:what_chord/features/theory/theory.dart';
 
 class ChordCard extends StatelessWidget {
   final ChordSymbol symbol;

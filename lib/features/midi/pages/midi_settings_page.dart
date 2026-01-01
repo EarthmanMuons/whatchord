@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/widgets/widgets.dart';
+import 'package:what_chord/core/widgets/widgets.dart';
+
 import '../providers/midi_providers.dart';
 import '../providers/midi_ui_status.dart';
 import '../widgets/midi_device_picker.dart';

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../midi/midi.dart';
+import 'package:what_chord/features/midi/midi.dart';
+
 import 'note_chip.dart';
 import 'pedal_indicator.dart';
 

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/widgets/edge_to_edge_controller.dart';
-import '../../midi/midi.dart';
-import '../../settings/settings.dart';
+import 'package:what_chord/core/widgets/widgets.dart';
+import 'package:what_chord/features/midi/midi.dart';
+import 'package:what_chord/features/settings/settings.dart';
+
 import '../models/home_layout_config.dart';
 import '../widgets/components/active_input.dart';
 import '../widgets/sections/analysis_section.dart';

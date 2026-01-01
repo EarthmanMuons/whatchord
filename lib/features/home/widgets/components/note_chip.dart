@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../midi/midi.dart';
+import 'package:what_chord/features/midi/midi.dart';
 
 class NoteChip extends ConsumerWidget {
   const NoteChip({super.key, required this.note});

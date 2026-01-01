@@ -7,7 +7,6 @@ export 'providers/midi_lifecycle_controller.dart';
 export 'providers/midi_link_manager.dart';
 export 'providers/midi_note_state_provider.dart';
 export 'providers/midi_providers.dart';
-export 'providers/midi_settings_state.dart';
 export 'providers/midi_ui_status.dart';
 
 export 'pages/midi_settings_page.dart';

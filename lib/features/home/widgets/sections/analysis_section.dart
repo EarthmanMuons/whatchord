@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../theory/theory.dart';
+import 'package:what_chord/features/theory/theory.dart';
+
 import '../../models/home_layout_config.dart';
 import '../components/chord_card.dart';
 
