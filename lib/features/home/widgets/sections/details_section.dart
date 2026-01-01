@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:what_chord/features/piano/piano.dart';
+
 import '../../models/home_layout_config.dart';
-import '../components/active_input.dart';
 
 class DetailsSection extends ConsumerWidget {
   const DetailsSection({super.key, required this.config});
