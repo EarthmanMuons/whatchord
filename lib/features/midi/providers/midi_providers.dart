@@ -67,14 +67,11 @@ final midiDataStreamProvider = StreamProvider<Uint8List>((ref) {
 });
 
 /// Stream of parsed MIDI messages.
-final midiMessageStreamProvider = StreamProvider<MidiMessage?>((ref) {
-  final dataStream = ref.watch(midiDataStreamProvider);
+final midiMessageStreamProvider = StreamProvider<MidiMessage>((ref) {
+  final service = ref.watch(midiServiceProvider);
 
-  return dataStream.when(
-    data: (bytes) => Stream.value(MidiParser.parse(bytes)),
-    loading: () => const Stream.empty(),
-    error: (_, _) => const Stream.empty(),
-  );
+  // Expand each raw packet into zero or more MidiMessage values.
+  return service.midiDataStream.expand(MidiParser.parseMany);
 });
 
 // ============================================================

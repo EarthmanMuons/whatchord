@@ -6,6 +6,7 @@ import 'package:what_chord/features/piano/models/active_note.dart';
 
 import '../models/midi_message.dart';
 import '../models/midi_note_state.dart';
+import 'midi_link_manager.dart';
 import 'midi_providers.dart';
 
 final midiNoteStateProvider =
@@ -23,14 +24,20 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
       isPedalDown: false,
     );
 
+    // Panic clear on disconnect: clears any stuck UI state if transport drops.
+    ref.listen<MidiLinkPhase>(midiLinkManagerProvider.select((s) => s.phase), (
+      prev,
+      next,
+    ) {
+      if (prev == MidiLinkPhase.connected && next != MidiLinkPhase.connected) {
+        state = initialState;
+      }
+    });
+
     // Listen to MIDI messages and update state
     ref.listen(midiMessageStreamProvider, (previous, next) {
       next.when(
-        data: (message) {
-          if (message != null) {
-            _handleMidiMessage(message);
-          }
-        },
+        data: _handleMidiMessage,
         loading: () {},
         error: (error, stack) {
           debugPrint('MIDI message error: $error');
@@ -44,8 +51,16 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
   void _handleMidiMessage(MidiMessage message) {
     switch (message.type) {
       case MidiMessageType.noteOn:
-        if (message.note != null) {
-          noteOn(message.note!);
+        final note = message.note;
+        final velocity = message.velocity ?? 0;
+
+        if (note == null) break;
+
+        // MIDI spec: NoteOn with velocity 0 == NoteOff
+        if (velocity == 0) {
+          noteOff(note);
+        } else {
+          noteOn(note);
         }
         break;
 
@@ -78,15 +93,14 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
   }
 
   void noteOff(int midiNote) {
-    if (!state.pressed.contains(midiNote)) return;
-
     final nextPressed = {...state.pressed}..remove(midiNote);
 
     if (state.isPedalDown) {
       final nextSustained = {...state.sustained, midiNote};
       state = state.copyWith(pressed: nextPressed, sustained: nextSustained);
     } else {
-      state = state.copyWith(pressed: nextPressed);
+      final nextSustained = {...state.sustained}..remove(midiNote);
+      state = state.copyWith(pressed: nextPressed, sustained: nextSustained);
     }
   }
 
