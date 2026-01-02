@@ -17,9 +17,10 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
 
-    final themeMode = ref.watch(themeModeProvider);
     final chordNotation = ref.watch(chordSymbolProvider);
     final palette = ref.watch(appPaletteProvider);
+    final themeMode = ref.watch(themeModeProvider);
+    final ui = ref.watch(midiUiStatusProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -35,7 +36,7 @@ class SettingsPage extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.piano),
             title: const Text('MIDI input'),
-            subtitle: _buildMidiSubtitle(ref),
+            subtitle: Text(ui.detail ?? ui.label),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.of(context).push(
@@ -192,10 +193,5 @@ class SettingsPage extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  Widget _buildMidiSubtitle(WidgetRef ref) {
-    final ui = ref.watch(midiUiStatusProvider);
-    return Text(ui.detail ?? ui.label);
   }
 }
