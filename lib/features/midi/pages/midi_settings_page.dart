@@ -1,12 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/core/widgets/widgets.dart';
 
-import '../persistence/midi_preferences_provider.dart';
-import '../providers/midi_link_manager.dart';
 import '../providers/midi_providers.dart';
 import '../providers/midi_ui_status.dart';
 import '../widgets/midi_device_picker.dart';
@@ -81,40 +78,6 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
                       },
               ),
             ),
-
-          if (kDebugMode) ...[
-            const SizedBox(height: 16),
-            const SectionHeader(title: 'Advanced (debug)'),
-            const SizedBox(height: 8),
-
-            Card(
-              child: ListTile(
-                leading: const Icon(Icons.delete_sweep_outlined),
-                title: const Text('Clear all MIDI data'),
-                subtitle: const Text(
-                  'Clears MIDI preferences, last device, and reconnect settings.',
-                ),
-                onTap: () async {
-                  final prefs = ref.read(midiPreferencesProvider);
-                  await prefs.clearAllMidiData();
-
-                  // Also stop any ongoing scan and disconnect to ensure a clean slate.
-                  final actions = ref.read(midiConnectionActionsProvider);
-                  await actions.stopScanning();
-                  await actions.disconnect();
-
-                  // Reset link UI/phase so we don’t show stale reconnect messaging.
-                  ref.read(midiLinkManagerProvider.notifier).resetToIdle();
-
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('MIDI data cleared')),
-                    );
-                  }
-                },
-              ),
-            ),
-          ],
         ],
       ),
     );

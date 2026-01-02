@@ -21,7 +21,9 @@ class SavedDeviceCard extends ConsumerWidget {
     }
 
     // Prefer the *current* connected device name first.
-    final connectedName = s.link.device?.name.trim().isNotEmpty == true
+    final connectedName =
+        (s.isLinkBusy || s.isConnected) &&
+            (s.link.device?.name.trim().isNotEmpty == true)
         ? s.link.device!.name.trim()
         : (s.connected?.name.trim().isNotEmpty == true
               ? s.connected!.name.trim()

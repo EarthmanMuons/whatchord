@@ -283,6 +283,8 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
   /// Useful after "Forget last device" or "Clear MIDI data" actions.
   void resetToIdle() {
     _cancelRetry();
+    _attemptInFlight = false;
+    _lastAutoReconnectAt = null;
     state = const MidiLinkState.idle();
   }
 

@@ -10,6 +10,8 @@ import 'package:what_chord/core/widgets/widgets.dart';
 import 'package:what_chord/features/midi/midi.dart';
 import 'package:what_chord/features/theory/theory.dart';
 
+import '../persistence/settings_reset.dart';
+
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
@@ -188,6 +190,42 @@ class SettingsPage extends ConsumerWidget {
               }
 
               open();
+            },
+          ),
+          ListTile(
+            title: const Text('Reset to defaults'),
+            subtitle: const Text('Clears saved settings and MIDI preferences.'),
+            trailing: const Icon(Icons.restart_alt),
+            onTap: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Reset all settings?'),
+                  content: const Text(
+                    'This will clear saved settings and MIDI preferences and restore defaults.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancel'),
+                    ),
+                    FilledButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      child: const Text('Reset'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (confirmed != true) return;
+
+              await ref.read(settingsResetProvider).resetAllToDefaults();
+
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Settings reset to defaults')),
+                );
+              }
             },
           ),
         ],
