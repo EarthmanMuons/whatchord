@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
-import '../persistence/midi_preferences.dart';
+import '../persistence/midi_preferences_provider.dart';
 import '../services/midi_service.dart';
 import 'midi_providers.dart';
 
@@ -164,9 +164,7 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
       }
 
       // Respect user preference.
-      final MidiPreferences prefs = await ref.read(
-        midiPreferencesProvider.future,
-      );
+      final prefs = ref.read(midiPreferencesProvider);
       if (!prefs.getAutoReconnect()) return;
 
       final lastDeviceId = prefs.getLastDeviceId();

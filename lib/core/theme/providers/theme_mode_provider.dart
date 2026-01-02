@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../persistence/shared_preferences_provider.dart';
 import 'package:what_chord/features/settings/persistence/settings_keys.dart';
+
+import '../../persistence/shared_preferences_provider.dart';
 
 final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
   ThemeModeNotifier.new,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../persistence/midi_preferences_provider.dart';
 import '../providers/midi_link_manager.dart';
 import '../providers/midi_providers.dart';
 import '../providers/midi_settings_state.dart';
@@ -13,26 +14,6 @@ class SavedDeviceCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(midiSettingsStateProvider);
-
-    // If preferences aren’t loaded yet, show a stable skeleton card.
-    if (s.prefsAsync.isLoading) {
-      return const Card(
-        child: ListTile(
-          title: Text('Saved device'),
-          subtitle: Text('Loading…'),
-        ),
-      );
-    }
-
-    // If prefs failed, show “Unavailable” (don’t crash the settings page).
-    if (s.prefsAsync.hasError) {
-      return const Card(
-        child: ListTile(
-          title: Text('Saved device'),
-          subtitle: Text('Unavailable'),
-        ),
-      );
-    }
 
     // If there is no last device persisted, do not render the card at all.
     if (!s.hasLast && !s.isConnected) {
@@ -116,17 +97,15 @@ class SavedDeviceCard extends ConsumerWidget {
               onSelected: (action) async {
                 switch (action) {
                   case _SavedDeviceMenuAction.forget:
-                    // 1) Make transport truthfully disconnected (drives picker checkmark)
+                    // Make transport truthfully disconnected (drives picker checkmark)
                     await ref.read(midiConnectionActionsProvider).disconnect();
 
-                    // 2) Clear preference (drives saved-device UI / labels)
-                    final prefs = await ref.read(
-                      midiPreferencesProvider.future,
-                    );
+                    // Clear preference (drives saved-device UI / labels)
+                    final prefs = ref.read(midiPreferencesProvider);
                     await prefs.clearLastDevice();
 
-                    // 3) Ensure anything derived from prefs re-reads immediately
-                    ref.invalidate(midiPreferencesProvider);
+                    // Reset link UI/phase so we don’t show stale reconnect messaging.
+                    ref.read(midiLinkManagerProvider.notifier).resetToIdle();
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(

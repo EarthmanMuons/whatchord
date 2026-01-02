@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/core/widgets/widgets.dart';
 
+import '../persistence/midi_preferences_provider.dart';
+import '../providers/midi_link_manager.dart';
 import '../providers/midi_providers.dart';
 import '../providers/midi_ui_status.dart';
 import '../widgets/midi_device_picker.dart';
@@ -93,13 +95,16 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
                   'Clears MIDI preferences, last device, and reconnect settings.',
                 ),
                 onTap: () async {
-                  final prefs = await ref.read(midiPreferencesProvider.future);
+                  final prefs = ref.read(midiPreferencesProvider);
                   await prefs.clearAllMidiData();
 
                   // Also stop any ongoing scan and disconnect to ensure a clean slate.
                   final actions = ref.read(midiConnectionActionsProvider);
                   await actions.stopScanning();
                   await actions.disconnect();
+
+                  // Reset link UI/phase so we don’t show stale reconnect messaging.
+                  ref.read(midiLinkManagerProvider.notifier).resetToIdle();
 
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(

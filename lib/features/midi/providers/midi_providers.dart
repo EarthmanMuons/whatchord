@@ -6,14 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
 import '../models/midi_message.dart';
-import '../persistence/midi_preferences.dart';
+import '../persistence/midi_preferences_provider.dart';
 import '../services/flutter_midi_service.dart';
 import '../services/midi_service.dart';
-
-/// Provider for MIDI preferences.
-final midiPreferencesProvider = FutureProvider<MidiPreferences>((ref) async {
-  return MidiPreferences.create();
-});
 
 /// Provider for the active MIDI service.
 final midiServiceProvider = Provider<MidiService>((ref) {
@@ -26,10 +21,6 @@ final midiServiceProvider = Provider<MidiService>((ref) {
 
   return service;
 });
-
-// ============================================================
-// MIDI Service Lifecycle (Initialization)
-// ============================================================
 
 /// Provider that manages MIDI service initialization.
 final midiServiceInitProvider = FutureProvider<bool>((ref) async {
@@ -46,19 +37,11 @@ final midiServiceInitProvider = FutureProvider<bool>((ref) async {
   }
 });
 
-// ============================================================
-// Available Devices Stream
-// ============================================================
-
 /// Stream of available MIDI devices.
 final availableMidiDevicesProvider = StreamProvider<List<MidiDevice>>((ref) {
   final service = ref.watch(midiServiceProvider);
   return service.availableDevices;
 });
-
-// ============================================================
-// MIDI Data Stream
-// ============================================================
 
 /// Stream of raw MIDI data packets.
 final midiDataStreamProvider = StreamProvider<Uint8List>((ref) {
@@ -74,19 +57,11 @@ final midiMessageStreamProvider = StreamProvider<MidiMessage>((ref) {
   return service.midiDataStream.expand(MidiParser.parseMany);
 });
 
-// ============================================================
-// Bluetooth State Stream
-// ============================================================
-
 /// Stream of Bluetooth adapter state.
 final bluetoothStateStreamProvider = StreamProvider<BluetoothState>((ref) {
   final service = ref.watch(midiServiceProvider);
   return service.bluetoothState;
 });
-
-// ============================================================
-// Connected Device
-// ============================================================
 
 /// Provider for the currently connected MIDI device.
 final connectedMidiDeviceProvider = StreamProvider<MidiDevice?>((ref) {
@@ -96,10 +71,7 @@ final connectedMidiDeviceProvider = StreamProvider<MidiDevice?>((ref) {
 
 /// Keeps persisted "last device" in sync with the actual connected device stream.
 final midiPersistenceCoordinatorProvider = Provider<void>((ref) {
-  final prefsAsync = ref.watch(midiPreferencesProvider);
-  if (!prefsAsync.hasValue) return;
-
-  final prefs = prefsAsync.requireValue;
+  final prefs = ref.watch(midiPreferencesProvider);
 
   String? lastPersistedDeviceId;
 
@@ -124,10 +96,6 @@ final midiPersistenceCoordinatorProvider = Provider<void>((ref) {
     await prefs.setLastDevice(device);
   });
 });
-
-// ============================================================
-// Connection Actions
-// ============================================================
 
 /// Provider for MIDI connection actions.
 final midiConnectionActionsProvider = Provider<MidiConnectionActions>((ref) {
@@ -174,8 +142,9 @@ class MidiConnectionActions {
   /// Manually trigger a reconnection attempt.
   Future<bool> reconnect() async {
     await _ensureInitialized();
-    final prefs = await _ref.read(midiPreferencesProvider.future);
+    final prefs = _ref.read(midiPreferencesProvider);
     final lastDeviceId = prefs.getLastDeviceId();
+
     if (lastDeviceId == null) return false;
 
     return _service.reconnect(lastDeviceId);
