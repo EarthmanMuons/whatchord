@@ -91,12 +91,9 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
         Navigator.of(context).pop();
 
         // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Connected to ${device.name}'),
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Connected to ${device.name}')));
       }
     } on MidiException catch (e) {
       if (mounted) {

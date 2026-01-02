@@ -40,21 +40,12 @@ class HomePage extends ConsumerWidget {
         final trimmed = text.trim();
         if (trimmed.isEmpty) return;
 
-        // Prevent “spam”/re-show loops from feeling undismissable.
+        // Prevent "spam"/re-show loops from feeling undismissable.
         messenger.hideCurrentSnackBar();
 
         messenger.showSnackBar(
           SnackBar(
-            content: Text(
-              trimmed,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: fg),
-            ),
-            backgroundColor: bg,
-            behavior: SnackBarBehavior.floating,
-            showCloseIcon: true,
-            closeIconColor: fg,
+            content: Text(trimmed),
             duration: Duration(seconds: seconds),
             action: action,
           ),
@@ -88,7 +79,6 @@ class HomePage extends ConsumerWidget {
           seconds: 4,
           action: SnackBarAction(
             label: 'MIDI Settings',
-            textColor: cs.primary,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute<void>(
@@ -111,7 +101,6 @@ class HomePage extends ConsumerWidget {
           seconds: 5,
           action: SnackBarAction(
             label: 'Settings',
-            textColor: cs.onErrorContainer,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
@@ -132,7 +121,6 @@ class HomePage extends ConsumerWidget {
           seconds: 5,
           action: SnackBarAction(
             label: 'MIDI Settings',
-            textColor: cs.onErrorContainer,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute<void>(

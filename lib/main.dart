@@ -21,17 +21,10 @@ class MyApp extends ConsumerWidget {
       title: 'WhatChord',
       debugShowCheckedModeBanner: false,
 
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: seedColor,
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: seedColor,
-          brightness: Brightness.dark,
-        ),
+      theme: buildAppTheme(seedColor: seedColor, brightness: Brightness.light),
+      darkTheme: buildAppTheme(
+        seedColor: seedColor,
+        brightness: Brightness.dark,
       ),
       themeMode: themeMode,
 
