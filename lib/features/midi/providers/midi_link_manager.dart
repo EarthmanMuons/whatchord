@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
-import '../persistence/midi_preferences_provider.dart';
+import '../providers/midi_prefs_provider.dart';
 import '../services/midi_service.dart';
 import 'midi_providers.dart';
 
@@ -164,10 +164,10 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
       }
 
       // Respect user preference.
-      final prefs = ref.read(midiPreferencesProvider);
-      if (!prefs.getAutoReconnect()) return;
+      final prefs = ref.read(midiPrefsProvider);
+      if (!prefs.autoReconnect) return;
 
-      final lastDeviceId = prefs.getLastDeviceId();
+      final lastDeviceId = prefs.lastDeviceId;
       if (lastDeviceId == null || lastDeviceId.trim().isEmpty) {
         // Nothing to reconnect to. Keep the UI clean after a reset.
         _cancelRetry();

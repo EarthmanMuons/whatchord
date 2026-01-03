@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_chord/core/persistence/shared_preferences_provider.dart';
 import 'package:what_chord/core/theme/providers/app_palette_provider.dart';
 import 'package:what_chord/core/theme/providers/theme_mode_provider.dart';
-import 'package:what_chord/features/midi/persistence/midi_preferences_provider.dart';
 import 'package:what_chord/features/midi/providers/midi_link_manager.dart';
+import 'package:what_chord/features/midi/providers/midi_prefs_provider.dart';
 import 'package:what_chord/features/midi/providers/midi_providers.dart';
 import 'package:what_chord/features/theory/providers/chord_symbol_provider.dart';
 
@@ -35,7 +35,7 @@ class SettingsResetService {
     _ref.read(midiLinkManagerProvider.notifier).resetToIdle();
 
     // 4) Clear persisted MIDI keys
-    await _ref.read(midiPreferencesProvider).clearAllMidiData();
+    await _ref.read(midiPrefsProvider.notifier).clearAllMidiData();
 
     // 5) Force theme/settings notifiers to rebuild from defaults if desired
     _ref.invalidate(themeModeProvider);
