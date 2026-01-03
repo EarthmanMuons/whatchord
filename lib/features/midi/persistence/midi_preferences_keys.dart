@@ -1,3 +1,4 @@
+/// Storage keys for MIDI preferences.
 class MidiPreferencesKeys {
   static const lastDeviceId = 'midi.lastDeviceId';
   static const lastDeviceJson = 'midi.lastDeviceJson';

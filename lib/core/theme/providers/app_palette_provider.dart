@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/features/settings/persistence/preferences_keys.dart';
-
+import '../../persistence/core_preferences_keys.dart';
 import '../../persistence/shared_preferences_provider.dart';
 import '../models/app_palette.dart';
 
@@ -13,7 +12,7 @@ class AppPaletteNotifier extends Notifier<AppPalette> {
   @override
   AppPalette build() {
     final prefs = ref.watch(sharedPreferencesProvider);
-    final stored = prefs.getString(SettingsKeys.appPalette);
+    final stored = prefs.getString(CorePreferencesKeys.appPalette);
 
     const fallback = AppPalette.indigo;
 
@@ -28,6 +27,6 @@ class AppPaletteNotifier extends Notifier<AppPalette> {
   Future<void> setPalette(AppPalette palette) async {
     state = palette;
     final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString(SettingsKeys.appPalette, palette.name);
+    await prefs.setString(CorePreferencesKeys.appPalette, palette.name);
   }
 }
