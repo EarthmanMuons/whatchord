@@ -23,8 +23,8 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
   late List<ActiveNote> _notes;
   late bool _pedal;
 
-  ProviderSubscription<List<ActiveNote>>? _notesSub;
-  ProviderSubscription<bool>? _pedalSub;
+  ProviderSubscription<List<ActiveNote>>? _notesSubscription;
+  ProviderSubscription<bool>? _pedalSubscription;
 
   // Prompt behavior: - Show on first load (before any input has occurred).
   // - After the user has played/pressed pedal at least once, don't re-show
@@ -42,21 +42,24 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
     _notes = ref.read(activeNotesProvider);
     _pedal = ref.read(isPedalDownProvider);
 
-    _notesSub = ref.listenManual<List<ActiveNote>>(activeNotesProvider, (
+    _notesSubscription = ref.listenManual<List<ActiveNote>>(
+      activeNotesProvider,
+      (prev, next) {
+        if (!mounted) return;
+        _updatePromptSuppression(
+          prevNotes: prev ?? const <ActiveNote>[],
+          nextNotes: next,
+          prevPedal: _pedal,
+          nextPedal: _pedal,
+        );
+        _applyNotesDiff(next);
+      },
+    );
+
+    _pedalSubscription = ref.listenManual<bool>(isPedalDownProvider, (
       prev,
       next,
     ) {
-      if (!mounted) return;
-      _updatePromptSuppression(
-        prevNotes: prev ?? const <ActiveNote>[],
-        nextNotes: next,
-        prevPedal: _pedal,
-        nextPedal: _pedal,
-      );
-      _applyNotesDiff(next);
-    });
-
-    _pedalSub = ref.listenManual<bool>(isPedalDownProvider, (prev, next) {
       if (!mounted) return;
       _updatePromptSuppression(
         prevNotes: _notes,
@@ -70,8 +73,8 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
 
   @override
   void dispose() {
-    _notesSub?.close();
-    _pedalSub?.close();
+    _notesSubscription?.close();
+    _pedalSubscription?.close();
     _promptTimer?.cancel();
     super.dispose();
   }
