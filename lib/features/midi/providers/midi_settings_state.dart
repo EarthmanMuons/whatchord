@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_device.dart';
-import '../persistence/midi_preferences.dart';
 import '../persistence/midi_prefs_state.dart';
 import '../providers/midi_link_manager.dart';
 import '../providers/midi_prefs_provider.dart';

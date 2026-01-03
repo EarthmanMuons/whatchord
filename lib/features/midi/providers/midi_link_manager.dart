@@ -66,6 +66,8 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
   bool _backgrounded = false;
   bool _attemptInFlight = false;
 
+  String? _lastPersistedDeviceId;
+
   MidiService get _service => ref.read(midiServiceProvider);
 
   @override
@@ -84,6 +86,14 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
       if (device != null && device.isConnected) {
         _cancelRetry();
         state = MidiLinkState(phase: MidiLinkPhase.connected, device: device);
+        // Persist "last device" on successful connection.
+        // Dedupe by device id to avoid churn on repeated stream emissions.
+        if (device.id != _lastPersistedDeviceId) {
+          _lastPersistedDeviceId = device.id;
+          final prefs = ref.read(midiPrefsProvider.notifier);
+          // Avoid awaiting inside a listener; persistence is best-effort.
+          unawaited(prefs.setLastDevice(device));
+        }
         return;
       }
 
@@ -285,6 +295,7 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
     _cancelRetry();
     _attemptInFlight = false;
     _lastAutoReconnectAt = null;
+    _lastPersistedDeviceId = null;
     state = const MidiLinkState.idle();
   }
 

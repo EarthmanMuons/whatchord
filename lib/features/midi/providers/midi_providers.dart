@@ -24,9 +24,6 @@ final midiServiceProvider = Provider<MidiService>((ref) {
 
 /// Provider that manages MIDI service initialization.
 final midiServiceInitProvider = FutureProvider<bool>((ref) async {
-  // Ensure persistence coordinator is installed early.
-  ref.watch(midiPersistenceCoordinatorProvider);
-
   final service = ref.watch(midiServiceProvider);
 
   try {
@@ -67,34 +64,6 @@ final bluetoothStateStreamProvider = StreamProvider<BluetoothState>((ref) {
 final connectedMidiDeviceProvider = StreamProvider<MidiDevice?>((ref) {
   final service = ref.watch(midiServiceProvider);
   return service.connectedDeviceStream;
-});
-
-/// Keeps persisted "last device" in sync with the actual connected device stream.
-final midiPersistenceCoordinatorProvider = Provider<void>((ref) {
-  final prefs = ref.watch(midiPrefsProvider.notifier);
-
-  String? lastPersistedDeviceId;
-
-  ref.listen<AsyncValue<MidiDevice?>>(connectedMidiDeviceProvider, (
-    prev,
-    next,
-  ) async {
-    // Only persist on a successful data emission
-    final device = next.when(
-      data: (d) => d,
-      loading: () => null,
-      error: (_, _) => null,
-    );
-
-    // Persist only when actually connected
-    if (device == null || !device.isConnected) return;
-
-    // Dedupe on device id (most practical)
-    if (device.id == lastPersistedDeviceId) return;
-    lastPersistedDeviceId = device.id;
-
-    await prefs.setLastDevice(device);
-  });
 });
 
 /// Provider for MIDI connection actions.
