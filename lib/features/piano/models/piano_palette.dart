@@ -21,7 +21,7 @@ class PianoPalette {
   });
 }
 
-PianoPalette pianoPaletteFor(ColorScheme cs) {
+PianoPalette buildPianoPalette(ColorScheme cs) {
   final isDark = cs.brightness == Brightness.dark;
 
   final background = cs.surfaceContainerLow;
