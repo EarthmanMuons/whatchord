@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
-import '../persistence/midi_preferences_notifier.dart';
 import '../providers/midi_service_providers.dart';
 
 /// Stream of available MIDI devices.
@@ -32,16 +31,6 @@ final connectedMidiDeviceValueProvider = Provider<MidiDevice?>((ref) {
 final isMidiConnectedProvider = Provider<bool>((ref) {
   final device = ref.watch(connectedMidiDeviceValueProvider);
   return device?.isConnected == true;
-});
-
-/// Whether the last saved device id is currently present in the scanned device list.
-final isLastSavedMidiDeviceAvailableProvider = Provider<bool>((ref) {
-  final prefs = ref.watch(midiPreferencesProvider);
-  final lastId = prefs.lastDeviceId;
-  if (lastId == null || lastId.trim().isEmpty) return false;
-
-  final devices = ref.watch(availableMidiDevicesListProvider);
-  return devices.any((d) => d.id == lastId);
 });
 
 /// Stream of Bluetooth adapter state.

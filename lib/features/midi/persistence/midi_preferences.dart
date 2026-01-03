@@ -4,47 +4,47 @@ import '../models/midi_device.dart';
 
 @immutable
 class MidiPreferences {
-  final String? lastDeviceId;
-  final MidiDevice? lastDevice;
-  final int? lastConnectedAtMs;
+  final String? savedDeviceId;
+  final MidiDevice? savedDevice;
+  final int? savedConnectedAtMs;
   final bool autoReconnect;
 
   const MidiPreferences({
-    required this.lastDeviceId,
-    required this.lastDevice,
-    required this.lastConnectedAtMs,
+    required this.savedDeviceId,
+    required this.savedDevice,
+    required this.savedConnectedAtMs,
     required this.autoReconnect,
   });
 
   const MidiPreferences.defaults()
-    : lastDeviceId = null,
-      lastDevice = null,
-      lastConnectedAtMs = null,
+    : savedDeviceId = null,
+      savedDevice = null,
+      savedConnectedAtMs = null,
       autoReconnect = true;
 
   bool get hasLastDeviceId =>
-      lastDeviceId != null && lastDeviceId!.trim().isNotEmpty;
+      savedDeviceId != null && savedDeviceId!.trim().isNotEmpty;
 
   MidiPreferences copyWith({
-    String? lastDeviceId,
-    MidiDevice? lastDevice,
-    int? lastConnectedAtMs,
+    String? savedDeviceId,
+    MidiDevice? savedDevice,
+    int? savedConnectedAtMs,
     bool? autoReconnect,
-    bool clearLastDevice = false,
+    bool clearSavedDevice = false,
   }) {
-    if (clearLastDevice) {
+    if (clearSavedDevice) {
       return MidiPreferences(
-        lastDeviceId: null,
-        lastDevice: null,
-        lastConnectedAtMs: null,
+        savedDeviceId: null,
+        savedDevice: null,
+        savedConnectedAtMs: null,
         autoReconnect: autoReconnect ?? this.autoReconnect,
       );
     }
 
     return MidiPreferences(
-      lastDeviceId: lastDeviceId ?? this.lastDeviceId,
-      lastDevice: lastDevice ?? this.lastDevice,
-      lastConnectedAtMs: lastConnectedAtMs ?? this.lastConnectedAtMs,
+      savedDeviceId: savedDeviceId ?? this.savedDeviceId,
+      savedDevice: savedDevice ?? this.savedDevice,
+      savedConnectedAtMs: savedConnectedAtMs ?? this.savedConnectedAtMs,
       autoReconnect: autoReconnect ?? this.autoReconnect,
     );
   }

@@ -14,19 +14,19 @@ final midiPreferencesProvider =
       MidiPreferencesNotifier.new,
     );
 
-/// Last saved device (may be null).
-final lastSavedMidiDeviceProvider = Provider<MidiDevice?>((ref) {
-  return ref.watch(midiPreferencesProvider.select((p) => p.lastDevice));
+/// Saved device (may be null).
+final savedMidiDeviceProvider = Provider<MidiDevice?>((ref) {
+  return ref.watch(midiPreferencesProvider.select((p) => p.savedDevice));
 });
 
-/// Last saved device id (may be null/empty).
-final lastSavedMidiDeviceIdProvider = Provider<String?>((ref) {
-  return ref.watch(midiPreferencesProvider.select((p) => p.lastDeviceId));
+/// Saved device id (may be null/empty).
+final savedMidiDeviceIdProvider = Provider<String?>((ref) {
+  return ref.watch(midiPreferencesProvider.select((p) => p.savedDeviceId));
 });
 
-/// Whether we have a non-empty last saved device id.
-final hasLastSavedMidiDeviceProvider = Provider<bool>((ref) {
-  final id = ref.watch(lastSavedMidiDeviceIdProvider);
+/// Whether we have a non-empty saved device id.
+final hasSavedMidiDeviceProvider = Provider<bool>((ref) {
+  final id = ref.watch(savedMidiDeviceIdProvider);
   return id != null && id.trim().isNotEmpty;
 });
 
@@ -35,25 +35,25 @@ class MidiPreferencesNotifier extends Notifier<MidiPreferences> {
   MidiPreferences build() {
     final prefs = ref.watch(sharedPreferencesProvider);
 
-    final lastDeviceId = prefs.getString(MidiPreferencesKeys.lastDeviceId);
-    final lastDevice = _readLastDevice(
-      prefs.getString(MidiPreferencesKeys.lastDeviceJson),
+    final savedDeviceId = prefs.getString(MidiPreferencesKeys.savedDeviceId);
+    final savedDevice = _readSavedDevice(
+      prefs.getString(MidiPreferencesKeys.savedDeviceJson),
     );
-    final lastConnectedAtMs = prefs.getInt(
-      MidiPreferencesKeys.lastConnectedAtMs,
+    final savedConnectedAtMs = prefs.getInt(
+      MidiPreferencesKeys.savedConnectedAtMs,
     );
     final autoReconnect =
         prefs.getBool(MidiPreferencesKeys.autoReconnect) ?? true;
 
     return MidiPreferences(
-      lastDeviceId: lastDeviceId,
-      lastDevice: lastDevice,
-      lastConnectedAtMs: lastConnectedAtMs,
+      savedDeviceId: savedDeviceId,
+      savedDevice: savedDevice,
+      savedConnectedAtMs: savedConnectedAtMs,
       autoReconnect: autoReconnect,
     );
   }
 
-  Future<void> setLastDevice(MidiDevice device) async {
+  Future<void> setSavedDevice(MidiDevice device) async {
     final prefs = ref.read(sharedPreferencesProvider);
 
     // Persist a stable representation (don’t persist a stale isConnected flag).
@@ -62,27 +62,27 @@ class MidiPreferencesNotifier extends Notifier<MidiPreferences> {
 
     // Update in-memory FIRST (reactive UI), then write-through.
     state = state.copyWith(
-      lastDeviceId: toStore.id,
-      lastDevice: toStore,
-      lastConnectedAtMs: nowMs,
+      savedDeviceId: toStore.id,
+      savedDevice: toStore,
+      savedConnectedAtMs: nowMs,
     );
 
-    await prefs.setString(MidiPreferencesKeys.lastDeviceId, toStore.id);
+    await prefs.setString(MidiPreferencesKeys.savedDeviceId, toStore.id);
     await prefs.setString(
-      MidiPreferencesKeys.lastDeviceJson,
+      MidiPreferencesKeys.savedDeviceJson,
       jsonEncode(toStore.toJson()),
     );
-    await prefs.setInt(MidiPreferencesKeys.lastConnectedAtMs, nowMs);
+    await prefs.setInt(MidiPreferencesKeys.savedConnectedAtMs, nowMs);
   }
 
-  Future<void> clearLastDevice() async {
+  Future<void> clearSavedDevice() async {
     final prefs = ref.read(sharedPreferencesProvider);
 
-    state = state.copyWith(clearLastDevice: true);
+    state = state.copyWith(clearSavedDevice: true);
 
-    await prefs.remove(MidiPreferencesKeys.lastDeviceId);
-    await prefs.remove(MidiPreferencesKeys.lastDeviceJson);
-    await prefs.remove(MidiPreferencesKeys.lastConnectedAtMs);
+    await prefs.remove(MidiPreferencesKeys.savedDeviceId);
+    await prefs.remove(MidiPreferencesKeys.savedDeviceJson);
+    await prefs.remove(MidiPreferencesKeys.savedConnectedAtMs);
   }
 
   Future<void> setAutoReconnect(bool enabled) async {
@@ -98,19 +98,19 @@ class MidiPreferencesNotifier extends Notifier<MidiPreferences> {
     // Preserve defaults for autoReconnect (true) after reset.
     state = const MidiPreferences.defaults();
 
-    await prefs.remove(MidiPreferencesKeys.lastDeviceId);
-    await prefs.remove(MidiPreferencesKeys.lastDeviceJson);
-    await prefs.remove(MidiPreferencesKeys.lastConnectedAtMs);
+    await prefs.remove(MidiPreferencesKeys.savedDeviceId);
+    await prefs.remove(MidiPreferencesKeys.savedDeviceJson);
+    await prefs.remove(MidiPreferencesKeys.savedConnectedAtMs);
     await prefs.remove(MidiPreferencesKeys.autoReconnect);
   }
 
-  MidiDevice? _readLastDevice(String? json) {
+  MidiDevice? _readSavedDevice(String? json) {
     if (json == null) return null;
     try {
       final map = jsonDecode(json) as Map<String, dynamic>;
       return MidiDevice.fromJson(map);
     } catch (e) {
-      debugPrint('Error decoding last MIDI device: $e');
+      debugPrint('Error decoding saved MIDI device: $e');
       return null;
     }
   }

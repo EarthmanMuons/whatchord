@@ -69,7 +69,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   bool _backgrounded = false;
   bool _attemptInFlight = false;
 
-  String? _lastPersistedDeviceId;
+  // Dedupe guard: prevents repeated persistence writes when the
+  // connected-device stream re-emits the same device id.
+  String? _lastSavedDeviceId;
 
   MidiService get _service => ref.read(midiServiceProvider);
 
@@ -92,13 +94,13 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
           phase: MidiConnectionPhase.connected,
           device: device,
         );
-        // Persist "last device" on successful connection.
+        // Persist saved device on successful connection.
         // Dedupe by device id to avoid churn on repeated stream emissions.
-        if (device.id != _lastPersistedDeviceId) {
-          _lastPersistedDeviceId = device.id;
+        if (device.id != _lastSavedDeviceId) {
+          _lastSavedDeviceId = device.id;
           final prefs = ref.read(midiPreferencesProvider.notifier);
           // Avoid awaiting inside a listener; persistence is best-effort.
-          unawaited(prefs.setLastDevice(device));
+          unawaited(prefs.setSavedDevice(device));
         }
         return;
       }
@@ -183,8 +185,8 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       final prefs = ref.read(midiPreferencesProvider);
       if (!prefs.autoReconnect) return;
 
-      final lastDeviceId = prefs.lastDeviceId;
-      if (lastDeviceId == null || lastDeviceId.trim().isEmpty) {
+      final savedDeviceId = prefs.savedDeviceId;
+      if (savedDeviceId == null || savedDeviceId.trim().isEmpty) {
         // Nothing to reconnect to. Keep the UI clean after a reset.
         _cancelRetry();
 
@@ -201,11 +203,11 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         return;
       }
 
-      // If already connected to the last device, do nothing.
+      // If already connected to the saved device, do nothing.
       final current = ref
           .read(connectedMidiDeviceProvider)
           .when(data: (d) => d, loading: () => null, error: (_, _) => null);
-      if (current?.isConnected == true && current?.id == lastDeviceId) return;
+      if (current?.isConnected == true && current?.id == savedDeviceId) return;
 
       // Gate on bluetooth being ready.
       final bt = ref
@@ -220,7 +222,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         return;
       }
 
-      await _reconnectWithBackoff(lastDeviceId);
+      await _reconnectWithBackoff(savedDeviceId);
     } finally {
       _attemptInFlight = false;
     }
@@ -303,7 +305,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     _cancelRetry();
     _attemptInFlight = false;
     _lastAutoReconnectAt = null;
-    _lastPersistedDeviceId = null;
+    _lastSavedDeviceId = null;
     state = const MidiConnectionState.idle();
   }
 
@@ -346,11 +348,11 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<bool> reconnect() async {
     await _ensureInitialized();
     final prefs = ref.read(midiPreferencesProvider);
-    final lastDeviceId = prefs.lastDeviceId;
+    final savedDeviceId = prefs.savedDeviceId;
 
-    if (lastDeviceId == null) return false;
+    if (savedDeviceId == null) return false;
 
-    return _service.reconnect(lastDeviceId);
+    return _service.reconnect(savedDeviceId);
   }
 }
 
@@ -364,11 +366,11 @@ final isConnectionBusyProvider = Provider<bool>((ref) {
 });
 
 /// Whether connected to the last saved device.
-final isConnectedToLastDeviceProvider = Provider<bool>((ref) {
+final isConnectedToSavedDeviceProvider = Provider<bool>((ref) {
   final prefs = ref.watch(midiPreferencesProvider);
   final device = ref.watch(connectedMidiDeviceProvider).asData?.value;
 
   return device?.isConnected == true &&
-      prefs.lastDeviceId != null &&
-      device?.id == prefs.lastDeviceId;
+      prefs.savedDeviceId != null &&
+      device?.id == prefs.savedDeviceId;
 });

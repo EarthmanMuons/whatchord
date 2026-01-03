@@ -12,20 +12,20 @@ class SavedDeviceCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hasLast = ref.watch(hasLastSavedMidiDeviceProvider);
+    final hasSaved = ref.watch(hasSavedMidiDeviceProvider);
     final isConnected = ref.watch(isMidiConnectedProvider);
     final isBusy = ref.watch(isConnectionBusyProvider);
-    final isConnectedToLast = ref.watch(isConnectedToLastDeviceProvider);
+    final isConnectedToSaved = ref.watch(isConnectedToSavedDeviceProvider);
 
     final connected = ref.watch(connectedMidiDeviceValueProvider);
-    final last = ref.watch(lastSavedMidiDeviceProvider);
+    final saved = ref.watch(savedMidiDeviceProvider);
 
     final connectionDeviceName = ref.watch(
       midiConnectionNotifierProvider.select((s) => s.device?.name),
     );
 
-    // If there is no last device persisted, do not render the card at all.
-    if (!hasLast && !isConnected) {
+    // If there is no saved device persisted, do not render the card at all.
+    if (!hasSaved && !isConnected) {
       return const SizedBox.shrink();
     }
 
@@ -43,13 +43,13 @@ class SavedDeviceCard extends ConsumerWidget {
         ? connectionNameTrimmed
         : connectedNameTrimmed;
 
-    // Then fall back to persisted last-device name (if present).
-    final lastName = (last?.name.trim().isNotEmpty == true)
-        ? last!.name.trim()
+    // Then fall back to persisted saved device name (if present).
+    final savedName = (saved?.name.trim().isNotEmpty == true)
+        ? saved!.name.trim()
         : null;
 
     // Final title resolution.
-    final title = connectedName ?? lastName ?? 'Saved device';
+    final title = connectedName ?? savedName ?? 'Saved device';
 
     return Card(
       child: ListTile(
@@ -63,7 +63,7 @@ class SavedDeviceCard extends ConsumerWidget {
             // - Connected to last => Disconnect
             // - Not connected and last is available => Reconnect
             // - Otherwise => no primary action (or a disabled label)
-            if (isConnectedToLast)
+            if (isConnectedToSaved)
               FilledButton.tonal(
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
@@ -89,7 +89,7 @@ class SavedDeviceCard extends ConsumerWidget {
                       },
                 child: const Text('Disconnect'),
               )
-            else if (!isConnected && hasLast)
+            else if (!isConnected && hasSaved)
               FilledButton.tonal(
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
@@ -121,7 +121,7 @@ class SavedDeviceCard extends ConsumerWidget {
 
                     // Clear preference (drives saved-device UI / labels)
                     final prefs = ref.read(midiPreferencesProvider.notifier);
-                    await prefs.clearLastDevice();
+                    await prefs.clearSavedDevice();
 
                     // Reset connection UI/phase so we don’t show stale reconnect messaging.
                     ref
