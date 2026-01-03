@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_device.dart';
-import '../persistence/midi_preferences_provider.dart';
+import '../persistence/midi_preferences_notifier.dart';
 import '../persistence/midi_preferences.dart';
-import '../providers/midi_connection_manager.dart';
+import '../providers/midi_connection_notifier.dart';
 import '../providers/midi_device_providers.dart';
 
 @immutable
@@ -51,6 +51,6 @@ final midiSettingsPageStateProvider = Provider<MidiSettingsPageState>((ref) {
     prefs: ref.watch(midiPreferencesProvider),
     devicesAsync: ref.watch(availableMidiDevicesProvider),
     connectedAsync: ref.watch(connectedMidiDeviceProvider),
-    connection: ref.watch(midiConnectionManagerProvider),
+    connection: ref.watch(midiConnectionNotifierProvider),
   );
 });

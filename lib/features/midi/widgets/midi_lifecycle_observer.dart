@@ -1,12 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'midi_connection_manager.dart';
-import 'midi_service_providers.dart';
+import '../providers/midi_connection_notifier.dart';
+import '../providers/midi_service_providers.dart';
 
 /// Installs a WidgetsBindingObserver that coordinates MIDI behavior across
 /// background/foreground transitions.
-final midiLifecycleControllerProvider = Provider<void>((ref) {
+final midiLifecycleObserverProvider = Provider<void>((ref) {
   final controller = _MidiLifecycleController(ref);
   controller._attach();
   ref.onDispose(controller._detach);
@@ -28,7 +28,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
       await Future<void>.delayed(const Duration(milliseconds: 200));
       if (_ref.mounted) {
         _ref
-            .read(midiConnectionManagerProvider.notifier)
+            .read(midiConnectionNotifierProvider.notifier)
             .tryAutoReconnect(reason: 'startup');
       }
     });
@@ -40,7 +40,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final connection = _ref.read(midiConnectionManagerProvider.notifier);
+    final connection = _ref.read(midiConnectionNotifierProvider.notifier);
 
     switch (state) {
       case AppLifecycleState.resumed:

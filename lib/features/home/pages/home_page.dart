@@ -22,10 +22,10 @@ class HomePage extends ConsumerWidget {
 
     // Initialize MIDI service and install lifecycle + reconnect behavior.
     ref.watch(midiServiceInitProvider);
-    ref.watch(midiLifecycleControllerProvider);
+    ref.watch(midiLifecycleObserverProvider);
 
     // Listen for connection state changes and show feedback.
-    ref.listen(midiConnectionManagerProvider, (prev, next) {
+    ref.listen(midiConnectionNotifierProvider, (prev, next) {
       if (prev?.phase == next.phase && prev?.message == next.message) return;
 
       final messenger = ScaffoldMessenger.of(context);

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:what_chord/features/midi/providers/midi_ui_status.dart';
 
-import '../providers/midi_connection_manager.dart';
+import '../providers/midi_connection_notifier.dart';
 
 class MidiStatusCard extends StatelessWidget {
   const MidiStatusCard({super.key, required this.ui});

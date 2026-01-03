@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../pages/midi_settings_page_state.dart';
-import '../persistence/midi_preferences_provider.dart';
-import '../providers/midi_connection_manager.dart';
+import '../pages/midi_settings_page_provider.dart';
+import '../persistence/midi_preferences_notifier.dart';
+import '../providers/midi_connection_notifier.dart';
 
 enum _SavedDeviceMenuAction { forget }
 
@@ -63,7 +63,7 @@ class SavedDeviceCard extends ConsumerWidget {
                     ? null
                     : () async {
                         final connection = ref.read(
-                          midiConnectionManagerProvider.notifier,
+                          midiConnectionNotifierProvider.notifier,
                         );
                         await connection.disconnect();
 
@@ -89,7 +89,7 @@ class SavedDeviceCard extends ConsumerWidget {
                     ? null
                     : () {
                         ref
-                            .read(midiConnectionManagerProvider.notifier)
+                            .read(midiConnectionNotifierProvider.notifier)
                             .tryAutoReconnect(reason: 'manual');
                       },
                 child: const Text('Reconnect'),
@@ -102,7 +102,7 @@ class SavedDeviceCard extends ConsumerWidget {
                   case _SavedDeviceMenuAction.forget:
                     // Make transport truthfully disconnected (drives picker checkmark)
                     await ref
-                        .read(midiConnectionManagerProvider.notifier)
+                        .read(midiConnectionNotifierProvider.notifier)
                         .disconnect();
 
                     // Clear preference (drives saved-device UI / labels)
@@ -111,7 +111,7 @@ class SavedDeviceCard extends ConsumerWidget {
 
                     // Reset connection UI/phase so we don’t show stale reconnect messaging.
                     ref
-                        .read(midiConnectionManagerProvider.notifier)
+                        .read(midiConnectionNotifierProvider.notifier)
                         .resetToIdle();
 
                     if (context.mounted) {

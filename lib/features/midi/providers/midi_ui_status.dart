@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'midi_connection_manager.dart';
+import 'midi_connection_notifier.dart';
 
 @immutable
 class MidiUiStatus {
@@ -31,7 +31,7 @@ class MidiUiStatus {
 }
 
 final midiUiStatusProvider = Provider<MidiUiStatus>((ref) {
-  final connection = ref.watch(midiConnectionManagerProvider);
+  final connection = ref.watch(midiConnectionNotifierProvider);
 
   return switch (connection.phase) {
     MidiConnectionPhase.connected => MidiUiStatus(

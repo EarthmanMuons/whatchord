@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
-import '../persistence/midi_preferences_provider.dart';
+import '../persistence/midi_preferences_notifier.dart';
 import '../providers/midi_device_providers.dart';
 import '../providers/midi_service_providers.dart';
 import '../services/midi_service.dart';
@@ -53,12 +53,12 @@ class MidiConnectionState {
   }
 }
 
-final midiConnectionManagerProvider =
-    NotifierProvider<MidiConnectionManager, MidiConnectionState>(
-      MidiConnectionManager.new,
+final midiConnectionNotifierProvider =
+    NotifierProvider<MidiConnectionNotifier, MidiConnectionState>(
+      MidiConnectionNotifier.new,
     );
 
-class MidiConnectionManager extends Notifier<MidiConnectionState> {
+class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   static const int _maxAttempts = 5;
   static const Duration _maxBackoff = Duration(seconds: 16);
 

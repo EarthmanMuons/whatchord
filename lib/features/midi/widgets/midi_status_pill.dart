@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../pages/midi_settings_page.dart';
-import '../providers/midi_connection_manager.dart';
+import '../providers/midi_connection_notifier.dart';
 import '../providers/midi_ui_status.dart';
 
 enum _PillTone { normal, error, muted }

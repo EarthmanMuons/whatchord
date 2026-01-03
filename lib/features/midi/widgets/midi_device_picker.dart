@@ -17,13 +17,13 @@ class MidiDevicePicker extends ConsumerStatefulWidget {
 class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
   bool _isConnecting = false;
   String? _error;
-  late final MidiConnectionManager _connection;
+  late final MidiConnectionNotifier _connection;
   Timer? _scanStartTimer;
 
   @override
   void initState() {
     super.initState();
-    _connection = ref.read(midiConnectionManagerProvider.notifier);
+    _connection = ref.read(midiConnectionNotifierProvider.notifier);
 
     // Start scanning when the picker opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -81,7 +81,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       _error = null;
     });
 
-    final connection = ref.read(midiConnectionManagerProvider.notifier);
+    final connection = ref.read(midiConnectionNotifierProvider.notifier);
 
     try {
       await connection.connect(device);
