@@ -5,8 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
 import '../persistence/midi_preferences_provider.dart';
+import '../providers/midi_device_providers.dart';
+import '../providers/midi_service_providers.dart';
 import '../services/midi_service.dart';
-import 'midi_providers.dart';
 
 enum MidiConnectionPhase {
   idle,
@@ -109,7 +110,7 @@ class MidiConnectionManager extends Notifier<MidiConnectionState> {
     });
 
     // React to bluetooth availability changes.
-    ref.listen<AsyncValue<BluetoothState>>(bluetoothStateStreamProvider, (
+    ref.listen<AsyncValue<BluetoothState>>(bluetoothStateProvider, (
       prev,
       next,
     ) {
@@ -208,7 +209,7 @@ class MidiConnectionManager extends Notifier<MidiConnectionState> {
 
       // Gate on bluetooth being ready.
       final bt = ref
-          .read(bluetoothStateStreamProvider)
+          .read(bluetoothStateProvider)
           .when(data: (d) => d, loading: () => null, error: (_, _) => null);
       if (bt != null && !_bluetoothReady(bt)) {
         state = state.copyWith(
@@ -309,5 +310,46 @@ class MidiConnectionManager extends Notifier<MidiConnectionState> {
   void _cancelRetry() {
     _retryTimer?.cancel();
     _retryTimer = null;
+  }
+
+  /// Ensure service is initialized before performing action.
+  Future<void> _ensureInitialized() async {
+    final initialized = await ref.read(midiServiceInitProvider.future);
+    if (!initialized) {
+      throw const MidiException('Failed to initialize MIDI service');
+    }
+  }
+
+  /// Start scanning for devices.
+  Future<void> startScanning() async {
+    await _ensureInitialized();
+    await _service.startScanning();
+  }
+
+  /// Stop scanning for devices.
+  Future<void> stopScanning() async {
+    await _service.stopScanning();
+  }
+
+  /// Connect to a device and save it as the last connected device.
+  Future<void> connect(MidiDevice device) async {
+    await _ensureInitialized();
+    await _service.connect(device);
+  }
+
+  /// Disconnect from the current device.
+  Future<void> disconnect() async {
+    await _service.disconnect();
+  }
+
+  /// Manually trigger a reconnection attempt.
+  Future<bool> reconnect() async {
+    await _ensureInitialized();
+    final prefs = ref.read(midiPreferencesProvider);
+    final lastDeviceId = prefs.lastDeviceId;
+
+    if (lastDeviceId == null) return false;
+
+    return _service.reconnect(lastDeviceId);
   }
 }

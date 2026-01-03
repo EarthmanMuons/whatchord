@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'midi_connection_manager.dart';
-import 'midi_providers.dart';
+import 'midi_service_providers.dart';
 
 /// Installs a WidgetsBindingObserver that coordinates MIDI behavior across
 /// background/foreground transitions.
@@ -41,7 +41,6 @@ class _MidiLifecycleController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final connection = _ref.read(midiConnectionManagerProvider.notifier);
-    final actions = _ref.read(midiConnectionActionsProvider);
 
     switch (state) {
       case AppLifecycleState.resumed:
@@ -57,7 +56,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
         connection.setBackgrounded(true);
-        actions.stopScanning();
+        connection.stopScanning();
         break;
     }
   }

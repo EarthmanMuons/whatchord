@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:what_chord/features/midi/midi.dart';
 
 import '../models/midi_device.dart';
-import '../providers/midi_providers.dart';
 import '../services/midi_service.dart';
 
 /// Modal bottom sheet for scanning and selecting MIDI devices.
@@ -17,13 +17,13 @@ class MidiDevicePicker extends ConsumerStatefulWidget {
 class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
   bool _isConnecting = false;
   String? _error;
-  late final MidiConnectionActions _actions;
+  late final MidiConnectionManager _connection;
   Timer? _scanStartTimer;
 
   @override
   void initState() {
     super.initState();
-    _actions = ref.read(midiConnectionActionsProvider);
+    _connection = ref.read(midiConnectionManagerProvider.notifier);
 
     // Start scanning when the picker opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -50,7 +50,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       _scanStartTimer = Timer(const Duration(milliseconds: 300), () async {
         if (!mounted) return;
         try {
-          await _actions.startScanning();
+          await _connection.startScanning();
         } catch (e) {
           if (!mounted) return;
           setState(() {
@@ -69,7 +69,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
 
   Future<void> _stopScanning() async {
     try {
-      await _actions.stopScanning();
+      await _connection.stopScanning();
     } catch (e) {
       debugPrint('Error stopping scan: $e');
     }
@@ -81,10 +81,10 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       _error = null;
     });
 
-    final actions = ref.read(midiConnectionActionsProvider);
+    final connection = ref.read(midiConnectionManagerProvider.notifier);
 
     try {
-      await actions.connect(device);
+      await connection.connect(device);
 
       if (mounted) {
         // Success - close the picker

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../pages/midi_settings_page_state.dart';
 import '../persistence/midi_preferences_provider.dart';
 import '../providers/midi_connection_manager.dart';
-import '../providers/midi_providers.dart';
 
 enum _SavedDeviceMenuAction { forget }
 
@@ -63,8 +62,10 @@ class SavedDeviceCard extends ConsumerWidget {
                 onPressed: s.isConnectionBusy
                     ? null
                     : () async {
-                        final actions = ref.read(midiConnectionActionsProvider);
-                        await actions.disconnect();
+                        final connection = ref.read(
+                          midiConnectionManagerProvider.notifier,
+                        );
+                        await connection.disconnect();
 
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -100,7 +101,9 @@ class SavedDeviceCard extends ConsumerWidget {
                 switch (action) {
                   case _SavedDeviceMenuAction.forget:
                     // Make transport truthfully disconnected (drives picker checkmark)
-                    await ref.read(midiConnectionActionsProvider).disconnect();
+                    await ref
+                        .read(midiConnectionManagerProvider.notifier)
+                        .disconnect();
 
                     // Clear preference (drives saved-device UI / labels)
                     final prefs = ref.read(midiPreferencesProvider.notifier);

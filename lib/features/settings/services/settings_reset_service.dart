@@ -5,7 +5,6 @@ import 'package:what_chord/core/theme/providers/app_palette_provider.dart';
 import 'package:what_chord/core/theme/providers/theme_mode_provider.dart';
 import 'package:what_chord/features/midi/persistence/midi_preferences_provider.dart';
 import 'package:what_chord/features/midi/providers/midi_connection_manager.dart';
-import 'package:what_chord/features/midi/providers/midi_providers.dart';
 import 'package:what_chord/features/theory/providers/chord_symbol_provider.dart';
 
 import 'package:what_chord/core/persistence/core_preferences_keys.dart';
@@ -38,9 +37,9 @@ class SettingsResetService {
     _ref.invalidate(chordSymbolProvider);
 
     // Reset MIDI connection state
-    final actions = _ref.read(midiConnectionActionsProvider);
-    await actions.stopScanning();
-    await actions.disconnect();
-    _ref.read(midiConnectionManagerProvider.notifier).resetToIdle();
+    final connection = _ref.read(midiConnectionManagerProvider.notifier);
+    await connection.stopScanning();
+    await connection.disconnect();
+    connection.resetToIdle();
   }
 }

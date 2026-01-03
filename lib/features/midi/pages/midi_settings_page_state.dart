@@ -5,7 +5,7 @@ import '../models/midi_device.dart';
 import '../persistence/midi_preferences_provider.dart';
 import '../persistence/midi_preferences.dart';
 import '../providers/midi_connection_manager.dart';
-import '../providers/midi_providers.dart';
+import '../providers/midi_device_providers.dart';
 
 @immutable
 class MidiSettingsPageState {

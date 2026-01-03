@@ -8,7 +8,7 @@ import '../models/midi_constants.dart';
 import '../models/midi_message.dart';
 import '../models/midi_note_state.dart';
 import 'midi_connection_manager.dart';
-import 'midi_providers.dart';
+import 'midi_message_providers.dart';
 
 final midiNoteStateProvider =
     NotifierProvider<MidiNoteStateNotifier, MidiNoteState>(
@@ -37,7 +37,7 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
     );
 
     // Listen to MIDI messages and update state
-    ref.listen(midiMessageStreamProvider, (previous, next) {
+    ref.listen(midiMessageProvider, (previous, next) {
       next.when(
         data: _handleMidiMessage,
         loading: () {},
