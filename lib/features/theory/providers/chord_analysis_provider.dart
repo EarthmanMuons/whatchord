@@ -12,7 +12,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   );
 });
 
-final activeScaleDegreeProvider = Provider<ScaleDegree?>((ref) {
+final detectedScaleDegreeProvider = Provider<ScaleDegree?>((ref) {
   final tonality = ref.watch(selectedTonalityProvider);
   final analysis = ref.watch(chordAnalysisProvider);
 

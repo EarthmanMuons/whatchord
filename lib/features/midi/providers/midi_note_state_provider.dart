@@ -122,9 +122,9 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
 }
 
 // Raw MIDI note numbers for keyboard highlighting.
-final activeMidiNotesProvider = Provider<Set<int>>((ref) {
+final soundingMidiNotesProvider = Provider<Set<int>>((ref) {
   final state = ref.watch(midiNoteStateProvider);
-  return state.activeNotes;
+  return state.soundingNotes;
 });
 
 // Sustain pedal state for display.
@@ -137,7 +137,7 @@ final activeNotesProvider = Provider<List<ActiveNote>>((ref) {
   final state = ref.watch(midiNoteStateProvider);
 
   final notes = <ActiveNote>[];
-  final activeSorted = state.activeNotes.toList()..sort();
+  final activeSorted = state.soundingNotes.toList()..sort();
 
   for (final midi in activeSorted) {
     notes.add(

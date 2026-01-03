@@ -10,7 +10,7 @@ import '../providers/midi_preferences_provider.dart';
 import '../services/flutter_midi_service.dart';
 import '../services/midi_service.dart';
 
-/// Provider for the active MIDI service.
+/// Provider for the MIDI service.
 final midiServiceProvider = Provider<MidiService>((ref) {
   final service = FlutterMidiService();
 

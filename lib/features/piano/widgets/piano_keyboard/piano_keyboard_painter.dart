@@ -4,7 +4,7 @@ class PianoKeyboardPainter extends CustomPainter {
   PianoKeyboardPainter({
     required this.whiteKeyCount,
     required this.firstMidiNote,
-    required this.activeMidiNotes,
+    required this.soundingMidiNotes,
     required this.whiteKeyColor,
     required this.whiteKeyActiveColor,
     required this.whiteKeyBorderColor,
@@ -22,8 +22,8 @@ class PianoKeyboardPainter extends CustomPainter {
   final int whiteKeyCount;
   final int firstMidiNote;
 
-  /// Active *MIDI note numbers* (e.g., 60 for middle C).
-  final Set<int> activeMidiNotes;
+  /// Sounding *MIDI note numbers* (e.g., 60 for middle C).
+  final Set<int> soundingMidiNotes;
 
   final Color whiteKeyColor;
   final Color whiteKeyActiveColor;
@@ -92,7 +92,7 @@ class PianoKeyboardPainter extends CustomPainter {
     return midi;
   }
 
-  bool _isActiveMidi(int midi) => activeMidiNotes.contains(midi);
+  bool _isSounding(int midi) => soundingMidiNotes.contains(midi);
 
   double _blackCenterBiasForPc(int blackPc, double whiteKeyW) {
     switch (blackPc) {
@@ -138,9 +138,10 @@ class PianoKeyboardPainter extends CustomPainter {
       final rect = Rect.fromLTWH(x, 0, whiteKeyW, whiteKeyH);
 
       final midi = _whiteMidiForIndex(i);
-      final isActive = _isActiveMidi(midi);
 
-      whiteFillPaint.color = isActive ? whiteKeyActiveColor : whiteKeyColor;
+      whiteFillPaint.color = _isSounding(midi)
+          ? whiteKeyActiveColor
+          : whiteKeyColor;
 
       canvas.drawRect(rect, whiteFillPaint);
       canvas.drawRect(rect, whiteBorderPaint);
@@ -165,7 +166,7 @@ class PianoKeyboardPainter extends CustomPainter {
 
       final rect = Rect.fromLTWH(blackLeft, 0, blackKeyW, blackKeyH);
 
-      blackFillPaint.color = _isActiveMidi(blackMidi)
+      blackFillPaint.color = _isSounding(blackMidi)
           ? blackKeyActiveColor
           : blackKeyColor;
       canvas.drawRect(rect, blackFillPaint);
@@ -218,7 +219,7 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.blackKeyActiveColor != blackKeyActiveColor ||
         oldDelegate.showNoteDebugLabels != showNoteDebugLabels ||
         oldDelegate.debugLabelColor != debugLabelColor ||
-        !_setEquals(oldDelegate.activeMidiNotes, activeMidiNotes);
+        !_setEquals(oldDelegate.soundingMidiNotes, soundingMidiNotes);
   }
 
   bool _setEquals(Set<int> a, Set<int> b) {

@@ -13,7 +13,7 @@ class KeyboardSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final activeMidiNotes = ref.watch(activeMidiNotesProvider);
+    final soundingMidiNotes = ref.watch(soundingMidiNotesProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -28,7 +28,7 @@ class KeyboardSection extends ConsumerWidget {
         return PianoKeyboard(
           whiteKeyCount: config.whiteKeyCount,
           firstMidiNote: config.firstMidiNote,
-          activeMidiNotes: activeMidiNotes,
+          soundingMidiNotes: soundingMidiNotes,
           height: height,
         );
       },

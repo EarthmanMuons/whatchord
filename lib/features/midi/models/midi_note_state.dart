@@ -14,7 +14,7 @@ class MidiNoteState {
     required this.isPedalDown,
   });
 
-  Set<int> get activeNotes => {...pressed, ...sustained};
+  Set<int> get soundingNotes => {...pressed, ...sustained};
 
   MidiNoteState copyWith({
     Set<int>? pressed,

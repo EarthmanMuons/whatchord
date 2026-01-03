@@ -12,7 +12,7 @@ class TonalityBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final selectedTonality = ref.watch(selectedTonalityProvider);
-    final active = ref.watch(activeScaleDegreeProvider);
+    final degree = ref.watch(detectedScaleDegreeProvider);
 
     return Material(
       color: cs.surfaceContainerLow,
@@ -52,7 +52,7 @@ class TonalityBar extends ConsumerWidget {
               Expanded(
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: ScaleDegrees(active: active),
+                  child: ScaleDegrees(current: degree),
                 ),
               ),
             ],
