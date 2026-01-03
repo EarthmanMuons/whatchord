@@ -8,7 +8,7 @@ import '../providers/midi_prefs_provider.dart';
 import '../services/midi_service.dart';
 import 'midi_providers.dart';
 
-enum MidiLinkPhase {
+enum MidiConnectionPhase {
   idle,
   connecting,
   retrying,
@@ -18,14 +18,14 @@ enum MidiLinkPhase {
   error,
 }
 
-class MidiLinkState {
-  final MidiLinkPhase phase;
+class MidiConnectionState {
+  final MidiConnectionPhase phase;
   final MidiDevice? device;
   final int attempt; // 1-based
   final Duration? nextDelay;
   final String? message;
 
-  const MidiLinkState({
+  const MidiConnectionState({
     required this.phase,
     this.device,
     this.attempt = 0,
@@ -33,16 +33,16 @@ class MidiLinkState {
     this.message,
   });
 
-  const MidiLinkState.idle() : this(phase: MidiLinkPhase.idle);
+  const MidiConnectionState.idle() : this(phase: MidiConnectionPhase.idle);
 
-  MidiLinkState copyWith({
-    MidiLinkPhase? phase,
+  MidiConnectionState copyWith({
+    MidiConnectionPhase? phase,
     MidiDevice? device,
     int? attempt,
     Duration? nextDelay,
     String? message,
   }) {
-    return MidiLinkState(
+    return MidiConnectionState(
       phase: phase ?? this.phase,
       device: device ?? this.device,
       attempt: attempt ?? this.attempt,
@@ -52,10 +52,12 @@ class MidiLinkState {
   }
 }
 
-final midiLinkManagerProvider =
-    NotifierProvider<MidiLinkManager, MidiLinkState>(MidiLinkManager.new);
+final midiConnectionManagerProvider =
+    NotifierProvider<MidiConnectionManager, MidiConnectionState>(
+      MidiConnectionManager.new,
+    );
 
-class MidiLinkManager extends Notifier<MidiLinkState> {
+class MidiConnectionManager extends Notifier<MidiConnectionState> {
   static const int _maxAttempts = 5;
   static const Duration _maxBackoff = Duration(seconds: 16);
 
@@ -71,8 +73,8 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
   MidiService get _service => ref.read(midiServiceProvider);
 
   @override
-  MidiLinkState build() {
-    // Keep link state aligned with the connected device stream.
+  MidiConnectionState build() {
+    // Keep connection state aligned with the connected device stream.
     ref.listen<AsyncValue<MidiDevice?>>(connectedMidiDeviceProvider, (
       prev,
       next,
@@ -85,7 +87,10 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
 
       if (device != null && device.isConnected) {
         _cancelRetry();
-        state = MidiLinkState(phase: MidiLinkPhase.connected, device: device);
+        state = MidiConnectionState(
+          phase: MidiConnectionPhase.connected,
+          device: device,
+        );
         // Persist "last device" on successful connection.
         // Dedupe by device id to avoid churn on repeated stream emissions.
         if (device.id != _lastPersistedDeviceId) {
@@ -98,8 +103,8 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
       }
 
       // If we were connected and became disconnected, fall back to idle.
-      if (state.phase == MidiLinkPhase.connected) {
-        state = const MidiLinkState.idle();
+      if (state.phase == MidiConnectionPhase.connected) {
+        state = const MidiConnectionState.idle();
       }
     });
 
@@ -119,7 +124,7 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
       if (!ready) {
         _cancelRetry();
         state = state.copyWith(
-          phase: MidiLinkPhase.bluetoothUnavailable,
+          phase: MidiConnectionPhase.bluetoothUnavailable,
           message: bt.displayName,
         );
         return;
@@ -130,7 +135,7 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
     });
 
     ref.onDispose(_cancelRetry);
-    return const MidiLinkState.idle();
+    return const MidiConnectionState.idle();
   }
 
   void setBackgrounded(bool value) {
@@ -166,7 +171,7 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
       final initialized = await ref.read(midiServiceInitProvider.future);
       if (!initialized) {
         state = state.copyWith(
-          phase: MidiLinkPhase.error,
+          phase: MidiConnectionPhase.error,
           message: 'MIDI service failed to initialize',
           nextDelay: null,
         );
@@ -183,11 +188,11 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
         _cancelRetry();
 
         // Only override state if we were showing reconnect-related phases.
-        if (state.phase == MidiLinkPhase.connecting ||
-            state.phase == MidiLinkPhase.retrying ||
-            state.phase == MidiLinkPhase.deviceUnavailable ||
-            state.phase == MidiLinkPhase.error) {
-          state = const MidiLinkState.idle();
+        if (state.phase == MidiConnectionPhase.connecting ||
+            state.phase == MidiConnectionPhase.retrying ||
+            state.phase == MidiConnectionPhase.deviceUnavailable ||
+            state.phase == MidiConnectionPhase.error) {
+          state = const MidiConnectionState.idle();
         } else {
           // Clear any stale messaging/delay without forcing a phase change.
           state = state.copyWith(message: null, nextDelay: null, attempt: 0);
@@ -207,7 +212,7 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
           .when(data: (d) => d, loading: () => null, error: (_, _) => null);
       if (bt != null && !_bluetoothReady(bt)) {
         state = state.copyWith(
-          phase: MidiLinkPhase.bluetoothUnavailable,
+          phase: MidiConnectionPhase.bluetoothUnavailable,
           message: bt.displayName,
           nextDelay: null,
         );
@@ -226,8 +231,10 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
     for (var attempt = 1; attempt <= _maxAttempts; attempt++) {
       if (_backgrounded) return;
 
-      state = MidiLinkState(
-        phase: attempt == 1 ? MidiLinkPhase.connecting : MidiLinkPhase.retrying,
+      state = MidiConnectionState(
+        phase: attempt == 1
+            ? MidiConnectionPhase.connecting
+            : MidiConnectionPhase.retrying,
         attempt: attempt,
         nextDelay: null,
         message: attempt == 1
@@ -250,14 +257,14 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
 
       if (seen == false) {
         state = state.copyWith(
-          phase: MidiLinkPhase.deviceUnavailable,
+          phase: MidiConnectionPhase.deviceUnavailable,
           message: 'Saved device not found. Make sure it is powered on.',
         );
       }
 
       final delay = _backoffForAttempt(attempt);
       state = state.copyWith(
-        phase: MidiLinkPhase.retrying,
+        phase: MidiConnectionPhase.retrying,
         attempt: attempt,
         nextDelay: delay,
         message: 'Retrying in ${delay.inSeconds}s…',
@@ -296,7 +303,7 @@ class MidiLinkManager extends Notifier<MidiLinkState> {
     _attemptInFlight = false;
     _lastAutoReconnectAt = null;
     _lastPersistedDeviceId = null;
-    state = const MidiLinkState.idle();
+    state = const MidiConnectionState.idle();
   }
 
   void _cancelRetry() {

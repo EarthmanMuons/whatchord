@@ -25,7 +25,7 @@ class HomePage extends ConsumerWidget {
     ref.watch(midiLifecycleControllerProvider);
 
     // Listen for connection state changes and show feedback.
-    ref.listen(midiLinkManagerProvider, (prev, next) {
+    ref.listen(midiConnectionManagerProvider, (prev, next) {
       if (prev?.phase == next.phase && prev?.message == next.message) return;
 
       final messenger = ScaffoldMessenger.of(context);
@@ -53,8 +53,8 @@ class HomePage extends ConsumerWidget {
       }
 
       // Connected (show once when transitioning into connected)
-      if (prev?.phase != MidiLinkPhase.connected &&
-          next.phase == MidiLinkPhase.connected) {
+      if (prev?.phase != MidiConnectionPhase.connected &&
+          next.phase == MidiConnectionPhase.connected) {
         final deviceName = next.device?.name;
         show(
           deviceName != null ? 'MIDI connected: $deviceName' : 'MIDI connected',
@@ -66,8 +66,8 @@ class HomePage extends ConsumerWidget {
       }
 
       // Device unavailable (show once when transitioning into unavailable)
-      if (prev?.phase != MidiLinkPhase.deviceUnavailable &&
-          next.phase == MidiLinkPhase.deviceUnavailable) {
+      if (prev?.phase != MidiConnectionPhase.deviceUnavailable &&
+          next.phase == MidiConnectionPhase.deviceUnavailable) {
         final msg = (next.message?.trim().isNotEmpty ?? false)
             ? next.message!.trim()
             : 'MIDI device unavailable';
@@ -92,8 +92,8 @@ class HomePage extends ConsumerWidget {
       }
 
       // Bluetooth unavailable (show once per transition)
-      if (prev?.phase != MidiLinkPhase.bluetoothUnavailable &&
-          next.phase == MidiLinkPhase.bluetoothUnavailable) {
+      if (prev?.phase != MidiConnectionPhase.bluetoothUnavailable &&
+          next.phase == MidiConnectionPhase.bluetoothUnavailable) {
         show(
           next.message ?? 'Bluetooth unavailable',
           bg: cs.errorContainer,
@@ -112,8 +112,8 @@ class HomePage extends ConsumerWidget {
       }
 
       // Error (show once per transition)
-      if (prev?.phase != MidiLinkPhase.error &&
-          next.phase == MidiLinkPhase.error) {
+      if (prev?.phase != MidiConnectionPhase.error &&
+          next.phase == MidiConnectionPhase.error) {
         show(
           next.message ?? 'MIDI error',
           bg: cs.errorContainer,
@@ -134,10 +134,10 @@ class HomePage extends ConsumerWidget {
       }
 
       // Optional: disconnection toast (only if we were connected and now idle)
-      if (prev?.phase == MidiLinkPhase.connected &&
-          (next.phase == MidiLinkPhase.idle ||
-              next.phase == MidiLinkPhase.connecting ||
-              next.phase == MidiLinkPhase.retrying)) {
+      if (prev?.phase == MidiConnectionPhase.connected &&
+          (next.phase == MidiConnectionPhase.idle ||
+              next.phase == MidiConnectionPhase.connecting ||
+              next.phase == MidiConnectionPhase.retrying)) {
         show(
           'MIDI disconnected',
           bg: cs.surfaceContainerHighest,

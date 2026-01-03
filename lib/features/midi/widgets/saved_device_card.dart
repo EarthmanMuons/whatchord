@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/midi_prefs_provider.dart';
-import '../providers/midi_link_manager.dart';
+import '../providers/midi_connection_manager.dart';
 import '../providers/midi_providers.dart';
 import '../providers/midi_settings_state.dart';
 
@@ -22,9 +22,9 @@ class SavedDeviceCard extends ConsumerWidget {
 
     // Prefer the *current* connected device name first.
     final connectedName =
-        (s.isLinkBusy || s.isConnected) &&
-            (s.link.device?.name.trim().isNotEmpty == true)
-        ? s.link.device!.name.trim()
+        (s.isConnectionBusy || s.isConnected) &&
+            (s.connection.device?.name.trim().isNotEmpty == true)
+        ? s.connection.device!.name.trim()
         : (s.connected?.name.trim().isNotEmpty == true
               ? s.connected!.name.trim()
               : null);
@@ -60,7 +60,7 @@ class SavedDeviceCard extends ConsumerWidget {
                   visualDensity: VisualDensity.compact,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                onPressed: s.isLinkBusy
+                onPressed: s.isConnectionBusy
                     ? null
                     : () async {
                         final actions = ref.read(midiConnectionActionsProvider);
@@ -84,11 +84,11 @@ class SavedDeviceCard extends ConsumerWidget {
                   visualDensity: VisualDensity.compact,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                onPressed: s.isLinkBusy
+                onPressed: s.isConnectionBusy
                     ? null
                     : () {
                         ref
-                            .read(midiLinkManagerProvider.notifier)
+                            .read(midiConnectionManagerProvider.notifier)
                             .tryAutoReconnect(reason: 'manual');
                       },
                 child: const Text('Reconnect'),
@@ -106,8 +106,10 @@ class SavedDeviceCard extends ConsumerWidget {
                     final prefs = ref.read(midiPrefsProvider.notifier);
                     await prefs.clearLastDevice();
 
-                    // Reset link UI/phase so we don’t show stale reconnect messaging.
-                    ref.read(midiLinkManagerProvider.notifier).resetToIdle();
+                    // Reset connection UI/phase so we don’t show stale reconnect messaging.
+                    ref
+                        .read(midiConnectionManagerProvider.notifier)
+                        .resetToIdle();
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(

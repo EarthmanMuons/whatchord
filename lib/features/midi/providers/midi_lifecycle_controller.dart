@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'midi_link_manager.dart';
+import 'midi_connection_manager.dart';
 import 'midi_providers.dart';
 
 /// Installs a WidgetsBindingObserver that coordinates MIDI behavior across
@@ -28,7 +28,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
       await Future<void>.delayed(const Duration(milliseconds: 200));
       if (_ref.mounted) {
         _ref
-            .read(midiLinkManagerProvider.notifier)
+            .read(midiConnectionManagerProvider.notifier)
             .tryAutoReconnect(reason: 'startup');
       }
     });
@@ -40,13 +40,13 @@ class _MidiLifecycleController with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final link = _ref.read(midiLinkManagerProvider.notifier);
+    final connection = _ref.read(midiConnectionManagerProvider.notifier);
     final actions = _ref.read(midiConnectionActionsProvider);
 
     switch (state) {
       case AppLifecycleState.resumed:
-        link.setBackgrounded(false);
-        link.tryAutoReconnect(reason: 'resume');
+        connection.setBackgrounded(false);
+        connection.tryAutoReconnect(reason: 'resume');
         break;
 
       case AppLifecycleState.inactive:
@@ -56,7 +56,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
-        link.setBackgrounded(true);
+        connection.setBackgrounded(true);
         actions.stopScanning();
         break;
     }

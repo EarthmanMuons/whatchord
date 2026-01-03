@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../pages/midi_settings_page.dart';
-import '../providers/midi_link_manager.dart';
+import '../providers/midi_connection_manager.dart';
 import '../providers/midi_ui_status.dart';
 
 enum _PillTone { normal, error, muted }
@@ -18,15 +18,15 @@ class MidiStatusPill extends ConsumerWidget {
     final ui = ref.watch(midiUiStatusProvider);
 
     final tone = switch (ui.phase) {
-      MidiLinkPhase.connected ||
-      MidiLinkPhase.connecting ||
-      MidiLinkPhase.retrying => _PillTone.normal,
+      MidiConnectionPhase.connected ||
+      MidiConnectionPhase.connecting ||
+      MidiConnectionPhase.retrying => _PillTone.normal,
 
-      MidiLinkPhase.error ||
-      MidiLinkPhase.bluetoothUnavailable ||
-      MidiLinkPhase.deviceUnavailable => _PillTone.error,
+      MidiConnectionPhase.error ||
+      MidiConnectionPhase.bluetoothUnavailable ||
+      MidiConnectionPhase.deviceUnavailable => _PillTone.error,
 
-      MidiLinkPhase.idle => _PillTone.muted,
+      MidiConnectionPhase.idle => _PillTone.muted,
     };
 
     final (bg, fg, border) = switch (tone) {
@@ -49,7 +49,7 @@ class MidiStatusPill extends ConsumerWidget {
       ),
     };
 
-    final dotColor = ui.phase == MidiLinkPhase.connected
+    final dotColor = ui.phase == MidiConnectionPhase.connected
         ? Colors.green.shade600
         : switch (tone) {
             _PillTone.normal => cs.secondary,
@@ -58,7 +58,7 @@ class MidiStatusPill extends ConsumerWidget {
           };
 
     final pulse = switch (ui.phase) {
-      MidiLinkPhase.connecting || MidiLinkPhase.retrying => true,
+      MidiConnectionPhase.connecting || MidiConnectionPhase.retrying => true,
       _ => false,
     };
 

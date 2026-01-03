@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:what_chord/features/midi/providers/midi_ui_status.dart';
 
-import '../providers/midi_link_manager.dart';
+import '../providers/midi_connection_manager.dart';
 
 class MidiStatusCard extends StatelessWidget {
   const MidiStatusCard({super.key, required this.ui});
@@ -20,9 +20,9 @@ class MidiStatusCard extends StatelessWidget {
 
     // Always a list (possibly empty) so the rendering code is simple.
     final subtitleLines = <String>[
-      if (ui.phase == MidiLinkPhase.retrying && ui.attempt != null)
+      if (ui.phase == MidiConnectionPhase.retrying && ui.attempt != null)
         'Attempt ${ui.attempt}',
-      if (ui.phase == MidiLinkPhase.retrying && ui.nextDelay != null)
+      if (ui.phase == MidiConnectionPhase.retrying && ui.nextDelay != null)
         'Next retry in ${ui.nextDelay!.inSeconds}s',
       // If you later want error details etc, add more lines here.
     ];
@@ -65,15 +65,16 @@ class MidiStatusCard extends StatelessWidget {
     // - error/unavailable -> error
     // - idle -> muted
     final color = switch (ui.phase) {
-      MidiLinkPhase.connected => Colors.green.shade600,
+      MidiConnectionPhase.connected => Colors.green.shade600,
 
-      MidiLinkPhase.connecting || MidiLinkPhase.retrying => cs.secondary,
+      MidiConnectionPhase.connecting ||
+      MidiConnectionPhase.retrying => cs.secondary,
 
-      MidiLinkPhase.bluetoothUnavailable ||
-      MidiLinkPhase.deviceUnavailable ||
-      MidiLinkPhase.error => cs.error,
+      MidiConnectionPhase.bluetoothUnavailable ||
+      MidiConnectionPhase.deviceUnavailable ||
+      MidiConnectionPhase.error => cs.error,
 
-      MidiLinkPhase.idle => cs.onSurfaceVariant.withValues(alpha: 0.6),
+      MidiConnectionPhase.idle => cs.onSurfaceVariant.withValues(alpha: 0.6),
     };
 
     return Container(

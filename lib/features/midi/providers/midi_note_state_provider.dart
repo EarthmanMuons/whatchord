@@ -6,7 +6,7 @@ import 'package:what_chord/features/piano/models/active_note.dart';
 
 import '../models/midi_message.dart';
 import '../models/midi_note_state.dart';
-import 'midi_link_manager.dart';
+import 'midi_connection_manager.dart';
 import 'midi_providers.dart';
 
 final midiNoteStateProvider =
@@ -25,14 +25,15 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
     );
 
     // Panic clear on disconnect: clears any stuck UI state if transport drops.
-    ref.listen<MidiLinkPhase>(midiLinkManagerProvider.select((s) => s.phase), (
-      prev,
-      next,
-    ) {
-      if (prev == MidiLinkPhase.connected && next != MidiLinkPhase.connected) {
-        state = initialState;
-      }
-    });
+    ref.listen<MidiConnectionPhase>(
+      midiConnectionManagerProvider.select((s) => s.phase),
+      (prev, next) {
+        if (prev == MidiConnectionPhase.connected &&
+            next != MidiConnectionPhase.connected) {
+          state = initialState;
+        }
+      },
+    );
 
     // Listen to MIDI messages and update state
     ref.listen(midiMessageStreamProvider, (previous, next) {

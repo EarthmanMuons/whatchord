@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_chord/core/persistence/shared_preferences_provider.dart';
 import 'package:what_chord/core/theme/providers/app_palette_provider.dart';
 import 'package:what_chord/core/theme/providers/theme_mode_provider.dart';
-import 'package:what_chord/features/midi/providers/midi_link_manager.dart';
+import 'package:what_chord/features/midi/providers/midi_connection_manager.dart';
 import 'package:what_chord/features/midi/providers/midi_prefs_provider.dart';
 import 'package:what_chord/features/midi/providers/midi_providers.dart';
 import 'package:what_chord/features/theory/providers/chord_symbol_provider.dart';
@@ -31,8 +31,8 @@ class SettingsResetService {
     await actions.stopScanning();
     await actions.disconnect();
 
-    // 3) Clear reconnect backoff / stale link device/message
-    _ref.read(midiLinkManagerProvider.notifier).resetToIdle();
+    // 3) Clear reconnect backoff / stale connection device/message
+    _ref.read(midiConnectionManagerProvider.notifier).resetToIdle();
 
     // 4) Clear persisted MIDI keys
     await _ref.read(midiPrefsProvider.notifier).clearAllMidiData();

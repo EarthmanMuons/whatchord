@@ -2,11 +2,11 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'midi_link_manager.dart';
+import 'midi_connection_manager.dart';
 
 @immutable
 class MidiUiStatus {
-  final MidiLinkPhase phase;
+  final MidiConnectionPhase phase;
   final String label; // short, pill/title-friendly
   final String? detail; // optional, settings subtitle-friendly
   final bool keepAwake;
@@ -27,67 +27,67 @@ class MidiUiStatus {
     this.deviceName,
   });
 
-  bool get isConnected => phase == MidiLinkPhase.connected;
+  bool get isConnected => phase == MidiConnectionPhase.connected;
 }
 
 final midiUiStatusProvider = Provider<MidiUiStatus>((ref) {
-  final link = ref.watch(midiLinkManagerProvider);
+  final connection = ref.watch(midiConnectionManagerProvider);
 
-  return switch (link.phase) {
-    MidiLinkPhase.connected => MidiUiStatus(
-      phase: link.phase,
+  return switch (connection.phase) {
+    MidiConnectionPhase.connected => MidiUiStatus(
+      phase: connection.phase,
       label: 'Connected',
-      detail: link.device?.name.trim().isNotEmpty == true
-          ? 'Connected to ${link.device!.name.trim()}'
+      detail: connection.device?.name.trim().isNotEmpty == true
+          ? 'Connected to ${connection.device!.name.trim()}'
           : 'Connected',
-      deviceName: link.device?.name,
+      deviceName: connection.device?.name,
       keepAwake: true,
     ),
 
-    MidiLinkPhase.connecting => const MidiUiStatus(
-      phase: MidiLinkPhase.connecting,
+    MidiConnectionPhase.connecting => const MidiUiStatus(
+      phase: MidiConnectionPhase.connecting,
       label: 'Connecting…',
       detail: 'Connecting…',
       keepAwake: true,
     ),
 
-    MidiLinkPhase.retrying => MidiUiStatus(
-      phase: MidiLinkPhase.retrying,
+    MidiConnectionPhase.retrying => MidiUiStatus(
+      phase: MidiConnectionPhase.retrying,
       label: 'Reconnecting…',
-      detail: link.nextDelay != null
-          ? 'Reconnecting (next in ${link.nextDelay!.inSeconds}s)…'
+      detail: connection.nextDelay != null
+          ? 'Reconnecting (next in ${connection.nextDelay!.inSeconds}s)…'
           : 'Reconnecting…',
       keepAwake: true,
-      attempt: link.attempt,
-      nextDelay: link.nextDelay,
+      attempt: connection.attempt,
+      nextDelay: connection.nextDelay,
     ),
 
-    MidiLinkPhase.bluetoothUnavailable => MidiUiStatus(
-      phase: MidiLinkPhase.bluetoothUnavailable,
+    MidiConnectionPhase.bluetoothUnavailable => MidiUiStatus(
+      phase: MidiConnectionPhase.bluetoothUnavailable,
       label: 'Bluetooth unavailable',
-      detail: link.message ?? 'Bluetooth unavailable',
+      detail: connection.message ?? 'Bluetooth unavailable',
       keepAwake: false,
-      message: link.message,
+      message: connection.message,
     ),
 
-    MidiLinkPhase.deviceUnavailable => MidiUiStatus(
-      phase: MidiLinkPhase.deviceUnavailable,
+    MidiConnectionPhase.deviceUnavailable => MidiUiStatus(
+      phase: MidiConnectionPhase.deviceUnavailable,
       label: 'Device unavailable',
-      detail: link.message ?? 'Device unavailable',
+      detail: connection.message ?? 'Device unavailable',
       keepAwake: false,
-      message: link.message,
+      message: connection.message,
     ),
 
-    MidiLinkPhase.error => MidiUiStatus(
-      phase: MidiLinkPhase.error,
+    MidiConnectionPhase.error => MidiUiStatus(
+      phase: MidiConnectionPhase.error,
       label: 'Error',
-      detail: link.message ?? 'Error',
+      detail: connection.message ?? 'Error',
       keepAwake: false,
-      message: link.message,
+      message: connection.message,
     ),
 
-    MidiLinkPhase.idle => const MidiUiStatus(
-      phase: MidiLinkPhase.idle,
+    MidiConnectionPhase.idle => const MidiUiStatus(
+      phase: MidiConnectionPhase.idle,
       label: 'Not connected',
       detail: 'Not connected',
       keepAwake: false,

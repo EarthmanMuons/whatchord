@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_device.dart';
 import '../persistence/midi_prefs_state.dart';
-import '../providers/midi_link_manager.dart';
+import '../providers/midi_connection_manager.dart';
 import '../providers/midi_prefs_provider.dart';
 import '../providers/midi_providers.dart';
 
@@ -12,13 +12,13 @@ class MidiSettingsState {
   final MidiPrefsState prefs;
   final AsyncValue<List<MidiDevice>> devicesAsync;
   final AsyncValue<MidiDevice?> connectedAsync;
-  final MidiLinkState link;
+  final MidiConnectionState connection;
 
   const MidiSettingsState({
     required this.prefs,
     required this.devicesAsync,
     required this.connectedAsync,
-    required this.link,
+    required this.connection,
   });
 
   List<MidiDevice> get devices => devicesAsync.asData?.value ?? const [];
@@ -32,9 +32,9 @@ class MidiSettingsState {
 
   bool get hasLast => lastDeviceId != null && lastDeviceId!.trim().isNotEmpty;
 
-  bool get isLinkBusy =>
-      link.phase == MidiLinkPhase.connecting ||
-      link.phase == MidiLinkPhase.retrying;
+  bool get isConnectionBusy =>
+      connection.phase == MidiConnectionPhase.connecting ||
+      connection.phase == MidiConnectionPhase.retrying;
 
   bool get isConnectedToLast =>
       isConnected && hasLast && connected!.id == lastDeviceId;
@@ -43,7 +43,7 @@ class MidiSettingsState {
       hasLast && devices.any((d) => d.id == lastDeviceId);
 
   bool get canReconnect =>
-      hasLast && !isConnected && !isLinkBusy && isLastAvailable;
+      hasLast && !isConnected && !isConnectionBusy && isLastAvailable;
 }
 
 final midiSettingsStateProvider = Provider<MidiSettingsState>((ref) {
@@ -51,6 +51,6 @@ final midiSettingsStateProvider = Provider<MidiSettingsState>((ref) {
     prefs: ref.watch(midiPrefsProvider),
     devicesAsync: ref.watch(availableMidiDevicesProvider),
     connectedAsync: ref.watch(connectedMidiDeviceProvider),
-    link: ref.watch(midiLinkManagerProvider),
+    connection: ref.watch(midiConnectionManagerProvider),
   );
 });
