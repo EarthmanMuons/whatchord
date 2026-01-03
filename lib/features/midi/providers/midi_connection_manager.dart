@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
-import '../providers/midi_prefs_provider.dart';
+import '../providers/midi_preferences_provider.dart';
 import '../services/midi_service.dart';
 import 'midi_providers.dart';
 
@@ -95,7 +95,7 @@ class MidiConnectionManager extends Notifier<MidiConnectionState> {
         // Dedupe by device id to avoid churn on repeated stream emissions.
         if (device.id != _lastPersistedDeviceId) {
           _lastPersistedDeviceId = device.id;
-          final prefs = ref.read(midiPrefsProvider.notifier);
+          final prefs = ref.read(midiPreferencesProvider.notifier);
           // Avoid awaiting inside a listener; persistence is best-effort.
           unawaited(prefs.setLastDevice(device));
         }
@@ -179,7 +179,7 @@ class MidiConnectionManager extends Notifier<MidiConnectionState> {
       }
 
       // Respect user preference.
-      final prefs = ref.read(midiPrefsProvider);
+      final prefs = ref.read(midiPreferencesProvider);
       if (!prefs.autoReconnect) return;
 
       final lastDeviceId = prefs.lastDeviceId;

@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
 import '../models/midi_message.dart';
-import '../providers/midi_prefs_provider.dart';
+import '../providers/midi_preferences_provider.dart';
 import '../services/flutter_midi_service.dart';
 import '../services/midi_service.dart';
 
@@ -111,7 +111,7 @@ class MidiConnectionActions {
   /// Manually trigger a reconnection attempt.
   Future<bool> reconnect() async {
     await _ensureInitialized();
-    final prefs = _ref.read(midiPrefsProvider);
+    final prefs = _ref.read(midiPreferencesProvider);
     final lastDeviceId = prefs.lastDeviceId;
 
     if (lastDeviceId == null) return false;

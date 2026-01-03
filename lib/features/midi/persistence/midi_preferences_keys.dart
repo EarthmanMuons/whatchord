@@ -1,5 +1,4 @@
-/// Keys used for MIDI persisted preferences.
-class MidiPrefsKeys {
+class MidiPreferencesKeys {
   static const lastDeviceId = 'midi.lastDeviceId';
   static const lastDeviceJson = 'midi.lastDeviceJson';
   static const lastConnectedAtMs = 'midi.lastConnectedAtMs';

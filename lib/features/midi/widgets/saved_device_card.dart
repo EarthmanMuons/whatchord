@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../providers/midi_prefs_provider.dart';
+import '../providers/midi_preferences_provider.dart';
 import '../providers/midi_connection_manager.dart';
 import '../providers/midi_providers.dart';
 import '../providers/midi_settings_state.dart';
@@ -103,7 +103,7 @@ class SavedDeviceCard extends ConsumerWidget {
                     await ref.read(midiConnectionActionsProvider).disconnect();
 
                     // Clear preference (drives saved-device UI / labels)
-                    final prefs = ref.read(midiPrefsProvider.notifier);
+                    final prefs = ref.read(midiPreferencesProvider.notifier);
                     await prefs.clearLastDevice();
 
                     // Reset connection UI/phase so we don’t show stale reconnect messaging.

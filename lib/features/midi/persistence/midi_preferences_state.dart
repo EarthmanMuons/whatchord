@@ -3,20 +3,20 @@ import 'package:flutter/foundation.dart';
 import '../models/midi_device.dart';
 
 @immutable
-class MidiPrefsState {
+class MidiPreferencesState {
   final String? lastDeviceId;
   final MidiDevice? lastDevice;
   final int? lastConnectedAtMs;
   final bool autoReconnect;
 
-  const MidiPrefsState({
+  const MidiPreferencesState({
     required this.lastDeviceId,
     required this.lastDevice,
     required this.lastConnectedAtMs,
     required this.autoReconnect,
   });
 
-  const MidiPrefsState.defaults()
+  const MidiPreferencesState.defaults()
     : lastDeviceId = null,
       lastDevice = null,
       lastConnectedAtMs = null,
@@ -25,7 +25,7 @@ class MidiPrefsState {
   bool get hasLastDeviceId =>
       lastDeviceId != null && lastDeviceId!.trim().isNotEmpty;
 
-  MidiPrefsState copyWith({
+  MidiPreferencesState copyWith({
     String? lastDeviceId,
     MidiDevice? lastDevice,
     int? lastConnectedAtMs,
@@ -33,7 +33,7 @@ class MidiPrefsState {
     bool clearLastDevice = false,
   }) {
     if (clearLastDevice) {
-      return MidiPrefsState(
+      return MidiPreferencesState(
         lastDeviceId: null,
         lastDevice: null,
         lastConnectedAtMs: null,
@@ -41,7 +41,7 @@ class MidiPrefsState {
       );
     }
 
-    return MidiPrefsState(
+    return MidiPreferencesState(
       lastDeviceId: lastDeviceId ?? this.lastDeviceId,
       lastDevice: lastDevice ?? this.lastDevice,
       lastConnectedAtMs: lastConnectedAtMs ?? this.lastConnectedAtMs,
