@@ -14,6 +14,22 @@ final midiPreferencesProvider =
       MidiPreferencesNotifier.new,
     );
 
+/// Last saved device (may be null).
+final lastSavedMidiDeviceProvider = Provider<MidiDevice?>((ref) {
+  return ref.watch(midiPreferencesProvider.select((p) => p.lastDevice));
+});
+
+/// Last saved device id (may be null/empty).
+final lastSavedMidiDeviceIdProvider = Provider<String?>((ref) {
+  return ref.watch(midiPreferencesProvider.select((p) => p.lastDeviceId));
+});
+
+/// Whether we have a non-empty last saved device id.
+final hasLastSavedMidiDeviceProvider = Provider<bool>((ref) {
+  final id = ref.watch(lastSavedMidiDeviceIdProvider);
+  return id != null && id.trim().isNotEmpty;
+});
+
 class MidiPreferencesNotifier extends Notifier<MidiPreferences> {
   @override
   MidiPreferences build() {

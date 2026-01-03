@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../pages/midi_settings_page_provider.dart';
 import '../persistence/midi_preferences_notifier.dart';
 import '../providers/midi_connection_notifier.dart';
+import '../providers/midi_device_providers.dart';
 
 enum _SavedDeviceMenuAction { forget }
 
@@ -12,24 +12,38 @@ class SavedDeviceCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final s = ref.watch(midiSettingsPageStateProvider);
+    final hasLast = ref.watch(hasLastSavedMidiDeviceProvider);
+    final isConnected = ref.watch(isMidiConnectedProvider);
+    final isBusy = ref.watch(isConnectionBusyProvider);
+    final isConnectedToLast = ref.watch(isConnectedToLastDeviceProvider);
+
+    final connected = ref.watch(connectedMidiDeviceValueProvider);
+    final last = ref.watch(lastSavedMidiDeviceProvider);
+
+    final connectionDeviceName = ref.watch(
+      midiConnectionNotifierProvider.select((s) => s.device?.name),
+    );
 
     // If there is no last device persisted, do not render the card at all.
-    if (!s.hasLast && !s.isConnected) {
+    if (!hasLast && !isConnected) {
       return const SizedBox.shrink();
     }
 
     // Prefer the *current* connected device name first.
+    final connectionNameTrimmed =
+        (connectionDeviceName?.trim().isNotEmpty == true)
+        ? connectionDeviceName!.trim()
+        : null;
+    final connectedNameTrimmed = (connected?.name.trim().isNotEmpty == true)
+        ? connected!.name.trim()
+        : null;
+
     final connectedName =
-        (s.isConnectionBusy || s.isConnected) &&
-            (s.connection.device?.name.trim().isNotEmpty == true)
-        ? s.connection.device!.name.trim()
-        : (s.connected?.name.trim().isNotEmpty == true
-              ? s.connected!.name.trim()
-              : null);
+        (isBusy || isConnected) && connectionNameTrimmed != null
+        ? connectionNameTrimmed
+        : connectedNameTrimmed;
 
     // Then fall back to persisted last-device name (if present).
-    final last = s.lastDevice;
     final lastName = (last?.name.trim().isNotEmpty == true)
         ? last!.name.trim()
         : null;
@@ -49,7 +63,7 @@ class SavedDeviceCard extends ConsumerWidget {
             // - Connected to last => Disconnect
             // - Not connected and last is available => Reconnect
             // - Otherwise => no primary action (or a disabled label)
-            if (s.isConnectedToLast)
+            if (isConnectedToLast)
               FilledButton.tonal(
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
@@ -59,7 +73,7 @@ class SavedDeviceCard extends ConsumerWidget {
                   visualDensity: VisualDensity.compact,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                onPressed: s.isConnectionBusy
+                onPressed: isBusy
                     ? null
                     : () async {
                         final connection = ref.read(
@@ -75,7 +89,7 @@ class SavedDeviceCard extends ConsumerWidget {
                       },
                 child: const Text('Disconnect'),
               )
-            else if (!s.isConnected && s.hasLast)
+            else if (!isConnected && hasLast)
               FilledButton.tonal(
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
@@ -85,7 +99,7 @@ class SavedDeviceCard extends ConsumerWidget {
                   visualDensity: VisualDensity.compact,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                onPressed: s.isConnectionBusy
+                onPressed: isBusy
                     ? null
                     : () {
                         ref
