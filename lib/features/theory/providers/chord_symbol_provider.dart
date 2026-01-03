@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/chord_symbol.dart';
 
 import 'package:what_chord/core/persistence/shared_preferences_provider.dart';
-import 'package:what_chord/features/settings/persistence/settings_keys.dart';
+import 'package:what_chord/features/settings/persistence/preferences_keys.dart';
 
 final chordSymbolProvider =
     NotifierProvider<ChordSymbolNotifier, ChordSymbolStyle>(

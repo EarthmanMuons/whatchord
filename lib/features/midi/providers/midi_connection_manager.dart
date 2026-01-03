@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
-import '../providers/midi_preferences_provider.dart';
+import '../persistence/midi_preferences_provider.dart';
 import '../services/midi_service.dart';
 import 'midi_providers.dart';
 

@@ -7,16 +7,16 @@ import 'package:what_chord/core/persistence/shared_preferences_provider.dart';
 
 import '../models/midi_device.dart';
 import '../persistence/midi_preferences_keys.dart';
-import '../persistence/midi_preferences_state.dart';
+import '../persistence/midi_preferences.dart';
 
 final midiPreferencesProvider =
-    NotifierProvider<MidiPreferencesNotifier, MidiPreferencesState>(
+    NotifierProvider<MidiPreferencesNotifier, MidiPreferences>(
       MidiPreferencesNotifier.new,
     );
 
-class MidiPreferencesNotifier extends Notifier<MidiPreferencesState> {
+class MidiPreferencesNotifier extends Notifier<MidiPreferences> {
   @override
-  MidiPreferencesState build() {
+  MidiPreferences build() {
     final prefs = ref.watch(sharedPreferencesProvider);
 
     final lastDeviceId = prefs.getString(MidiPreferencesKeys.lastDeviceId);
@@ -29,7 +29,7 @@ class MidiPreferencesNotifier extends Notifier<MidiPreferencesState> {
     final autoReconnect =
         prefs.getBool(MidiPreferencesKeys.autoReconnect) ?? true;
 
-    return MidiPreferencesState(
+    return MidiPreferences(
       lastDeviceId: lastDeviceId,
       lastDevice: lastDevice,
       lastConnectedAtMs: lastConnectedAtMs,
@@ -80,7 +80,7 @@ class MidiPreferencesNotifier extends Notifier<MidiPreferencesState> {
     final prefs = ref.read(sharedPreferencesProvider);
 
     // Preserve defaults for autoReconnect (true) after reset.
-    state = const MidiPreferencesState.defaults();
+    state = const MidiPreferences.defaults();
 
     await prefs.remove(MidiPreferencesKeys.lastDeviceId);
     await prefs.remove(MidiPreferencesKeys.lastDeviceJson);

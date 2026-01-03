@@ -2,19 +2,19 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_device.dart';
-import '../persistence/midi_preferences_state.dart';
+import '../persistence/midi_preferences_provider.dart';
+import '../persistence/midi_preferences.dart';
 import '../providers/midi_connection_manager.dart';
-import '../providers/midi_preferences_provider.dart';
 import '../providers/midi_providers.dart';
 
 @immutable
-class MidiSettingsState {
-  final MidiPreferencesState prefs;
+class MidiSettingsPageState {
+  final MidiPreferences prefs;
   final AsyncValue<List<MidiDevice>> devicesAsync;
   final AsyncValue<MidiDevice?> connectedAsync;
   final MidiConnectionState connection;
 
-  const MidiSettingsState({
+  const MidiSettingsPageState({
     required this.prefs,
     required this.devicesAsync,
     required this.connectedAsync,
@@ -46,8 +46,8 @@ class MidiSettingsState {
       hasLast && !isConnected && !isConnectionBusy && isLastAvailable;
 }
 
-final midiSettingsStateProvider = Provider<MidiSettingsState>((ref) {
-  return MidiSettingsState(
+final midiSettingsPageStateProvider = Provider<MidiSettingsPageState>((ref) {
+  return MidiSettingsPageState(
     prefs: ref.watch(midiPreferencesProvider),
     devicesAsync: ref.watch(availableMidiDevicesProvider),
     connectedAsync: ref.watch(connectedMidiDeviceProvider),

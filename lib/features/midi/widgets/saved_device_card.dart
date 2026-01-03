@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../providers/midi_preferences_provider.dart';
+import '../pages/midi_settings_page_state.dart';
+import '../persistence/midi_preferences_provider.dart';
 import '../providers/midi_connection_manager.dart';
 import '../providers/midi_providers.dart';
-import '../providers/midi_settings_state.dart';
 
 enum _SavedDeviceMenuAction { forget }
 
@@ -13,7 +13,7 @@ class SavedDeviceCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final s = ref.watch(midiSettingsStateProvider);
+    final s = ref.watch(midiSettingsPageStateProvider);
 
     // If there is no last device persisted, do not render the card at all.
     if (!s.hasLast && !s.isConnected) {

@@ -10,7 +10,7 @@ import 'package:what_chord/core/widgets/widgets.dart';
 import 'package:what_chord/features/midi/midi.dart';
 import 'package:what_chord/features/theory/theory.dart';
 
-import '../persistence/settings_reset.dart';
+import '../services/settings_reset_service.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
