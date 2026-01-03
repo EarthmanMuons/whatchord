@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/piano/models/active_note.dart';
 
+import '../models/midi_constants.dart';
 import '../models/midi_message.dart';
 import '../models/midi_note_state.dart';
 import 'midi_connection_manager.dart';
@@ -72,8 +73,8 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
         break;
 
       case MidiMessageType.controlChange:
-        // CC64 is the sustain pedal
-        if (message.controller == 64 && message.value != null) {
+        if (message.controller == MidiConstants.sustainPedalController &&
+            message.value != null) {
           handlePedalValue(message.value!);
         }
         break;
@@ -116,9 +117,9 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
     }
   }
 
-  // Convenience for MIDI CC64 values (sustain pedal).
-  // Convention: >= 64 is down, < 64 is up.
-  void handlePedalValue(int value) => setPedalDown(value >= 64);
+  // Convenience for MIDI sustain pedal values.
+  void handlePedalValue(int value) =>
+      setPedalDown(value >= MidiConstants.sustainPedalThreshold);
 }
 
 // Raw MIDI note numbers for keyboard highlighting.

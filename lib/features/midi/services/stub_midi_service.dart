@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import '../models/bluetooth_state.dart';
+import '../models/midi_constants.dart';
 import '../models/midi_device.dart';
 import 'midi_service.dart';
 
@@ -241,7 +242,9 @@ class StubMidiService implements MidiService {
 
   /// Manually trigger a sustain pedal event (for testing).
   void simulatePedal(bool down) {
-    final value = down ? 127 : 0;
-    _midiDataController.add(Uint8List.fromList([0xB0, 64, value]));
+    final value = down ? MidiConstants.maxVelocity : MidiConstants.minVelocity;
+    _midiDataController.add(
+      Uint8List.fromList([0xB0, MidiConstants.sustainPedalController, value]),
+    );
   }
 }
