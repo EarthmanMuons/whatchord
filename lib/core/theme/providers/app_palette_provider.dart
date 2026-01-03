@@ -25,9 +25,9 @@ class AppPaletteNotifier extends Notifier<AppPalette> {
     );
   }
 
-  Future<void> setPalette(AppPalette v) async {
-    state = v;
+  Future<void> setPalette(AppPalette palette) async {
+    state = palette;
     final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString(SettingsKeys.appPalette, v.name);
+    await prefs.setString(SettingsKeys.appPalette, palette.name);
   }
 }
