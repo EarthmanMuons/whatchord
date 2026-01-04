@@ -42,6 +42,7 @@ dependencies:
   collection: ^1.19.1
   flutter_midi_command: ^0.5.3
   shared_preferences: ^2.5.4
+  meta: ^1.17.0
 
 dev_dependencies:
   flutter_test:
