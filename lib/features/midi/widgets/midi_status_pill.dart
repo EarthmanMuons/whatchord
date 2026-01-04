@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../pages/midi_settings_page.dart';
+import '../presentation/midi_connection_presentation.dart';
 import '../providers/midi_connection_notifier.dart';
-import '../providers/midi_ui_status.dart';
 
 enum _PillTone { normal, error, muted }
 
@@ -15,9 +15,9 @@ class MidiStatusPill extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
 
-    final ui = ref.watch(midiUiStatusProvider);
+    final presentation = ref.watch(midiConnectionPresentationProvider);
 
-    final tone = switch (ui.phase) {
+    final tone = switch (presentation.phase) {
       MidiConnectionPhase.connected ||
       MidiConnectionPhase.connecting ||
       MidiConnectionPhase.retrying => _PillTone.normal,
@@ -49,7 +49,7 @@ class MidiStatusPill extends ConsumerWidget {
       ),
     };
 
-    final dotColor = ui.phase == MidiConnectionPhase.connected
+    final dotColor = presentation.phase == MidiConnectionPhase.connected
         ? Colors.green.shade600
         : switch (tone) {
             _PillTone.normal => cs.secondary,
@@ -57,12 +57,12 @@ class MidiStatusPill extends ConsumerWidget {
             _PillTone.muted => cs.onSurfaceVariant.withValues(alpha: 0.6),
           };
 
-    final pulse = switch (ui.phase) {
+    final pulse = switch (presentation.phase) {
       MidiConnectionPhase.connecting || MidiConnectionPhase.retrying => true,
       _ => false,
     };
 
-    final label = ui.label;
+    final label = presentation.label;
 
     return Semantics(
       label: 'MIDI connection status. Tap to configure.',

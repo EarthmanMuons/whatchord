@@ -4,10 +4,10 @@ export 'models/midi_note_state.dart';
 
 export 'providers/midi_connection_notifier.dart';
 export 'providers/midi_device_providers.dart';
+export 'providers/midi_keep_awake_provider.dart';
 export 'providers/midi_message_providers.dart';
 export 'providers/midi_note_state_provider.dart';
 export 'providers/midi_service_providers.dart';
-export 'providers/midi_ui_status.dart';
 
 export 'pages/midi_settings_page.dart';
 

@@ -8,6 +8,7 @@ import 'package:what_chord/core/theme/theme.dart';
 import 'package:what_chord/core/utils/utils.dart';
 import 'package:what_chord/core/widgets/widgets.dart';
 import 'package:what_chord/features/midi/midi.dart';
+import 'package:what_chord/features/midi/presentation/midi_connection_presentation.dart';
 import 'package:what_chord/features/theory/theory.dart';
 
 import '../services/settings_reset_service.dart';
@@ -22,7 +23,7 @@ class SettingsPage extends ConsumerWidget {
     final chordNotation = ref.watch(chordSymbolProvider);
     final palette = ref.watch(appPaletteProvider);
     final themeMode = ref.watch(themeModeProvider);
-    final ui = ref.watch(midiUiStatusProvider);
+    final presentation = ref.watch(midiConnectionPresentationProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -38,7 +39,7 @@ class SettingsPage extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.piano),
             title: const Text('MIDI input'),
-            subtitle: Text(ui.detail ?? ui.label),
+            subtitle: Text(presentation.detail ?? presentation.label),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.of(context).push(

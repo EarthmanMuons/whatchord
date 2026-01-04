@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import '../providers/midi_ui_status.dart';
+import '../providers/midi_keep_awake_provider.dart';
 
 class WakelockController extends ConsumerStatefulWidget {
   const WakelockController({super.key, required this.child});
@@ -26,9 +26,7 @@ class _WakelockControllerState extends ConsumerState<WakelockController> {
 
   @override
   Widget build(BuildContext context) {
-    final shouldEnableWakelock = ref.watch(
-      midiUiStatusProvider.select((s) => s.keepAwake),
-    );
+    final shouldEnableWakelock = ref.watch(midiKeepAwakeProvider);
 
     if (_lastWakelockEnabled != shouldEnableWakelock) {
       _lastWakelockEnabled = shouldEnableWakelock;
