@@ -4,7 +4,4 @@ import 'package:meta/meta.dart';
 class NoteSpellingPolicy {
   final bool preferFlats;
   const NoteSpellingPolicy({required this.preferFlats});
-
-  static const preferSharps = NoteSpellingPolicy(preferFlats: false);
-  static const preferFlatsPolicy = NoteSpellingPolicy(preferFlats: true);
 }

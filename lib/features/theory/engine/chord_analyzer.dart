@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import '../models/tonality.dart';
+import 'models/analysis_context.dart';
 import 'data/chord_templates.dart';
 import 'models/chord_candidate.dart';
 import 'models/chord_extension.dart';
@@ -12,16 +13,15 @@ abstract final class ChordAnalyzer {
   static final Map<int, List<ChordCandidate>> _cache =
       <int, List<ChordCandidate>>{};
 
-  static List<ChordCandidate> analyze(ChordInput input, {Tonality? tonality}) {
-    final key = Object.hash(
-      input.cacheKey,
-      tonality, // uses Tonality.hashCode
-    );
-
+  static List<ChordCandidate> analyze(
+    ChordInput input, {
+    AnalysisContext? context,
+  }) {
+    final key = Object.hash(input.cacheKey, context);
     final cached = _cache[key];
     if (cached != null) return cached;
 
-    final result = _analyzeUncached(input, tonality: tonality);
+    final result = _analyzeUncached(input, context: context);
 
     _cache[key] = result;
     return result;
@@ -31,7 +31,7 @@ abstract final class ChordAnalyzer {
 
   static List<ChordCandidate> _analyzeUncached(
     ChordInput input, {
-    Tonality? tonality,
+    AnalysisContext? context,
   }) {
     final pcMask = input.pcMask;
     if (pcMask == 0) return const <ChordCandidate>[];
@@ -56,9 +56,9 @@ abstract final class ChordAnalyzer {
         if (scored == null) continue;
 
         final baseScore = scored.score;
-        final score = tonality == null
+        final score = context == null
             ? baseScore
-            : baseScore + _tonalityBonus(rootPc, tonality);
+            : baseScore + _tonalityBonus(rootPc, context.tonality);
 
         candidates.add(
           ChordCandidate(

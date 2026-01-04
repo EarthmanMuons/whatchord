@@ -3,57 +3,42 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/midi/midi.dart';
+import 'package:what_chord/features/theory/providers/analysis_context_provider.dart';
 
 import '../engine/engine.dart';
 import '../models/chord_analysis.dart';
 import '../models/chord_symbol.dart';
 import '../models/scale_degree.dart';
 import '../providers/tonality_provider.dart';
+import '../services/note_spelling.dart';
 
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   final best = ref.watch(bestChordCandidateProvider);
+  final context = ref.watch(analysisContextProvider);
 
   if (best == null) {
     return const ChordAnalysis(
-      symbol: ChordSymbol(root: '—', quality: '', bass: null),
+      symbol: ChordSymbol(root: '— — —', quality: '', bass: null),
       inversion: null,
     );
   }
 
-  final symbol = _symbolFromIdentity(best.identity);
+  final identity = best.identity;
+  final root = pcToName(identity.rootPc, policy: context.spellingPolicy);
+  final bass = identity.hasSlashBass
+      ? pcToName(identity.bassPc, policy: context.spellingPolicy)
+      : null;
 
-  // Phase 2: keep inversion null. Phase 3 can derive “1st inversion” for triads/7ths.
-  return ChordAnalysis(symbol: symbol, inversion: null);
-});
-
-ChordSymbol _symbolFromIdentity(ChordIdentity identity) {
-  final root = _pcToSharpName(identity.rootPc);
   final quality = _qualityTokenToShortLabel(
     identity.quality,
     identity.extensions,
   );
-  final bass = identity.hasSlashBass ? _pcToSharpName(identity.bassPc) : null;
 
-  return ChordSymbol(root: root, quality: quality, bass: bass);
-}
-
-String _pcToSharpName(int pc) {
-  const names = <String>[
-    'C',
-    'C#',
-    'D',
-    'D#',
-    'E',
-    'F',
-    'F#',
-    'G',
-    'G#',
-    'A',
-    'A#',
-    'B',
-  ];
-  return names[pc % 12];
-}
+  return ChordAnalysis(
+    symbol: ChordSymbol(root: root, quality: quality, bass: bass),
+    inversion: null,
+  );
+});
 
 String _qualityTokenToShortLabel(
   ChordQualityToken q,
@@ -122,8 +107,8 @@ final chordCandidatesProvider = Provider<List<ChordCandidate>>((ref) {
   final input = ref.watch(chordInputProvider);
   if (input == null) return const <ChordCandidate>[];
 
-  final tonality = ref.watch(selectedTonalityProvider);
-  return ChordAnalyzer.analyze(input, tonality: tonality);
+  final context = ref.watch(analysisContextProvider);
+  return ChordAnalyzer.analyze(input, context: context);
 });
 
 final bestChordCandidateProvider = Provider<ChordCandidate?>((ref) {
