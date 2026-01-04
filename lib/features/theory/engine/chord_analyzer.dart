@@ -160,7 +160,7 @@ abstract final class ChordAnalyzer {
     final normalized = score / denom;
 
     // Compute extensions as intervals beyond the base chord (excluding penalties).
-    final has7 = _qualityHasSeventh(template.quality);
+    final has7 = template.quality.isSeventhFamily;
     final extensions = _extensionsFromExtras(extrasMask, has7: has7);
 
     return _ScoredTemplate(score: normalized, extensions: extensions);
@@ -171,19 +171,6 @@ class _ScoredTemplate {
   final double score;
   final Set<ChordExtension> extensions;
   const _ScoredTemplate({required this.score, required this.extensions});
-}
-
-bool _qualityHasSeventh(ChordQualityToken q) {
-  switch (q) {
-    case ChordQualityToken.dominant7:
-    case ChordQualityToken.major7:
-    case ChordQualityToken.minor7:
-    case ChordQualityToken.halfDiminished7:
-    case ChordQualityToken.diminished7:
-      return true;
-    default:
-      return false;
-  }
 }
 
 Set<ChordExtension> _extensionsFromExtras(

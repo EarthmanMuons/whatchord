@@ -6,24 +6,9 @@ class InversionLabeler {
 
     final bassInterval = _interval(id.bassPc, id.rootPc);
 
-    // Triads
-    switch (id.quality) {
-      case ChordQualityToken.major:
-      case ChordQualityToken.minor:
-      case ChordQualityToken.diminished:
-      case ChordQualityToken.augmented:
-      case ChordQualityToken.sus2:
-      case ChordQualityToken.sus4:
-        return _triadInversion(bassInterval);
-
-      // 7th chords
-      case ChordQualityToken.dominant7:
-      case ChordQualityToken.major7:
-      case ChordQualityToken.minor7:
-      case ChordQualityToken.halfDiminished7:
-      case ChordQualityToken.diminished7:
-        return _seventhInversion(bassInterval);
-    }
+    return id.quality.isSeventhFamily
+        ? _seventhInversion(bassInterval)
+        : _triadInversion(bassInterval);
   }
 
   static String? _triadInversion(int bassInterval) {
