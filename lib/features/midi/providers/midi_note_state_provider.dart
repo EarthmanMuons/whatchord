@@ -156,16 +156,16 @@ final activeNotesProvider = Provider<List<ActiveNote>>((ref) {
 String _midiToNoteName(int midiNote) {
   const noteNames = [
     'C',
-    'C♯',
+    'C#',
     'D',
-    'D♯',
+    'D#',
     'E',
     'F',
-    'F♯',
+    'F#',
     'G',
-    'G♯',
+    'G#',
     'A',
-    'A♯',
+    'A#',
     'B',
   ];
   return noteNames[midiNote % 12];

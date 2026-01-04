@@ -122,7 +122,8 @@ final chordCandidatesProvider = Provider<List<ChordCandidate>>((ref) {
   final input = ref.watch(chordInputProvider);
   if (input == null) return const <ChordCandidate>[];
 
-  return ChordAnalyzer.analyze(input);
+  final tonality = ref.watch(selectedTonalityProvider);
+  return ChordAnalyzer.analyze(input, tonality: tonality);
 });
 
 final bestChordCandidateProvider = Provider<ChordCandidate?>((ref) {

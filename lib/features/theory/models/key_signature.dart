@@ -23,6 +23,9 @@ class KeySignature {
         ? '$countText sharp${n == 1 ? '' : 's'}'
         : '$countText flat${n == 1 ? '' : 's'}';
   }
+
+  bool get prefersFlats => accidentalCount < 0;
+  bool get prefersSharps => accidentalCount > 0;
 }
 
 /// Circle-of-fifths-ish ordering that also includes the "full" 15 signatures:
@@ -30,32 +33,32 @@ class KeySignature {
 const keySignatureRows = <KeySignature>[
   KeySignature(
     accidentalCount: -7,
-    relativeMajor: Tonality('C♭', TonalityMode.major),
-    relativeMinor: Tonality('A♭', TonalityMode.minor),
+    relativeMajor: Tonality('Cb', TonalityMode.major),
+    relativeMinor: Tonality('Ab', TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: -6,
-    relativeMajor: Tonality('G♭', TonalityMode.major),
-    relativeMinor: Tonality('E♭', TonalityMode.minor),
+    relativeMajor: Tonality('Gb', TonalityMode.major),
+    relativeMinor: Tonality('Eb', TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: -5,
-    relativeMajor: Tonality('D♭', TonalityMode.major),
-    relativeMinor: Tonality('B♭', TonalityMode.minor),
+    relativeMajor: Tonality('Db', TonalityMode.major),
+    relativeMinor: Tonality('Bb', TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: -4,
-    relativeMajor: Tonality('A♭', TonalityMode.major),
+    relativeMajor: Tonality('Ab', TonalityMode.major),
     relativeMinor: Tonality('F', TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: -3,
-    relativeMajor: Tonality('E♭', TonalityMode.major),
+    relativeMajor: Tonality('Eb', TonalityMode.major),
     relativeMinor: Tonality('C', TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: -2,
-    relativeMajor: Tonality('B♭', TonalityMode.major),
+    relativeMajor: Tonality('Bb', TonalityMode.major),
     relativeMinor: Tonality('G', TonalityMode.minor),
   ),
   KeySignature(
@@ -81,26 +84,26 @@ const keySignatureRows = <KeySignature>[
   KeySignature(
     accidentalCount: 3,
     relativeMajor: Tonality('A', TonalityMode.major),
-    relativeMinor: Tonality('F♯', TonalityMode.minor),
+    relativeMinor: Tonality('F#', TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: 4,
     relativeMajor: Tonality('E', TonalityMode.major),
-    relativeMinor: Tonality('C♯', TonalityMode.minor),
+    relativeMinor: Tonality('C#', TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: 5,
     relativeMajor: Tonality('B', TonalityMode.major),
-    relativeMinor: Tonality('G♯', TonalityMode.minor),
+    relativeMinor: Tonality('G#', TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: 6,
-    relativeMajor: Tonality('F♯', TonalityMode.major),
-    relativeMinor: Tonality('D♯', TonalityMode.minor),
+    relativeMajor: Tonality('F#', TonalityMode.major),
+    relativeMinor: Tonality('D#', TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: 7,
-    relativeMajor: Tonality('C♯', TonalityMode.major),
-    relativeMinor: Tonality('A♯', TonalityMode.minor),
+    relativeMajor: Tonality('C#', TonalityMode.major),
+    relativeMinor: Tonality('A#', TonalityMode.minor),
   ),
 ];

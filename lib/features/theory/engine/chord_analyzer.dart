@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import '../models/tonality.dart';
 import 'data/chord_templates.dart';
 import 'models/chord_candidate.dart';
 import 'models/chord_extension.dart';
@@ -11,19 +12,27 @@ abstract final class ChordAnalyzer {
   static final Map<int, List<ChordCandidate>> _cache =
       <int, List<ChordCandidate>>{};
 
-  static List<ChordCandidate> analyze(ChordInput input) {
-    final key = input.cacheKey;
+  static List<ChordCandidate> analyze(ChordInput input, {Tonality? tonality}) {
+    final key = Object.hash(
+      input.cacheKey,
+      tonality, // uses Tonality.hashCode
+    );
+
     final cached = _cache[key];
     if (cached != null) return cached;
 
-    final result = _analyzeUncached(input);
+    final result = _analyzeUncached(input, tonality: tonality);
+
     _cache[key] = result;
     return result;
   }
 
   static void clearCache() => _cache.clear();
 
-  static List<ChordCandidate> _analyzeUncached(ChordInput input) {
+  static List<ChordCandidate> _analyzeUncached(
+    ChordInput input, {
+    Tonality? tonality,
+  }) {
     final pcMask = input.pcMask;
     if (pcMask == 0) return const <ChordCandidate>[];
 
@@ -46,6 +55,11 @@ abstract final class ChordAnalyzer {
 
         if (scored == null) continue;
 
+        final baseScore = scored.score;
+        final score = tonality == null
+            ? baseScore
+            : baseScore + _tonalityBonus(rootPc, tonality);
+
         candidates.add(
           ChordCandidate(
             identity: ChordIdentity(
@@ -54,7 +68,7 @@ abstract final class ChordAnalyzer {
               quality: tmpl.quality,
               extensions: scored.extensions,
             ),
-            score: scored.score,
+            score: score,
           ),
         );
       }
@@ -196,4 +210,9 @@ Set<ChordExtension> _extensionsFromExtras(
   if (has13) out.add(has7 ? ChordExtension.thirteen : ChordExtension.add13);
 
   return out;
+}
+
+double _tonalityBonus(int rootPc, Tonality tonality) {
+  final isDiatonic = tonality.containsPitchClass(rootPc);
+  return isDiatonic ? 0.10 : -0.02;
 }

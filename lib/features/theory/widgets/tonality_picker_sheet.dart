@@ -194,9 +194,9 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
         keySignatureRows.firstWhere((r) => r.accidentalCount == acc);
 
     return <KeySignature>[
-      for (var n = 7; n >= 1; n--) rowFor(n), // 7♯ … 1♯
+      for (var n = 7; n >= 1; n--) rowFor(n), // 7# … 1#
       rowFor(0), // 0
-      for (var n = 1; n <= 7; n++) rowFor(-n), // 1♭ … 7♭
+      for (var n = 1; n <= 7; n++) rowFor(-n), // 1b … 7b
     ];
   }
 
