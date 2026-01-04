@@ -45,13 +45,13 @@ const chordTemplates = <ChordTemplate>[
     quality: ChordQualityToken.major,
     requiredMask: 0 /*root*/ | (1 << 4),
     optionalMask: (1 << 7),
-    penaltyMask: (1 << 3),
+    penaltyMask: (1 << 3) | (1 << 10) | (1 << 11),
   ),
   ChordTemplate(
     quality: ChordQualityToken.minor,
     requiredMask: 0 /*root*/ | (1 << 3),
     optionalMask: (1 << 7),
-    penaltyMask: (1 << 4),
+    penaltyMask: (1 << 4) | (1 << 10) | (1 << 11),
   ),
   ChordTemplate(
     quality: ChordQualityToken.diminished,
@@ -69,13 +69,13 @@ const chordTemplates = <ChordTemplate>[
     quality: ChordQualityToken.sus2,
     requiredMask: 0 /*root*/ | (1 << 2) | (1 << 7),
     optionalMask: 0,
-    penaltyMask: (1 << 3) | (1 << 4),
+    penaltyMask: (1 << 3) | (1 << 4) | (1 << 10) | (1 << 11),
   ),
   ChordTemplate(
     quality: ChordQualityToken.sus4,
     requiredMask: 0 /*root*/ | (1 << 5) | (1 << 7),
     optionalMask: 0,
-    penaltyMask: (1 << 3) | (1 << 4),
+    penaltyMask: (1 << 3) | (1 << 4) | (1 << 10) | (1 << 11),
   ),
 
   // 7th chords (5th optional)

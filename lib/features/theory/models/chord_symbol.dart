@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 
 enum ChordSymbolStyle { standard, jazz }
 
@@ -12,8 +12,10 @@ class ChordSymbol {
 
   bool get hasBass => bass?.trim().isNotEmpty ?? false;
 
-  String format() {
+  @override
+  String toString() {
+    // Keep this intentionally plain and stable for debugging/logging.
     final base = '$root$quality';
-    return hasBass ? '$base / ${bass!}' : base;
+    return bass == null ? base : '$base / $bass';
   }
 }

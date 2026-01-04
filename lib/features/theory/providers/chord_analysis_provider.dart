@@ -94,46 +94,6 @@ final bestChordCandidateProvider = Provider<ChordCandidate?>((ref) {
   return candidates.isNotEmpty ? candidates.first : null;
 });
 
-@immutable
-class ChordCardViewModel {
-  final String title;
-  final String? subtitle;
-
-  const ChordCardViewModel({required this.title, this.subtitle});
-}
-
-final chordCardViewModelProvider = Provider<ChordCardViewModel>((ref) {
-  final best = ref.watch(bestChordCandidateProvider);
-
-  if (best == null) {
-    return const ChordCardViewModel(
-      title: '—',
-      subtitle: 'Play notes to identify a chord',
-    );
-  }
-
-  final id = best.identity;
-
-  // Temporary display until Phase 3 formatter:
-  // - show pitch classes as integers
-  // - quality token name
-  // - slash bass if different
-  //
-  // Once we add note spelling + standard/jazz formatting, this becomes
-  // a proper symbol like "Cmaj7/G".
-  final root = 'pc${id.rootPc}';
-  final qual = id.quality.name;
-  final bass = id.hasSlashBass ? ' / pc${id.bassPc}' : '';
-
-  final title = '$root $qual$bass';
-
-  // Helpful subtitle while tuning: extensions + score
-  final ext = (id.extensions.toList()..sort()).join(',');
-  final subtitle = 'ext=[$ext] score=${best.score.toStringAsFixed(2)}';
-
-  return ChordCardViewModel(title: title, subtitle: subtitle);
-});
-
 /// Quick debug string you can surface in dev UI while tuning.
 final chordDebugStringProvider = Provider<String>((ref) {
   final input = ref.watch(chordInputProvider);
@@ -153,6 +113,26 @@ final chordAnalysisDebugProvider = Provider<String>((ref) {
 
   final best = candidates.first;
   final id = best.identity;
+
+  final context = ref.watch(analysisContextProvider);
+  final style = ref.watch(chordSymbolStyleProvider);
+
+  final root = pcToName(id.rootPc, policy: context.spellingPolicy);
+  final bass = id.hasSlashBass
+      ? pcToName(id.bassPc, policy: context.spellingPolicy)
+      : null;
+
+  final quality = ChordSymbolFormatter.formatQuality(
+    quality: id.quality,
+    extensions: id.extensions,
+    style: style,
+  );
+
+  debugPrint('- - -');
+  debugPrint('BEST identity: quality=${id.quality} ext=${id.extensions}');
+  debugPrint(
+    'BEST symbol: ${ChordSymbol(root: root, quality: quality, bass: bass)}',
+  );
 
   final ext = id.extensions.toList()
     ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));

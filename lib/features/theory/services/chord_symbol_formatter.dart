@@ -18,13 +18,22 @@ class ChordSymbolFormatter {
     final ordered = extensions.toList()
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
+    // "Seventh-ness" is determined by the quality token, not by extensions.
+    // This is critical: your engine encodes the 7th as part of the chord quality
+    // (dominant7 / major7 / minor7 / etc.), not as an explicit extension member.
+    final hasSeventhQuality = quality.isSeventhFamily;
+
+    // Only consider true extensions (9/11/13) for headline promotion.
+    // add9/add11/add13 are add-tones and should never promote the chord name.
     final has9 = extensions.contains(ChordExtension.nine);
     final has11 = extensions.contains(ChordExtension.eleven);
     final has13 = extensions.contains(ChordExtension.thirteen);
 
-    // Headline promotion: choose highest of 13/11/9 when allowed.
+    // Headline promotion: choose highest of 13/11/9 only when:
+    // - style allows it AND
+    // - the chord is already a seventh-family chord (i.e. "7" exists to replace).
     ChordExtension? headline;
-    if (quality.allowsHeadlineExtensionPromotion(style)) {
+    if (hasSeventhQuality && quality.allowsHeadlineExtensionPromotion(style)) {
       if (has13) {
         headline = ChordExtension.thirteen;
       } else if (has11) {
@@ -44,11 +53,10 @@ class ChordSymbolFormatter {
     for (final e in ordered) {
       if (e == headline) continue;
 
-      // Do not show natural 9/11/13 if they were *not* promoted? Conventional is:
-      // - If you have 7 + 9 and didn't promote, it's usually because promotion wasn't allowed.
-      //   In that case, showing "(9)" is still useful. So keep it.
+      // If we promoted 7->9/11/13, the natural extension is already represented
+      // in the headline, so it should not also appear as a "(9)" modifier.
       //
-      // Add-tones are always explicit.
+      // This is already handled by skipping headline above, so no extra logic needed.
       mods.add(e.label);
     }
 
@@ -57,7 +65,7 @@ class ChordSymbolFormatter {
     // Conventional formatting:
     // - alterations and numeric extensions generally in parentheses (7(b9,#11))
     // - add-tones often attached directly: maj7add9 or maj7(add9) both seen
-    // We will apply a simple, consistent rule:
+    // We apply a simple, consistent rule:
     //   - If any mod starts with b/# or is a pure number (9/11/13), use parentheses
     //   - If mods are only addX, append directly (no parentheses)
     final useParens = mods.any(
@@ -93,8 +101,12 @@ class ChordSymbolFormatter {
     if (base.contains('(')) return base;
 
     if (base == '7') return ext;
-    if (base.endsWith('7')) return '${base.substring(0, base.length - 1)}$ext';
+    if (base.endsWith('7')) {
+      return '${base.substring(0, base.length - 1)}$ext';
+    }
 
+    // If the style's base label does not end with 7 (unexpected for seventh-family),
+    // we cannot safely promote, so leave it unchanged.
     return base;
   }
 }
