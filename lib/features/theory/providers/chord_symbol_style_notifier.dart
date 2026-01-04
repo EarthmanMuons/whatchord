@@ -5,12 +5,12 @@ import 'package:what_chord/core/persistence/shared_preferences_provider.dart';
 import '../models/chord_symbol.dart';
 import '../persistence/theory_preferences_keys.dart';
 
-final chordSymbolProvider =
-    NotifierProvider<ChordSymbolNotifier, ChordSymbolStyle>(
-      ChordSymbolNotifier.new,
+final chordSymbolStyleProvider =
+    NotifierProvider<ChordSymbolStyleNotifier, ChordSymbolStyle>(
+      ChordSymbolStyleNotifier.new,
     );
 
-class ChordSymbolNotifier extends Notifier<ChordSymbolStyle> {
+class ChordSymbolStyleNotifier extends Notifier<ChordSymbolStyle> {
   @override
   ChordSymbolStyle build() {
     final prefs = ref.watch(sharedPreferencesProvider);

@@ -4,18 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/midi/midi.dart';
 import 'package:what_chord/features/theory/providers/analysis_context_provider.dart';
+import 'package:what_chord/features/theory/providers/chord_symbol_style_notifier.dart';
 
 import '../engine/engine.dart';
 import '../models/chord_analysis.dart';
 import '../models/chord_symbol.dart';
 import '../models/scale_degree.dart';
 import '../providers/tonality_provider.dart';
+import '../services/chord_symbol_formatter.dart';
+import '../services/inversion_labeler.dart';
 import '../services/note_spelling.dart';
 
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   final best = ref.watch(bestChordCandidateProvider);
-  final context = ref.watch(analysisContextProvider);
-
   if (best == null) {
     return const ChordAnalysis(
       symbol: ChordSymbol(root: '— — —', quality: '', bass: null),
@@ -23,52 +24,29 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
     );
   }
 
-  final identity = best.identity;
-  final root = pcToName(identity.rootPc, policy: context.spellingPolicy);
-  final bass = identity.hasSlashBass
-      ? pcToName(identity.bassPc, policy: context.spellingPolicy)
+  final context = ref.watch(analysisContextProvider);
+  final style = ref.watch(chordSymbolStyleProvider);
+
+  final id = best.identity;
+
+  final root = pcToName(id.rootPc, policy: context.spellingPolicy);
+  final bass = id.hasSlashBass
+      ? pcToName(id.bassPc, policy: context.spellingPolicy)
       : null;
 
-  final quality = _qualityTokenToShortLabel(
-    identity.quality,
-    identity.extensions,
+  final quality = ChordSymbolFormatter.formatQuality(
+    quality: id.quality,
+    extensions: id.extensions,
+    style: style,
   );
+
+  final inversion = InversionLabeler.labelFor(id);
 
   return ChordAnalysis(
     symbol: ChordSymbol(root: root, quality: quality, bass: bass),
-    inversion: null,
+    inversion: inversion,
   );
 });
-
-String _qualityTokenToShortLabel(
-  ChordQualityToken q,
-  Set<ChordExtension> extensions,
-) {
-  switch (q) {
-    case ChordQualityToken.major:
-      return 'maj';
-    case ChordQualityToken.minor:
-      return 'm';
-    case ChordQualityToken.diminished:
-      return 'dim';
-    case ChordQualityToken.augmented:
-      return 'aug';
-    case ChordQualityToken.sus2:
-      return 'sus2';
-    case ChordQualityToken.sus4:
-      return 'sus4';
-    case ChordQualityToken.dominant7:
-      return '7';
-    case ChordQualityToken.major7:
-      return 'maj7';
-    case ChordQualityToken.minor7:
-      return 'm7';
-    case ChordQualityToken.halfDiminished7:
-      return 'm7(b5)';
-    case ChordQualityToken.diminished7:
-      return 'dim7';
-  }
-}
 
 final detectedScaleDegreeProvider = Provider<ScaleDegree?>((ref) {
   final tonality = ref.watch(selectedTonalityProvider);
@@ -176,12 +154,15 @@ final chordAnalysisDebugProvider = Provider<String>((ref) {
   final best = candidates.first;
   final id = best.identity;
 
-  final ext = id.extensions.toList()..sort();
+  final ext = id.extensions.toList()
+    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+
+  final extLabels = ext.map((e) => e.label).toList(growable: false);
 
   return 'Chord: rootPc=${id.rootPc} '
       'quality=${id.quality.name} '
       'bassPc=${id.bassPc} '
-      'ext=$ext '
+      'ext=$extLabels '
       'score=${best.score.toStringAsFixed(2)} '
       '| $inputDebug';
 });

@@ -20,7 +20,7 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
 
-    final chordNotation = ref.watch(chordSymbolProvider);
+    final chordSymbolStyle = ref.watch(chordSymbolStyleProvider);
     final palette = ref.watch(appPaletteProvider);
     final themeMode = ref.watch(themeModeProvider);
     final presentation = ref.watch(midiConnectionPresentationProvider);
@@ -53,10 +53,10 @@ class SettingsPage extends ConsumerWidget {
           const SizedBox(height: 16),
           const SectionHeader(title: 'Chord display'),
           RadioGroup<ChordSymbolStyle>(
-            groupValue: chordNotation,
+            groupValue: chordSymbolStyle,
             onChanged: (ChordSymbolStyle? style) {
               if (style == null) return;
-              ref.read(chordSymbolProvider.notifier).setStyle(style);
+              ref.read(chordSymbolStyleProvider.notifier).setStyle(style);
             },
             child: const Column(
               children: [
