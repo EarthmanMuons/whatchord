@@ -53,10 +53,14 @@ class ChordSymbolFormatter {
     for (final e in ordered) {
       if (e == headline) continue;
 
-      // If we promoted 7->9/11/13, the natural extension is already represented
-      // in the headline, so it should not also appear as a "(9)" modifier.
-      //
-      // This is already handled by skipping headline above, so no extra logic needed.
+      // If we promoted a headline extension, suppress lower natural extensions
+      // that are conventionally implied by the headline.
+      if (headline == ChordExtension.thirteen) {
+        if (e == ChordExtension.nine || e == ChordExtension.eleven) continue;
+      } else if (headline == ChordExtension.eleven) {
+        if (e == ChordExtension.nine) continue;
+      }
+
       mods.add(e.label);
     }
 
