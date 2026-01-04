@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/home/widgets/components/chord_card.dart';
 
+import '../engine/models/chord_extension.dart';
 import '../engine/models/chord_identity.dart';
 import '../models/chord_symbol.dart';
 import '../providers/chord_analysis_provider.dart';
@@ -95,7 +96,10 @@ String _pcToSharpName(int pc) {
   return names[pc % 12];
 }
 
-String _qualityTokenToShortLabel(ChordQualityToken q, Set<int> extensions) {
+String _qualityTokenToShortLabel(
+  ChordQualityToken q,
+  Set<ChordExtension> extensions,
+) {
   // Phase 2: keep this very simple and stable.
   // Phase 3: replace with a real formatter using style + tonality spelling.
   switch (q) {

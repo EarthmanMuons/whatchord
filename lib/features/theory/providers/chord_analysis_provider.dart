@@ -55,7 +55,10 @@ String _pcToSharpName(int pc) {
   return names[pc % 12];
 }
 
-String _qualityTokenToShortLabel(ChordQualityToken q, Set<int> extensions) {
+String _qualityTokenToShortLabel(
+  ChordQualityToken q,
+  Set<ChordExtension> extensions,
+) {
   switch (q) {
     case ChordQualityToken.major:
       return 'maj';

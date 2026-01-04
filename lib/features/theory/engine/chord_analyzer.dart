@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'data/chord_templates.dart';
 import 'models/chord_candidate.dart';
+import 'models/chord_extension.dart';
 import 'models/chord_identity.dart';
 import 'models/chord_input.dart';
 import 'utils/bit_ops.dart';
@@ -145,10 +146,8 @@ abstract final class ChordAnalyzer {
     final normalized = score / denom;
 
     // Compute extensions as intervals beyond the base chord (excluding penalties).
-    final extensions = <int>{};
-    for (var i = 1; i < 12; i++) {
-      if ((extrasMask & (1 << i)) != 0) extensions.add(i);
-    }
+    final has7 = _qualityHasSeventh(template.quality);
+    final extensions = _extensionsFromExtras(extrasMask, has7: has7);
 
     return _ScoredTemplate(score: normalized, extensions: extensions);
   }
@@ -156,6 +155,45 @@ abstract final class ChordAnalyzer {
 
 class _ScoredTemplate {
   final double score;
-  final Set<int> extensions;
+  final Set<ChordExtension> extensions;
   const _ScoredTemplate({required this.score, required this.extensions});
+}
+
+bool _qualityHasSeventh(ChordQualityToken q) {
+  switch (q) {
+    case ChordQualityToken.dominant7:
+    case ChordQualityToken.major7:
+    case ChordQualityToken.minor7:
+    case ChordQualityToken.halfDiminished7:
+    case ChordQualityToken.diminished7:
+      return true;
+    default:
+      return false;
+  }
+}
+
+Set<ChordExtension> _extensionsFromExtras(
+  int extrasMask, {
+  required bool has7,
+}) {
+  final out = <ChordExtension>{};
+
+  // Interval semitones relative to root:
+  // 1=b9, 2=9, 3=#9 (also m3, but if it's in extras it's not part of the base quality),
+  // 5=11, 6=#11, 8=b13, 9=13
+
+  if ((extrasMask & (1 << 1)) != 0) out.add(ChordExtension.flat9);
+  if ((extrasMask & (1 << 3)) != 0) out.add(ChordExtension.sharp9);
+  if ((extrasMask & (1 << 6)) != 0) out.add(ChordExtension.sharp11);
+  if ((extrasMask & (1 << 8)) != 0) out.add(ChordExtension.flat13);
+
+  final has9 = (extrasMask & (1 << 2)) != 0;
+  final has11 = (extrasMask & (1 << 5)) != 0;
+  final has13 = (extrasMask & (1 << 9)) != 0;
+
+  if (has9) out.add(has7 ? ChordExtension.nine : ChordExtension.add9);
+  if (has11) out.add(has7 ? ChordExtension.eleven : ChordExtension.add11);
+  if (has13) out.add(has7 ? ChordExtension.thirteen : ChordExtension.add13);
+
+  return out;
 }

@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import '../models/chord_extension.dart';
+
 /// Canonical, style-agnostic chord identity.
 ///
 /// This is the "truth" returned by analysis (before applying naming style,
@@ -22,7 +24,7 @@ class ChordIdentity {
   /// encoded as semitone offsets.
   ///
   /// Example: 2(9), 5(11), 9(13), 1(b9), 3(#9), 6(#11), 8(b13), etc.
-  final Set<int> extensions;
+  final Set<ChordExtension> extensions;
 
   const ChordIdentity({
     required this.rootPc,
@@ -50,7 +52,7 @@ class ChordIdentity {
   int get hashCode =>
       Object.hash(rootPc, bassPc, quality, _setHash(extensions));
 
-  static bool _setEquals(Set<int> a, Set<int> b) {
+  static bool _setEquals<T>(Set<T> a, Set<T> b) {
     if (identical(a, b)) return true;
     if (a.length != b.length) return false;
     for (final v in a) {
@@ -59,8 +61,8 @@ class ChordIdentity {
     return true;
   }
 
-  static int _setHash(Set<int> s) {
-    // Order-independent hash for small integer sets.
+  static int _setHash<T>(Set<T> s) {
+    // Order-independent hash for small sets.
     var h = 0;
     for (final v in s) {
       h ^= v.hashCode;
