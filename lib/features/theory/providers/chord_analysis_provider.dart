@@ -16,6 +16,50 @@ import '../services/inversion_labeler.dart';
 import '../services/note_spelling.dart';
 
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
+  final pcs = ref.watch(soundingPitchClassesProvider);
+
+  if (pcs.isEmpty) {
+    return const ChordAnalysis(
+      symbol: ChordSymbol(root: '— — —', quality: '', bass: null),
+      inversion: null,
+    );
+  }
+
+  final context = ref.watch(analysisContextProvider);
+
+  // Determine bassPc from your existing input provider (or re-derive it).
+  final input = ref.watch(chordInputProvider);
+  if (input == null) {
+    return const ChordAnalysis(
+      symbol: ChordSymbol(root: '— — —', quality: '', bass: null),
+      inversion: null,
+    );
+  }
+
+  // Dyad: show interval label instead of guessing a chord.
+  if (pcs.length == 2) {
+    final bassPc = input.bassPc;
+    final otherPc = pcs.first == bassPc ? pcs.last : pcs.first;
+
+    final interval = IntervalLabeler.forPitchClasses(
+      bassPc: bassPc,
+      otherPc: otherPc,
+    );
+
+    final root = pcToName(bassPc, policy: context.spellingPolicy);
+    final other = pcToName(otherPc, policy: context.spellingPolicy);
+
+    return ChordAnalysis(
+      symbol: ChordSymbol(
+        root: root,
+        quality: ' ${interval.short}', // e.g. " P5" or " m3"
+        bass: other, // show the other pitch class as the "slash" target
+      ),
+      inversion: null,
+    );
+  }
+
+  // 3+ pitch classes: normal chord identification.
   final best = ref.watch(bestChordCandidateProvider);
   if (best == null) {
     return const ChordAnalysis(
@@ -24,9 +68,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
     );
   }
 
-  final context = ref.watch(analysisContextProvider);
   final style = ref.watch(chordSymbolStyleProvider);
-
   final id = best.identity;
 
   final root = pcToName(id.rootPc, policy: context.spellingPolicy);
@@ -78,6 +120,13 @@ final chordInputProvider = Provider<ChordInput?>((ref) {
   }
 
   return ChordInput(pcMask: mask, bassPc: bassPc, noteCount: sounding.length);
+});
+
+final soundingPitchClassesProvider = Provider<List<int>>((ref) {
+  final state = ref.watch(midiNoteStateProvider);
+  final sounding = state.soundingNotes;
+  final pcs = sounding.map((m) => m % 12).toSet().toList()..sort();
+  return pcs;
 });
 
 /// Ranked candidates (best-first once Step 2 is implemented).

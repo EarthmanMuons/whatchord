@@ -35,9 +35,9 @@ class ChordCandidateDebug {
   final double scoreRootPos;
   final double scoreAlterations;
 
-  final int normalizationDenom;
   final double rawScore;
   final double normalizedScore;
+  final double normalizationDenom;
 
   const ChordCandidateDebug({
     required this.candidate,
@@ -64,9 +64,9 @@ class ChordCandidateDebug {
     required this.scoreBass,
     required this.scoreRootPos,
     required this.scoreAlterations,
-    required this.normalizationDenom,
     required this.rawScore,
     required this.normalizedScore,
+    required this.normalizationDenom,
   });
 
   ChordIdentity get identity => candidate.identity;
@@ -77,7 +77,7 @@ class ChordCandidateDebug {
     // Compact but information-dense single-line summary.
     final id = identity.toString();
     return '$id score=${score.toStringAsFixed(3)} '
-        '(raw=${rawScore.toStringAsFixed(3)} norm=${normalizedScore.toStringAsFixed(3)} denom=$normalizationDenom) '
+        '(raw=${rawScore.toStringAsFixed(3)} norm=${normalizedScore.toStringAsFixed(3)} denom=$normalizationDenom.toStringAsFixed(3)) '
         'req=$reqCount opt=$optCount miss=$missingCount pen=$penCount extra=$extrasCount '
         'parts=[+req:${scoreRequired.toStringAsFixed(2)} '
         'miss:${scoreMissing.toStringAsFixed(2)} '

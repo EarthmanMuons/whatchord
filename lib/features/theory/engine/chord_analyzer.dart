@@ -153,9 +153,9 @@ abstract final class ChordAnalyzer {
             scoreBass: scored.scoreBass,
             scoreRootPos: scored.scoreRootPos,
             scoreAlterations: scored.scoreAlterations,
-            normalizationDenom: scored.normalizationDenom,
             rawScore: scored.rawScore,
             normalizedScore: scored.normalizedScore,
+            normalizationDenom: scored.normalizationDenom,
           ),
         );
       }
@@ -290,10 +290,11 @@ abstract final class ChordAnalyzer {
       score -= 0.60; // tune: ~0.4–0.9
     }
 
-    // Normalize so scores are comparable across templates.
-    // IMPORTANT: normalize by required-count only. Optional tones are optional and
-    // should not dilute a correct interpretation that legitimately includes them.
-    final denom = math.max(1, popCount(required));
+    // Soft-normalize by required tone count.
+    // Rationale: raw scoring tends to favor templates with more required tones
+    // (e.g. dim7 / sus) too strongly; linear normalization (÷ reqCount) swings
+    // too far the other direction. sqrt(reqCount) is a stable middle ground.
+    final denom = reqCount > 0 ? math.sqrt(reqCount.toDouble()) : 1.0;
     final normalized = score / denom;
 
     return _ScoredTemplate(score: normalized, extensions: extensions);
@@ -368,7 +369,7 @@ abstract final class ChordAnalyzer {
         scoreRootPos +
         scoreAlterations;
 
-    final denom = math.max(1, popCount(required));
+    final denom = reqCount > 0 ? math.sqrt(reqCount.toDouble()) : 1.0;
     final normalized = rawScore / denom;
 
     return _ScoredTemplateDebug(
@@ -418,7 +419,7 @@ class _ScoredTemplate {
 class _ScoredTemplateDebug extends _ScoredTemplate {
   final double rawScore;
   final double normalizedScore;
-  final int normalizationDenom;
+  final double normalizationDenom;
 
   final int requiredMask;
   final int optionalMask;
