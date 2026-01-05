@@ -2,6 +2,18 @@ import 'models/chord_candidate.dart';
 import 'models/chord_extension.dart';
 import 'models/chord_identity.dart';
 
+class RankingDecision {
+  final int result;
+  final String? decidedByRule;
+  final double scoreDelta;
+
+  const RankingDecision({
+    required this.result,
+    required this.decidedByRule,
+    required this.scoreDelta,
+  });
+}
+
 abstract final class ChordCandidateRanking {
   static const double nearTieWindow = 0.20;
 
@@ -31,6 +43,40 @@ abstract final class ChordCandidateRanking {
 
     // Deterministic final tie-breaker: lower rootPc.
     return a.identity.rootPc.compareTo(b.identity.rootPc);
+  }
+
+  static RankingDecision explain(ChordCandidate a, ChordCandidate b) {
+    final delta = b.score - a.score;
+
+    if (delta.abs() > nearTieWindow) {
+      final result = delta > 0 ? 1 : -1;
+      return RankingDecision(
+        result: result,
+        decidedByRule: 'Score (outside near-tie window)',
+        scoreDelta: delta,
+      );
+    }
+
+    final fa = _CandidateFeatures.from(a);
+    final fb = _CandidateFeatures.from(b);
+
+    for (final rule in _tieBreakerRules) {
+      final r = rule.apply(a, b, fa, fb);
+      if (r != null && r != 0) {
+        return RankingDecision(
+          result: r,
+          decidedByRule: rule.name,
+          scoreDelta: delta,
+        );
+      }
+    }
+
+    final finalResult = a.identity.rootPc.compareTo(b.identity.rootPc);
+    return RankingDecision(
+      result: finalResult,
+      decidedByRule: 'Deterministic fallback: rootPc',
+      scoreDelta: delta,
+    );
   }
 
   // ---- Rules framework ------------------------------------------------------
