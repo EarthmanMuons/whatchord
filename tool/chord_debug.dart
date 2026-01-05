@@ -16,7 +16,7 @@ void main(List<String> args) {
     return;
   }
 
-  final top = _readIntFlag(args, 'top') ?? 8;
+  final top = _readIntFlag(args, 'top') ?? 5;
   final bassName = _readStringFlag(args, 'bass');
 
   // Extract positional args (notes), ignoring flags.
