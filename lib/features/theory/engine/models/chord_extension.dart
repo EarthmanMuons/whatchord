@@ -68,3 +68,73 @@ extension ChordExtensionOrdering on ChordExtension {
     }
   }
 }
+
+extension ChordExtensionSemantics on ChordExtension {
+  bool get isAddTone {
+    switch (this) {
+      case ChordExtension.add9:
+      case ChordExtension.add11:
+      case ChordExtension.add13:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  bool get isNaturalExtension {
+    switch (this) {
+      case ChordExtension.nine:
+      case ChordExtension.eleven:
+      case ChordExtension.thirteen:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  bool get isAlteration {
+    switch (this) {
+      case ChordExtension.flat9:
+      case ChordExtension.sharp9:
+      case ChordExtension.sharp11:
+      case ChordExtension.flat13:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  /// "Real" meaning: natural extensions and alterations (everything that is not addX).
+  bool get isRealExtension => !isAddTone;
+}
+
+typedef ExtensionPreference = ({
+  int alterationCount,
+  int naturalCount,
+  int addCount,
+  int totalCount,
+});
+
+ExtensionPreference extensionPreference(Set<ChordExtension> exts) {
+  var alterationCount = 0;
+  var naturalCount = 0;
+  var addCount = 0;
+
+  for (final e in exts) {
+    if (e.isAddTone) {
+      addCount++;
+    } else if (e.isAlteration) {
+      alterationCount++;
+    } else {
+      // Natural 9/11/13
+      naturalCount++;
+    }
+  }
+
+  return (
+    alterationCount: alterationCount,
+    naturalCount: naturalCount,
+    addCount: addCount,
+    totalCount: exts.length,
+  );
+}

@@ -177,28 +177,94 @@ abstract final class ChordAnalyzer {
       return delta > 0 ? 1 : -1;
     }
 
-    // 2) Prefer seventh-family over triad-family when effectively tied.
+    // 2) Prefer 6-family in root position over slash 7-family when effectively tied.
+    // This resolves common ambiguities like:
+    // - C E G A: C6 vs Am7/C  -> prefer C6
+    // - A C E F#: Am6 vs F#m7(b5)/A -> prefer Am6
+    final aIs6 = a.identity.quality.isSixFamily;
+    final bIs6 = b.identity.quality.isSixFamily;
+
+    final aRootPos = a.identity.rootPc == a.identity.bassPc;
+    final bRootPos = b.identity.rootPc == b.identity.bassPc;
+
+    if (aIs6 != bIs6) {
+      // Identify which side is the 6-family candidate
+      final six = aIs6 ? a : b;
+      final other = aIs6 ? b : a;
+
+      final sixRootPos = six.identity.rootPc == six.identity.bassPc;
+      final otherRootPos = other.identity.rootPc == other.identity.bassPc;
+
+      // Only privilege 6-family if it is root position and the other is NOT,
+      // AND the other does not contain any "real" extensions/alterations (9/11/13/b9/#11/etc).
+      final otherPref = extensionPreference(other.identity.extensions);
+      final otherHasReal =
+          (otherPref.naturalCount + otherPref.alterationCount) > 0;
+
+      if (sixRootPos && !otherRootPos && !otherHasReal) {
+        // six wins
+        return aIs6 ? -1 : 1;
+      }
+    }
+
+    // 3) Prefer root-position dominant chords in ambiguous upper-structure situations.
+    // This keeps C7(b9) / C7(b9,#11) ahead of dim7-based upper structures when C is in the bass.
+    final aDomRoot =
+        a.identity.quality == ChordQualityToken.dominant7 &&
+        a.identity.rootPc == a.identity.bassPc;
+    final bDomRoot =
+        b.identity.quality == ChordQualityToken.dominant7 &&
+        b.identity.rootPc == b.identity.bassPc;
+
+    if (aDomRoot != bDomRoot) return bDomRoot ? 1 : -1;
+
+    // 4) Prefer fewer alterations (b9/#11/b13 etc.) when effectively tied.
+    // Pianists will usually prefer the least-altered spelling absent context.
+    // This fixes C9/G beating Em7(b5)(b13)/G.
+    final aPref = extensionPreference(a.identity.extensions);
+    final bPref = extensionPreference(b.identity.extensions);
+
+    final alt = aPref.alterationCount.compareTo(bPref.alterationCount);
+    if (alt != 0) return alt;
+
+    // 5) Prefer natural extensions (9/11/13) over add-tones when tied.
+    // Helps C9/G beat Gm6add11.
+    final natural = bPref.naturalCount.compareTo(aPref.naturalCount);
+    if (natural != 0) return natural;
+
+    final add = aPref.addCount.compareTo(bPref.addCount);
+    if (add != 0) return add;
+
+    final total = aPref.totalCount.compareTo(bPref.totalCount);
+    if (total != 0) return total;
+
+    // 6) Prefer root position when effectively tied (bass == root).
+    if (aRootPos != bRootPos) return bRootPos ? 1 : -1;
+
+    // 7) Prefer inversions where the bass is the 3rd over those where the bass is the 5th.
+    // Move this BEFORE seventh-family so C6/E can beat Am7/E.
+    final aBassRole = _bassRoleRank(a.identity);
+    final bBassRole = _bassRoleRank(b.identity);
+    final bassRoleCmp = aBassRole.compareTo(bBassRole);
+    if (bassRoleCmp != 0) return bassRoleCmp;
+
+    // 8) Prefer seventh-family over triad-family when effectively tied.
     final a7 = a.identity.quality.isSeventhFamily;
     final b7 = b.identity.quality.isSeventhFamily;
     if (a7 != b7) return b7 ? 1 : -1;
 
-    // 3) Prefer root position when effectively tied (bass == root).
-    final aRootPos = a.identity.rootPc == a.identity.bassPc;
-    final bRootPos = b.identity.rootPc == b.identity.bassPc;
-    if (aRootPos != bRootPos) return bRootPos ? 1 : -1;
-
-    // 4) Prefer fewer extensions (simpler explanation).
+    // 9) Prefer fewer extensions (simpler explanation).
     final e = a.identity.extensions.length.compareTo(
       b.identity.extensions.length,
     );
     if (e != 0) return e;
 
-    // 5) Prefer non-sus over sus.
+    // 10) Prefer non-sus over sus.
     final aSus = _isSus(a.identity.quality);
     final bSus = _isSus(b.identity.quality);
     if (aSus != bSus) return aSus ? 1 : -1;
 
-    // 6) Deterministic final tie-breaker: lower rootPc.
+    // 11) Deterministic final tie-breaker: lower rootPc.
     return a.identity.rootPc.compareTo(b.identity.rootPc);
   }
 
@@ -219,6 +285,26 @@ abstract final class ChordAnalyzer {
       rel |= (1 << interval);
     }
     return rel;
+  }
+
+  static int _bassRoleRank(ChordIdentity id) {
+    // Lower is better.
+    final interval = (id.bassPc - id.rootPc) % 12;
+
+    // Root position already handled earlier, but keep it best anyway.
+    if (interval == 0) return 0;
+
+    // Thirds (major/minor)
+    if (interval == 3 || interval == 4) return 1;
+
+    // Fifth
+    if (interval == 7) return 2;
+
+    // Sevenths
+    if (interval == 10 || interval == 11) return 3;
+
+    // Seconds / fourths / sixths etc.
+    return 4;
   }
 
   static _ScoredTemplate? _scoreTemplate({

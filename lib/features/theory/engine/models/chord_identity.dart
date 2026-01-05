@@ -108,6 +108,16 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
 
   bool get isSeventhFamily => family == ChordQualityFamily.seventh;
 
+  bool get isSixFamily {
+    switch (this) {
+      case ChordQualityToken.major6:
+      case ChordQualityToken.minor6:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   /// Style-aware base “quality” string (what comes after the root).
   String baseLabel(ChordSymbolStyle style) {
     switch (this) {

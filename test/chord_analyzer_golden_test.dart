@@ -77,7 +77,7 @@ class GoldenCase {
 void main() {
   final cases = <GoldenCase>[
     GoldenCase(
-      name: 'C E G D -> C add9 (not sus)',
+      name: 'C E G D -> Cmajadd9', // not sus
       pcs: ['C', 'E', 'G', 'D'],
       expectTop: (top) {
         expect(top.rootPc, pc('C'));
@@ -128,7 +128,7 @@ void main() {
       },
     ),
     GoldenCase(
-      name: 'C E G Bb D with bass G -> C9 / G',
+      name: 'C E G Bb D --bass=G -> C9 / G',
       pcs: ['C', 'E', 'G', 'Bb', 'D'],
       bass: 'G',
       expectTop: (top) {
@@ -147,13 +147,132 @@ void main() {
       },
     ),
     GoldenCase(
-      name: 'B D F A -> Bø7',
+      name: 'C E G Bb Db F# -> C7(b9,#11)',
+      pcs: ['C', 'E', 'G', 'Bb', 'Db', 'F#'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(
+          top.extensions,
+          containsAll(<ChordExtension>[
+            ChordExtension.flat9,
+            ChordExtension.sharp11,
+          ]),
+        );
+      },
+    ),
+    GoldenCase(
+      name: 'B D F A -> Bm7(b5)',
       pcs: ['B', 'D', 'F', 'A'],
       expectTop: (top) {
         expect(top.rootPc, pc('B'));
         expect(top.quality, ChordQualityToken.halfDiminished7);
       },
     ),
+    // Pure power chord
+    GoldenCase(
+      name: 'C G -> C5',
+      pcs: ['C', 'G'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.power5);
+      },
+    ),
+    // Power chord with octave duplication
+    GoldenCase(
+      name: 'C G C -> C5',
+      pcs: ['C', 'G'],
+      noteCount: 3,
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.power5);
+      },
+    ),
+    // Power chord with added 4th
+    GoldenCase(
+      name: 'C F G -> Csus4', // or C5add11 (depending on intended UX)
+      pcs: ['C', 'F', 'G'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.sus4);
+      },
+    ),
+    // Major 6
+    GoldenCase(
+      name: 'C E G A -> C6',
+      pcs: ['C', 'E', 'G', 'A'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.major6);
+      },
+    ),
+    // 6 chord with inversion
+    GoldenCase(
+      name: 'C E G A --bass=E -> C6 / E',
+      pcs: ['C', 'E', 'G', 'A'],
+      bass: 'E',
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.bassPc, pc('E'));
+        expect(top.quality, ChordQualityToken.major6);
+      },
+    ),
+    // Minor 6
+    GoldenCase(
+      name: 'A C E F# -> Am6',
+      pcs: ['A', 'C', 'E', 'F#'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('A'));
+        expect(top.quality, ChordQualityToken.minor6);
+      },
+    ),
+    // 6/9 sonority
+    GoldenCase(
+      name: 'C E G A D -> C6/9',
+      pcs: ['C', 'E', 'G', 'A', 'D'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.major6);
+        expect(top.extensions, contains(ChordExtension.add9));
+      },
+    ),
+    // Dominant 7 should beat major 6 when the 7 is present
+    GoldenCase(
+      name: 'C E G Bb A -> C13',
+      pcs: ['C', 'E', 'G', 'Bb', 'A'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(top.extensions, contains(ChordExtension.thirteen));
+      },
+    ),
+    // 6th-family should beat 7th-family when the 7 is missing
+    GoldenCase(
+      name: 'G Bb D E -> Gm6',
+      pcs: ['G', 'Bb', 'D', 'E'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('G'));
+        expect(top.quality, ChordQualityToken.minor6);
+      },
+    ),
+    // Major vs sus2
+    GoldenCase(
+      name: 'C D G -> Csus2',
+      pcs: ['C', 'D', 'G'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.sus2);
+      },
+    ),
+    // // Minor vs major third contradiction
+    // GoldenCase(
+    //   name: 'C Eb E G -> ???', // Eb6(b9) / C or Cm
+    //   pcs: ['C', 'Eb', 'E', 'G'],
+    //   expectTop: (top) {
+    //     expect(top.rootPc, pc('C'));
+    //     expect(top.quality, ChordQualityToken.minor);
+    //   },
+    // ),
   ];
 
   for (final c in cases) {
