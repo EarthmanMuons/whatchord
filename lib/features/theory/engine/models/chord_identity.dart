@@ -118,6 +118,16 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
     }
   }
 
+  bool get isSus {
+    switch (this) {
+      case ChordQualityToken.sus2:
+      case ChordQualityToken.sus4:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   /// Style-aware base “quality” string (what comes after the root).
   String baseLabel(ChordSymbolStyle style) {
     switch (this) {

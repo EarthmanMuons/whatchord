@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/midi/midi.dart';
@@ -162,26 +160,6 @@ final chordAnalysisDebugProvider = Provider<String>((ref) {
 
   final best = candidates.first;
   final id = best.identity;
-
-  final context = ref.watch(analysisContextProvider);
-  final style = ref.watch(chordSymbolStyleProvider);
-
-  final root = pcToName(id.rootPc, policy: context.spellingPolicy);
-  final bass = id.hasSlashBass
-      ? pcToName(id.bassPc, policy: context.spellingPolicy)
-      : null;
-
-  final quality = ChordSymbolFormatter.formatQuality(
-    quality: id.quality,
-    extensions: id.extensions,
-    style: style,
-  );
-
-  debugPrint('- - -');
-  debugPrint('BEST identity: quality=${id.quality} ext=${id.extensions}');
-  debugPrint(
-    'BEST symbol: ${ChordSymbol(root: root, quality: quality, bass: bass)}',
-  );
 
   final ext = id.extensions.toList()
     ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
