@@ -1,5 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:what_chord/features/theory/engine/engine.dart';
+import 'package:what_chord/features/theory/models/chord_symbol.dart';
+import 'package:what_chord/features/theory/services/chord_symbol_formatter.dart';
 
 int maskOf(Iterable<int> pcs) {
   var m = 0;
@@ -49,6 +52,56 @@ int pc(String name) {
 }
 
 int maskOfNames(List<String> names) => maskOf(names.map(pc));
+
+String expectedSymbolFromCaseName(String name) {
+  final i = name.indexOf('->');
+  return (i == -1) ? name : name.substring(i + 2).trim();
+}
+
+ChordSymbol actualSymbolFor(ChordIdentity id) {
+  final quality = ChordSymbolFormatter.formatQuality(
+    quality: id.quality,
+    extensions: id.extensions,
+    style: ChordSymbolStyle.standard,
+  );
+
+  final root = _pcName(id.rootPc);
+  final bass = id.hasSlashBass ? _pcName(id.bassPc) : null;
+
+  return ChordSymbol(root: root, quality: quality, bass: bass);
+}
+
+// TODO: replace this with proper enharmonic lookup. It's duplicated in a couple of places.
+String _pcName(int pc) {
+  switch (pc % 12) {
+    case 0:
+      return 'C';
+    case 1:
+      return 'C#';
+    case 2:
+      return 'D';
+    case 3:
+      return 'Eb';
+    case 4:
+      return 'E';
+    case 5:
+      return 'F';
+    case 6:
+      return 'F#';
+    case 7:
+      return 'G';
+    case 8:
+      return 'Ab';
+    case 9:
+      return 'A';
+    case 10:
+      return 'Bb';
+    case 11:
+      return 'B';
+    default:
+      return '?';
+  }
+}
 
 class GoldenCase {
   final String name;
@@ -290,7 +343,23 @@ void main() {
       expect(results, isNotEmpty, reason: 'No candidates returned');
 
       final top = results.first.identity;
-      c.expectTop(top);
+
+      final expected = expectedSymbolFromCaseName(c.name);
+      final actual = actualSymbolFor(top);
+
+      try {
+        c.expectTop(top);
+      } on TestFailure catch (e) {
+        fail(
+          [
+            'Expected chord: $expected',
+            '  Actual chord: $actual',
+            '',
+            'Original failure:',
+            e.message ?? e.toString(),
+          ].join('\n'),
+        );
+      }
     });
   }
 }
