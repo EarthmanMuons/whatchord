@@ -1,17 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/midi/midi.dart';
-import 'package:what_chord/features/theory/providers/analysis_context_provider.dart';
-import 'package:what_chord/features/theory/providers/chord_symbol_style_notifier.dart';
 
 import '../engine/engine.dart';
 import '../models/chord_analysis.dart';
 import '../models/chord_symbol.dart';
 import '../models/scale_degree.dart';
-import '../providers/tonality_provider.dart';
+import '../models/tonality.dart';
 import '../services/chord_symbol_formatter.dart';
 import '../services/inversion_labeler.dart';
 import '../services/note_spelling.dart';
+import 'analysis_context_provider.dart';
+import 'chord_symbol_style_notifier.dart';
+import 'tonality_provider.dart';
 
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   final pcs = ref.watch(soundingPitchClassesProvider);
@@ -89,15 +90,11 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
 });
 
 final detectedScaleDegreeProvider = Provider<ScaleDegree?>((ref) {
-  final tonality = ref.watch(selectedTonalityProvider);
-  final analysis = ref.watch(chordAnalysisProvider);
+  final best = ref.watch(bestChordCandidateProvider);
+  if (best == null) return null;
 
-  // Temporary: if chord root equals tonic label, call it scale degree I.
-  // Phase 3: use pitch classes and the tonality scale map.
-  if (analysis.symbol.root == tonality.label) {
-    return ScaleDegree.one;
-  }
-  return null;
+  final tonality = ref.watch(selectedTonalityProvider);
+  return tonality.scaleDegreeForChord(best.identity);
 });
 
 /// Converts currently sounding MIDI notes into a minimal chord-analysis input.
