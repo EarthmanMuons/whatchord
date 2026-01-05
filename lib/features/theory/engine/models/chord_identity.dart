@@ -79,6 +79,9 @@ enum ChordQualityToken {
   augmented,
   sus2,
   sus4,
+  power5,
+  major6,
+  minor6,
   dominant7,
   major7,
   minor7,
@@ -120,6 +123,12 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
         return 'sus2';
       case ChordQualityToken.sus4:
         return 'sus4';
+      case ChordQualityToken.power5:
+        return '5';
+      case ChordQualityToken.major6:
+        return '6';
+      case ChordQualityToken.minor6:
+        return style == ChordSymbolStyle.jazz ? '−6' : 'm6';
       case ChordQualityToken.dominant7:
         return '7';
       case ChordQualityToken.major7:

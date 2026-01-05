@@ -78,6 +78,30 @@ const chordTemplates = <ChordTemplate>[
     penaltyMask: (1 << 3) | (1 << 4) | (1 << 10) | (1 << 11),
   ),
 
+  // Power chord (5)
+  ChordTemplate(
+    quality: ChordQualityToken.power5,
+    requiredMask: 0 /*root*/ | (1 << 7),
+    optionalMask: 0,
+    // Penalize thirds so it won’t steal major/minor triads.
+    penaltyMask: (1 << 3) | (1 << 4),
+  ),
+
+  // 6 chords (5th optional)
+  ChordTemplate(
+    quality: ChordQualityToken.major6,
+    requiredMask: 0 /*root*/ | (1 << 4) | (1 << 9), // 3 + 6
+    optionalMask: (1 << 7),
+    // Penalize the two “sevenths” so C6 doesn’t become Cmaj7/C7-ish.
+    penaltyMask: (1 << 10) | (1 << 11) | (1 << 3),
+  ),
+  ChordTemplate(
+    quality: ChordQualityToken.minor6,
+    requiredMask: 0 /*root*/ | (1 << 3) | (1 << 9), // b3 + 6
+    optionalMask: (1 << 7),
+    penaltyMask: (1 << 10) | (1 << 11) | (1 << 4),
+  ),
+
   // 7th chords (5th optional)
   ChordTemplate(
     quality: ChordQualityToken.dominant7,

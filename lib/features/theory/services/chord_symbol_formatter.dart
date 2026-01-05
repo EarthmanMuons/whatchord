@@ -18,6 +18,16 @@ class ChordSymbolFormatter {
     final ordered = extensions.toList()
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
+    final isSixChord =
+        quality == ChordQualityToken.major6 ||
+        quality == ChordQualityToken.minor6;
+
+    if (isSixChord && extensions.contains(ChordExtension.add9)) {
+      // Prefer conventional "6/9" spelling.
+      // Remove add9 from modifiers later; represent it directly in base.
+      base = '$base/9';
+    }
+
     // "Seventh-ness" is determined by the quality token, not by extensions.
     // This is critical: your engine encodes the 7th as part of the chord quality
     // (dominant7 / major7 / minor7 / etc.), not as an explicit extension member.
@@ -50,8 +60,11 @@ class ChordSymbolFormatter {
     // Build modifier list, in canonical order, excluding headline if promoted.
     final mods = <String>[];
 
+    final absorbedAdd9 = isSixChord && base.endsWith('/9');
+
     for (final e in ordered) {
       if (e == headline) continue;
+      if (absorbedAdd9 && e == ChordExtension.add9) continue;
 
       // If we promoted a headline extension, suppress lower natural extensions
       // that are conventionally implied by the headline.
