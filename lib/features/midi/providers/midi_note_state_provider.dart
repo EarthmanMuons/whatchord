@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/piano/models/active_note.dart';
+import 'package:what_chord/features/theory/providers/pitch_class_names_provider.dart';
 
 import '../models/midi_constants.dart';
 import '../models/midi_message.dart';
@@ -136,6 +137,7 @@ final isPedalDownProvider = Provider<bool>((ref) {
 // Rich note objects for display, sorted by pitch.
 final activeNotesProvider = Provider<List<ActiveNote>>((ref) {
   final state = ref.watch(midiNoteStateProvider);
+  final pcNames = ref.watch(pitchClassNamesProvider);
 
   final notes = <ActiveNote>[];
   final activeSorted = state.soundingNotes.toList()..sort();
@@ -144,7 +146,7 @@ final activeNotesProvider = Provider<List<ActiveNote>>((ref) {
     notes.add(
       ActiveNote(
         midiNote: midi,
-        label: _midiToNoteName(midi),
+        label: pcNames[midi % 12],
         isSustained: state.sustained.contains(midi),
       ),
     );
@@ -152,21 +154,3 @@ final activeNotesProvider = Provider<List<ActiveNote>>((ref) {
 
   return notes;
 });
-
-String _midiToNoteName(int midiNote) {
-  const noteNames = [
-    'C',
-    'C#',
-    'D',
-    'D#',
-    'E',
-    'F',
-    'F#',
-    'G',
-    'G#',
-    'A',
-    'A#',
-    'B',
-  ];
-  return noteNames[midiNote % 12];
-}
