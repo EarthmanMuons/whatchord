@@ -54,6 +54,8 @@ void main(List<String> args) {
   stdout.writeln('pcs: ${pcs.map(_pcName).toSet().toList()..sort()}');
   stdout.writeln('bass: ${_pcName(bassPc)}');
   stdout.writeln('');
+  stdout.writeln('Note: ordering uses near-tie heuristics within ±0.20');
+  stdout.writeln('');
 
   final results = ChordAnalyzer.analyzeDebug(input, take: top);
 

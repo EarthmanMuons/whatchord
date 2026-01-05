@@ -77,7 +77,7 @@ class ChordCandidateDebug {
     // Compact but information-dense single-line summary.
     final id = identity.toString();
     return '$id score=${score.toStringAsFixed(3)} '
-        '(raw=${rawScore.toStringAsFixed(3)} norm=${normalizedScore.toStringAsFixed(3)} denom=$normalizationDenom.toStringAsFixed(3)) '
+        '(raw=${rawScore.toStringAsFixed(3)} norm=${normalizedScore.toStringAsFixed(3)} denom=${normalizationDenom.toStringAsFixed(3)}) '
         'req=$reqCount opt=$optCount miss=$missingCount pen=$penCount extra=$extrasCount '
         'parts=[+req:${scoreRequired.toStringAsFixed(2)} '
         'miss:${scoreMissing.toStringAsFixed(2)} '

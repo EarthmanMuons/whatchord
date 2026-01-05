@@ -77,16 +77,15 @@ abstract final class ChordAnalyzer {
       }
     }
 
-    // Sort by score, then apply deterministic musical tie-breakers to reduce
-    // "weird but equivalent" picks (e.g. choosing Gsus4add13/C over Cadd9).
+    // Sort by score, then apply deterministic musical tie-breakers.
     candidates.sort(_compareCandidates);
 
     return candidates.take(8).toList(growable: false);
   }
 
   /// Debug entrypoint:
-  /// - Returns the ranked candidates along with score breakdown and masks.
-  /// - Mirrors [analyze] ranking exactly (including normalization).
+  /// - Returns ranked candidates with score breakdown and masks.
+  /// - Mirrors [analyze] ranking exactly.
   static List<ChordCandidateDebug> analyzeDebug(
     ChordInput input, {
     AnalysisContext? context,
@@ -111,7 +110,6 @@ abstract final class ChordAnalyzer {
         );
         if (scored == null) continue;
 
-        // IMPORTANT: use the same score basis as production (normalized).
         final baseScore = scored.score; // normalized (same as analyze)
         final score = context == null
             ? baseScore
@@ -161,34 +159,46 @@ abstract final class ChordAnalyzer {
       }
     }
 
-    // Sort using the same tie-breakers as production.
     out.sort((a, b) => _compareCandidates(a.candidate, b.candidate));
-
     return out.take(take).toList(growable: false);
   }
 
-  static int _compareCandidates(ChordCandidate a, ChordCandidate b) {
-    // 1) Primary: highest score wins.
-    final s = b.score.compareTo(a.score);
-    if (s != 0) return s;
+  static const double _nearTieWindow = 0.20;
 
-    // 2) Prefer root position when tied (bass == root).
+  static int _compareCandidates(ChordCandidate a, ChordCandidate b) {
+    // 1) Primary: higher score wins.
+    final delta = b.score - a.score;
+
+    // Treat near-equal scores as effectively tied, so we can apply musical
+    // preferences deterministically. This stabilizes cases like:
+    // - C E G D where Cadd9 vs Gsus/C are very close numerically
+    // - C E G Bb Db where C7(b9) vs dim7/upper-structure are very close
+    if (delta.abs() > _nearTieWindow) {
+      return delta > 0 ? 1 : -1;
+    }
+
+    // 2) Prefer seventh-family over triad-family when effectively tied.
+    final a7 = a.identity.quality.isSeventhFamily;
+    final b7 = b.identity.quality.isSeventhFamily;
+    if (a7 != b7) return b7 ? 1 : -1;
+
+    // 3) Prefer root position when effectively tied (bass == root).
     final aRootPos = a.identity.rootPc == a.identity.bassPc;
     final bRootPos = b.identity.rootPc == b.identity.bassPc;
     if (aRootPos != bRootPos) return bRootPos ? 1 : -1;
 
-    // 3) Prefer fewer extensions (simpler explanation) when tied.
+    // 4) Prefer fewer extensions (simpler explanation).
     final e = a.identity.extensions.length.compareTo(
       b.identity.extensions.length,
     );
     if (e != 0) return e;
 
-    // 4) Prefer non-sus over sus when tied (common default expectation).
+    // 5) Prefer non-sus over sus.
     final aSus = _isSus(a.identity.quality);
     final bSus = _isSus(b.identity.quality);
     if (aSus != bSus) return aSus ? 1 : -1;
 
-    // 5) Deterministic final tie-breaker: lower rootPc.
+    // 6) Deterministic final tie-breaker: lower rootPc.
     return a.identity.rootPc.compareTo(b.identity.rootPc);
   }
 
@@ -201,10 +211,6 @@ abstract final class ChordAnalyzer {
     return m < 0 ? m + 12 : m;
   }
 
-  /// Rotates an absolute pitch-class mask into root-relative intervals.
-  ///
-  /// Example: if rootPc=4 (E), then absolute pitch class 4 becomes interval 0,
-  /// pitch class 7 (G) becomes interval 3, etc.
   static int _rotateMaskToRoot(int pcMask, int rootPc) {
     var rel = 0;
     for (var pc = 0; pc < 12; pc++) {
@@ -223,7 +229,7 @@ abstract final class ChordAnalyzer {
     // Ensure root exists (interval 0) for this candidate root.
     if ((relMask & 0x1) == 0) return null;
 
-    // Force root to be required for stability in Phase 2/3.
+    // Force root to be required for stability.
     final required = template.requiredMask | 0x1;
     final optional = template.optionalMask;
     final penalty = template.penaltyMask;
@@ -238,22 +244,14 @@ abstract final class ChordAnalyzer {
     final optCount = popCount(presentOptional);
     final penCount = popCount(presentPenalty);
 
-    // Extras are tones that are neither base (required/optional) nor penalty.
-    // We'll interpret many of these as extensions (9/11/13) rather than "noise".
+    // Extras: tones that are neither base (required/optional) nor penalty.
     final base = required | optional;
     final extrasMask = relMask & ~(base | penalty);
     final extrasCount = popCount(extrasMask);
 
-    // If missing too many required tones, treat as too weak for now.
-    // We can relax later for omissions and shell voicings.
     if (missingCount > 1) return null;
 
-    // Scoring model (tuned for stability, not strict probability):
-    // - Missing required: heavy penalty.
-    // - Required present: strong evidence.
-    // - Optional present: mild bonus.
-    // - Penalty present: moderate penalty.
-    // - Extras: mild penalty (offset by interpreting them as extensions).
+    // Scoring model
     var score = 0.0;
     score += reqCount * 4.0;
     score -= missingCount * 6.0;
@@ -261,10 +259,7 @@ abstract final class ChordAnalyzer {
     score -= penCount * 3.0;
     score -= extrasCount * 0.5;
 
-    // Bass handling:
-    // - Prefer bass as a chord tone.
-    // - Slightly positive if bass is an extension tone (slash chords are real).
-    // - Slightly negative if bass is unrelated to this root/template.
+    // Bass handling
     final bassBit = 1 << bassInterval;
     if ((base & bassBit) != 0) {
       score += 1.0;
@@ -274,26 +269,17 @@ abstract final class ChordAnalyzer {
       score -= 0.25;
     }
 
-    // Strong preference for root position when bass == root.
-    // This helps resolve ambiguous pitch-class sets toward the musically expected root.
-    if (bassInterval == 0) {
-      score += 1.25; // tune: ~1.0–1.5
-    }
+    // No numeric root-position bonus; root position is handled in tie-breakers.
 
-    // Compute extensions from extras so we can apply additional heuristics.
     final has7 = template.quality.isSeventhFamily;
     final extensions = _extensionsFromExtras(extrasMask, has7: has7);
 
-    // Complexity heuristic: penalize altered interpretations slightly.
-    // This helps avoid cases like Em7(b5)(b13)/C when C9 fits cleanly.
+    // Slight penalty for altered interpretations
     if (_hasAlterations(extensions)) {
-      score -= 0.60; // tune: ~0.4–0.9
+      score -= 0.60;
     }
 
-    // Soft-normalize by required tone count.
-    // Rationale: raw scoring tends to favor templates with more required tones
-    // (e.g. dim7 / sus) too strongly; linear normalization (÷ reqCount) swings
-    // too far the other direction. sqrt(reqCount) is a stable middle ground.
+    // Soft-normalize by required tones present.
     final denom = reqCount > 0 ? math.sqrt(reqCount.toDouble()) : 1.0;
     final normalized = score / denom;
 
@@ -305,10 +291,8 @@ abstract final class ChordAnalyzer {
     required int bassInterval,
     required ChordTemplate template,
   }) {
-    // Ensure root exists (interval 0) for this candidate root.
     if ((relMask & 0x1) == 0) return null;
 
-    // Force root to be required for stability in Phase 2/3.
     final required = template.requiredMask | 0x1;
     final optional = template.optionalMask;
     final penalty = template.penaltyMask;
@@ -329,7 +313,6 @@ abstract final class ChordAnalyzer {
 
     if (missingCount > 1) return null;
 
-    // Score components (mirror _scoreTemplate exactly)
     final scoreRequired = reqCount * 4.0;
     final scoreMissing = -missingCount * 6.0;
     final scoreOptional = optCount * 1.5;
@@ -346,10 +329,8 @@ abstract final class ChordAnalyzer {
       scoreBass = -0.25;
     }
 
-    var scoreRootPos = 0.0;
-    if (bassInterval == 0) {
-      scoreRootPos = 1.25;
-    }
+    // Root-position preference is intentionally not part of numeric score.
+    const scoreRootPos = 0.0;
 
     final has7 = template.quality.isSeventhFamily;
     final extensions = _extensionsFromExtras(extrasMask, has7: has7);
@@ -373,7 +354,7 @@ abstract final class ChordAnalyzer {
     final normalized = rawScore / denom;
 
     return _ScoredTemplateDebug(
-      score: normalized, // IMPORTANT: matches production score basis.
+      score: normalized,
       extensions: extensions,
       rawScore: rawScore,
       normalizedScore: normalized,
@@ -482,18 +463,17 @@ Set<ChordExtension> _extensionsFromExtras(
 }) {
   final out = <ChordExtension>{};
 
-  // Interval semitones relative to root:
-  // 1=b9, 2=9, 3=#9, 5=11, 6=#11, 8=b13, 9=13
+  // Alterations
   if ((extrasMask & (1 << 1)) != 0) out.add(ChordExtension.flat9);
   if ((extrasMask & (1 << 3)) != 0) out.add(ChordExtension.sharp9);
   if ((extrasMask & (1 << 6)) != 0) out.add(ChordExtension.sharp11);
   if ((extrasMask & (1 << 8)) != 0) out.add(ChordExtension.flat13);
 
+  // Natural extensions/add tones
   final has9 = (extrasMask & (1 << 2)) != 0;
   final has11 = (extrasMask & (1 << 5)) != 0;
   final has13 = (extrasMask & (1 << 9)) != 0;
 
-  // Distinguish add-tones vs true extensions based on whether a 7th is present.
   if (has9) out.add(has7 ? ChordExtension.nine : ChordExtension.add9);
   if (has11) out.add(has7 ? ChordExtension.eleven : ChordExtension.add11);
   if (has13) out.add(has7 ? ChordExtension.thirteen : ChordExtension.add13);
