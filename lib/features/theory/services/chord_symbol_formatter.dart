@@ -1,6 +1,7 @@
 import '../engine/models/chord_extension.dart';
 import '../engine/models/chord_identity.dart';
 import '../models/chord_symbol.dart';
+import '../services/chord_quality_token_labels.dart';
 
 /// Formats the "quality" portion of a chord symbol (everything after the root),
 /// plus optional slash bass is handled by your ChordSymbol.
