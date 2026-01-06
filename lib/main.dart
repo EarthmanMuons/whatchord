@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'core/theme/theme.dart';
+import 'core/activity/idle_blackout_overlay.dart';
 import 'core/persistence/shared_preferences_provider.dart';
+import 'core/theme/theme.dart';
 import 'features/home/home.dart';
 
 Future<void> main() async {
@@ -39,6 +40,9 @@ class MyApp extends ConsumerWidget {
       ),
       themeMode: themeMode,
 
+      builder: (context, child) {
+        return IdleBlackoutOverlay(child: child ?? const SizedBox.shrink());
+      },
       home: const HomePage(),
     );
   }

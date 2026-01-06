@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:what_chord/core/activity/activity_tracker.dart';
 import 'package:what_chord/features/midi/midi.dart'
     show activeNotesProvider, isPedalDownProvider;
 
@@ -42,25 +44,40 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
     _notes = ref.read(activeNotesProvider);
     _pedal = ref.read(isPedalDownProvider);
 
-    _notesSubscription = ref.listenManual<List<ActiveNote>>(
-      activeNotesProvider,
-      (prev, next) {
-        if (!mounted) return;
-        _updatePromptSuppression(
-          prevNotes: prev ?? const <ActiveNote>[],
-          nextNotes: next,
-          prevPedal: _pedal,
-          nextPedal: _pedal,
-        );
-        _applyNotesDiff(next);
-      },
-    );
+    _notesSubscription = ref.listenManual<List<ActiveNote>>(activeNotesProvider, (
+      prev,
+      next,
+    ) {
+      if (!mounted) return;
+
+      // Any change in notes counts as activity (note on/off, sustain changes, etc.)
+      if (!listEquals(prev ?? const <ActiveNote>[], next)) {
+        ref
+            .read(activityTrackerProvider.notifier)
+            .markActivity(ActivitySource.midi);
+      }
+
+      _updatePromptSuppression(
+        prevNotes: prev ?? const <ActiveNote>[],
+        nextNotes: next,
+        prevPedal: _pedal,
+        nextPedal: _pedal,
+      );
+      _applyNotesDiff(next);
+    });
 
     _pedalSubscription = ref.listenManual<bool>(isPedalDownProvider, (
       prev,
       next,
     ) {
       if (!mounted) return;
+
+      if ((prev ?? false) != next) {
+        ref
+            .read(activityTrackerProvider.notifier)
+            .markActivity(ActivitySource.midi);
+      }
+
       _updatePromptSuppression(
         prevNotes: _notes,
         nextNotes: _notes,
