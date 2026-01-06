@@ -69,6 +69,7 @@ flutter:
 
   assets:
     - assets/glyphs/keyboard_pedal_ped.svg
+    - assets/logo/whatchord_logo_circle.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

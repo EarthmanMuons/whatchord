@@ -1,8 +1,8 @@
 import 'dart:ui' show clampDouble;
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:what_chord/core/activity/midi_activity_tracker.dart';
 import 'package:what_chord/features/theory/theory.dart';
 
 import '../../models/home_layout_config.dart';
@@ -16,6 +16,8 @@ class AnalysisSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final analysis = ref.watch(chordAnalysisProvider);
 
+    final showIdle = ref.watch(midiIdleEligibleProvider);
+
     return Padding(
       padding: config.analysisPadding,
       child: LayoutBuilder(
@@ -23,7 +25,6 @@ class AnalysisSection extends ConsumerWidget {
           final availableW = constraints.maxWidth;
 
           const preferredW = 320.0;
-
           final width = clampDouble(preferredW, 0, availableW);
 
           return Center(
@@ -38,6 +39,8 @@ class AnalysisSection extends ConsumerWidget {
                   child: ChordCard(
                     symbol: analysis.symbol,
                     inversion: analysis.inversion,
+                    showIdle: showIdle,
+                    idleAsset: 'assets/logo/whatchord_logo_circle.svg',
                   ),
                 ),
               ),

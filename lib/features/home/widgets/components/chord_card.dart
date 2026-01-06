@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:what_chord/features/theory/theory.dart';
 
@@ -8,7 +9,19 @@ class ChordCard extends StatelessWidget {
   final ChordSymbol symbol;
   final String? inversion;
 
-  const ChordCard({super.key, required this.symbol, required this.inversion});
+  /// When true, show the idle SVG instead of chord text.
+  final bool showIdle;
+
+  /// SVG asset to show when idle.
+  final String idleAsset;
+
+  const ChordCard({
+    super.key,
+    required this.symbol,
+    required this.inversion,
+    required this.showIdle,
+    required this.idleAsset,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,8 +43,8 @@ class ChordCard extends StatelessWidget {
       height: 1.1,
     );
 
-    final minCardHeight = 132.0;
-    final padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 20);
+    const minCardHeight = 132.0;
+    const padding = EdgeInsets.symmetric(horizontal: 20, vertical: 20);
 
     Widget chordText() {
       final spans = <InlineSpan>[
@@ -55,30 +68,77 @@ class ChordCard extends StatelessWidget {
       );
     }
 
+    Widget idleGlyph() {
+      // Keep this subtle; it should read as "resting," not "empty/error".
+      return Opacity(
+        opacity: 0.55,
+        child: SvgPicture.asset(
+          idleAsset,
+          width: 72,
+          height: 72,
+          // Tint to onPrimary so it harmonizes with the card.
+          colorFilter: ColorFilter.mode(
+            cs.onPrimary.withValues(alpha: 0.9),
+            BlendMode.srcIn,
+          ),
+        ),
+      );
+    }
+
     return Card(
       elevation: 0,
       color: cs.primary,
       child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: minCardHeight),
+        constraints: const BoxConstraints(minHeight: minCardHeight),
         child: Padding(
           padding: padding,
-          child: Center(
-            child: hasInversion
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      chordText(),
-                      const SizedBox(height: 18),
-                      AutoSizeText(
-                        inversion!,
-                        textAlign: TextAlign.center,
-                        style: inversionStyle,
-                        maxLines: 1,
-                        minFontSize: 20,
-                      ),
-                    ],
-                  )
-                : chordText(),
+          child: AnimatedSwitcher(
+            // New child animates in over `duration`.
+            duration: const Duration(milliseconds: 260),
+
+            // Old child animates out over `reverseDuration`.
+            // Make this shorter to reduce "competition".
+            reverseDuration: const Duration(milliseconds: 90),
+
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) {
+              final curved = CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              );
+              return FadeTransition(opacity: curved, child: child);
+            },
+            layoutBuilder: (currentChild, previousChildren) {
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  ...previousChildren,
+                  if (currentChild != null) currentChild,
+                ],
+              );
+            },
+            child: showIdle
+                ? KeyedSubtree(key: const ValueKey('idle'), child: idleGlyph())
+                : KeyedSubtree(
+                    key: const ValueKey('chord'),
+                    child: hasInversion
+                        ? Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              chordText(),
+                              const SizedBox(height: 18),
+                              AutoSizeText(
+                                inversion!,
+                                textAlign: TextAlign.center,
+                                style: inversionStyle,
+                                maxLines: 1,
+                                minFontSize: 20,
+                              ),
+                            ],
+                          )
+                        : chordText(),
+                  ),
           ),
         ),
       ),
