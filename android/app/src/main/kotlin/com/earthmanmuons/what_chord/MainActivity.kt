@@ -1,4 +1,4 @@
-package com.example.what_chord
+package com.earthmanmuons.what_chord
 
 import io.flutter.embedding.android.FlutterActivity
 
