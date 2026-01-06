@@ -16,7 +16,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   final pcs = ref.watch(soundingPitchClassesProvider);
 
   if (pcs.isEmpty) {
-    return const ChordAnalysis(
+    return ChordAnalysis(
       symbol: ChordSymbol(root: '— — —', quality: '', bass: null),
       inversion: null,
     );
@@ -27,7 +27,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   // Determine bassPc from your existing input provider (or re-derive it).
   final input = ref.watch(chordInputProvider);
   if (input == null) {
-    return const ChordAnalysis(
+    return ChordAnalysis(
       symbol: ChordSymbol(root: '— — —', quality: '', bass: null),
       inversion: null,
     );
@@ -59,7 +59,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   // 3+ pitch classes: normal chord identification.
   final best = ref.watch(bestChordCandidateProvider);
   if (best == null) {
-    return const ChordAnalysis(
+    return ChordAnalysis(
       symbol: ChordSymbol(root: '— — —', quality: '', bass: null),
       inversion: null,
     );

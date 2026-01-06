@@ -4,6 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:what_chord/features/theory/theory.dart';
+import 'package:what_chord/features/theory/services/note_display_formatter.dart';
 
 class ChordCard extends StatelessWidget {
   final ChordSymbol symbol;
@@ -48,14 +49,14 @@ class ChordCard extends StatelessWidget {
 
     Widget chordText() {
       final spans = <InlineSpan>[
-        TextSpan(text: symbol.root, style: rootStyle),
+        TextSpan(text: formatNoteDisplay(symbol.root), style: rootStyle),
         if (symbol.quality.isNotEmpty) ...[
           const TextSpan(text: '\u200A'), // hair space
-          TextSpan(text: symbol.quality),
+          TextSpan(text: formatNoteDisplay(symbol.quality)),
         ],
         if (symbol.hasBass) ...[
           const TextSpan(text: ' / '),
-          TextSpan(text: symbol.bass),
+          TextSpan(text: formatNoteDisplay(symbol.bassRequired)),
         ],
       ];
 
