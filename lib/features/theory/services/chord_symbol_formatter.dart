@@ -5,45 +5,43 @@ import '../models/chord_symbol.dart';
 /// Formats the "quality" portion of a chord symbol (everything after the root),
 /// plus optional slash bass is handled by your ChordSymbol.
 /// Root spelling is handled elsewhere (note spelling).
+///
+/// This formatter should remain presentation-focused. Musical semantics about
+/// chord families (triad/seventh, six-chords, headline promotion eligibility,
+/// and base labels) live in the model layer (ChordQualityTokenSemantics).
 class ChordSymbolFormatter {
   static String formatQuality({
     required ChordQualityToken quality,
     required Set<ChordExtension> extensions,
     required ChordSymbolStyle style,
   }) {
-    // Base quality string from the enum (style-aware).
+    // Style-aware base quality string from the model enum.
     var base = quality.baseLabel(style);
 
     // Canonical, stable ordering.
     final ordered = extensions.toList()
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
-    final isSixChord =
-        quality == ChordQualityToken.major6 ||
-        quality == ChordQualityToken.minor6;
-
-    if (isSixChord && extensions.contains(ChordExtension.add9)) {
-      // Prefer conventional "6/9" spelling.
-      // Remove add9 from modifiers later; represent it directly in base.
+    // Conventional 6/9 spelling (a six-family chord plus add9).
+    if (quality.isSixFamily && extensions.contains(ChordExtension.add9)) {
+      // Represent add9 directly in the base ("6/9" or "m6/9") and suppress
+      // add9 from modifiers later.
       base = '$base/9';
     }
 
-    // "Seventh-ness" is determined by the quality token, not by extensions.
-    // This is critical: your engine encodes the 7th as part of the chord quality
-    // (dominant7 / major7 / minor7 / etc.), not as an explicit extension member.
-    final hasSeventhQuality = quality.isSeventhFamily;
-
-    // Only consider true extensions (9/11/13) for headline promotion.
+    // Headline promotion (9/11/13) is only considered for seventh-family chords,
+    // and only when the model says it is conventional for this quality/style.
+    //
+    // Only *natural* extensions (9/11/13) are eligible for headline promotion.
     // add9/add11/add13 are add-tones and should never promote the chord name.
     final has9 = extensions.contains(ChordExtension.nine);
     final has11 = extensions.contains(ChordExtension.eleven);
     final has13 = extensions.contains(ChordExtension.thirteen);
 
-    // Headline promotion: choose highest of 13/11/9 only when:
-    // - style allows it AND
-    // - the chord is already a seventh-family chord (i.e. "7" exists to replace).
     ChordExtension? headline;
-    if (hasSeventhQuality && quality.allowsHeadlineExtensionPromotion(style)) {
+    if (quality.isSeventhFamily &&
+        quality.allowsHeadlineExtensionPromotion(style)) {
+      // Prefer highest of 13/11/9.
       if (has13) {
         headline = ChordExtension.thirteen;
       } else if (has11) {
@@ -60,10 +58,13 @@ class ChordSymbolFormatter {
     // Build modifier list, in canonical order, excluding headline if promoted.
     final mods = <String>[];
 
-    final absorbedAdd9 = isSixChord && base.endsWith('/9');
+    final absorbedAdd9 = quality.isSixFamily && base.endsWith('/9');
 
     for (final e in ordered) {
+      // Skip the promoted headline extension from modifiers.
       if (e == headline) continue;
+
+      // Skip add9 when absorbed into 6/9.
       if (absorbedAdd9 && e == ChordExtension.add9) continue;
 
       // If we promoted a headline extension, suppress lower natural extensions
@@ -80,9 +81,10 @@ class ChordSymbolFormatter {
     if (mods.isEmpty) return base;
 
     // Conventional formatting:
-    // - alterations and numeric extensions generally in parentheses (7(b9,#11))
-    // - add-tones often attached directly: maj7add9 or maj7(add9) both seen
-    // We apply a simple, consistent rule:
+    // - alterations and numeric extensions generally in parentheses: 7(b9,#11)
+    // - add-tones are often attached directly: maj7add9 / madd11
+    //
+    // Simple, consistent rule:
     //   - If any mod starts with b/# or is a pure number (9/11/13), use parentheses
     //   - If mods are only addX, append directly (no parentheses)
     final useParens = mods.any(
@@ -114,7 +116,7 @@ class ChordSymbolFormatter {
     // - "ø7"   -> "ø9"
     // - "°7"   -> "°9"
     //
-    // Do NOT rewrite complex parenthesized base labels like "m7(b5)".
+    // Do NOT rewrite complex/parenthesized base labels like "m7(b5)".
     if (base.contains('(')) return base;
 
     if (base == '7') return ext;

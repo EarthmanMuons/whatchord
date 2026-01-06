@@ -6,7 +6,6 @@ import '../engine/engine.dart';
 import '../models/chord_analysis.dart';
 import '../models/chord_symbol.dart';
 import '../models/scale_degree.dart';
-import '../models/tonality.dart';
 import '../services/chord_symbol_formatter.dart';
 import '../services/inversion_labeler.dart';
 import '../services/note_spelling.dart';
