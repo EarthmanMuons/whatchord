@@ -47,7 +47,6 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
         ref
             .read(activityTrackerProvider.notifier)
             .markActivity(ActivitySource.midi);
-        ref.read(midiActivityProvider.notifier).markMidiActivity();
       }
 
       _applyNotesDiff(next);
@@ -63,7 +62,6 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
         ref
             .read(activityTrackerProvider.notifier)
             .markActivity(ActivitySource.midi);
-        ref.read(midiActivityProvider.notifier).markMidiActivity();
       }
 
       setState(() => _pedal = next);
@@ -127,8 +125,8 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
     final cs = theme.colorScheme;
 
     const minHeight = 44.0;
-    final midiEligible = ref.watch(midiIdleEligibleProvider);
-    final showPrompt = _notes.isEmpty && !_pedal && midiEligible;
+    final showPrompt =
+        _notes.isEmpty && !_pedal && ref.watch(midiIdleEligibleProvider);
 
     return Padding(
       padding: widget.padding,

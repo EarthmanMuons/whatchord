@@ -1,141 +1,175 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @immutable
-class MidiActivityState {
-  const MidiActivityState({
-    required this.lastActivityAt,
-    required this.isIdle,
+class MidiIdleState {
+  const MidiIdleState({
     required this.cooldown,
     required this.hasSeenActivity,
+    required this.isEngagedNow,
+    required this.lastReleaseAt,
+    required this.isEligible,
   });
 
-  /// Null means "no MIDI activity has occurred yet in this app run".
-  final DateTime? lastActivityAt;
-
-  /// True once we've been inactive for >= cooldown.
-  final bool isIdle;
-
-  /// The required quiet period.
   final Duration cooldown;
 
-  /// True once any MIDI activity has happened at least once.
+  /// True once we have ever observed engagement (notes/pedal) at least once.
   final bool hasSeenActivity;
 
-  MidiActivityState copyWith({
-    DateTime? lastActivityAt,
-    bool? isIdle,
+  /// True while user currently has any keys down (or pedal down if included).
+  final bool isEngagedNow;
+
+  /// Timestamp of the most recent "fully released" moment (notes empty + pedal up).
+  /// Null until we have ever observed a full release after activity.
+  final DateTime? lastReleaseAt;
+
+  /// Convenience: "eligible to show idle UI"
+  /// - True on first load (before any activity)
+  /// - False while engaged
+  /// - True only after cooldown since lastReleaseAt
+  final bool isEligible;
+
+  MidiIdleState copyWith({
     Duration? cooldown,
     bool? hasSeenActivity,
+    bool? isEngagedNow,
+    DateTime? lastReleaseAt,
+    bool? isEligible,
   }) {
-    return MidiActivityState(
-      lastActivityAt: lastActivityAt ?? this.lastActivityAt,
-      isIdle: isIdle ?? this.isIdle,
+    return MidiIdleState(
       cooldown: cooldown ?? this.cooldown,
       hasSeenActivity: hasSeenActivity ?? this.hasSeenActivity,
+      isEngagedNow: isEngagedNow ?? this.isEngagedNow,
+      lastReleaseAt: lastReleaseAt ?? this.lastReleaseAt,
+      isEligible: isEligible ?? this.isEligible,
     );
   }
 }
 
-/// Centralized knob; later you can read from prefs.
 final midiIdleCooldownProvider = Provider<Duration>((ref) {
   return const Duration(seconds: 8);
 });
 
-final midiActivityProvider =
-    NotifierProvider<MidiActivityNotifier, MidiActivityState>(
-      MidiActivityNotifier.new,
-    );
+final midiIdleProvider = NotifierProvider<MidiIdleNotifier, MidiIdleState>(
+  MidiIdleNotifier.new,
+);
 
-/// Convenience: "eligible to show MIDI-idle UI" (e.g., your prompt).
-/// - True immediately on first load before any MIDI activity.
-/// - After MIDI activity occurs, becomes true only after cooldown of silence.
+/// If you prefer a boolean-only API for consumers:
 final midiIdleEligibleProvider = Provider<bool>((ref) {
-  final s = ref.watch(midiActivityProvider);
-  if (!s.hasSeenActivity) return true;
-  return s.isIdle;
+  return ref.watch(midiIdleProvider).isEligible;
 });
 
-class MidiActivityNotifier extends Notifier<MidiActivityState> {
-  Timer? _idleTimer;
+class MidiIdleNotifier extends Notifier<MidiIdleState> {
+  Timer? _timer;
 
   @override
-  MidiActivityState build() {
+  MidiIdleState build() {
     final cooldown = ref.watch(midiIdleCooldownProvider);
 
     ref.onDispose(() {
-      _idleTimer?.cancel();
-      _idleTimer = null;
+      _timer?.cancel();
+      _timer = null;
     });
 
-    // If cooldown changes, reschedule relative to last activity.
+    // If cooldown changes, reschedule relative to lastReleaseAt.
     ref.listen<Duration>(midiIdleCooldownProvider, (prev, next) {
       state = state.copyWith(cooldown: next);
-      _scheduleIdleTimer();
+      _scheduleFromRelease();
     });
 
-    final initial = MidiActivityState(
-      lastActivityAt: null,
-      isIdle:
-          true, // "eligible" before any activity is handled via hasSeenActivity=false
+    // Initial: eligible until the user ever engages.
+    final initial = MidiIdleState(
       cooldown: cooldown,
       hasSeenActivity: false,
+      isEngagedNow: false,
+      lastReleaseAt: null,
+      isEligible: true,
     );
 
     state = initial;
     return initial;
   }
 
-  /// Call this on any meaningful MIDI interaction (notes/pedal changes, etc.).
-  void markMidiActivity() {
-    final now = DateTime.now();
+  /// Call whenever the engagement state changes (notes/pedal).
+  /// engagedNow = (notes.isNotEmpty || pedalDown)
+  void updateEngagement({required bool engagedNow}) {
+    final wasEngaged = state.isEngagedNow;
 
-    // If you expect extremely frequent MIDI events, throttle a bit.
-    final last = state.lastActivityAt;
-    final recentlyMarked =
-        last != null && now.difference(last) < const Duration(milliseconds: 50);
+    // If state didn't actually change, do nothing.
+    if (wasEngaged == engagedNow) return;
 
-    if (recentlyMarked) return;
+    // Transition: idle/released -> engaged
+    if (engagedNow) {
+      _timer?.cancel();
+      _timer = null;
+
+      state = state.copyWith(
+        hasSeenActivity: true,
+        isEngagedNow: true,
+        // Not eligible while engaged.
+        isEligible: false,
+      );
+      return;
+    }
+
+    // Transition: engaged -> fully released
+    final releaseAt = DateTime.now();
 
     state = state.copyWith(
-      lastActivityAt: now,
-      isIdle: false,
       hasSeenActivity: true,
+      isEngagedNow: false,
+      lastReleaseAt: releaseAt,
+      // Not eligible until cooldown elapses.
+      isEligible: false,
     );
 
-    _scheduleIdleTimer();
+    _scheduleFromRelease();
   }
 
-  void _scheduleIdleTimer() {
-    _idleTimer?.cancel();
+  void _scheduleFromRelease() {
+    _timer?.cancel();
+    _timer = null;
 
-    final last = state.lastActivityAt;
-    if (last == null) {
-      // No activity yet; nothing to schedule.
+    // If we haven't seen any activity ever, stay eligible.
+    if (!state.hasSeenActivity) {
+      state = state.copyWith(isEligible: true);
+      return;
+    }
+
+    // If engaged now, never eligible.
+    if (state.isEngagedNow) {
+      state = state.copyWith(isEligible: false);
+      return;
+    }
+
+    final releaseAt = state.lastReleaseAt;
+    if (releaseAt == null) {
+      // We have seen activity but no recorded release yet; be conservative.
+      state = state.copyWith(isEligible: false);
       return;
     }
 
     final now = DateTime.now();
-    final remaining = state.cooldown - now.difference(last);
+    final remaining = state.cooldown - now.difference(releaseAt);
 
     if (remaining <= Duration.zero) {
-      if (!state.isIdle) state = state.copyWith(isIdle: true);
+      state = state.copyWith(isEligible: true);
       return;
     }
 
-    _idleTimer = Timer(remaining, () {
-      // Only flip to idle if no newer activity happened.
-      final currentLast = state.lastActivityAt;
-      if (currentLast == null) return;
+    _timer = Timer(remaining, () {
+      // Only flip eligible if we are still not engaged and the release timestamp
+      // hasn't changed under us (i.e., no re-engagement since scheduling).
+      final currentReleaseAt = state.lastReleaseAt;
+      if (state.isEngagedNow) return;
+      if (currentReleaseAt == null) return;
 
-      final quietFor = DateTime.now().difference(currentLast);
+      final quietFor = DateTime.now().difference(currentReleaseAt);
       if (quietFor >= state.cooldown) {
-        state = state.copyWith(isIdle: true);
+        state = state.copyWith(isEligible: true);
       } else {
-        // Activity happened close to timer firing; reschedule to be safe.
-        _scheduleIdleTimer();
+        _scheduleFromRelease();
       }
     });
   }

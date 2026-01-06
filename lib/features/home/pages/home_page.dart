@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:what_chord/core/activity/midi_idle_coordinator.dart';
 import 'package:what_chord/core/widgets/widgets.dart';
 import 'package:what_chord/features/midi/midi.dart';
 import 'package:what_chord/features/piano/piano.dart';
@@ -23,6 +24,9 @@ class HomePage extends ConsumerWidget {
     // Initialize MIDI service and install lifecycle + reconnect behavior.
     ref.watch(midiServiceInitProvider);
     ref.watch(midiLifecycleObserverProvider);
+
+    // Install MIDI idle tracking (shared across widgets).
+    ref.watch(midiIdleCoordinatorProvider);
 
     // Listen for connection state changes and show feedback.
     ref.listen(midiConnectionNotifierProvider, (prev, next) {
