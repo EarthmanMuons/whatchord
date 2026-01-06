@@ -26,6 +26,20 @@ class KeySignature {
 
   bool get prefersFlats => accidentalCount < 0;
   bool get prefersSharps => accidentalCount > 0;
+
+  static KeySignature fromTonality(Tonality tonality) {
+    for (final ks in keySignatureRows) {
+      if (tonality.isMajor && ks.relativeMajor == tonality) {
+        return ks;
+      }
+      if (tonality.isMinor && ks.relativeMinor == tonality) {
+        return ks;
+      }
+    }
+
+    // This should never happen, but fail loudly if it does.
+    throw StateError('No KeySignature found for tonality $tonality');
+  }
 }
 
 /// Circle-of-fifths-ish ordering that also includes the "full" 15 signatures:

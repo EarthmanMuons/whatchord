@@ -1,8 +1,10 @@
 import 'dart:io';
 
-import 'package:what_chord/features/theory/engine/chord_candidate_ranking.dart';
 import 'package:what_chord/features/theory/engine/engine.dart';
 import 'package:what_chord/features/theory/models/chord_symbol.dart';
+import 'package:what_chord/features/theory/models/key_signature.dart';
+import 'package:what_chord/features/theory/models/note_spelling_policy.dart';
+import 'package:what_chord/features/theory/models/tonality.dart';
 import 'package:what_chord/features/theory/services/chord_symbol_formatter.dart';
 
 /// Usage:
@@ -23,6 +25,9 @@ import 'package:what_chord/features/theory/services/chord_symbol_formatter.dart'
 ///
 ///   --details         Show full score reasons and full ranking decision data
 ///                     (overrides --reasons and disables compact output)
+///
+///   --key=KEY         Tonality for tie-breaks/spelling (default C:maj).
+///                     Examples: C, C:maj, A:min, Eb:maj, F#:min
 void main(List<String> args) {
   if (args.isEmpty) {
     stderr.writeln('Provide notes (pitch names or MIDI numbers).');
@@ -32,6 +37,18 @@ void main(List<String> args) {
 
   final top = _readIntFlag(args, 'top') ?? 5;
   final bassName = _readStringFlag(args, 'bass');
+
+  final keyFlag = _readStringFlag(args, 'key') ?? 'C:maj';
+  final tonality = _parseTonalityFlag(keyFlag);
+
+  final ks = KeySignature.fromTonality(tonality);
+  final spellingPolicy = NoteSpellingPolicy(preferFlats: ks.prefersFlats);
+
+  final context = AnalysisContext(
+    tonality: tonality,
+    keySignature: ks,
+    spellingPolicy: spellingPolicy,
+  );
 
   // Extract positional args (notes), ignoring flags.
   final noteTokens = args.where((a) => !a.startsWith('--')).toList();
@@ -67,13 +84,23 @@ void main(List<String> args) {
   stdout.writeln('Input: $input');
   stdout.writeln('pcs: ${pcs.map(_pcName).toSet().toList()..sort()}');
   stdout.writeln('bass: ${_pcName(bassPc)}');
+  stdout.writeln(
+    'key: ${context.tonality.displayName} (${context.keySignature.label})',
+  );
+  stdout.writeln(
+    'spelling: ${context.spellingPolicy.preferFlats ? 'flats' : 'sharps'}',
+  );
   stdout.writeln('');
   stdout.writeln(
     'Note: sorting uses near-tie heuristics within ±${ChordCandidateRanking.nearTieWindow.toStringAsFixed(2)}',
   );
   stdout.writeln('');
 
-  final results = ChordAnalyzer.analyzeDebug(input, take: top);
+  final results = ChordAnalyzer.analyzeDebug(
+    input,
+    context: context,
+    take: top,
+  );
 
   if (results.isEmpty) {
     stdout.writeln('No candidates.');
@@ -274,6 +301,70 @@ int _parsePitchClass(String s) {
   }
 
   return (midiNotes: midi, pitchClasses: pcs);
+}
+
+Tonality _parseTonalityFlag(String raw) {
+  final s = raw.trim();
+  if (s.isEmpty) return const Tonality('C', TonalityMode.major);
+
+  // Accept: "C", "C:maj", "C:major", "A:min", "A:minor"
+  // Also accept "A minor" / "C major" (space separated).
+  final normalized = s.replaceAll(RegExp(r'\s+'), '').toLowerCase();
+
+  // Split on ":" if present (preferred syntax).
+  String tonicPart;
+  String? modePart;
+  final colon = normalized.indexOf(':');
+  if (colon >= 0) {
+    tonicPart = normalized.substring(0, colon);
+    modePart = normalized.substring(colon + 1);
+  } else {
+    // Try suffix forms: "amin", "cmajor", etc.
+    tonicPart = normalized;
+    modePart = null;
+  }
+
+  // Detect mode.
+  TonalityMode mode = TonalityMode.major;
+  if (modePart != null) {
+    if (modePart == 'min' || modePart == 'minor') mode = TonalityMode.minor;
+    if (modePart == 'maj' || modePart == 'major') mode = TonalityMode.major;
+  } else {
+    // If user typed "...minor" or "...major" without colon, handle it.
+    if (tonicPart.endsWith('minor')) {
+      mode = TonalityMode.minor;
+      tonicPart = tonicPart.substring(0, tonicPart.length - 'minor'.length);
+    } else if (tonicPart.endsWith('major')) {
+      mode = TonalityMode.major;
+      tonicPart = tonicPart.substring(0, tonicPart.length - 'major'.length);
+    } else if (tonicPart.endsWith('min')) {
+      mode = TonalityMode.minor;
+      tonicPart = tonicPart.substring(0, tonicPart.length - 'min'.length);
+    } else if (tonicPart.endsWith('maj')) {
+      mode = TonalityMode.major;
+      tonicPart = tonicPart.substring(0, tonicPart.length - 'maj'.length);
+    }
+  }
+
+  // Reconstruct tonic in canonical “letter + accidental” form.
+  // We’ll accept b/#, and preserve casing as your Tonality expects.
+  final tonic = _normalizeTonicName(tonicPart);
+
+  return Tonality(tonic, mode);
+}
+
+String _normalizeTonicName(String s) {
+  if (s.isEmpty) return 'C';
+
+  // Expected inputs like: c, eb, f#, gb, bb
+  final letter = s[0].toUpperCase();
+  final rest = s.substring(1);
+
+  // Keep only accidental chars we support.
+  // Support 'b' and '#'. (If you later support unicode ♭/♯, map them here.)
+  final acc = rest.replaceAll(RegExp(r'[^b#]'), '');
+
+  return '$letter$acc';
 }
 
 String _formatIdentityCompact(ChordIdentity id) {

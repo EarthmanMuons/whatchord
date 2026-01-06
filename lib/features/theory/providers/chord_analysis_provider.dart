@@ -11,7 +11,6 @@ import '../services/inversion_labeler.dart';
 import '../services/note_spelling.dart';
 import 'analysis_context_provider.dart';
 import 'chord_symbol_style_notifier.dart';
-import 'tonality_provider.dart';
 
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   final pcs = ref.watch(soundingPitchClassesProvider);
@@ -92,8 +91,8 @@ final detectedScaleDegreeProvider = Provider<ScaleDegree?>((ref) {
   final best = ref.watch(bestChordCandidateProvider);
   if (best == null) return null;
 
-  final tonality = ref.watch(selectedTonalityProvider);
-  return tonality.scaleDegreeForChord(best.identity);
+  final context = ref.watch(analysisContextProvider);
+  return context.tonality.scaleDegreeForChord(best.identity);
 });
 
 /// Converts currently sounding MIDI notes into a minimal chord-analysis input.

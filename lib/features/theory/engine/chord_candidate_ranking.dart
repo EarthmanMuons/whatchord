@@ -1,3 +1,5 @@
+import '../models/scale_degree.dart';
+import '../models/tonality.dart';
 import 'models/chord_candidate.dart';
 import 'models/chord_extension.dart';
 import 'models/chord_identity.dart';
@@ -23,7 +25,11 @@ abstract final class ChordCandidateRanking {
   /// - < 0 if [a] should sort before [b]
   /// - > 0 if [a] should sort after [b]
   /// - 0 only if fully equivalent (should not happen due to deterministic tail)
-  static int compare(ChordCandidate a, ChordCandidate b) {
+  static int compare(
+    ChordCandidate a,
+    ChordCandidate b, {
+    required Tonality tonality,
+  }) {
     // Primary: higher score wins.
     final delta = b.score - a.score;
 
@@ -37,7 +43,7 @@ abstract final class ChordCandidateRanking {
     final fb = _CandidateFeatures.from(b);
 
     for (final rule in _tieBreakerRules) {
-      final r = rule.apply(a, b, fa, fb);
+      final r = rule.apply(a, b, fa, fb, tonality);
       if (r != null && r != 0) return r;
     }
 
@@ -45,7 +51,11 @@ abstract final class ChordCandidateRanking {
     return a.identity.rootPc.compareTo(b.identity.rootPc);
   }
 
-  static RankingDecision explain(ChordCandidate a, ChordCandidate b) {
+  static RankingDecision explain(
+    ChordCandidate a,
+    ChordCandidate b, {
+    required Tonality tonality,
+  }) {
     final delta = b.score - a.score;
 
     if (delta.abs() > nearTieWindow) {
@@ -61,7 +71,7 @@ abstract final class ChordCandidateRanking {
     final fb = _CandidateFeatures.from(b);
 
     for (final rule in _tieBreakerRules) {
-      final r = rule.apply(a, b, fa, fb);
+      final r = rule.apply(a, b, fa, fb, tonality);
       if (r != null && r != 0) {
         return RankingDecision(
           result: r,
@@ -91,6 +101,8 @@ abstract final class ChordCandidateRanking {
       _ruleDom7RootPosition,
     ),
     _NamedRule('Prefer fewer alterations', _ruleFewerAlterations),
+    _NamedRule('Prefer chords diatonic to the key', _ruleDiatonic),
+    _NamedRule('Prefer I when bass is tonic', _ruleTonicAsI),
     _NamedRule(
       'Natural extensions over adds, then simpler',
       _ruleNaturalExtensions,
@@ -109,6 +121,7 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b,
     _CandidateFeatures fa,
     _CandidateFeatures fb,
+    Tonality _,
   ) {
     if (fa.isSixFamily == fb.isSixFamily) return null;
 
@@ -135,6 +148,7 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b,
     _CandidateFeatures fa,
     _CandidateFeatures fb,
+    Tonality _,
   ) {
     if (fa.isDom7RootPosition == fb.isDom7RootPosition) return null;
     return fb.isDom7RootPosition ? 1 : -1;
@@ -146,12 +160,58 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b,
     _CandidateFeatures fa,
     _CandidateFeatures fb,
+    Tonality _,
   ) {
     final cmp = fa.extPref.alterationCount.compareTo(
       fb.extPref.alterationCount,
     );
     if (cmp == 0) return null;
     return cmp; // lower alteration count wins
+  }
+
+  // Prefer chords that are diatonically valid *as chords* (root + quality),
+  // not just "root is in the scale."
+  static int? _ruleDiatonic(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality tonality,
+  ) {
+    final da = tonality.scaleDegreeForChord(a.identity);
+    final db = tonality.scaleDegreeForChord(b.identity);
+
+    final aOk = da != null;
+    final bOk = db != null;
+
+    if (aOk == bOk) return null;
+    return bOk ? 1 : -1; // valid wins
+  }
+
+  // Strongest pianist expectation: if the bass is the tonic, prefer I-family
+  // explanations over relative-minor/other-degree slash readings in a near-tie.
+  static int? _ruleTonicAsI(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality tonality,
+  ) {
+    final tonic = tonality.tonicPitchClass;
+
+    final da = tonality.scaleDegreeForChord(a.identity);
+    final db = tonality.scaleDegreeForChord(b.identity);
+    if (da == null || db == null) return null;
+
+    final bassIsTonic = a.identity.bassPc == tonic; // same bass for the set
+    if (!bassIsTonic) return null;
+
+    final aIsI = da == ScaleDegree.one;
+    final bIsI = db == ScaleDegree.one;
+
+    if (aIsI == bIsI) return null;
+
+    return bIsI ? 1 : -1; // I wins
   }
 
   // Prefer:
@@ -163,6 +223,7 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b,
     _CandidateFeatures fa,
     _CandidateFeatures fb,
+    Tonality _,
   ) {
     final natural = fb.extPref.naturalCount.compareTo(fa.extPref.naturalCount);
     if (natural != 0) return natural;
@@ -182,6 +243,7 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b,
     _CandidateFeatures fa,
     _CandidateFeatures fb,
+    Tonality _,
   ) {
     if (fa.isRootPosition == fb.isRootPosition) return null;
     return fb.isRootPosition ? 1 : -1;
@@ -194,6 +256,7 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b,
     _CandidateFeatures fa,
     _CandidateFeatures fb,
+    Tonality _,
   ) {
     final cmp = fa.bassRoleRank.compareTo(fb.bassRoleRank);
     if (cmp == 0) return null;
@@ -206,6 +269,7 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b,
     _CandidateFeatures fa,
     _CandidateFeatures fb,
+    Tonality _,
   ) {
     if (fa.isSeventhFamily == fb.isSeventhFamily) return null;
     return fb.isSeventhFamily ? 1 : -1;
@@ -217,6 +281,7 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b,
     _CandidateFeatures fa,
     _CandidateFeatures fb,
+    Tonality _,
   ) {
     final cmp = fa.extensionCount.compareTo(fb.extensionCount);
     if (cmp == 0) return null;
@@ -229,6 +294,7 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b,
     _CandidateFeatures fa,
     _CandidateFeatures fb,
+    Tonality _,
   ) {
     if (fa.isSus == fb.isSus) return null;
     return fa.isSus ? 1 : -1; // non-sus wins
@@ -242,6 +308,7 @@ class _NamedRule {
     ChordCandidate b,
     _CandidateFeatures fa,
     _CandidateFeatures fb,
+    Tonality tonality,
   )
   apply;
 

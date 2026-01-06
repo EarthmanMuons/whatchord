@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:meta/meta.dart';
 
-import '../models/tonality.dart';
 import 'chord_candidate_ranking.dart';
 import 'data/chord_templates.dart';
 import 'models/analysis_context.dart';
@@ -57,7 +56,7 @@ abstract final class ChordAnalyzer {
 
   static List<ChordCandidate> analyze(
     ChordInput input, {
-    AnalysisContext? context,
+    required AnalysisContext context,
     int take = 8,
   }) {
     // Cache must include all bias sources (context) because it affects ranking.
@@ -84,7 +83,7 @@ abstract final class ChordAnalyzer {
   /// returns human-readable score reasons and tie-break explanations.
   static List<RankedCandidateDebug> analyzeDebug(
     ChordInput input, {
-    AnalysisContext? context,
+    required AnalysisContext context,
     int take = 8,
   }) {
     final eval = _evaluateAll(
@@ -108,6 +107,7 @@ abstract final class ChordAnalyzer {
               : ChordCandidateRanking.explain(
                   prev.candidate,
                   current.candidate,
+                  tonality: context.tonality,
                 ),
         ),
       );
@@ -121,7 +121,7 @@ abstract final class ChordAnalyzer {
 
   static List<_Evaluated> _evaluateAll(
     ChordInput input, {
-    required AnalysisContext? context,
+    required AnalysisContext context,
     required bool debug,
   }) {
     final pcMask = input.pcMask;
@@ -147,17 +147,6 @@ abstract final class ChordAnalyzer {
         );
         if (scored == null) continue;
 
-        var score = scored.score;
-
-        // Tonality prior: small bias only; never dominates note evidence.
-        if (context != null) {
-          final bonus = _tonalityBonus(rootPc, context.tonality);
-          if (bonus != 0.0) {
-            score += bonus;
-            reasons?.add(ScoreReason('tonality bias', bonus));
-          }
-        }
-
         final candidate = ChordCandidate(
           identity: ChordIdentity(
             rootPc: rootPc,
@@ -165,7 +154,7 @@ abstract final class ChordAnalyzer {
             quality: tmpl.quality,
             extensions: scored.extensions,
           ),
-          score: score,
+          score: scored.score,
         );
 
         out.add(
@@ -174,7 +163,14 @@ abstract final class ChordAnalyzer {
       }
     }
 
-    out.sort((a, b) => ChordCandidateRanking.compare(a.candidate, b.candidate));
+    out.sort(
+      (a, b) => ChordCandidateRanking.compare(
+        a.candidate,
+        b.candidate,
+        tonality: context.tonality,
+      ),
+    );
+
     return out;
   }
 
@@ -349,9 +345,4 @@ Set<ChordExtension> _extensionsFromExtras(
   if (has13) out.add(has7 ? ChordExtension.thirteen : ChordExtension.add13);
 
   return out;
-}
-
-double _tonalityBonus(int rootPc, Tonality tonality) {
-  final isDiatonic = tonality.containsPitchClass(rootPc);
-  return isDiatonic ? 0.10 : -0.02;
 }

@@ -1,8 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:what_chord/features/theory/engine/engine.dart';
-import 'package:what_chord/features/theory/models/chord_symbol.dart';
-import 'package:what_chord/features/theory/services/chord_symbol_formatter.dart';
+import 'package:what_chord/features/theory/theory.dart';
+
+const tonality = Tonality('C', TonalityMode.major);
+
+final context = AnalysisContext(
+  tonality: tonality,
+  keySignature: KeySignature.fromTonality(tonality),
+  spellingPolicy: NoteSpellingPolicy.preferSharps(),
+);
 
 int maskOf(Iterable<int> pcs) {
   var m = 0;
@@ -339,7 +345,7 @@ void main() {
         noteCount: count,
       );
 
-      final results = ChordAnalyzer.analyze(input);
+      final results = ChordAnalyzer.analyze(input, context: context);
       expect(results, isNotEmpty, reason: 'No candidates returned');
 
       final top = results.first.identity;
