@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/key_signature.dart';
@@ -15,8 +14,6 @@ class TonalityPickerSheet extends ConsumerStatefulWidget {
 }
 
 class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
-  static const _loopMultiplier = 200;
-
   static const double _rowHeight = 62.0;
   static const double _headerHeight = 46.0;
   static const double _chipWidth = 64.0;
@@ -35,7 +32,7 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _centerSelectedRow();
+      _centerSelectedRow(animated: false);
     });
   }
 
@@ -63,19 +60,18 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
 
         final didOrientationChange =
             _lastIsLandscape != null && _lastIsLandscape != isLandscape;
-
         _lastIsLandscape = isLandscape;
 
         if (didOrientationChange) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
-            _centerSelectedRow();
+            _centerSelectedRow(animated: false);
           });
         }
 
         final mq = MediaQuery.of(context);
 
-        // Always strip left/right for full-width expansion (existing, for full internal use of route space)
+        // Always strip left/right for full-width expansion (existing behavior)
         final mqAdjusted = isLandscape
             ? mq.copyWith(
                 padding: mq.padding.copyWith(left: 0, right: 0),
@@ -84,9 +80,7 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
             : mq;
 
         final screenHeight = mqAdjusted.size.height;
-        final sheetHeight = isLandscape
-            ? screenHeight // Full height in landscape
-            : screenHeight * 0.42; // Roughly half height in portrait
+        final sheetHeight = isLandscape ? screenHeight : screenHeight * 0.42;
 
         return MediaQuery(
           data: mqAdjusted,
@@ -108,76 +102,80 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                   ),
                   SliverFixedExtentList(
                     itemExtent: _rowHeight,
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final row = _rows[index % _rows.length];
-                      final major = row.relativeMajor;
-                      final minor = row.relativeMinor;
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final row = _rows[index];
+                        final major = row.relativeMajor;
+                        final minor = row.relativeMinor;
 
-                      final rowSelected =
-                          selected == major || selected == minor;
-                      final majorSelected = selected == major;
-                      final minorSelected = selected == minor;
+                        final rowSelected =
+                            selected == major || selected == minor;
+                        final majorSelected = selected == major;
+                        final minorSelected = selected == minor;
 
-                      return DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: rowSelected
-                              ? selectedRowBg
-                              : Colors.transparent,
-                        ),
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        row.label,
-                                        style: theme.textTheme.bodyMedium
-                                            ?.copyWith(
-                                              color: cs.onSurfaceVariant,
-                                            ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: _chipWidth,
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: _TonalityChoiceChip(
-                                          label: major.label,
-                                          selected: majorSelected,
-                                          onTap: () => _selectTonality(major),
+                        return DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: rowSelected
+                                ? selectedRowBg
+                                : Colors.transparent,
+                          ),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          row.label,
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                                color: cs.onSurfaceVariant,
+                                              ),
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    SizedBox(
-                                      width: _chipWidth,
-                                      child: Align(
-                                        alignment: Alignment.center,
-                                        child: _TonalityChoiceChip(
-                                          label: minor.label,
-                                          selected: minorSelected,
-                                          onTap: () => _selectTonality(minor),
+                                      SizedBox(
+                                        width: _chipWidth,
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          child: _TonalityChoiceChip(
+                                            label: major.label,
+                                            selected: majorSelected,
+                                            onTap: () => _selectTonality(major),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 12),
+                                      SizedBox(
+                                        width: _chipWidth,
+                                        child: Align(
+                                          alignment: Alignment.center,
+                                          child: _TonalityChoiceChip(
+                                            label: minor.label,
+                                            selected: minorSelected,
+                                            onTap: () => _selectTonality(minor),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Divider(height: 1),
-                            ),
-                          ],
-                        ),
-                      );
-                    }, childCount: _rows.length * _loopMultiplier),
+                              const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: Divider(height: 1),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      childCount: _rows.length, // finite
+                    ),
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: 12)),
                 ],
@@ -200,38 +198,51 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
     ];
   }
 
-  int _baseIndexForSelected(Tonality selected) {
+  int _indexForSelected(Tonality selected) {
     final i = _rows.indexWhere(
       (row) => row.relativeMajor == selected || row.relativeMinor == selected,
     );
     if (i >= 0) return i;
 
+    // Fallback: center around 0 accidentals if something unexpected happens.
     return _rows.indexWhere((row) => row.accidentalCount == 0);
   }
 
-  void _centerSelectedRow() {
+  void _centerSelectedRow({required bool animated}) {
     if (!_controller.hasClients) return;
 
     final selected = ref.read(selectedTonalityProvider);
     final viewport = _controller.position.viewportDimension;
 
-    final base = _baseIndexForSelected(selected);
-    final middleStart = _rows.length * (_loopMultiplier ~/ 2);
-    final selectedIndex = middleStart + base;
+    final index = _indexForSelected(selected);
 
-    final target =
-        (selectedIndex * _rowHeight) - (viewport / 2) + (_rowHeight / 2);
+    final target = (index * _rowHeight) - (viewport / 2) + (_rowHeight / 2);
 
-    _controller.jumpTo(
-      target.clamp(
-        _controller.position.minScrollExtent,
-        _controller.position.maxScrollExtent,
-      ),
+    final clamped = target.clamp(
+      _controller.position.minScrollExtent,
+      _controller.position.maxScrollExtent,
+    );
+
+    if (!animated) {
+      _controller.jumpTo(clamped);
+      return;
+    }
+
+    _controller.animateTo(
+      clamped,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
     );
   }
 
   void _selectTonality(Tonality tonality) {
     ref.read(selectedTonalityProvider.notifier).setTonality(tonality);
+
+    // Recenter after selection so the choice stays visually anchored.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _centerSelectedRow(animated: true);
+    });
   }
 }
 
@@ -353,7 +364,6 @@ class _TonalityChoiceChip extends StatelessWidget {
       showCheckmark: false,
       visualDensity: VisualDensity.compact,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: side,
