@@ -83,34 +83,28 @@ abstract final class ChordCandidateRanking {
 
   static final List<_NamedRule> _tieBreakerRules = <_NamedRule>[
     _NamedRule(
-      'Prefer 6-family root position over slash 7-family (if other has no real ext)',
-      _rulePreferSixFamilyRootPosOverSlash7WhenOtherHasNoRealExt,
+      'Prefer root-position 6th over inverted 7th (when no extensions)',
+      _rule6RootVsSlash7,
     ),
     _NamedRule(
-      'Prefer root-position dominant7 in upper-structure ambiguity',
-      _rulePreferRootPositionDominant7InUpperStructureAmbiguity,
+      'Prefer root-position dominant7 in upper-structure cases',
+      _ruleDom7RootPosition,
     ),
-    _NamedRule('Prefer fewer alterations', _rulePreferFewerAlterations),
+    _NamedRule('Prefer fewer alterations', _ruleFewerAlterations),
     _NamedRule(
-      'Prefer natural extensions; then fewer adds; then fewer total ext tokens',
-      _rulePreferNaturalExtensionsThenFewerAddsThenFewerTotalExtTokens,
+      'Natural extensions over adds, then simpler',
+      _ruleNaturalExtensions,
     ),
-    _NamedRule('Prefer root position', _rulePreferRootPosition),
-    _NamedRule(
-      'Prefer bass as 3rd over bass as 5th',
-      _rulePreferBassAsThirdOverBassAsFifth,
-    ),
-    _NamedRule(
-      'Prefer seventh-family over triad-family',
-      _rulePreferSeventhFamilyOverTriadFamily,
-    ),
-    _NamedRule('Prefer fewer extensions', _rulePreferFewerExtensions),
-    _NamedRule('Prefer non-sus', _rulePreferNonSus),
+    _NamedRule('Prefer root position', _ruleRootPosition),
+    _NamedRule('Prefer 1st inversion over 2nd inversion', _ruleBass3rdOver5th),
+    _NamedRule('Prefer 7th chords over triads', _rule7thOverTriad),
+    _NamedRule('Prefer fewer extensions', _ruleFewerExtensions),
+    _NamedRule('Avoid suspended chords', _ruleAvoidSus),
   ];
 
   // Prefer 6-family in root position over slash 7-family when effectively tied,
   // but only when the non-6 chord has no “real” natural/alteration extensions.
-  static int? _rulePreferSixFamilyRootPosOverSlash7WhenOtherHasNoRealExt(
+  static int? _rule6RootVsSlash7(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -136,7 +130,7 @@ abstract final class ChordCandidateRanking {
   }
 
   // Prefer root-position dominant7 chords in ambiguous upper-structure situations.
-  static int? _rulePreferRootPositionDominant7InUpperStructureAmbiguity(
+  static int? _ruleDom7RootPosition(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -147,7 +141,7 @@ abstract final class ChordCandidateRanking {
   }
 
   // Prefer fewer alterations (b9/#11/b13 etc.).
-  static int? _rulePreferFewerAlterations(
+  static int? _ruleFewerAlterations(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -164,7 +158,7 @@ abstract final class ChordCandidateRanking {
   // - more natural extensions (9/11/13),
   // - then fewer add-tones,
   // - then fewer total extension tokens.
-  static int? _rulePreferNaturalExtensionsThenFewerAddsThenFewerTotalExtTokens(
+  static int? _ruleNaturalExtensions(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -183,7 +177,7 @@ abstract final class ChordCandidateRanking {
   }
 
   // Prefer root position (bass == root).
-  static int? _rulePreferRootPosition(
+  static int? _ruleRootPosition(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -195,7 +189,7 @@ abstract final class ChordCandidateRanking {
 
   // Prefer inversions where bass is the 3rd over those where bass is the 5th.
   // Kept before seventh-family to preserve cases like C6/E beating Am7/E.
-  static int? _rulePreferBassAsThirdOverBassAsFifth(
+  static int? _ruleBass3rdOver5th(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -207,7 +201,7 @@ abstract final class ChordCandidateRanking {
   }
 
   // Prefer seventh-family over triad-family.
-  static int? _rulePreferSeventhFamilyOverTriadFamily(
+  static int? _rule7thOverTriad(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -218,7 +212,7 @@ abstract final class ChordCandidateRanking {
   }
 
   // Prefer fewer extensions (simpler explanation).
-  static int? _rulePreferFewerExtensions(
+  static int? _ruleFewerExtensions(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -230,7 +224,7 @@ abstract final class ChordCandidateRanking {
   }
 
   // Prefer non-sus over sus.
-  static int? _rulePreferNonSus(
+  static int? _ruleAvoidSus(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
