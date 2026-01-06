@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/core/activity/activity_tracker.dart';
+import 'package:what_chord/core/activity/midi_activity_tracker.dart';
 import 'package:what_chord/features/midi/midi.dart'
     show activeNotesProvider, isPedalDownProvider;
 
@@ -28,15 +29,6 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
   ProviderSubscription<List<ActiveNote>>? _notesSubscription;
   ProviderSubscription<bool>? _pedalSubscription;
 
-  // Prompt behavior: - Show on first load (before any input has occurred).
-  // - After the user has played/pressed pedal at least once, don't re-show
-  //   immediately when they go idle. Instead, wait for a short cooldown after
-  //   the active -> idle transition.
-  static const Duration _promptCooldown = Duration(seconds: 8);
-  bool _hasSeenActivity = false;
-  DateTime? _promptEligibleAt;
-  Timer? _promptTimer;
-
   @override
   void initState() {
     super.initState();
@@ -55,14 +47,9 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
         ref
             .read(activityTrackerProvider.notifier)
             .markActivity(ActivitySource.midi);
+        ref.read(midiActivityProvider.notifier).markMidiActivity();
       }
 
-      _updatePromptSuppression(
-        prevNotes: prev ?? const <ActiveNote>[],
-        nextNotes: next,
-        prevPedal: _pedal,
-        nextPedal: _pedal,
-      );
       _applyNotesDiff(next);
     });
 
@@ -76,14 +63,9 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
         ref
             .read(activityTrackerProvider.notifier)
             .markActivity(ActivitySource.midi);
+        ref.read(midiActivityProvider.notifier).markMidiActivity();
       }
 
-      _updatePromptSuppression(
-        prevNotes: _notes,
-        nextNotes: _notes,
-        prevPedal: prev ?? false,
-        nextPedal: next,
-      );
       setState(() => _pedal = next);
     });
   }
@@ -92,38 +74,7 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
   void dispose() {
     _notesSubscription?.close();
     _pedalSubscription?.close();
-    _promptTimer?.cancel();
     super.dispose();
-  }
-
-  void _updatePromptSuppression({
-    required List<ActiveNote> prevNotes,
-    required List<ActiveNote> nextNotes,
-    required bool prevPedal,
-    required bool nextPedal,
-  }) {
-    final hadAnyInputBefore = prevNotes.isNotEmpty || prevPedal;
-    final hasAnyInputNow = nextNotes.isNotEmpty || nextPedal;
-
-    // If the user is doing anything, record that they've interacted at least
-    // once, and cancel any pending "show prompt" timer.
-    if (hasAnyInputNow) {
-      _hasSeenActivity = true;
-      _promptTimer?.cancel();
-      return;
-    }
-
-    // If we just transitioned from "active" -> "idle", schedule a repaint when cooldown ends
-    // so the prompt can re-appear (if still idle).
-    if (_hasSeenActivity && hadAnyInputBefore && !hasAnyInputNow) {
-      _promptEligibleAt = DateTime.now().add(_promptCooldown);
-
-      _promptTimer?.cancel();
-      _promptTimer = Timer(_promptCooldown, () {
-        if (!mounted) return;
-        setState(() {});
-      });
-    }
   }
 
   void _applyNotesDiff(List<ActiveNote> next) {
@@ -176,11 +127,8 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
     final cs = theme.colorScheme;
 
     const minHeight = 44.0;
-    final isSuppressed =
-        _hasSeenActivity &&
-        _promptEligibleAt != null &&
-        DateTime.now().isBefore(_promptEligibleAt!);
-    final showPrompt = _notes.isEmpty && !_pedal && !isSuppressed;
+    final midiEligible = ref.watch(midiIdleEligibleProvider);
+    final showPrompt = _notes.isEmpty && !_pedal && midiEligible;
 
     return Padding(
       padding: widget.padding,
