@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:auto_size_text/auto_size_text.dart';
+
 import 'package:what_chord/features/theory/theory.dart';
 
 class ChordCard extends StatelessWidget {
@@ -29,7 +31,7 @@ class ChordCard extends StatelessWidget {
     );
 
     final minCardHeight = 132.0;
-    final padding = const EdgeInsets.symmetric(horizontal: 28, vertical: 18);
+    final padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 20);
 
     Widget chordText() {
       final spans = <InlineSpan>[
@@ -44,11 +46,12 @@ class ChordCard extends StatelessWidget {
         ],
       ];
 
-      return Text.rich(
+      return AutoSizeText.rich(
         TextSpan(style: chordStyle, children: spans),
         textAlign: TextAlign.center,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
+        style: chordStyle,
+        maxLines: 1,
+        minFontSize: 22,
       );
     }
 
@@ -66,12 +69,12 @@ class ChordCard extends StatelessWidget {
                     children: [
                       chordText(),
                       const SizedBox(height: 18),
-                      Text(
+                      AutoSizeText(
                         inversion!,
                         textAlign: TextAlign.center,
                         style: inversionStyle,
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        minFontSize: 20,
                       ),
                     ],
                   )

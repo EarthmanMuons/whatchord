@@ -43,6 +43,7 @@ dependencies:
   flutter_midi_command: ^0.5.3
   shared_preferences: ^2.5.4
   meta: ^1.17.0
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:
