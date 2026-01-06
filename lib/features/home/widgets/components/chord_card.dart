@@ -28,7 +28,7 @@ class ChordCard extends StatelessWidget {
       height: 1.1,
     );
 
-    final minCardHeight = 124.0;
+    final minCardHeight = 132.0;
     final padding = const EdgeInsets.symmetric(horizontal: 28, vertical: 18);
 
     Widget chordText() {
@@ -59,22 +59,24 @@ class ChordCard extends StatelessWidget {
         constraints: BoxConstraints(minHeight: minCardHeight),
         child: Padding(
           padding: padding,
-          child: hasInversion
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    chordText(),
-                    const SizedBox(height: 18),
-                    Text(
-                      inversion!,
-                      textAlign: TextAlign.center,
-                      style: inversionStyle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                )
-              : Center(child: chordText()),
+          child: Center(
+            child: hasInversion
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      chordText(),
+                      const SizedBox(height: 18),
+                      Text(
+                        inversion!,
+                        textAlign: TextAlign.center,
+                        style: inversionStyle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  )
+                : chordText(),
+          ),
         ),
       ),
     );
