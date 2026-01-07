@@ -24,7 +24,7 @@ final analysisModeProvider = Provider<AnalysisMode>((ref) {
 
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   ChordAnalysis empty() => ChordAnalysis(
-    symbol: ChordSymbol(root: '— — —', quality: '', bass: null),
+    symbol: ChordSymbol(root: '• • •', quality: '', bass: null),
     inversion: null,
   );
 
