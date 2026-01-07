@@ -6,7 +6,7 @@ import 'package:what_chord/core/activity/midi_activity_tracker.dart';
 import 'package:what_chord/features/theory/theory.dart';
 
 import '../../models/home_layout_config.dart';
-import '../components/chord_card.dart';
+import '../components/identity_card.dart';
 
 class AnalysisSection extends ConsumerWidget {
   const AnalysisSection({super.key, required this.config});
@@ -36,9 +36,9 @@ class AnalysisSection extends ConsumerWidget {
                   duration: const Duration(milliseconds: 120),
                   curve: Curves.easeOut,
                   alignment: Alignment.center,
-                  child: ChordCard(
+                  child: IdentityCard(
                     symbol: analysis.symbol,
-                    inversion: analysis.inversion,
+                    secondaryLabel: analysis.secondaryLabel,
                     showIdle: showIdle,
                     idleAsset: 'assets/logo/whatchord_logo_circle.svg',
                   ),

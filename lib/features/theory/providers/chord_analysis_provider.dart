@@ -25,7 +25,7 @@ final analysisModeProvider = Provider<AnalysisMode>((ref) {
 final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   ChordAnalysis empty() => ChordAnalysis(
     symbol: ChordSymbol(root: '• • •', quality: '', bass: null),
-    inversion: null,
+    secondaryLabel: null,
   );
 
   final mode = ref.watch(analysisModeProvider);
@@ -45,7 +45,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
 
         return ChordAnalysis(
           symbol: ChordSymbol(root: name, quality: '', bass: null),
-          inversion: 'Note',
+          secondaryLabel: 'Note',
         );
       }
 
@@ -71,7 +71,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
             quality: ' ${interval.short}', // e.g. " P8", " m9"
             bass: null,
           ),
-          inversion: 'Interval',
+          secondaryLabel: 'Interval',
         );
       }
 
@@ -98,7 +98,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
 
         return ChordAnalysis(
           symbol: ChordSymbol(root: root, quality: quality, bass: bass),
-          inversion: inversion,
+          secondaryLabel: inversion,
         );
       }
 

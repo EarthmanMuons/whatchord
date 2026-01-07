@@ -5,9 +5,10 @@ import 'chord_symbol.dart';
 @immutable
 class ChordAnalysis {
   final ChordSymbol symbol;
-  final String? inversion;
+  final String? secondaryLabel;
 
-  const ChordAnalysis({required this.symbol, required this.inversion});
+  const ChordAnalysis({required this.symbol, required this.secondaryLabel});
 
-  bool get hasInversion => inversion != null && inversion!.trim().isNotEmpty;
+  bool get hasSecondaryLabel =>
+      secondaryLabel != null && secondaryLabel!.trim().isNotEmpty;
 }

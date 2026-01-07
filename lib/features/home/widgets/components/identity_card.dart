@@ -6,9 +6,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:what_chord/features/theory/theory.dart';
 import 'package:what_chord/features/theory/services/note_display_formatter.dart';
 
-class ChordCard extends StatelessWidget {
+class IdentityCard extends StatelessWidget {
   final ChordSymbol symbol;
-  final String? inversion;
+  final String? secondaryLabel;
 
   /// When true, show the idle SVG instead of chord text.
   final bool showIdle;
@@ -16,10 +16,10 @@ class ChordCard extends StatelessWidget {
   /// SVG asset to show when idle.
   final String idleAsset;
 
-  const ChordCard({
+  const IdentityCard({
     super.key,
     required this.symbol,
-    required this.inversion,
+    required this.secondaryLabel,
     required this.showIdle,
     required this.idleAsset,
   });
@@ -29,7 +29,8 @@ class ChordCard extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final hasInversion = inversion != null && inversion!.trim().isNotEmpty;
+    final hasSecondaryLabel =
+        secondaryLabel != null && secondaryLabel!.trim().isNotEmpty;
 
     final chordStyle = theme.textTheme.displayMedium!.copyWith(
       color: cs.onPrimary,
@@ -94,11 +95,7 @@ class ChordCard extends StatelessWidget {
         child: Padding(
           padding: padding,
           child: AnimatedSwitcher(
-            // New child animates in over `duration`.
             duration: const Duration(milliseconds: 260),
-
-            // Old child animates out over `reverseDuration`.
-            // Make this shorter to reduce "competition".
             reverseDuration: const Duration(milliseconds: 90),
 
             switchInCurve: Curves.easeOutCubic,
@@ -123,14 +120,14 @@ class ChordCard extends StatelessWidget {
                 ? KeyedSubtree(key: const ValueKey('idle'), child: idleGlyph())
                 : KeyedSubtree(
                     key: const ValueKey('chord'),
-                    child: hasInversion
+                    child: hasSecondaryLabel
                         ? Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               chordText(),
                               const SizedBox(height: 18),
                               AutoSizeText(
-                                inversion!,
+                                secondaryLabel!,
                                 textAlign: TextAlign.center,
                                 style: inversionStyle,
                                 maxLines: 1,
