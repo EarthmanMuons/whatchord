@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/midi/midi.dart';
+import 'package:what_chord/features/theory/providers/tonality_provider.dart';
 
 import '../engine/engine.dart';
 import '../models/chord_analysis.dart';
@@ -43,8 +44,10 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
       otherPc: otherPc,
     );
 
-    final root = pcToName(bassPc, policy: context.spellingPolicy);
-    final other = pcToName(otherPc, policy: context.spellingPolicy);
+    final tonality = ref.watch(selectedTonalityProvider);
+
+    final root = pcToName(bassPc, tonality: tonality);
+    final other = pcToName(otherPc, tonality: tonality);
 
     return ChordAnalysis(
       symbol: ChordSymbol(
@@ -68,9 +71,9 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
   final style = ref.watch(chordSymbolStyleProvider);
   final id = best.identity;
 
-  final root = pcToName(id.rootPc, policy: context.spellingPolicy);
+  final root = pcToName(id.rootPc, tonality: context.tonality);
   final bass = id.hasSlashBass
-      ? pcToName(id.bassPc, policy: context.spellingPolicy)
+      ? pcToName(id.bassPc, tonality: context.tonality)
       : null;
 
   final quality = ChordSymbolFormatter.formatQuality(

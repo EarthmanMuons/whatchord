@@ -39,7 +39,7 @@ class NoteChip extends ConsumerWidget {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       child: Text(
-        formatNoteDisplay(note.label),
+        toGlyphAccidentals(note.label),
         style: theme.textTheme.titleMedium?.copyWith(color: fgColor),
       ),
     );

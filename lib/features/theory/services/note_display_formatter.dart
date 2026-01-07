@@ -1,12 +1,9 @@
 /// Converts canonical ASCII accidentals into nicer display glyphs.
-///
-/// Canonical internal representation:
-///   - sharp: '#'
-///   - flat:  'b'
-///
-/// Display representation:
-///   - sharp: '♯'
-///   - flat:  '♭'
-String formatNoteDisplay(String asciiName) {
-  return asciiName.replaceAll('b', '♭').replaceAll('#', '♯');
+String toGlyphAccidentals(String ascii) {
+  // Convert double accidentals first to avoid partial replacement.
+  return ascii
+      .replaceAll('bb', '𝄫')
+      .replaceAll('x', '𝄪')
+      .replaceAll('#', '♯')
+      .replaceAll('b', '♭');
 }

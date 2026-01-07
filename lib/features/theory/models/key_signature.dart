@@ -15,6 +15,9 @@ class KeySignature {
     required this.relativeMinor,
   });
 
+  /// Alias that matches common theory naming: circle-of-fifths index.
+  int get fifths => accidentalCount;
+
   String get label {
     if (accidentalCount == 0) return 'no sharps/flats';
     final n = accidentalCount.abs();
@@ -36,10 +39,13 @@ class KeySignature {
         return ks;
       }
     }
-
-    // This should never happen, but fail loudly if it does.
     throw StateError('No KeySignature found for tonality $tonality');
   }
+}
+
+/// Convenient, non-cyclic access: Tonality -> KeySignature.
+extension TonalityKeySignatureX on Tonality {
+  KeySignature get keySignature => KeySignature.fromTonality(this);
 }
 
 /// Circle-of-fifths-ish ordering that also includes the "full" 15 signatures:

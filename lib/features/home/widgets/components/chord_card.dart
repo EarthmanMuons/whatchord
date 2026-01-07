@@ -49,14 +49,14 @@ class ChordCard extends StatelessWidget {
 
     Widget chordText() {
       final spans = <InlineSpan>[
-        TextSpan(text: formatNoteDisplay(symbol.root), style: rootStyle),
+        TextSpan(text: toGlyphAccidentals(symbol.root), style: rootStyle),
         if (symbol.quality.isNotEmpty) ...[
           const TextSpan(text: '\u200A'), // hair space
-          TextSpan(text: formatNoteDisplay(symbol.quality)),
+          TextSpan(text: toGlyphAccidentals(symbol.quality)),
         ],
         if (symbol.hasBass) ...[
           const TextSpan(text: ' / '),
-          TextSpan(text: formatNoteDisplay(symbol.bassRequired)),
+          TextSpan(text: toGlyphAccidentals(symbol.bassRequired)),
         ],
       ];
 
