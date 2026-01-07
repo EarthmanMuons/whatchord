@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/midi/midi.dart';
-import 'package:what_chord/features/theory/providers/tonality_provider.dart';
+import 'package:what_chord/features/theory/providers/selected_tonality_notifier.dart';
 
 import '../engine/engine.dart';
 import '../models/chord_analysis.dart';

@@ -9,7 +9,7 @@ export 'models/tonality.dart';
 
 export 'providers/chord_analysis_provider.dart';
 export 'providers/chord_symbol_style_notifier.dart';
-export 'providers/tonality_provider.dart';
+export 'providers/selected_tonality_notifier.dart';
 
 export 'services/chord_symbol_formatter.dart';
 export 'services/inversion_labeler.dart';

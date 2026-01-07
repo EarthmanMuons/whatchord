@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/key_signature.dart';
 import '../models/tonality.dart';
-import '../providers/tonality_provider.dart';
+import '../providers/selected_tonality_notifier.dart';
 
 class TonalityPickerSheet extends ConsumerStatefulWidget {
   const TonalityPickerSheet({super.key});

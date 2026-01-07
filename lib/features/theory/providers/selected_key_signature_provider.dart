@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/key_signature.dart';
 import '../models/tonality.dart';
-import 'tonality_provider.dart';
+import 'selected_tonality_notifier.dart';
 
 final selectedKeySignatureProvider = Provider<KeySignature>((ref) {
   final tonality = ref.watch(selectedTonalityProvider);
