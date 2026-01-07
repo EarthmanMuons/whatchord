@@ -64,6 +64,9 @@ class GoldenCase {
   /// Optional per-case tonality override (defaults to C major).
   final Tonality? tonality;
 
+  /// Optional, when set, assert against the rendered symbol (enharmonic spelling included).
+  final String? expectedSymbol;
+
   /// Assert against the winning identity.
   final void Function(ChordIdentity top) expectTop;
 
@@ -73,6 +76,7 @@ class GoldenCase {
     this.bass,
     this.noteCount,
     this.tonality,
+    this.expectedSymbol,
     required this.expectTop,
   });
 }
@@ -241,7 +245,7 @@ void main() {
     ),
     // Tonality-specific ranking
     GoldenCase(
-      name: 'C E G A D (in Amin) -> Am11 / C',
+      name: 'C E G A D --key=A:min -> Am11 / C',
       pcs: ['C', 'E', 'G', 'A', 'D'],
       tonality: const Tonality('A', TonalityMode.minor),
       expectTop: (top) {
@@ -279,6 +283,29 @@ void main() {
         expect(top.quality, ChordQualityToken.sus2);
       },
     ),
+    // Enharmonic symbols 6 sharps
+    GoldenCase(
+      name: 'E# G# B --key=F#:maj -> E#dim',
+      pcs: ['E#', 'G#', 'B'],
+      tonality: const Tonality('F#', TonalityMode.major),
+      expectedSymbol: 'E#dim',
+      expectTop: (top) {
+        expect(top.rootPc, pc('E#')); // pc('E#') == pc('F')
+        expect(top.quality, ChordQualityToken.diminished);
+      },
+    ),
+    // Enharmonic symbols 7 flats
+    GoldenCase(
+      name: 'Fb Ab Cb --key=Cb:maj -> Fb',
+      pcs: ['Fb', 'Ab', 'Cb'],
+      tonality: const Tonality('Cb', TonalityMode.major),
+      expectedSymbol: 'Fb',
+      expectTop: (top) {
+        expect(top.rootPc, pc('Fb')); // pc('Fb') == pc('E')
+        expect(top.quality, ChordQualityToken.major);
+      },
+    ),
+
     // // Minor vs major third contradiction
     // GoldenCase(
     //   name: 'C Eb E G -> ???', // Eb6(b9) / C or Cm
@@ -311,6 +338,14 @@ void main() {
 
       final expected = expectedSymbolFromCaseName(c.name);
       final actual = actualSymbolFor(top, tonality);
+
+      if (c.expectedSymbol != null) {
+        expect(
+          actual.toString(),
+          c.expectedSymbol,
+          reason: 'Rendered symbol mismatch',
+        );
+      }
 
       try {
         c.expectTop(top);
