@@ -14,6 +14,7 @@ export 'providers/tonality_provider.dart';
 export 'services/chord_symbol_formatter.dart';
 export 'services/inversion_labeler.dart';
 export 'services/note_spelling.dart';
+export 'services/pitch_class.dart';
 
 export 'widgets/scale_degrees.dart';
 export 'widgets/tonality_picker_sheet.dart';

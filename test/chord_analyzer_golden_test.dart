@@ -4,12 +4,16 @@ import 'package:what_chord/features/theory/theory.dart';
 
 AnalysisContext makeContext({
   Tonality tonality = const Tonality('C', TonalityMode.major),
-  NoteSpellingPolicy spellingPolicy = const NoteSpellingPolicy.preferSharps(),
+  NoteSpellingPolicy? spellingPolicy,
 }) {
+  final ks = KeySignature.fromTonality(tonality);
+  final policy =
+      spellingPolicy ?? NoteSpellingPolicy(preferFlats: ks.prefersFlats);
+
   return AnalysisContext(
     tonality: tonality,
-    keySignature: KeySignature.fromTonality(tonality),
-    spellingPolicy: spellingPolicy,
+    keySignature: ks,
+    spellingPolicy: policy,
   );
 }
 
@@ -23,44 +27,7 @@ int maskOf(Iterable<int> pcs) {
   return m;
 }
 
-/// Parse simple pitch-class spellings like:
-/// C, C#, Db, Bb, F#, etc.
-/// (Single accidental only; extend later if needed.)
-int pc(String name) {
-  final s = name.trim().toUpperCase();
-  if (s.isEmpty) throw ArgumentError('Empty pitch name');
-
-  const base = <String, int>{
-    'C': 0,
-    'D': 2,
-    'E': 4,
-    'F': 5,
-    'G': 7,
-    'A': 9,
-    'B': 11,
-  };
-
-  final letter = s[0];
-  final n0 = base[letter];
-  if (n0 == null) throw ArgumentError('Bad pitch letter: $name');
-
-  var n = n0;
-  final rest = s.substring(1);
-
-  if (rest.isEmpty) return n;
-
-  if (rest == 'B') {
-    // flat
-    n = (n - 1) % 12;
-  } else if (rest == '#') {
-    // sharp
-    n = (n + 1) % 12;
-  } else {
-    throw ArgumentError('Unsupported accidental in: $name');
-  }
-
-  return n < 0 ? n + 12 : n;
-}
+int pc(String name) => pitchClassFromNoteName(name);
 
 int maskOfNames(List<String> names) => maskOf(names.map(pc));
 
@@ -69,49 +36,17 @@ String expectedSymbolFromCaseName(String name) {
   return (i == -1) ? name : name.substring(i + 2).trim();
 }
 
-ChordSymbol actualSymbolFor(ChordIdentity id) {
+ChordSymbol actualSymbolFor(ChordIdentity id, Tonality tonality) {
   final quality = ChordSymbolFormatter.formatQuality(
     quality: id.quality,
     extensions: id.extensions,
     style: ChordSymbolStyle.leadSheet,
   );
 
-  final root = _pcName(id.rootPc);
-  final bass = id.hasSlashBass ? _pcName(id.bassPc) : null;
+  final root = pcToName(id.rootPc, tonality: tonality);
+  final bass = id.hasSlashBass ? pcToName(id.bassPc, tonality: tonality) : null;
 
   return ChordSymbol(root: root, quality: quality, bass: bass);
-}
-
-// TODO: replace this with proper enharmonic lookup. It's duplicated in a couple of places.
-String _pcName(int pc) {
-  switch (pc % 12) {
-    case 0:
-      return 'C';
-    case 1:
-      return 'C#';
-    case 2:
-      return 'D';
-    case 3:
-      return 'Eb';
-    case 4:
-      return 'E';
-    case 5:
-      return 'F';
-    case 6:
-      return 'F#';
-    case 7:
-      return 'G';
-    case 8:
-      return 'Ab';
-    case 9:
-      return 'A';
-    case 10:
-      return 'Bb';
-    case 11:
-      return 'B';
-    default:
-      return '?';
-  }
 }
 
 class GoldenCase {
@@ -366,7 +301,8 @@ void main() {
         noteCount: count,
       );
 
-      final ctx = makeContext(tonality: c.tonality ?? defaultTonality);
+      final tonality = c.tonality ?? defaultTonality;
+      final ctx = makeContext(tonality: tonality);
       final results = ChordAnalyzer.analyze(input, context: ctx);
 
       expect(results, isNotEmpty, reason: 'No candidates returned');
@@ -374,7 +310,7 @@ void main() {
       final top = results.first.identity;
 
       final expected = expectedSymbolFromCaseName(c.name);
-      final actual = actualSymbolFor(top);
+      final actual = actualSymbolFor(top, tonality);
 
       try {
         c.expectTop(top);
