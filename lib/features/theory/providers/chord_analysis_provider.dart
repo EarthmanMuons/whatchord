@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/midi/midi.dart';
-import 'package:what_chord/features/theory/providers/selected_tonality_notifier.dart';
 
 import '../engine/engine.dart';
 import '../models/chord_analysis.dart';
@@ -13,84 +12,105 @@ import '../services/note_spelling.dart';
 import 'analysis_context_provider.dart';
 import 'chord_symbol_style_notifier.dart';
 
-final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
-  final pcs = ref.watch(soundingPitchClassesProvider);
+enum AnalysisMode { none, single, dyad, chord }
 
-  if (pcs.isEmpty) {
-    return ChordAnalysis(
-      symbol: ChordSymbol(root: '— — —', quality: '', bass: null),
-      inversion: null,
-    );
-  }
+final analysisModeProvider = Provider<AnalysisMode>((ref) {
+  final input = ref.watch(chordInputProvider);
+  if (input == null || input.noteCount == 0) return AnalysisMode.none;
+  if (input.noteCount == 1) return AnalysisMode.single;
+  if (input.noteCount == 2) return AnalysisMode.dyad;
+  return AnalysisMode.chord;
+});
+
+final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
+  ChordAnalysis empty() => ChordAnalysis(
+    symbol: ChordSymbol(root: '— — —', quality: '', bass: null),
+    inversion: null,
+  );
+
+  final mode = ref.watch(analysisModeProvider);
+  if (mode == AnalysisMode.none) return empty();
 
   final context = ref.watch(analysisContextProvider);
 
-  // Determine bassPc from your existing input provider (or re-derive it).
-  final input = ref.watch(chordInputProvider);
-  if (input == null) {
-    return ChordAnalysis(
-      symbol: ChordSymbol(root: '— — —', quality: '', bass: null),
-      inversion: null,
-    );
+  // Needed for single+dyad. You already have this provider in MIDI.
+  final midis = ref.watch(soundingMidiNotesProvider).toList()..sort();
+  if (midis.isEmpty) return empty();
+
+  switch (mode) {
+    case AnalysisMode.single:
+      {
+        final pc = midis.first % 12;
+        final name = pcToName(pc, tonality: context.tonality);
+
+        return ChordAnalysis(
+          symbol: ChordSymbol(root: name, quality: '', bass: null),
+          inversion: 'Note',
+        );
+      }
+
+    case AnalysisMode.dyad:
+      {
+        if (midis.length < 2) return empty();
+
+        final bassPc = midis.first % 12;
+        final otherPc = midis.last % 12;
+
+        final interval = IntervalLabeler.forPitchClasses(
+          bassPc: bassPc,
+          otherPc: otherPc,
+        );
+
+        final root = pcToName(bassPc, tonality: context.tonality);
+        final other = pcToName(otherPc, tonality: context.tonality);
+
+        return ChordAnalysis(
+          symbol: ChordSymbol(
+            root: root,
+            quality: ' ${interval.short}',
+            bass: other,
+          ),
+          inversion: 'Interval',
+        );
+      }
+
+    case AnalysisMode.chord:
+      {
+        final best = ref.watch(bestChordCandidateProvider);
+        if (best == null) return empty();
+
+        final style = ref.watch(chordSymbolStyleProvider);
+        final id = best.identity;
+
+        final root = pcToName(id.rootPc, tonality: context.tonality);
+        final bass = id.hasSlashBass
+            ? pcToName(id.bassPc, tonality: context.tonality)
+            : null;
+
+        final quality = ChordSymbolFormatter.formatQuality(
+          quality: id.quality,
+          extensions: id.extensions,
+          style: style,
+        );
+
+        final inversion = InversionLabeler.labelFor(id);
+
+        return ChordAnalysis(
+          symbol: ChordSymbol(root: root, quality: quality, bass: bass),
+          inversion: inversion,
+        );
+      }
+
+    case AnalysisMode.none:
+      return empty();
   }
-
-  // Dyad: show interval label instead of guessing a chord.
-  if (pcs.length == 2) {
-    final bassPc = input.bassPc;
-    final otherPc = pcs.first == bassPc ? pcs.last : pcs.first;
-
-    final interval = IntervalLabeler.forPitchClasses(
-      bassPc: bassPc,
-      otherPc: otherPc,
-    );
-
-    final tonality = ref.watch(selectedTonalityProvider);
-
-    final root = pcToName(bassPc, tonality: tonality);
-    final other = pcToName(otherPc, tonality: tonality);
-
-    return ChordAnalysis(
-      symbol: ChordSymbol(
-        root: root,
-        quality: ' ${interval.short}', // e.g. " P5" or " m3"
-        bass: other, // show the other pitch class as the "slash" target
-      ),
-      inversion: null,
-    );
-  }
-
-  // 3+ pitch classes: normal chord identification.
-  final best = ref.watch(bestChordCandidateProvider);
-  if (best == null) {
-    return ChordAnalysis(
-      symbol: ChordSymbol(root: '— — —', quality: '', bass: null),
-      inversion: null,
-    );
-  }
-
-  final style = ref.watch(chordSymbolStyleProvider);
-  final id = best.identity;
-
-  final root = pcToName(id.rootPc, tonality: context.tonality);
-  final bass = id.hasSlashBass
-      ? pcToName(id.bassPc, tonality: context.tonality)
-      : null;
-
-  final quality = ChordSymbolFormatter.formatQuality(
-    quality: id.quality,
-    extensions: id.extensions,
-    style: style,
-  );
-
-  final inversion = InversionLabeler.labelFor(id);
-
-  return ChordAnalysis(
-    symbol: ChordSymbol(root: root, quality: quality, bass: bass),
-    inversion: inversion,
-  );
 });
 
 final detectedScaleDegreeProvider = Provider<ScaleDegree?>((ref) {
+  // Only meaningful for real chord analyses.
+  final mode = ref.watch(analysisModeProvider);
+  if (mode != AnalysisMode.chord) return null;
+
   final best = ref.watch(bestChordCandidateProvider);
   if (best == null) return null;
 
@@ -104,12 +124,10 @@ final chordInputProvider = Provider<ChordInput?>((ref) {
   final sounding = state.soundingNotes;
   if (sounding.isEmpty) return null;
 
-  // Determine bass from the lowest MIDI note number.
   final sorted = sounding.toList()..sort();
   final bassMidi = sorted.first;
   final bassPc = bassMidi % 12;
 
-  // Compute 12-bit pitch-class mask.
   var mask = 0;
   for (final midi in sounding) {
     mask |= (1 << (midi % 12));
@@ -125,10 +143,13 @@ final soundingPitchClassesProvider = Provider<List<int>>((ref) {
   return pcs;
 });
 
-/// Ranked candidates (best-first once Step 2 is implemented).
 final chordCandidatesProvider = Provider<List<ChordCandidate>>((ref) {
   final input = ref.watch(chordInputProvider);
   if (input == null) return const <ChordCandidate>[];
+
+  // Guard: do not analyze if we're not in chord mode.
+  final mode = ref.watch(analysisModeProvider);
+  if (mode != AnalysisMode.chord) return const <ChordCandidate>[];
 
   final context = ref.watch(analysisContextProvider);
   return ChordAnalyzer.analyze(input, context: context);
