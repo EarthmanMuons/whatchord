@@ -68,7 +68,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
           symbol: ChordSymbol(
             root: root,
             quality: ' ${interval.short}',
-            bass: other,
+            bass: null,
           ),
           inversion: 'Interval',
         );
