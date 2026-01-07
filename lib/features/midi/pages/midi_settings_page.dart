@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/core/widgets/widgets.dart';
 
+import '../models/midi_device.dart';
 import '../presentation/midi_connection_presentation.dart';
 import '../providers/midi_service_providers.dart';
 import '../widgets/midi_device_picker.dart';
@@ -71,11 +72,20 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: isInitializing
                     ? null
-                    : () {
-                        showModalBottomSheet(
+                    : () async {
+                        final device = await showModalBottomSheet<MidiDevice>(
                           context: context,
                           showDragHandle: true,
                           builder: (_) => const MidiDevicePicker(),
+                        );
+
+                        if (!context.mounted) return;
+                        if (device == null) return; // user dismissed the sheet
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Connected to ${device.name}'),
+                          ),
                         );
                       },
               ),

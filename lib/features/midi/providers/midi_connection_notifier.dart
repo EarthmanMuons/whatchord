@@ -336,7 +336,38 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   /// Connect to a device and save it as the last connected device.
   Future<void> connect(MidiDevice device) async {
     await _ensureInitialized();
-    await _service.connect(device);
+
+    // Cancel any backoff/retry loop; this is an explicit user action.
+    _cancelRetry();
+
+    // Publish "connecting" with the specific device so UI can render per-row spinners.
+    state = MidiConnectionState(
+      phase: MidiConnectionPhase.connecting,
+      device: device,
+      attempt: 1,
+      nextDelay: null,
+      message: 'Connecting…',
+    );
+
+    try {
+      await _service.connect(device);
+      // Success path is handled by your connectedMidiDeviceProvider listener,
+      // which will set phase=connected and persist the device.
+    } on MidiException catch (e) {
+      state = MidiConnectionState(
+        phase: MidiConnectionPhase.error,
+        device: device,
+        message: e.message,
+      );
+      rethrow;
+    } catch (e) {
+      state = MidiConnectionState(
+        phase: MidiConnectionPhase.error,
+        device: device,
+        message: 'Connection failed: $e',
+      );
+      rethrow;
+    }
   }
 
   /// Disconnect from the current device.

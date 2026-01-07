@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_chord/features/midi/midi.dart';
 
 import '../models/midi_device.dart';
-import '../services/midi_service.dart';
 
 /// Modal bottom sheet for scanning and selecting MIDI devices.
 class MidiDevicePicker extends ConsumerStatefulWidget {
@@ -15,9 +15,11 @@ class MidiDevicePicker extends ConsumerStatefulWidget {
 }
 
 class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
-  bool _isConnecting = false;
   String? _error;
+
   late final MidiConnectionNotifier _connection;
+  late final ProviderSubscription<MidiConnectionState> _connectionSub;
+
   Timer? _scanStartTimer;
 
   @override
@@ -25,7 +27,30 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     super.initState();
     _connection = ref.read(midiConnectionNotifierProvider.notifier);
 
-    // Start scanning when the picker opens
+    // React to connection state changes (errors + success close).
+    _connectionSub = ref.listenManual<MidiConnectionState>(
+      midiConnectionNotifierProvider,
+      (prev, next) {
+        if (!mounted) return;
+
+        // Surface connection errors in the picker UI.
+        if (next.phase == MidiConnectionPhase.error && next.message != null) {
+          setState(() => _error = next.message);
+          return;
+        }
+
+        // Close on successful connection (deduped).
+        final wasConnected = prev?.phase == MidiConnectionPhase.connected;
+        final isConnectedNow = next.phase == MidiConnectionPhase.connected;
+
+        if (!wasConnected && isConnectedNow && next.device != null) {
+          final device = next.device!;
+          Navigator.of(context).pop<MidiDevice>(device);
+        }
+      },
+    );
+
+    // Start scanning when the picker opens.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startScanning();
     });
@@ -33,10 +58,12 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
 
   @override
   void dispose() {
+    _connectionSub.close();
+
     // If we scheduled a delayed scan start, cancel it.
     _scanStartTimer?.cancel();
 
-    // Stop scanning when the picker closes
+    // Stop scanning when the picker closes.
     _stopScanning();
     super.dispose();
   }
@@ -44,27 +71,19 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
   Future<void> _startScanning() async {
     setState(() => _error = null);
 
-    try {
-      // Wait a moment for initialization to complete, but make it cancelable.
-      _scanStartTimer?.cancel();
-      _scanStartTimer = Timer(const Duration(milliseconds: 300), () async {
+    // Wait a moment for initialization to complete, but make it cancelable.
+    _scanStartTimer?.cancel();
+    _scanStartTimer = Timer(const Duration(milliseconds: 300), () async {
+      if (!mounted) return;
+      try {
+        await _connection.startScanning();
+      } catch (e) {
         if (!mounted) return;
-        try {
-          await _connection.startScanning();
-        } catch (e) {
-          if (!mounted) return;
-          setState(() {
-            _error = e.toString().replaceAll('MidiException: ', '');
-          });
-        }
-      });
-    } catch (e) {
-      if (mounted) {
         setState(() {
           _error = e.toString().replaceAll('MidiException: ', '');
         });
       }
-    }
+    });
   }
 
   Future<void> _stopScanning() async {
@@ -76,39 +95,14 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
   }
 
   Future<void> _connectToDevice(MidiDevice device) async {
-    setState(() {
-      _isConnecting = true;
-      _error = null;
-    });
-
-    final connection = ref.read(midiConnectionNotifierProvider.notifier);
+    // Clear any prior error banner (scan or connect).
+    setState(() => _error = null);
 
     try {
-      await connection.connect(device);
-
-      if (mounted) {
-        // Success - close the picker
-        Navigator.of(context).pop();
-
-        // Show success message
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Connected to ${device.name}')));
-      }
-    } on MidiException catch (e) {
-      if (mounted) {
-        setState(() {
-          _isConnecting = false;
-          _error = e.message;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isConnecting = false;
-          _error = 'Connection failed: ${e.toString()}';
-        });
-      }
+      await ref.read(midiConnectionNotifierProvider.notifier).connect(device);
+      // Success + failure UI are driven by the notifier listener above.
+    } catch (_) {
+      // No-op: notifier publishes MidiConnectionPhase.error + message.
     }
   }
 
@@ -122,6 +116,18 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
         .watch(connectedMidiDeviceProvider)
         .asData
         ?.value;
+
+    final conn = ref.watch(midiConnectionNotifierProvider);
+
+    final isBusy =
+        conn.phase == MidiConnectionPhase.connecting ||
+        conn.phase == MidiConnectionPhase.retrying;
+
+    // Row-level spinner only for the device being connected in the "connecting" phase.
+    // (During retrying, we don't want spinners on the list—those are auto reconnect attempts.)
+    final connectingDeviceId = conn.phase == MidiConnectionPhase.connecting
+        ? conn.device?.id
+        : null;
 
     return SafeArea(
       child: Column(
@@ -146,7 +152,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
             ),
           ),
 
-          // Error message
+          // Error message (scan errors + connect errors)
           if (_error != null)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
@@ -187,7 +193,8 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                   itemBuilder: (context, index) {
                     final device = devices[index];
                     final isConnected = connectedDevice?.id == device.id;
-                    final isCurrentlyConnecting = _isConnecting && !isConnected;
+                    final isCurrentlyConnecting =
+                        connectingDeviceId == device.id;
 
                     return ListTile(
                       leading: Icon(
@@ -213,8 +220,8 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : null,
-                      enabled: !_isConnecting,
-                      onTap: isConnected
+                      enabled: !isBusy,
+                      onTap: (isConnected || isBusy)
                           ? null
                           : () => _connectToDevice(device),
                     );
@@ -235,7 +242,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                 TextButton.icon(
                   icon: const Icon(Icons.refresh),
                   label: const Text('Refresh'),
-                  onPressed: _isConnecting ? null : _startScanning,
+                  onPressed: isBusy ? null : _startScanning,
                 ),
               ],
             ),
