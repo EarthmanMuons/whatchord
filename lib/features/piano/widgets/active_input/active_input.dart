@@ -172,28 +172,44 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
   }
 
   Widget _buildAnimatedPedal() {
-    // Keep the pedal animation local to the pedal; no impact on note indices.
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 140),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeOutCubic,
+      duration: const Duration(milliseconds: 220), // slower press
+      reverseDuration: const Duration(milliseconds: 140), // quicker release
+      switchInCurve: Curves.linear, // we control curves manually below
+      switchOutCurve: Curves.linear,
       transitionBuilder: (child, animation) {
-        final curved = CurvedAnimation(
+        final sizeCurve = CurvedAnimation(
           parent: animation,
-          curve: Curves.easeOutCubic,
+          curve: Curves.easeOutCirc,
+          reverseCurve: Curves.easeInCubic,
         );
+
+        // Subtle "soften" instead of a full fade-in/out.
+        final opacityAnimation = Tween<double>(
+          begin: 0.8,
+          end: 1.0,
+        ).animate(sizeCurve);
+
+        // Refined vertical slide:
+        // - slides DOWN from above when appearing
+        // - slides UP when disappearing
+        // - slight overshoot on entry to mimic pedal travel
+        final slideAnimation =
+            Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(
+              CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutBack,
+                reverseCurve: Curves.easeInCubic,
+              ),
+            );
+
         return SizeTransition(
-          sizeFactor: curved,
-          axis: Axis.horizontal,
+          sizeFactor: sizeCurve,
+          axis: Axis.horizontal, // preserve note spacing behavior
+          axisAlignment: 1.0,
           child: FadeTransition(
-            opacity: curved,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(-0.20, 0),
-                end: Offset.zero,
-              ).animate(curved),
-              child: child,
-            ),
+            opacity: opacityAnimation,
+            child: SlideTransition(position: slideAnimation, child: child),
           ),
         );
       },
