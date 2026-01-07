@@ -2,9 +2,6 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/features/piano/models/active_note.dart';
-import 'package:what_chord/features/theory/providers/pitch_class_names_provider.dart';
-
 import '../models/midi_constants.dart';
 import '../models/midi_message.dart';
 import '../models/midi_note_state.dart';
@@ -123,34 +120,12 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
       setPedalDown(value >= MidiConstants.sustainPedalThreshold);
 }
 
-// Raw MIDI note numbers for keyboard highlighting.
+// Raw MIDI note numbers for keyboard highlighting and analysis inputs.
 final soundingMidiNotesProvider = Provider<Set<int>>((ref) {
-  final state = ref.watch(midiNoteStateProvider);
-  return state.soundingNotes;
+  return ref.watch(midiNoteStateProvider.select((s) => s.soundingNotes));
 });
 
-// Sustain pedal state for display.
+// Sustain pedal state.
 final isPedalDownProvider = Provider<bool>((ref) {
   return ref.watch(midiNoteStateProvider.select((s) => s.isPedalDown));
-});
-
-// Rich note objects for display, sorted by pitch.
-final activeNotesProvider = Provider<List<ActiveNote>>((ref) {
-  final state = ref.watch(midiNoteStateProvider);
-  final pcNames = ref.watch(pitchClassNamesProvider);
-
-  final notes = <ActiveNote>[];
-  final activeSorted = state.soundingNotes.toList()..sort();
-
-  for (final midi in activeSorted) {
-    notes.add(
-      ActiveNote(
-        midiNote: midi,
-        label: pcNames[midi % 12],
-        isSustained: state.sustained.contains(midi),
-      ),
-    );
-  }
-
-  return notes;
 });

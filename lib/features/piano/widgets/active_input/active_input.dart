@@ -4,10 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/core/activity/activity_tracker.dart';
 import 'package:what_chord/core/activity/midi_activity_tracker.dart';
-import 'package:what_chord/features/midi/midi.dart'
-    show activeNotesProvider, isPedalDownProvider;
+import 'package:what_chord/features/midi/midi.dart' show isPedalDownProvider;
 
 import '../../models/active_note.dart';
+import '../../providers/active_notes_provider.dart';
 import 'note_chip.dart';
 import 'pedal_indicator.dart';
 

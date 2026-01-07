@@ -10,6 +10,7 @@ export 'models/tonality.dart';
 export 'providers/chord_symbol_style_notifier.dart';
 export 'providers/detected_scale_degree_provider.dart';
 export 'providers/identity_display_provider.dart';
+export 'providers/pitch_class_names_provider.dart';
 export 'providers/selected_tonality_notifier.dart';
 
 export 'services/chord_symbol_formatter.dart';
