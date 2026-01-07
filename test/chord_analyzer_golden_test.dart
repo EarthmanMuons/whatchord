@@ -68,7 +68,7 @@ ChordSymbol actualSymbolFor(ChordIdentity id) {
   final quality = ChordSymbolFormatter.formatQuality(
     quality: id.quality,
     extensions: id.extensions,
-    style: ChordSymbolStyle.standard,
+    style: ChordSymbolStyle.leadSheet,
   );
 
   final root = _pcName(id.rootPc);

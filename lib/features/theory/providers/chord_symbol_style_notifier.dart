@@ -16,11 +16,11 @@ class ChordSymbolStyleNotifier extends Notifier<ChordSymbolStyle> {
     final prefs = ref.watch(sharedPreferencesProvider);
     final stored = prefs.getString(TheoryPreferencesKeys.chordSymbolStyle);
 
-    if (stored == null) return ChordSymbolStyle.standard;
+    if (stored == null) return ChordSymbolStyle.leadSheet;
 
     return ChordSymbolStyle.values.firstWhere(
       (s) => s.name == stored,
-      orElse: () => ChordSymbolStyle.standard,
+      orElse: () => ChordSymbolStyle.leadSheet,
     );
   }
 

@@ -107,7 +107,7 @@ void main(List<String> args) {
     return;
   }
 
-  final style = ChordSymbolStyle.standard;
+  final style = ChordSymbolStyle.leadSheet;
   final bestScore = results.first.candidate.score;
 
   final compact = args.contains('--compact');
