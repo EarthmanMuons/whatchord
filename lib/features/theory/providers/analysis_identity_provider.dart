@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_chord/features/midi/midi.dart';
 
 import '../engine/engine.dart';
-import '../models/chord_analysis.dart';
+import '../models/analysis_identity.dart';
 import '../models/chord_symbol.dart';
 import '../models/scale_degree.dart';
 import '../services/chord_symbol_formatter.dart';
@@ -22,8 +22,8 @@ final analysisModeProvider = Provider<AnalysisMode>((ref) {
   return AnalysisMode.chord;
 });
 
-final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
-  ChordAnalysis empty() => ChordAnalysis(
+final analysisIdentityProvider = Provider<AnalysisIdentity>((ref) {
+  AnalysisIdentity empty() => AnalysisIdentity(
     symbol: ChordSymbol(root: '• • •', quality: '', bass: null),
     secondaryLabel: null,
   );
@@ -43,7 +43,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
         final pc = midis.first % 12;
         final name = pcToName(pc, tonality: context.tonality);
 
-        return ChordAnalysis(
+        return AnalysisIdentity(
           symbol: ChordSymbol(root: name, quality: '', bass: null),
           secondaryLabel: 'Note',
         );
@@ -65,7 +65,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
         final bassPc = bassMidi % 12;
         final root = pcToName(bassPc, tonality: context.tonality);
 
-        return ChordAnalysis(
+        return AnalysisIdentity(
           symbol: ChordSymbol(
             root: root,
             quality: ' ${interval.short}', // e.g. " P8", " m9"
@@ -96,7 +96,7 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
 
         final inversion = InversionLabeler.labelFor(id);
 
-        return ChordAnalysis(
+        return AnalysisIdentity(
           symbol: ChordSymbol(root: root, quality: quality, bass: bass),
           secondaryLabel: inversion,
         );
