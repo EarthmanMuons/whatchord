@@ -6,6 +6,7 @@ import 'package:what_chord/features/theory/models/key_signature.dart';
 import 'package:what_chord/features/theory/models/note_spelling_policy.dart';
 import 'package:what_chord/features/theory/models/tonality.dart';
 import 'package:what_chord/features/theory/services/chord_symbol_formatter.dart';
+import 'package:what_chord/features/theory/services/note_spelling.dart';
 import 'package:what_chord/features/theory/services/pitch_class.dart';
 
 /// Usage:
@@ -71,7 +72,7 @@ void main(List<String> args) {
 
   final pcMask = _toPcMask(pcs);
   final bassPc = bassName != null
-      ? _parsePitchClass(bassName)
+      ? pitchClassFromNoteName(bassName)
       : (midi.isNotEmpty
             ? (midi.reduce((a, b) => a < b ? a : b) % 12)
             : pcs.first);
@@ -81,10 +82,13 @@ void main(List<String> args) {
     bassPc: bassPc,
     noteCount: midi.isNotEmpty ? midi.length : pcs.length,
   );
-
   stdout.writeln('Input: $input');
-  stdout.writeln('pcs: ${pcs.map(_pcName).toSet().toList()..sort()}');
-  stdout.writeln('bass: ${_pcName(bassPc)}');
+
+  final pcNames =
+      pcs.map((pc) => pcToName(pc, tonality: context.tonality)).toSet().toList()
+        ..sort();
+  stdout.writeln('pcs: ${pcNames.join(', ')}');
+  stdout.writeln('bass: ${pcToName(bassPc, tonality: tonality)}');
   stdout.writeln(
     'key: ${context.tonality.displayName} (${context.keySignature.label})',
   );
@@ -120,8 +124,10 @@ void main(List<String> args) {
     final c = r.candidate;
     final id = c.identity;
 
-    final root = _pcName(id.rootPc);
-    final bass = id.hasSlashBass ? _pcName(id.bassPc) : null;
+    final root = pcToName(id.rootPc, tonality: context.tonality);
+    final bass = id.hasSlashBass
+        ? pcToName(id.bassPc, tonality: context.tonality)
+        : null;
 
     final quality = ChordSymbolFormatter.formatQuality(
       quality: id.quality,
@@ -189,98 +195,6 @@ int _toPcMask(Iterable<int> pcs) {
   return mask;
 }
 
-String _pcName(int pc) {
-  switch (pc % 12) {
-    case 0:
-      return 'C';
-    case 1:
-      return 'C#';
-    case 2:
-      return 'D';
-    case 3:
-      return 'Eb';
-    case 4:
-      return 'E';
-    case 5:
-      return 'F';
-    case 6:
-      return 'F#';
-    case 7:
-      return 'G';
-    case 8:
-      return 'Ab';
-    case 9:
-      return 'A';
-    case 10:
-      return 'Bb';
-    case 11:
-      return 'B';
-    default:
-      return '?';
-  }
-}
-
-int _parsePitchClass(String s) {
-  final n = s.trim();
-  final u = n.toUpperCase();
-
-  // Normalize common flats/sharps.
-  // Accept: C, C#, Db, EB, F#, GB, etc.
-  switch (u) {
-    case 'C':
-      return 0;
-    case 'B#':
-      return 0;
-
-    case 'C#':
-    case 'DB':
-      return 1;
-
-    case 'D':
-      return 2;
-
-    case 'D#':
-    case 'EB':
-      return 3;
-
-    case 'E':
-      return 4;
-    case 'FB':
-      return 4;
-
-    case 'F':
-      return 5;
-    case 'E#':
-      return 5;
-
-    case 'F#':
-    case 'GB':
-      return 6;
-
-    case 'G':
-      return 7;
-
-    case 'G#':
-    case 'AB':
-      return 8;
-
-    case 'A':
-      return 9;
-
-    case 'A#':
-    case 'BB':
-      return 10;
-
-    case 'B':
-      return 11;
-    case 'CB':
-      return 11;
-
-    default:
-      throw FormatException('Unrecognized pitch name: $s');
-  }
-}
-
 ({List<int> midiNotes, List<int> pitchClasses}) _parseNotes(
   List<String> tokens,
 ) {
@@ -298,7 +212,7 @@ int _parsePitchClass(String s) {
       continue;
     }
 
-    pcs.add(_parsePitchClass(tt));
+    pcs.add(pitchClassFromNoteName(tt));
   }
 
   return (midiNotes: midi, pitchClasses: pcs);
