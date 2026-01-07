@@ -1,4 +1,5 @@
 import 'dart:ui' show clampDouble;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,8 +10,14 @@ import '../../models/home_layout_config.dart';
 import '../components/identity_card.dart';
 
 class AnalysisSection extends ConsumerWidget {
-  const AnalysisSection({super.key, required this.config});
+  const AnalysisSection({
+    super.key,
+    required this.config,
+    required this.isLandscape,
+  });
+
   final HomeLayoutConfig config;
+  final bool isLandscape;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -21,28 +28,73 @@ class AnalysisSection extends ConsumerWidget {
       padding: config.analysisPadding,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final availableW = constraints.maxWidth;
-
           const preferredW = 320.0;
-          final width = clampDouble(preferredW, 0, availableW);
+          final cardW = clampDouble(preferredW, 0.0, constraints.maxWidth);
 
-          return Center(
-            child: UnconstrainedBox(
-              constrainedAxis: Axis.horizontal,
-              child: SizedBox(
-                width: width,
-                child: AnimatedSize(
-                  duration: const Duration(milliseconds: 120),
-                  curve: Curves.easeOut,
-                  alignment: Alignment.center,
-                  child: IdentityCard(
-                    identity: identity,
-                    showIdle: showIdle,
-                    idleAsset: 'assets/logo/whatchord_logo_circle.svg',
+          // Tunables
+          final topPad = isLandscape ? 0.0 : 82.0;
+          final cardH = isLandscape ? 132.0 : 180.0;
+          const listGap = 18.0;
+          const listSlotH = 28.0 * 3 + 8.0 * 2; // 3 rows + gaps
+
+          return SizedBox.expand(
+            child: isLandscape
+                ? Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: cardW,
+                        maxHeight: clampDouble(
+                          172.0,
+                          0.0,
+                          constraints.maxHeight,
+                        ),
+                      ),
+                      child: IdentityCard(
+                        identity: identity,
+                        showIdle: showIdle,
+                        idleAsset: 'assets/logo/whatchord_logo_circle.svg',
+                        fill: true,
+                      ),
+                    ),
+                  )
+                : Align(
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: topPad),
+                      child: SizedBox(
+                        width: cardW,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: cardW,
+                              height: cardH,
+                              child: IdentityCard(
+                                identity: identity,
+                                showIdle: showIdle,
+                                idleAsset:
+                                    'assets/logo/whatchord_logo_circle.svg',
+                                fill: true, // critical
+                              ),
+                            ),
+
+                            if (!isLandscape) ...[
+                              const SizedBox(height: listGap),
+                              SizedBox(
+                                height: listSlotH,
+                                child: const AmbiguousChordCandidatesList(
+                                  enabled: true,
+                                  alignment: Alignment.topCenter,
+                                  textAlign: TextAlign.center,
+                                  gap: 8,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
           );
         },
       ),

@@ -15,11 +15,14 @@ class IdentityCard extends StatelessWidget {
   /// SVG asset to show when idle.
   final String idleAsset;
 
+  final bool fill;
+
   const IdentityCard({
     super.key,
     required this.identity,
     required this.showIdle,
     required this.idleAsset,
+    this.fill = false,
   });
 
   @override
@@ -43,7 +46,7 @@ class IdentityCard extends StatelessWidget {
     final rootStyle = primaryStyle.copyWith(fontWeight: FontWeight.w900);
 
     const minCardHeight = 132.0;
-    const padding = EdgeInsets.symmetric(horizontal: 20, vertical: 20);
+    const padding = EdgeInsets.symmetric(horizontal: 20);
 
     Widget identityBody(IdentityDisplay v) {
       return switch (v) {
@@ -115,6 +118,63 @@ class IdentityCard extends StatelessWidget {
 
     final display = identity;
 
+    Widget switchedChild() {
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 260),
+        reverseDuration: const Duration(milliseconds: 90),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
+        transitionBuilder: (child, animation) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+          );
+          return FadeTransition(opacity: curved, child: child);
+        },
+        layoutBuilder: (currentChild, previousChildren) {
+          // When fill=true, parent will constrain this (via SizedBox.expand),
+          // so Stack will fill. When fill=false, it shrink-wraps naturally.
+          return Stack(
+            alignment: Alignment.center,
+            fit: StackFit.expand,
+            children: [
+              for (final c in previousChildren) Center(child: c),
+              if (currentChild != null) Center(child: currentChild),
+            ],
+          );
+        },
+        child: display != null
+            ? KeyedSubtree(
+                key: const ValueKey('identity'),
+                child: hasLabel
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          identityBody(display),
+                          const SizedBox(height: 22),
+                          AutoSizeText(
+                            display.secondaryLabel!,
+                            textAlign: TextAlign.center,
+                            style: secondaryStyle,
+                            maxLines: 1,
+                            minFontSize: 20,
+                          ),
+                        ],
+                      )
+                    : identityBody(display),
+              )
+            : showIdle
+            ? KeyedSubtree(
+                key: const ValueKey('idle_glyph'),
+                child: idleGlyph(),
+              )
+            : KeyedSubtree(
+                key: const ValueKey('placeholder'),
+                child: placeholderText(primaryStyle),
+              ),
+      );
+    }
+
     return Card(
       elevation: 0,
       color: cs.primary,
@@ -122,58 +182,11 @@ class IdentityCard extends StatelessWidget {
         constraints: const BoxConstraints(minHeight: minCardHeight),
         child: Padding(
           padding: padding,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 260),
-            reverseDuration: const Duration(milliseconds: 90),
-
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            transitionBuilder: (child, animation) {
-              final curved = CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              );
-              return FadeTransition(opacity: curved, child: child);
-            },
-            layoutBuilder: (currentChild, previousChildren) {
-              return Stack(
-                alignment: Alignment.center,
-                children: [
-                  ...previousChildren,
-                  if (currentChild != null) currentChild,
-                ],
-              );
-            },
-            child: display != null
-                ? KeyedSubtree(
-                    key: const ValueKey('identity'),
-                    child: hasLabel
-                        ? Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              identityBody(display),
-                              const SizedBox(height: 18),
-                              AutoSizeText(
-                                display.secondaryLabel!,
-                                textAlign: TextAlign.center,
-                                style: secondaryStyle,
-                                maxLines: 1,
-                                minFontSize: 20,
-                              ),
-                            ],
-                          )
-                        : identityBody(display),
-                  )
-                : showIdle
-                ? KeyedSubtree(
-                    key: const ValueKey('idle_glyph'),
-                    child: idleGlyph(),
-                  )
-                : KeyedSubtree(
-                    key: const ValueKey('placeholder'),
-                    child: placeholderText(primaryStyle),
-                  ),
-          ),
+          child: fill
+              // Expand to whatever height the parent gives the card,
+              // and keep the switching content centered.
+              ? SizedBox.expand(child: switchedChild())
+              : switchedChild(),
         ),
       ),
     );

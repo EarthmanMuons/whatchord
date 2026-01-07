@@ -18,5 +18,6 @@ export 'services/inversion_labeler.dart';
 export 'services/note_spelling.dart';
 export 'services/pitch_class.dart';
 
+export 'widgets/ambiguous_chord_candidates_list.dart';
 export 'widgets/scale_degrees.dart';
 export 'widgets/tonality_picker_sheet.dart';

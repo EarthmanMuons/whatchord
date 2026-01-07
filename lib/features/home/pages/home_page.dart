@@ -207,8 +207,8 @@ class HomePage extends ConsumerWidget {
                 ),
                 body: SafeArea(
                   child: isLandscape
-                      ? _HomeLandscape(config: config)
-                      : _HomePortrait(config: config),
+                      ? _HomeLandscape(config: config, isLandscape: true)
+                      : _HomePortrait(config: config, isLandscape: false),
                 ),
               ),
             ),
@@ -219,10 +219,15 @@ class HomePage extends ConsumerWidget {
   }
 }
 
-class _HomePortrait extends ConsumerWidget {
-  // ignore: unused_element_parameter
-  const _HomePortrait({super.key, required this.config});
+class _HomeLandscape extends ConsumerWidget {
+  const _HomeLandscape({
+    // ignore: unused_element_parameter
+    super.key,
+    required this.config,
+    required this.isLandscape,
+  });
   final HomeLayoutConfig config;
+  final bool isLandscape;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -230,14 +235,28 @@ class _HomePortrait extends ConsumerWidget {
       children: [
         Flexible(
           fit: FlexFit.loose,
-          child: AnalysisSection(config: config),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                flex: 7,
+                child: AnalysisSection(
+                  config: config,
+                  isLandscape: isLandscape,
+                ),
+              ),
+              Expanded(
+                flex: 6,
+                child: DetailsSection(config: config, isLandscape: isLandscape),
+              ),
+            ],
+          ),
         ),
         SafeArea(
           top: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ActiveInput(padding: config.activeInputPadding),
               TonalityBar(height: config.tonalityBarHeight),
               const Divider(height: 1),
               KeyboardSection(config: config),
@@ -249,10 +268,15 @@ class _HomePortrait extends ConsumerWidget {
   }
 }
 
-class _HomeLandscape extends ConsumerWidget {
-  // ignore: unused_element_parameter
-  const _HomeLandscape({super.key, required this.config});
+class _HomePortrait extends ConsumerWidget {
+  const _HomePortrait({
+    // ignore: unused_element_parameter
+    super.key,
+    required this.config,
+    required this.isLandscape,
+  });
   final HomeLayoutConfig config;
+  final bool isLandscape;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -260,19 +284,14 @@ class _HomeLandscape extends ConsumerWidget {
       children: [
         Flexible(
           fit: FlexFit.loose,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(flex: 6, child: AnalysisSection(config: config)),
-              Expanded(flex: 7, child: DetailsSection(config: config)),
-            ],
-          ),
+          child: AnalysisSection(config: config, isLandscape: isLandscape),
         ),
         SafeArea(
           top: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              ActiveInput(padding: config.activeInputPadding),
               TonalityBar(height: config.tonalityBarHeight),
               const Divider(height: 1),
               KeyboardSection(config: config),
