@@ -124,22 +124,11 @@ void main(List<String> args) {
     final c = r.candidate;
     final id = c.identity;
 
-    final root = pcToName(id.rootPc, tonality: context.tonality);
-    final bass = id.hasSlashBass
-        ? pcToName(id.bassPc, tonality: context.tonality)
-        : null;
-
-    final quality = ChordSymbolFormatter.formatQuality(
-      quality: id.quality,
-      extensions: id.extensions,
+    final symbol = ChordSymbolFormatter.formatIdentity(
+      identity: id,
+      tonality: context.tonality,
       style: style,
     );
-
-    final symbol = ChordSymbol(
-      root: root,
-      quality: quality,
-      bass: bass,
-    ).toString();
 
     final score = c.score;
     final deltaBest = score - bestScore;

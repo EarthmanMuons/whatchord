@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_chord/features/midi/midi.dart';
 
 import '../engine/engine.dart';
-import '../models/chord_symbol.dart';
 import '../models/identity_display.dart';
 import '../services/chord_symbol_formatter.dart';
 import '../services/inversion_labeler.dart';
@@ -63,27 +62,18 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         final style = ref.watch(chordSymbolStyleProvider);
         final id = best.identity;
 
-        final root = pcToName(id.rootPc, tonality: context.tonality);
-        final bass = id.hasSlashBass
-            ? pcToName(id.bassPc, tonality: context.tonality)
-            : null;
-
-        final quality = ChordSymbolFormatter.formatQuality(
-          quality: id.quality,
-          extensions: id.extensions,
+        final symbol = ChordSymbolFormatter.fromIdentity(
+          identity: id,
+          tonality: context.tonality,
           style: style,
         );
 
         final inversion = InversionLabeler.labelFor(id);
-
         final secondaryLabel = (inversion == null || inversion.trim().isEmpty)
             ? 'Chord'
             : 'Chord · $inversion';
 
-        return ChordDisplay(
-          symbol: ChordSymbol(root: root, quality: quality, bass: bass),
-          secondaryLabel: secondaryLabel,
-        );
+        return ChordDisplay(symbol: symbol, secondaryLabel: secondaryLabel);
       }
 
     case AnalysisMode.none:

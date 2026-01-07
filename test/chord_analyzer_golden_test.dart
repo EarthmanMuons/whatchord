@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:what_chord/features/theory/services/chord_symbol_formatter.dart';
 
 import 'package:what_chord/features/theory/theory.dart';
 
@@ -34,19 +35,6 @@ int maskOfNames(List<String> names) => maskOf(names.map(pc));
 String expectedSymbolFromCaseName(String name) {
   final i = name.indexOf('->');
   return (i == -1) ? name : name.substring(i + 2).trim();
-}
-
-ChordSymbol actualSymbolFor(ChordIdentity id, Tonality tonality) {
-  final quality = ChordSymbolFormatter.formatQuality(
-    quality: id.quality,
-    extensions: id.extensions,
-    style: ChordSymbolStyle.leadSheet,
-  );
-
-  final root = pcToName(id.rootPc, tonality: tonality);
-  final bass = id.hasSlashBass ? pcToName(id.bassPc, tonality: tonality) : null;
-
-  return ChordSymbol(root: root, quality: quality, bass: bass);
 }
 
 class GoldenCase {
@@ -337,7 +325,11 @@ void main() {
       final top = results.first.identity;
 
       final expected = expectedSymbolFromCaseName(c.name);
-      final actual = actualSymbolFor(top, tonality);
+      final actual = ChordSymbolFormatter.fromIdentity(
+        identity: top,
+        tonality: tonality,
+        style: ChordSymbolStyle.leadSheet,
+      );
 
       if (c.expectedSymbol != null) {
         expect(

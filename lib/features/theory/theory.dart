@@ -13,7 +13,7 @@ export 'providers/identity_display_provider.dart';
 export 'providers/pitch_class_names_provider.dart';
 export 'providers/selected_tonality_notifier.dart';
 
-export 'services/chord_symbol_formatter.dart';
+export 'services/chord_quality_formatter.dart';
 export 'services/inversion_labeler.dart';
 export 'services/note_spelling.dart';
 export 'services/pitch_class.dart';
