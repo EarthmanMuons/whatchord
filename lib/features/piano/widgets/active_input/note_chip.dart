@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/midi/midi.dart' show isPedalDownProvider;
-import 'package:what_chord/features/theory/services/note_display_formatter.dart';
 
 import '../../models/active_note.dart';
 
@@ -39,7 +38,7 @@ class NoteChip extends ConsumerWidget {
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       child: Text(
-        toGlyphAccidentals(note.label),
+        note.label,
         style: theme.textTheme.titleMedium?.copyWith(color: fgColor),
       ),
     );
