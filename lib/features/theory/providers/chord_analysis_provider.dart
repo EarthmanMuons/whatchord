@@ -137,13 +137,6 @@ final chordInputProvider = Provider<ChordInput?>((ref) {
   return ChordInput(pcMask: mask, bassPc: bassPc, noteCount: sounding.length);
 });
 
-final soundingPitchClassesProvider = Provider<List<int>>((ref) {
-  final state = ref.watch(midiNoteStateProvider);
-  final sounding = state.soundingNotes;
-  final pcs = sounding.map((m) => m % 12).toSet().toList()..sort();
-  return pcs;
-});
-
 final chordCandidatesProvider = Provider<List<ChordCandidate>>((ref) {
   final input = ref.watch(chordInputProvider);
   if (input == null) return const <ChordCandidate>[];
