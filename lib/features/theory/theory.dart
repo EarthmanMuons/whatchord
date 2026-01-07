@@ -1,14 +1,14 @@
 export 'engine/engine.dart';
 
-export 'models/analysis_identity.dart';
 export 'models/chord_symbol.dart';
+export 'models/identity_display.dart';
 export 'models/key_signature.dart';
 export 'models/note_spelling_policy.dart';
 export 'models/scale_degree.dart';
 export 'models/tonality.dart';
 
-export 'providers/analysis_identity_provider.dart';
 export 'providers/chord_symbol_style_notifier.dart';
+export 'providers/identity_display_provider.dart';
 export 'providers/selected_tonality_notifier.dart';
 
 export 'services/chord_symbol_formatter.dart';

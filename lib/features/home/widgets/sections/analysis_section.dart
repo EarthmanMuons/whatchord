@@ -14,7 +14,7 @@ class AnalysisSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final identity = ref.watch(analysisIdentityProvider);
+    final identity = ref.watch(identityDisplayProvider);
     final showIdle = ref.watch(midiIdleEligibleProvider);
 
     return Padding(
@@ -36,8 +36,7 @@ class AnalysisSection extends ConsumerWidget {
                   curve: Curves.easeOut,
                   alignment: Alignment.center,
                   child: IdentityCard(
-                    symbol: identity.symbol,
-                    secondaryLabel: identity.secondaryLabel,
+                    identity: identity,
                     showIdle: showIdle,
                     idleAsset: 'assets/logo/whatchord_logo_circle.svg',
                   ),

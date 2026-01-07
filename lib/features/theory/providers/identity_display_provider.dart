@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_chord/features/midi/midi.dart';
 
 import '../engine/engine.dart';
-import '../models/analysis_identity.dart';
 import '../models/chord_symbol.dart';
+import '../models/identity_display.dart';
 import '../models/scale_degree.dart';
 import '../services/chord_symbol_formatter.dart';
 import '../services/inversion_labeler.dart';
@@ -22,20 +22,14 @@ final analysisModeProvider = Provider<AnalysisMode>((ref) {
   return AnalysisMode.chord;
 });
 
-final analysisIdentityProvider = Provider<AnalysisIdentity>((ref) {
-  AnalysisIdentity empty() => AnalysisIdentity(
-    symbol: ChordSymbol(root: '• • •', quality: '', bass: null),
-    secondaryLabel: null,
-  );
-
+final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
   final mode = ref.watch(analysisModeProvider);
-  if (mode == AnalysisMode.none) return empty();
+  if (mode == AnalysisMode.none) return null;
+
+  final midis = ref.watch(soundingMidiNotesProvider).toList()..sort();
+  if (midis.isEmpty) return null;
 
   final context = ref.watch(analysisContextProvider);
-
-  // Needed for single+dyad. You already have this provider in MIDI.
-  final midis = ref.watch(soundingMidiNotesProvider).toList()..sort();
-  if (midis.isEmpty) return empty();
 
   switch (mode) {
     case AnalysisMode.single:
@@ -43,15 +37,12 @@ final analysisIdentityProvider = Provider<AnalysisIdentity>((ref) {
         final pc = midis.first % 12;
         final name = pcToName(pc, tonality: context.tonality);
 
-        return AnalysisIdentity(
-          symbol: ChordSymbol(root: name, quality: '', bass: null),
-          secondaryLabel: 'Note',
-        );
+        return NoteDisplay(noteName: name, secondaryLabel: 'Note');
       }
 
     case AnalysisMode.dyad:
       {
-        if (midis.length < 2) return empty();
+        if (midis.length < 2) return null;
 
         final bassMidi = midis.first;
         final otherMidi = midis.last;
@@ -65,12 +56,9 @@ final analysisIdentityProvider = Provider<AnalysisIdentity>((ref) {
         final bassPc = bassMidi % 12;
         final root = pcToName(bassPc, tonality: context.tonality);
 
-        return AnalysisIdentity(
-          symbol: ChordSymbol(
-            root: root,
-            quality: ' ${interval.short}', // e.g. " P8", " m9"
-            bass: null,
-          ),
+        return IntervalDisplay(
+          bassName: root,
+          intervalLabel: interval.short,
           secondaryLabel: 'Interval',
         );
       }
@@ -78,7 +66,7 @@ final analysisIdentityProvider = Provider<AnalysisIdentity>((ref) {
     case AnalysisMode.chord:
       {
         final best = ref.watch(bestChordCandidateProvider);
-        if (best == null) return empty();
+        if (best == null) return null;
 
         final style = ref.watch(chordSymbolStyleProvider);
         final id = best.identity;
@@ -96,14 +84,14 @@ final analysisIdentityProvider = Provider<AnalysisIdentity>((ref) {
 
         final inversion = InversionLabeler.labelFor(id);
 
-        return AnalysisIdentity(
+        return ChordDisplay(
           symbol: ChordSymbol(root: root, quality: quality, bass: bass),
           secondaryLabel: inversion,
         );
       }
 
     case AnalysisMode.none:
-      return empty();
+      return null;
   }
 });
 

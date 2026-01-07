@@ -7,10 +7,9 @@ import 'package:what_chord/features/theory/theory.dart';
 import 'package:what_chord/features/theory/services/note_display_formatter.dart';
 
 class IdentityCard extends StatelessWidget {
-  final ChordSymbol symbol;
-  final String? secondaryLabel;
+  final IdentityDisplay? identity;
 
-  /// When true, show the idle SVG instead of chord text.
+  /// When true, show the idle SVG instead of identity text.
   final bool showIdle;
 
   /// SVG asset to show when idle.
@@ -18,8 +17,7 @@ class IdentityCard extends StatelessWidget {
 
   const IdentityCard({
     super.key,
-    required this.symbol,
-    required this.secondaryLabel,
+    required this.identity,
     required this.showIdle,
     required this.idleAsset,
   });
@@ -29,45 +27,63 @@ class IdentityCard extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final hasSecondaryLabel =
-        secondaryLabel != null && secondaryLabel!.trim().isNotEmpty;
+    final hasLabel = identity?.hasSecondaryLabel ?? false;
 
-    final chordStyle = theme.textTheme.displayMedium!.copyWith(
+    final primaryStyle = theme.textTheme.displayMedium!.copyWith(
       color: cs.onPrimary,
       fontWeight: FontWeight.w600,
       height: 1.0,
     );
 
-    final rootStyle = chordStyle.copyWith(fontWeight: FontWeight.w900);
-
-    final inversionStyle = theme.textTheme.titleMedium!.copyWith(
+    final secondaryStyle = theme.textTheme.titleMedium!.copyWith(
       color: cs.onPrimary.withValues(alpha: 0.85),
       height: 1.1,
     );
 
+    final rootStyle = primaryStyle.copyWith(fontWeight: FontWeight.w900);
+
     const minCardHeight = 132.0;
     const padding = EdgeInsets.symmetric(horizontal: 20, vertical: 20);
 
-    Widget chordText() {
-      final spans = <InlineSpan>[
-        TextSpan(text: toGlyphAccidentals(symbol.root), style: rootStyle),
-        if (symbol.quality.isNotEmpty) ...[
-          const TextSpan(text: '\u200A'), // hair space
-          TextSpan(text: toGlyphAccidentals(symbol.quality)),
-        ],
-        if (symbol.hasBass) ...[
-          const TextSpan(text: ' / '),
-          TextSpan(text: toGlyphAccidentals(symbol.bassRequired)),
-        ],
-      ];
+    Widget identityBody(IdentityDisplay v) {
+      return switch (v) {
+        NoteDisplay(:final noteName) => AutoSizeText(
+          toGlyphAccidentals(noteName),
+          textAlign: TextAlign.center,
+          style: primaryStyle,
+          maxLines: 1,
+          minFontSize: 22,
+        ),
 
-      return AutoSizeText.rich(
-        TextSpan(style: chordStyle, children: spans),
-        textAlign: TextAlign.center,
-        style: chordStyle,
-        maxLines: 1,
-        minFontSize: 22,
-      );
+        IntervalDisplay(:final bassName, :final intervalLabel) => AutoSizeText(
+          '${toGlyphAccidentals(bassName)} ${toGlyphAccidentals(intervalLabel)}',
+          textAlign: TextAlign.center,
+          style: primaryStyle,
+          maxLines: 1,
+          minFontSize: 22,
+        ),
+
+        ChordDisplay(:final symbol) => AutoSizeText.rich(
+          TextSpan(
+            style: primaryStyle,
+            children: <InlineSpan>[
+              TextSpan(text: toGlyphAccidentals(symbol.root), style: rootStyle),
+              if (symbol.quality.isNotEmpty) ...[
+                const TextSpan(text: '\u200A'), // hair space
+                TextSpan(text: toGlyphAccidentals(symbol.quality)),
+              ],
+              if (symbol.hasBass) ...[
+                const TextSpan(text: ' / '),
+                TextSpan(text: toGlyphAccidentals(symbol.bassRequired)),
+              ],
+            ],
+          ),
+          textAlign: TextAlign.center,
+          style: primaryStyle,
+          maxLines: 1,
+          minFontSize: 22,
+        ),
+      };
     }
 
     Widget idleGlyph() {
@@ -86,6 +102,18 @@ class IdentityCard extends StatelessWidget {
         ),
       );
     }
+
+    Widget placeholderText(TextStyle style) {
+      return AutoSizeText(
+        '• • •',
+        textAlign: TextAlign.center,
+        style: style,
+        maxLines: 1,
+        minFontSize: 22,
+      );
+    }
+
+    final display = identity;
 
     return Card(
       elevation: 0,
@@ -116,26 +144,34 @@ class IdentityCard extends StatelessWidget {
                 ],
               );
             },
-            child: showIdle
-                ? KeyedSubtree(key: const ValueKey('idle'), child: idleGlyph())
-                : KeyedSubtree(
-                    key: const ValueKey('chord'),
-                    child: hasSecondaryLabel
+            child: display != null
+                ? KeyedSubtree(
+                    key: const ValueKey('identity'),
+                    child: hasLabel
                         ? Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              chordText(),
+                              identityBody(display),
                               const SizedBox(height: 18),
                               AutoSizeText(
-                                secondaryLabel!,
+                                display.secondaryLabel!,
                                 textAlign: TextAlign.center,
-                                style: inversionStyle,
+                                style: secondaryStyle,
                                 maxLines: 1,
                                 minFontSize: 20,
                               ),
                             ],
                           )
-                        : chordText(),
+                        : identityBody(display),
+                  )
+                : showIdle
+                ? KeyedSubtree(
+                    key: const ValueKey('idle_glyph'),
+                    child: idleGlyph(),
+                  )
+                : KeyedSubtree(
+                    key: const ValueKey('placeholder'),
+                    child: placeholderText(primaryStyle),
                   ),
           ),
         ),
