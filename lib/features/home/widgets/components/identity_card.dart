@@ -55,8 +55,8 @@ class IdentityCard extends StatelessWidget {
           minFontSize: 22,
         ),
 
-        IntervalDisplay(:final bassName, :final intervalLabel) => AutoSizeText(
-          '${toGlyphAccidentals(bassName)} ${toGlyphAccidentals(intervalLabel)}',
+        IntervalDisplay(:final intervalLabel) => AutoSizeText(
+          intervalLabel,
           textAlign: TextAlign.center,
           style: primaryStyle,
           maxLines: 1,

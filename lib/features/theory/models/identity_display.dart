@@ -28,19 +28,16 @@ final class NoteDisplay extends IdentityDisplay {
 @immutable
 final class IntervalDisplay extends IdentityDisplay {
   const IntervalDisplay({
-    required this.bassName,
+    required this.referenceName,
     required this.intervalLabel,
     super.secondaryLabel,
   });
 
-  /// The pitch name used as the reference.
-  final String bassName;
+  /// Reference pitch name (typically the bass or chosen anchor).
+  final String referenceName;
 
   /// Interval label text (e.g., "m3", "P8", "m9").
   final String intervalLabel;
-
-  /// Convenience for the primary line (e.g., "C m3").
-  String get displayText => '$bassName $intervalLabel';
 }
 
 @immutable

@@ -7,6 +7,7 @@ import '../models/chord_symbol.dart';
 import '../models/identity_display.dart';
 import '../services/chord_symbol_formatter.dart';
 import '../services/inversion_labeler.dart';
+import '../services/note_display_formatter.dart';
 import '../services/note_spelling.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
@@ -48,9 +49,9 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         final root = pcToName(bassPc, tonality: context.tonality);
 
         return IntervalDisplay(
-          bassName: root,
+          referenceName: root,
           intervalLabel: interval.short,
-          secondaryLabel: 'Interval',
+          secondaryLabel: 'Interval · from ${toGlyphAccidentals(root)}',
         );
       }
 
@@ -75,9 +76,13 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
 
         final inversion = InversionLabeler.labelFor(id);
 
+        final secondaryLabel = (inversion == null || inversion.trim().isEmpty)
+            ? 'Chord'
+            : 'Chord · $inversion';
+
         return ChordDisplay(
           symbol: ChordSymbol(root: root, quality: quality, bass: bass),
-          secondaryLabel: inversion,
+          secondaryLabel: secondaryLabel,
         );
       }
 
