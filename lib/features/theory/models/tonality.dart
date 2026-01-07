@@ -8,7 +8,7 @@ enum TonalityMode { major, minor }
 
 @immutable
 class Tonality {
-  final String tonic; // e.g. "C", "F#", "Bb", "F♯", "B♭"
+  final String tonic; // canonical ASCII: "C", "F#", "Bb"
   final TonalityMode mode;
 
   const Tonality(this.tonic, this.mode);

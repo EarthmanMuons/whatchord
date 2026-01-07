@@ -6,6 +6,7 @@ import 'package:what_chord/features/theory/models/key_signature.dart';
 import 'package:what_chord/features/theory/models/note_spelling_policy.dart';
 import 'package:what_chord/features/theory/models/tonality.dart';
 import 'package:what_chord/features/theory/services/chord_symbol_formatter.dart';
+import 'package:what_chord/features/theory/services/pitch_class.dart';
 
 /// Usage:
 ///   dart run tool/chord_debug.dart C E G D
@@ -309,62 +310,56 @@ Tonality _parseTonalityFlag(String raw) {
 
   // Accept: "C", "C:maj", "C:major", "A:min", "A:minor"
   // Also accept "A minor" / "C major" (space separated).
-  final normalized = s.replaceAll(RegExp(r'\s+'), '').toLowerCase();
+  //
+  // IMPORTANT: don't destroy glyph accidentals. We'll normalize accidentals
+  // to ASCII after we isolate the tonic token.
+  final compact = s.replaceAll(RegExp(r'\s+'), '');
 
   // Split on ":" if present (preferred syntax).
   String tonicPart;
   String? modePart;
-  final colon = normalized.indexOf(':');
+  final colon = compact.indexOf(':');
   if (colon >= 0) {
-    tonicPart = normalized.substring(0, colon);
-    modePart = normalized.substring(colon + 1);
+    tonicPart = compact.substring(0, colon);
+    modePart = compact.substring(colon + 1);
   } else {
-    // Try suffix forms: "amin", "cmajor", etc.
-    tonicPart = normalized;
+    tonicPart = compact;
     modePart = null;
   }
 
-  // Detect mode.
-  TonalityMode mode = TonalityMode.major;
+  // Mode parsing is case-insensitive.
+  final modeToken = (modePart ?? '').toLowerCase();
+  var mode = TonalityMode.major;
+
   if (modePart != null) {
-    if (modePart == 'min' || modePart == 'minor') mode = TonalityMode.minor;
-    if (modePart == 'maj' || modePart == 'major') mode = TonalityMode.major;
+    if (modeToken == 'min' || modeToken == 'minor') mode = TonalityMode.minor;
+    if (modeToken == 'maj' || modeToken == 'major') mode = TonalityMode.major;
   } else {
     // If user typed "...minor" or "...major" without colon, handle it.
-    if (tonicPart.endsWith('minor')) {
+    final lower = tonicPart.toLowerCase();
+
+    if (lower.endsWith('minor')) {
       mode = TonalityMode.minor;
       tonicPart = tonicPart.substring(0, tonicPart.length - 'minor'.length);
-    } else if (tonicPart.endsWith('major')) {
+    } else if (lower.endsWith('major')) {
       mode = TonalityMode.major;
       tonicPart = tonicPart.substring(0, tonicPart.length - 'major'.length);
-    } else if (tonicPart.endsWith('min')) {
+    } else if (lower.endsWith('min')) {
       mode = TonalityMode.minor;
       tonicPart = tonicPart.substring(0, tonicPart.length - 'min'.length);
-    } else if (tonicPart.endsWith('maj')) {
+    } else if (lower.endsWith('maj')) {
       mode = TonalityMode.major;
       tonicPart = tonicPart.substring(0, tonicPart.length - 'maj'.length);
     }
   }
 
-  // Reconstruct tonic in canonical “letter + accidental” form.
-  // We’ll accept b/#, and preserve casing as your Tonality expects.
-  final tonic = _normalizeTonicName(tonicPart);
+  // Canonicalize tonic:
+  // - trims again (defensive)
+  // - converts ♯/♭/𝄪/𝄫 to ASCII #/b/x/bb
+  // - uppercases the letter
+  final tonicAscii = normalizeNoteNameToAscii(tonicPart);
 
-  return Tonality(tonic, mode);
-}
-
-String _normalizeTonicName(String s) {
-  if (s.isEmpty) return 'C';
-
-  // Expected inputs like: c, eb, f#, gb, bb
-  final letter = s[0].toUpperCase();
-  final rest = s.substring(1);
-
-  // Keep only accidental chars we support.
-  // Support 'b' and '#'. (If you later support unicode ♭/♯, map them here.)
-  final acc = rest.replaceAll(RegExp(r'[^b#]'), '');
-
-  return '$letter$acc';
+  return Tonality(tonicAscii, mode);
 }
 
 String _formatIdentityCompact(ChordIdentity id) {
