@@ -2,13 +2,18 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:what_chord/features/theory/theory.dart';
 
-const tonality = Tonality('C', TonalityMode.major);
+AnalysisContext makeContext({
+  Tonality tonality = const Tonality('C', TonalityMode.major),
+  NoteSpellingPolicy spellingPolicy = const NoteSpellingPolicy.preferSharps(),
+}) {
+  return AnalysisContext(
+    tonality: tonality,
+    keySignature: KeySignature.fromTonality(tonality),
+    spellingPolicy: spellingPolicy,
+  );
+}
 
-final context = AnalysisContext(
-  tonality: tonality,
-  keySignature: KeySignature.fromTonality(tonality),
-  spellingPolicy: NoteSpellingPolicy.preferSharps(),
-);
+const defaultTonality = Tonality('C', TonalityMode.major);
 
 int maskOf(Iterable<int> pcs) {
   var m = 0;
@@ -121,6 +126,9 @@ class GoldenCase {
   /// Optional override; defaults to pcs.length.
   final int? noteCount;
 
+  /// Optional per-case tonality override (defaults to C major).
+  final Tonality? tonality;
+
   /// Assert against the winning identity.
   final void Function(ChordIdentity top) expectTop;
 
@@ -129,6 +137,7 @@ class GoldenCase {
     required this.pcs,
     this.bass,
     this.noteCount,
+    this.tonality,
     required this.expectTop,
   });
 }
@@ -295,6 +304,18 @@ void main() {
         expect(top.extensions, contains(ChordExtension.add9));
       },
     ),
+    // Tonality-specific ranking
+    GoldenCase(
+      name: 'C E G A D (in Amin) -> Am11 / C',
+      pcs: ['C', 'E', 'G', 'A', 'D'],
+      tonality: const Tonality('A', TonalityMode.minor),
+      expectTop: (top) {
+        expect(top.rootPc, pc('A'));
+        expect(top.quality, ChordQualityToken.minor7);
+        expect(top.extensions, contains(ChordExtension.eleven));
+        expect(top.bassPc, pc('C'));
+      },
+    ),
     // Dominant 7 should beat major 6 when the 7 is present
     GoldenCase(
       name: 'C E G Bb A -> C13',
@@ -345,7 +366,9 @@ void main() {
         noteCount: count,
       );
 
-      final results = ChordAnalyzer.analyze(input, context: context);
+      final ctx = makeContext(tonality: c.tonality ?? defaultTonality);
+      final results = ChordAnalyzer.analyze(input, context: ctx);
+
       expect(results, isNotEmpty, reason: 'No candidates returned');
 
       final top = results.first.identity;
