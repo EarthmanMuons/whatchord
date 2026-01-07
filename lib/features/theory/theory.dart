@@ -8,6 +8,7 @@ export 'models/scale_degree.dart';
 export 'models/tonality.dart';
 
 export 'providers/chord_symbol_style_notifier.dart';
+export 'providers/detected_scale_degree_provider.dart';
 export 'providers/identity_display_provider.dart';
 export 'providers/selected_tonality_notifier.dart';
 

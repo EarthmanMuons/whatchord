@@ -5,22 +5,13 @@ import 'package:what_chord/features/midi/midi.dart';
 import '../engine/engine.dart';
 import '../models/chord_symbol.dart';
 import '../models/identity_display.dart';
-import '../models/scale_degree.dart';
 import '../services/chord_symbol_formatter.dart';
 import '../services/inversion_labeler.dart';
 import '../services/note_spelling.dart';
 import 'analysis_context_provider.dart';
+import 'analysis_mode_provider.dart';
+import 'chord_analysis_providers.dart';
 import 'chord_symbol_style_notifier.dart';
-
-enum AnalysisMode { none, single, dyad, chord }
-
-final analysisModeProvider = Provider<AnalysisMode>((ref) {
-  final input = ref.watch(chordInputProvider);
-  if (input == null || input.noteCount == 0) return AnalysisMode.none;
-  if (input.noteCount == 1) return AnalysisMode.single;
-  if (input.noteCount == 2) return AnalysisMode.dyad;
-  return AnalysisMode.chord;
-});
 
 final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
   final mode = ref.watch(analysisModeProvider);
@@ -93,51 +84,4 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
     case AnalysisMode.none:
       return null;
   }
-});
-
-final detectedScaleDegreeProvider = Provider<ScaleDegree?>((ref) {
-  // Only meaningful for real chord analyses.
-  final mode = ref.watch(analysisModeProvider);
-  if (mode != AnalysisMode.chord) return null;
-
-  final best = ref.watch(bestChordCandidateProvider);
-  if (best == null) return null;
-
-  final context = ref.watch(analysisContextProvider);
-  return context.tonality.scaleDegreeForChord(best.identity);
-});
-
-/// Converts currently sounding MIDI notes into a minimal chord-analysis input.
-final chordInputProvider = Provider<ChordInput?>((ref) {
-  final state = ref.watch(midiNoteStateProvider);
-  final sounding = state.soundingNotes;
-  if (sounding.isEmpty) return null;
-
-  final sorted = sounding.toList()..sort();
-  final bassMidi = sorted.first;
-  final bassPc = bassMidi % 12;
-
-  var mask = 0;
-  for (final midi in sounding) {
-    mask |= (1 << (midi % 12));
-  }
-
-  return ChordInput(pcMask: mask, bassPc: bassPc, noteCount: sounding.length);
-});
-
-final chordCandidatesProvider = Provider<List<ChordCandidate>>((ref) {
-  final input = ref.watch(chordInputProvider);
-  if (input == null) return const <ChordCandidate>[];
-
-  // Guard: do not analyze if we're not in chord mode.
-  final mode = ref.watch(analysisModeProvider);
-  if (mode != AnalysisMode.chord) return const <ChordCandidate>[];
-
-  final context = ref.watch(analysisContextProvider);
-  return ChordAnalyzer.analyze(input, context: context);
-});
-
-final bestChordCandidateProvider = Provider<ChordCandidate?>((ref) {
-  final candidates = ref.watch(chordCandidatesProvider);
-  return candidates.isNotEmpty ? candidates.first : null;
 });
