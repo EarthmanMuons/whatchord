@@ -138,36 +138,3 @@ final bestChordCandidateProvider = Provider<ChordCandidate?>((ref) {
   final candidates = ref.watch(chordCandidatesProvider);
   return candidates.isNotEmpty ? candidates.first : null;
 });
-
-/// Quick debug string you can surface in dev UI while tuning.
-final chordDebugStringProvider = Provider<String>((ref) {
-  final input = ref.watch(chordInputProvider);
-  if (input == null) return 'No notes';
-
-  final maskHex = input.pcMask.toRadixString(16);
-  return 'pcMask=0x$maskHex bassPc=${input.bassPc} notes=${input.noteCount}';
-});
-
-final chordAnalysisDebugProvider = Provider<String>((ref) {
-  final inputDebug = ref.watch(chordDebugStringProvider);
-
-  final candidates = ref.watch(chordCandidatesProvider);
-  if (candidates.isEmpty) {
-    return 'Chord: no match | $inputDebug';
-  }
-
-  final best = candidates.first;
-  final id = best.identity;
-
-  final ext = id.extensions.toList()
-    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-
-  final extLabels = ext.map((e) => e.label).toList(growable: false);
-
-  return 'Chord: rootPc=${id.rootPc} '
-      'quality=${id.quality.name} '
-      'bassPc=${id.bassPc} '
-      'ext=$extLabels '
-      'score=${best.score.toStringAsFixed(2)} '
-      '| $inputDebug';
-});
