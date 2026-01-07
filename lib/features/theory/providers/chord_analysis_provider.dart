@@ -53,21 +53,22 @@ final chordAnalysisProvider = Provider<ChordAnalysis>((ref) {
       {
         if (midis.length < 2) return empty();
 
-        final bassPc = midis.first % 12;
-        final otherPc = midis.last % 12;
+        final bassMidi = midis.first;
+        final otherMidi = midis.last;
 
-        final interval = IntervalLabeler.forPitchClasses(
-          bassPc: bassPc,
-          otherPc: otherPc,
+        final interval = IntervalLabeler.forMidiNotes(
+          bassMidi: bassMidi,
+          otherMidi: otherMidi,
+          direction: IntervalLabelDirection.fromBass,
         );
 
+        final bassPc = bassMidi % 12;
         final root = pcToName(bassPc, tonality: context.tonality);
-        final other = pcToName(otherPc, tonality: context.tonality);
 
         return ChordAnalysis(
           symbol: ChordSymbol(
             root: root,
-            quality: ' ${interval.short}',
+            quality: ' ${interval.short}', // e.g. " P8", " m9"
             bass: null,
           ),
           inversion: 'Interval',
