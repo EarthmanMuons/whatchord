@@ -1,4 +1,4 @@
-/// Bitwise popcount utiltiy for small integer masks using the standard
+/// Bitwise popcount utility for small integer masks using the standard
 /// Kernighan algorithm.
 int popCount(int v) {
   var c = 0;
