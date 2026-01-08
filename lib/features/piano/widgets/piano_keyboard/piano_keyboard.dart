@@ -32,8 +32,7 @@ class PianoKeyboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final palette = buildPianoPalette(scheme);
+    final palette = buildPianoPalette(Theme.of(context).colorScheme);
     final resolvedHeight = height ?? _defaultHeight;
 
     return SizedBox(
