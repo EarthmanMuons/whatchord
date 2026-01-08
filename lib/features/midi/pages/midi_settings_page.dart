@@ -11,16 +11,11 @@ import '../widgets/midi_device_picker.dart';
 import '../widgets/midi_status_card.dart';
 import '../widgets/saved_device_card.dart';
 
-class MidiSettingsPage extends ConsumerStatefulWidget {
+class MidiSettingsPage extends ConsumerWidget {
   const MidiSettingsPage({super.key});
 
   @override
-  ConsumerState<MidiSettingsPage> createState() => _MidiSettingsPageState();
-}
-
-class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final connection = ref.watch(midiConnectionStatusProvider);
     final isInitializing = ref.watch(midiServiceInitProvider).isLoading;
