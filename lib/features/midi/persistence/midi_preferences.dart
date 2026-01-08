@@ -22,9 +22,6 @@ class MidiPreferences {
       savedConnectedAtMs = null,
       autoReconnect = true;
 
-  bool get hasLastDeviceId =>
-      savedDeviceId != null && savedDeviceId!.trim().isNotEmpty;
-
   MidiPreferences copyWith({
     String? savedDeviceId,
     MidiDevice? savedDevice,
