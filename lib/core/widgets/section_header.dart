@@ -1,20 +1,31 @@
 import 'package:flutter/material.dart';
 
 class SectionHeader extends StatelessWidget {
-  const SectionHeader({super.key, required this.title});
+  const SectionHeader({super.key, required this.title, this.icon});
+
   final String title;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    final style = theme.textTheme.labelLarge?.copyWith(
+      color: cs.onSurfaceVariant,
+      letterSpacing: 0.8,
+    );
+
     return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 8),
-      child: Text(
-        title.toUpperCase(),
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: cs.onSurfaceVariant,
-          letterSpacing: 0.8,
-        ),
+      padding: const EdgeInsets.only(top: 10, bottom: 6),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 20, color: cs.onSurfaceVariant),
+            const SizedBox(width: 10),
+          ],
+          Text(title.toUpperCase(), style: style),
+        ],
       ),
     );
   }
