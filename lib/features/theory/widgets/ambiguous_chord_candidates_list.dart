@@ -26,26 +26,26 @@ class AmbiguousChordCandidatesList extends ConsumerWidget {
   final double gap;
   final Alignment alignment;
   final TextAlign textAlign;
-
-  /// Optional explicit style if you want to control size per placement.
   final TextStyle? styleOverride;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!enabled) return const SizedBox.shrink();
-
-    final items = ref.watch(ambiguousChordCandidatesProvider);
-    if (items.isEmpty) return const SizedBox.shrink();
-
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+
+    final items = enabled
+        ? ref.watch(ambiguousChordCandidatesProvider)
+        : const [];
 
     final tonality = ref.watch(
       analysisContextProvider.select((c) => c.tonality),
     );
     final chordStyle = ref.watch(chordSymbolStyleProvider);
 
-    final base = theme.textTheme.bodyMedium ?? const TextStyle(fontSize: 14);
+    final base =
+        styleOverride ??
+        theme.textTheme.bodyMedium ??
+        const TextStyle(fontSize: 14);
     final textStyle = base.copyWith(
       fontSize: (base.fontSize ?? 14) + 4,
       fontWeight: FontWeight.w800,
@@ -54,35 +54,88 @@ class AmbiguousChordCandidatesList extends ConsumerWidget {
     );
 
     final visible = items.take(maxItems).toList(growable: false);
+    final hasContent = enabled && visible.isNotEmpty;
 
-    return Padding(
-      padding: padding,
-      child: Align(
-        alignment: alignment,
-        child: ListView.separated(
-          primary: false, // important for safety
-          padding: EdgeInsets.zero,
-          itemCount: visible.length,
-          separatorBuilder: (_, _) => SizedBox(height: gap),
-          itemBuilder: (context, i) {
-            final c = visible[i];
-            final symbol = ChordSymbolFormatter.fromIdentity(
-              identity: c.identity,
-              tonality: tonality,
-              style: chordStyle,
-            );
+    Widget content() {
+      return Padding(
+        padding: padding,
+        child: Align(
+          alignment: alignment,
+          child: ListView.separated(
+            key: const ValueKey(
+              'ambiguous_list',
+            ), // stable key for the "present" state
+            primary: false,
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            scrollDirection: axis,
+            itemCount: visible.length,
+            separatorBuilder: (_, _) => axis == Axis.vertical
+                ? SizedBox(height: gap)
+                : SizedBox(width: gap),
+            itemBuilder: (context, i) {
+              final c = visible[i];
+              final symbol = ChordSymbolFormatter.fromIdentity(
+                identity: c.identity,
+                tonality: tonality,
+                style: chordStyle,
+              );
 
-            return Text(
-              symbol.toString(),
-              style: textStyle,
-              textAlign: textAlign,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              softWrap: false,
-            );
-          },
+              return Text(
+                symbol.toString(),
+                style: textStyle,
+                textAlign: textAlign,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
+              );
+            },
+          ),
         ),
-      ),
+      );
+    }
+
+    // Empty state must still occupy an animatable child.
+    // Using a SizedBox with a key ensures AnimatedSwitcher recognizes changes.
+    Widget empty() => const SizedBox(key: ValueKey('ambiguous_empty'));
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 120),
+      reverseDuration: const Duration(milliseconds: 90),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+
+      layoutBuilder: (currentChild, previousChildren) {
+        final stackAlignment = axis == Axis.vertical
+            ? Alignment.topCenter
+            : Alignment.centerLeft;
+
+        return Stack(
+          alignment: stackAlignment,
+          children: [
+            for (final c in previousChildren) c,
+            if (currentChild != null) currentChild,
+          ],
+        );
+      },
+
+      transitionBuilder: (child, animation) {
+        final fade = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+
+        return FadeTransition(
+          opacity: fade,
+          child: ClipRect(
+            child: SizeTransition(
+              sizeFactor: animation,
+              axis: axis,
+              axisAlignment: -1.0,
+              child: child,
+            ),
+          ),
+        );
+      },
+
+      child: hasContent ? content() : empty(),
     );
   }
 }
