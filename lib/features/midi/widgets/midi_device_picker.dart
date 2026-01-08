@@ -27,11 +27,11 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
   @override
   void initState() {
     super.initState();
-    _connection = ref.read(midiConnectionNotifierProvider.notifier);
+    _connection = ref.read(midiConnectionProvider.notifier);
 
     // React to connection state changes (errors + success close).
     _connectionSub = ref.listenManual<MidiConnectionState>(
-      midiConnectionNotifierProvider,
+      midiConnectionProvider,
       (prev, next) {
         if (!mounted) return;
 
@@ -105,7 +105,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     setState(() => _error = null);
 
     try {
-      await ref.read(midiConnectionNotifierProvider.notifier).connect(device);
+      await ref.read(midiConnectionProvider.notifier).connect(device);
       // Success + failure UI are driven by the notifier listener above.
     } catch (_) {
       // No-op: notifier publishes MidiConnectionPhase.error + message.
@@ -123,13 +123,11 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       connectedMidiDeviceProvider.select((a) => a.asData?.value?.id),
     );
 
-    final isBusy = ref.watch(
-      midiConnectionNotifierProvider.select((s) => s.isBusy),
-    );
+    final isBusy = ref.watch(midiConnectionProvider.select((s) => s.isBusy));
 
     // Row-level spinner only for the device being connected in the "connecting" phase.
     final connectingDeviceId = ref.watch(
-      midiConnectionNotifierProvider.select(
+      midiConnectionProvider.select(
         (s) => s.phase == MidiConnectionPhase.connecting ? s.device?.id : null,
       ),
     );

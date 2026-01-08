@@ -16,14 +16,12 @@ class SavedDeviceCard extends ConsumerWidget {
     final saved = ref.watch(savedMidiDeviceProvider);
 
     // Connection semantics from the state machine.
-    final isBusy = ref.watch(
-      midiConnectionNotifierProvider.select((s) => s.isBusy),
-    );
+    final isBusy = ref.watch(midiConnectionProvider.select((s) => s.isBusy));
     final isConnected = ref.watch(
-      midiConnectionNotifierProvider.select((s) => s.isConnected),
+      midiConnectionProvider.select((s) => s.isConnected),
     );
     final connectionDeviceName = ref.watch(
-      midiConnectionNotifierProvider.select((s) => s.device?.name),
+      midiConnectionProvider.select((s) => s.device?.name),
     );
 
     // Transport snapshot (who is connected).
@@ -87,7 +85,7 @@ class SavedDeviceCard extends ConsumerWidget {
                     ? null
                     : () async {
                         await ref
-                            .read(midiConnectionNotifierProvider.notifier)
+                            .read(midiConnectionProvider.notifier)
                             .disconnect();
 
                         if (context.mounted) {
@@ -112,7 +110,7 @@ class SavedDeviceCard extends ConsumerWidget {
                     ? null
                     : () {
                         ref
-                            .read(midiConnectionNotifierProvider.notifier)
+                            .read(midiConnectionProvider.notifier)
                             .tryAutoReconnect(reason: 'manual');
                       },
                 child: const Text('Reconnect'),
@@ -124,16 +122,14 @@ class SavedDeviceCard extends ConsumerWidget {
                 switch (action) {
                   case _SavedDeviceMenuAction.forget:
                     await ref
-                        .read(midiConnectionNotifierProvider.notifier)
+                        .read(midiConnectionProvider.notifier)
                         .disconnect();
 
                     await ref
                         .read(midiPreferencesProvider.notifier)
                         .clearSavedDevice();
 
-                    ref
-                        .read(midiConnectionNotifierProvider.notifier)
-                        .resetToIdle();
+                    ref.read(midiConnectionProvider.notifier).resetToIdle();
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(

@@ -29,7 +29,7 @@ class HomePage extends ConsumerWidget {
     ref.watch(midiIdleCoordinatorProvider);
 
     // Listen for connection state changes and show feedback.
-    ref.listen(midiConnectionNotifierProvider, (prev, next) {
+    ref.listen(midiConnectionProvider, (prev, next) {
       if (prev?.phase == next.phase && prev?.message == next.message) return;
 
       final messenger = ScaffoldMessenger.of(context);

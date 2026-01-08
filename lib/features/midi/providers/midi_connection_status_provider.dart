@@ -6,7 +6,7 @@ import 'midi_connection_notifier.dart';
 
 /// Provides UI-friendly presentation of MIDI connection information.
 final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
-  final connection = ref.watch(midiConnectionNotifierProvider);
+  final connection = ref.watch(midiConnectionProvider);
 
   return switch (connection.phase) {
     MidiConnectionPhase.connected => MidiConnectionStatus(

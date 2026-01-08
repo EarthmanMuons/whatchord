@@ -10,7 +10,7 @@ import '../providers/midi_device_providers.dart';
 import '../providers/midi_service_providers.dart';
 import '../services/midi_service.dart';
 
-final midiConnectionNotifierProvider =
+final midiConnectionProvider =
     NotifierProvider<MidiConnectionNotifier, MidiConnectionState>(
       MidiConnectionNotifier.new,
     );

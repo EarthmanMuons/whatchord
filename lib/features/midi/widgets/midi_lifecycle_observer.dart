@@ -28,7 +28,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
       await Future<void>.delayed(const Duration(milliseconds: 200));
       if (_ref.mounted) {
         _ref
-            .read(midiConnectionNotifierProvider.notifier)
+            .read(midiConnectionProvider.notifier)
             .tryAutoReconnect(reason: 'startup');
       }
     });
@@ -40,7 +40,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final connection = _ref.read(midiConnectionNotifierProvider.notifier);
+    final connection = _ref.read(midiConnectionProvider.notifier);
 
     switch (state) {
       case AppLifecycleState.resumed:

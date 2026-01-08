@@ -26,7 +26,7 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
 
     // Panic clear on disconnect: clears any stuck UI state if transport drops.
     ref.listen<MidiConnectionPhase>(
-      midiConnectionNotifierProvider.select((s) => s.phase),
+      midiConnectionProvider.select((s) => s.phase),
       (prev, next) {
         if (prev == MidiConnectionPhase.connected &&
             next != MidiConnectionPhase.connected) {
