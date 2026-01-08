@@ -32,7 +32,7 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
   void initState() {
     super.initState();
 
-    _notes = ref.read(activeNotesProvider);
+    _notes = [...ref.read(activeNotesProvider)];
     _pedal = ref.read(isPedalDownProvider);
 
     _notesSubscription = ref.listenManual<List<ActiveNote>>(activeNotesProvider, (
@@ -74,10 +74,14 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
     super.dispose();
   }
 
-  void _applyNotesDiff(List<ActiveNote> next) {
-    final nextIdSet = next.map((e) => e.id).toSet();
+  void _applyNotesDiff(Iterable<ActiveNote> next) {
+    final nextList = next is List<ActiveNote>
+        ? next
+        : next.toList(growable: false);
+    final nextIdSet = {for (final n in nextList) n.id};
+    final nextById = {for (final n in nextList) n.id: n};
+
     final currentIdSet = _notes.map((e) => e.id).toSet();
-    final nextById = <String, ActiveNote>{for (final n in next) n.id: n};
 
     // 1) Remove notes that no longer exist (reverse order keeps indices valid).
     for (int i = _notes.length - 1; i >= 0; i--) {
@@ -96,10 +100,10 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
     }
 
     // 2) Insert new notes at their target indices.
-    for (int i = 0; i < next.length; i++) {
-      final id = next[i].id;
+    for (int i = 0; i < nextList.length; i++) {
+      final id = nextList[i].id;
       if (!currentIdSet.contains(id)) {
-        _notes.insert(i, next[i]);
+        _notes.insert(i, nextList[i]);
         currentIdSet.add(id);
 
         _notesKey.currentState?.insertItem(

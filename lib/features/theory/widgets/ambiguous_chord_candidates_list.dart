@@ -40,8 +40,9 @@ class AmbiguousChordCandidatesList extends ConsumerWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final analysisContext = ref.watch(analysisContextProvider);
-    final tonality = analysisContext.tonality;
+    final tonality = ref.watch(
+      analysisContextProvider.select((c) => c.tonality),
+    );
     final chordStyle = ref.watch(chordSymbolStyleProvider);
 
     final base = theme.textTheme.bodyMedium ?? const TextStyle(fontSize: 14);

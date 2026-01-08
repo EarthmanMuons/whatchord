@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -121,9 +122,18 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
       setPedalDown(value >= MidiConstants.sustainPedalThreshold);
 }
 
-// Raw MIDI note numbers for keyboard highlighting and analysis inputs.
+// Raw MIDI note numbers for keyboard highlighting.
 final soundingMidiNotesProvider = Provider<Set<int>>((ref) {
   return ref.watch(midiNoteStateProvider.select((s) => s.soundingNotes));
+});
+
+// Sorted raw MIDI note numbers for analysis inputs.
+final soundingMidiNotesSortedProvider = Provider<UnmodifiableListView<int>>((
+  ref,
+) {
+  final notes = ref.watch(soundingMidiNotesProvider);
+  final list = notes.toList()..sort();
+  return UnmodifiableListView(list);
 });
 
 // Sustain pedal state.

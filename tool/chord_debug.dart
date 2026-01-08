@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:what_chord/core/utils/pc_mask.dart';
 import 'package:what_chord/features/theory/engine/engine.dart';
 import 'package:what_chord/features/theory/models/chord_symbol.dart';
 import 'package:what_chord/features/theory/models/key_signature.dart';
@@ -70,7 +71,7 @@ void main(List<String> args) {
     return;
   }
 
-  final pcMask = _toPcMask(pcs);
+  final pcMask = pcMaskFromPcs(pcs);
   final bassPc = bassName != null
       ? pitchClassFromNoteName(bassName)
       : (midi.isNotEmpty
@@ -174,14 +175,6 @@ void main(List<String> args) {
 
     if (!compact) stdout.writeln('');
   }
-}
-
-int _toPcMask(Iterable<int> pcs) {
-  var mask = 0;
-  for (final pc in pcs) {
-    mask |= (1 << (pc % 12));
-  }
-  return mask;
 }
 
 ({List<int> midiNotes, List<int> pitchClasses}) _parseNotes(

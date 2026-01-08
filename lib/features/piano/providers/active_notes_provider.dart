@@ -2,26 +2,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/theory/theory.dart'
     show pitchClassNamesProvider;
-import 'package:what_chord/features/midi/midi.dart' show midiNoteStateProvider;
+import 'package:what_chord/features/midi/midi.dart'
+    show midiNoteStateProvider, soundingMidiNotesSortedProvider;
 
 import '../models/active_note.dart';
 
 final activeNotesProvider = Provider<List<ActiveNote>>((ref) {
-  final state = ref.watch(midiNoteStateProvider);
+  final midis = ref.watch(soundingMidiNotesSortedProvider);
+  final sustained = ref.watch(midiNoteStateProvider.select((s) => s.sustained));
   final pcNames = ref.watch(pitchClassNamesProvider);
 
-  final notes = <ActiveNote>[];
-  final activeSorted = state.soundingNotes.toList()..sort();
+  if (midis.isEmpty) return const <ActiveNote>[];
 
-  for (final midi in activeSorted) {
-    notes.add(
+  return List<ActiveNote>.unmodifiable([
+    for (final midi in midis)
       ActiveNote(
         midiNote: midi,
         label: pcNames[midi % 12],
-        isSustained: state.sustained.contains(midi),
+        isSustained: sustained.contains(midi),
       ),
-    );
-  }
-
-  return notes;
+  ]);
 });

@@ -26,7 +26,7 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seedColor = ref.watch(appPaletteProvider).seedColor;
+    final seedColor = ref.watch(appPaletteProvider.select((p) => p.seedColor));
     final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp(

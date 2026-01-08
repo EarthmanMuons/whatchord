@@ -17,16 +17,16 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
   final mode = ref.watch(analysisModeProvider);
   if (mode == AnalysisMode.none) return null;
 
-  final midis = ref.watch(soundingMidiNotesProvider).toList()..sort();
+  final midis = ref.watch(soundingMidiNotesSortedProvider);
   if (midis.isEmpty) return null;
 
-  final context = ref.watch(analysisContextProvider);
+  final tonality = ref.watch(analysisContextProvider.select((c) => c.tonality));
 
   switch (mode) {
     case AnalysisMode.single:
       {
         final pc = midis.first % 12;
-        final name = pcToName(pc, tonality: context.tonality);
+        final name = pcToName(pc, tonality: tonality);
 
         return NoteDisplay(noteName: name, secondaryLabel: 'Note');
       }
@@ -45,7 +45,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         );
 
         final bassPc = bassMidi % 12;
-        final root = pcToName(bassPc, tonality: context.tonality);
+        final root = pcToName(bassPc, tonality: tonality);
 
         return IntervalDisplay(
           referenceName: root,
@@ -56,15 +56,15 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
 
     case AnalysisMode.chord:
       {
-        final best = ref.watch(bestChordCandidateProvider);
-        if (best == null) return null;
+        final id = ref.watch(
+          bestChordCandidateProvider.select((c) => c?.identity),
+        );
+        if (id == null) return null;
 
         final style = ref.watch(chordSymbolStyleProvider);
-        final id = best.identity;
-
         final symbol = ChordSymbolFormatter.fromIdentity(
           identity: id,
-          tonality: context.tonality,
+          tonality: tonality,
           style: style,
         );
 
