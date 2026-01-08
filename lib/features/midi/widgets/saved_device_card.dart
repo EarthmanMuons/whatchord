@@ -13,27 +13,42 @@ class SavedDeviceCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hasSaved = ref.watch(hasSavedMidiDeviceProvider);
-    final isConnected = ref.watch(isMidiConnectedProvider);
-    final isBusy = ref.watch(isConnectionBusyProvider);
-    final isConnectedToSaved = ref.watch(isConnectedToSavedDeviceProvider);
-
-    final connected = ref.watch(connectedMidiDeviceValueProvider);
     final saved = ref.watch(savedMidiDeviceProvider);
 
+    // Connection semantics from the state machine.
+    final isBusy = ref.watch(
+      midiConnectionNotifierProvider.select((s) => s.isBusy),
+    );
+    final isConnected = ref.watch(
+      midiConnectionNotifierProvider.select((s) => s.isConnected),
+    );
     final connectionDeviceName = ref.watch(
       midiConnectionNotifierProvider.select((s) => s.device?.name),
     );
 
-    // If there is no saved device persisted, do not render the card at all.
+    // Transport snapshot (who is connected).
+    final connected = ref.watch(connectedMidiDeviceProvider).asData?.value;
+
+    final savedId = ref.watch(savedMidiDeviceIdProvider);
+
+    // If there is no saved device persisted, do not render the card at all
+    // (but still show if currently connected, to allow Disconnect).
     if (!hasSaved && !isConnected) {
       return const SizedBox.shrink();
     }
 
-    // Prefer the *current* connected device name first.
+    final isConnectedToSaved =
+        isConnected &&
+        savedId != null &&
+        savedId.trim().isNotEmpty &&
+        connected?.id == savedId;
+
+    // Prefer current connected device name first.
     final connectionNameTrimmed =
         (connectionDeviceName?.trim().isNotEmpty == true)
         ? connectionDeviceName!.trim()
         : null;
+
     final connectedNameTrimmed = (connected?.name.trim().isNotEmpty == true)
         ? connected!.name.trim()
         : null;
@@ -43,12 +58,11 @@ class SavedDeviceCard extends ConsumerWidget {
         ? connectionNameTrimmed
         : connectedNameTrimmed;
 
-    // Then fall back to persisted saved device name (if present).
+    // Fall back to persisted saved device name.
     final savedName = (saved?.name.trim().isNotEmpty == true)
         ? saved!.name.trim()
         : null;
 
-    // Final title resolution.
     final title = connectedName ?? savedName ?? 'Saved device';
 
     return Card(
@@ -59,10 +73,6 @@ class SavedDeviceCard extends ConsumerWidget {
           spacing: 8,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            // Primary action:
-            // - Connected to last => Disconnect
-            // - Not connected and last is available => Reconnect
-            // - Otherwise => no primary action (or a disabled label)
             if (isConnectedToSaved)
               FilledButton.tonal(
                 style: TextButton.styleFrom(
@@ -76,10 +86,9 @@ class SavedDeviceCard extends ConsumerWidget {
                 onPressed: isBusy
                     ? null
                     : () async {
-                        final connection = ref.read(
-                          midiConnectionNotifierProvider.notifier,
-                        );
-                        await connection.disconnect();
+                        await ref
+                            .read(midiConnectionNotifierProvider.notifier)
+                            .disconnect();
 
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -114,16 +123,14 @@ class SavedDeviceCard extends ConsumerWidget {
               onSelected: (action) async {
                 switch (action) {
                   case _SavedDeviceMenuAction.forget:
-                    // Make transport truthfully disconnected (drives picker checkmark)
                     await ref
                         .read(midiConnectionNotifierProvider.notifier)
                         .disconnect();
 
-                    // Clear preference (drives saved-device UI / labels)
-                    final prefs = ref.read(midiPreferencesProvider.notifier);
-                    await prefs.clearSavedDevice();
+                    await ref
+                        .read(midiPreferencesProvider.notifier)
+                        .clearSavedDevice();
 
-                    // Reset connection UI/phase so we don’t show stale reconnect messaging.
                     ref
                         .read(midiConnectionNotifierProvider.notifier)
                         .resetToIdle();

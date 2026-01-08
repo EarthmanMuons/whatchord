@@ -23,25 +23,27 @@ class MidiSettingsPageState {
   });
 
   List<MidiDevice> get devices => devicesAsync.asData?.value ?? const [];
-
   MidiDevice? get connected => connectedAsync.asData?.value;
-
-  bool get isConnected => connected?.isConnected == true;
 
   MidiDevice? get lastDevice => prefs.savedDevice;
   String? get lastDeviceId => prefs.savedDeviceId;
 
   bool get hasLast => lastDeviceId != null && lastDeviceId!.trim().isNotEmpty;
 
-  bool get isConnectionBusy =>
-      connection.phase == MidiConnectionPhase.connecting ||
-      connection.phase == MidiConnectionPhase.retrying;
+  bool get isConnected => connection.isConnected;
+  bool get isConnectionBusy => connection.isBusy;
 
-  bool get isConnectedToLast =>
-      isConnected && hasLast && connected!.id == lastDeviceId;
+  bool get isConnectedToLast {
+    final id = lastDeviceId;
+    final c = connected;
+    return isConnected && id != null && id.trim().isNotEmpty && c?.id == id;
+  }
 
-  bool get isLastAvailable =>
-      hasLast && devices.any((d) => d.id == lastDeviceId);
+  bool get isLastAvailable {
+    final id = lastDeviceId;
+    if (id == null || id.trim().isEmpty) return false;
+    return devices.any((d) => d.id == id);
+  }
 
   bool get canReconnect =>
       hasLast && !isConnected && !isConnectionBusy && isLastAvailable;

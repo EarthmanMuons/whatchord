@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import 'midi_device.dart';
 
 enum MidiConnectionPhase {
@@ -10,6 +12,7 @@ enum MidiConnectionPhase {
   error,
 }
 
+@immutable
 class MidiConnectionState {
   final MidiConnectionPhase phase;
   final MidiDevice? device;
@@ -26,6 +29,14 @@ class MidiConnectionState {
   });
 
   const MidiConnectionState.idle() : this(phase: MidiConnectionPhase.idle);
+
+  bool get isIdle => phase == MidiConnectionPhase.idle;
+
+  bool get isBusy =>
+      phase == MidiConnectionPhase.connecting ||
+      phase == MidiConnectionPhase.retrying;
+
+  bool get isConnected => phase == MidiConnectionPhase.connected;
 
   MidiConnectionState copyWith({
     MidiConnectionPhase? phase,

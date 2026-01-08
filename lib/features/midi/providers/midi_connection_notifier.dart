@@ -343,22 +343,3 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     return _service.reconnect(savedDeviceId);
   }
 }
-
-/// Whether the connection is in a busy state.
-final isConnectionBusyProvider = Provider<bool>((ref) {
-  final phase = ref.watch(
-    midiConnectionNotifierProvider.select((s) => s.phase),
-  );
-  return phase == MidiConnectionPhase.connecting ||
-      phase == MidiConnectionPhase.retrying;
-});
-
-/// Whether connected to the last saved device.
-final isConnectedToSavedDeviceProvider = Provider<bool>((ref) {
-  final prefs = ref.watch(midiPreferencesProvider);
-  final device = ref.watch(connectedMidiDeviceProvider).asData?.value;
-
-  return device?.isConnected == true &&
-      prefs.savedDeviceId != null &&
-      device?.id == prefs.savedDeviceId;
-});

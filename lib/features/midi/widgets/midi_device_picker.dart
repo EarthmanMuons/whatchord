@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:what_chord/features/midi/midi.dart';
 
+import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
+import '../providers/midi_connection_notifier.dart';
+import '../providers/midi_device_providers.dart';
 
 /// Modal bottom sheet for scanning and selecting MIDI devices.
 class MidiDevicePicker extends ConsumerStatefulWidget {
@@ -39,9 +41,13 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
           return;
         }
 
+        if (next.phase != MidiConnectionPhase.error && _error != null) {
+          setState(() => _error = null);
+        }
+
         // Close on successful connection (deduped).
-        final wasConnected = prev?.phase == MidiConnectionPhase.connected;
-        final isConnectedNow = next.phase == MidiConnectionPhase.connected;
+        final wasConnected = prev?.isConnected == true;
+        final isConnectedNow = next.isConnected;
 
         if (!wasConnected && isConnectedNow && next.device != null) {
           final device = next.device!;
@@ -112,22 +118,21 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     final cs = theme.colorScheme;
 
     final devicesAsync = ref.watch(availableMidiDevicesProvider);
-    final connectedDevice = ref
-        .watch(connectedMidiDeviceProvider)
-        .asData
-        ?.value;
 
-    final conn = ref.watch(midiConnectionNotifierProvider);
+    final connectedDeviceId = ref.watch(
+      connectedMidiDeviceProvider.select((a) => a.asData?.value?.id),
+    );
 
-    final isBusy =
-        conn.phase == MidiConnectionPhase.connecting ||
-        conn.phase == MidiConnectionPhase.retrying;
+    final isBusy = ref.watch(
+      midiConnectionNotifierProvider.select((s) => s.isBusy),
+    );
 
     // Row-level spinner only for the device being connected in the "connecting" phase.
-    // (During retrying, we don't want spinners on the list—those are auto reconnect attempts.)
-    final connectingDeviceId = conn.phase == MidiConnectionPhase.connecting
-        ? conn.device?.id
-        : null;
+    final connectingDeviceId = ref.watch(
+      midiConnectionNotifierProvider.select(
+        (s) => s.phase == MidiConnectionPhase.connecting ? s.device?.id : null,
+      ),
+    );
 
     return SafeArea(
       child: Column(
@@ -192,7 +197,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                   itemCount: devices.length,
                   itemBuilder: (context, index) {
                     final device = devices[index];
-                    final isConnected = connectedDevice?.id == device.id;
+                    final isConnected = connectedDeviceId == device.id;
                     final isCurrentlyConnecting =
                         connectingDeviceId == device.id;
 
