@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_chord/core/widgets/widgets.dart';
 
 import '../models/midi_device.dart';
-import '../presentation/midi_connection_presentation.dart';
+import '../providers/midi_connection_status_provider.dart';
 import '../providers/midi_service_providers.dart';
 import '../widgets/midi_device_picker.dart';
 import '../widgets/midi_status_card.dart';
@@ -22,7 +22,7 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final presentation = ref.watch(midiConnectionPresentationProvider);
+    final connection = ref.watch(midiConnectionStatusProvider);
     final isInitializing = ref.watch(midiServiceInitProvider).isLoading;
 
     return Scaffold(
@@ -34,7 +34,7 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          MidiStatusCard(presentation: presentation),
+          MidiStatusCard(connection: connection),
 
           const SizedBox(height: 16),
           const SectionHeader(title: 'Device'),
@@ -64,7 +64,7 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
               child: ListTile(
                 leading: const Icon(Icons.add_link),
                 title: Text(
-                  presentation.isConnected
+                  connection.isConnected
                       ? 'Choose different device'
                       : 'Choose device',
                 ),

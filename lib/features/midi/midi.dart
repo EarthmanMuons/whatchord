@@ -3,6 +3,7 @@ export 'models/midi_message.dart';
 export 'models/midi_note_state.dart';
 
 export 'providers/midi_connection_notifier.dart';
+export 'providers/midi_connection_status_provider.dart';
 export 'providers/midi_device_providers.dart';
 export 'providers/midi_engaged_provider.dart';
 export 'providers/midi_keep_awake_provider.dart';

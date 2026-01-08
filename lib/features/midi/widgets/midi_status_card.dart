@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../presentation/midi_connection_presentation.dart';
-
+import '../models/midi_connection_status.dart';
 import '../providers/midi_connection_notifier.dart';
 
 class MidiStatusCard extends StatelessWidget {
-  const MidiStatusCard({super.key, required this.presentation});
+  const MidiStatusCard({super.key, required this.connection});
 
-  final MidiConnectionPresentation presentation;
+  final MidiConnectionStatus connection;
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +20,17 @@ class MidiStatusCard extends StatelessWidget {
 
     // Always a list (possibly empty) so the rendering code is simple.
     final subtitleLines = <String>[
-      if (presentation.phase == MidiConnectionPhase.retrying &&
-          presentation.attempt != null)
-        'Attempt ${presentation.attempt}',
-      if (presentation.phase == MidiConnectionPhase.retrying &&
-          presentation.nextDelay != null)
-        'Next retry in ${presentation.nextDelay!.inSeconds}s',
+      if (connection.phase == MidiConnectionPhase.retrying &&
+          connection.attempt != null)
+        'Attempt ${connection.attempt}',
+      if (connection.phase == MidiConnectionPhase.retrying &&
+          connection.nextDelay != null)
+        'Next retry in ${connection.nextDelay!.inSeconds}s',
       // If you later want error details etc, add more lines here.
     ];
 
     // Text() requires a non-null String.
-    final detailText = presentation.detail ?? presentation.label;
+    final detailText = connection.detail ?? connection.label;
 
     return Card(
       child: Padding(
@@ -43,7 +42,7 @@ class MidiStatusCard extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                _buildDotForPhase(presentation, cs),
+                _buildDotForPhase(connection, cs),
                 const SizedBox(width: 12),
                 Expanded(child: Text(detailText)),
               ],
@@ -62,15 +61,12 @@ class MidiStatusCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDotForPhase(
-    MidiConnectionPresentation presentation,
-    ColorScheme cs,
-  ) {
+  Widget _buildDotForPhase(MidiConnectionStatus connection, ColorScheme cs) {
     // Keep dot semantics consistent with pill tone mapping:
     // - normal/busy -> secondary
     // - error/unavailable -> error
     // - idle -> muted
-    final color = switch (presentation.phase) {
+    final color = switch (connection.phase) {
       MidiConnectionPhase.connected => Colors.green.shade600,
 
       MidiConnectionPhase.connecting ||
