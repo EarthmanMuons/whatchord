@@ -147,19 +147,29 @@ class IdentityCard extends StatelessWidget {
             ? KeyedSubtree(
                 key: const ValueKey('identity'),
                 child: hasLabel
-                    ? Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          identityBody(display),
-                          const SizedBox(height: 22),
-                          AutoSizeText(
-                            display.secondaryLabel!,
-                            textAlign: TextAlign.center,
-                            style: secondaryStyle,
-                            maxLines: 1,
-                            minFontSize: 20,
-                          ),
-                        ],
+                    ? LayoutBuilder(
+                        builder: (context, c) {
+                          final tight =
+                              c.maxHeight.isFinite && c.maxHeight < 110.0;
+
+                          final gap = tight ? 14.0 : 22.0;
+                          final secondaryMin = tight ? 16.0 : 20.0;
+
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              identityBody(display),
+                              SizedBox(height: gap),
+                              AutoSizeText(
+                                display.secondaryLabel!,
+                                textAlign: TextAlign.center,
+                                style: secondaryStyle,
+                                maxLines: 1,
+                                minFontSize: secondaryMin,
+                              ),
+                            ],
+                          );
+                        },
                       )
                     : identityBody(display),
               )

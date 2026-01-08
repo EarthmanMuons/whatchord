@@ -37,17 +37,16 @@ class AnalysisSection extends ConsumerWidget {
           const listGap = 18.0;
           const listSlotH = 28.0 * 3 + 8.0 * 2; // 3 rows + gaps
 
+          final laneH = constraints.maxHeight;
+          final cardMaxH = clampDouble(172.0, 0.0, laneH);
+
           return SizedBox.expand(
             child: isLandscape
                 ? Center(
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         maxWidth: cardW,
-                        maxHeight: clampDouble(
-                          172.0,
-                          0.0,
-                          constraints.maxHeight,
-                        ),
+                        maxHeight: cardMaxH,
                       ),
                       child: IdentityCard(
                         identity: identity,

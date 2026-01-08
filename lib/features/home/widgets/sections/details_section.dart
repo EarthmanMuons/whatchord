@@ -24,17 +24,21 @@ class DetailsSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isLandscape) ...[
-            const SizedBox(height: 8),
-            const AmbiguousChordCandidatesList(
-              enabled: true,
-              alignment: Alignment.topLeft,
-              textAlign: TextAlign.left,
-              gap: 6,
-            ),
-            const SizedBox(height: 12),
-          ],
-          const Spacer(),
+          if (isLandscape)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8, bottom: 12),
+                child: const AmbiguousChordCandidatesList(
+                  enabled: true,
+                  alignment: Alignment.topLeft,
+                  textAlign: TextAlign.left,
+                  gap: 6,
+                ),
+              ),
+            )
+          else
+            const Spacer(),
+
           Align(
             alignment: Alignment.bottomLeft,
             child: ActiveInput(padding: config.activeInputPadding),

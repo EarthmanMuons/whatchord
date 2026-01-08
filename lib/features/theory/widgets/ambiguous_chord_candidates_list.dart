@@ -44,13 +44,13 @@ class AmbiguousChordCandidatesList extends ConsumerWidget {
     final tonality = analysisContext.tonality;
     final chordStyle = ref.watch(chordSymbolStyleProvider);
 
-    final textStyle =
-        styleOverride ??
-        (const TextStyle(fontSize: 18)).copyWith(
-          color: cs.onSurface.withValues(alpha: 0.45),
-          height: 1.18,
-          fontWeight: FontWeight.w800,
-        );
+    final base = theme.textTheme.bodyMedium ?? const TextStyle(fontSize: 14);
+    final textStyle = base.copyWith(
+      fontSize: (base.fontSize ?? 14) + 4,
+      fontWeight: FontWeight.w800,
+      color: cs.onSurface.withValues(alpha: 0.45),
+      height: 1.18,
+    );
 
     final visible = items.take(maxItems).toList(growable: false);
 
@@ -59,8 +59,7 @@ class AmbiguousChordCandidatesList extends ConsumerWidget {
       child: Align(
         alignment: alignment,
         child: ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
+          primary: false, // important for safety
           padding: EdgeInsets.zero,
           itemCount: visible.length,
           separatorBuilder: (_, _) => SizedBox(height: gap),
