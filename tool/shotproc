@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+	cat >&2 <<'EOF'
+Process a single screenshot: optional resize-to-width, always strip metadata, set output quality.
+
+Usage:
+  shotproc [--width N] [--quality Q] <input> [output]
+
+Args:
+  input    Screenshot file to process
+  output   Optional; default: processed.webp
+
+Options:
+  -w, --width N     Resize to width N (px), keeping aspect ratio
+  -q, --quality Q   Output quality for lossy formats (WebP/JPEG); default 90
+  -h, --help        Show this help
+EOF
+}
+
+WIDTH=""
+QUALITY="90"
+
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+	-w | --width)
+		[[ $# -ge 2 ]] || {
+			echo "Error: --width requires a value" >&2
+			usage
+			exit 1
+		}
+		WIDTH="$2"
+		shift 2
+		;;
+	-q | --quality)
+		[[ $# -ge 2 ]] || {
+			echo "Error: --quality requires a value" >&2
+			usage
+			exit 1
+		}
+		QUALITY="$2"
+		shift 2
+		;;
+	-h | --help)
+		usage
+		exit 0
+		;;
+	--)
+		shift
+		break
+		;;
+	-*)
+		echo "Error: unknown option: $1" >&2
+		usage
+		exit 1
+		;;
+	*)
+		break
+		;;
+	esac
+done
+
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+	usage
+	exit 1
+fi
+
+IN="$1"
+OUT="${2:-processed.webp}"
+
+[[ -f $IN ]] || {
+	echo "Error: file not found: $IN" >&2
+	exit 1
+}
+
+command -v magick >/dev/null 2>&1 || {
+	echo "Error: ImageMagick 'magick' not found in PATH." >&2
+	exit 1
+}
+
+declare -a resize_args=()
+if [[ -n $WIDTH ]]; then
+	resize_args=(-resize "${WIDTH}x")
+fi
+
+magick "$IN" \
+	${resize_args[@]+"${resize_args[@]}"} \
+	-strip \
+	-quality "$QUALITY" \
+	"$OUT"
+
+echo "Wrote $OUT"

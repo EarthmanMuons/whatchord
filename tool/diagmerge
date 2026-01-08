@@ -1,0 +1,137 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+	cat >&2 <<'EOF'
+Create a diagonal merge: upper-left from image1, lower-right from image2.
+
+Usage:
+  diagmerge [--width N] [--feather S] [--quality Q] <image1> <image2> [output]
+
+Args:
+  image1   Shown on the left/top side of the diagonal
+  image2   Shown on the right/bottom side of the diagonal
+  output   Optional; default: diagonal.webp
+
+Options:
+  -w, --width N     Resize both inputs to width N (px), keeping aspect ratio
+  -f, --feather S   Feather sigma (px) for the diagonal edge; default 0.8
+  -q, --quality Q   Output quality for lossy formats (WebP/JPEG); default 90
+  -h, --help        Show this help
+EOF
+}
+
+WIDTH=""
+FEATHER="0.8"
+QUALITY="90"
+
+# Parse flags
+while [[ $# -gt 0 ]]; do
+	case "$1" in
+	-w | --width)
+		[[ $# -ge 2 ]] || {
+			echo "Error: --width requires a value" >&2
+			usage
+			exit 1
+		}
+		WIDTH="$2"
+		shift 2
+		;;
+	-f | --feather)
+		[[ $# -ge 2 ]] || {
+			echo "Error: --feather requires a value" >&2
+			usage
+			exit 1
+		}
+		FEATHER="$2"
+		shift 2
+		;;
+	-q | --quality)
+		[[ $# -ge 2 ]] || {
+			echo "Error: --quality requires a value" >&2
+			usage
+			exit 1
+		}
+		QUALITY="$2"
+		shift 2
+		;;
+	-h | --help)
+		usage
+		exit 0
+		;;
+	--)
+		shift
+		break
+		;;
+	-*)
+		echo "Error: unknown option: $1" >&2
+		usage
+		exit 1
+		;;
+	*)
+		break
+		;;
+	esac
+done
+
+if [[ $# -lt 2 || $# -gt 3 ]]; then
+	usage
+	exit 1
+fi
+
+IMG1="$1"
+IMG2="$2"
+OUT="${3:-diagonal.webp}"
+
+for f in "$IMG1" "$IMG2"; do
+	[[ -f $f ]] || {
+		echo "Error: file not found: $f" >&2
+		exit 1
+	}
+done
+
+command -v magick >/dev/null 2>&1 || {
+	echo "Error: ImageMagick 'magick' not found in PATH." >&2
+	exit 1
+}
+
+# Enforce equal input dimensions
+w1="$(magick identify -ping -format "%w" "$IMG1")"
+h1="$(magick identify -ping -format "%h" "$IMG1")"
+w2="$(magick identify -ping -format "%w" "$IMG2")"
+h2="$(magick identify -ping -format "%h" "$IMG2")"
+
+if [[ $w1 != "$w2" || $h1 != "$h2" ]]; then
+	echo "Error: images must be the same size." >&2
+	echo "  $IMG1: ${w1}x${h1}" >&2
+	echo "  $IMG2: ${w2}x${h2}" >&2
+	exit 1
+fi
+
+# Optional resize (applied to both); compute post-resize mask dimensions
+# Optional resize (applied to both); compute post-resize mask dimensions
+declare -a resize_args=()
+w="$w1"
+h="$h1"
+
+if [[ -n $WIDTH ]]; then
+	resize_args=(-resize "${WIDTH}x")
+	w="$(magick "$IMG1" ${resize_args[@]+"${resize_args[@]}"} -ping -format "%w" info:)"
+	h="$(magick "$IMG1" ${resize_args[@]+"${resize_args[@]}"} -ping -format "%h" info:)"
+fi
+
+magick \
+	\( "$IMG2" ${resize_args[@]+"${resize_args[@]}"} \) \
+	\( "$IMG1" ${resize_args[@]+"${resize_args[@]}"} -alpha set \
+	\( -size "${w}x${h}" xc:none -fill white \
+	-draw "polygon 0,0 0,${h} ${w},0" \
+	-blur "0x${FEATHER}" \
+	\) \
+	-compose DstIn -composite \
+	\) \
+	-compose Over -composite \
+	-strip \
+	-quality "$QUALITY" \
+	"$OUT"
+
+echo "Wrote $OUT"
