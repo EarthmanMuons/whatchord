@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
 import '../persistence/midi_preferences_notifier.dart';
 import '../persistence/midi_preferences.dart';

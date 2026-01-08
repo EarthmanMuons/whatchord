@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/midi_connection.dart';
 import 'midi_connection_notifier.dart';
 
 final midiKeepAwakeProvider = Provider<bool>((ref) {

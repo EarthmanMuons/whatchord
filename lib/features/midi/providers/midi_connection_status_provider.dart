@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/midi_connection.dart';
 import '../models/midi_connection_status.dart';
 import 'midi_connection_notifier.dart';
 

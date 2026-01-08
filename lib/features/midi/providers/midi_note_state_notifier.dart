@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/midi_connection.dart';
 import '../models/midi_constants.dart';
 import '../models/midi_message.dart';
 import '../models/midi_note_state.dart';

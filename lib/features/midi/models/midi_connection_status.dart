@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../providers/midi_connection_notifier.dart';
+import '../models/midi_connection.dart';
 
 /// Presentation model for MIDI connection UI.
 @immutable
