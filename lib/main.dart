@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'core/activity/app_resume_wakeup_provider.dart';
 import 'core/activity/idle_blackout_overlay.dart';
 import 'core/persistence/shared_preferences_provider.dart';
 import 'core/theme/theme.dart';
@@ -26,6 +27,8 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(appResumeWakeupProvider);
+
     final seedColor = ref.watch(appPaletteProvider.select((p) => p.seedColor));
     final themeMode = ref.watch(themeModeProvider);
 
