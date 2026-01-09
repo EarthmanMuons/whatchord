@@ -28,7 +28,7 @@ class DetailsSection extends ConsumerWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 12),
-                child: const AmbiguousChordCandidatesList(
+                child: const NearTieChordCandidatesList(
                   enabled: true,
                   alignment: Alignment.topLeft,
                   textAlign: TextAlign.left,

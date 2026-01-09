@@ -21,7 +21,7 @@ stable, conventional interpretations over raw pitch-class matches.
   structures).
 
 - **Ambiguity-aware UI**  
-  When multiple interpretations are plausible, WhatChord surfaces secondary
+  When multiple interpretations are plausible, WhatChord surfaces alternative
   candidates rather than hiding uncertainty.
 
 - **Context-aware spelling**  

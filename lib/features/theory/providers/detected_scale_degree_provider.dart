@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/scale_degree.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
-import 'chord_analysis_providers.dart';
+import 'chord_candidates_providers.dart';
 
 final detectedScaleDegreeProvider = Provider<ScaleDegree?>((ref) {
   final mode = ref.watch(analysisModeProvider);

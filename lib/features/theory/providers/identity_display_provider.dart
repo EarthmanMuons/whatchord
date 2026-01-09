@@ -10,7 +10,7 @@ import '../services/note_display_formatter.dart';
 import '../services/note_spelling.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
-import 'chord_analysis_providers.dart';
+import 'chord_candidates_providers.dart';
 import 'chord_symbol_style_notifier.dart';
 
 final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {

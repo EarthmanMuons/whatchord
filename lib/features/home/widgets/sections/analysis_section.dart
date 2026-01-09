@@ -81,7 +81,7 @@ class AnalysisSection extends ConsumerWidget {
                               const SizedBox(height: listGap),
                               SizedBox(
                                 height: listSlotH,
-                                child: const AmbiguousChordCandidatesList(
+                                child: const NearTieChordCandidatesList(
                                   enabled: true,
                                   alignment: Alignment.topCenter,
                                   textAlign: TextAlign.center,

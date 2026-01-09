@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../providers/ambiguous_chord_candidates_provider.dart';
 import '../providers/analysis_context_provider.dart';
+import '../providers/chord_candidates_providers.dart';
 import '../providers/chord_symbol_style_notifier.dart';
 import '../services/chord_symbol_formatter.dart';
 
-class AmbiguousChordCandidatesList extends ConsumerWidget {
-  const AmbiguousChordCandidatesList({
+class NearTieChordCandidatesList extends ConsumerWidget {
+  const NearTieChordCandidatesList({
     super.key,
     this.enabled = true,
     this.axis = Axis.vertical,
@@ -33,8 +33,8 @@ class AmbiguousChordCandidatesList extends ConsumerWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final items = enabled
-        ? ref.watch(ambiguousChordCandidatesProvider)
+    final alternatives = enabled
+        ? ref.watch(nearTieChordCandidatesProvider)
         : const [];
 
     final tonality = ref.watch(
@@ -53,7 +53,7 @@ class AmbiguousChordCandidatesList extends ConsumerWidget {
       height: 1.18,
     );
 
-    final visible = items.take(maxItems).toList(growable: false);
+    final visible = alternatives.take(maxItems).toList(growable: false);
     final hasContent = enabled && visible.isNotEmpty;
 
     Widget content() {
