@@ -22,6 +22,14 @@ class MidiDevice {
     this.isConnected = false,
   });
 
+  /// Name suitable for UI display.
+  ///
+  /// Returns null if the name is blank after trimming.
+  String? get displayName {
+    final trimmed = name.trim();
+    return trimmed.isEmpty ? null : trimmed;
+  }
+
   /// Creates a copy with modified fields.
   MidiDevice copyWith({
     String? id,

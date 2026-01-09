@@ -20,48 +20,41 @@ class SavedDeviceCard extends ConsumerWidget {
     final isConnected = ref.watch(
       midiConnectionProvider.select((s) => s.isConnected),
     );
-    final connectionDeviceName = ref.watch(
-      midiConnectionProvider.select((s) => s.device?.name),
+    final connectionDisplayName = ref.watch(
+      midiConnectionProvider.select((s) => s.deviceDisplayName),
     );
 
     // Transport snapshot (who is connected).
     final connected = ref.watch(connectedMidiDeviceProvider).asData?.value;
+    final connectedDisplayName = connected?.displayName;
 
-    final savedId = ref.watch(savedMidiDeviceIdProvider);
+    final savedIdNormalized = ref.watch(
+      savedMidiDeviceIdProvider.select((id) {
+        if (id == null) return null;
+        final t = id.trim();
+        return t.isEmpty ? null : t;
+      }),
+    );
 
     // If there is no saved device persisted, do not render the card at all
     // (but still show if currently connected, to allow Disconnect).
-    if (!hasSaved && !isConnected) {
+    if (savedIdNormalized == null && !isConnected) {
       return const SizedBox.shrink();
     }
 
     final isConnectedToSaved =
-        isConnected &&
-        savedId != null &&
-        savedId.trim().isNotEmpty &&
-        connected?.id == savedId;
+        isConnected && connected != null && connected.id == savedIdNormalized;
 
-    // Prefer current connected device name first.
-    final connectionNameTrimmed =
-        (connectionDeviceName?.trim().isNotEmpty == true)
-        ? connectionDeviceName!.trim()
-        : null;
-
-    final connectedNameTrimmed = (connected?.name.trim().isNotEmpty == true)
-        ? connected!.name.trim()
-        : null;
-
-    final connectedName =
-        (isBusy || isConnected) && connectionNameTrimmed != null
-        ? connectionNameTrimmed
-        : connectedNameTrimmed;
+    // Prefer the current connection name while busy/connected; otherwise fall back
+    // to the transport snapshot.
+    final effectiveConnectedName = (isBusy || isConnected)
+        ? (connectionDisplayName ?? connectedDisplayName)
+        : connectedDisplayName;
 
     // Fall back to persisted saved device name.
-    final savedName = (saved?.name.trim().isNotEmpty == true)
-        ? saved!.name.trim()
-        : null;
+    final savedDisplayName = saved?.displayName;
 
-    final title = connectedName ?? savedName ?? 'Saved device';
+    final title = effectiveConnectedName ?? savedDisplayName ?? 'Saved device';
 
     return Card(
       child: ListTile(

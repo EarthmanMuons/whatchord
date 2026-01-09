@@ -38,6 +38,8 @@ class MidiConnectionState {
 
   bool get isConnected => phase == MidiConnectionPhase.connected;
 
+  String? get deviceDisplayName => device?.displayName;
+
   MidiConnectionState copyWith({
     MidiConnectionPhase? phase,
     MidiDevice? device,
