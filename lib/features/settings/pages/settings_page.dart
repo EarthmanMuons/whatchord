@@ -116,6 +116,7 @@ class SettingsPage extends ConsumerWidget {
 
             const SizedBox(height: 8),
             ListTile(
+              leading: PaletteSwatch(seedColor: palette.seedColor),
               title: const Text('Color Palette'),
               subtitle: Text(palette.label),
               trailing: const Icon(Icons.chevron_right),
@@ -131,8 +132,13 @@ class SettingsPage extends ConsumerWidget {
                         children: [
                           for (final p in AppPalette.values)
                             ListTile(
+                              tileColor: p == current
+                                  ? Theme.of(context).colorScheme.primary
+                                        .withValues(alpha: 0.06)
+                                  : null,
+                              leading: PaletteSwatch(seedColor: p.seedColor),
                               title: Text(p.label),
-                              trailing: (p == current)
+                              trailing: p == current
                                   ? const Icon(Icons.check)
                                   : null,
                               onTap: () => Navigator.of(context).pop(p),
