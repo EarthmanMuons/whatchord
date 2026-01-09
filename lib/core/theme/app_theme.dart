@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
 
+import 'app_color_schemes.dart';
+import 'models/app_palette.dart';
+
+ColorScheme colorSchemeFor(AppPalette palette, Brightness brightness) {
+  return switch (palette) {
+    AppPalette.neutral =>
+      brightness == Brightness.dark
+          ? NeutralSchemes.dark
+          : NeutralSchemes.light,
+    _ => ColorScheme.fromSeed(
+      seedColor: palette.seedColor,
+      brightness: brightness,
+    ),
+  };
+}
+
 ThemeData buildAppTheme({
-  required Color seedColor,
+  required AppPalette palette,
   required Brightness brightness,
 }) {
-  final cs = ColorScheme.fromSeed(seedColor: seedColor, brightness: brightness);
+  final cs = colorSchemeFor(palette, brightness);
 
   return ThemeData(
     useMaterial3: true,

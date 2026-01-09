@@ -29,19 +29,16 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(appResumeWakeupProvider);
 
-    final seedColor = ref.watch(appPaletteProvider.select((p) => p.seedColor));
     final themeMode = ref.watch(themeModeProvider);
+    final palette = ref.watch(appPaletteProvider);
 
     return MaterialApp(
       title: 'WhatChord',
       debugShowCheckedModeBanner: false,
 
-      theme: buildAppTheme(seedColor: seedColor, brightness: Brightness.light),
-      darkTheme: buildAppTheme(
-        seedColor: seedColor,
-        brightness: Brightness.dark,
-      ),
       themeMode: themeMode,
+      theme: buildAppTheme(palette: palette, brightness: Brightness.light),
+      darkTheme: buildAppTheme(palette: palette, brightness: Brightness.dark),
 
       builder: (context, child) {
         return IdleBlackoutOverlay(child: child ?? const SizedBox.shrink());

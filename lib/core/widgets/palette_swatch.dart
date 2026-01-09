@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
 
-class PaletteSwatch extends StatelessWidget {
-  const PaletteSwatch({super.key, required this.seedColor, this.size = 18});
+import '../theme/app_theme.dart';
+import '../theme/models/app_palette.dart';
 
-  final Color seedColor;
+class PaletteSwatch extends StatelessWidget {
+  const PaletteSwatch({super.key, required this.palette, this.size = 18});
+
+  final AppPalette palette;
   final double size;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = ColorScheme.fromSeed(seedColor: seedColor);
+    final brightness = Theme.of(context).brightness;
+    final scheme = colorSchemeFor(palette, brightness);
     final cs = Theme.of(context).colorScheme;
 
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: scheme.primary,
+        color: scheme.primaryContainer,
         borderRadius: BorderRadius.circular(4),
         border: Border.all(color: cs.outlineVariant),
       ),

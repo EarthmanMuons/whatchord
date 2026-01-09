@@ -14,19 +14,14 @@ class AppPaletteNotifier extends Notifier<AppPalette> {
     final prefs = ref.watch(sharedPreferencesProvider);
     final stored = prefs.getString(CorePreferencesKeys.appPalette);
 
-    const fallback = AppPalette.indigo;
+    if (stored == null) return AppPalette.blue;
 
-    if (stored == null) return fallback;
-
-    return AppPalette.values.firstWhere(
-      (p) => p.name == stored,
-      orElse: () => fallback,
-    );
+    return AppPalettePersistence.fromPrefsKey(stored);
   }
 
   Future<void> setPalette(AppPalette palette) async {
     state = palette;
     final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString(CorePreferencesKeys.appPalette, palette.name);
+    await prefs.setString(CorePreferencesKeys.appPalette, palette.prefsKey);
   }
 }

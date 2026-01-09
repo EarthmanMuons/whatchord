@@ -20,8 +20,11 @@ class SettingsPage extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     final chordSymbolStyle = ref.watch(chordSymbolStyleProvider);
-    final palette = ref.watch(appPaletteProvider);
     final themeMode = ref.watch(themeModeProvider);
+    final palette = ref.watch(appPaletteProvider);
+    final palettes = [...AppPalette.values]
+      ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+
     final connection = ref.watch(midiConnectionStatusProvider);
 
     return Scaffold(
@@ -116,7 +119,7 @@ class SettingsPage extends ConsumerWidget {
 
             const SizedBox(height: 8),
             ListTile(
-              leading: PaletteSwatch(seedColor: palette.seedColor),
+              leading: PaletteSwatch(palette: palette),
               title: const Text('Color Palette'),
               subtitle: Text(palette.label),
               trailing: const Icon(Icons.chevron_right),
@@ -130,13 +133,15 @@ class SettingsPage extends ConsumerWidget {
                       child: ListView(
                         shrinkWrap: true,
                         children: [
-                          for (final p in AppPalette.values)
+                          for (final p in palettes)
                             ListTile(
                               tileColor: p == current
-                                  ? Theme.of(context).colorScheme.primary
-                                        .withValues(alpha: 0.06)
+                                  ? Theme.of(context)
+                                        .colorScheme
+                                        .primaryContainer
+                                        .withValues(alpha: 0.35)
                                   : null,
-                              leading: PaletteSwatch(seedColor: p.seedColor),
+                              leading: PaletteSwatch(palette: p),
                               title: Text(p.label),
                               trailing: p == current
                                   ? const Icon(Icons.check)
