@@ -1,6 +1,8 @@
-# WhatChord
+<p align="center">
+  <img width="200" src="https://raw.githubusercontent.com/EarthmanMuons/what_chord/refs/heads/main/docs/images/whatchord_logo.webp" alt="WhatChord logo">
+</p>
 
-**Real-time chord identification via Bluetooth MIDI.**
+<h1 align="center">WhatChord</h1>
 
 WhatChord listens to live MIDI input and identifies the most musically plausible
 chord as you play. It is optimized for immediacy and correctness, favoring
@@ -32,7 +34,10 @@ stable, conventional interpretations over raw pitch-class matches.
 
 ## Screenshots
 
-![WhatChord screenshot showing the first inversion of a C major chord in light and dark themes](docs/screenshots/theme_modes.webp)
+![WhatChord screenshot showing the first inversion of a C major chord in light and dark themes][THEMES]
+
+[THEMES]:
+  https://raw.githubusercontent.com/EarthmanMuons/what_chord/refs/heads/main/docs/screenshots/theme_modes.webp
 
 ## Installation
 
