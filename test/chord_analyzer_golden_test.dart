@@ -281,6 +281,16 @@ void main() {
         expect(top.extensions, contains(ChordExtension.nine));
       },
     ),
+    // Diminished seventh with color tones
+    GoldenCase(
+      name: 'C Eb Gb A D -> Cdim7(add9)',
+      pcs: ['C', 'Eb', 'Gb', 'A', 'D'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.diminished7);
+        expect(top.extensions, contains(ChordExtension.nine));
+      },
+    ),
     // Enharmonic symbols 6 sharps
     GoldenCase(
       name: 'E# G# B --key=F#:maj -> E#dim',

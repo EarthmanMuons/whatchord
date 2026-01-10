@@ -60,7 +60,8 @@ class ChordQualityFormatter {
         if (ext == ChordExtension.nine) continue;
       }
 
-      mods.add(ext);
+      final displayExt = _displayExtensionFor(quality: quality, ext: ext);
+      mods.add(displayExt);
     }
 
     if (mods.isEmpty) return base;
@@ -99,11 +100,31 @@ class ChordQualityFormatter {
       case ChordQualityToken.major7:
       case ChordQualityToken.minor7:
       case ChordQualityToken.halfDiminished7:
-      case ChordQualityToken.diminished7:
         return true;
       default:
         return false;
     }
+  }
+
+  static ChordExtension _displayExtensionFor({
+    required ChordQualityToken quality,
+    required ChordExtension ext,
+  }) {
+    // For fully diminished seventh chords, natural extensions are commonly
+    // rendered as added tones: Cdim7(add9), Cdim7(add11), etc.
+    if (quality == ChordQualityToken.diminished7 && ext.isNaturalExtension) {
+      switch (ext) {
+        case ChordExtension.nine:
+          return ChordExtension.add9;
+        case ChordExtension.eleven:
+          return ChordExtension.add11;
+        case ChordExtension.thirteen:
+          return ChordExtension.add13;
+        default:
+          return ext;
+      }
+    }
+    return ext;
   }
 
   static String _replaceSeventhWithExtension(String base, String ext) {
@@ -129,6 +150,7 @@ class ChordQualityFormatter {
     required ChordNotationStyle notation,
     required List<ChordExtension> mods,
   }) {
+    if (quality == ChordQualityToken.diminished7) return true;
     if (mods.isEmpty) return false;
 
     // Single modifier: generally inline, except add-tones on seventh-family chords.
