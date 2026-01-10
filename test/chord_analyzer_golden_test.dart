@@ -271,6 +271,16 @@ void main() {
         expect(top.quality, ChordQualityToken.sus2);
       },
     ),
+    // Half-diminished headline promotion
+    GoldenCase(
+      name: 'C Eb Gb Bb D -> Cm9(b5)',
+      pcs: ['C', 'Eb', 'Gb', 'Bb', 'D'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.halfDiminished7);
+        expect(top.extensions, contains(ChordExtension.nine));
+      },
+    ),
     // Enharmonic symbols 6 sharps
     GoldenCase(
       name: 'E# G# B --key=F#:maj -> E#dim',

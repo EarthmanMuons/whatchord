@@ -93,13 +93,6 @@ class ChordQualityFormatter {
     required ChordQualityToken quality,
     required ChordQualityLabelForm form,
   }) {
-    // The short form for m7(b5) is already parenthesized;
-    // headline promotion tends to look odd (m9(b5)).
-    if (quality == ChordQualityToken.halfDiminished7 &&
-        form == ChordQualityLabelForm.short) {
-      return false;
-    }
-
     // Seventh-family qualities are the ones that headline 9/11/13.
     switch (quality) {
       case ChordQualityToken.dominant7:
@@ -114,6 +107,14 @@ class ChordQualityFormatter {
   }
 
   static String _replaceSeventhWithExtension(String base, String ext) {
+    // If base has a parenthetical modifier, we may still be able to promote:
+    // e.g. m7(b5) -> m9(b5)
+    final idx = base.indexOf('7(');
+    if (idx != -1 && base.endsWith(')')) {
+      // Replace the '7' at idx with the headline extension.
+      return '${base.substring(0, idx)}$ext${base.substring(idx + 1)}';
+    }
+
     if (base.contains('(')) return base;
 
     if (base == '7') return ext;
