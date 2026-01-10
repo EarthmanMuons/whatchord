@@ -7,8 +7,7 @@ import 'chord_identity.dart';
 class ChordCandidate {
   final ChordIdentity identity;
 
-  /// Score is intentionally unitless for now.
-  /// In Step 2 we will standardize the scale (e.g., 0..100 or 0..1).
+  /// Score is intentionally unitless.
   final double score;
 
   const ChordCandidate({required this.identity, required this.score});
