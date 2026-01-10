@@ -6,7 +6,6 @@ import '../engine/engine.dart';
 import '../models/identity_display.dart';
 import '../services/chord_symbol_builder.dart';
 import '../services/inversion_labeler.dart';
-import '../services/note_display_formatter.dart';
 import '../services/note_spelling.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
@@ -50,7 +49,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         return IntervalDisplay(
           referenceName: root,
           intervalLabel: interval.short,
-          secondaryLabel: 'Interval · from ${toGlyphAccidentals(root)}',
+          secondaryLabel: 'Interval · from $root',
         );
       }
 

@@ -34,16 +34,20 @@ class IdentityCard extends StatelessWidget {
 
     final primaryStyle = theme.textTheme.displayMedium!.copyWith(
       color: cs.onPrimary,
-      fontWeight: FontWeight.w600,
+      fontFamilyFallback: const ['Bravura'],
       height: 1.0,
     );
 
     final secondaryStyle = theme.textTheme.titleMedium!.copyWith(
       color: cs.onPrimary.withValues(alpha: 0.85),
+      fontFamilyFallback: const ['Bravura'],
       height: 1.1,
     );
 
-    final rootStyle = primaryStyle.copyWith(fontWeight: FontWeight.w900);
+    final rootStyle = primaryStyle.copyWith(
+      fontWeight: FontWeight.w800,
+      fontSize: primaryStyle.fontSize! + 6,
+    );
 
     const minCardHeight = 132.0;
     const padding = EdgeInsets.symmetric(horizontal: 20);
@@ -51,9 +55,9 @@ class IdentityCard extends StatelessWidget {
     Widget identityBody(IdentityDisplay v) {
       return switch (v) {
         NoteDisplay(:final noteName) => AutoSizeText(
-          toGlyphAccidentals(noteName),
+          toSmufl(noteName),
           textAlign: TextAlign.center,
-          style: primaryStyle,
+          style: rootStyle,
           maxLines: 1,
           minFontSize: 22,
         ),
@@ -61,7 +65,7 @@ class IdentityCard extends StatelessWidget {
         IntervalDisplay(:final intervalLabel) => AutoSizeText(
           intervalLabel,
           textAlign: TextAlign.center,
-          style: primaryStyle,
+          style: rootStyle,
           maxLines: 1,
           minFontSize: 22,
         ),
@@ -70,14 +74,24 @@ class IdentityCard extends StatelessWidget {
           TextSpan(
             style: primaryStyle,
             children: <InlineSpan>[
-              TextSpan(text: toGlyphAccidentals(symbol.root), style: rootStyle),
+              TextSpan(text: toSmufl(symbol.root), style: rootStyle),
+
               if (symbol.quality.isNotEmpty) ...[
-                const TextSpan(text: '\u200A'), // hair space
-                TextSpan(text: toGlyphAccidentals(symbol.quality)),
+                const TextSpan(text: '\u200A'),
+
+                ...buildChordSpans(
+                  text: toSmufl(symbol.quality),
+                  base: primaryStyle,
+                  parenStyle: primaryStyle.copyWith(
+                    // Small size bump to make parens feel "higher"
+                    fontSize: (primaryStyle.fontSize ?? 14) + 2.0,
+                  ),
+                ),
               ],
+
               if (symbol.hasBass) ...[
                 const TextSpan(text: ' / '),
-                TextSpan(text: toGlyphAccidentals(symbol.bassRequired)),
+                TextSpan(text: toSmufl(symbol.bassRequired)),
               ],
             ],
           ),
@@ -201,4 +215,43 @@ class IdentityCard extends StatelessWidget {
       ),
     );
   }
+}
+
+List<InlineSpan> buildChordSpans({
+  required String text,
+  required TextStyle base,
+  required TextStyle parenStyle,
+}) {
+  // We expect `text` already has the correct chord string (root+quality+slash etc.).
+  // This helper only styles parentheses differently.
+  final spans = <InlineSpan>[];
+
+  // Simple single-pass scan.
+  final buf = StringBuffer();
+  TextStyle currentStyle = base;
+
+  void flush() {
+    if (buf.isEmpty) return;
+    spans.add(TextSpan(text: buf.toString(), style: currentStyle));
+    buf.clear();
+  }
+
+  for (var i = 0; i < text.length; i++) {
+    final ch = text[i];
+
+    // Parentheses special styling.
+    final isParen = ch == '(' || ch == ')';
+
+    final nextStyle = isParen ? parenStyle : base;
+
+    if (nextStyle != currentStyle) {
+      flush();
+      currentStyle = nextStyle;
+    }
+
+    buf.write(ch);
+  }
+
+  flush();
+  return spans;
 }
