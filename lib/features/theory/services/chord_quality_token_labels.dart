@@ -1,19 +1,30 @@
 import '../engine/models/chord_identity.dart' show ChordQualityToken;
-import '../models/chord_symbol.dart' show ChordNotationStyle;
+
+enum ChordQualityLabelForm { short, symbol, long }
 
 /// Formatting-only labels for chord quality tokens.
 extension ChordQualityTokenLabels on ChordQualityToken {
-  /// Style-aware base “quality” string (what comes after the root).
-  String baseLabel(ChordNotationStyle style) {
+  String label(ChordQualityLabelForm form) {
+    switch (form) {
+      case ChordQualityLabelForm.symbol:
+        return _symbolLabel();
+      case ChordQualityLabelForm.short:
+        return _shortLabel();
+      case ChordQualityLabelForm.long:
+        return _longLabel();
+    }
+  }
+
+  String _symbolLabel() {
     switch (this) {
       case ChordQualityToken.major:
-        return style == ChordNotationStyle.jazz ? '' : '';
+        return '';
       case ChordQualityToken.minor:
-        return style == ChordNotationStyle.jazz ? '−' : 'm';
+        return '−';
       case ChordQualityToken.diminished:
-        return style == ChordNotationStyle.jazz ? '°' : 'dim';
+        return '°';
       case ChordQualityToken.augmented:
-        return style == ChordNotationStyle.jazz ? '+' : 'aug';
+        return '+';
       case ChordQualityToken.sus2:
         return 'sus2';
       case ChordQualityToken.sus4:
@@ -23,39 +34,83 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.major6:
         return '6';
       case ChordQualityToken.minor6:
-        return style == ChordNotationStyle.jazz ? '−6' : 'm6';
+        return '−6';
       case ChordQualityToken.dominant7:
         return '7';
       case ChordQualityToken.major7:
-        return style == ChordNotationStyle.jazz ? 'Δ7' : 'maj7';
+        return 'Δ7';
       case ChordQualityToken.minor7:
-        return style == ChordNotationStyle.jazz ? '−7' : 'm7';
+        return '−7';
       case ChordQualityToken.halfDiminished7:
-        return style == ChordNotationStyle.jazz ? 'ø7' : 'm7(b5)';
+        return 'ø7';
       case ChordQualityToken.diminished7:
-        return style == ChordNotationStyle.jazz ? '°7' : 'dim7';
+        return '°7';
     }
   }
 
-  /// Whether it is conventional to "promote" 9/11/13 into the headline
-  /// (C9, C11, C13, Cmaj9, Cm11, etc.) for this quality/style.
-  bool allowsHeadlineExtensionPromotion(ChordNotationStyle style) {
-    // Lead sheet notation for m7(b5) is already parenthesized; headline promotion
-    // tends to look odd (m9(b5)). Jazz ø9 exists, but you may or may not want it.
-    if (this == ChordQualityToken.halfDiminished7 &&
-        style == ChordNotationStyle.leadSheet) {
-      return false;
-    }
-    // Seventh-family qualities are the ones that conventionally headline 9/11/13.
+  String _shortLabel() {
     switch (this) {
+      case ChordQualityToken.major:
+        return '';
+      case ChordQualityToken.minor:
+        return 'm';
+      case ChordQualityToken.diminished:
+        return 'dim';
+      case ChordQualityToken.augmented:
+        return 'aug';
+      case ChordQualityToken.sus2:
+        return 'sus2';
+      case ChordQualityToken.sus4:
+        return 'sus4';
+      case ChordQualityToken.power5:
+        return '5';
+      case ChordQualityToken.major6:
+        return '6';
+      case ChordQualityToken.minor6:
+        return 'm6';
       case ChordQualityToken.dominant7:
+        return '7';
       case ChordQualityToken.major7:
+        return 'maj7';
       case ChordQualityToken.minor7:
+        return 'm7';
       case ChordQualityToken.halfDiminished7:
+        return 'm7(b5)';
       case ChordQualityToken.diminished7:
-        return true;
-      default:
-        return false;
+        return 'dim7';
+    }
+  }
+
+  String _longLabel() {
+    switch (this) {
+      case ChordQualityToken.major:
+        return 'major';
+      case ChordQualityToken.minor:
+        return 'minor';
+      case ChordQualityToken.diminished:
+        return 'diminished';
+      case ChordQualityToken.augmented:
+        return 'augmented';
+      case ChordQualityToken.sus2:
+        return 'suspended second';
+      case ChordQualityToken.sus4:
+        return 'suspended fourth';
+      case ChordQualityToken.power5:
+        return 'power chord';
+      case ChordQualityToken.major6:
+        return 'major sixth';
+      case ChordQualityToken.minor6:
+        return 'minor sixth';
+      case ChordQualityToken.dominant7:
+        return 'dominant seventh';
+      case ChordQualityToken.major7:
+        return 'major seventh';
+      case ChordQualityToken.minor7:
+        return 'minor seventh';
+      case ChordQualityToken.halfDiminished7:
+        return 'half-diminished seventh';
+      case ChordQualityToken.diminished7:
+        return 'diminished seventh';
     }
   }
 }

@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/analysis_context_provider.dart';
 import '../providers/chord_candidates_providers.dart';
-import '../providers/chord_symbol_style_notifier.dart';
-import '../services/chord_symbol_formatter.dart';
+import '../providers/chord_notation_style_notifier.dart';
+import '../services/chord_symbol_builder.dart';
 
 class NearTieChordCandidatesList extends ConsumerWidget {
   const NearTieChordCandidatesList({
@@ -40,7 +40,7 @@ class NearTieChordCandidatesList extends ConsumerWidget {
     final tonality = ref.watch(
       analysisContextProvider.select((c) => c.tonality),
     );
-    final chordStyle = ref.watch(chordSymbolStyleProvider);
+    final notation = ref.watch(chordNotationStyleProvider);
 
     final base =
         styleOverride ??
@@ -75,10 +75,10 @@ class NearTieChordCandidatesList extends ConsumerWidget {
                 : SizedBox(width: gap),
             itemBuilder: (context, i) {
               final c = visible[i];
-              final symbol = ChordSymbolFormatter.fromIdentity(
+              final symbol = ChordSymbolBuilder.fromIdentity(
                 identity: c.identity,
                 tonality: tonality,
-                style: chordStyle,
+                notation: notation,
               );
 
               return Text(

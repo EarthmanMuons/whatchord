@@ -4,14 +4,14 @@ import 'package:what_chord/features/midi/midi.dart';
 
 import '../engine/engine.dart';
 import '../models/identity_display.dart';
-import '../services/chord_symbol_formatter.dart';
+import '../services/chord_symbol_builder.dart';
 import '../services/inversion_labeler.dart';
 import '../services/note_display_formatter.dart';
 import '../services/note_spelling.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
 import 'chord_candidates_providers.dart';
-import 'chord_symbol_style_notifier.dart';
+import 'chord_notation_style_notifier.dart';
 
 final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
   final mode = ref.watch(analysisModeProvider);
@@ -61,11 +61,12 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         );
         if (id == null) return null;
 
-        final style = ref.watch(chordSymbolStyleProvider);
-        final symbol = ChordSymbolFormatter.fromIdentity(
+        final notation = ref.watch(chordNotationStyleProvider);
+
+        final symbol = ChordSymbolBuilder.fromIdentity(
           identity: id,
           tonality: tonality,
-          style: style,
+          notation: notation,
         );
 
         final inversion = InversionLabeler.labelFor(id);

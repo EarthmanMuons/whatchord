@@ -5,7 +5,7 @@ import 'package:what_chord/core/theme/providers/app_palette_notifier.dart';
 import 'package:what_chord/core/theme/providers/theme_mode_notifier.dart';
 import 'package:what_chord/features/midi/persistence/midi_preferences_notifier.dart';
 import 'package:what_chord/features/midi/providers/midi_connection_notifier.dart';
-import 'package:what_chord/features/theory/providers/chord_symbol_style_notifier.dart';
+import 'package:what_chord/features/theory/providers/chord_notation_style_notifier.dart';
 
 import 'package:what_chord/core/persistence/core_preferences_keys.dart';
 import 'package:what_chord/features/theory/persistence/theory_preferences_keys.dart';
@@ -26,7 +26,7 @@ class SettingsResetService {
     await prefs.remove(CorePreferencesKeys.appPalette);
 
     // Theory preferences
-    await prefs.remove(TheoryPreferencesKeys.chordSymbolStyle);
+    await prefs.remove(TheoryPreferencesKeys.chordNotationStyle);
 
     // MIDI preferences (delegate to MIDI's own reset)
     await _ref.read(midiPreferencesProvider.notifier).clearAllMidiData();
@@ -34,7 +34,7 @@ class SettingsResetService {
     // Force rebuilds
     _ref.invalidate(themeModeProvider);
     _ref.invalidate(appPaletteProvider);
-    _ref.invalidate(chordSymbolStyleProvider);
+    _ref.invalidate(chordNotationStyleProvider);
 
     // Reset MIDI connection state
     final connection = _ref.read(midiConnectionProvider.notifier);

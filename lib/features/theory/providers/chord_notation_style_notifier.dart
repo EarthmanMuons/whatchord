@@ -5,16 +5,16 @@ import 'package:what_chord/core/persistence/shared_preferences_provider.dart';
 import '../models/chord_symbol.dart';
 import '../persistence/theory_preferences_keys.dart';
 
-final chordSymbolStyleProvider =
-    NotifierProvider<ChordSymbolStyleNotifier, ChordNotationStyle>(
-      ChordSymbolStyleNotifier.new,
+final chordNotationStyleProvider =
+    NotifierProvider<ChordNotationStyleNotifier, ChordNotationStyle>(
+      ChordNotationStyleNotifier.new,
     );
 
-class ChordSymbolStyleNotifier extends Notifier<ChordNotationStyle> {
+class ChordNotationStyleNotifier extends Notifier<ChordNotationStyle> {
   @override
   ChordNotationStyle build() {
     final prefs = ref.watch(sharedPreferencesProvider);
-    final stored = prefs.getString(TheoryPreferencesKeys.chordSymbolStyle);
+    final stored = prefs.getString(TheoryPreferencesKeys.chordNotationStyle);
 
     if (stored == null) return ChordNotationStyle.leadSheet;
 
@@ -27,6 +27,6 @@ class ChordSymbolStyleNotifier extends Notifier<ChordNotationStyle> {
   Future<void> setStyle(ChordNotationStyle style) async {
     state = style;
     final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString(TheoryPreferencesKeys.chordSymbolStyle, style.name);
+    await prefs.setString(TheoryPreferencesKeys.chordNotationStyle, style.name);
   }
 }

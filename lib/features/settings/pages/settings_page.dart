@@ -19,7 +19,7 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
 
-    final chordSymbolStyle = ref.watch(chordSymbolStyleProvider);
+    final chordNotationStyle = ref.watch(chordNotationStyleProvider);
     final themeMode = ref.watch(themeModeProvider);
     final palette = ref.watch(appPaletteProvider);
     final palettes = [...AppPalette.values]
@@ -61,10 +61,10 @@ class SettingsPage extends ConsumerWidget {
 
             const SubsectionLabel(title: 'Notation Style'),
             RadioGroup<ChordNotationStyle>(
-              groupValue: chordSymbolStyle,
+              groupValue: chordNotationStyle,
               onChanged: (ChordNotationStyle? style) {
                 if (style == null) return;
-                ref.read(chordSymbolStyleProvider.notifier).setStyle(style);
+                ref.read(chordNotationStyleProvider.notifier).setStyle(style);
               },
               child: const Column(
                 children: [

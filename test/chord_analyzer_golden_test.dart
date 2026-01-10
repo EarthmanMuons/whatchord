@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:what_chord/features/theory/services/chord_symbol_formatter.dart';
+import 'package:what_chord/features/theory/services/chord_symbol_builder.dart';
 
 import 'package:what_chord/features/theory/theory.dart';
 
@@ -72,7 +72,7 @@ class GoldenCase {
 void main() {
   final cases = <GoldenCase>[
     GoldenCase(
-      name: 'C E G D -> Cmajadd9', // not sus
+      name: 'C E G D -> Cadd9', // not sus
       pcs: ['C', 'E', 'G', 'D'],
       expectTop: (top) {
         expect(top.rootPc, pc('C'));
@@ -321,31 +321,28 @@ void main() {
       final results = ChordAnalyzer.analyze(input, context: ctx);
 
       expect(results, isNotEmpty, reason: 'No candidates returned');
-
       final top = results.first.identity;
 
-      final expected = expectedSymbolFromCaseName(c.name);
-      final actual = ChordSymbolFormatter.fromIdentity(
+      const testNotation = ChordNotationStyle.leadSheet;
+
+      final actualSymbol = ChordSymbolBuilder.fromIdentity(
         identity: top,
         tonality: tonality,
-        style: ChordNotationStyle.leadSheet,
-      );
+        notation: testNotation,
+      ).toString();
 
-      if (c.expectedSymbol != null) {
-        expect(
-          actual.toString(),
-          c.expectedSymbol,
-          reason: 'Rendered symbol mismatch',
-        );
-      }
+      final expectedSymbol =
+          c.expectedSymbol ?? expectedSymbolFromCaseName(c.name);
+
+      expect(actualSymbol, expectedSymbol, reason: 'Rendered symbol mismatch');
 
       try {
         c.expectTop(top);
       } on TestFailure catch (e) {
         fail(
           [
-            'Expected chord: $expected',
-            '  Actual chord: $actual',
+            'Expected chord: $expectedSymbol',
+            '  Actual chord: $actualSymbol',
             '',
             'Original failure:',
             e.message ?? e.toString(),

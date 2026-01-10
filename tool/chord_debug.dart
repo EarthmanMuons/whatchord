@@ -6,7 +6,7 @@ import 'package:what_chord/features/theory/models/chord_symbol.dart';
 import 'package:what_chord/features/theory/models/key_signature.dart';
 import 'package:what_chord/features/theory/models/note_spelling_policy.dart';
 import 'package:what_chord/features/theory/models/tonality.dart';
-import 'package:what_chord/features/theory/services/chord_symbol_formatter.dart';
+import 'package:what_chord/features/theory/services/chord_symbol_builder.dart';
 import 'package:what_chord/features/theory/services/note_spelling.dart';
 import 'package:what_chord/features/theory/services/pitch_class.dart';
 
@@ -113,22 +113,23 @@ void main(List<String> args) {
     return;
   }
 
-  final style = ChordNotationStyle.leadSheet;
   final bestScore = results.first.candidate.score;
 
   final compact = args.contains('--compact');
   final details = args.contains('--details');
   final reasonsTop = _readIntFlag(args, 'reasons') ?? (details ? 999 : 3);
 
+  final notation = ChordNotationStyle.leadSheet;
+
   for (var i = 0; i < results.length; i++) {
     final r = results[i];
     final c = r.candidate;
     final id = c.identity;
 
-    final symbol = ChordSymbolFormatter.formatIdentity(
+    final symbol = ChordSymbolBuilder.formatIdentity(
       identity: id,
       tonality: context.tonality,
-      style: style,
+      notation: notation,
     );
 
     final score = c.score;

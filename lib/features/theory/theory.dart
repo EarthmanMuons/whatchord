@@ -7,7 +7,7 @@ export 'models/note_spelling_policy.dart';
 export 'models/scale_degree.dart';
 export 'models/tonality.dart';
 
-export 'providers/chord_symbol_style_notifier.dart';
+export 'providers/chord_notation_style_notifier.dart';
 export 'providers/detected_scale_degree_provider.dart';
 export 'providers/identity_display_provider.dart';
 export 'providers/pitch_class_names_provider.dart';
