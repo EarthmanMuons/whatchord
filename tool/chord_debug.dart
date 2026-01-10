@@ -113,7 +113,7 @@ void main(List<String> args) {
     return;
   }
 
-  final style = ChordSymbolStyle.leadSheet;
+  final style = ChordNotationStyle.leadSheet;
   final bestScore = results.first.candidate.score;
 
   final compact = args.contains('--compact');

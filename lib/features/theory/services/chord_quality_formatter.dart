@@ -14,7 +14,7 @@ class ChordQualityFormatter {
   static String format({
     required ChordQualityToken quality,
     required Set<ChordExtension> extensions,
-    required ChordSymbolStyle style,
+    required ChordNotationStyle style,
   }) {
     // Style-aware base quality string from the model enum.
     var base = quality.baseLabel(style);

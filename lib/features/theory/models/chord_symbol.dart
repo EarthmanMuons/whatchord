@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-enum ChordSymbolStyle { leadSheet, jazz }
+enum ChordNotationStyle { leadSheet, jazz }
 
 @immutable
 class ChordSymbol {

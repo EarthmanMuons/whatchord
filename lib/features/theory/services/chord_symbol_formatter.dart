@@ -13,7 +13,7 @@ class ChordSymbolFormatter {
   static ChordSymbol fromIdentity({
     required ChordIdentity identity,
     required Tonality tonality,
-    required ChordSymbolStyle style,
+    required ChordNotationStyle style,
   }) {
     final root = pcToName(identity.rootPc, tonality: tonality);
 
@@ -34,7 +34,7 @@ class ChordSymbolFormatter {
   static String formatIdentity({
     required ChordIdentity identity,
     required Tonality tonality,
-    required ChordSymbolStyle style,
+    required ChordNotationStyle style,
   }) {
     return fromIdentity(
       identity: identity,

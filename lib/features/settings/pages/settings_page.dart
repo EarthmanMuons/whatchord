@@ -60,23 +60,23 @@ class SettingsPage extends ConsumerWidget {
             ),
 
             const SubsectionLabel(title: 'Notation Style'),
-            RadioGroup<ChordSymbolStyle>(
+            RadioGroup<ChordNotationStyle>(
               groupValue: chordSymbolStyle,
-              onChanged: (ChordSymbolStyle? style) {
+              onChanged: (ChordNotationStyle? style) {
                 if (style == null) return;
                 ref.read(chordSymbolStyleProvider.notifier).setStyle(style);
               },
               child: const Column(
                 children: [
-                  RadioListTile<ChordSymbolStyle>(
+                  RadioListTile<ChordNotationStyle>(
                     title: Text('Lead Sheet'),
                     subtitle: Text('E.g., Cmaj7, F#m7b5'),
-                    value: ChordSymbolStyle.leadSheet,
+                    value: ChordNotationStyle.leadSheet,
                   ),
-                  RadioListTile<ChordSymbolStyle>(
+                  RadioListTile<ChordNotationStyle>(
                     title: Text('Jazz'),
                     subtitle: Text('E.g., CΔ7, F#ø7'),
-                    value: ChordSymbolStyle.jazz,
+                    value: ChordNotationStyle.jazz,
                   ),
                 ],
               ),

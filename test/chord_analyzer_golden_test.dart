@@ -328,7 +328,7 @@ void main() {
       final actual = ChordSymbolFormatter.fromIdentity(
         identity: top,
         tonality: tonality,
-        style: ChordSymbolStyle.leadSheet,
+        style: ChordNotationStyle.leadSheet,
       );
 
       if (c.expectedSymbol != null) {
