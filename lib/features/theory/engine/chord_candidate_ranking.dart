@@ -100,6 +100,7 @@ abstract final class ChordCandidateRanking {
       'Prefer root-position dominant7 in upper-structure cases',
       _ruleDom7RootPosition,
     ),
+    _NamedRule('Prefer diminished7 rooted on the base', _ruleDim7RootOnBass),
     _NamedRule('Prefer fewer alterations', _ruleFewerAlterations),
     _NamedRule('Prefer chords diatonic to the key', _ruleDiatonic),
     _NamedRule('Prefer I when bass is tonic', _ruleTonicAsI),
@@ -152,6 +153,40 @@ abstract final class ChordCandidateRanking {
   ) {
     if (fa.isDom7RootPosition == fb.isDom7RootPosition) return null;
     return fb.isDom7RootPosition ? 1 : -1;
+  }
+
+  static int? _ruleDim7RootOnBass(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    // Only engage if at least one candidate is fully diminished seventh.
+    if (!fa.isDim7 && !fb.isDim7) return null;
+
+    // Strongest case: both are diminished7. Prefer root position.
+    if (fa.isDim7 && fb.isDim7) {
+      if (fa.isRootPosition == fb.isRootPosition) return null;
+      return fb.isRootPosition ? 1 : -1; // root-position wins
+    }
+
+    // Mixed case: one is dim7, the other is not.
+    // For readability in symmetric diminished contexts, prefer the dim7 candidate
+    // if it is root-position and the alternative requires a slash bass.
+    // NOTE: we can delete this portion if we want a strict "only resolve dim7 vs dim7 ambiguity" rule
+    final aIsPreferredDim7 = fa.isDim7 && fa.isRootPosition;
+    final bIsPreferredDim7 = fb.isDim7 && fb.isRootPosition;
+
+    if (aIsPreferredDim7 == bIsPreferredDim7) return null;
+
+    // Only prefer the dim7 root-position reading if the opposing candidate is a slash.
+    final otherIsSlash = aIsPreferredDim7
+        ? !fb.isRootPosition
+        : !fa.isRootPosition;
+    if (!otherIsSlash) return null;
+
+    return bIsPreferredDim7 ? 1 : -1;
   }
 
   // Prefer fewer alterations (b9/#11/b13 etc.).
@@ -319,13 +354,15 @@ class _CandidateFeatures {
   final bool isRootPosition;
   final bool isSixFamily;
   final bool isSeventhFamily;
+  final bool isDim7;
   final bool isSus;
 
   final bool isDom7RootPosition;
 
+  final bool isSlashBass;
   final int bassRoleRank;
-  final int extensionCount;
 
+  final int extensionCount;
   final ExtensionPreference extPref;
   final bool hasRealExt;
 
@@ -333,8 +370,10 @@ class _CandidateFeatures {
     required this.isRootPosition,
     required this.isSixFamily,
     required this.isSeventhFamily,
+    required this.isDim7,
     required this.isSus,
     required this.isDom7RootPosition,
+    required this.isSlashBass,
     required this.bassRoleRank,
     required this.extensionCount,
     required this.extPref,
@@ -349,12 +388,17 @@ class _CandidateFeatures {
     final pref = extensionPreference(id.extensions);
     final realExt = (pref.naturalCount + pref.alterationCount) > 0;
 
+    final isDim7 = q == ChordQualityToken.diminished7;
+    final isSlashBass = id.rootPc != id.bassPc;
+
     return _CandidateFeatures(
       isRootPosition: rootPos,
       isSixFamily: q.isSixFamily,
       isSeventhFamily: q.isSeventhFamily,
+      isDim7: isDim7,
       isSus: q.isSus,
       isDom7RootPosition: q == ChordQualityToken.dominant7 && rootPos,
+      isSlashBass: isSlashBass,
       bassRoleRank: _bassRoleRank(id),
       extensionCount: id.extensions.length,
       extPref: pref,

@@ -175,7 +175,7 @@ abstract final class ChordAnalyzer {
   }
 
   // ---------------------------------------------------------------------------
-  // Scoring (single implementation). Debug is optional “reasons”, not a fork.
+  // Scoring (single implementation). Debug is optional "reasons", not a fork.
   // ---------------------------------------------------------------------------
 
   static _ScoredTemplate? _scoreTemplate({
@@ -254,10 +254,30 @@ abstract final class ChordAnalyzer {
     final has7 = template.quality.isSeventhFamily;
     final extensions = _extensionsFromExtras(extrasMask, has7: has7);
 
-    // Slight penalty for altered interpretations (keeps “simpler” spellings ahead).
+    // Slight penalty for altered interpretations (keeps "simpler" spellings ahead).
+    //
+    // Fully diminished seventh chords are symmetric (minor-third stacks). With one
+    // extra pitch, the same pitch-class set can be explained either as:
+    //   - dim7 rooted on the bass with an "altered" color tone (e.g. Cdim7(b13)), or
+    //   - a different dim7 root that reinterprets that same pitch as a "natural/add"
+    //     extension, often forcing a slash bass (e.g. D#dim7(add11)/C).
+    //
+    // Musicians typically expect the bass-root reading for symmetric dim7 chords in
+    // ambiguous contexts, so we soften the alteration penalty specifically for dim7
+    // to avoid over-favoring slash-root reinterpretations.
+    final altPenalty = (template.quality == ChordQualityToken.diminished7)
+        ? 0.30
+        : 0.60;
+
     if (_hasAlterations(extensions)) {
-      raw -= 0.60;
-      add('alterations penalty', -0.60);
+      raw -= altPenalty;
+      add(
+        'alterations penalty',
+        -altPenalty,
+        detail: template.quality == ChordQualityToken.diminished7
+            ? 'dim7 softened'
+            : null,
+      );
     }
 
     // Soft normalization by the number of required tones present.

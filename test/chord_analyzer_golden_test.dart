@@ -157,6 +157,22 @@ void main() {
       },
     ),
     GoldenCase(
+      name: 'C E G Bb Db F# Ab -> C7(b9,#11,b13)',
+      pcs: ['C', 'E', 'G', 'Bb', 'Db', 'F#', 'Ab'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(
+          top.extensions,
+          containsAll(<ChordExtension>[
+            ChordExtension.flat9,
+            ChordExtension.sharp11,
+            ChordExtension.flat13,
+          ]),
+        );
+      },
+    ),
+    GoldenCase(
       name: 'B D F A -> Bm7(b5)',
       pcs: ['B', 'D', 'F', 'A'],
       expectTop: (top) {
@@ -289,6 +305,33 @@ void main() {
         expect(top.rootPc, pc('C'));
         expect(top.quality, ChordQualityToken.diminished7);
         expect(top.extensions, contains(ChordExtension.nine));
+      },
+    ),
+    GoldenCase(
+      name: 'C Eb Gb A F -> Cdim7(add11)',
+      pcs: ['C', 'Eb', 'Gb', 'A', 'F'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.diminished7);
+        expect(top.extensions, contains(ChordExtension.eleven));
+      },
+    ),
+    GoldenCase(
+      name: 'C Eb Gb A Ab -> Cdim7(b13)',
+      pcs: ['C', 'Eb', 'Gb', 'A', 'Ab'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.diminished7);
+        expect(top.extensions, contains(ChordExtension.flat13));
+      },
+    ),
+    GoldenCase(
+      name: 'C Eb Gb A Db -> Cdim7(b9)',
+      pcs: ['C', 'Eb', 'Gb', 'A', 'Db'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.diminished7);
+        expect(top.extensions, contains(ChordExtension.flat9));
       },
     ),
     // Enharmonic symbols 6 sharps
