@@ -133,7 +133,7 @@ void main() {
       },
     ),
     GoldenCase(
-      name: 'C E G Bb Db -> C7(b9)',
+      name: 'C E G Bb Db -> C7b9',
       pcs: ['C', 'E', 'G', 'Bb', 'Db'],
       expectTop: (top) {
         expect(top.rootPc, pc('C'));

@@ -45,38 +45,38 @@ class ChordQualityFormatter {
       base = _replaceSeventhWithExtension(base, headline.label);
     }
 
-    final mods = <String>[];
+    final mods = <ChordExtension>[];
     final absorbedAdd9 = quality.isSixFamily && base.endsWith('/9');
 
-    for (final e in ordered) {
-      if (e == headline) continue;
-      if (absorbedAdd9 && e == ChordExtension.add9) continue;
+    for (final ext in ordered) {
+      if (ext == headline) continue;
+      if (absorbedAdd9 && ext == ChordExtension.add9) continue;
 
       if (headline == ChordExtension.thirteen) {
-        if (e == ChordExtension.nine || e == ChordExtension.eleven) continue;
+        if (ext == ChordExtension.nine || ext == ChordExtension.eleven) {
+          continue;
+        }
       } else if (headline == ChordExtension.eleven) {
-        if (e == ChordExtension.nine) continue;
+        if (ext == ChordExtension.nine) continue;
       }
 
-      mods.add(e.label);
+      mods.add(ext);
     }
 
     if (mods.isEmpty) return base;
 
-    final useParens = mods.any(
-      (m) =>
-          m.startsWith('b') ||
-          m.startsWith('#') ||
-          m == '9' ||
-          m == '11' ||
-          m == '13',
+    final labels = mods.map((e) => e.label).toList();
+    final useParens = _shouldUseParens(
+      quality: quality,
+      notation: notation,
+      mods: mods,
     );
 
     if (useParens) {
-      return '$base(${mods.join(',')})';
+      return '$base(${labels.join(_modsSeparator(notation))})';
     }
 
-    return '$base${mods.join()}';
+    return '$base${labels.join()}';
   }
 
   static ChordQualityLabelForm _defaultQualityFormFor(
@@ -121,5 +121,37 @@ class ChordQualityFormatter {
       return '${base.substring(0, base.length - 1)}$ext';
     }
     return base;
+  }
+
+  static bool _shouldUseParens({
+    required ChordQualityToken quality,
+    required ChordNotationStyle notation,
+    required List<ChordExtension> mods,
+  }) {
+    if (mods.isEmpty) return false;
+
+    // Single modifier: generally inline, except add-tones on seventh-family chords.
+    if (mods.length == 1) {
+      final ext = mods.first;
+
+      // Add-tones are formatted differently depending on harmonic "family".
+      // For seventh-family chords, parentheses improve readability (C7(add13)).
+      // For triad-like qualities (including sus and power chords), inline add-tones
+      // are currently preferred (Cadd9, Csus4add9).
+      //
+      // NOTE: Some lead-sheet styles prefer Csus4(add9). If we want to support that
+      // distinction later, this branch is the correct place to specialize sus handling.
+      if (ext.isAddTone) {
+        return quality.isSeventhFamily;
+      }
+      return false; // b9, #11, 9, 11, 13 inline when alone
+    }
+
+    // Multiple modifiers: group them.
+    return true;
+  }
+
+  static String _modsSeparator(ChordNotationStyle notation) {
+    return notation == ChordNotationStyle.jazz ? '' : ',';
   }
 }
