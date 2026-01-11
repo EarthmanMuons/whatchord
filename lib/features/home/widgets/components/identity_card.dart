@@ -46,7 +46,7 @@ class IdentityCard extends StatelessWidget {
     );
 
     final rootStyle = primaryStyle.copyWith(
-      fontWeight: FontWeight.w800,
+      fontWeight: FontWeight.w500,
       fontSize: primaryStyle.fontSize! + 6,
     );
 
