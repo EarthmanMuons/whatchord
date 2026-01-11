@@ -19,7 +19,8 @@ class ActiveInput extends ConsumerStatefulWidget {
   ConsumerState<ActiveInput> createState() => _ActiveInputState();
 }
 
-class _ActiveInputState extends ConsumerState<ActiveInput> {
+class _ActiveInputState extends ConsumerState<ActiveInput>
+    with SingleTickerProviderStateMixin {
   final _notesKey = GlobalKey<SliverAnimatedListState>();
 
   late List<ActiveNote> _notes;
@@ -28,28 +29,68 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
   ProviderSubscription<List<ActiveNote>>? _notesSubscription;
   ProviderSubscription<bool>? _pedalSubscription;
 
+  late final AnimationController _pedalCtl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 120), // press
+    reverseDuration: const Duration(milliseconds: 90), // release
+  );
+
+  late final Animation<double> _press = CurvedAnimation(
+    parent: _pedalCtl,
+    curve: Curves.easeOutCubic,
+    reverseCurve: Curves.easeInCubic,
+  );
+
+  // Mechanical travel: small downward press + settle.
+  late final Animation<double> _travel = TweenSequence<double>([
+    TweenSequenceItem(
+      tween: Tween(
+        begin: -6.0,
+        end: 1.5,
+      ).chain(CurveTween(curve: Curves.easeOutCubic)),
+      weight: 70,
+    ),
+    TweenSequenceItem(
+      tween: Tween(
+        begin: 1.5,
+        end: 0.0,
+      ).chain(CurveTween(curve: Curves.easeOutCubic)),
+      weight: 30,
+    ),
+  ]).animate(_press);
+
+  late final Animation<double> _opacity = Tween<double>(
+    begin: 0.25,
+    end: 1.0,
+  ).animate(_press);
+
+  late final Animation<double> _scale = Tween<double>(
+    begin: 0.98,
+    end: 1.0,
+  ).animate(_press);
+
   @override
   void initState() {
     super.initState();
 
     _notes = [...ref.read(activeNotesProvider)];
     _pedal = ref.read(isPedalDownProvider);
+    _pedalCtl.value = _pedal ? 1.0 : 0.0;
 
-    _notesSubscription = ref.listenManual<List<ActiveNote>>(activeNotesProvider, (
-      prev,
-      next,
-    ) {
-      if (!mounted) return;
+    _notesSubscription = ref.listenManual<List<ActiveNote>>(
+      activeNotesProvider,
+      (prev, next) {
+        if (!mounted) return;
 
-      // Any change in notes counts as activity (note on/off, sustain changes, etc.)
-      if (!listEquals(prev ?? const <ActiveNote>[], next)) {
-        ref
-            .read(activityTrackerProvider.notifier)
-            .markActivity(ActivitySource.midi);
-      }
+        if (!listEquals(prev ?? const <ActiveNote>[], next)) {
+          ref
+              .read(activityTrackerProvider.notifier)
+              .markActivity(ActivitySource.midi);
+        }
 
-      _applyNotesDiff(next);
-    });
+        _applyNotesDiff(next);
+      },
+    );
 
     _pedalSubscription = ref.listenManual<bool>(isPedalDownProvider, (
       prev,
@@ -64,11 +105,19 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
       }
 
       setState(() => _pedal = next);
+
+      // Interruptible: immediately retarget animation.
+      if (next) {
+        _pedalCtl.forward();
+      } else {
+        _pedalCtl.reverse();
+      }
     });
   }
 
   @override
   void dispose() {
+    _pedalCtl.dispose();
     _notesSubscription?.close();
     _pedalSubscription?.close();
     super.dispose();
@@ -83,7 +132,6 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
 
     final currentIdSet = _notes.map((e) => e.id).toSet();
 
-    // 1) Remove notes that no longer exist (reverse order keeps indices valid).
     for (int i = _notes.length - 1; i >= 0; i--) {
       final id = _notes[i].id;
       if (!nextIdSet.contains(id)) {
@@ -99,7 +147,6 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
       }
     }
 
-    // 2) Insert new notes at their target indices.
     for (int i = 0; i < nextList.length; i++) {
       final id = nextList[i].id;
       if (!currentIdSet.contains(id)) {
@@ -113,7 +160,6 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
       }
     }
 
-    // 3) Update existing notes in-place (pressed <-> sustained transitions).
     setState(() {
       for (int i = 0; i < _notes.length; i++) {
         final updated = nextById[_notes[i].id];
@@ -151,15 +197,17 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   slivers: [
-                    // Pedal sliver: exists independently of note indices.
+                    // Pedal slot: fixed width, always present.
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.only(right: 8),
-                        child: _buildAnimatedPedal(),
+                        child: SizedBox(
+                          width: PedalIndicator.slotWidth,
+                          child: _buildAnimatedPedal(),
+                        ),
                       ),
                     ),
 
-                    // Notes sliver: pure note list, no offset math.
                     SliverAnimatedList(
                       key: _notesKey,
                       initialItemCount: _notes.length,
@@ -176,50 +224,25 @@ class _ActiveInputState extends ConsumerState<ActiveInput> {
   }
 
   Widget _buildAnimatedPedal() {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 220), // slower press
-      reverseDuration: const Duration(milliseconds: 140), // quicker release
-      switchInCurve: Curves.linear, // we control curves manually below
-      switchOutCurve: Curves.linear,
-      transitionBuilder: (child, animation) {
-        final sizeCurve = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCirc,
-          reverseCurve: Curves.easeInCubic,
-        );
-
-        // Subtle "soften" instead of a full fade-in/out.
-        final opacityAnimation = Tween<double>(
-          begin: 0.8,
-          end: 1.0,
-        ).animate(sizeCurve);
-
-        // Refined vertical slide:
-        // - slides DOWN from above when appearing
-        // - slides UP when disappearing
-        // - slight overshoot on entry to mimic pedal travel
-        final slideAnimation =
-            Tween<Offset>(begin: const Offset(0, -1), end: Offset.zero).animate(
-              CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutBack,
-                reverseCurve: Curves.easeInCubic,
-              ),
-            );
-
-        return SizeTransition(
-          sizeFactor: sizeCurve,
-          axis: Axis.horizontal, // preserve note spacing behavior
-          axisAlignment: 1.0,
-          child: FadeTransition(
-            opacity: opacityAnimation,
-            child: SlideTransition(position: slideAnimation, child: child),
+    return AnimatedBuilder(
+      animation: _pedalCtl,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _opacity.value,
+          child: Transform.translate(
+            offset: Offset(0, _travel.value),
+            child: Transform.scale(
+              scale: _scale.value,
+              alignment: Alignment.centerLeft,
+              child: child,
+            ),
           ),
         );
       },
-      child: _pedal
-          ? const PedalIndicator(key: ValueKey('sustain'))
-          : const SizedBox.shrink(key: ValueKey('no-sustain')),
+      child: const Align(
+        alignment: Alignment.centerLeft,
+        child: PedalIndicator(),
+      ),
     );
   }
 
