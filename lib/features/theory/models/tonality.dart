@@ -25,8 +25,7 @@ class Tonality {
 
   /// Returns whether the pitch class is diatonic to this tonality.
   ///
-  /// Phase 3 scope: natural major / natural minor scales only.
-  /// (Later: harmonic/melodic minor, modes, etc.)
+  /// Currently: natural major / natural minor pitch-class sets.
   bool containsPitchClass(int pc) {
     final rel = (pc - tonicPitchClass) % 12;
     final interval = rel < 0 ? rel + 12 : rel;
@@ -38,18 +37,47 @@ class Tonality {
     return isMajor ? major.contains(interval) : minor.contains(interval);
   }
 
-  /// Phase 3: diatonic functional degree for an analyzed chord identity.
+  /// Diatonic functional degree for an analyzed chord identity.
   ///
   /// Returns null when:
   /// - the root is not diatonic to the tonality (borrowed/secondary/etc), OR
   /// - the chord quality does not match the expected diatonic chord quality
   ///   for that degree in this tonality (e.g. D major in C major).
+  ///
+  /// Special handling:
+  /// - major6/minor6 are treated as *added-sixth* chords (e.g., C6 = C-E-G-A).
+  ///   Their diatonicity depends on whether their required chord tones are
+  ///   diatonic to the key, so they cannot be validated purely by degree-based
+  ///   whitelists.
   ScaleDegree? scaleDegreeForChord(ChordIdentity id) {
     final degree = scaleDegreeForRootPc(id.rootPc);
     if (degree == null) return null;
 
+    final q = id.quality;
+
+    // Added-sixth chord qualities (matches the ChordTemplate masks):
+    //   major6: required M3 (+4) and M6 (+9) [P5 optional]
+    //   minor6: required m3 (+3) and M6 (+9) [P5 optional]
+    if (q == ChordQualityToken.major6 || q == ChordQualityToken.minor6) {
+      final base = _baseQualityForSix(q);
+
+      // 1) The degree must allow the underlying triad quality diatonically.
+      //    (prevents "degree" classification when the function/quality is off)
+      final allowedBase = _allowedQualitiesForDegree(degree);
+      if (!allowedBase.contains(base)) return null;
+
+      // 2) Required chord tones must be diatonic to the tonality.
+      //    This is the key fix: e.g., Am6 in C major has F# (non-diatonic).
+      final thirdPc = _pcAdd(id.rootPc, q == ChordQualityToken.major6 ? 4 : 3);
+      final sixthPc = _pcAdd(id.rootPc, 9);
+
+      return (containsPitchClass(thirdPc) && containsPitchClass(sixthPc))
+          ? degree
+          : null;
+    }
+
     final allowed = _allowedQualitiesForDegree(degree);
-    return allowed.contains(id.quality) ? degree : null;
+    return allowed.contains(q) ? degree : null;
   }
 
   /// Scale degree for a *root pitch class* only (no quality validation).
@@ -84,16 +112,15 @@ class Tonality {
     }
   }
 
+  /// Degree-based diatonic quality whitelist for triads + sevenths.
+  ///
+  /// Note: major6/minor6 are intentionally excluded; see scaleDegreeForChord()
+  /// for correct validation of added-sixth chords.
   Set<ChordQualityToken> _allowedQualitiesForDegree(ScaleDegree d) {
-    // Phase 3 scope: “common diatonic” triads + sevenths (natural minor).
-    //
-    // This is intentionally permissive for 6-family where it aligns with
-    // diatonic function (e.g., I6 or vi6 in major).
     if (isMajor) {
       return switch (d) {
         ScaleDegree.one => const {
           ChordQualityToken.major,
-          ChordQualityToken.major6,
           ChordQualityToken.major7,
         },
         ScaleDegree.two => const {
@@ -106,7 +133,6 @@ class Tonality {
         },
         ScaleDegree.four => const {
           ChordQualityToken.major,
-          ChordQualityToken.major6,
           ChordQualityToken.major7,
         },
         ScaleDegree.five => const {
@@ -115,31 +141,28 @@ class Tonality {
         },
         ScaleDegree.six => const {
           ChordQualityToken.minor,
-          ChordQualityToken.minor6,
           ChordQualityToken.minor7,
         },
         ScaleDegree.seven => const {
           ChordQualityToken.diminished,
           ChordQualityToken.halfDiminished7,
-          // You can decide whether to allow diminished7 here; it is not
-          // diatonic to major, but it can show up in practice as a leading-tone
-          // fully diminished from harmonic minor borrowing.
+          // Fully diminished 7th is not diatonic to major; it typically appears
+          // as a borrowed leading-tone chord (e.g., from harmonic minor context).
           // ChordQualityToken.diminished7,
         },
       };
     } else {
       // Natural minor diatonic harmony:
-      // i: minor
+      // i: minor / m7
       // ii°: diminished / ø7
-      // III: major
-      // iv: minor
-      // v: minor (harmonic minor would make V / V7, but that’s Phase 4)
-      // VI: major
-      // VII: major (and VII7 is a dominant7 quality in natural minor: e.g. G7 in A minor)
+      // III: major / maj7
+      // iv: minor / m7
+      // v: minor / m7  (harmonic minor would make V / V7)
+      // VI: major / maj7
+      // VII: major / (dominant7 is diatonic here: e.g., G7 in A natural minor)
       return switch (d) {
         ScaleDegree.one => const {
           ChordQualityToken.minor,
-          ChordQualityToken.minor6,
           ChordQualityToken.minor7,
         },
         ScaleDegree.two => const {
@@ -148,7 +171,6 @@ class Tonality {
         },
         ScaleDegree.three => const {
           ChordQualityToken.major,
-          ChordQualityToken.major6,
           ChordQualityToken.major7,
         },
         ScaleDegree.four => const {
@@ -158,13 +180,12 @@ class Tonality {
         ScaleDegree.five => const {
           ChordQualityToken.minor,
           ChordQualityToken.minor7,
-          // Optional Phase-4-esque allowance:
+          // Harmonic minor expansion would add:
           // ChordQualityToken.major,
           // ChordQualityToken.dominant7,
         },
         ScaleDegree.six => const {
           ChordQualityToken.major,
-          ChordQualityToken.major6,
           ChordQualityToken.major7,
         },
         ScaleDegree.seven => const {
@@ -173,6 +194,20 @@ class Tonality {
         },
       };
     }
+  }
+
+  /// For added-sixth qualities, determine the underlying triad quality.
+  static ChordQualityToken _baseQualityForSix(ChordQualityToken q) {
+    return switch (q) {
+      ChordQualityToken.major6 => ChordQualityToken.major,
+      ChordQualityToken.minor6 => ChordQualityToken.minor,
+      _ => q,
+    };
+  }
+
+  static int _pcAdd(int pc, int semitones) {
+    final v = (pc + semitones) % 12;
+    return v < 0 ? v + 12 : v;
   }
 
   @override
