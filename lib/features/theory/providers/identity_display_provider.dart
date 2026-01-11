@@ -5,8 +5,10 @@ import 'package:what_chord/features/midi/midi.dart';
 import '../engine/engine.dart';
 import '../models/identity_display.dart';
 import '../services/chord_long_form_formatter.dart';
+import '../services/chord_quality_token_labels.dart';
 import '../services/chord_symbol_builder.dart';
 import '../services/inversion_labeler.dart';
+import '../services/note_long_form_formatter.dart';
 import '../services/note_spelling.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
@@ -27,14 +29,17 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
       {
         final pc = midis.first % 12;
         final name = pcToName(pc, tonality: tonality);
+        final longLabel = NoteLongFormFormatter.format(name);
 
         return NoteDisplay(
           noteName: name,
-          longLabel: name,
+          longLabel: longLabel,
           secondaryLabel: 'Note',
-          debugText: _debugForInput(
+          debugText: _debugForNote(
             midis: midis,
             tonalityName: tonality.toString(),
+            noteName: name,
+            longLabel: longLabel,
           ),
         );
       }
@@ -67,6 +72,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
             semitones: interval.semitones,
             intervalShort: interval.short,
             intervalLong: interval.long,
+            fromRoot: root,
             tonalityName: tonality.displayName,
           ),
         );
@@ -97,14 +103,17 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           tonality: tonality,
         );
 
+        final qualityLabel = id.quality.label(ChordQualityLabelForm.short);
+
         final debugText = _debugForChord(
           midis: midis,
           tonalityName: tonality.toString(),
           chosenSymbol: symbol.toString(),
+          longLabel: longLabel,
           rootPc: id.rootPc,
           bassPc: id.bassPc,
           hasSlash: id.hasSlashBass,
-          quality: id.quality.toString(),
+          quality: qualityLabel,
           extensions: id.extensions.map((e) => e.shortLabel).toList()..sort(),
         );
 
@@ -137,24 +146,45 @@ String _debugForInput({
   ].join('\n');
 }
 
+String _debugForNote({
+  required List<int> midis,
+  required String tonalityName,
+  required String noteName,
+  required String longLabel,
+}) {
+  final base = _debugForInput(midis: midis, tonalityName: tonalityName);
+  return [
+    'Note Identity',
+    '- Displayed: $noteName',
+    '- Long:      $longLabel',
+    '',
+    base,
+  ].join('\n');
+}
+
 String _debugForInterval({
   required List<int> midis,
   required int bassMidi,
   required int otherMidi,
   required int semitones,
+  required String fromRoot,
   required String intervalShort,
   required String intervalLong,
   required String tonalityName,
 }) {
   final base = _debugForInput(midis: midis, tonalityName: tonalityName);
   return [
+    'Interval Identity',
+    '- Displayed: $intervalShort',
+    '- Long:      $intervalLong',
+    '- From:      $fromRoot',
+    '',
     base,
     '',
     'Interval',
     '- Bass MIDI: $bassMidi',
     '- Other MIDI: $otherMidi',
     '- Semitones: $semitones',
-    '- Label: $intervalShort ($intervalLong)',
   ].join('\n');
 }
 
@@ -162,6 +192,7 @@ String _debugForChord({
   required List<int> midis,
   required String tonalityName,
   required String chosenSymbol,
+  required String longLabel,
   required int rootPc,
   required int bassPc,
   required bool hasSlash,
@@ -170,10 +201,13 @@ String _debugForChord({
 }) {
   final base = _debugForInput(midis: midis, tonalityName: tonalityName);
   return [
+    'Chord Identity',
+    '- Displayed: $chosenSymbol',
+    '- Long:      $longLabel',
+    '',
     base,
     '',
     'Chord',
-    '- Selected: $chosenSymbol',
     '- Root PC: $rootPc',
     '- Quality: $quality',
     '- Extensions: ${extensions.isEmpty ? '(none)' : extensions.join(', ')}',
