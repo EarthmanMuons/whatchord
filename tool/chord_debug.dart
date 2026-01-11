@@ -31,6 +31,9 @@ import 'package:what_chord/features/theory/services/pitch_class.dart';
 ///
 ///   --key=KEY         Tonality for tie-breaks/spelling (default C:maj).
 ///                     Examples: C, C:maj, A:min, Eb:maj, F#:min
+///
+///   --notation=STYLE  Chord notation style for symbol formatting (default textual).
+///                     Examples: textual, symbolic
 void main(List<String> args) {
   if (args.isEmpty) {
     stderr.writeln('Provide notes (pitch names or MIDI numbers).');
@@ -52,6 +55,10 @@ void main(List<String> args) {
     keySignature: ks,
     spellingPolicy: spellingPolicy,
   );
+
+  // Notation style (default textual).
+  final notationFlag = _readStringFlag(args, 'notation');
+  final notation = _parseNotationFlag(notationFlag);
 
   // Extract positional args (notes), ignoring flags.
   final noteTokens = args.where((a) => !a.startsWith('--')).toList();
@@ -96,6 +103,7 @@ void main(List<String> args) {
   stdout.writeln(
     'spelling: ${context.spellingPolicy.preferFlats ? 'flats' : 'sharps'}',
   );
+  stdout.writeln('notation: ${_notationLabel(notation)}');
   stdout.writeln('');
   stdout.writeln(
     'Note: sorting uses near-tie heuristics within ±${ChordCandidateRanking.nearTieWindow.toStringAsFixed(2)}',
@@ -118,8 +126,6 @@ void main(List<String> args) {
   final compact = args.contains('--compact');
   final details = args.contains('--details');
   final reasonsTop = _readIntFlag(args, 'reasons') ?? (details ? 999 : 3);
-
-  final notation = ChordNotationStyle.textual;
 
   for (var i = 0; i < results.length; i++) {
     final r = results[i];
@@ -259,6 +265,38 @@ Tonality _parseTonalityFlag(String raw) {
   return Tonality(tonicAscii, mode);
 }
 
+ChordNotationStyle _parseNotationFlag(String? raw) {
+  if (raw == null) return ChordNotationStyle.textual;
+
+  final s = raw.trim().toLowerCase();
+  if (s.isEmpty) return ChordNotationStyle.textual;
+
+  // Allow a few aliases so the CLI remains ergonomic.
+  // Keep this intentionally small: fail fast on unknown values.
+  return switch (s) {
+    'textual' => ChordNotationStyle.textual,
+    'symbolic' => ChordNotationStyle.symbolic,
+
+    // Common mental-model aliases.
+    'text' => ChordNotationStyle.textual,
+    'symbol' => ChordNotationStyle.symbolic,
+
+    _ => _failUnknownNotation(raw),
+  };
+}
+
+Never _failUnknownNotation(String raw) {
+  stderr.writeln('Unknown --notation value: "$raw"');
+  stderr.writeln('Valid: textual, symbolic');
+  exitCode = 2;
+  throw StateError('Invalid --notation=$raw');
+}
+
+String _notationLabel(ChordNotationStyle style) => switch (style) {
+  ChordNotationStyle.textual => 'textual',
+  ChordNotationStyle.symbolic => 'symbolic',
+};
+
 String _formatIdentityCompact(ChordIdentity id) {
   // Start from the model's canonical toString().
   var s = id.toString();
@@ -341,7 +379,6 @@ List<String> _reasonTokens(
   if (includeNormalize && normalize != null && normalize.detail != null) {
     // IMPORTANT: render normalize as info, not +0.00.
     // Your detail currently is like: "raw=8.40 denom=1.73"
-    // Optionally, you can include the final score too if you add it to the detail.
     tokens.add(normalize.detail!);
   }
 
