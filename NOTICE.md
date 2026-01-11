@@ -1,10 +1,28 @@
 # NOTICE
 
-This project includes code originally developed by third-parties.
+This project includes code and assets originally developed by third-parties.
+
+## assets/fonts/BravuraText.otf
+
+This project includes the **Bravura Text** font, which is distributed as font
+software and is used directly for rendering SMuFL-compliant musical glyphs
+(e.g., accidentals) in chord identification output.
+
+The font is included unmodified from the following upstream source:
+
+- [BravuraText.otf](https://github.com/steinbergmedia/bravura/blob/02e8ed29a29115df35007d1178cebaeee26c20e1/redist/otf/BravuraText.otf)
+
+**Copyright (c) 2019, Steinberg Media Technologies GmbH  
+(<http://www.steinberg.net/>), with Reserved Font Name "Bravura".**
+
+Bravura Text is distributed under the terms of the
+[SIL Open Font License (OFL) version 1.1](https://openfontlicense.org/open-font-license-official-text/).
+
+A copy of the license text is included below.
 
 ## assets/glyphs/keyboard_pedal_ped.svg
 
-This SVG is a derivative artwork extracted from the Leland font and is not
+This SVG is a derivative artwork extracted from the **Leland** font, and is not
 itself distributed as font software. The glyph was derived from the following
 upstream source:
 
@@ -12,12 +30,15 @@ upstream source:
 
 Original font copyright:
 
-**Copyright (c) 2025, MuseScore BVBA (http://www.musescore.org/), with Reserved
-Font Name "Leland".**
+**Copyright (c) 2025, MuseScore BVBA  
+(<http://www.musescore.org/>), with Reserved Font Name "Leland".**
 
-Distributed under the terms of the
-[SIL Open Font License (OFL) version 1.1](https://openfontlicense.org/open-font-license-official-text/),
-see below.
+Leland is distributed under the terms of the
+[SIL Open Font License (OFL) version 1.1](https://openfontlicense.org/open-font-license-official-text/).
+
+A copy of the license text is included below.
+
+## SIL Open Font License Version 1.1
 
 ```
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
