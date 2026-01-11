@@ -69,14 +69,14 @@ class SettingsPage extends ConsumerWidget {
               child: const Column(
                 children: [
                   RadioListTile<ChordNotationStyle>(
-                    title: Text('Lead Sheet'),
+                    title: Text('Textual'),
                     subtitle: Text('E.g., Cmaj7, F#m7b5'),
-                    value: ChordNotationStyle.leadSheet,
+                    value: ChordNotationStyle.textual,
                   ),
                   RadioListTile<ChordNotationStyle>(
-                    title: Text('Jazz'),
+                    title: Text('Symbolic'),
                     subtitle: Text('E.g., CΔ7, F#ø7'),
-                    value: ChordNotationStyle.jazz,
+                    value: ChordNotationStyle.symbolic,
                   ),
                 ],
               ),

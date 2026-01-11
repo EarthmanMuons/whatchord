@@ -29,7 +29,7 @@ stable, conventional interpretations over raw pitch-class matches.
   including correct enharmonic choices.
 
 - **Notation style preferences**  
-  Supports multiple chord symbol conventions (e.g., lead sheet vs. jazz),
+  Supports multiple chord symbol conventions (e.g., textual vs. symbolic),
   balancing readability with precision.
 
 ## Screenshots

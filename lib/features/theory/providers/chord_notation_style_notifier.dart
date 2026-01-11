@@ -16,11 +16,11 @@ class ChordNotationStyleNotifier extends Notifier<ChordNotationStyle> {
     final prefs = ref.watch(sharedPreferencesProvider);
     final stored = prefs.getString(TheoryPreferencesKeys.chordNotationStyle);
 
-    if (stored == null) return ChordNotationStyle.leadSheet;
+    if (stored == null) return ChordNotationStyle.textual;
 
     return ChordNotationStyle.values.firstWhere(
       (s) => s.name == stored,
-      orElse: () => ChordNotationStyle.leadSheet,
+      orElse: () => ChordNotationStyle.textual,
     );
   }
 

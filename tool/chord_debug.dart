@@ -119,7 +119,7 @@ void main(List<String> args) {
   final details = args.contains('--details');
   final reasonsTop = _readIntFlag(args, 'reasons') ?? (details ? 999 : 3);
 
-  final notation = ChordNotationStyle.leadSheet;
+  final notation = ChordNotationStyle.textual;
 
   for (var i = 0; i < results.length; i++) {
     final r = results[i];

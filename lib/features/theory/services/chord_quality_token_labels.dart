@@ -1,6 +1,6 @@
 import '../engine/models/chord_identity.dart' show ChordQualityToken;
 
-enum ChordQualityLabelForm { short, symbol, long }
+enum ChordQualityLabelForm { symbol, short, long }
 
 /// Formatting-only labels for chord quality tokens.
 extension ChordQualityTokenLabels on ChordQualityToken {

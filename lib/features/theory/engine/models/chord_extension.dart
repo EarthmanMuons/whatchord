@@ -1,5 +1,5 @@
 /// Musical extensions beyond the base chord.
-/// Ordering reflects common lead-sheet / theory convention.
+/// Ordering reflects common theory convention.
 enum ChordExtension {
   flat9,
   nine,

@@ -386,7 +386,7 @@ void main() {
       expect(results, isNotEmpty, reason: 'No candidates returned');
       final top = results.first.identity;
 
-      const testNotation = ChordNotationStyle.leadSheet;
+      const testNotation = ChordNotationStyle.textual;
 
       final actualSymbol = ChordSymbolBuilder.fromIdentity(
         identity: top,

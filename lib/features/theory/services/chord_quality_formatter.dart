@@ -83,7 +83,7 @@ class ChordQualityFormatter {
   static ChordQualityLabelForm _defaultQualityFormFor(
     ChordNotationStyle notation,
   ) {
-    return notation == ChordNotationStyle.jazz
+    return notation == ChordNotationStyle.symbolic
         ? ChordQualityLabelForm.symbol
         : ChordQualityLabelForm.short;
   }
@@ -162,7 +162,7 @@ class ChordQualityFormatter {
       // For triad-like qualities (including sus and power chords), inline add-tones
       // are currently preferred (Cadd9, Csus4add9).
       //
-      // NOTE: Some lead-sheet styles prefer Csus4(add9). If we want to support that
+      // NOTE: Some notation styles prefer Csus4(add9). If we want to support that
       // distinction later, this branch is the correct place to specialize sus handling.
       if (ext.isAddTone) {
         return quality.isSeventhFamily;
@@ -175,6 +175,6 @@ class ChordQualityFormatter {
   }
 
   static String _modsSeparator(ChordNotationStyle notation) {
-    return notation == ChordNotationStyle.jazz ? '' : ',';
+    return notation == ChordNotationStyle.symbolic ? '' : ',';
   }
 }
