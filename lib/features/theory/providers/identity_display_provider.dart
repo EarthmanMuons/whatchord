@@ -4,6 +4,7 @@ import 'package:what_chord/features/midi/midi.dart';
 
 import '../engine/engine.dart';
 import '../models/identity_display.dart';
+import '../services/chord_long_form_formatter.dart';
 import '../services/chord_symbol_builder.dart';
 import '../services/inversion_labeler.dart';
 import '../services/note_spelling.dart';
@@ -27,7 +28,15 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         final pc = midis.first % 12;
         final name = pcToName(pc, tonality: tonality);
 
-        return NoteDisplay(noteName: name, secondaryLabel: 'Note');
+        return NoteDisplay(
+          noteName: name,
+          longLabel: name,
+          secondaryLabel: 'Note',
+          debugText: _debugForInput(
+            midis: midis,
+            tonalityName: tonality.toString(),
+          ),
+        );
       }
 
     case AnalysisMode.dyad:
@@ -49,7 +58,17 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         return IntervalDisplay(
           referenceName: root,
           intervalLabel: interval.short,
+          longLabel: interval.long,
           secondaryLabel: 'Interval · from $root',
+          debugText: _debugForInterval(
+            midis: midis,
+            bassMidi: bassMidi,
+            otherMidi: otherMidi,
+            semitones: interval.semitones,
+            intervalShort: interval.short,
+            intervalLong: interval.long,
+            tonalityName: tonality.displayName,
+          ),
         );
       }
 
@@ -73,10 +92,91 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
             ? 'Chord'
             : 'Chord · $inversion';
 
-        return ChordDisplay(symbol: symbol, secondaryLabel: secondaryLabel);
+        final longLabel = ChordLongFormFormatter.format(
+          identity: id,
+          tonality: tonality,
+        );
+
+        final debugText = _debugForChord(
+          midis: midis,
+          tonalityName: tonality.toString(),
+          chosenSymbol: symbol.toString(),
+          rootPc: id.rootPc,
+          bassPc: id.bassPc,
+          hasSlash: id.hasSlashBass,
+          quality: id.quality.toString(),
+          extensions: id.extensions.map((e) => e.shortLabel).toList()..sort(),
+        );
+
+        return ChordDisplay(
+          symbol: symbol,
+          longLabel: longLabel,
+          secondaryLabel: secondaryLabel,
+          debugText: debugText,
+        );
       }
 
     case AnalysisMode.none:
       return null;
   }
 });
+
+String _debugForInput({
+  required List<int> midis,
+  required String tonalityName,
+}) {
+  final pcs = (midis.map((m) => m % 12).toSet().toList()..sort());
+  final sorted = [...midis]..sort();
+  return [
+    'Context',
+    '- Tonality: $tonalityName',
+    '',
+    'Input',
+    '- MIDI: $sorted',
+    '- PCs:  $pcs',
+  ].join('\n');
+}
+
+String _debugForInterval({
+  required List<int> midis,
+  required int bassMidi,
+  required int otherMidi,
+  required int semitones,
+  required String intervalShort,
+  required String intervalLong,
+  required String tonalityName,
+}) {
+  final base = _debugForInput(midis: midis, tonalityName: tonalityName);
+  return [
+    base,
+    '',
+    'Interval',
+    '- Bass MIDI: $bassMidi',
+    '- Other MIDI: $otherMidi',
+    '- Semitones: $semitones',
+    '- Label: $intervalShort ($intervalLong)',
+  ].join('\n');
+}
+
+String _debugForChord({
+  required List<int> midis,
+  required String tonalityName,
+  required String chosenSymbol,
+  required int rootPc,
+  required int bassPc,
+  required bool hasSlash,
+  required String quality,
+  required List<String> extensions,
+}) {
+  final base = _debugForInput(midis: midis, tonalityName: tonalityName);
+  return [
+    base,
+    '',
+    'Chord',
+    '- Selected: $chosenSymbol',
+    '- Root PC: $rootPc',
+    '- Quality: $quality',
+    '- Extensions: ${extensions.isEmpty ? '(none)' : extensions.join(', ')}',
+    '- Slash bass: ${hasSlash ? 'yes (PC $bassPc)' : 'no'}',
+  ].join('\n');
+}

@@ -42,7 +42,7 @@ class ChordQualityFormatter {
     }
 
     if (headline != null) {
-      base = _replaceSeventhWithExtension(base, headline.label);
+      base = _replaceSeventhWithExtension(base, headline.shortLabel);
     }
 
     final mods = <ChordExtension>[];
@@ -66,7 +66,7 @@ class ChordQualityFormatter {
 
     if (mods.isEmpty) return base;
 
-    final labels = mods.map((e) => e.label).toList();
+    final labels = mods.map((e) => e.shortLabel).toList();
     final useParens = _shouldUseParens(
       quality: quality,
       notation: notation,

@@ -61,7 +61,6 @@ class IdentityCard extends StatelessWidget {
           maxLines: 1,
           minFontSize: 22,
         ),
-
         IntervalDisplay(:final intervalLabel) => AutoSizeText(
           intervalLabel,
           textAlign: TextAlign.center,
@@ -69,26 +68,21 @@ class IdentityCard extends StatelessWidget {
           maxLines: 1,
           minFontSize: 22,
         ),
-
         ChordDisplay(:final symbol) => AutoSizeText.rich(
           TextSpan(
             style: primaryStyle,
             children: <InlineSpan>[
               TextSpan(text: toSmufl(symbol.root), style: rootStyle),
-
               if (symbol.quality.isNotEmpty) ...[
                 const TextSpan(text: '\u200A'),
-
                 ...buildChordSpans(
                   text: toSmufl(symbol.quality),
                   base: primaryStyle,
                   parenStyle: primaryStyle.copyWith(
-                    // Small size bump to make parens feel "higher"
                     fontSize: (primaryStyle.fontSize ?? 14) + 2.0,
                   ),
                 ),
               ],
-
               if (symbol.hasBass) ...[
                 const TextSpan(text: ' / '),
                 TextSpan(text: toSmufl(symbol.bassRequired)),
@@ -104,14 +98,12 @@ class IdentityCard extends StatelessWidget {
     }
 
     Widget idleGlyph() {
-      // Keep this subtle; it should read as "resting," not "empty/error".
       return Opacity(
         opacity: 0.55,
         child: SvgPicture.asset(
           idleAsset,
           width: 72,
           height: 72,
-          // Tint to onPrimary so it harmonizes with the card.
           colorFilter: ColorFilter.mode(
             cs.onPrimary.withValues(alpha: 0.9),
             BlendMode.srcIn,
@@ -146,8 +138,6 @@ class IdentityCard extends StatelessWidget {
           return FadeTransition(opacity: curved, child: child);
         },
         layoutBuilder: (currentChild, previousChildren) {
-          // When fill=true, parent will constrain this (via SizedBox.expand),
-          // so Stack will fill. When fill=false, it shrink-wraps naturally.
           return Stack(
             alignment: Alignment.center,
             fit: StackFit.expand,
@@ -199,18 +189,95 @@ class IdentityCard extends StatelessWidget {
       );
     }
 
+    Future<void> showExplainSheet(
+      BuildContext context,
+      IdentityDisplay d,
+    ) async {
+      await showModalBottomSheet<void>(
+        context: context,
+        useSafeArea: true,
+        showDragHandle: true,
+        isScrollControlled: true,
+        builder: (context) {
+          final t = Theme.of(context);
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'In plain English',
+                  style: t.textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                SelectableText(
+                  d.longLabel,
+                  style: t.textTheme.bodyLarge,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: d.debugText == null
+                      ? null
+                      : () async {
+                          Navigator.of(context).pop();
+                          await _showDebugSheet(
+                            context: context,
+                            title: 'Debug info',
+                            debugText: d.debugText!,
+                          );
+                        },
+                  child: const Text('View debug info'),
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Close'),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
+
+    if (display == null) {
+      // No identity; keep card inert.
+      return Card(
+        elevation: 0,
+        color: cs.primary,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: minCardHeight),
+          child: Padding(
+            padding: padding,
+            child: fill
+                ? SizedBox.expand(child: switchedChild())
+                : switchedChild(),
+          ),
+        ),
+      );
+    }
+
     return Card(
       elevation: 0,
       color: cs.primary,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: minCardHeight),
-        child: Padding(
-          padding: padding,
-          child: fill
-              // Expand to whatever height the parent gives the card,
-              // and keep the switching content centered.
-              ? SizedBox.expand(child: switchedChild())
-              : switchedChild(),
+      child: InkWell(
+        onLongPress: () => showExplainSheet(context, display),
+        borderRadius:
+            (CardTheme.of(context).shape as RoundedRectangleBorder?)
+                    ?.borderRadius
+                as BorderRadius? ??
+            BorderRadius.circular(12),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: minCardHeight),
+          child: Padding(
+            padding: padding,
+            child: fill
+                ? SizedBox.expand(child: switchedChild())
+                : switchedChild(),
+          ),
         ),
       ),
     );
@@ -254,4 +321,44 @@ List<InlineSpan> buildChordSpans({
 
   flush();
   return spans;
+}
+
+Future<void> _showDebugSheet({
+  required BuildContext context,
+  required String title,
+  required String debugText,
+}) {
+  return showModalBottomSheet<void>(
+    context: context,
+    useSafeArea: true,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (context) {
+      final t = Theme.of(context);
+      return DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.75,
+        minChildSize: 0.35,
+        maxChildSize: 0.95,
+        builder: (context, controller) {
+          return Material(
+            child: ListView(
+              controller: controller,
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              children: [
+                Text(title, style: t.textTheme.titleLarge),
+                const SizedBox(height: 12),
+                SelectableText(
+                  debugText,
+                  style: t.textTheme.bodyMedium?.copyWith(
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
+  );
 }

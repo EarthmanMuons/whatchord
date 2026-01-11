@@ -41,9 +41,11 @@ extension ChordExtensionOrdering on ChordExtension {
         return 10;
     }
   }
+}
 
-  /// Compact string form, useful for debug output and formatters.
-  String get label {
+extension ChordExtensionLabels on ChordExtension {
+  /// Compact token for symbolic/textual chord formatters.
+  String get shortLabel {
     switch (this) {
       case ChordExtension.flat9:
         return 'b9';
@@ -65,6 +67,32 @@ extension ChordExtensionOrdering on ChordExtension {
         return 'add11';
       case ChordExtension.add13:
         return 'add13';
+    }
+  }
+
+  /// Plain-English token used in the long-press explanation.
+  String get longLabel {
+    switch (this) {
+      case ChordExtension.flat9:
+        return 'flat ninth';
+      case ChordExtension.nine:
+        return 'ninth';
+      case ChordExtension.sharp9:
+        return 'sharp ninth';
+      case ChordExtension.eleven:
+        return 'eleventh';
+      case ChordExtension.sharp11:
+        return 'sharp eleventh';
+      case ChordExtension.flat13:
+        return 'flat thirteenth';
+      case ChordExtension.thirteen:
+        return 'thirteenth';
+      case ChordExtension.add9:
+        return 'added ninth';
+      case ChordExtension.add11:
+        return 'added eleventh';
+      case ChordExtension.add13:
+        return 'added thirteenth';
     }
   }
 }
