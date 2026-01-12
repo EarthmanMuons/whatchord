@@ -5,7 +5,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:what_chord/features/theory/theory.dart';
-import 'package:what_chord/features/theory/services/note_display_formatter.dart';
 
 class IdentityCard extends StatelessWidget {
   final IdentityDisplay? identity;
@@ -202,7 +201,6 @@ class IdentityCard extends StatelessWidget {
       BuildContext context,
       IdentityDisplay d,
     ) async {
-      final debug = d.debugText;
       final copyText = d.debugText?.trimRight();
       final canCopy = copyText != null && copyText.isNotEmpty;
 
