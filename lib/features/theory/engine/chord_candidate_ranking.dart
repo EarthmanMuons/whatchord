@@ -3,6 +3,7 @@ import '../models/tonality.dart';
 import 'models/chord_candidate.dart';
 import 'models/chord_extension.dart';
 import 'models/chord_identity.dart';
+import 'models/chord_tone_role.dart';
 
 class RankingDecision {
   final int result;
@@ -19,12 +20,6 @@ class RankingDecision {
 abstract final class ChordCandidateRanking {
   static const double nearTieWindow = 0.20;
 
-  /// Comparator suitable for `List.sort`.
-  ///
-  /// Returns:
-  /// - < 0 if [a] should sort before [b]
-  /// - > 0 if [a] should sort after [b]
-  /// - 0 only if fully equivalent (should not happen due to deterministic tail)
   static int compare(
     ChordCandidate a,
     ChordCandidate b, {
@@ -33,14 +28,17 @@ abstract final class ChordCandidateRanking {
     // Primary: higher score wins.
     final delta = b.score - a.score;
 
-    // Treat near-equal scores as effectively tied so musical tie-breakers
-    // apply deterministically.
+    final fa = _CandidateFeatures.from(a);
+    final fb = _CandidateFeatures.from(b);
+
+    // Allow a small set of "hard" structure overrides even outside near-tie.
+    final hard = _ruleAlteredDom7OverUpperStructureDim7(a, b, fa, fb, tonality);
+    if (hard != null && hard != 0) return hard;
+
+    // Normal scoring gate.
     if (delta.abs() > nearTieWindow) {
       return delta > 0 ? 1 : -1;
     }
-
-    final fa = _CandidateFeatures.from(a);
-    final fb = _CandidateFeatures.from(b);
 
     for (final rule in _tieBreakerRules) {
       final r = rule.apply(a, b, fa, fb, tonality);
@@ -97,10 +95,18 @@ abstract final class ChordCandidateRanking {
       _rule6RootVsSlash7,
     ),
     _NamedRule(
-      'Prefer root-position dominant7 in upper-structure cases',
-      _ruleDom7RootPosition,
+      'Prefer altered dominant7 in root position over upper-structure dim7 slash',
+      _ruleAlteredDom7OverUpperStructureDim7,
+    ),
+    _NamedRule(
+      'Prefer upper-structure dominant7 slash over bass-root dominant7 (role-aware)',
+      _ruleDom7UpperStructureVsBassRoot,
     ),
     _NamedRule('Prefer diminished7 rooted on the base', _ruleDim7RootOnBass),
+    _NamedRule(
+      'Prefer dominant7 shell over diminished7 slash reinterpretation',
+      _rulePreferDom7OverDim7Slash,
+    ),
     _NamedRule('Prefer fewer alterations', _ruleFewerAlterations),
     _NamedRule('Prefer chords diatonic to the key', _ruleDiatonic),
     _NamedRule('Prefer I when bass is tonic', _ruleTonicAsI),
@@ -115,8 +121,6 @@ abstract final class ChordCandidateRanking {
     _NamedRule('Avoid suspended chords', _ruleAvoidSus),
   ];
 
-  // Prefer 6-family in root position over slash 7-family when effectively tied,
-  // but only when the non-6 chord has no “real” natural/alteration extensions.
   static int? _rule6RootVsSlash7(
     ChordCandidate a,
     ChordCandidate b,
@@ -126,33 +130,102 @@ abstract final class ChordCandidateRanking {
   ) {
     if (fa.isSixFamily == fb.isSixFamily) return null;
 
-    // Identify which side is the 6-family candidate (preserving original logic).
     final aIs6 = fa.isSixFamily;
     final fsix = aIs6 ? fa : fb;
     final fother = aIs6 ? fb : fa;
 
-    // Only privilege 6-family if:
-    // - six is root position AND other is NOT root position
-    // - other has no "real" extensions/alterations (9/11/13/b9/#11/etc)
     if (fsix.isRootPosition && !fother.isRootPosition && !fother.hasRealExt) {
-      // six wins (preserve original return direction)
       return aIs6 ? -1 : 1;
     }
 
-    // Also preserve original behavior where we do not promote 6-family in other cases.
     return null;
   }
 
-  // Prefer root-position dominant7 chords in ambiguous upper-structure situations.
-  static int? _ruleDom7RootPosition(
+  static int? _ruleAlteredDom7OverUpperStructureDim7(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
     _CandidateFeatures fb,
     Tonality _,
   ) {
-    if (fa.isDom7RootPosition == fb.isDom7RootPosition) return null;
-    return fb.isDom7RootPosition ? 1 : -1;
+    // Engage only for (dominant7) vs (fully diminished7) comparisons.
+    final aIsDom7 = fa.isDom7;
+    final bIsDom7 = fb.isDom7;
+    final aIsDimFamily = fa.isDimFamily;
+    final bIsDimFamily = fb.isDimFamily;
+
+    final domVsDim = (aIsDom7 && bIsDimFamily) || (bIsDom7 && aIsDimFamily);
+    if (!domVsDim) return null;
+
+    final fDom = aIsDom7 ? fa : fb;
+    final fDim = aIsDom7 ? fb : fa;
+    final domIsA = aIsDom7;
+
+    // We only want to "rescue" the functional dominant reading when:
+    // - dominant is root-position (bass == root)
+    // - dominant has shell tones (3rd + b7) present in the voicing
+    // - diminished reading is a slash interpretation whose bass is a color tone
+    //   (typical upper-structure dim7/addX over the dominant root)
+    if (!fDom.isDom7RootPosition) return null;
+    if (!fDom.dom7HasShell) return null;
+    if (!fDim.isSlashBass) return null;
+    if (!fDim.bassIsColorTone) return null;
+
+    // Require that the dominant is actually "doing something dominant-ish",
+    // i.e. it has at least one real extension/alteration.
+    // This is what keeps plain C7 from always beating (say) Cdim7 contexts.
+    final domHasColor =
+        (fDom.extPref.naturalCount + fDom.extPref.alterationCount) > 0;
+    if (!domHasColor) return null;
+
+    // If all of the above holds: prefer dominant7 interpretation.
+    return domIsA ? -1 : 1;
+  }
+
+  /// When both candidates are dominant7 and one is root-position while the other
+  /// is slash-bass:
+  /// - If the slash bass is a *color tone* (e.g., #11, b9, 13), treat it as an
+  ///   "upper-structure" dominant and prefer the slash interpretation.
+  /// - If the slash bass is a *core chord tone* (3rd/5th/7th), treat it as a
+  ///   normal inversion and prefer the root-position dominant7.
+  ///
+  /// This is specifically designed to resolve cases like:
+  ///   {Gb, C, E, Bb}  => prefer C7#11 / F# over Gb7#11
+  static int? _ruleDom7UpperStructureVsBassRoot(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    if (!fa.isDom7 || !fb.isDom7) return null;
+
+    // Only engage on root-position vs slash-bass comparisons.
+    if (fa.isRootPosition == fb.isRootPosition) return null;
+
+    final slashIsA = fa.isDom7Slash;
+    final fSlash = slashIsA ? fa : fb;
+    final fRoot = slashIsA ? fb : fa;
+
+    // Safety: ensure we really have (slash vs root-position).
+    if (!fSlash.isDom7Slash || !fRoot.isDom7RootPosition) return null;
+
+    // Optional guard: require dominant shell evidence (3rd + b7)
+    // so we don't overfit to sparse voicings.
+    if (!fSlash.dom7HasShell || !fRoot.dom7HasShell) return null;
+
+    // If slash bass is color, it *might* be an upper-structure reading,
+    // but only if the slash-dominant doesn't have other alterations besides the bass.
+    final slashLooksLikeUpperStructure =
+        fSlash.bassIsColorTone && !fSlash.dom7SlashHasNonBassAlterations;
+
+    if (slashLooksLikeUpperStructure) {
+      // Slash candidate wins.
+      return slashIsA ? -1 : 1;
+    } else {
+      // Otherwise treat it as an inversion-ish/weird slash and prefer root-position.
+      return slashIsA ? 1 : -1;
+    }
   }
 
   static int? _ruleDim7RootOnBass(
@@ -162,25 +235,18 @@ abstract final class ChordCandidateRanking {
     _CandidateFeatures fb,
     Tonality _,
   ) {
-    // Only engage if at least one candidate is fully diminished seventh.
     if (!fa.isDim7 && !fb.isDim7) return null;
 
-    // Strongest case: both are diminished7. Prefer root position.
     if (fa.isDim7 && fb.isDim7) {
       if (fa.isRootPosition == fb.isRootPosition) return null;
-      return fb.isRootPosition ? 1 : -1; // root-position wins
+      return fb.isRootPosition ? 1 : -1;
     }
 
-    // Mixed case: one is dim7, the other is not.
-    // For readability in symmetric diminished contexts, prefer the dim7 candidate
-    // if it is root-position and the alternative requires a slash bass.
-    // NOTE: we can delete this portion if we want a strict "only resolve dim7 vs dim7 ambiguity" rule
     final aIsPreferredDim7 = fa.isDim7 && fa.isRootPosition;
     final bIsPreferredDim7 = fb.isDim7 && fb.isRootPosition;
 
     if (aIsPreferredDim7 == bIsPreferredDim7) return null;
 
-    // Only prefer the dim7 root-position reading if the opposing candidate is a slash.
     final otherIsSlash = aIsPreferredDim7
         ? !fb.isRootPosition
         : !fa.isRootPosition;
@@ -189,7 +255,43 @@ abstract final class ChordCandidateRanking {
     return bIsPreferredDim7 ? 1 : -1;
   }
 
-  // Prefer fewer alterations (b9/#11/b13 etc.).
+  static int? _rulePreferDom7OverDim7Slash(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsDom = fa.isDom7;
+    final bIsDom = fb.isDom7;
+    final aIsDim7 = fa.isDim7;
+    final bIsDim7 = fb.isDim7;
+
+    // Only engage on dominant7 vs diminished7 comparisons.
+    final domVsDim = (aIsDom && bIsDim7) || (bIsDom && aIsDim7);
+    if (!domVsDim) return null;
+
+    final domIsA = aIsDom;
+    final fDom = domIsA ? fa : fb;
+    final fDim = domIsA ? fb : fa;
+
+    // Require strong dominant evidence (shell).
+    if (!fDom.dom7HasShell) return null;
+
+    // If the diminished7 candidate is a slash reading and its bass is a color tone,
+    // prefer the dominant reading (musician expectation for altered dominants).
+    final dimIsSlash = fDim.isSlashBass;
+    if (!dimIsSlash) return null;
+
+    // Use the same "color bass" classifier you already built (it works beyond dom7),
+    // or add a generic one. If you don't have a generic one yet, treat any non-core
+    // bass role as "color".
+    if (!fDim.bassIsColorTone) return null;
+
+    // Dominant wins.
+    return domIsA ? -1 : 1;
+  }
+
   static int? _ruleFewerAlterations(
     ChordCandidate a,
     ChordCandidate b,
@@ -201,11 +303,9 @@ abstract final class ChordCandidateRanking {
       fb.extPref.alterationCount,
     );
     if (cmp == 0) return null;
-    return cmp; // lower alteration count wins
+    return cmp;
   }
 
-  // Prefer chords that are diatonically valid *as chords* (root + quality),
-  // not just "root is in the scale."
   static int? _ruleDiatonic(
     ChordCandidate a,
     ChordCandidate b,
@@ -220,11 +320,9 @@ abstract final class ChordCandidateRanking {
     final bOk = db != null;
 
     if (aOk == bOk) return null;
-    return bOk ? 1 : -1; // valid wins
+    return bOk ? 1 : -1;
   }
 
-  // Strongest pianist expectation: if the bass is the tonic, prefer I-family
-  // explanations over relative-minor/other-degree slash readings in a near-tie.
   static int? _ruleTonicAsI(
     ChordCandidate a,
     ChordCandidate b,
@@ -238,7 +336,7 @@ abstract final class ChordCandidateRanking {
     final db = tonality.scaleDegreeForChord(b.identity);
     if (da == null || db == null) return null;
 
-    final bassIsTonic = a.identity.bassPc == tonic; // same bass for the set
+    final bassIsTonic = a.identity.bassPc == tonic;
     if (!bassIsTonic) return null;
 
     final aIsI = da == ScaleDegree.one;
@@ -246,13 +344,9 @@ abstract final class ChordCandidateRanking {
 
     if (aIsI == bIsI) return null;
 
-    return bIsI ? 1 : -1; // I wins
+    return bIsI ? 1 : -1;
   }
 
-  // Prefer:
-  // - more natural extensions (9/11/13),
-  // - then fewer add-tones,
-  // - then fewer total extension tokens.
   static int? _ruleNaturalExtensions(
     ChordCandidate a,
     ChordCandidate b,
@@ -272,7 +366,6 @@ abstract final class ChordCandidateRanking {
     return null;
   }
 
-  // Prefer root position (bass == root).
   static int? _ruleRootPosition(
     ChordCandidate a,
     ChordCandidate b,
@@ -284,8 +377,6 @@ abstract final class ChordCandidateRanking {
     return fb.isRootPosition ? 1 : -1;
   }
 
-  // Prefer inversions where bass is the 3rd over those where bass is the 5th.
-  // Kept before seventh-family to preserve cases like C6/E beating Am7/E.
   static int? _ruleBass3rdOver5th(
     ChordCandidate a,
     ChordCandidate b,
@@ -295,10 +386,9 @@ abstract final class ChordCandidateRanking {
   ) {
     final cmp = fa.bassRoleRank.compareTo(fb.bassRoleRank);
     if (cmp == 0) return null;
-    return cmp; // lower is better
+    return cmp;
   }
 
-  // Prefer seventh-family over triad-family.
   static int? _rule7thOverTriad(
     ChordCandidate a,
     ChordCandidate b,
@@ -310,7 +400,6 @@ abstract final class ChordCandidateRanking {
     return fb.isSeventhFamily ? 1 : -1;
   }
 
-  // Prefer fewer extensions (simpler explanation).
   static int? _ruleFewerExtensions(
     ChordCandidate a,
     ChordCandidate b,
@@ -323,7 +412,6 @@ abstract final class ChordCandidateRanking {
     return cmp;
   }
 
-  // Prefer non-sus over sus.
   static int? _ruleAvoidSus(
     ChordCandidate a,
     ChordCandidate b,
@@ -332,7 +420,7 @@ abstract final class ChordCandidateRanking {
     Tonality _,
   ) {
     if (fa.isSus == fb.isSus) return null;
-    return fa.isSus ? 1 : -1; // non-sus wins
+    return fa.isSus ? 1 : -1;
   }
 }
 
@@ -355,12 +443,18 @@ class _CandidateFeatures {
   final bool isSixFamily;
   final bool isSeventhFamily;
   final bool isDim7;
+  final bool isDimFamily;
   final bool isSus;
 
+  final bool isDom7;
   final bool isDom7RootPosition;
+  final bool isDom7Slash;
+  final bool dom7HasShell;
+  final bool dom7SlashHasNonBassAlterations;
 
   final bool isSlashBass;
   final int bassRoleRank;
+  final bool bassIsColorTone;
 
   final int extensionCount;
   final ExtensionPreference extPref;
@@ -371,10 +465,16 @@ class _CandidateFeatures {
     required this.isSixFamily,
     required this.isSeventhFamily,
     required this.isDim7,
+    required this.isDimFamily,
     required this.isSus,
+    required this.isDom7,
     required this.isDom7RootPosition,
+    required this.isDom7Slash,
+    required this.dom7HasShell,
+    required this.dom7SlashHasNonBassAlterations,
     required this.isSlashBass,
     required this.bassRoleRank,
+    required this.bassIsColorTone,
     required this.extensionCount,
     required this.extPref,
     required this.hasRealExt,
@@ -389,40 +489,131 @@ class _CandidateFeatures {
     final realExt = (pref.naturalCount + pref.alterationCount) > 0;
 
     final isDim7 = q == ChordQualityToken.diminished7;
-    final isSlashBass = id.rootPc != id.bassPc;
+    final isDimFamily = isDim7 || q == ChordQualityToken.halfDiminished7;
+    final isSlashBass = !rootPos;
+    final bassIsColorTone = isSlashBass ? _bassIsColorTone(id) : false;
+
+    final isDom7 = q == ChordQualityToken.dominant7;
+    final isDom7RootPosition = isDom7 && rootPos;
+    final isDom7Slash = isDom7 && isSlashBass;
+
+    final dom7HasShell = isDom7 && _dom7HasShell(id);
+    final dom7SlashHasNonBassAlterations =
+        isDom7Slash && _dom7SlashHasNonBassAlterations(id);
 
     return _CandidateFeatures(
       isRootPosition: rootPos,
       isSixFamily: q.isSixFamily,
       isSeventhFamily: q.isSeventhFamily,
       isDim7: isDim7,
+      isDimFamily: isDimFamily,
       isSus: q.isSus,
-      isDom7RootPosition: q == ChordQualityToken.dominant7 && rootPos,
+      isDom7: isDom7,
+      isDom7RootPosition: isDom7RootPosition,
+      isDom7Slash: isDom7Slash,
+      dom7HasShell: dom7HasShell,
+      dom7SlashHasNonBassAlterations: dom7SlashHasNonBassAlterations,
       isSlashBass: isSlashBass,
       bassRoleRank: _bassRoleRank(id),
+      bassIsColorTone: bassIsColorTone,
       extensionCount: id.extensions.length,
       extPref: pref,
       hasRealExt: realExt,
     );
   }
 
+  static bool _dom7HasShell(ChordIdentity id) {
+    // Shell tones for a dom7: major 3rd + flat 7th.
+    // We rely on the role map your analyzer already built from the actual voicing.
+    final roles = id.toneRolesByInterval.values;
+    final has3 = roles.contains(ChordToneRole.major3);
+    final has7 = roles.contains(ChordToneRole.flat7);
+    return has3 && has7;
+  }
+
+  static bool _dom7SlashHasNonBassAlterations(ChordIdentity id) {
+    if (id.quality != ChordQualityToken.dominant7) return false;
+    if (id.rootPc == id.bassPc) return false;
+
+    // Identify which extension token corresponds to the bass role (if any),
+    // so we can ignore it when deciding if the chord has "extra" alterations.
+    final bassInterval = _interval(id.bassPc, id.rootPc);
+    final bassRole = id.toneRolesByInterval[bassInterval];
+    final bassExt = _extensionFromRole(bassRole);
+
+    // Look for any alteration extensions other than the one explained by bass.
+    for (final e in id.extensions) {
+      if (e == bassExt) continue;
+      if (_isAlterationExtension(e)) return true;
+    }
+    return false;
+  }
+
+  static bool _isAlterationExtension(ChordExtension e) {
+    return e == ChordExtension.flat9 ||
+        e == ChordExtension.sharp9 ||
+        e == ChordExtension.sharp11 ||
+        e == ChordExtension.flat13;
+  }
+
+  static ChordExtension? _extensionFromRole(ChordToneRole? role) {
+    // Only roles that map cleanly to ChordExtension tokens.
+    return switch (role) {
+      ChordToneRole.flat9 => ChordExtension.flat9,
+      ChordToneRole.sharp9 => ChordExtension.sharp9,
+      ChordToneRole.sharp11 => ChordExtension.sharp11,
+      ChordToneRole.flat13 => ChordExtension.flat13,
+      ChordToneRole.nine => ChordExtension.nine,
+      ChordToneRole.eleven => ChordExtension.eleven,
+      ChordToneRole.thirteenth => ChordExtension.thirteen,
+      ChordToneRole.add9 => ChordExtension.add9,
+      ChordToneRole.add11 => ChordExtension.add11,
+      ChordToneRole.add13 => ChordExtension.add13,
+      _ => null,
+    };
+  }
+
+  /// True when the bass is acting like a "color tone" (extension/alteration/etc.)
+  /// rather than a core inversion tone (3rd/5th/7th/etc.).
+  static bool _bassIsColorTone(ChordIdentity id) {
+    final interval = _interval(id.bassPc, id.rootPc);
+    final role = id.toneRolesByInterval[interval];
+
+    if (role == null) {
+      // Conservative: don't treat unknown bass-role as "color"
+      // (prevents over-promoting slash interpretations).
+      return false;
+    }
+
+    return !_isCoreInversionBassRole(role);
+  }
+
+  static bool _isCoreInversionBassRole(ChordToneRole role) {
+    return role == ChordToneRole.root ||
+        role == ChordToneRole.major3 ||
+        role == ChordToneRole.minor3 ||
+        role == ChordToneRole.perfect5 ||
+        role == ChordToneRole.flat5 ||
+        role == ChordToneRole.sharp5 ||
+        role == ChordToneRole.sixth ||
+        role == ChordToneRole.flat7 ||
+        role == ChordToneRole.major7 ||
+        role == ChordToneRole.dim7;
+  }
+
+  static int _interval(int pc, int rootPc) {
+    final d = pc - rootPc;
+    final m = d % 12;
+    return m < 0 ? m + 12 : m;
+  }
+
   static int _bassRoleRank(ChordIdentity id) {
-    // Lower is better.
-    final interval = (id.bassPc - id.rootPc) % 12;
+    final interval = _interval(id.bassPc, id.rootPc);
 
-    // Root position already handled earlier, but keep it best anyway.
     if (interval == 0) return 0;
-
-    // Thirds (major/minor)
     if (interval == 3 || interval == 4) return 1;
-
-    // Fifth
     if (interval == 7) return 2;
-
-    // Sevenths
     if (interval == 10 || interval == 11) return 3;
-
-    // Seconds / fourths / sixths etc.
     return 4;
   }
 }

@@ -229,6 +229,11 @@ abstract final class ChordAnalyzer {
     final extrasMask = relMask & ~(base | penalty);
     final extrasCount = popCount(extrasMask);
 
+    // Determine extension tokens *before* bass scoring, so bass scoring can
+    // treat extension-bass as a legitimate color-bass in 7th-family chords.
+    final has7 = template.quality.isSeventhFamily;
+    final extensions = _extensionsFromExtras(extrasMask, has7: has7);
+
     // Raw scoring components (single source of truth).
     var raw = 0.0;
 
@@ -258,15 +263,17 @@ abstract final class ChordAnalyzer {
     if ((base & bassBit) != 0) {
       bassDelta = 1.0;
     } else if ((extrasMask & bassBit) != 0) {
-      bassDelta = 0.25;
+      // If the bass is being interpreted as an extension/alteration tone on a
+      // seventh-family chord, treat it as a legitimate "color bass" rather than
+      // an arbitrary extra tone.
+      final isColorBass =
+          template.quality.isSeventhFamily && extensions.isNotEmpty;
+      bassDelta = isColorBass ? 0.75 : 0.25;
     } else {
       bassDelta = -0.25;
     }
     raw += bassDelta;
     add('bass fit', bassDelta, detail: 'interval=$bassInterval');
-
-    final has7 = template.quality.isSeventhFamily;
-    final extensions = _extensionsFromExtras(extrasMask, has7: has7);
 
     // Slight penalty for altered interpretations (keeps "simpler" spellings ahead).
     //
@@ -304,14 +311,6 @@ abstract final class ChordAnalyzer {
     )) {
       raw -= sixChordNo5PenaltyRaw;
       add('sixNo5', -sixChordNo5PenaltyRaw, detail: 'n=$inputNoteCount');
-    }
-
-    final rootInKey = context.tonality.containsPitchClass(rootPc);
-    const rootDiatonicBonusRaw = 0.80;
-
-    if (rootInKey) {
-      raw += rootDiatonicBonusRaw;
-      add('root diatonic', rootDiatonicBonusRaw);
     }
 
     // Soft normalization by the number of required tones present.
