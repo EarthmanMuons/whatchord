@@ -89,10 +89,19 @@ class MidiIdleNotifier extends Notifier<MidiIdleState> {
     );
 
     state = initial;
+
+    // Engagement is defined strictly by whether any notes are sounding.
+    // Sustain pedal state (manual or MIDI) must not directly affect engagement.
+    ref.listen<int>(
+      soundingNotesProvider.select((s) => s.length),
+      (prev, next) => _updateEngagement(engagedNow: next > 0),
+      fireImmediately: true,
+    );
+
     return initial;
   }
 
-  void updateEngagement({required bool engagedNow}) {
+  void _updateEngagement({required bool engagedNow}) {
     final wasEngaged = state.isEngagedNow;
 
     // If state didn't actually change, do nothing.
