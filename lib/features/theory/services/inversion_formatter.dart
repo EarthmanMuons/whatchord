@@ -1,7 +1,7 @@
 import '../engine/models/chord_identity.dart';
 
-class InversionLabeler {
-  static String? labelFor(ChordIdentity id) {
+abstract final class InversionFormatter {
+  static String? format(ChordIdentity id) {
     if (!id.hasSlashBass) return null;
 
     final bassInterval = _interval(id.bassPc, id.rootPc);

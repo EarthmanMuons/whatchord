@@ -15,7 +15,7 @@ export 'providers/selected_tonality_notifier.dart';
 
 export 'services/chord_quality_formatter.dart';
 export 'services/interval_formatter.dart';
-export 'services/inversion_labeler.dart';
+export 'services/inversion_formatter.dart';
 export 'services/note_display_formatter.dart';
 export 'services/note_spelling.dart';
 export 'services/pitch_class.dart';

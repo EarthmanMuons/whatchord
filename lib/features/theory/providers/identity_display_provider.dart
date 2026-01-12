@@ -8,7 +8,7 @@ import '../services/chord_long_form_formatter.dart';
 import '../services/chord_quality_token_labels.dart';
 import '../services/chord_symbol_builder.dart';
 import '../services/interval_formatter.dart';
-import '../services/inversion_labeler.dart';
+import '../services/inversion_formatter.dart';
 import '../services/note_long_form_formatter.dart';
 import '../services/note_spelling.dart';
 import 'analysis_context_provider.dart';
@@ -94,7 +94,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           notation: notation,
         );
 
-        final inversion = InversionLabeler.labelFor(id);
+        final inversion = InversionFormatter.format(id);
         final secondaryLabel = (inversion == null || inversion.trim().isEmpty)
             ? 'Chord'
             : 'Chord · $inversion';
