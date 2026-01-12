@@ -55,6 +55,9 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
   DateTime _lastUserScroll = DateTime.fromMillisecondsSinceEpoch(0);
   Set<int> _lastSounding = const <int>{};
 
+  Set<int> _addedNotes(Set<int> prev, Set<int> next) => next.difference(prev);
+  Set<int> _removedNotes(Set<int> prev, Set<int> next) => prev.difference(next);
+
   @override
   void initState() {
     super.initState();
@@ -101,12 +104,11 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
     if (!widget.followInput && !force) return;
     if (_followSuppressed && !force) return;
 
-    final sounding = widget.soundingMidiNotes;
-    if (sounding.isEmpty) return;
-
-    // Prevent jitter if set hasn't meaningfully changed.
-    if (!force && _setEquals(_lastSounding, sounding)) return;
-    _lastSounding = Set<int>.from(sounding);
+    final next = widget.soundingMidiNotes;
+    if (next.isEmpty) {
+      _lastSounding = const <int>{};
+      return;
+    }
 
     // We need viewport width and derived white key width.
     final viewport = context.size;
@@ -120,30 +122,169 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
       whiteKeyCount: widget.fullWhiteKeyCount,
     );
 
-    const edgeMargin = 12.0;
-
-    final minMidi = sounding.reduce(math.min);
-    final maxMidi = sounding.reduce(math.max);
-
     double xForMidi(int midi) {
       final idx = geom.whiteIndexForMidi(midi);
       return idx * whiteKeyW;
     }
 
-    final minX = xForMidi(minMidi);
-    final maxX = xForMidi(maxMidi) + whiteKeyW; // right edge of key
-    final spreadW = maxX - minX;
+    const edgeMargin = 12.0;
 
     final viewLeft = _ctl.offset;
     final viewRight = viewLeft + viewportW;
 
+    // Diff against the last known sounding set.
+    final prev = _lastSounding;
+    final added = next.difference(prev);
+    final removed = prev.difference(next);
+
+    // Update last set now that we’ve captured diffs.
+    _lastSounding = Set<int>.from(next);
+
+    // If forced (rotation), ignore diff semantics and use range logic.
+    if (force || (added.isEmpty && removed.isEmpty)) {
+      _followByRange(
+        next,
+        xForMidi,
+        viewportW,
+        edgeMargin,
+        viewLeft,
+        viewRight,
+        whiteKeyW,
+        force: force,
+      );
+      return;
+    }
+
+    // Prefer reacting to newly added notes (most "natural" user intent signal).
+    if (added.isNotEmpty) {
+      // Pick the most extreme newly added note relative to the current viewport:
+      // - if any added note is offscreen left, prioritize the leftmost added
+      // - else if offscreen right, prioritize the rightmost added
+      // - else if all are onscreen, do nothing
+      int? targetMidi;
+
+      // Compute added note extents.
+      int minAdded = added.first;
+      int maxAdded = added.first;
+      for (final m in added) {
+        if (m < minAdded) minAdded = m;
+        if (m > maxAdded) maxAdded = m;
+      }
+
+      final minAddedX = xForMidi(minAdded);
+      final maxAddedX = xForMidi(maxAdded) + whiteKeyW;
+
+      final addedOffLeft = minAddedX < (viewLeft + edgeMargin);
+      final addedOffRight = maxAddedX > (viewRight - edgeMargin);
+
+      if (addedOffLeft) {
+        targetMidi = minAdded;
+      } else if (addedOffRight) {
+        targetMidi = maxAdded;
+      } else {
+        // Added notes are already visible; no follow needed.
+        return;
+      }
+
+      // Now decide *how* to scroll:
+      // - If full range fits, we can show everything (center range).
+      // - If it doesn't, only reveal the target note side minimally.
+      final minMidi = next.reduce(math.min);
+      final maxMidi = next.reduce(math.max);
+
+      final minX = xForMidi(minMidi);
+      final maxX = xForMidi(maxMidi) + whiteKeyW;
+      final spreadW = maxX - minX;
+
+      if (spreadW <= (viewportW - 2 * edgeMargin)) {
+        // Fit: center entire range.
+        final centerX = (minX + maxX) / 2.0;
+        final target = (centerX - viewportW / 2.0).clamp(
+          0.0,
+          _ctl.position.maxScrollExtent,
+        );
+
+        final delta = (target - _ctl.offset).abs();
+        if (delta < 12.0) return;
+
+        _ctl.animateTo(
+          target,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+        );
+        return;
+      }
+
+      // Not fit: reveal the specific added note side minimally.
+      final tX = xForMidi(targetMidi);
+      final tRightX = tX + whiteKeyW;
+
+      final offLeft = tX < (viewLeft + edgeMargin);
+      final offRight = tRightX > (viewRight - edgeMargin);
+
+      // If, oddly, it’s not offscreen anymore, do nothing.
+      if (!offLeft && !offRight) return;
+
+      double target;
+      if (offLeft) {
+        target = (tX - edgeMargin).clamp(0.0, _ctl.position.maxScrollExtent);
+      } else {
+        target = (tRightX - viewportW + edgeMargin).clamp(
+          0.0,
+          _ctl.position.maxScrollExtent,
+        );
+      }
+
+      final delta = (target - _ctl.offset).abs();
+      if (delta < 12.0) return;
+
+      _ctl.animateTo(
+        target,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+      );
+      return;
+    }
+
+    // No additions; only removals. Avoid jumping, but optionally "unstick"
+    // if the viewport contains almost none of the remaining active notes.
+    if (removed.isNotEmpty) {
+      _maybeReanchorAfterRemoval(
+        next,
+        xForMidi,
+        viewportW,
+        edgeMargin,
+        viewLeft,
+        viewRight,
+        whiteKeyW,
+      );
+    }
+  }
+
+  void _followByRange(
+    Set<int> sounding,
+    double Function(int midi) xForMidi,
+    double viewportW,
+    double edgeMargin,
+    double viewLeft,
+    double viewRight,
+    double whiteKeyW, {
+    required bool force,
+  }) {
+    if (sounding.isEmpty) return;
+
+    final minMidi = sounding.reduce(math.min);
+    final maxMidi = sounding.reduce(math.max);
+
+    final minX = xForMidi(minMidi);
+    final maxX = xForMidi(maxMidi) + whiteKeyW;
+    final spreadW = maxX - minX;
+
     final offLeft = minX < (viewLeft + edgeMargin);
     final offRight = maxX > (viewRight - edgeMargin);
 
-    // Nothing to do if everything already comfortably visible.
     if (!offLeft && !offRight) return;
 
-    // If the spread fits, center the whole range.
     if (spreadW <= (viewportW - 2 * edgeMargin)) {
       final centerX = (minX + maxX) / 2.0;
       final target = (centerX - viewportW / 2.0).clamp(
@@ -162,11 +303,9 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
       return;
     }
 
-    // Spread does NOT fit.
-    // If notes are offscreen on both sides, don't auto-move — chevrons will indicate.
+    // If both sides offscreen and it doesn't fit, don't move; chevrons handle it.
     if (offLeft && offRight) return;
 
-    // Otherwise, reveal the missing side with minimal movement.
     double target;
     if (offLeft) {
       target = (minX - edgeMargin).clamp(0.0, _ctl.position.maxScrollExtent);
@@ -179,6 +318,67 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
 
     final delta = (target - _ctl.offset).abs();
     if (!force && delta < 12.0) return;
+
+    _ctl.animateTo(
+      target,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _maybeReanchorAfterRemoval(
+    Set<int> sounding,
+    double Function(int midi) xForMidi,
+    double viewportW,
+    double edgeMargin,
+    double viewLeft,
+    double viewRight,
+    double whiteKeyW,
+  ) {
+    // Heuristic: if fewer than 1/3 of remaining active keys are within viewport,
+    // re-anchor to the densest side by revealing the nearest extreme.
+    //
+    // This fixes "played a low outlier, viewport moved left, released outlier,
+    // now everything is on the right but we stay left."
+    if (sounding.isEmpty) return;
+
+    int visibleCount = 0;
+    for (final midi in sounding) {
+      final x = xForMidi(midi);
+      final r = x + whiteKeyW;
+      final visible =
+          r > (viewLeft + edgeMargin) && x < (viewRight - edgeMargin);
+      if (visible) visibleCount++;
+    }
+
+    final ratio = visibleCount / sounding.length;
+    if (ratio >= 0.34) return;
+
+    // Reveal whichever extreme is closer to the current viewport center.
+    final minMidi = sounding.reduce(math.min);
+    final maxMidi = sounding.reduce(math.max);
+
+    final minX = xForMidi(minMidi);
+    final maxX = xForMidi(maxMidi) + whiteKeyW;
+
+    final viewCenter = (viewLeft + viewRight) / 2.0;
+    final distToLeft = (viewCenter - (minX + whiteKeyW / 2.0)).abs();
+    final distToRight = (viewCenter - (maxX - whiteKeyW / 2.0)).abs();
+
+    double target;
+    if (distToRight < distToLeft) {
+      // Reveal right side
+      target = (maxX - viewportW + edgeMargin).clamp(
+        0.0,
+        _ctl.position.maxScrollExtent,
+      );
+    } else {
+      // Reveal left side
+      target = (minX - edgeMargin).clamp(0.0, _ctl.position.maxScrollExtent);
+    }
+
+    final delta = (target - _ctl.offset).abs();
+    if (delta < 12.0) return;
 
     _ctl.animateTo(
       target,
