@@ -2,7 +2,7 @@ import '../engine/models/chord_extension.dart';
 import '../engine/models/chord_identity.dart';
 import '../models/tonality.dart';
 import 'chord_quality_token_labels.dart';
-import 'note_spelling.dart' show pcToName;
+import 'note_spelling.dart' show pcToName, spellPitchClass;
 
 class ChordLongFormFormatter {
   static String format({
@@ -18,8 +18,16 @@ class ChordLongFormFormatter {
     var s = '$root $quality$extPhrase';
 
     if (identity.hasSlashBass) {
-      final bass = pcToName(identity.bassPc, tonality: tonality);
-      // Avoid "C major ... over C"
+      final interval = (identity.bassPc - identity.rootPc) % 12;
+      final role = identity.toneRolesByInterval[interval];
+
+      final bass = spellPitchClass(
+        identity.bassPc,
+        tonality: tonality,
+        chordRootName: root,
+        role: role,
+      );
+
       if (bass != root) {
         s = '$s over $bass';
       }

@@ -9,6 +9,7 @@ import 'models/chord_candidate.dart';
 import 'models/chord_extension.dart';
 import 'models/chord_identity.dart';
 import 'models/chord_input.dart';
+import 'services/chord_tone_roles.dart';
 import 'utils/bit_ops.dart';
 
 @immutable
@@ -147,12 +148,19 @@ abstract final class ChordAnalyzer {
         );
         if (scored == null) continue;
 
+        final roles = ChordToneRoles.build(
+          quality: tmpl.quality,
+          extensions: scored.extensions,
+          relMask: relMask,
+        );
+
         final candidate = ChordCandidate(
           identity: ChordIdentity(
             rootPc: rootPc,
             bassPc: input.bassPc,
             quality: tmpl.quality,
             extensions: scored.extensions,
+            toneRolesByInterval: roles,
           ),
           score: scored.score,
         );

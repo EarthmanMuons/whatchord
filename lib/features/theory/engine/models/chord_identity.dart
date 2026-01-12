@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'chord_extension.dart';
+import 'chord_tone_role.dart';
 
 /// Canonical, style-agnostic chord identity.
 ///
@@ -26,18 +27,26 @@ class ChordIdentity {
   /// Example: 2(9), 5(11), 9(13), 1(b9), 3(#9), 6(#11), 8(b13), etc.
   final Set<ChordExtension> extensions;
 
+  /// Optional: intended chord-tone roles keyed by interval-above-root (0..11).
+  ///
+  /// Example:
+  /// - interval 6 might be ChordToneRole.sharp11 (dominant context),
+  ///   or ChordToneRole.flat5 (diminished context).
+  final Map<int, ChordToneRole> toneRolesByInterval;
+
   const ChordIdentity({
     required this.rootPc,
     required this.bassPc,
     required this.quality,
     this.extensions = const {},
+    this.toneRolesByInterval = const {},
   });
 
   bool get hasSlashBass => bassPc != rootPc;
 
   @override
   String toString() =>
-      'ChordIdentity(root=$rootPc, bass=$bassPc, quality=$quality, ext=$extensions)';
+      'ChordIdentity(root=$rootPc, bass=$bassPc, quality=$quality, ext=$extensions, roles=$toneRolesByInterval)';
 
   @override
   bool operator ==(Object other) =>
@@ -46,11 +55,17 @@ class ChordIdentity {
           other.rootPc == rootPc &&
           other.bassPc == bassPc &&
           other.quality == quality &&
-          _setEquals(other.extensions, extensions);
+          _setEquals(other.extensions, extensions) &&
+          _mapEquals(other.toneRolesByInterval, toneRolesByInterval);
 
   @override
-  int get hashCode =>
-      Object.hash(rootPc, bassPc, quality, _setHash(extensions));
+  int get hashCode => Object.hash(
+    rootPc,
+    bassPc,
+    quality,
+    _setHash(extensions),
+    _mapHash(toneRolesByInterval),
+  );
 
   static bool _setEquals<T>(Set<T> a, Set<T> b) {
     if (identical(a, b)) return true;
@@ -66,6 +81,25 @@ class ChordIdentity {
     var h = 0;
     for (final v in s) {
       h ^= v.hashCode;
+    }
+    return h;
+  }
+
+  static bool _mapEquals<K, V>(Map<K, V> a, Map<K, V> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (final e in a.entries) {
+      if (!b.containsKey(e.key)) return false;
+      if (b[e.key] != e.value) return false;
+    }
+    return true;
+  }
+
+  static int _mapHash<K, V>(Map<K, V> m) {
+    // Order-independent hash.
+    var h = 0;
+    for (final e in m.entries) {
+      h ^= Object.hash(e.key, e.value);
     }
     return h;
   }

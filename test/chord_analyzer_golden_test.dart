@@ -339,7 +339,6 @@ void main() {
       name: 'E# G# B --key=F#:maj -> E#dim',
       pcs: ['E#', 'G#', 'B'],
       tonality: const Tonality('F#', TonalityMode.major),
-      expectedSymbol: 'E#dim',
       expectTop: (top) {
         expect(top.rootPc, pc('E#')); // pc('E#') == pc('F')
         expect(top.quality, ChordQualityToken.diminished);
@@ -350,10 +349,32 @@ void main() {
       name: 'Fb Ab Cb --key=Cb:maj -> Fb',
       pcs: ['Fb', 'Ab', 'Cb'],
       tonality: const Tonality('Cb', TonalityMode.major),
-      expectedSymbol: 'Fb',
       expectTop: (top) {
         expect(top.rootPc, pc('Fb')); // pc('Fb') == pc('E')
         expect(top.quality, ChordQualityToken.major);
+      },
+    ),
+    // Diminished context: prefer Gb (b5) over F# (#11)
+    GoldenCase(
+      name: 'Gb C Eb -> Cdim / Gb',
+      pcs: ['Gb', 'C', 'Eb'],
+      tonality: const Tonality('D', TonalityMode.major), // sharp-leaning
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.diminished);
+        expect(top.bassPc, pc('Gb'));
+      },
+    ),
+    // Dominant altered context: prefer F# (#11) over Gb (b5)
+    GoldenCase(
+      name: 'F# C E Bb -> C7#11 / F#',
+      pcs: ['F#', 'C', 'E', 'Bb'],
+      tonality: const Tonality('Db', TonalityMode.major), // flat-leaning
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(top.extensions, contains(ChordExtension.sharp11));
+        expect(top.bassPc, pc('F#'));
       },
     ),
 

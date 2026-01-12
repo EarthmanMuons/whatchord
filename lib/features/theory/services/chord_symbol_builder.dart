@@ -2,7 +2,7 @@ import '../engine/models/chord_identity.dart';
 import '../models/chord_symbol.dart';
 import '../models/tonality.dart';
 import 'chord_quality_formatter.dart';
-import 'note_spelling.dart' show pcToName;
+import 'note_spelling.dart' show pcToName, spellPitchClass;
 
 class ChordSymbolBuilder {
   static ChordSymbol fromIdentity({
@@ -12,9 +12,17 @@ class ChordSymbolBuilder {
   }) {
     final root = pcToName(identity.rootPc, tonality: tonality);
 
-    final bass = identity.hasSlashBass
-        ? pcToName(identity.bassPc, tonality: tonality)
-        : null;
+    String? bass;
+    if (identity.hasSlashBass) {
+      final interval = (identity.bassPc - identity.rootPc) % 12;
+      final role = identity.toneRolesByInterval[interval];
+      bass = spellPitchClass(
+        identity.bassPc,
+        tonality: tonality,
+        chordRootName: root,
+        role: role,
+      );
+    }
 
     final quality = ChordQualityFormatter.format(
       quality: identity.quality,

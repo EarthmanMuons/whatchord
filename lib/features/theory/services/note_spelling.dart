@@ -1,5 +1,47 @@
-import '../models/tonality.dart';
+import '../engine/models/chord_tone_role.dart';
 import '../models/key_signature.dart';
+import '../models/tonality.dart';
+import 'pitch_class.dart';
+
+/// Spells a pitch class using chord-tone role context when available.
+///
+/// - If [role] and [chordRootName] are provided, the letter is chosen by
+///   diatonic degree above the chord root (e.g. "#11" uses the 4th letter,
+///   "b5" uses the 5th letter), then accidentals are computed to hit [pc].
+/// - Otherwise, falls back to tonality-aware [pcToName].
+String spellPitchClass(
+  int pc, {
+  required Tonality tonality,
+  String? chordRootName,
+  ChordToneRole? role,
+}) {
+  if (role == null || chordRootName == null || chordRootName.trim().isEmpty) {
+    return pcToName(pc, tonality: tonality);
+  }
+
+  final rootAscii = normalizeNoteNameToAscii(chordRootName);
+  final rootLetter = rootAscii[0].toUpperCase();
+
+  final rootIndex = _letters.indexOf(rootLetter);
+  if (rootIndex == -1) return pcToName(pc, tonality: tonality);
+
+  final degree = role.degreeFromRoot; // 1..7
+  final targetLetter = _letters[(rootIndex + (degree - 1)) % 7];
+
+  final naturalPc = _naturalPcByLetter[targetLetter]!;
+  final targetPc = pc % 12;
+
+  // Signed delta in semitones from natural letter to target PC.
+  var delta = (targetPc - naturalPc) % 12;
+  if (delta > 6) delta -= 12; // normalize to [-5..+6]
+
+  // Keep current system conservative: allow up to double accidentals.
+  if (delta < -2 || delta > 2) {
+    return pcToName(pc, tonality: tonality);
+  }
+
+  return targetLetter + _accidentalToAscii(delta);
+}
 
 /// Tonality-aware pitch-class spelling (key-signature correct).
 String pcToName(int pc, {required Tonality tonality}) {

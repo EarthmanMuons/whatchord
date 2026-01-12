@@ -304,6 +304,7 @@ String _formatIdentityCompact(ChordIdentity id) {
   // Strip enum type prefixes for readability.
   s = s.replaceAll('ChordQualityToken.', '');
   s = s.replaceAll('ChordExtension.', '');
+  s = s.replaceAll('ChordToneRole.', '');
 
   return s;
 }
