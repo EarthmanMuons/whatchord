@@ -9,6 +9,7 @@ import 'package:what_chord/features/piano/piano.dart';
 import 'package:what_chord/features/settings/settings.dart';
 
 import '../models/home_layout_config.dart';
+import '../widgets/components/app_bar_title.dart';
 import '../widgets/sections/analysis_section.dart';
 import '../widgets/sections/details_section.dart';
 import '../widgets/sections/keyboard_section.dart';
@@ -174,17 +175,7 @@ class HomePage extends ConsumerWidget {
               child: Scaffold(
                 appBar: AppBar(
                   titleSpacing: isLandscape ? 28 : null,
-                  title: const Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(text: 'What'),
-                        TextSpan(
-                          text: 'Chord',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                  ),
+                  title: const AppBarTitle(),
                   backgroundColor: cs.surfaceContainerLow,
                   foregroundColor: cs.onSurface,
                   actions: [
