@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/features/midi/midi.dart';
+import 'package:what_chord/core/input/sounding_notes_providers.dart';
 import 'package:what_chord/features/piano/piano.dart';
 
 import '../../models/home_layout_config.dart';
@@ -13,7 +13,7 @@ class KeyboardSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final soundingMidiNotes = ref.watch(soundingMidiNotesProvider);
+    final soundingMidiNotes = ref.watch(soundingNotesProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {

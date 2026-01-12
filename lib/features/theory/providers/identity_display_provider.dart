@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/features/midi/midi.dart';
+import 'package:what_chord/core/input/sounding_notes_providers.dart';
 
 import '../engine/engine.dart';
 import '../models/identity_display.dart';
@@ -20,7 +20,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
   final mode = ref.watch(analysisModeProvider);
   if (mode == AnalysisMode.none) return null;
 
-  final midis = ref.watch(soundingMidiNotesSortedProvider);
+  final midis = ref.watch(soundingNotesSortedProvider);
   if (midis.isEmpty) return null;
 
   final tonality = ref.watch(analysisContextProvider.select((c) => c.tonality));

@@ -1,14 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:what_chord/core/input/sounding_notes_providers.dart';
 import 'package:what_chord/features/theory/theory.dart'
     show pitchClassNamesProvider;
-import 'package:what_chord/features/midi/midi.dart'
-    show midiNoteStateProvider, soundingMidiNotesSortedProvider;
+import 'package:what_chord/features/midi/midi.dart' show midiNoteStateProvider;
 
 import '../models/active_note.dart';
 
 final activeNotesProvider = Provider<List<ActiveNote>>((ref) {
-  final midis = ref.watch(soundingMidiNotesSortedProvider);
+  final midis = ref.watch(soundingNotesSortedProvider);
   final sustained = ref.watch(midiNoteStateProvider.select((s) => s.sustained));
   final pcNames = ref.watch(pitchClassNamesProvider);
 
