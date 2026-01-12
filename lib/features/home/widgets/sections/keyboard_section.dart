@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/core/input/sounding_notes_providers.dart';
@@ -25,11 +24,19 @@ class KeyboardSection extends ConsumerWidget {
         // Guardrails to prevent extremes.
         height = height.clamp(90.0, 200.0);
 
-        return PianoKeyboard(
-          whiteKeyCount: config.whiteKeyCount,
-          firstMidiNote: config.firstMidiNote,
-          soundingMidiNotes: soundingMidiNotes,
+        return ScrollablePianoKeyboard(
+          visibleWhiteKeyCount: config.whiteKeyCount,
           height: height,
+          soundingMidiNotes: soundingMidiNotes,
+          followInput: true,
+
+          // Full 88-key span (white keys A0..C8).
+          fullWhiteKeyCount: 52,
+          fullFirstMidiNote: 21,
+
+          // Landmark (no octave to avoid C3/C4 convention issues).
+          showMiddleCLandmark: true,
+          middleCLandmarkText: 'C',
         );
       },
     );

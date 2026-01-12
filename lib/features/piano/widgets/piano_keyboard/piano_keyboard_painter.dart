@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../models/piano_key_decoration.dart';
+import '../../services/piano_geometry.dart';
+
 class PianoKeyboardPainter extends CustomPainter {
   PianoKeyboardPainter({
     required this.whiteKeyCount,
@@ -13,11 +16,16 @@ class PianoKeyboardPainter extends CustomPainter {
     required this.backgroundColor,
     required this.showNoteDebugLabels,
     required this.debugLabelColor,
+    this.decorations = const <PianoKeyDecoration>[],
+    this.decorationTextColor,
     this.drawBackground = true,
     this.drawFeltStrip = true,
     this.feltColor = const Color(0xFF800020),
     this.feltHeight = 2.0,
-  });
+  }) : _geometry = PianoGeometry(
+         firstWhiteMidi: firstMidiNote,
+         whiteKeyCount: whiteKeyCount,
+       );
 
   final int whiteKeyCount;
   final int firstMidiNote;
@@ -35,11 +43,19 @@ class PianoKeyboardPainter extends CustomPainter {
   final bool showNoteDebugLabels;
   final Color debugLabelColor;
 
+  /// Key decorations (e.g., middle C landmark, scale markers).
+  final List<PianoKeyDecoration> decorations;
+
+  /// Optional override; if null, uses [debugLabelColor].
+  final Color? decorationTextColor;
+
   final bool drawBackground;
 
   final bool drawFeltStrip;
   final Color feltColor;
   final double feltHeight;
+
+  final PianoGeometry _geometry;
 
   static const double _blackKeyWidthRatio = 0.62;
   static const double _blackKeyHeightRatio = 0.62;
@@ -51,21 +67,9 @@ class PianoKeyboardPainter extends CustomPainter {
   // MIDI pitch classes (C=0).
   static const int _pcC = 0;
   static const int _pcD = 2;
-  static const int _pcE = 4;
   static const int _pcF = 5;
   static const int _pcG = 7;
   static const int _pcA = 9;
-  static const int _pcB = 11;
-
-  static const List<int> _whitePitchClassesInOctave = <int>[
-    _pcC,
-    _pcD,
-    _pcE,
-    _pcF,
-    _pcG,
-    _pcA,
-    _pcB,
-  ];
 
   static bool _hasBlackAfterWhitePc(int whitePc) {
     return whitePc == _pcC ||
@@ -75,6 +79,16 @@ class PianoKeyboardPainter extends CustomPainter {
         whitePc == _pcA;
   }
 
+  static const List<int> _whitePitchClassesInOctave = <int>[
+    0,
+    2,
+    4,
+    5,
+    7,
+    9,
+    11,
+  ];
+
   int _whitePcForIndex(int whiteIndex) {
     final startPc = firstMidiNote % 12;
     final startPos = _whitePitchClassesInOctave.indexOf(startPc);
@@ -82,15 +96,8 @@ class PianoKeyboardPainter extends CustomPainter {
     return _whitePitchClassesInOctave[(normalizedStartPos + whiteIndex) % 7];
   }
 
-  int _whiteMidiForIndex(int whiteIndex) {
-    int midi = firstMidiNote;
-    for (int i = 0; i < whiteIndex; i++) {
-      final pc = _whitePcForIndex(i);
-      final step = (pc == _pcE || pc == _pcB) ? 1 : 2;
-      midi += step;
-    }
-    return midi;
-  }
+  int _whiteMidiForIndex(int whiteIndex) =>
+      _geometry.whiteMidiForIndex(whiteIndex);
 
   bool _isSounding(int midi) => soundingMidiNotes.contains(midi);
 
@@ -178,8 +185,46 @@ class PianoKeyboardPainter extends CustomPainter {
       canvas.drawRect(Rect.fromLTWH(0, 0, w, feltHeight), feltPaint);
     }
 
+    // Decorations (e.g., middle C landmark).
+    if (decorations.isNotEmpty) {
+      _paintDecorations(canvas, size, whiteKeyW);
+    }
+
     if (showNoteDebugLabels) {
       _paintDebugLabels(canvas, size, whiteKeyW);
+    }
+  }
+
+  void _paintDecorations(Canvas canvas, Size size, double whiteKeyW) {
+    final textPainter = TextPainter(
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+
+    final color = decorationTextColor ?? debugLabelColor;
+
+    // Place near the bottom of the white key, but leave a small margin.
+    const bottomPad = 6.0;
+
+    for (final d in decorations) {
+      final whiteIndex = _geometry.whiteIndexForMidi(d.midiNote);
+      if (whiteIndex < 0 || whiteIndex >= whiteKeyCount) continue;
+
+      textPainter.text = TextSpan(
+        text: d.label,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      );
+
+      textPainter.layout(minWidth: whiteKeyW, maxWidth: whiteKeyW);
+
+      final dx = whiteIndex * whiteKeyW;
+      final dy = size.height - textPainter.height - bottomPad;
+
+      textPainter.paint(canvas, Offset(dx, dy));
     }
   }
 
@@ -219,6 +264,8 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.blackKeyActiveColor != blackKeyActiveColor ||
         oldDelegate.showNoteDebugLabels != showNoteDebugLabels ||
         oldDelegate.debugLabelColor != debugLabelColor ||
+        oldDelegate.decorationTextColor != decorationTextColor ||
+        !_listEquals(oldDelegate.decorations, decorations) ||
         !_setEquals(oldDelegate.soundingMidiNotes, soundingMidiNotes);
   }
 
@@ -227,6 +274,15 @@ class PianoKeyboardPainter extends CustomPainter {
     if (a.length != b.length) return false;
     for (final v in a) {
       if (!b.contains(v)) return false;
+    }
+    return true;
+  }
+
+  bool _listEquals(List<Object> a, List<Object> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
     }
     return true;
   }
