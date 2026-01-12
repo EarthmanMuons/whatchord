@@ -26,16 +26,26 @@ PianoPalette buildPianoPalette(ColorScheme cs) {
 
   final background = cs.surfaceContainerLow;
 
+  Color overlayOn(Color base, Color overlay, double opacity) =>
+      Color.alphaBlend(overlay.withValues(alpha: opacity), base);
+
   final whiteKey = isDark
       ? Color.alphaBlend(cs.surface.withValues(alpha: 0.18), Colors.white)
       : Colors.white;
 
-  final blackKey = const Color(0xFF111111);
+  final primaryTooClose =
+      (whiteKey.computeLuminance() - cs.primary.computeLuminance()).abs() <
+      0.10;
 
-  // Material-consistent active colors
+  final pressedOverlay = (isDark && primaryTooClose)
+      ? cs.primaryContainer
+      : cs.primary;
+
   final whiteKeyActive = isDark
-      ? Color.alphaBlend(whiteKey.withValues(alpha: 0.18), cs.primary)
+      ? overlayOn(whiteKey, pressedOverlay, 0.18)
       : cs.primaryContainer;
+
+  final blackKey = const Color(0xFF111111);
 
   final blackKeyActive = isDark
       ? Color.alphaBlend(whiteKey.withValues(alpha: 0.18), cs.primaryContainer)
