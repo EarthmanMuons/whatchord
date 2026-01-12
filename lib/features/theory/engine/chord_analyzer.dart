@@ -144,6 +144,9 @@ abstract final class ChordAnalyzer {
           relMask: relMask,
           bassInterval: bassInterval,
           template: tmpl,
+          rootPc: rootPc,
+          inputNoteCount: input.noteCount,
+          context: context,
           reasons: reasons,
         );
         if (scored == null) continue;
@@ -190,6 +193,9 @@ abstract final class ChordAnalyzer {
     required int relMask,
     required int bassInterval,
     required ChordTemplate template,
+    required int rootPc,
+    required int inputNoteCount,
+    required AnalysisContext context,
     List<ScoreReason>? reasons,
   }) {
     void add(String label, double delta, {String? detail}) {
@@ -288,6 +294,26 @@ abstract final class ChordAnalyzer {
       );
     }
 
+    // Penalize 6-chord interpretations for 3-note voicings that omit the 5th.
+    // This helps prefer triad/diminished readings over "root-3-6" ambiguity.
+    const sixChordNo5PenaltyRaw = 0.60;
+    if (_has6ChordWithout5(
+      quality: template.quality,
+      relMask: relMask,
+      inputNoteCount: inputNoteCount,
+    )) {
+      raw -= sixChordNo5PenaltyRaw;
+      add('sixNo5', -sixChordNo5PenaltyRaw, detail: 'n=$inputNoteCount');
+    }
+
+    final rootInKey = context.tonality.containsPitchClass(rootPc);
+    const rootDiatonicBonusRaw = 0.80;
+
+    if (rootInKey) {
+      raw += rootDiatonicBonusRaw;
+      add('root diatonic', rootDiatonicBonusRaw);
+    }
+
     // Soft normalization by the number of required tones present.
     final denom = reqCount > 0 ? math.sqrt(reqCount.toDouble()) : 1.0;
     final normalized = raw / denom;
@@ -309,6 +335,25 @@ abstract final class ChordAnalyzer {
         extensions.contains(ChordExtension.sharp9) ||
         extensions.contains(ChordExtension.sharp11) ||
         extensions.contains(ChordExtension.flat13);
+  }
+
+  static bool _has6ChordWithout5({
+    required ChordQualityToken quality,
+    required int relMask,
+    required int inputNoteCount,
+  }) {
+    if (inputNoteCount != 3) return false;
+
+    final isSixChord =
+        quality == ChordQualityToken.major6 ||
+        quality == ChordQualityToken.minor6;
+    if (!isSixChord) return false;
+
+    // Perfect fifth is interval 7 above the root.
+    const fifthBit = 1 << 7;
+    final hasFifth = (relMask & fifthBit) != 0;
+
+    return !hasFifth;
   }
 
   // ---------------------------------------------------------------------------

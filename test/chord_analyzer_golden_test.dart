@@ -367,7 +367,7 @@ void main() {
     ),
     // Dominant altered context: prefer F# (#11) over Gb (b5)
     GoldenCase(
-      name: 'F# C E Bb -> C7#11 / F#',
+      name: 'F# C E Bb -> C7#11 / F#7#11',
       pcs: ['F#', 'C', 'E', 'Bb'],
       tonality: const Tonality('Db', TonalityMode.major), // flat-leaning
       expectTop: (top) {
