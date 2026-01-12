@@ -39,7 +39,7 @@ class IntervalLabel {
 }
 
 /// Utility to label dyads (exactly two pitch classes).
-abstract final class IntervalLabeler {
+abstract final class IntervalFormatter {
   /// Labels an interval using pitch classes only (mod 12).
   ///
   /// This preserves your existing behavior: no octave awareness.

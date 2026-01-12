@@ -7,6 +7,7 @@ import '../models/identity_display.dart';
 import '../services/chord_long_form_formatter.dart';
 import '../services/chord_quality_token_labels.dart';
 import '../services/chord_symbol_builder.dart';
+import '../services/interval_formatter.dart';
 import '../services/inversion_labeler.dart';
 import '../services/note_long_form_formatter.dart';
 import '../services/note_spelling.dart';
@@ -51,7 +52,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         final bassMidi = midis.first;
         final otherMidi = midis.last;
 
-        final interval = IntervalLabeler.forMidiNotes(
+        final interval = IntervalFormatter.forMidiNotes(
           bassMidi: bassMidi,
           otherMidi: otherMidi,
           direction: IntervalLabelDirection.fromBass,
