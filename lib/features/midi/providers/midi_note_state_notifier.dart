@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_connection.dart';
@@ -17,14 +16,13 @@ final midiNoteStateProvider =
 class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
   @override
   MidiNoteState build() {
-    // Start with empty state
-    final initialState = const MidiNoteState(
+    const initialState = MidiNoteState(
       pressed: {},
       sustained: {},
       isPedalDown: false,
+      pedalSource: PedalInputSource.midi,
     );
 
-    // Panic clear on disconnect: clears any stuck UI state if transport drops.
     ref.listen<MidiConnectionPhase>(
       midiConnectionProvider.select((s) => s.phase),
       (prev, next) {
@@ -35,7 +33,6 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
       },
     );
 
-    // Listen to MIDI messages and update state
     ref.listen(midiMessageProvider, (previous, next) {
       next.when(
         data: _handleMidiMessage,
@@ -54,10 +51,8 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
       case MidiMessageType.noteOn:
         final note = message.note;
         final velocity = message.velocity ?? 0;
-
         if (note == null) break;
 
-        // MIDI spec: NoteOn with velocity 0 == NoteOff
         if (velocity == 0) {
           noteOff(note);
         } else {
@@ -79,17 +74,13 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
         break;
 
       default:
-        // Ignore other message types
         break;
     }
   }
 
   void noteOn(int midiNote) {
     final nextPressed = {...state.pressed, midiNote};
-
-    // If a sustained note is re-pressed, remove it from sustained.
     final nextSustained = {...state.sustained}..remove(midiNote);
-
     state = state.copyWith(pressed: nextPressed, sustained: nextSustained);
   }
 
@@ -105,20 +96,36 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
     }
   }
 
-  void setPedalDown(bool down) {
-    if (down == state.isPedalDown) return;
+  void togglePedalManual() => setPedalDownManual(!state.isPedalDown);
+
+  void setPedalDownManual(bool down) =>
+      _setPedalDown(down, PedalInputSource.manual);
+
+  void setPedalDownFromMidi(bool down) =>
+      _setPedalDown(down, PedalInputSource.midi);
+
+  void _setPedalDown(bool down, PedalInputSource source) {
+    final sameDown = down == state.isPedalDown;
+    final sameSource = source == state.pedalSource;
+
+    // If down state unchanged but the source changes (e.g., manual -> midi),
+    // still update to reflect "MIDI is authoritative now."
+    if (sameDown && sameSource) return;
 
     if (!down) {
       // Pedal released: clear all sustained notes.
-      state = state.copyWith(isPedalDown: false, sustained: <int>{});
+      state = state.copyWith(
+        isPedalDown: false,
+        sustained: <int>{},
+        pedalSource: source,
+      );
     } else {
-      state = state.copyWith(isPedalDown: true);
+      state = state.copyWith(isPedalDown: true, pedalSource: source);
     }
   }
 
-  // Convenience for MIDI sustain pedal values.
   void handlePedalValue(int value) =>
-      setPedalDown(value >= MidiConstants.sustainPedalThreshold);
+      setPedalDownFromMidi(value >= MidiConstants.sustainPedalThreshold);
 }
 
 // Raw MIDI note numbers for keyboard highlighting.
@@ -129,4 +136,9 @@ final midiSoundingNotesProvider = Provider<Set<int>>((ref) {
 // Sustain pedal state.
 final isPedalDownProvider = Provider<bool>((ref) {
   return ref.watch(midiNoteStateProvider.select((s) => s.isPedalDown));
+});
+
+// Sustain pedal source (manual vs MIDI).
+final pedalSourceProvider = Provider<PedalInputSource>((ref) {
+  return ref.watch(midiNoteStateProvider.select((s) => s.pedalSource));
 });

@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../input/sounding_notes_providers.dart';
+
 @immutable
 class MidiIdleState {
   const MidiIdleState({
@@ -73,13 +75,11 @@ class MidiIdleNotifier extends Notifier<MidiIdleState> {
       _timer = null;
     });
 
-    // If cooldown changes, reschedule relative to lastReleaseAt.
     ref.listen<Duration>(midiIdleCooldownProvider, (prev, next) {
       state = state.copyWith(cooldown: next);
       _scheduleFromRelease();
     });
 
-    // Initial: eligible until the user ever engages.
     final initial = MidiIdleState(
       cooldown: cooldown,
       hasSeenActivity: false,
@@ -92,8 +92,6 @@ class MidiIdleNotifier extends Notifier<MidiIdleState> {
     return initial;
   }
 
-  /// Call whenever the engagement state changes (notes/pedal).
-  /// engagedNow = (notes.isNotEmpty || pedalDown)
   void updateEngagement({required bool engagedNow}) {
     final wasEngaged = state.isEngagedNow;
 

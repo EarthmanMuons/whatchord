@@ -98,12 +98,6 @@ class _ActiveInputState extends ConsumerState<ActiveInput>
     ) {
       if (!mounted) return;
 
-      if ((prev ?? false) != next) {
-        ref
-            .read(activityTrackerProvider.notifier)
-            .markActivity(ActivitySource.midi);
-      }
-
       setState(() => _pedal = next);
 
       // Interruptible: immediately retarget animation.
@@ -174,30 +168,39 @@ class _ActiveInputState extends ConsumerState<ActiveInput>
     final cs = theme.colorScheme;
 
     const minHeight = 44.0;
-    final showPrompt =
-        _notes.isEmpty && !_pedal && ref.watch(midiIdleEligibleProvider);
+    final showPrompt = _notes.isEmpty && ref.watch(midiIdleEligibleProvider);
 
     return Padding(
       padding: widget.padding,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: minHeight),
-        child: showPrompt
-            ? Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Play some notes…',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
-                ),
-              )
-            : SizedBox(
-                height: minHeight,
-                child: CustomScrollView(
+        child: SizedBox(
+          height: minHeight,
+          child: showPrompt
+              ? Row(
+                  children: [
+                    SizedBox(
+                      width: PedalIndicator.slotWidth,
+                      child: _buildAnimatedPedal(),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Play some notes…',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              : CustomScrollView(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   slivers: [
-                    // Pedal slot: fixed width, always present.
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.only(right: 8),
@@ -207,7 +210,6 @@ class _ActiveInputState extends ConsumerState<ActiveInput>
                         ),
                       ),
                     ),
-
                     SliverAnimatedList(
                       key: _notesKey,
                       initialItemCount: _notes.length,
@@ -218,7 +220,7 @@ class _ActiveInputState extends ConsumerState<ActiveInput>
                     ),
                   ],
                 ),
-              ),
+        ),
       ),
     );
   }
