@@ -377,6 +377,30 @@ void main() {
         expect(top.bassPc, pc('F#'));
       },
     ),
+    // Tonality should not flip interpretation when chord-structure evidence is strong
+    GoldenCase(
+      name: 'Gb C E Bb --key=C:maj -> C7#11 / Gb',
+      pcs: ['Gb', 'C', 'E', 'Bb'],
+      tonality: const Tonality('C', TonalityMode.major),
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(top.extensions, contains(ChordExtension.sharp11));
+        expect(top.bassPc, pc('Gb'));
+      },
+    ),
+    // Same as above with new tonality; same result
+    GoldenCase(
+      name: 'Gb C E Bb --key=Gb:maj -> C7#11 / Gb',
+      pcs: ['Gb', 'C', 'E', 'Bb'],
+      tonality: const Tonality('C', TonalityMode.major),
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(top.extensions, contains(ChordExtension.sharp11));
+        expect(top.bassPc, pc('Gb'));
+      },
+    ),
 
     // // Minor vs major third contradiction
     // GoldenCase(
