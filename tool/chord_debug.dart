@@ -29,7 +29,6 @@
 
 import 'dart:io';
 
-import 'package:what_chord/features/input/services/pitch_class_mask.dart';
 import 'package:what_chord/features/theory/engine/engine.dart';
 import 'package:what_chord/features/theory/models/chord_symbol.dart';
 import 'package:what_chord/features/theory/models/key_signature.dart';
@@ -91,7 +90,7 @@ void main(List<String> args) {
     return;
   }
 
-  final pcMask = pcMaskFromPcs(pcs);
+  final pcMask = _pcMaskFrom(pcs);
   final bassPc = bassName != null
       ? pitchClassFromNoteName(bassName)
       : (midi.isNotEmpty
@@ -220,6 +219,15 @@ void main(List<String> args) {
 
     if (!compact) stdout.writeln('');
   }
+}
+
+/// Converts a collection of notes into a pitch-class bitmask (bits 0..11).
+int _pcMaskFrom(Iterable<int> notes) {
+  var mask = 0;
+  for (final n in notes) {
+    mask |= 1 << (n % 12);
+  }
+  return mask;
 }
 
 /// Role-aware pitch-class label (pure dart).
