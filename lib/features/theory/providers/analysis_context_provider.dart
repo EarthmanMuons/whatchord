@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../engine/models/analysis_context.dart';
+import '../domain/models/analysis_context.dart';
 import '../models/note_spelling_policy.dart';
 import 'selected_key_signature_provider.dart';
 import 'selected_tonality_notifier.dart';

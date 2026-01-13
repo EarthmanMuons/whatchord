@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../engine/chord_analyzer.dart';
-import '../engine/chord_candidate_ranking.dart';
-import '../engine/models/chord_candidate.dart';
+import '../domain/chord_analyzer.dart';
+import '../domain/chord_candidate_ranking.dart';
+import '../domain/models/chord_candidate.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
 import 'chord_input_provider.dart';

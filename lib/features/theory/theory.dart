@@ -1,4 +1,4 @@
-export 'engine/engine.dart';
+export 'domain/theory_domain.dart';
 
 export 'models/chord_symbol.dart';
 export 'models/identity_display.dart';

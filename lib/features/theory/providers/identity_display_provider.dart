@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/input/input.dart';
 
-import '../engine/engine.dart';
+import '../domain/theory_domain.dart';
 import '../models/identity_display.dart';
 import '../services/chord_long_form_formatter.dart';
 import '../services/chord_quality_token_labels.dart';

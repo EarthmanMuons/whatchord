@@ -1,4 +1,4 @@
-import '../engine/models/chord_identity.dart';
+import '../domain/models/chord_identity.dart';
 import '../models/chord_symbol.dart';
 import '../models/tonality.dart';
 import 'chord_quality_formatter.dart';

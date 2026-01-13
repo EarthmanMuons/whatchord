@@ -1,4 +1,4 @@
-import '../engine/models/chord_identity.dart' show ChordQualityToken;
+import '../domain/models/chord_identity.dart' show ChordQualityToken;
 
 enum ChordQualityLabelForm { symbol, short, long }
 

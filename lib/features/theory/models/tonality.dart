@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../engine/models/chord_identity.dart';
+import '../domain/models/chord_identity.dart';
 import '../services/pitch_class.dart';
 import 'scale_degree.dart';
 

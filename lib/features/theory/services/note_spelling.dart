@@ -1,4 +1,4 @@
-import '../engine/models/chord_tone_role.dart';
+import '../domain/models/chord_tone_role.dart';
 import '../models/key_signature.dart';
 import '../models/tonality.dart';
 import 'pitch_class.dart';
