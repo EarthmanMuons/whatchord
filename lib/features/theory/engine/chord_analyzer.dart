@@ -51,6 +51,18 @@ class RankedCandidateDebug {
   });
 }
 
+/// Analyzes pitch-class sets to generate and rank chord interpretations.
+///
+/// Core pipeline:
+/// 1. Generate candidates from all possible roots present in the voicing
+/// 2. Score each candidate against chord templates using fit metrics
+/// 3. Rank candidates using score + tie-breaking heuristics
+/// 4. Cache results keyed by input + context
+///
+/// Scoring philosophy:
+/// - Reward structural completeness (required tones present)
+/// - Penalize missing tones, penalty tones, and unexplained extras
+/// - Normalize by chord complexity to allow fair comparison
 abstract final class ChordAnalyzer {
   static final Map<int, List<ChordCandidate>> _cache =
       <int, List<ChordCandidate>>{};
@@ -60,7 +72,8 @@ abstract final class ChordAnalyzer {
     required AnalysisContext context,
     int take = 8,
   }) {
-    // Cache must include all bias sources (context) because it affects ranking.
+    // Cache includes context because tonality affects ranking tie-breakers
+    // (e.g., diatonic preference, tonic-as-I rule).
     final key = Object.hash(input.cacheKey, context, take);
     final cached = _cache[key];
     if (cached != null) return cached;
@@ -116,10 +129,6 @@ abstract final class ChordAnalyzer {
     return out;
   }
 
-  // ---------------------------------------------------------------------------
-  // Centralized evaluation pipeline (single source of truth)
-  // ---------------------------------------------------------------------------
-
   static List<_Evaluated> _evaluateAll(
     ChordInput input, {
     required AnalysisContext context,
@@ -130,7 +139,8 @@ abstract final class ChordAnalyzer {
 
     final out = <_Evaluated>[];
 
-    // Assumption: candidate roots must be present in the voicing.
+    // Assumption: chord roots must be spelled on notes actually present in the voicing.
+    // This prevents generating "ghost root" interpretations.
     for (var rootPc = 0; rootPc < 12; rootPc++) {
       if ((pcMask & (1 << rootPc)) == 0) continue;
 
@@ -185,9 +195,12 @@ abstract final class ChordAnalyzer {
     return out;
   }
 
-  // ---------------------------------------------------------------------------
-  // Scoring (single implementation). Debug is optional "reasons", not a fork.
-  // ---------------------------------------------------------------------------
+  // ---- Template scoring: fit voicing to chord structure -----------------
+  //
+  // Weights are tuned empirically to balance:
+  // - Structural integrity (required > optional)
+  // - Penalty for ambiguity (missing tones, extras)
+  // - Bass role appropriateness
 
   static _ScoredTemplate? _scoreTemplate({
     required int relMask,
@@ -202,7 +215,6 @@ abstract final class ChordAnalyzer {
       reasons?.add(ScoreReason(label, delta, detail: detail));
     }
 
-    // Root interval must be present for this rootPc.
     if ((relMask & 0x1) == 0) return null;
 
     // Root must always be required for stability.
@@ -217,7 +229,9 @@ abstract final class ChordAnalyzer {
 
     final missingCount = popCount(missingRequiredMask);
 
-    // Current rule: allow up to 1 missing required tone.
+    // Allow up to 1 missing required tone for sparse voicings.
+    // Example: dominant7 without the 5th (shell voicing) is still valid.
+    // More than 1 missing tone suggests wrong template entirely.
     if (missingCount > 1) return null;
 
     final reqCount = popCount(presentRequiredMask);
@@ -229,13 +243,19 @@ abstract final class ChordAnalyzer {
     final extrasMask = relMask & ~(base | penalty);
     final extrasCount = popCount(extrasMask);
 
-    // Determine extension tokens *before* bass scoring, so bass scoring can
-    // treat extension-bass as a legitimate color-bass in 7th-family chords.
+    // Extract extensions first so bass scoring can recognize extension-bass as legitimate.
     final has7 = template.quality.isSeventhFamily;
     final extensions = _extensionsFromExtras(extrasMask, has7: has7);
 
     // Raw scoring components (single source of truth).
     var raw = 0.0;
+
+    // Scoring weights (tuned empirically):
+    // - Required tones: +4.0 each (structural foundation)
+    // - Missing required: -6.0 each (dealbreaker for incomplete chords)
+    // - Optional tones: +1.5 each (adds color without being essential)
+    // - Penalty tones: -3.0 each (contradicts chord quality)
+    // - Extras: -0.5 each (unexplained complexity)
 
     final reqDelta = reqCount * 4.0;
     raw += reqDelta;
@@ -257,7 +277,11 @@ abstract final class ChordAnalyzer {
     raw += extraDelta;
     add('extras', extraDelta, detail: 'count=$extrasCount');
 
-    // Bass handling.
+    // Bass scoring priority (reflects common voicing practices):
+    // 1. Bass is a base tone (required/optional): +1.0 (inversions/root position)
+    // 2. Bass is an extension on 7th-family chord: +0.75 (upper-structure voicing)
+    // 3. Bass is an extension on triad: +0.25 (add-chord slash notation)
+    // 4. Bass is missing from template: -0.25 (arbitrary slash bass)
     final bassBit = 1 << bassInterval;
     final double bassDelta;
     if ((base & bassBit) != 0) {
@@ -275,10 +299,10 @@ abstract final class ChordAnalyzer {
     raw += bassDelta;
     add('bass fit', bassDelta, detail: 'interval=$bassInterval');
 
-    // Slight penalty for altered interpretations (keeps "simpler" spellings ahead).
+    // Alteration penalty: prefer simpler spellings over altered interpretations.
     //
-    // Fully diminished seventh chords are symmetric (minor-third stacks). With one
-    // extra pitch, the same pitch-class set can be explained either as:
+    // Special case: Fully diminished seventh chords are symmetric (minor-third stacks).
+    // With one extra pitch, the same pitch-class set can be explained either as:
     //   - dim7 rooted on the bass with an "altered" color tone (e.g. Cdim7(b13)), or
     //   - a different dim7 root that reinterprets that same pitch as a "natural/add"
     //     extension, often forcing a slash bass (e.g. D#dim7(add11)/C).
@@ -302,7 +326,9 @@ abstract final class ChordAnalyzer {
     }
 
     // Penalize 6-chord interpretations for 3-note voicings that omit the 5th.
-    // This helps prefer triad/diminished readings over "root-3-6" ambiguity.
+    // Helps avoid "root-3-6" ambiguity by disfavoring incomplete 6th chords.
+    //
+    // Example: {C, E, A} could be C6(no5) or Am7/C → prefer Am7/C
     const sixChordNo5PenaltyRaw = 0.60;
     if (_has6ChordWithout5(
       quality: template.quality,
@@ -313,7 +339,12 @@ abstract final class ChordAnalyzer {
       add('sixNo5', -sixChordNo5PenaltyRaw, detail: 'n=$inputNoteCount');
     }
 
-    // Soft normalization by the number of required tones present.
+    // Normalize by sqrt(required_tone_count) to allow fair comparison across
+    // chord complexities. Without normalization, 7th chords would always outscore
+    // triads simply due to having more required tones to match.
+    //
+    // Square root (vs linear) preserves meaningful score separation while
+    // preventing over-penalization of complex chords.
     final denom = reqCount > 0 ? math.sqrt(reqCount.toDouble()) : 1.0;
     final normalized = raw / denom;
 
@@ -355,16 +386,15 @@ abstract final class ChordAnalyzer {
     return !hasFifth;
   }
 
-  // ---------------------------------------------------------------------------
-  // Utilities
-  // ---------------------------------------------------------------------------
-
+  /// Calculates the interval (in semitones, 0-11) from rootPc to pc.
   static int _interval(int pc, int rootPc) {
     final d = pc - rootPc;
     final m = d % 12;
     return m < 0 ? m + 12 : m;
   }
 
+  /// Rotates a 12-bit pitch-class mask to be relative to the given root.
+  /// Example: {C, E, G} with root=C → bitmask 100010001 (intervals 0, 4, 7)
   static int _rotateMaskToRoot(int pcMask, int rootPc) {
     var rel = 0;
     for (var pc = 0; pc < 12; pc++) {
@@ -395,6 +425,14 @@ class _ScoredTemplate {
   const _ScoredTemplate({required this.score, required this.extensions});
 }
 
+/// Extracts extension tokens from the "extra" tone mask.
+///
+/// Maps interval positions to ChordExtension enums:
+/// - Alterations: b9(1), #9(3), #11(6), b13(8)
+/// - Natural extensions: 9(2), 11(5), 13(9)
+///
+/// Natural extensions become "add9/add11/add13" for triads,
+/// or stacked "9/11/13" for 7th-family chords (where they're more idiomatic).
 Set<ChordExtension> _extensionsFromExtras(
   int extrasMask, {
   required bool has7,
