@@ -32,9 +32,12 @@ class IdentityCard extends StatelessWidget {
 
     final hasLabel = identity?.hasSecondaryLabel ?? false;
 
-    final primaryStyle = theme.textTheme.displayMedium!.copyWith(
+    final base = theme.textTheme.displayMedium!;
+
+    final primaryStyle = base.copyWith(
       color: cs.onPrimary,
       fontFamilyFallback: const ['Bravura'],
+      // fontFeatures: const [FontFeature.enable('ss07')],
       height: 1.0,
     );
 

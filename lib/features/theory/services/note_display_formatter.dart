@@ -21,16 +21,15 @@ String toSmufl(String s) {
       .replaceAll('b', '\uE260') // accidentalFlat
       .replaceAll('♭', '\uE260');
 
-  // Chord quality glyphs (PUA)
-  s = s
-      .replaceAll('°', '\uE870') // csymDiminished
-      .replaceAll('ø', '\uE871') // csymHalfDiminished
-      .replaceAll('+', '\uE872') // csymAugmented
-      .replaceAll('−', '\uE874'); // csymMinor
+  // // Chord quality glyphs (PUA)
+  // s = s
+  // .replaceAll('°', '\uE870') // csymDiminished
+  // .replaceAll('ø', '\uE871') // csymHalfDiminished
+  // .replaceAll('+', '\uE872') // csymAugmented
+  // .replaceAll('−', '\uE874'); // csymMinor
 
-  // “Major seventh” indicator glyph (PUA)
-  // If you emit Δ7, replace just the Δ.
-  s = s.replaceAll('Δ', '\uE873'); // csymMajorSeventh
+  // "Major seventh" indicator glyph (PUA)
+  // s = s.replaceAll('Δ', '\uE873'); // csymMajorSeventh
 
   return s;
 }
