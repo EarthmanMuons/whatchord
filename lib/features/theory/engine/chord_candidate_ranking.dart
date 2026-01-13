@@ -17,9 +17,18 @@ class RankingDecision {
   });
 }
 
+/// Ranks chord candidates using score-based comparison with tie-breaking rules.
+///
+/// When scores are within [nearTieWindow], applies heuristics to choose the
+/// most musically appropriate interpretation (e.g., preferring root position,
+/// diatonic chords, natural extensions, etc.).
 abstract final class ChordCandidateRanking {
+  /// Score difference threshold for engaging tie-breaker rules.
+  /// A value of 0.20 allows rules to resolve ambiguous interpretations
+  /// without overriding clear score differences.
   static const double nearTieWindow = 0.20;
 
+  /// Compares two candidates. Returns -1 if a ranks higher, 1 if b ranks higher.
   static int compare(
     ChordCandidate a,
     ChordCandidate b, {
@@ -31,7 +40,9 @@ abstract final class ChordCandidateRanking {
     final fa = _CandidateFeatures.from(a);
     final fb = _CandidateFeatures.from(b);
 
-    // Allow a small set of "hard" structure overrides even outside near-tie.
+    // Special case: altered dominant7 vs dim7 runs even outside near-tie window
+    // because it resolves a fundamental structural ambiguity (e.g., C7#9 vs Eb°7)
+    // where the dominant reading is strongly preferred when shell tones are present.
     final hard = _preferAlteredDom7(a, b, fa, fb, tonality);
     if (hard != null && hard != 0) return hard;
 
@@ -49,6 +60,8 @@ abstract final class ChordCandidateRanking {
     return a.identity.rootPc.compareTo(b.identity.rootPc);
   }
 
+  /// Same as [compare], but returns detailed information about which rule decided.
+  /// Useful for debugging and explaining ranking decisions to users.
   static RankingDecision explain(
     ChordCandidate a,
     ChordCandidate b, {
@@ -87,7 +100,11 @@ abstract final class ChordCandidateRanking {
     );
   }
 
-  // ---- Rules framework ------------------------------------------------------
+  // ---- Tie-breaker rules (applied in priority order) --------------------
+  // These rules resolve near-ties by encoding musical preferences:
+  // - Structural clarity (root position, shell tones)
+  // - Functional harmony (diatonic, dominant alterations)
+  // - Simplicity (fewer extensions/alterations, avoid suspensions)
 
   static final List<_NamedRule> _tieBreakerRules = <_NamedRule>[
     _NamedRule('Prefer root-position 6th over inverted 7th', _prefer6thInRoot),
@@ -112,6 +129,10 @@ abstract final class ChordCandidateRanking {
     _NamedRule('Avoid suspended chords', _avoidSuspended),
   ];
 
+  /// Resolves ambiguity between 6th chords and inverted 7th chords.
+  ///
+  /// Example: {C, E, G, A} could be C6 or Am7/C. Prefer C6 in root position
+  /// when the 7th chord interpretation would be inverted with no extensions.
   static int? _prefer6thInRoot(
     ChordCandidate a,
     ChordCandidate b,
@@ -132,6 +153,12 @@ abstract final class ChordCandidateRanking {
     return null;
   }
 
+  /// Resolves C7#9 vs Eb°7 ambiguity by preferring the dominant reading when:
+  /// - Dominant is in root position with shell tones (3rd + b7) present
+  /// - Dominant has color tones (extensions/alterations)
+  /// - Diminished reading would be a slash chord with color-tone bass
+  ///
+  /// Example: {C, E, Bb, Eb} → prefer C7b9 over Eb°7/C
   static int? _preferAlteredDom7(
     ChordCandidate a,
     ChordCandidate b,
@@ -152,11 +179,6 @@ abstract final class ChordCandidateRanking {
     final fDim = aIsDom7 ? fb : fa;
     final domIsA = aIsDom7;
 
-    // We only want to "rescue" the functional dominant reading when:
-    // - dominant is root-position (bass == root)
-    // - dominant has shell tones (3rd + b7) present in the voicing
-    // - diminished reading is a slash interpretation whose bass is a color tone
-    //   (typical upper-structure dim7/addX over the dominant root)
     if (!fDom.isDom7RootPosition) return null;
     if (!fDom.dom7HasShell) return null;
     if (!fDim.isSlashBass) return null;
@@ -173,15 +195,14 @@ abstract final class ChordCandidateRanking {
     return domIsA ? -1 : 1;
   }
 
-  /// When both candidates are dominant7 and one is root-position while the other
-  /// is slash-bass:
-  /// - If the slash bass is a *color tone* (e.g., #11, b9, 13), treat it as an
-  ///   "upper-structure" dominant and prefer the slash interpretation.
-  /// - If the slash bass is a *core chord tone* (3rd/5th/7th), treat it as a
-  ///   normal inversion and prefer the root-position dominant7.
+  /// Distinguishes upper-structure dominants from inversions.
   ///
-  /// This is specifically designed to resolve cases like:
-  ///   {Gb, C, E, Bb}  => prefer C7#11 / F# over Gb7#11
+  /// When comparing two dominant7 readings (root-position vs slash):
+  /// - If slash bass is a color tone (e.g., #11, b9, 13) with no other alterations,
+  ///   treat it as an intentional upper-structure voicing → prefer slash
+  /// - If slash bass is a core tone (3rd/5th/7th), treat it as an inversion → prefer root
+  ///
+  /// Example: {Gb, C, E, Bb} → prefer C7/F# over Gb7#11
   static int? _preferUpperStructureDom7(
     ChordCandidate a,
     ChordCandidate b,
@@ -191,7 +212,7 @@ abstract final class ChordCandidateRanking {
   ) {
     if (!fa.isDom7 || !fb.isDom7) return null;
 
-    // Only engage on root-position vs slash-bass comparisons.
+    // Safety: ensure we really have (slash vs root-position).
     if (fa.isRootPosition == fb.isRootPosition) return null;
 
     final slashIsA = fa.isDom7Slash;
@@ -201,8 +222,7 @@ abstract final class ChordCandidateRanking {
     // Safety: ensure we really have (slash vs root-position).
     if (!fSlash.isDom7Slash || !fRoot.isDom7RootPosition) return null;
 
-    // Optional guard: require dominant shell evidence (3rd + b7)
-    // so we don't overfit to sparse voicings.
+    // Require shell tones to avoid overfitting to sparse voicings.
     if (!fSlash.dom7HasShell || !fRoot.dom7HasShell) return null;
 
     // If slash bass is color, it *might* be an upper-structure reading,
@@ -219,6 +239,17 @@ abstract final class ChordCandidateRanking {
     }
   }
 
+  /// Prefers root-position diminished7 even though they're symmetrical.
+  ///
+  /// Fully diminished 7th chords have identical interval structure in all inversions
+  /// (stacked minor 3rds), but the bass note often indicates functional intent:
+  /// - Leading-tone dim7: bass = tendency tone resolving up
+  /// - Passing/neighbor dim7: bass = dissonant approach to target chord
+  ///
+  /// When scores are tied, prefer the interpretation where the bass note
+  /// is named as the root for notational clarity and functional analysis.
+  ///
+  /// Example: {B, D, F, Ab} → prefer B°7 over D°7/B when bass is B
   static int? _preferDim7InRoot(
     ChordCandidate a,
     ChordCandidate b,
@@ -246,6 +277,11 @@ abstract final class ChordCandidateRanking {
     return bIsPreferredDim7 ? 1 : -1;
   }
 
+  /// Prefers dominant7 shell (3+b7) over dim7 slash reinterpretation.
+  ///
+  /// When the same notes can be read as either a dominant7 with shell tones
+  /// or a diminished7 slash with color-tone bass, prefer the dominant reading
+  /// (matches musician expectation for altered dominant voicings).
   static int? _preferDom7Shell(
     ChordCandidate a,
     ChordCandidate b,
@@ -314,6 +350,17 @@ abstract final class ChordCandidateRanking {
     return bOk ? 1 : -1;
   }
 
+  /// Prefers the I chord when the bass is the tonic pitch class.
+  ///
+  /// When multiple diatonic interpretations are possible with tonic in bass,
+  /// favor the most stable/expected reading (the I chord itself) over other
+  /// scale degrees that happen to have tonic as a chord tone.
+  ///
+  /// Example in C major with bass = C:
+  /// - Prefer "C" (I) over "Am/C" (vi/I) or "Fmaj7/C" (IV/I)
+  /// - Tonic bass + tonic chord = strongest harmonic stability
+  ///
+  /// Only applies when both candidates are diatonic to the key.
   static int? _preferTonicAsI(
     ChordCandidate a,
     ChordCandidate b,
@@ -338,6 +385,8 @@ abstract final class ChordCandidateRanking {
     return bIsI ? 1 : -1;
   }
 
+  /// Prefers stacked natural extensions (9, 11, 13) over "add" extensions,
+  /// then prefers fewer total extensions for simpler interpretations.
   static int? _preferNaturalExtensions(
     ChordCandidate a,
     ChordCandidate b,
@@ -429,6 +478,11 @@ class _NamedRule {
   const _NamedRule(this.name, this.apply);
 }
 
+/// Cached features extracted from a ChordCandidate for efficient rule evaluation.
+///
+/// Pre-computes properties like position, quality family, extension types,
+/// and dominant7-specific characteristics to avoid repeated calculations
+/// during rule application.
 class _CandidateFeatures {
   final bool isRootPosition;
   final bool isSixFamily;
@@ -513,9 +567,9 @@ class _CandidateFeatures {
     );
   }
 
+  /// Returns true if the voicing contains the dominant7 "shell" (major 3rd + flat 7th).
+  /// Shell tones are the minimal chord tones that define dominant function.
   static bool _dom7HasShell(ChordIdentity id) {
-    // Shell tones for a dom7: major 3rd + flat 7th.
-    // We rely on the role map your analyzer already built from the actual voicing.
     final roles = id.toneRolesByInterval.values;
     final has3 = roles.contains(ChordToneRole.major3);
     final has7 = roles.contains(ChordToneRole.flat7);
@@ -564,8 +618,10 @@ class _CandidateFeatures {
     };
   }
 
-  /// True when the bass is acting like a "color tone" (extension/alteration/etc.)
-  /// rather than a core inversion tone (3rd/5th/7th/etc.).
+  /// Returns true when the bass is acting as a color tone (extension/alteration)
+  /// rather than a core inversion tone (3rd/5th/7th).
+  ///
+  /// This distinction helps identify upper-structure voicings vs traditional inversions.
   static bool _bassIsColorTone(ChordIdentity id) {
     final interval = _interval(id.bassPc, id.rootPc);
     final role = id.toneRolesByInterval[interval];
@@ -601,10 +657,11 @@ class _CandidateFeatures {
   static int _bassRoleRank(ChordIdentity id) {
     final interval = _interval(id.bassPc, id.rootPc);
 
-    if (interval == 0) return 0;
-    if (interval == 3 || interval == 4) return 1;
-    if (interval == 7) return 2;
-    if (interval == 10 || interval == 11) return 3;
-    return 4;
+    // Rank inversions by commonality/stability:
+    if (interval == 0) return 0; // Root position
+    if (interval == 3 || interval == 4) return 1; // 1st inv (3rd in bass)
+    if (interval == 7) return 2; // 2nd inv (5th in bass)
+    if (interval == 10 || interval == 11) return 3; // 3rd inv (7th in bass)
+    return 4; // Other slash chords
   }
 }
