@@ -10,7 +10,6 @@ import 'models/chord_extension.dart';
 import 'models/chord_identity.dart';
 import 'models/chord_input.dart';
 import 'services/chord_tone_roles.dart';
-import 'utils/bit_ops.dart';
 
 @immutable
 class ScoreReason {
@@ -227,21 +226,21 @@ abstract final class ChordAnalyzer {
     final presentOptionalMask = optional & relMask;
     final presentPenaltyMask = penalty & relMask;
 
-    final missingCount = popCount(missingRequiredMask);
+    final missingCount = _popCount(missingRequiredMask);
 
     // Allow up to 1 missing required tone for sparse voicings.
     // Example: dominant7 without the 5th (shell voicing) is still valid.
     // More than 1 missing tone suggests wrong template entirely.
     if (missingCount > 1) return null;
 
-    final reqCount = popCount(presentRequiredMask);
-    final optCount = popCount(presentOptionalMask);
-    final penCount = popCount(presentPenaltyMask);
+    final reqCount = _popCount(presentRequiredMask);
+    final optCount = _popCount(presentOptionalMask);
+    final penCount = _popCount(presentPenaltyMask);
 
     // Extras: tones that are neither base (required/optional) nor penalty.
     final base = required | optional;
     final extrasMask = relMask & ~(base | penalty);
-    final extrasCount = popCount(extrasMask);
+    final extrasCount = _popCount(extrasMask);
 
     // Extract extensions first so bass scoring can recognize extension-bass as legitimate.
     final has7 = template.quality.isSeventhFamily;
@@ -455,4 +454,15 @@ Set<ChordExtension> _extensionsFromExtras(
   if (has13) out.add(has7 ? ChordExtension.thirteen : ChordExtension.add13);
 
   return out;
+}
+
+/// Bitwise popcount utility for small integer masks using the standard
+/// Kernighan algorithm.
+int _popCount(int v) {
+  var c = 0;
+  while (v != 0) {
+    v &= v - 1; // clear lowest set bit
+    c++;
+  }
+  return c;
 }
