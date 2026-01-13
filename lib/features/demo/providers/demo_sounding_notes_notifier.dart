@@ -25,27 +25,29 @@ class DemoSoundingNotesNotifier extends Notifier<Set<int>> {
   // - inversion (slash bass)
   // - ambiguity / near-tie style pitch sets
   static final List<DemoStep> _steps = <DemoStep>[
-    // Single note (C4)
+    // Single note (C)
     DemoStep(notes: {60}),
 
-    // Dyad (C4 -> G4 = P5)
+    // Dyad (C to G -> P5)
     DemoStep(notes: {60, 67}),
 
-    // C major triad (root position)
+    // Major triad; root position (C E G -> C)
     DemoStep(notes: {60, 64, 67}),
 
-    // Cmaj7 (root position)
-    DemoStep(notes: {60, 64, 67, 71}),
+    // Major triad; 1st inversion (E G C -> C / E)
+    DemoStep(notes: {64, 67, 72}),
 
-    // Cmaj7/E (inversion; E3 is bass)
-    DemoStep(notes: {52, 60, 64, 67, 71}),
-
-    // G7 (dominant seventh; test scale-degree logic in C major)
+    // Scale degree logic in C major (G B D -> G7)
     DemoStep(notes: {55, 59, 62, 65}),
 
-    // Ambiguous-ish: C E G A D (Am11/C style pitch set)
-    // C3 A3 C4 E4 G4 D5
+    // Ambiguous C6/9 or Am11 / C depending on tonality (C E G A D -> ...)
     DemoStep(notes: {48, 57, 60, 64, 67, 74}),
+
+    // Stable despite tonality (F# C E Bb -> C7#11 / F#)
+    DemoStep(notes: {54, 60, 64, 70}),
+
+    // Fully diminished symmetrical (Eb Gb Bbb Dbb -> Ebdim7)
+    DemoStep(notes: {51, 54, 57, 60}),
   ];
 
   @override

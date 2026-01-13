@@ -218,6 +218,6 @@ String _debugForChord({
     '- Root PC: $rootPc',
     '- Quality: $quality',
     '- Extensions: ${extensions.isEmpty ? '(none)' : extensions.join(', ')}',
-    '- Slash bass: ${hasSlash ? 'yes (PC $bassPc)' : 'no'}',
+    '- Slash Bass: ${hasSlash ? '$bassPc' : '(none)'}',
   ].join('\n');
 }
