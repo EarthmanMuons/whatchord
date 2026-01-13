@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_chord/core/persistence/shared_preferences_provider.dart';
 
 import '../models/midi_device.dart';
+import '../models/midi_preferences.dart';
 import '../persistence/midi_preferences_keys.dart';
-import '../persistence/midi_preferences.dart';
 
 final midiPreferencesProvider =
     NotifierProvider<MidiPreferencesNotifier, MidiPreferences>(

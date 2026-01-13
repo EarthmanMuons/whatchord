@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/analysis_context_provider.dart';
 import '../providers/chord_candidates_providers.dart';
-import '../providers/chord_notation_style_notifier.dart';
+import '../providers/theory_preferences_notifier.dart';
 import '../services/chord_symbol_builder.dart';
 
 class NearTieChordCandidatesList extends ConsumerWidget {

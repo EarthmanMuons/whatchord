@@ -15,7 +15,7 @@ import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
 import 'chord_candidates_providers.dart';
 import 'chord_member_spellings_providers.dart';
-import 'chord_notation_style_notifier.dart';
+import 'theory_preferences_notifier.dart';
 
 final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
   final mode = ref.watch(analysisModeProvider);

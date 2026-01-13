@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_chord/core/persistence/shared_preferences_provider.dart';
 import 'package:what_chord/core/theme/providers/app_palette_notifier.dart';
 import 'package:what_chord/core/theme/providers/theme_mode_notifier.dart';
-import 'package:what_chord/features/midi/persistence/midi_preferences_notifier.dart';
 import 'package:what_chord/features/midi/providers/midi_connection_notifier.dart';
-import 'package:what_chord/features/theory/providers/chord_notation_style_notifier.dart';
+import 'package:what_chord/features/midi/providers/midi_preferences_notifier.dart';
+import 'package:what_chord/features/theory/providers/theory_preferences_notifier.dart';
 
 import 'package:what_chord/core/persistence/core_preferences_keys.dart';
 import 'package:what_chord/features/theory/persistence/theory_preferences_keys.dart';

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../persistence/midi_preferences_notifier.dart';
 import '../providers/midi_connection_notifier.dart';
 import '../providers/midi_device_providers.dart';
+import '../providers/midi_preferences_notifier.dart';
 
 enum _SavedDeviceMenuAction { forget }
 

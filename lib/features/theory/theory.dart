@@ -8,11 +8,11 @@ export 'models/scale_degree.dart';
 export 'models/tonality.dart';
 
 export 'providers/chord_member_spellings_providers.dart';
-export 'providers/chord_notation_style_notifier.dart';
 export 'providers/detected_scale_degree_provider.dart';
 export 'providers/identity_display_provider.dart';
 export 'providers/pitch_class_names_provider.dart';
 export 'providers/selected_tonality_notifier.dart';
+export 'providers/theory_preferences_notifier.dart';
 
 export 'services/chord_member_speller.dart';
 export 'services/chord_quality_formatter.dart';
