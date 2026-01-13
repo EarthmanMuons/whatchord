@@ -29,6 +29,7 @@
 
 import 'dart:io';
 
+import 'package:what_chord/features/input/services/pitch_class_mask.dart';
 import 'package:what_chord/features/theory/engine/engine.dart';
 import 'package:what_chord/features/theory/models/chord_symbol.dart';
 import 'package:what_chord/features/theory/models/key_signature.dart';
