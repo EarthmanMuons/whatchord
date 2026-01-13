@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../input/sounding_notes_providers.dart';
+import 'package:what_chord/features/input/input.dart';
 
 @immutable
 class MidiIdleState {

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/core/input/sounding_notes_providers.dart';
+import 'package:what_chord/features/input/input.dart';
 
 import '../engine/engine.dart';
 import '../models/identity_display.dart';

@@ -1,9 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/core/input/sounding_notes_providers.dart';
-import 'package:what_chord/features/midi/midi.dart' show midiNoteStateProvider;
-import 'package:what_chord/features/theory/theory.dart'
-    show pitchClassNamesProvider, chordMemberSpellingsByPcProvider;
+import 'package:what_chord/features/input/input.dart';
+import 'package:what_chord/features/midi/midi.dart';
+import 'package:what_chord/features/theory/theory.dart';
 
 import '../models/active_note.dart';
 

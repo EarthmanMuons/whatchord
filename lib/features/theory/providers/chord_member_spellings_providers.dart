@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/core/input/sounding_notes_providers.dart';
+import 'package:what_chord/features/input/input.dart';
 
 import '../services/chord_member_speller.dart';
 import '../services/note_spelling.dart';
