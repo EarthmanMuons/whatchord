@@ -22,7 +22,7 @@ class AnalysisSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final identity = ref.watch(identityDisplayProvider);
-    final showIdle = ref.watch(midiIdleEligibleProvider);
+    final showIdle = ref.watch(inputIdleEligibleProvider);
 
     return Padding(
       padding: config.analysisPadding,

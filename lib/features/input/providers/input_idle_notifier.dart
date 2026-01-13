@@ -3,13 +3,13 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/features/input/input.dart';
+import 'sounding_notes_providers.dart';
 
 @immutable
-class MidiIdleState {
-  const MidiIdleState({
+class InputIdleState {
+  const InputIdleState({
     required this.cooldown,
-    required this.hasSeenActivity,
+    required this.hasSeenEngagement,
     required this.isEngagedNow,
     required this.lastReleaseAt,
     required this.isEligible,
@@ -17,8 +17,8 @@ class MidiIdleState {
 
   final Duration cooldown;
 
-  /// True once we have ever observed engagement (notes/pedal) at least once.
-  final bool hasSeenActivity;
+  /// True once we have ever observed engagement (notes) at least once.
+  final bool hasSeenEngagement;
 
   /// True while user currently has any keys down (or pedal down if included).
   final bool isEngagedNow;
@@ -33,16 +33,16 @@ class MidiIdleState {
   /// - True only after cooldown since lastReleaseAt
   final bool isEligible;
 
-  MidiIdleState copyWith({
+  InputIdleState copyWith({
     Duration? cooldown,
-    bool? hasSeenActivity,
+    bool? hasSeenEngagement,
     bool? isEngagedNow,
     DateTime? lastReleaseAt,
     bool? isEligible,
   }) {
-    return MidiIdleState(
+    return InputIdleState(
       cooldown: cooldown ?? this.cooldown,
-      hasSeenActivity: hasSeenActivity ?? this.hasSeenActivity,
+      hasSeenEngagement: hasSeenEngagement ?? this.hasSeenEngagement,
       isEngagedNow: isEngagedNow ?? this.isEngagedNow,
       lastReleaseAt: lastReleaseAt ?? this.lastReleaseAt,
       isEligible: isEligible ?? this.isEligible,
@@ -50,39 +50,39 @@ class MidiIdleState {
   }
 }
 
-final midiIdleCooldownProvider = Provider<Duration>((ref) {
+final inputIdleCooldownProvider = Provider<Duration>((ref) {
   return const Duration(seconds: 8);
 });
 
-final midiIdleProvider = NotifierProvider<MidiIdleNotifier, MidiIdleState>(
-  MidiIdleNotifier.new,
+final inputIdleProvider = NotifierProvider<InputIdleNotifier, InputIdleState>(
+  InputIdleNotifier.new,
 );
 
 /// If you prefer a boolean-only API for consumers:
-final midiIdleEligibleProvider = Provider<bool>((ref) {
-  return ref.watch(midiIdleProvider).isEligible;
+final inputIdleEligibleProvider = Provider<bool>((ref) {
+  return ref.watch(inputIdleProvider).isEligible;
 });
 
-class MidiIdleNotifier extends Notifier<MidiIdleState> {
+class InputIdleNotifier extends Notifier<InputIdleState> {
   Timer? _timer;
 
   @override
-  MidiIdleState build() {
-    final cooldown = ref.watch(midiIdleCooldownProvider);
+  InputIdleState build() {
+    final cooldown = ref.watch(inputIdleCooldownProvider);
 
     ref.onDispose(() {
       _timer?.cancel();
       _timer = null;
     });
 
-    ref.listen<Duration>(midiIdleCooldownProvider, (prev, next) {
+    ref.listen<Duration>(inputIdleCooldownProvider, (prev, next) {
       state = state.copyWith(cooldown: next);
       _scheduleFromRelease();
     });
 
-    final initial = MidiIdleState(
+    final initial = InputIdleState(
       cooldown: cooldown,
-      hasSeenActivity: false,
+      hasSeenEngagement: false,
       isEngagedNow: false,
       lastReleaseAt: null,
       isEligible: true,
@@ -113,7 +113,7 @@ class MidiIdleNotifier extends Notifier<MidiIdleState> {
       _timer = null;
 
       state = state.copyWith(
-        hasSeenActivity: true,
+        hasSeenEngagement: true,
         isEngagedNow: true,
         // Not eligible while engaged.
         isEligible: false,
@@ -125,7 +125,7 @@ class MidiIdleNotifier extends Notifier<MidiIdleState> {
     final releaseAt = DateTime.now();
 
     state = state.copyWith(
-      hasSeenActivity: true,
+      hasSeenEngagement: true,
       isEngagedNow: false,
       lastReleaseAt: releaseAt,
       // Not eligible until cooldown elapses.
@@ -140,7 +140,7 @@ class MidiIdleNotifier extends Notifier<MidiIdleState> {
     _timer = null;
 
     // If we haven't seen any activity ever, stay eligible.
-    if (!state.hasSeenActivity) {
+    if (!state.hasSeenEngagement) {
       state = state.copyWith(isEligible: true);
       return;
     }

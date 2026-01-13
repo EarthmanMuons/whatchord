@@ -168,7 +168,7 @@ class _ActiveInputState extends ConsumerState<ActiveInput>
     final cs = theme.colorScheme;
 
     const minHeight = 44.0;
-    final showPrompt = _notes.isEmpty && ref.watch(midiIdleEligibleProvider);
+    final showPrompt = _notes.isEmpty && ref.watch(inputIdleEligibleProvider);
 
     return Padding(
       padding: widget.padding,
