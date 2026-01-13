@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/core/core.dart';
 import 'package:what_chord/features/midi/midi.dart';
 import 'package:what_chord/features/piano/piano.dart';
 import 'package:what_chord/features/settings/settings.dart';
 
 import '../models/home_layout_config.dart';
 import '../widgets/components/app_bar_title.dart';
+import '../widgets/edge_to_edge_controller.dart';
 import '../widgets/sections/analysis_section.dart';
 import '../widgets/sections/details_section.dart';
 import '../widgets/sections/keyboard_section.dart';

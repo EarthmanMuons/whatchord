@@ -10,7 +10,6 @@ export 'providers/shared_preferences_provider.dart';
 
 export 'services/app_theme_builder.dart';
 
-export 'widgets/edge_to_edge_controller.dart';
 export 'widgets/idle_blackout_overlay.dart';
 export 'widgets/palette_swatch.dart';
 export 'widgets/section_header.dart';
