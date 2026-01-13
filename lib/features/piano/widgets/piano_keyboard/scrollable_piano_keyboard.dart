@@ -55,9 +55,6 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
   DateTime _lastUserScroll = DateTime.fromMillisecondsSinceEpoch(0);
   Set<int> _lastSounding = const <int>{};
 
-  Set<int> _addedNotes(Set<int> prev, Set<int> next) => next.difference(prev);
-  Set<int> _removedNotes(Set<int> prev, Set<int> next) => prev.difference(next);
-
   @override
   void initState() {
     super.initState();
