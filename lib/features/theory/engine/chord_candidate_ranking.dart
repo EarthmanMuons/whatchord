@@ -32,7 +32,7 @@ abstract final class ChordCandidateRanking {
     final fb = _CandidateFeatures.from(b);
 
     // Allow a small set of "hard" structure overrides even outside near-tie.
-    final hard = _ruleAlteredDom7OverUpperStructureDim7(a, b, fa, fb, tonality);
+    final hard = _preferAlteredDom7(a, b, fa, fb, tonality);
     if (hard != null && hard != 0) return hard;
 
     // Normal scoring gate.
@@ -90,38 +90,29 @@ abstract final class ChordCandidateRanking {
   // ---- Rules framework ------------------------------------------------------
 
   static final List<_NamedRule> _tieBreakerRules = <_NamedRule>[
+    _NamedRule('Prefer root-position 6th over inverted 7th', _prefer6thInRoot),
+    _NamedRule('Prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
     _NamedRule(
-      'Prefer root-position 6th over inverted 7th (when no extensions)',
-      _rule6RootVsSlash7,
+      'Prefer upper-structure dominant7 slash',
+      _preferUpperStructureDom7,
     ),
+    _NamedRule('Prefer root-position diminished7', _preferDim7InRoot),
+    _NamedRule('Prefer dominant7 over dim7 slash', _preferDom7Shell),
+    _NamedRule('Prefer fewer alterations', _preferFewerAlterations),
+    _NamedRule('Prefer diatonic chords', _preferDiatonic),
+    _NamedRule('Prefer I chord when bass is tonic', _preferTonicAsI),
     _NamedRule(
-      'Prefer altered dominant7 in root position over upper-structure dim7 slash',
-      _ruleAlteredDom7OverUpperStructureDim7,
+      'Prefer natural extensions over adds, then fewer total',
+      _preferNaturalExtensions,
     ),
-    _NamedRule(
-      'Prefer upper-structure dominant7 slash over bass-root dominant7 (role-aware)',
-      _ruleDom7UpperStructureVsBassRoot,
-    ),
-    _NamedRule('Prefer diminished7 rooted on the base', _ruleDim7RootOnBass),
-    _NamedRule(
-      'Prefer dominant7 shell over diminished7 slash reinterpretation',
-      _rulePreferDom7OverDim7Slash,
-    ),
-    _NamedRule('Prefer fewer alterations', _ruleFewerAlterations),
-    _NamedRule('Prefer chords diatonic to the key', _ruleDiatonic),
-    _NamedRule('Prefer I when bass is tonic', _ruleTonicAsI),
-    _NamedRule(
-      'Natural extensions over adds, then simpler',
-      _ruleNaturalExtensions,
-    ),
-    _NamedRule('Prefer root position', _ruleRootPosition),
-    _NamedRule('Prefer 1st inversion over 2nd inversion', _ruleBass3rdOver5th),
-    _NamedRule('Prefer 7th chords over triads', _rule7thOverTriad),
-    _NamedRule('Prefer fewer extensions', _ruleFewerExtensions),
-    _NamedRule('Avoid suspended chords', _ruleAvoidSus),
+    _NamedRule('Prefer root position', _preferRootPosition),
+    _NamedRule('Prefer 1st inversion over 2nd inversion', _prefer1stInversion),
+    _NamedRule('Prefer 7th chords over triads', _prefer7thChords),
+    _NamedRule('Prefer fewer extensions', _preferFewerExtensions),
+    _NamedRule('Avoid suspended chords', _avoidSuspended),
   ];
 
-  static int? _rule6RootVsSlash7(
+  static int? _prefer6thInRoot(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -141,7 +132,7 @@ abstract final class ChordCandidateRanking {
     return null;
   }
 
-  static int? _ruleAlteredDom7OverUpperStructureDim7(
+  static int? _preferAlteredDom7(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -191,7 +182,7 @@ abstract final class ChordCandidateRanking {
   ///
   /// This is specifically designed to resolve cases like:
   ///   {Gb, C, E, Bb}  => prefer C7#11 / F# over Gb7#11
-  static int? _ruleDom7UpperStructureVsBassRoot(
+  static int? _preferUpperStructureDom7(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -228,7 +219,7 @@ abstract final class ChordCandidateRanking {
     }
   }
 
-  static int? _ruleDim7RootOnBass(
+  static int? _preferDim7InRoot(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -255,7 +246,7 @@ abstract final class ChordCandidateRanking {
     return bIsPreferredDim7 ? 1 : -1;
   }
 
-  static int? _rulePreferDom7OverDim7Slash(
+  static int? _preferDom7Shell(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -292,7 +283,7 @@ abstract final class ChordCandidateRanking {
     return domIsA ? -1 : 1;
   }
 
-  static int? _ruleFewerAlterations(
+  static int? _preferFewerAlterations(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -306,7 +297,7 @@ abstract final class ChordCandidateRanking {
     return cmp;
   }
 
-  static int? _ruleDiatonic(
+  static int? _preferDiatonic(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -323,7 +314,7 @@ abstract final class ChordCandidateRanking {
     return bOk ? 1 : -1;
   }
 
-  static int? _ruleTonicAsI(
+  static int? _preferTonicAsI(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -347,7 +338,7 @@ abstract final class ChordCandidateRanking {
     return bIsI ? 1 : -1;
   }
 
-  static int? _ruleNaturalExtensions(
+  static int? _preferNaturalExtensions(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -366,7 +357,7 @@ abstract final class ChordCandidateRanking {
     return null;
   }
 
-  static int? _ruleRootPosition(
+  static int? _preferRootPosition(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -377,7 +368,7 @@ abstract final class ChordCandidateRanking {
     return fb.isRootPosition ? 1 : -1;
   }
 
-  static int? _ruleBass3rdOver5th(
+  static int? _prefer1stInversion(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -389,7 +380,7 @@ abstract final class ChordCandidateRanking {
     return cmp;
   }
 
-  static int? _rule7thOverTriad(
+  static int? _prefer7thChords(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -400,7 +391,7 @@ abstract final class ChordCandidateRanking {
     return fb.isSeventhFamily ? 1 : -1;
   }
 
-  static int? _ruleFewerExtensions(
+  static int? _preferFewerExtensions(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
@@ -412,7 +403,7 @@ abstract final class ChordCandidateRanking {
     return cmp;
   }
 
-  static int? _ruleAvoidSus(
+  static int? _avoidSuspended(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
