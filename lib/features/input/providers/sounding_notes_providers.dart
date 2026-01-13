@@ -2,15 +2,18 @@ import 'dart:collection';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/features/demo/demo.dart';
-import 'package:what_chord/features/midi/midi.dart';
+import 'package:what_chord/features/demo/demo.dart' show demoModeProvider;
 
-/// The one provider the rest of the app should use for "what notes are down".
+import '../adapters/demo_input_adapter.dart';
+import '../adapters/midi_input_adapter.dart';
+
+/// The unified source of truth for "what notes are currently down," regardless of input source.
 final soundingNotesProvider = Provider<Set<int>>((ref) {
   final demoEnabled = ref.watch(demoModeProvider);
+
   final notes = demoEnabled
-      ? ref.watch(demoSoundingNotesProvider)
-      : ref.watch(midiSoundingNotesProvider);
+      ? ref.watch(demoNotesSource)
+      : ref.watch(midiNotesSource);
 
   return UnmodifiableSetView(notes);
 });

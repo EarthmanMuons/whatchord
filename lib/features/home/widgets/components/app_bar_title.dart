@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/features/demo/demo.dart'; // demo providers
+import 'package:what_chord/features/demo/demo.dart';
 
 class AppBarTitle extends ConsumerWidget {
   const AppBarTitle({super.key});
