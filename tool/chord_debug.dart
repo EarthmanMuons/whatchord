@@ -1,3 +1,32 @@
+// tool/chord_debug.dart
+//
+// Pure-Dart CLI harness for inspecting chord analysis ranking.
+//
+// Usage:
+//   dart run tool/chord_debug.dart C E G D
+//   dart run tool/chord_debug.dart C E G Bb D --bass=C
+//   dart run tool/chord_debug.dart 60 64 67 74
+//   dart run tool/chord_debug.dart 60 64 67 70 74 --top=12
+//
+// Optional flags:
+//   --top=N           Number of ranked candidates to show (default 5)
+//   --bass=PC         Override bass pitch class (e.g., C, Eb, F#)
+//
+//   --compact         Use a condensed, single-line-per-candidate output
+//                     (useful for small screens or quick comparison)
+//
+//   --reasons=N       Show up to N score-reason tokens per candidate
+//                     (default 3; ignored in --details mode)
+//
+//   --details         Show full score reasons and full ranking decision data
+//                     (overrides --reasons and disables compact output)
+//
+//   --key=KEY         Tonality for tie-breaks/spelling (default C:maj).
+//                     Examples: C, C:maj, A:min, Eb:maj, F#:min
+//
+//   --notation=STYLE  Chord notation style for symbol formatting (default textual).
+//                     Examples: textual, symbolic
+
 import 'dart:io';
 
 import 'package:what_chord/core/utils/pc_mask.dart';
@@ -10,30 +39,6 @@ import 'package:what_chord/features/theory/services/chord_symbol_builder.dart';
 import 'package:what_chord/features/theory/services/note_spelling.dart';
 import 'package:what_chord/features/theory/services/pitch_class.dart';
 
-/// Usage:
-///   dart run tool/chord_debug.dart C E G D
-///   dart run tool/chord_debug.dart C E G Bb D --bass=C
-///   dart run tool/chord_debug.dart 60 64 67 74
-///   dart run tool/chord_debug.dart 60 64 67 70 74 --top=12
-///
-/// Optional flags:
-///   --top=N           Number of ranked candidates to show (default 5)
-///   --bass=PC         Override bass pitch class (e.g., C, Eb, F#)
-///
-///   --compact         Use a condensed, single-line-per-candidate output
-///                     (useful for small screens or quick comparison)
-///
-///   --reasons=N       Show up to N score-reason tokens per candidate
-///                     (default 3; ignored in --details mode)
-///
-///   --details         Show full score reasons and full ranking decision data
-///                     (overrides --reasons and disables compact output)
-///
-///   --key=KEY         Tonality for tie-breaks/spelling (default C:maj).
-///                     Examples: C, C:maj, A:min, Eb:maj, F#:min
-///
-///   --notation=STYLE  Chord notation style for symbol formatting (default textual).
-///                     Examples: textual, symbolic
 void main(List<String> args) {
   if (args.isEmpty) {
     stderr.writeln('Provide notes (pitch names or MIDI numbers).');
@@ -43,11 +48,18 @@ void main(List<String> args) {
 
   final top = _readIntFlag(args, 'top') ?? 5;
   final bassName = _readStringFlag(args, 'bass');
+  final bassDisplayFromFlag = bassName == null
+      ? null
+      : normalizeNoteNameToAscii(bassName);
 
   final keyFlag = _readStringFlag(args, 'key') ?? 'C:maj';
   final tonality = _parseTonalityFlag(keyFlag);
 
   final ks = KeySignature.fromTonality(tonality);
+
+  // Keep this for informational CLI output only. spellPitchClass() no longer
+  // takes a policy; its output is driven primarily by role + tonality (and
+  // optionally chordRootName).
   final spellingPolicy = NoteSpellingPolicy(preferFlats: ks.prefersFlats);
 
   final context = AnalysisContext(
@@ -71,6 +83,7 @@ void main(List<String> args) {
   final parsed = _parseNotes(noteTokens);
   final midi = parsed.midiNotes;
   final pcs = parsed.pitchClasses;
+  final inputPcLabels = parsed.pcLabels;
 
   if (pcs.isEmpty) {
     stderr.writeln('Could not parse any notes.');
@@ -93,10 +106,33 @@ void main(List<String> args) {
   stdout.writeln('Input: $input');
 
   final pcNames =
-      pcs.map((pc) => pcToName(pc, tonality: context.tonality)).toSet().toList()
+      pcs
+          .map((pc) {
+            // If the user provided a name for this pc, prefer it.
+            final preserved = inputPcLabels[pc];
+            if (preserved != null) return preserved;
+
+            // Otherwise (e.g., MIDI-only input), fall back to spelling.
+            return _pcLabel(
+              pc,
+              context: context,
+              chordRootName: null,
+              role: null,
+            );
+          })
+          .toSet()
+          .toList()
         ..sort();
+
   stdout.writeln('pcs: ${pcNames.join(', ')}');
-  stdout.writeln('bass: ${pcToName(bassPc, tonality: tonality)}');
+
+  final bassLabel =
+      bassDisplayFromFlag ??
+      inputPcLabels[bassPc] ??
+      _pcLabel(bassPc, context: context, chordRootName: null, role: null);
+
+  stdout.writeln('bass: $bassLabel');
+
   stdout.writeln(
     'key: ${context.tonality.displayName} (${context.keySignature.label})',
   );
@@ -157,6 +193,12 @@ void main(List<String> args) {
 
     if (!compact) {
       stdout.writeln('     ${_formatIdentityCompact(id)}');
+
+      // Role-aware chord-member spellings.
+      final members = _formatChordMembersByRole(id, context: context);
+      if (members.isNotEmpty) {
+        stdout.writeln('     members: $members');
+      }
     }
 
     // Reasons: tokenized & compact.
@@ -184,27 +226,110 @@ void main(List<String> args) {
   }
 }
 
-({List<int> midiNotes, List<int> pitchClasses}) _parseNotes(
-  List<String> tokens,
-) {
+/// Role-aware pitch-class label (pure dart).
+///
+/// Uses spellPitchClass() which is driven by role + tonality.
+/// We pass chordRootName to give the speller extra context when appropriate.
+String _pcLabel(
+  int pc, {
+  required AnalysisContext context,
+  required String? chordRootName,
+  required ChordToneRole? role,
+}) {
+  return spellPitchClass(
+    pc,
+    tonality: context.tonality,
+    chordRootName: chordRootName,
+    role: role,
+  );
+}
+
+/// Formats chord members using ChordIdentity.toneRolesByInterval.
+///
+/// Output example:
+///   root=C  third=E  fifth=G  flat7=Bb  sharp11=F#
+///
+/// Notes:
+/// - Always includes root (interval 0).
+/// - Includes all intervals present in toneRolesByInterval.
+/// - Sorts by interval for stable output.
+String _formatChordMembersByRole(
+  ChordIdentity id, {
+  required AnalysisContext context,
+}) {
+  // Determine the chord root name once, then reuse for all member spellings.
+  final rootName = _pcLabel(
+    id.rootPc,
+    context: context,
+    chordRootName: null,
+    role: ChordToneRole.root,
+  );
+
+  final entries = <MapEntry<int, ChordToneRole>>[
+    const MapEntry<int, ChordToneRole>(0, ChordToneRole.root),
+    ...id.toneRolesByInterval.entries,
+  ];
+
+  // De-dup by interval (toneRolesByInterval may or may not include 0).
+  final byInterval = <int, ChordToneRole>{};
+  for (final e in entries) {
+    byInterval[e.key] = e.value;
+  }
+
+  final sortedIntervals = byInterval.keys.toList()..sort();
+
+  final parts = <String>[];
+  for (final interval in sortedIntervals) {
+    final role = byInterval[interval]!;
+    final pc = (id.rootPc + interval) % 12;
+
+    final name = _pcLabel(
+      pc,
+      context: context,
+      chordRootName: rootName,
+      role: role,
+    );
+
+    // Use role.name (enum name) as the token key.
+    parts.add('${role.name}=$name');
+  }
+
+  return parts.join('  ');
+}
+
+({List<int> midiNotes, List<int> pitchClasses, Map<int, String> pcLabels})
+_parseNotes(List<String> tokens) {
   final midi = <int>[];
   final pcs = <int>[];
 
-  for (final t in tokens) {
-    final tt = t.trim();
-    if (tt.isEmpty) continue;
+  // First-seen label wins per pitch class.
+  final pcLabels = <int, String>{};
 
-    final asInt = int.tryParse(tt);
+  for (final t in tokens) {
+    final raw = t.trim();
+    if (raw.isEmpty) continue;
+
+    final asInt = int.tryParse(raw);
     if (asInt != null) {
       midi.add(asInt);
-      pcs.add(asInt % 12);
+      final pc = asInt % 12;
+      pcs.add(pc);
+      // For MIDI inputs, we *don't* have a user spelling; leave label unset.
       continue;
     }
 
-    pcs.add(pitchClassFromNoteName(tt));
+    // Preserve the user's accidental choice (including glyph accidentals),
+    // but normalize whitespace and casing in a lightweight way.
+    // If you'd prefer to canonicalize glyphs to ASCII, use normalizeNoteNameToAscii.
+    final preserved = raw;
+
+    final pc = pitchClassFromNoteName(raw);
+    pcs.add(pc);
+
+    pcLabels.putIfAbsent(pc, () => preserved);
   }
 
-  return (midiNotes: midi, pitchClasses: pcs);
+  return (midiNotes: midi, pitchClasses: pcs, pcLabels: pcLabels);
 }
 
 Tonality _parseTonalityFlag(String raw) {
@@ -379,7 +504,6 @@ List<String> _reasonTokens(
 
   if (includeNormalize && normalize != null && normalize.detail != null) {
     // IMPORTANT: render normalize as info, not +0.00.
-    // Your detail currently is like: "raw=8.40 denom=1.73"
     tokens.add(normalize.detail!);
   }
 
