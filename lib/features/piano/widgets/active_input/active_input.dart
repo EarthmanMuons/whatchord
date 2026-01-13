@@ -2,9 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/core/providers/app_activity_notifier.dart';
-import 'package:what_chord/core/activity/midi_activity_tracker.dart';
-import 'package:what_chord/core/models/activity_state.dart';
+import 'package:what_chord/core/core.dart';
+import 'package:what_chord/features/input/input.dart';
 import 'package:what_chord/features/midi/midi.dart' show isPedalDownProvider;
 
 import '../../models/active_note.dart';
