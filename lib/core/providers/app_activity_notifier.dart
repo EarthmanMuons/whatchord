@@ -3,51 +3,22 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum ActivitySource { pointer, keyboard, midi, internal }
+import '../models/activity_state.dart';
 
-@immutable
-class ActivityState {
-  const ActivityState({
-    required this.lastActivityAt,
-    required this.isIdle,
-    required this.idleAfter,
-    required this.lastSource,
-  });
-
-  final DateTime lastActivityAt;
-  final bool isIdle;
-  final Duration idleAfter;
-  final ActivitySource? lastSource;
-
-  ActivityState copyWith({
-    DateTime? lastActivityAt,
-    bool? isIdle,
-    Duration? idleAfter,
-    ActivitySource? lastSource,
-  }) {
-    return ActivityState(
-      lastActivityAt: lastActivityAt ?? this.lastActivityAt,
-      isIdle: isIdle ?? this.isIdle,
-      idleAfter: idleAfter ?? this.idleAfter,
-      lastSource: lastSource ?? this.lastSource,
+final appActivityProvider =
+    NotifierProvider<AppActivityNotifier, ActivityState>(
+      AppActivityNotifier.new,
     );
-  }
-}
+
+final isIdleProvider = Provider<bool>((ref) {
+  return ref.watch(appActivityProvider).isIdle;
+});
 
 final idleAfterProvider = Provider<Duration>((ref) {
   return const Duration(minutes: 2);
 });
 
-final activityTrackerProvider =
-    NotifierProvider<ActivityTrackerNotifier, ActivityState>(
-      ActivityTrackerNotifier.new,
-    );
-
-final isIdleProvider = Provider<bool>((ref) {
-  return ref.watch(activityTrackerProvider).isIdle;
-});
-
-class ActivityTrackerNotifier extends Notifier<ActivityState> {
+class AppActivityNotifier extends Notifier<ActivityState> {
   Timer? _idleTimer;
 
   @override

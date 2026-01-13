@@ -1,6 +1,45 @@
 import 'package:flutter/material.dart';
 
-class NeutralSchemes {
+import '../models/app_palette.dart';
+
+ColorScheme colorSchemeFor(AppPalette palette, Brightness brightness) {
+  return switch (palette) {
+    AppPalette.neutral =>
+      brightness == Brightness.dark
+          ? _NeutralSchemes.dark
+          : _NeutralSchemes.light,
+    _ => ColorScheme.fromSeed(
+      seedColor: palette.seedColor,
+      brightness: brightness,
+    ),
+  };
+}
+
+ThemeData buildAppTheme({
+  required AppPalette palette,
+  required Brightness brightness,
+}) {
+  final cs = colorSchemeFor(palette, brightness);
+
+  return ThemeData(
+    useMaterial3: true,
+    colorScheme: cs,
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      elevation: 2,
+      showCloseIcon: true,
+      insetPadding: const EdgeInsets.all(12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      backgroundColor: cs.inverseSurface,
+      contentTextStyle: TextStyle(color: cs.onInverseSurface),
+      actionTextColor: cs.inversePrimary,
+      disabledActionTextColor: cs.onInverseSurface.withValues(alpha: 0.38),
+      closeIconColor: cs.onInverseSurface,
+    ),
+  );
+}
+
+class _NeutralSchemes {
   static const light = ColorScheme(
     brightness: Brightness.light,
 

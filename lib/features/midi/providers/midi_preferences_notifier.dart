@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/core/persistence/shared_preferences_provider.dart';
+import 'package:what_chord/core/providers/shared_preferences_provider.dart';
 
 import '../models/midi_device.dart';
 import '../models/midi_preferences.dart';

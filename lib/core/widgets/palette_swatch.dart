@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_theme.dart';
-import '../theme/models/app_palette.dart';
+import '../models/app_palette.dart';
+import '../services/app_theme_builder.dart';
 
 class PaletteSwatch extends StatelessWidget {
   const PaletteSwatch({super.key, required this.palette, this.size = 18});

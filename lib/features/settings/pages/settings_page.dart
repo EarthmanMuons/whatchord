@@ -4,9 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:what_chord/core/theme/theme.dart';
-import 'package:what_chord/core/utils/utils.dart';
-import 'package:what_chord/core/widgets/widgets.dart';
+import 'package:what_chord/core/core.dart';
 import 'package:what_chord/features/midi/midi.dart';
 import 'package:what_chord/features/theory/theory.dart';
 
@@ -20,7 +18,7 @@ class SettingsPage extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     final chordNotationStyle = ref.watch(chordNotationStyleProvider);
-    final themeMode = ref.watch(themeModeProvider);
+    final themeMode = ref.watch(appThemeModeProvider);
     final palette = ref.watch(appPaletteProvider);
     final palettes = [...AppPalette.values]
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
@@ -112,7 +110,7 @@ class SettingsPage extends ConsumerWidget {
               selected: <ThemeMode>{themeMode},
               onSelectionChanged: (selection) {
                 ref
-                    .read(themeModeProvider.notifier)
+                    .read(appThemeModeProvider.notifier)
                     .setThemeMode(selection.first);
               },
             ),

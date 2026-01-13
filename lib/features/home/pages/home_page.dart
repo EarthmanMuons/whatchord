@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/core/widgets/widgets.dart';
+import 'package:what_chord/core/core.dart';
 import 'package:what_chord/features/midi/midi.dart';
 import 'package:what_chord/features/piano/piano.dart';
 import 'package:what_chord/features/settings/settings.dart';

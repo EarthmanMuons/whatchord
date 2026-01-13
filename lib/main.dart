@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'core/activity/app_resume_wakeup_provider.dart';
-import 'core/activity/idle_blackout_overlay.dart';
-import 'core/persistence/shared_preferences_provider.dart';
-import 'core/theme/theme.dart';
+import 'core/core.dart';
 import 'features/home/home.dart';
 
 Future<void> main() async {
@@ -29,7 +26,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(appResumeWakeupProvider);
 
-    final themeMode = ref.watch(themeModeProvider);
+    final themeMode = ref.watch(appThemeModeProvider);
     final palette = ref.watch(appPaletteProvider);
 
     return MaterialApp(

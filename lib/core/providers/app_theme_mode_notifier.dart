@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../persistence/core_preferences_keys.dart';
-import '../../persistence/shared_preferences_provider.dart';
+import '../persistence/core_preferences_keys.dart';
+import '../providers/shared_preferences_provider.dart';
 
-final themeModeProvider = NotifierProvider<ThemeModeNotifier, ThemeMode>(
-  ThemeModeNotifier.new,
+final appThemeModeProvider = NotifierProvider<AppThemeModeNotifier, ThemeMode>(
+  AppThemeModeNotifier.new,
 );
 
-class ThemeModeNotifier extends Notifier<ThemeMode> {
+class AppThemeModeNotifier extends Notifier<ThemeMode> {
   @override
   ThemeMode build() {
     final prefs = ref.watch(sharedPreferencesProvider);
