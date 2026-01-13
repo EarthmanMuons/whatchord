@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/activity_state.dart';
+import '../models/app_activity_state.dart';
 import '../providers/app_activity_notifier.dart';
 
 class IdleBlackoutOverlay extends ConsumerWidget {
@@ -16,7 +16,7 @@ class IdleBlackoutOverlay extends ConsumerWidget {
       behavior: HitTestBehavior.translucent,
       onPointerDown: (_) => ref
           .read(appActivityProvider.notifier)
-          .markActivity(ActivitySource.pointer),
+          .markActivity(AppActivitySource.pointer),
       child: Stack(
         fit: StackFit.expand,
         children: [

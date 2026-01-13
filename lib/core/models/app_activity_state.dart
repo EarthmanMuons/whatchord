@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 
-enum ActivitySource { pointer, keyboard, midi, internal }
+enum AppActivitySource { pointer, keyboard, midi, internal }
 
 @immutable
-class ActivityState {
-  const ActivityState({
+class AppActivityState {
+  const AppActivityState({
     required this.lastActivityAt,
     required this.isIdle,
     required this.idleAfter,
@@ -14,15 +14,15 @@ class ActivityState {
   final DateTime lastActivityAt;
   final bool isIdle;
   final Duration idleAfter;
-  final ActivitySource? lastSource;
+  final AppActivitySource? lastSource;
 
-  ActivityState copyWith({
+  AppActivityState copyWith({
     DateTime? lastActivityAt,
     bool? isIdle,
     Duration? idleAfter,
-    ActivitySource? lastSource,
+    AppActivitySource? lastSource,
   }) {
-    return ActivityState(
+    return AppActivityState(
       lastActivityAt: lastActivityAt ?? this.lastActivityAt,
       isIdle: isIdle ?? this.isIdle,
       idleAfter: idleAfter ?? this.idleAfter,

@@ -3,10 +3,10 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/activity_state.dart';
+import '../models/app_activity_state.dart';
 
 final appActivityProvider =
-    NotifierProvider<AppActivityNotifier, ActivityState>(
+    NotifierProvider<AppActivityNotifier, AppActivityState>(
       AppActivityNotifier.new,
     );
 
@@ -18,11 +18,11 @@ final idleAfterProvider = Provider<Duration>((ref) {
   return const Duration(minutes: 2);
 });
 
-class AppActivityNotifier extends Notifier<ActivityState> {
+class AppActivityNotifier extends Notifier<AppActivityState> {
   Timer? _idleTimer;
 
   @override
-  ActivityState build() {
+  AppActivityState build() {
     final idleAfter = ref.watch(idleAfterProvider);
     final now = DateTime.now();
 
@@ -37,7 +37,7 @@ class AppActivityNotifier extends Notifier<ActivityState> {
       _scheduleIdleTimer();
     });
 
-    final initial = ActivityState(
+    final initial = AppActivityState(
       lastActivityAt: now,
       isIdle: false,
       idleAfter: idleAfter,
@@ -49,7 +49,7 @@ class AppActivityNotifier extends Notifier<ActivityState> {
     return initial;
   }
 
-  void markActivity([ActivitySource source = ActivitySource.internal]) {
+  void markActivity([AppActivitySource source = AppActivitySource.internal]) {
     final now = DateTime.now();
 
     // Throttle noise while still guaranteeing instant wake from idle.

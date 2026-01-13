@@ -85,7 +85,7 @@ class _ActiveInputState extends ConsumerState<ActiveInput>
         if (!listEquals(prev ?? const <ActiveNote>[], next)) {
           ref
               .read(appActivityProvider.notifier)
-              .markActivity(ActivitySource.midi);
+              .markActivity(AppActivitySource.midi);
         }
 
         _applyNotesDiff(next);

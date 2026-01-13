@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/activity_state.dart';
+import '../models/app_activity_state.dart';
 import '../providers/app_activity_notifier.dart';
 
 /// Marks internal activity whenever the app is resumed (e.g., device
@@ -14,7 +14,7 @@ final appResumeWakeupProvider = Provider<void>((ref) {
     onResume: () {
       // Run after the current lifecycle callback completes.
       scheduleMicrotask(() {
-        activity.markActivity(ActivitySource.internal);
+        activity.markActivity(AppActivitySource.internal);
       });
     },
   );
