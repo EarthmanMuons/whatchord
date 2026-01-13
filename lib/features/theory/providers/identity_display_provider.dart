@@ -14,6 +14,7 @@ import '../services/note_spelling.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
 import 'chord_candidates_providers.dart';
+import 'chord_member_spellings_providers.dart';
 import 'chord_notation_style_notifier.dart';
 
 final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
@@ -106,6 +107,8 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
 
         final qualityLabel = id.quality.label(ChordQualityLabelForm.short);
 
+        final members = ref.watch(chordMemberSpellingsProvider);
+
         final debugText = _debugForChord(
           midis: midis,
           tonalityName: tonality.toString(),
@@ -116,6 +119,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           hasSlash: id.hasSlashBass,
           quality: qualityLabel,
           extensions: id.extensions.map((e) => e.shortLabel).toList()..sort(),
+          members: members,
         );
 
         return ChordDisplay(
@@ -199,12 +203,14 @@ String _debugForChord({
   required bool hasSlash,
   required String quality,
   required List<String> extensions,
+  required List<String> members,
 }) {
   final base = _debugForInput(midis: midis, tonalityName: tonalityName);
   return [
     'Chord Identity',
     '- Displayed: $chosenSymbol',
     '- Long:      $longLabel',
+    '- Members:   ${members.isEmpty ? '(none)' : members.join(', ')}',
     '',
     base,
     '',
