@@ -9,7 +9,7 @@
 //   dart run tool/chord_debug.dart 60 64 67 70 74 --top=12
 //
 // Optional flags:
-//   --top=N           Number of ranked candidates to show (default 5)
+//   --top=N           Number of ranked candidates to show (default 3)
 //   --bass=PC         Override bass pitch class (e.g., C, Eb, F#)
 //
 //   --compact         Use a condensed, single-line-per-candidate output
@@ -46,7 +46,7 @@ void main(List<String> args) {
     return;
   }
 
-  final top = _readIntFlag(args, 'top') ?? 5;
+  final top = _readIntFlag(args, 'top') ?? 3;
   final bassName = _readStringFlag(args, 'bass');
   final bassDisplayFromFlag = bassName == null
       ? null
@@ -103,7 +103,7 @@ void main(List<String> args) {
     bassPc: bassPc,
     noteCount: midi.isNotEmpty ? midi.length : pcs.length,
   );
-  stdout.writeln('Input: $input');
+  stdout.writeln('input: $input');
 
   final pcNames =
       pcs
@@ -136,10 +136,6 @@ void main(List<String> args) {
   stdout.writeln(
     'key: ${context.tonality.displayName} (${context.keySignature.label})',
   );
-  stdout.writeln(
-    'spelling: ${context.spellingPolicy.preferFlats ? 'flats' : 'sharps'}',
-  );
-  stdout.writeln('notation: ${_notationLabel(notation)}');
   stdout.writeln('');
   stdout.writeln(
     'Note: sorting uses near-tie heuristics within ±${ChordCandidateRanking.nearTieWindow.toStringAsFixed(2)}',
@@ -416,11 +412,6 @@ Never _failUnknownNotation(String raw) {
   exitCode = 2;
   throw StateError('Invalid --notation=$raw');
 }
-
-String _notationLabel(ChordNotationStyle style) => switch (style) {
-  ChordNotationStyle.textual => 'textual',
-  ChordNotationStyle.symbolic => 'symbolic',
-};
 
 String _formatIdentityCompact(ChordIdentity id) {
   // Start from the model's canonical toString().
