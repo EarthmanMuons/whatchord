@@ -9,7 +9,7 @@
 //   dart run tool/chord_debug.dart 60 64 67 70 74 --top=12
 //
 // Optional flags:
-//   --top=N           Number of ranked candidates to show (default 3)
+//   --top=N           Number of ranked candidates to show (default 4)
 //   --bass=PC         Override bass pitch class (e.g., C, Eb, F#)
 //
 //   --compact         Use a condensed, single-line-per-candidate output
@@ -40,7 +40,7 @@ void main(List<String> args) {
     return;
   }
 
-  final top = _readIntFlag(args, 'top') ?? 3;
+  final top = _readIntFlag(args, 'top') ?? 4;
   final bassName = _readStringFlag(args, 'bass');
   final bassDisplayFromFlag = bassName == null
       ? null
