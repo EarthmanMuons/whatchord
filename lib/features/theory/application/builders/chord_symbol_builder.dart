@@ -1,6 +1,6 @@
-import '../domain/theory_domain.dart';
-import '../models/chord_symbol.dart';
-import 'chord_quality_formatter.dart';
+import '../../domain/theory_domain.dart';
+import '../../models/chord_symbol.dart';
+import '../formatting/chord_quality_formatter.dart';
 
 class ChordSymbolBuilder {
   static ChordSymbol fromIdentity({

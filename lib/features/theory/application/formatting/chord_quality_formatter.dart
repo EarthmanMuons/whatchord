@@ -1,6 +1,6 @@
-import '../domain/theory_domain.dart';
-import '../models/chord_symbol.dart' show ChordNotationStyle;
-import '../services/chord_quality_token_labels.dart';
+import '../../domain/theory_domain.dart';
+import '../../models/chord_symbol.dart' show ChordNotationStyle;
+import 'chord_quality_token_labels.dart';
 
 /// Formats the "quality+extensions" portion of a chord symbol.
 class ChordQualityFormatter {

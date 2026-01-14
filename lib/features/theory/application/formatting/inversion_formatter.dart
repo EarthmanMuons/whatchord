@@ -1,4 +1,4 @@
-import '../domain/theory_domain.dart';
+import '../../domain/theory_domain.dart';
 
 abstract final class InversionFormatter {
   static String? format(ChordIdentity id) {

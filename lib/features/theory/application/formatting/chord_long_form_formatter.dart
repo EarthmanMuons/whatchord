@@ -1,4 +1,4 @@
-import '../domain/theory_domain.dart';
+import '../../domain/theory_domain.dart';
 import 'chord_quality_token_labels.dart';
 
 class ChordLongFormFormatter {
