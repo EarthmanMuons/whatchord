@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/core/providers/shared_preferences_provider.dart';
 
-import '../models/chord_symbol.dart';
+import '../../models/chord_symbol.dart';
 import '../persistence/theory_preferences_keys.dart';
 
 final chordNotationStyleProvider =

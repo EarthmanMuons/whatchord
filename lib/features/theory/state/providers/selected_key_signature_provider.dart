@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../domain/theory_domain.dart';
+import '../../domain/theory_domain.dart';
 import 'selected_tonality_notifier.dart';
 
 final selectedKeySignatureProvider = Provider<KeySignature>((ref) {

@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/input/input.dart';
 
-import '../domain/theory_domain.dart';
+import '../../domain/theory_domain.dart';
 
 /// Converts currently sounding notes into a minimal [ChordInput].
 final chordInputProvider = Provider<ChordInput?>((ref) {

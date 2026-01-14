@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../domain/theory_domain.dart';
+import '../../domain/theory_domain.dart';
 
 final selectedTonalityProvider =
     NotifierProvider<SelectedTonalityNotifier, Tonality>(

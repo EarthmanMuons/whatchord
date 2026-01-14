@@ -11,12 +11,12 @@ export 'domain/theory_domain.dart'
 export 'models/chord_symbol.dart';
 export 'models/identity_display.dart';
 
-export 'providers/chord_member_spellings_providers.dart';
-export 'providers/detected_scale_degree_provider.dart';
-export 'providers/identity_display_provider.dart';
-export 'providers/pitch_class_names_provider.dart';
-export 'providers/selected_tonality_notifier.dart';
-export 'providers/theory_preferences_notifier.dart';
+export 'state/providers/chord_member_spellings_providers.dart';
+export 'state/providers/detected_scale_degree_provider.dart';
+export 'state/providers/identity_display_provider.dart';
+export 'state/providers/pitch_class_names_provider.dart';
+export 'state/providers/selected_tonality_notifier.dart';
+export 'state/providers/theory_preferences_notifier.dart';
 
 export 'services/chord_quality_formatter.dart';
 export 'services/chord_symbol_builder.dart';

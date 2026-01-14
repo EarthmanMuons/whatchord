@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../domain/theory_domain.dart';
+import '../../domain/theory_domain.dart';
 import 'selected_key_signature_provider.dart';
 import 'selected_tonality_notifier.dart';
 

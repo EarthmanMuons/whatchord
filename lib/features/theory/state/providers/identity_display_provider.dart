@@ -2,14 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:what_chord/features/input/input.dart';
 
-import '../domain/theory_domain.dart';
-import '../models/identity_display.dart';
-import '../services/chord_long_form_formatter.dart';
-import '../services/chord_quality_token_labels.dart';
-import '../services/chord_symbol_builder.dart';
-import '../services/interval_formatter.dart';
-import '../services/inversion_formatter.dart';
-import '../services/note_long_form_formatter.dart';
+import '../../domain/theory_domain.dart';
+import '../../models/identity_display.dart';
+import '../../services/chord_long_form_formatter.dart';
+import '../../services/chord_quality_token_labels.dart';
+import '../../services/chord_symbol_builder.dart';
+import '../../services/interval_formatter.dart';
+import '../../services/inversion_formatter.dart';
+import '../../services/note_long_form_formatter.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
 import 'chord_candidates_providers.dart';
