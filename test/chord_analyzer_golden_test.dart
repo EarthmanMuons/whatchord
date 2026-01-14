@@ -398,6 +398,16 @@ void main() {
         expect(top.quality, ChordQualityToken.minorMajor7);
       },
     ),
+    // Dominant 7 suspended 4 promotion
+    GoldenCase(
+      name: 'C F G Bb D -> C9sus4',
+      pcs: ['C', 'F', 'G', 'Bb', 'D'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7sus4);
+        expect(top.extensions, contains(ChordExtension.nine));
+      },
+    ),
 
     // // Minor vs major third contradiction
     // GoldenCase(

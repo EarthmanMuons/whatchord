@@ -37,6 +37,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return '−6';
       case ChordQualityToken.dominant7:
         return '7';
+      case ChordQualityToken.dominant7sus4:
+        return '7sus4';
       case ChordQualityToken.major7:
         return 'Δ7';
       case ChordQualityToken.minor7:
@@ -72,6 +74,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'm6';
       case ChordQualityToken.dominant7:
         return '7';
+      case ChordQualityToken.dominant7sus4:
+        return '7sus4';
       case ChordQualityToken.major7:
         return 'maj7';
       case ChordQualityToken.minor7:
@@ -107,6 +111,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'minor sixth';
       case ChordQualityToken.dominant7:
         return 'dominant seventh';
+      case ChordQualityToken.dominant7sus4:
+        return 'dominant seventh suspended fourth';
       case ChordQualityToken.major7:
         return 'major seventh';
       case ChordQualityToken.minor7:

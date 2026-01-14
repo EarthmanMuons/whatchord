@@ -192,6 +192,17 @@ const chordTemplates = <ChordTemplate>[
     penaltyMask: (1 << _major7) | (1 << _minor3),
   ),
 
+  // 7sus4: R + P4 + (P5) + b7
+  // - Dominant seventh with suspended 4th
+  // - P5 optional (common voicings omit it: R-4-b7)
+  // - Penalty: any third (would resolve suspension), M7 (would suggest maj7 color)
+  ChordTemplate(
+    quality: ChordQualityToken.dominant7sus4,
+    requiredMask: (1 << _perfect4) | (1 << _minor7),
+    optionalMask: (1 << _perfect5),
+    penaltyMask: (1 << _minor3) | (1 << _major3) | (1 << _major7),
+  ),
+
   // Major 7th: R + M3 + (P5) + M7
   // - Major third + major seventh (stable, color chord)
   // - P5 optional

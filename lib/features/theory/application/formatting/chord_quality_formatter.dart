@@ -41,7 +41,13 @@ class ChordQualityFormatter {
     }
 
     if (headline != null) {
-      base = _replaceSeventhWithExtension(base, headline.shortLabel);
+      final promoted = _replaceSeventhWithExtension(base, headline.shortLabel);
+      if (promoted != base) {
+        base = promoted;
+      } else {
+        // Promotion not supported for this base form; keep headline as a modifier.
+        headline = null;
+      }
     }
 
     final mods = <ChordExtension>[];
@@ -96,6 +102,7 @@ class ChordQualityFormatter {
     // Seventh-family qualities are the ones that headline 9/11/13.
     switch (quality) {
       case ChordQualityToken.dominant7:
+      case ChordQualityToken.dominant7sus4:
       case ChordQualityToken.major7:
       case ChordQualityToken.minor7:
       case ChordQualityToken.minorMajor7:
@@ -128,6 +135,13 @@ class ChordQualityFormatter {
   }
 
   static String _replaceSeventhWithExtension(String base, String ext) {
+    // Suspended dominant headline: 7sus4 -> 9sus4, 13sus4, etc.
+    // Applies to both sus2 and sus4 forms if you add them later.
+    if (base.startsWith('7sus')) {
+      // Replace the leading '7' with the extension headline.
+      return '$ext${base.substring(1)}';
+    }
+
     // Handle minor-major seventh textual form: m(maj7) -> m(maj9), etc.
     // This is the only common seventh-family label where "7" is embedded
     // inside a parenthetical quality marker rather than being a suffix.
@@ -161,6 +175,10 @@ class ChordQualityFormatter {
   }) {
     if (quality == ChordQualityToken.diminished7) return true;
     if (mods.isEmpty) return false;
+
+    // Suspended seventh-family chords read poorly when modifiers are concatenated:
+    // "7sus49" is ambiguous; prefer "7sus4(9)".
+    if (quality.isSeventhFamily && quality.isSus) return true;
 
     // Single modifier: generally inline, except add-tones on seventh-family chords.
     if (mods.length == 1) {
