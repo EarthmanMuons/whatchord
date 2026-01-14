@@ -1,8 +1,5 @@
-import '../domain/models/chord_extension.dart';
-import '../domain/models/chord_identity.dart';
-import '../models/tonality.dart';
+import '../domain/theory_domain.dart';
 import 'chord_quality_token_labels.dart';
-import 'note_spelling.dart' show pcToName, spellPitchClass;
 
 class ChordLongFormFormatter {
   static String format({

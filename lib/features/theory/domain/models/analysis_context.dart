@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
 
-import '../../models/key_signature.dart';
-import '../../models/tonality.dart';
-import '../../models/note_spelling_policy.dart';
+import '../models/key_signature.dart';
+import '../models/note_spelling_policy.dart';
+import '../models/tonality.dart';
 
 /// Context that can bias chord analysis and control spelling/formatting.
 ///

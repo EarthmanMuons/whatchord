@@ -1,5 +1,5 @@
-import '../domain/models/chord_identity.dart';
-import '../domain/models/chord_tone_role.dart';
+import '../models/chord_identity.dart';
+import '../models/chord_tone_role.dart';
 import '../models/tonality.dart';
 import 'note_spelling.dart' show pcToName, spellPitchClass;
 

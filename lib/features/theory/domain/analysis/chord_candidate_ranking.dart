@@ -1,9 +1,9 @@
-import '../../models/scale_degree.dart';
-import '../../models/tonality.dart';
 import '../models/chord_candidate.dart';
 import '../models/chord_extension.dart';
 import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
+import '../models/scale_degree.dart';
+import '../models/tonality.dart';
 
 class RankingDecision {
   final int result;

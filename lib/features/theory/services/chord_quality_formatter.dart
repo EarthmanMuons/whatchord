@@ -1,5 +1,4 @@
-import '../domain/models/chord_extension.dart';
-import '../domain/models/chord_identity.dart';
+import '../domain/theory_domain.dart';
 import '../models/chord_symbol.dart' show ChordNotationStyle;
 import '../services/chord_quality_token_labels.dart';
 

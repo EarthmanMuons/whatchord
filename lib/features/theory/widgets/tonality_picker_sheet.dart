@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/key_signature.dart';
-import '../models/tonality.dart';
+import '../domain/theory_domain.dart';
 import '../providers/selected_tonality_notifier.dart';
 
 class TonalityPickerSheet extends ConsumerStatefulWidget {

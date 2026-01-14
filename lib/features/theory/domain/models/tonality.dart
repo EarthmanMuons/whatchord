@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
-import '../domain/models/chord_identity.dart';
 import '../services/pitch_class.dart';
+import 'chord_identity.dart';
 import 'scale_degree.dart';
 
 enum TonalityMode { major, minor }

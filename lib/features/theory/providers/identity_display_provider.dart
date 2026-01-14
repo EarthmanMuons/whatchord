@@ -10,7 +10,6 @@ import '../services/chord_symbol_builder.dart';
 import '../services/interval_formatter.dart';
 import '../services/inversion_formatter.dart';
 import '../services/note_long_form_formatter.dart';
-import '../services/note_spelling.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
 import 'chord_candidates_providers.dart';

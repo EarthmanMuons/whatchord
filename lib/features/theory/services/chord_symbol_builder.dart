@@ -1,8 +1,6 @@
-import '../domain/models/chord_identity.dart';
+import '../domain/theory_domain.dart';
 import '../models/chord_symbol.dart';
-import '../models/tonality.dart';
 import 'chord_quality_formatter.dart';
-import 'note_spelling.dart' show pcToName, spellPitchClass;
 
 class ChordSymbolBuilder {
   static ChordSymbol fromIdentity({

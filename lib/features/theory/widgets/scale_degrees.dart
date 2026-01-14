@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/scale_degree.dart';
+import '../domain/theory_domain.dart';
 
 class ScaleDegrees extends StatelessWidget {
   final ScaleDegree? current;

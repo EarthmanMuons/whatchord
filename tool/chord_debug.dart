@@ -31,12 +31,7 @@ import 'dart:io';
 
 import 'package:what_chord/features/theory/domain/theory_domain.dart';
 import 'package:what_chord/features/theory/models/chord_symbol.dart';
-import 'package:what_chord/features/theory/models/key_signature.dart';
-import 'package:what_chord/features/theory/models/note_spelling_policy.dart';
-import 'package:what_chord/features/theory/models/tonality.dart';
 import 'package:what_chord/features/theory/services/chord_symbol_builder.dart';
-import 'package:what_chord/features/theory/services/note_spelling.dart';
-import 'package:what_chord/features/theory/services/pitch_class.dart';
 
 void main(List<String> args) {
   if (args.isEmpty) {

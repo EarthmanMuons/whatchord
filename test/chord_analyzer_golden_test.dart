@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:what_chord/features/theory/services/chord_symbol_builder.dart';
 
+import 'package:what_chord/features/theory/domain/theory_domain.dart';
 import 'package:what_chord/features/theory/theory.dart';
 
 AnalysisContext makeContext({
