@@ -9,7 +9,7 @@ import '../models/chord_identity.dart';
 import '../models/chord_input.dart';
 import '../services/chord_tone_roles.dart';
 import 'chord_candidate_ranking.dart';
-import 'data/chord_templates.dart';
+import 'chord_templates.dart';
 
 @immutable
 class ScoreReason {
