@@ -6,8 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_chord/features/input/input.dart';
 import 'package:what_chord/features/theory/theory.dart';
 
-import '../../models/home_layout_config.dart';
-import '../components/identity_card.dart';
+import '../models/home_layout_config.dart';
+import 'identity_card.dart';
 
 class AnalysisSection extends ConsumerWidget {
   const AnalysisSection({

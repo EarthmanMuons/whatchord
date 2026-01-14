@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:what_chord/features/piano/piano.dart';
 import 'package:what_chord/features/theory/theory.dart';
 
-import '../../models/home_layout_config.dart';
+import '../models/home_layout_config.dart';
 
 class DetailsSection extends ConsumerWidget {
   const DetailsSection({

@@ -7,12 +7,12 @@ import 'package:what_chord/features/piano/piano.dart';
 import 'package:what_chord/features/settings/settings.dart';
 
 import '../models/home_layout_config.dart';
-import '../widgets/components/app_bar_title.dart';
+import '../widgets/analysis_section.dart';
+import '../widgets/app_bar_title.dart';
+import '../widgets/details_section.dart';
 import '../widgets/edge_to_edge_controller.dart';
-import '../widgets/sections/analysis_section.dart';
-import '../widgets/sections/details_section.dart';
-import '../widgets/sections/keyboard_section.dart';
-import '../widgets/sections/tonality_bar.dart';
+import '../widgets/keyboard_section.dart';
+import '../widgets/tonality_bar.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
