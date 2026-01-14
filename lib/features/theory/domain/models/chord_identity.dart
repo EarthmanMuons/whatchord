@@ -3,31 +3,37 @@ import 'package:meta/meta.dart';
 import 'chord_extension.dart';
 import 'chord_tone_role.dart';
 
-/// Canonical, style-agnostic chord identity.
+/// Canonical, style-agnostic chord identity produced by analysis.
 ///
-/// This is the "truth" returned by analysis (before applying naming style,
-/// enharmonic spelling, etc.).
+/// This represents the analytical “truth” of a chord before applying
+/// enharmonic spelling, notation style, or UI-level formatting.
 @immutable
 class ChordIdentity {
   /// Pitch class of the chord root (0..11).
   final int rootPc;
 
-  /// Pitch class of the bass (0..11). If equal to [rootPc], there is no slash bass.
+  /// Pitch class of the bass (0..11).
+  ///
+  /// If equal to [rootPc], the chord has no distinct slash bass.
   final int bassPc;
 
-  /// Core quality token (kept intentionally simple for Step 1).
+  /// Core chord quality classification.
   ///
-  /// In Step 2 we will likely replace/expand this with a richer enum structure
-  /// (triad quality + seventh quality, etc.).
+  /// This captures the primary quality used by the analysis engine
+  /// (e.g., major, minor, dominant seventh) independent of naming
+  /// or display conventions.
   final ChordQualityToken quality;
 
-  /// Extensions/modifiers as pitch-class intervals above root (0..11),
-  /// encoded as semitone offsets.
+  /// Additional chord extensions or alterations, expressed as semitone
+  /// offsets above the root (0–11).
   ///
-  /// Example: 2(9), 5(11), 9(13), 1(b9), 3(#9), 6(#11), 8(b13), etc.
+  /// These represent non-essential tones beyond the core quality.
   final Set<ChordExtension> extensions;
 
-  /// Optional: intended chord-tone roles keyed by interval-above-root (0..11).
+  /// Intended chord-tone roles keyed by interval-above-root (0..11).
+  ///
+  /// This disambiguates enharmonically equivalent intervals by assigning
+  /// their theoretical function within the chord.
   ///
   /// Example:
   /// - interval 6 might be ChordToneRole.sharp11 (dominant context),

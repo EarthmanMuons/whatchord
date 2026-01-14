@@ -385,7 +385,7 @@ abstract final class ChordAnalyzer {
     return !hasFifth;
   }
 
-  /// Calculates the interval (in semitones, 0-11) from rootPc to pc.
+  /// Calculates the interval (in semitones, 0..11) from rootPc to pc.
   static int _interval(int pc, int rootPc) {
     final d = pc - rootPc;
     final m = d % 12;
