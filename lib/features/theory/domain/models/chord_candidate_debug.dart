@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
 
+import '../analysis/data/chord_templates.dart';
 import 'chord_candidate.dart';
 import 'chord_identity.dart';
-import '../data/chord_templates.dart';
 
 @immutable
 class ChordCandidateDebug {

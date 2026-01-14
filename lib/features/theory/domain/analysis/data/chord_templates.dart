@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../models/chord_identity.dart';
+import '../../models/chord_identity.dart';
 
 @immutable
 class ChordTemplate {

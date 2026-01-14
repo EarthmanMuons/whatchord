@@ -2,14 +2,14 @@ import 'dart:math' as math;
 
 import 'package:meta/meta.dart';
 
+import '../models/analysis_context.dart';
+import '../models/chord_candidate.dart';
+import '../models/chord_extension.dart';
+import '../models/chord_identity.dart';
+import '../models/chord_input.dart';
+import '../services/chord_tone_roles.dart';
 import 'chord_candidate_ranking.dart';
 import 'data/chord_templates.dart';
-import 'models/analysis_context.dart';
-import 'models/chord_candidate.dart';
-import 'models/chord_extension.dart';
-import 'models/chord_identity.dart';
-import 'models/chord_input.dart';
-import 'services/chord_tone_roles.dart';
 
 @immutable
 class ScoreReason {
