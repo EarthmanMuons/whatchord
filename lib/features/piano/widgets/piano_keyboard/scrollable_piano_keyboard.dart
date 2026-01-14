@@ -58,12 +58,7 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
   @override
   void initState() {
     super.initState();
-
-    // Initial viewport: center on middle C (or sounding notes if already present).
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _centerNow();
-    });
+    _scheduleInitialCenter();
   }
 
   @override
@@ -72,8 +67,87 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
     super.dispose();
   }
 
-  bool get _followSuppressed =>
-      DateTime.now().difference(_lastUserScroll) < widget.followCooldown;
+  void _scheduleInitialCenter() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _tryCenterWhenReady(retries: 8);
+    });
+  }
+
+  void _tryCenterWhenReady({required int retries}) {
+    if (!mounted) return;
+
+    // Controller not attached yet.
+    if (!_ctl.hasClients) {
+      _retry(retries);
+      return;
+    }
+
+    final pos = _ctl.position;
+
+    // Layout not settled / no extents yet.
+    if (!pos.hasContentDimensions || pos.maxScrollExtent == 0.0) {
+      _retry(retries);
+      return;
+    }
+
+    _centerNow();
+  }
+
+  void _retry(int retries) {
+    if (retries <= 0) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _tryCenterWhenReady(retries: retries - 1);
+    });
+  }
+
+  void _centerNow() {
+    if (!mounted) return;
+    _lastUserScroll = DateTime.fromMillisecondsSinceEpoch(
+      0,
+    ); // allow follow immediately
+
+    final viewport = context.size;
+    if (viewport == null || viewport.width <= 0) return;
+
+    final viewportW = viewport.width;
+    final whiteKeyW = viewportW / widget.visibleWhiteKeyCount;
+
+    final geom = PianoGeometry(
+      firstWhiteMidi: widget.fullFirstMidiNote,
+      whiteKeyCount: widget.fullWhiteKeyCount,
+    );
+
+    double xForMidi(int midi) {
+      final idx = geom.whiteIndexForMidi(midi);
+      return idx * whiteKeyW;
+    }
+
+    final sounding = widget.soundingMidiNotes;
+
+    // If notes are sounding, center them; otherwise center middle C (MIDI 60).
+    final targetMidi = sounding.isNotEmpty ? null : 60;
+
+    double centerX;
+    if (sounding.isNotEmpty) {
+      final minMidi = sounding.reduce(math.min);
+      final maxMidi = sounding.reduce(math.max);
+      centerX =
+          (xForMidi(minMidi) + xForMidi(maxMidi)) / 2.0 + (whiteKeyW / 2.0);
+    } else {
+      centerX = xForMidi(targetMidi!) + (whiteKeyW / 2.0);
+    }
+
+    final target = (centerX - (viewportW / 2.0)).clamp(
+      0.0,
+      _ctl.position.maxScrollExtent,
+    );
+
+    _ctl.animateTo(
+      target,
+      duration: const Duration(milliseconds: 240),
+      curve: Curves.easeOutCubic,
+    );
+  }
 
   @override
   void didUpdateWidget(covariant ScrollablePianoKeyboard oldWidget) {
@@ -95,6 +169,9 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
   void _onUserScroll() {
     _lastUserScroll = DateTime.now();
   }
+
+  bool get _followSuppressed =>
+      DateTime.now().difference(_lastUserScroll) < widget.followCooldown;
 
   void _maybeFollow({bool force = false}) {
     if (!mounted) return;
@@ -380,55 +457,6 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
     _ctl.animateTo(
       target,
       duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-    );
-  }
-
-  void _centerNow() {
-    if (!mounted) return;
-    _lastUserScroll = DateTime.fromMillisecondsSinceEpoch(
-      0,
-    ); // allow follow immediately
-
-    final viewport = context.size;
-    if (viewport == null || viewport.width <= 0) return;
-
-    final viewportW = viewport.width;
-    final whiteKeyW = viewportW / widget.visibleWhiteKeyCount;
-
-    final geom = PianoGeometry(
-      firstWhiteMidi: widget.fullFirstMidiNote,
-      whiteKeyCount: widget.fullWhiteKeyCount,
-    );
-
-    double xForMidi(int midi) {
-      final idx = geom.whiteIndexForMidi(midi);
-      return idx * whiteKeyW;
-    }
-
-    final sounding = widget.soundingMidiNotes;
-
-    // If notes are sounding, center them; otherwise center middle C (MIDI 60).
-    final targetMidi = sounding.isNotEmpty ? null : 60;
-
-    double centerX;
-    if (sounding.isNotEmpty) {
-      final minMidi = sounding.reduce(math.min);
-      final maxMidi = sounding.reduce(math.max);
-      centerX =
-          (xForMidi(minMidi) + xForMidi(maxMidi)) / 2.0 + (whiteKeyW / 2.0);
-    } else {
-      centerX = xForMidi(targetMidi!) + (whiteKeyW / 2.0);
-    }
-
-    final target = (centerX - (viewportW / 2.0)).clamp(
-      0.0,
-      _ctl.position.maxScrollExtent,
-    );
-
-    _ctl.animateTo(
-      target,
-      duration: const Duration(milliseconds: 240),
       curve: Curves.easeOutCubic,
     );
   }
