@@ -26,7 +26,7 @@ conventional interpretations over simple note-matching.
 
 - **Context-aware spelling**  
   Notes and chord symbols are spelled using the current key signature _and_ the
-  identified chord context, producing musically appropriate enharmonic choices.
+  identified chord context, producing appropriate enharmonic spellings.
 
 - **Notation style preferences**  
   Supports multiple chord symbol conventions (e.g., textual vs. symbolic),
