@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../application/builders/chord_symbol_builder.dart';
 import '../../state/providers/analysis_context_provider.dart';
 import '../../state/providers/chord_candidates_providers.dart';
 import '../../state/providers/theory_preferences_notifier.dart';
+import '../services/chord_symbol_builder.dart';
 
 class NearTieChordCandidatesList extends ConsumerWidget {
   const NearTieChordCandidatesList({
