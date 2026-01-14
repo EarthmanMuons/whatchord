@@ -30,7 +30,7 @@
 import 'dart:io';
 
 import 'package:what_chord/features/theory/domain/theory_domain.dart';
-import 'package:what_chord/features/theory/models/chord_symbol.dart';
+import 'package:what_chord/features/theory/presentation/models/chord_symbol.dart';
 import 'package:what_chord/features/theory/application/builders/chord_symbol_builder.dart';
 
 void main(List<String> args) {

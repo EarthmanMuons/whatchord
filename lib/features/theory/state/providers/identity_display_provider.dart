@@ -9,7 +9,7 @@ import '../../application/formatting/interval_formatter.dart';
 import '../../application/formatting/inversion_formatter.dart';
 import '../../application/formatting/note_long_form_formatter.dart';
 import '../../domain/theory_domain.dart';
-import '../../models/identity_display.dart';
+import '../../presentation/models/identity_display.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
 import 'chord_candidates_providers.dart';

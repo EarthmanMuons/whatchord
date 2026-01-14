@@ -1,5 +1,5 @@
 import '../../domain/theory_domain.dart';
-import '../../models/chord_symbol.dart';
+import '../../presentation/models/chord_symbol.dart';
 import '../formatting/chord_quality_formatter.dart';
 
 class ChordSymbolBuilder {
