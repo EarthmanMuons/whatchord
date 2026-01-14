@@ -24,6 +24,6 @@ export 'services/interval_formatter.dart';
 export 'services/inversion_formatter.dart';
 export 'services/note_display_formatter.dart';
 
-export 'widgets/near_tie_chord_candidates_list.dart';
-export 'widgets/scale_degrees.dart';
-export 'widgets/tonality_picker_sheet.dart';
+export 'presentation/widgets/near_tie_chord_candidates_list.dart';
+export 'presentation/widgets/scale_degrees.dart';
+export 'presentation/widgets/tonality_picker_sheet.dart';
