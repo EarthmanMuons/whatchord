@@ -10,16 +10,6 @@ export 'application/formatting/interval_formatter.dart';
 export 'application/formatting/inversion_formatter.dart';
 export 'application/formatting/note_display_formatter.dart';
 
-export 'domain/theory_domain.dart'
-    show
-        ChordAnalyzer,
-        ChordCandidate,
-        ChordIdentity,
-        ChordInput,
-        KeySignature,
-        ScaleDegree,
-        Tonality;
-
 export 'state/providers/chord_member_spellings_providers.dart';
 export 'state/providers/detected_scale_degree_provider.dart';
 export 'state/providers/identity_display_provider.dart';
