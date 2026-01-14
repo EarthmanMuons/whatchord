@@ -115,6 +115,10 @@ abstract final class ChordCandidateRanking {
     ),
     _NamedRule('Prefer root-position diminished7', _preferDim7InRoot),
     _NamedRule('Prefer dominant7 over dim7 slash', _preferDom7Shell),
+    _NamedRule(
+      'Prefer root-position dominant7 over non-dominant slash',
+      _preferDom7RootOverNonDomSlash,
+    ),
     _NamedRule('Prefer fewer alterations', _preferFewerAlterations),
     _NamedRule('Prefer diatonic chords', _preferDiatonic),
     _NamedRule('Prefer I chord when bass is tonic', _preferTonicAsI),
@@ -317,6 +321,38 @@ abstract final class ChordCandidateRanking {
 
     // Dominant wins.
     return domIsA ? -1 : 1;
+  }
+
+  /// Prefers a root-position dominant7 (with shell) over a non-dominant slash
+  /// interpretation in near-ties.
+  ///
+  /// This catches cases like:
+  ///   {C, E, Bb, Db, F#, Ab, G} -> prefer C7(b9,#11,b13)
+  /// over remote minor-major / extended slash readings.
+  static int? _preferDom7RootOverNonDomSlash(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsPreferred = fa.isDom7RootPosition && fa.dom7HasShell;
+    final bIsPreferred = fb.isDom7RootPosition && fb.dom7HasShell;
+    if (aIsPreferred == bIsPreferred) return null;
+
+    final fDom = aIsPreferred ? fa : fb;
+    final fOther = aIsPreferred ? fb : fa;
+
+    // Only when the competing interpretation is a slash and not itself dominant7.
+    if (!fOther.isSlashBass) return null;
+    if (fOther.isDom7) return null;
+
+    // Ensure the dominant reading is not "plain"; it should have some color.
+    final domHasColor =
+        (fDom.extPref.naturalCount + fDom.extPref.alterationCount) > 0;
+    if (!domHasColor) return null;
+
+    return aIsPreferred ? -1 : 1;
   }
 
   static int? _preferFewerAlterations(

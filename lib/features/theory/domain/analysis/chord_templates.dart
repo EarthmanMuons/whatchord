@@ -57,9 +57,9 @@ class ChordTemplate {
 // 10 = m7  (functional alias: b7 / "dominant 7")
 // 11 = M7
 
-// Note: P0 is always enforced by the analyzer, not templates.
-// const int _unison = 0;
+// Note: P1 is always enforced by the analyzer, not templates.
 // Note: m2 is handled as an extension, not in base templates.
+// const int _unison = 0;
 // const int _minor2 = 1;
 const int _major2 = 2;
 const int _minor3 = 3;
@@ -212,6 +212,17 @@ const chordTemplates = <ChordTemplate>[
     requiredMask: (1 << _minor3) | (1 << _minor7),
     optionalMask: (1 << _perfect5),
     penaltyMask: (1 << _major7) | (1 << _major3),
+  ),
+
+  // Minor-major 7th: R + m3 + (P5) + M7
+  // - Minor third + major seventh (tonic minor color chord)
+  // - P5 optional (shell voicings)
+  // - Penalty: M3 (contradicts m3), b7 (would suggest minor7)
+  ChordTemplate(
+    quality: ChordQualityToken.minorMajor7,
+    requiredMask: (1 << _minor3) | (1 << _major7),
+    optionalMask: (1 << _perfect5),
+    penaltyMask: (1 << _major3) | (1 << _minor7),
   ),
 
   // Half-diminished 7th: R + m3 + b5 + b7

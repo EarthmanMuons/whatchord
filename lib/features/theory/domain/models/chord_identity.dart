@@ -124,6 +124,7 @@ enum ChordQualityToken {
   dominant7,
   major7,
   minor7,
+  minorMajor7,
   halfDiminished7,
   diminished7,
 }
@@ -136,6 +137,7 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
       case ChordQualityToken.dominant7:
       case ChordQualityToken.major7:
       case ChordQualityToken.minor7:
+      case ChordQualityToken.minorMajor7:
       case ChordQualityToken.halfDiminished7:
       case ChordQualityToken.diminished7:
         return ChordQualityFamily.seventh;

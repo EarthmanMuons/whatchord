@@ -389,6 +389,15 @@ void main() {
         expect(top.bassPc, pc('F#'));
       },
     ),
+    // Minor-major 7th shell
+    GoldenCase(
+      name: 'C Eb B -> Cm(maj7)',
+      pcs: ['C', 'Eb', 'B'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.minorMajor7);
+      },
+    ),
 
     // // Minor vs major third contradiction
     // GoldenCase(

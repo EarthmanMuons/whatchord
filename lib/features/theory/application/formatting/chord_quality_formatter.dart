@@ -98,6 +98,7 @@ class ChordQualityFormatter {
       case ChordQualityToken.dominant7:
       case ChordQualityToken.major7:
       case ChordQualityToken.minor7:
+      case ChordQualityToken.minorMajor7:
       case ChordQualityToken.halfDiminished7:
         return true;
       default:
@@ -127,6 +128,15 @@ class ChordQualityFormatter {
   }
 
   static String _replaceSeventhWithExtension(String base, String ext) {
+    // Handle minor-major seventh textual form: m(maj7) -> m(maj9), etc.
+    // This is the only common seventh-family label where "7" is embedded
+    // inside a parenthetical quality marker rather than being a suffix.
+    if (base.contains('(maj7)')) {
+      // ext is expected to be '9', '11', or '13' here.
+      // We preserve the 'maj' marker and only replace the digit.
+      return base.replaceFirst('(maj7)', '(maj$ext)');
+    }
+
     // If base has a parenthetical modifier, we may still be able to promote:
     // e.g. m7(b5) -> m9(b5)
     final idx = base.indexOf('7(');
