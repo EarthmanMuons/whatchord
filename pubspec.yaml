@@ -1,11 +1,12 @@
 name: what_chord
-description: A new Flutter project.
+description: Real-time chord identification via Bluetooth MIDI.
 
 publish_to: none
 version: 1.0.0+1
 
 environment:
   sdk: ^3.10.4
+  flutter: 3.38.6
 
 dependencies:
   flutter:
