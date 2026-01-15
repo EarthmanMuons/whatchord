@@ -17,6 +17,7 @@ extend-ignore-re = [
 ]
 
 [type.readme]
+# oddly, the built-in `readme` type isn't matching this properly
 extend-glob = ["README.md"]
 extend-ignore-re = [
   # developer certificate SHA-256 fingerprint
