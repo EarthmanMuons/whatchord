@@ -173,6 +173,7 @@ abstract final class ChordAnalyzer {
             quality: tmpl.quality,
             extensions: scored.extensions,
             toneRolesByInterval: roles,
+            presentIntervalsMask: relMask,
           ),
           score: scored.score,
         );

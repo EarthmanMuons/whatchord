@@ -19,3 +19,4 @@ export 'services/chord_member_speller.dart';
 export 'services/chord_tone_roles.dart';
 export 'services/note_spelling.dart';
 export 'services/pitch_class.dart';
+export 'services/scale_degree_classifier.dart';

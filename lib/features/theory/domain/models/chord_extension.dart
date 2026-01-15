@@ -166,3 +166,33 @@ ExtensionPreference extensionPreference(Set<ChordExtension> exts) {
     totalCount: exts.length,
   );
 }
+
+extension ChordExtensionInterval on ChordExtension {
+  /// Semitone interval above the chord root that this extension represents (0..11).
+  ///
+  /// Note: addX uses the same pitch-class as X; the distinction is not pitch,
+  /// but functional/notation intent.
+  int get intervalAboveRoot {
+    switch (this) {
+      case ChordExtension.flat9:
+        return 1;
+      case ChordExtension.nine:
+      case ChordExtension.add9:
+        return 2;
+      case ChordExtension.sharp9:
+        return 3;
+      case ChordExtension.eleven:
+      case ChordExtension.add11:
+        return 5;
+      case ChordExtension.sharp11:
+        return 6;
+      case ChordExtension.flat13:
+        return 8;
+      case ChordExtension.thirteen:
+      case ChordExtension.add13:
+        return 9;
+    }
+  }
+
+  int get intervalBit => 1 << intervalAboveRoot;
+}

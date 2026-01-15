@@ -40,12 +40,22 @@ class ChordIdentity {
   ///   or ChordToneRole.flat5 (diminished context).
   final Map<int, ChordToneRole> toneRolesByInterval;
 
+  /// 12-bit mask of *actually present* intervals above root (0..11) in the voicing.
+  ///
+  /// This is the critical input for pedantic validation:
+  /// - detect contradictory chord tones (e.g., b7 present on a "maj7" claim)
+  /// - ensure required tones are actually present (avoid scale-degree false positives)
+  /// - ensure all extensions implied by tokens are present (or reject)
+  /// - detect unexplained tones (tones not accounted for by quality or extensions)
+  final int presentIntervalsMask;
+
   const ChordIdentity({
     required this.rootPc,
     required this.bassPc,
     required this.quality,
     this.extensions = const {},
     this.toneRolesByInterval = const {},
+    required this.presentIntervalsMask,
   });
 
   bool get hasSlashBass => bassPc != rootPc;
@@ -62,7 +72,8 @@ class ChordIdentity {
           other.bassPc == bassPc &&
           other.quality == quality &&
           _setEquals(other.extensions, extensions) &&
-          _mapEquals(other.toneRolesByInterval, toneRolesByInterval);
+          _mapEquals(other.toneRolesByInterval, toneRolesByInterval) &&
+          other.presentIntervalsMask == presentIntervalsMask;
 
   @override
   int get hashCode => Object.hash(
@@ -71,6 +82,7 @@ class ChordIdentity {
     quality,
     _setHash(extensions),
     _mapHash(toneRolesByInterval),
+    presentIntervalsMask,
   );
 
   static bool _setEquals<T>(Set<T> a, Set<T> b) {
