@@ -16,6 +16,13 @@ extend-ignore-re = [
   "\\$\\{[^}]+\\}nd\\b",
 ]
 
+[type.readme]
+extend-glob = ["README.md"]
+extend-ignore-re = [
+  # developer certificate SHA-256 fingerprint
+  "(?i)\\b(?:[0-9a-f]{2}:){31}[0-9a-f]{2}\\b",
+]
+
 [type.storyboard]
 extend-glob = ["*.storyboard"]
 extend-ignore-re = [

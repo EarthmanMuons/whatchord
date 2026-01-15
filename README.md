@@ -52,27 +52,30 @@ handled via a standard third-party updater workflow.
 [Obtanium](https://obtainium.imranr.dev/) allows you to securely track and
 install APK releases directly from GitHub while verifying developer signatures.
 
-**Planned workflow:**
+**Workflow:**
 
 1. Install Obtanium on your Android device.
-2. Add the WhatChord GitHub repository as an app source.
+2. Add the WhatChord [GitHub repository][REPO] as an _App source URL_.
 3. Obtanium will automatically detect new releases and prompt you to update.
 4. Verify the APK signature against the published developer key (see below).
 
 > Automated, signed APK builds will be provided as GitHub Releases.
 
+[REPO]: https://github.com/EarthmanMuons/what_chord
+
 ### Developer Signing Key
 
-All official builds will be signed with a consistent developer key.  
-You are encouraged to verify this fingerprint using Obtanium's AppVerifier
-integration or Android's native tooling.
+All official builds will be signed with a consistent developer key. You are
+encouraged to verify this fingerprint using Obtanium's AppVerifier integration
+or Android's native tooling.
 
-**SHA-256 Signing Certificate Fingerprint (placeholder):**
+**SHA-256 Signing Certificate Fingerprint:**
 
 ```
-AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:
-AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99
+E8:21:56:94:BA:A2:E0:A3:48:E6:97:49:3E:8B:A9:92:94:93:5E:46:DD:17:03:2C:3C:67:F3:63:9F:A1:3E:F8
 ```
+
+Application ID: `com.earthmanmuons.what_chord`
 
 > ⚠️ Do not install builds whose signing key does not match the fingerprint
 > published here.
@@ -97,13 +100,14 @@ advertisements, and does not collect or transmit any personal data. Scoring
 heuristics and user interface details may evolve as edge cases and real-world
 usage inform improvements.
 
-If you believe a chord has been identified incorrectly, please open an issue on
-the
-[GitHub repository](https://github.com/EarthmanMuons/what_chord/issues/new/choose).
-When possible, include the notes you played, the key signature, and the chord
-WhatChord reported versus the expected result. You can also long-press the chord
-identity card to access detailed analysis information. Sharing this data helps
-diagnose edge cases and improve the engine.
+If you believe a chord has been identified incorrectly, please [open an
+issue][ISSUE] on the GitHub repository. When possible, include the notes you
+played, the key signature, and the chord WhatChord reported versus the expected
+result. You can also long-press the chord identity card to access detailed
+analysis information. Sharing this data helps diagnose edge cases and improve
+the engine.
+
+[ISSUE]: https://github.com/EarthmanMuons/what_chord/issues/new/choose
 
 ## License
 
