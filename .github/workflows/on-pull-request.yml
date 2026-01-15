@@ -19,6 +19,12 @@ jobs:
       pull-requests: read
     uses: EarthmanMuons/reusable-workflows/.github/workflows/detect-changed-files.yml@main
 
+  check_flutter:
+    name: check flutter
+    needs: detect_changed_files
+    if: needs.detect_changed_files.outputs.flutter == 'true'
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/check-flutter.yml@main
+
   check_github_actions:
     name: check github actions
     needs: detect_changed_files
@@ -45,6 +51,7 @@ jobs:
     name: ready to merge
     needs:
       - detect_changed_files
+      - check_flutter
       - check_github_actions
       - check_markdown
       - check_spelling
