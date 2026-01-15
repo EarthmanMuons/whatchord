@@ -1,0 +1,12 @@
+name: flush caches
+
+on:
+  # Allow manually running this workflow.
+  workflow_dispatch:
+
+jobs:
+  flush_caches:
+    name: flush caches
+    permissions:
+      actions: write
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/flush-caches.yml@main
