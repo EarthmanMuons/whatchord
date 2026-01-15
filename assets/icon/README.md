@@ -43,8 +43,8 @@ dart run flutter_launcher_icons
 Before committing SVG or PNG assets, we typically run them through lightweight
 manual optimization tools to reduce file size:
 
-- SVGs: https://svgomg.net/
-- PNGs: https://squoosh.app/
+- SVG files: https://svgomg.net/
+- PNG images: https://squoosh.app/
 
 This is not required to regenerate icons correctly, but helps keep the
 repository lean and avoids committing unnecessarily large binary assets.
