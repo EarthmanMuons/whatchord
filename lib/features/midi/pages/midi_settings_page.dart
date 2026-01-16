@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/core/core.dart';
+import 'package:whatchord/core/core.dart';
 
 import '../models/midi_device.dart';
 import '../providers/midi_connection_status_provider.dart';

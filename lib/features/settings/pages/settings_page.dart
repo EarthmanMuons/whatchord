@@ -4,9 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:what_chord/core/core.dart';
-import 'package:what_chord/features/midi/midi.dart';
-import 'package:what_chord/features/theory/theory.dart';
+import 'package:whatchord/core/core.dart';
+import 'package:whatchord/features/midi/midi.dart';
+import 'package:whatchord/features/theory/theory.dart';
 
 import '../services/settings_reset_service.dart';
 
@@ -193,7 +193,7 @@ class SettingsPage extends ConsumerWidget {
               onTap: () {
                 final messenger = ScaffoldMessenger.of(context);
                 final uri = Uri.parse(
-                  'https://github.com/EarthmanMuons/what_chord',
+                  'https://github.com/EarthmanMuons/whatchord',
                 );
 
                 Future<void> open() async {

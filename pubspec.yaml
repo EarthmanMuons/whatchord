@@ -1,4 +1,4 @@
-name: what_chord
+name: whatchord
 description: Real-time chord identification via Bluetooth MIDI.
 
 publish_to: none
