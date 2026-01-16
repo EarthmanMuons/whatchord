@@ -33,6 +33,7 @@ migrate_working_dir/
 /build/
 /coverage/
 
+/dist/
 android/*.p12
 android/key.properties
 flutter_*.png
