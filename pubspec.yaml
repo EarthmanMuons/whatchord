@@ -2,7 +2,7 @@ name: what_chord
 description: Real-time chord identification via Bluetooth MIDI.
 
 publish_to: none
-version: 1.0.0+1
+version: 0.8.0
 
 environment:
   sdk: ^3.10.4
