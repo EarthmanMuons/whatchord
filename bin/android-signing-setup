@@ -1,24 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Prepares Android signing files:
-# - android/upload-signing-key.p12 (decoded from ANDROID_KEYSTORE_B64 if provided)
+# Prepares Android signing files under ./android:
+# - android/<keystore filename> (decoded from ANDROID_KEYSTORE_B64 if provided)
 # - android/key.properties (from env vars)
 #
 # Intended usage:
 #   bin/android-signing-setup
 #
-# Environment variables:
-#   ANDROID_KEYSTORE_PASSWORD   (required to write key.properties)
-#   ANDROID_KEY_ALIAS           (required to write key.properties)
-#   ANDROID_KEY_PASSWORD        (required to write key.properties)
+# Required environment variables:
+#   ANDROID_KEYSTORE_PASSWORD
+#   ANDROID_KEY_ALIAS
+#   ANDROID_KEY_PASSWORD
 #
 # Optional:
-#   ANDROID_KEYSTORE_B64        base64-encoded PKCS12 keystore (CI typical)
-#   ANDROID_KEYSTORE_PATH       default: android/upload-signing-key.p12
-#   ANDROID_KEY_PROPERTIES_PATH default: android/key.properties
-#   ANDROID_SIGNING_DIR         default: android
-#   ANDROID_SIGNING_FORCE_DECODE=1  decode even if keystore file already exists
+#   ANDROID_KEYSTORE_B64          Base64-encoded PKCS12/JKS keystore (CI typical)
+#   ANDROID_KEYSTORE_FILENAME     Default: release-keystore.p12
+#   ANDROID_SIGNING_FORCE_DECODE=1  Decode even if keystore file already exists
 
 die() {
 	printf "ERROR: %s\n" "$*" >&2
@@ -30,9 +28,13 @@ require_env() {
 	[[ -n ${!name:-} ]] || die "missing required env var: $name"
 }
 
+# Prevent accidental secret echoing if caller enabled xtrace.
+set +x 2>/dev/null || true
+
+# Determine repository root (prefer GitHub Actions workspace, then git/jj).
 repo_root=""
 if [[ -n ${GITHUB_WORKSPACE-} ]]; then
-	repo_root=$GITHUB_WORKSPACE
+	repo_root="$GITHUB_WORKSPACE"
 else
 	if command -v git >/dev/null 2>&1; then
 		repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
@@ -41,31 +43,27 @@ else
 		repo_root="$(jj workspace root 2>/dev/null || true)"
 	fi
 fi
-if [[ -z $repo_root ]]; then
-	die "Could not determine repo root (not in a Git work tree or jj workspace)."
-fi
+[[ -n $repo_root ]] || die "Could not determine repo root (not in a Git work tree or jj workspace)."
 
 cd "$repo_root"
 
-# Prevent accidental secret echoing if caller enabled xtrace.
-set +x 2>/dev/null || true
+# Guardrail: ensure we're at the expected repo root layout.
+[[ -d android ]] || die "Expected ./android directory at repo root; are you running from the correct repository?"
 
-# Defaults
-ANDROID_SIGNING_DIR="${ANDROID_SIGNING_DIR:-android}"
-ANDROID_KEYSTORE_PATH="${ANDROID_KEYSTORE_PATH:-$ANDROID_SIGNING_DIR/release-keystore.p12}"
-ANDROID_KEY_PROPERTIES_PATH="${ANDROID_KEY_PROPERTIES_PATH:-$ANDROID_SIGNING_DIR/key.properties}"
+ANDROID_SIGNING_DIR="android"
+ANDROID_KEYSTORE_FILENAME="${ANDROID_KEYSTORE_FILENAME:-release-keystore.p12}"
+ANDROID_KEYSTORE_PATH="$ANDROID_SIGNING_DIR/$ANDROID_KEYSTORE_FILENAME"
+ANDROID_KEY_PROPERTIES_PATH="$ANDROID_SIGNING_DIR/key.properties"
 ANDROID_SIGNING_FORCE_DECODE="${ANDROID_SIGNING_FORCE_DECODE:-}"
-
-mkdir -p "$ANDROID_SIGNING_DIR"
 
 decode_base64() {
 	# Reads base64 from stdin, writes decoded bytes to stdout.
+	# GNU coreutils uses --decode or -d; macOS/BSD uses -D.
 	if base64 --help 2>/dev/null | grep -q -- '--decode'; then
 		base64 --decode
 	elif base64 --help 2>/dev/null | grep -q -- ' -d'; then
 		base64 -d
 	else
-		# macOS/BSD base64
 		base64 -D
 	fi
 }
@@ -82,7 +80,7 @@ if [[ -n ${ANDROID_KEYSTORE_B64:-} ]]; then
 	fi
 else
 	# Local default: expect keystore already present.
-	[[ -f $ANDROID_KEYSTORE_PATH ]] || die "keystore not found at $ANDROID_KEYSTORE_PATH and ANDROID_KEYSTORE_B64 is not set"
+	[[ -f $ANDROID_KEYSTORE_PATH ]] || die "Keystore not found at $ANDROID_KEYSTORE_PATH and ANDROID_KEYSTORE_B64 is not set"
 fi
 
 # Write key.properties (required for Gradle signing config).
@@ -93,10 +91,8 @@ require_env ANDROID_KEY_PASSWORD
 echo "Writing $ANDROID_KEY_PROPERTIES_PATH"
 umask 077
 
-store_file_basename="$(basename "$ANDROID_KEYSTORE_PATH")"
-
 cat >"$ANDROID_KEY_PROPERTIES_PATH" <<EOF
-storeFile=$store_file_basename
+storeFile=$ANDROID_KEYSTORE_FILENAME
 storePassword=$ANDROID_KEYSTORE_PASSWORD
 keyAlias=$ANDROID_KEY_ALIAS
 keyPassword=$ANDROID_KEY_PASSWORD
