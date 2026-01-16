@@ -32,6 +32,8 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+
+android/key.properties
 flutter_*.png
 
 # Symbolication related
