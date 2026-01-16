@@ -1,0 +1,28 @@
+name: preload caches
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/pubspec.*"
+
+  schedule:
+    # Run every Monday at 7:45am UTC.
+    - cron: 45 7 * * 1
+
+  # Allow manually running this workflow.
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cache_actionlint:
+    name: cache actionlint
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/preload-caches-actionlint.yml@main
+
+  cache_flutter:
+    name: cache flutter
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/preload-caches-flutter.yml@main
