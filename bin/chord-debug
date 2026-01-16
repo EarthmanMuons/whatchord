@@ -1,19 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-repo_root=""
-
-if command -v git >/dev/null 2>&1; then
-	repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-fi
-
-if [[ -z $repo_root ]] && command -v jj >/dev/null 2>&1; then
-	repo_root="$(jj workspace root 2>/dev/null || true)"
-fi
-
-if [[ -z $repo_root ]]; then
-	echo "Could not determine repo root (not in a Git work tree or jj workspace)." >&2
+die() {
+	printf "ERROR: %s\n" "$*" >&2
 	exit 1
+}
+
+repo_root=""
+if [[ -n ${GITHUB_WORKSPACE-} ]]; then
+	repo_root=$GITHUB_WORKSPACE
+else
+	if command -v git >/dev/null 2>&1; then
+		repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+	fi
+	if [[ -z $repo_root ]] && command -v jj >/dev/null 2>&1; then
+		repo_root="$(jj workspace root 2>/dev/null || true)"
+	fi
+fi
+if [[ -z $repo_root ]]; then
+	die "Could not determine repo root (not in a Git work tree or jj workspace)."
 fi
 
 exec dart run "$repo_root/tool/chord_debug.dart" "$@"

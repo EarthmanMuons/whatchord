@@ -3,7 +3,7 @@ set -euo pipefail
 
 die() {
 	printf "ERROR: %s\n" "$*" >&2
-	exit 2
+	exit 1
 }
 info() { printf "INFO: %s\n" "$*" >&2; }
 
@@ -66,20 +66,16 @@ else
 fi
 
 repo_root=""
-
-# In GitHub Actions, this is authoritative and already correct.
 if [[ -n ${GITHUB_WORKSPACE-} ]]; then
 	repo_root=$GITHUB_WORKSPACE
 else
 	if command -v git >/dev/null 2>&1; then
 		repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 	fi
-
 	if [[ -z $repo_root ]] && command -v jj >/dev/null 2>&1; then
 		repo_root="$(jj workspace root 2>/dev/null || true)"
 	fi
 fi
-
 if [[ -z $repo_root ]]; then
 	die "Could not determine repo root (not in a Git work tree or jj workspace)."
 fi
