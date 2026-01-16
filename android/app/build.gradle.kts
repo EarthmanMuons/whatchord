@@ -41,11 +41,13 @@ android {
 
     signingConfigs {
         create("release") {
+            storeType = "PKCS12"
+            val storePath = keystoreProperties["storeFile"] as String?
+            storeFile = storePath?.let(rootProject::file)
+
+            storePassword = keystoreProperties["storePassword"] as String?
             keyAlias = keystoreProperties["keyAlias"] as String?
             keyPassword = keystoreProperties["keyPassword"] as String?
-            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
-            storePassword = keystoreProperties["storePassword"] as String?
-            storeType = "PKCS12"
         }
     }
 
