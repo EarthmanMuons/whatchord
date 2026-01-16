@@ -86,35 +86,35 @@ fi
 
 cd "$repo_root"
 
-apk_src="build/app/outputs/flutter-apk/app-release.apk"
 aab_src="build/app/outputs/bundle/release/app-release.aab"
+apk_src="build/app/outputs/flutter-apk/app-release.apk"
 
-[[ -f $apk_src ]] || die "APK not found at: $apk_src"
 [[ -f $aab_src ]] || die "AAB not found at: $aab_src"
+[[ -f $apk_src ]] || die "APK not found at: $apk_src"
 
 mkdir -p -- "$dist_dir"
 
-apk_file="${slug}-${tag}.apk"
 aab_file="${slug}-${tag}.aab"
-apk_dst="${dist_dir}/${apk_file}"
+apk_file="${slug}-${tag}.apk"
 aab_dst="${dist_dir}/${aab_file}"
+apk_dst="${dist_dir}/${apk_file}"
 
-cp -v -- "$apk_src" "$apk_dst"
 cp -v -- "$aab_src" "$aab_dst"
+cp -v -- "$apk_src" "$apk_dst"
 
 # Produce checksum file with bare filenames (run from within dist).
 pushd "$dist_dir" >/dev/null
 trap 'popd >/dev/null || true' RETURN
 
 if command -v sha256sum >/dev/null 2>&1; then
-	sha256sum -- "$apk_file" "$aab_file" >sha256sums.txt
+	sha256sum -- "$aab_file" "$apk_file" >sha256sums.txt
 elif command -v shasum >/dev/null 2>&1; then
-	shasum -a 256 -- "$apk_file" "$aab_file" >sha256sums.txt
+	shasum -a 256 -- "$aab_file" "$apk_file" >sha256sums.txt
 else
 	die "Need sha256sum or shasum to generate SHA-256 checksums."
 fi
 
 info "Prepared assets in: $dist_dir"
-info "  $apk_file"
 info "  $aab_file"
+info "  $apk_file"
 info "  sha256sums.txt"
