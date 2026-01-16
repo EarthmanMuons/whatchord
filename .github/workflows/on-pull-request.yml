@@ -44,8 +44,6 @@ jobs:
     needs: detect_changed_files
     if: needs.detect_changed_files.outputs.added_or_modified == 'true'
     uses: EarthmanMuons/reusable-workflows/.github/workflows/check-spelling.yml@main
-    with:
-      files: ${{ needs.detect_changed_files.outputs.added_or_modified_files }}
 
   ready_to_merge:
     name: ready to merge
