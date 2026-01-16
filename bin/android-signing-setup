@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Prepares Android signing files:
+# - android/upload-signing-key.p12 (decoded from ANDROID_KEYSTORE_B64 if provided)
+# - android/key.properties (from env vars)
+#
+# Intended usage:
+#   bin/android-signing-setup
+#
+# Environment variables:
+#   ANDROID_KEYSTORE_PASSWORD   (required to write key.properties)
+#   ANDROID_KEY_ALIAS           (required to write key.properties)
+#   ANDROID_KEY_PASSWORD        (required to write key.properties)
+#
+# Optional:
+#   ANDROID_KEYSTORE_B64        base64-encoded PKCS12 keystore (CI typical)
+#   ANDROID_KEYSTORE_PATH       default: android/upload-signing-key.p12
+#   ANDROID_KEY_PROPERTIES_PATH default: android/key.properties
+#   ANDROID_SIGNING_DIR         default: android
+#   ANDROID_SIGNING_FORCE_DECODE=1  decode even if keystore file already exists
+
+die() {
+	printf "ERROR: %s\n" "$*" >&2
+	exit 1
+}
+
+require_env() {
+	local name="$1"
+	[[ -n ${!name:-} ]] || die "missing required env var: $name"
+}
+
+repo_root=""
+if [[ -n ${GITHUB_WORKSPACE-} ]]; then
+	repo_root=$GITHUB_WORKSPACE
+else
+	if command -v git >/dev/null 2>&1; then
+		repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+	fi
+	if [[ -z $repo_root ]] && command -v jj >/dev/null 2>&1; then
+		repo_root="$(jj workspace root 2>/dev/null || true)"
+	fi
+fi
+if [[ -z $repo_root ]]; then
+	die "Could not determine repo root (not in a Git work tree or jj workspace)."
+fi
+
+cd "$repo_root"
+
+# Prevent accidental secret echoing if caller enabled xtrace.
+set +x 2>/dev/null || true
+
+# Defaults
+ANDROID_SIGNING_DIR="${ANDROID_SIGNING_DIR:-android}"
+ANDROID_KEYSTORE_PATH="${ANDROID_KEYSTORE_PATH:-$ANDROID_SIGNING_DIR/release-keystore.p12}"
+ANDROID_KEY_PROPERTIES_PATH="${ANDROID_KEY_PROPERTIES_PATH:-$ANDROID_SIGNING_DIR/key.properties}"
+ANDROID_SIGNING_FORCE_DECODE="${ANDROID_SIGNING_FORCE_DECODE:-}"
+
+mkdir -p "$ANDROID_SIGNING_DIR"
+
+decode_base64() {
+	# Reads base64 from stdin, writes decoded bytes to stdout.
+	if base64 --help 2>/dev/null | grep -q -- '--decode'; then
+		base64 --decode
+	elif base64 --help 2>/dev/null | grep -q -- ' -d'; then
+		base64 -d
+	else
+		# macOS/BSD base64
+		base64 -D
+	fi
+}
+
+# If ANDROID_KEYSTORE_B64 is set (CI typical), decode it (unless file already exists).
+if [[ -n ${ANDROID_KEYSTORE_B64:-} ]]; then
+	if [[ -f $ANDROID_KEYSTORE_PATH && -z $ANDROID_SIGNING_FORCE_DECODE ]]; then
+		echo "Keystore already exists at $ANDROID_KEYSTORE_PATH; skipping decode."
+	else
+		echo "Decoding Android keystore to $ANDROID_KEYSTORE_PATH"
+		umask 077
+		printf '%s' "$ANDROID_KEYSTORE_B64" | decode_base64 >"$ANDROID_KEYSTORE_PATH"
+		chmod 600 "$ANDROID_KEYSTORE_PATH"
+	fi
+else
+	# Local default: expect keystore already present.
+	[[ -f $ANDROID_KEYSTORE_PATH ]] || die "keystore not found at $ANDROID_KEYSTORE_PATH and ANDROID_KEYSTORE_B64 is not set"
+fi
+
+# Write key.properties (required for Gradle signing config).
+require_env ANDROID_KEYSTORE_PASSWORD
+require_env ANDROID_KEY_ALIAS
+require_env ANDROID_KEY_PASSWORD
+
+echo "Writing $ANDROID_KEY_PROPERTIES_PATH"
+umask 077
+
+store_file_basename="$(basename "$ANDROID_KEYSTORE_PATH")"
+
+cat >"$ANDROID_KEY_PROPERTIES_PATH" <<EOF
+storeFile=$store_file_basename
+storePassword=$ANDROID_KEYSTORE_PASSWORD
+keyAlias=$ANDROID_KEY_ALIAS
+keyPassword=$ANDROID_KEY_PASSWORD
+EOF
+
+chmod 600 "$ANDROID_KEY_PROPERTIES_PATH"
+
+echo "Android signing setup complete."
