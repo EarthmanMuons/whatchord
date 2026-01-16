@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/features/midi/midi.dart';
-import 'package:what_chord/features/piano/piano.dart';
-import 'package:what_chord/features/settings/settings.dart';
+import 'package:whatchord/features/midi/midi.dart';
+import 'package:whatchord/features/piano/piano.dart';
+import 'package:whatchord/features/settings/settings.dart';
 
 import '../models/home_layout_config.dart';
 import '../widgets/analysis_section.dart';

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:what_chord/features/midi/midi.dart'
+import 'package:whatchord/features/midi/midi.dart'
     show
         isPedalDownProvider,
         pedalSourceProvider,

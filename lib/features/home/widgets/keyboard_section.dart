@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/features/input/input.dart';
-import 'package:what_chord/features/piano/piano.dart';
+import 'package:whatchord/features/input/input.dart';
+import 'package:whatchord/features/piano/piano.dart';
 
 import '../models/home_layout_config.dart';
 

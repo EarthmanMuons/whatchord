@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/features/input/input.dart';
+import 'package:whatchord/features/input/input.dart';
 
 import '../../domain/theory_domain.dart';
 import '../../presentation/models/identity_display.dart';

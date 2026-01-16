@@ -1,6 +1,6 @@
 {
-    "name": "what_chord",
-    "short_name": "what_chord",
+    "name": "WhatChord",
+    "short_name": "WhatChord",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

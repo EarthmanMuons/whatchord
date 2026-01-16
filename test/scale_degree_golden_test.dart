@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:what_chord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord/features/theory/domain/theory_domain.dart';
 
 AnalysisContext makeContext({
   Tonality tonality = const Tonality('C', TonalityMode.major),

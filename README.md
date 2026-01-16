@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="200" src="https://raw.githubusercontent.com/EarthmanMuons/what_chord/refs/heads/main/docs/images/whatchord_logo.webp" alt="WhatChord logo">
+  <img width="200" src="https://raw.githubusercontent.com/EarthmanMuons/whatchord/refs/heads/main/docs/images/whatchord_logo.webp" alt="WhatChord logo">
 </p>
 
 <h1 align="center">WhatChord</h1>
@@ -39,7 +39,7 @@ Here's WhatChord in action:
 ![WhatChord identifying the notes F#, C, E, and Bb as C7#11 over F#, in light and dark themes.][THEMES]
 
 [THEMES]:
-  https://raw.githubusercontent.com/EarthmanMuons/what_chord/refs/heads/main/docs/screenshots/theme_modes.webp
+  https://raw.githubusercontent.com/EarthmanMuons/whatchord/refs/heads/main/docs/screenshots/theme_modes.webp
 
 ## Installation
 
@@ -61,7 +61,7 @@ install APK releases directly from GitHub while verifying developer signatures.
 
 > Automated, signed APK builds will be provided as GitHub Releases.
 
-[REPO]: https://github.com/EarthmanMuons/what_chord
+[REPO]: https://github.com/EarthmanMuons/whatchord
 
 ### Developer Signing Key
 
@@ -75,7 +75,7 @@ or Android's native tooling.
 E8:21:56:94:BA:A2:E0:A3:48:E6:97:49:3E:8B:A9:92:94:93:5E:46:DD:17:03:2C:3C:67:F3:63:9F:A1:3E:F8
 ```
 
-Application ID: `com.earthmanmuons.what_chord`
+Application ID: `com.earthmanmuons.whatchord`
 
 > ⚠️ Do not install builds whose signing key does not match the fingerprint
 > published here.
@@ -107,7 +107,7 @@ result. You can also long-press the chord identity card to access detailed
 analysis information. Sharing this data helps diagnose edge cases and improve
 the engine.
 
-[ISSUE]: https://github.com/EarthmanMuons/what_chord/issues/new/choose
+[ISSUE]: https://github.com/EarthmanMuons/whatchord/issues/new/choose
 
 ## License
 
@@ -115,5 +115,5 @@ WhatChord is released under the [Zero Clause BSD License][LICENSE] (SPDX: 0BSD).
 
 Copyright &copy; 2025 [Aaron Bull Schaefer][EMAIL] and contributors
 
-[LICENSE]: https://github.com/EarthmanMuons/what_chord/blob/main/LICENSE
+[LICENSE]: https://github.com/EarthmanMuons/whatchord/blob/main/LICENSE
 [EMAIL]: mailto:aaron@elasticdog.com

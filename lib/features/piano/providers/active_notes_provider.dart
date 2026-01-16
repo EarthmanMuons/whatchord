@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:what_chord/features/input/input.dart';
-import 'package:what_chord/features/midi/midi.dart';
-import 'package:what_chord/features/theory/theory.dart';
+import 'package:whatchord/features/input/input.dart';
+import 'package:whatchord/features/midi/midi.dart';
+import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/active_note.dart';
 
