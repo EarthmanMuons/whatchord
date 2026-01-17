@@ -1,20 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+usage() {
+	cat >&2 <<'EOF'
+Usage:
+  stage-release-assets --slug <slug> [--tag <tag>] [--dist <dir>]
+
+Stage Flutter release assets into dist/ with deterministic names + sha256sums.txt.
+EOF
+}
+
 die() {
 	printf "ERROR: %s\n" "$*" >&2
 	exit 1
 }
 info() { printf "INFO: %s\n" "$*" >&2; }
 
-usage() {
-	cat >&2 <<'EOF'
-Stage Flutter release assets into dist/ with deterministic names + sha256sums.txt.
+repo_root=""
+if [[ -n ${GITHUB_WORKSPACE-} ]]; then
+	repo_root=$GITHUB_WORKSPACE
+else
+	if command -v git >/dev/null 2>&1; then
+		repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+	fi
+fi
+[[ -n $repo_root ]] || die "Could not determine repository's top-level directory."
 
-Usage:
-  stage-release-assets --slug <slug> [--tag <tag>] [--dist <dir>]
-EOF
-}
+##### MAIN
 
 slug=""
 tag=""
@@ -63,21 +75,6 @@ if [[ ${GITHUB_ACTIONS-} == "true" ]]; then
 	[[ -n $tag ]] || die "In CI, GITHUB_REF_NAME was empty; expected a tag name."
 else
 	[[ -n $tag ]] || die "Tag not provided. Pass --tag <tag> locally."
-fi
-
-repo_root=""
-if [[ -n ${GITHUB_WORKSPACE-} ]]; then
-	repo_root=$GITHUB_WORKSPACE
-else
-	if command -v git >/dev/null 2>&1; then
-		repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-	fi
-	if [[ -z $repo_root ]] && command -v jj >/dev/null 2>&1; then
-		repo_root="$(jj workspace root 2>/dev/null || true)"
-	fi
-fi
-if [[ -z $repo_root ]]; then
-	die "Could not determine repo root (not in a Git work tree or jj workspace)."
 fi
 
 cd "$repo_root"
