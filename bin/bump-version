@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-die() {
-	printf "ERROR: %s\n" "$*" >&2
-	exit 1
-}
-
 usage() {
 	cat >&2 <<'EOF'
 Usage:
@@ -17,11 +12,18 @@ Behavior:
   - If exact version provided (X.Y.Z): sets semver to that X.Y.Z
   - Always increments build number by 1 based on the current pubspec build number
 EOF
-	exit 1
 }
 
-[[ $# -eq 1 ]] || usage
+[[ $# -eq 1 ]] || {
+	usage
+	exit 1
+}
 arg="$1"
+
+die() {
+	printf "ERROR: %s\n" "$*" >&2
+	exit 1
+}
 
 repo_root=""
 if [[ -n ${GITHUB_WORKSPACE-} ]]; then
@@ -30,11 +32,10 @@ else
 	if command -v git >/dev/null 2>&1; then
 		repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 	fi
-	if [[ -z $repo_root ]] && command -v jj >/dev/null 2>&1; then
-		repo_root="$(jj workspace root 2>/dev/null || true)"
-	fi
 fi
-[[ -n $repo_root ]] || die "Could not determine repo root (not in a Git work tree or jj workspace)."
+[[ -n $repo_root ]] || die "Could not determine repository's top-level directory."
+
+##### MAIN
 
 pubspec="$repo_root/pubspec.yaml"
 [[ -f $pubspec ]] || die "pubspec.yaml not found at: $pubspec"

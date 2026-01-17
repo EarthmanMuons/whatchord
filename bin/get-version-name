@@ -13,11 +13,10 @@ else
 	if command -v git >/dev/null 2>&1; then
 		repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 	fi
-	if [[ -z $repo_root ]] && command -v jj >/dev/null 2>&1; then
-		repo_root="$(jj workspace root 2>/dev/null || true)"
-	fi
 fi
-[[ -n $repo_root ]] || die "Could not determine repo root (not in a Git work tree or jj workspace)."
+[[ -n $repo_root ]] || die "Could not determine repository's top-level directory."
+
+##### MAIN
 
 pubspec="$repo_root/pubspec.yaml"
 [[ -f $pubspec ]] || die "pubspec.yaml not found at: $pubspec"
