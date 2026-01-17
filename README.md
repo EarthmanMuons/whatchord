@@ -59,23 +59,22 @@ install APK releases directly from GitHub while verifying developer signatures.
 3. Obtanium will automatically detect new releases and prompt you to update.
 4. Verify the APK signature against the published developer key (see below).
 
-> Automated, signed APK builds will be provided as GitHub Releases.
+> Automated, signed APK builds are published as GitHub Releases.
 
 [REPO]: https://github.com/EarthmanMuons/whatchord
 
 ### Developer Signing Key
 
-All official builds will be signed with a consistent developer key. You are
-encouraged to verify this fingerprint using Obtanium's AppVerifier integration
-or Android's native tooling.
+All official builds are signed with a consistent developer key. You are
+encouraged to verify the signing certificate fingerprint for this key using
+Obtanium's AppVerifier integration or Android's native tooling.
 
-**SHA-256 Signing Certificate Fingerprint:**
+**Signing Certificate Fingerprint (SHA-256)**
 
 ```
+com.earthmanmuons.whatchord
 E8:21:56:94:BA:A2:E0:A3:48:E6:97:49:3E:8B:A9:92:94:93:5E:46:DD:17:03:2C:3C:67:F3:63:9F:A1:3E:F8
 ```
-
-Application ID: `com.earthmanmuons.whatchord`
 
 > ⚠️ Do not install builds whose signing key does not match the fingerprint
 > published here.
