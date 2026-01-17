@@ -4,7 +4,7 @@ set -euo pipefail
 usage() {
 	cat >&2 <<'EOF'
 Usage:
-  bump-version (patch|minor|major|X.Y.Z)
+  bump-project-version (patch|minor|major|X.Y.Z)
 
 Behavior:
   - Reads pubspec.yaml version: X.Y.Z+N
