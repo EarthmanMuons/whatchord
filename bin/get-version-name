@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+die() {
+	printf "ERROR: %s\n" "$*" >&2
+	exit 1
+}
+
+repo_root=""
+if [[ -n ${GITHUB_WORKSPACE-} ]]; then
+	repo_root=$GITHUB_WORKSPACE
+else
+	if command -v git >/dev/null 2>&1; then
+		repo_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+	fi
+	if [[ -z $repo_root ]] && command -v jj >/dev/null 2>&1; then
+		repo_root="$(jj workspace root 2>/dev/null || true)"
+	fi
+fi
+[[ -n $repo_root ]] || die "Could not determine repo root (not in a Git work tree or jj workspace)."
+
+pubspec="$repo_root/pubspec.yaml"
+[[ -f $pubspec ]] || die "pubspec.yaml not found at: $pubspec"
+
+# ---- extract version ----
+version_line="$(grep -E '^[[:space:]]*version[[:space:]]*:' "$pubspec" | head -n 1 || true)"
+[[ -n $version_line ]] || die "Could not find a 'version:' line in pubspec.yaml"
+
+version="$(sed -E 's/^[[:space:]]*version[[:space:]]*:[[:space:]]*([^[:space:]#]+).*/\1/' <<<"$version_line")"
+
+# Expect X.Y.Z+N
+if [[ ! $version =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)\+([0-9]+)$ ]]; then
+	die "Version must be in X.Y.Z+N format (got: '$version')"
+fi
+
+echo "${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
