@@ -15,7 +15,7 @@ on:
 jobs:
   bump_version:
     name: bump version
-    uses: EarthmanMuons/reusable-workflows/.github/workflows/bump-version-flutter.yml@main
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/flutter/bump-version-flutter.yml@main
     with:
       level: ${{ inputs.level }}
     secrets: inherit

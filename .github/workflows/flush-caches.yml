@@ -9,4 +9,4 @@ jobs:
     name: flush caches
     permissions:
       actions: write
-    uses: EarthmanMuons/reusable-workflows/.github/workflows/flush-caches.yml@main
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/common/flush-caches.yml@main

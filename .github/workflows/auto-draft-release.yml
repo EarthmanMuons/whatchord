@@ -10,7 +10,7 @@ jobs:
     name: draft release
     permissions:
       contents: write
-    uses: EarthmanMuons/reusable-workflows/.github/workflows/draft-release-flutter.yml@main
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/flutter/draft-release-flutter.yml@main
     secrets: inherit
     with:
       slug: whatchord

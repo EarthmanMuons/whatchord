@@ -17,7 +17,7 @@ jobs:
     name: detect changed files
     permissions:
       pull-requests: read
-    uses: EarthmanMuons/reusable-workflows/.github/workflows/detect-changed-files.yml@main
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/common/detect-changed-files.yml@main
 
   tag_if_missing:
     name: tag if missing
@@ -25,5 +25,5 @@ jobs:
     if: |
       needs.detect_changed_files.outputs.flutter == 'true'
       || github.event_name == 'workflow_dispatch'
-    uses: EarthmanMuons/reusable-workflows/.github/workflows/tag-if-missing.yml@main
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/common/tag-if-missing.yml@main
     secrets: inherit

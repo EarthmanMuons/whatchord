@@ -17,25 +17,25 @@ jobs:
     name: detect changed files
     permissions:
       pull-requests: read
-    uses: EarthmanMuons/reusable-workflows/.github/workflows/detect-changed-files.yml@main
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/common/detect-changed-files.yml@main
 
   check_flutter:
     name: check flutter
     needs: detect_changed_files
     if: needs.detect_changed_files.outputs.flutter == 'true'
-    uses: EarthmanMuons/reusable-workflows/.github/workflows/check-flutter.yml@main
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/flutter/check-flutter.yml@main
 
   check_github_actions:
     name: check github actions
     needs: detect_changed_files
     if: needs.detect_changed_files.outputs.github_actions == 'true'
-    uses: EarthmanMuons/reusable-workflows/.github/workflows/check-github-actions.yml@main
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/common/check-github-actions.yml@main
 
   check_markdown:
     name: check markdown
     needs: detect_changed_files
     if: needs.detect_changed_files.outputs.markdown == 'true'
-    uses: EarthmanMuons/reusable-workflows/.github/workflows/check-markdown.yml@main
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/common/check-markdown.yml@main
     with:
       files: ${{ needs.detect_changed_files.outputs.markdown_files }}
 
@@ -43,7 +43,7 @@ jobs:
     name: check spelling
     needs: detect_changed_files
     if: needs.detect_changed_files.outputs.added_or_modified == 'true'
-    uses: EarthmanMuons/reusable-workflows/.github/workflows/check-spelling.yml@main
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/common/check-spelling.yml@main
 
   ready_to_merge:
     name: ready to merge
@@ -54,6 +54,6 @@ jobs:
       - check_markdown
       - check_spelling
     if: always()
-    uses: EarthmanMuons/reusable-workflows/.github/workflows/ready-to-merge.yml@main
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/common/ready-to-merge.yml@main
     with:
       needs_context: ${{ toJson(needs) }}
