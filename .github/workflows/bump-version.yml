@@ -1,0 +1,21 @@
+name: bump version
+
+on:
+  workflow_dispatch:
+    inputs:
+      level:
+        description: Bump level
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+jobs:
+  bump_version:
+    name: bump version
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/bump-version-flutter.yml@main
+    with:
+      level: ${{ inputs.level }}
+    secrets: inherit
