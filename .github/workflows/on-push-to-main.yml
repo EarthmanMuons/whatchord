@@ -1,0 +1,29 @@
+name: on push to main
+
+on:
+  push:
+    branches:
+      - main
+
+  # Allow manually running this workflow.
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  detect_changed_files:
+    name: detect changed files
+    permissions:
+      pull-requests: read
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/detect-changed-files.yml@main
+
+  tag_if_missing:
+    name: tag if missing
+    needs: detect_changed_files
+    if: |
+      needs.detect_changed_files.outputs.flutter == 'true'
+      || github.event_name == 'workflow_dispatch'
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/tag-if-missing.yml@main
+    secrets: inherit
