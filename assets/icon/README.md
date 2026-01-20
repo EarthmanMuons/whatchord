@@ -26,7 +26,7 @@ inkscape assets/logo/whatchord_logo.svg \
 
 Notes:
 
-- If using the square icon variant, we typically use `transform-scale:0.80,0.80`
+- If using the square icon variant, we typically use `transform-scale:0.85,0.85`
   and no translation.
 
 ## Generate Platform Icon Assets
