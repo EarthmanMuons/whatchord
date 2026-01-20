@@ -5,8 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 class TonalityBar extends ConsumerWidget {
-  const TonalityBar({super.key, required this.height});
+  const TonalityBar({
+    super.key,
+    required this.height,
+    this.horizontalInset = 16,
+  });
+
   final double height;
+  final double horizontalInset;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,7 +25,7 @@ class TonalityBar extends ConsumerWidget {
       child: SizedBox(
         height: height,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: horizontalInset),
           child: Row(
             children: [
               FilledButton.tonalIcon(
@@ -47,7 +53,6 @@ class TonalityBar extends ConsumerWidget {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ),
-
               const SizedBox(width: 12),
               Expanded(
                 child: Align(
