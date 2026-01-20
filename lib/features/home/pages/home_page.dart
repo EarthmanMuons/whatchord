@@ -134,7 +134,7 @@ class HomePage extends ConsumerWidget {
         return;
       }
 
-      // Optional: disconnection toast (only if we were connected and now idle)
+      // Disconnection toast (only if we were connected and now idle)
       if (prev?.phase == MidiConnectionPhase.connected &&
           (next.phase == MidiConnectionPhase.idle ||
               next.phase == MidiConnectionPhase.connecting ||
@@ -155,6 +155,9 @@ class HomePage extends ConsumerWidget {
             ? landscapeLayoutConfig
             : portraitLayoutConfig;
 
+        // Single knob for horizontal insets used by the app bar + tonality bar.
+        final pageInset = isLandscape ? 58.0 : 16.0;
+
         final mq = MediaQuery.of(context);
         final mqFullWidth = isLandscape
             ? mq.copyWith(
@@ -170,32 +173,46 @@ class HomePage extends ConsumerWidget {
             child: WakelockController(
               child: Scaffold(
                 appBar: AppBar(
-                  titleSpacing: isLandscape ? 28 : null,
+                  centerTitle: false,
+                  titleSpacing: pageInset,
                   title: const AppBarTitle(),
                   backgroundColor: cs.surfaceContainerLow,
                   foregroundColor: cs.onSurface,
                   actions: [
-                    const MidiStatusPill(),
                     Padding(
-                      padding: EdgeInsets.only(right: isLandscape ? 12 : 0),
-                      child: IconButton(
-                        tooltip: 'Settings',
-                        icon: const Icon(Icons.settings),
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => const SettingsPage(),
-                            ),
-                          );
-                        },
+                      padding: EdgeInsets.only(right: pageInset - 12),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const MidiStatusPill(),
+                          IconButton(
+                            tooltip: 'Settings',
+                            icon: const Icon(Icons.settings),
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => const SettingsPage(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
                 body: SafeArea(
                   child: isLandscape
-                      ? _HomeLandscape(config: config, isLandscape: true)
-                      : _HomePortrait(config: config, isLandscape: false),
+                      ? _HomeLandscape(
+                          config: config,
+                          isLandscape: true,
+                          pageInset: pageInset,
+                        )
+                      : _HomePortrait(
+                          config: config,
+                          isLandscape: false,
+                          pageInset: pageInset,
+                        ),
                 ),
               ),
             ),
@@ -212,9 +229,11 @@ class _HomeLandscape extends ConsumerWidget {
     super.key,
     required this.config,
     required this.isLandscape,
+    required this.pageInset,
   });
   final HomeLayoutConfig config;
   final bool isLandscape;
+  final double pageInset;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -244,7 +263,10 @@ class _HomeLandscape extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TonalityBar(height: config.tonalityBarHeight),
+              TonalityBar(
+                height: config.tonalityBarHeight,
+                horizontalInset: pageInset,
+              ),
               const Divider(height: 1),
               KeyboardSection(config: config),
             ],
@@ -261,9 +283,11 @@ class _HomePortrait extends ConsumerWidget {
     super.key,
     required this.config,
     required this.isLandscape,
+    required this.pageInset,
   });
   final HomeLayoutConfig config;
   final bool isLandscape;
+  final double pageInset;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -279,7 +303,10 @@ class _HomePortrait extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ActiveInput(padding: config.activeInputPadding),
-              TonalityBar(height: config.tonalityBarHeight),
+              TonalityBar(
+                height: config.tonalityBarHeight,
+                horizontalInset: pageInset,
+              ),
               const Divider(height: 1),
               KeyboardSection(config: config),
             ],
