@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'midi_device.dart';
+import 'midi_unavailable_reason.dart';
 
 enum MidiConnectionPhase {
   idle,
@@ -19,6 +20,7 @@ class MidiConnectionState {
   final int attempt; // 1-based
   final Duration? nextDelay;
   final String? message;
+  final MidiUnavailableReason? unavailableReason;
 
   const MidiConnectionState({
     required this.phase,
@@ -26,6 +28,7 @@ class MidiConnectionState {
     this.attempt = 0,
     this.nextDelay,
     this.message,
+    this.unavailableReason,
   });
 
   const MidiConnectionState.idle() : this(phase: MidiConnectionPhase.idle);
@@ -46,6 +49,7 @@ class MidiConnectionState {
     int? attempt,
     Duration? nextDelay,
     String? message,
+    MidiUnavailableReason? unavailableReason,
   }) {
     return MidiConnectionState(
       phase: phase ?? this.phase,
@@ -53,6 +57,7 @@ class MidiConnectionState {
       attempt: attempt ?? this.attempt,
       nextDelay: nextDelay ?? this.nextDelay,
       message: message ?? this.message,
+      unavailableReason: unavailableReason ?? this.unavailableReason,
     );
   }
 }

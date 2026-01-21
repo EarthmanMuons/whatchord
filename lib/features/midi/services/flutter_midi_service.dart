@@ -343,14 +343,14 @@ class FlutterMidiService implements MidiService {
         return const BleAccessResult(
           BleAccessState.permanentlyDenied,
           message:
-              'Bluetooth permission is blocked. Please enable Bluetooth permissions for this app in Android Settings.',
+              'Nearby devices permission is blocked. Enable it in system settings to connect to Bluetooth MIDI devices.',
         );
       }
 
       return const BleAccessResult(
         BleAccessState.denied,
         message:
-            'Bluetooth permission is required to discover and connect to BLE MIDI devices.',
+            'Nearby devices permission is required to discover and connect to Bluetooth MIDI devices.',
       );
     }
 
