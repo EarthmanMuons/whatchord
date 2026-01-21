@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter_midi_command/flutter_midi_command.dart' as fmc;
+import 'package:permission_handler/permission_handler.dart';
 
+import '../models/ble_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
 import 'midi_service.dart';
@@ -321,6 +324,66 @@ class FlutterMidiService implements MidiService {
       debugPrint('Auto-reconnect failed: $e');
       return false;
     }
+  }
+
+  @override
+  Future<BleAccessResult> ensureBlePermissions() async {
+    if (Platform.isAndroid) {
+      final scan = await Permission.bluetoothScan.request();
+      final connect = await Permission.bluetoothConnect.request();
+
+      if (scan.isGranted && connect.isGranted) {
+        return const BleAccessResult(BleAccessState.ready);
+      }
+
+      if (scan.isPermanentlyDenied ||
+          connect.isPermanentlyDenied ||
+          scan.isRestricted ||
+          connect.isRestricted) {
+        return const BleAccessResult(
+          BleAccessState.permanentlyDenied,
+          message:
+              'Bluetooth permission is blocked. Please enable Bluetooth permissions for this app in Android Settings.',
+        );
+      }
+
+      return const BleAccessResult(
+        BleAccessState.denied,
+        message:
+            'Bluetooth permission is required to discover and connect to BLE MIDI devices.',
+      );
+    }
+
+    // iOS: Permission state can be queried, but the system prompt is triggered by
+    // actual Bluetooth usage (CoreBluetooth). Still return a stable status here.
+    if (Platform.isIOS) {
+      final status = await Permission.bluetooth.status;
+
+      if (status.isGranted) {
+        return const BleAccessResult(BleAccessState.ready);
+      }
+      if (status.isRestricted) {
+        return const BleAccessResult(
+          BleAccessState.restricted,
+          message: 'Bluetooth access is restricted on this device.',
+        );
+      }
+      if (status.isPermanentlyDenied) {
+        return const BleAccessResult(
+          BleAccessState.permanentlyDenied,
+          message:
+              'Bluetooth permission is disabled. Please enable Bluetooth access for this app in Settings.',
+        );
+      }
+      return const BleAccessResult(
+        BleAccessState.denied,
+        message:
+            'Bluetooth permission is required to discover and connect to BLE MIDI devices.',
+      );
+    }
+
+    // Other platforms: treat as ready unless we add explicit support later.
+    return const BleAccessResult(BleAccessState.ready);
   }
 
   // ============================================================

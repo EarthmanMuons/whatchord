@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import '../models/ble_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_constants.dart';
 import '../models/midi_device.dart';
@@ -166,6 +167,12 @@ class StubMidiService implements MidiService {
   void _setConnectedDevice(MidiDevice? device) {
     _connectedDevice = device;
     _connectedDeviceController.add(_connectedDevice);
+  }
+
+  @override
+  Future<BleAccessResult> ensureBlePermissions() async {
+    // Stub environment: assume permissions are granted.
+    return const BleAccessResult(BleAccessState.ready);
   }
 
   // ============================================================
