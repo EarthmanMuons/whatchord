@@ -35,7 +35,7 @@ class MidiConnectionState {
 
   bool get isIdle => phase == MidiConnectionPhase.idle;
 
-  bool get isBusy =>
+  bool get isAttemptingConnection =>
       phase == MidiConnectionPhase.connecting ||
       phase == MidiConnectionPhase.retrying;
 

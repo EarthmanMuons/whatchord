@@ -123,7 +123,9 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       connectedMidiDeviceProvider.select((a) => a.asData?.value?.id),
     );
 
-    final isBusy = ref.watch(midiConnectionProvider.select((s) => s.isBusy));
+    final isAttemptingConnection = ref.watch(
+      midiConnectionProvider.select((s) => s.isAttemptingConnection),
+    );
 
     // Row-level spinner only for the device being connected in the "connecting" phase.
     final connectingDeviceId = ref.watch(
@@ -223,8 +225,8 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : null,
-                      enabled: !isBusy,
-                      onTap: (isConnected || isBusy)
+                      enabled: !isAttemptingConnection,
+                      onTap: (isConnected || isAttemptingConnection)
                           ? null
                           : () => _connectToDevice(device),
                     );
@@ -245,7 +247,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                 TextButton.icon(
                   icon: const Icon(Icons.refresh),
                   label: const Text('Refresh'),
-                  onPressed: isBusy ? null : _startScanning,
+                  onPressed: isAttemptingConnection ? null : _startScanning,
                 ),
               ],
             ),

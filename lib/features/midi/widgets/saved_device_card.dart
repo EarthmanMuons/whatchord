@@ -16,7 +16,9 @@ class SavedDeviceCard extends ConsumerWidget {
     final saved = ref.watch(savedMidiDeviceProvider);
 
     // Connection semantics from the state machine.
-    final isBusy = ref.watch(midiConnectionProvider.select((s) => s.isBusy));
+    final isAttemptingConnection = ref.watch(
+      midiConnectionProvider.select((s) => s.isAttemptingConnection),
+    );
     final isConnected = ref.watch(
       midiConnectionProvider.select((s) => s.isConnected),
     );
@@ -47,7 +49,7 @@ class SavedDeviceCard extends ConsumerWidget {
 
     // Prefer the current connection name while busy/connected; otherwise fall back
     // to the transport snapshot.
-    final effectiveConnectedName = (isBusy || isConnected)
+    final effectiveConnectedName = (isAttemptingConnection || isConnected)
         ? (connectionDisplayName ?? connectedDisplayName)
         : connectedDisplayName;
 
@@ -55,6 +57,12 @@ class SavedDeviceCard extends ConsumerWidget {
     final savedDisplayName = saved?.displayName;
 
     final title = effectiveConnectedName ?? savedDisplayName ?? 'Saved device';
+
+    final compactButtonStyle = TextButton.styleFrom(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      visualDensity: VisualDensity.compact,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
 
     return Card(
       child: ListTile(
@@ -64,42 +72,30 @@ class SavedDeviceCard extends ConsumerWidget {
           spacing: 8,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            if (isConnectedToSaved)
+            if (isAttemptingConnection)
               FilledButton.tonal(
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  visualDensity: VisualDensity.compact,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                onPressed: isBusy
+                style: compactButtonStyle,
+                onPressed: () {
+                  ref.read(midiConnectionProvider.notifier).cancelReconnect();
+                },
+                child: const Text('Cancel'),
+              )
+            else if (isConnectedToSaved)
+              FilledButton.tonal(
+                style: compactButtonStyle,
+                onPressed: isAttemptingConnection
                     ? null
                     : () async {
                         await ref
                             .read(midiConnectionProvider.notifier)
                             .disconnect();
-
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Disconnected')),
-                          );
-                        }
                       },
                 child: const Text('Disconnect'),
               )
             else if (!isConnected && hasSaved)
               FilledButton.tonal(
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  visualDensity: VisualDensity.compact,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                onPressed: isBusy
+                style: compactButtonStyle,
+                onPressed: isAttemptingConnection
                     ? null
                     : () {
                         ref
