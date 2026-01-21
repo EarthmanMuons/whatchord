@@ -44,6 +44,7 @@ class IdentityCard extends StatelessWidget {
     final secondaryStyle = theme.textTheme.titleMedium!.copyWith(
       color: cs.onPrimary.withValues(alpha: 0.85),
       height: 1.1,
+      letterSpacing: -0.2,
     );
 
     final rootStyle = primaryStyle.copyWith(
