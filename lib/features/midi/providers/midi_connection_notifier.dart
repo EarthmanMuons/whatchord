@@ -32,6 +32,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   // connected-device stream re-emits the same device id.
   String? _lastSavedDeviceId;
 
+  BluetoothState? _lastBluetoothState;
+  bool _cancelRequested = false;
+
   MidiService get _service => ref.read(midiServiceProvider);
 
   @override
@@ -80,28 +83,33 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         loading: () => null,
         error: (_, _) => null,
       );
-      if (bt == null) return;
+
+      if (bt != null) {
+        _lastBluetoothState = bt;
+      } else {
+        return;
+      }
 
       final ready = _bluetoothReady(bt);
+
       if (!ready) {
         _cancelRetry();
+        _cancelRequested = true; // stop reconnect loop if running
+
         state = state.copyWith(
           phase: MidiConnectionPhase.bluetoothUnavailable,
-          unavailableReason: switch (bt) {
-            BluetoothState.off => MidiUnavailableReason.bluetoothOff,
-            BluetoothState.unauthorized =>
-              MidiUnavailableReason.bluetoothPermissionDenied,
-            _ => MidiUnavailableReason.bluetoothNotReady,
-          },
           message: bt.displayName,
           nextDelay: null,
           attempt: 0,
+          unavailableReason: bt == BluetoothState.off
+              ? MidiUnavailableReason.bluetoothOff
+              : MidiUnavailableReason.bluetoothNotReady,
         );
         return;
       }
 
-      // If bluetooth becomes ready while foregrounded, a future resume or manual
-      // reconnect will handle it. We avoid “always-on” retries in background.
+      // IMPORTANT: bluetooth is ready again; allow reconnect attempts.
+      _cancelRequested = false;
     });
 
     ref.onDispose(_cancelRetry);
@@ -184,15 +192,18 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         return;
       }
 
-      // Gate on bluetooth being ready.
-      final bt = ref
-          .read(bluetoothStateProvider)
-          .when(data: (d) => d, loading: () => null, error: (_, _) => null);
-      if (bt != null && !_bluetoothReady(bt)) {
+      // Gate on bluetooth being ready (hard stop).
+      final bt = await _awaitBluetoothState();
+      if (bt == null || !_bluetoothReady(bt)) {
+        _cancelRetry();
         state = state.copyWith(
           phase: MidiConnectionPhase.bluetoothUnavailable,
-          message: bt.displayName,
+          message: bt?.displayName ?? 'Bluetooth is not ready yet.',
           nextDelay: null,
+          attempt: 0,
+          unavailableReason: bt == BluetoothState.off
+              ? MidiUnavailableReason.bluetoothOff
+              : MidiUnavailableReason.bluetoothNotReady,
         );
         return;
       }
@@ -401,5 +412,18 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       nextDelay: null,
     );
     return false;
+  }
+
+  Future<BluetoothState?> _awaitBluetoothState({
+    Duration timeout = const Duration(milliseconds: 800),
+  }) async {
+    final cached = _lastBluetoothState;
+    if (cached != null) return cached;
+
+    try {
+      return await _service.bluetoothState.first.timeout(timeout);
+    } catch (_) {
+      return _lastBluetoothState; // may still be null
+    }
   }
 }

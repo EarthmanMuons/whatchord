@@ -73,7 +73,7 @@ class FlutterMidiService implements MidiService {
     if (_isInitialized) return true;
 
     try {
-      // Listen to Bluetooth state changes
+      // Listen to Bluetooth state changes (this updates your providers/UI).
       _bluetoothSub = _midi.onBluetoothStateChanged.listen((state) {
         _handleBluetoothStateChange(state);
       });
@@ -87,7 +87,21 @@ class FlutterMidiService implements MidiService {
         });
       });
 
-      await _updateDeviceList();
+      // PRIME the plugin BLE stack so bluetoothState is meaningful and
+      // reconnect can work without requiring a manual scan.
+      try {
+        await _midi.startBluetoothCentral();
+
+        await _midi.waitUntilBluetoothIsInitialized().timeout(
+          const Duration(seconds: 2),
+        );
+      } catch (e) {
+        // Do not fail initialization; we can still operate in "unavailable" state.
+        debugPrint('Bluetooth init/prime failed (non-fatal): $e');
+      }
+
+      // Pull an initial device snapshot.
+      await _updateDeviceList(bypassThrottle: true);
 
       _isInitialized = true;
       return true;
