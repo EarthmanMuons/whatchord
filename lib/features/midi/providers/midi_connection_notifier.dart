@@ -214,11 +214,33 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     }
   }
 
+  /// Cancel any in-progress manual/auto reconnect attempts.
+  void cancelReconnect() {
+    _cancelRequested = true;
+    _cancelRetry();
+    _attemptInFlight = false;
+
+    // Keep state coherent. If BT is off, show that; otherwise go idle.
+    final bt = _lastBluetoothState;
+    if (bt != null && !_bluetoothReady(bt)) {
+      state = state.copyWith(
+        phase: MidiConnectionPhase.bluetoothUnavailable,
+        message: bt.displayName,
+        nextDelay: null,
+        attempt: 0,
+      );
+    } else {
+      state = const MidiConnectionState.idle();
+    }
+  }
+
   Future<void> _reconnectWithBackoff(String deviceId) async {
     _cancelRetry();
+    _cancelRequested = false; // start fresh for this run
 
     for (var attempt = 1; attempt <= _maxAttempts; attempt++) {
       if (_backgrounded) return;
+      if (_cancelRequested) return;
 
       state = MidiConnectionState(
         phase: attempt == 1
@@ -232,26 +254,11 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       );
 
       final ok = await _service.reconnect(deviceId);
-
+      if (_cancelRequested) return;
       if (ok) return;
 
-      // If we can see the devices list, check whether the last device appears.
-      bool? seen;
-      if (attempt == 1 || attempt == _maxAttempts) {
-        final devices = ref
-            .read(availableMidiDevicesProvider)
-            .when(data: (d) => d, loading: () => null, error: (_, _) => null);
-        seen = devices?.any((d) => d.id == deviceId);
-      }
-
-      if (seen == false) {
-        state = state.copyWith(
-          phase: MidiConnectionPhase.deviceUnavailable,
-          message: 'Saved device not found. Make sure it is powered on.',
-        );
-      }
-
       final delay = _backoffForAttempt(attempt);
+
       state = state.copyWith(
         phase: MidiConnectionPhase.retrying,
         attempt: attempt,
@@ -259,7 +266,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         message: 'Retrying in ${delay.inSeconds}s…',
       );
 
+      if (_cancelRequested) return;
       await _sleep(delay);
+      if (_cancelRequested) return;
     }
   }
 
