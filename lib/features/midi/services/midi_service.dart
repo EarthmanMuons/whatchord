@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import '../models/ble_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
 
@@ -86,6 +87,12 @@ abstract class MidiService {
   /// Returns true if reconnection succeeded, false otherwise.
   /// This is used for auto-reconnect on app launch.
   Future<bool> reconnect(String deviceId);
+
+  /// Ensure runtime permissions required for BLE scanning/connecting are granted.
+  ///
+  /// On iOS this reflects current authorization state; the system prompt is
+  /// still triggered by actual Bluetooth usage.
+  Future<BleAccessResult> ensureBlePermissions();
 }
 
 /// Exception thrown by MIDI operations.

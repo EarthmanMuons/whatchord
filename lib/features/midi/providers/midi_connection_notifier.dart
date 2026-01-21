@@ -282,6 +282,17 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   /// Start scanning for devices.
   Future<void> startScanning() async {
     await _ensureInitialized();
+
+    final access = await _service.ensureBlePermissions();
+    if (!access.isReady) {
+      state = state.copyWith(
+        phase: MidiConnectionPhase.bluetoothUnavailable,
+        message: access.message,
+        nextDelay: null,
+      );
+      throw MidiException(access.message ?? 'Bluetooth permission is required');
+    }
+
     await _service.startScanning();
   }
 
