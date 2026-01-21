@@ -1,23 +1,29 @@
 import 'package:meta/meta.dart';
 
-import '../models/midi_connection.dart';
+import 'midi_connection.dart';
+import 'midi_unavailable_reason.dart';
 
 /// Presentation model for MIDI connection UI.
 @immutable
 class MidiConnectionStatus {
   final MidiConnectionPhase phase;
-  final String label; // short, pill/title-friendly
-  final String? detail; // optional, settings subtitle-friendly
+  final String label;
+  final String? detail;
 
-  final int? attempt; // retry attempt #
-  final Duration? nextDelay; // next retry delay
-  final String? message; // error/capability reason
-  final String? deviceName; // when connected
+  final MidiUnavailableReason? unavailableReason;
+  final bool canOpenSettings;
+
+  final int? attempt;
+  final Duration? nextDelay;
+  final String? message;
+  final String? deviceName;
 
   const MidiConnectionStatus({
     required this.phase,
     required this.label,
     this.detail,
+    this.unavailableReason,
+    this.canOpenSettings = false,
     this.attempt,
     this.nextDelay,
     this.message,

@@ -92,26 +92,6 @@ class HomePage extends ConsumerWidget {
         return;
       }
 
-      // Bluetooth unavailable (show once per transition)
-      if (prev?.phase != MidiConnectionPhase.bluetoothUnavailable &&
-          next.phase == MidiConnectionPhase.bluetoothUnavailable) {
-        show(
-          next.message ?? 'Bluetooth unavailable',
-          bg: cs.errorContainer,
-          fg: cs.onErrorContainer,
-          seconds: 5,
-          action: SnackBarAction(
-            label: 'Settings',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => const SettingsPage()),
-              );
-            },
-          ),
-        );
-        return;
-      }
-
       // Error (show once per transition)
       if (prev?.phase != MidiConnectionPhase.error &&
           next.phase == MidiConnectionPhase.error) {

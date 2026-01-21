@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/ble_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
+import '../models/midi_unavailable_reason.dart';
 import '../providers/midi_device_providers.dart';
 import '../providers/midi_preferences_notifier.dart';
 import '../providers/midi_service_providers.dart';
@@ -85,7 +87,15 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         _cancelRetry();
         state = state.copyWith(
           phase: MidiConnectionPhase.bluetoothUnavailable,
+          unavailableReason: switch (bt) {
+            BluetoothState.off => MidiUnavailableReason.bluetoothOff,
+            BluetoothState.unauthorized =>
+              MidiUnavailableReason.bluetoothPermissionDenied,
+            _ => MidiUnavailableReason.bluetoothNotReady,
+          },
           message: bt.displayName,
+          nextDelay: null,
+          attempt: 0,
         );
         return;
       }
@@ -374,12 +384,21 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     final access = await _service.ensureBlePermissions();
     if (access.isReady) return true;
 
+    final reason = switch (access.state) {
+      BleAccessState.permanentlyDenied =>
+        MidiUnavailableReason.bluetoothPermissionPermanentlyDenied,
+      BleAccessState.denied => MidiUnavailableReason.bluetoothPermissionDenied,
+      BleAccessState.restricted =>
+        MidiUnavailableReason.bluetoothPermissionPermanentlyDenied,
+      _ => MidiUnavailableReason.bluetoothNotReady,
+    };
+
     state = state.copyWith(
       phase: MidiConnectionPhase.bluetoothUnavailable,
-      message:
-          access.message ?? contextMsg ?? 'Bluetooth permission is required.',
-      nextDelay: null,
+      unavailableReason: reason,
+      message: access.message ?? contextMsg,
       attempt: 0,
+      nextDelay: null,
     );
     return false;
   }

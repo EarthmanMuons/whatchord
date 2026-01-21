@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:whatchord/core/core.dart';
 
@@ -30,6 +31,22 @@ class MidiSettingsPage extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           MidiStatusCard(connection: connection),
+
+          if (connection.canOpenSettings) ...[
+            const SizedBox(height: 8),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('Open system settings'),
+                subtitle: const Text(
+                  'Enable Bluetooth permission to connect to MIDI devices',
+                ),
+                onTap: () async {
+                  await openAppSettings();
+                },
+              ),
+            ),
+          ],
 
           const SizedBox(height: 16),
           const SectionHeader(title: 'Device'),
