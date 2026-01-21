@@ -29,6 +29,9 @@ class FlutterMidiService implements MidiService {
   bool _isScanning = false;
   bool _isInitialized = false;
 
+  Timer? _connectionWatchdog;
+  static const _watchdogInterval = Duration(seconds: 4);
+
   StreamSubscription<fmc.BluetoothState>? _bluetoothSub;
   StreamSubscription<String>? _setupChangeSub;
 
@@ -125,6 +128,8 @@ class FlutterMidiService implements MidiService {
     _setupDebounce?.cancel();
     _setupDebounce = null;
     _isInitialized = false;
+    _connectionWatchdog?.cancel();
+    _connectionWatchdog = null;
   }
 
   // ============================================================
@@ -218,27 +223,31 @@ class FlutterMidiService implements MidiService {
       _devicesController.add(midiDevices);
 
       // Keep connectedDevice in sync with native state, using the same snapshot.
+      if (_connectedDevice == null) return;
+
       final native = devices;
-      if (_connectedDevice == null) {
-        // Important: don't auto-adopt arbitrary "connected" BLE devices reported by the OS/plugin.
-        return;
-      }
       if (native == null || native.isEmpty) {
         _setConnectedDevice(null);
         return;
       }
 
-      // If we already believe we're connected, confirm it still is.
-      if (_connectedDevice != null) {
-        final match = native
-            .where((d) => d.id == _connectedDevice!.id)
-            .toList();
-        if (match.isNotEmpty && match.first.connected) {
-          // Ensure our model reflects connected=true (and emit a fresh value).
-          _setConnectedDevice(_connectedDevice!.copyWith(isConnected: true));
-          return;
-        }
+      // Find the connected device in the native snapshot.
+      final match = native.where((d) => d.id == _connectedDevice!.id).toList();
+
+      if (match.isEmpty) {
+        // Device disappeared (powered off / out of range).
+        _setConnectedDevice(null);
+        return;
       }
+
+      if (!match.first.connected) {
+        // Device still present but no longer connected.
+        _setConnectedDevice(null);
+        return;
+      }
+
+      // Still connected: re-emit with connected=true to keep streams fresh.
+      _setConnectedDevice(_connectedDevice!.copyWith(isConnected: true));
     } catch (e) {
       debugPrint('Error updating device list: $e');
       // If we can't query native devices, clear connection state.
@@ -432,6 +441,29 @@ class FlutterMidiService implements MidiService {
   void _setConnectedDevice(MidiDevice? device) {
     _connectedDevice = device;
     _connectedDeviceController.add(_connectedDevice);
+
+    if (_connectedDevice != null) {
+      _startWatchdog();
+    } else {
+      _stopWatchdog();
+    }
+  }
+
+  void _startWatchdog() {
+    _connectionWatchdog?.cancel();
+    _connectionWatchdog = Timer.periodic(_watchdogInterval, (_) async {
+      // Only watch when we think we’re connected and not scanning.
+      if (_connectedDevice == null) return;
+      if (_isScanning) return;
+
+      // Fire-and-forget; internal method coalesces inflight calls.
+      await _updateDeviceList(bypassThrottle: true);
+    });
+  }
+
+  void _stopWatchdog() {
+    _connectionWatchdog?.cancel();
+    _connectionWatchdog = null;
   }
 
   MidiDevice? _findDeviceInList(List<MidiDevice> devices, String id) {
