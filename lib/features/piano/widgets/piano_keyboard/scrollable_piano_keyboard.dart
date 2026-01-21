@@ -1,12 +1,15 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:whatchord/features/input/providers/input_idle_notifier.dart';
 
 import '../../models/piano_key_decoration.dart';
 import '../../services/piano_geometry.dart';
 import 'piano_keyboard.dart';
 
-class ScrollablePianoKeyboard extends StatefulWidget {
+class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
   const ScrollablePianoKeyboard({
     super.key,
     required this.visibleWhiteKeyCount,
@@ -45,11 +48,12 @@ class ScrollablePianoKeyboard extends StatefulWidget {
   final String middleCLandmarkText;
 
   @override
-  State<ScrollablePianoKeyboard> createState() =>
+  ConsumerState<ScrollablePianoKeyboard> createState() =>
       _ScrollablePianoKeyboardState();
 }
 
-class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
+class _ScrollablePianoKeyboardState
+    extends ConsumerState<ScrollablePianoKeyboard> {
   final ScrollController _ctl = ScrollController();
 
   DateTime _lastUserScroll = DateTime.fromMillisecondsSinceEpoch(0);
@@ -231,13 +235,8 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
 
     // Prefer reacting to newly added notes (most "natural" user intent signal).
     if (added.isNotEmpty) {
-      // Pick the most extreme newly added note relative to the current viewport:
-      // - if any added note is offscreen left, prioritize the leftmost added
-      // - else if offscreen right, prioritize the rightmost added
-      // - else if all are onscreen, do nothing
       int? targetMidi;
 
-      // Compute added note extents.
       int minAdded = added.first;
       int maxAdded = added.first;
       for (final m in added) {
@@ -256,13 +255,9 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
       } else if (addedOffRight) {
         targetMidi = maxAdded;
       } else {
-        // Added notes are already visible; no follow needed.
         return;
       }
 
-      // Now decide *how* to scroll:
-      // - If full range fits, we can show everything (center range).
-      // - If it doesn't, only reveal the target note side minimally.
       final minMidi = next.reduce(math.min);
       final maxMidi = next.reduce(math.max);
 
@@ -271,7 +266,6 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
       final spreadW = maxX - minX;
 
       if (spreadW <= (viewportW - 2 * edgeMargin)) {
-        // Fit: center entire range.
         final centerX = (minX + maxX) / 2.0;
         final target = (centerX - viewportW / 2.0).clamp(
           0.0,
@@ -289,14 +283,12 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
         return;
       }
 
-      // Not fit: reveal the specific added note side minimally.
       final tX = xForMidi(targetMidi);
       final tRightX = tX + whiteKeyW;
 
       final offLeft = tX < (viewLeft + edgeMargin);
       final offRight = tRightX > (viewRight - edgeMargin);
 
-      // If, oddly, it’s not offscreen anymore, do nothing.
       if (!offLeft && !offRight) return;
 
       double target;
@@ -320,8 +312,6 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
       return;
     }
 
-    // No additions; only removals. Avoid jumping, but optionally "unstick"
-    // if the viewport contains almost none of the remaining active notes.
     if (removed.isNotEmpty) {
       _maybeReanchorAfterRemoval(
         next,
@@ -377,7 +367,6 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
       return;
     }
 
-    // If both sides offscreen and it doesn't fit, don't move; chevrons handle it.
     if (offLeft && offRight) return;
 
     double target;
@@ -409,11 +398,6 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
     double viewRight,
     double whiteKeyW,
   ) {
-    // Heuristic: if fewer than 1/3 of remaining active keys are within viewport,
-    // re-anchor to the densest side by revealing the nearest extreme.
-    //
-    // This fixes "played a low outlier, viewport moved left, released outlier,
-    // now everything is on the right but we stay left."
     if (sounding.isEmpty) return;
 
     int visibleCount = 0;
@@ -428,7 +412,6 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
     final ratio = visibleCount / sounding.length;
     if (ratio >= 0.34) return;
 
-    // Reveal whichever extreme is closer to the current viewport center.
     final minMidi = sounding.reduce(math.min);
     final maxMidi = sounding.reduce(math.max);
 
@@ -441,13 +424,11 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
 
     double target;
     if (distToRight < distToLeft) {
-      // Reveal right side
       target = (maxX - viewportW + edgeMargin).clamp(
         0.0,
         _ctl.position.maxScrollExtent,
       );
     } else {
-      // Reveal left side
       target = (minX - edgeMargin).clamp(0.0, _ctl.position.maxScrollExtent);
     }
 
@@ -463,6 +444,15 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<bool>(inputIdleEligibleProvider, (prev, next) {
+      final becameEligible = next == true && prev != true;
+      if (!becameEligible) return;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _tryCenterWhenReady(retries: 8);
+      });
+    });
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final viewportW = constraints.maxWidth;
@@ -479,7 +469,6 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
             PianoKeyDecoration(midiNote: 60, label: widget.middleCLandmarkText),
         ];
 
-        // Offscreen indicators.
         double minX = double.infinity;
         double maxX = -double.infinity;
 
@@ -509,7 +498,6 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
                 onDoubleTap: _centerNow,
                 child: NotificationListener<ScrollNotification>(
                   onNotification: (n) {
-                    // Only treat direct user interaction as suppression.
                     if (n is ScrollStartNotification && n.dragDetails != null) {
                       _onUserScroll();
                     }
@@ -537,8 +525,6 @@ class _ScrollablePianoKeyboardState extends State<ScrollablePianoKeyboard> {
                   ),
                 ),
               ),
-
-              // Left/right indicators (subtle).
               if (showLeft)
                 Positioned(
                   left: 6,
