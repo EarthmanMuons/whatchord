@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatchord/features/midi/services/flutter_midi_service.dart';
 
 import '../models/ble_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
 import '../models/midi_unavailable_reason.dart';
-import '../providers/midi_preferences_notifier.dart';
+import 'midi_manager.dart';
+import 'midi_preferences_notifier.dart';
 
 final midiConnectionProvider =
     NotifierProvider<MidiConnectionNotifier, MidiConnectionState>(
@@ -33,13 +33,13 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   BluetoothState? _lastBluetoothState;
   bool _cancelRequested = false;
 
-  MidiController get _midi => ref.read(midiControllerProvider.notifier);
+  MidiManager get _midi => ref.read(midiManagerProvider.notifier);
 
   @override
   MidiConnectionState build() {
     // Keep connection state aligned with the connected device stream.
     ref.listen<MidiDevice?>(
-      midiControllerProvider.select((s) => s.connectedDevice),
+      midiManagerProvider.select((s) => s.connectedDevice),
       (prev, next) {
         final device = next;
 
@@ -70,7 +70,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     // React to bluetooth availability changes.
     ref.listen<
       BluetoothState
-    >(midiControllerProvider.select((s) => s.bluetoothState), (prev, next) {
+    >(midiManagerProvider.select((s) => s.bluetoothState), (prev, next) {
       final bt = next;
 
       final prevBt = _lastBluetoothState; // capture before overwrite
@@ -206,7 +206,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       }
 
       // If already connected to the saved device, do nothing.
-      final current = ref.read(midiControllerProvider).connectedDevice;
+      final current = ref.read(midiManagerProvider).connectedDevice;
       if (current?.isConnected == true && current?.id == savedDeviceId) return;
 
       // From here onward, we're actively attempting an auto reconnect.
@@ -229,7 +229,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       }
 
       try {
-        await ref.read(midiControllerProvider.notifier).ensureReady();
+        await ref.read(midiManagerProvider.notifier).ensureReady();
       } catch (_) {}
 
       // Gate on bluetooth being ready (hard stop).
@@ -432,7 +432,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<bool> reconnect() async {
     await tryAutoReconnect(reason: 'manual');
 
-    final connected = ref.read(midiControllerProvider).connectedDevice;
+    final connected = ref.read(midiManagerProvider).connectedDevice;
     return connected?.isConnected == true;
   }
 
@@ -464,14 +464,14 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<BluetoothState?> _awaitBluetoothState({
     Duration timeout = const Duration(milliseconds: 800),
   }) async {
-    final current = ref.read(midiControllerProvider).bluetoothState;
+    final current = ref.read(midiManagerProvider).bluetoothState;
     if (current != BluetoothState.unknown) return current;
 
     final completer = Completer<BluetoothState>();
     late final ProviderSubscription<BluetoothState> sub;
 
     sub = ref.listen<BluetoothState>(
-      midiControllerProvider.select((s) => s.bluetoothState),
+      midiManagerProvider.select((s) => s.bluetoothState),
       (prev, next) {
         if (next != BluetoothState.unknown && !completer.isCompleted) {
           completer.complete(next);
@@ -483,7 +483,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       return await completer.future.timeout(timeout);
     } on TimeoutException {
       // Fall back to whatever we have at timeout (may still be unknown).
-      return ref.read(midiControllerProvider).bluetoothState;
+      return ref.read(midiManagerProvider).bluetoothState;
     } finally {
       sub.close();
     }

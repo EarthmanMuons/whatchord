@@ -10,21 +10,9 @@ import '../models/ble_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
 
-// ---- Providers ------------------------------------------------------------
-
-final midiCommandProvider = Provider<fmc.MidiCommand>(
-  (ref) => fmc.MidiCommand(),
-);
-
-final midiControllerProvider = NotifierProvider<MidiController, MidiState>(
-  MidiController.new,
-);
-
-// ---- State ----------------------------------------------------------------
-
 @immutable
-class MidiState {
-  const MidiState({
+class MidiManagerState {
+  const MidiManagerState({
     required this.devices,
     required this.connectedDevice,
     required this.bluetoothState,
@@ -38,13 +26,13 @@ class MidiState {
 
   static const Object _unset = Object();
 
-  MidiState copyWith({
+  MidiManagerState copyWith({
     List<MidiDevice>? devices,
     Object? connectedDevice = _unset, // MidiDevice? or null
     BluetoothState? bluetoothState,
     bool? isScanning,
   }) {
-    return MidiState(
+    return MidiManagerState(
       devices: devices ?? this.devices,
       connectedDevice: identical(connectedDevice, _unset)
           ? this.connectedDevice
@@ -54,7 +42,7 @@ class MidiState {
     );
   }
 
-  static const initial = MidiState(
+  static const initial = MidiManagerState(
     devices: <MidiDevice>[],
     connectedDevice: null,
     bluetoothState: BluetoothState.unknown,
@@ -62,9 +50,15 @@ class MidiState {
   );
 }
 
-// ---- Controller -----------------------------------------------------------
+final midiCommandProvider = Provider<fmc.MidiCommand>(
+  (ref) => fmc.MidiCommand(),
+);
 
-class MidiController extends Notifier<MidiState> {
+final midiManagerProvider = NotifierProvider<MidiManager, MidiManagerState>(
+  MidiManager.new,
+);
+
+class MidiManager extends Notifier<MidiManagerState> {
   // ---- Tunables ----------------------------------------------------------
 
   static const Duration _minRefreshInterval = Duration(milliseconds: 700);
@@ -108,8 +102,8 @@ class MidiController extends Notifier<MidiState> {
   // ---- Build / Dispose ---------------------------------------------------
 
   @override
-  MidiState build() {
-    state = MidiState.initial;
+  MidiManagerState build() {
+    state = MidiManagerState.initial;
 
     // IMPORTANT: We install listeners early, but we do NOT prime Bluetooth here.
     // Bluetooth will be primed lazily when scanning/connecting/reconnecting.

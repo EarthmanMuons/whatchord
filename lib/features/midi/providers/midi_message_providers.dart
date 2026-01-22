@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_message.dart';
-import '../services/flutter_midi_service.dart';
+import 'midi_manager.dart';
 
 /// Stream of raw MIDI data packets.
 final midiRawDataProvider = StreamProvider<Uint8List>((ref) {
@@ -17,10 +17,7 @@ final midiMessageProvider = StreamProvider<MidiMessage>((ref) {
 });
 
 final _midiRawStreamProvider = Provider<Stream<Uint8List>>((ref) {
-  ref.watch(midiControllerProvider);
-
   final midi = ref.watch(midiCommandProvider);
-
   return midi.onMidiDataReceived?.map(
         (packet) => Uint8List.fromList(packet.data),
       ) ??

@@ -1,12 +1,12 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
 import '../providers/midi_connection_notifier.dart';
-import '../services/flutter_midi_service.dart';
+import '../providers/midi_manager.dart';
 
 /// Modal bottom sheet for scanning and selecting MIDI devices.
 class MidiDevicePicker extends ConsumerStatefulWidget {
@@ -121,14 +121,14 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final devices = ref.watch(midiControllerProvider.select((s) => s.devices));
+    final devices = ref.watch(midiManagerProvider.select((s) => s.devices));
 
     final isScanning = ref.watch(
-      midiControllerProvider.select((s) => s.isScanning),
+      midiManagerProvider.select((s) => s.isScanning),
     );
 
     final connectedDeviceId = ref.watch(
-      midiControllerProvider.select((s) => s.connectedDevice?.id),
+      midiManagerProvider.select((s) => s.connectedDevice?.id),
     );
 
     final isAttemptingConnection = ref.watch(
