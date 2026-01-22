@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 
-import 'package:flutter_midi_command/flutter_midi_command.dart' as fmc;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../models/ble_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
+import '../services/midi_ble_service.dart';
+import 'midi_ble_service_provider.dart';
 
 @immutable
 class MidiManagerState {
@@ -50,10 +51,6 @@ class MidiManagerState {
   );
 }
 
-final midiCommandProvider = Provider<fmc.MidiCommand>(
-  (ref) => fmc.MidiCommand(),
-);
-
 final midiManagerProvider = NotifierProvider<MidiManager, MidiManagerState>(
   MidiManager.new,
 );
@@ -76,10 +73,10 @@ class MidiManager extends Notifier<MidiManagerState> {
 
   // ---- Runtime -----------------------------------------------------------
 
-  late final fmc.MidiCommand _midi = ref.read(midiCommandProvider);
+  late final MidiBleService _ble = ref.read(midiBleServiceProvider);
 
-  StreamSubscription<fmc.BluetoothState>? _bluetoothSub;
-  StreamSubscription<String>? _setupChangeSub;
+  StreamSubscription<BluetoothState>? _bluetoothSub;
+  StreamSubscription<void>? _setupChangeSub;
 
   Timer? _setupDebounce;
   Timer? _connectionWatchdog;
@@ -118,7 +115,7 @@ class MidiManager extends Notifier<MidiManagerState> {
 
       // Best-effort stop scanning.
       try {
-        if (state.isScanning) _midi.stopScanningForBluetoothDevices();
+        if (state.isScanning) _ble.stopScanning();
       } catch (_) {}
 
       // Best-effort disconnect.
@@ -144,7 +141,7 @@ class MidiManager extends Notifier<MidiManagerState> {
     if (!state.isScanning) return;
 
     try {
-      _midi.stopScanningForBluetoothDevices();
+      _ble.stopScanning();
     } catch (e) {
       debugPrint('Warning: Error stopping MIDI scan: $e');
     } finally {
@@ -158,11 +155,13 @@ class MidiManager extends Notifier<MidiManagerState> {
       await _ensureBluetoothCentralReady();
 
       // Do not stop scanning until after connection is verified.
-      final native = await _findNativeDevice(device.id);
+      // With the BLE service boundary, we connect by id and verify by querying state.
+      await _cleanupStaleConnection(device.id);
+      await _performConnection(device.id);
+      await _verifyConnection(device.id);
 
-      await _cleanupStaleConnection(native);
-      await _performConnection(native);
-      await _verifyConnection(device);
+      // Publish connected device in app state only after verification.
+      _setConnectedDevice(device.copyWith(isConnected: true));
 
       await stopScanning();
     } catch (e) {
@@ -175,17 +174,19 @@ class MidiManager extends Notifier<MidiManagerState> {
     if (current == null) return;
 
     try {
-      // Disconnect should be best-effort; do not force a prime just to disconnect.
-      // But if we are already primed, try to resolve the native device.
-      final native = await _findNativeDeviceOrNull(current.id);
-      if (native != null) {
-        _midi.disconnectDevice(native);
-      }
+      // Best-effort; do not force a prime just to disconnect.
+      // If central was never started, this should simply no-op.
+      await _disconnectBestEffort(current.id);
     } catch (e) {
       debugPrint('Warning: Error disconnecting MIDI device: $e');
     } finally {
       _setConnectedDevice(null);
     }
+  }
+
+  Future<void> _disconnectBestEffort(String deviceId) async {
+    if (!_centralStarted) return; // preserve "don’t prime to disconnect"
+    await _ble.disconnect(deviceId);
   }
 
   Future<bool> reconnect(String deviceId) async {
@@ -230,15 +231,11 @@ class MidiManager extends Notifier<MidiManagerState> {
 
   Future<void> _ensureBluetoothCentralReadyImpl() async {
     try {
-      // This is the call that can implicitly “wake up” the BLE stack and,
-      // on some platforms, lead to scan-like logs. We call it only on-demand.
-      await _midi.startBluetoothCentral();
-      await _midi.waitUntilBluetoothIsInitialized().timeout(_btPrimeTimeout);
-
+      await _ble.ensureCentralReady(timeout: _btPrimeTimeout);
       _centralStarted = true;
 
       // Publish post-prime state.
-      _handleBluetoothStateChange(_midi.bluetoothState);
+      _handleBluetoothStateChange(_ble.bluetoothState);
     } catch (e) {
       _centralStarted = false;
       throw MidiException('Failed to initialize Bluetooth MIDI', e);
@@ -248,22 +245,20 @@ class MidiManager extends Notifier<MidiManagerState> {
   // ---- Listeners ---------------------------------------------------------
 
   void _setupListeners() {
-    _bluetoothSub = _midi.onBluetoothStateChanged.listen(
+    _bluetoothSub = _ble.onBluetoothStateChanged.listen(
       _handleBluetoothStateChange,
     );
 
-    _setupChangeSub = _midi.onMidiSetupChanged?.listen((_) {
+    _setupChangeSub = _ble.onMidiSetupChanged.listen((_) {
       _setupDebounce?.cancel();
       _setupDebounce = Timer(_setupDebounceDelay, () {
-        // NOTE: Setup changes often happen only after scanning/central is active.
-        // We keep this refresh best-effort and lazy; it will no-op if not primed.
         final bypass = state.isScanning;
         unawaited(_safeRefreshDevices(bypassThrottle: bypass));
       });
     });
 
-    // Seed initial BT state (pre-prime). This may be unknown until we prime.
-    _handleBluetoothStateChange(_midi.bluetoothState);
+    // Seed initial BT state.
+    _handleBluetoothStateChange(_ble.bluetoothState);
   }
 
   // ---- Device refresh ----------------------------------------------------
@@ -308,16 +303,12 @@ class MidiManager extends Notifier<MidiManagerState> {
       await _ensureBluetoothCentralReady();
     }
 
-    final native = await _midi.devices;
-
-    final devices =
-        native?.where(_isBleDevice).map(_convertToMidiDevice).toList() ??
-        <MidiDevice>[];
+    final devices = await _ble.devices();
 
     state = state.copyWith(devices: devices);
     _signalDevicesChanged();
 
-    _syncConnectedDeviceState(native);
+    _syncConnectedDeviceState(devices);
   }
 
   void _signalDevicesChanged() {
@@ -325,22 +316,16 @@ class MidiManager extends Notifier<MidiManagerState> {
     _devicesChanged.add(null);
   }
 
-  void _syncConnectedDeviceState(List<fmc.MidiDevice>? nativeDevices) {
+  void _syncConnectedDeviceState(List<MidiDevice> devices) {
     final current = state.connectedDevice;
     if (current == null) return;
 
-    if (nativeDevices == null || nativeDevices.isEmpty) {
+    final match = _firstWhereOrNull(devices, (d) => d.id == current.id);
+    if (match == null || !match.isConnected) {
       _setConnectedDevice(null);
       return;
     }
 
-    final match = _firstWhereOrNull(nativeDevices, (d) => d.id == current.id);
-    if (match == null || !match.connected) {
-      _setConnectedDevice(null);
-      return;
-    }
-
-    // Still connected: keep state fresh.
     _setConnectedDevice(current.copyWith(isConnected: true));
   }
 
@@ -360,7 +345,7 @@ class MidiManager extends Notifier<MidiManagerState> {
   Future<void> _startScanImpl() async {
     await _ensureBluetoothCentralReady();
 
-    await _midi.startScanningForBluetoothDevices();
+    await _ble.startScanning();
     state = state.copyWith(isScanning: true);
 
     await _refreshDeviceList(bypassThrottle: true);
@@ -407,50 +392,28 @@ class MidiManager extends Notifier<MidiManagerState> {
 
   // ---- Connection helpers ------------------------------------------------
 
-  Future<fmc.MidiDevice> _findNativeDevice(String deviceId) async {
-    if (!_centralStarted) await _ensureBluetoothCentralReady();
-
-    final devices = await _midi.devices;
-    final match = _firstWhereOrNull(devices, (d) => d.id == deviceId);
-    if (match == null) throw const MidiException('Device not found');
-    return match;
-  }
-
-  Future<fmc.MidiDevice?> _findNativeDeviceOrNull(String deviceId) async {
-    // If we were never primed, we likely cannot resolve a native device list;
-    // treat it as null rather than forcing prime just for cleanup.
-    if (!_centralStarted) return null;
-
-    final devices = await _midi.devices;
-    return _firstWhereOrNull(devices, (d) => d.id == deviceId);
-  }
-
-  Future<void> _cleanupStaleConnection(fmc.MidiDevice nativeDevice) async {
-    if (!nativeDevice.connected) return;
-
+  Future<void> _cleanupStaleConnection(String deviceId) async {
+    // If it's already connected at plugin level, disconnect first.
+    // This is best-effort; failure should not prevent a fresh attempt.
     try {
-      _midi.disconnectDevice(nativeDevice);
+      final connected = await _ble.isConnected(deviceId);
+      if (!connected) return;
+
+      await _ble.disconnect(deviceId);
       await Future<void>.delayed(_disconnectBeforeReconnectDelay);
     } catch (_) {}
   }
 
-  Future<void> _performConnection(fmc.MidiDevice nativeDevice) async {
-    await _midi.connectToDevice(nativeDevice);
+  Future<void> _performConnection(String deviceId) async {
+    await _ble.connect(deviceId);
     await Future<void>.delayed(_postConnectSettleDelay);
   }
 
-  Future<void> _verifyConnection(MidiDevice device) async {
-    final updated = await _midi.devices;
-    final connected =
-        _firstWhereOrNull(updated, (d) => d.id == device.id)?.connected ??
-        false;
-
-    if (connected) {
-      _setConnectedDevice(device.copyWith(isConnected: true));
-      return;
+  Future<void> _verifyConnection(String deviceId) async {
+    final connected = await _ble.isConnected(deviceId);
+    if (!connected) {
+      throw const MidiException('Connection failed - device not responding');
     }
-
-    throw const MidiException('Connection failed - device not responding');
   }
 
   void _setConnectedDevice(MidiDevice? device) {
@@ -489,9 +452,7 @@ class MidiManager extends Notifier<MidiManagerState> {
 
   // ---- Bluetooth state ---------------------------------------------------
 
-  void _handleBluetoothStateChange(fmc.BluetoothState native) {
-    final mapped = _mapBluetoothState(native);
-
+  void _handleBluetoothStateChange(BluetoothState mapped) {
     if (mapped == BluetoothState.unknown &&
         _lastPublishedBtState != null &&
         _lastPublishedBtState != BluetoothState.unknown) {
@@ -500,20 +461,10 @@ class MidiManager extends Notifier<MidiManagerState> {
 
     if (mapped == _lastPublishedBtState) return;
 
-    debugPrint(
-      'BT native=${native.name} mapped=$mapped last=$_lastPublishedBtState',
-    );
+    debugPrint('BT mapped=$mapped last=$_lastPublishedBtState');
 
-    if (mapped == BluetoothState.off) {
-      // If BT is off, any prior central prime is not trustworthy.
-      _centralStarted = false;
-
-      _setConnectedDevice(null);
-      unawaited(stopScanning());
-    }
-
-    if (mapped == BluetoothState.unauthorized) {
-      // Also treat unauthorized as “not primed” for future attempts.
+    if (mapped == BluetoothState.off || mapped == BluetoothState.unauthorized) {
+      // If BT is off/unauthorized, any prior central prime is not trustworthy.
       _centralStarted = false;
 
       _setConnectedDevice(null);
@@ -522,15 +473,6 @@ class MidiManager extends Notifier<MidiManagerState> {
 
     _lastPublishedBtState = mapped;
     state = state.copyWith(bluetoothState: mapped);
-  }
-
-  BluetoothState _mapBluetoothState(fmc.BluetoothState s) {
-    return switch (s) {
-      fmc.BluetoothState.poweredOn => BluetoothState.on,
-      fmc.BluetoothState.poweredOff => BluetoothState.off,
-      fmc.BluetoothState.unauthorized => BluetoothState.unauthorized,
-      _ => BluetoothState.unknown,
-    };
   }
 
   // ---- Permissions -------------------------------------------------------
@@ -586,18 +528,6 @@ class MidiManager extends Notifier<MidiManagerState> {
   }
 
   // ---- Utilities ---------------------------------------------------------
-
-  MidiDevice _convertToMidiDevice(fmc.MidiDevice d) => MidiDevice(
-    id: d.id,
-    name: d.name,
-    type: d.type,
-    isConnected: d.connected,
-  );
-
-  bool _isBleDevice(fmc.MidiDevice d) {
-    final type = d.type.trim().toLowerCase();
-    return type == 'ble' || type == 'bluetooth' || type.contains('ble');
-  }
 
   MidiDevice? _findDeviceInList(List<MidiDevice> devices, String id) {
     for (final d in devices) {
