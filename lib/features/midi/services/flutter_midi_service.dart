@@ -297,7 +297,18 @@ class FlutterMidiService implements MidiService {
         throw const MidiException('Device not found');
       }
 
-      // Connect to the device
+      // If iOS/plugin reports the device as already connected, force a clean reconnect.
+      // This avoids stale "connected=true" states after Bluetooth toggles.
+      if (nativeDevice.connected) {
+        try {
+          _midi.disconnectDevice(nativeDevice);
+          await Future<void>.delayed(const Duration(milliseconds: 300));
+        } catch (_) {
+          // Best-effort; continue.
+        }
+      }
+
+      // Now connect
       await _midi.connectToDevice(nativeDevice);
 
       // Wait for connection to establish
@@ -461,8 +472,19 @@ class FlutterMidiService implements MidiService {
       return;
     }
 
+    debugPrint('BT native=${state.name} mapped=$mapped last=$_lastPublishedBt');
+
     // De-dupe identical states.
     if (mapped == _lastPublishedBt) return;
+
+    if (mapped == BluetoothState.off) {
+      // Bluetooth off means any existing connection is invalid.
+      _setConnectedDevice(null);
+
+      // Stop scanning + watchdog to avoid stale churn.
+      unawaited(stopScanningSafe());
+      _stopWatchdog();
+    }
 
     _lastPublishedBt = mapped;
     _bluetoothController.add(mapped);
