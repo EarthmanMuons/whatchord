@@ -30,7 +30,7 @@ class FlutterMidiService implements MidiService {
   bool _isInitialized = false;
 
   Timer? _connectionWatchdog;
-  static const _watchdogInterval = Duration(seconds: 4);
+  static const _watchdogInterval = Duration(seconds: 16);
   bool _backgrounded = false;
 
   StreamSubscription<fmc.BluetoothState>? _bluetoothSub;
@@ -202,8 +202,6 @@ class FlutterMidiService implements MidiService {
   }
 
   Future<void> _updateDeviceList({bool bypassThrottle = false}) {
-    debugPrint('_updateDeviceList()');
-
     // If a refresh is already running, reuse it.
     final inflight = _deviceRefreshInFlight;
     if (inflight != null) return inflight;
