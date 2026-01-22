@@ -31,6 +31,7 @@ class FlutterMidiService implements MidiService {
 
   Timer? _connectionWatchdog;
   static const _watchdogInterval = Duration(seconds: 4);
+  bool _backgrounded = false;
 
   StreamSubscription<fmc.BluetoothState>? _bluetoothSub;
   StreamSubscription<String>? _setupChangeSub;
@@ -128,8 +129,23 @@ class FlutterMidiService implements MidiService {
     _setupDebounce?.cancel();
     _setupDebounce = null;
     _isInitialized = false;
-    _connectionWatchdog?.cancel();
-    _connectionWatchdog = null;
+    _stopWatchdog();
+  }
+
+  @override
+  void setBackgrounded(bool value) {
+    _backgrounded = value;
+
+    // If we go to background, suspend watchdog immediately.
+    if (_backgrounded) {
+      _stopWatchdog();
+      return;
+    }
+
+    // If we return to foreground and we're connected, resume watchdog.
+    if (_connectedDevice != null) {
+      _startWatchdog();
+    }
   }
 
   // ============================================================
@@ -451,13 +467,17 @@ class FlutterMidiService implements MidiService {
 
   void _startWatchdog() {
     _connectionWatchdog?.cancel();
+
+    if (_backgrounded) return;
+    if (_connectedDevice == null) return;
+
     _connectionWatchdog = Timer.periodic(_watchdogInterval, (_) async {
-      // Only watch when we think we’re connected and not scanning.
+      if (_backgrounded) return;
       if (_connectedDevice == null) return;
       if (_isScanning) return;
 
-      // Fire-and-forget; internal method coalesces inflight calls.
-      await _updateDeviceList(bypassThrottle: true);
+      // fire-and-forget; coalesced by _deviceRefreshInFlight
+      unawaited(_updateDeviceList(bypassThrottle: true));
     });
   }
 
