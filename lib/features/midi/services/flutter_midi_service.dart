@@ -91,11 +91,13 @@ class FlutterMidiService implements MidiService {
         });
       });
 
+      // Publish current state immediately (pre-prime).
+      _handleBluetoothStateChange(_midi.bluetoothState);
+
       // PRIME the plugin BLE stack so bluetoothState is meaningful and
       // reconnect can work without requiring a manual scan.
       try {
         await _midi.startBluetoothCentral();
-
         await _midi.waitUntilBluetoothIsInitialized().timeout(
           const Duration(seconds: 2),
         );
@@ -103,6 +105,9 @@ class FlutterMidiService implements MidiService {
         // Do not fail initialization; we can still operate in "unavailable" state.
         debugPrint('Bluetooth init/prime failed (non-fatal): $e');
       }
+
+      // Publish current state again (post-prime).
+      _handleBluetoothStateChange(_midi.bluetoothState);
 
       // Pull an initial device snapshot.
       await _updateDeviceList(bypassThrottle: true);
@@ -391,32 +396,30 @@ class FlutterMidiService implements MidiService {
       );
     }
 
-    // iOS: Permission state can be queried, but the system prompt is triggered by
-    // actual Bluetooth usage (CoreBluetooth). Still return a stable status here.
     if (Platform.isIOS) {
       final status = await Permission.bluetooth.status;
 
-      if (status.isGranted) {
-        return const BleAccessResult(BleAccessState.ready);
-      }
+      // Only trust the terminal states; everything else can be "denied" even when
+      // Settings are correct because iOS doesn't expose an explicit request API.
       if (status.isRestricted) {
         return const BleAccessResult(
           BleAccessState.restricted,
           message: 'Bluetooth access is restricted on this device.',
         );
       }
+
       if (status.isPermanentlyDenied) {
         return const BleAccessResult(
           BleAccessState.permanentlyDenied,
           message:
-              'Bluetooth permission is disabled. Please enable Bluetooth access for this app in Settings.',
+              'Bluetooth access for this app is disabled in system settings. Enable it to connect to Bluetooth MIDI devices.',
         );
       }
-      return const BleAccessResult(
-        BleAccessState.denied,
-        message:
-            'Bluetooth permission is required to discover and connect to BLE MIDI devices.',
-      );
+
+      // Treat "denied"/"limited"/etc. as "not a definitive answer" on iOS.
+      // CoreBluetooth usage will trigger the prompt and the adapter state stream
+      // will reflect unauthorized/off/on accurately.
+      return const BleAccessResult(BleAccessState.ready);
     }
 
     // Other platforms: treat as ready unless we add explicit support later.
@@ -441,15 +444,28 @@ class FlutterMidiService implements MidiService {
     return t == 'ble' || t == 'bluetooth' || t.contains('ble');
   }
 
+  BluetoothState? _lastPublishedBt;
+
   void _handleBluetoothStateChange(fmc.BluetoothState state) {
-    final btState = switch (state) {
+    final mapped = switch (state) {
       fmc.BluetoothState.poweredOn => BluetoothState.on,
       fmc.BluetoothState.poweredOff => BluetoothState.off,
       fmc.BluetoothState.unauthorized => BluetoothState.unauthorized,
       _ => BluetoothState.unknown,
     };
 
-    _bluetoothController.add(btState);
+    // Do not regress to unknown if we previously had a meaningful value.
+    if (mapped == BluetoothState.unknown &&
+        _lastPublishedBt != null &&
+        _lastPublishedBt != BluetoothState.unknown) {
+      return;
+    }
+
+    // De-dupe identical states.
+    if (mapped == _lastPublishedBt) return;
+
+    _lastPublishedBt = mapped;
+    _bluetoothController.add(mapped);
   }
 
   void _setConnectedDevice(MidiDevice? device) {
