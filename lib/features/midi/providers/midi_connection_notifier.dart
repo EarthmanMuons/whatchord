@@ -96,15 +96,30 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         _cancelRetry();
         _cancelRequested = true; // stop reconnect loop if running
 
+        final nextReason = switch (bt) {
+          BluetoothState.off => MidiUnavailableReason.bluetoothOff,
+          BluetoothState.unauthorized =>
+            MidiUnavailableReason.bluetoothPermissionDenied,
+          BluetoothState.unknown => MidiUnavailableReason.bluetoothNotReady,
+          BluetoothState.on =>
+            MidiUnavailableReason.bluetoothNotReady, // unreachable here
+        };
+
+        // Preserve a stronger reason already set by permission gating.
+        final currentReason = state.unavailableReason;
+        final preserve =
+            currentReason ==
+            MidiUnavailableReason.bluetoothPermissionPermanentlyDenied;
+        final message = preserve ? state.message : bt.displayName;
+
         state = state.copyWith(
           phase: MidiConnectionPhase.bluetoothUnavailable,
-          message: bt.displayName,
+          message: message,
           nextDelay: null,
           attempt: 0,
-          unavailableReason: bt == BluetoothState.off
-              ? MidiUnavailableReason.bluetoothOff
-              : MidiUnavailableReason.bluetoothNotReady,
+          unavailableReason: preserve ? currentReason : nextReason,
         );
+
         return;
       }
 
@@ -196,14 +211,26 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       final bt = await _awaitBluetoothState();
       if (bt == null || !_bluetoothReady(bt)) {
         _cancelRetry();
+
+        final unavailableReason = switch (bt) {
+          null => MidiUnavailableReason.bluetoothNotReady,
+          BluetoothState.off => MidiUnavailableReason.bluetoothOff,
+          BluetoothState.unauthorized =>
+            MidiUnavailableReason.bluetoothPermissionDenied,
+          BluetoothState.unknown => MidiUnavailableReason.bluetoothNotReady,
+          BluetoothState.on =>
+            MidiUnavailableReason
+                .bluetoothNotReady, // unreachable here, but explicit
+        };
+
+        final message = bt?.displayName ?? 'Bluetooth is not ready yet.';
+
         state = state.copyWith(
           phase: MidiConnectionPhase.bluetoothUnavailable,
-          message: bt?.displayName ?? 'Bluetooth is not ready yet.',
+          unavailableReason: unavailableReason,
+          message: message,
           nextDelay: null,
           attempt: 0,
-          unavailableReason: bt == BluetoothState.off
-              ? MidiUnavailableReason.bluetoothOff
-              : MidiUnavailableReason.bluetoothNotReady,
         );
         return;
       }
