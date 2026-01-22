@@ -41,9 +41,11 @@ class _MidiLifecycleController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final connection = _ref.read(midiConnectionProvider.notifier);
+    final service = _ref.read(midiServiceProvider);
 
     switch (state) {
       case AppLifecycleState.resumed:
+        service.setBackgrounded(false);
         connection.setBackgrounded(false);
         connection.tryAutoReconnect(reason: 'resume');
         break;
@@ -55,6 +57,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
+        service.setBackgrounded(true);
         connection.setBackgrounded(true);
         connection.stopScanning();
         break;

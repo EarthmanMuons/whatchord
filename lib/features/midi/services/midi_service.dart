@@ -58,6 +58,11 @@ abstract class MidiService {
   /// Should be called when the service is no longer needed.
   Future<void> dispose();
 
+  /// Inform the MIDI service whether the app is backgrounded.
+  ///
+  /// Used to suspend polling/watchdogs to avoid unnecessary work.
+  void setBackgrounded(bool value);
+
   // ============================================================
   // Device Discovery
   // ============================================================

@@ -92,6 +92,11 @@ class StubMidiService implements MidiService {
     _isInitialized = false;
   }
 
+  @override
+  void setBackgrounded(bool value) {
+    // No-op for stub.
+  }
+
   // ============================================================
   // Device Discovery
   // ============================================================
