@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/midi_connection_notifier.dart';
-import '../providers/midi_device_providers.dart';
 import '../providers/midi_preferences_notifier.dart';
+import '../services/flutter_midi_service.dart';
 
 enum _SavedDeviceMenuAction { forget }
 
@@ -27,7 +27,9 @@ class SavedDeviceCard extends ConsumerWidget {
     );
 
     // Transport snapshot (who is connected).
-    final connected = ref.watch(connectedMidiDeviceProvider).asData?.value;
+    final connected = ref.watch(
+      midiControllerProvider.select((s) => s.connectedDevice),
+    );
     final connectedDisplayName = connected?.displayName;
 
     final savedIdNormalized = ref.watch(
@@ -89,6 +91,7 @@ class SavedDeviceCard extends ConsumerWidget {
                         await ref
                             .read(midiConnectionProvider.notifier)
                             .disconnect();
+                        ref.read(midiConnectionProvider.notifier).resetToIdle();
                       },
                 child: const Text('Disconnect'),
               )

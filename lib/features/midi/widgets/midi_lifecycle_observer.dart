@@ -1,8 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatchord/features/midi/services/flutter_midi_service.dart';
 
 import '../providers/midi_connection_notifier.dart';
-import '../providers/midi_service_providers.dart';
+import '../providers/midi_preferences_notifier.dart';
 
 /// Installs a WidgetsBindingObserver that coordinates MIDI behavior across
 /// background/foreground transitions.
@@ -20,13 +21,17 @@ class _MidiLifecycleController with WidgetsBindingObserver {
   void _attach() {
     WidgetsBinding.instance.addObserver(this);
 
-    // Ensure MIDI initialization happens early.
-    _ref.read(midiServiceInitProvider);
+    // Ensure controller is created early so it can prime Bluetooth and seed state.
+    _ref.read(midiControllerProvider);
 
     // Attempt reconnect at startup (foreground).
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future<void>.delayed(const Duration(milliseconds: 200));
-      if (_ref.mounted) {
+
+      final prefs = _ref.read(midiPreferencesProvider);
+      final savedId = prefs.savedDeviceId;
+
+      if (prefs.autoReconnect && savedId != null && savedId.trim().isNotEmpty) {
         _ref
             .read(midiConnectionProvider.notifier)
             .tryAutoReconnect(reason: 'startup');
@@ -41,11 +46,11 @@ class _MidiLifecycleController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final connection = _ref.read(midiConnectionProvider.notifier);
-    final service = _ref.read(midiServiceProvider);
+    final midi = _ref.read(midiControllerProvider.notifier);
 
     switch (state) {
       case AppLifecycleState.resumed:
-        service.setBackgrounded(false);
+        midi.setBackgrounded(false);
         connection.setBackgrounded(false);
         connection.tryAutoReconnect(reason: 'resume');
         break;
@@ -57,7 +62,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
-        service.setBackgrounded(true);
+        midi.setBackgrounded(true);
         connection.setBackgrounded(true);
         connection.stopScanning();
         break;

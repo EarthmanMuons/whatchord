@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
 import '../providers/midi_connection_notifier.dart';
-import '../providers/midi_device_providers.dart';
+import '../services/flutter_midi_service.dart';
 
 /// Modal bottom sheet for scanning and selecting MIDI devices.
 class MidiDevicePicker extends ConsumerStatefulWidget {
@@ -50,8 +50,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
         final isConnectedNow = next.isConnected;
 
         if (!wasConnected && isConnectedNow && next.device != null) {
-          final device = next.device!;
-          Navigator.of(context).pop<MidiDevice>(device);
+          Navigator.of(context).pop<MidiDevice>(next.device!);
         }
       },
     );
@@ -65,22 +64,27 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
   @override
   void dispose() {
     _connectionSub.close();
-
-    // If we scheduled a delayed scan start, cancel it.
     _scanStartTimer?.cancel();
+    _scanStartTimer = null;
 
-    // Stop scanning when the picker closes.
-    _stopScanning();
+    // Defer provider mutation outside of dispose.
+    Future.microtask(() {
+      // Do not await; this is a fire-and-forget cleanup.
+      unawaited(_stopScanning());
+    });
+
     super.dispose();
   }
 
   Future<void> _startScanning() async {
+    if (!mounted) return;
     setState(() => _error = null);
 
-    // Wait a moment for initialization to complete, but make it cancelable.
+    // Small delay keeps the UI responsive while the sheet animates in.
     _scanStartTimer?.cancel();
-    _scanStartTimer = Timer(const Duration(milliseconds: 300), () async {
+    _scanStartTimer = Timer(const Duration(milliseconds: 250), () async {
       if (!mounted) return;
+
       try {
         await _connection.startScanning();
       } catch (e) {
@@ -102,7 +106,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
 
   Future<void> _connectToDevice(MidiDevice device) async {
     // Clear any prior error banner (scan or connect).
-    setState(() => _error = null);
+    if (mounted) setState(() => _error = null);
 
     try {
       await ref.read(midiConnectionProvider.notifier).connect(device);
@@ -117,10 +121,14 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final devicesAsync = ref.watch(availableMidiDevicesProvider);
+    final devices = ref.watch(midiControllerProvider.select((s) => s.devices));
+
+    final isScanning = ref.watch(
+      midiControllerProvider.select((s) => s.isScanning),
+    );
 
     final connectedDeviceId = ref.watch(
-      connectedMidiDeviceProvider.select((a) => a.asData?.value?.id),
+      midiControllerProvider.select((s) => s.connectedDevice?.id),
     );
 
     final isAttemptingConnection = ref.watch(
@@ -186,10 +194,13 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
 
           // Device list
           Flexible(
-            child: devicesAsync.when(
-              data: (devices) {
+            child: Builder(
+              builder: (_) {
                 if (devices.isEmpty) {
-                  return _buildEmptyState();
+                  // Empty can mean either "still scanning" or "no devices found".
+                  return isScanning
+                      ? _buildScanningState()
+                      : _buildNoDevicesState();
                 }
 
                 return ListView.builder(
@@ -233,8 +244,6 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                   },
                 );
               },
-              loading: () => _buildLoadingState(),
-              error: (error, stack) => _buildErrorState(error.toString()),
             ),
           ),
 
@@ -257,7 +266,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildScanningState() {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(48),
@@ -288,16 +297,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     );
   }
 
-  Widget _buildLoadingState() {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(48),
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
-
-  Widget _buildErrorState(String error) {
+  Widget _buildNoDevicesState() {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(48),
@@ -305,17 +305,22 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.error_outline,
+              Icons.bluetooth_disabled,
               size: 64,
-              color: Theme.of(context).colorScheme.error,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 16),
-            Text('Error', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'No devices found',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
             Text(
-              error,
+              'Tap Refresh to scan again.\nIf your device is new, pair it in iOS Settings first.',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),

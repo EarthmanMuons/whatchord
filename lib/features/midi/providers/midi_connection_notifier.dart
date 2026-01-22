@@ -1,16 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatchord/features/midi/services/flutter_midi_service.dart';
 
 import '../models/ble_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
 import '../models/midi_unavailable_reason.dart';
-import '../providers/midi_device_providers.dart';
 import '../providers/midi_preferences_notifier.dart';
-import '../providers/midi_service_providers.dart';
-import '../services/midi_service.dart';
 
 final midiConnectionProvider =
     NotifierProvider<MidiConnectionNotifier, MidiConnectionState>(
@@ -35,55 +33,45 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   BluetoothState? _lastBluetoothState;
   bool _cancelRequested = false;
 
-  MidiService get _service => ref.read(midiServiceProvider);
+  MidiController get _midi => ref.read(midiControllerProvider.notifier);
 
   @override
   MidiConnectionState build() {
     // Keep connection state aligned with the connected device stream.
-    ref.listen<AsyncValue<MidiDevice?>>(connectedMidiDeviceProvider, (
-      prev,
-      next,
-    ) {
-      final device = next.when(
-        data: (d) => d,
-        loading: () => null,
-        error: (_, _) => null,
-      );
+    ref.listen<MidiDevice?>(
+      midiControllerProvider.select((s) => s.connectedDevice),
+      (prev, next) {
+        final device = next;
 
-      if (device != null && device.isConnected) {
-        _cancelRetry();
-        state = MidiConnectionState(
-          phase: MidiConnectionPhase.connected,
-          device: device,
-        );
-        // Persist saved device on successful connection.
-        // Dedupe by device id to avoid churn on repeated stream emissions.
-        if (device.id != _lastSavedDeviceId) {
-          _lastSavedDeviceId = device.id;
-          final prefs = ref.read(midiPreferencesProvider.notifier);
-          // Avoid awaiting inside a listener; persistence is best-effort.
-          unawaited(prefs.setSavedDevice(device));
+        if (device != null && device.isConnected) {
+          _cancelRetry();
+          state = MidiConnectionState(
+            phase: MidiConnectionPhase.connected,
+            device: device,
+          );
+          // Persist saved device on successful connection.
+          // Dedupe by device id to avoid churn on repeated stream emissions.
+          if (device.id != _lastSavedDeviceId) {
+            _lastSavedDeviceId = device.id;
+            final prefs = ref.read(midiPreferencesProvider.notifier);
+            // Avoid awaiting inside a listener; persistence is best-effort.
+            unawaited(prefs.setSavedDevice(device));
+          }
+          return;
         }
-        return;
-      }
 
-      // If we were connected and became disconnected, fall back to idle.
-      if (state.phase == MidiConnectionPhase.connected) {
-        state = const MidiConnectionState.idle();
-      }
-    });
+        // If we were connected and became disconnected, fall back to idle.
+        if (state.phase == MidiConnectionPhase.connected) {
+          state = const MidiConnectionState.idle();
+        }
+      },
+    );
 
     // React to bluetooth availability changes.
-    ref.listen<AsyncValue<BluetoothState>>(bluetoothStateProvider, (
-      prev,
-      next,
-    ) {
-      final bt = next.when(
-        data: (d) => d,
-        loading: () => null,
-        error: (_, _) => null,
-      );
-      if (bt == null) return;
+    ref.listen<
+      BluetoothState
+    >(midiControllerProvider.select((s) => s.bluetoothState), (prev, next) {
+      final bt = next;
 
       final prevBt = _lastBluetoothState; // capture before overwrite
       _lastBluetoothState = bt;
@@ -92,6 +80,19 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       final wasReady = prevBt != null ? _bluetoothReady(prevBt) : false;
 
       if (!readyNow) {
+        final isInReconnectUi =
+            state.phase == MidiConnectionPhase.connecting ||
+            state.phase == MidiConnectionPhase.retrying ||
+            state.phase == MidiConnectionPhase.bluetoothUnavailable;
+
+        final shouldPublishUnavailable =
+            bt != BluetoothState.unknown && (wasReady || isInReconnectUi);
+
+        if (!shouldPublishUnavailable) {
+          // Keep state as-is (usually idle) and just cache the bt value.
+          return;
+        }
+
         _cancelRetry();
         _cancelRequested = true;
 
@@ -121,24 +122,22 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         return;
       }
 
-      // IMPORTANT: bluetooth is ready again; allow reconnect attempts.
-      _cancelRequested = false;
-
       // Only act on a transition to ready (avoid spamming if we get repeated "on").
-      if (!wasReady) {
-        // Clear the "unavailable" phase so UI doesn't look stuck.
-        if (state.phase == MidiConnectionPhase.bluetoothUnavailable) {
-          state = const MidiConnectionState.idle();
-        }
+      if (!wasReady && readyNow) {
+        // IMPORTANT: bluetooth is ready again; allow reconnect attempts.
+        _cancelRequested = false;
 
-        // Kick auto-reconnect, but only while foregrounded.
         if (!_backgrounded) {
-          // Don't await inside the listener.
-          unawaited(
-            ref
-                .read(midiConnectionProvider.notifier)
-                .tryAutoReconnect(reason: 'bt-ready'),
-          );
+          Future.microtask(() {
+            if (_backgrounded) return;
+            if (_attemptInFlight) return;
+            unawaited(tryAutoReconnect(reason: 'bt-ready'));
+          });
+        } else {
+          // clear stale UI if we're backgrounded.
+          if (state.phase == MidiConnectionPhase.bluetoothUnavailable) {
+            state = const MidiConnectionState.idle();
+          }
         }
       }
     });
@@ -184,17 +183,6 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
     _attemptInFlight = true;
     try {
-      // Ensure service is initialized.
-      final initialized = await ref.read(midiServiceInitProvider.future);
-      if (!initialized) {
-        state = state.copyWith(
-          phase: MidiConnectionPhase.error,
-          message: 'MIDI service failed to initialize',
-          nextDelay: null,
-        );
-        return;
-      }
-
       // Respect user preference.
       final prefs = ref.read(midiPreferencesProvider);
       if (!prefs.autoReconnect) return;
@@ -218,10 +206,19 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       }
 
       // If already connected to the saved device, do nothing.
-      final current = ref
-          .read(connectedMidiDeviceProvider)
-          .when(data: (d) => d, loading: () => null, error: (_, _) => null);
+      final current = ref.read(midiControllerProvider).connectedDevice;
       if (current?.isConnected == true && current?.id == savedDeviceId) return;
+
+      // From here onward, we're actively attempting an auto reconnect.
+      // Publish a non-idle phase immediately so the UI reflects reality.
+      state = state.copyWith(
+        phase: MidiConnectionPhase.retrying,
+        message: reason == 'startup'
+            ? 'Reconnecting to saved device…'
+            : 'Reconnecting…',
+        nextDelay: null,
+        attempt: 0,
+      );
 
       final ok = await _ensureBleAllowedOrPublishUnavailable(
         contextMsg: 'Bluetooth permission is required to reconnect.',
@@ -230,6 +227,10 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         _cancelRetry();
         return;
       }
+
+      try {
+        await ref.read(midiControllerProvider.notifier).ensureReady();
+      } catch (_) {}
 
       // Gate on bluetooth being ready (hard stop).
       final bt = await _awaitBluetoothState();
@@ -304,7 +305,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
             : 'Reconnecting to saved device (attempt $attempt)…',
       );
 
-      final ok = await _service.reconnect(deviceId);
+      final ok = await _midi.reconnect(deviceId);
       if (_cancelRequested) return;
       if (ok) return;
 
@@ -360,17 +361,8 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     _retryTimer = null;
   }
 
-  /// Ensure service is initialized before performing action.
-  Future<void> _ensureInitialized() async {
-    final initialized = await ref.read(midiServiceInitProvider.future);
-    if (!initialized) {
-      throw const MidiException('Failed to initialize MIDI service');
-    }
-  }
-
   /// Start scanning for devices.
   Future<void> startScanning() async {
-    await _ensureInitialized();
     _cancelRetry();
 
     final ok = await _ensureBleAllowedOrPublishUnavailable(
@@ -380,18 +372,16 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       throw MidiException(state.message ?? 'Bluetooth permission is required');
     }
 
-    await _service.startScanning();
+    await _midi.startScanning();
   }
 
   /// Stop scanning for devices.
   Future<void> stopScanning() async {
-    await _service.stopScanning();
+    await _midi.stopScanning();
   }
 
   /// Connect to a device and save it as the last connected device.
   Future<void> connect(MidiDevice device) async {
-    await _ensureInitialized();
-
     // Cancel any backoff/retry loop; this is an explicit user action.
     _cancelRetry();
 
@@ -413,7 +403,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     );
 
     try {
-      await _service.connect(device);
+      await _midi.connect(device);
       // Success path is handled by your connectedMidiDeviceProvider listener,
       // which will set phase=connected and persist the device.
     } on MidiException catch (e) {
@@ -435,24 +425,21 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
   /// Disconnect from the current device.
   Future<void> disconnect() async {
-    await _service.disconnect();
+    await _midi.disconnect();
   }
 
   /// Manually trigger a reconnection attempt.
   Future<bool> reconnect() async {
-    await _ensureInitialized();
-    final prefs = ref.read(midiPreferencesProvider);
-    final savedDeviceId = prefs.savedDeviceId;
+    await tryAutoReconnect(reason: 'manual');
 
-    if (savedDeviceId == null) return false;
-
-    return _service.reconnect(savedDeviceId);
+    final connected = ref.read(midiControllerProvider).connectedDevice;
+    return connected?.isConnected == true;
   }
 
   Future<bool> _ensureBleAllowedOrPublishUnavailable({
     String? contextMsg,
   }) async {
-    final access = await _service.ensureBlePermissions();
+    final access = await _midi.ensureBlePermissions();
     if (access.isReady) return true;
 
     final reason = switch (access.state) {
@@ -477,13 +464,28 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<BluetoothState?> _awaitBluetoothState({
     Duration timeout = const Duration(milliseconds: 800),
   }) async {
-    final cached = _lastBluetoothState;
-    if (cached != null) return cached;
+    final current = ref.read(midiControllerProvider).bluetoothState;
+    if (current != BluetoothState.unknown) return current;
+
+    final completer = Completer<BluetoothState>();
+    late final ProviderSubscription<BluetoothState> sub;
+
+    sub = ref.listen<BluetoothState>(
+      midiControllerProvider.select((s) => s.bluetoothState),
+      (prev, next) {
+        if (next != BluetoothState.unknown && !completer.isCompleted) {
+          completer.complete(next);
+        }
+      },
+    );
 
     try {
-      return await _service.bluetoothState.first.timeout(timeout);
-    } catch (_) {
-      return _lastBluetoothState; // may still be null
+      return await completer.future.timeout(timeout);
+    } on TimeoutException {
+      // Fall back to whatever we have at timeout (may still be unknown).
+      return ref.read(midiControllerProvider).bluetoothState;
+    } finally {
+      sub.close();
     }
   }
 }
