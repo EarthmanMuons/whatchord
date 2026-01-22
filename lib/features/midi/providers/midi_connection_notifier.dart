@@ -83,18 +83,17 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         loading: () => null,
         error: (_, _) => null,
       );
+      if (bt == null) return;
 
-      if (bt != null) {
-        _lastBluetoothState = bt;
-      } else {
-        return;
-      }
+      final prevBt = _lastBluetoothState; // capture before overwrite
+      _lastBluetoothState = bt;
 
-      final ready = _bluetoothReady(bt);
+      final readyNow = _bluetoothReady(bt);
+      final wasReady = prevBt != null ? _bluetoothReady(prevBt) : false;
 
-      if (!ready) {
+      if (!readyNow) {
         _cancelRetry();
-        _cancelRequested = true; // stop reconnect loop if running
+        _cancelRequested = true;
 
         final nextReason = switch (bt) {
           BluetoothState.off => MidiUnavailableReason.bluetoothOff,
@@ -119,12 +118,29 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
           attempt: 0,
           unavailableReason: preserve ? currentReason : nextReason,
         );
-
         return;
       }
 
       // IMPORTANT: bluetooth is ready again; allow reconnect attempts.
       _cancelRequested = false;
+
+      // Only act on a transition to ready (avoid spamming if we get repeated "on").
+      if (!wasReady) {
+        // Clear the "unavailable" phase so UI doesn't look stuck.
+        if (state.phase == MidiConnectionPhase.bluetoothUnavailable) {
+          state = const MidiConnectionState.idle();
+        }
+
+        // Kick auto-reconnect, but only while foregrounded.
+        if (!_backgrounded) {
+          // Don't await inside the listener.
+          unawaited(
+            ref
+                .read(midiConnectionProvider.notifier)
+                .tryAutoReconnect(reason: 'bt-ready'),
+          );
+        }
+      }
     });
 
     ref.onDispose(_cancelRetry);
@@ -151,12 +167,20 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     // Rate-limit other auto triggers (resume, bt-ready, etc.).
     final now = DateTime.now();
     final last = _lastAutoReconnectAt;
-    if (reason != 'startup' &&
+
+    final isManual = reason == 'manual';
+
+    if (!isManual &&
+        reason != 'startup' &&
         last != null &&
         now.difference(last) < const Duration(seconds: 5)) {
       return;
     }
-    _lastAutoReconnectAt = now;
+
+    // Only record auto-trigger timestamps. Manual should not "poison" future autos.
+    if (!isManual) {
+      _lastAutoReconnectAt = now;
+    }
 
     _attemptInFlight = true;
     try {
