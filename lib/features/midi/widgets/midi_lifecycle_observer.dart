@@ -1,8 +1,9 @@
 import 'package:flutter/widgets.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatchord/features/midi/services/flutter_midi_service.dart';
 
 import '../providers/midi_connection_notifier.dart';
+import '../providers/midi_manager.dart';
 import '../providers/midi_preferences_notifier.dart';
 
 /// Installs a WidgetsBindingObserver that coordinates MIDI behavior across
@@ -21,8 +22,8 @@ class _MidiLifecycleController with WidgetsBindingObserver {
   void _attach() {
     WidgetsBinding.instance.addObserver(this);
 
-    // Ensure controller is created early so it can prime Bluetooth and seed state.
-    _ref.read(midiControllerProvider);
+    // Ensure the MIDI manager is created early so it can install listeners and seed state.
+    _ref.read(midiManagerProvider);
 
     // Attempt reconnect at startup (foreground).
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -46,7 +47,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final connection = _ref.read(midiConnectionProvider.notifier);
-    final midi = _ref.read(midiControllerProvider.notifier);
+    final midi = _ref.read(midiManagerProvider.notifier);
 
     switch (state) {
       case AppLifecycleState.resumed:
