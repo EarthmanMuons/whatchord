@@ -1,0 +1,149 @@
+import 'dart:async';
+import 'dart:typed_data';
+
+import 'package:flutter_midi_command/flutter_midi_command.dart' as fmc;
+
+import '../models/bluetooth_state.dart';
+import '../models/midi_device.dart';
+
+/// Low-level service that wraps flutter_midi_command plugin interactions.
+///
+/// Owns all direct communication with the BLE MIDI plugin and converts between
+/// plugin types and domain models. Higher-level orchestration (scan/connect
+/// workflows, retries, debouncing, watchdogs) lives elsewhere.
+class MidiBleService {
+  MidiBleService(this._midi);
+
+  final fmc.MidiCommand _midi;
+
+  // ---- Streams -----------------------------------------------------------
+
+  Stream<BluetoothState> get onBluetoothStateChanged =>
+      _midi.onBluetoothStateChanged.map(_mapBluetoothState);
+
+  /// Emits an event whenever the underlying MIDI setup changes.
+  ///
+  /// Some platforms/versions may not expose this stream; in that case it is empty.
+  Stream<void> get onMidiSetupChanged =>
+      (_midi.onMidiSetupChanged ?? const Stream.empty()).map((_) {});
+
+  /// Stream of raw MIDI data packets as bytes.
+  ///
+  /// If the plugin does not expose a MIDI data stream on this platform/version,
+  /// this stream is empty.
+  Stream<Uint8List> get onMidiData =>
+      _midi.onMidiDataReceived?.map(
+        (packet) => Uint8List.fromList(packet.data),
+      ) ??
+      const Stream<Uint8List>.empty();
+
+  // ---- Bluetooth Central -------------------------------------------------
+
+  BluetoothState get bluetoothState => _mapBluetoothState(_midi.bluetoothState);
+
+  Future<void> startCentral() => _midi.startBluetoothCentral();
+
+  Future<void> waitUntilInitialized({
+    Duration timeout = const Duration(seconds: 2),
+  }) => _midi.waitUntilBluetoothIsInitialized().timeout(timeout);
+
+  /// Convenience: start + wait, since callers almost always want both.
+  Future<void> ensureCentralReady({
+    Duration timeout = const Duration(seconds: 2),
+  }) async {
+    await startCentral();
+    await waitUntilInitialized(timeout: timeout);
+  }
+
+  // ---- Scanning ----------------------------------------------------------
+
+  Future<void> startScanning() => _midi.startScanningForBluetoothDevices();
+
+  Future<void> stopScanning() async {
+    // Plugin API is void; keep this Future-returning for call-site symmetry.
+    _midi.stopScanningForBluetoothDevices();
+  }
+
+  // ---- Devices -----------------------------------------------------------
+
+  Future<List<MidiDevice>> devices() async {
+    final nativeDevices = await _midi.devices;
+    return nativeDevices
+            ?.where(_isBleDevice)
+            .map(_convertToMidiDevice)
+            .toList() ??
+        const <MidiDevice>[];
+  }
+
+  // ---- Connection --------------------------------------------------------
+
+  Future<void> connect(String deviceId) async {
+    final native = await _findNativeDevice(deviceId);
+    await _midi.connectToDevice(native);
+  }
+
+  Future<void> disconnect(String deviceId) async {
+    final native = await _findNativeDeviceOrNull(deviceId);
+    if (native == null) return;
+    _midi.disconnectDevice(native);
+  }
+
+  Future<bool> isConnected(String deviceId) async {
+    final native = await _findNativeDeviceOrNull(deviceId);
+    return native?.connected ?? false;
+  }
+
+  // ---- Native helpers ----------------------------------------------------
+
+  Future<fmc.MidiDevice> _findNativeDevice(String deviceId) async {
+    final native = await _findNativeDeviceOrNull(deviceId);
+    if (native == null) {
+      throw BleServiceException('Device not found: $deviceId');
+    }
+    return native;
+  }
+
+  Future<fmc.MidiDevice?> _findNativeDeviceOrNull(String deviceId) async {
+    final devices = await _midi.devices;
+    if (devices == null || devices.isEmpty) return null;
+
+    for (final d in devices) {
+      if (d.id == deviceId) return d;
+    }
+    return null;
+  }
+
+  // ---- Type Conversions --------------------------------------------------
+
+  BluetoothState _mapBluetoothState(fmc.BluetoothState state) {
+    return switch (state) {
+      fmc.BluetoothState.poweredOn => BluetoothState.on,
+      fmc.BluetoothState.poweredOff => BluetoothState.off,
+      fmc.BluetoothState.unauthorized => BluetoothState.unauthorized,
+      _ => BluetoothState.unknown,
+    };
+  }
+
+  MidiDevice _convertToMidiDevice(fmc.MidiDevice device) => MidiDevice(
+    id: device.id,
+    name: device.name,
+    type: device.type,
+    isConnected: device.connected,
+  );
+
+  bool _isBleDevice(fmc.MidiDevice device) {
+    final type = device.type.trim().toLowerCase();
+    return type == 'ble' || type == 'bluetooth' || type.contains('ble');
+  }
+}
+
+class BleServiceException implements Exception {
+  final String message;
+  final Object? cause;
+
+  const BleServiceException(this.message, [this.cause]);
+
+  @override
+  String toString() =>
+      'BleServiceException: $message${cause != null ? ' ($cause)' : ''}';
+}
