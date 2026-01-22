@@ -1,374 +1,222 @@
 import 'dart:async';
 import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_midi_command/flutter_midi_command.dart' as fmc;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../models/ble_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
-import 'midi_service.dart';
 
-/// Real MIDI service implementation using flutter_midi_command.
-class FlutterMidiService implements MidiService {
-  final fmc.MidiCommand _midi = fmc.MidiCommand();
+// ---- Providers ------------------------------------------------------------
 
-  final _devicesController = StreamController<List<MidiDevice>>.broadcast();
-  final _connectedDeviceController = StreamController<MidiDevice?>.broadcast();
+final midiCommandProvider = Provider<fmc.MidiCommand>((ref) {
+  return fmc.MidiCommand();
+});
 
-  final _bluetoothController = StreamController<BluetoothState>.broadcast();
+final midiControllerProvider = NotifierProvider<MidiController, MidiState>(
+  MidiController.new,
+);
 
-  List<MidiDevice>? _lastDevices;
-  Timer? _setupDebounce;
-  DateTime? _lastDeviceRefreshAt;
-  Future<void>? _deviceRefreshInFlight;
-  static const _minRefreshInterval = Duration(milliseconds: 700);
+/// Stream of raw MIDI data packets.
+///
+/// This remains a stream because MIDI packets are event data, not state.
+final midiRawDataProvider = StreamProvider<Uint8List>((ref) {
+  // Ensure controller is constructed.
+  ref.watch(midiControllerProvider);
 
-  MidiDevice? _connectedDevice;
-  bool _isScanning = false;
-  bool _isInitialized = false;
+  final midi = ref.watch(midiCommandProvider);
+  final stream = midi.onMidiDataReceived?.map(
+    (packet) => Uint8List.fromList(packet.data),
+  );
 
-  Timer? _connectionWatchdog;
-  static const _watchdogInterval = Duration(seconds: 16);
-  bool _backgrounded = false;
+  return stream ?? const Stream<Uint8List>.empty();
+});
+
+// ---- State ----------------------------------------------------------------
+
+@immutable
+class MidiState {
+  const MidiState({
+    required this.devices,
+    required this.connectedDevice,
+    required this.bluetoothState,
+    required this.isScanning,
+  });
+
+  final List<MidiDevice> devices;
+  final MidiDevice? connectedDevice;
+  final BluetoothState bluetoothState;
+  final bool isScanning;
+
+  static const Object _unset = Object();
+
+  MidiState copyWith({
+    List<MidiDevice>? devices,
+    Object? connectedDevice = _unset, // MidiDevice? or null
+    BluetoothState? bluetoothState,
+    bool? isScanning,
+  }) {
+    return MidiState(
+      devices: devices ?? this.devices,
+      connectedDevice: identical(connectedDevice, _unset)
+          ? this.connectedDevice
+          : connectedDevice as MidiDevice?,
+      bluetoothState: bluetoothState ?? this.bluetoothState,
+      isScanning: isScanning ?? this.isScanning,
+    );
+  }
+
+  static const initial = MidiState(
+    devices: <MidiDevice>[],
+    connectedDevice: null,
+    bluetoothState: BluetoothState.unknown,
+    isScanning: false,
+  );
+}
+
+// ---- Controller -----------------------------------------------------------
+
+class MidiController extends Notifier<MidiState> {
+  // ---- Tunables ----------------------------------------------------------
+
+  static const Duration _minRefreshInterval = Duration(milliseconds: 700);
+  static const Duration _watchdogInterval = Duration(seconds: 16);
+  static const Duration _setupDebounceDelay = Duration(milliseconds: 250);
+
+  static const Duration _disconnectBeforeReconnectDelay = Duration(
+    milliseconds: 300,
+  );
+  static const Duration _postConnectSettleDelay = Duration(milliseconds: 800);
+
+  static const Duration _waitForDeviceTimeout = Duration(seconds: 6);
+
+  static const Duration _btPrimeTimeout = Duration(seconds: 2);
+
+  // ---- Runtime -----------------------------------------------------------
+
+  late final fmc.MidiCommand _midi = ref.read(midiCommandProvider);
 
   StreamSubscription<fmc.BluetoothState>? _bluetoothSub;
   StreamSubscription<String>? _setupChangeSub;
 
-  // ============================================================
-  // Stream Getters
-  // ============================================================
+  Timer? _setupDebounce;
+  Timer? _connectionWatchdog;
+
+  Future<void>? _scanInFlight;
+  Future<void>? _deviceRefreshInFlight;
+  DateTime? _lastDeviceRefreshAt;
+
+  BluetoothState? _lastPublishedBtState;
+  bool _backgrounded = false;
+
+  // Lazy Bluetooth central prime.
+  bool _centralStarted = false;
+  Future<void>? _centralStartInFlight;
+
+  // Internal coordination: signals whenever we publish a new device snapshot.
+  final StreamController<void> _devicesChanged =
+      StreamController<void>.broadcast();
+
+  // ---- Build / Dispose ---------------------------------------------------
 
   @override
-  Stream<List<MidiDevice>> get availableDevices => _devicesController.stream;
+  MidiState build() {
+    state = MidiState.initial;
 
-  @override
-  Stream<MidiDevice?> get connectedDeviceStream =>
-      _connectedDeviceController.stream;
+    // IMPORTANT: We install listeners early, but we do NOT prime Bluetooth here.
+    // Bluetooth will be primed lazily when scanning/connecting/reconnecting.
+    _setupListeners();
 
-  @override
-  Stream<Uint8List> get midiDataStream {
-    return _midi.onMidiDataReceived?.map((packet) {
-          return Uint8List.fromList(packet.data);
-        }) ??
-        const Stream.empty();
-  }
+    ref.onDispose(() {
+      _setupDebounce?.cancel();
+      _connectionWatchdog?.cancel();
 
-  @override
-  Stream<BluetoothState> get bluetoothState => _bluetoothController.stream;
+      unawaited(_bluetoothSub?.cancel() ?? Future.value());
+      unawaited(_setupChangeSub?.cancel() ?? Future.value());
 
-  // ============================================================
-  // State Getters
-  // ============================================================
-
-  @override
-  MidiDevice? get connectedDevice => _connectedDevice;
-
-  @override
-  bool get isScanning => _isScanning;
-
-  // ============================================================
-  // Lifecycle
-  // ============================================================
-
-  @override
-  Future<bool> initialize() async {
-    if (_isInitialized) return true;
-
-    try {
-      // Listen to Bluetooth state changes (this updates your providers/UI).
-      _bluetoothSub = _midi.onBluetoothStateChanged.listen((state) {
-        _handleBluetoothStateChange(state);
-      });
-
-      _setupChangeSub = _midi.onMidiSetupChanged?.listen((String _) {
-        debugPrint('onMidiSetupChanged');
-        _setupDebounce?.cancel();
-        _setupDebounce = Timer(const Duration(milliseconds: 250), () async {
-          final bypass = _isScanning; // only bypass when scan is active
-          await _updateDeviceList(bypassThrottle: bypass);
-        });
-      });
-
-      // Publish current state immediately (pre-prime).
-      _handleBluetoothStateChange(_midi.bluetoothState);
-
-      // PRIME the plugin BLE stack so bluetoothState is meaningful and
-      // reconnect can work without requiring a manual scan.
+      // Best-effort stop scanning.
       try {
-        await _midi.startBluetoothCentral();
-        await _midi.waitUntilBluetoothIsInitialized().timeout(
-          const Duration(seconds: 2),
-        );
-      } catch (e) {
-        // Do not fail initialization; we can still operate in "unavailable" state.
-        debugPrint('Bluetooth init/prime failed (non-fatal): $e');
-      }
+        if (state.isScanning) _midi.stopScanningForBluetoothDevices();
+      } catch (_) {}
 
-      // Publish current state again (post-prime).
-      _handleBluetoothStateChange(_midi.bluetoothState);
+      // Best-effort disconnect.
+      unawaited(disconnect());
 
-      // Pull an initial device snapshot.
-      await _updateDeviceList(bypassThrottle: true);
+      // Close internal signal last.
+      unawaited(_devicesChanged.close());
+    });
 
-      _isInitialized = true;
-      return true;
-    } catch (e) {
-      throw MidiException('Failed to initialize MIDI service', e);
-    }
+    return state;
   }
 
-  @override
-  Future<void> dispose() async {
-    await stopScanning();
-    await disconnect();
+  // ---- Public API --------------------------------------------------------
 
-    await _bluetoothSub?.cancel();
-    await _setupChangeSub?.cancel();
-
-    await _devicesController.close();
-    await _connectedDeviceController.close();
-    await _bluetoothController.close();
-
-    _setupDebounce?.cancel();
-    _setupDebounce = null;
-    _isInitialized = false;
-    _stopWatchdog();
-  }
-
-  @override
   void setBackgrounded(bool value) {
     _backgrounded = value;
-
-    // If we go to background, suspend watchdog immediately.
-    if (_backgrounded) {
-      _stopWatchdog();
-      return;
-    }
-
-    // If we return to foreground and we're connected, resume watchdog.
-    if (_connectedDevice != null) {
-      _startWatchdog();
-    }
+    _updateConnectionWatchdog();
   }
 
-  // ============================================================
-  // Device Discovery
-  // ============================================================
+  Future<void> startScanning() => _ensureScanning();
 
-  @override
-  Future<void> startScanning() async {
-    if (!_isInitialized) throw const MidiException('Service not initialized');
-    await ensureScanning();
-  }
-
-  Completer<void>? _scanInFlight;
-
-  Future<void> ensureScanning() async {
-    if (_isScanning) return;
-
-    final inFlight = _scanInFlight;
-    if (inFlight != null) return inFlight.future;
-
-    final c = Completer<void>();
-    _scanInFlight = c;
-
-    try {
-      await _midi.startScanningForBluetoothDevices();
-      _isScanning = true;
-
-      // Do one immediate list refresh after scan start.
-      await _updateDeviceList(bypassThrottle: true);
-
-      c.complete();
-    } catch (e, st) {
-      _isScanning = false;
-      c.completeError(e, st);
-      rethrow;
-    } finally {
-      _scanInFlight = null;
-    }
-  }
-
-  @override
-  Future<void> stopScanning() => stopScanningSafe();
-
-  Future<void> stopScanningSafe() async {
-    if (!_isScanning) return;
+  Future<void> stopScanning() async {
+    if (!state.isScanning) return;
 
     try {
       _midi.stopScanningForBluetoothDevices();
     } catch (e) {
       debugPrint('Warning: Error stopping MIDI scan: $e');
     } finally {
-      _isScanning = false;
+      state = state.copyWith(isScanning: false);
+      _updateConnectionWatchdog();
     }
   }
 
-  Future<void> _updateDeviceList({bool bypassThrottle = false}) {
-    // If a refresh is already running, reuse it.
-    final inflight = _deviceRefreshInFlight;
-    if (inflight != null) return inflight;
-
-    final last = _lastDeviceRefreshAt;
-    final now = DateTime.now();
-
-    if (!bypassThrottle &&
-        last != null &&
-        now.difference(last) < _minRefreshInterval) {
-      return Future.value();
-    }
-
-    // Throttle refresh rate.
-    _lastDeviceRefreshAt = now;
-    final fut = _updateDeviceListImpl();
-    _deviceRefreshInFlight = fut;
-    return fut.whenComplete(() => _deviceRefreshInFlight = null);
-  }
-
-  Future<void> _updateDeviceListImpl() async {
-    try {
-      final devices = await _midi.devices;
-
-      final midiDevices =
-          devices
-              ?.where((d) => _isBleType(d.type))
-              .map(_convertDevice)
-              .toList() ??
-          [];
-
-      _lastDevices = midiDevices;
-      _devicesController.add(midiDevices);
-
-      // Keep connectedDevice in sync with native state, using the same snapshot.
-      if (_connectedDevice == null) return;
-
-      final native = devices;
-      if (native == null || native.isEmpty) {
-        _setConnectedDevice(null);
-        return;
-      }
-
-      // Find the connected device in the native snapshot.
-      final match = native.where((d) => d.id == _connectedDevice!.id).toList();
-
-      if (match.isEmpty) {
-        // Device disappeared (powered off / out of range).
-        _setConnectedDevice(null);
-        return;
-      }
-
-      if (!match.first.connected) {
-        // Device still present but no longer connected.
-        _setConnectedDevice(null);
-        return;
-      }
-
-      // Still connected: re-emit with connected=true to keep streams fresh.
-      _setConnectedDevice(_connectedDevice!.copyWith(isConnected: true));
-    } catch (e) {
-      debugPrint('Error updating device list: $e');
-      // If we can't query native devices, clear connection state.
-      _setConnectedDevice(null);
-    }
-  }
-
-  // ============================================================
-  // Connection Management
-  // ============================================================
-
-  @override
   Future<void> connect(MidiDevice device) async {
-    if (!_isInitialized) {
-      throw const MidiException('Service not initialized');
-    }
-
     try {
-      // DON'T stop scanning yet - we need the device list!
+      await _ensureBluetoothCentralReady();
 
-      final devices = await _midi.devices;
-      final nativeDevice = devices?.firstWhere(
-        (d) => d.id == device.id,
-        orElse: () => throw const MidiException('Device not found'),
-      );
+      // Do not stop scanning until after connection is verified.
+      final native = await _findNativeDevice(device.id);
 
-      if (nativeDevice == null) {
-        throw const MidiException('Device not found');
-      }
+      await _cleanupStaleConnection(native);
+      await _performConnection(native);
+      await _verifyConnection(device);
 
-      // If iOS/plugin reports the device as already connected, force a clean reconnect.
-      // This avoids stale "connected=true" states after Bluetooth toggles.
-      if (nativeDevice.connected) {
-        try {
-          _midi.disconnectDevice(nativeDevice);
-          await Future<void>.delayed(const Duration(milliseconds: 300));
-        } catch (_) {
-          // Best-effort; continue.
-        }
-      }
-
-      // Now connect
-      await _midi.connectToDevice(nativeDevice);
-
-      // Wait for connection to establish
-      await Future.delayed(const Duration(milliseconds: 800));
-
-      // Verify connection
-      final updatedDevices = await _midi.devices;
-      final connectedDevice = updatedDevices?.firstWhere(
-        (d) => d.id == device.id,
-      );
-
-      if (connectedDevice?.connected ?? false) {
-        _setConnectedDevice(device.copyWith(isConnected: true));
-        await stopScanningSafe();
-      } else {
-        throw const MidiException('Connection failed - device not responding');
-      }
+      await stopScanning();
     } catch (e) {
       throw MidiException('Failed to connect to device', e);
     }
   }
 
-  @override
   Future<void> disconnect() async {
-    if (_connectedDevice == null) return;
+    final current = state.connectedDevice;
+    if (current == null) return;
 
     try {
-      final devices = await _midi.devices;
-      final nativeDevice = devices?.firstWhere(
-        (d) => d.id == _connectedDevice!.id,
-      );
-
-      if (nativeDevice != null) {
-        // Note: disconnectDevice returns void
-        _midi.disconnectDevice(nativeDevice);
+      // Disconnect should be best-effort; do not force a prime just to disconnect.
+      // But if we are already primed, try to resolve the native device.
+      final native = await _findNativeDeviceOrNull(current.id);
+      if (native != null) {
+        _midi.disconnectDevice(native);
       }
-
-      _setConnectedDevice(null);
     } catch (e) {
       debugPrint('Warning: Error disconnecting MIDI device: $e');
+    } finally {
       _setConnectedDevice(null);
     }
   }
 
-  @override
   Future<bool> reconnect(String deviceId) async {
-    if (!_isInitialized) {
-      await initialize();
-    }
-
     try {
-      // Ensure scanning is running (idempotent if you gate it).
-      await ensureScanning();
+      await _ensureBluetoothCentralReady();
 
-      // Force at least one device list push immediately.
-      await _updateDeviceList(bypassThrottle: true);
+      await _ensureScanning();
+      await _refreshDeviceList(bypassThrottle: true);
 
-      // Wait for the target to appear via the devices stream.
       final device = await _waitForDevice(deviceId);
-
       if (device == null) return false;
 
       await connect(device);
@@ -379,147 +227,397 @@ class FlutterMidiService implements MidiService {
     }
   }
 
-  @override
   Future<BleAccessResult> ensureBlePermissions() async {
-    if (Platform.isAndroid) {
-      final scan = await Permission.bluetoothScan.request();
-      final connect = await Permission.bluetoothConnect.request();
-
-      if (scan.isGranted && connect.isGranted) {
-        return const BleAccessResult(BleAccessState.ready);
-      }
-
-      if (scan.isPermanentlyDenied ||
-          connect.isPermanentlyDenied ||
-          scan.isRestricted ||
-          connect.isRestricted) {
-        return const BleAccessResult(
-          BleAccessState.permanentlyDenied,
-          message:
-              'Nearby devices permission is blocked. Enable it in system settings to connect to Bluetooth MIDI devices.',
-        );
-      }
-
-      return const BleAccessResult(
-        BleAccessState.denied,
-        message:
-            'Nearby devices permission is required to discover and connect to Bluetooth MIDI devices.',
-      );
-    }
-
-    if (Platform.isIOS) {
-      final status = await Permission.bluetooth.status;
-
-      // Only trust the terminal states; everything else can be "denied" even when
-      // Settings are correct because iOS doesn't expose an explicit request API.
-      if (status.isRestricted) {
-        return const BleAccessResult(
-          BleAccessState.restricted,
-          message: 'Bluetooth access is restricted on this device.',
-        );
-      }
-
-      if (status.isPermanentlyDenied) {
-        return const BleAccessResult(
-          BleAccessState.permanentlyDenied,
-          message:
-              'Bluetooth access for this app is disabled in system settings. Enable it to connect to Bluetooth MIDI devices.',
-        );
-      }
-
-      // Treat "denied"/"limited"/etc. as "not a definitive answer" on iOS.
-      // CoreBluetooth usage will trigger the prompt and the adapter state stream
-      // will reflect unauthorized/off/on accurately.
-      return const BleAccessResult(BleAccessState.ready);
-    }
-
-    // Other platforms: treat as ready unless we add explicit support later.
+    if (Platform.isAndroid) return _checkAndroidBlePermissions();
+    if (Platform.isIOS) return _checkIosBlePermissions();
     return const BleAccessResult(BleAccessState.ready);
   }
 
-  // ============================================================
-  // Helper Methods
-  // ============================================================
+  // ---- Lazy Bluetooth prime ---------------------------------------------
 
-  MidiDevice _convertDevice(fmc.MidiDevice nativeDevice) {
-    return MidiDevice(
-      id: nativeDevice.id,
-      name: nativeDevice.name,
-      type: nativeDevice.type,
-      isConnected: nativeDevice.connected,
+  /// Prime the BLE stack without starting a scan.
+  Future<void> ensureReady() => _ensureBluetoothCentralReady();
+
+  Future<void> _ensureBluetoothCentralReady() {
+    if (_centralStarted) return Future.value();
+
+    final inflight = _centralStartInFlight;
+    if (inflight != null) return inflight;
+
+    final fut = _ensureBluetoothCentralReadyImpl();
+    _centralStartInFlight = fut;
+    return fut.whenComplete(() => _centralStartInFlight = null);
+  }
+
+  Future<void> _ensureBluetoothCentralReadyImpl() async {
+    try {
+      // This is the call that can implicitly “wake up” the BLE stack and,
+      // on some platforms, lead to scan-like logs. We call it only on-demand.
+      await _midi.startBluetoothCentral();
+      await _midi.waitUntilBluetoothIsInitialized().timeout(_btPrimeTimeout);
+
+      _centralStarted = true;
+
+      // Publish post-prime state.
+      _handleBluetoothStateChange(_midi.bluetoothState);
+    } catch (e) {
+      _centralStarted = false;
+      throw MidiException('Failed to initialize Bluetooth MIDI', e);
+    }
+  }
+
+  // ---- Listeners ---------------------------------------------------------
+
+  void _setupListeners() {
+    _bluetoothSub = _midi.onBluetoothStateChanged.listen(
+      _handleBluetoothStateChange,
     );
+
+    _setupChangeSub = _midi.onMidiSetupChanged?.listen((_) {
+      _setupDebounce?.cancel();
+      _setupDebounce = Timer(_setupDebounceDelay, () {
+        // NOTE: Setup changes often happen only after scanning/central is active.
+        // We keep this refresh best-effort and lazy; it will no-op if not primed.
+        final bypass = state.isScanning;
+        unawaited(_safeRefreshDevices(bypassThrottle: bypass));
+      });
+    });
+
+    // Seed initial BT state (pre-prime). This may be unknown until we prime.
+    _handleBluetoothStateChange(_midi.bluetoothState);
   }
 
-  bool _isBleType(String type) {
-    final t = type.trim().toLowerCase();
-    return t == 'ble' || t == 'bluetooth' || t.contains('ble');
+  // ---- Device refresh ----------------------------------------------------
+
+  Future<void> _safeRefreshDevices({required bool bypassThrottle}) async {
+    try {
+      // Only refresh if we have already primed, or if scanning is active.
+      // This prevents “hidden” startup priming via refresh paths.
+      if (!_centralStarted && !state.isScanning) return;
+
+      await _refreshDeviceList(bypassThrottle: bypassThrottle);
+    } catch (e) {
+      debugPrint('Device refresh failed: $e');
+    }
   }
 
-  BluetoothState? _lastPublishedBt;
+  Future<void> _refreshDeviceList({required bool bypassThrottle}) {
+    final inflight = _deviceRefreshInFlight;
+    if (inflight != null) return inflight;
 
-  void _handleBluetoothStateChange(fmc.BluetoothState state) {
-    final mapped = switch (state) {
+    if (!bypassThrottle && !_shouldRefreshDevices()) {
+      return Future.value();
+    }
+
+    _lastDeviceRefreshAt = DateTime.now();
+
+    final fut = _updateDeviceListImpl();
+    _deviceRefreshInFlight = fut;
+    return fut.whenComplete(() => _deviceRefreshInFlight = null);
+  }
+
+  bool _shouldRefreshDevices() {
+    final last = _lastDeviceRefreshAt;
+    if (last == null) return true;
+    return DateTime.now().difference(last) >= _minRefreshInterval;
+  }
+
+  Future<void> _updateDeviceListImpl() async {
+    // If scanning/connecting called us, central should already be primed.
+    // But keep this safe for any future call sites.
+    if (!_centralStarted) {
+      await _ensureBluetoothCentralReady();
+    }
+
+    final native = await _midi.devices;
+
+    final devices =
+        native?.where(_isBleDevice).map(_convertToMidiDevice).toList() ??
+        <MidiDevice>[];
+
+    state = state.copyWith(devices: devices);
+    _signalDevicesChanged();
+
+    _syncConnectedDeviceState(native);
+  }
+
+  void _signalDevicesChanged() {
+    if (_devicesChanged.isClosed) return;
+    _devicesChanged.add(null);
+  }
+
+  void _syncConnectedDeviceState(List<fmc.MidiDevice>? nativeDevices) {
+    final current = state.connectedDevice;
+    if (current == null) return;
+
+    if (nativeDevices == null || nativeDevices.isEmpty) {
+      _setConnectedDevice(null);
+      return;
+    }
+
+    final match = _firstWhereOrNull(nativeDevices, (d) => d.id == current.id);
+    if (match == null || !match.connected) {
+      _setConnectedDevice(null);
+      return;
+    }
+
+    // Still connected: keep state fresh.
+    _setConnectedDevice(current.copyWith(isConnected: true));
+  }
+
+  // ---- Scanning ----------------------------------------------------------
+
+  Future<void> _ensureScanning() {
+    if (state.isScanning) return Future.value();
+
+    final inflight = _scanInFlight;
+    if (inflight != null) return inflight;
+
+    final fut = _startScanImpl();
+    _scanInFlight = fut;
+    return fut.whenComplete(() => _scanInFlight = null);
+  }
+
+  Future<void> _startScanImpl() async {
+    await _ensureBluetoothCentralReady();
+
+    await _midi.startScanningForBluetoothDevices();
+    state = state.copyWith(isScanning: true);
+
+    await _refreshDeviceList(bypassThrottle: true);
+    _updateConnectionWatchdog();
+  }
+
+  Future<MidiDevice?> _waitForDevice(
+    String deviceId, {
+    Duration timeout = _waitForDeviceTimeout,
+  }) async {
+    // Fast path: already present.
+    final existing = _findDeviceInList(state.devices, deviceId);
+    if (existing != null) return existing;
+
+    // Refresh once immediately.
+    await _refreshDeviceList(bypassThrottle: true);
+
+    // Check again.
+    final afterRefresh = _findDeviceInList(state.devices, deviceId);
+    if (afterRefresh != null) return afterRefresh;
+
+    // While scanning/connecting, keep refreshing so the device list can actually
+    // converge on the target device (iOS can be slow to surface it).
+    Timer? pump;
+    pump = Timer.periodic(const Duration(milliseconds: 250), (_) {
+      // Fire-and-forget; refresh is already coalesced by _deviceRefreshInFlight.
+      unawaited(_safeRefreshDevices(bypassThrottle: true));
+    });
+
+    // Await device list changes.
+    try {
+      await for (final _ in _devicesChanged.stream.timeout(timeout)) {
+        final found = _findDeviceInList(state.devices, deviceId);
+        if (found != null) return found;
+      }
+    } on TimeoutException {
+      return null;
+    } finally {
+      pump.cancel();
+    }
+
+    return null;
+  }
+
+  // ---- Connection helpers ------------------------------------------------
+
+  Future<fmc.MidiDevice> _findNativeDevice(String deviceId) async {
+    if (!_centralStarted) await _ensureBluetoothCentralReady();
+
+    final devices = await _midi.devices;
+    final match = _firstWhereOrNull(devices, (d) => d.id == deviceId);
+    if (match == null) throw const MidiException('Device not found');
+    return match;
+  }
+
+  Future<fmc.MidiDevice?> _findNativeDeviceOrNull(String deviceId) async {
+    // If we were never primed, we likely cannot resolve a native device list;
+    // treat it as null rather than forcing prime just for cleanup.
+    if (!_centralStarted) return null;
+
+    final devices = await _midi.devices;
+    return _firstWhereOrNull(devices, (d) => d.id == deviceId);
+  }
+
+  Future<void> _cleanupStaleConnection(fmc.MidiDevice nativeDevice) async {
+    if (!nativeDevice.connected) return;
+
+    try {
+      _midi.disconnectDevice(nativeDevice);
+      await Future<void>.delayed(_disconnectBeforeReconnectDelay);
+    } catch (_) {}
+  }
+
+  Future<void> _performConnection(fmc.MidiDevice nativeDevice) async {
+    await _midi.connectToDevice(nativeDevice);
+    await Future<void>.delayed(_postConnectSettleDelay);
+  }
+
+  Future<void> _verifyConnection(MidiDevice device) async {
+    final updated = await _midi.devices;
+    final connected =
+        _firstWhereOrNull(updated, (d) => d.id == device.id)?.connected ??
+        false;
+
+    if (connected) {
+      _setConnectedDevice(device.copyWith(isConnected: true));
+      return;
+    }
+
+    throw const MidiException('Connection failed - device not responding');
+  }
+
+  void _setConnectedDevice(MidiDevice? device) {
+    state = state.copyWith(connectedDevice: device);
+    _updateConnectionWatchdog();
+  }
+
+  // ---- Watchdog ----------------------------------------------------------
+
+  void _updateConnectionWatchdog() {
+    final shouldRun =
+        state.connectedDevice != null && !_backgrounded && !state.isScanning;
+
+    if (shouldRun) {
+      _startConnectionWatchdog();
+    } else {
+      _stopConnectionWatchdog();
+    }
+  }
+
+  void _startConnectionWatchdog() {
+    _connectionWatchdog?.cancel();
+    _connectionWatchdog = Timer.periodic(_watchdogInterval, (_) {
+      if (_backgrounded) return;
+      if (state.connectedDevice == null) return;
+      if (state.isScanning) return;
+
+      unawaited(_safeRefreshDevices(bypassThrottle: true));
+    });
+  }
+
+  void _stopConnectionWatchdog() {
+    _connectionWatchdog?.cancel();
+    _connectionWatchdog = null;
+  }
+
+  // ---- Bluetooth state ---------------------------------------------------
+
+  void _handleBluetoothStateChange(fmc.BluetoothState native) {
+    final mapped = _mapBluetoothState(native);
+
+    if (mapped == BluetoothState.unknown &&
+        _lastPublishedBtState != null &&
+        _lastPublishedBtState != BluetoothState.unknown) {
+      return;
+    }
+
+    if (mapped == _lastPublishedBtState) return;
+
+    debugPrint(
+      'BT native=${native.name} mapped=$mapped last=$_lastPublishedBtState',
+    );
+
+    if (mapped == BluetoothState.off) {
+      // If BT is off, any prior central prime is not trustworthy.
+      _centralStarted = false;
+
+      _setConnectedDevice(null);
+      unawaited(stopScanning());
+    }
+
+    if (mapped == BluetoothState.unauthorized) {
+      // Also treat unauthorized as “not primed” for future attempts.
+      _centralStarted = false;
+
+      _setConnectedDevice(null);
+      unawaited(stopScanning());
+    }
+
+    _lastPublishedBtState = mapped;
+    state = state.copyWith(bluetoothState: mapped);
+  }
+
+  BluetoothState _mapBluetoothState(fmc.BluetoothState s) {
+    return switch (s) {
       fmc.BluetoothState.poweredOn => BluetoothState.on,
       fmc.BluetoothState.poweredOff => BluetoothState.off,
       fmc.BluetoothState.unauthorized => BluetoothState.unauthorized,
       _ => BluetoothState.unknown,
     };
-
-    // Do not regress to unknown if we previously had a meaningful value.
-    if (mapped == BluetoothState.unknown &&
-        _lastPublishedBt != null &&
-        _lastPublishedBt != BluetoothState.unknown) {
-      return;
-    }
-
-    debugPrint('BT native=${state.name} mapped=$mapped last=$_lastPublishedBt');
-
-    // De-dupe identical states.
-    if (mapped == _lastPublishedBt) return;
-
-    if (mapped == BluetoothState.off) {
-      // Bluetooth off means any existing connection is invalid.
-      _setConnectedDevice(null);
-
-      // Stop scanning + watchdog to avoid stale churn.
-      unawaited(stopScanningSafe());
-      _stopWatchdog();
-    }
-
-    _lastPublishedBt = mapped;
-    _bluetoothController.add(mapped);
   }
 
-  void _setConnectedDevice(MidiDevice? device) {
-    _connectedDevice = device;
-    _connectedDeviceController.add(_connectedDevice);
+  // ---- Permissions -------------------------------------------------------
 
-    if (_connectedDevice != null) {
-      _startWatchdog();
-    } else {
-      _stopWatchdog();
+  Future<BleAccessResult> _checkAndroidBlePermissions() async {
+    final scan = await Permission.bluetoothScan.request();
+    final connect = await Permission.bluetoothConnect.request();
+
+    if (scan.isGranted && connect.isGranted) {
+      return const BleAccessResult(BleAccessState.ready);
     }
+
+    if (scan.isPermanentlyDenied ||
+        connect.isPermanentlyDenied ||
+        scan.isRestricted ||
+        connect.isRestricted) {
+      return const BleAccessResult(
+        BleAccessState.permanentlyDenied,
+        message:
+            'Nearby devices permission is blocked. Enable it in system settings '
+            'to connect to Bluetooth MIDI devices.',
+      );
+    }
+
+    return const BleAccessResult(
+      BleAccessState.denied,
+      message:
+          'Nearby devices permission is required to discover and connect '
+          'to Bluetooth MIDI devices.',
+    );
   }
 
-  void _startWatchdog() {
-    _connectionWatchdog?.cancel();
+  Future<BleAccessResult> _checkIosBlePermissions() async {
+    final status = await Permission.bluetooth.status;
 
-    if (_backgrounded) return;
-    if (_connectedDevice == null) return;
+    if (status.isRestricted) {
+      return const BleAccessResult(
+        BleAccessState.restricted,
+        message: 'Bluetooth access is restricted on this device.',
+      );
+    }
 
-    _connectionWatchdog = Timer.periodic(_watchdogInterval, (_) async {
-      if (_backgrounded) return;
-      if (_connectedDevice == null) return;
-      if (_isScanning) return;
+    if (status.isPermanentlyDenied) {
+      return const BleAccessResult(
+        BleAccessState.permanentlyDenied,
+        message:
+            'Bluetooth access for this app is disabled in system settings. '
+            'Enable it to connect to Bluetooth MIDI devices.',
+      );
+    }
 
-      // fire-and-forget; coalesced by _deviceRefreshInFlight
-      unawaited(_updateDeviceList(bypassThrottle: true));
-    });
+    return const BleAccessResult(BleAccessState.ready);
   }
 
-  void _stopWatchdog() {
-    _connectionWatchdog?.cancel();
-    _connectionWatchdog = null;
+  // ---- Utilities ---------------------------------------------------------
+
+  MidiDevice _convertToMidiDevice(fmc.MidiDevice d) => MidiDevice(
+    id: d.id,
+    name: d.name,
+    type: d.type,
+    isConnected: d.connected,
+  );
+
+  bool _isBleDevice(fmc.MidiDevice d) {
+    final type = d.type.trim().toLowerCase();
+    return type == 'ble' || type == 'bluetooth' || type.contains('ble');
   }
 
   MidiDevice? _findDeviceInList(List<MidiDevice> devices, String id) {
@@ -529,41 +627,23 @@ class FlutterMidiService implements MidiService {
     return null;
   }
 
-  Future<MidiDevice?> _waitForDevice(
-    String deviceId, {
-    Duration timeout = const Duration(seconds: 6),
-    Duration refreshInterval = const Duration(milliseconds: 250),
-  }) async {
-    // Fast path.
-    final current = _lastDevices;
-    if (current != null) {
-      final hit = _findDeviceInList(current, deviceId);
-      if (hit != null) return hit;
+  T? _firstWhereOrNull<T>(List<T>? items, bool Function(T) test) {
+    if (items == null) return null;
+    for (final item in items) {
+      if (test(item)) return item;
     }
-
-    Timer? pump;
-    try {
-      // Pump device snapshots while waiting so the stream actually has
-      // opportunities to emit a list containing the device.
-      pump = Timer.periodic(refreshInterval, (_) {
-        // fire-and-forget: _updateDeviceList already coalesces inflight calls
-        // and should bypass/minimize throttling during reconnect.
-        _updateDeviceList(bypassThrottle: true);
-      });
-
-      // Also do one immediate refresh.
-      await _updateDeviceList(bypassThrottle: true);
-
-      return await availableDevices
-          .map((devices) => _findDeviceInList(devices, deviceId))
-          .where((d) => d != null)
-          .cast<MidiDevice>()
-          .first
-          .timeout(timeout);
-    } on TimeoutException {
-      return null;
-    } finally {
-      pump?.cancel();
-    }
+    return null;
   }
+}
+
+/// Exception thrown by MIDI operations.
+class MidiException implements Exception {
+  final String message;
+  final Object? cause;
+
+  const MidiException(this.message, [this.cause]);
+
+  @override
+  String toString() =>
+      'MidiException: $message${cause != null ? ' ($cause)' : ''}';
 }

@@ -22,7 +22,6 @@ class HomePage extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
 
     // Initialize MIDI service and install lifecycle + reconnect behavior.
-    ref.watch(midiServiceInitProvider);
     ref.watch(midiLifecycleObserverProvider);
 
     // Listen for connection state changes and show feedback.
