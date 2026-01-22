@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart';
+
 import 'package:flutter_midi_command/flutter_midi_command.dart' as fmc;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -12,28 +12,13 @@ import '../models/midi_device.dart';
 
 // ---- Providers ------------------------------------------------------------
 
-final midiCommandProvider = Provider<fmc.MidiCommand>((ref) {
-  return fmc.MidiCommand();
-});
+final midiCommandProvider = Provider<fmc.MidiCommand>(
+  (ref) => fmc.MidiCommand(),
+);
 
 final midiControllerProvider = NotifierProvider<MidiController, MidiState>(
   MidiController.new,
 );
-
-/// Stream of raw MIDI data packets.
-///
-/// This remains a stream because MIDI packets are event data, not state.
-final midiRawDataProvider = StreamProvider<Uint8List>((ref) {
-  // Ensure controller is constructed.
-  ref.watch(midiControllerProvider);
-
-  final midi = ref.watch(midiCommandProvider);
-  final stream = midi.onMidiDataReceived?.map(
-    (packet) => Uint8List.fromList(packet.data),
-  );
-
-  return stream ?? const Stream<Uint8List>.empty();
-});
 
 // ---- State ----------------------------------------------------------------
 
