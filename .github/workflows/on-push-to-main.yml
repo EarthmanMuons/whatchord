@@ -26,4 +26,6 @@ jobs:
       needs.detect_changed_files.outputs.flutter == 'true'
       || github.event_name == 'workflow_dispatch'
     uses: EarthmanMuons/reusable-workflows/.github/workflows/tag-if-missing.yml@main
+    with:
+      toolbox_envy_bins: common,flutter
     secrets: inherit
