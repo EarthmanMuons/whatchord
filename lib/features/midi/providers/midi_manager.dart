@@ -266,7 +266,7 @@ class MidiManager extends Notifier<MidiManagerState> {
   Future<void> _safeRefreshDevices({required bool bypassThrottle}) async {
     try {
       // Only refresh if we have already primed, or if scanning is active.
-      // This prevents “hidden” startup priming via refresh paths.
+      // This prevents "hidden" startup priming via refresh paths.
       if (!_centralStarted && !state.isScanning) return;
 
       await _refreshDeviceList(bypassThrottle: bypassThrottle);
@@ -297,18 +297,14 @@ class MidiManager extends Notifier<MidiManagerState> {
   }
 
   Future<void> _updateDeviceListImpl() async {
-    // If scanning/connecting called us, central should already be primed.
-    // But keep this safe for any future call sites.
-    if (!_centralStarted) {
-      await _ensureBluetoothCentralReady();
-    }
+    if (!_centralStarted) return;
 
     final devices = await _ble.devices();
 
     state = state.copyWith(devices: devices);
     _signalDevicesChanged();
 
-    _syncConnectedDeviceState(devices);
+    unawaited(_syncConnectedDeviceState(devices));
   }
 
   void _signalDevicesChanged() {
@@ -316,16 +312,30 @@ class MidiManager extends Notifier<MidiManagerState> {
     _devicesChanged.add(null);
   }
 
-  void _syncConnectedDeviceState(List<MidiDevice> devices) {
+  Future<void> _syncConnectedDeviceState(List<MidiDevice> devices) async {
     final current = state.connectedDevice;
     if (current == null) return;
 
+    // If the snapshot is empty, treat as inconclusive; do not clear connection.
+    // This prevents transient empty device lists from dropping UI state.
+    if (devices.isEmpty) return;
+
     final match = _firstWhereOrNull(devices, (d) => d.id == current.id);
+
+    debugPrint(
+      'syncConnected: devices=${devices.length} match=${match?.id} matchConnected=${match?.isConnected}',
+    );
+
+    // If we can't find the device or it reports not connected, confirm with the plugin.
     if (match == null || !match.isConnected) {
-      _setConnectedDevice(null);
+      final actuallyConnected = await _ble.isConnected(current.id);
+      if (!actuallyConnected) {
+        _setConnectedDevice(null);
+      }
       return;
     }
 
+    // Still connected: keep state fresh.
     _setConnectedDevice(current.copyWith(isConnected: true));
   }
 
