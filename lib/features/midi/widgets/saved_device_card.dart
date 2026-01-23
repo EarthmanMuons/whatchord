@@ -78,7 +78,7 @@ class SavedDeviceCard extends ConsumerWidget {
               FilledButton.tonal(
                 style: compactButtonStyle,
                 onPressed: () {
-                  ref.read(midiConnectionProvider.notifier).cancelReconnect();
+                  ref.read(midiConnectionProvider.notifier).cancel();
                 },
                 child: const Text('Cancel'),
               )

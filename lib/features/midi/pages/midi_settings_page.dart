@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:whatchord/core/core.dart';
 
 import '../models/midi_device.dart';
+import '../providers/midi_connection_notifier.dart';
 import '../providers/midi_connection_status_provider.dart';
 import '../widgets/midi_device_picker.dart';
 import '../widgets/midi_status_card.dart';
@@ -63,18 +65,17 @@ class MidiSettingsPage extends ConsumerWidget {
               subtitle: const Text('Scan for and select a MIDI device'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () async {
-                final device = await showModalBottomSheet<MidiDevice>(
+                await showModalBottomSheet<MidiDevice>(
                   context: context,
                   showDragHandle: true,
                   builder: (_) => const MidiDevicePicker(),
-                );
-
-                if (!context.mounted) return;
-                if (device == null) return;
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Connected to ${device.name}')),
-                );
+                ).whenComplete(() {
+                  unawaited(
+                    ref
+                        .read(midiConnectionProvider.notifier)
+                        .cancel(reason: 'picker_dismissed'),
+                  );
+                });
               },
             ),
           ),

@@ -140,6 +140,38 @@ class MidiManager extends Notifier<MidiManagerState> {
 
   Future<void> startScanning() => _ensureScanning();
 
+  // Force refresh the device list, optionally ensuring scanning is active.
+  // - ensureScanning=true: explicit user intent to discover devices, so priming is OK.
+  // - ensureScanning=false: will NOT prime; refresh only if central already started or scanning.
+  Future<void> refreshDevices({bool ensureScanning = true}) async {
+    if (ensureScanning) {
+      await _ensureScanning(); // primes + starts scan if needed
+    } else {
+      // Avoid "hidden" priming
+      if (!_centralStarted && !state.isScanning) return;
+    }
+
+    await _refreshDeviceList(bypassThrottle: true);
+  }
+
+  // Forcefully restart scanning (stop then start) as a recovery action.
+  // Intended for "Refresh" / "Try again" UI when scanning stalls on some platforms.
+  Future<void> restartScanning() async {
+    // If scan isn't running, just start.
+    if (!state.isScanning) {
+      await startScanning();
+      return;
+    }
+
+    // Best-effort stop.
+    await stopScanning();
+
+    // Small delay can help some stacks settle.
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+
+    await startScanning();
+  }
+
   Future<void> stopScanning() async {
     if (!state.isScanning) return;
 
