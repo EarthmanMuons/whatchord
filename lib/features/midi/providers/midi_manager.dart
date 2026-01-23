@@ -1,14 +1,14 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../models/ble_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
+import '../services/ble_permission_service.dart';
 import '../services/midi_ble_service.dart';
+import 'ble_permission_service_provider.dart';
 import 'midi_ble_service_provider.dart';
 
 @immutable
@@ -74,6 +74,9 @@ class MidiManager extends Notifier<MidiManagerState> {
   // ---- Runtime -----------------------------------------------------------
 
   late final MidiBleService _ble = ref.read(midiBleServiceProvider);
+  late final BlePermissionService _blePerms = ref.read(
+    blePermissionServiceProvider,
+  );
 
   StreamSubscription<BluetoothState>? _bluetoothSub;
   StreamSubscription<void>? _setupChangeSub;
@@ -207,11 +210,7 @@ class MidiManager extends Notifier<MidiManagerState> {
     }
   }
 
-  Future<BleAccessResult> ensureBlePermissions() async {
-    if (Platform.isAndroid) return _checkAndroidBlePermissions();
-    if (Platform.isIOS) return _checkIosBlePermissions();
-    return const BleAccessResult(BleAccessState.ready);
-  }
+  Future<BleAccessResult> ensureBleAccess() => _blePerms.ensureBleAccess();
 
   // ---- Lazy Bluetooth prime ---------------------------------------------
 
@@ -483,58 +482,6 @@ class MidiManager extends Notifier<MidiManagerState> {
 
     _lastPublishedBtState = mapped;
     state = state.copyWith(bluetoothState: mapped);
-  }
-
-  // ---- Permissions -------------------------------------------------------
-
-  Future<BleAccessResult> _checkAndroidBlePermissions() async {
-    final scan = await Permission.bluetoothScan.request();
-    final connect = await Permission.bluetoothConnect.request();
-
-    if (scan.isGranted && connect.isGranted) {
-      return const BleAccessResult(BleAccessState.ready);
-    }
-
-    if (scan.isPermanentlyDenied ||
-        connect.isPermanentlyDenied ||
-        scan.isRestricted ||
-        connect.isRestricted) {
-      return const BleAccessResult(
-        BleAccessState.permanentlyDenied,
-        message:
-            'Nearby devices permission is blocked. Enable it in system settings '
-            'to connect to Bluetooth MIDI devices.',
-      );
-    }
-
-    return const BleAccessResult(
-      BleAccessState.denied,
-      message:
-          'Nearby devices permission is required to discover and connect '
-          'to Bluetooth MIDI devices.',
-    );
-  }
-
-  Future<BleAccessResult> _checkIosBlePermissions() async {
-    final status = await Permission.bluetooth.status;
-
-    if (status.isRestricted) {
-      return const BleAccessResult(
-        BleAccessState.restricted,
-        message: 'Bluetooth access is restricted on this device.',
-      );
-    }
-
-    if (status.isPermanentlyDenied) {
-      return const BleAccessResult(
-        BleAccessState.permanentlyDenied,
-        message:
-            'Bluetooth access for this app is disabled in system settings. '
-            'Enable it to connect to Bluetooth MIDI devices.',
-      );
-    }
-
-    return const BleAccessResult(BleAccessState.ready);
   }
 
   // ---- Utilities ---------------------------------------------------------

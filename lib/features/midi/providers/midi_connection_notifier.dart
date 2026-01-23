@@ -439,7 +439,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<bool> _ensureBleAllowedOrPublishUnavailable({
     String? contextMsg,
   }) async {
-    final access = await _midi.ensureBlePermissions();
+    final access = await _midi.ensureBleAccess();
     if (access.isReady) return true;
 
     final reason = switch (access.state) {
