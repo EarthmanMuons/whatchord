@@ -24,6 +24,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Adoption of standardized Toolbox Envy scripts for versioning, changelog
   updates, and release tasks.
 
+### Changed
+
+- Identity card details are now opened with a single tap (previously
+  long-press).
+
 ## [0.8.0] - 2026-01-16
 
 This is a pre-1.0 release intended as a stable public preview.
