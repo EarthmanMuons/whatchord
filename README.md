@@ -102,9 +102,8 @@ usage inform improvements.
 If you believe a chord has been identified incorrectly, please [open an
 issue][ISSUE] on the GitHub repository. When possible, include the notes you
 played, the key signature, and the chord WhatChord reported versus the expected
-result. You can also long-press the chord identity card to access detailed
-analysis information. Sharing this data helps diagnose edge cases and improve
-the engine.
+result. You can also tap on the chord identity card to access detailed analysis
+information. Sharing this data helps diagnose edge cases and improve the engine.
 
 [ISSUE]: https://github.com/EarthmanMuons/whatchord/issues/new/choose
 

@@ -161,32 +161,42 @@ class IdentityCard extends StatelessWidget {
         child: display != null
             ? KeyedSubtree(
                 key: const ValueKey('identity'),
-                child: hasLabel
-                    ? LayoutBuilder(
-                        builder: (context, c) {
-                          final tight =
-                              c.maxHeight.isFinite && c.maxHeight < 110.0;
+                child: Semantics(
+                  // Announce the meaning in plain English.
+                  label: display.longLabel,
 
-                          final gap = tight ? 14.0 : 22.0;
-                          final secondaryMin = tight ? 16.0 : 20.0;
+                  // Prevent VoiceOver/TalkBack from reading the visual glyph
+                  // text in addition to label.
+                  excludeSemantics: true,
 
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              identityBody(display),
-                              SizedBox(height: gap),
-                              AutoSizeText(
-                                display.secondaryLabel!,
-                                textAlign: TextAlign.center,
-                                style: secondaryStyle,
-                                maxLines: 1,
-                                minFontSize: secondaryMin,
-                              ),
-                            ],
-                          );
-                        },
-                      )
-                    : identityBody(display),
+                  button: true,
+                  onTapHint: 'Show analysis details',
+                  child: hasLabel
+                      ? LayoutBuilder(
+                          builder: (context, c) {
+                            final tight =
+                                c.maxHeight.isFinite && c.maxHeight < 110.0;
+                            final gap = tight ? 14.0 : 22.0;
+                            final secondaryMin = tight ? 16.0 : 20.0;
+
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                identityBody(display),
+                                SizedBox(height: gap),
+                                AutoSizeText(
+                                  display.secondaryLabel!,
+                                  textAlign: TextAlign.center,
+                                  style: secondaryStyle,
+                                  maxLines: 1,
+                                  minFontSize: secondaryMin,
+                                ),
+                              ],
+                            );
+                          },
+                        )
+                      : identityBody(display),
+                ),
               )
             : showIdle
             ? KeyedSubtree(
@@ -320,7 +330,7 @@ class IdentityCard extends StatelessWidget {
       elevation: 0,
       color: cs.primary,
       child: InkWell(
-        onLongPress: () => showDetailsSheet(context, display),
+        onTap: () => showDetailsSheet(context, display),
         borderRadius: cardBorderRadius,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: minCardHeight),
