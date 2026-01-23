@@ -253,9 +253,7 @@ class IdentityCard extends StatelessWidget {
                           scrollDirection: Axis.horizontal,
                           child: SelectableText(
                             copyText,
-                            style: t.textTheme.bodyMedium?.copyWith(
-                              fontFamily: 'monospace',
-                            ),
+                            style: t.textTheme.bodyMedium,
                           ),
                         ),
                       ),

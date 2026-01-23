@@ -38,7 +38,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           secondaryLabel: 'Note',
           debugText: _debugForNote(
             midis: midis,
-            tonalityName: tonality.toString(),
+            keyName: tonality.displayName,
             noteName: name,
             longLabel: longLabel,
           ),
@@ -50,11 +50,11 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         if (midis.length < 2) return null;
 
         final bassMidi = midis.first;
-        final otherMidi = midis.last;
+        final upperMidi = midis.last;
 
         final interval = IntervalFormatter.forMidiNotes(
           bassMidi: bassMidi,
-          otherMidi: otherMidi,
+          upperMidi: upperMidi,
           direction: IntervalLabelDirection.fromBass,
         );
 
@@ -68,13 +68,13 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           secondaryLabel: 'Interval · from $root',
           debugText: _debugForInterval(
             midis: midis,
+            keyName: tonality.displayName,
             bassMidi: bassMidi,
-            otherMidi: otherMidi,
+            upperMidi: upperMidi,
             semitones: interval.semitones,
             intervalShort: interval.short,
             intervalLong: interval.long,
             fromRoot: root,
-            tonalityName: tonality.displayName,
           ),
         );
       }
@@ -104,20 +104,25 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           tonality: tonality,
         );
 
-        final qualityLabel = id.quality.label(ChordQualityLabelForm.short);
+        final qualityLabel = id.quality.label(ChordQualityLabelForm.long);
+
+        final extensions = [...id.extensions]
+          ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+
+        final extensionLabels = extensions.map((e) => e.shortLabel).toList();
 
         final members = ref.watch(chordMemberSpellingsProvider);
 
         final debugText = _debugForChord(
           midis: midis,
-          tonalityName: tonality.toString(),
+          keyName: tonality.displayName,
           chosenSymbol: symbol.toString(),
           longLabel: longLabel,
           rootPc: id.rootPc,
           bassPc: id.bassPc,
           hasSlash: id.hasSlashBass,
           quality: qualityLabel,
-          extensions: id.extensions.map((e) => e.shortLabel).toList()..sort(),
+          extensions: extensionLabels,
           members: members,
         );
 
@@ -134,67 +139,54 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
   }
 });
 
-String _debugForInput({
-  required List<int> midis,
-  required String tonalityName,
-}) {
-  final pcs = (midis.map((m) => m % 12).toSet().toList()..sort());
-  final sorted = [...midis]..sort();
-  return [
-    'Context',
-    '- Tonality: $tonalityName',
-    '',
-    'Input',
-    '- MIDI: $sorted',
-    '- PCs:  $pcs',
-  ].join('\n');
-}
+// ---- Analysis details formatting -----------------------------------------
 
 String _debugForNote({
   required List<int> midis,
-  required String tonalityName,
+  required String keyName,
   required String noteName,
   required String longLabel,
 }) {
-  final base = _debugForInput(midis: midis, tonalityName: tonalityName);
-  return [
-    'Note Identity',
-    '- Displayed: $noteName',
-    '- Long:      $longLabel',
-    '',
-    base,
-  ].join('\n');
+  return _debugDoc(
+    sections: [
+      _debugSection('Note Identity', ['Label: $noteName', 'Name: $longLabel']),
+      _debugContext(keyName: keyName),
+      _debugInput(midis: midis),
+    ],
+  );
 }
 
 String _debugForInterval({
   required List<int> midis,
+  required String keyName,
   required int bassMidi,
-  required int otherMidi,
+  required int upperMidi,
   required int semitones,
   required String fromRoot,
   required String intervalShort,
   required String intervalLong,
-  required String tonalityName,
 }) {
-  final base = _debugForInput(midis: midis, tonalityName: tonalityName);
-  return [
-    'Interval Identity',
-    '- Displayed: $intervalShort',
-    '- Long:      $intervalLong',
-    '- From:      $fromRoot',
-    '',
-    base,
-    '',
-    'Interval',
-    '- Bass MIDI: $bassMidi',
-    '- Other MIDI: $otherMidi',
-    '- Semitones: $semitones',
-  ].join('\n');
+  return _debugDoc(
+    sections: [
+      _debugSection('Interval Identity', [
+        'Label: $intervalShort',
+        'Name: $intervalLong',
+        'Reference: from $fromRoot',
+      ]),
+      _debugContext(keyName: keyName),
+      _debugInput(midis: midis),
+      _debugSection('Details', [
+        'Bass MIDI: $bassMidi',
+        'Upper MIDI: $upperMidi',
+        'Semitones: $semitones',
+      ]),
+    ],
+  );
 }
 
 String _debugForChord({
   required List<int> midis,
-  required String tonalityName,
+  required String keyName,
   required String chosenSymbol,
   required String longLabel,
   required int rootPc,
@@ -204,19 +196,52 @@ String _debugForChord({
   required List<String> extensions,
   required List<String> members,
 }) {
-  final base = _debugForInput(midis: midis, tonalityName: tonalityName);
+  final realizedBassPc = midis.first % 12;
+
+  return _debugDoc(
+    sections: [
+      _debugSection('Chord Identity', [
+        'Label: $chosenSymbol',
+        'Name: $longLabel',
+        'Members: ${members.isEmpty ? '(none)' : members.join(', ')}',
+      ]),
+      _debugContext(keyName: keyName),
+      _debugInput(midis: midis),
+      _debugSection('Details', [
+        'Root pitch class: $rootPc',
+        'Quality: $quality',
+        'Extensions: ${_fmtList(extensions)}',
+        'Bass pitch class: $realizedBassPc',
+      ]),
+    ],
+  );
+}
+
+String _fmtList<T>(Iterable<T> items, {String empty = '(none)'}) {
+  final list = items.toList();
+  return list.isEmpty ? empty : '[${list.join(', ')}]';
+}
+
+String _debugSection(String title, List<String> lines) {
+  return [title, ...lines.map((l) => '• $l')].join('\n');
+}
+
+String _debugContext({required String keyName}) {
+  return _debugSection('Context', ['Key: $keyName']);
+}
+
+String _debugInput({required List<int> midis}) {
+  final pcs = (midis.map((m) => m % 12).toSet().toList()..sort());
+
+  return _debugSection('Input', [
+    'MIDI notes: ${_fmtList(midis)}',
+    'Note count: ${midis.length}',
+    'Pitch classes: ${_fmtList(pcs)}',
+  ]);
+}
+
+String _debugDoc({required List<String> sections}) {
   return [
-    'Chord Identity',
-    '- Displayed: $chosenSymbol',
-    '- Long:      $longLabel',
-    '- Members:   ${members.isEmpty ? '(none)' : members.join(', ')}',
-    '',
-    base,
-    '',
-    'Chord',
-    '- Root PC: $rootPc',
-    '- Quality: $quality',
-    '- Extensions: ${extensions.isEmpty ? '(none)' : extensions.join(', ')}',
-    '- Slash Bass: ${hasSlash ? '$bassPc' : '(none)'}',
+    ...sections.expand((s) => [s, '']).toList()..removeLast(),
   ].join('\n');
 }
