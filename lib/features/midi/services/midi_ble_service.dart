@@ -68,10 +68,7 @@ class MidiBleService {
 
   Future<List<MidiDevice>> devices() async {
     final nativeDevices = await _midi.devices;
-    return nativeDevices
-            ?.where(_isBleDevice)
-            .map(_convertToMidiDevice)
-            .toList() ??
+    return nativeDevices?.map(_convertToMidiDevice).toList() ??
         const <MidiDevice>[];
   }
 
@@ -130,11 +127,6 @@ class MidiBleService {
     type: device.type,
     isConnected: device.connected,
   );
-
-  bool _isBleDevice(fmc.MidiDevice device) {
-    final type = device.type.trim().toLowerCase();
-    return type == 'ble' || type == 'bluetooth' || type.contains('ble');
-  }
 }
 
 class BleServiceException implements Exception {
