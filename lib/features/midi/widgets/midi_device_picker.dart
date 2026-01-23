@@ -66,13 +66,6 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     _connectionSub.close();
     _scanStartTimer?.cancel();
     _scanStartTimer = null;
-
-    // Defer provider mutation outside of dispose.
-    Future.microtask(() {
-      // Do not await; this is a fire-and-forget cleanup.
-      unawaited(_stopScanning());
-    });
-
     super.dispose();
   }
 
@@ -96,11 +89,18 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     });
   }
 
-  Future<void> _stopScanning() async {
+  Future<void> _refresh() async {
+    if (!mounted) return;
+    setState(() => _error = null);
+
     try {
-      await _connection.stopScanning();
+      // Hard refresh by default (restart scan) to recover from stalled scans.
+      await _connection.refreshDevices(restartScan: true);
     } catch (e) {
-      debugPrint('Error stopping scan: $e');
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString().replaceAll('MidiException: ', '');
+      });
     }
   }
 
@@ -159,7 +159,9 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                  },
                 ),
               ],
             ),
@@ -256,7 +258,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                 TextButton.icon(
                   icon: const Icon(Icons.refresh),
                   label: const Text('Refresh'),
-                  onPressed: isAttemptingConnection ? null : _startScanning,
+                  onPressed: isAttemptingConnection ? null : _refresh,
                 ),
               ],
             ),

@@ -35,6 +35,43 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
   MidiManager get _midi => ref.read(midiManagerProvider.notifier);
 
+  /// Explicit user/controller cancel:
+  /// - cancels reconnect/backoff loops
+  /// - stops scanning
+  /// - normalizes UI state
+  Future<void> cancel({String reason = 'user_cancel'}) async {
+    _cancelRequested = true;
+    _cancelRetry();
+    _attemptInFlight = false;
+
+    // If already connected, do not reset connection state.
+    final connected = ref.read(midiManagerProvider).connectedDevice;
+    if (connected?.isConnected == true) {
+      // Still stop scanning if it is running (likely already stopped by MidiManager.connect).
+      try {
+        await _midi.stopScanning();
+      } catch (_) {}
+      return;
+    }
+
+    try {
+      await _midi.stopScanning();
+    } catch (_) {}
+
+    final bt =
+        _lastBluetoothState ?? ref.read(midiManagerProvider).bluetoothState;
+    if (bt != BluetoothState.unknown && !_bluetoothReady(bt)) {
+      state = state.copyWith(
+        phase: MidiConnectionPhase.bluetoothUnavailable,
+        message: bt.displayName,
+        nextDelay: null,
+        attempt: 0,
+      );
+    } else {
+      state = const MidiConnectionState.idle();
+    }
+  }
+
   @override
   MidiConnectionState build() {
     // Keep connection state aligned with the connected device stream.
@@ -149,7 +186,8 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   void setBackgrounded(bool value) {
     _backgrounded = value;
     if (_backgrounded) {
-      _cancelRetry();
+      // Controller-owned policy: background cancels attempts and stops scanning.
+      unawaited(cancel(reason: 'background'));
     }
   }
 
@@ -266,26 +304,6 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     }
   }
 
-  /// Cancel any in-progress manual/auto reconnect attempts.
-  void cancelReconnect() {
-    _cancelRequested = true;
-    _cancelRetry();
-    _attemptInFlight = false;
-
-    // Keep state coherent. If BT is off, show that; otherwise go idle.
-    final bt = _lastBluetoothState;
-    if (bt != null && !_bluetoothReady(bt)) {
-      state = state.copyWith(
-        phase: MidiConnectionPhase.bluetoothUnavailable,
-        message: bt.displayName,
-        nextDelay: null,
-        attempt: 0,
-      );
-    } else {
-      state = const MidiConnectionState.idle();
-    }
-  }
-
   Future<void> _reconnectWithBackoff(String deviceId) async {
     _cancelRetry();
     _cancelRequested = false; // start fresh for this run
@@ -359,6 +377,27 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   void _cancelRetry() {
     _retryTimer?.cancel();
     _retryTimer = null;
+  }
+
+  /// Manual refresh from UI.
+  /// - restartScan=true: "hard refresh" (stop/start scan)
+  /// - restartScan=false: force device list refresh while scanning
+  Future<void> refreshDevices({bool restartScan = true}) async {
+    // If you're in backoff/retry UI, a manual refresh should cancel the timer.
+    _cancelRetry();
+
+    final ok = await _ensureBleAllowedOrPublishUnavailable(
+      contextMsg: 'Bluetooth permission is required to scan for devices.',
+    );
+    if (!ok) {
+      throw MidiException(state.message ?? 'Bluetooth permission is required');
+    }
+
+    if (restartScan) {
+      await _midi.restartScanning();
+    } else {
+      await _midi.refreshDevices(ensureScanning: true);
+    }
   }
 
   /// Start scanning for devices.
