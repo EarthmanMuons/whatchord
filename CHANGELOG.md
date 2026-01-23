@@ -10,7 +10,19 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
-- Ongoing refinements ahead of the 1.0 release.
+### Added
+
+- Initial support for running WhatChord on iOS, including required platform
+  permissions and launch screen assets.
+- Re-architected BLE MIDI connectivity around Riverpod state management for
+  improved stability and clarity.
+- Improved detection and handling of Bluetooth disconnects, permissions, and
+  adapter state changes.
+- Switched the project to Calendar Versioning (CalVer) for clearer, date-based
+  releases.
+- Fully automated release publishing using GitHub Actions.
+- Adoption of standardized Toolbox Envy scripts for versioning, changelog
+  updates, and release tasks.
 
 ## [0.8.0] - 2026-01-16
 
