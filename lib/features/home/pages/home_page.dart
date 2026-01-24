@@ -14,118 +14,38 @@ import '../widgets/edge_to_edge_controller.dart';
 import '../widgets/keyboard_section.dart';
 import '../widgets/tonality_bar.dart';
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+
+    ref.listenManual(midiConnectionProvider, (prev, next) {
+      // Show once when transitioning into connected
+      if (prev?.phase != MidiConnectionPhase.connected &&
+          next.phase == MidiConnectionPhase.connected) {
+        final name = next.device?.displayName;
+        final text = name != null ? 'MIDI connected: $name' : 'MIDI connected';
+
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(text)));
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
     // Initialize MIDI service and install lifecycle + reconnect behavior.
     ref.watch(midiLifecycleObserverProvider);
-
-    // Listen for connection state changes and show feedback.
-    ref.listen(midiConnectionProvider, (prev, next) {
-      if (prev?.phase == next.phase && prev?.message == next.message) return;
-
-      final messenger = ScaffoldMessenger.of(context);
-
-      void show(
-        String text, {
-        Color? bg,
-        Color? fg,
-        int seconds = 3,
-        SnackBarAction? action,
-      }) {
-        final trimmed = text.trim();
-        if (trimmed.isEmpty) return;
-
-        // Prevent "spam"/re-show loops from feeling undismissable.
-        messenger.hideCurrentSnackBar();
-
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(trimmed),
-            duration: Duration(seconds: seconds),
-            action: action,
-          ),
-        );
-      }
-
-      // Connected (show once when transitioning into connected)
-      if (prev?.phase != MidiConnectionPhase.connected &&
-          next.phase == MidiConnectionPhase.connected) {
-        final deviceName = next.device?.name;
-        show(
-          deviceName != null ? 'MIDI connected: $deviceName' : 'MIDI connected',
-          bg: cs.primaryContainer,
-          fg: cs.onPrimaryContainer,
-          seconds: 2,
-        );
-        return;
-      }
-
-      // Device unavailable (show once when transitioning into unavailable)
-      if (prev?.phase != MidiConnectionPhase.deviceUnavailable &&
-          next.phase == MidiConnectionPhase.deviceUnavailable) {
-        final msg = (next.message?.trim().isNotEmpty ?? false)
-            ? next.message!.trim()
-            : 'MIDI device unavailable';
-
-        show(
-          msg,
-          bg: cs.surfaceContainerHighest,
-          fg: cs.onSurface,
-          seconds: 4,
-          action: SnackBarAction(
-            label: 'MIDI Settings',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const MidiSettingsPage(),
-                ),
-              );
-            },
-          ),
-        );
-        return;
-      }
-
-      // Error (show once per transition)
-      if (prev?.phase != MidiConnectionPhase.error &&
-          next.phase == MidiConnectionPhase.error) {
-        show(
-          next.message ?? 'MIDI error',
-          bg: cs.errorContainer,
-          fg: cs.onErrorContainer,
-          seconds: 5,
-          action: SnackBarAction(
-            label: 'MIDI Settings',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => const MidiSettingsPage(),
-                ),
-              );
-            },
-          ),
-        );
-        return;
-      }
-
-      // Disconnection toast (only if we were connected and now idle)
-      if (prev?.phase == MidiConnectionPhase.connected &&
-          (next.phase == MidiConnectionPhase.idle ||
-              next.phase == MidiConnectionPhase.connecting ||
-              next.phase == MidiConnectionPhase.retrying)) {
-        show(
-          'MIDI disconnected',
-          bg: cs.surfaceContainerHighest,
-          fg: cs.onSurface,
-          seconds: 2,
-        );
-      }
-    });
 
     return LayoutBuilder(
       builder: (context, constraints) {
