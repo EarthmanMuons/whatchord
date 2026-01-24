@@ -6,9 +6,9 @@ import '../providers/midi_connection_notifier.dart';
 import '../providers/midi_manager.dart';
 import '../providers/midi_preferences_notifier.dart';
 
-/// Installs a WidgetsBindingObserver that coordinates MIDI behavior across
-/// background/foreground transitions.
-final midiLifecycleObserverProvider = Provider<void>((ref) {
+/// Installs app-wide MIDI lifecycle handling to coordinate behavior across
+/// background and foreground transitions.
+final appMidiLifecycleProvider = Provider<void>((ref) {
   final controller = _MidiLifecycleController(ref);
   controller._attach();
   ref.onDispose(controller._detach);
@@ -16,10 +16,13 @@ final midiLifecycleObserverProvider = Provider<void>((ref) {
 
 class _MidiLifecycleController with WidgetsBindingObserver {
   final Ref _ref;
-
   _MidiLifecycleController(this._ref);
 
+  bool _attached = false;
+
   void _attach() {
+    if (_attached) return;
+    _attached = true;
     WidgetsBinding.instance.addObserver(this);
 
     // Ensure the MIDI manager is created early so it can install listeners and seed state.
@@ -41,6 +44,8 @@ class _MidiLifecycleController with WidgetsBindingObserver {
   }
 
   void _detach() {
+    if (!_attached) return;
+    _attached = false;
     WidgetsBinding.instance.removeObserver(this);
   }
 
