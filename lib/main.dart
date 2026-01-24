@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:whatchord/features/midi/providers/app_midi_lifecycle_provider.dart';
+
 import 'core/core.dart';
 import 'features/home/home.dart';
 
@@ -24,7 +26,9 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Core app lifecycle hooks.
     ref.watch(appResumeWakeupProvider);
+    ref.watch(appMidiLifecycleProvider);
 
     final themeMode = ref.watch(appThemeModeProvider);
     final palette = ref.watch(appPaletteProvider);

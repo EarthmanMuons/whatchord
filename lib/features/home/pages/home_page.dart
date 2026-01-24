@@ -44,9 +44,6 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    // Initialize MIDI service and install lifecycle + reconnect behavior.
-    ref.watch(midiLifecycleObserverProvider);
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final isLandscape = constraints.maxWidth > constraints.maxHeight;
