@@ -6,11 +6,11 @@ import 'package:flutter_midi_command/flutter_midi_command.dart' as fmc;
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
 
-/// Low-level service that wraps flutter_midi_command plugin interactions.
+/// Low-level MIDI-over-BLE (Bluetooth Low Energy) transport service.
 ///
-/// Owns all direct communication with the BLE MIDI plugin and converts between
-/// plugin types and domain models. Higher-level orchestration (scan/connect
-/// workflows, retries, debouncing, watchdogs) lives elsewhere.
+/// Wraps flutter_midi_command plugin interactions. Higher-level orchestration
+/// (scanning workflow, retries, state management) lives in [MidiDeviceManager]
+/// and [MidiConnectionNotifier].
 class MidiBleService {
   MidiBleService(this._midi);
 
@@ -114,8 +114,8 @@ class MidiBleService {
 
   BluetoothState _mapBluetoothState(fmc.BluetoothState state) {
     return switch (state) {
-      fmc.BluetoothState.poweredOn => BluetoothState.on,
-      fmc.BluetoothState.poweredOff => BluetoothState.off,
+      fmc.BluetoothState.poweredOn => BluetoothState.poweredOn,
+      fmc.BluetoothState.poweredOff => BluetoothState.poweredOff,
       fmc.BluetoothState.unauthorized => BluetoothState.unauthorized,
       _ => BluetoothState.unknown,
     };

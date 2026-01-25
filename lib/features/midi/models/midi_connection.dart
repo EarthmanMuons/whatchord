@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
+import 'ble_unavailability.dart';
 import 'midi_device.dart';
-import 'midi_unavailable_reason.dart';
 
 enum MidiConnectionPhase {
   idle,
@@ -13,6 +13,10 @@ enum MidiConnectionPhase {
   error,
 }
 
+/// Internal connection state with full workflow details.
+///
+/// Tracks retry attempts, delays, and internal phases. For UI presentation,
+/// see [MidiConnectionStatus] (computed via [midiConnectionStatusProvider]).
 @immutable
 class MidiConnectionState {
   final MidiConnectionPhase phase;
@@ -20,7 +24,7 @@ class MidiConnectionState {
   final int attempt; // 1-based
   final Duration? nextDelay;
   final String? message;
-  final MidiUnavailableReason? unavailableReason;
+  final BleUnavailability? unavailability;
 
   const MidiConnectionState({
     required this.phase,
@@ -28,7 +32,7 @@ class MidiConnectionState {
     this.attempt = 0,
     this.nextDelay,
     this.message,
-    this.unavailableReason,
+    this.unavailability,
   });
 
   const MidiConnectionState.idle() : this(phase: MidiConnectionPhase.idle);
@@ -49,7 +53,7 @@ class MidiConnectionState {
     int? attempt,
     Duration? nextDelay,
     String? message,
-    MidiUnavailableReason? unavailableReason,
+    BleUnavailability? unavailability,
   }) {
     return MidiConnectionState(
       phase: phase ?? this.phase,
@@ -57,7 +61,7 @@ class MidiConnectionState {
       attempt: attempt ?? this.attempt,
       nextDelay: nextDelay ?? this.nextDelay,
       message: message ?? this.message,
-      unavailableReason: unavailableReason ?? this.unavailableReason,
+      unavailability: unavailability ?? this.unavailability,
     );
   }
 }

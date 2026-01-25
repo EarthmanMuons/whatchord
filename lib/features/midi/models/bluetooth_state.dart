@@ -1,10 +1,10 @@
 /// Bluetooth adapter state.
 enum BluetoothState {
   /// Bluetooth is powered on and ready.
-  on,
+  poweredOn,
 
   /// Bluetooth is powered off.
-  off,
+  poweredOff,
 
   /// Bluetooth state is unknown or unavailable.
   unknown,
@@ -15,8 +15,8 @@ enum BluetoothState {
 
 extension BluetoothStateDisplay on BluetoothState {
   String get displayName => switch (this) {
-    BluetoothState.on => 'Bluetooth On',
-    BluetoothState.off => 'Bluetooth Off',
+    BluetoothState.poweredOn => 'Bluetooth On',
+    BluetoothState.poweredOff => 'Bluetooth Off',
     BluetoothState.unknown => 'Bluetooth Unknown',
     BluetoothState.unauthorized => 'Bluetooth Permission Required',
   };

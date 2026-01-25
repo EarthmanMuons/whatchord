@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_connection.dart';
-import '../models/midi_constants.dart';
 import '../models/midi_message.dart';
 import '../models/midi_note_state.dart';
+import '../models/midi_protocol.dart';
 import 'midi_connection_notifier.dart';
 import 'midi_message_providers.dart';
 
@@ -67,7 +67,7 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
         break;
 
       case MidiMessageType.controlChange:
-        if (message.controller == MidiConstants.sustainPedalController &&
+        if (message.controller == MidiProtocol.sustainPedalController &&
             message.value != null) {
           handlePedalValue(message.value!);
         }
@@ -125,7 +125,7 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
   }
 
   void handlePedalValue(int value) =>
-      setPedalDownFromMidi(value >= MidiConstants.sustainPedalThreshold);
+      setPedalDownFromMidi(value >= MidiProtocol.sustainPedalThreshold);
 }
 
 // Raw MIDI note numbers for keyboard highlighting.

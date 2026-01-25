@@ -12,8 +12,8 @@ import 'ble_permission_service_provider.dart';
 import 'midi_ble_service_provider.dart';
 
 @immutable
-class MidiManagerState {
-  const MidiManagerState({
+class MidiDeviceManagerState {
+  const MidiDeviceManagerState({
     required this.devices,
     required this.connectedDevice,
     required this.bluetoothState,
@@ -27,13 +27,13 @@ class MidiManagerState {
 
   static const Object _unset = Object();
 
-  MidiManagerState copyWith({
+  MidiDeviceManagerState copyWith({
     List<MidiDevice>? devices,
     Object? connectedDevice = _unset, // MidiDevice? or null
     BluetoothState? bluetoothState,
     bool? isScanning,
   }) {
-    return MidiManagerState(
+    return MidiDeviceManagerState(
       devices: devices ?? this.devices,
       connectedDevice: identical(connectedDevice, _unset)
           ? this.connectedDevice
@@ -43,7 +43,7 @@ class MidiManagerState {
     );
   }
 
-  static const initial = MidiManagerState(
+  static const initial = MidiDeviceManagerState(
     devices: <MidiDevice>[],
     connectedDevice: null,
     bluetoothState: BluetoothState.unknown,
@@ -51,11 +51,27 @@ class MidiManagerState {
   );
 }
 
-final midiManagerProvider = NotifierProvider<MidiManager, MidiManagerState>(
-  MidiManager.new,
-);
+/// Manages BLE MIDI transport: scanning, device discovery, connections.
+///
+/// **Responsibilities:**
+/// - Bluetooth central lifecycle
+/// - Device scanning and enumeration
+/// - Low-level connect/disconnect operations
+/// - Connection health monitoring (watchdog)
+///
+/// **Not Responsible For:**
+/// - Retry logic (see [MidiConnectionNotifier])
+/// - Auto-reconnect workflows (see [MidiConnectionNotifier])
+/// - UI state presentation (see [MidiConnectionStatus])
+///
+/// This is the "dumb" transport layer. Higher-level orchestration lives
+/// in [MidiConnectionNotifier].
+final midiDeviceManagerProvider =
+    NotifierProvider<MidiDeviceManager, MidiDeviceManagerState>(
+      MidiDeviceManager.new,
+    );
 
-class MidiManager extends Notifier<MidiManagerState> {
+class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   // ---- Tunables ----------------------------------------------------------
 
   static const Duration _minRefreshInterval = Duration(milliseconds: 700);
@@ -102,8 +118,8 @@ class MidiManager extends Notifier<MidiManagerState> {
   // ---- Build / Dispose ---------------------------------------------------
 
   @override
-  MidiManagerState build() {
-    state = MidiManagerState.initial;
+  MidiDeviceManagerState build() {
+    state = MidiDeviceManagerState.initial;
 
     // IMPORTANT: We install listeners early, but we do NOT prime Bluetooth here.
     // Bluetooth will be primed lazily when scanning/connecting/reconnecting.
@@ -504,7 +520,8 @@ class MidiManager extends Notifier<MidiManagerState> {
 
     debugPrint('BT mapped=$mapped last=$_lastPublishedBtState');
 
-    if (mapped == BluetoothState.off || mapped == BluetoothState.unauthorized) {
+    if (mapped == BluetoothState.poweredOff ||
+        mapped == BluetoothState.unauthorized) {
       // If BT is off/unauthorized, any prior central prime is not trustworthy.
       _centralStarted = false;
 

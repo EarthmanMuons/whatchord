@@ -2,9 +2,9 @@ import 'dart:io' show Platform;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/midi_connection.dart';
+import '../models/ble_unavailability.dart';
 import '../models/midi_connection_status.dart';
-import '../models/midi_unavailable_reason.dart';
+import '../models/midi_connection.dart';
 import 'midi_connection_notifier.dart';
 
 /// Provides UI-friendly presentation of MIDI connection information.
@@ -37,38 +37,36 @@ final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
     ),
 
     MidiConnectionPhase.bluetoothUnavailable => () {
-      final r = connection.unavailableReason;
+      final reason = connection.unavailability;
 
       final isAndroid = Platform.isAndroid;
-      final isPerm =
-          r == MidiUnavailableReason.bluetoothPermissionPermanentlyDenied;
+      final isPerm = reason == BleUnavailability.permissionPermanentlyDenied;
 
-      final label = switch (r) {
-        MidiUnavailableReason.bluetoothOff => 'Bluetooth is off',
-        MidiUnavailableReason.bluetoothPermissionDenied ||
-        MidiUnavailableReason.bluetoothPermissionPermanentlyDenied =>
+      final label = switch (reason) {
+        BleUnavailability.adapterOff => 'Bluetooth is off',
+        BleUnavailability.permissionDenied ||
+        BleUnavailability.permissionPermanentlyDenied =>
           isAndroid
               ? 'Nearby devices permission required'
               : 'Bluetooth permission required',
-        MidiUnavailableReason.bluetoothUnsupported => 'Bluetooth unsupported',
-        MidiUnavailableReason.bluetoothNotReady ||
-        null => 'Bluetooth unavailable',
+        BleUnavailability.unsupported => 'Bluetooth unsupported',
+        BleUnavailability.notReady || null => 'Bluetooth unavailable',
       };
 
-      final detail = switch (r) {
-        MidiUnavailableReason.bluetoothOff =>
+      final detail = switch (reason) {
+        BleUnavailability.adapterOff =>
           'Turn on Bluetooth to discover and connect to MIDI devices.',
-        MidiUnavailableReason.bluetoothPermissionDenied =>
+        BleUnavailability.permissionDenied =>
           isAndroid
               ? 'Allow the Nearby devices permission to scan and connect to BLE MIDI devices.'
               : 'Allow Bluetooth access to discover and connect to BLE MIDI devices.',
-        MidiUnavailableReason.bluetoothPermissionPermanentlyDenied =>
+        BleUnavailability.permissionPermanentlyDenied =>
           isAndroid
               ? 'Enable the Nearby devices permission in system settings for this app.'
               : 'Enable Bluetooth access for this app in system settings.',
-        MidiUnavailableReason.bluetoothUnsupported =>
+        BleUnavailability.unsupported =>
           'This device does not support Bluetooth.',
-        MidiUnavailableReason.bluetoothNotReady ||
+        BleUnavailability.notReady ||
         null => 'Bluetooth is not ready yet. Try again.',
       };
 
@@ -77,7 +75,7 @@ final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
         label: label,
         detail: detail,
         message: connection.message,
-        unavailableReason: r,
+        unavailability: reason,
         canOpenSettings: isPerm,
       );
     }(),

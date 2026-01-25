@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/midi_connection_notifier.dart';
-import '../providers/midi_manager.dart';
+import '../providers/midi_device_manager.dart';
 import '../providers/midi_preferences_notifier.dart';
 
 /// Installs app-wide MIDI lifecycle handling to coordinate behavior across
@@ -25,8 +25,8 @@ class _MidiLifecycleController with WidgetsBindingObserver {
     _attached = true;
     WidgetsBinding.instance.addObserver(this);
 
-    // Ensure the MIDI manager is created early so it can install listeners and seed state.
-    _ref.read(midiManagerProvider);
+    // Ensure the MIDI device manager is created early so it can install listeners and seed state.
+    _ref.read(midiDeviceManagerProvider);
 
     // Attempt reconnect at startup (foreground).
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -52,7 +52,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final connection = _ref.read(midiConnectionProvider.notifier);
-    final midi = _ref.read(midiManagerProvider.notifier);
+    final midi = _ref.read(midiDeviceManagerProvider.notifier);
 
     switch (state) {
       case AppLifecycleState.resumed:
