@@ -11,7 +11,6 @@ class PianoKeyboard extends StatelessWidget {
     this.firstMidiNote = 48, // C3 by default
     this.soundingMidiNotes = const <int>{},
     this.height,
-    this.showNoteDebugLabels = false,
     this.decorations = const <PianoKeyDecoration>[],
   }) : assert(whiteKeyCount > 0);
 
@@ -26,9 +25,6 @@ class PianoKeyboard extends StatelessWidget {
 
   /// If provided, forces a fixed height. Otherwise a default is used.
   final double? height;
-
-  /// Optional debug labels (helpful while validating geometry).
-  final bool showNoteDebugLabels;
 
   /// Key decorations (e.g., middle C, scale markers).
   final List<PianoKeyDecoration> decorations;
@@ -62,9 +58,7 @@ class PianoKeyboard extends StatelessWidget {
           blackKeyColor: palette.blackKey,
           blackKeyActiveColor: palette.blackKeyActive,
           backgroundColor: palette.background,
-          debugLabelColor: palette.debugLabel,
 
-          showNoteDebugLabels: showNoteDebugLabels,
           decorations: decorations,
           decorationTextColor: landmarkColor,
 

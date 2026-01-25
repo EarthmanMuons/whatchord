@@ -8,7 +8,6 @@ class PianoPalette {
   final Color blackKey;
   final Color blackKeyActive;
   final Color border;
-  final Color debugLabel;
 
   const PianoPalette({
     required this.background,
@@ -17,7 +16,6 @@ class PianoPalette {
     required this.blackKey,
     required this.blackKeyActive,
     required this.border,
-    required this.debugLabel,
   });
 }
 
@@ -56,8 +54,6 @@ PianoPalette buildPianoPalette(ColorScheme cs) {
     whiteKey,
   );
 
-  final debugLabel = cs.onSurface.withValues(alpha: isDark ? 0.55 : 0.45);
-
   return PianoPalette(
     background: background,
     whiteKey: whiteKey,
@@ -65,6 +61,5 @@ PianoPalette buildPianoPalette(ColorScheme cs) {
     blackKey: blackKey,
     blackKeyActive: blackKeyActive,
     border: border,
-    debugLabel: debugLabel,
   );
 }

@@ -14,15 +14,17 @@ class PianoKeyboardPainter extends CustomPainter {
     required this.blackKeyColor,
     required this.blackKeyActiveColor,
     required this.backgroundColor,
-    required this.showNoteDebugLabels,
-    required this.debugLabelColor,
     this.decorations = const <PianoKeyDecoration>[],
     this.decorationTextColor,
     this.drawBackground = true,
     this.drawFeltStrip = true,
     this.feltColor = const Color(0xFF800020),
     this.feltHeight = 2.0,
-  }) : _geometry = PianoGeometry(
+  }) : assert(
+         decorations.isEmpty || decorationTextColor != null,
+         'decorationTextColor must be provided when decorations are present',
+       ),
+       _geometry = PianoGeometry(
          firstWhiteMidi: firstMidiNote,
          whiteKeyCount: whiteKeyCount,
        );
@@ -40,13 +42,8 @@ class PianoKeyboardPainter extends CustomPainter {
   final Color blackKeyActiveColor;
   final Color backgroundColor;
 
-  final bool showNoteDebugLabels;
-  final Color debugLabelColor;
-
   /// Key decorations (e.g., middle C landmark, scale markers).
   final List<PianoKeyDecoration> decorations;
-
-  /// Optional override; if null, uses [debugLabelColor].
   final Color? decorationTextColor;
 
   final bool drawBackground;
@@ -189,19 +186,16 @@ class PianoKeyboardPainter extends CustomPainter {
     if (decorations.isNotEmpty) {
       _paintDecorations(canvas, size, whiteKeyW);
     }
-
-    if (showNoteDebugLabels) {
-      _paintDebugLabels(canvas, size, whiteKeyW);
-    }
   }
 
   void _paintDecorations(Canvas canvas, Size size, double whiteKeyW) {
+    final color = decorationTextColor;
+    if (color == null) return;
+
     final textPainter = TextPainter(
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
     );
-
-    final color = decorationTextColor ?? debugLabelColor;
 
     // Place near the bottom of the white key, but leave a small margin.
     const bottomPad = 6.0;
@@ -228,26 +222,6 @@ class PianoKeyboardPainter extends CustomPainter {
     }
   }
 
-  void _paintDebugLabels(Canvas canvas, Size size, double whiteKeyW) {
-    final textPainter = TextPainter(
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    );
-
-    for (int i = 0; i < whiteKeyCount; i++) {
-      final midi = _whiteMidiForIndex(i);
-      textPainter.text = TextSpan(
-        text: midi.toString(),
-        style: TextStyle(color: debugLabelColor, fontSize: 10),
-      );
-      textPainter.layout(minWidth: whiteKeyW, maxWidth: whiteKeyW);
-      textPainter.paint(
-        canvas,
-        Offset(i * whiteKeyW, size.height - textPainter.height - 4),
-      );
-    }
-  }
-
   @override
   bool shouldRepaint(covariant PianoKeyboardPainter oldDelegate) {
     return oldDelegate.whiteKeyCount != whiteKeyCount ||
@@ -262,8 +236,6 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.whiteKeyBorderColor != whiteKeyBorderColor ||
         oldDelegate.blackKeyColor != blackKeyColor ||
         oldDelegate.blackKeyActiveColor != blackKeyActiveColor ||
-        oldDelegate.showNoteDebugLabels != showNoteDebugLabels ||
-        oldDelegate.debugLabelColor != debugLabelColor ||
         oldDelegate.decorationTextColor != decorationTextColor ||
         !_listEquals(oldDelegate.decorations, decorations) ||
         !_setEquals(oldDelegate.soundingMidiNotes, soundingMidiNotes);
