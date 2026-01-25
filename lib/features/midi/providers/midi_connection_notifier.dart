@@ -244,7 +244,13 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
       // If already connected to the saved device, do nothing.
       final current = ref.read(midiDeviceManagerProvider).connectedDevice;
-      if (current?.isConnected == true && current?.id == savedDeviceId) return;
+      if (current?.id == savedDeviceId && current?.isConnected == true) {
+        final stillConnected = await _midi.isStillConnected(savedDeviceId);
+        if (stillConnected) return;
+
+        // Stale snapshot: clear it so UI reflects reality and reconnect proceeds.
+        unawaited(_midi.reconcileConnectedDevice(reason: 'tryAutoReconnect'));
+      }
 
       // From here onward, we're actively attempting an auto reconnect.
       // Publish a non-idle phase immediately so the UI reflects reality.

@@ -58,7 +58,14 @@ class _MidiLifecycleController with WidgetsBindingObserver {
       case AppLifecycleState.resumed:
         midi.setBackgrounded(false);
         connection.setBackgrounded(false);
-        connection.tryAutoReconnect(reason: 'resume');
+
+        // IMPORTANT: On iOS especially, the OS may drop BLE connections while the
+        // app is backgrounded without our watchdog running. Reconcile first so
+        // we don't keep showing a stale "Connected" state and short-circuit reconnect.
+        Future.microtask(() async {
+          await midi.reconcileConnectedDevice(reason: 'resume');
+          await connection.tryAutoReconnect(reason: 'resume');
+        });
         break;
 
       case AppLifecycleState.inactive:

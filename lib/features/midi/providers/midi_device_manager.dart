@@ -260,6 +260,53 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   Future<BleAccessResult> ensureBleAccess() => _blePerms.ensureBleAccess();
 
+  /// Foreground reconciliation: confirms whether our last-known connected device
+  /// is still actually connected at the plugin level.
+  ///
+  /// This is particularly important on iOS where the OS may drop BLE connections
+  /// while the app is backgrounded without producing a timely setup-change event.
+  Future<void> reconcileConnectedDevice({String reason = 'foreground'}) async {
+    final current = state.connectedDevice;
+    if (current == null) return;
+
+    try {
+      // If we believe we are connected, it is reasonable to prime the central
+      // on foreground so we can validate the connection.
+      await _ensureBluetoothCentralReady();
+    } catch (e) {
+      // If Bluetooth is off/unauthorized, our BT state listener should clear the
+      // connection anyway. If we cannot prime, don't blindly clear here.
+      debugPrint('reconcileConnectedDevice($reason): prime failed: $e');
+      return;
+    }
+
+    try {
+      final actuallyConnected = await _ble.isConnected(current.id);
+      if (!actuallyConnected) {
+        debugPrint(
+          'reconcileConnectedDevice($reason): stale connection cleared id=${current.id}',
+        );
+        _setConnectedDevice(null);
+      } else {
+        // Keep the flag fresh in case our stored snapshot drifted.
+        _setConnectedDevice(current.copyWith(isConnected: true));
+      }
+    } catch (e) {
+      // If the plugin can't answer reliably, do not oscillate UI.
+      debugPrint('reconcileConnectedDevice($reason): isConnected failed: $e');
+    }
+  }
+
+  /// Best-effort "is still connected" check used by higher-level workflows.
+  Future<bool> isStillConnected(String deviceId) async {
+    try {
+      await _ensureBluetoothCentralReady();
+      return await _ble.isConnected(deviceId);
+    } catch (_) {
+      return false;
+    }
+  }
+
   // ---- Lazy Bluetooth prime ---------------------------------------------
 
   /// Prime the BLE stack without starting a scan.
