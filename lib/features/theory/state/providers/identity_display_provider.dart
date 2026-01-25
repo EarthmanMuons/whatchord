@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/input/input.dart';
 
 import '../../domain/theory_domain.dart';
@@ -25,6 +26,8 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
 
   final tonality = ref.watch(analysisContextProvider.select((c) => c.tonality));
 
+  final appVersion = ref.watch(appVersionProvider).asData?.value;
+
   switch (mode) {
     case AnalysisMode.single:
       {
@@ -41,6 +44,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
             keyName: tonality.displayName,
             noteName: name,
             longLabel: longLabel,
+            appVersion: appVersion,
           ),
         );
       }
@@ -75,6 +79,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
             intervalShort: interval.short,
             intervalLong: interval.long,
             fromRoot: root,
+            appVersion: appVersion,
           ),
         );
       }
@@ -124,6 +129,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           quality: qualityLabel,
           extensions: extensionLabels,
           members: members,
+          appVersion: appVersion,
         );
 
         return ChordDisplay(
@@ -146,12 +152,14 @@ String _debugForNote({
   required String keyName,
   required String noteName,
   required String longLabel,
+  required String? appVersion,
 }) {
   return _debugDoc(
     sections: [
       _debugSection('Note Identity', ['Label: $noteName', 'Name: $longLabel']),
       _debugContext(keyName: keyName),
       _debugInput(midis: midis),
+      _debugApp(appVersion: appVersion),
     ],
   );
 }
@@ -165,6 +173,7 @@ String _debugForInterval({
   required String fromRoot,
   required String intervalShort,
   required String intervalLong,
+  required String? appVersion,
 }) {
   return _debugDoc(
     sections: [
@@ -180,6 +189,7 @@ String _debugForInterval({
         'Upper MIDI: $upperMidi',
         'Semitones: $semitones',
       ]),
+      _debugApp(appVersion: appVersion),
     ],
   );
 }
@@ -195,6 +205,7 @@ String _debugForChord({
   required String quality,
   required List<String> extensions,
   required List<String> members,
+  required String? appVersion,
 }) {
   final realizedBassPc = midis.first % 12;
 
@@ -213,6 +224,7 @@ String _debugForChord({
         'Extensions: ${_fmtList(extensions)}',
         'Bass pitch class: $realizedBassPc',
       ]),
+      _debugApp(appVersion: appVersion),
     ],
   );
 }
@@ -238,6 +250,13 @@ String _debugInput({required List<int> midis}) {
     'Note count: ${midis.length}',
     'Pitch classes: ${_fmtList(pcs)}',
   ]);
+}
+
+String _debugApp({required String? appVersion}) {
+  final v = appVersion != null
+      ? 'WhatChord v$appVersion'
+      : 'WhatChord v(loading)';
+  return _debugSection('App', [v]);
 }
 
 String _debugDoc({required List<String> sections}) {
