@@ -171,16 +171,13 @@ class SettingsPage extends ConsumerWidget {
                     error: (_, _) => const Text('Version unavailable'),
                   ),
               onLongPress: () async {
-                final version = ref
-                    .read(appVersionProvider)
-                    .maybeWhen(
-                      data: (v) => 'WhatChord v$v',
-                      orElse: () => null,
-                    );
+                final version = ref.read(appVersionProvider).asData?.value;
 
                 if (version == null) return;
 
-                await Clipboard.setData(ClipboardData(text: version));
+                await Clipboard.setData(
+                  ClipboardData(text: 'WhatChord v$version'),
+                );
                 HapticFeedback.selectionClick();
               },
             ),
