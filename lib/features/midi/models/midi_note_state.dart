@@ -3,6 +3,10 @@ import 'package:collection/collection.dart';
 
 enum PedalInputSource { midi, manual }
 
+/// Tracks MIDI note on/off state and sustain pedal.
+///
+/// **Terminology**: "MIDI note" refers to note numbers (0-127), not musical
+/// note names (C, F#, etc.). Musical spelling is handled by the theory domain.
 @immutable
 class MidiNoteState {
   final Set<int> pressed; // keys physically down

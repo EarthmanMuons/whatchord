@@ -1,16 +1,19 @@
 import 'package:meta/meta.dart';
 
+import 'ble_unavailability.dart';
 import 'midi_connection.dart';
-import 'midi_unavailable_reason.dart';
 
-/// Presentation model for MIDI connection UI.
+/// UI-friendly presentation model for MIDI connection status.
+///
+/// Derived from [MidiConnectionState] with user-facing labels and
+/// simplified state representation. Used by status widgets and settings UI.
 @immutable
 class MidiConnectionStatus {
   final MidiConnectionPhase phase;
   final String label;
   final String? detail;
 
-  final MidiUnavailableReason? unavailableReason;
+  final BleUnavailability? unavailability;
   final bool canOpenSettings;
 
   final int? attempt;
@@ -22,7 +25,7 @@ class MidiConnectionStatus {
     required this.phase,
     required this.label,
     this.detail,
-    this.unavailableReason,
+    this.unavailability,
     this.canOpenSettings = false,
     this.attempt,
     this.nextDelay,

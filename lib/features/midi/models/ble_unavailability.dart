@@ -1,17 +1,17 @@
-/// Why MIDI over BLE is currently unavailable.
-enum MidiUnavailableReason {
+/// Why BLE transport is unavailable for MIDI communication.
+enum BleUnavailability {
   /// Runtime Bluetooth permission denied (user can be asked again).
-  bluetoothPermissionDenied,
+  permissionDenied,
 
   /// Runtime Bluetooth permission denied permanently (needs Settings).
-  bluetoothPermissionPermanentlyDenied,
+  permissionPermanentlyDenied,
 
   /// Bluetooth adapter is powered off.
-  bluetoothOff,
+  adapterOff,
 
   /// Bluetooth is not supported on this device.
-  bluetoothUnsupported,
+  unsupported,
 
   /// Bluetooth stack not ready / unknown state.
-  bluetoothNotReady,
+  notReady,
 }

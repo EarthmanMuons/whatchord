@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/ble_access.dart';
+import '../models/ble_unavailability.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
-import '../models/midi_unavailable_reason.dart';
-import 'midi_manager.dart';
+import 'midi_device_manager.dart';
 import 'midi_preferences_notifier.dart';
 
 final midiConnectionProvider =
@@ -33,7 +33,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   BluetoothState? _lastBluetoothState;
   bool _cancelRequested = false;
 
-  MidiManager get _midi => ref.read(midiManagerProvider.notifier);
+  MidiDeviceManager get _midi => ref.read(midiDeviceManagerProvider.notifier);
 
   /// Explicit user/controller cancel:
   /// - cancels reconnect/backoff loops
@@ -45,7 +45,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     _attemptInFlight = false;
 
     // If already connected, do not reset connection state.
-    final connected = ref.read(midiManagerProvider).connectedDevice;
+    final connected = ref.read(midiDeviceManagerProvider).connectedDevice;
     if (connected?.isConnected == true) {
       // Still stop scanning if it is running (likely already stopped by MidiManager.connect).
       try {
@@ -59,7 +59,8 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     } catch (_) {}
 
     final bt =
-        _lastBluetoothState ?? ref.read(midiManagerProvider).bluetoothState;
+        _lastBluetoothState ??
+        ref.read(midiDeviceManagerProvider).bluetoothState;
     if (bt != BluetoothState.unknown && !_bluetoothReady(bt)) {
       state = state.copyWith(
         phase: MidiConnectionPhase.bluetoothUnavailable,
@@ -76,7 +77,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   MidiConnectionState build() {
     // Keep connection state aligned with the connected device stream.
     ref.listen<MidiDevice?>(
-      midiManagerProvider.select((s) => s.connectedDevice),
+      midiDeviceManagerProvider.select((s) => s.connectedDevice),
       (prev, next) {
         final device = next;
 
@@ -107,7 +108,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     // React to bluetooth availability changes.
     ref.listen<
       BluetoothState
-    >(midiManagerProvider.select((s) => s.bluetoothState), (prev, next) {
+    >(midiDeviceManagerProvider.select((s) => s.bluetoothState), (prev, next) {
       final bt = next;
 
       final prevBt = _lastBluetoothState; // capture before overwrite
@@ -134,19 +135,17 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         _cancelRequested = true;
 
         final nextReason = switch (bt) {
-          BluetoothState.off => MidiUnavailableReason.bluetoothOff,
-          BluetoothState.unauthorized =>
-            MidiUnavailableReason.bluetoothPermissionDenied,
-          BluetoothState.unknown => MidiUnavailableReason.bluetoothNotReady,
-          BluetoothState.on =>
-            MidiUnavailableReason.bluetoothNotReady, // unreachable here
+          BluetoothState.poweredOff => BleUnavailability.adapterOff,
+          BluetoothState.unauthorized => BleUnavailability.permissionDenied,
+          BluetoothState.unknown => BleUnavailability.notReady,
+          BluetoothState.poweredOn =>
+            BleUnavailability.notReady, // unreachable here
         };
 
         // Preserve a stronger reason already set by permission gating.
-        final currentReason = state.unavailableReason;
+        final currentReason = state.unavailability;
         final preserve =
-            currentReason ==
-            MidiUnavailableReason.bluetoothPermissionPermanentlyDenied;
+            currentReason == BleUnavailability.permissionPermanentlyDenied;
         final message = preserve ? state.message : bt.displayName;
 
         state = state.copyWith(
@@ -154,7 +153,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
           message: message,
           nextDelay: null,
           attempt: 0,
-          unavailableReason: preserve ? currentReason : nextReason,
+          unavailability: preserve ? currentReason : nextReason,
         );
         return;
       }
@@ -244,7 +243,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       }
 
       // If already connected to the saved device, do nothing.
-      final current = ref.read(midiManagerProvider).connectedDevice;
+      final current = ref.read(midiDeviceManagerProvider).connectedDevice;
       if (current?.isConnected == true && current?.id == savedDeviceId) return;
 
       // From here onward, we're actively attempting an auto reconnect.
@@ -267,7 +266,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       }
 
       try {
-        await ref.read(midiManagerProvider.notifier).ensureReady();
+        await ref.read(midiDeviceManagerProvider.notifier).ensureReady();
       } catch (_) {}
 
       // Gate on bluetooth being ready (hard stop).
@@ -276,21 +275,19 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         _cancelRetry();
 
         final unavailableReason = switch (bt) {
-          null => MidiUnavailableReason.bluetoothNotReady,
-          BluetoothState.off => MidiUnavailableReason.bluetoothOff,
-          BluetoothState.unauthorized =>
-            MidiUnavailableReason.bluetoothPermissionDenied,
-          BluetoothState.unknown => MidiUnavailableReason.bluetoothNotReady,
-          BluetoothState.on =>
-            MidiUnavailableReason
-                .bluetoothNotReady, // unreachable here, but explicit
+          null => BleUnavailability.notReady,
+          BluetoothState.poweredOff => BleUnavailability.adapterOff,
+          BluetoothState.unauthorized => BleUnavailability.permissionDenied,
+          BluetoothState.unknown => BleUnavailability.notReady,
+          BluetoothState.poweredOn =>
+            BleUnavailability.notReady, // unreachable here, but explicit
         };
 
         final message = bt?.displayName ?? 'Bluetooth is not ready yet.';
 
         state = state.copyWith(
           phase: MidiConnectionPhase.bluetoothUnavailable,
-          unavailableReason: unavailableReason,
+          unavailability: unavailableReason,
           message: message,
           nextDelay: null,
           attempt: 0,
@@ -344,8 +341,8 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
   bool _bluetoothReady(BluetoothState s) {
     return switch (s) {
-      BluetoothState.on => true,
-      BluetoothState.off => false,
+      BluetoothState.poweredOn => true,
+      BluetoothState.poweredOff => false,
       BluetoothState.unknown => false,
       BluetoothState.unauthorized => false,
     };
@@ -471,7 +468,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<bool> reconnect() async {
     await tryAutoReconnect(reason: 'manual');
 
-    final connected = ref.read(midiManagerProvider).connectedDevice;
+    final connected = ref.read(midiDeviceManagerProvider).connectedDevice;
     return connected?.isConnected == true;
   }
 
@@ -483,16 +480,16 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
     final reason = switch (access.state) {
       BleAccessState.permanentlyDenied =>
-        MidiUnavailableReason.bluetoothPermissionPermanentlyDenied,
-      BleAccessState.denied => MidiUnavailableReason.bluetoothPermissionDenied,
+        BleUnavailability.permissionPermanentlyDenied,
+      BleAccessState.denied => BleUnavailability.permissionDenied,
       BleAccessState.restricted =>
-        MidiUnavailableReason.bluetoothPermissionPermanentlyDenied,
-      _ => MidiUnavailableReason.bluetoothNotReady,
+        BleUnavailability.permissionPermanentlyDenied,
+      _ => BleUnavailability.notReady,
     };
 
     state = state.copyWith(
       phase: MidiConnectionPhase.bluetoothUnavailable,
-      unavailableReason: reason,
+      unavailability: reason,
       message: access.message ?? contextMsg,
       attempt: 0,
       nextDelay: null,
@@ -503,14 +500,14 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<BluetoothState?> _awaitBluetoothState({
     Duration timeout = const Duration(milliseconds: 800),
   }) async {
-    final current = ref.read(midiManagerProvider).bluetoothState;
+    final current = ref.read(midiDeviceManagerProvider).bluetoothState;
     if (current != BluetoothState.unknown) return current;
 
     final completer = Completer<BluetoothState>();
     late final ProviderSubscription<BluetoothState> sub;
 
     sub = ref.listen<BluetoothState>(
-      midiManagerProvider.select((s) => s.bluetoothState),
+      midiDeviceManagerProvider.select((s) => s.bluetoothState),
       (prev, next) {
         if (next != BluetoothState.unknown && !completer.isCompleted) {
           completer.complete(next);
@@ -522,7 +519,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       return await completer.future.timeout(timeout);
     } on TimeoutException {
       // Fall back to whatever we have at timeout (may still be unknown).
-      return ref.read(midiManagerProvider).bluetoothState;
+      return ref.read(midiDeviceManagerProvider).bluetoothState;
     } finally {
       sub.close();
     }
