@@ -96,13 +96,34 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
     }
   }
 
-  void togglePedalManual() => setPedalDownManual(!state.isPedalDown);
+  void togglePedalManual() {
+    // If MIDI is currently holding the pedal down, a manual tap should not flip
+    // the pedal "up" (which would clear sustained notes). Instead, it takes
+    // ownership of the down state so the UI can be latched/frozen.
+    if (state.isPedalDown && state.pedalSource == PedalInputSource.midi) {
+      state = state.copyWith(
+        isPedalDown: true,
+        pedalSource: PedalInputSource.manual,
+      );
+      return;
+    }
+
+    // Otherwise, behave like a normal manual toggle.
+    setPedalDownManual(!state.isPedalDown);
+  }
 
   void setPedalDownManual(bool down) =>
       _setPedalDown(down, PedalInputSource.manual);
 
-  void setPedalDownFromMidi(bool down) =>
-      _setPedalDown(down, PedalInputSource.midi);
+  void setPedalDownFromMidi(bool down) {
+    // If the user has latched the pedal manually down, ignore MIDI pedal changes.
+    // This prevents a subsequent CC "up" from clearing sustained notes after
+    // the user explicitly froze the state.
+    if (state.pedalSource == PedalInputSource.manual && state.isPedalDown) {
+      return;
+    }
+    _setPedalDown(down, PedalInputSource.midi);
+  }
 
   void _setPedalDown(bool down, PedalInputSource source) {
     final sameDown = down == state.isPedalDown;
