@@ -185,7 +185,7 @@ class SettingsPage extends ConsumerWidget {
             ListTile(
               leading: const Icon(Icons.code),
               title: const Text('Source Code'),
-              subtitle: const Text('View on GitHub'),
+              subtitle: const Text('Browse the repository on GitHub'),
               trailing: const Icon(Icons.open_in_new),
               onTap: () {
                 final messenger = ScaffoldMessenger.of(context);
@@ -222,11 +222,53 @@ class SettingsPage extends ConsumerWidget {
                 open();
               },
             ),
+
+            ListTile(
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: const Text('Privacy Policy'),
+              subtitle: const Text('No data collected'),
+              trailing: const Icon(Icons.open_in_new),
+              onTap: () {
+                final messenger = ScaffoldMessenger.of(context);
+                final uri = Uri.parse(
+                  'https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md',
+                );
+
+                Future<void> open() async {
+                  try {
+                    final ok = await launchUrl(
+                      uri,
+                      mode: LaunchMode.externalApplication,
+                    );
+
+                    if (!ok) {
+                      if (!context.mounted) return;
+                      messenger.showSnackBar(
+                        const SnackBar(content: Text('Could not open link')),
+                      );
+                    }
+                  } on PlatformException {
+                    if (!context.mounted) return;
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('Could not open link')),
+                    );
+                  } catch (_) {
+                    if (!context.mounted) return;
+                    messenger.showSnackBar(
+                      const SnackBar(content: Text('Could not open link')),
+                    );
+                  }
+                }
+
+                open();
+              },
+            ),
+
             ListTile(
               leading: const Icon(Icons.restart_alt),
               title: const Text('Reset to Defaults'),
               subtitle: const Text(
-                'Clears all saved preferences and MIDI settings.',
+                'Clear all saved preferences and MIDI settings',
               ),
               onTap: () async {
                 final confirmed = await showDialog<bool>(
