@@ -28,23 +28,23 @@ class DemoSoundingNotesNotifier extends Notifier<Set<int>> {
     // Single note (C)
     DemoStep(notes: {60}),
 
-    // Dyad (C to G -> P5)
-    DemoStep(notes: {60, 67}),
+    // Dyad (C to E -> M3)
+    DemoStep(notes: {60, 64}),
 
     // Major triad; root position (C E G -> C)
     DemoStep(notes: {60, 64, 67}),
 
-    // Major triad; 1st inversion (E G C -> C / E)
-    DemoStep(notes: {64, 67, 72}),
+    // Minor triad; 1st inversion (C E A -> Am / C)
+    DemoStep(notes: {60, 64, 69}),
 
-    // Scale degree logic in C major (G B D -> G7)
-    DemoStep(notes: {55, 59, 62, 65}),
+    // Half-diminished (F# A C E -> F#m7(b5))
+    DemoStep(notes: {54, 57, 60, 64}),
+
+    // Stable despite tonality (F# C E Bb -> C7#11 / F#)
+    DemoStep(notes: {54, 58, 60, 64}),
 
     // Ambiguous C6/9 or Am11 / C depending on tonality (C E G A D -> ...)
     DemoStep(notes: {48, 57, 60, 64, 67, 74}),
-
-    // Stable despite tonality (F# C E Bb -> C7#11 / F#)
-    DemoStep(notes: {54, 60, 64, 70}),
 
     // Fully diminished symmetrical (Eb Gb Bbb Dbb -> Ebdim7)
     DemoStep(notes: {51, 54, 57, 60}),
