@@ -2,7 +2,7 @@ name: whatchord
 description: Real-time chord identification via Bluetooth MIDI.
 
 publish_to: none
-version: 2026.1.23+2
+version: 2026.1.27+3
 
 environment:
   sdk: ^3.10.4

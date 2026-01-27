@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.1.27] - 2026-01-27
+
 ## [2026.1.23] - 2026-01-23
 
 ### Added
@@ -45,7 +47,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.1.23...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.1.27...HEAD
+[2026.1.27]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.1.23...v2026.1.27
 [2026.1.23]:
   https://github.com/EarthmanMuons/whatchord/compare/v0.8.0...v2026.1.23
 [0.8.0]: https://github.com/EarthmanMuons/whatchord/commits/v0.8.0
