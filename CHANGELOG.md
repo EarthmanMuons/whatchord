@@ -10,6 +10,30 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+This release marks the first Google Play Store submission for closed testing and
+includes several refinements to support testing, diagnostics, and store
+compliance.
+
+### Added
+
+- Document a Privacy Policy for app store requirements.
+- Add an in-app link to the Privacy Policy from the Settings page.
+- Display the app version in Analysis Details to help with accurate bug reports
+  when sharing diagnostic output.
+
+### Changed
+
+- Align demo chords with those used in app store screenshots.
+- Sustain pedal UI now latches manual pedal toggles while a MIDI sustain pedal
+  is held down.
+
+### Fixed
+
+- Fix stale Bluetooth MIDI "Connected" state after returning to the foreground
+  by reconciling transport state on app resume.
+- Reduce MIDI connection notifications to a single confirmation when a device
+  successfully connects.
+
 ## [2026.1.23] - 2026-01-23
 
 ### Added
