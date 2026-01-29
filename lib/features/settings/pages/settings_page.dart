@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/midi/midi.dart';
@@ -188,38 +187,10 @@ class SettingsPage extends ConsumerWidget {
               subtitle: const Text('Browse the repository on GitHub'),
               trailing: const Icon(Icons.open_in_new),
               onTap: () {
-                final messenger = ScaffoldMessenger.of(context);
-                final uri = Uri.parse(
-                  'https://github.com/EarthmanMuons/whatchord',
+                openUrl(
+                  context,
+                  Uri.parse('https://github.com/EarthmanMuons/whatchord'),
                 );
-
-                Future<void> open() async {
-                  try {
-                    final ok = await launchUrl(
-                      uri,
-                      mode: LaunchMode.externalApplication,
-                    );
-
-                    if (!ok) {
-                      if (!context.mounted) return;
-                      messenger.showSnackBar(
-                        const SnackBar(content: Text('Could not open link')),
-                      );
-                    }
-                  } on PlatformException {
-                    if (!context.mounted) return;
-                    messenger.showSnackBar(
-                      const SnackBar(content: Text('Could not open link')),
-                    );
-                  } catch (_) {
-                    if (!context.mounted) return;
-                    messenger.showSnackBar(
-                      const SnackBar(content: Text('Could not open link')),
-                    );
-                  }
-                }
-
-                open();
               },
             ),
 
@@ -229,38 +200,12 @@ class SettingsPage extends ConsumerWidget {
               subtitle: const Text('No data collected'),
               trailing: const Icon(Icons.open_in_new),
               onTap: () {
-                final messenger = ScaffoldMessenger.of(context);
-                final uri = Uri.parse(
-                  'https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md',
+                openUrl(
+                  context,
+                  Uri.parse(
+                    'https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md',
+                  ),
                 );
-
-                Future<void> open() async {
-                  try {
-                    final ok = await launchUrl(
-                      uri,
-                      mode: LaunchMode.externalApplication,
-                    );
-
-                    if (!ok) {
-                      if (!context.mounted) return;
-                      messenger.showSnackBar(
-                        const SnackBar(content: Text('Could not open link')),
-                      );
-                    }
-                  } on PlatformException {
-                    if (!context.mounted) return;
-                    messenger.showSnackBar(
-                      const SnackBar(content: Text('Could not open link')),
-                    );
-                  } catch (_) {
-                    if (!context.mounted) return;
-                    messenger.showSnackBar(
-                      const SnackBar(content: Text('Could not open link')),
-                    );
-                  }
-                }
-
-                open();
               },
             ),
 
