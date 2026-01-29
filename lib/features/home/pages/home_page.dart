@@ -57,7 +57,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         final iconSize = isLandscape ? 20.0 : 24.0;
 
         final appBarPadLeft = isLandscape ? 24.0 : 16.0;
-        final appBarPadRight = isLandscape ? 16.0 : 0.0;
+        final appBarPadRight = isLandscape ? 16.0 : 4.0;
 
         const tonalityPadBase = 16.0;
         const tonalityPadCutout = 12.0;
