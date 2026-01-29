@@ -16,6 +16,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   full-bleed backgrounds, cutout-safe content insets, and more compact app bar
   and tonality bar spacing.
 
+- Replaced the unused "Copy as JSON" action in the analysis details sheet with a
+  "Report Issue" link to GitHub.
+
 ## [2026.1.27] - 2026-01-27
 
 This release marks the first Google Play Store submission for closed testing and
