@@ -464,9 +464,19 @@ class _ScrollablePianoKeyboardState
           whiteKeyCount: widget.fullWhiteKeyCount,
         );
 
+        // Lift decorations enough to get above the nav indicator.
+        final gesture = MediaQuery.viewPaddingOf(context).bottom;
+        final base = (widget.height * 0.05).clamp(0.0, 5.0);
+        final lift = gesture > 0 ? (gesture * 0.3).clamp(0.0, 9.0) : 0.0;
+        final landmarkLift = base + lift;
+
         final decorations = <PianoKeyDecoration>[
           if (widget.showMiddleCLandmark)
-            PianoKeyDecoration(midiNote: 60, label: widget.middleCLandmarkText),
+            PianoKeyDecoration(
+              midiNote: 60,
+              label: widget.middleCLandmarkText,
+              bottomLift: landmarkLift,
+            ),
         ];
 
         double minX = double.infinity;

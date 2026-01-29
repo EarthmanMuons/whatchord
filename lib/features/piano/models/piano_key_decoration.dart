@@ -8,5 +8,13 @@ class PianoKeyDecoration {
   /// Short label, e.g. "C", "R", "3", etc.
   final String label;
 
-  const PianoKeyDecoration({required this.midiNote, required this.label});
+  /// Extra distance to lift the decoration up from the bottom of the key.
+  /// Useful to avoid bottom overlays (gesture nav indicator).
+  final double bottomLift;
+
+  const PianoKeyDecoration({
+    required this.midiNote,
+    required this.label,
+    this.bottomLift = 0.0,
+  });
 }

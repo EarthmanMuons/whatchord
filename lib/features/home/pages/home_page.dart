@@ -65,7 +65,6 @@ class _HomePageState extends ConsumerState<HomePage> {
         return MediaQuery(
           data: mqFullWidth,
           child: EdgeToEdgeController(
-            isLandscape: isLandscape,
             child: WakelockController(
               child: Scaffold(
                 appBar: AppBar(
@@ -98,6 +97,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   ],
                 ),
                 body: SafeArea(
+                  bottom: false,
                   child: isLandscape
                       ? _HomeLandscape(
                           config: config,
@@ -156,6 +156,7 @@ class _HomeLandscape extends ConsumerWidget {
         ),
         SafeArea(
           top: false,
+          bottom: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -195,6 +196,7 @@ class _HomePortrait extends ConsumerWidget {
         ),
         SafeArea(
           top: false,
+          bottom: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

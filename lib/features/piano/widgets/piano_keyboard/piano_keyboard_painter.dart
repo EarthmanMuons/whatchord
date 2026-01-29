@@ -198,7 +198,7 @@ class PianoKeyboardPainter extends CustomPainter {
     );
 
     // Place near the bottom of the white key, but leave a small margin.
-    const bottomPad = 6.0;
+    const baseBottomPad = 6.0;
 
     for (final d in decorations) {
       final whiteIndex = _geometry.whiteIndexForMidi(d.midiNote);
@@ -216,6 +216,8 @@ class PianoKeyboardPainter extends CustomPainter {
       textPainter.layout(minWidth: whiteKeyW, maxWidth: whiteKeyW);
 
       final dx = whiteIndex * whiteKeyW;
+
+      final bottomPad = baseBottomPad + d.bottomLift;
       final dy = size.height - textPainter.height - bottomPad;
 
       textPainter.paint(canvas, Offset(dx, dy));
