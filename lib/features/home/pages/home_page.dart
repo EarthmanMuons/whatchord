@@ -46,70 +46,96 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        final mq = MediaQuery.of(context);
         final isLandscape = constraints.maxWidth > constraints.maxHeight;
+
         final config = isLandscape
             ? landscapeLayoutConfig
             : portraitLayoutConfig;
 
-        // Single knob for horizontal insets used by the app bar + tonality bar.
-        final pageInset = isLandscape ? 58.0 : 16.0;
+        final toolbarHeight = isLandscape ? 44.0 : kToolbarHeight;
+        final iconSize = isLandscape ? 20.0 : 24.0;
 
-        final mq = MediaQuery.of(context);
-        final mqFullWidth = isLandscape
-            ? mq.copyWith(
-                padding: mq.padding.copyWith(left: 0, right: 0),
-                viewPadding: mq.viewPadding.copyWith(left: 0, right: 0),
-              )
-            : mq;
+        final appBarPadLeft = isLandscape ? 24.0 : 16.0;
+        final appBarPadRight = isLandscape ? 16.0 : 0.0;
 
-        return MediaQuery(
-          data: mqFullWidth,
-          child: EdgeToEdgeController(
-            child: WakelockController(
-              child: Scaffold(
-                appBar: AppBar(
-                  centerTitle: false,
-                  titleSpacing: pageInset,
-                  title: const AppBarTitle(),
-                  backgroundColor: cs.surfaceContainerLow,
-                  foregroundColor: cs.onSurface,
-                  actions: [
-                    Padding(
-                      padding: EdgeInsets.only(right: pageInset - 12),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const MidiStatusPill(),
-                          IconButton(
-                            tooltip: 'Settings',
-                            icon: const Icon(Icons.settings),
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute<void>(
-                                  builder: (_) => const SettingsPage(),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+        const tonalityPadBase = 16.0;
+        const tonalityPadCutout = 12.0;
+
+        final leftCutout = isLandscape ? mq.viewPadding.left : 0.0;
+        final rightCutout = isLandscape ? mq.viewPadding.right : 0.0;
+
+        final insetLeft =
+            tonalityPadBase +
+            (leftCutout > 0 ? leftCutout + tonalityPadCutout : 0);
+        final insetRight =
+            tonalityPadBase +
+            (rightCutout > 0 ? rightCutout + tonalityPadCutout : 0);
+
+        return EdgeToEdgeController(
+          child: WakelockController(
+            child: Scaffold(
+              appBar: AppBar(
+                toolbarHeight: toolbarHeight,
+                centerTitle: false,
+                automaticallyImplyLeading: false,
+                titleSpacing: 0,
+                title: Padding(
+                  padding: EdgeInsets.only(left: appBarPadLeft),
+                  child: const AppBarTitle(),
                 ),
-                body: SafeArea(
-                  bottom: false,
-                  child: isLandscape
-                      ? _HomeLandscape(
-                          config: config,
-                          isLandscape: true,
-                          pageInset: pageInset,
-                        )
-                      : _HomePortrait(
-                          config: config,
-                          isLandscape: false,
-                          pageInset: pageInset,
+                backgroundColor: cs.surfaceContainerLow,
+                foregroundColor: cs.onSurface,
+                actionsIconTheme: IconThemeData(size: iconSize),
+                actions: [
+                  Padding(
+                    padding: EdgeInsets.only(right: appBarPadRight),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const MidiStatusPill(),
+                        IconButton(
+                          visualDensity: isLandscape
+                              ? VisualDensity.compact
+                              : VisualDensity.standard,
+                          constraints: isLandscape
+                              ? const BoxConstraints(
+                                  minWidth: 40,
+                                  minHeight: 40,
+                                )
+                              : const BoxConstraints(),
+                          icon: const Icon(Icons.settings),
+                          tooltip: 'Settings',
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => const SettingsPage(),
+                              ),
+                            );
+                          },
                         ),
-                ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              body: SafeArea(
+                bottom: false, // piano draws to bottom
+                left: !isLandscape, // allow full-bleed in landscape
+                right: !isLandscape,
+                child: isLandscape
+                    ? _HomeLandscape(
+                        config: config,
+                        isLandscape: true,
+                        insetLeft: insetLeft,
+                        insetRight: insetRight,
+                      )
+                    : _HomePortrait(
+                        config: config,
+                        isLandscape: false,
+                        insetLeft: insetLeft,
+                        insetRight: insetRight,
+                      ),
               ),
             ),
           ),
@@ -125,11 +151,13 @@ class _HomeLandscape extends ConsumerWidget {
     super.key,
     required this.config,
     required this.isLandscape,
-    required this.pageInset,
+    required this.insetLeft,
+    required this.insetRight,
   });
   final HomeLayoutConfig config;
   final bool isLandscape;
-  final double pageInset;
+  final double insetLeft;
+  final double insetRight;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -154,20 +182,17 @@ class _HomeLandscape extends ConsumerWidget {
             ],
           ),
         ),
-        SafeArea(
-          top: false,
-          bottom: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TonalityBar(
-                height: config.tonalityBarHeight,
-                horizontalInset: pageInset,
-              ),
-              const Divider(height: 1),
-              KeyboardSection(config: config),
-            ],
-          ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TonalityBar(
+              height: config.tonalityBarHeight * 0.85,
+              insetLeft: insetLeft,
+              insetRight: insetRight,
+            ),
+            const Divider(height: 1),
+            KeyboardSection(config: config),
+          ],
         ),
       ],
     );
@@ -180,11 +205,13 @@ class _HomePortrait extends ConsumerWidget {
     super.key,
     required this.config,
     required this.isLandscape,
-    required this.pageInset,
+    required this.insetLeft,
+    required this.insetRight,
   });
   final HomeLayoutConfig config;
   final bool isLandscape;
-  final double pageInset;
+  final double insetLeft;
+  final double insetRight;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -194,21 +221,18 @@ class _HomePortrait extends ConsumerWidget {
           fit: FlexFit.loose,
           child: AnalysisSection(config: config, isLandscape: isLandscape),
         ),
-        SafeArea(
-          top: false,
-          bottom: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ActiveInput(padding: config.activeInputPadding),
-              TonalityBar(
-                height: config.tonalityBarHeight,
-                horizontalInset: pageInset,
-              ),
-              const Divider(height: 1),
-              KeyboardSection(config: config),
-            ],
-          ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ActiveInput(padding: config.activeInputPadding),
+            TonalityBar(
+              height: config.tonalityBarHeight,
+              insetLeft: insetLeft,
+              insetRight: insetRight,
+            ),
+            const Divider(height: 1),
+            KeyboardSection(config: config),
+          ],
         ),
       ],
     );

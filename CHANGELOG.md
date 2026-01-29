@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Updated edge-to-edge layout behavior to improve landscape rendering, including
+  full-bleed backgrounds, cutout-safe content insets, and more compact app bar
+  and tonality bar spacing.
+
 ## [2026.1.27] - 2026-01-27
 
 This release marks the first Google Play Store submission for closed testing and
