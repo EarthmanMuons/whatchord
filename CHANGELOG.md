@@ -19,6 +19,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Replaced the unused "Copy as JSON" action in the analysis details sheet with a
   "Report Issue" link to GitHub.
 
+- Centralized external URL launching logic in a shared core helper.
+
 ## [2026.1.27] - 2026-01-27
 
 This release marks the first Google Play Store submission for closed testing and

@@ -9,6 +9,7 @@ export 'providers/app_version_provider.dart';
 export 'providers/shared_preferences_provider.dart';
 
 export 'services/app_theme_builder.dart';
+export 'services/open_url.dart';
 
 export 'widgets/idle_blackout_overlay.dart';
 export 'widgets/palette_swatch.dart';

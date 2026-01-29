@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 class IdentityCard extends StatelessWidget {
@@ -218,26 +218,6 @@ class IdentityCard extends StatelessWidget {
       final copyText = d.debugText?.trimRight();
       final canCopy = copyText != null && copyText.isNotEmpty;
 
-      final messenger = ScaffoldMessenger.of(context);
-      final issuesUri = Uri.parse(
-        'https://github.com/EarthmanMuons/whatchord/issues',
-      );
-
-      Future<void> openIssues() async {
-        try {
-          final ok = await launchUrl(
-            issuesUri,
-            mode: LaunchMode.externalApplication,
-          );
-          if (!ok) throw Exception('launchUrl returned false');
-        } catch (_) {
-          if (!context.mounted) return;
-          messenger.showSnackBar(
-            const SnackBar(content: Text('Could not open link')),
-          );
-        }
-      }
-
       await showModalBottomSheet<void>(
         context: context,
         useSafeArea: true,
@@ -314,7 +294,14 @@ class IdentityCard extends StatelessWidget {
                             label:
                                 'Report issue. Opens GitHub in your browser.',
                             child: OutlinedButton.icon(
-                              onPressed: openIssues,
+                              onPressed: () {
+                                openUrl(
+                                  context,
+                                  Uri.parse(
+                                    'https://github.com/EarthmanMuons/whatchord/issues',
+                                  ),
+                                );
+                              },
                               icon: const Icon(Icons.bug_report_outlined),
                               label: const Row(
                                 children: [
