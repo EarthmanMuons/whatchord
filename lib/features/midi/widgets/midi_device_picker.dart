@@ -170,29 +170,41 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
           ),
 
           // Error message (scan errors + connect errors)
-          if (_error != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-              child: Material(
-                color: cs.errorContainer,
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
-                    children: [
-                      Icon(Icons.error_outline, color: cs.onErrorContainer),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _error!,
-                          style: TextStyle(color: cs.onErrorContainer),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeOut,
+            alignment: Alignment.topCenter,
+            child: _error == null
+                ? const SizedBox.shrink()
+                : Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 8,
+                    ),
+                    child: Material(
+                      color: cs.errorContainer,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: cs.onErrorContainer,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                _error!,
+                                style: TextStyle(color: cs.onErrorContainer),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ),
+          ),
 
           const Divider(height: 1),
 
@@ -271,64 +283,64 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
   }
 
   Widget _buildScanningState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(48),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.bluetooth_searching,
-              size: 64,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Scanning for devices...',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Make sure your MIDI device is powered on\nand in pairing mode.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return _buildEmptyState(
+      icon: Icons.bluetooth_searching,
+      title: 'Scanning for devices...',
+      message: 'Make sure your MIDI device is powered on\nand in pairing mode.',
     );
   }
 
   Widget _buildNoDevicesState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(48),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.bluetooth_disabled,
-              size: 64,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No devices found',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Tap Refresh to scan again.\nIf your device is new, pair it in iOS Settings first.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+    return _buildEmptyState(
+      icon: Icons.bluetooth_disabled,
+      title: 'No devices found',
+      message:
+          'Tap Refresh to scan again.\nIf your device is new, pair it in your system settings first.',
+    );
+  }
+
+  Widget _buildEmptyState({
+    required IconData icon,
+    required String title,
+    required String message,
+  }) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final pad = (constraints.maxHeight * 0.18).clamp(16.0, 48.0);
+
+        return SingleChildScrollView(
+          // Allow the sheet to stay small without throwing overflow.
+          physics: const ClampingScrollPhysics(),
+          child: ConstrainedBox(
+            // When there IS room, this keeps the content centered vertically.
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Padding(
+              padding: EdgeInsets.all(pad),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: 64, color: cs.onSurfaceVariant),
+                    const SizedBox(height: 16),
+                    Text(title, style: theme.textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    Text(
+                      message,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: cs.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
