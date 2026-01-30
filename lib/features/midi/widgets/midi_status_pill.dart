@@ -15,7 +15,7 @@ class MidiStatusPill extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
 
-    final connection = ref.watch(midiConnectionStatusProvider);
+    final connection = ref.watch(effectiveMidiConnectionStatusProvider);
 
     final tone = switch (connection.phase) {
       MidiConnectionPhase.connected ||
