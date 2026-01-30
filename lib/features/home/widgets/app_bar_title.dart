@@ -41,7 +41,7 @@ void _showDebugDemoMenu(BuildContext context, WidgetRef ref) {
         builder: (context, ref, _) {
           final demoEnabled = ref.watch(demoModeProvider);
           final modeNotifier = ref.read(demoModeProvider.notifier);
-          final notesNotifier = ref.read(demoSoundingNotesProvider.notifier);
+          final seqNotifier = ref.read(demoSequenceProvider.notifier);
 
           return SafeArea(
             child: Padding(
@@ -60,7 +60,12 @@ void _showDebugDemoMenu(BuildContext context, WidgetRef ref) {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: demoEnabled ? notesNotifier.prev : null,
+                          onPressed: demoEnabled
+                              ? () {
+                                  seqNotifier.prev();
+                                  modeNotifier.applyCurrentStep();
+                                }
+                              : null,
                           icon: const Icon(Icons.chevron_left),
                           label: const Text('Prev'),
                         ),
@@ -68,7 +73,12 @@ void _showDebugDemoMenu(BuildContext context, WidgetRef ref) {
                       const SizedBox(width: 12),
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: demoEnabled ? notesNotifier.next : null,
+                          onPressed: demoEnabled
+                              ? () {
+                                  seqNotifier.next();
+                                  modeNotifier.applyCurrentStep();
+                                }
+                              : null,
                           icon: const Icon(Icons.chevron_right),
                           label: const Text('Next'),
                         ),
