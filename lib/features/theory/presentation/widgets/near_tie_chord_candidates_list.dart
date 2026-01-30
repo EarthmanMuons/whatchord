@@ -112,10 +112,7 @@ class NearTieChordCandidatesList extends ConsumerWidget {
 
         return Stack(
           alignment: stackAlignment,
-          children: [
-            for (final c in previousChildren) c,
-            if (currentChild != null) currentChild,
-          ],
+          children: [for (final c in previousChildren) c, ?currentChild],
         );
       },
 
