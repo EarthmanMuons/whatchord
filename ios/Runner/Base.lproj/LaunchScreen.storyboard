@@ -25,14 +25,14 @@
                                 <color key="backgroundColor" name="LaunchAppBar"/>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="a6l-OS-Ydf">
-                                <rect key="frame" x="0.0" y="689" width="393" height="131"/>
-                                <color key="backgroundColor" name="LaunchBottomSurface"/>
+                                <rect key="frame" x="0.0" y="721" width="393" height="131"/>
+                                <color key="backgroundColor" name="LaunchSurface"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="131" id="tIX-bZ-rO0"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UTJ-G1-ngo">
-                                <rect key="frame" x="0.0" y="633" width="393" height="56"/>
+                                <rect key="frame" x="0.0" y="665" width="393" height="56"/>
                                 <color key="backgroundColor" name="LaunchAppBar"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="56" id="vMv-gt-EOP"/>
@@ -47,7 +47,7 @@
                             <constraint firstItem="01l-Vw-rSh" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="PxW-1r-TK8"/>
                             <constraint firstAttribute="trailing" secondItem="UTJ-G1-ngo" secondAttribute="trailing" id="QPO-RR-PNy"/>
                             <constraint firstItem="UTJ-G1-ngo" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="bat-KO-QZR"/>
-                            <constraint firstAttribute="bottom" secondItem="a6l-OS-Ydf" secondAttribute="bottom" constant="32" id="kXG-1V-o10"/>
+                            <constraint firstAttribute="bottom" secondItem="a6l-OS-Ydf" secondAttribute="bottom" id="kXG-1V-o10"/>
                             <constraint firstItem="01l-Vw-rSh" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="nTa-9Y-Xy5"/>
                             <constraint firstAttribute="trailing" secondItem="a6l-OS-Ydf" secondAttribute="trailing" id="s8f-6c-Gtx"/>
                             <constraint firstItem="a6l-OS-Ydf" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="vmH-Uy-cLY"/>
@@ -67,7 +67,7 @@
         <namedColor name="LaunchBackground">
             <color red="0.97647058823529409" green="0.97647058823529409" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <namedColor name="LaunchBottomSurface">
+        <namedColor name="LaunchSurface">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
