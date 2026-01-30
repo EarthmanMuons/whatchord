@@ -68,5 +68,8 @@ class DemoModeNotifier extends Notifier<bool> {
 
     ref.read(appThemeModeProvider.notifier).setThemeMode(snap.themeMode);
     ref.read(selectedTonalityProvider.notifier).setTonality(snap.tonality);
+
+    // Reset demo sequence so next session starts clean.
+    ref.read(demoSequenceProvider.notifier).reset();
   }
 }
