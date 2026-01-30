@@ -10,7 +10,7 @@ class IdleBlackoutOverlay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isIdle = ref.watch(isIdleProvider);
+    final isIdle = ref.watch(appActivityProvider.select((s) => s.isIdle));
 
     return Listener(
       behavior: HitTestBehavior.translucent,

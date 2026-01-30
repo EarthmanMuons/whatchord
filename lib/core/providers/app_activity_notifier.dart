@@ -10,10 +10,6 @@ final appActivityProvider =
       AppActivityNotifier.new,
     );
 
-final isIdleProvider = Provider<bool>((ref) {
-  return ref.watch(appActivityProvider).isIdle;
-});
-
 final idleAfterProvider = Provider<Duration>((ref) {
   return const Duration(minutes: 2);
 });
