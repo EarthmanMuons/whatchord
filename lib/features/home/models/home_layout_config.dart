@@ -44,7 +44,7 @@ const landscapeLayoutConfig = HomeLayoutConfig(
   chordCardMaxWidth: 520,
   detailsSectionPadding: EdgeInsets.fromLTRB(8, 12, 16, 12),
   activeInputPadding: EdgeInsets.zero,
-  tonalityBarHeight: 56,
+  tonalityBarHeight: 44,
   // Full 88-key view: 52 white keys from A0 (MIDI 21) to C8.
   whiteKeyCount: 52,
   whiteKeyAspectRatio: 7.0,

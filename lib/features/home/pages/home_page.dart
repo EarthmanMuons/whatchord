@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,93 +55,121 @@ class _HomePageState extends ConsumerState<HomePage> {
             : portraitLayoutConfig;
 
         final toolbarHeight = isLandscape ? 44.0 : kToolbarHeight;
-        final iconSize = isLandscape ? 20.0 : 24.0;
 
-        final appBarPadLeft = isLandscape ? 24.0 : 16.0;
-        final appBarPadRight = isLandscape ? 16.0 : 4.0;
+        const barBaseInset = 16.0;
+        final maxHorizontalCutout = isLandscape
+            ? math.max(mq.viewPadding.left, mq.viewPadding.right)
+            : 0.0;
 
-        const tonalityPadBase = 16.0;
-        const tonalityPadCutout = 12.0;
-
-        final leftCutout = isLandscape ? mq.viewPadding.left : 0.0;
-        final rightCutout = isLandscape ? mq.viewPadding.right : 0.0;
-
-        final insetLeft =
-            tonalityPadBase +
-            (leftCutout > 0 ? leftCutout + tonalityPadCutout : 0);
-        final insetRight =
-            tonalityPadBase +
-            (rightCutout > 0 ? rightCutout + tonalityPadCutout : 0);
+        // Symmetric rail inset for top bar and tonality bar.
+        // In landscape we draw full-bleed horizontally, so we add the largest system cutout inset.
+        final horizontalInset = barBaseInset + maxHorizontalCutout;
 
         return EdgeToEdgeController(
           child: WakelockController(
             child: Scaffold(
-              appBar: AppBar(
-                toolbarHeight: toolbarHeight,
-                centerTitle: false,
-                automaticallyImplyLeading: false,
-                titleSpacing: 0,
-                title: Padding(
-                  padding: EdgeInsets.only(left: appBarPadLeft),
-                  child: const AppBarTitle(),
-                ),
-                backgroundColor: cs.surfaceContainerLow,
-                foregroundColor: cs.onSurface,
-                actionsIconTheme: IconThemeData(size: iconSize),
-                actions: [
-                  Padding(
-                    padding: EdgeInsets.only(right: appBarPadRight),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const MidiStatusPill(),
-                        IconButton(
-                          visualDensity: isLandscape
-                              ? VisualDensity.compact
-                              : VisualDensity.standard,
-                          constraints: isLandscape
-                              ? const BoxConstraints(
-                                  minWidth: 40,
-                                  minHeight: 40,
-                                )
-                              : const BoxConstraints(),
-                          icon: const Icon(Icons.settings),
-                          tooltip: 'Settings',
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) => const SettingsPage(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+              body: Column(
+                children: [
+                  ColoredBox(
+                    color: cs.surfaceContainerLow,
+                    child: SafeArea(
+                      bottom: false, // only protect status bar
+                      left: !isLandscape, // allow full-bleed in landscape
+                      right: !isLandscape,
+                      child: _HomeTopBar(
+                        toolbarHeight: toolbarHeight,
+                        isLandscape: isLandscape,
+                        horizontalInset: horizontalInset,
+                      ),
+                    ),
+                  ),
+
+                  Expanded(
+                    child: SafeArea(
+                      top: false, // already handled above
+                      bottom: false, // piano draws to bottom
+                      left: !isLandscape,
+                      right: !isLandscape,
+                      child: isLandscape
+                          ? _HomeLandscape(
+                              config: config,
+                              isLandscape: true,
+                              horizontalInset: horizontalInset,
+                            )
+                          : _HomePortrait(
+                              config: config,
+                              isLandscape: false,
+                              horizontalInset: horizontalInset,
+                            ),
                     ),
                   ),
                 ],
-              ),
-              body: SafeArea(
-                bottom: false, // piano draws to bottom
-                left: !isLandscape, // allow full-bleed in landscape
-                right: !isLandscape,
-                child: isLandscape
-                    ? _HomeLandscape(
-                        config: config,
-                        isLandscape: true,
-                        insetLeft: insetLeft,
-                        insetRight: insetRight,
-                      )
-                    : _HomePortrait(
-                        config: config,
-                        isLandscape: false,
-                        insetLeft: insetLeft,
-                        insetRight: insetRight,
-                      ),
               ),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class _HomeTopBar extends ConsumerWidget {
+  const _HomeTopBar({
+    required this.toolbarHeight,
+    required this.isLandscape,
+    required this.horizontalInset,
+  });
+
+  final double toolbarHeight;
+  final bool isLandscape;
+  final double horizontalInset;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final titleStyle = Theme.of(context).textTheme.titleLarge;
+
+    // Optical-only tweak.
+    const settingsIconDx = 6.0;
+
+    return Material(
+      color: cs.surfaceContainerLow,
+      child: SizedBox(
+        height: toolbarHeight,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: horizontalInset,
+            right: horizontalInset,
+          ),
+          child: Row(
+            children: [
+              DefaultTextStyle(style: titleStyle!, child: const AppBarTitle()),
+              const Spacer(),
+              const MidiStatusPill(),
+              Transform.translate(
+                offset: const Offset(settingsIconDx, 0),
+                child: IconButton(
+                  visualDensity: isLandscape
+                      ? VisualDensity.compact
+                      : VisualDensity.standard,
+                  constraints: isLandscape
+                      ? const BoxConstraints(minWidth: 40, minHeight: 40)
+                      : const BoxConstraints(),
+                  icon: const Icon(Icons.settings),
+                  tooltip: 'Settings',
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const SettingsPage(),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -151,13 +180,11 @@ class _HomeLandscape extends ConsumerWidget {
     super.key,
     required this.config,
     required this.isLandscape,
-    required this.insetLeft,
-    required this.insetRight,
+    required this.horizontalInset,
   });
   final HomeLayoutConfig config;
   final bool isLandscape;
-  final double insetLeft;
-  final double insetRight;
+  final double horizontalInset;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -186,9 +213,8 @@ class _HomeLandscape extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             TonalityBar(
-              height: config.tonalityBarHeight * 0.85,
-              insetLeft: insetLeft,
-              insetRight: insetRight,
+              height: config.tonalityBarHeight,
+              horizontalInset: horizontalInset,
             ),
             const Divider(height: 1),
             KeyboardSection(config: config),
@@ -205,13 +231,11 @@ class _HomePortrait extends ConsumerWidget {
     super.key,
     required this.config,
     required this.isLandscape,
-    required this.insetLeft,
-    required this.insetRight,
+    required this.horizontalInset,
   });
   final HomeLayoutConfig config;
   final bool isLandscape;
-  final double insetLeft;
-  final double insetRight;
+  final double horizontalInset;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -227,8 +251,7 @@ class _HomePortrait extends ConsumerWidget {
             ActiveInput(padding: config.activeInputPadding),
             TonalityBar(
               height: config.tonalityBarHeight,
-              insetLeft: insetLeft,
-              insetRight: insetRight,
+              horizontalInset: horizontalInset,
             ),
             const Divider(height: 1),
             KeyboardSection(config: config),
