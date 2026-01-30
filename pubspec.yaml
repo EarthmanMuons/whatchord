@@ -7,7 +7,7 @@ version: 2026.1.27+3
 environment:
   sdk: ^3.10.4
   # pinned version used for automated testing and releases
-  flutter: 3.38.6
+  flutter: 3.38.9
 
 dependencies:
   flutter:
