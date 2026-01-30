@@ -51,7 +51,9 @@ class MidiParser {
   static MidiMessage? parse(Uint8List bytes) {
     if (bytes.isEmpty) return null;
 
-    final status = bytes[0] & 0xF0;
+    final statusByte = bytes[0];
+    // Mask off the low nibble (channel). We currently treat input as channel-agnostic.
+    final status = statusByte & 0xF0;
 
     switch (status) {
       case 0x90: // Note On
