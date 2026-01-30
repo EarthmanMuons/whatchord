@@ -2,6 +2,8 @@ import 'dart:io' show Platform;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/features/demo/demo.dart';
+
 import '../models/ble_unavailability.dart';
 import '../models/midi_connection_status.dart';
 import '../models/midi_connection.dart';
@@ -100,4 +102,24 @@ final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
       detail: 'Not connected',
     ),
   };
+});
+
+/// Provides UI-friendly presentation of MIDI connection information, with
+/// support for a demo-mode override (used for emulator screenshots).
+final effectiveMidiConnectionStatusProvider = Provider<MidiConnectionStatus>((
+  ref,
+) {
+  final status = ref.watch(midiConnectionStatusProvider);
+  final demoEnabled = ref.watch(demoModeProvider);
+
+  if (!demoEnabled) return status;
+
+  // Force "Connected" while in demo mode so the status pill renders green and
+  // avoids emulator BLE limitations.
+  return MidiConnectionStatus(
+    phase: MidiConnectionPhase.connected,
+    label: 'Connected',
+    detail: 'Connected to Demo MIDI',
+    deviceName: 'Demo MIDI',
+  );
 });
