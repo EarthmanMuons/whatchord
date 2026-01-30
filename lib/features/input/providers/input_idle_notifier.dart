@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/features/demo/providers/demo_mode_notifier.dart';
+
 import 'sounding_notes_providers.dart';
 
 @immutable
@@ -90,6 +92,13 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
 
     state = initial;
 
+    // When demo mode is turning OFF.
+    ref.listen<bool>(demoModeProvider, (prev, next) {
+      if (prev == true && next == false) {
+        markIdleNow();
+      }
+    });
+
     // Engagement is defined strictly by whether any notes are sounding.
     // Sustain pedal state (manual or MIDI) must not directly affect engagement.
     ref.listen<int>(
@@ -99,6 +108,25 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
     );
 
     return initial;
+  }
+
+  /// Marks input as idle and immediately eligible.
+  ///
+  /// Useful when exiting demo / onboarding flows that inject notes through
+  /// real plumbing and should not wait out the idle cooldown.
+  void markIdleNow() {
+    _timer?.cancel();
+    _timer = null;
+
+    final now = DateTime.now();
+
+    state = state.copyWith(
+      hasSeenEngagement: true,
+      isEngagedNow: false,
+      // Backdate the release so cooldown is already satisfied.
+      lastReleaseAt: now.subtract(state.cooldown),
+      isEligible: true,
+    );
   }
 
   void _updateEngagement({required bool engagedNow}) {
