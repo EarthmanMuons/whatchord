@@ -8,13 +8,11 @@ class TonalityBar extends ConsumerWidget {
   const TonalityBar({
     super.key,
     required this.height,
-    this.insetLeft = 16,
-    this.insetRight = 16,
+    this.horizontalInset = 16,
   });
 
   final double height;
-  final double insetLeft;
-  final double insetRight;
+  final double horizontalInset;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,7 +25,7 @@ class TonalityBar extends ConsumerWidget {
       child: SizedBox(
         height: height,
         child: Padding(
-          padding: EdgeInsets.only(left: insetLeft, right: insetRight),
+          padding: EdgeInsets.symmetric(horizontal: horizontalInset),
           child: Row(
             children: [
               FilledButton.tonalIcon(
