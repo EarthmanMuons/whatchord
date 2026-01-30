@@ -21,6 +21,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Centralized external URL launching logic in a shared core helper.
 
+- Improved internal demo mode tooling for presentations and testing.
+
 ## [2026.1.27] - 2026-01-27
 
 This release marks the first Google Play Store submission for closed testing and
