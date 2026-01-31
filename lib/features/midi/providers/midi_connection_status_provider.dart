@@ -50,8 +50,6 @@ final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
 
     MidiConnectionPhase.bluetoothUnavailable => () {
       final reason = connection.unavailability;
-
-      final isAndroid = Platform.isAndroid;
       final isPerm = reason == BleUnavailability.permissionPermanentlyDenied;
 
       final label = switch (reason) {
@@ -66,11 +64,11 @@ final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
         BleUnavailability.adapterOff =>
           'Turn on Bluetooth to discover and connect to MIDI devices.',
         BleUnavailability.permissionDenied =>
-          isAndroid
+          Platform.isAndroid
               ? 'Allow the Nearby devices permission to scan and connect to BLE MIDI devices.'
               : 'Allow Bluetooth access to discover and connect to BLE MIDI devices.',
         BleUnavailability.permissionPermanentlyDenied =>
-          isAndroid
+          Platform.isAndroid
               ? 'Enable the Nearby devices permission in system settings for this app.'
               : 'Enable Bluetooth access for this app in system settings.',
         BleUnavailability.unsupported =>
