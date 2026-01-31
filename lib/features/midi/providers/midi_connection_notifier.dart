@@ -273,15 +273,47 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         return;
       }
 
-      try {
-        await ref.read(midiDeviceManagerProvider.notifier).ensureReady();
-      } catch (_) {}
+      // If BT is clearly off/unauthorized, fail fast with stable UX.
+      var bt = ref.read(midiDeviceManagerProvider).bluetoothState;
+      if (bt == BluetoothState.poweredOff ||
+          bt == BluetoothState.unauthorized) {
+        _cancelRetry();
+        state = state.copyWith(
+          phase: MidiConnectionPhase.bluetoothUnavailable,
+          unavailability: bt == BluetoothState.poweredOff
+              ? BleUnavailability.adapterOff
+              : BleUnavailability.permissionDenied,
+          message: bt.displayName,
+          nextDelay: null,
+          attempt: 0,
+        );
+        return;
+      }
 
-      final bt = await _awaitBluetoothState();
-      if (bt == null || !_bluetoothReady(bt)) {
+      // If state is unknown, prime once (this often triggers the first real BT state),
+      // then wait briefly for a non-unknown state.
+      if (bt == BluetoothState.unknown) {
+        try {
+          await ref.read(midiDeviceManagerProvider.notifier).ensureReady();
+        } catch (_) {
+          // If we cannot prime, treat as not-ready and stop.
+          _cancelRetry();
+          state = state.copyWith(
+            phase: MidiConnectionPhase.bluetoothUnavailable,
+            unavailability: BleUnavailability.notReady,
+            message: 'Bluetooth is not ready yet.',
+            nextDelay: null,
+            attempt: 0,
+          );
+          return;
+        }
+
+        bt = await _awaitBluetoothState() ?? BluetoothState.unknown;
+      }
+
+      if (!_bluetoothReady(bt)) {
         _cancelRetry();
         final unavailableReason = switch (bt) {
-          null => BleUnavailability.notReady,
           BluetoothState.poweredOff => BleUnavailability.adapterOff,
           BluetoothState.unauthorized => BleUnavailability.permissionDenied,
           BluetoothState.unknown => BleUnavailability.notReady,
@@ -291,7 +323,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         state = state.copyWith(
           phase: MidiConnectionPhase.bluetoothUnavailable,
           unavailability: unavailableReason,
-          message: bt?.displayName ?? 'Bluetooth is not ready yet.',
+          message: bt.displayName,
           nextDelay: null,
           attempt: 0,
         );
@@ -521,7 +553,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<BluetoothState?> _awaitBluetoothState({
     Duration timeout = const Duration(milliseconds: 800),
   }) async {
-    final current = ref.read(midiDeviceManagerProvider).bluetoothState;
+    BluetoothState current = ref.read(midiDeviceManagerProvider).bluetoothState;
     if (current != BluetoothState.unknown) return current;
 
     final completer = Completer<BluetoothState>();
@@ -530,10 +562,10 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     sub = ref.listen<BluetoothState>(
       midiDeviceManagerProvider.select((s) => s.bluetoothState),
       (prev, next) {
-        if (next != BluetoothState.unknown && !completer.isCompleted) {
-          completer.complete(next);
-        }
+        if (next == BluetoothState.unknown) return;
+        if (!completer.isCompleted) completer.complete(next);
       },
+      fireImmediately: true,
     );
 
     try {

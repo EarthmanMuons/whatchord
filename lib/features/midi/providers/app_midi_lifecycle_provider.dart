@@ -29,9 +29,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
     _ref.read(midiDeviceManagerProvider);
 
     // Attempt reconnect at startup (foreground).
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future<void>.delayed(const Duration(milliseconds: 200));
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       final prefs = _ref.read(midiPreferencesProvider);
       final savedId = prefs.savedDeviceId;
 
