@@ -19,6 +19,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Refactored the Analysis Details view into a dedicated modal sheet with pinned
   actions and improved content scrolling.
+- Improved MIDI auto-reconnect reliability by gating startup and resume
+  reconnects on actual Bluetooth adapter readiness instead of fixed delays.
 
 ### Fixed
 
