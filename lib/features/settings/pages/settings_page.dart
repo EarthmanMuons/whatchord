@@ -182,6 +182,21 @@ class SettingsPage extends ConsumerWidget {
             ),
 
             ListTile(
+              leading: const Icon(Icons.support_agent_outlined),
+              title: const Text('Support'),
+              subtitle: const Text('Report an issue or contact support'),
+              trailing: const Icon(Icons.open_in_new),
+              onTap: () {
+                openUrl(
+                  context,
+                  Uri.parse(
+                    'https://github.com/EarthmanMuons/whatchord/blob/main/SUPPORT.md',
+                  ),
+                );
+              },
+            ),
+
+            ListTile(
               leading: const Icon(Icons.code),
               title: const Text('Source Code'),
               subtitle: const Text('Browse the repository on GitHub'),
