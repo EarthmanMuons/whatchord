@@ -1,4 +1,3 @@
-import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -82,20 +81,12 @@ Future<void> showAnalysisDetailsSheet(
                       child: FilledButton.icon(
                         onPressed: canCopy
                             ? () async {
-                                final messenger = Platform.isIOS
-                                    ? ScaffoldMessenger.maybeOf(context)
-                                    : null;
-
                                 await Clipboard.setData(
                                   ClipboardData(text: copyText),
                                 );
 
-                                messenger?.hideCurrentSnackBar();
-                                messenger?.showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Copied to clipboard'),
-                                  ),
-                                );
+                                // Subtle confirmation without UI chrome.
+                                HapticFeedback.selectionClick();
                               }
                             : null,
                         icon: const Icon(Icons.copy),
