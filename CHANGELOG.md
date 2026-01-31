@@ -16,12 +16,20 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   full-bleed backgrounds, cutout-safe content insets, and more compact app bar
   and tonality bar spacing.
 
+- Prepared the iOS build for App Store submission, including updated Xcode build
+  settings and export compliance declarations.
+
 - Replaced the unused "Copy as JSON" action in the analysis details sheet with a
   "Report Issue" link to GitHub.
 
+- Improved internal demo mode tooling, including more reliable state isolation,
+  deterministic presentation steps, and cleaner entry/exit behavior for testing
+  and screenshots.
+
 - Centralized external URL launching logic in a shared core helper.
 
-- Improved internal demo mode tooling for presentations and testing.
+- Updated Flutter to v3.38.9, aligned the Dart SDK with the bundled Flutter
+  release, and upgraded project dependencies.
 
 ### Fixed
 
