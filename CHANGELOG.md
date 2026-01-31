@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added a Support link in Settings > About for reporting issues or contacting
+  support.
+
 ### Fixed
 
 - Properly dispose the home page's MIDI connection listener to prevent duplicate
