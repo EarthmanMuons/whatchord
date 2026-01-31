@@ -1,6 +1,5 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
-  - name: Email support (no GitHub account required)
+  - name: Email support
     url: https://github.com/EarthmanMuons/whatchord/blob/main/SUPPORT.md
-    about: >
-      Instructions for contacting support without a GitHub account.
+    about: Contact support by email (see instructions).

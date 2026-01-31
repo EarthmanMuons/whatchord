@@ -1,5 +1,7 @@
 name: General issue
-description: Bug reports, questions, or anything else not covered above
+description: Bug reports, questions, or general feedback about WhatChord
+labels:
+  - triage
 body:
   - type: textarea
     attributes:
