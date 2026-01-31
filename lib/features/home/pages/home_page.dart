@@ -23,12 +23,13 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
+  late final ProviderSubscription<MidiConnectionState> _midiSub;
+
   @override
   void initState() {
     super.initState();
 
-    ref.listenManual(midiConnectionProvider, (prev, next) {
-      // Show once when transitioning into connected
+    _midiSub = ref.listenManual(midiConnectionProvider, (prev, next) {
       if (prev?.phase != MidiConnectionPhase.connected &&
           next.phase == MidiConnectionPhase.connected) {
         final name = next.device?.displayName;
@@ -39,6 +40,12 @@ class _HomePageState extends ConsumerState<HomePage> {
         ).showSnackBar(SnackBar(content: Text(text)));
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _midiSub.close();
+    super.dispose();
   }
 
   @override
