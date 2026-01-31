@@ -194,6 +194,8 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     if (_backgrounded) return;
     if (_attemptInFlight) return;
 
+    final isManual = reason == 'manual';
+
     // Only run the startup auto-reconnect sequence once per app run.
     if (reason == 'startup') {
       if (_startupAttempted) return;
@@ -204,8 +206,6 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     final now = DateTime.now();
     final last = _lastAutoReconnectAt;
 
-    final isManual = reason == 'manual';
-
     if (!isManual &&
         reason != 'startup' &&
         last != null &&
@@ -213,34 +213,45 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       return;
     }
 
-    // Only record auto-trigger timestamps. Manual should not "poison" future autos.
     if (!isManual) {
       _lastAutoReconnectAt = now;
     }
 
     _attemptInFlight = true;
     try {
-      // Respect user preference.
       final prefs = ref.read(midiPreferencesProvider);
-      if (!prefs.autoReconnect) return;
+
+      // Manual reconnect should always work; autoReconnect only gates automatic triggers.
+      if (!isManual && !prefs.autoReconnect) return;
 
       final savedDeviceId = prefs.savedDeviceId;
       if (savedDeviceId == null || savedDeviceId.trim().isEmpty) {
-        // Nothing to reconnect to. Keep the UI clean after a reset.
         _cancelRetry();
-
-        // Only override state if we were showing reconnect-related phases.
         if (state.phase == MidiConnectionPhase.connecting ||
             state.phase == MidiConnectionPhase.retrying ||
             state.phase == MidiConnectionPhase.deviceUnavailable ||
             state.phase == MidiConnectionPhase.error) {
           state = const MidiConnectionState.idle();
         } else {
-          // Clear any stale messaging/delay without forcing a phase change.
           state = state.copyWith(message: null, nextDelay: null, attempt: 0);
         }
         return;
       }
+
+      // Publish immediately (before any await) so UI reflects reconnect intent
+      // even if the user navigates away mid-flight.
+      state = state.copyWith(
+        phase: isManual
+            ? MidiConnectionPhase.connecting
+            : MidiConnectionPhase.retrying,
+        message: isManual
+            ? 'Connecting to saved device…'
+            : (reason == 'startup'
+                  ? 'Reconnecting to saved device…'
+                  : 'Reconnecting…'),
+        nextDelay: null,
+        attempt: 0,
+      );
 
       // If already connected to the saved device, do nothing.
       final current = ref.read(midiDeviceManagerProvider).connectedDevice;
@@ -251,17 +262,6 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         // Stale snapshot: clear it so UI reflects reality and reconnect proceeds.
         unawaited(_midi.reconcileConnectedDevice(reason: 'tryAutoReconnect'));
       }
-
-      // From here onward, we're actively attempting an auto reconnect.
-      // Publish a non-idle phase immediately so the UI reflects reality.
-      state = state.copyWith(
-        phase: MidiConnectionPhase.retrying,
-        message: reason == 'startup'
-            ? 'Reconnecting to saved device…'
-            : 'Reconnecting…',
-        nextDelay: null,
-        attempt: 0,
-      );
 
       final ok = await _ensureBleAllowedOrPublishUnavailable(
         contextMsg: 'Bluetooth permission is required to reconnect.',
@@ -275,26 +275,21 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         await ref.read(midiDeviceManagerProvider.notifier).ensureReady();
       } catch (_) {}
 
-      // Gate on bluetooth being ready (hard stop).
       final bt = await _awaitBluetoothState();
       if (bt == null || !_bluetoothReady(bt)) {
         _cancelRetry();
-
         final unavailableReason = switch (bt) {
           null => BleUnavailability.notReady,
           BluetoothState.poweredOff => BleUnavailability.adapterOff,
           BluetoothState.unauthorized => BleUnavailability.permissionDenied,
           BluetoothState.unknown => BleUnavailability.notReady,
-          BluetoothState.poweredOn =>
-            BleUnavailability.notReady, // unreachable here, but explicit
+          BluetoothState.poweredOn => BleUnavailability.notReady,
         };
-
-        final message = bt?.displayName ?? 'Bluetooth is not ready yet.';
 
         state = state.copyWith(
           phase: MidiConnectionPhase.bluetoothUnavailable,
           unavailability: unavailableReason,
-          message: message,
+          message: bt?.displayName ?? 'Bluetooth is not ready yet.',
           nextDelay: null,
           attempt: 0,
         );
@@ -343,6 +338,17 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       await _sleep(delay);
       if (_cancelRequested) return;
     }
+
+    // Terminal state after max attempts.
+    if (!_backgrounded && !_cancelRequested) {
+      state = MidiConnectionState(
+        phase: MidiConnectionPhase.deviceUnavailable,
+        message:
+            'Unable to reconnect. Make sure the device is powered on and nearby.',
+        attempt: _maxAttempts,
+        nextDelay: null,
+      );
+    }
   }
 
   bool _bluetoothReady(BluetoothState s) {
@@ -365,16 +371,6 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     final c = Completer<void>();
     _retryTimer = Timer(d, c.complete);
     return c.future;
-  }
-
-  /// Cancels any pending retry and normalizes public state back to idle.
-  /// Useful after "Forget last device" or "Clear MIDI data" actions.
-  void resetToIdle() {
-    _cancelRetry();
-    _attemptInFlight = false;
-    _lastAutoReconnectAt = null;
-    _lastSavedDeviceId = null;
-    state = const MidiConnectionState.idle();
   }
 
   void _cancelRetry() {

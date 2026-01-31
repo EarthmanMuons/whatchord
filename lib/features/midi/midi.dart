@@ -36,6 +36,7 @@ export 'models/midi_protocol.dart';
 export 'providers/app_midi_lifecycle_provider.dart';
 export 'providers/midi_connection_notifier.dart';
 export 'providers/midi_connection_status_provider.dart';
+export 'providers/midi_device_manager.dart';
 export 'providers/midi_keep_awake_provider.dart';
 export 'providers/midi_message_providers.dart';
 export 'providers/midi_note_state_notifier.dart';
