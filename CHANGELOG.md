@@ -23,6 +23,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Improved internal demo mode tooling for presentations and testing.
 
+### Fixed
+
+- Stabilized MIDI connection state propagation (status pill updates, manual
+  reconnect UX, scan lifecycle, and transient empty snapshot handling).
+
 ## [2026.1.27] - 2026-01-27
 
 This release marks the first Google Play Store submission for closed testing and

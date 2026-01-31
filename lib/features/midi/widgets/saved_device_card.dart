@@ -91,7 +91,6 @@ class SavedDeviceCard extends ConsumerWidget {
                         await ref
                             .read(midiConnectionProvider.notifier)
                             .disconnect();
-                        ref.read(midiConnectionProvider.notifier).resetToIdle();
                       },
                 child: const Text('Disconnect'),
               )
@@ -120,8 +119,6 @@ class SavedDeviceCard extends ConsumerWidget {
                     await ref
                         .read(midiPreferencesProvider.notifier)
                         .clearSavedDevice();
-
-                    ref.read(midiConnectionProvider.notifier).resetToIdle();
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(

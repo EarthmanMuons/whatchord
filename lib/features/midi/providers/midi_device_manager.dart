@@ -406,21 +406,31 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     _devicesChanged.add(null);
   }
 
+  int _emptySnapshotsWhileConnected = 0;
+
   Future<void> _syncConnectedDeviceState(List<MidiDevice> devices) async {
     final current = state.connectedDevice;
     if (current == null) return;
 
-    // If the snapshot is empty, treat as inconclusive; do not clear connection.
-    // This prevents transient empty device lists from dropping UI state.
-    if (devices.isEmpty) return;
+    // The plugin can transiently report an empty device list; debounce to avoid
+    // dropping a valid connection on a single bad snapshot.
+    if (devices.isEmpty) {
+      _emptySnapshotsWhileConnected++;
+
+      // Require 2 consecutive empty snapshots to avoid flapping.
+      if (_emptySnapshotsWhileConnected < 2) return;
+
+      final actuallyConnected = await _ble.isConnected(current.id);
+      if (!actuallyConnected) {
+        _setConnectedDevice(null);
+      }
+      return;
+    }
+
+    _emptySnapshotsWhileConnected = 0;
 
     final match = _firstWhereOrNull(devices, (d) => d.id == current.id);
 
-    debugPrint(
-      'syncConnected: devices=${devices.length} match=${match?.id} matchConnected=${match?.isConnected}',
-    );
-
-    // If we can't find the device or it reports not connected, confirm with the plugin.
     if (match == null || !match.isConnected) {
       final actuallyConnected = await _ble.isConnected(current.id);
       if (!actuallyConnected) {
@@ -429,7 +439,6 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       return;
     }
 
-    // Still connected: keep state fresh.
     _setConnectedDevice(current.copyWith(isConnected: true));
   }
 
@@ -521,6 +530,13 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   }
 
   void _setConnectedDevice(MidiDevice? device) {
+    final prev = state.connectedDevice;
+    if (prev?.id != device?.id || prev?.isConnected != device?.isConnected) {
+      debugPrint(
+        '[MGR] connected ${prev?.id}/${prev?.isConnected} -> ${device?.id}/${device?.isConnected}',
+      );
+    }
+    if (device == null) _emptySnapshotsWhileConnected = 0;
     state = state.copyWith(connectedDevice: device);
     _updateConnectionWatchdog();
   }

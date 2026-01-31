@@ -11,6 +11,16 @@ import 'midi_connection_notifier.dart';
 
 /// Provides UI-friendly presentation of MIDI connection information.
 final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
+  final demoEnabled = ref.watch(demoModeProvider);
+  if (demoEnabled) {
+    return const MidiConnectionStatus(
+      phase: MidiConnectionPhase.connected,
+      label: 'Connected',
+      detail: 'Connected to Demo MIDI',
+      deviceName: 'Demo MIDI',
+    );
+  }
+
   final connection = ref.watch(midiConnectionProvider);
   final name = connection.deviceDisplayName;
 
@@ -47,10 +57,7 @@ final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
       final label = switch (reason) {
         BleUnavailability.adapterOff => 'Bluetooth is off',
         BleUnavailability.permissionDenied ||
-        BleUnavailability.permissionPermanentlyDenied =>
-          isAndroid
-              ? 'Nearby devices permission required'
-              : 'Bluetooth permission required',
+        BleUnavailability.permissionPermanentlyDenied => 'Permissions required',
         BleUnavailability.unsupported => 'Bluetooth unsupported',
         BleUnavailability.notReady || null => 'Bluetooth unavailable',
       };
@@ -102,24 +109,4 @@ final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
       detail: 'Not connected',
     ),
   };
-});
-
-/// Provides UI-friendly presentation of MIDI connection information, with
-/// support for a demo-mode override (used for emulator screenshots).
-final effectiveMidiConnectionStatusProvider = Provider<MidiConnectionStatus>((
-  ref,
-) {
-  final status = ref.watch(midiConnectionStatusProvider);
-  final demoEnabled = ref.watch(demoModeProvider);
-
-  if (!demoEnabled) return status;
-
-  // Force "Connected" while in demo mode so the status pill renders green and
-  // avoids emulator BLE limitations.
-  return MidiConnectionStatus(
-    phase: MidiConnectionPhase.connected,
-    label: 'Connected',
-    detail: 'Connected to Demo MIDI',
-    deviceName: 'Demo MIDI',
-  );
 });

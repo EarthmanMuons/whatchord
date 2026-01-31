@@ -39,6 +39,5 @@ class SettingsResetService {
     final connection = _ref.read(midiConnectionProvider.notifier);
     await connection.stopScanning();
     await connection.disconnect();
-    connection.resetToIdle();
   }
 }

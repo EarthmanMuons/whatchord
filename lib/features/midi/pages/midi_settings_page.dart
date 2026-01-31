@@ -37,10 +37,7 @@ class MidiSettingsPage extends ConsumerWidget {
             Card(
               child: ListTile(
                 leading: const Icon(Icons.settings),
-                title: const Text('Open system settings'),
-                subtitle: const Text(
-                  'Enable Bluetooth permission to connect to MIDI devices',
-                ),
+                title: const Text('Open system settings for WhatChord'),
                 onTap: () async {
                   await openAppSettings();
                 },
@@ -71,9 +68,7 @@ class MidiSettingsPage extends ConsumerWidget {
                   builder: (_) => const MidiDevicePicker(),
                 ).whenComplete(() {
                   unawaited(
-                    ref
-                        .read(midiConnectionProvider.notifier)
-                        .cancel(reason: 'picker_dismissed'),
+                    ref.read(midiConnectionProvider.notifier).stopScanning(),
                   );
                 });
               },
