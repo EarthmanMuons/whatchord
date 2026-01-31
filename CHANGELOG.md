@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Properly dispose the home page's MIDI connection listener to prevent duplicate
+  events and potential memory leaks during navigation.
+
 ## [2026.1.31] - 2026-01-31
 
 ### Changed
@@ -17,19 +22,14 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Updated edge-to-edge layout behavior to improve landscape rendering, including
   full-bleed backgrounds, cutout-safe content insets, and more compact app bar
   and tonality bar spacing.
-
 - Prepared the iOS build for App Store submission, including updated Xcode build
   settings and export compliance declarations.
-
 - Replaced the unused "Copy as JSON" action in the analysis details sheet with a
   "Report Issue" link to GitHub.
-
 - Improved internal demo mode tooling, including more reliable state isolation,
   deterministic presentation steps, and cleaner entry/exit behavior for testing
   and screenshots.
-
 - Centralized external URL launching logic in a shared core helper.
-
 - Updated Flutter to v3.38.9, aligned the Dart SDK with the bundled Flutter
   release, and upgraded project dependencies.
 
