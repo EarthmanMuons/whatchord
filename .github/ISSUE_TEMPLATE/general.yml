@@ -1,0 +1,10 @@
+name: General issue
+description: Bug reports, questions, or anything else not covered above
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: |
+        Please describe the issue, question, or suggestion.
+    validations:
+      required: true
