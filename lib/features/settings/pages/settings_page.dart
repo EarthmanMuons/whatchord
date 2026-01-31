@@ -182,8 +182,6 @@ class SettingsPage extends ConsumerWidget {
                   ClipboardData(text: 'WhatChord v$version'),
                 );
 
-                HapticFeedback.selectionClick();
-
                 messenger?.hideCurrentSnackBar();
                 messenger?.showSnackBar(
                   const SnackBar(content: Text('Copied to clipboard')),

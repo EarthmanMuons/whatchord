@@ -86,7 +86,7 @@ Future<void> showAnalysisDetailsSheet(
                                 );
 
                                 // Subtle confirmation without UI chrome.
-                                HapticFeedback.selectionClick();
+                                HapticFeedback.lightImpact();
                               }
                             : null,
                         icon: const Icon(Icons.copy),

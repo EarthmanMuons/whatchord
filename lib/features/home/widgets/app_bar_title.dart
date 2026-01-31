@@ -35,7 +35,7 @@ class AppBarTitle extends ConsumerWidget {
 
     Future<void> toggleDemo() async {
       modeNotifier.setEnabled(!demoEnabled);
-      await HapticFeedback.selectionClick();
+      await HapticFeedback.lightImpact();
     }
 
     void prev() {
