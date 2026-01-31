@@ -5,7 +5,7 @@ publish_to: none
 version: 2026.1.27+3
 
 environment:
-  sdk: ^3.10.4
+  sdk: ^3.10.8
   # pinned version used for automated testing and releases
   flutter: 3.38.9
 
