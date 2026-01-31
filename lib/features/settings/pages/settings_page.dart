@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -171,13 +172,22 @@ class SettingsPage extends ConsumerWidget {
                   ),
               onLongPress: () async {
                 final version = ref.read(appVersionProvider).asData?.value;
-
                 if (version == null) return;
+
+                final messenger = Platform.isIOS
+                    ? ScaffoldMessenger.maybeOf(context)
+                    : null;
 
                 await Clipboard.setData(
                   ClipboardData(text: 'WhatChord v$version'),
                 );
+
                 HapticFeedback.selectionClick();
+
+                messenger?.hideCurrentSnackBar();
+                messenger?.showSnackBar(
+                  const SnackBar(content: Text('Copied to clipboard')),
+                );
               },
             ),
 
