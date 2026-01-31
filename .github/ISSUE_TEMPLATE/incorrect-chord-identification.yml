@@ -1,0 +1,40 @@
+name: Incorrect chord identification
+description: Report a chord that WhatChord identified incorrectly
+title: "[ID] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a report! Identification issues are easiest to fix when we can reproduce the exact input.
+
+        **Best thing you can do:** in the app, tap the identification card on the main screen to open **Analysis Details**, then tap **Copy** and paste the result below.
+
+        (If your issue isn't about identification, please use **General issue** instead.)
+
+  - type: textarea
+    attributes:
+      label: Analysis Details (copied from the app)
+      description: |
+        In WhatChord: open **Analysis Details** → tap **Copy** → paste here.
+        This contains the app version and the exact analysis input/context we need to reproduce.
+      placeholder: "Paste the copied Analysis Details here…"
+      render: text
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: What you expected
+      description: |
+        What you believe the correct identification should be, or how you expected the chord to be interpreted.
+      placeholder: "Example: Am/C, F#ø7, D7 (or a short description if unsure)"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional information (optional)
+      description: |
+        Why you think the identification was inaccurate, or anything else that might help clarify your intent.
+    validations:
+      required: false
