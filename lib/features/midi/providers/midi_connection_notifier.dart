@@ -23,6 +23,8 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   DateTime? _lastAutoReconnectAt;
 
   Timer? _retryTimer;
+  Completer<void>? _retrySleepCompleter;
+
   bool _backgrounded = false;
   bool _attemptInFlight = false;
 
@@ -304,6 +306,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
   Future<void> _reconnectWithBackoff(String deviceId) async {
     _cancelRetry();
+    if (_cancelRequested) return;
     _cancelRequested = false; // start fresh for this run
 
     for (var attempt = 1; attempt <= _maxAttempts; attempt++) {
@@ -367,15 +370,31 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     return d > _maxBackoff ? _maxBackoff : d;
   }
 
-  Future<void> _sleep(Duration d) {
-    final c = Completer<void>();
-    _retryTimer = Timer(d, c.complete);
-    return c.future;
+  Future<void> _sleep(Duration delay) {
+    _cancelRetry();
+
+    final completer = Completer<void>();
+    _retrySleepCompleter = completer;
+
+    _retryTimer = Timer(delay, () {
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
+    });
+
+    return completer.future;
   }
 
   void _cancelRetry() {
     _retryTimer?.cancel();
     _retryTimer = null;
+
+    final completer = _retrySleepCompleter;
+    _retrySleepCompleter = null;
+
+    if (completer != null && !completer.isCompleted) {
+      completer.complete();
+    }
   }
 
   /// Manual refresh from UI.

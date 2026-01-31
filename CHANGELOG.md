@@ -17,6 +17,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Fixed an auto-reconnect deadlock where the app could remain stuck in
+  "Reconnecting..." after resume due to a canceled backoff delay never
+  completing.
 - Properly dispose the home page's MIDI connection listener to prevent duplicate
   events and potential memory leaks during navigation.
 
