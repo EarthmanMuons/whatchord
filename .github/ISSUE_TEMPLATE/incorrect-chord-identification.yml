@@ -1,7 +1,6 @@
 name: Incorrect chord identification
 description: Report a chord that WhatChord identified incorrectly
 labels:
-  - bug
   - identification
 body:
   - type: markdown
