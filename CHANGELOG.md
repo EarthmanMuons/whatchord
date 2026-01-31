@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Added a Support link in Settings > About for reporting issues or contacting
   support.
 
+### Changed
+
+- Refactored the Analysis Details view into a dedicated modal sheet with pinned
+  actions and improved content scrolling.
+
 ### Fixed
 
 - Fixed an auto-reconnect deadlock where the app could remain stuck in

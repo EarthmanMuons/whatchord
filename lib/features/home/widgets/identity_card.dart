@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/theory/theory.dart';
+
+import 'analysis_details_sheet.dart';
 
 class IdentityCard extends StatelessWidget {
   final IdentityDisplay? identity;
@@ -211,125 +211,6 @@ class IdentityCard extends StatelessWidget {
       );
     }
 
-    Future<void> showDetailsSheet(
-      BuildContext context,
-      IdentityDisplay d,
-    ) async {
-      final copyText = d.debugText?.trimRight();
-      final canCopy = copyText != null && copyText.isNotEmpty;
-
-      await showModalBottomSheet<void>(
-        context: context,
-        useSafeArea: true,
-        showDragHandle: true,
-        isScrollControlled: true,
-        builder: (context) {
-          final t = Theme.of(context);
-
-          return DraggableScrollableSheet(
-            expand: false,
-            initialChildSize: 0.55,
-            minChildSize: 0.35,
-            maxChildSize: 0.80,
-            builder: (context, controller) {
-              return Material(
-                child: ListView(
-                  controller: controller,
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                  children: [
-                    Text('Analysis Details', style: t.textTheme.titleLarge),
-                    const SizedBox(height: 16),
-
-                    // Plain English
-                    SelectableText(
-                      d.longLabel,
-                      style: t.textTheme.bodyLarge,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-
-                    if (!canCopy)
-                      Text(
-                        'No debug info available.',
-                        style: t.textTheme.bodyMedium,
-                      )
-                    else
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: t.colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: SelectableText(
-                            copyText,
-                            style: t.textTheme.bodyMedium,
-                          ),
-                        ),
-                      ),
-
-                    const SizedBox(height: 16),
-
-                    // Actions
-                    Row(
-                      children: [
-                        Expanded(
-                          child: FilledButton.icon(
-                            onPressed: canCopy
-                                ? () async {
-                                    await Clipboard.setData(
-                                      ClipboardData(text: copyText),
-                                    );
-                                  }
-                                : null,
-                            icon: const Icon(Icons.copy),
-                            label: const Text('Copy'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Semantics(
-                            button: true,
-                            label:
-                                'Report issue. Opens GitHub in your browser.',
-                            child: OutlinedButton.icon(
-                              onPressed: () {
-                                openUrl(
-                                  context,
-                                  Uri.parse(
-                                    'https://github.com/EarthmanMuons/whatchord/issues',
-                                  ),
-                                );
-                              },
-                              icon: const Icon(Icons.bug_report_outlined),
-                              label: const Row(
-                                children: [
-                                  Text('Report Issue'),
-                                  Spacer(),
-                                  Icon(Icons.open_in_new, size: 18),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 8),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Close'),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      );
-    }
-
     if (display == null) {
       // No identity; keep card inert.
       return Card(
@@ -351,7 +232,7 @@ class IdentityCard extends StatelessWidget {
       elevation: 0,
       color: cs.primary,
       child: InkWell(
-        onTap: () => showDetailsSheet(context, display),
+        onTap: () => showAnalysisDetailsSheet(context, identity: display),
         borderRadius: cardBorderRadius,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: minCardHeight),
