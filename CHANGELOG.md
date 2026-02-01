@@ -17,6 +17,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- Improved piano keyboard auto-scroll behavior to keep sounding notes visible in
+  a more stable and intentional way.
+- Chevron edge indicators now animate in and out smoothly and are temporarily
+  disabled during automatic scrolling.
+- Tapping a chevron will center all sounding notes when they fit in the
+  viewport.
 - Refactored the Analysis Details view into a dedicated modal sheet with pinned
   actions and improved content scrolling.
 - Improved MIDI auto-reconnect reliability by gating startup and resume
@@ -24,6 +30,14 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Fixed cases where piano edge chevrons appeared when no sounding notes were
+  actually off-screen.
+- Fixed chevrons sometimes pointing to the wrong notes or failing to reveal
+  hidden notes when tapped.
+- Fixed unexpected auto-scroll "jumps" after manual dragging of the piano
+  keyboard.
+- Fixed inconsistent scroll positioning when rotating the device or changing the
+  visible key count.
 - Fixed an auto-reconnect deadlock where the app could remain stuck in
   "Reconnecting..." after resume due to a canceled backoff delay never
   completing.
