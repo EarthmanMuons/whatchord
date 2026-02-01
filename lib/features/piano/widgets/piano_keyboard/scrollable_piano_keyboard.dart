@@ -164,7 +164,6 @@ class _ScrollablePianoKeyboardState
         }
         _recomputeEdgeState();
       }
-      _recomputeEdgeState();
     }
   }
 
@@ -236,7 +235,7 @@ class _ScrollablePianoKeyboardState
         _ctl.position.maxScrollExtent,
       );
 
-      _animateTo(target, duration: const Duration(milliseconds: 240));
+      _animateTo(target);
       return;
     } else {
       // Center Middle C (MIDI 60) when idle.
@@ -280,6 +279,9 @@ class _ScrollablePianoKeyboardState
 
   void _onUserScroll() {
     _lastUserScroll = DateTime.now();
+    // Reset diff baseline so follow logic doesn't interpret changes during the
+    // cooldown as a large "added" burst once suppression ends.
+    _lastSounding = Set<int>.from(widget.soundingMidiNotes);
   }
 
   bool get _followSuppressed =>
@@ -464,10 +466,9 @@ class _ScrollablePianoKeyboardState
       return;
     }
 
-    final viewport = context.size;
-    if (viewport == null || viewport.width <= 0) return;
+    final double? viewportW = _lastViewportW ?? context.size?.width;
+    if (viewportW == null || viewportW <= 0) return;
 
-    final viewportW = viewport.width;
     final whiteKeyW = _whiteKeyWForViewport(viewportW);
     final contentW = _contentWForWhiteKeyW(whiteKeyW);
     final geom = _buildGeometry();
@@ -480,7 +481,7 @@ class _ScrollablePianoKeyboardState
     final added = next.difference(prev);
     final removed = prev.difference(next);
 
-    // Update last set now that we’ve captured diffs.
+    // Update last set now that we've captured diffs.
     _lastSounding = Set<int>.from(next);
 
     // Decide whether anything is actually offscreen.

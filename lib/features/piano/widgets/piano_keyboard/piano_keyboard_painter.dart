@@ -54,23 +54,6 @@ class PianoKeyboardPainter extends CustomPainter {
 
   final PianoGeometry _geometry;
 
-  static const List<int> _whitePitchClassesInOctave = <int>[
-    0,
-    2,
-    4,
-    5,
-    7,
-    9,
-    11,
-  ];
-
-  int _whitePcForIndex(int whiteIndex) {
-    final startPc = firstMidiNote % 12;
-    final startPos = _whitePitchClassesInOctave.indexOf(startPc);
-    final normalizedStartPos = startPos < 0 ? 0 : startPos;
-    return _whitePitchClassesInOctave[(normalizedStartPos + whiteIndex) % 7];
-  }
-
   int _whiteMidiForIndex(int whiteIndex) =>
       _geometry.whiteMidiForIndex(whiteIndex);
 
@@ -117,7 +100,7 @@ class PianoKeyboardPainter extends CustomPainter {
     final blackFillPaint = Paint()..style = PaintingStyle.fill;
 
     for (int i = 0; i < whiteKeyCount - 1; i++) {
-      final whitePc = _whitePcForIndex(i);
+      final whitePc = _geometry.whitePitchClassForIndex(i);
       if (!PianoGeometry.hasBlackAfterWhitePc(whitePc)) continue;
 
       final whiteMidi = _whiteMidiForIndex(i);
