@@ -54,28 +54,6 @@ class PianoKeyboardPainter extends CustomPainter {
 
   final PianoGeometry _geometry;
 
-  static const double _blackKeyWidthRatio = 0.62;
-  static const double _blackKeyHeightRatio = 0.62;
-
-  // Bias magnitudes as fractions of white key width.
-  static const double _smallBlackKeyBiasRatio = 0.10; // C#, D#
-  static const double _largeBlackKeyBiasRatio = 0.15; // F#, A#
-
-  // MIDI pitch classes (C=0).
-  static const int _pcC = 0;
-  static const int _pcD = 2;
-  static const int _pcF = 5;
-  static const int _pcG = 7;
-  static const int _pcA = 9;
-
-  static bool _hasBlackAfterWhitePc(int whitePc) {
-    return whitePc == _pcC ||
-        whitePc == _pcD ||
-        whitePc == _pcF ||
-        whitePc == _pcG ||
-        whitePc == _pcA;
-  }
-
   static const List<int> _whitePitchClassesInOctave = <int>[
     0,
     2,
@@ -98,22 +76,6 @@ class PianoKeyboardPainter extends CustomPainter {
 
   bool _isSounding(int midi) => soundingMidiNotes.contains(midi);
 
-  double _blackCenterBiasForPc(int blackPc, double whiteKeyW) {
-    switch (blackPc) {
-      case 1: // C#
-        return -whiteKeyW * _smallBlackKeyBiasRatio;
-      case 3: // D#
-        return whiteKeyW * _smallBlackKeyBiasRatio;
-      case 6: // F#
-        return -whiteKeyW * _largeBlackKeyBiasRatio;
-      case 10: // A#
-        return whiteKeyW * _largeBlackKeyBiasRatio;
-      case 8: // G#
-      default:
-        return 0.0;
-    }
-  }
-
   @override
   void paint(Canvas canvas, Size size) {
     final w = size.width;
@@ -127,8 +89,8 @@ class PianoKeyboardPainter extends CustomPainter {
 
     final whiteKeyW = w / whiteKeyCount;
     final whiteKeyH = h;
-    final blackKeyW = whiteKeyW * _blackKeyWidthRatio;
-    final blackKeyH = whiteKeyH * _blackKeyHeightRatio;
+    final blackKeyW = whiteKeyW * PianoGeometry.blackKeyWidthRatio;
+    final blackKeyH = whiteKeyH * PianoGeometry.blackKeyHeightRatio;
 
     final whiteFillPaint = Paint()..style = PaintingStyle.fill;
     final whiteBorderPaint = Paint()
@@ -156,14 +118,15 @@ class PianoKeyboardPainter extends CustomPainter {
 
     for (int i = 0; i < whiteKeyCount - 1; i++) {
       final whitePc = _whitePcForIndex(i);
-      if (!_hasBlackAfterWhitePc(whitePc)) continue;
+      if (!PianoGeometry.hasBlackAfterWhitePc(whitePc)) continue;
 
       final whiteMidi = _whiteMidiForIndex(i);
       final blackMidi = whiteMidi + 1;
       final blackPc = blackMidi % 12;
 
       final boundaryX = (i + 1) * whiteKeyW;
-      final centerX = boundaryX + _blackCenterBiasForPc(blackPc, whiteKeyW);
+      final centerX =
+          boundaryX + PianoGeometry.blackCenterBiasForPc(blackPc, whiteKeyW);
 
       double blackLeft = centerX - (blackKeyW / 2.0);
       blackLeft = blackLeft.clamp(0.0, w - blackKeyW);
