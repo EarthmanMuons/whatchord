@@ -265,9 +265,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         unawaited(_midi.reconcileConnectedDevice(reason: 'tryAutoReconnect'));
       }
 
-      final ok = await _ensureBleAllowedOrPublishUnavailable(
-        contextMsg: 'Bluetooth permission is required to reconnect.',
-      );
+      final ok = await _ensureBleAllowedOrPublishUnavailable();
       if (!ok) {
         _cancelRetry();
         return;
@@ -436,11 +434,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     // If you're in backoff/retry UI, a manual refresh should cancel the timer.
     _cancelRetry();
 
-    final ok = await _ensureBleAllowedOrPublishUnavailable(
-      contextMsg: 'Bluetooth permission is required to scan for devices.',
-    );
+    final ok = await _ensureBleAllowedOrPublishUnavailable();
     if (!ok) {
-      throw MidiException(state.message ?? 'Bluetooth permission is required');
+      throw MidiException('Bluetooth unavailable (${state.unavailability})');
     }
 
     if (restartScan) {
@@ -454,11 +450,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<void> startScanning() async {
     _cancelRetry();
 
-    final ok = await _ensureBleAllowedOrPublishUnavailable(
-      contextMsg: 'Bluetooth permission is required to scan for devices.',
-    );
+    final ok = await _ensureBleAllowedOrPublishUnavailable();
     if (!ok) {
-      throw MidiException(state.message ?? 'Bluetooth permission is required');
+      throw MidiException('Bluetooth unavailable (${state.unavailability})');
     }
 
     await _midi.startScanning();
@@ -474,12 +468,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     // Cancel any backoff/retry loop; this is an explicit user action.
     _cancelRetry();
 
-    final ok = await _ensureBleAllowedOrPublishUnavailable(
-      contextMsg: 'Bluetooth permission is required to connect.',
-    );
+    final ok = await _ensureBleAllowedOrPublishUnavailable();
     if (!ok) {
-      state = state.copyWith(phase: MidiConnectionPhase.error, device: device);
-      throw MidiException(state.message ?? 'Bluetooth permission is required');
+      throw MidiException('Bluetooth unavailable (${state.unavailability})');
     }
 
     // Publish "connecting" with the specific device so UI can render per-row spinners.
@@ -525,9 +516,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     return connected?.isConnected == true;
   }
 
-  Future<bool> _ensureBleAllowedOrPublishUnavailable({
-    String? contextMsg,
-  }) async {
+  Future<bool> _ensureBleAllowedOrPublishUnavailable() async {
     final access = await _midi.ensureBleAccess();
     if (access.isReady) return true;
 
@@ -543,7 +532,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     state = state.copyWith(
       phase: MidiConnectionPhase.bluetoothUnavailable,
       unavailability: reason,
-      message: access.message ?? contextMsg,
+      message: null,
       attempt: 0,
       nextDelay: null,
     );
