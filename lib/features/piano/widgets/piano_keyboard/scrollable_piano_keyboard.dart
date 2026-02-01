@@ -94,6 +94,9 @@ class _ScrollablePianoKeyboardState
   // Cached edge indicator state; updated deterministically from scroll + note changes.
   _EdgeState _edge = _EdgeState.none;
 
+  // Most recent viewport width from LayoutBuilder.
+  double? _lastViewportW;
+
   // Single source of truth for edge behavior.
   static const double _edgeMargin = 12.0;
   static const double _edgeHysteresis = 4.0;
@@ -222,9 +225,9 @@ class _ScrollablePianoKeyboardState
     // If notes changed, consider recentering.
     if (!_setEquals(oldWidget.soundingMidiNotes, widget.soundingMidiNotes)) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _maybeFollow());
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _recomputeEdgeState(),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _recomputeEdgeState();
+      });
     }
 
     // If visible key count changed (rotation), keep things stable by recentering.
@@ -232,9 +235,9 @@ class _ScrollablePianoKeyboardState
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => _maybeFollow(force: true),
       );
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _recomputeEdgeState(),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _recomputeEdgeState();
+      });
     }
   }
 
@@ -319,11 +322,9 @@ class _ScrollablePianoKeyboardState
     return (leftMidi: leftMidi, rightMidi: rightMidi);
   }
 
-  void _recomputeEdgeState() {
-    // We need layout constraints; rely on the most recent build’s constraints via context.
-    // If size is not available yet, keep prior state.
-    final viewport = context.size;
-    if (viewport == null || viewport.width <= 0) return;
+  void _recomputeEdgeState({double? viewportW}) {
+    final double? w = viewportW ?? _lastViewportW;
+    if (w == null || w <= 0) return;
     if (!_ctl.hasClients) {
       if (_edge != _EdgeState.none) {
         setState(() => _edge = _EdgeState.none);
@@ -331,8 +332,7 @@ class _ScrollablePianoKeyboardState
       return;
     }
 
-    final viewportW = viewport.width;
-    final whiteKeyW = _whiteKeyWForViewport(viewportW);
+    final whiteKeyW = _whiteKeyWForViewport(w);
     final contentW = _contentWForWhiteKeyW(whiteKeyW);
     final geom = _buildGeometry();
 
@@ -345,7 +345,7 @@ class _ScrollablePianoKeyboardState
     }
 
     final viewLeft = _ctl.offset;
-    final viewRight = viewLeft + viewportW;
+    final viewRight = viewLeft + w;
 
     final bounds = _rangeBoundsForSounding(
       sounding: sounding,
@@ -398,7 +398,7 @@ class _ScrollablePianoKeyboardState
         whiteKeyW: whiteKeyW,
         totalWidth: contentW,
       );
-      rightTarget = (r.right - viewportW + _edgeMargin).clamp(
+      rightTarget = (r.right - w + _edgeMargin).clamp(
         0.0,
         _ctl.position.maxScrollExtent,
       );
@@ -679,6 +679,18 @@ class _ScrollablePianoKeyboardState
     return LayoutBuilder(
       builder: (context, constraints) {
         final viewportW = constraints.maxWidth;
+
+        // Capture the latest viewport width for deterministic edge-state computation.
+        // If it changes (rotation / resize), recompute after this frame.
+        final prevW = _lastViewportW;
+        if (prevW != viewportW) {
+          _lastViewportW = viewportW;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            _recomputeEdgeState(viewportW: viewportW);
+          });
+        }
+
         final whiteKeyW = viewportW / widget.visibleWhiteKeyCount;
         final contentW = whiteKeyW * widget.fullWhiteKeyCount;
 
