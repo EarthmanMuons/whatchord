@@ -98,6 +98,7 @@ class _ScrollablePianoKeyboardState
   static const double _edgeMargin = 12.0;
   static const double _edgeHysteresis = 4.0;
   static double get _edgeHideMargin => _edgeMargin - _edgeHysteresis;
+  static const double _minMeaningfulDelta = 12.0;
 
   @override
   void initState() {
@@ -244,48 +245,25 @@ class _ScrollablePianoKeyboardState
   bool get _followSuppressed =>
       DateTime.now().difference(_lastUserScroll) < widget.followCooldown;
 
-  void _recomputeEdgeState() {
-    // We need layout constraints; rely on the most recent build’s constraints via context.
-    // If size is not available yet, keep prior state.
-    final viewport = context.size;
-    if (viewport == null || viewport.width <= 0) return;
-    if (!_ctl.hasClients) {
-      if (_edge != _EdgeState.none) {
-        setState(() => _edge = _EdgeState.none);
-      }
-      return;
-    }
-
-    final viewportW = viewport.width;
-    final whiteKeyW = viewportW / widget.visibleWhiteKeyCount;
-    final contentW = whiteKeyW * widget.fullWhiteKeyCount;
-
-    final geom = PianoGeometry(
+  PianoGeometry _buildGeometry() {
+    return PianoGeometry(
       firstWhiteMidi: widget.fullFirstMidiNote,
       whiteKeyCount: widget.fullWhiteKeyCount,
     );
+  }
 
-    final sounding = widget.soundingMidiNotes;
-    if (sounding.isEmpty) {
-      if (_edge != _EdgeState.none) {
-        setState(() => _edge = _EdgeState.none);
-      }
-      return;
-    }
+  double _whiteKeyWForViewport(double viewportW) =>
+      viewportW / widget.visibleWhiteKeyCount;
 
-    final viewLeft = _ctl.offset;
-    final viewRight = viewLeft + viewportW;
+  double _contentWForWhiteKeyW(double whiteKeyW) =>
+      whiteKeyW * widget.fullWhiteKeyCount;
 
-    // Nearest offscreen candidates (closest to the viewport).
-    int? leftMidi;
-    double leftBest =
-        -double.infinity; // maximize rect.right (closest from left)
-
-    int? rightMidi;
-    double rightBest =
-        double.infinity; // minimize rect.left (closest from right)
-
-    // Range bounds (useful for debugging and future follow unification).
+  ({double minX, double maxX}) _rangeBoundsForSounding({
+    required Set<int> sounding,
+    required PianoGeometry geom,
+    required double whiteKeyW,
+    required double contentW,
+  }) {
     double minX = double.infinity;
     double maxX = -double.infinity;
 
@@ -295,9 +273,35 @@ class _ScrollablePianoKeyboardState
         whiteKeyW: whiteKeyW,
         totalWidth: contentW,
       );
-
       minX = math.min(minX, r.left);
       maxX = math.max(maxX, r.right);
+    }
+
+    return (minX: minX, maxX: maxX);
+  }
+
+  ({int? leftMidi, int? rightMidi}) _nearestOffscreenCandidates({
+    required Set<int> sounding,
+    required PianoGeometry geom,
+    required double whiteKeyW,
+    required double contentW,
+    required double viewLeft,
+    required double viewRight,
+  }) {
+    int? leftMidi;
+    double leftBest =
+        -double.infinity; // maximize rect.right (closest from left)
+
+    int? rightMidi;
+    double rightBest =
+        double.infinity; // minimize rect.left (closest from right)
+
+    for (final midi in sounding) {
+      final r = geom.keyRectForMidi(
+        midi: midi,
+        whiteKeyW: whiteKeyW,
+        totalWidth: contentW,
+      );
 
       final offLeft = r.right < (viewLeft + _edgeMargin);
       if (offLeft && r.right > leftBest) {
@@ -311,6 +315,57 @@ class _ScrollablePianoKeyboardState
         rightMidi = midi;
       }
     }
+
+    return (leftMidi: leftMidi, rightMidi: rightMidi);
+  }
+
+  void _recomputeEdgeState() {
+    // We need layout constraints; rely on the most recent build’s constraints via context.
+    // If size is not available yet, keep prior state.
+    final viewport = context.size;
+    if (viewport == null || viewport.width <= 0) return;
+    if (!_ctl.hasClients) {
+      if (_edge != _EdgeState.none) {
+        setState(() => _edge = _EdgeState.none);
+      }
+      return;
+    }
+
+    final viewportW = viewport.width;
+    final whiteKeyW = _whiteKeyWForViewport(viewportW);
+    final contentW = _contentWForWhiteKeyW(whiteKeyW);
+    final geom = _buildGeometry();
+
+    final sounding = widget.soundingMidiNotes;
+    if (sounding.isEmpty) {
+      if (_edge != _EdgeState.none) {
+        setState(() => _edge = _EdgeState.none);
+      }
+      return;
+    }
+
+    final viewLeft = _ctl.offset;
+    final viewRight = viewLeft + viewportW;
+
+    final bounds = _rangeBoundsForSounding(
+      sounding: sounding,
+      geom: geom,
+      whiteKeyW: whiteKeyW,
+      contentW: contentW,
+    );
+    final minX = bounds.minX;
+    final maxX = bounds.maxX;
+
+    final nearest = _nearestOffscreenCandidates(
+      sounding: sounding,
+      geom: geom,
+      whiteKeyW: whiteKeyW,
+      contentW: contentW,
+      viewLeft: viewLeft,
+      viewRight: viewRight,
+    );
+    final leftMidi = nearest.leftMidi;
+    final rightMidi = nearest.rightMidi;
 
     // Hysteresis: use a wider threshold to turn indicators on, and a slightly
     // tighter threshold to turn them off. This avoids flicker when notes hover
@@ -387,22 +442,13 @@ class _ScrollablePianoKeyboardState
       return;
     }
 
-    // We need viewport width and derived white key width.
     final viewport = context.size;
     if (viewport == null || viewport.width <= 0) return;
 
     final viewportW = viewport.width;
-    final whiteKeyW = viewportW / widget.visibleWhiteKeyCount;
-
-    final geom = PianoGeometry(
-      firstWhiteMidi: widget.fullFirstMidiNote,
-      whiteKeyCount: widget.fullWhiteKeyCount,
-    );
-
-    double xForMidi(int midi) {
-      final idx = geom.whiteIndexForMidi(midi);
-      return idx * whiteKeyW;
-    }
+    final whiteKeyW = _whiteKeyWForViewport(viewportW);
+    final contentW = _contentWForWhiteKeyW(whiteKeyW);
+    final geom = _buildGeometry();
 
     final viewLeft = _ctl.offset;
     final viewRight = viewLeft + viewportW;
@@ -415,138 +461,25 @@ class _ScrollablePianoKeyboardState
     // Update last set now that we’ve captured diffs.
     _lastSounding = Set<int>.from(next);
 
-    // If forced (rotation), ignore diff semantics and use range logic.
-    if (force || (added.isEmpty && removed.isEmpty)) {
-      _followByRange(
-        next,
-        xForMidi,
-        viewportW,
-        _edgeMargin,
-        viewLeft,
-        viewRight,
-        whiteKeyW,
-        force: force,
-      );
-      return;
-    }
+    // Decide whether anything is actually offscreen.
+    final bounds = _rangeBoundsForSounding(
+      sounding: next,
+      geom: geom,
+      whiteKeyW: whiteKeyW,
+      contentW: contentW,
+    );
 
-    // Prefer reacting to newly added notes (most "natural" user intent signal).
-    if (added.isNotEmpty) {
-      int? targetMidi;
-
-      int minAdded = added.first;
-      int maxAdded = added.first;
-      for (final m in added) {
-        if (m < minAdded) minAdded = m;
-        if (m > maxAdded) maxAdded = m;
-      }
-
-      final minAddedX = xForMidi(minAdded);
-      final maxAddedX = xForMidi(maxAdded) + whiteKeyW;
-
-      final addedOffLeft = minAddedX < (viewLeft + _edgeMargin);
-      final addedOffRight = maxAddedX > (viewRight - _edgeMargin);
-
-      if (addedOffLeft) {
-        targetMidi = minAdded;
-      } else if (addedOffRight) {
-        targetMidi = maxAdded;
-      } else {
-        return;
-      }
-
-      final minMidi = next.reduce(math.min);
-      final maxMidi = next.reduce(math.max);
-
-      final minX = xForMidi(minMidi);
-      final maxX = xForMidi(maxMidi) + whiteKeyW;
-      final spreadW = maxX - minX;
-
-      if (spreadW <= (viewportW - 2 * _edgeMargin)) {
-        final centerX = (minX + maxX) / 2.0;
-        final target = (centerX - viewportW / 2.0).clamp(
-          0.0,
-          _ctl.position.maxScrollExtent,
-        );
-
-        final delta = (target - _ctl.offset).abs();
-        if (delta < 12.0) return;
-
-        _ctl.animateTo(
-          target,
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOutCubic,
-        );
-        return;
-      }
-
-      final tX = xForMidi(targetMidi);
-      final tRightX = tX + whiteKeyW;
-
-      final offLeft = tX < (viewLeft + _edgeMargin);
-      final offRight = tRightX > (viewRight - _edgeMargin);
-
-      if (!offLeft && !offRight) return;
-
-      double target;
-      if (offLeft) {
-        target = (tX - _edgeMargin).clamp(0.0, _ctl.position.maxScrollExtent);
-      } else {
-        target = (tRightX - viewportW + _edgeMargin).clamp(
-          0.0,
-          _ctl.position.maxScrollExtent,
-        );
-      }
-
-      final delta = (target - _ctl.offset).abs();
-      if (delta < 12.0) return;
-
-      _ctl.animateTo(
-        target,
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-      );
-      return;
-    }
-
-    if (removed.isNotEmpty) {
-      _maybeReanchorAfterRemoval(
-        next,
-        xForMidi,
-        viewportW,
-        _edgeMargin,
-        viewLeft,
-        viewRight,
-        whiteKeyW,
-      );
-    }
-  }
-
-  void _followByRange(
-    Set<int> sounding,
-    double Function(int midi) xForMidi,
-    double viewportW,
-    double edgeMargin,
-    double viewLeft,
-    double viewRight,
-    double whiteKeyW, {
-    required bool force,
-  }) {
-    if (sounding.isEmpty) return;
-
-    final minMidi = sounding.reduce(math.min);
-    final maxMidi = sounding.reduce(math.max);
-
-    final minX = xForMidi(minMidi);
-    final maxX = xForMidi(maxMidi) + whiteKeyW;
+    final minX = bounds.minX;
+    final maxX = bounds.maxX;
     final spreadW = maxX - minX;
 
-    final offLeft = minX < (viewLeft + edgeMargin);
-    final offRight = maxX > (viewRight - edgeMargin);
+    final offLeft = minX < (viewLeft + _edgeMargin);
+    final offRight = maxX > (viewRight - _edgeMargin);
 
-    if (!offLeft && !offRight) return;
+    if (!offLeft && !offRight && !force) return;
 
-    if (spreadW <= (viewportW - 2 * edgeMargin)) {
+    // If the full range fits within the viewport (minus margins), center it.
+    if (spreadW <= (viewportW - 2 * _edgeMargin)) {
       final centerX = (minX + maxX) / 2.0;
       final target = (centerX - viewportW / 2.0).clamp(
         0.0,
@@ -554,7 +487,7 @@ class _ScrollablePianoKeyboardState
       );
 
       final delta = (target - _ctl.offset).abs();
-      if (!force && delta < 12.0) return;
+      if (!force && delta < _minMeaningfulDelta) return;
 
       _ctl.animateTo(
         target,
@@ -564,20 +497,115 @@ class _ScrollablePianoKeyboardState
       return;
     }
 
-    if (offLeft && offRight) return;
+    // If both sides are offscreen and the range doesn't fit, don't chase the range.
+    // Prefer newly-added notes; otherwise stay stable (unless forced).
+    if (offLeft && offRight && !force) {
+      if (added.isEmpty && removed.isNotEmpty) {
+        _maybeReanchorAfterRemoval(
+          next,
+          geom,
+          viewportW,
+          whiteKeyW,
+          contentW,
+          viewLeft,
+          viewRight,
+        );
+      }
+      return;
+    }
 
-    double target;
-    if (offLeft) {
-      target = (minX - edgeMargin).clamp(0.0, _ctl.position.maxScrollExtent);
-    } else {
-      target = (maxX - viewportW + edgeMargin).clamp(
+    // Prefer reacting to newly added notes if they are offscreen.
+    if (added.isNotEmpty && !force) {
+      final addedNearest = _nearestOffscreenCandidates(
+        sounding: added,
+        geom: geom,
+        whiteKeyW: whiteKeyW,
+        contentW: contentW,
+        viewLeft: viewLeft,
+        viewRight: viewRight,
+      );
+
+      final addedLeft = addedNearest.leftMidi;
+      final addedRight = addedNearest.rightMidi;
+
+      if (addedLeft != null) {
+        final r = geom.keyRectForMidi(
+          midi: addedLeft,
+          whiteKeyW: whiteKeyW,
+          totalWidth: contentW,
+        );
+        final target = (r.left - _edgeMargin).clamp(
+          0.0,
+          _ctl.position.maxScrollExtent,
+        );
+        final delta = (target - _ctl.offset).abs();
+        if (delta >= _minMeaningfulDelta) {
+          _ctl.animateTo(
+            target,
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+          );
+        }
+        return;
+      }
+
+      if (addedRight != null) {
+        final r = geom.keyRectForMidi(
+          midi: addedRight,
+          whiteKeyW: whiteKeyW,
+          totalWidth: contentW,
+        );
+        final target = (r.right - viewportW + _edgeMargin).clamp(
+          0.0,
+          _ctl.position.maxScrollExtent,
+        );
+        final delta = (target - _ctl.offset).abs();
+        if (delta >= _minMeaningfulDelta) {
+          _ctl.animateTo(
+            target,
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+          );
+        }
+        return;
+      }
+    }
+
+    // Otherwise reveal the nearest offscreen sounding key on the side that is offscreen.
+    final nearest = _nearestOffscreenCandidates(
+      sounding: next,
+      geom: geom,
+      whiteKeyW: whiteKeyW,
+      contentW: contentW,
+      viewLeft: viewLeft,
+      viewRight: viewRight,
+    );
+
+    double? target;
+    if (offLeft && nearest.leftMidi != null) {
+      final int midi = nearest.leftMidi!;
+      final r = geom.keyRectForMidi(
+        midi: midi,
+        whiteKeyW: whiteKeyW,
+        totalWidth: contentW,
+      );
+      target = (r.left - _edgeMargin).clamp(0.0, _ctl.position.maxScrollExtent);
+    } else if (offRight && nearest.rightMidi != null) {
+      final int midi = nearest.rightMidi!;
+      final r = geom.keyRectForMidi(
+        midi: midi,
+        whiteKeyW: whiteKeyW,
+        totalWidth: contentW,
+      );
+      target = (r.right - viewportW + _edgeMargin).clamp(
         0.0,
         _ctl.position.maxScrollExtent,
       );
     }
 
+    if (target == null) return;
     final delta = (target - _ctl.offset).abs();
-    if (!force && delta < 12.0) return;
+    if (!force && delta < _minMeaningfulDelta) return;
 
     _ctl.animateTo(
       target,
@@ -588,32 +616,39 @@ class _ScrollablePianoKeyboardState
 
   void _maybeReanchorAfterRemoval(
     Set<int> sounding,
-    double Function(int midi) xForMidi,
+    PianoGeometry geom,
     double viewportW,
-    double edgeMargin,
+    double whiteKeyW,
+    double contentW,
     double viewLeft,
     double viewRight,
-    double whiteKeyW,
   ) {
     if (sounding.isEmpty) return;
 
     int visibleCount = 0;
     for (final midi in sounding) {
-      final x = xForMidi(midi);
-      final r = x + whiteKeyW;
+      final rect = geom.keyRectForMidi(
+        midi: midi,
+        whiteKeyW: whiteKeyW,
+        totalWidth: contentW,
+      );
       final visible =
-          r > (viewLeft + edgeMargin) && x < (viewRight - edgeMargin);
+          rect.right > (viewLeft + _edgeMargin) &&
+          rect.left < (viewRight - _edgeMargin);
       if (visible) visibleCount++;
     }
 
     final ratio = visibleCount / sounding.length;
     if (ratio >= 0.34) return;
 
-    final minMidi = sounding.reduce(math.min);
-    final maxMidi = sounding.reduce(math.max);
-
-    final minX = xForMidi(minMidi);
-    final maxX = xForMidi(maxMidi) + whiteKeyW;
+    final bounds = _rangeBoundsForSounding(
+      sounding: sounding,
+      geom: geom,
+      whiteKeyW: whiteKeyW,
+      contentW: contentW,
+    );
+    final minX = bounds.minX;
+    final maxX = bounds.maxX;
 
     final viewCenter = (viewLeft + viewRight) / 2.0;
     final distToLeft = (viewCenter - (minX + whiteKeyW / 2.0)).abs();
@@ -621,16 +656,16 @@ class _ScrollablePianoKeyboardState
 
     double target;
     if (distToRight < distToLeft) {
-      target = (maxX - viewportW + edgeMargin).clamp(
+      target = (maxX - viewportW + _edgeMargin).clamp(
         0.0,
         _ctl.position.maxScrollExtent,
       );
     } else {
-      target = (minX - edgeMargin).clamp(0.0, _ctl.position.maxScrollExtent);
+      target = (minX - _edgeMargin).clamp(0.0, _ctl.position.maxScrollExtent);
     }
 
     final delta = (target - _ctl.offset).abs();
-    if (delta < 12.0) return;
+    if (delta < _minMeaningfulDelta) return;
 
     _ctl.animateTo(
       target,
