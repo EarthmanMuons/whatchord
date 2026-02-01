@@ -453,11 +453,6 @@ class _ScrollablePianoKeyboardState
     }
   }
 
-  void _scrollToEdgeTarget(double? target) {
-    if (target == null) return;
-    _animateTo(target);
-  }
-
   void _maybeFollow({bool force = false}) {
     if (!mounted) return;
     if (!widget.followInput && !force) return;
@@ -681,6 +676,51 @@ class _ScrollablePianoKeyboardState
     _animateTo(target);
   }
 
+  Future<void> _handleChevronTap(AxisDirection direction) async {
+    if (!mounted) return;
+    if (_isAutoScrolling) return;
+    if (!_ctl.hasClients) return;
+
+    final sounding = widget.soundingMidiNotes;
+    if (sounding.isEmpty) return;
+
+    final double? viewportW = _lastViewportW ?? context.size?.width;
+    if (viewportW == null || viewportW <= 0) return;
+
+    final whiteKeyW = _whiteKeyWForViewport(viewportW);
+    final contentW = _contentWForWhiteKeyW(whiteKeyW);
+    final geom = _buildGeometry();
+
+    final bounds = _rangeBoundsForSounding(
+      sounding: sounding,
+      geom: geom,
+      whiteKeyW: whiteKeyW,
+      contentW: contentW,
+    );
+
+    final minX = bounds.minX;
+    final maxX = bounds.maxX;
+    final spreadW = maxX - minX;
+
+    // First preference: if the sounding range fits, center it.
+    if (spreadW <= (viewportW - 2 * _edgeMargin)) {
+      final centerX = (minX + maxX) / 2.0;
+      final target = (centerX - viewportW / 2.0).clamp(
+        0.0,
+        _ctl.position.maxScrollExtent,
+      );
+      await _animateTo(target);
+      return;
+    }
+
+    // Otherwise: reveal the nearest hidden note on the tapped side.
+    final fallbackTarget = direction == AxisDirection.left
+        ? _edge.leftTarget
+        : _edge.rightTarget;
+    if (fallbackTarget == null) return;
+    await _animateTo(fallbackTarget);
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -760,7 +800,7 @@ class _ScrollablePianoKeyboardState
                   direction: AxisDirection.left,
                   visible: _edge.showLeft,
                   enabled: !_isAutoScrolling,
-                  onTap: () => _scrollToEdgeTarget(_edge.leftTarget),
+                  onTap: () => _handleChevronTap(AxisDirection.left),
                 ),
               ),
               Positioned(
@@ -771,7 +811,7 @@ class _ScrollablePianoKeyboardState
                   direction: AxisDirection.right,
                   visible: _edge.showRight,
                   enabled: !_isAutoScrolling,
-                  onTap: () => _scrollToEdgeTarget(_edge.rightTarget),
+                  onTap: () => _handleChevronTap(AxisDirection.right),
                 ),
               ),
             ],
