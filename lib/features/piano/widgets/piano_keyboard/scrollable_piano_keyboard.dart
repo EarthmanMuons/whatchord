@@ -97,6 +97,9 @@ class _ScrollablePianoKeyboardState
   // Most recent viewport width from LayoutBuilder.
   double? _lastViewportW;
 
+  // True while a programmatic scroll animation is in flight.
+  bool _isAutoScrolling = false;
+
   // Single source of truth for edge behavior.
   static const double _edgeMargin = 12.0;
   static const double _edgeHysteresis = 4.0;
@@ -134,6 +137,35 @@ class _ScrollablePianoKeyboardState
   void _onScrollOffsetChanged() {
     if (!mounted) return;
     _recomputeEdgeState();
+  }
+
+  Future<void> _animateTo(
+    double target, {
+    Duration duration = const Duration(milliseconds: 220),
+    Curve curve = Curves.easeOutCubic,
+  }) async {
+    if (!mounted) return;
+    if (!_ctl.hasClients) return;
+
+    final clamped = target.clamp(0.0, _ctl.position.maxScrollExtent);
+    final delta = (clamped - _ctl.offset).abs();
+    if (delta < 1.0) return;
+
+    if (!_isAutoScrolling) {
+      setState(() => _isAutoScrolling = true);
+    }
+
+    try {
+      await _ctl.animateTo(clamped, duration: duration, curve: curve);
+    } finally {
+      if (mounted) {
+        if (_isAutoScrolling) {
+          setState(() => _isAutoScrolling = false);
+        }
+        _recomputeEdgeState();
+      }
+      _recomputeEdgeState();
+    }
   }
 
   void _scheduleInitialCenter() {
@@ -211,11 +243,7 @@ class _ScrollablePianoKeyboardState
       _ctl.position.maxScrollExtent,
     );
 
-    _ctl.animateTo(
-      target,
-      duration: const Duration(milliseconds: 240),
-      curve: Curves.easeOutCubic,
-    );
+    _animateTo(target);
   }
 
   @override
@@ -417,18 +445,8 @@ class _ScrollablePianoKeyboardState
   }
 
   void _scrollToEdgeTarget(double? target) {
-    if (!mounted) return;
     if (target == null) return;
-    if (!_ctl.hasClients) return;
-
-    final delta = (target - _ctl.offset).abs();
-    if (delta < 1.0) return;
-
-    _ctl.animateTo(
-      target,
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-    );
+    _animateTo(target);
   }
 
   void _maybeFollow({bool force = false}) {
@@ -489,11 +507,7 @@ class _ScrollablePianoKeyboardState
       final delta = (target - _ctl.offset).abs();
       if (!force && delta < _minMeaningfulDelta) return;
 
-      _ctl.animateTo(
-        target,
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-      );
+      _animateTo(target);
       return;
     }
 
@@ -540,11 +554,7 @@ class _ScrollablePianoKeyboardState
         );
         final delta = (target - _ctl.offset).abs();
         if (delta >= _minMeaningfulDelta) {
-          _ctl.animateTo(
-            target,
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
-          );
+          _animateTo(target);
         }
         return;
       }
@@ -561,11 +571,7 @@ class _ScrollablePianoKeyboardState
         );
         final delta = (target - _ctl.offset).abs();
         if (delta >= _minMeaningfulDelta) {
-          _ctl.animateTo(
-            target,
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
-          );
+          _animateTo(target);
         }
         return;
       }
@@ -607,11 +613,7 @@ class _ScrollablePianoKeyboardState
     final delta = (target - _ctl.offset).abs();
     if (!force && delta < _minMeaningfulDelta) return;
 
-    _ctl.animateTo(
-      target,
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-    );
+    _animateTo(target);
   }
 
   void _maybeReanchorAfterRemoval(
@@ -667,11 +669,7 @@ class _ScrollablePianoKeyboardState
     final delta = (target - _ctl.offset).abs();
     if (delta < _minMeaningfulDelta) return;
 
-    _ctl.animateTo(
-      target,
-      duration: const Duration(milliseconds: 220),
-      curve: Curves.easeOutCubic,
-    );
+    _animateTo(target);
   }
 
   @override
@@ -745,26 +743,28 @@ class _ScrollablePianoKeyboardState
                   ),
                 ),
               ),
-              if (_edge.showLeft)
-                Positioned(
-                  left: 6,
-                  top: 0,
-                  bottom: 0,
-                  child: _EdgeIndicator(
-                    direction: AxisDirection.left,
-                    onTap: () => _scrollToEdgeTarget(_edge.leftTarget),
-                  ),
+              Positioned(
+                left: 6,
+                top: 0,
+                bottom: 0,
+                child: _EdgeIndicator(
+                  direction: AxisDirection.left,
+                  visible: _edge.showLeft,
+                  enabled: !_isAutoScrolling,
+                  onTap: () => _scrollToEdgeTarget(_edge.leftTarget),
                 ),
-              if (_edge.showRight)
-                Positioned(
-                  right: 6,
-                  top: 0,
-                  bottom: 0,
-                  child: _EdgeIndicator(
-                    direction: AxisDirection.right,
-                    onTap: () => _scrollToEdgeTarget(_edge.rightTarget),
-                  ),
+              ),
+              Positioned(
+                right: 6,
+                top: 0,
+                bottom: 0,
+                child: _EdgeIndicator(
+                  direction: AxisDirection.right,
+                  visible: _edge.showRight,
+                  enabled: !_isAutoScrolling,
+                  onTap: () => _scrollToEdgeTarget(_edge.rightTarget),
                 ),
+              ),
             ],
           ),
         );
@@ -783,9 +783,16 @@ class _ScrollablePianoKeyboardState
 }
 
 class _EdgeIndicator extends StatelessWidget {
-  const _EdgeIndicator({required this.direction, required this.onTap});
+  const _EdgeIndicator({
+    required this.direction,
+    required this.visible,
+    required this.enabled,
+    required this.onTap,
+  });
 
   final AxisDirection direction;
+  final bool visible;
+  final bool enabled;
   final VoidCallback onTap;
 
   @override
@@ -796,19 +803,40 @@ class _EdgeIndicator extends StatelessWidget {
         ? Icons.chevron_left
         : Icons.chevron_right;
 
-    return Center(
-      child: Material(
-        color: cs.surface.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-            child: Icon(
-              icon,
-              size: 20,
-              color: cs.onSurfaceVariant.withValues(alpha: 0.85),
+    final showOpacity = visible ? 1.0 : 0.0;
+    final showScale = visible ? 1.0 : 0.92;
+
+    return IgnorePointer(
+      ignoring: !visible || !enabled,
+      child: AnimatedOpacity(
+        opacity: showOpacity,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOutCubic,
+        child: AnimatedScale(
+          scale: showScale,
+          duration: const Duration(milliseconds: 140),
+          curve: Curves.easeOutCubic,
+          child: Center(
+            child: Material(
+              color: cs.surface.withValues(alpha: enabled ? 0.55 : 0.40),
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: enabled ? onTap : null,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 6,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 20,
+                    color: cs.onSurfaceVariant.withValues(
+                      alpha: enabled ? 0.85 : 0.55,
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
