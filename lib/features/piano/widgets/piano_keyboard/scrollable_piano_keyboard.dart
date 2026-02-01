@@ -9,6 +9,36 @@ import '../../models/piano_key_decoration.dart';
 import '../../services/piano_geometry.dart';
 import 'piano_keyboard.dart';
 
+@immutable
+class _EdgeState {
+  final bool showLeft;
+  final bool showRight;
+  final double? leftTarget;
+  final double? rightTarget;
+
+  const _EdgeState({
+    required this.showLeft,
+    required this.showRight,
+    this.leftTarget,
+    this.rightTarget,
+  });
+
+  static const none = _EdgeState(showLeft: false, showRight: false);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _EdgeState &&
+          runtimeType == other.runtimeType &&
+          showLeft == other.showLeft &&
+          showRight == other.showRight &&
+          leftTarget == other.leftTarget &&
+          rightTarget == other.rightTarget;
+
+  @override
+  int get hashCode => Object.hash(showLeft, showRight, leftTarget, rightTarget);
+}
+
 class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
   const ScrollablePianoKeyboard({
     super.key,
@@ -59,16 +89,47 @@ class _ScrollablePianoKeyboardState
   DateTime _lastUserScroll = DateTime.fromMillisecondsSinceEpoch(0);
   Set<int> _lastSounding = const <int>{};
 
+  ProviderSubscription<bool>? _idleSubscription;
+
+  // Cached edge indicator state; updated deterministically from scroll + note changes.
+  _EdgeState _edge = _EdgeState.none;
+
+  // Single source of truth for edge behavior.
+  static const double _edgeMargin = 12.0;
+  static const double _edgeHysteresis = 4.0;
+  static double get _edgeHideMargin => _edgeMargin - _edgeHysteresis;
+
   @override
   void initState() {
     super.initState();
+    _ctl.addListener(_onScrollOffsetChanged);
+
+    _idleSubscription = ref.listenManual<bool>(inputIdleEligibleProvider, (
+      prev,
+      next,
+    ) {
+      final becameEligible = next == true && prev != true;
+      if (!becameEligible) return;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _tryCenterWhenReady(retries: 8);
+      });
+    });
+
     _scheduleInitialCenter();
   }
 
   @override
   void dispose() {
+    _idleSubscription?.close();
+    _ctl.removeListener(_onScrollOffsetChanged);
     _ctl.dispose();
     super.dispose();
+  }
+
+  void _onScrollOffsetChanged() {
+    if (!mounted) return;
+    _recomputeEdgeState();
   }
 
   void _scheduleInitialCenter() {
@@ -160,12 +221,18 @@ class _ScrollablePianoKeyboardState
     // If notes changed, consider recentering.
     if (!_setEquals(oldWidget.soundingMidiNotes, widget.soundingMidiNotes)) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _maybeFollow());
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _recomputeEdgeState(),
+      );
     }
 
     // If visible key count changed (rotation), keep things stable by recentering.
     if (oldWidget.visibleWhiteKeyCount != widget.visibleWhiteKeyCount) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => _maybeFollow(force: true),
+      );
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _recomputeEdgeState(),
       );
     }
   }
@@ -176,6 +243,138 @@ class _ScrollablePianoKeyboardState
 
   bool get _followSuppressed =>
       DateTime.now().difference(_lastUserScroll) < widget.followCooldown;
+
+  void _recomputeEdgeState() {
+    // We need layout constraints; rely on the most recent build’s constraints via context.
+    // If size is not available yet, keep prior state.
+    final viewport = context.size;
+    if (viewport == null || viewport.width <= 0) return;
+    if (!_ctl.hasClients) {
+      if (_edge != _EdgeState.none) {
+        setState(() => _edge = _EdgeState.none);
+      }
+      return;
+    }
+
+    final viewportW = viewport.width;
+    final whiteKeyW = viewportW / widget.visibleWhiteKeyCount;
+    final contentW = whiteKeyW * widget.fullWhiteKeyCount;
+
+    final geom = PianoGeometry(
+      firstWhiteMidi: widget.fullFirstMidiNote,
+      whiteKeyCount: widget.fullWhiteKeyCount,
+    );
+
+    final sounding = widget.soundingMidiNotes;
+    if (sounding.isEmpty) {
+      if (_edge != _EdgeState.none) {
+        setState(() => _edge = _EdgeState.none);
+      }
+      return;
+    }
+
+    final viewLeft = _ctl.offset;
+    final viewRight = viewLeft + viewportW;
+
+    // Nearest offscreen candidates (closest to the viewport).
+    int? leftMidi;
+    double leftBest =
+        -double.infinity; // maximize rect.right (closest from left)
+
+    int? rightMidi;
+    double rightBest =
+        double.infinity; // minimize rect.left (closest from right)
+
+    // Range bounds (useful for debugging and future follow unification).
+    double minX = double.infinity;
+    double maxX = -double.infinity;
+
+    for (final midi in sounding) {
+      final r = geom.keyRectForMidi(
+        midi: midi,
+        whiteKeyW: whiteKeyW,
+        totalWidth: contentW,
+      );
+
+      minX = math.min(minX, r.left);
+      maxX = math.max(maxX, r.right);
+
+      final offLeft = r.right < (viewLeft + _edgeMargin);
+      if (offLeft && r.right > leftBest) {
+        leftBest = r.right;
+        leftMidi = midi;
+      }
+
+      final offRight = r.left > (viewRight - _edgeMargin);
+      if (offRight && r.left < rightBest) {
+        rightBest = r.left;
+        rightMidi = midi;
+      }
+    }
+
+    // Hysteresis: use a wider threshold to turn indicators on, and a slightly
+    // tighter threshold to turn them off. This avoids flicker when notes hover
+    // near the viewport edge during animated scroll.
+    final showLeft = _edge.showLeft
+        ? (leftMidi != null && minX < (viewLeft + _edgeHideMargin))
+        : (leftMidi != null && minX < (viewLeft + _edgeMargin));
+
+    final showRight = _edge.showRight
+        ? (rightMidi != null && maxX > (viewRight - _edgeHideMargin))
+        : (rightMidi != null && maxX > (viewRight - _edgeMargin));
+
+    double? leftTarget;
+    if (showLeft) {
+      final r = geom.keyRectForMidi(
+        midi: leftMidi,
+        whiteKeyW: whiteKeyW,
+        totalWidth: contentW,
+      );
+      leftTarget = (r.left - _edgeMargin).clamp(
+        0.0,
+        _ctl.position.maxScrollExtent,
+      );
+    }
+
+    double? rightTarget;
+    if (showRight) {
+      final r = geom.keyRectForMidi(
+        midi: rightMidi,
+        whiteKeyW: whiteKeyW,
+        totalWidth: contentW,
+      );
+      rightTarget = (r.right - viewportW + _edgeMargin).clamp(
+        0.0,
+        _ctl.position.maxScrollExtent,
+      );
+    }
+
+    final next = _EdgeState(
+      showLeft: showLeft,
+      showRight: showRight,
+      leftTarget: leftTarget,
+      rightTarget: rightTarget,
+    );
+
+    if (next != _edge) {
+      setState(() => _edge = next);
+    }
+  }
+
+  void _scrollToEdgeTarget(double? target) {
+    if (!mounted) return;
+    if (target == null) return;
+    if (!_ctl.hasClients) return;
+
+    final delta = (target - _ctl.offset).abs();
+    if (delta < 1.0) return;
+
+    _ctl.animateTo(
+      target,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+    );
+  }
 
   void _maybeFollow({bool force = false}) {
     if (!mounted) return;
@@ -205,8 +404,6 @@ class _ScrollablePianoKeyboardState
       return idx * whiteKeyW;
     }
 
-    const edgeMargin = 12.0;
-
     final viewLeft = _ctl.offset;
     final viewRight = viewLeft + viewportW;
 
@@ -224,7 +421,7 @@ class _ScrollablePianoKeyboardState
         next,
         xForMidi,
         viewportW,
-        edgeMargin,
+        _edgeMargin,
         viewLeft,
         viewRight,
         whiteKeyW,
@@ -247,8 +444,8 @@ class _ScrollablePianoKeyboardState
       final minAddedX = xForMidi(minAdded);
       final maxAddedX = xForMidi(maxAdded) + whiteKeyW;
 
-      final addedOffLeft = minAddedX < (viewLeft + edgeMargin);
-      final addedOffRight = maxAddedX > (viewRight - edgeMargin);
+      final addedOffLeft = minAddedX < (viewLeft + _edgeMargin);
+      final addedOffRight = maxAddedX > (viewRight - _edgeMargin);
 
       if (addedOffLeft) {
         targetMidi = minAdded;
@@ -265,7 +462,7 @@ class _ScrollablePianoKeyboardState
       final maxX = xForMidi(maxMidi) + whiteKeyW;
       final spreadW = maxX - minX;
 
-      if (spreadW <= (viewportW - 2 * edgeMargin)) {
+      if (spreadW <= (viewportW - 2 * _edgeMargin)) {
         final centerX = (minX + maxX) / 2.0;
         final target = (centerX - viewportW / 2.0).clamp(
           0.0,
@@ -286,16 +483,16 @@ class _ScrollablePianoKeyboardState
       final tX = xForMidi(targetMidi);
       final tRightX = tX + whiteKeyW;
 
-      final offLeft = tX < (viewLeft + edgeMargin);
-      final offRight = tRightX > (viewRight - edgeMargin);
+      final offLeft = tX < (viewLeft + _edgeMargin);
+      final offRight = tRightX > (viewRight - _edgeMargin);
 
       if (!offLeft && !offRight) return;
 
       double target;
       if (offLeft) {
-        target = (tX - edgeMargin).clamp(0.0, _ctl.position.maxScrollExtent);
+        target = (tX - _edgeMargin).clamp(0.0, _ctl.position.maxScrollExtent);
       } else {
-        target = (tRightX - viewportW + edgeMargin).clamp(
+        target = (tRightX - viewportW + _edgeMargin).clamp(
           0.0,
           _ctl.position.maxScrollExtent,
         );
@@ -317,7 +514,7 @@ class _ScrollablePianoKeyboardState
         next,
         xForMidi,
         viewportW,
-        edgeMargin,
+        _edgeMargin,
         viewLeft,
         viewRight,
         whiteKeyW,
@@ -444,25 +641,11 @@ class _ScrollablePianoKeyboardState
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<bool>(inputIdleEligibleProvider, (prev, next) {
-      final becameEligible = next == true && prev != true;
-      if (!becameEligible) return;
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _tryCenterWhenReady(retries: 8);
-      });
-    });
-
     return LayoutBuilder(
       builder: (context, constraints) {
         final viewportW = constraints.maxWidth;
         final whiteKeyW = viewportW / widget.visibleWhiteKeyCount;
         final contentW = whiteKeyW * widget.fullWhiteKeyCount;
-
-        final geom = PianoGeometry(
-          firstWhiteMidi: widget.fullFirstMidiNote,
-          whiteKeyCount: widget.fullWhiteKeyCount,
-        );
 
         // Lift decorations enough to get above the nav indicator.
         final gesture = MediaQuery.viewPaddingOf(context).bottom;
@@ -478,26 +661,6 @@ class _ScrollablePianoKeyboardState
               bottomLift: landmarkLift,
             ),
         ];
-
-        double minX = double.infinity;
-        double maxX = -double.infinity;
-
-        if (widget.soundingMidiNotes.isNotEmpty) {
-          for (final midi in widget.soundingMidiNotes) {
-            final idx = geom.whiteIndexForMidi(midi);
-            final x = idx * whiteKeyW;
-            minX = math.min(minX, x);
-            maxX = math.max(maxX, x + whiteKeyW);
-          }
-        }
-
-        final viewLeft = _ctl.hasClients ? _ctl.offset : 0.0;
-        final viewRight = viewLeft + viewportW;
-
-        final showLeft =
-            widget.soundingMidiNotes.isNotEmpty && minX < (viewLeft - 1.0);
-        final showRight =
-            widget.soundingMidiNotes.isNotEmpty && maxX > (viewRight + 1.0);
 
         return SizedBox(
           height: widget.height,
@@ -535,44 +698,24 @@ class _ScrollablePianoKeyboardState
                   ),
                 ),
               ),
-              if (showLeft)
+              if (_edge.showLeft)
                 Positioned(
                   left: 6,
                   top: 0,
                   bottom: 0,
                   child: _EdgeIndicator(
                     direction: AxisDirection.left,
-                    onTap: () {
-                      final target = (_ctl.offset - (viewportW * 0.65)).clamp(
-                        0.0,
-                        _ctl.position.maxScrollExtent,
-                      );
-                      _ctl.animateTo(
-                        target,
-                        duration: const Duration(milliseconds: 220),
-                        curve: Curves.easeOutCubic,
-                      );
-                    },
+                    onTap: () => _scrollToEdgeTarget(_edge.leftTarget),
                   ),
                 ),
-              if (showRight)
+              if (_edge.showRight)
                 Positioned(
                   right: 6,
                   top: 0,
                   bottom: 0,
                   child: _EdgeIndicator(
                     direction: AxisDirection.right,
-                    onTap: () {
-                      final target = (_ctl.offset + (viewportW * 0.65)).clamp(
-                        0.0,
-                        _ctl.position.maxScrollExtent,
-                      );
-                      _ctl.animateTo(
-                        target,
-                        duration: const Duration(milliseconds: 220),
-                        curve: Curves.easeOutCubic,
-                      );
-                    },
+                    onTap: () => _scrollToEdgeTarget(_edge.rightTarget),
                   ),
                 ),
             ],
