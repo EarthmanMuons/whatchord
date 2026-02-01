@@ -207,43 +207,52 @@ class _ScrollablePianoKeyboardState
       0,
     ); // allow follow immediately
 
-    final viewport = context.size;
-    if (viewport == null || viewport.width <= 0) return;
+    final double? viewportW = _lastViewportW ?? context.size?.width;
+    if (viewportW == null || viewportW <= 0) return;
 
-    final viewportW = viewport.width;
-    final whiteKeyW = viewportW / widget.visibleWhiteKeyCount;
-
-    final geom = PianoGeometry(
-      firstWhiteMidi: widget.fullFirstMidiNote,
-      whiteKeyCount: widget.fullWhiteKeyCount,
-    );
-
-    double xForMidi(int midi) {
-      final idx = geom.whiteIndexForMidi(midi);
-      return idx * whiteKeyW;
-    }
+    final whiteKeyW = _whiteKeyWForViewport(viewportW);
+    final contentW = _contentWForWhiteKeyW(whiteKeyW);
+    final geom = _buildGeometry();
 
     final sounding = widget.soundingMidiNotes;
 
-    // If notes are sounding, center them; otherwise center middle C (MIDI 60).
-    final targetMidi = sounding.isNotEmpty ? null : 60;
-
-    double centerX;
     if (sounding.isNotEmpty) {
-      final minMidi = sounding.reduce(math.min);
-      final maxMidi = sounding.reduce(math.max);
-      centerX =
-          (xForMidi(minMidi) + xForMidi(maxMidi)) / 2.0 + (whiteKeyW / 2.0);
+      double minX = double.infinity;
+      double maxX = -double.infinity;
+
+      for (final midi in sounding) {
+        final r = geom.keyRectForMidi(
+          midi: midi,
+          whiteKeyW: whiteKeyW,
+          totalWidth: contentW,
+        );
+        minX = math.min(minX, r.left);
+        maxX = math.max(maxX, r.right);
+      }
+
+      final centerX = (minX + maxX) / 2.0;
+      final target = (centerX - (viewportW / 2.0)).clamp(
+        0.0,
+        _ctl.position.maxScrollExtent,
+      );
+
+      _animateTo(target, duration: const Duration(milliseconds: 240));
+      return;
     } else {
-      centerX = xForMidi(targetMidi!) + (whiteKeyW / 2.0);
+      // Center Middle C (MIDI 60) when idle.
+      final r = geom.keyRectForMidi(
+        midi: 60,
+        whiteKeyW: whiteKeyW,
+        totalWidth: contentW,
+      );
+      final centerX = (r.left + r.right) / 2.0;
+      final target = (centerX - (viewportW / 2.0)).clamp(
+        0.0,
+        _ctl.position.maxScrollExtent,
+      );
+
+      _animateTo(target);
     }
-
-    final target = (centerX - (viewportW / 2.0)).clamp(
-      0.0,
-      _ctl.position.maxScrollExtent,
-    );
-
-    _animateTo(target);
   }
 
   @override
