@@ -39,7 +39,7 @@ class PianoKeyboard extends StatelessWidget {
     final whiteLum = palette.whiteKey.computeLuminance();
 
     // If the key fill is light, use a dark label; otherwise use a light label.
-    final landmarkColor = whiteLum > 0.55
+    final decorationColor = whiteLum > 0.55
         ? Colors.black.withValues(alpha: 0.55)
         : Colors.white.withValues(alpha: 0.80);
 
@@ -53,14 +53,14 @@ class PianoKeyboard extends StatelessWidget {
           soundingMidiNotes: soundingMidiNotes,
 
           whiteKeyColor: palette.whiteKey,
-          whiteKeyActiveColor: palette.whiteKeyActive,
+          whiteKeyHighlightColor: palette.whiteKeyHighlight,
           whiteKeyBorderColor: palette.border,
           blackKeyColor: palette.blackKey,
-          blackKeyActiveColor: palette.blackKeyActive,
+          blackKeyHighlightColor: palette.blackKeyHighlight,
           backgroundColor: palette.background,
 
           decorations: decorations,
-          decorationTextColor: landmarkColor,
+          decorationColor: decorationColor,
 
           drawBackground: true,
           drawFeltStrip: true,
