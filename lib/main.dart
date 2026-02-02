@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:whatchord/features/midi/providers/app_midi_lifecycle_provider.dart';
-
-import 'core/core.dart';
-import 'features/home/home.dart';
+import 'package:whatchord/core/core.dart';
+import 'package:whatchord/features/home/home.dart';
+import 'package:whatchord/features/midi/midi.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -4,10 +4,8 @@ import 'package:whatchord/core/persistence/core_preferences_keys.dart';
 import 'package:whatchord/core/providers/app_palette_notifier.dart';
 import 'package:whatchord/core/providers/app_theme_mode_notifier.dart';
 import 'package:whatchord/core/providers/shared_preferences_provider.dart';
-import 'package:whatchord/features/midi/providers/midi_connection_notifier.dart';
-import 'package:whatchord/features/midi/providers/midi_preferences_notifier.dart';
-import 'package:whatchord/features/theory/state/persistence/theory_preferences_keys.dart';
-import 'package:whatchord/features/theory/state/providers/theory_preferences_notifier.dart';
+import 'package:whatchord/features/midi/midi.dart';
+import 'package:whatchord/features/theory/theory.dart';
 
 final settingsResetProvider = Provider<SettingsResetService>((ref) {
   return SettingsResetService(ref);
