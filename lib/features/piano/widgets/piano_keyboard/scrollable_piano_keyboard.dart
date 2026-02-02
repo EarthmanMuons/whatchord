@@ -212,7 +212,7 @@ class _ScrollablePianoKeyboardState
 
     final whiteKeyWidth = _whiteKeyWidthForViewport(viewportWidth);
     final contentWidth = _contentWidthForWhiteKeyWidth(whiteKeyWidth);
-    final geom = _buildGeometry();
+    final geometry = _buildGeometry();
 
     final sounding = widget.soundingMidiNotes;
 
@@ -221,13 +221,13 @@ class _ScrollablePianoKeyboardState
       double maxX = -double.infinity;
 
       for (final midi in sounding) {
-        final r = geom.keyRectForMidi(
+        final keyRect = geometry.keyRectForMidi(
           midi: midi,
           whiteKeyWidth: whiteKeyWidth,
           totalWidth: contentWidth,
         );
-        minX = math.min(minX, r.left);
-        maxX = math.max(maxX, r.right);
+        minX = math.min(minX, keyRect.left);
+        maxX = math.max(maxX, keyRect.right);
       }
 
       final centerX = (minX + maxX) / 2.0;
@@ -240,12 +240,12 @@ class _ScrollablePianoKeyboardState
       return;
     } else {
       // Center Middle C (MIDI 60) when idle.
-      final r = geom.keyRectForMidi(
+      final keyRect = geometry.keyRectForMidi(
         midi: 60,
         whiteKeyWidth: whiteKeyWidth,
         totalWidth: contentWidth,
       );
-      final centerX = (r.left + r.right) / 2.0;
+      final centerX = (keyRect.left + keyRect.right) / 2.0;
       final target = (centerX - (viewportWidth / 2.0)).clamp(
         0.0,
         _ctl.position.maxScrollExtent,
@@ -305,7 +305,7 @@ class _ScrollablePianoKeyboardState
 
   ({double minX, double maxX}) _rangeBoundsForSounding({
     required Set<int> sounding,
-    required PianoGeometry geom,
+    required PianoGeometry geometry,
     required double whiteKeyWidth,
     required double contentWidth,
   }) {
@@ -313,13 +313,13 @@ class _ScrollablePianoKeyboardState
     double maxX = -double.infinity;
 
     for (final midi in sounding) {
-      final r = geom.keyRectForMidi(
+      final keyRect = geometry.keyRectForMidi(
         midi: midi,
         whiteKeyWidth: whiteKeyWidth,
         totalWidth: contentWidth,
       );
-      minX = math.min(minX, r.left);
-      maxX = math.max(maxX, r.right);
+      minX = math.min(minX, keyRect.left);
+      maxX = math.max(maxX, keyRect.right);
     }
 
     return (minX: minX, maxX: maxX);
@@ -327,7 +327,7 @@ class _ScrollablePianoKeyboardState
 
   ({int? leftMidi, int? rightMidi}) _nearestOffscreenCandidates({
     required Set<int> sounding,
-    required PianoGeometry geom,
+    required PianoGeometry geometry,
     required double whiteKeyWidth,
     required double contentWidth,
     required double viewLeft,
@@ -342,21 +342,21 @@ class _ScrollablePianoKeyboardState
         double.infinity; // minimize rect.left (closest from right)
 
     for (final midi in sounding) {
-      final r = geom.keyRectForMidi(
+      final keyRect = geometry.keyRectForMidi(
         midi: midi,
         whiteKeyWidth: whiteKeyWidth,
         totalWidth: contentWidth,
       );
 
-      final offLeft = r.right < (viewLeft + _indicatorShowMargin);
-      if (offLeft && r.right > leftBest) {
-        leftBest = r.right;
+      final offLeft = keyRect.right < (viewLeft + _indicatorShowMargin);
+      if (offLeft && keyRect.right > leftBest) {
+        leftBest = keyRect.right;
         leftMidi = midi;
       }
 
-      final offRight = r.left > (viewRight - _indicatorShowMargin);
-      if (offRight && r.left < rightBest) {
-        rightBest = r.left;
+      final offRight = keyRect.left > (viewRight - _indicatorShowMargin);
+      if (offRight && keyRect.left < rightBest) {
+        rightBest = keyRect.left;
         rightMidi = midi;
       }
     }
@@ -376,7 +376,7 @@ class _ScrollablePianoKeyboardState
 
     final whiteKeyWidth = _whiteKeyWidthForViewport(width);
     final contentWidth = _contentWidthForWhiteKeyWidth(whiteKeyWidth);
-    final geom = _buildGeometry();
+    final geometry = _buildGeometry();
 
     final sounding = widget.soundingMidiNotes;
     if (sounding.isEmpty) {
@@ -391,7 +391,7 @@ class _ScrollablePianoKeyboardState
 
     final bounds = _rangeBoundsForSounding(
       sounding: sounding,
-      geom: geom,
+      geometry: geometry,
       whiteKeyWidth: whiteKeyWidth,
       contentWidth: contentWidth,
     );
@@ -400,7 +400,7 @@ class _ScrollablePianoKeyboardState
 
     final nearest = _nearestOffscreenCandidates(
       sounding: sounding,
-      geom: geom,
+      geometry: geometry,
       whiteKeyWidth: whiteKeyWidth,
       contentWidth: contentWidth,
       viewLeft: viewLeft,
@@ -422,12 +422,12 @@ class _ScrollablePianoKeyboardState
 
     double? leftTarget;
     if (showLeft) {
-      final r = geom.keyRectForMidi(
+      final keyRect = geometry.keyRectForMidi(
         midi: leftMidi,
         whiteKeyWidth: whiteKeyWidth,
         totalWidth: contentWidth,
       );
-      leftTarget = (r.left - _indicatorShowMargin).clamp(
+      leftTarget = (keyRect.left - _indicatorShowMargin).clamp(
         0.0,
         _ctl.position.maxScrollExtent,
       );
@@ -435,12 +435,12 @@ class _ScrollablePianoKeyboardState
 
     double? rightTarget;
     if (showRight) {
-      final r = geom.keyRectForMidi(
+      final keyRect = geometry.keyRectForMidi(
         midi: rightMidi,
         whiteKeyWidth: whiteKeyWidth,
         totalWidth: contentWidth,
       );
-      rightTarget = (r.right - width + _indicatorShowMargin).clamp(
+      rightTarget = (keyRect.right - width + _indicatorShowMargin).clamp(
         0.0,
         _ctl.position.maxScrollExtent,
       );
@@ -474,7 +474,7 @@ class _ScrollablePianoKeyboardState
 
     final whiteKeyWidth = _whiteKeyWidthForViewport(viewportWidth);
     final contentWidth = _contentWidthForWhiteKeyWidth(whiteKeyWidth);
-    final geom = _buildGeometry();
+    final geometry = _buildGeometry();
 
     final viewLeft = _ctl.offset;
     final viewRight = viewLeft + viewportWidth;
@@ -490,7 +490,7 @@ class _ScrollablePianoKeyboardState
     // Decide whether anything is actually offscreen.
     final bounds = _rangeBoundsForSounding(
       sounding: next,
-      geom: geom,
+      geometry: geometry,
       whiteKeyWidth: whiteKeyWidth,
       contentWidth: contentWidth,
     );
@@ -525,7 +525,7 @@ class _ScrollablePianoKeyboardState
       if (added.isEmpty && removed.isNotEmpty) {
         _maybeReanchorAfterRemoval(
           next,
-          geom,
+          geometry,
           viewportWidth,
           whiteKeyWidth,
           contentWidth,
@@ -540,7 +540,7 @@ class _ScrollablePianoKeyboardState
     if (added.isNotEmpty && !force) {
       final addedNearest = _nearestOffscreenCandidates(
         sounding: added,
-        geom: geom,
+        geometry: geometry,
         whiteKeyWidth: whiteKeyWidth,
         contentWidth: contentWidth,
         viewLeft: viewLeft,
@@ -551,12 +551,12 @@ class _ScrollablePianoKeyboardState
       final addedRight = addedNearest.rightMidi;
 
       if (addedLeft != null) {
-        final r = geom.keyRectForMidi(
+        final keyRect = geometry.keyRectForMidi(
           midi: addedLeft,
           whiteKeyWidth: whiteKeyWidth,
           totalWidth: contentWidth,
         );
-        final target = (r.left - _indicatorShowMargin).clamp(
+        final target = (keyRect.left - _indicatorShowMargin).clamp(
           0.0,
           _ctl.position.maxScrollExtent,
         );
@@ -568,15 +568,13 @@ class _ScrollablePianoKeyboardState
       }
 
       if (addedRight != null) {
-        final r = geom.keyRectForMidi(
+        final keyRect = geometry.keyRectForMidi(
           midi: addedRight,
           whiteKeyWidth: whiteKeyWidth,
           totalWidth: contentWidth,
         );
-        final target = (r.right - viewportWidth + _indicatorShowMargin).clamp(
-          0.0,
-          _ctl.position.maxScrollExtent,
-        );
+        final target = (keyRect.right - viewportWidth + _indicatorShowMargin)
+            .clamp(0.0, _ctl.position.maxScrollExtent);
         final delta = (target - _ctl.offset).abs();
         if (delta >= _minMeaningfulDelta) {
           _animateTo(target);
@@ -588,7 +586,7 @@ class _ScrollablePianoKeyboardState
     // Otherwise reveal the nearest offscreen sounding key on the side that is offscreen.
     final nearest = _nearestOffscreenCandidates(
       sounding: next,
-      geom: geom,
+      geometry: geometry,
       whiteKeyWidth: whiteKeyWidth,
       contentWidth: contentWidth,
       viewLeft: viewLeft,
@@ -598,23 +596,23 @@ class _ScrollablePianoKeyboardState
     double? target;
     if (offLeft && nearest.leftMidi != null) {
       final int midi = nearest.leftMidi!;
-      final r = geom.keyRectForMidi(
+      final keyRect = geometry.keyRectForMidi(
         midi: midi,
         whiteKeyWidth: whiteKeyWidth,
         totalWidth: contentWidth,
       );
-      target = (r.left - _indicatorShowMargin).clamp(
+      target = (keyRect.left - _indicatorShowMargin).clamp(
         0.0,
         _ctl.position.maxScrollExtent,
       );
     } else if (offRight && nearest.rightMidi != null) {
       final int midi = nearest.rightMidi!;
-      final r = geom.keyRectForMidi(
+      final keyRect = geometry.keyRectForMidi(
         midi: midi,
         whiteKeyWidth: whiteKeyWidth,
         totalWidth: contentWidth,
       );
-      target = (r.right - viewportWidth + _indicatorShowMargin).clamp(
+      target = (keyRect.right - viewportWidth + _indicatorShowMargin).clamp(
         0.0,
         _ctl.position.maxScrollExtent,
       );
@@ -629,7 +627,7 @@ class _ScrollablePianoKeyboardState
 
   void _maybeReanchorAfterRemoval(
     Set<int> sounding,
-    PianoGeometry geom,
+    PianoGeometry geometry,
     double viewportWidth,
     double whiteKeyWidth,
     double contentWidth,
@@ -640,7 +638,7 @@ class _ScrollablePianoKeyboardState
 
     int visibleCount = 0;
     for (final midi in sounding) {
-      final rect = geom.keyRectForMidi(
+      final rect = geometry.keyRectForMidi(
         midi: midi,
         whiteKeyWidth: whiteKeyWidth,
         totalWidth: contentWidth,
@@ -656,7 +654,7 @@ class _ScrollablePianoKeyboardState
 
     final bounds = _rangeBoundsForSounding(
       sounding: sounding,
-      geom: geom,
+      geometry: geometry,
       whiteKeyWidth: whiteKeyWidth,
       contentWidth: contentWidth,
     );
@@ -699,11 +697,11 @@ class _ScrollablePianoKeyboardState
 
     final whiteKeyWidth = _whiteKeyWidthForViewport(viewportWidth);
     final contentWidth = _contentWidthForWhiteKeyWidth(whiteKeyWidth);
-    final geom = _buildGeometry();
+    final geometry = _buildGeometry();
 
     final bounds = _rangeBoundsForSounding(
       sounding: sounding,
-      geom: geom,
+      geometry: geometry,
       whiteKeyWidth: whiteKeyWidth,
       contentWidth: contentWidth,
     );
