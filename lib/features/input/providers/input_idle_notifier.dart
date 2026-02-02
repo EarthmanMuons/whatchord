@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/demo/providers/demo_mode_notifier.dart';
+import 'package:whatchord/features/demo/demo.dart';
 
 import 'sounding_note_numbers_providers.dart';
 

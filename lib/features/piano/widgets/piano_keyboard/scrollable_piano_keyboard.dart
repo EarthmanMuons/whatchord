@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/input/providers/input_idle_notifier.dart';
+import 'package:whatchord/features/input/input.dart';
 
 import '../../models/piano_key_decoration.dart';
 import '../../services/piano_geometry.dart';

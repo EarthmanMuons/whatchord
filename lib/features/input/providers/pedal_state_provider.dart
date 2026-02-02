@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/demo/demo.dart' show demoModeProvider;
-import 'package:whatchord/features/demo/providers/demo_pedal_down_notifier.dart';
+import 'package:whatchord/features/demo/demo.dart';
 import 'package:whatchord/features/midi/midi.dart' show midiNoteStateProvider;
 
 import '../adapters/demo_input_adapter.dart';
