@@ -150,7 +150,7 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
 }
 
 // Raw MIDI note numbers for keyboard highlighting.
-final midiSoundingNotesProvider = Provider<Set<int>>((ref) {
+final midiSoundingNoteNumbersProvider = Provider<Set<int>>((ref) {
   return ref.watch(midiNoteStateProvider.select((s) => s.soundingNotes));
 });
 

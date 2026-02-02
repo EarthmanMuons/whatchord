@@ -1,2 +1,2 @@
-export 'providers/demo_sounding_notes_notifier.dart'
-    show demoSoundingNotesProvider;
+export 'providers/demo_sounding_note_numbers_notifier.dart'
+    show demoSoundingNoteNumbersProvider;

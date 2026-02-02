@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'demo_mode_notifier.dart';
 import 'demo_sequence_notifier.dart';
 
-final demoSoundingNotesProvider = Provider<Set<int>>((ref) {
+final demoSoundingNoteNumbersProvider = Provider<Set<int>>((ref) {
   final enabled = ref.watch(demoModeProvider);
   if (!enabled) return const <int>{};
 

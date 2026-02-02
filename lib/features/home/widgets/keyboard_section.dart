@@ -12,7 +12,7 @@ class KeyboardSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final soundingMidiNotes = ref.watch(soundingNotesProvider);
+    final soundingNoteNumbers = ref.watch(soundingNoteNumbersProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -27,7 +27,9 @@ class KeyboardSection extends ConsumerWidget {
         return ScrollablePianoKeyboard(
           visibleWhiteKeyCount: config.whiteKeyCount,
           height: height,
-          soundingMidiNotes: soundingMidiNotes,
+
+          // Highlight keys for notes that are sounding.
+          highlightedNoteNumbers: soundingNoteNumbers,
           autoCenter: true,
 
           // Full 88-key span (white keys A0..C8).

@@ -6,27 +6,27 @@ import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/midi/midi.dart' show isPedalDownProvider;
 
-import '../../models/active_note.dart';
-import '../../providers/active_notes_provider.dart';
+import '../../models/sounding_note.dart';
+import '../../providers/sounding_notes_provider.dart';
 import 'note_chip.dart';
 import 'pedal_indicator.dart';
 
-class ActiveInput extends ConsumerStatefulWidget {
-  const ActiveInput({super.key, required this.padding});
+class InputDisplay extends ConsumerStatefulWidget {
+  const InputDisplay({super.key, required this.padding});
   final EdgeInsets padding;
 
   @override
-  ConsumerState<ActiveInput> createState() => _ActiveInputState();
+  ConsumerState<InputDisplay> createState() => _InputDisplayState();
 }
 
-class _ActiveInputState extends ConsumerState<ActiveInput>
+class _InputDisplayState extends ConsumerState<InputDisplay>
     with SingleTickerProviderStateMixin {
   final _notesKey = GlobalKey<SliverAnimatedListState>();
 
-  late List<ActiveNote> _notes;
+  late List<SoundingNote> _notes;
   late bool _pedal;
 
-  ProviderSubscription<List<ActiveNote>>? _notesSubscription;
+  ProviderSubscription<List<SoundingNote>>? _notesSubscription;
   ProviderSubscription<bool>? _pedalSubscription;
 
   late final AnimationController _pedalCtl = AnimationController(
@@ -73,16 +73,16 @@ class _ActiveInputState extends ConsumerState<ActiveInput>
   void initState() {
     super.initState();
 
-    _notes = [...ref.read(activeNotesProvider)];
+    _notes = [...ref.read(soundingNotesProvider)];
     _pedal = ref.read(isPedalDownProvider);
     _pedalCtl.value = _pedal ? 1.0 : 0.0;
 
-    _notesSubscription = ref.listenManual<List<ActiveNote>>(
-      activeNotesProvider,
+    _notesSubscription = ref.listenManual<List<SoundingNote>>(
+      soundingNotesProvider,
       (prev, next) {
         if (!mounted) return;
 
-        if (!listEquals(prev ?? const <ActiveNote>[], next)) {
+        if (!listEquals(prev ?? const <SoundingNote>[], next)) {
           ref
               .read(appActivityProvider.notifier)
               .markActivity(AppActivitySource.midi);
@@ -117,8 +117,8 @@ class _ActiveInputState extends ConsumerState<ActiveInput>
     super.dispose();
   }
 
-  void _applyNotesDiff(Iterable<ActiveNote> next) {
-    final nextList = next is List<ActiveNote>
+  void _applyNotesDiff(Iterable<SoundingNote> next) {
+    final nextList = next is List<SoundingNote>
         ? next
         : next.toList(growable: false);
     final nextIdSet = {for (final n in nextList) n.id};
@@ -249,7 +249,7 @@ class _ActiveInputState extends ConsumerState<ActiveInput>
   }
 
   Widget _buildPaddedAnimatedNoteChip(
-    ActiveNote note,
+    SoundingNote note,
     Animation<double> animation,
   ) {
     return Padding(
@@ -258,7 +258,10 @@ class _ActiveInputState extends ConsumerState<ActiveInput>
     );
   }
 
-  Widget _buildAnimatedNoteChip(ActiveNote note, Animation<double> animation) {
+  Widget _buildAnimatedNoteChip(
+    SoundingNote note,
+    Animation<double> animation,
+  ) {
     final curved = CurvedAnimation(
       parent: animation,
       curve: Curves.easeOutCubic,

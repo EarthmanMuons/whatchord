@@ -6,7 +6,7 @@ import '../../domain/theory_domain.dart';
 
 /// Converts currently sounding notes into a minimal [ChordInput].
 final chordInputProvider = Provider<ChordInput?>((ref) {
-  final midis = ref.watch(soundingNotesSortedProvider);
+  final midis = ref.watch(soundingNoteNumbersSortedProvider);
   if (midis.isEmpty) return null;
 
   final pcMask = _pcMaskFrom(midis);

@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/demo/providers/demo_mode_notifier.dart';
 
-import 'sounding_notes_providers.dart';
+import 'sounding_note_numbers_providers.dart';
 
 @immutable
 class InputIdleState {
@@ -102,7 +102,7 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
     // Engagement is defined strictly by whether any notes are sounding.
     // Sustain pedal state (manual or MIDI) must not directly affect engagement.
     ref.listen<int>(
-      soundingNotesProvider.select((s) => s.length),
+      soundingNoteNumbersProvider.select((s) => s.length),
       (prev, next) => _updateEngagement(engagedNow: next > 0),
       fireImmediately: true,
     );

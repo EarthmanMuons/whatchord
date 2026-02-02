@@ -6,7 +6,7 @@ class HomeLayoutConfig {
   final EdgeInsets analysisPadding;
   final double chordCardMaxWidth;
   final EdgeInsets detailsSectionPadding; // right panel (landscape)
-  final EdgeInsets activeInputPadding;
+  final EdgeInsets inputDisplayPadding;
 
   // Tonality
   final double tonalityBarHeight;
@@ -20,7 +20,7 @@ class HomeLayoutConfig {
     required this.analysisPadding,
     required this.chordCardMaxWidth,
     required this.detailsSectionPadding,
-    required this.activeInputPadding,
+    required this.inputDisplayPadding,
     required this.tonalityBarHeight,
     required this.whiteKeyCount,
     this.whiteKeyAspectRatio = 7.0,
@@ -32,7 +32,7 @@ const portraitLayoutConfig = HomeLayoutConfig(
   analysisPadding: EdgeInsets.fromLTRB(16, 16, 16, 16),
   chordCardMaxWidth: 520,
   detailsSectionPadding: EdgeInsets.zero,
-  activeInputPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+  inputDisplayPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
   tonalityBarHeight: 56,
   whiteKeyCount: 21,
   whiteKeyAspectRatio: 7.0,
@@ -43,7 +43,7 @@ const landscapeLayoutConfig = HomeLayoutConfig(
   analysisPadding: EdgeInsets.fromLTRB(16, 16, 8, 16),
   chordCardMaxWidth: 520,
   detailsSectionPadding: EdgeInsets.fromLTRB(8, 12, 16, 12),
-  activeInputPadding: EdgeInsets.zero,
+  inputDisplayPadding: EdgeInsets.zero,
   tonalityBarHeight: 44,
   // Full 88-key view: 52 white keys from A0 (MIDI 21) to C8.
   whiteKeyCount: 52,

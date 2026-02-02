@@ -9,7 +9,7 @@ class PianoKeyboard extends StatelessWidget {
     super.key,
     required this.whiteKeyCount,
     this.firstMidiNote = 48, // C3 by default
-    this.soundingMidiNotes = const <int>{},
+    this.highlightedNoteNumbers = const <int>{},
     this.height,
     this.decorations = const <PianoKeyDecoration>[],
   }) : assert(whiteKeyCount > 0);
@@ -20,8 +20,8 @@ class PianoKeyboard extends StatelessWidget {
   /// MIDI note number of the first *white* key at index 0.
   final int firstMidiNote;
 
-  /// Sounding *MIDI note numbers* (e.g., 60 for middle C).
-  final Set<int> soundingMidiNotes;
+  /// Highlighted *MIDI note numbers* (e.g., 60 for middle C).
+  final Set<int> highlightedNoteNumbers;
 
   /// If provided, forces a fixed height. Otherwise a default is used.
   final double? height;
@@ -50,7 +50,7 @@ class PianoKeyboard extends StatelessWidget {
         painter: PianoKeyboardPainter(
           whiteKeyCount: whiteKeyCount,
           firstMidiNote: firstMidiNote,
-          soundingMidiNotes: soundingMidiNotes,
+          highlightedNoteNumbers: highlightedNoteNumbers,
 
           whiteKeyColor: palette.whiteKey,
           whiteKeyHighlightColor: palette.whiteKeyHighlight,

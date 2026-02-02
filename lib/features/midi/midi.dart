@@ -24,7 +24,7 @@
 ///
 /// Most app code should interact with:
 /// - [midiConnectionProvider] for connection state
-/// - [midiSoundingNotesProvider] for active notes
+/// - [midiSoundingNoteNumbersProvider] for sounding note numbers
 /// - [MidiSettingsPage] for user-facing controls
 ///
 export 'models/bluetooth_state.dart';
