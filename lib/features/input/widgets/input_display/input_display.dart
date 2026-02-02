@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/core.dart';
 
 import '../../models/sounding_note.dart';
-import '../../providers/pedal_state_provider.dart';
 import '../../providers/input_idle_notifier.dart';
+import '../../providers/pedal_state_provider.dart';
 import '../../providers/sounding_notes_provider.dart';
 import 'note_chip.dart';
 import 'pedal_indicator.dart';

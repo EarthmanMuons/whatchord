@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+
 import 'package:collection/collection.dart';
 
 /// Tracks MIDI note on/off state and sustain pedal.

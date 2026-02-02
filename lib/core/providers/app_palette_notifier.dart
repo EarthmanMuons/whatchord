@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/app_palette.dart';
 import '../persistence/core_preferences_keys.dart';
 import '../providers/shared_preferences_provider.dart';
-import '../models/app_palette.dart';
 
 final appPaletteProvider = NotifierProvider<AppPaletteNotifier, AppPalette>(
   AppPaletteNotifier.new,
