@@ -304,6 +304,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.7.2"
+  import_order_lint:
+    dependency: "direct dev"
+    description:
+      name: import_order_lint
+      sha256: "646c7ce773798bfbddac3265153edad2ab3520b2edc553a9828563fb9aa12e93"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
   io:
     dependency: transitive
     description:

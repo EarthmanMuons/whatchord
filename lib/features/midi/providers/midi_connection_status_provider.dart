@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord/features/demo/demo.dart';
 
 import '../models/bluetooth_unavailability.dart';
-import '../models/midi_connection_status.dart';
 import '../models/midi_connection.dart';
+import '../models/midi_connection_status.dart';
 import 'midi_connection_notifier.dart';
 
 /// Provides UI-friendly presentation of MIDI connection information.
