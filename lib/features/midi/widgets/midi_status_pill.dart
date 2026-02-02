@@ -15,9 +15,9 @@ class MidiStatusPill extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
 
-    final connection = ref.watch(midiConnectionStatusProvider);
+    final status = ref.watch(midiConnectionStatusProvider);
 
-    final tone = switch (connection.phase) {
+    final tone = switch (status.phase) {
       MidiConnectionPhase.connected ||
       MidiConnectionPhase.connecting ||
       MidiConnectionPhase.retrying => _PillTone.normal,
@@ -49,7 +49,7 @@ class MidiStatusPill extends ConsumerWidget {
       ),
     };
 
-    final dotColor = connection.phase == MidiConnectionPhase.connected
+    final dotColor = status.phase == MidiConnectionPhase.connected
         ? Colors.green.shade600
         : switch (tone) {
             _PillTone.normal => cs.secondary,
@@ -57,12 +57,12 @@ class MidiStatusPill extends ConsumerWidget {
             _PillTone.muted => cs.onSurfaceVariant.withValues(alpha: 0.6),
           };
 
-    final pulse = switch (connection.phase) {
+    final pulse = switch (status.phase) {
       MidiConnectionPhase.connecting || MidiConnectionPhase.retrying => true,
       _ => false,
     };
 
-    final label = connection.label;
+    final label = status.title;
 
     return Semantics(
       label: 'MIDI connection status. Tap to configure.',

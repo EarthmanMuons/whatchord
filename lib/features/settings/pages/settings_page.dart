@@ -23,7 +23,7 @@ class SettingsPage extends ConsumerWidget {
     final palettes = [...AppPalette.values]
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
-    final connection = ref.watch(midiConnectionStatusProvider);
+    final midiStatus = ref.watch(midiConnectionStatusProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -40,7 +40,7 @@ class SettingsPage extends ConsumerWidget {
 
             ListTile(
               title: const Text('MIDI settings'),
-              subtitle: Text(connection.detail ?? connection.label),
+              subtitle: Text(midiStatus.subtitle ?? midiStatus.title),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 Navigator.of(context).push(

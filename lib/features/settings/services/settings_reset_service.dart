@@ -36,8 +36,8 @@ class SettingsResetService {
     _ref.invalidate(chordNotationStyleProvider);
 
     // Reset MIDI connection state
-    final connection = _ref.read(midiConnectionProvider.notifier);
-    await connection.stopScanning();
-    await connection.disconnect();
+    final connectionState = _ref.read(midiConnectionStateProvider.notifier);
+    await connectionState.stopScanning();
+    await connectionState.disconnect();
   }
 }

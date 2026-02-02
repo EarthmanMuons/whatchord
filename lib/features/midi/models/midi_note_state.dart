@@ -23,7 +23,7 @@ class MidiNoteState {
     this.pedalSource = PedalInputSource.midi,
   });
 
-  Set<int> get soundingNotes => {...pressed, ...sustained};
+  Set<int> get soundingNoteNumbers => {...pressed, ...sustained};
 
   MidiNoteState copyWith({
     Set<int>? pressed,

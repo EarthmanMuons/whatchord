@@ -1,5 +1,5 @@
-/// Why BLE transport is unavailable for MIDI communication.
-enum BleUnavailability {
+/// Why Bluetooth transport is unavailable for MIDI communication.
+enum BluetoothUnavailability {
   /// Runtime Bluetooth permission denied (user can be asked again).
   permissionDenied,
 

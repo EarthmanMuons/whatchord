@@ -9,9 +9,9 @@ import 'package:whatchord/core/core.dart';
 import '../models/midi_device.dart';
 import '../providers/midi_connection_notifier.dart';
 import '../providers/midi_connection_status_provider.dart';
+import '../widgets/last_connected_device_card.dart';
 import '../widgets/midi_device_picker.dart';
 import '../widgets/midi_status_card.dart';
-import '../widgets/saved_device_card.dart';
 
 class MidiSettingsPage extends ConsumerWidget {
   const MidiSettingsPage({super.key});
@@ -19,7 +19,7 @@ class MidiSettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
-    final connection = ref.watch(midiConnectionStatusProvider);
+    final status = ref.watch(midiConnectionStatusProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -30,9 +30,9 @@ class MidiSettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          MidiStatusCard(connection: connection),
+          MidiStatusCard(status: status),
 
-          if (connection.canOpenSettings) ...[
+          if (status.canOpenSettings) ...[
             const SizedBox(height: 8),
             Card(
               child: ListTile(
@@ -48,14 +48,14 @@ class MidiSettingsPage extends ConsumerWidget {
           const SizedBox(height: 16),
           const SectionHeader(title: 'Device'),
 
-          const SavedDeviceCard(),
+          const LastConnectedDeviceCard(),
           const SizedBox(height: 12),
 
           Card(
             child: ListTile(
               leading: const Icon(Icons.add_link),
               title: Text(
-                connection.isConnected
+                status.isConnected
                     ? 'Choose different device'
                     : 'Choose device',
               ),
@@ -68,7 +68,9 @@ class MidiSettingsPage extends ConsumerWidget {
                   builder: (_) => const MidiDevicePicker(),
                 ).whenComplete(() {
                   unawaited(
-                    ref.read(midiConnectionProvider.notifier).stopScanning(),
+                    ref
+                        .read(midiConnectionStateProvider.notifier)
+                        .stopScanning(),
                   );
                 });
               },

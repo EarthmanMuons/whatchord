@@ -5,25 +5,25 @@ import '../providers/midi_connection_notifier.dart';
 import '../providers/midi_device_manager.dart';
 import '../providers/midi_preferences_notifier.dart';
 
-enum _SavedDeviceMenuAction { forget }
+enum _LastConnectedDeviceMenuAction { forget }
 
-class SavedDeviceCard extends ConsumerWidget {
-  const SavedDeviceCard({super.key});
+class LastConnectedDeviceCard extends ConsumerWidget {
+  const LastConnectedDeviceCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hasSaved = ref.watch(hasSavedMidiDeviceProvider);
-    final saved = ref.watch(savedMidiDeviceProvider);
+    final hasLastConnected = ref.watch(hasLastConnectedMidiDeviceProvider);
+    final lastConnected = ref.watch(lastConnectedMidiDeviceProvider);
 
     // Connection semantics from the state machine.
     final isAttemptingConnection = ref.watch(
-      midiConnectionProvider.select((s) => s.isAttemptingConnection),
+      midiConnectionStateProvider.select((s) => s.isAttemptingConnection),
     );
     final isConnected = ref.watch(
-      midiConnectionProvider.select((s) => s.isConnected),
+      midiConnectionStateProvider.select((s) => s.isConnected),
     );
     final connectionDisplayName = ref.watch(
-      midiConnectionProvider.select((s) => s.deviceDisplayName),
+      midiConnectionStateProvider.select((s) => s.deviceDisplayName),
     );
 
     // Transport snapshot (who is connected).
@@ -32,22 +32,24 @@ class SavedDeviceCard extends ConsumerWidget {
     );
     final connectedDisplayName = connected?.displayName;
 
-    final savedIdNormalized = ref.watch(
-      savedMidiDeviceIdProvider.select((id) {
+    final lastConnectedIdNormalized = ref.watch(
+      lastConnectedMidiDeviceIdProvider.select((id) {
         if (id == null) return null;
         final t = id.trim();
         return t.isEmpty ? null : t;
       }),
     );
 
-    // If there is no saved device persisted, do not render the card at all
+    // If there is no last-connected device persisted, do not render the card at all
     // (but still show if currently connected, to allow Disconnect).
-    if (savedIdNormalized == null && !isConnected) {
+    if (lastConnectedIdNormalized == null && !isConnected) {
       return const SizedBox.shrink();
     }
 
-    final isConnectedToSaved =
-        isConnected && connected != null && connected.id == savedIdNormalized;
+    final isConnectedToLastConnected =
+        isConnected &&
+        connected != null &&
+        connected.id == lastConnectedIdNormalized;
 
     // Prefer the current connection name while busy/connected; otherwise fall back
     // to the transport snapshot.
@@ -55,10 +57,13 @@ class SavedDeviceCard extends ConsumerWidget {
         ? (connectionDisplayName ?? connectedDisplayName)
         : connectedDisplayName;
 
-    // Fall back to persisted saved device name.
-    final savedDisplayName = saved?.displayName;
+    // Fall back to persisted last-connected device name.
+    final lastConnectedDisplayName = lastConnected?.displayName;
 
-    final title = effectiveConnectedName ?? savedDisplayName ?? 'Saved device';
+    final title =
+        effectiveConnectedName ??
+        lastConnectedDisplayName ??
+        'Last connected device';
 
     final compactButtonStyle = TextButton.styleFrom(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -78,51 +83,53 @@ class SavedDeviceCard extends ConsumerWidget {
               FilledButton.tonal(
                 style: compactButtonStyle,
                 onPressed: () {
-                  ref.read(midiConnectionProvider.notifier).cancel();
+                  ref.read(midiConnectionStateProvider.notifier).cancel();
                 },
                 child: const Text('Cancel'),
               )
-            else if (isConnectedToSaved)
+            else if (isConnectedToLastConnected)
               FilledButton.tonal(
                 style: compactButtonStyle,
                 onPressed: isAttemptingConnection
                     ? null
                     : () async {
                         await ref
-                            .read(midiConnectionProvider.notifier)
+                            .read(midiConnectionStateProvider.notifier)
                             .disconnect();
                       },
                 child: const Text('Disconnect'),
               )
-            else if (!isConnected && hasSaved)
+            else if (!isConnected && hasLastConnected)
               FilledButton.tonal(
                 style: compactButtonStyle,
                 onPressed: isAttemptingConnection
                     ? null
                     : () {
                         ref
-                            .read(midiConnectionProvider.notifier)
+                            .read(midiConnectionStateProvider.notifier)
                             .tryAutoReconnect(reason: 'manual');
                       },
                 child: const Text('Reconnect'),
               ),
 
-            PopupMenuButton<_SavedDeviceMenuAction>(
+            PopupMenuButton<_LastConnectedDeviceMenuAction>(
               tooltip: 'More',
               onSelected: (action) async {
                 switch (action) {
-                  case _SavedDeviceMenuAction.forget:
+                  case _LastConnectedDeviceMenuAction.forget:
                     await ref
-                        .read(midiConnectionProvider.notifier)
+                        .read(midiConnectionStateProvider.notifier)
                         .disconnect();
 
                     await ref
                         .read(midiPreferencesProvider.notifier)
-                        .clearSavedDevice();
+                        .clearLastConnectedDevice();
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Saved device forgotten')),
+                        const SnackBar(
+                          content: Text('Last connected device forgotten'),
+                        ),
                       );
                     }
                     break;
@@ -130,7 +137,7 @@ class SavedDeviceCard extends ConsumerWidget {
               },
               itemBuilder: (context) => const [
                 PopupMenuItem(
-                  value: _SavedDeviceMenuAction.forget,
+                  value: _LastConnectedDeviceMenuAction.forget,
                   child: Text('Forget'),
                 ),
               ],

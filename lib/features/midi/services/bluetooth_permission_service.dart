@@ -3,63 +3,63 @@ import 'dart:io' show Platform;
 import 'package:meta/meta.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../models/ble_access.dart';
+import '../models/bluetooth_access.dart';
 
 @immutable
-class BlePermissionService {
-  const BlePermissionService();
+class BluetoothPermissionService {
+  const BluetoothPermissionService();
 
-  Future<BleAccessResult> ensureBleAccess() async {
+  Future<BluetoothAccessResult> ensureBluetoothAccess() async {
     if (Platform.isAndroid) return _ensureAndroid();
     if (Platform.isIOS) return _ensureIos();
-    return const BleAccessResult(BleAccessState.ready);
+    return const BluetoothAccessResult(BluetoothAccessState.ready);
   }
 
-  Future<BleAccessResult> _ensureAndroid() async {
+  Future<BluetoothAccessResult> _ensureAndroid() async {
     final scan = await Permission.bluetoothScan.request();
     final connect = await Permission.bluetoothConnect.request();
 
     if (scan.isGranted && connect.isGranted) {
-      return const BleAccessResult(BleAccessState.ready);
+      return const BluetoothAccessResult(BluetoothAccessState.ready);
     }
 
     if (_isHardDenied(scan) || _isHardDenied(connect)) {
-      return const BleAccessResult(
-        BleAccessState.permanentlyDenied,
+      return const BluetoothAccessResult(
+        BluetoothAccessState.permanentlyDenied,
         message:
             'Nearby devices permission is blocked. Enable it in system settings '
             'to connect to Bluetooth MIDI devices.',
       );
     }
 
-    return const BleAccessResult(
-      BleAccessState.denied,
+    return const BluetoothAccessResult(
+      BluetoothAccessState.denied,
       message:
           'Nearby devices permission is required to discover and connect '
           'to Bluetooth MIDI devices.',
     );
   }
 
-  Future<BleAccessResult> _ensureIos() async {
+  Future<BluetoothAccessResult> _ensureIos() async {
     final status = await Permission.bluetooth.status;
 
     if (status.isRestricted) {
-      return const BleAccessResult(
-        BleAccessState.restricted,
+      return const BluetoothAccessResult(
+        BluetoothAccessState.restricted,
         message: 'Bluetooth access is restricted on this device.',
       );
     }
 
     if (status.isPermanentlyDenied) {
-      return const BleAccessResult(
-        BleAccessState.permanentlyDenied,
+      return const BluetoothAccessResult(
+        BluetoothAccessState.permanentlyDenied,
         message:
             'Bluetooth access for this app is disabled in system settings. '
             'Enable it to connect to Bluetooth MIDI devices.',
       );
     }
 
-    return const BleAccessResult(BleAccessState.ready);
+    return const BluetoothAccessResult(BluetoothAccessState.ready);
   }
 
   bool _isHardDenied(PermissionStatus s) =>

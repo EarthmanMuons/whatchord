@@ -136,7 +136,7 @@ class MidiBleService {
   MidiDevice _convertToMidiDevice(fmc.MidiDevice device) => MidiDevice(
     id: device.id,
     name: device.name,
-    type: device.type,
+    transport: MidiTransportType.fromString(device.type),
     isConnected: device.connected,
   );
 }

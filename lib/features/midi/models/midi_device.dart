@@ -1,5 +1,30 @@
 import 'package:flutter/foundation.dart';
 
+/// The transport used by a MIDI device.
+enum MidiTransportType {
+  ble,
+  usb,
+  network,
+  unknown;
+
+  static MidiTransportType fromString(String raw) {
+    final normalized = raw.trim().toLowerCase();
+    return switch (normalized) {
+      'ble' || 'bluetooth' => MidiTransportType.ble,
+      'usb' => MidiTransportType.usb,
+      'network' => MidiTransportType.network,
+      _ => MidiTransportType.unknown,
+    };
+  }
+
+  String get label => switch (this) {
+    MidiTransportType.ble => 'Bluetooth',
+    MidiTransportType.usb => 'USB',
+    MidiTransportType.network => 'Network',
+    MidiTransportType.unknown => 'Unknown',
+  };
+}
+
 /// Represents a MIDI device that can be connected to.
 @immutable
 class MidiDevice {
@@ -9,8 +34,8 @@ class MidiDevice {
   /// Human-readable name of the device.
   final String name;
 
-  /// Device type (e.g., 'BLE', 'USB', 'Network').
-  final String type;
+  /// Transport type (e.g., Bluetooth, USB, Network).
+  final MidiTransportType transport;
 
   /// Whether this device is currently connected.
   final bool isConnected;
@@ -18,7 +43,7 @@ class MidiDevice {
   const MidiDevice({
     required this.id,
     required this.name,
-    required this.type,
+    required this.transport,
     this.isConnected = false,
   });
 
@@ -34,13 +59,13 @@ class MidiDevice {
   MidiDevice copyWith({
     String? id,
     String? name,
-    String? type,
+    MidiTransportType? transport,
     bool? isConnected,
   }) {
     return MidiDevice(
       id: id ?? this.id,
       name: name ?? this.name,
-      type: type ?? this.type,
+      transport: transport ?? this.transport,
       isConnected: isConnected ?? this.isConnected,
     );
   }
@@ -52,29 +77,32 @@ class MidiDevice {
           runtimeType == other.runtimeType &&
           id == other.id &&
           name == other.name &&
-          type == other.type &&
+          transport == other.transport &&
           isConnected == other.isConnected;
 
   @override
-  int get hashCode => Object.hash(id, name, type, isConnected);
+  int get hashCode => Object.hash(id, name, transport, isConnected);
 
   @override
-  String toString() => 'MidiDevice($name, $type, connected: $isConnected)';
+  String toString() => 'MidiDevice($name, $transport, connected: $isConnected)';
 
   /// Serialization for persistence.
   Map<String, dynamic> toJson() => {
     'id': id,
     'name': name,
-    'type': type,
+    'transport': transport.name,
     'isConnected': isConnected,
   };
 
   /// Deserialization from persistence.
   factory MidiDevice.fromJson(Map<String, dynamic> json) {
+    final transportRaw =
+        (json['transport'] ?? json['type']) as String? ?? 'unknown';
+
     return MidiDevice(
       id: json['id'] as String,
       name: json['name'] as String,
-      type: json['type'] as String,
+      transport: MidiTransportType.fromString(transportRaw),
       isConnected: json['isConnected'] as bool? ?? false,
     );
   }

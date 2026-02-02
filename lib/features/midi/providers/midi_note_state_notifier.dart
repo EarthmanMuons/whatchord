@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_connection.dart';
+import '../models/midi_constants.dart';
 import '../models/midi_message.dart';
 import '../models/midi_note_state.dart';
-import '../models/midi_protocol.dart';
 import 'midi_connection_notifier.dart';
 import 'midi_message_providers.dart';
 
@@ -24,7 +24,7 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
     );
 
     ref.listen<MidiConnectionPhase>(
-      midiConnectionProvider.select((s) => s.phase),
+      midiConnectionStateProvider.select((s) => s.phase),
       (prev, next) {
         if (prev == MidiConnectionPhase.connected &&
             next != MidiConnectionPhase.connected) {
@@ -67,9 +67,9 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
         break;
 
       case MidiMessageType.controlChange:
-        if (message.controller == MidiProtocol.sustainPedalController &&
-            message.value != null) {
-          handlePedalValue(message.value!);
+        if (message.ccNumber == MidiConstants.sustainPedalController &&
+            message.ccValue != null) {
+          handlePedalValue(message.ccValue!);
         }
         break;
 
@@ -146,12 +146,12 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
   }
 
   void handlePedalValue(int value) =>
-      setPedalDownFromMidi(value >= MidiProtocol.sustainPedalThreshold);
+      setPedalDownFromMidi(value >= MidiConstants.sustainPedalThreshold);
 }
 
 // Raw MIDI note numbers for keyboard highlighting.
 final midiSoundingNoteNumbersProvider = Provider<Set<int>>((ref) {
-  return ref.watch(midiNoteStateProvider.select((s) => s.soundingNotes));
+  return ref.watch(midiNoteStateProvider.select((s) => s.soundingNoteNumbers));
 });
 
 // Sustain pedal state.
