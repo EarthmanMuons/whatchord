@@ -28,15 +28,15 @@ class KeyboardSection extends ConsumerWidget {
           visibleWhiteKeyCount: config.whiteKeyCount,
           height: height,
           soundingMidiNotes: soundingMidiNotes,
-          followInput: true,
+          autoCenter: true,
 
           // Full 88-key span (white keys A0..C8).
           fullWhiteKeyCount: 52,
-          fullFirstMidiNote: 21,
+          lowestNoteNumber: 21,
 
-          // Landmark (no octave to avoid C3/C4 convention issues).
-          showMiddleCLandmark: true,
-          middleCLandmarkText: 'C',
+          // Middle C marker (no octave to avoid C3/C4 convention issues).
+          showMiddleCMarker: true,
+          middleCLabel: 'C',
         );
       },
     );

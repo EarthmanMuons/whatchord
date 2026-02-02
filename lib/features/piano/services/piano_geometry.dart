@@ -123,16 +123,16 @@ class PianoGeometry {
   /// Returns the horizontal center bias for a black key, based on pitch class.
   ///
   /// The bias is applied relative to the boundary between adjacent white keys.
-  static double blackCenterBiasForPc(int blackPc, double whiteKeyW) {
+  static double blackCenterBiasForPc(int blackPc, double whiteKeyWidth) {
     switch (blackPc) {
       case 1: // C#
-        return -whiteKeyW * smallBlackKeyBiasRatio;
+        return -whiteKeyWidth * smallBlackKeyBiasRatio;
       case 3: // D#
-        return whiteKeyW * smallBlackKeyBiasRatio;
+        return whiteKeyWidth * smallBlackKeyBiasRatio;
       case 6: // F#
-        return -whiteKeyW * largeBlackKeyBiasRatio;
+        return -whiteKeyWidth * largeBlackKeyBiasRatio;
       case 10: // A#
-        return whiteKeyW * largeBlackKeyBiasRatio;
+        return whiteKeyWidth * largeBlackKeyBiasRatio;
       case 8: // G#
       default:
         return 0.0;
@@ -144,24 +144,24 @@ class PianoGeometry {
   /// The returned rectangle is expressed in the coordinate space of the full
   /// keyboard span represented by this geometry instance.
   ///
-  /// - White keys occupy exactly one [whiteKeyW] at their corresponding index.
+  /// - White keys occupy exactly one [whiteKeyWidth] at their corresponding index.
   /// - Black keys use a reduced width and pitch-class–specific center bias.
   ///
-  /// Callers must ensure that [whiteKeyW] and [totalWidth] are derived from the
+  /// Callers must ensure that [whiteKeyWidth] and [totalWidth] are derived from the
   /// same keyboard span.
   PianoKeyRect keyRectForMidi({
     required int midi,
-    required double whiteKeyW,
+    required double whiteKeyWidth,
     required double totalWidth,
   }) {
     // Exact white-key match.
     final exactWhite = whiteMidis.indexOf(midi);
     if (exactWhite >= 0) {
-      final l = exactWhite * whiteKeyW;
-      return PianoKeyRect(l, l + whiteKeyW);
+      final l = exactWhite * whiteKeyWidth;
+      return PianoKeyRect(l, l + whiteKeyWidth);
     }
 
-    final blackW = whiteKeyW * blackKeyWidthRatio;
+    final blackW = whiteKeyWidth * blackKeyWidthRatio;
 
     // Identify the white key preceding this black key.
     int? whiteIndex;
@@ -178,13 +178,13 @@ class PianoGeometry {
     // Fallback: treat as preceding white key.
     if (whiteIndex == null) {
       final idx = whiteIndexForMidi(midi);
-      final l = idx * whiteKeyW;
-      return PianoKeyRect(l, l + whiteKeyW);
+      final l = idx * whiteKeyWidth;
+      return PianoKeyRect(l, l + whiteKeyWidth);
     }
 
-    final boundaryX = (whiteIndex + 1) * whiteKeyW;
+    final boundaryX = (whiteIndex + 1) * whiteKeyWidth;
     final blackPc = midi % 12;
-    final centerX = boundaryX + blackCenterBiasForPc(blackPc, whiteKeyW);
+    final centerX = boundaryX + blackCenterBiasForPc(blackPc, whiteKeyWidth);
 
     double left = centerX - (blackW / 2.0);
     left = left.clamp(0.0, totalWidth - blackW);

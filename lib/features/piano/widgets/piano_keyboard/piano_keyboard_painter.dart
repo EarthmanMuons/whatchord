@@ -9,19 +9,19 @@ class PianoKeyboardPainter extends CustomPainter {
     required this.firstMidiNote,
     required this.soundingMidiNotes,
     required this.whiteKeyColor,
-    required this.whiteKeyActiveColor,
+    required this.whiteKeyHighlightColor,
     required this.whiteKeyBorderColor,
     required this.blackKeyColor,
-    required this.blackKeyActiveColor,
+    required this.blackKeyHighlightColor,
     required this.backgroundColor,
     this.decorations = const <PianoKeyDecoration>[],
-    this.decorationTextColor,
+    this.decorationColor,
     this.drawBackground = true,
     this.drawFeltStrip = true,
     this.feltColor = const Color(0xFF800020),
     this.feltHeight = 2.0,
   }) : assert(
-         decorations.isEmpty || decorationTextColor != null,
+         decorations.isEmpty || decorationColor != null,
          'decorationTextColor must be provided when decorations are present',
        ),
        _geometry = PianoGeometry(
@@ -36,15 +36,15 @@ class PianoKeyboardPainter extends CustomPainter {
   final Set<int> soundingMidiNotes;
 
   final Color whiteKeyColor;
-  final Color whiteKeyActiveColor;
+  final Color whiteKeyHighlightColor;
   final Color whiteKeyBorderColor;
   final Color blackKeyColor;
-  final Color blackKeyActiveColor;
+  final Color blackKeyHighlightColor;
   final Color backgroundColor;
 
-  /// Key decorations (e.g., middle C landmark, scale markers).
+  /// Key decorations (e.g., middle C marker, scale markers).
   final List<PianoKeyDecoration> decorations;
-  final Color? decorationTextColor;
+  final Color? decorationColor;
 
   final bool drawBackground;
 
@@ -61,19 +61,19 @@ class PianoKeyboardPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-    if (whiteKeyCount <= 0 || w <= 0 || h <= 0) return;
+    final width = size.width;
+    final height = size.height;
+    if (whiteKeyCount <= 0 || width <= 0 || height <= 0) return;
 
     if (drawBackground) {
       final bgPaint = Paint()..color = backgroundColor;
       canvas.drawRect(Offset.zero & size, bgPaint);
     }
 
-    final whiteKeyW = w / whiteKeyCount;
-    final whiteKeyH = h;
-    final blackKeyW = whiteKeyW * PianoGeometry.blackKeyWidthRatio;
-    final blackKeyH = whiteKeyH * PianoGeometry.blackKeyHeightRatio;
+    final whiteKeyWidth = width / whiteKeyCount;
+    final whiteKeyHeight = height;
+    final blackKeyWidth = whiteKeyWidth * PianoGeometry.blackKeyWidthRatio;
+    final blackKeyHeight = whiteKeyHeight * PianoGeometry.blackKeyHeightRatio;
 
     final whiteFillPaint = Paint()..style = PaintingStyle.fill;
     final whiteBorderPaint = Paint()
@@ -83,13 +83,13 @@ class PianoKeyboardPainter extends CustomPainter {
 
     // White keys
     for (int i = 0; i < whiteKeyCount; i++) {
-      final x = i * whiteKeyW;
-      final rect = Rect.fromLTWH(x, 0, whiteKeyW, whiteKeyH);
+      final x = i * whiteKeyWidth;
+      final rect = Rect.fromLTWH(x, 0, whiteKeyWidth, whiteKeyHeight);
 
       final midi = _whiteMidiForIndex(i);
 
       whiteFillPaint.color = _isSounding(midi)
-          ? whiteKeyActiveColor
+          ? whiteKeyHighlightColor
           : whiteKeyColor;
 
       canvas.drawRect(rect, whiteFillPaint);
@@ -107,17 +107,18 @@ class PianoKeyboardPainter extends CustomPainter {
       final blackMidi = whiteMidi + 1;
       final blackPc = blackMidi % 12;
 
-      final boundaryX = (i + 1) * whiteKeyW;
+      final boundaryX = (i + 1) * whiteKeyWidth;
       final centerX =
-          boundaryX + PianoGeometry.blackCenterBiasForPc(blackPc, whiteKeyW);
+          boundaryX +
+          PianoGeometry.blackCenterBiasForPc(blackPc, whiteKeyWidth);
 
-      double blackLeft = centerX - (blackKeyW / 2.0);
-      blackLeft = blackLeft.clamp(0.0, w - blackKeyW);
+      double blackLeft = centerX - (blackKeyWidth / 2.0);
+      blackLeft = blackLeft.clamp(0.0, width - blackKeyWidth);
 
-      final rect = Rect.fromLTWH(blackLeft, 0, blackKeyW, blackKeyH);
+      final rect = Rect.fromLTWH(blackLeft, 0, blackKeyWidth, blackKeyHeight);
 
       blackFillPaint.color = _isSounding(blackMidi)
-          ? blackKeyActiveColor
+          ? blackKeyHighlightColor
           : blackKeyColor;
       canvas.drawRect(rect, blackFillPaint);
     }
@@ -125,17 +126,16 @@ class PianoKeyboardPainter extends CustomPainter {
     // Felt strip LAST so it stays visible.
     if (drawFeltStrip && feltHeight > 0) {
       final feltPaint = Paint()..color = feltColor;
-      canvas.drawRect(Rect.fromLTWH(0, 0, w, feltHeight), feltPaint);
+      canvas.drawRect(Rect.fromLTWH(0, 0, width, feltHeight), feltPaint);
     }
 
-    // Decorations (e.g., middle C landmark).
     if (decorations.isNotEmpty) {
-      _paintDecorations(canvas, size, whiteKeyW);
+      _paintDecorations(canvas, size, whiteKeyWidth);
     }
   }
 
-  void _paintDecorations(Canvas canvas, Size size, double whiteKeyW) {
-    final color = decorationTextColor;
+  void _paintDecorations(Canvas canvas, Size size, double whiteKeyWidth) {
+    final color = decorationColor;
     if (color == null) return;
 
     final textPainter = TextPainter(
@@ -159,9 +159,9 @@ class PianoKeyboardPainter extends CustomPainter {
         ),
       );
 
-      textPainter.layout(minWidth: whiteKeyW, maxWidth: whiteKeyW);
+      textPainter.layout(minWidth: whiteKeyWidth, maxWidth: whiteKeyWidth);
 
-      final dx = whiteIndex * whiteKeyW;
+      final dx = whiteIndex * whiteKeyWidth;
 
       final bottomPad = baseBottomPad + d.bottomLift;
       final dy = size.height - textPainter.height - bottomPad;
@@ -180,11 +180,11 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.feltHeight != feltHeight ||
         oldDelegate.backgroundColor != backgroundColor ||
         oldDelegate.whiteKeyColor != whiteKeyColor ||
-        oldDelegate.whiteKeyActiveColor != whiteKeyActiveColor ||
+        oldDelegate.whiteKeyHighlightColor != whiteKeyHighlightColor ||
         oldDelegate.whiteKeyBorderColor != whiteKeyBorderColor ||
         oldDelegate.blackKeyColor != blackKeyColor ||
-        oldDelegate.blackKeyActiveColor != blackKeyActiveColor ||
-        oldDelegate.decorationTextColor != decorationTextColor ||
+        oldDelegate.blackKeyHighlightColor != blackKeyHighlightColor ||
+        oldDelegate.decorationColor != decorationColor ||
         !_listEquals(oldDelegate.decorations, decorations) ||
         !_setEquals(oldDelegate.soundingMidiNotes, soundingMidiNotes);
   }

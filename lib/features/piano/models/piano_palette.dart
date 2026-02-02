@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 class PianoPalette {
   final Color background;
   final Color whiteKey;
-  final Color whiteKeyActive;
+  final Color whiteKeyHighlight;
   final Color blackKey;
-  final Color blackKeyActive;
+  final Color blackKeyHighlight;
   final Color border;
 
   const PianoPalette({
     required this.background,
     required this.whiteKey,
-    required this.whiteKeyActive,
+    required this.whiteKeyHighlight,
     required this.blackKey,
-    required this.blackKeyActive,
+    required this.blackKeyHighlight,
     required this.border,
   });
 }
@@ -39,13 +39,13 @@ PianoPalette buildPianoPalette(ColorScheme cs) {
       ? cs.primaryContainer
       : cs.primary;
 
-  final whiteKeyActive = isDark
+  final whiteKeyHighlight = isDark
       ? overlayOn(whiteKey, pressedOverlay, 0.18)
       : cs.primaryContainer;
 
   final blackKey = const Color(0xFF111111);
 
-  final blackKeyActive = isDark
+  final blackKeyHighlight = isDark
       ? Color.alphaBlend(whiteKey.withValues(alpha: 0.18), cs.primaryContainer)
       : Color.alphaBlend(whiteKey.withValues(alpha: 0.18), cs.primary);
 
@@ -57,9 +57,9 @@ PianoPalette buildPianoPalette(ColorScheme cs) {
   return PianoPalette(
     background: background,
     whiteKey: whiteKey,
-    whiteKeyActive: whiteKeyActive,
+    whiteKeyHighlight: whiteKeyHighlight,
     blackKey: blackKey,
-    blackKeyActive: blackKeyActive,
+    blackKeyHighlight: blackKeyHighlight,
     border: border,
   );
 }
