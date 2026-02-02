@@ -63,7 +63,10 @@ class _MidiLifecycleController with WidgetsBindingObserver {
         // app is backgrounded without our watchdog running. Reconcile first so
         // we don't keep showing a stale "Connected" state and short-circuit reconnect.
         Future.microtask(() async {
-          await midi.reconcileConnectedDevice(reason: 'resume');
+          await midi.reconcileConnectedDevice(
+            reason: 'resume',
+            scanIfNeeded: true,
+          );
           await connectionState.tryAutoReconnect(reason: 'resume');
         });
         break;
