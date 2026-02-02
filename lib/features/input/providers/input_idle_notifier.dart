@@ -100,7 +100,7 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
     });
 
     // Engagement is defined strictly by whether any notes are sounding.
-    // Sustain pedal state (manual or MIDI) must not directly affect engagement.
+    // Sustain pedal state (touch or MIDI) must not directly affect engagement.
     ref.listen<int>(
       soundingNoteNumbersProvider.select((s) => s.length),
       (prev, next) => _updateEngagement(engagedNow: next > 0),

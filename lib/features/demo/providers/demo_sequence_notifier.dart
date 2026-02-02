@@ -17,10 +17,11 @@ class DemoSequenceState {
 
 class DemoStep {
   final Set<int>? notes;
+  final bool? pedalDown;
   final ThemeMode? themeMode;
   final Tonality? tonality;
 
-  const DemoStep({this.notes, this.themeMode, this.tonality});
+  const DemoStep({this.notes, this.pedalDown, this.themeMode, this.tonality});
 }
 
 class DemoSequenceNotifier extends Notifier<DemoSequenceState> {

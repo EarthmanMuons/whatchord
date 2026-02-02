@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/core.dart';
-import 'package:whatchord/features/input/input.dart';
-import 'package:whatchord/features/midi/midi.dart' show isPedalDownProvider;
 
 import '../../models/sounding_note.dart';
+import '../../providers/pedal_state_provider.dart';
+import '../../providers/input_idle_notifier.dart';
 import '../../providers/sounding_notes_provider.dart';
 import 'note_chip.dart';
 import 'pedal_indicator.dart';
@@ -74,7 +74,7 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
     super.initState();
 
     _notes = [...ref.read(soundingNotesProvider)];
-    _pedal = ref.read(isPedalDownProvider);
+    _pedal = ref.read(inputPedalStateProvider).isDown;
     _pedalCtl.value = _pedal ? 1.0 : 0.0;
 
     _notesSubscription = ref.listenManual<List<SoundingNote>>(
@@ -92,21 +92,21 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
       },
     );
 
-    _pedalSubscription = ref.listenManual<bool>(isPedalDownProvider, (
-      prev,
-      next,
-    ) {
-      if (!mounted) return;
+    _pedalSubscription = ref.listenManual<bool>(
+      inputPedalStateProvider.select((s) => s.isDown),
+      (prev, next) {
+        if (!mounted) return;
 
-      setState(() => _pedal = next);
+        setState(() => _pedal = next);
 
-      // Interruptible: immediately retarget animation.
-      if (next) {
-        _pedalCtl.forward();
-      } else {
-        _pedalCtl.reverse();
-      }
-    });
+        // Interruptible: immediately retarget animation.
+        if (next) {
+          _pedalCtl.forward();
+        } else {
+          _pedalCtl.reverse();
+        }
+      },
+    );
   }
 
   @override
