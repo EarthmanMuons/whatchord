@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/midi/midi.dart';
-import 'package:whatchord/features/piano/piano.dart';
+import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/settings/settings.dart';
 
 import '../models/home_layout_config.dart';

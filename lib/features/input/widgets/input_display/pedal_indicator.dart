@@ -2,12 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:whatchord/features/midi/midi.dart'
-    show
-        isPedalDownProvider,
-        pedalSourceProvider,
-        midiNoteStateProvider,
-        PedalInputSource;
+import '../../models/input_pedal_state.dart';
+import '../../providers/pedal_state_provider.dart';
 
 class PedalIndicator extends ConsumerStatefulWidget {
   const PedalIndicator({super.key});
@@ -27,10 +23,11 @@ class _PedalIndicatorState extends ConsumerState<PedalIndicator> {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    final isDown = ref.watch(isPedalDownProvider);
-    final source = ref.watch(pedalSourceProvider);
+    final pedal = ref.watch(inputPedalStateProvider);
+    final isDown = pedal.isDown;
+    final source = pedal.source;
 
-    final showManualRing = isDown && source == PedalInputSource.manual;
+    final showManualRing = isDown && source == InputPedalSource.touch;
 
     final tooltip = isDown
         ? 'Sustain pedal held. Tap to toggle.'
@@ -54,8 +51,7 @@ class _PedalIndicatorState extends ConsumerState<PedalIndicator> {
           child: InkWell(
             borderRadius: BorderRadius.circular(10),
             onHighlightChanged: (v) => setState(() => _pressed = v),
-            onTap: () =>
-                ref.read(midiNoteStateProvider.notifier).togglePedalManual(),
+            onTap: () => ref.read(inputPedalControllerProvider).toggle(),
             child: SizedBox(
               width: PedalIndicator.slotWidth,
               height: double.infinity,

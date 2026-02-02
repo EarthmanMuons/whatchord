@@ -2,28 +2,28 @@ import 'package:flutter/foundation.dart';
 
 @immutable
 class SoundingNote {
-  final int midiNote;
-  final String label; // e.g., "C4", "F#5"
+  final int noteNumber;
+  final String label; // Display label (e.g., "C", "F#", "Bb").
   final bool isSustained; // true if held by pedal, false if currently pressed
 
   const SoundingNote({
-    required this.midiNote,
+    required this.noteNumber,
     required this.label,
     required this.isSustained,
   });
 
   /// Stable ID for AnimatedList diffing.
-  String get id => 'note_$midiNote';
+  String get id => 'note_$noteNumber';
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is SoundingNote &&
           runtimeType == other.runtimeType &&
-          midiNote == other.midiNote &&
+          noteNumber == other.noteNumber &&
           label == other.label &&
           isSustained == other.isSustained;
 
   @override
-  int get hashCode => Object.hash(midiNote, label, isSustained);
+  int get hashCode => Object.hash(noteNumber, label, isSustained);
 }

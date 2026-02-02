@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/midi/midi.dart' show isPedalDownProvider;
-
 import '../../models/sounding_note.dart';
+import '../../providers/pedal_state_provider.dart';
 
 class NoteChip extends ConsumerWidget {
   const NoteChip({super.key, required this.note});
@@ -15,7 +14,9 @@ class NoteChip extends ConsumerWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final isPedalDown = ref.watch(isPedalDownProvider);
+    final isPedalDown = ref.watch(
+      inputPedalStateProvider.select((s) => s.isDown),
+    );
 
     final bgColor = cs.surfaceContainerLow;
     final fgColor = cs.onSurface;

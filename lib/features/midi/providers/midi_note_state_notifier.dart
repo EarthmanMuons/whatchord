@@ -14,13 +14,14 @@ final midiNoteStateProvider =
     );
 
 class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
+  bool _pedalLatch = false;
+
   @override
   MidiNoteState build() {
     const initialState = MidiNoteState(
       pressed: {},
       sustained: {},
       isPedalDown: false,
-      pedalSource: PedalInputSource.midi,
     );
 
     ref.listen<MidiConnectionPhase>(
@@ -96,70 +97,36 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
     }
   }
 
-  void togglePedalManual() {
-    // If MIDI is currently holding the pedal down, a manual tap should not flip
-    // the pedal "up" (which would clear sustained notes). Instead, it takes
-    // ownership of the down state so the UI can be latched/frozen.
-    if (state.isPedalDown && state.pedalSource == PedalInputSource.midi) {
-      state = state.copyWith(
-        isPedalDown: true,
-        pedalSource: PedalInputSource.manual,
-      );
-      return;
-    }
+  void setPedalDown(bool down) => _setPedalDown(down);
 
-    // Otherwise, behave like a normal manual toggle.
-    setPedalDownManual(!state.isPedalDown);
+  void setPedalLatch(bool enabled) {
+    _pedalLatch = enabled;
   }
 
-  void setPedalDownManual(bool down) =>
-      _setPedalDown(down, PedalInputSource.manual);
-
-  void setPedalDownFromMidi(bool down) {
-    // If the user has latched the pedal manually down, ignore MIDI pedal changes.
-    // This prevents a subsequent CC "up" from clearing sustained notes after
-    // the user explicitly froze the state.
-    if (state.pedalSource == PedalInputSource.manual && state.isPedalDown) {
-      return;
-    }
-    _setPedalDown(down, PedalInputSource.midi);
-  }
-
-  void _setPedalDown(bool down, PedalInputSource source) {
-    final sameDown = down == state.isPedalDown;
-    final sameSource = source == state.pedalSource;
-
-    // If down state unchanged but the source changes (e.g., manual -> midi),
-    // still update to reflect "MIDI is authoritative now."
-    if (sameDown && sameSource) return;
+  void _setPedalDown(bool down) {
+    if (down == state.isPedalDown) return;
 
     if (!down) {
       // Pedal released: clear all sustained notes.
-      state = state.copyWith(
-        isPedalDown: false,
-        sustained: <int>{},
-        pedalSource: source,
-      );
+      state = state.copyWith(isPedalDown: false, sustained: <int>{});
     } else {
-      state = state.copyWith(isPedalDown: true, pedalSource: source);
+      state = state.copyWith(isPedalDown: true);
     }
   }
 
-  void handlePedalValue(int value) =>
-      setPedalDownFromMidi(value >= MidiConstants.sustainPedalThreshold);
+  void handlePedalValue(int value) {
+    final down = value >= MidiConstants.sustainPedalThreshold;
+    if (!down && _pedalLatch) return;
+    setPedalDown(down);
+  }
 }
 
-// Raw MIDI note numbers for keyboard highlighting.
+// MIDI note numbers for keyboard highlighting.
 final midiSoundingNoteNumbersProvider = Provider<Set<int>>((ref) {
   return ref.watch(midiNoteStateProvider.select((s) => s.soundingNoteNumbers));
 });
 
 // Sustain pedal state.
-final isPedalDownProvider = Provider<bool>((ref) {
+final midiPedalDownProvider = Provider<bool>((ref) {
   return ref.watch(midiNoteStateProvider.select((s) => s.isPedalDown));
-});
-
-// Sustain pedal source (manual vs MIDI).
-final pedalSourceProvider = Provider<PedalInputSource>((ref) {
-  return ref.watch(midiNoteStateProvider.select((s) => s.pedalSource));
 });
