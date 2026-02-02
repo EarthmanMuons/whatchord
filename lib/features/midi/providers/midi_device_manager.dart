@@ -83,6 +83,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     milliseconds: 300,
   );
   static const Duration _postConnectSettleDelay = Duration(milliseconds: 800);
+  static const Duration _connectTimeout = Duration(seconds: 6);
 
   static const Duration _waitForDeviceTimeout = Duration(seconds: 6);
 
@@ -101,6 +102,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   Timer? _setupDebounce;
   Timer? _connectionWatchdog;
+  Future<void>? _reconcileInFlight;
 
   Future<void>? _scanInFlight;
   Future<void>? _deviceRefreshInFlight;
@@ -268,7 +270,25 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   ///
   /// This is particularly important on iOS where the OS may drop Bluetooth connections
   /// while the app is backgrounded without producing a timely setup-change event.
-  Future<void> reconcileConnectedDevice({String reason = 'foreground'}) async {
+  Future<void> reconcileConnectedDevice({
+    String reason = 'foreground',
+    bool scanIfNeeded = false,
+  }) {
+    final inflight = _reconcileInFlight;
+    if (inflight != null) return inflight;
+
+    final fut = _reconcileConnectedDeviceImpl(
+      reason: reason,
+      scanIfNeeded: scanIfNeeded,
+    );
+    _reconcileInFlight = fut;
+    return fut.whenComplete(() => _reconcileInFlight = null);
+  }
+
+  Future<void> _reconcileConnectedDeviceImpl({
+    required String reason,
+    required bool scanIfNeeded,
+  }) async {
     final current = state.connectedDevice;
     if (current == null) return;
 
@@ -281,6 +301,10 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       // connection anyway. If we cannot prime, don't blindly clear here.
       debugPrint('reconcileConnectedDevice($reason): prime failed: $e');
       return;
+    }
+
+    if (scanIfNeeded && !state.isScanning) {
+      await _pulseScan(reason: reason);
     }
 
     try {
@@ -540,7 +564,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   }
 
   Future<void> _performConnection(String deviceId) async {
-    await _ble.connect(deviceId);
+    await _ble.connect(deviceId).timeout(
+      _connectTimeout,
+      onTimeout: () {
+        throw const MidiException('Connection timed out');
+      },
+    );
     await Future<void>.delayed(_postConnectSettleDelay);
   }
 
@@ -586,7 +615,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       if (state.connectedDevice == null) return;
       if (state.isScanning) return;
 
-      unawaited(_safeRefreshDevices(bypassThrottle: true));
+      unawaited(
+        reconcileConnectedDevice(reason: 'watchdog', scanIfNeeded: true),
+      );
     });
   }
 
@@ -619,6 +650,32 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
     _lastPublishedBtState = mapped;
     state = state.copyWith(bluetoothState: mapped);
+  }
+
+  Future<void> _pulseScan({
+    required String reason,
+    Duration dwell = const Duration(milliseconds: 350),
+  }) async {
+    if (state.isScanning) return;
+    if (_scanInFlight != null) return;
+
+    try {
+      await _ble.startScanning();
+      state = state.copyWith(isScanning: true);
+      await Future<void>.delayed(dwell);
+      await _refreshDeviceList(bypassThrottle: true);
+    } catch (e) {
+      debugPrint('pulseScan($reason) failed: $e');
+    } finally {
+      try {
+        _ble.stopScanning();
+      } catch (e) {
+        debugPrint('pulseScan($reason) stop failed: $e');
+      } finally {
+        state = state.copyWith(isScanning: false);
+        _updateConnectionWatchdog();
+      }
+    }
   }
 
   // ---- Utilities ---------------------------------------------------------
