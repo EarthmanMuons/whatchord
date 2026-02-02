@@ -15,7 +15,7 @@ final chordMemberSpellingsProvider = Provider<List<String>>((ref) {
   final best = ref.watch(bestChordCandidateProvider);
   if (best == null) return const <String>[];
 
-  final midis = ref.watch(soundingNotesSortedProvider);
+  final midis = ref.watch(soundingNoteNumbersSortedProvider);
   if (midis.isEmpty) return const <String>[];
 
   final pcs = midis.map((m) => m % 12).toSet();

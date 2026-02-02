@@ -41,7 +41,7 @@ class DetailsSection extends ConsumerWidget {
 
           Align(
             alignment: Alignment.bottomLeft,
-            child: ActiveInput(padding: config.activeInputPadding),
+            child: InputDisplay(padding: config.inputDisplayPadding),
           ),
         ],
       ),

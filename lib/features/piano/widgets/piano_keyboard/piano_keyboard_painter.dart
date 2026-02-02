@@ -7,7 +7,7 @@ class PianoKeyboardPainter extends CustomPainter {
   PianoKeyboardPainter({
     required this.whiteKeyCount,
     required this.firstMidiNote,
-    required this.soundingMidiNotes,
+    required this.highlightedNoteNumbers,
     required this.whiteKeyColor,
     required this.whiteKeyHighlightColor,
     required this.whiteKeyBorderColor,
@@ -32,8 +32,8 @@ class PianoKeyboardPainter extends CustomPainter {
   final int whiteKeyCount;
   final int firstMidiNote;
 
-  /// Sounding *MIDI note numbers* (e.g., 60 for middle C).
-  final Set<int> soundingMidiNotes;
+  /// Highlighted *MIDI note numbers* (e.g., 60 for middle C).
+  final Set<int> highlightedNoteNumbers;
 
   final Color whiteKeyColor;
   final Color whiteKeyHighlightColor;
@@ -57,7 +57,7 @@ class PianoKeyboardPainter extends CustomPainter {
   int _whiteMidiForIndex(int whiteIndex) =>
       _geometry.whiteMidiForIndex(whiteIndex);
 
-  bool _isSounding(int midi) => soundingMidiNotes.contains(midi);
+  bool _isHighlighted(int midi) => highlightedNoteNumbers.contains(midi);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -88,7 +88,7 @@ class PianoKeyboardPainter extends CustomPainter {
 
       final midi = _whiteMidiForIndex(i);
 
-      whiteFillPaint.color = _isSounding(midi)
+      whiteFillPaint.color = _isHighlighted(midi)
           ? whiteKeyHighlightColor
           : whiteKeyColor;
 
@@ -117,7 +117,7 @@ class PianoKeyboardPainter extends CustomPainter {
 
       final rect = Rect.fromLTWH(blackLeft, 0, blackKeyWidth, blackKeyHeight);
 
-      blackFillPaint.color = _isSounding(blackMidi)
+      blackFillPaint.color = _isHighlighted(blackMidi)
           ? blackKeyHighlightColor
           : blackKeyColor;
       canvas.drawRect(rect, blackFillPaint);
@@ -186,7 +186,7 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.blackKeyHighlightColor != blackKeyHighlightColor ||
         oldDelegate.decorationColor != decorationColor ||
         !_listEquals(oldDelegate.decorations, decorations) ||
-        !_setEquals(oldDelegate.soundingMidiNotes, soundingMidiNotes);
+        !_setEquals(oldDelegate.highlightedNoteNumbers, highlightedNoteNumbers);
   }
 
   bool _setEquals(Set<int> a, Set<int> b) {

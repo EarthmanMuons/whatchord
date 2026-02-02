@@ -4,11 +4,11 @@ import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
-import '../models/active_note.dart';
+import '../models/sounding_note.dart';
 
-final activeNotesProvider = Provider<List<ActiveNote>>((ref) {
-  final midis = ref.watch(soundingNotesSortedProvider);
-  if (midis.isEmpty) return const <ActiveNote>[];
+final soundingNotesProvider = Provider<List<SoundingNote>>((ref) {
+  final midis = ref.watch(soundingNoteNumbersSortedProvider);
+  if (midis.isEmpty) return const <SoundingNote>[];
 
   final sustained = ref.watch(midiNoteStateProvider.select((s) => s.sustained));
 
@@ -18,9 +18,9 @@ final activeNotesProvider = Provider<List<ActiveNote>>((ref) {
   // Role-aware chord spellings (empty map outside chord mode / no best chord).
   final chordNamesByPc = ref.watch(chordMemberSpellingsByPcProvider);
 
-  return List<ActiveNote>.unmodifiable([
+  return List<SoundingNote>.unmodifiable([
     for (final midi in midis)
-      ActiveNote(
+      SoundingNote(
         midiNote: midi,
         label: chordNamesByPc[midi % 12] ?? pcNames[midi % 12],
         isSustained: sustained.contains(midi),

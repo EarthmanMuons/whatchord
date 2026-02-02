@@ -44,7 +44,7 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
     super.key,
     required this.visibleWhiteKeyCount,
     required this.height,
-    required this.soundingMidiNotes,
+    required this.highlightedNoteNumbers,
     this.autoCenter = true,
     this.autoCenterSuppression = const Duration(seconds: 3),
     this.fullWhiteKeyCount = 52,
@@ -59,9 +59,9 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
 
   final double height;
 
-  final Set<int> soundingMidiNotes;
+  final Set<int> highlightedNoteNumbers;
 
-  /// If true, auto-center the viewport to keep active notes visible.
+  /// If true, auto-center the viewport to keep highlighted notes visible.
   final bool autoCenter;
 
   /// When user scrolls manually, suppress follow for this window.
@@ -87,7 +87,7 @@ class _ScrollablePianoKeyboardState
   final ScrollController _ctl = ScrollController();
 
   DateTime _lastUserScroll = DateTime.fromMillisecondsSinceEpoch(0);
-  Set<int> _previousSoundingNotes = const <int>{};
+  Set<int> _previousHighlightedNotes = const <int>{};
 
   ProviderSubscription<bool>? _idleSubscription;
 
@@ -214,13 +214,13 @@ class _ScrollablePianoKeyboardState
     final contentWidth = _contentWidthForWhiteKeyWidth(whiteKeyWidth);
     final geometry = _buildGeometry();
 
-    final sounding = widget.soundingMidiNotes;
+    final highlighted = widget.highlightedNoteNumbers;
 
-    if (sounding.isNotEmpty) {
+    if (highlighted.isNotEmpty) {
       double minX = double.infinity;
       double maxX = -double.infinity;
 
-      for (final midi in sounding) {
+      for (final midi in highlighted) {
         final keyRect = geometry.keyRectForMidi(
           midi: midi,
           whiteKeyWidth: whiteKeyWidth,
@@ -260,7 +260,10 @@ class _ScrollablePianoKeyboardState
     super.didUpdateWidget(oldWidget);
 
     // If notes changed, consider recentering.
-    if (!_setEquals(oldWidget.soundingMidiNotes, widget.soundingMidiNotes)) {
+    if (!_setEquals(
+      oldWidget.highlightedNoteNumbers,
+      widget.highlightedNoteNumbers,
+    )) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => _autoCenterIfNeeded(),
       );
@@ -284,7 +287,7 @@ class _ScrollablePianoKeyboardState
     _lastUserScroll = DateTime.now();
     // Reset diff baseline so follow logic doesn't interpret changes during the
     // cooldown as a large "added" burst once suppression ends.
-    _previousSoundingNotes = Set<int>.from(widget.soundingMidiNotes);
+    _previousHighlightedNotes = Set<int>.from(widget.highlightedNoteNumbers);
   }
 
   bool get _isAutoCenterSuppressed =>
@@ -303,8 +306,8 @@ class _ScrollablePianoKeyboardState
   double _contentWidthForWhiteKeyWidth(double whiteKeyWidth) =>
       whiteKeyWidth * widget.fullWhiteKeyCount;
 
-  ({double minX, double maxX}) _rangeBoundsForSounding({
-    required Set<int> sounding,
+  ({double minX, double maxX}) _rangeBoundsForHighlighted({
+    required Set<int> highlighted,
     required PianoGeometry geometry,
     required double whiteKeyWidth,
     required double contentWidth,
@@ -312,7 +315,7 @@ class _ScrollablePianoKeyboardState
     double minX = double.infinity;
     double maxX = -double.infinity;
 
-    for (final midi in sounding) {
+    for (final midi in highlighted) {
       final keyRect = geometry.keyRectForMidi(
         midi: midi,
         whiteKeyWidth: whiteKeyWidth,
@@ -326,7 +329,7 @@ class _ScrollablePianoKeyboardState
   }
 
   ({int? leftMidi, int? rightMidi}) _nearestOffscreenCandidates({
-    required Set<int> sounding,
+    required Set<int> highlighted,
     required PianoGeometry geometry,
     required double whiteKeyWidth,
     required double contentWidth,
@@ -341,7 +344,7 @@ class _ScrollablePianoKeyboardState
     double rightBest =
         double.infinity; // minimize rect.left (closest from right)
 
-    for (final midi in sounding) {
+    for (final midi in highlighted) {
       final keyRect = geometry.keyRectForMidi(
         midi: midi,
         whiteKeyWidth: whiteKeyWidth,
@@ -378,8 +381,8 @@ class _ScrollablePianoKeyboardState
     final contentWidth = _contentWidthForWhiteKeyWidth(whiteKeyWidth);
     final geometry = _buildGeometry();
 
-    final sounding = widget.soundingMidiNotes;
-    if (sounding.isEmpty) {
+    final highlighted = widget.highlightedNoteNumbers;
+    if (highlighted.isEmpty) {
       if (_indicatorState != _ScrollIndicatorState.none) {
         setState(() => _indicatorState = _ScrollIndicatorState.none);
       }
@@ -389,8 +392,8 @@ class _ScrollablePianoKeyboardState
     final viewLeft = _ctl.offset;
     final viewRight = viewLeft + width;
 
-    final bounds = _rangeBoundsForSounding(
-      sounding: sounding,
+    final bounds = _rangeBoundsForHighlighted(
+      highlighted: highlighted,
       geometry: geometry,
       whiteKeyWidth: whiteKeyWidth,
       contentWidth: contentWidth,
@@ -399,7 +402,7 @@ class _ScrollablePianoKeyboardState
     final maxX = bounds.maxX;
 
     final nearest = _nearestOffscreenCandidates(
-      sounding: sounding,
+      highlighted: highlighted,
       geometry: geometry,
       whiteKeyWidth: whiteKeyWidth,
       contentWidth: contentWidth,
@@ -463,9 +466,9 @@ class _ScrollablePianoKeyboardState
     if (!widget.autoCenter && !force) return;
     if (_isAutoCenterSuppressed && !force) return;
 
-    final next = widget.soundingMidiNotes;
+    final next = widget.highlightedNoteNumbers;
     if (next.isEmpty) {
-      _previousSoundingNotes = const <int>{};
+      _previousHighlightedNotes = const <int>{};
       return;
     }
 
@@ -479,17 +482,17 @@ class _ScrollablePianoKeyboardState
     final viewLeft = _ctl.offset;
     final viewRight = viewLeft + viewportWidth;
 
-    // Diff against the last known sounding set.
-    final prev = _previousSoundingNotes;
+    // Diff against the last known highlighted set.
+    final prev = _previousHighlightedNotes;
     final added = next.difference(prev);
     final removed = prev.difference(next);
 
     // Update the set now that we've captured diffs.
-    _previousSoundingNotes = Set<int>.from(next);
+    _previousHighlightedNotes = Set<int>.from(next);
 
     // Decide whether anything is actually offscreen.
-    final bounds = _rangeBoundsForSounding(
-      sounding: next,
+    final bounds = _rangeBoundsForHighlighted(
+      highlighted: next,
       geometry: geometry,
       whiteKeyWidth: whiteKeyWidth,
       contentWidth: contentWidth,
@@ -539,7 +542,7 @@ class _ScrollablePianoKeyboardState
     // Prefer reacting to newly added notes if they are offscreen.
     if (added.isNotEmpty && !force) {
       final addedNearest = _nearestOffscreenCandidates(
-        sounding: added,
+        highlighted: added,
         geometry: geometry,
         whiteKeyWidth: whiteKeyWidth,
         contentWidth: contentWidth,
@@ -583,9 +586,9 @@ class _ScrollablePianoKeyboardState
       }
     }
 
-    // Otherwise reveal the nearest offscreen sounding key on the side that is offscreen.
+    // Otherwise reveal the nearest offscreen highlighted key on the side that is offscreen.
     final nearest = _nearestOffscreenCandidates(
-      sounding: next,
+      highlighted: next,
       geometry: geometry,
       whiteKeyWidth: whiteKeyWidth,
       contentWidth: contentWidth,
@@ -626,7 +629,7 @@ class _ScrollablePianoKeyboardState
   }
 
   void _maybeReanchorAfterRemoval(
-    Set<int> sounding,
+    Set<int> highlighted,
     PianoGeometry geometry,
     double viewportWidth,
     double whiteKeyWidth,
@@ -634,10 +637,10 @@ class _ScrollablePianoKeyboardState
     double viewLeft,
     double viewRight,
   ) {
-    if (sounding.isEmpty) return;
+    if (highlighted.isEmpty) return;
 
     int visibleCount = 0;
-    for (final midi in sounding) {
+    for (final midi in highlighted) {
       final rect = geometry.keyRectForMidi(
         midi: midi,
         whiteKeyWidth: whiteKeyWidth,
@@ -649,11 +652,11 @@ class _ScrollablePianoKeyboardState
       if (visible) visibleCount++;
     }
 
-    final ratio = visibleCount / sounding.length;
+    final ratio = visibleCount / highlighted.length;
     if (ratio >= 0.34) return;
 
-    final bounds = _rangeBoundsForSounding(
-      sounding: sounding,
+    final bounds = _rangeBoundsForHighlighted(
+      highlighted: highlighted,
       geometry: geometry,
       whiteKeyWidth: whiteKeyWidth,
       contentWidth: contentWidth,
@@ -689,8 +692,8 @@ class _ScrollablePianoKeyboardState
     if (_isAutoScrolling) return;
     if (!_ctl.hasClients) return;
 
-    final sounding = widget.soundingMidiNotes;
-    if (sounding.isEmpty) return;
+    final highlighted = widget.highlightedNoteNumbers;
+    if (highlighted.isEmpty) return;
 
     final double? viewportWidth = _cachedViewportWidth ?? context.size?.width;
     if (viewportWidth == null || viewportWidth <= 0) return;
@@ -699,8 +702,8 @@ class _ScrollablePianoKeyboardState
     final contentWidth = _contentWidthForWhiteKeyWidth(whiteKeyWidth);
     final geometry = _buildGeometry();
 
-    final bounds = _rangeBoundsForSounding(
-      sounding: sounding,
+    final bounds = _rangeBoundsForHighlighted(
+      highlighted: highlighted,
       geometry: geometry,
       whiteKeyWidth: whiteKeyWidth,
       contentWidth: contentWidth,
@@ -710,7 +713,7 @@ class _ScrollablePianoKeyboardState
     final maxX = bounds.maxX;
     final spreadW = maxX - minX;
 
-    // First preference: if the sounding range fits, center it.
+    // First preference: if the highlighted range fits, center it.
     if (spreadW <= (viewportWidth - 2 * _indicatorShowMargin)) {
       final centerX = (minX + maxX) / 2.0;
       final target = (centerX - viewportWidth / 2.0).clamp(
@@ -794,7 +797,7 @@ class _ScrollablePianoKeyboardState
                       child: PianoKeyboard(
                         whiteKeyCount: widget.fullWhiteKeyCount,
                         firstMidiNote: widget.lowestNoteNumber,
-                        soundingMidiNotes: widget.soundingMidiNotes,
+                        highlightedNoteNumbers: widget.highlightedNoteNumbers,
                         height: widget.height,
                         decorations: decorations,
                       ),

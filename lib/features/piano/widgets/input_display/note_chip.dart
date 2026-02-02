@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/midi/midi.dart' show isPedalDownProvider;
 
-import '../../models/active_note.dart';
+import '../../models/sounding_note.dart';
 
 class NoteChip extends ConsumerWidget {
   const NoteChip({super.key, required this.note});
-  final ActiveNote note;
+  final SoundingNote note;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

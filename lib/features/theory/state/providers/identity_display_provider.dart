@@ -23,7 +23,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
   final mode = ref.watch(analysisModeProvider);
   if (mode == AnalysisMode.none) return null;
 
-  final midis = ref.watch(soundingNotesSortedProvider);
+  final midis = ref.watch(soundingNoteNumbersSortedProvider);
   if (midis.isEmpty) return null;
 
   final tonality = ref.watch(analysisContextProvider.select((c) => c.tonality));

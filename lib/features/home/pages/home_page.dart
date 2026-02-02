@@ -255,7 +255,7 @@ class _HomePortrait extends ConsumerWidget {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ActiveInput(padding: config.activeInputPadding),
+            InputDisplay(padding: config.inputDisplayPadding),
             TonalityBar(
               height: config.tonalityBarHeight,
               horizontalInset: horizontalInset,
