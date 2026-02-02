@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'ble_unavailability.dart';
+import 'bluetooth_unavailability.dart';
 import 'midi_device.dart';
 
 enum MidiConnectionPhase {
@@ -24,7 +24,7 @@ class MidiConnectionState {
   final int attempt; // 1-based
   final Duration? nextDelay;
   final String? message;
-  final BleUnavailability? unavailability;
+  final BluetoothUnavailability? unavailability;
 
   const MidiConnectionState({
     required this.phase,
@@ -53,7 +53,7 @@ class MidiConnectionState {
     int? attempt,
     Duration? nextDelay,
     String? message,
-    BleUnavailability? unavailability,
+    BluetoothUnavailability? unavailability,
   }) {
     return MidiConnectionState(
       phase: phase ?? this.phase,

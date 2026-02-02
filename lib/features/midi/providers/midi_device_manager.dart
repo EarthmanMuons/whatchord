@@ -3,12 +3,12 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/ble_access.dart';
+import '../models/bluetooth_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
-import '../services/ble_permission_service.dart';
+import '../services/bluetooth_permission_service.dart';
 import '../services/midi_ble_service.dart';
-import 'ble_permission_service_provider.dart';
+import 'bluetooth_permission_service_provider.dart';
 import 'midi_ble_service_provider.dart';
 
 @immutable
@@ -51,7 +51,7 @@ class MidiDeviceManagerState {
   );
 }
 
-/// Manages BLE MIDI transport: scanning, device discovery, connections.
+/// Manages Bluetooth MIDI transport: scanning, device discovery, connections.
 ///
 /// **Responsibilities:**
 /// - Bluetooth central lifecycle
@@ -91,8 +91,8 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   // ---- Runtime -----------------------------------------------------------
 
   late final MidiBleService _ble = ref.read(midiBleServiceProvider);
-  late final BlePermissionService _blePerms = ref.read(
-    blePermissionServiceProvider,
+  late final BluetoothPermissionService _bluetoothPerms = ref.read(
+    bluetoothPermissionServiceProvider,
   );
 
   StreamSubscription<BluetoothState>? _bluetoothSub;
@@ -207,7 +207,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       await _ensureBluetoothCentralReady();
 
       // Do not stop scanning until after connection is verified.
-      // With the BLE service boundary, we connect by id and verify by querying state.
+      // With the Bluetooth service boundary, we connect by id and verify by querying state.
       await _cleanupStaleConnection(device.id);
       await _performConnection(device.id);
       await _verifyConnection(device.id);
@@ -259,12 +259,13 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     }
   }
 
-  Future<BleAccessResult> ensureBleAccess() => _blePerms.ensureBleAccess();
+  Future<BluetoothAccessResult> ensureBluetoothAccess() =>
+      _bluetoothPerms.ensureBluetoothAccess();
 
   /// Foreground reconciliation: confirms whether our last-known connected device
   /// is still actually connected at the plugin level.
   ///
-  /// This is particularly important on iOS where the OS may drop BLE connections
+  /// This is particularly important on iOS where the OS may drop Bluetooth connections
   /// while the app is backgrounded without producing a timely setup-change event.
   Future<void> reconcileConnectedDevice({String reason = 'foreground'}) async {
     final current = state.connectedDevice;
@@ -316,7 +317,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   // ---- Lazy Bluetooth prime ---------------------------------------------
 
-  /// Prime the BLE stack without starting a scan.
+  /// Prime the Bluetooth stack without starting a scan.
   Future<void> ensureReady() => _ensureBluetoothCentralReady();
 
   Future<void> _ensureBluetoothCentralReady() {

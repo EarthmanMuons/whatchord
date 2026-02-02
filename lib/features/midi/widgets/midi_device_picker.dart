@@ -19,7 +19,7 @@ class MidiDevicePicker extends ConsumerStatefulWidget {
 class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
   String? _error;
 
-  late final MidiConnectionNotifier _connection;
+  late final MidiConnectionNotifier _connectionNotifier;
   late final ProviderSubscription<MidiConnectionState> _connectionSub;
 
   Timer? _scanStartTimer;
@@ -27,11 +27,11 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
   @override
   void initState() {
     super.initState();
-    _connection = ref.read(midiConnectionProvider.notifier);
+    _connectionNotifier = ref.read(midiConnectionStateProvider.notifier);
 
     // React to connection state changes (errors + success close).
     _connectionSub = ref.listenManual<MidiConnectionState>(
-      midiConnectionProvider,
+      midiConnectionStateProvider,
       (prev, next) {
         if (!mounted) return;
 
@@ -79,7 +79,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       if (!mounted) return;
 
       try {
-        await _connection.startScanning();
+        await _connectionNotifier.startScanning();
       } catch (e) {
         if (!mounted) return;
         setState(() {
@@ -95,7 +95,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
 
     try {
       // Hard refresh by default (restart scan) to recover from stalled scans.
-      await _connection.refreshDevices(restartScan: true);
+      await _connectionNotifier.refreshDevices(restartScan: true);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -109,7 +109,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     if (mounted) setState(() => _error = null);
 
     try {
-      await ref.read(midiConnectionProvider.notifier).connect(device);
+      await ref.read(midiConnectionStateProvider.notifier).connect(device);
       // Success + failure UI are driven by the notifier listener above.
     } catch (_) {
       // No-op: notifier publishes MidiConnectionPhase.error + message.
@@ -134,12 +134,12 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     );
 
     final isAttemptingConnection = ref.watch(
-      midiConnectionProvider.select((s) => s.isAttemptingConnection),
+      midiConnectionStateProvider.select((s) => s.isAttemptingConnection),
     );
 
     // Row-level spinner only for the device being connected in the "connecting" phase.
     final connectingDeviceId = ref.watch(
-      midiConnectionProvider.select(
+      midiConnectionStateProvider.select(
         (s) => s.phase == MidiConnectionPhase.connecting ? s.device?.id : null,
       ),
     );
@@ -230,7 +230,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
 
                     return ListTile(
                       leading: Icon(
-                        _getDeviceIcon(device.type),
+                        _iconForTransport(device.transport),
                         color: isConnected ? cs.primary : null,
                       ),
                       title: Text(
@@ -242,7 +242,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                               )
                             : null,
                       ),
-                      subtitle: Text(device.type),
+                      subtitle: Text(device.transport.label),
                       trailing: isConnected
                           ? Icon(Icons.check_circle, color: cs.primary)
                           : isCurrentlyConnecting
@@ -344,12 +344,12 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     );
   }
 
-  IconData _getDeviceIcon(String type) {
-    return switch (type.toLowerCase()) {
-      'ble' || 'bluetooth' => Icons.bluetooth,
-      'usb' => Icons.usb,
-      'network' => Icons.wifi,
-      _ => Icons.piano,
+  IconData _iconForTransport(MidiTransportType transport) {
+    return switch (transport) {
+      MidiTransportType.ble => Icons.bluetooth,
+      MidiTransportType.usb => Icons.usb,
+      MidiTransportType.network => Icons.wifi,
+      MidiTransportType.unknown => Icons.piano,
     };
   }
 }

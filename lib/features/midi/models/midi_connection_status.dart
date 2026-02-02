@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'ble_unavailability.dart';
+import 'bluetooth_unavailability.dart';
 import 'midi_connection.dart';
 
 /// UI-friendly presentation model for MIDI connection status.
@@ -10,26 +10,26 @@ import 'midi_connection.dart';
 @immutable
 class MidiConnectionStatus {
   final MidiConnectionPhase phase;
-  final String label;
-  final String? detail;
+  final String title;
+  final String? subtitle;
 
-  final BleUnavailability? unavailability;
+  final BluetoothUnavailability? unavailability;
   final bool canOpenSettings;
 
   final int? attempt;
   final Duration? nextDelay;
-  final String? message;
+  final String? diagnosticMessage;
   final String? deviceName;
 
   const MidiConnectionStatus({
     required this.phase,
-    required this.label,
-    this.detail,
+    required this.title,
+    this.subtitle,
     this.unavailability,
     this.canOpenSettings = false,
     this.attempt,
     this.nextDelay,
-    this.message,
+    this.diagnosticMessage,
     this.deviceName,
   });
 

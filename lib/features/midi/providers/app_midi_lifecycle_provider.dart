@@ -31,11 +31,13 @@ class _MidiLifecycleController with WidgetsBindingObserver {
     // Attempt reconnect at startup (foreground).
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final prefs = _ref.read(midiPreferencesProvider);
-      final savedId = prefs.savedDeviceId;
+      final lastConnectedId = prefs.lastConnectedDeviceId;
 
-      if (prefs.autoReconnect && savedId != null && savedId.trim().isNotEmpty) {
+      if (prefs.autoReconnect &&
+          lastConnectedId != null &&
+          lastConnectedId.trim().isNotEmpty) {
         _ref
-            .read(midiConnectionProvider.notifier)
+            .read(midiConnectionStateProvider.notifier)
             .tryAutoReconnect(reason: 'startup');
       }
     });
@@ -49,20 +51,20 @@ class _MidiLifecycleController with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final connection = _ref.read(midiConnectionProvider.notifier);
+    final connectionState = _ref.read(midiConnectionStateProvider.notifier);
     final midi = _ref.read(midiDeviceManagerProvider.notifier);
 
     switch (state) {
       case AppLifecycleState.resumed:
         midi.setBackgrounded(false);
-        connection.setBackgrounded(false);
+        connectionState.setBackgrounded(false);
 
-        // IMPORTANT: On iOS especially, the OS may drop BLE connections while the
+        // IMPORTANT: On iOS especially, the OS may drop Bluetooth connections while the
         // app is backgrounded without our watchdog running. Reconcile first so
         // we don't keep showing a stale "Connected" state and short-circuit reconnect.
         Future.microtask(() async {
           await midi.reconcileConnectedDevice(reason: 'resume');
-          await connection.tryAutoReconnect(reason: 'resume');
+          await connectionState.tryAutoReconnect(reason: 'resume');
         });
         break;
 
@@ -74,8 +76,8 @@ class _MidiLifecycleController with WidgetsBindingObserver {
       case AppLifecycleState.hidden:
       case AppLifecycleState.detached:
         midi.setBackgrounded(true);
-        connection.setBackgrounded(true);
-        connection.stopScanning();
+        connectionState.setBackgrounded(true);
+        connectionState.stopScanning();
         break;
     }
   }

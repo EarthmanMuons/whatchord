@@ -16,19 +16,19 @@ class MidiMessage {
   final MidiMessageType type;
   final int? note;
   final int? velocity;
-  final int? controller;
-  final int? value;
+  final int? ccNumber;
+  final int? ccValue;
   final int? program;
-  final int? pitchBend;
+  final int? pitchBendValue;
 
   const MidiMessage({
     required this.type,
     this.note,
     this.velocity,
-    this.controller,
-    this.value,
+    this.ccNumber,
+    this.ccValue,
     this.program,
-    this.pitchBend,
+    this.pitchBendValue,
   });
 
   @override
@@ -36,10 +36,9 @@ class MidiMessage {
     return switch (type) {
       MidiMessageType.noteOn => 'NoteOn(note: $note, vel: $velocity)',
       MidiMessageType.noteOff => 'NoteOff(note: $note, vel: $velocity)',
-      MidiMessageType.controlChange =>
-        'CC(controller: $controller, value: $value)',
+      MidiMessageType.controlChange => 'CC(number: $ccNumber, value: $ccValue)',
       MidiMessageType.programChange => 'ProgramChange(program: $program)',
-      MidiMessageType.pitchBend => 'PitchBend(value: $pitchBend)',
+      MidiMessageType.pitchBend => 'PitchBend(value: $pitchBendValue)',
       MidiMessageType.unknown => 'UnknownMessage',
     };
   }
@@ -48,7 +47,7 @@ class MidiMessage {
 /// Parser for raw MIDI bytes.
 class MidiParser {
   /// Parse a single MIDI message (expects the bytes to start at a status byte).
-  static MidiMessage? parse(Uint8List bytes) {
+  static MidiMessage? parseMessage(Uint8List bytes) {
     if (bytes.isEmpty) return null;
 
     final statusByte = bytes[0];
@@ -78,8 +77,8 @@ class MidiParser {
         if (bytes.length < 3) return null;
         return MidiMessage(
           type: MidiMessageType.controlChange,
-          controller: bytes[1],
-          value: bytes[2],
+          ccNumber: bytes[1],
+          ccValue: bytes[2],
         );
 
       case 0xC0: // Program Change
@@ -94,7 +93,10 @@ class MidiParser {
         final lsb = bytes[1];
         final msb = bytes[2];
         final bend = (msb << 7) | lsb;
-        return MidiMessage(type: MidiMessageType.pitchBend, pitchBend: bend);
+        return MidiMessage(
+          type: MidiMessageType.pitchBend,
+          pitchBendValue: bend,
+        );
 
       default:
         return const MidiMessage(type: MidiMessageType.unknown);
@@ -102,7 +104,7 @@ class MidiParser {
   }
 
   /// Parse a raw packet that may contain multiple channel voice messages.
-  static Iterable<MidiMessage> parseMany(Uint8List bytes) sync* {
+  static Iterable<MidiMessage> parseMessages(Uint8List bytes) sync* {
     var i = 0;
 
     while (i < bytes.length) {
@@ -191,7 +193,7 @@ class MidiParser {
       }
 
       final slice = Uint8List.sublistView(bytes, i, i + msgLen);
-      final parsed = parse(slice);
+      final parsed = parseMessage(slice);
       if (parsed != null) yield parsed;
 
       i += msgLen;

@@ -4,9 +4,9 @@ import '../models/midi_connection.dart';
 import '../models/midi_connection_status.dart';
 
 class MidiStatusCard extends StatelessWidget {
-  const MidiStatusCard({super.key, required this.connection});
+  const MidiStatusCard({super.key, required this.status});
 
-  final MidiConnectionStatus connection;
+  final MidiConnectionStatus status;
 
   @override
   Widget build(BuildContext context) {
@@ -20,17 +20,17 @@ class MidiStatusCard extends StatelessWidget {
 
     // Always a list (possibly empty) so the rendering code is simple.
     final subtitleLines = <String>[
-      if (connection.phase == MidiConnectionPhase.retrying &&
-          connection.attempt != null)
-        'Attempt ${connection.attempt}',
-      if (connection.phase == MidiConnectionPhase.retrying &&
-          connection.nextDelay != null)
-        'Next retry in ${connection.nextDelay!.inSeconds}s',
+      if (status.phase == MidiConnectionPhase.retrying &&
+          status.attempt != null)
+        'Attempt ${status.attempt}',
+      if (status.phase == MidiConnectionPhase.retrying &&
+          status.nextDelay != null)
+        'Next retry in ${status.nextDelay!.inSeconds}s',
       // If you later want error details etc, add more lines here.
     ];
 
     // Text() requires a non-null String.
-    final detailText = connection.detail ?? connection.label;
+    final detailText = status.subtitle ?? status.title;
 
     return Card(
       child: Padding(
@@ -42,7 +42,7 @@ class MidiStatusCard extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                _buildDotForPhase(connection, cs),
+                _buildDotForPhase(status, cs),
                 const SizedBox(width: 12),
                 Expanded(child: Text(detailText)),
               ],
@@ -61,12 +61,12 @@ class MidiStatusCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDotForPhase(MidiConnectionStatus connection, ColorScheme cs) {
+  Widget _buildDotForPhase(MidiConnectionStatus status, ColorScheme cs) {
     // Keep dot semantics consistent with pill tone mapping:
     // - normal/busy -> secondary
     // - error/unavailable -> error
     // - idle -> muted
-    final color = switch (connection.phase) {
+    final color = switch (status.phase) {
       MidiConnectionPhase.connected => Colors.green.shade600,
 
       MidiConnectionPhase.connecting ||

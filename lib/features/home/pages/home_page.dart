@@ -29,7 +29,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   void initState() {
     super.initState();
 
-    _midiSub = ref.listenManual(midiConnectionProvider, (prev, next) {
+    _midiSub = ref.listenManual(midiConnectionStateProvider, (prev, next) {
       if (prev?.phase != MidiConnectionPhase.connected &&
           next.phase == MidiConnectionPhase.connected) {
         final name = next.device?.displayName;

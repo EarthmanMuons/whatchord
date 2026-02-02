@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/demo/demo.dart';
 
-import '../models/ble_unavailability.dart';
+import '../models/bluetooth_unavailability.dart';
 import '../models/midi_connection_status.dart';
 import '../models/midi_connection.dart';
 import 'midi_connection_notifier.dart';
@@ -15,73 +15,75 @@ final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
   if (demoEnabled) {
     return const MidiConnectionStatus(
       phase: MidiConnectionPhase.connected,
-      label: 'Connected',
-      detail: 'Connected to Demo MIDI',
+      title: 'Connected',
+      subtitle: 'Connected to Demo MIDI',
       deviceName: 'Demo MIDI',
     );
   }
 
-  final connection = ref.watch(midiConnectionProvider);
-  final name = connection.deviceDisplayName;
+  final connectionState = ref.watch(midiConnectionStateProvider);
+  final name = connectionState.deviceDisplayName;
 
-  return switch (connection.phase) {
+  return switch (connectionState.phase) {
     MidiConnectionPhase.connected => MidiConnectionStatus(
-      phase: connection.phase,
-      label: 'Connected',
-      detail: name != null ? 'Connected to $name' : 'Connected',
+      phase: connectionState.phase,
+      title: 'Connected',
+      subtitle: name != null ? 'Connected to $name' : 'Connected',
       deviceName: name,
     ),
 
     MidiConnectionPhase.connecting => const MidiConnectionStatus(
       phase: MidiConnectionPhase.connecting,
-      label: 'Connecting…',
-      detail: 'Connecting…',
+      title: 'Connecting…',
+      subtitle: 'Connecting…',
     ),
 
     MidiConnectionPhase.retrying => MidiConnectionStatus(
       phase: MidiConnectionPhase.retrying,
-      label: 'Reconnecting…',
-      detail: connection.nextDelay != null
-          ? 'Reconnecting (next in ${connection.nextDelay!.inSeconds}s)…'
+      title: 'Reconnecting…',
+      subtitle: connectionState.nextDelay != null
+          ? 'Reconnecting (next in ${connectionState.nextDelay!.inSeconds}s)…'
           : 'Reconnecting…',
-      attempt: connection.attempt,
-      nextDelay: connection.nextDelay,
+      attempt: connectionState.attempt,
+      nextDelay: connectionState.nextDelay,
     ),
 
     MidiConnectionPhase.bluetoothUnavailable => () {
-      final reason = connection.unavailability;
-      final isPerm = reason == BleUnavailability.permissionPermanentlyDenied;
+      final reason = connectionState.unavailability;
+      final isPerm =
+          reason == BluetoothUnavailability.permissionPermanentlyDenied;
 
       final label = switch (reason) {
-        BleUnavailability.adapterOff => 'Bluetooth is off',
-        BleUnavailability.permissionDenied ||
-        BleUnavailability.permissionPermanentlyDenied => 'Permissions required',
-        BleUnavailability.unsupported => 'Bluetooth unsupported',
-        BleUnavailability.notReady || null => 'Bluetooth unavailable',
+        BluetoothUnavailability.adapterOff => 'Bluetooth is off',
+        BluetoothUnavailability.permissionDenied ||
+        BluetoothUnavailability.permissionPermanentlyDenied =>
+          'Permissions required',
+        BluetoothUnavailability.unsupported => 'Bluetooth unsupported',
+        BluetoothUnavailability.notReady || null => 'Bluetooth unavailable',
       };
 
       final detail = switch (reason) {
-        BleUnavailability.adapterOff =>
+        BluetoothUnavailability.adapterOff =>
           'Turn on Bluetooth to discover and connect to MIDI devices.',
-        BleUnavailability.permissionDenied =>
+        BluetoothUnavailability.permissionDenied =>
           Platform.isAndroid
-              ? 'Allow the Nearby devices permission to scan and connect to BLE MIDI devices.'
-              : 'Allow Bluetooth access to discover and connect to BLE MIDI devices.',
-        BleUnavailability.permissionPermanentlyDenied =>
+              ? 'Allow the Nearby devices permission to scan and connect to Bluetooth MIDI devices.'
+              : 'Allow Bluetooth access to discover and connect to Bluetooth MIDI devices.',
+        BluetoothUnavailability.permissionPermanentlyDenied =>
           Platform.isAndroid
               ? 'Enable the Nearby devices permission in system settings for this app.'
               : 'Enable Bluetooth access for this app in system settings.',
-        BleUnavailability.unsupported =>
+        BluetoothUnavailability.unsupported =>
           'This device does not support Bluetooth.',
-        BleUnavailability.notReady ||
+        BluetoothUnavailability.notReady ||
         null => 'Bluetooth is not ready yet. Try again.',
       };
 
       return MidiConnectionStatus(
         phase: MidiConnectionPhase.bluetoothUnavailable,
-        label: label,
-        detail: detail,
-        message: connection.message,
+        title: label,
+        subtitle: detail,
+        diagnosticMessage: connectionState.message,
         unavailability: reason,
         canOpenSettings: isPerm,
       );
@@ -89,22 +91,22 @@ final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
 
     MidiConnectionPhase.deviceUnavailable => MidiConnectionStatus(
       phase: MidiConnectionPhase.deviceUnavailable,
-      label: 'Device unavailable',
-      detail: connection.message ?? 'Device unavailable',
-      message: connection.message,
+      title: 'Device unavailable',
+      subtitle: connectionState.message ?? 'Device unavailable',
+      diagnosticMessage: connectionState.message,
     ),
 
     MidiConnectionPhase.error => MidiConnectionStatus(
       phase: MidiConnectionPhase.error,
-      label: 'Error',
-      detail: connection.message ?? 'Error',
-      message: connection.message,
+      title: 'Error',
+      subtitle: connectionState.message ?? 'Error',
+      diagnosticMessage: connectionState.message,
     ),
 
     MidiConnectionPhase.idle => const MidiConnectionStatus(
       phase: MidiConnectionPhase.idle,
-      label: 'Not connected',
-      detail: 'Not connected',
+      title: 'Not connected',
+      subtitle: 'Not connected',
     ),
   };
 });
