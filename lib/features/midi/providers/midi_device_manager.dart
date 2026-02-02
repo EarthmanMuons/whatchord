@@ -86,6 +86,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   static const Duration _waitForDeviceTimeout = Duration(seconds: 6);
 
   static const Duration _btPrimeTimeout = Duration(seconds: 2);
+  static const Duration _btPrimeHardTimeout = Duration(seconds: 3);
 
   // ---- Runtime -----------------------------------------------------------
 
@@ -297,11 +298,17 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     }
   }
 
+  Future<T> _withTimeout<T>(Future<T> future, {required Duration timeout}) =>
+      future.timeout(timeout);
+
   /// Best-effort "is still connected" check used by higher-level workflows.
   Future<bool> isStillConnected(String deviceId) async {
     try {
       await _ensureBluetoothCentralReady();
-      return await _ble.isConnected(deviceId);
+      return await _withTimeout(
+        _ble.isConnected(deviceId),
+        timeout: const Duration(seconds: 2),
+      );
     } catch (_) {
       return false;
     }
@@ -318,7 +325,14 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     final inflight = _centralStartInFlight;
     if (inflight != null) return inflight;
 
-    final fut = _ensureBluetoothCentralReadyImpl();
+    final fut = _ensureBluetoothCentralReadyImpl()
+        // IMPORTANT: guard against native/plugin hangs.
+        .timeout(
+          _btPrimeHardTimeout,
+          onTimeout: () {
+            throw const MidiException('Bluetooth prime timed out');
+          },
+        );
     _centralStartInFlight = fut;
     return fut.whenComplete(() => _centralStartInFlight = null);
   }
@@ -420,7 +434,10 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       // Require 2 consecutive empty snapshots to avoid flapping.
       if (_emptySnapshotsWhileConnected < 2) return;
 
-      final actuallyConnected = await _ble.isConnected(current.id);
+      final actuallyConnected = await _withTimeout(
+        _ble.isConnected(current.id),
+        timeout: const Duration(seconds: 2),
+      );
       if (!actuallyConnected) {
         _setConnectedDevice(null);
       }
@@ -509,7 +526,10 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     // If it's already connected at plugin level, disconnect first.
     // This is best-effort; failure should not prevent a fresh attempt.
     try {
-      final connected = await _ble.isConnected(deviceId);
+      final connected = await _withTimeout(
+        _ble.isConnected(deviceId),
+        timeout: const Duration(seconds: 2),
+      );
       if (!connected) return;
 
       await _ble.disconnect(deviceId);
@@ -523,7 +543,10 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   }
 
   Future<void> _verifyConnection(String deviceId) async {
-    final connected = await _ble.isConnected(deviceId);
+    final connected = await _withTimeout(
+      _ble.isConnected(deviceId),
+      timeout: const Duration(seconds: 2),
+    );
     if (!connected) {
       throw const MidiException('Connection failed - device not responding');
     }

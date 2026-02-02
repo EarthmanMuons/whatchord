@@ -192,6 +192,20 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     }
   }
 
+  /// Await [future] with a hard timeout.
+  /// Returns [onTimeout] if the timeout elapses instead of throwing.
+  Future<T?> _withTimeout<T>(
+    Future<T> future, {
+    required Duration timeout,
+    T? onTimeout,
+  }) async {
+    try {
+      return await future.timeout(timeout);
+    } on TimeoutException {
+      return onTimeout;
+    }
+  }
+
   Future<void> tryAutoReconnect({required String reason}) async {
     if (_backgrounded) return;
     if (_attemptInFlight) return;
@@ -240,32 +254,46 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         return;
       }
 
-      // Publish immediately (before any await) so UI reflects reconnect intent
-      // even if the user navigates away mid-flight.
+      // If already connected to the saved device, do nothing.
+      final current = ref.read(midiDeviceManagerProvider).connectedDevice;
+      if (current?.id == savedDeviceId && current?.isConnected == true) {
+        final stillConnected = await _withTimeout(
+          _midi.isStillConnected(savedDeviceId),
+          timeout: const Duration(seconds: 2),
+          onTimeout: false,
+        );
+        if (stillConnected == true) {
+          // Ensure UI matches reality even if the connected-device stream never re-emits.
+          state = MidiConnectionState(
+            phase: MidiConnectionPhase.connected,
+            device: current,
+          );
+          return;
+        }
+
+        // Stale snapshot: clear it so UI reflects reality and reconnect proceeds.
+        unawaited(_midi.reconcileConnectedDevice(reason: 'tryAutoReconnect'));
+      }
+
+      // Preflight: we are about to attempt a connection; publish attempt=1.
       state = state.copyWith(
-        phase: isManual
-            ? MidiConnectionPhase.connecting
-            : MidiConnectionPhase.retrying,
+        phase: MidiConnectionPhase.connecting,
         message: isManual
             ? 'Connecting to saved device…'
             : (reason == 'startup'
                   ? 'Reconnecting to saved device…'
                   : 'Reconnecting…'),
         nextDelay: null,
-        attempt: 0,
+        attempt: 1,
       );
 
-      // If already connected to the saved device, do nothing.
-      final current = ref.read(midiDeviceManagerProvider).connectedDevice;
-      if (current?.id == savedDeviceId && current?.isConnected == true) {
-        final stillConnected = await _midi.isStillConnected(savedDeviceId);
-        if (stillConnected) return;
-
-        // Stale snapshot: clear it so UI reflects reality and reconnect proceeds.
-        unawaited(_midi.reconcileConnectedDevice(reason: 'tryAutoReconnect'));
-      }
-
-      final ok = await _ensureBleAllowedOrPublishUnavailable();
+      final ok =
+          await _withTimeout(
+            _ensureBleAllowedOrPublishUnavailable(),
+            timeout: const Duration(seconds: 3),
+            onTimeout: false,
+          ) ??
+          false;
       if (!ok) {
         _cancelRetry();
         return;
@@ -292,7 +320,11 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       // then wait briefly for a non-unknown state.
       if (bt == BluetoothState.unknown) {
         try {
-          await ref.read(midiDeviceManagerProvider.notifier).ensureReady();
+          await _withTimeout(
+            ref.read(midiDeviceManagerProvider.notifier).ensureReady(),
+            timeout: const Duration(seconds: 2),
+            onTimeout: null,
+          );
         } catch (_) {
           // If we cannot prime, treat as not-ready and stop.
           _cancelRetry();
