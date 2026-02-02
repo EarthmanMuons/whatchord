@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_midi_command/flutter_midi_command.dart' as fmc;
 
@@ -41,7 +42,12 @@ class MidiBleService {
 
   BluetoothState get bluetoothState => _mapBluetoothState(_midi.bluetoothState);
 
-  Future<void> startCentral() => _midi.startBluetoothCentral();
+  Future<void> startCentral({
+    Duration timeout = const Duration(seconds: 2),
+  }) async {
+    // IMPORTANT: startBluetoothCentral can hang; guard it.
+    await _midi.startBluetoothCentral().timeout(timeout);
+  }
 
   Future<void> waitUntilInitialized({
     Duration timeout = const Duration(seconds: 2),
@@ -51,7 +57,7 @@ class MidiBleService {
   Future<void> ensureCentralReady({
     Duration timeout = const Duration(seconds: 2),
   }) async {
-    await startCentral();
+    await startCentral(timeout: timeout);
     await waitUntilInitialized(timeout: timeout);
   }
 
@@ -67,7 +73,10 @@ class MidiBleService {
   // ---- Devices -----------------------------------------------------------
 
   Future<List<MidiDevice>> devices() async {
-    final nativeDevices = await _midi.devices;
+    final nativeDevices = await _midi.devices.timeout(
+      const Duration(seconds: 2),
+      onTimeout: () => null,
+    );
     return nativeDevices?.map(_convertToMidiDevice).toList() ??
         const <MidiDevice>[];
   }
@@ -101,7 +110,10 @@ class MidiBleService {
   }
 
   Future<fmc.MidiDevice?> _findNativeDeviceOrNull(String deviceId) async {
-    final devices = await _midi.devices;
+    final devices = await _midi.devices.timeout(
+      const Duration(seconds: 2),
+      onTimeout: () => null,
+    );
     if (devices == null || devices.isEmpty) return null;
 
     for (final d in devices) {
