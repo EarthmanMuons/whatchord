@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/core.dart';
@@ -253,10 +255,20 @@ String _debugInput({required List<int> midis}) {
 }
 
 String _debugApp({required String? appVersion}) {
-  final v = appVersion != null
+  final String title;
+  if (Platform.isAndroid) {
+    title = 'Android App';
+  } else if (Platform.isIOS) {
+    title = 'iOS App';
+  } else {
+    title = 'App';
+  }
+
+  final versionLine = appVersion != null
       ? 'WhatChord v$appVersion'
       : 'WhatChord v(loading)';
-  return _debugSection('App', [v]);
+
+  return _debugSection(title, [versionLine]);
 }
 
 String _debugDoc({required List<String> sections}) {
