@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../midi_debug.dart';
 import '../providers/midi_connection_notifier.dart';
 import '../providers/midi_device_manager.dart';
 import '../providers/midi_preferences_notifier.dart';
@@ -18,7 +19,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
   final Ref _ref;
   _MidiLifecycleController(this._ref);
 
-  static const bool _debugLog = false;
+  static const bool _debugLog = midiDebug;
 
   bool _attached = false;
 

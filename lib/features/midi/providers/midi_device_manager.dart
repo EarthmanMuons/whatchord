@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../midi_debug.dart';
 import '../models/bluetooth_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
@@ -89,7 +90,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   static const Duration _btPrimeTimeout = Duration(seconds: 2);
   static const Duration _btPrimeHardTimeout = Duration(seconds: 3);
-  static const bool _debugLog = false;
+  static const bool _debugLog = midiDebug;
 
   // ---- Runtime -----------------------------------------------------------
 
@@ -440,9 +441,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       // Publish post-prime state.
       _handleBluetoothStateChange(_ble.bluetoothState);
       if (_debugLog) {
-        debugPrint(
-          '[MGR] ensureCentralReady ok state=${_ble.bluetoothState}',
-        );
+        debugPrint('[MGR] ensureCentralReady ok state=${_ble.bluetoothState}');
       }
     } catch (e) {
       _centralStarted = false;
@@ -633,7 +632,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     // While scanning/connecting, keep refreshing so the device list can actually
     // converge on the target device (iOS can be slow to surface it).
     if (_debugLog) {
-      debugPrint('[MGR] waitForDevice start id=$deviceId timeout=${timeout.inSeconds}s');
+      debugPrint(
+        '[MGR] waitForDevice start id=$deviceId timeout=${timeout.inSeconds}s',
+      );
     }
 
     Timer? pump;
@@ -685,9 +686,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         timeout: const Duration(seconds: 2),
       );
       if (_debugLog) {
-        debugPrint(
-          '[MGR] cleanupStale id=$deviceId connected=$connected',
-        );
+        debugPrint('[MGR] cleanupStale id=$deviceId connected=$connected');
       }
       if (!connected) return;
 
@@ -698,12 +697,14 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   Future<void> _performConnection(String deviceId) async {
     if (_debugLog) debugPrint('[MGR] performConnection id=$deviceId');
-    await _ble.connect(deviceId).timeout(
-      _connectTimeout,
-      onTimeout: () {
-        throw const MidiException('Connection timed out');
-      },
-    );
+    await _ble
+        .connect(deviceId)
+        .timeout(
+          _connectTimeout,
+          onTimeout: () {
+            throw const MidiException('Connection timed out');
+          },
+        );
     await Future<void>.delayed(_postConnectSettleDelay);
   }
 
@@ -712,7 +713,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       _ble.isConnected(deviceId),
       timeout: const Duration(seconds: 2),
     );
-    if (_debugLog) debugPrint('[MGR] verifyConnection id=$deviceId ok=$connected');
+    if (_debugLog) {
+      debugPrint('[MGR] verifyConnection id=$deviceId ok=$connected');
+    }
     if (!connected) {
       throw const MidiException('Connection failed - device not responding');
     }
@@ -837,14 +840,13 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     final hintName = hint.name.trim().toLowerCase();
     if (hintName.isEmpty) return null;
 
-    final matches =
-        state.devices
-            .where(
-              (d) =>
-                  d.transport == hint.transport &&
-                  d.name.trim().toLowerCase() == hintName,
-            )
-            .toList();
+    final matches = state.devices
+        .where(
+          (d) =>
+              d.transport == hint.transport &&
+              d.name.trim().toLowerCase() == hintName,
+        )
+        .toList();
 
     if (matches.length == 1) return matches.first;
     return null;

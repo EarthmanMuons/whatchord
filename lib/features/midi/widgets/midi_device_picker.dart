@@ -134,14 +134,13 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       midiDeviceManagerProvider.select((s) => s.connectedDevice?.id),
     );
 
-    final visibleDevices =
-        devices
-            .where(
-              (d) =>
-                  d.transport != MidiTransportType.network ||
-                  d.id == connectedDeviceId,
-            )
-            .toList();
+    final visibleDevices = devices
+        .where(
+          (d) =>
+              d.transport != MidiTransportType.network ||
+              d.id == connectedDeviceId,
+        )
+        .toList();
 
     final isAttemptingConnection = ref.watch(
       midiConnectionStateProvider.select((s) => s.isAttemptingConnection),
