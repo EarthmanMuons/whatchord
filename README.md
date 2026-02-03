@@ -5,24 +5,18 @@
 <h1 align="center">WhatChord</h1>
 
 <p align="center">
-  <a
-    href="https://apps.apple.com/us/app/whatchord-midi/id6758409779"
-    style="display:inline-block; padding:15px; text-decoration:none;"
-  >
+  <a href="https://apps.apple.com/us/app/whatchord-midi/id6758409779">
     <img
       src="docs/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
       alt="Download on the App Store"
-      style="height:60px; width:auto; vertical-align:middle;"
+      style="height:60px; width:auto; margin:15px; vertical-align:middle;"
     >
   </a>
-  <a
-    href="https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord"
-    style="display:inline-block; padding:15px; text-decoration:none;"
-  >
+  <a href="https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord">
     <img
       src="docs/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
       alt="Get it on Google Play"
-      style="height:60px; width:auto; vertical-align:middle;"
+      style="height:60px; width:auto; margin:15px; vertical-align:middle;"
     >
   </a>
 </p>
@@ -78,7 +72,7 @@ WhatChord is available on the App Store for iPhone and iPad.
     <img
       src="docs/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
       alt="Download on the App Store"
-      style="height:60px; width:auto; vertical-align:middle;"
+      style="height:60px; width:auto; margin:15px; vertical-align:middle;"
     >
   </a>
 </p>
@@ -92,7 +86,7 @@ WhatChord is available on the Google Play Store for supported Android devices.
     <img
       src="docs/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
       alt="Get it on Google Play"
-      style="height:60px; width:auto; vertical-align:middle;"
+      style="height:60px; width:auto; margin:15px; vertical-align:middle;"
     >
   </a>
 </p>
@@ -124,8 +118,8 @@ install APK releases directly from GitHub while verifying developer signatures.
 
 All official Android builds distributed via Google Play and GitHub are signed
 with the same developer key. You are encouraged to verify the signing
-certificate fingerprint for this key using Obtanium's [AppVerifier] integration
-or Android's native tooling.
+certificate fingerprint for this key using [AppVerifier] or Android's native
+package verification tooling.
 
 **Signing Certificate Fingerprint (SHA-256)**
 
