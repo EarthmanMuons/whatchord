@@ -18,11 +18,14 @@ class _MidiLifecycleController with WidgetsBindingObserver {
   final Ref _ref;
   _MidiLifecycleController(this._ref);
 
+  static const bool _debugLog = false;
+
   bool _attached = false;
 
   void _attach() {
     if (_attached) return;
     _attached = true;
+    if (_debugLog) debugPrint('[LIFE] attach');
     WidgetsBinding.instance.addObserver(this);
 
     // Ensure the MIDI device manager is created early so it can install listeners and seed state.
@@ -33,6 +36,12 @@ class _MidiLifecycleController with WidgetsBindingObserver {
       final prefs = _ref.read(midiPreferencesProvider);
       final lastConnectedId = prefs.lastConnectedDeviceId;
 
+      if (_debugLog) {
+        debugPrint(
+          '[LIFE] startup autoReconnect=${prefs.autoReconnect} '
+          'lastId=${lastConnectedId ?? "null"}',
+        );
+      }
       if (prefs.autoReconnect &&
           lastConnectedId != null &&
           lastConnectedId.trim().isNotEmpty) {
@@ -46,6 +55,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
   void _detach() {
     if (!_attached) return;
     _attached = false;
+    if (_debugLog) debugPrint('[LIFE] detach');
     WidgetsBinding.instance.removeObserver(this);
   }
 
@@ -54,6 +64,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
     final connectionState = _ref.read(midiConnectionStateProvider.notifier);
     final midi = _ref.read(midiDeviceManagerProvider.notifier);
 
+    if (_debugLog) debugPrint('[LIFE] state=$state');
     switch (state) {
       case AppLifecycleState.resumed:
         midi.setBackgrounded(false);

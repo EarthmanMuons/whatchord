@@ -134,6 +134,15 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       midiDeviceManagerProvider.select((s) => s.connectedDevice?.id),
     );
 
+    final visibleDevices =
+        devices
+            .where(
+              (d) =>
+                  d.transport != MidiTransportType.network ||
+                  d.id == connectedDeviceId,
+            )
+            .toList();
+
     final isAttemptingConnection = ref.watch(
       midiConnectionStateProvider.select((s) => s.isAttemptingConnection),
     );
@@ -213,7 +222,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
           Flexible(
             child: Builder(
               builder: (_) {
-                if (devices.isEmpty) {
+                if (visibleDevices.isEmpty) {
                   // Empty can mean either "still scanning" or "no devices found".
                   return isScanning
                       ? _buildScanningState()
@@ -222,9 +231,9 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
 
                 return ListView.builder(
                   shrinkWrap: true,
-                  itemCount: devices.length,
+                  itemCount: visibleDevices.length,
                   itemBuilder: (context, index) {
-                    final device = devices[index];
+                    final device = visibleDevices[index];
                     final isConnected = connectedDeviceId == device.id;
                     final isCurrentlyConnecting =
                         connectingDeviceId == device.id;
