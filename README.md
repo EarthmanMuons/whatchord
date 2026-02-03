@@ -55,10 +55,7 @@ conventional interpretations over simple note-matching.
 
 Here's WhatChord in action:
 
-![WhatChord identifying the notes F#, C, E, and Bb as C7#11 over F#, in light and dark themes.][THEMES]
-
-[THEMES]:
-  https://raw.githubusercontent.com/EarthmanMuons/whatchord/refs/heads/main/docs/screenshots/theme_modes.webp
+![WhatChord identifying a C7#11 chord over F# from the notes F#, C, E, and Bb, shown in light and dark themes.](docs/screenshots/theme_modes.webp)
 
 ## Installation
 
