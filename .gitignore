@@ -33,12 +33,16 @@ migrate_working_dir/
 /build/
 /coverage/
 bugreport-*.zip
+flutter_*.png
 
+# release artifacts and signing certificates
 /dist/
 android/*.jks
 android/*.p12
 android/key.properties
-flutter_*.png
+*.keychain
+*.keychain-db
+ios-signing.keychain-db
 
 # Symbolication related
 app.*.symbols
