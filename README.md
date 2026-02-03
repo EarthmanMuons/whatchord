@@ -1,8 +1,25 @@
 <p align="center">
-  <img width="200" src="https://raw.githubusercontent.com/EarthmanMuons/whatchord/refs/heads/main/docs/images/whatchord_logo.webp" alt="WhatChord logo">
+  <img width="200" src="docs/images/whatchord_logo.webp" alt="WhatChord logo">
 </p>
 
 <h1 align="center">WhatChord</h1>
+
+<p align="center">
+  <a href="https://apps.apple.com/us/app/whatchord-midi/id6758409779" style="padding: 15px;">
+    <img
+      src="docs/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+      alt="Download on the App Store"
+      height="60"
+    >
+  </a>
+  <a href="https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord" style="padding: 15px;">
+    <img
+      src="docs/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
+      alt="Get it on Google Play"
+      height="60"
+    >
+  </a>
+</p>
 
 WhatChord listens to live MIDI input and identifies the most musically plausible
 chord as you play. It is optimized for speed and accuracy, favoring stable,
@@ -43,11 +60,45 @@ Here's WhatChord in action:
 
 ## Installation
 
-WhatChord is distributed as a signed Android APK (app package) and is **not**
-currently published on the Google Play Store. Installation is intended to be
-handled via a standard third-party updater workflow.
+WhatChord is available through multiple official distribution channels. Choose
+the option that best fits your platform and update preferences.
 
-### Recommended: Obtanium
+### iOS (App Store)
+
+WhatChord is available on the App Store for iPhone and iPad.
+
+<p>
+  <a href="https://apps.apple.com/us/app/whatchord-midi/id6758409779">
+    <img
+      src="docs/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+      alt="Download on the App Store"
+      height="60"
+    >
+  </a>
+</p>
+
+### Android (Google Play)
+
+WhatChord is available on the Google Play Store for supported Android devices.
+
+<p>
+  <a href="https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord">
+    <img
+      src="docs/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
+      alt="Get it on Google Play"
+      height="60"
+    >
+  </a>
+</p>
+
+> Google Play availability may vary by region during staged rollouts.
+
+### Android (Direct APK via GitHub)
+
+For advanced users who prefer direct distribution or third-party updater
+workflows, WhatChord also publishes **signed Android APKs** as GitHub Releases.
+
+#### Recommended: Obtanium
 
 [Obtanium](https://obtainium.imranr.dev/) allows you to securely track and
 install APK releases directly from GitHub while verifying developer signatures.
@@ -59,15 +110,16 @@ install APK releases directly from GitHub while verifying developer signatures.
 3. Obtanium will automatically detect new releases and prompt you to update.
 4. Verify the APK signature against the published developer key (see below).
 
-> Automated, signed APK builds are published as GitHub Releases.
+> Automated, signed APK builds are published with every official GitHub Release.
 
 [REPO]: https://github.com/EarthmanMuons/whatchord
 
-### Developer Signing Key
+### Developer Signing Key (Android)
 
-All official builds are signed with a consistent developer key. You are
-encouraged to verify the signing certificate fingerprint for this key using
-Obtanium's AppVerifier integration or Android's native tooling.
+All official Android builds distributed via Google Play and GitHub are signed
+with the same developer key. You are encouraged to verify the signing
+certificate fingerprint for this key using Obtanium's [AppVerifier] integration
+or Android's native tooling.
 
 **Signing Certificate Fingerprint (SHA-256)**
 
@@ -78,6 +130,8 @@ E8:21:56:94:BA:A2:E0:A3:48:E6:97:49:3E:8B:A9:92:94:93:5E:46:DD:17:03:2C:3C:67:F3
 
 > ⚠️ Do not install builds whose signing key does not match the fingerprint
 > published here.
+
+[AppVerifier]: https://github.com/soupslurpr/AppVerifier
 
 ## Who Is This For?
 
@@ -107,11 +161,17 @@ information. Sharing this data helps diagnose edge cases and improve the engine.
 
 [ISSUE]: https://github.com/EarthmanMuons/whatchord/issues/new/choose
 
+---
+
+Apple, the Apple logo, and App Store are trademarks of Apple Inc., registered in
+the U.S. and other countries and regions.
+
+Google Play and the Google Play logo are trademarks of Google LLC.
+
 ## License
 
-WhatChord is released under the [Zero Clause BSD License][LICENSE] (SPDX: 0BSD).
+WhatChord is released under the [Zero Clause BSD License](LICENSE) (SPDX: 0BSD).
 
 Copyright &copy; 2025 [Aaron Bull Schaefer][EMAIL] and contributors
 
-[LICENSE]: https://github.com/EarthmanMuons/whatchord/blob/main/LICENSE
 [EMAIL]: mailto:aaron@elasticdog.com
