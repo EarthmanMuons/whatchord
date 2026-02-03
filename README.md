@@ -9,16 +9,18 @@
     <img
       src="docs/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
       alt="Download on the App Store"
-      style="height:60px; width:auto; margin:15px; vertical-align:middle;"
-    >
-  </a>
-  <a href="https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord">
+      style="height: 60px"
+      hspace="15"
+  /></a>
+  <a
+    href="https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord"
+  >
     <img
       src="docs/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
       alt="Get it on Google Play"
-      style="height:60px; width:auto; margin:15px; vertical-align:middle;"
-    >
-  </a>
+      style="height: 60px"
+      hspace="15"
+  /></a>
 </p>
 
 WhatChord listens to live MIDI input and identifies the most musically plausible
