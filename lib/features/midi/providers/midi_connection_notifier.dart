@@ -9,6 +9,7 @@ import '../models/bluetooth_state.dart';
 import '../models/bluetooth_unavailability.dart';
 import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
+import '../midi_debug.dart';
 import 'midi_device_manager.dart';
 import 'midi_preferences_notifier.dart';
 
@@ -20,7 +21,7 @@ final midiConnectionStateProvider =
 class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   static const int _maxAttempts = 5;
   static const Duration _maxBackoff = Duration(seconds: 16);
-  static const bool _debugLog = false;
+  static const bool _debugLog = midiDebug;
 
   bool _startupAttempted = false;
   DateTime? _lastAutoReconnectAt;
@@ -307,7 +308,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
         // Stale snapshot: clear it so UI reflects reality and reconnect proceeds.
         if (_debugLog) {
-          debugPrint('[CONN] stale snapshot; reconcile id=$lastConnectedDeviceId');
+          debugPrint(
+            '[CONN] stale snapshot; reconcile id=$lastConnectedDeviceId',
+          );
         }
         unawaited(_midi.reconcileConnectedDevice(reason: 'tryAutoReconnect'));
       }
@@ -440,9 +443,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       } else {
         if (target.id != currentId) {
           if (_debugLog) {
-            debugPrint(
-              '[CONN] reconnect remap id=$currentId -> ${target.id}',
-            );
+            debugPrint('[CONN] reconnect remap id=$currentId -> ${target.id}');
           }
           currentId = target.id;
           currentHint = target;
@@ -465,10 +466,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
             : 'Reconnecting to last connected device (attempt $attempt)…',
       );
 
-      final ok =
-          target == null
-              ? false
-              : await _midi.reconnect(currentId);
+      final ok = target == null ? false : await _midi.reconnect(currentId);
       if (_debugLog) {
         debugPrint('[CONN] reconnect result ok=$ok attempt=$attempt');
       }
