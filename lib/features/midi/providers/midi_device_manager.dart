@@ -89,6 +89,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   static const Duration _btPrimeTimeout = Duration(seconds: 2);
   static const Duration _btPrimeHardTimeout = Duration(seconds: 3);
+  static const bool _debugLog = false;
 
   // ---- Runtime -----------------------------------------------------------
 
@@ -155,6 +156,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   void setBackgrounded(bool value) {
     _backgrounded = value;
+    if (_debugLog) debugPrint('[MGR] backgrounded=$_backgrounded');
     _updateConnectionWatchdog();
   }
 
@@ -171,6 +173,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       if (!_centralStarted && !state.isScanning) return;
     }
 
+    if (_debugLog) {
+      debugPrint(
+        '[MGR] refreshDevices ensureScanning=$ensureScanning '
+        'central=$_centralStarted scanning=${state.isScanning}',
+      );
+    }
     await _refreshDeviceList(bypassThrottle: true);
   }
 
@@ -200,6 +208,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     } catch (e) {
       debugPrint('Warning: Error stopping MIDI scan: $e');
     } finally {
+      if (_debugLog) debugPrint('[MGR] stopScanning');
       state = state.copyWith(isScanning: false);
       _updateConnectionWatchdog();
     }
@@ -207,6 +216,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   Future<void> connect(MidiDevice device) async {
     try {
+      if (_debugLog) debugPrint('[MGR] connect id=${device.id}');
       await _ensureBluetoothCentralReady();
 
       // Do not stop scanning until after connection is verified.
@@ -229,6 +239,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     if (current == null) return;
 
     try {
+      if (_debugLog) debugPrint('[MGR] disconnect id=${current.id}');
       // Best-effort; do not force a prime just to disconnect.
       // If central was never started, this should simply no-op.
       await _disconnectBestEffort(current.id);
@@ -262,6 +273,50 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     }
   }
 
+  /// Resolve a reconnect target by id, or by name/transport if the id changed.
+  Future<MidiDevice?> findReconnectTarget({
+    required String deviceId,
+    MidiDevice? hint,
+  }) async {
+    try {
+      await _ensureBluetoothCentralReady();
+
+      await _ensureScanning();
+      await _refreshDeviceList(bypassThrottle: true);
+
+      final byId = _findDeviceInList(state.devices, deviceId);
+      if (byId != null) {
+        if (_debugLog) debugPrint('[MGR] findReconnectTarget byId=$deviceId');
+        return byId;
+      }
+
+      if (hint == null) {
+        if (_debugLog) {
+          debugPrint('[MGR] findReconnectTarget no hint for id=$deviceId');
+        }
+        return null;
+      }
+
+      final byHint = _findDeviceByHint(hint);
+      if (byHint != null) {
+        if (_debugLog) {
+          debugPrint(
+            '[MGR] findReconnectTarget byHint id=${byHint.id} name=${byHint.name}',
+          );
+        }
+      } else if (_debugLog) {
+        debugPrint(
+          '[MGR] findReconnectTarget no match for hint name=${hint.name} '
+          'transport=${hint.transport}',
+        );
+      }
+      return byHint;
+    } catch (e) {
+      debugPrint('findReconnectTarget failed: $e');
+      return null;
+    }
+  }
+
   Future<BluetoothAccessResult> ensureBluetoothAccess() =>
       _bluetoothPerms.ensureBluetoothAccess();
 
@@ -277,6 +332,13 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     final inflight = _reconcileInFlight;
     if (inflight != null) return inflight;
 
+    if (_debugLog) {
+      debugPrint(
+        '[MGR] reconcile start reason=$reason scanIfNeeded=$scanIfNeeded '
+        'connected=${state.connectedDevice?.id}/${state.connectedDevice?.isConnected} '
+        'central=$_centralStarted scanning=${state.isScanning}',
+      );
+    }
     final fut = _reconcileConnectedDeviceImpl(
       reason: reason,
       scanIfNeeded: scanIfNeeded,
@@ -309,6 +371,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
     try {
       final actuallyConnected = await _ble.isConnected(current.id);
+      if (_debugLog) {
+        debugPrint(
+          '[MGR] reconcile result reason=$reason id=${current.id} '
+          'actuallyConnected=$actuallyConnected',
+        );
+      }
       if (!actuallyConnected) {
         debugPrint(
           'reconcileConnectedDevice($reason): stale connection cleared id=${current.id}',
@@ -365,13 +433,20 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   Future<void> _ensureBluetoothCentralReadyImpl() async {
     try {
+      if (_debugLog) debugPrint('[MGR] ensureCentralReady start');
       await _ble.ensureCentralReady(timeout: _btPrimeTimeout);
       _centralStarted = true;
 
       // Publish post-prime state.
       _handleBluetoothStateChange(_ble.bluetoothState);
+      if (_debugLog) {
+        debugPrint(
+          '[MGR] ensureCentralReady ok state=${_ble.bluetoothState}',
+        );
+      }
     } catch (e) {
       _centralStarted = false;
+      if (_debugLog) debugPrint('[MGR] ensureCentralReady failed: $e');
       throw MidiException('Failed to initialize Bluetooth MIDI', e);
     }
   }
@@ -384,6 +459,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     );
 
     _setupChangeSub = _ble.onMidiSetupChanged.listen((_) {
+      if (_debugLog) debugPrint('[MGR] onMidiSetupChanged');
       _setupDebounce?.cancel();
       _setupDebounce = Timer(_setupDebounceDelay, () {
         final bypass = state.isScanning;
@@ -403,6 +479,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       // This prevents "hidden" startup priming via refresh paths.
       if (!_centralStarted && !state.isScanning) return;
 
+      if (_debugLog) {
+        debugPrint(
+          '[MGR] refreshDevices safe bypass=$bypassThrottle '
+          'central=$_centralStarted scanning=${state.isScanning}',
+        );
+      }
       await _refreshDeviceList(bypassThrottle: bypassThrottle);
     } catch (e) {
       debugPrint('Device refresh failed: $e');
@@ -434,6 +516,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     if (!_centralStarted) return;
 
     final devices = await _ble.devices();
+    if (_debugLog) {
+      debugPrint(
+        '[MGR] devices count=${devices.length} '
+        'connected=${state.connectedDevice?.id}/${state.connectedDevice?.isConnected}',
+      );
+    }
 
     state = state.copyWith(devices: devices);
     _signalDevicesChanged();
@@ -456,6 +544,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     // dropping a valid connection on a single bad snapshot.
     if (devices.isEmpty) {
       _emptySnapshotsWhileConnected++;
+      if (_debugLog) {
+        debugPrint(
+          '[MGR] sync empty snapshots=$_emptySnapshotsWhileConnected '
+          'id=${current.id}',
+        );
+      }
 
       // Require 2 consecutive empty snapshots to avoid flapping.
       if (_emptySnapshotsWhileConnected < 2) return;
@@ -464,6 +558,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         _ble.isConnected(current.id),
         timeout: const Duration(seconds: 2),
       );
+      if (_debugLog) {
+        debugPrint(
+          '[MGR] sync empty verify id=${current.id} '
+          'actuallyConnected=$actuallyConnected',
+        );
+      }
       if (!actuallyConnected) {
         _setConnectedDevice(null);
       }
@@ -476,6 +576,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
     if (match == null || !match.isConnected) {
       final actuallyConnected = await _ble.isConnected(current.id);
+      if (_debugLog) {
+        debugPrint(
+          '[MGR] sync mismatch id=${current.id} match=${match?.id}/${match?.isConnected} '
+          'actuallyConnected=$actuallyConnected',
+        );
+      }
       if (!actuallyConnected) {
         _setConnectedDevice(null);
       }
@@ -502,6 +608,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     await _ensureBluetoothCentralReady();
 
     await _ble.startScanning();
+    if (_debugLog) debugPrint('[MGR] startScanning');
     state = state.copyWith(isScanning: true);
 
     await _refreshDeviceList(bypassThrottle: true);
@@ -525,25 +632,46 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
     // While scanning/connecting, keep refreshing so the device list can actually
     // converge on the target device (iOS can be slow to surface it).
+    if (_debugLog) {
+      debugPrint('[MGR] waitForDevice start id=$deviceId timeout=${timeout.inSeconds}s');
+    }
+
     Timer? pump;
+    Timer? deadline;
+    StreamSubscription<void>? sub;
+    final completer = Completer<MidiDevice?>();
+
     pump = Timer.periodic(const Duration(milliseconds: 250), (_) {
       // Fire-and-forget; refresh is already coalesced by _deviceRefreshInFlight.
       unawaited(_safeRefreshDevices(bypassThrottle: true));
     });
 
-    // Await device list changes.
-    try {
-      await for (final _ in _devicesChanged.stream.timeout(timeout)) {
-        final found = _findDeviceInList(state.devices, deviceId);
-        if (found != null) return found;
+    // Absolute timeout: do not reset just because device snapshots keep arriving.
+    deadline = Timer(timeout, () {
+      if (completer.isCompleted) return;
+      if (_debugLog) {
+        debugPrint('[MGR] waitForDevice timeout id=$deviceId');
       }
-    } on TimeoutException {
-      return null;
+      completer.complete(null);
+    });
+
+    sub = _devicesChanged.stream.listen((_) {
+      if (completer.isCompleted) return;
+      final found = _findDeviceInList(state.devices, deviceId);
+      if (found == null) return;
+      if (_debugLog) {
+        debugPrint('[MGR] waitForDevice found id=$deviceId');
+      }
+      completer.complete(found);
+    });
+
+    try {
+      return await completer.future;
     } finally {
       pump.cancel();
+      deadline.cancel();
+      unawaited(sub.cancel());
     }
-
-    return null;
   }
 
   // ---- Connection helpers ------------------------------------------------
@@ -556,6 +684,11 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         _ble.isConnected(deviceId),
         timeout: const Duration(seconds: 2),
       );
+      if (_debugLog) {
+        debugPrint(
+          '[MGR] cleanupStale id=$deviceId connected=$connected',
+        );
+      }
       if (!connected) return;
 
       await _ble.disconnect(deviceId);
@@ -564,6 +697,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   }
 
   Future<void> _performConnection(String deviceId) async {
+    if (_debugLog) debugPrint('[MGR] performConnection id=$deviceId');
     await _ble.connect(deviceId).timeout(
       _connectTimeout,
       onTimeout: () {
@@ -578,6 +712,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       _ble.isConnected(deviceId),
       timeout: const Duration(seconds: 2),
     );
+    if (_debugLog) debugPrint('[MGR] verifyConnection id=$deviceId ok=$connected');
     if (!connected) {
       throw const MidiException('Connection failed - device not responding');
     }
@@ -602,8 +737,15 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         state.connectedDevice != null && !_backgrounded && !state.isScanning;
 
     if (shouldRun) {
+      if (_debugLog) {
+        debugPrint(
+          '[MGR] watchdog start id=${state.connectedDevice?.id} '
+          'scanning=${state.isScanning} bg=$_backgrounded',
+        );
+      }
       _startConnectionWatchdog();
     } else {
+      if (_debugLog) debugPrint('[MGR] watchdog stop');
       _stopConnectionWatchdog();
     }
   }
@@ -637,7 +779,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
     if (mapped == _lastPublishedBtState) return;
 
-    debugPrint('BT mapped=$mapped last=$_lastPublishedBtState');
+    if (_debugLog) {
+      debugPrint('BT mapped=$mapped last=$_lastPublishedBtState');
+    }
 
     if (mapped == BluetoothState.poweredOff ||
         mapped == BluetoothState.unauthorized) {
@@ -660,6 +804,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     if (_scanInFlight != null) return;
 
     try {
+      if (_debugLog) debugPrint('[MGR] pulseScan start reason=$reason');
       await _ble.startScanning();
       state = state.copyWith(isScanning: true);
       await Future<void>.delayed(dwell);
@@ -672,6 +817,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       } catch (e) {
         debugPrint('pulseScan($reason) stop failed: $e');
       } finally {
+        if (_debugLog) debugPrint('[MGR] pulseScan end reason=$reason');
         state = state.copyWith(isScanning: false);
         _updateConnectionWatchdog();
       }
@@ -684,6 +830,23 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     for (final d in devices) {
       if (d.id == id) return d;
     }
+    return null;
+  }
+
+  MidiDevice? _findDeviceByHint(MidiDevice hint) {
+    final hintName = hint.name.trim().toLowerCase();
+    if (hintName.isEmpty) return null;
+
+    final matches =
+        state.devices
+            .where(
+              (d) =>
+                  d.transport == hint.transport &&
+                  d.name.trim().toLowerCase() == hintName,
+            )
+            .toList();
+
+    if (matches.length == 1) return matches.first;
     return null;
   }
 

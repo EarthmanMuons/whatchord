@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/bluetooth_access.dart';
@@ -18,6 +20,7 @@ final midiConnectionStateProvider =
 class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   static const int _maxAttempts = 5;
   static const Duration _maxBackoff = Duration(seconds: 16);
+  static const bool _debugLog = false;
 
   bool _startupAttempted = false;
   DateTime? _lastAutoReconnectAt;
@@ -42,6 +45,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   /// - stops scanning
   /// - normalizes UI state
   Future<void> cancel({String reason = 'user_cancel'}) async {
+    if (_debugLog) debugPrint('[CONN] cancel reason=$reason');
     _cancelRequested = true;
     _cancelRetry();
     _attemptInFlight = false;
@@ -82,6 +86,12 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       midiDeviceManagerProvider.select((s) => s.connectedDevice),
       (prev, next) {
         final device = next;
+        if (_debugLog) {
+          debugPrint(
+            '[CONN] device update prev=${prev?.id}/${prev?.isConnected} '
+            'next=${next?.id}/${next?.isConnected} phase=${state.phase}',
+          );
+        }
 
         if (device != null && device.isConnected) {
           _cancelRetry();
@@ -112,6 +122,11 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       BluetoothState
     >(midiDeviceManagerProvider.select((s) => s.bluetoothState), (prev, next) {
       final bt = next;
+      if (_debugLog) {
+        debugPrint(
+          '[CONN] bt update prev=$prev next=$next phase=${state.phase}',
+        );
+      }
 
       final prevBt = _lastBluetoothState; // capture before overwrite
       _lastBluetoothState = bt;
@@ -188,6 +203,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
   void setBackgrounded(bool value) {
     _backgrounded = value;
+    if (_debugLog) debugPrint('[CONN] backgrounded=$_backgrounded');
     if (_backgrounded) {
       // Controller-owned policy: background cancels attempts and stops scanning.
       unawaited(cancel(reason: 'background'));
@@ -209,6 +225,12 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   }
 
   Future<void> tryAutoReconnect({required String reason}) async {
+    if (_debugLog) {
+      debugPrint(
+        '[CONN] tryAutoReconnect reason=$reason '
+        'bg=$_backgrounded inflight=$_attemptInFlight cancel=$_cancelRequested',
+      );
+    }
     if (_backgrounded) return;
     if (_attemptInFlight) return;
 
@@ -240,11 +262,16 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       final prefs = ref.read(midiPreferencesProvider);
 
       // Manual reconnect should always work; autoReconnect only gates automatic triggers.
-      if (!isManual && !prefs.autoReconnect) return;
+      if (!isManual && !prefs.autoReconnect) {
+        if (_debugLog) debugPrint('[CONN] autoReconnect disabled');
+        return;
+      }
 
       final lastConnectedDeviceId = prefs.lastConnectedDeviceId;
+      var lastConnectedDevice = prefs.lastConnectedDevice;
       if (lastConnectedDeviceId == null ||
           lastConnectedDeviceId.trim().isEmpty) {
+        if (_debugLog) debugPrint('[CONN] no lastConnectedDeviceId');
         _cancelRetry();
         if (state.phase == MidiConnectionPhase.connecting ||
             state.phase == MidiConnectionPhase.retrying ||
@@ -267,6 +294,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
           onTimeout: false,
         );
         if (stillConnected == true) {
+          if (_debugLog) {
+            debugPrint('[CONN] stillConnected id=$lastConnectedDeviceId');
+          }
           // Ensure UI matches reality even if the connected-device stream never re-emits.
           state = MidiConnectionState(
             phase: MidiConnectionPhase.connected,
@@ -276,6 +306,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         }
 
         // Stale snapshot: clear it so UI reflects reality and reconnect proceeds.
+        if (_debugLog) {
+          debugPrint('[CONN] stale snapshot; reconcile id=$lastConnectedDeviceId');
+        }
         unawaited(_midi.reconcileConnectedDevice(reason: 'tryAutoReconnect'));
       }
 
@@ -299,6 +332,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
           ) ??
           false;
       if (!ok) {
+        if (_debugLog) debugPrint('[CONN] bluetooth access not ok');
         _cancelRetry();
         return;
       }
@@ -307,6 +341,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       var bt = ref.read(midiDeviceManagerProvider).bluetoothState;
       if (bt == BluetoothState.poweredOff ||
           bt == BluetoothState.unauthorized) {
+        if (_debugLog) debugPrint('[CONN] bluetooth unavailable bt=$bt');
         _cancelRetry();
         state = state.copyWith(
           phase: MidiConnectionPhase.bluetoothUnavailable,
@@ -330,6 +365,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
             onTimeout: null,
           );
         } catch (_) {
+          if (_debugLog) debugPrint('[CONN] bluetooth prime failed');
           // If we cannot prime, treat as not-ready and stop.
           _cancelRetry();
           state = state.copyWith(
@@ -346,6 +382,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       }
 
       if (!_bluetoothReady(bt)) {
+        if (_debugLog) debugPrint('[CONN] bluetooth not ready bt=$bt');
         _cancelRetry();
         final unavailableReason = switch (bt) {
           BluetoothState.poweredOff => BluetoothUnavailability.adapterOff,
@@ -365,20 +402,57 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         return;
       }
 
-      await _reconnectWithBackoff(lastConnectedDeviceId);
+      await _reconnectWithBackoff(
+        lastConnectedDeviceId,
+        hint: lastConnectedDevice,
+      );
     } finally {
       _attemptInFlight = false;
     }
   }
 
-  Future<void> _reconnectWithBackoff(String deviceId) async {
+  Future<void> _reconnectWithBackoff(
+    String deviceId, {
+    MidiDevice? hint,
+  }) async {
     _cancelRetry();
     if (_cancelRequested) return;
     _cancelRequested = false; // start fresh for this run
 
+    var currentId = deviceId;
+    var currentHint = hint;
+
     for (var attempt = 1; attempt <= _maxAttempts; attempt++) {
       if (_backgrounded) return;
       if (_cancelRequested) return;
+      if (_debugLog) {
+        debugPrint('[CONN] reconnect attempt=$attempt id=$currentId');
+      }
+
+      final target = await _midi.findReconnectTarget(
+        deviceId: currentId,
+        hint: currentHint,
+      );
+      if (target == null) {
+        if (_debugLog) {
+          debugPrint('[CONN] reconnect no target id=$currentId');
+        }
+      } else {
+        if (target.id != currentId) {
+          if (_debugLog) {
+            debugPrint(
+              '[CONN] reconnect remap id=$currentId -> ${target.id}',
+            );
+          }
+          currentId = target.id;
+          currentHint = target;
+          unawaited(
+            ref
+                .read(midiPreferencesProvider.notifier)
+                .setLastConnectedDevice(target),
+          );
+        }
+      }
 
       state = MidiConnectionState(
         phase: attempt == 1
@@ -391,7 +465,13 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
             : 'Reconnecting to last connected device (attempt $attempt)…',
       );
 
-      final ok = await _midi.reconnect(deviceId);
+      final ok =
+          target == null
+              ? false
+              : await _midi.reconnect(currentId);
+      if (_debugLog) {
+        debugPrint('[CONN] reconnect result ok=$ok attempt=$attempt');
+      }
       if (_cancelRequested) return;
       if (ok) return;
 
@@ -470,6 +550,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<void> refreshDevices({bool restartScan = true}) async {
     // If you're in backoff/retry UI, a manual refresh should cancel the timer.
     _cancelRetry();
+    if (_debugLog) debugPrint('[CONN] refreshDevices restartScan=$restartScan');
 
     final ok = await _ensureBluetoothAccessOrPublishUnavailable();
     if (!ok) {
@@ -486,6 +567,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   /// Start scanning for devices.
   Future<void> startScanning() async {
     _cancelRetry();
+    if (_debugLog) debugPrint('[CONN] startScanning');
 
     final ok = await _ensureBluetoothAccessOrPublishUnavailable();
     if (!ok) {
@@ -504,6 +586,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<void> connect(MidiDevice device) async {
     // Cancel any backoff/retry loop; this is an explicit user action.
     _cancelRetry();
+    if (_debugLog) debugPrint('[CONN] connect id=${device.id}');
 
     final ok = await _ensureBluetoothAccessOrPublishUnavailable();
     if (!ok) {
@@ -542,11 +625,13 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
   /// Disconnect from the current device.
   Future<void> disconnect() async {
+    if (_debugLog) debugPrint('[CONN] disconnect');
     await _midi.disconnect();
   }
 
   /// Manually trigger a reconnection attempt.
   Future<bool> reconnect() async {
+    if (_debugLog) debugPrint('[CONN] manual reconnect');
     await tryAutoReconnect(reason: 'manual');
 
     final connected = ref.read(midiDeviceManagerProvider).connectedDevice;

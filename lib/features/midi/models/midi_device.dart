@@ -10,7 +10,7 @@ enum MidiTransportType {
   static MidiTransportType fromString(String raw) {
     final normalized = raw.trim().toLowerCase();
     return switch (normalized) {
-      'ble' || 'bluetooth' => MidiTransportType.ble,
+      'ble' || 'bluetooth' || 'native' => MidiTransportType.ble,
       'usb' => MidiTransportType.usb,
       'network' => MidiTransportType.network,
       _ => MidiTransportType.unknown,
