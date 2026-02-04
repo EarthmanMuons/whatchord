@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.2.4] - 2026-02-04
+
 This release marks the first general availability (GA) release of WhatChord on
 the Apple App Store. Google Play distribution remains in closed testing while
 tester requirements are completed.
@@ -134,7 +136,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.1.31...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.2.4...HEAD
+[2026.2.4]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.1.31...v2026.2.4
 [2026.1.31]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.1.27...v2026.1.31
 [2026.1.27]:
