@@ -56,14 +56,6 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       tonality: Tonality('C', TonalityMode.major),
     ),
 
-    // 4) SCREENSHOT: landscape, light mode, Key: C major, C7#11 / F#
-    const DemoStep(
-      notes: {54, 58, 60, 64},
-      pedalDown: true,
-      themeMode: ThemeMode.light,
-      tonality: Tonality('C', TonalityMode.major),
-    ),
-
     // 5) SCREENSHOT: portrait, light mode, Key: C major, C7#11 / F# (details screen)
 
     // Ambiguous C6/9 or Am11 / C depending on tonality (C E G A D -> ...)
