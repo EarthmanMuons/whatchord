@@ -10,41 +10,44 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+This release marks the first general availability (GA) release of WhatChord on
+the Apple App Store. Google Play distribution remains in closed testing while
+tester requirements are completed.
+
 ### Added
 
-- Added a Support link in Settings > About for reporting issues or contacting
-  support.
+- Added a **Support** link in _Settings > About_ for reporting issues or
+  contacting support directly.
 
 ### Changed
 
-- Improved piano keyboard auto-scroll behavior to keep sounding notes visible in
-  a more stable and intentional way.
-- Chevron edge indicators now animate in and out smoothly and are temporarily
-  disabled during automatic scrolling.
-- Tapping a chevron will center all sounding notes when they fit in the
-  viewport.
-- Refactored the Analysis Details view into a dedicated modal sheet with pinned
-  actions and improved content scrolling.
-- Improved MIDI auto-reconnect reliability by gating startup and resume
-  reconnects on actual Bluetooth adapter readiness instead of fixed delays.
-- Handled MIDI devices changing IDs to increase auto‑reconnect reliability on
-  iOS.
+- Significantly improved **piano keyboard auto-scroll behavior** to keep
+  sounding notes visible in a more stable, intentional, and predictable way.
+- Chevron edge indicators now **animate in and out smoothly** and are
+  temporarily disabled during automatic scrolling to reduce visual noise.
+- Tapping a chevron will **center all currently sounding notes** when they fit
+  within the visible keyboard viewport.
+- Refactored the **Analysis Details** view into a dedicated modal sheet with
+  pinned action buttons and improved content scrolling.
+- Improved **MIDI auto-reconnect behavior** by gating startup and resume
+  attempts on actual Bluetooth readiness rather than fixed delays.
+- Improved auto-reconnect reliability on iOS by handling **MIDI devices that
+  change identifiers** between sessions.
 
 ### Fixed
 
-- Fixed cases where piano edge chevrons appeared when no sounding notes were
-  actually off-screen.
-- Fixed chevrons sometimes pointing to the wrong notes or failing to reveal
+- Fixed cases where piano edge chevrons appeared even though no sounding notes
+  were actually off-screen.
+- Fixed chevrons occasionally pointing to the wrong notes or failing to reveal
   hidden notes when tapped.
-- Fixed unexpected auto-scroll "jumps" after manual dragging of the piano
-  keyboard.
-- Fixed inconsistent scroll positioning when rotating the device or changing the
-  visible key count.
+- Fixed unexpected piano auto-scroll "jumps" after manual dragging.
+- Fixed inconsistent piano scroll positioning when rotating the device or
+  changing the visible key count.
 - Fixed an auto-reconnect deadlock where the app could remain stuck in
-  "Reconnecting..." after resume due to a canceled backoff delay never
+  **"Reconnecting…"** after resuming due to a canceled backoff delay never
   completing.
-- Properly dispose the home page's MIDI connection listener to prevent duplicate
-  events and potential memory leaks during navigation.
+- Fixed a leaked MIDI connection listener on the home screen that could cause
+  duplicate events or unnecessary resource usage during navigation.
 
 ## [2026.1.31] - 2026-01-31
 
@@ -73,7 +76,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 This release marks the first Google Play Store submission for closed testing and
 includes several refinements to support testing, diagnostics, and store
-compliance.
+compliance. It was also submitted to the Apple App Store and subsequently
+approved for public availability.
 
 ### Added
 
