@@ -1,0 +1,10 @@
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        # Exception for first-party CI infrastructure repositories maintained
+        # within this organization. These repos are intentionally consumed from
+        # `@main` as rolling mainlines so shared workflows and scripts evolve
+        # together. All third-party actions remain strictly hash-pinned.
+        EarthmanMuons/reusable-workflows/*: ref-pin
+        EarthmanMuons/toolbox-envy/*: ref-pin
