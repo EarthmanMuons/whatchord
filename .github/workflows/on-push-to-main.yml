@@ -12,10 +12,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
+permissions:
+  contents: read
+
 jobs:
   detect_changed_files:
     name: detect changed files
     permissions:
+      contents: read
       pull-requests: read
     uses: EarthmanMuons/reusable-workflows/.github/workflows/detect-changed-files.yml@main
 
@@ -26,6 +30,8 @@ jobs:
       needs.detect_changed_files.outputs.flutter == 'true'
       || github.event_name == 'workflow_dispatch'
     uses: EarthmanMuons/reusable-workflows/.github/workflows/tag-if-missing.yml@main
+    secrets:
+      APP_ID: ${{ secrets.APP_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
     with:
       toolbox_envy_bins: common,flutter
-    secrets: inherit
