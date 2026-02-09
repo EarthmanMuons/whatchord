@@ -44,6 +44,9 @@ android/key.properties
 *.keychain-db
 ios-signing.keychain-db
 
+# Ignore generated credentials from google-github-actions/auth
+gha-creds-*.json
+
 # Symbolication related
 app.*.symbols
 
