@@ -4,12 +4,12 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../midi_debug.dart';
 import '../models/bluetooth_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/bluetooth_unavailability.dart';
 import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
-import '../midi_debug.dart';
 import 'midi_device_manager.dart';
 import 'midi_preferences_notifier.dart';
 

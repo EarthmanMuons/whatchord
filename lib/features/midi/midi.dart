@@ -38,5 +38,5 @@ export 'providers/midi_preferences_notifier.dart';
 
 export 'pages/midi_settings_page.dart';
 
-export 'widgets/midi_status_pill.dart';
+export 'widgets/midi_status_icon.dart';
 export 'widgets/wakelock_controller.dart';

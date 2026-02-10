@@ -1,0 +1,312 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../models/midi_connection.dart';
+import '../models/midi_connection_status.dart';
+import '../pages/midi_settings_page.dart';
+import '../providers/midi_connection_status_provider.dart';
+
+class MidiStatusIcon extends ConsumerWidget {
+  const MidiStatusIcon({super.key, this.isLandscape = false});
+
+  final bool isLandscape;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final status = ref.watch(midiConnectionStatusProvider);
+    return _MidiStatusIconButton(status: status, isLandscape: isLandscape);
+  }
+}
+
+class _MidiStatusIconButton extends StatefulWidget {
+  const _MidiStatusIconButton({
+    required this.status,
+    required this.isLandscape,
+  });
+
+  final MidiConnectionStatus status;
+  final bool isLandscape;
+
+  @override
+  State<_MidiStatusIconButton> createState() => _MidiStatusIconButtonState();
+}
+
+class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
+    with SingleTickerProviderStateMixin {
+  static const Duration _pulseDuration = Duration(milliseconds: 900);
+  static const Duration _pulseInterval = Duration(seconds: 25);
+  static const double _maxScaleDelta = 0.08;
+
+  late final AnimationController _pulseController;
+  late final Animation<double> _pulseCurve;
+  Timer? _pulseTimer;
+  bool _hasInteracted = false;
+
+  bool get _shouldPulse =>
+      widget.status.phase == MidiConnectionPhase.idle && !_hasInteracted;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: _pulseDuration,
+    );
+    _pulseCurve = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+    _pulseController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _pulseController.reverse();
+      }
+    });
+    _syncPulseTimer();
+  }
+
+  @override
+  void didUpdateWidget(covariant _MidiStatusIconButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.status.phase != widget.status.phase) {
+      _syncPulseTimer();
+    }
+  }
+
+  void _syncPulseTimer() {
+    _pulseTimer?.cancel();
+    if (_shouldPulse) {
+      _pulseTimer = Timer.periodic(_pulseInterval, (_) => _triggerPulse());
+    } else {
+      _pulseController.stop();
+      _pulseController.value = 0;
+    }
+  }
+
+  void _triggerPulse() {
+    if (!_shouldPulse || _pulseController.isAnimating) return;
+    _pulseController.forward(from: 0);
+  }
+
+  void _handlePressed() {
+    if (!_hasInteracted) {
+      setState(() {
+        _hasInteracted = true;
+      });
+      _syncPulseTimer();
+    }
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()));
+  }
+
+  @override
+  void dispose() {
+    _pulseTimer?.cancel();
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    final presentation = _resolvePresentation(widget.status, cs);
+
+    return Semantics(
+      label: presentation.tooltip,
+      button: true,
+      child: AnimatedBuilder(
+        animation: _pulseCurve,
+        builder: (context, child) {
+          final scale = 1.0 + (_maxScaleDelta * _pulseCurve.value);
+          return Transform.scale(scale: scale, child: child);
+        },
+        child: IconButton(
+          tooltip: presentation.tooltip,
+          icon: presentation.icon,
+          color: presentation.iconColor,
+          visualDensity: widget.isLandscape
+              ? VisualDensity.compact
+              : VisualDensity.standard,
+          constraints: widget.isLandscape
+              ? const BoxConstraints(minWidth: 40, minHeight: 40)
+              : const BoxConstraints(),
+          style: IconButton.styleFrom(
+            backgroundColor: presentation.backgroundColor,
+            side: BorderSide(color: presentation.borderColor),
+            shape: const StadiumBorder(),
+            padding: const EdgeInsets.all(8),
+            minimumSize: const Size(36, 36),
+          ),
+          onPressed: _handlePressed,
+        ),
+      ),
+    );
+  }
+
+  ({
+    Widget icon,
+    Color iconColor,
+    Color backgroundColor,
+    Color borderColor,
+    String tooltip,
+  })
+  _resolvePresentation(MidiConnectionStatus status, ColorScheme cs) {
+    final tooltip = _tooltipFromStatus(status);
+    final tone = _toneForPhase(status.phase);
+    final (bg, fg, border) = _resolveToneColors(tone, cs);
+
+    switch (status.phase) {
+      case MidiConnectionPhase.connected:
+        return (
+          icon: const Icon(Icons.bluetooth),
+          iconColor: Colors.green.shade600,
+          backgroundColor: bg,
+          borderColor: border,
+          tooltip: tooltip,
+        );
+
+      case MidiConnectionPhase.connecting:
+      case MidiConnectionPhase.retrying:
+        return (
+          icon: SizedBox.square(
+            dimension: 20,
+            child: CircularProgressIndicator.adaptive(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(fg),
+            ),
+          ),
+          iconColor: fg,
+          backgroundColor: bg,
+          borderColor: border,
+          tooltip: tooltip,
+        );
+
+      case MidiConnectionPhase.bluetoothUnavailable:
+        return (
+          icon: _badgeIcon(
+            base: const Icon(Icons.bluetooth_disabled),
+            badgeColor: cs.error,
+          ),
+          iconColor: fg,
+          backgroundColor: bg,
+          borderColor: border,
+          tooltip: tooltip,
+        );
+
+      case MidiConnectionPhase.deviceUnavailable:
+        return (
+          icon: _badgeIcon(
+            base: const Icon(Icons.bluetooth_disabled),
+            badgeColor: cs.error,
+          ),
+          iconColor: fg,
+          backgroundColor: bg,
+          borderColor: border,
+          tooltip: tooltip,
+        );
+
+      case MidiConnectionPhase.error:
+        return (
+          icon: _badgeIcon(
+            base: const Icon(Icons.bluetooth_disabled),
+            badgeColor: cs.error,
+          ),
+          iconColor: fg,
+          backgroundColor: bg,
+          borderColor: border,
+          tooltip: tooltip,
+        );
+
+      case MidiConnectionPhase.idle:
+        return (
+          icon: const Icon(Icons.bluetooth_disabled),
+          iconColor: fg,
+          backgroundColor: bg,
+          borderColor: border,
+          tooltip: tooltip,
+        );
+    }
+  }
+
+  _StatusTone _toneForPhase(MidiConnectionPhase phase) {
+    switch (phase) {
+      case MidiConnectionPhase.connected:
+        return _StatusTone.normal;
+      case MidiConnectionPhase.connecting:
+      case MidiConnectionPhase.retrying:
+        return _StatusTone.normal;
+      case MidiConnectionPhase.bluetoothUnavailable:
+      case MidiConnectionPhase.deviceUnavailable:
+      case MidiConnectionPhase.error:
+        return _StatusTone.error;
+      case MidiConnectionPhase.idle:
+        return _StatusTone.muted;
+    }
+  }
+
+  (Color bg, Color fg, Color border) _resolveToneColors(
+    _StatusTone tone,
+    ColorScheme cs,
+  ) {
+    switch (tone) {
+      case _StatusTone.normal:
+        return (
+          cs.secondaryContainer,
+          cs.onSecondaryContainer,
+          cs.outlineVariant.withValues(alpha: 0.35),
+        );
+      case _StatusTone.error:
+        return (
+          cs.errorContainer,
+          cs.onErrorContainer,
+          cs.outlineVariant.withValues(alpha: 0.35),
+        );
+      case _StatusTone.muted:
+        return (
+          cs.surfaceContainerHigh,
+          cs.onSurfaceVariant,
+          cs.outlineVariant.withValues(alpha: 0.55),
+        );
+    }
+  }
+
+  String _tooltipFromStatus(MidiConnectionStatus status) {
+    final name = status.deviceName;
+    if (status.phase == MidiConnectionPhase.connected &&
+        name != null &&
+        name.isNotEmpty) {
+      return 'MIDI: Connected to $name';
+    }
+
+    return 'MIDI: ${status.title}';
+  }
+
+  Widget _badgeIcon({required Widget base, required Color badgeColor}) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        base,
+        Positioned(
+          right: -1,
+          bottom: -1,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: badgeColor,
+              shape: BoxShape.circle,
+            ),
+            child: const Padding(
+              padding: EdgeInsets.all(2),
+              child: Icon(Icons.priority_high, size: 10, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+enum _StatusTone { normal, error, muted }
