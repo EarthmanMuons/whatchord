@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced the MIDI status pill in the home app bar with a compact status icon
+  button to improve legibility and avoid layout overflow at large text sizes.
+
 ## [2026.2.4] - 2026-02-04
 
 This release marks the first general availability (GA) release of WhatChord on

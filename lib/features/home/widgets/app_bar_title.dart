@@ -7,7 +7,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord/features/demo/demo.dart';
 
 class AppBarTitle extends ConsumerWidget {
-  const AppBarTitle({super.key});
+  const AppBarTitle({
+    super.key,
+    this.maxLines = 1,
+    this.overflow = TextOverflow.ellipsis,
+  });
+
+  final int maxLines;
+  final TextOverflow overflow;
 
   // Set to true for ad-hoc demo builds (e.g. iOS device untethered from Xcode).
   static const bool kForceDemoSupport = false;
@@ -24,6 +31,9 @@ class AppBarTitle extends ConsumerWidget {
           ),
         ],
       ),
+      maxLines: maxLines,
+      overflow: overflow,
+      softWrap: false,
     );
 
     final enableGestures = kDebugMode || kForceDemoSupport;
@@ -91,6 +101,9 @@ class AppBarTitle extends ConsumerWidget {
           ),
         ],
       ),
+      maxLines: maxLines,
+      overflow: overflow,
+      softWrap: false,
     );
   }
 }

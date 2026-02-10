@@ -151,9 +151,17 @@ class _HomeTopBar extends ConsumerWidget {
           ),
           child: Row(
             children: [
-              DefaultTextStyle(style: titleStyle!, child: const AppBarTitle()),
-              const Spacer(),
-              const MidiStatusPill(),
+              Expanded(
+                child: DefaultTextStyle(
+                  style: titleStyle!,
+                  child: const AppBarTitle(),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Transform.translate(
+                offset: Offset(isLandscape ? 0 : settingsIconDx, 0),
+                child: MidiStatusIcon(isLandscape: isLandscape),
+              ),
               Transform.translate(
                 offset: const Offset(settingsIconDx, 0),
                 child: IconButton(
