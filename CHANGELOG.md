@@ -17,8 +17,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Clamped the home app bar title text scaling to the toolbar height to keep the
   title visible when system text size is increased.
 - Improved large-text layout across the home screen, including input display
-  sizing, tonality bar text scaling, and scroll fade affordances to reduce
-  clipping and make off-screen content clearer.
+  sizing, identity card line spacing, tonality bar text scaling, and scroll fade
+  affordances to reduce clipping and make off-screen content clearer.
 - Let the near-tie chord candidates list grow taller in portrait layouts to
   better use available vertical space with large text sizes.
 - Reduced the portrait analysis card top padding at large text sizes and added

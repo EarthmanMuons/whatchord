@@ -175,23 +175,96 @@ class IdentityCard extends StatelessWidget {
                   child: hasLabel
                       ? LayoutBuilder(
                           builder: (context, c) {
-                            final tight =
-                                c.maxHeight.isFinite && c.maxHeight < 110.0;
-                            final gap = tight ? 14.0 : 22.0;
-                            final secondaryMin = tight ? 16.0 : 20.0;
+                            final maxH = c.maxHeight;
+                            final hasMax = maxH.isFinite && maxH > 0;
+                            final textScale = MediaQuery.textScalerOf(
+                              context,
+                            ).scale(1.0);
+                            final gapScale = 1 / textScale.clamp(1.0, 1.6);
+                            const gap = 0.0;
+                            final maxW = c.maxWidth.isFinite
+                                ? c.maxWidth
+                                : MediaQuery.sizeOf(context).width -
+                                      padding.horizontal;
+                            final secondaryLabel = display.secondaryLabel!;
+
+                            if (!hasMax) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  identityBody(display),
+                                  const SizedBox(height: gap),
+                                  ConstrainedBox(
+                                    constraints: BoxConstraints(maxWidth: maxW),
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        secondaryLabel,
+                                        textAlign: TextAlign.center,
+                                        style: secondaryStyle,
+                                        maxLines: 1,
+                                        softWrap: false,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+
+                            final textDirection = Directionality.of(context);
+                            final secondaryPainter = TextPainter(
+                              text: TextSpan(
+                                text: secondaryLabel,
+                                style: secondaryStyle,
+                              ),
+                              textDirection: textDirection,
+                              maxLines: 1,
+                              textScaler: MediaQuery.textScalerOf(context),
+                            )..layout(maxWidth: double.infinity);
+                            final secondaryHeight = secondaryPainter.height;
+
+                            final bottomPad =
+                                (maxH * 0.12).clamp(10.0, 18.0) * gapScale;
 
                             return Column(
-                              mainAxisSize: MainAxisSize.min,
+                              mainAxisSize: MainAxisSize.max,
                               children: [
-                                identityBody(display),
-                                SizedBox(height: gap),
-                                AutoSizeText(
-                                  display.secondaryLabel!,
-                                  textAlign: TextAlign.center,
-                                  style: secondaryStyle,
-                                  maxLines: 1,
-                                  minFontSize: secondaryMin,
+                                SizedBox(
+                                  height:
+                                      (maxH - gap - bottomPad - secondaryHeight)
+                                          .clamp(0.0, maxH),
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: SizedBox(
+                                      width: double.infinity,
+                                      child: identityBody(display),
+                                    ),
+                                  ),
                                 ),
+                                SizedBox(height: gap),
+                                SizedBox(
+                                  height: secondaryHeight,
+                                  child: Align(
+                                    alignment: Alignment.topCenter,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: maxW,
+                                      ),
+                                      child: AutoSizeText(
+                                        secondaryLabel,
+                                        textAlign: TextAlign.center,
+                                        style: secondaryStyle,
+                                        maxLines: 1,
+                                        minFontSize: 6.0,
+                                        maxFontSize:
+                                            secondaryStyle.fontSize ?? 14.0,
+                                        stepGranularity: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: bottomPad),
                               ],
                             );
                           },
