@@ -154,7 +154,7 @@ class _HomeTopBar extends ConsumerWidget {
               Expanded(
                 child: DefaultTextStyle(
                   style: titleStyle!,
-                  child: const AppBarTitle(),
+                  child: AppBarTitle(maxHeight: toolbarHeight),
                 ),
               ),
               const SizedBox(width: 4),

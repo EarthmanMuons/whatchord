@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Replaced the MIDI status pill in the home app bar with a compact status icon
   button to improve legibility and avoid layout overflow at large text sizes.
+- Clamped the home app bar title text scaling to the toolbar height to keep the
+  title visible when system text size is increased.
 - Improved input display scaling at larger system text sizes, including the
   pedal indicator and note chip sizing to prevent clipping and keep spacing
   balanced.

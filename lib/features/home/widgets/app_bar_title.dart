@@ -7,14 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord/features/demo/demo.dart';
 
 class AppBarTitle extends ConsumerWidget {
-  const AppBarTitle({
-    super.key,
-    this.maxLines = 1,
-    this.overflow = TextOverflow.ellipsis,
-  });
+  const AppBarTitle({super.key, this.maxHeight});
 
-  final int maxLines;
-  final TextOverflow overflow;
+  final double? maxHeight;
 
   // Set to true for ad-hoc demo builds (e.g. iOS device untethered from Xcode).
   static const bool kForceDemoSupport = false;
@@ -31,8 +26,8 @@ class AppBarTitle extends ConsumerWidget {
           ),
         ],
       ),
-      maxLines: maxLines,
-      overflow: overflow,
+      maxLines: 1,
+      overflow: TextOverflow.clip,
       softWrap: false,
     );
 
@@ -76,7 +71,7 @@ class AppBarTitle extends ConsumerWidget {
 
     final baseStyle = DefaultTextStyle.of(context).style;
 
-    return Text.rich(
+    final debugTitle = Text.rich(
       TextSpan(
         children: [
           WidgetSpan(
@@ -101,9 +96,27 @@ class AppBarTitle extends ConsumerWidget {
           ),
         ],
       ),
-      maxLines: maxLines,
-      overflow: overflow,
+      maxLines: 1,
+      overflow: TextOverflow.clip,
       softWrap: false,
+    );
+    return _clampToHeight(context, debugTitle);
+  }
+
+  Widget _clampToHeight(BuildContext context, Widget title) {
+    final maxHeight = this.maxHeight;
+    if (maxHeight == null) return title;
+
+    return SizedBox(
+      height: maxHeight,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: title,
+        ),
+      ),
     );
   }
 }
