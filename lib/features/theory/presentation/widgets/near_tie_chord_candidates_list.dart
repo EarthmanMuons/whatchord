@@ -7,7 +7,7 @@ import '../../state/providers/chord_candidates_providers.dart';
 import '../../state/providers/theory_preferences_notifier.dart';
 import '../services/chord_symbol_builder.dart';
 
-class NearTieChordCandidatesList extends ConsumerWidget {
+class NearTieChordCandidatesList extends ConsumerStatefulWidget {
   const NearTieChordCandidatesList({
     super.key,
     this.enabled = true,
@@ -18,6 +18,7 @@ class NearTieChordCandidatesList extends ConsumerWidget {
     this.alignment = Alignment.center,
     this.textAlign = TextAlign.center,
     this.styleOverride,
+    this.showScrollbarWhenOverflow = false,
   });
 
   final bool enabled;
@@ -28,13 +29,33 @@ class NearTieChordCandidatesList extends ConsumerWidget {
   final Alignment alignment;
   final TextAlign textAlign;
   final TextStyle? styleOverride;
+  final bool showScrollbarWhenOverflow;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NearTieChordCandidatesList> createState() =>
+      _NearTieChordCandidatesListState();
+}
+
+class _NearTieChordCandidatesListState
+    extends ConsumerState<NearTieChordCandidatesList> {
+  late final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-
-    final alternatives = enabled
+    final alternatives = widget.enabled
         ? ref.watch(nearTieChordCandidatesProvider)
         : const [];
 
@@ -44,7 +65,7 @@ class NearTieChordCandidatesList extends ConsumerWidget {
     final notation = ref.watch(chordNotationStyleProvider);
 
     final base =
-        styleOverride ??
+        widget.styleOverride ??
         theme.textTheme.bodyMedium ??
         const TextStyle(fontSize: 14);
     final textStyle = base.copyWith(
@@ -54,45 +75,52 @@ class NearTieChordCandidatesList extends ConsumerWidget {
       height: 1.18,
     );
 
-    final visible = alternatives.take(maxItems).toList(growable: false);
-    final hasContent = enabled && visible.isNotEmpty;
+    final visible = alternatives.take(widget.maxItems).toList(growable: false);
+    final hasContent = widget.enabled && visible.isNotEmpty;
 
     Widget content() {
-      return Padding(
-        padding: padding,
-        child: Align(
-          alignment: alignment,
-          child: ListView.separated(
-            key: const ValueKey(
-              'ambiguous_list',
-            ), // stable key for the "present" state
-            primary: false,
-            padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            scrollDirection: axis,
-            itemCount: visible.length,
-            separatorBuilder: (_, _) => axis == Axis.vertical
-                ? SizedBox(height: gap)
-                : SizedBox(width: gap),
-            itemBuilder: (context, i) {
-              final c = visible[i];
-              final symbol = ChordSymbolBuilder.fromIdentity(
-                identity: c.identity,
-                tonality: tonality,
-                notation: notation,
-              );
+      final list = ListView.separated(
+        key: const ValueKey(
+          'ambiguous_list',
+        ), // stable key for the "present" state
+        primary: false,
+        padding: widget.padding,
+        shrinkWrap:
+            !(widget.axis == Axis.vertical && widget.showScrollbarWhenOverflow),
+        controller: _scrollController,
+        scrollDirection: widget.axis,
+        itemCount: visible.length,
+        separatorBuilder: (_, _) => widget.axis == Axis.vertical
+            ? SizedBox(height: widget.gap)
+            : SizedBox(width: widget.gap),
+        itemBuilder: (context, i) {
+          final c = visible[i];
+          final symbol = ChordSymbolBuilder.fromIdentity(
+            identity: c.identity,
+            tonality: tonality,
+            notation: notation,
+          );
 
-              return Text(
-                symbol.toString(),
-                style: textStyle,
-                textAlign: textAlign,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-              );
-            },
-          ),
-        ),
+          return Text(
+            symbol.toString(),
+            style: textStyle,
+            textAlign: widget.textAlign,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+          );
+        },
+      );
+
+      return Align(
+        alignment: widget.alignment,
+        child: widget.showScrollbarWhenOverflow && widget.axis == Axis.vertical
+            ? Scrollbar(
+                controller: _scrollController,
+                thumbVisibility: true,
+                child: list,
+              )
+            : list,
       );
     }
 
@@ -107,7 +135,7 @@ class NearTieChordCandidatesList extends ConsumerWidget {
       switchOutCurve: Curves.easeInCubic,
 
       layoutBuilder: (currentChild, previousChildren) {
-        final stackAlignment = axis == Axis.vertical
+        final stackAlignment = widget.axis == Axis.vertical
             ? Alignment.topCenter
             : Alignment.centerLeft;
 
@@ -125,7 +153,7 @@ class NearTieChordCandidatesList extends ConsumerWidget {
           child: ClipRect(
             child: SizeTransition(
               sizeFactor: animation,
-              axis: axis,
+              axis: widget.axis,
               axisAlignment: -1.0,
               child: child,
             ),

@@ -33,13 +33,19 @@ class AnalysisSection extends ConsumerWidget {
           final cardW = clampDouble(preferredW, 0.0, constraints.maxWidth);
 
           // Tunables
-          final topPad = isLandscape ? 0.0 : 82.0;
+          final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+          final topPad = isLandscape
+              ? 0.0
+              : clampDouble(82.0 - (textScale - 1.0) * 28.0, 32.0, 82.0);
           final cardH = isLandscape ? 132.0 : 180.0;
           const listGap = 18.0;
-          const listSlotH = 28.0 * 3 + 8.0 * 2; // 3 rows + gaps
-
           final laneH = constraints.maxHeight;
           final cardMaxH = clampDouble(172.0, 0.0, laneH);
+          final listMaxH = clampDouble(
+            laneH - topPad - cardH - listGap,
+            0.0,
+            laneH,
+          );
 
           return SizedBox.expand(
             child: isLandscape
@@ -80,8 +86,10 @@ class AnalysisSection extends ConsumerWidget {
 
                             if (!isLandscape) ...[
                               const SizedBox(height: listGap),
-                              SizedBox(
-                                height: listSlotH,
+                              ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxHeight: listMaxH,
+                                ),
                                 child: const NearTieChordCandidatesList(
                                   enabled: true,
                                   alignment: Alignment.topCenter,
