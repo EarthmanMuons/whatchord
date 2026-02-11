@@ -9,6 +9,7 @@ import '../../models/sounding_note.dart';
 import '../../providers/input_idle_notifier.dart';
 import '../../providers/pedal_state_provider.dart';
 import '../../providers/sounding_notes_provider.dart';
+import 'input_display_sizing.dart';
 import 'note_chip.dart';
 import 'pedal_indicator.dart';
 
@@ -167,21 +168,23 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final pedalSlotWidth = PedalIndicator.slotWidthFor(context);
+    final heightScale = InputDisplaySizing.rowHeightScale(context);
 
-    const minHeight = 44.0;
+    final minHeight = 44.0 * heightScale;
     final showPrompt = _notes.isEmpty && ref.watch(inputIdleEligibleProvider);
 
     return Padding(
       padding: widget.padding,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: minHeight),
+        constraints: BoxConstraints(minHeight: minHeight),
         child: SizedBox(
           height: minHeight,
           child: showPrompt
               ? Row(
                   children: [
                     SizedBox(
-                      width: PedalIndicator.slotWidth,
+                      width: pedalSlotWidth,
                       child: _buildAnimatedPedal(),
                     ),
                     const SizedBox(width: 8),
@@ -206,7 +209,7 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
                       child: Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: SizedBox(
-                          width: PedalIndicator.slotWidth,
+                          width: pedalSlotWidth,
                           child: _buildAnimatedPedal(),
                         ),
                       ),

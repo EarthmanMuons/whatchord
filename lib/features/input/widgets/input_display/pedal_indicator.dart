@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../models/input_pedal_state.dart';
 import '../../providers/pedal_state_provider.dart';
+import 'input_display_sizing.dart';
 
 class PedalIndicator extends ConsumerStatefulWidget {
   const PedalIndicator({super.key});
@@ -12,6 +13,19 @@ class PedalIndicator extends ConsumerStatefulWidget {
   static const double slotWidth = 36;
   static const double glyphSize = 32;
   static const Offset opticalOffset = Offset(0, -3);
+  static const double _pressedBaselineNudge = 2.0;
+
+  static double sizeScaleFor(BuildContext context) {
+    return InputDisplaySizing.pedalScale(context);
+  }
+
+  static double slotWidthFor(BuildContext context) {
+    return slotWidth * sizeScaleFor(context);
+  }
+
+  static double glyphSizeFor(BuildContext context) {
+    return glyphSize * sizeScaleFor(context);
+  }
 
   @override
   ConsumerState<PedalIndicator> createState() => _PedalIndicatorState();
@@ -23,7 +37,9 @@ class _PedalIndicatorState extends ConsumerState<PedalIndicator> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
+    final sizeScale = PedalIndicator.sizeScaleFor(context);
+    final slotWidth = PedalIndicator.slotWidthFor(context);
+    final glyphSize = PedalIndicator.glyphSizeFor(context);
     final pedal = ref.watch(inputPedalStateProvider);
     final isDown = pedal.isDown;
     final source = pedal.source;
@@ -34,9 +50,21 @@ class _PedalIndicatorState extends ConsumerState<PedalIndicator> {
         ? 'Sustain pedal held. Tap to toggle.'
         : 'Sustain pedal. Tap to toggle.';
 
-    const basePad = EdgeInsets.symmetric(horizontal: 4, vertical: 6);
+    final opticalOffset = Offset(
+      PedalIndicator.opticalOffset.dx,
+      (PedalIndicator.opticalOffset.dy * sizeScale) +
+          (isDown ? PedalIndicator._pressedBaselineNudge * sizeScale : 0.0),
+    );
+
+    final basePad = EdgeInsets.symmetric(
+      horizontal: 4 * sizeScale,
+      vertical: 6 * sizeScale,
+    );
     final pressPad = _pressed
-        ? const EdgeInsets.symmetric(horizontal: 6, vertical: 7)
+        ? EdgeInsets.symmetric(
+            horizontal: 6 * sizeScale,
+            vertical: 7 * sizeScale,
+          )
         : basePad;
 
     final ringColor = cs.outlineVariant.withValues(alpha: 0.78);
@@ -54,7 +82,7 @@ class _PedalIndicatorState extends ConsumerState<PedalIndicator> {
             onHighlightChanged: (v) => setState(() => _pressed = v),
             onTap: () => ref.read(inputPedalControllerProvider).toggle(),
             child: SizedBox(
-              width: PedalIndicator.slotWidth,
+              width: slotWidth,
               height: double.infinity,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 120),
@@ -72,11 +100,11 @@ class _PedalIndicatorState extends ConsumerState<PedalIndicator> {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Transform.translate(
-                      offset: PedalIndicator.opticalOffset,
+                      offset: opticalOffset,
                       child: SvgPicture.asset(
                         'assets/glyphs/keyboard_pedal_ped.svg',
-                        width: PedalIndicator.glyphSize,
-                        height: PedalIndicator.glyphSize,
+                        width: glyphSize,
+                        height: glyphSize,
                         alignment: Alignment.centerLeft,
                         colorFilter: ColorFilter.mode(
                           cs.onSurfaceVariant,
