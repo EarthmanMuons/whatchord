@@ -14,6 +14,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Replaced the MIDI status pill in the home app bar with a compact status icon
   button to improve legibility and avoid layout overflow at large text sizes.
+- Improved input display scaling at larger system text sizes, including the
+  pedal indicator and note chip sizing to prevent clipping and keep spacing
+  balanced.
 
 ## [2026.2.4] - 2026-02-04
 

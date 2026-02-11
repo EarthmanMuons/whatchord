@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/sounding_note.dart';
 import '../../providers/pedal_state_provider.dart';
+import 'input_display_sizing.dart';
 
 class NoteChip extends ConsumerWidget {
   const NoteChip({super.key, required this.note});
@@ -13,6 +14,8 @@ class NoteChip extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final sizeScale = InputDisplaySizing.noteScale(context);
+    final verticalScale = InputDisplaySizing.noteVerticalScale(context);
 
     final isPedalDown = ref.watch(
       inputPedalStateProvider.select((s) => s.isDown),
@@ -29,19 +32,31 @@ class NoteChip extends ConsumerWidget {
         : cs.outlineVariant.withValues(alpha: isPedalDown ? 0.78 : 0.60);
 
     final borderWidth = note.isSustained ? 1.6 : 1.0;
+    final labelStyle = theme.textTheme.titleMedium?.copyWith(color: fgColor);
+    final fontSize = labelStyle?.fontSize ?? 16.0;
+    final defaultHeight = labelStyle?.height ?? 1.2;
+    final extraVertical = ((defaultHeight - 1.0) * fontSize / 2).clamp(
+      0.0,
+      8.0,
+    );
+    final labelStrut = StrutStyle(
+      fontSize: fontSize,
+      height: 1.0,
+      forceStrutHeight: true,
+    );
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 120),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10 * sizeScale),
         border: Border.all(color: borderColor, width: borderWidth),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      child: Text(
-        note.label,
-        style: theme.textTheme.titleMedium?.copyWith(color: fgColor),
+      padding: EdgeInsets.symmetric(
+        horizontal: 10 * sizeScale,
+        vertical: (6 * verticalScale) + extraVertical,
       ),
+      child: Text(note.label, strutStyle: labelStrut, style: labelStyle),
     );
   }
 }
