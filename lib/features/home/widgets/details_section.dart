@@ -27,12 +27,14 @@ class DetailsSection extends ConsumerWidget {
           if (isLandscape)
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 12),
+                padding: const EdgeInsets.only(top: 8),
                 child: const NearTieChordCandidatesList(
                   enabled: true,
                   alignment: Alignment.topLeft,
                   textAlign: TextAlign.left,
                   gap: 6,
+                  padding: EdgeInsets.only(bottom: 12),
+                  showScrollbarWhenOverflow: true,
                 ),
               ),
             )
