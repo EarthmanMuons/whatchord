@@ -16,11 +16,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   button to improve legibility and avoid layout overflow at large text sizes.
 - Clamped the home app bar title text scaling to the toolbar height to keep the
   title visible when system text size is increased.
-- Improved input display scaling at larger system text sizes, including the
-  pedal indicator and note chip sizing to prevent clipping and keep spacing
-  balanced.
-- Added subtle left/right edge fades to the input display note scroller to
-  better signal when additional content is available off-screen.
+- Improved large-text layout across the home screen, including input display
+  sizing, tonality bar text scaling, and scroll fade affordances to reduce
+  clipping and make off-screen content clearer.
 
 ## [2026.2.4] - 2026-02-04
 
