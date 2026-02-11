@@ -17,8 +17,21 @@ class TonalityBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final selectedTonality = ref.watch(selectedTonalityProvider);
     final degree = ref.watch(detectedScaleDegreeProvider);
+
+    final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+    final verticalPadding = textScale > 1.2 ? 4.0 : 12.0;
+    final minButtonHeight = textScale > 1.2 ? height : 40.0;
+
+    TextScaler clampLabelScaler(TextStyle? baseStyle) {
+      final fontSize = baseStyle?.fontSize ?? 14;
+      final lineHeight = fontSize * (baseStyle?.height ?? 1.2);
+      final availableHeight = height - (verticalPadding * 2);
+      final maxScale = (availableHeight / lineHeight).clamp(1.0, 2.8);
+      return TextScaler.linear(textScale.clamp(1.0, maxScale));
+    }
 
     return Material(
       color: cs.surfaceContainerLow,
@@ -43,11 +56,19 @@ class TonalityBar extends ConsumerWidget {
                   );
                 },
                 icon: const Icon(Icons.music_note),
-                label: Text('Key: ${selectedTonality.displayName}'),
+                label: Text(
+                  'Key: ${selectedTonality.displayName}',
+                  style: textTheme.labelLarge,
+                  textScaler: clampLabelScaler(textTheme.labelLarge),
+                  maxLines: 1,
+                  overflow: TextOverflow.clip,
+                  softWrap: false,
+                ),
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
+                  minimumSize: Size(0, minButtonHeight),
+                  padding: EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 12,
+                    vertical: verticalPadding,
                   ),
                   visualDensity: VisualDensity.compact,
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -57,7 +78,11 @@ class TonalityBar extends ConsumerWidget {
               Expanded(
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: ScaleDegrees(current: degree),
+                  child: ScaleDegrees(
+                    current: degree,
+                    maxHeight: height,
+                    fadeColor: cs.surfaceContainerLow,
+                  ),
                 ),
               ),
             ],
