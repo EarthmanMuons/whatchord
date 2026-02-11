@@ -17,6 +17,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved input display scaling at larger system text sizes, including the
   pedal indicator and note chip sizing to prevent clipping and keep spacing
   balanced.
+- Added subtle left/right edge fades to the input display note scroller to
+  better signal when additional content is available off-screen.
 
 ## [2026.2.4] - 2026-02-04
 

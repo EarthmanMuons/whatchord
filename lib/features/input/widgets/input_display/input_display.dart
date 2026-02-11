@@ -24,9 +24,13 @@ class InputDisplay extends ConsumerStatefulWidget {
 class _InputDisplayState extends ConsumerState<InputDisplay>
     with SingleTickerProviderStateMixin {
   final _notesKey = GlobalKey<SliverAnimatedListState>();
+  final _scrollController = ScrollController();
+  static const double _fadeWidth = 24.0;
 
   late List<SoundingNote> _notes;
   late bool _pedal;
+  bool _showLeadingFade = false;
+  bool _showTrailingFade = false;
 
   ProviderSubscription<List<SoundingNote>>? _notesSubscription;
   ProviderSubscription<bool>? _pedalSubscription;
@@ -78,6 +82,10 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
     _notes = [...ref.read(soundingNotesProvider)];
     _pedal = ref.read(inputPedalStateProvider).isDown;
     _pedalCtl.value = _pedal ? 1.0 : 0.0;
+    _scrollController.addListener(_updateScrollFade);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _updateScrollFade();
+    });
 
     _notesSubscription = ref.listenManual<List<SoundingNote>>(
       soundingNotesProvider,
@@ -113,10 +121,33 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
 
   @override
   void dispose() {
+    _scrollController.removeListener(_updateScrollFade);
+    _scrollController.dispose();
     _pedalCtl.dispose();
     _notesSubscription?.close();
     _pedalSubscription?.close();
     super.dispose();
+  }
+
+  void _updateScrollFade() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (!position.hasContentDimensions) return;
+
+    const epsilon = 0.5;
+    final maxExtent = position.maxScrollExtent;
+    final pixels = position.pixels;
+    final nextLeading = maxExtent > epsilon && pixels > epsilon;
+    final nextTrailing = maxExtent > epsilon && pixels < maxExtent - epsilon;
+
+    if (nextLeading == _showLeadingFade && nextTrailing == _showTrailingFade) {
+      return;
+    }
+
+    setState(() {
+      _showLeadingFade = nextLeading;
+      _showTrailingFade = nextTrailing;
+    });
   }
 
   void _applyNotesDiff(Iterable<SoundingNote> next) {
@@ -162,6 +193,10 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
         if (updated != null) _notes[i] = updated;
       }
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _updateScrollFade();
+    });
   }
 
   @override
@@ -201,28 +236,86 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
                     ),
                   ],
                 )
-              : CustomScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: SizedBox(
-                          width: pedalSlotWidth,
-                          child: _buildAnimatedPedal(),
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) _updateScrollFade();
+                    });
+
+                    return Stack(
+                      children: [
+                        CustomScrollView(
+                          controller: _scrollController,
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          slivers: [
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: SizedBox(
+                                  width: pedalSlotWidth,
+                                  child: _buildAnimatedPedal(),
+                                ),
+                              ),
+                            ),
+                            SliverAnimatedList(
+                              key: _notesKey,
+                              initialItemCount: _notes.length,
+                              itemBuilder: (context, index, animation) {
+                                final note = _notes[index];
+                                return _buildPaddedAnimatedNoteChip(
+                                  note,
+                                  animation,
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                    SliverAnimatedList(
-                      key: _notesKey,
-                      initialItemCount: _notes.length,
-                      itemBuilder: (context, index, animation) {
-                        final note = _notes[index];
-                        return _buildPaddedAnimatedNoteChip(note, animation);
-                      },
-                    ),
-                  ],
+                        if (_showLeadingFade)
+                          Positioned(
+                            left: 0,
+                            top: 0,
+                            bottom: 0,
+                            width: _fadeWidth,
+                            child: IgnorePointer(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                    colors: [
+                                      cs.surface,
+                                      cs.surface.withValues(alpha: 0),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        if (_showTrailingFade)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            bottom: 0,
+                            width: _fadeWidth,
+                            child: IgnorePointer(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.centerRight,
+                                    end: Alignment.centerLeft,
+                                    colors: [
+                                      cs.surface,
+                                      cs.surface.withValues(alpha: 0),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
                 ),
         ),
       ),
