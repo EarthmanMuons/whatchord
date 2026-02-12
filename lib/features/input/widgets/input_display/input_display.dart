@@ -240,6 +240,7 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
                                   alignment: Alignment.centerLeft,
                                   child: Text(
                                     'Play some notes…',
+                                    semanticsLabel: 'Play some notes',
                                     style: theme.textTheme.bodyLarge?.copyWith(
                                       color: cs.onSurfaceVariant,
                                     ),

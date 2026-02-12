@@ -45,18 +45,25 @@ class NoteChip extends ConsumerWidget {
       forceStrutHeight: true,
     );
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 120),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(10 * sizeScale),
-        border: Border.all(color: borderColor, width: borderWidth),
+    return Semantics(
+      container: true,
+      label: 'Note ${note.label}',
+      value: note.isSustained ? 'Sustained' : 'Pressed',
+      child: ExcludeSemantics(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(10 * sizeScale),
+            border: Border.all(color: borderColor, width: borderWidth),
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: 10 * sizeScale,
+            vertical: (6 * verticalScale) + extraVertical,
+          ),
+          child: Text(note.label, strutStyle: labelStrut, style: labelStyle),
+        ),
       ),
-      padding: EdgeInsets.symmetric(
-        horizontal: 10 * sizeScale,
-        vertical: (6 * verticalScale) + extraVertical,
-      ),
-      child: Text(note.label, strutStyle: labelStrut, style: labelStyle),
     );
   }
 }

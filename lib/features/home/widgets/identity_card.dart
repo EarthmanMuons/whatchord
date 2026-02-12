@@ -287,19 +287,14 @@ class IdentityCard extends StatelessWidget {
                 key: const ValueKey('idle_glyph'),
                 child: Semantics(
                   container: true,
-                  label: 'No notes detected',
+                  label: 'Waiting for input',
                   hint: 'Play notes to identify a note, interval, or chord.',
                   child: ExcludeSemantics(child: idleGlyph()),
                 ),
               )
             : KeyedSubtree(
                 key: const ValueKey('placeholder'),
-                child: Semantics(
-                  container: true,
-                  label: 'Waiting for input',
-                  hint: 'Play notes to identify a note, interval, or chord.',
-                  child: ExcludeSemantics(child: placeholderText(primaryStyle)),
-                ),
+                child: ExcludeSemantics(child: placeholderText(primaryStyle)),
               ),
       );
     }
