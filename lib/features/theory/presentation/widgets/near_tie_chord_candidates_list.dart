@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../state/providers/analysis_context_provider.dart';
 import '../../state/providers/chord_candidates_providers.dart';
 import '../../state/providers/theory_preferences_notifier.dart';
+import '../services/chord_long_form_formatter.dart';
 import '../services/chord_symbol_builder.dart';
 
 class NearTieChordCandidatesList extends ConsumerStatefulWidget {
@@ -100,10 +101,14 @@ class _NearTieChordCandidatesListState
             tonality: tonality,
             notation: notation,
           );
+          final spokenLabel = ChordLongFormFormatter.format(
+            identity: c.identity,
+            tonality: tonality,
+          );
 
           return Text(
             symbol.toString(),
-            semanticsLabel: c.identity.longLabel,
+            semanticsLabel: spokenLabel,
             style: textStyle,
             textAlign: widget.textAlign,
             maxLines: 1,
