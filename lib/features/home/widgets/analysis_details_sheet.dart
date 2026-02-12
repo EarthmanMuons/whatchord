@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
 import 'package:whatchord/core/core.dart';
@@ -34,9 +35,12 @@ Future<void> showAnalysisDetailsSheet(
                 // Header
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Analysis Details',
-                    style: t.textTheme.titleLarge,
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      'Analysis Details',
+                      style: t.textTheme.titleLarge,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -84,6 +88,13 @@ Future<void> showAnalysisDetailsSheet(
                                 await Clipboard.setData(
                                   ClipboardData(text: copyText),
                                 );
+                                if (context.mounted) {
+                                  SemanticsService.sendAnnouncement(
+                                    View.of(context),
+                                    'Copied analysis details',
+                                    Directionality.of(context),
+                                  );
+                                }
 
                                 // Subtle confirmation without UI chrome.
                                 HapticFeedback.lightImpact();
@@ -96,8 +107,11 @@ Future<void> showAnalysisDetailsSheet(
                     const SizedBox(width: 12),
                     Expanded(
                       child: Semantics(
+                        container: true,
                         button: true,
                         label: 'Report issue. Opens GitHub in your browser.',
+                        onTapHint: 'Open GitHub issues page',
+                        excludeSemantics: true,
                         child: OutlinedButton.icon(
                           onPressed: () => openUrl(
                             context,
@@ -221,9 +235,14 @@ class _DebugCopyBoxState extends State<_DebugCopyBox> {
           final scrollable = SingleChildScrollView(
             controller: debugTextScrollController,
             scrollDirection: Axis.horizontal,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: SelectableText(widget.text, style: baseStyle),
+            child: Semantics(
+              container: true,
+              label: 'Debug details',
+              hint: 'Horizontally scrollable text.',
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: SelectableText(widget.text, style: baseStyle),
+              ),
             ),
           );
 
