@@ -21,10 +21,15 @@ class SectionHeader extends StatelessWidget {
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 20, color: cs.onSurfaceVariant),
+            ExcludeSemantics(
+              child: Icon(icon, size: 20, color: cs.onSurfaceVariant),
+            ),
             const SizedBox(width: 10),
           ],
-          Text(title.toUpperCase(), style: style),
+          Semantics(
+            header: true,
+            child: Text(title.toUpperCase(), style: style),
+          ),
         ],
       ),
     );

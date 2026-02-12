@@ -39,17 +39,20 @@ class SettingsPage extends ConsumerWidget {
           children: [
             const SectionHeader(title: 'Input', icon: Icons.piano),
 
-            ListTile(
-              title: const Text('MIDI settings'),
-              subtitle: Text(midiStatus.subtitle ?? midiStatus.title),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const MidiSettingsPage(),
-                  ),
-                );
-              },
+            Semantics(
+              onTapHint: 'Open MIDI settings',
+              child: ListTile(
+                title: const Text('MIDI settings'),
+                subtitle: Text(midiStatus.subtitle ?? midiStatus.title),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const MidiSettingsPage(),
+                    ),
+                  );
+                },
+              ),
             ),
 
             const SizedBox(height: 16),
@@ -190,47 +193,56 @@ class SettingsPage extends ConsumerWidget {
               },
             ),
 
-            ListTile(
-              leading: const Icon(Icons.support_agent_outlined),
-              title: const Text('Support'),
-              subtitle: const Text('Report an issue or contact support'),
-              trailing: const Icon(Icons.open_in_new),
-              onTap: () {
-                openUrl(
-                  context,
-                  Uri.parse(
-                    'https://github.com/EarthmanMuons/whatchord/blob/main/SUPPORT.md',
-                  ),
-                );
-              },
+            Semantics(
+              onTapHint: 'Open support page in browser',
+              child: ListTile(
+                leading: const Icon(Icons.support_agent_outlined),
+                title: const Text('Support'),
+                subtitle: const Text('Report an issue or contact support'),
+                trailing: const Icon(Icons.open_in_new),
+                onTap: () {
+                  openUrl(
+                    context,
+                    Uri.parse(
+                      'https://github.com/EarthmanMuons/whatchord/blob/main/SUPPORT.md',
+                    ),
+                  );
+                },
+              ),
             ),
 
-            ListTile(
-              leading: const Icon(Icons.code),
-              title: const Text('Source Code'),
-              subtitle: const Text('Browse the repository on GitHub'),
-              trailing: const Icon(Icons.open_in_new),
-              onTap: () {
-                openUrl(
-                  context,
-                  Uri.parse('https://github.com/EarthmanMuons/whatchord'),
-                );
-              },
+            Semantics(
+              onTapHint: 'Open GitHub repository in browser',
+              child: ListTile(
+                leading: const Icon(Icons.code),
+                title: const Text('Source Code'),
+                subtitle: const Text('Browse the repository on GitHub'),
+                trailing: const Icon(Icons.open_in_new),
+                onTap: () {
+                  openUrl(
+                    context,
+                    Uri.parse('https://github.com/EarthmanMuons/whatchord'),
+                  );
+                },
+              ),
             ),
 
-            ListTile(
-              leading: const Icon(Icons.privacy_tip_outlined),
-              title: const Text('Privacy Policy'),
-              subtitle: const Text('No data collected'),
-              trailing: const Icon(Icons.open_in_new),
-              onTap: () {
-                openUrl(
-                  context,
-                  Uri.parse(
-                    'https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md',
-                  ),
-                );
-              },
+            Semantics(
+              onTapHint: 'Open privacy policy in browser',
+              child: ListTile(
+                leading: const Icon(Icons.privacy_tip_outlined),
+                title: const Text('Privacy Policy'),
+                subtitle: const Text('No data collected'),
+                trailing: const Icon(Icons.open_in_new),
+                onTap: () {
+                  openUrl(
+                    context,
+                    Uri.parse(
+                      'https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md',
+                    ),
+                  );
+                },
+              ),
             ),
 
             ListTile(

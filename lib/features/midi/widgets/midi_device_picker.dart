@@ -163,12 +163,16 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
             child: Row(
               children: [
                 Expanded(
-                  child: Text(
-                    'Select MIDI Device',
-                    style: theme.textTheme.titleLarge,
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      'Select MIDI Device',
+                      style: theme.textTheme.titleLarge,
+                    ),
                   ),
                 ),
                 IconButton(
+                  tooltip: 'Close',
                   icon: const Icon(Icons.close),
                   onPressed: () async {
                     Navigator.of(context).pop();
@@ -237,34 +241,50 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                     final isCurrentlyConnecting =
                         connectingDeviceId == device.id;
 
-                    return ListTile(
-                      leading: Icon(
-                        _iconForTransport(device.transport),
-                        color: isConnected ? cs.primary : null,
-                      ),
-                      title: Text(
-                        device.name,
-                        style: isConnected
-                            ? TextStyle(
-                                color: cs.primary,
-                                fontWeight: FontWeight.w600,
+                    final canTap = !isConnected && !isAttemptingConnection;
+                    final statusText = isConnected
+                        ? 'Connected'
+                        : isCurrentlyConnecting
+                        ? 'Connecting'
+                        : 'Not connected';
+
+                    return Semantics(
+                      container: true,
+                      selected: isConnected,
+                      label: '${device.name}, ${device.transport.label}',
+                      value: statusText,
+                      button: canTap,
+                      onTapHint: canTap ? 'Connect to this MIDI device' : null,
+                      excludeSemantics: true,
+                      child: ListTile(
+                        leading: Icon(
+                          _iconForTransport(device.transport),
+                          color: isConnected ? cs.primary : null,
+                        ),
+                        title: Text(
+                          device.name,
+                          style: isConnected
+                              ? TextStyle(
+                                  color: cs.primary,
+                                  fontWeight: FontWeight.w600,
+                                )
+                              : null,
+                        ),
+                        subtitle: Text(device.transport.label),
+                        trailing: isConnected
+                            ? Icon(Icons.check_circle, color: cs.primary)
+                            : isCurrentlyConnecting
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : null,
+                        enabled: !isAttemptingConnection,
+                        onTap: canTap ? () => _connectToDevice(device) : null,
                       ),
-                      subtitle: Text(device.transport.label),
-                      trailing: isConnected
-                          ? Icon(Icons.check_circle, color: cs.primary)
-                          : isCurrentlyConnecting
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : null,
-                      enabled: !isAttemptingConnection,
-                      onTap: (isConnected || isAttemptingConnection)
-                          ? null
-                          : () => _connectToDevice(device),
                     );
                   },
                 );
@@ -332,7 +352,9 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(icon, size: 64, color: cs.onSurfaceVariant),
+                    ExcludeSemantics(
+                      child: Icon(icon, size: 64, color: cs.onSurfaceVariant),
+                    ),
                     const SizedBox(height: 16),
                     Text(title, style: theme.textTheme.titleMedium),
                     const SizedBox(height: 8),
