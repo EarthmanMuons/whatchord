@@ -163,8 +163,12 @@ class IdentityCard extends StatelessWidget {
             ? KeyedSubtree(
                 key: const ValueKey('identity'),
                 child: Semantics(
+                  container: true,
                   // Announce the meaning in plain English.
                   label: display.longLabel,
+                  value: display.hasSecondaryLabel
+                      ? display.secondaryLabel
+                      : null,
 
                   // Prevent VoiceOver/TalkBack from reading the visual glyph
                   // text in addition to label.
@@ -275,11 +279,21 @@ class IdentityCard extends StatelessWidget {
             : showIdle
             ? KeyedSubtree(
                 key: const ValueKey('idle_glyph'),
-                child: idleGlyph(),
+                child: Semantics(
+                  container: true,
+                  label: 'No notes detected',
+                  hint: 'Play notes to identify a note, interval, or chord.',
+                  child: ExcludeSemantics(child: idleGlyph()),
+                ),
               )
             : KeyedSubtree(
                 key: const ValueKey('placeholder'),
-                child: placeholderText(primaryStyle),
+                child: Semantics(
+                  container: true,
+                  label: 'Waiting for input',
+                  hint: 'Play notes to identify a note, interval, or chord.',
+                  child: ExcludeSemantics(child: placeholderText(primaryStyle)),
+                ),
               ),
       );
     }

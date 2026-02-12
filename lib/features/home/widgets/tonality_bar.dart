@@ -24,6 +24,21 @@ class TonalityBar extends ConsumerWidget {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
     final verticalPadding = textScale > 1.2 ? 4.0 : 12.0;
     final minButtonHeight = textScale > 1.2 ? height : 40.0;
+    final keyLabel = 'Key: ${selectedTonality.displayName}';
+
+    void openTonalityPicker() {
+      if (!context.mounted) return;
+
+      final navigator = Navigator.of(context, rootNavigator: true);
+
+      navigator.push(
+        ModalBottomSheetRoute(
+          builder: (_) => TonalityPickerSheet(),
+          isScrollControlled: true,
+          showDragHandle: true,
+        ),
+      );
+    }
 
     TextScaler clampLabelScaler(TextStyle? baseStyle) {
       final fontSize = baseStyle?.fontSize ?? 14;
@@ -41,37 +56,37 @@ class TonalityBar extends ConsumerWidget {
           padding: EdgeInsets.symmetric(horizontal: horizontalInset),
           child: Row(
             children: [
-              FilledButton.tonalIcon(
-                onPressed: () async {
-                  if (!context.mounted) return;
-
-                  final navigator = Navigator.of(context, rootNavigator: true);
-
-                  navigator.push(
-                    ModalBottomSheetRoute(
-                      builder: (_) => TonalityPickerSheet(),
-                      isScrollControlled: true,
-                      showDragHandle: true,
+              Semantics(
+                container: true,
+                button: true,
+                label: keyLabel,
+                hint: 'Choose key signature.',
+                onTap: openTonalityPicker,
+                onTapHint: 'Open key signature picker',
+                excludeSemantics: true,
+                child: Tooltip(
+                  message: 'Choose key signature',
+                  child: FilledButton.tonalIcon(
+                    onPressed: openTonalityPicker,
+                    icon: const Icon(Icons.music_note),
+                    label: Text(
+                      keyLabel,
+                      style: textTheme.labelLarge,
+                      textScaler: clampLabelScaler(textTheme.labelLarge),
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
+                      softWrap: false,
                     ),
-                  );
-                },
-                icon: const Icon(Icons.music_note),
-                label: Text(
-                  'Key: ${selectedTonality.displayName}',
-                  style: textTheme.labelLarge,
-                  textScaler: clampLabelScaler(textTheme.labelLarge),
-                  maxLines: 1,
-                  overflow: TextOverflow.clip,
-                  softWrap: false,
-                ),
-                style: TextButton.styleFrom(
-                  minimumSize: Size(0, minButtonHeight),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: verticalPadding,
+                    style: TextButton.styleFrom(
+                      minimumSize: Size(0, minButtonHeight),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: verticalPadding,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                   ),
-                  visualDensity: VisualDensity.compact,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
               ),
               const SizedBox(width: 12),

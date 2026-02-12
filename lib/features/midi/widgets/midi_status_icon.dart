@@ -116,8 +116,13 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
     final presentation = _resolvePresentation(widget.status, cs);
 
     return Semantics(
-      label: presentation.tooltip,
+      container: true,
+      label: _semanticsLabel(widget.status),
+      hint: 'Open MIDI settings.',
+      onTapHint: 'Open MIDI settings',
       button: true,
+      excludeSemantics: true,
+      onTap: _handlePressed,
       child: AnimatedBuilder(
         animation: _pulseCurve,
         builder: (context, child) {
@@ -283,6 +288,16 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
     }
 
     return 'MIDI: ${status.title}';
+  }
+
+  String _semanticsLabel(MidiConnectionStatus status) {
+    final name = status.deviceName;
+    if (status.phase == MidiConnectionPhase.connected &&
+        name != null &&
+        name.isNotEmpty) {
+      return 'MIDI connected to $name';
+    }
+    return 'MIDI ${status.title}';
   }
 
   Widget _badgeIcon({required Widget base, required Color badgeColor}) {

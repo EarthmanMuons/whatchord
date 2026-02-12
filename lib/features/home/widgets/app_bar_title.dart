@@ -26,6 +26,7 @@ class AppBarTitle extends ConsumerWidget {
           ),
         ],
       ),
+      semanticsLabel: 'What Chord',
       maxLines: 1,
       overflow: TextOverflow.clip,
       softWrap: false,
