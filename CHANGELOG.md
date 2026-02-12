@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.2.12] - 2026-02-12
+
 ### Changed
 
 - Refined the home app bar for large text sizes by replacing the MIDI status
@@ -148,7 +150,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.2.4...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.2.12...HEAD
+[2026.2.12]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.2.4...v2026.2.12
 [2026.2.4]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.1.31...v2026.2.4
 [2026.1.31]:
