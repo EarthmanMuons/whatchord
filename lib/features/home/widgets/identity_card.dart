@@ -137,6 +137,14 @@ class IdentityCard extends StatelessWidget {
     };
 
     Widget switchedChild() {
+      String? semanticsSecondaryValue(IdentityDisplay display) {
+        final raw = display.secondaryLabel?.trim();
+        if (raw == null || raw.isEmpty) return null;
+        // Keep visual separators as-is, but avoid awkward spoken "dot".
+        final normalized = raw.replaceAll(RegExp(r'\s*·\s*'), ', ');
+        return normalized;
+      }
+
       return AnimatedSwitcher(
         duration: const Duration(milliseconds: 260),
         reverseDuration: const Duration(milliseconds: 90),
@@ -166,9 +174,7 @@ class IdentityCard extends StatelessWidget {
                   container: true,
                   // Announce the meaning in plain English.
                   label: display.longLabel,
-                  value: display.hasSecondaryLabel
-                      ? display.secondaryLabel
-                      : null,
+                  value: semanticsSecondaryValue(display),
 
                   // Prevent VoiceOver/TalkBack from reading the visual glyph
                   // text in addition to label.
