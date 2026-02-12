@@ -145,6 +145,7 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                                           alignment: Alignment.center,
                                           child: _TonalityChoiceChip(
                                             label: major.label,
+                                            semanticsLabel: major.displayName,
                                             selected: majorSelected,
                                             onTap: () => _selectTonality(major),
                                           ),
@@ -157,6 +158,7 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                                           alignment: Alignment.center,
                                           child: _TonalityChoiceChip(
                                             label: minor.label,
+                                            semanticsLabel: minor.displayName,
                                             selected: minorSelected,
                                             onTap: () => _selectTonality(minor),
                                           ),
@@ -327,11 +329,13 @@ class _TonalityPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
 
 class _TonalityChoiceChip extends StatelessWidget {
   final String label;
+  final String semanticsLabel;
   final bool selected;
   final VoidCallback onTap;
 
   const _TonalityChoiceChip({
     required this.label,
+    required this.semanticsLabel,
     required this.selected,
     required this.onTap,
   });
@@ -351,6 +355,7 @@ class _TonalityChoiceChip extends StatelessWidget {
         width: 44,
         child: Text(
           label,
+          semanticsLabel: semanticsLabel,
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.clip,
