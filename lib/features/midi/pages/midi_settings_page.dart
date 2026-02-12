@@ -36,12 +36,15 @@ class MidiSettingsPage extends ConsumerWidget {
           if (status.canOpenSettings) ...[
             const SizedBox(height: 8),
             Card(
-              child: ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('Open system settings for WhatChord'),
-                onTap: () async {
-                  await openAppSettings();
-                },
+              child: Semantics(
+                onTapHint: 'Open system settings',
+                child: ListTile(
+                  leading: const Icon(Icons.settings),
+                  title: const Text('Open system settings for WhatChord'),
+                  onTap: () async {
+                    await openAppSettings();
+                  },
+                ),
               ),
             ),
           ],
@@ -53,28 +56,31 @@ class MidiSettingsPage extends ConsumerWidget {
           const SizedBox(height: 12),
 
           Card(
-            child: ListTile(
-              leading: const Icon(Icons.add_link),
-              title: Text(
-                status.isConnected
-                    ? 'Choose different device'
-                    : 'Choose device',
+            child: Semantics(
+              onTapHint: 'Open MIDI device picker',
+              child: ListTile(
+                leading: const Icon(Icons.add_link),
+                title: Text(
+                  status.isConnected
+                      ? 'Choose different device'
+                      : 'Choose device',
+                ),
+                subtitle: const Text('Scan for and select a MIDI device'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () async {
+                  await showModalBottomSheet<MidiDevice>(
+                    context: context,
+                    showDragHandle: true,
+                    builder: (_) => const MidiDevicePicker(),
+                  ).whenComplete(() {
+                    unawaited(
+                      ref
+                          .read(midiConnectionStateProvider.notifier)
+                          .stopScanning(),
+                    );
+                  });
+                },
               ),
-              subtitle: const Text('Scan for and select a MIDI device'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () async {
-                await showModalBottomSheet<MidiDevice>(
-                  context: context,
-                  showDragHandle: true,
-                  builder: (_) => const MidiDevicePicker(),
-                ).whenComplete(() {
-                  unawaited(
-                    ref
-                        .read(midiConnectionStateProvider.notifier)
-                        .stopScanning(),
-                  );
-                });
-              },
             ),
           ),
         ],

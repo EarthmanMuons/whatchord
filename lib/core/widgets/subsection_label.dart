@@ -9,11 +9,14 @@ class SubsectionLabel extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(top: 4, bottom: 4),
-      child: Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.titleSmall?.copyWith(color: cs.onSurface),
+      child: Semantics(
+        header: true,
+        child: Text(
+          title,
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(color: cs.onSurface),
+        ),
       ),
     );
   }
