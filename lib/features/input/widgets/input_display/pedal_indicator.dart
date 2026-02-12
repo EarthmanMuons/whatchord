@@ -71,6 +71,7 @@ class _PedalIndicatorState extends ConsumerState<PedalIndicator> {
 
     return Semantics(
       label: tooltip,
+      toggled: isDown,
       button: true,
       onTapHint: 'Toggle sustain pedal',
       child: Tooltip(
