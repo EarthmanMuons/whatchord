@@ -16,6 +16,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   announcements for identity states, MIDI connection status, and key selection.
 - Improved accessibility across settings sheets and modals with clearer semantic
   headers, action hints, and announcements for screen readers.
+- Reduced motion when users disable animations by skipping programmatic
+  auto-scroll transitions and suppressing idle status-icon pulse animations.
 
 ## [2026.2.12] - 2026-02-12
 
