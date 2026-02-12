@@ -288,22 +288,33 @@ class _TonalityPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
-                  Expanded(child: Text('Signature', style: headerStyle)),
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: Text('Signature', style: headerStyle),
+                    ),
+                  ),
                   SizedBox(
                     width: chipWidth,
-                    child: Text(
-                      'Major',
-                      textAlign: TextAlign.center,
-                      style: headerStyle,
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        'Major',
+                        textAlign: TextAlign.center,
+                        style: headerStyle,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
                   SizedBox(
                     width: chipWidth,
-                    child: Text(
-                      'Minor',
-                      textAlign: TextAlign.center,
-                      style: headerStyle,
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        'Minor',
+                        textAlign: TextAlign.center,
+                        style: headerStyle,
+                      ),
                     ),
                   ),
                 ],
