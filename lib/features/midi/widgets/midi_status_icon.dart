@@ -47,6 +47,11 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
 
   bool get _shouldPulse =>
       widget.status.phase == MidiConnectionPhase.idle && !_hasInteracted;
+  bool get _disableAnimations => WidgetsBinding
+      .instance
+      .platformDispatcher
+      .accessibilityFeatures
+      .disableAnimations;
 
   @override
   void initState() {
@@ -77,7 +82,7 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
 
   void _syncPulseTimer() {
     _pulseTimer?.cancel();
-    if (_shouldPulse) {
+    if (_shouldPulse && !_disableAnimations) {
       _pulseTimer = Timer.periodic(_pulseInterval, (_) => _triggerPulse());
     } else {
       _pulseController.stop();

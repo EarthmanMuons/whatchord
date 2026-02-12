@@ -153,6 +153,19 @@ class _ScrollablePianoKeyboardState
     final delta = (clamped - _ctl.offset).abs();
     if (delta < 1.0) return;
 
+    final disableAnimations =
+        MediaQuery.maybeOf(context)?.disableAnimations ??
+        WidgetsBinding
+            .instance
+            .platformDispatcher
+            .accessibilityFeatures
+            .disableAnimations;
+    if (disableAnimations) {
+      _ctl.jumpTo(clamped);
+      _updateIndicatorState();
+      return;
+    }
+
     if (!_isAutoScrolling) {
       setState(() => _isAutoScrolling = true);
     }

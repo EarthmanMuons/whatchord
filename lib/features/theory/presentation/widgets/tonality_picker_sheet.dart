@@ -230,6 +230,18 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
       return;
     }
 
+    final disableAnimations =
+        MediaQuery.maybeOf(context)?.disableAnimations ??
+        WidgetsBinding
+            .instance
+            .platformDispatcher
+            .accessibilityFeatures
+            .disableAnimations;
+    if (disableAnimations) {
+      _controller.jumpTo(clamped);
+      return;
+    }
+
     _controller.animateTo(
       clamped,
       duration: const Duration(milliseconds: 180),
