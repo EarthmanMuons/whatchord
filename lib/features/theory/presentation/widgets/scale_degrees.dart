@@ -74,70 +74,90 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
         widget.fadeColor ?? Theme.of(context).colorScheme.surfaceContainerLow;
     final maxHeight = widget.maxHeight ?? _defaultIndicatorHeight;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => _updateFades());
+    return Semantics(
+      container: true,
+      label: 'Scale degree',
+      value: _semanticsValueForCurrent(widget.current),
+      child: ExcludeSemantics(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            WidgetsBinding.instance.addPostFrameCallback((_) => _updateFades());
 
-        final scrollable = SingleChildScrollView(
-          controller: _scrollController,
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              for (int i = 0; i < widget.values.length; i++) ...[
-                _ScaleDegreeIndicator(
-                  label: widget.values[i].romanNumeral,
-                  isCurrent: widget.values[i] == widget.current,
-                  maxHeight: maxHeight,
-                ),
-                if (i < widget.values.length - 1) const SizedBox(width: 12),
+            final scrollable = SingleChildScrollView(
+              controller: _scrollController,
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (int i = 0; i < widget.values.length; i++) ...[
+                    _ScaleDegreeIndicator(
+                      label: widget.values[i].romanNumeral,
+                      isCurrent: widget.values[i] == widget.current,
+                      maxHeight: maxHeight,
+                    ),
+                    if (i < widget.values.length - 1) const SizedBox(width: 12),
+                  ],
+                ],
+              ),
+            );
+
+            return Stack(
+              children: [
+                scrollable,
+                if (_showLeftFade)
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: _fadeWidth,
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [fadeColor, fadeColor.withValues(alpha: 0)],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (_showRightFade)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: _fadeWidth,
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerRight,
+                            end: Alignment.centerLeft,
+                            colors: [fadeColor, fadeColor.withValues(alpha: 0)],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
-            ],
-          ),
-        );
-
-        return Stack(
-          children: [
-            scrollable,
-            if (_showLeftFade)
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: _fadeWidth,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        colors: [fadeColor, fadeColor.withValues(alpha: 0)],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            if (_showRightFade)
-              Positioned(
-                right: 0,
-                top: 0,
-                bottom: 0,
-                width: _fadeWidth,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.centerRight,
-                        end: Alignment.centerLeft,
-                        colors: [fadeColor, fadeColor.withValues(alpha: 0)],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        );
-      },
+            );
+          },
+        ),
+      ),
     );
+  }
+
+  String _semanticsValueForCurrent(ScaleDegree? degree) {
+    if (degree == null) return 'No diatonic match';
+    return switch (degree) {
+      ScaleDegree.one => 'I, one',
+      ScaleDegree.two => 'ii, two',
+      ScaleDegree.three => 'iii, three',
+      ScaleDegree.four => 'IV, four',
+      ScaleDegree.five => 'V, five',
+      ScaleDegree.six => 'vi, six',
+      ScaleDegree.seven => 'vii diminished, seven',
+    };
   }
 }
 
