@@ -12,17 +12,15 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
-- Replaced the MIDI status pill in the home app bar with a compact status icon
-  button to improve legibility and avoid layout overflow at large text sizes.
-- Clamped the home app bar title text scaling to the toolbar height to keep the
-  title visible when system text size is increased.
-- Improved large-text layout across the home screen, including input display
-  sizing, identity card line spacing, tonality bar text scaling, and scroll fade
-  affordances to reduce clipping and make off-screen content clearer.
-- Let the near-tie chord candidates list grow taller in portrait layouts to
-  better use available vertical space with large text sizes.
-- Reduced the portrait analysis card top padding at large text sizes and added
-  an overflow scrollbar for the near-tie candidates list in landscape layouts.
+- Refined the home app bar for large text sizes by replacing the MIDI status
+  pill with a compact status icon button and clamping title scaling to the
+  toolbar height to prevent overflow.
+- Smoothed large-text rendering across the home screen with updated input
+  display sizing, identity card spacing, tonality bar text scaling, and
+  scroll-fade affordances to reduce clipping and make off-screen content
+  clearer.
+- Let the near-tie chord candidates list grow taller in portrait layouts and
+  added a landscape overflow scrollbar to better handle large text sizes.
 
 ## [2026.2.4] - 2026-02-04
 
