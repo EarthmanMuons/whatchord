@@ -103,6 +103,7 @@ class _NearTieChordCandidatesListState
 
           return Text(
             symbol.toString(),
+            semanticsLabel: c.identity.longLabel,
             style: textStyle,
             textAlign: widget.textAlign,
             maxLines: 1,
@@ -128,40 +129,47 @@ class _NearTieChordCandidatesListState
     // Using a SizedBox with a key ensures AnimatedSwitcher recognizes changes.
     Widget empty() => const SizedBox(key: ValueKey('ambiguous_empty'));
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 120),
-      reverseDuration: const Duration(milliseconds: 90),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
+    return Semantics(
+      container: true,
+      label: 'Alternative chord candidates',
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 120),
+        reverseDuration: const Duration(milliseconds: 90),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeInCubic,
 
-      layoutBuilder: (currentChild, previousChildren) {
-        final stackAlignment = widget.axis == Axis.vertical
-            ? Alignment.topCenter
-            : Alignment.centerLeft;
+        layoutBuilder: (currentChild, previousChildren) {
+          final stackAlignment = widget.axis == Axis.vertical
+              ? Alignment.topCenter
+              : Alignment.centerLeft;
 
-        return Stack(
-          alignment: stackAlignment,
-          children: [for (final c in previousChildren) c, ?currentChild],
-        );
-      },
+          return Stack(
+            alignment: stackAlignment,
+            children: [for (final c in previousChildren) c, ?currentChild],
+          );
+        },
 
-      transitionBuilder: (child, animation) {
-        final fade = CurvedAnimation(parent: animation, curve: Curves.easeOut);
+        transitionBuilder: (child, animation) {
+          final fade = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOut,
+          );
 
-        return FadeTransition(
-          opacity: fade,
-          child: ClipRect(
-            child: SizeTransition(
-              sizeFactor: animation,
-              axis: widget.axis,
-              axisAlignment: -1.0,
-              child: child,
+          return FadeTransition(
+            opacity: fade,
+            child: ClipRect(
+              child: SizeTransition(
+                sizeFactor: animation,
+                axis: widget.axis,
+                axisAlignment: -1.0,
+                child: child,
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
 
-      child: hasContent ? content() : empty(),
+        child: hasContent ? content() : empty(),
+      ),
     );
   }
 }
