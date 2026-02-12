@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Improved home-screen accessibility by adding clearer VoiceOver/TalkBack
+  announcements for identity states, MIDI connection status, and key selection.
+
 ## [2026.2.12] - 2026-02-12
 
 ### Changed
