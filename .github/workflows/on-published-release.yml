@@ -17,9 +17,6 @@ jobs:
     uses: EarthmanMuons/reusable-workflows/.github/workflows/upload-build-android.yml@main
     with:
       release_tag: ${{ github.event.release.tag_name }}
-      gcp_wif_provider: ${{ vars.GCP_WIF_PROVIDER }}
-      gcp_service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
-      package_name: ${{ vars.GOOGLE_PLAY_PACKAGE_NAME }}
       track: alpha
       release_status: draft
 
@@ -27,9 +24,5 @@ jobs:
     name: upload build
     if: github.event.release.prerelease == false
     uses: EarthmanMuons/reusable-workflows/.github/workflows/upload-build-ios.yml@main
-    secrets:
-      ASC_AUTH_KEY_B64: ${{ secrets.ASC_AUTH_KEY_B64 }}
     with:
       release_tag: ${{ github.event.release.tag_name }}
-      asc_issuer_id: ${{ vars.ASC_ISSUER_ID }}
-      asc_key_id: ${{ vars.ASC_KEY_ID }}
