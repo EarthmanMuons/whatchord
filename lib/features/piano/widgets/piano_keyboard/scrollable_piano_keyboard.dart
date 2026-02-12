@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -787,33 +788,45 @@ class _ScrollablePianoKeyboardState
           height: widget.height,
           child: Stack(
             children: [
-              GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onDoubleTap: _centerNow,
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: (n) {
-                    if (n is ScrollStartNotification && n.dragDetails != null) {
-                      _onUserScroll();
-                    }
-                    if (n is ScrollUpdateNotification &&
-                        n.dragDetails != null) {
-                      _onUserScroll();
-                    }
-                    return false;
-                  },
-                  child: SingleChildScrollView(
-                    controller: _ctl,
-                    scrollDirection: Axis.horizontal,
-                    physics: const BouncingScrollPhysics(),
-                    child: SizedBox(
-                      width: contentWidth,
-                      height: widget.height,
-                      child: PianoKeyboard(
-                        whiteKeyCount: widget.fullWhiteKeyCount,
-                        firstMidiNote: widget.lowestNoteNumber,
-                        highlightedNoteNumbers: widget.highlightedNoteNumbers,
+              Semantics(
+                container: true,
+                label: 'Piano keyboard',
+                hint:
+                    'Horizontally scrollable. Use the center keyboard action to recenter on active notes.',
+                customSemanticsActions: {
+                  const CustomSemanticsAction(
+                    label: 'Center keyboard on active notes',
+                  ): _centerNow,
+                },
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onDoubleTap: _centerNow,
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (n) {
+                      if (n is ScrollStartNotification &&
+                          n.dragDetails != null) {
+                        _onUserScroll();
+                      }
+                      if (n is ScrollUpdateNotification &&
+                          n.dragDetails != null) {
+                        _onUserScroll();
+                      }
+                      return false;
+                    },
+                    child: SingleChildScrollView(
+                      controller: _ctl,
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: SizedBox(
+                        width: contentWidth,
                         height: widget.height,
-                        decorations: decorations,
+                        child: PianoKeyboard(
+                          whiteKeyCount: widget.fullWhiteKeyCount,
+                          firstMidiNote: widget.lowestNoteNumber,
+                          highlightedNoteNumbers: widget.highlightedNoteNumbers,
+                          height: widget.height,
+                          decorations: decorations,
+                        ),
                       ),
                     ),
                   ),
@@ -874,6 +887,8 @@ class _OffscreenNoteCue extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final directionLabel = direction == AxisDirection.left ? 'left' : 'right';
+    final semanticsLabel = 'Reveal notes to the $directionLabel';
 
     final icon = direction == AxisDirection.left
         ? Icons.chevron_left
@@ -896,19 +911,30 @@ class _OffscreenNoteCue extends StatelessWidget {
             child: Material(
               color: cs.surface.withValues(alpha: enabled ? 0.55 : 0.40),
               borderRadius: BorderRadius.circular(12),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: enabled ? onTap : null,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 6,
-                  ),
-                  child: Icon(
-                    icon,
-                    size: 20,
-                    color: cs.onSurfaceVariant.withValues(
-                      alpha: enabled ? 0.85 : 0.55,
+              child: Semantics(
+                container: true,
+                label: semanticsLabel,
+                hidden: !visible,
+                button: true,
+                enabled: visible && enabled,
+                onTapHint: semanticsLabel,
+                child: Tooltip(
+                  message: semanticsLabel,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: enabled ? onTap : null,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 6,
+                      ),
+                      child: Icon(
+                        icon,
+                        size: 20,
+                        color: cs.onSurfaceVariant.withValues(
+                          alpha: enabled ? 0.85 : 0.55,
+                        ),
+                      ),
                     ),
                   ),
                 ),

@@ -164,33 +164,36 @@ class SettingsPage extends ConsumerWidget {
 
             const SizedBox(height: 16),
             const SectionHeader(title: 'About'),
-            ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: const Text('WhatChord'),
-              subtitle: ref
-                  .watch(appVersionProvider)
-                  .when(
-                    data: (v) => Text('Version $v'),
-                    loading: () => const Text('Version —'),
-                    error: (_, _) => const Text('Version unavailable'),
-                  ),
-              onLongPress: () async {
-                final version = ref.read(appVersionProvider).asData?.value;
-                if (version == null) return;
+            Semantics(
+              onLongPressHint: 'Copy app version to clipboard',
+              child: ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text('WhatChord'),
+                subtitle: ref
+                    .watch(appVersionProvider)
+                    .when(
+                      data: (v) => Text('Version $v'),
+                      loading: () => const Text('Version —'),
+                      error: (_, _) => const Text('Version unavailable'),
+                    ),
+                onLongPress: () async {
+                  final version = ref.read(appVersionProvider).asData?.value;
+                  if (version == null) return;
 
-                final messenger = Platform.isIOS
-                    ? ScaffoldMessenger.maybeOf(context)
-                    : null;
+                  final messenger = Platform.isIOS
+                      ? ScaffoldMessenger.maybeOf(context)
+                      : null;
 
-                await Clipboard.setData(
-                  ClipboardData(text: 'WhatChord v$version'),
-                );
+                  await Clipboard.setData(
+                    ClipboardData(text: 'WhatChord v$version'),
+                  );
 
-                messenger?.hideCurrentSnackBar();
-                messenger?.showSnackBar(
-                  const SnackBar(content: Text('Copied to clipboard')),
-                );
-              },
+                  messenger?.hideCurrentSnackBar();
+                  messenger?.showSnackBar(
+                    const SnackBar(content: Text('Copied to clipboard')),
+                  );
+                },
+              ),
             ),
 
             Semantics(
