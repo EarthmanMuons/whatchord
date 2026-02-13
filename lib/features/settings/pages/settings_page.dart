@@ -128,39 +128,13 @@ class SettingsPage extends ConsumerWidget {
                 subtitle: Text(palette.label),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () async {
-                  final selected = await showModalBottomSheet<AppPalette>(
+                  await showAdaptiveSelectionSheet<void>(
                     context: context,
-                    showDragHandle: true,
+                    title: 'Color Palette',
                     builder: (context) {
-                      final current = palette;
-                      return SafeArea(
-                        child: ListView(
-                          shrinkWrap: true,
-                          children: [
-                            for (final p in palettes)
-                              ListTile(
-                                tileColor: p == current
-                                    ? Theme.of(context)
-                                          .colorScheme
-                                          .primaryContainer
-                                          .withValues(alpha: 0.35)
-                                    : null,
-                                leading: PaletteSwatch(palette: p),
-                                title: Text(p.label),
-                                trailing: p == current
-                                    ? const Icon(Icons.check)
-                                    : null,
-                                onTap: () => Navigator.of(context).pop(p),
-                              ),
-                          ],
-                        ),
-                      );
+                      return _PaletteSelectionList(palettes: palettes);
                     },
                   );
-
-                  if (selected != null) {
-                    ref.read(appPaletteProvider.notifier).setPalette(selected);
-                  }
                 },
               ),
 
@@ -307,4 +281,133 @@ class SettingsPage extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _PaletteSelectionList extends ConsumerWidget {
+  const _PaletteSelectionList({required this.palettes});
+
+  final List<AppPalette> palettes;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final current = ref.watch(appPaletteProvider);
+    final cs = Theme.of(context).colorScheme;
+    final selectedRowColor = cs.primaryContainer.withValues(alpha: 0.55);
+
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        for (final p in palettes)
+          Semantics(
+            container: true,
+            button: true,
+            selected: p == current,
+            label: '${p.label} palette',
+            onTapHint: 'Apply color palette',
+            child: ExcludeSemantics(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: p == current ? selectedRowColor : Colors.transparent,
+                ),
+                child: ListTile(
+                  selected: p == current,
+                  selectedColor: cs.onSurface,
+                  textColor: cs.onSurface,
+                  iconColor: cs.onSurfaceVariant,
+                  leading: PaletteSwatch(palette: p),
+                  title: Text(p.label),
+                  trailing: p == current
+                      ? Icon(Icons.check, color: cs.primary)
+                      : null,
+                  onTap: () =>
+                      ref.read(appPaletteProvider.notifier).setPalette(p),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+Future<T?> showAdaptiveSelectionSheet<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  required String title,
+}) {
+  final panelColor = Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFF151515)
+      : const Color(0xFFF4F4F4);
+
+  final shortestSide = MediaQuery.sizeOf(context).shortestSide;
+  final isCompact = shortestSide < 600;
+
+  if (isCompact) {
+    return showModalBottomSheet<T>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: panelColor,
+      builder: (context) => ColoredBox(
+        color: panelColor,
+        child: SafeArea(child: builder(context)),
+      ),
+    );
+  }
+
+  final maxDialogHeight = MediaQuery.sizeOf(context).height * 0.72;
+
+  return showDialog<T>(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        clipBehavior: Clip.antiAlias,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 440,
+            maxHeight: maxDialogHeight,
+          ),
+          child: Material(
+            color: panelColor,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 60,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 16, right: 12),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Semantics(
+                            header: true,
+                            child: Text(
+                              title,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          constraints: const BoxConstraints(
+                            minWidth: 48,
+                            minHeight: 48,
+                          ),
+                          tooltip: 'Close',
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.close),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const Divider(height: 1),
+                Flexible(child: builder(context)),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
 }
