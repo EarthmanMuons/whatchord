@@ -16,16 +16,22 @@ class AppBarTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final baseStyle = DefaultTextStyle.of(context).style;
+    final titleStyle = baseStyle.copyWith(
+      fontSize: (baseStyle.fontSize ?? 20) + 2,
+    );
+
     final title = Text.rich(
       TextSpan(
         children: [
           const TextSpan(text: 'What'),
-          const TextSpan(
+          TextSpan(
             text: 'Chord',
-            style: TextStyle(fontWeight: FontWeight.w600),
+            style: titleStyle.copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
+      style: titleStyle,
       semanticsLabel: 'What Chord',
       maxLines: 1,
       overflow: TextOverflow.clip,
@@ -70,8 +76,6 @@ class AppBarTitle extends ConsumerWidget {
       );
     }
 
-    final baseStyle = DefaultTextStyle.of(context).style;
-
     final debugTitle = Text.rich(
       TextSpan(
         children: [
@@ -80,7 +84,7 @@ class AppBarTitle extends ConsumerWidget {
             baseline: TextBaseline.alphabetic,
             child: word(
               text: 'What',
-              style: baseStyle,
+              style: titleStyle,
               onTap: prev,
               onLongPress: toggleDemo,
             ),
@@ -90,7 +94,7 @@ class AppBarTitle extends ConsumerWidget {
             baseline: TextBaseline.alphabetic,
             child: word(
               text: 'Chord',
-              style: baseStyle.copyWith(fontWeight: FontWeight.w600),
+              style: titleStyle.copyWith(fontWeight: FontWeight.w600),
               onTap: next,
               onLongPress: toggleDemo,
             ),
