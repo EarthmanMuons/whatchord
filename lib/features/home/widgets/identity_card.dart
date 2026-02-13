@@ -234,8 +234,15 @@ class IdentityCard extends StatelessWidget {
                             )..layout(maxWidth: double.infinity);
                             final secondaryHeight = secondaryPainter.height;
 
+                            final isLandscape =
+                                MediaQuery.orientationOf(context) ==
+                                Orientation.landscape;
                             final bottomPad =
-                                (maxH * 0.12).clamp(10.0, 18.0) * gapScale;
+                                (maxH * (isLandscape ? 0.08 : 0.12)).clamp(
+                                  isLandscape ? 6.0 : 10.0,
+                                  isLandscape ? 12.0 : 18.0,
+                                ) *
+                                gapScale;
 
                             return Column(
                               mainAxisSize: MainAxisSize.max,
