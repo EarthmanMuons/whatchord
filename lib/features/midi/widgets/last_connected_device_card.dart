@@ -156,18 +156,18 @@ class LastConnectedDeviceCard extends ConsumerWidget {
             Row(
               children: [
                 Expanded(
-                  child: FilledButton(
-                    style: actionButtonStyle,
-                    onPressed: primaryAction,
-                    child: Text(primaryLabel),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
                   child: OutlinedButton(
                     style: forgetButtonStyle,
                     onPressed: forgetDevice,
                     child: const Text('Forget'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FilledButton(
+                    style: actionButtonStyle,
+                    onPressed: primaryAction,
+                    child: Text(primaryLabel),
                   ),
                 ),
               ],

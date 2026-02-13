@@ -82,7 +82,7 @@ Future<void> showAnalysisDetailsSheet(
                 Row(
                   children: [
                     Expanded(
-                      child: FilledButton.icon(
+                      child: OutlinedButton.icon(
                         onPressed: canCopy
                             ? () async {
                                 await Clipboard.setData(
@@ -112,7 +112,7 @@ Future<void> showAnalysisDetailsSheet(
                         label: 'Report issue. Opens GitHub in your browser.',
                         onTapHint: 'Open GitHub issues page',
                         excludeSemantics: true,
-                        child: OutlinedButton.icon(
+                        child: FilledButton.icon(
                           onPressed: () => openUrl(
                             context,
                             Uri.parse(
