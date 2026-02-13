@@ -6,8 +6,6 @@ import '../providers/midi_connection_notifier.dart';
 import '../providers/midi_device_manager.dart';
 import '../providers/midi_preferences_notifier.dart';
 
-enum _LastConnectedDeviceMenuAction { forget }
-
 class LastConnectedDeviceCard extends ConsumerWidget {
   const LastConnectedDeviceCard({super.key});
 
@@ -66,79 +64,86 @@ class LastConnectedDeviceCard extends ConsumerWidget {
         lastConnectedDisplayName ??
         'Last connected device';
 
-    final actionButtonStyle = TextButton.styleFrom(
+    final actionButtonStyle = FilledButton.styleFrom(
       minimumSize: const Size(48, 48),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     );
 
+    final forgetButtonStyle = OutlinedButton.styleFrom(
+      minimumSize: const Size(48, 48),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    );
+
+    final bool canReconnect = !isConnected && hasLastConnected;
+    final String primaryLabel = isAttemptingConnection
+        ? 'Cancel'
+        : isConnectedToLastConnected
+        ? 'Disconnect'
+        : 'Reconnect';
+
+    final VoidCallback? primaryAction = isAttemptingConnection
+        ? () => ref.read(midiConnectionStateProvider.notifier).cancel()
+        : isConnectedToLastConnected
+        ? () async {
+            await ref.read(midiConnectionStateProvider.notifier).disconnect();
+          }
+        : canReconnect
+        ? () {
+            ref
+                .read(midiConnectionStateProvider.notifier)
+                .tryAutoReconnect(reason: 'manual');
+          }
+        : null;
+
+    Future<void> forgetDevice() async {
+      await ref.read(midiConnectionStateProvider.notifier).disconnect();
+
+      await ref
+          .read(midiPreferencesProvider.notifier)
+          .clearLastConnectedDevice();
+
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Last connected device forgotten')),
+      );
+    }
+
     return Card(
-      child: ListTile(
-        leading: const Icon(Icons.bluetooth),
-        title: Text(title),
-        trailing: Wrap(
-          spacing: 8,
-          crossAxisAlignment: WrapCrossAlignment.center,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (isAttemptingConnection)
-              FilledButton.tonal(
-                style: actionButtonStyle,
-                onPressed: () {
-                  ref.read(midiConnectionStateProvider.notifier).cancel();
-                },
-                child: const Text('Cancel'),
-              )
-            else if (isConnectedToLastConnected)
-              FilledButton.tonal(
-                style: actionButtonStyle,
-                onPressed: isAttemptingConnection
-                    ? null
-                    : () async {
-                        await ref
-                            .read(midiConnectionStateProvider.notifier)
-                            .disconnect();
-                      },
-                child: const Text('Disconnect'),
-              )
-            else if (!isConnected && hasLastConnected)
-              FilledButton.tonal(
-                style: actionButtonStyle,
-                onPressed: isAttemptingConnection
-                    ? null
-                    : () {
-                        ref
-                            .read(midiConnectionStateProvider.notifier)
-                            .tryAutoReconnect(reason: 'manual');
-                      },
-                child: const Text('Reconnect'),
-              ),
-
-            PopupMenuButton<_LastConnectedDeviceMenuAction>(
-              tooltip: 'More',
-              onSelected: (action) async {
-                switch (action) {
-                  case _LastConnectedDeviceMenuAction.forget:
-                    await ref
-                        .read(midiConnectionStateProvider.notifier)
-                        .disconnect();
-
-                    await ref
-                        .read(midiPreferencesProvider.notifier)
-                        .clearLastConnectedDevice();
-
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Last connected device forgotten'),
-                        ),
-                      );
-                    }
-                    break;
-                }
-              },
-              itemBuilder: (context) => const [
-                PopupMenuItem(
-                  value: _LastConnectedDeviceMenuAction.forget,
-                  child: Text('Forget'),
+            Row(
+              children: [
+                const Icon(Icons.bluetooth),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.tonal(
+                    style: actionButtonStyle,
+                    onPressed: primaryAction,
+                    child: Text(primaryLabel),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton(
+                    style: forgetButtonStyle,
+                    onPressed: forgetDevice,
+                    child: const Text('Forget'),
+                  ),
                 ),
               ],
             ),
