@@ -28,62 +28,65 @@ class MidiSettingsPage extends ConsumerWidget {
         backgroundColor: cs.surfaceContainerLow,
         foregroundColor: cs.onSurface,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          MidiStatusCard(status: status),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            MidiStatusCard(status: status),
 
-          if (status.canOpenSettings) ...[
-            const SizedBox(height: 8),
+            if (status.canOpenSettings) ...[
+              const SizedBox(height: 8),
+              Card(
+                child: Semantics(
+                  onTapHint: 'Open system settings',
+                  child: ListTile(
+                    leading: const Icon(Icons.settings),
+                    title: const Text('Open system settings for WhatChord'),
+                    onTap: () async {
+                      await openAppSettings();
+                    },
+                  ),
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 16),
+            const SectionHeader(title: 'Device'),
+
+            const LastConnectedDeviceCard(),
+            const SizedBox(height: 12),
+
             Card(
               child: Semantics(
-                onTapHint: 'Open system settings',
+                onTapHint: 'Open MIDI device picker',
                 child: ListTile(
-                  leading: const Icon(Icons.settings),
-                  title: const Text('Open system settings for WhatChord'),
+                  leading: const Icon(Icons.add_link),
+                  title: Text(
+                    status.isConnected
+                        ? 'Choose different device'
+                        : 'Choose device',
+                  ),
+                  subtitle: const Text('Scan for and select a MIDI device'),
+                  trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
-                    await openAppSettings();
+                    await showModalBottomSheet<MidiDevice>(
+                      context: context,
+                      showDragHandle: true,
+                      builder: (_) => const MidiDevicePicker(),
+                    ).whenComplete(() {
+                      unawaited(
+                        ref
+                            .read(midiConnectionStateProvider.notifier)
+                            .stopScanning(),
+                      );
+                    });
                   },
                 ),
               ),
             ),
           ],
-
-          const SizedBox(height: 16),
-          const SectionHeader(title: 'Device'),
-
-          const LastConnectedDeviceCard(),
-          const SizedBox(height: 12),
-
-          Card(
-            child: Semantics(
-              onTapHint: 'Open MIDI device picker',
-              child: ListTile(
-                leading: const Icon(Icons.add_link),
-                title: Text(
-                  status.isConnected
-                      ? 'Choose different device'
-                      : 'Choose device',
-                ),
-                subtitle: const Text('Scan for and select a MIDI device'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () async {
-                  await showModalBottomSheet<MidiDevice>(
-                    context: context,
-                    showDragHandle: true,
-                    builder: (_) => const MidiDevicePicker(),
-                  ).whenComplete(() {
-                    unawaited(
-                      ref
-                          .read(midiConnectionStateProvider.notifier)
-                          .stopScanning(),
-                    );
-                  });
-                },
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
