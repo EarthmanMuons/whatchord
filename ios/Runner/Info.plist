@@ -23,7 +23,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>CFBundleCopyright</key>
-	<string>Copyright © 2025 Aaron Bull Schaefer</string>
+	<string>Copyright © 2025-2026 Aaron Bull Schaefer</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

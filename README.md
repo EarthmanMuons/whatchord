@@ -171,6 +171,6 @@ Google Play and the Google Play logo are trademarks of Google LLC.
 
 WhatChord is released under the [Zero Clause BSD License](LICENSE) (SPDX: 0BSD).
 
-Copyright &copy; 2025 [Aaron Bull Schaefer][EMAIL] and contributors
+Copyright &copy; 2025&ndash;2026 [Aaron Bull Schaefer][EMAIL] and contributors
 
 [EMAIL]: mailto:aaron@elasticdog.com
