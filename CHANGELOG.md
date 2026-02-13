@@ -18,6 +18,14 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   headers, action hints, and announcements for screen readers.
 - Reduced motion when users disable animations by skipping programmatic
   auto-scroll transitions and suppressing idle status-icon pulse animations.
+- Increased tap target sizes across home and MIDI controls to better meet
+  accessibility touch target guidance at default and large text scales.
+
+### Fixed
+
+- Fixed a last-connected-device state bug where forgetting a device and then
+  reconnecting it could leave the card showing a disabled "Reconnect" action
+  instead of "Disconnect".
 
 ## [2026.2.12] - 2026-02-12
 
