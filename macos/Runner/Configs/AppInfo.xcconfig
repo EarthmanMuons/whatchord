@@ -11,4 +11,4 @@ PRODUCT_NAME = WhatChord
 PRODUCT_BUNDLE_IDENTIFIER = com.earthmanmuons.whatchord
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 Aaron Bull Schaefer and contributors.
+PRODUCT_COPYRIGHT = Copyright © 2025-2026 Aaron Bull Schaefer and contributors.
