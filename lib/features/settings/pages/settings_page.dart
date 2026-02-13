@@ -288,6 +288,7 @@ class SettingsPage extends ConsumerWidget {
                 await ref.read(settingsResetProvider).resetAllToDefaults();
 
                 if (context.mounted) {
+                  HapticFeedback.lightImpact();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Settings reset to defaults')),
                   );
