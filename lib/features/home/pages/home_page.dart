@@ -209,6 +209,8 @@ class _HomeLandscape extends ConsumerWidget {
             TonalityBar(
               height: _tonalityBarHeight,
               horizontalInset: horizontalInset,
+              keyTextScaleMultiplier: config.tonalityButtonTextScale,
+              scaleDegreesTextScaleMultiplier: config.scaleDegreesTextScale,
             ),
             const Divider(height: 1),
             KeyboardSection(config: config),
@@ -247,6 +249,8 @@ class _HomePortrait extends ConsumerWidget {
             TonalityBar(
               height: _tonalityBarHeight,
               horizontalInset: horizontalInset,
+              keyTextScaleMultiplier: config.tonalityButtonTextScale,
+              scaleDegreesTextScaleMultiplier: config.scaleDegreesTextScale,
             ),
             const Divider(height: 1),
             KeyboardSection(config: config),

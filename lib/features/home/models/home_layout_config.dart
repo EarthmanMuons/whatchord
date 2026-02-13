@@ -8,6 +8,12 @@ const _mediumNearTieTextScale = 1.15;
 const _expandedNearTieTextScale = 1.3;
 const _mediumInputDisplayVisualScale = 1.15;
 const _expandedInputDisplayVisualScale = 1.28;
+const _mediumTonalityButtonTextScale = 1.08;
+const _expandedTonalityButtonTextScale = 1.16;
+const _mediumScaleDegreesTextScale = 1.1;
+const _expandedScaleDegreesTextScale = 1.18;
+const _mediumMiddleCLabelTextScale = 1.12;
+const _expandedMiddleCLabelTextScale = 1.2;
 
 @immutable
 class HomeSideSheetConfig {
@@ -49,6 +55,9 @@ class HomeLayoutConfig {
   final double identityCardTextScale;
   final double nearTieTextScale;
   final double inputDisplayVisualScale;
+  final double tonalityButtonTextScale;
+  final double scaleDegreesTextScale;
+  final double middleCLabelTextScale;
 
   // Keyboard
   final int whiteKeyCount;
@@ -71,6 +80,9 @@ class HomeLayoutConfig {
     required this.identityCardTextScale,
     required this.nearTieTextScale,
     required this.inputDisplayVisualScale,
+    required this.tonalityButtonTextScale,
+    required this.scaleDegreesTextScale,
+    required this.middleCLabelTextScale,
     required this.whiteKeyCount,
     this.whiteKeyAspectRatio = 7.0,
     required this.firstMidiNote,
@@ -149,6 +161,9 @@ const portraitCompactLayoutConfig = HomeLayoutConfig(
   identityCardTextScale: 1.0,
   nearTieTextScale: 1.0,
   inputDisplayVisualScale: 1.0,
+  tonalityButtonTextScale: 1.0,
+  scaleDegreesTextScale: 1.0,
+  middleCLabelTextScale: 1.0,
   whiteKeyCount: 21,
   whiteKeyAspectRatio: 7.0,
   firstMidiNote: 48, // C3
@@ -170,6 +185,9 @@ const portraitMediumLayoutConfig = HomeLayoutConfig(
   identityCardTextScale: _mediumIdentityCardTextScale,
   nearTieTextScale: _mediumNearTieTextScale,
   inputDisplayVisualScale: _mediumInputDisplayVisualScale,
+  tonalityButtonTextScale: _mediumTonalityButtonTextScale,
+  scaleDegreesTextScale: _mediumScaleDegreesTextScale,
+  middleCLabelTextScale: _mediumMiddleCLabelTextScale,
   whiteKeyCount: 21,
   whiteKeyAspectRatio: 7.0,
   firstMidiNote: 48, // C3
@@ -191,6 +209,9 @@ const portraitExpandedLayoutConfig = HomeLayoutConfig(
   identityCardTextScale: 1.55,
   nearTieTextScale: _expandedNearTieTextScale,
   inputDisplayVisualScale: _expandedInputDisplayVisualScale,
+  tonalityButtonTextScale: _expandedTonalityButtonTextScale,
+  scaleDegreesTextScale: _expandedScaleDegreesTextScale,
+  middleCLabelTextScale: _expandedMiddleCLabelTextScale,
   whiteKeyCount: 21,
   whiteKeyAspectRatio: 7.0,
   firstMidiNote: 48, // C3
@@ -212,6 +233,9 @@ const landscapeCompactLayoutConfig = HomeLayoutConfig(
   identityCardTextScale: 1.0,
   nearTieTextScale: 1.0,
   inputDisplayVisualScale: 1.0,
+  tonalityButtonTextScale: 1.0,
+  scaleDegreesTextScale: 1.0,
+  middleCLabelTextScale: 1.0,
   // Full 88-key view: 52 white keys from A0 (MIDI 21) to C8.
   whiteKeyCount: 52,
   whiteKeyAspectRatio: 7.0,
@@ -234,6 +258,9 @@ const landscapeMediumLayoutConfig = HomeLayoutConfig(
   identityCardTextScale: _mediumIdentityCardTextScale,
   nearTieTextScale: _mediumNearTieTextScale,
   inputDisplayVisualScale: _mediumInputDisplayVisualScale,
+  tonalityButtonTextScale: _mediumTonalityButtonTextScale,
+  scaleDegreesTextScale: _mediumScaleDegreesTextScale,
+  middleCLabelTextScale: _mediumMiddleCLabelTextScale,
   whiteKeyCount: 52,
   whiteKeyAspectRatio: 7.0,
   firstMidiNote: 21, // A0
@@ -255,6 +282,9 @@ const landscapeExpandedLayoutConfig = HomeLayoutConfig(
   identityCardTextScale: _landscapeExpandedIdentityCardTextScale,
   nearTieTextScale: _expandedNearTieTextScale,
   inputDisplayVisualScale: _expandedInputDisplayVisualScale,
+  tonalityButtonTextScale: _expandedTonalityButtonTextScale,
+  scaleDegreesTextScale: _expandedScaleDegreesTextScale,
+  middleCLabelTextScale: _expandedMiddleCLabelTextScale,
   whiteKeyCount: 52,
   whiteKeyAspectRatio: 7.0,
   firstMidiNote: 21, // A0

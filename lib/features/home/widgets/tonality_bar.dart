@@ -11,10 +11,14 @@ class TonalityBar extends ConsumerWidget {
     super.key,
     required this.height,
     this.horizontalInset = 16,
+    this.keyTextScaleMultiplier = 1.0,
+    this.scaleDegreesTextScaleMultiplier = 1.0,
   });
 
   final double height;
   final double horizontalInset;
+  final double keyTextScaleMultiplier;
+  final double scaleDegreesTextScaleMultiplier;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -54,8 +58,17 @@ class TonalityBar extends ConsumerWidget {
       );
     }
 
+    TextStyle? scaledKeyLabelStyle(TextStyle? baseStyle) {
+      final fontSize = baseStyle?.fontSize;
+      if (fontSize == null) return baseStyle;
+      return baseStyle?.copyWith(
+        fontSize: fontSize * keyTextScaleMultiplier.clamp(1.0, 1.3),
+      );
+    }
+
     TextScaler clampLabelScaler(TextStyle? baseStyle) {
-      final fontSize = baseStyle?.fontSize ?? 14;
+      final scaledBase = scaledKeyLabelStyle(baseStyle);
+      final fontSize = scaledBase?.fontSize ?? 14;
       final lineHeight = fontSize * (baseStyle?.height ?? 1.2);
       final availableHeight = height - (verticalPadding * 2);
       final maxScale = (availableHeight / lineHeight).clamp(1.0, 2.8);
@@ -85,7 +98,7 @@ class TonalityBar extends ConsumerWidget {
                     icon: const Icon(Icons.music_note),
                     label: Text(
                       keyLabel,
-                      style: textTheme.labelLarge,
+                      style: scaledKeyLabelStyle(textTheme.labelLarge),
                       textScaler: clampLabelScaler(textTheme.labelLarge),
                       maxLines: 1,
                       overflow: TextOverflow.clip,
@@ -109,6 +122,7 @@ class TonalityBar extends ConsumerWidget {
                     current: degree,
                     maxHeight: height,
                     fadeColor: cs.surfaceContainerLow,
+                    textScaleMultiplier: scaleDegreesTextScaleMultiplier,
                   ),
                 ),
               ),

@@ -53,6 +53,7 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
     this.lowestNoteNumber = 21, // A0
     this.showMiddleCMarker = true,
     this.middleCLabel = 'C',
+    this.middleCLabelTextScale = 1.0,
   }) : assert(visibleWhiteKeyCount > 0);
 
   /// How many white keys should be visible in the viewport width.
@@ -78,6 +79,7 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
   /// Middle C marker at MIDI 60.
   final bool showMiddleCMarker;
   final String middleCLabel;
+  final double middleCLabelTextScale;
 
   @override
   ConsumerState<ScrollablePianoKeyboard> createState() =>
@@ -826,6 +828,8 @@ class _ScrollablePianoKeyboardState
                           highlightedNoteNumbers: widget.highlightedNoteNumbers,
                           height: widget.height,
                           decorations: decorations,
+                          decorationTextScaleMultiplier:
+                              widget.middleCLabelTextScale,
                         ),
                       ),
                     ),
