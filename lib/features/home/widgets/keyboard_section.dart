@@ -40,6 +40,7 @@ class KeyboardSection extends ConsumerWidget {
           // Middle C marker (no octave to avoid C3/C4 convention issues).
           showMiddleCMarker: true,
           middleCLabel: 'C',
+          middleCLabelTextScale: config.middleCLabelTextScale,
         );
       },
     );

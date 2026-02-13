@@ -12,6 +12,7 @@ class PianoKeyboard extends StatelessWidget {
     this.highlightedNoteNumbers = const <int>{},
     this.height,
     this.decorations = const <PianoKeyDecoration>[],
+    this.decorationTextScaleMultiplier = 1.0,
   }) : assert(whiteKeyCount > 0);
 
   /// Number of white keys to render (e.g., 14, 21, 52).
@@ -28,6 +29,7 @@ class PianoKeyboard extends StatelessWidget {
 
   /// Key decorations (e.g., middle C, scale markers).
   final List<PianoKeyDecoration> decorations;
+  final double decorationTextScaleMultiplier;
 
   static const double _defaultHeight = 180.0;
 
@@ -61,6 +63,7 @@ class PianoKeyboard extends StatelessWidget {
 
           decorations: decorations,
           decorationColor: decorationColor,
+          decorationTextScaleMultiplier: decorationTextScaleMultiplier,
 
           drawBackground: true,
           drawFeltStrip: true,

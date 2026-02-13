@@ -7,12 +7,14 @@ class ScaleDegrees extends StatefulWidget {
   final values = ScaleDegree.values;
   final double? maxHeight;
   final Color? fadeColor;
+  final double textScaleMultiplier;
 
   const ScaleDegrees({
     super.key,
     required this.current,
     this.maxHeight,
     this.fadeColor,
+    this.textScaleMultiplier = 1.0,
   });
 
   @override
@@ -93,6 +95,7 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
                       label: widget.values[i].romanNumeral,
                       isCurrent: widget.values[i] == widget.current,
                       maxHeight: maxHeight,
+                      textScaleMultiplier: widget.textScaleMultiplier,
                     ),
                     if (i < widget.values.length - 1) const SizedBox(width: 12),
                   ],
@@ -165,11 +168,13 @@ class _ScaleDegreeIndicator extends StatelessWidget {
   final String label;
   final bool isCurrent;
   final double maxHeight;
+  final double textScaleMultiplier;
 
   const _ScaleDegreeIndicator({
     required this.label,
     required this.isCurrent,
     required this.maxHeight,
+    required this.textScaleMultiplier,
   });
 
   @override
@@ -186,7 +191,8 @@ class _ScaleDegreeIndicator extends StatelessWidget {
         : 8.0;
     const underlineHeight = 3.0;
 
-    final baseFontSize = (baseStyle?.fontSize ?? 14) + 2;
+    final scaleMultiplier = textScaleMultiplier.clamp(1.0, 1.3);
+    final baseFontSize = ((baseStyle?.fontSize ?? 14) + 2) * scaleMultiplier;
     final baseLineHeight = baseFontSize * (baseStyle?.height ?? 1.2);
     final availableHeight = maxHeight - underlinePadding - underlineHeight;
     final maxScale = (availableHeight / baseLineHeight).clamp(1.0, 3.0);
@@ -217,7 +223,7 @@ class _ScaleDegreeIndicator extends StatelessWidget {
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 120),
                 height: underlineHeight,
-                width: 18,
+                width: (18 * scaleMultiplier).clamp(18.0, 24.0),
                 decoration: BoxDecoration(
                   color: isCurrent ? cs.primary : Colors.transparent,
                   borderRadius: BorderRadius.circular(999),

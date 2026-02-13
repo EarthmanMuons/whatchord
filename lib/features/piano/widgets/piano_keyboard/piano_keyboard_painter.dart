@@ -16,6 +16,7 @@ class PianoKeyboardPainter extends CustomPainter {
     required this.backgroundColor,
     this.decorations = const <PianoKeyDecoration>[],
     this.decorationColor,
+    this.decorationTextScaleMultiplier = 1.0,
     this.drawBackground = true,
     this.drawFeltStrip = true,
     this.feltColor = const Color(0xFF800020),
@@ -45,6 +46,7 @@ class PianoKeyboardPainter extends CustomPainter {
   /// Key decorations (e.g., middle C marker, scale markers).
   final List<PianoKeyDecoration> decorations;
   final Color? decorationColor;
+  final double decorationTextScaleMultiplier;
 
   final bool drawBackground;
 
@@ -144,17 +146,20 @@ class PianoKeyboardPainter extends CustomPainter {
     );
 
     // Place near the bottom of the white key, but leave a small margin.
-    const baseBottomPad = 6.0;
+    final baseBottomPad = (whiteKeyWidth * 0.18).clamp(4.0, 8.0);
 
     for (final d in decorations) {
       final whiteIndex = _geometry.whiteIndexForMidi(d.midiNote);
       if (whiteIndex < 0 || whiteIndex >= whiteKeyCount) continue;
+      final fontSize = (whiteKeyWidth * 0.52 * decorationTextScaleMultiplier)
+          .clamp(9.0, 16.0)
+          .toDouble();
 
       textPainter.text = TextSpan(
         text: d.label,
         style: TextStyle(
           color: color,
-          fontSize: 12,
+          fontSize: fontSize,
           fontWeight: FontWeight.w600,
         ),
       );
@@ -185,6 +190,8 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.blackKeyColor != blackKeyColor ||
         oldDelegate.blackKeyHighlightColor != blackKeyHighlightColor ||
         oldDelegate.decorationColor != decorationColor ||
+        oldDelegate.decorationTextScaleMultiplier !=
+            decorationTextScaleMultiplier ||
         !_listEquals(oldDelegate.decorations, decorations) ||
         !_setEquals(oldDelegate.highlightedNoteNumbers, highlightedNoteNumbers);
   }
