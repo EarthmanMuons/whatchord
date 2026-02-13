@@ -75,8 +75,11 @@ class _AnalysisDetailsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     final isSideSheet = showCloseButton;
+    final panelColor = t.colorScheme.surfaceContainerLow;
+    final debugBoxColor = t.colorScheme.surface;
 
     return Material(
+      color: panelColor,
       child: Padding(
         padding: isSideSheet
             ? const EdgeInsets.fromLTRB(0, 0, 0, 16)
@@ -148,7 +151,7 @@ class _AnalysisDetailsContent extends StatelessWidget {
                         _DebugCopyBox(
                           text: copyText!,
                           style: t.textTheme.bodyMedium,
-                          background: t.colorScheme.surfaceContainerHighest,
+                          background: debugBoxColor,
                         ),
                     ],
                   ),
