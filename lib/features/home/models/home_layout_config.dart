@@ -35,7 +35,7 @@ const portraitLayoutConfig = HomeLayoutConfig(
 );
 
 const landscapeLayoutConfig = HomeLayoutConfig(
-  analysisPadding: EdgeInsets.fromLTRB(16, 16, 8, 16),
+  analysisPadding: EdgeInsets.fromLTRB(16, 8, 8, 8),
   chordCardMaxWidth: 520,
   detailsSectionPadding: EdgeInsets.fromLTRB(8, 12, 16, 12),
   inputDisplayPadding: EdgeInsets.zero,
