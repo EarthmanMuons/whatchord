@@ -158,27 +158,34 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Header
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Semantics(
-                    header: true,
-                    child: Text(
-                      'Select MIDI Device',
-                      style: theme.textTheme.titleLarge,
+          SizedBox(
+            height: 60,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, right: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        'Select MIDI Device',
+                        style: theme.textTheme.titleLarge,
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  tooltip: 'Close',
-                  icon: const Icon(Icons.close),
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+                  IconButton(
+                    constraints: const BoxConstraints(
+                      minWidth: 48,
+                      minHeight: 48,
+                    ),
+                    tooltip: 'Close',
+                    icon: const Icon(Icons.close),
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
 
@@ -324,7 +331,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       icon: Icons.bluetooth_disabled,
       title: 'No devices found',
       message:
-          'Tap Refresh to scan again.\nIf your device is new, pair it in your system settings first.',
+          'Tap Refresh to scan again.\nMake sure your device is powered on and discoverable.',
     );
   }
 

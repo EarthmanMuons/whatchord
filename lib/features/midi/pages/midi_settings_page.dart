@@ -70,17 +70,15 @@ class MidiSettingsPage extends ConsumerWidget {
                   subtitle: const Text('Scan for and select a MIDI device'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
-                    await showModalBottomSheet<MidiDevice>(
-                      context: context,
-                      showDragHandle: true,
-                      builder: (_) => const MidiDevicePicker(),
-                    ).whenComplete(() {
-                      unawaited(
-                        ref
-                            .read(midiConnectionStateProvider.notifier)
-                            .stopScanning(),
-                      );
-                    });
+                    await showAdaptiveMidiDevicePicker(context).whenComplete(
+                      () {
+                        unawaited(
+                          ref
+                              .read(midiConnectionStateProvider.notifier)
+                              .stopScanning(),
+                        );
+                      },
+                    );
                   },
                 ),
               ),
@@ -90,4 +88,48 @@ class MidiSettingsPage extends ConsumerWidget {
       ),
     );
   }
+}
+
+Future<MidiDevice?> showAdaptiveMidiDevicePicker(BuildContext context) {
+  Color resolvePanelColor(BuildContext context) {
+    final theme = Theme.of(context);
+    return theme.bottomSheetTheme.modalBackgroundColor ??
+        theme.bottomSheetTheme.backgroundColor ??
+        theme.colorScheme.surfaceContainerLow;
+  }
+
+  final shortestSide = MediaQuery.sizeOf(context).shortestSide;
+  final isCompact = shortestSide < 600;
+
+  if (isCompact) {
+    return showModalBottomSheet<MidiDevice>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: resolvePanelColor(context),
+      builder: (_) => const MidiDevicePicker(),
+    );
+  }
+
+  final maxDialogHeight = MediaQuery.sizeOf(context).height * 0.82;
+
+  return showDialog<MidiDevice>(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        clipBehavior: Clip.antiAlias,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 560,
+            maxHeight: maxDialogHeight,
+          ),
+          child: Material(
+            color: resolvePanelColor(context),
+            child: const MidiDevicePicker(),
+          ),
+        ),
+      );
+    },
+  );
 }
