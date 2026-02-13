@@ -19,6 +19,7 @@ class NearTieChordCandidatesList extends ConsumerStatefulWidget {
     this.alignment = Alignment.center,
     this.textAlign = TextAlign.center,
     this.styleOverride,
+    this.textScaleMultiplier = 1.0,
     this.showScrollbarWhenOverflow = false,
   });
 
@@ -30,6 +31,7 @@ class NearTieChordCandidatesList extends ConsumerStatefulWidget {
   final Alignment alignment;
   final TextAlign textAlign;
   final TextStyle? styleOverride;
+  final double textScaleMultiplier;
   final bool showScrollbarWhenOverflow;
 
   @override
@@ -69,8 +71,9 @@ class _NearTieChordCandidatesListState
         widget.styleOverride ??
         theme.textTheme.bodyMedium ??
         const TextStyle(fontSize: 14);
+    final scale = widget.textScaleMultiplier.clamp(1.0, 1.5);
     final textStyle = base.copyWith(
-      fontSize: (base.fontSize ?? 14) + 4,
+      fontSize: ((base.fontSize ?? 14) + 4) * scale,
       fontWeight: FontWeight.w800,
       color: cs.onSurface.withValues(alpha: 0.45),
       height: 1.18,

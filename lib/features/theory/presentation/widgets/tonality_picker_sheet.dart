@@ -5,8 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/theory_domain.dart';
 import '../../state/providers/selected_tonality_notifier.dart';
 
+enum TonalityPickerPresentation { bottomSheet, sideSheet }
+
 class TonalityPickerSheet extends ConsumerStatefulWidget {
-  const TonalityPickerSheet({super.key});
+  const TonalityPickerSheet({
+    super.key,
+    this.presentation = TonalityPickerPresentation.bottomSheet,
+  });
+
+  final TonalityPickerPresentation presentation;
 
   @override
   ConsumerState<TonalityPickerSheet> createState() =>
@@ -15,7 +22,8 @@ class TonalityPickerSheet extends ConsumerStatefulWidget {
 
 class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
   static const double _rowHeight = 62.0;
-  static const double _headerHeight = 46.0;
+  static const double _headerHeight = 84.0;
+  static const double _sideSheetHeaderHeight = 96.0;
   static const double _chipWidth = 64.0;
 
   late final ScrollController _controller;
@@ -56,7 +64,14 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isLandscape = constraints.maxWidth > constraints.maxHeight;
+        final isSideSheet =
+            widget.presentation == TonalityPickerPresentation.sideSheet;
+        final isLandscape = isSideSheet
+            ? true
+            : constraints.maxWidth > constraints.maxHeight;
+        final headerHeight = isSideSheet
+            ? _sideSheetHeaderHeight
+            : _headerHeight;
 
         final didOrientationChange =
             _lastIsLandscape != null && _lastIsLandscape != isLandscape;
@@ -80,13 +95,17 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
             : mq;
 
         final screenHeight = mqAdjusted.size.height;
-        final sheetHeight = isLandscape ? screenHeight : screenHeight * 0.42;
+        final sideSheetContentHeight =
+            _sideSheetHeaderHeight + (_rows.length * _rowHeight) + 12.0;
+        final sheetHeight = isSideSheet
+            ? sideSheetContentHeight.clamp(0.0, constraints.maxHeight)
+            : (isLandscape ? screenHeight : screenHeight * 0.42);
 
         return MediaQuery(
           data: mqAdjusted,
           child: SafeArea(
-            left: !isLandscape,
-            right: !isLandscape,
+            left: !isLandscape && !isSideSheet,
+            right: !isLandscape && !isSideSheet,
             child: SizedBox(
               height: sheetHeight,
               child: CustomScrollView(
@@ -95,8 +114,9 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                   SliverPersistentHeader(
                     pinned: true,
                     delegate: _TonalityPickerHeaderDelegate(
-                      extent: _headerHeight,
+                      extent: headerHeight,
                       chipWidth: _chipWidth,
+                      showCloseButton: isSideSheet,
                       backgroundColor: cs.surfaceContainerLow,
                     ),
                   ),
@@ -179,7 +199,9 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                       childCount: _rows.length, // finite
                     ),
                   ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 12)),
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: isSideSheet ? 0 : 12),
+                  ),
                 ],
               ),
             ),
@@ -263,11 +285,13 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
 class _TonalityPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double extent;
   final double chipWidth;
+  final bool showCloseButton;
   final Color backgroundColor;
 
   const _TonalityPickerHeaderDelegate({
     required this.extent,
     required this.chipWidth,
+    required this.showCloseButton,
     required this.backgroundColor,
   });
 
@@ -290,11 +314,44 @@ class _TonalityPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
       fontWeight: FontWeight.w600,
       color: cs.onSurface,
     );
+    final titleStyle = theme.textTheme.titleLarge;
+    final titleRowHeight = showCloseButton ? 52.0 : 40.0;
 
     return Material(
       color: backgroundColor,
       child: Column(
         children: [
+          SizedBox(
+            height: titleRowHeight,
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                top: showCloseButton ? 10 : 0,
+                bottom: showCloseButton ? 6 : 0,
+                right: showCloseButton ? 12 : 16,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: Text('Key Signature', style: titleStyle),
+                    ),
+                  ),
+                  if (showCloseButton)
+                    IconButton(
+                      tooltip: 'Close',
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      icon: const Icon(Icons.close),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(height: 1),
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -303,7 +360,7 @@ class _TonalityPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
                   Expanded(
                     child: Semantics(
                       header: true,
-                      child: Text('Signature', style: headerStyle),
+                      child: Text('Accidentals', style: headerStyle),
                     ),
                   ),
                   SizedBox(
@@ -346,6 +403,7 @@ class _TonalityPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
   bool shouldRebuild(covariant _TonalityPickerHeaderDelegate oldDelegate) {
     return oldDelegate.extent != extent ||
         oldDelegate.chipWidth != chipWidth ||
+        oldDelegate.showCloseButton != showCloseButton ||
         oldDelegate.backgroundColor != backgroundColor;
   }
 }

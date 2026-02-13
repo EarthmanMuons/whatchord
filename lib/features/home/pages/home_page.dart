@@ -58,11 +58,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final mq = MediaQuery.of(context);
-        final isLandscape = constraints.maxWidth > constraints.maxHeight;
-
-        final config = isLandscape
-            ? landscapeLayoutConfig
-            : portraitLayoutConfig;
+        final config = resolveHomeLayoutConfig(constraints);
+        final isLandscape = config.isLandscape;
 
         final toolbarHeight = kToolbarHeight;
 
@@ -201,14 +198,8 @@ class _HomeLandscape extends ConsumerWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                flex: 7,
-                child: AnalysisSection(config: config, isLandscape: true),
-              ),
-              Expanded(
-                flex: 6,
-                child: DetailsSection(config: config, isLandscape: true),
-              ),
+              Expanded(flex: 7, child: AnalysisSection(config: config)),
+              Expanded(flex: 6, child: DetailsSection(config: config)),
             ],
           ),
         ),
@@ -244,12 +235,15 @@ class _HomePortrait extends ConsumerWidget {
       children: [
         Flexible(
           fit: FlexFit.loose,
-          child: AnalysisSection(config: config, isLandscape: false),
+          child: AnalysisSection(config: config),
         ),
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            InputDisplay(padding: config.inputDisplayPadding),
+            InputDisplay(
+              padding: config.inputDisplayPadding,
+              visualScaleMultiplier: config.inputDisplayVisualScale,
+            ),
             TonalityBar(
               height: _tonalityBarHeight,
               horizontalInset: horizontalInset,

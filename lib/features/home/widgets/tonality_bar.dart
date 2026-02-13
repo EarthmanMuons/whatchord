@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
+import 'adaptive_side_sheet.dart';
+
 class TonalityBar extends ConsumerWidget {
   const TonalityBar({
     super.key,
@@ -32,11 +34,20 @@ class TonalityBar extends ConsumerWidget {
     void openTonalityPicker() {
       if (!context.mounted) return;
 
-      final navigator = Navigator.of(context, rootNavigator: true);
+      if (useHomeSideSheet(context)) {
+        showHomeSideSheet<void>(
+          context: context,
+          barrierLabel: 'Dismiss key signature picker',
+          builder: (_) => const TonalityPickerSheet(
+            presentation: TonalityPickerPresentation.sideSheet,
+          ),
+        );
+        return;
+      }
 
-      navigator.push(
+      Navigator.of(context, rootNavigator: true).push(
         ModalBottomSheetRoute(
-          builder: (_) => TonalityPickerSheet(),
+          builder: (_) => const TonalityPickerSheet(),
           isScrollControlled: true,
           showDragHandle: true,
         ),

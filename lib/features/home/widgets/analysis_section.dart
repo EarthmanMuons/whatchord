@@ -11,14 +11,9 @@ import '../models/home_layout_config.dart';
 import 'identity_card.dart';
 
 class AnalysisSection extends ConsumerWidget {
-  const AnalysisSection({
-    super.key,
-    required this.config,
-    required this.isLandscape,
-  });
+  const AnalysisSection({super.key, required this.config});
 
   final HomeLayoutConfig config;
-  final bool isLandscape;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,18 +24,31 @@ class AnalysisSection extends ConsumerWidget {
       padding: config.analysisPadding,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          const preferredW = 320.0;
+          final isLandscape = config.isLandscape;
+          final preferredW = clampDouble(
+            config.analysisCardPreferredWidth,
+            0.0,
+            config.chordCardMaxWidth,
+          );
           final cardW = clampDouble(preferredW, 0.0, constraints.maxWidth);
 
           // Tunables
           final textScale = MediaQuery.textScalerOf(context).scale(1.0);
           final topPad = isLandscape
               ? 0.0
-              : clampDouble(82.0 - (textScale - 1.0) * 28.0, 32.0, 82.0);
-          final cardH = isLandscape ? 132.0 : 180.0;
-          const listGap = 18.0;
+              : clampDouble(
+                  config.analysisTopPadMax - (textScale - 1.0) * 28.0,
+                  config.analysisTopPadMin,
+                  config.analysisTopPadMax,
+                );
+          final cardH = config.analysisCardHeight;
+          final listGap = config.analysisListGap;
           final laneH = constraints.maxHeight;
-          final cardMaxH = clampDouble(172.0, 0.0, laneH);
+          final cardMaxH = clampDouble(
+            config.analysisCardMaxHeight,
+            0.0,
+            laneH,
+          );
           final listMaxH = clampDouble(
             laneH - topPad - cardH - listGap,
             0.0,
@@ -59,6 +67,7 @@ class AnalysisSection extends ConsumerWidget {
                         identity: identity,
                         showIdle: showIdle,
                         idleAsset: 'assets/logo/whatchord_logo_circle.svg',
+                        textScaleMultiplier: config.identityCardTextScale,
                         fill: true,
                       ),
                     ),
@@ -80,21 +89,24 @@ class AnalysisSection extends ConsumerWidget {
                                 showIdle: showIdle,
                                 idleAsset:
                                     'assets/logo/whatchord_logo_circle.svg',
+                                textScaleMultiplier:
+                                    config.identityCardTextScale,
                                 fill: true, // critical
                               ),
                             ),
 
                             if (!isLandscape) ...[
-                              const SizedBox(height: listGap),
+                              SizedBox(height: listGap),
                               ConstrainedBox(
                                 constraints: BoxConstraints(
                                   maxHeight: listMaxH,
                                 ),
-                                child: const NearTieChordCandidatesList(
+                                child: NearTieChordCandidatesList(
                                   enabled: true,
                                   alignment: Alignment.topCenter,
                                   textAlign: TextAlign.center,
                                   gap: 8,
+                                  textScaleMultiplier: config.nearTieTextScale,
                                 ),
                               ),
                             ],

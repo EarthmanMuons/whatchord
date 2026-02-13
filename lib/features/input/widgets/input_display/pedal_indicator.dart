@@ -8,24 +8,41 @@ import '../../providers/pedal_state_provider.dart';
 import 'input_display_sizing.dart';
 
 class PedalIndicator extends ConsumerStatefulWidget {
-  const PedalIndicator({super.key});
+  const PedalIndicator({super.key, this.visualScaleMultiplier = 1.0});
+
+  final double visualScaleMultiplier;
 
   static const double slotWidth = 36;
   static const double glyphSize = 32;
   static const Offset opticalOffset = Offset(0, -3);
   static const double _pressedBaselineNudge = 2.0;
 
-  static double sizeScaleFor(BuildContext context) {
-    return InputDisplaySizing.pedalScale(context);
+  static double sizeScaleFor(
+    BuildContext context, {
+    double visualScaleMultiplier = 1.0,
+  }) {
+    return InputDisplaySizing.pedalScale(
+      context,
+      visualScaleMultiplier: visualScaleMultiplier,
+    );
   }
 
-  static double slotWidthFor(BuildContext context) {
-    final scaled = slotWidth * sizeScaleFor(context);
+  static double slotWidthFor(
+    BuildContext context, {
+    double visualScaleMultiplier = 1.0,
+  }) {
+    final scaled =
+        slotWidth *
+        sizeScaleFor(context, visualScaleMultiplier: visualScaleMultiplier);
     return scaled < 48.0 ? 48.0 : scaled;
   }
 
-  static double glyphSizeFor(BuildContext context) {
-    return glyphSize * sizeScaleFor(context);
+  static double glyphSizeFor(
+    BuildContext context, {
+    double visualScaleMultiplier = 1.0,
+  }) {
+    return glyphSize *
+        sizeScaleFor(context, visualScaleMultiplier: visualScaleMultiplier);
   }
 
   @override
@@ -38,9 +55,18 @@ class _PedalIndicatorState extends ConsumerState<PedalIndicator> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final sizeScale = PedalIndicator.sizeScaleFor(context);
-    final slotWidth = PedalIndicator.slotWidthFor(context);
-    final glyphSize = PedalIndicator.glyphSizeFor(context);
+    final sizeScale = PedalIndicator.sizeScaleFor(
+      context,
+      visualScaleMultiplier: widget.visualScaleMultiplier,
+    );
+    final slotWidth = PedalIndicator.slotWidthFor(
+      context,
+      visualScaleMultiplier: widget.visualScaleMultiplier,
+    );
+    final glyphSize = PedalIndicator.glyphSizeFor(
+      context,
+      visualScaleMultiplier: widget.visualScaleMultiplier,
+    );
     final pedal = ref.watch(inputPedalStateProvider);
     final isDown = pedal.isDown;
     final source = pedal.source;

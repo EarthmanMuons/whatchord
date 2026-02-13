@@ -7,15 +7,26 @@ import '../../providers/pedal_state_provider.dart';
 import 'input_display_sizing.dart';
 
 class NoteChip extends ConsumerWidget {
-  const NoteChip({super.key, required this.note});
+  const NoteChip({
+    super.key,
+    required this.note,
+    this.visualScaleMultiplier = 1.0,
+  });
   final SoundingNote note;
+  final double visualScaleMultiplier;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final sizeScale = InputDisplaySizing.noteScale(context);
-    final verticalScale = InputDisplaySizing.noteVerticalScale(context);
+    final sizeScale = InputDisplaySizing.noteScale(
+      context,
+      visualScaleMultiplier: visualScaleMultiplier,
+    );
+    final verticalScale = InputDisplaySizing.noteVerticalScale(
+      context,
+      visualScaleMultiplier: visualScaleMultiplier,
+    );
 
     final isPedalDown = ref.watch(
       inputPedalStateProvider.select((s) => s.isDown),

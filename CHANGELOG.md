@@ -20,6 +20,15 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   auto-scroll transitions and suppressing idle status-icon pulse animations.
 - Increased tap target sizes across home and MIDI controls to better meet
   accessibility touch target guidance at default and large text scales.
+- Introduced size-class-aware home layouts for tablet devices, including larger
+  identity card presentation and scaled typography for the card, near-tie
+  candidates, and input display note/pedal controls.
+- Updated key signature picker and analysis details to use adaptive right-side
+  sheets on larger layouts with consistent rounded panel styling, unified header
+  treatment, and swipe-to-dismiss support.
+- Refined key signature picker labels and structure by adding a persistent
+  "Key Signature" title, renaming the primary column to "Accidentals", and
+  improving spacing and content-aware side-sheet height behavior.
 
 ### Fixed
 
