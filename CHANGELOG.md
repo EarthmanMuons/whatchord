@@ -26,9 +26,16 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Updated key signature picker and analysis details to use adaptive right-side
   sheets on larger layouts with consistent rounded panel styling, unified header
   treatment, and swipe-to-dismiss support.
-- Refined key signature picker labels and structure by adding a persistent
-  "Key Signature" title, renaming the primary column to "Accidentals", and
-  improving spacing and content-aware side-sheet height behavior.
+- Refined key signature picker labels and structure by adding a persistent "Key
+  Signature" title, renaming the primary column to "Accidentals", and improving
+  spacing and content-aware side-sheet height behavior.
+- Updated the Settings color palette picker to adapt by size class (bottom sheet
+  on compact screens, centered selection dialog on larger screens), keep the
+  picker open for live preview, and unify modal styling across both
+  presentations.
+- Improved color palette picker accessibility with clearer selected-state
+  semantics, explicit action hints, and consistent 48x48 close-button touch
+  targets on larger-screen dialogs.
 
 ### Fixed
 
