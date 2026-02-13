@@ -14,8 +14,13 @@ import 'note_chip.dart';
 import 'pedal_indicator.dart';
 
 class InputDisplay extends ConsumerStatefulWidget {
-  const InputDisplay({super.key, required this.padding});
+  const InputDisplay({
+    super.key,
+    required this.padding,
+    this.visualScaleMultiplier = 1.0,
+  });
   final EdgeInsets padding;
+  final double visualScaleMultiplier;
 
   @override
   ConsumerState<InputDisplay> createState() => _InputDisplayState();
@@ -203,8 +208,14 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final pedalSlotWidth = PedalIndicator.slotWidthFor(context);
-    final heightScale = InputDisplaySizing.rowHeightScale(context);
+    final pedalSlotWidth = PedalIndicator.slotWidthFor(
+      context,
+      visualScaleMultiplier: widget.visualScaleMultiplier,
+    );
+    final heightScale = InputDisplaySizing.rowHeightScale(
+      context,
+      visualScaleMultiplier: widget.visualScaleMultiplier,
+    );
 
     final scaledMinHeight = 44.0 * heightScale;
     final minHeight = scaledMinHeight < 48.0 ? 48.0 : scaledMinHeight;
@@ -399,9 +410,11 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
           ),
         );
       },
-      child: const Align(
+      child: Align(
         alignment: Alignment.centerLeft,
-        child: PedalIndicator(),
+        child: PedalIndicator(
+          visualScaleMultiplier: widget.visualScaleMultiplier,
+        ),
       ),
     );
   }
@@ -430,7 +443,11 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
       axis: Axis.horizontal,
       child: FadeTransition(
         opacity: curved,
-        child: NoteChip(key: ValueKey(note.id), note: note),
+        child: NoteChip(
+          key: ValueKey(note.id),
+          note: note,
+          visualScaleMultiplier: widget.visualScaleMultiplier,
+        ),
       ),
     );
   }

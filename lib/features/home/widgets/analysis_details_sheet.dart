@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
+import 'adaptive_side_sheet.dart';
+
 /// Shows the Analysis Details modal bottom sheet for the given identity.
 Future<void> showAnalysisDetailsSheet(
   BuildContext context, {
@@ -13,132 +15,207 @@ Future<void> showAnalysisDetailsSheet(
   final copyText = identity.debugText?.trimRight();
   final canCopy = copyText != null && copyText.isNotEmpty;
 
+  if (useHomeSideSheet(context)) {
+    await showHomeSideSheet<void>(
+      context: context,
+      barrierLabel: 'Dismiss analysis details',
+      builder: (_) => _AnalysisDetailsContent(
+        identity: identity,
+        canCopy: canCopy,
+        copyText: copyText,
+        showCloseButton: true,
+      ),
+    );
+    return;
+  }
+
   await showModalBottomSheet<void>(
     context: context,
     useSafeArea: true,
     showDragHandle: true,
     isScrollControlled: true,
     builder: (context) {
-      final t = Theme.of(context);
       final mq = MediaQuery.of(context);
 
       final maxHeight = mq.size.height * 0.75;
 
       return ConstrainedBox(
         constraints: BoxConstraints(maxHeight: maxHeight),
-        child: Material(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Header
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Semantics(
-                    header: true,
-                    child: Text(
-                      'Analysis Details',
-                      style: t.textTheme.titleLarge,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // Scrollable content
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SelectableText(
-                          identity.longLabel,
-                          style: t.textTheme.bodyLarge,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        if (!canCopy)
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'No debug info available.',
-                              style: t.textTheme.bodyMedium,
-                            ),
-                          )
-                        else
-                          _DebugCopyBox(
-                            text: copyText,
-                            style: t.textTheme.bodyMedium,
-                            background: t.colorScheme.surfaceContainerHighest,
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // Actions pinned to bottom
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: canCopy
-                            ? () async {
-                                await Clipboard.setData(
-                                  ClipboardData(text: copyText),
-                                );
-                                if (context.mounted) {
-                                  SemanticsService.sendAnnouncement(
-                                    View.of(context),
-                                    'Copied analysis details',
-                                    Directionality.of(context),
-                                  );
-                                }
-
-                                // Subtle confirmation without UI chrome.
-                                HapticFeedback.lightImpact();
-                              }
-                            : null,
-                        icon: const Icon(Icons.copy),
-                        label: const Text('Copy'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Semantics(
-                        container: true,
-                        button: true,
-                        label: 'Report issue. Opens GitHub in your browser.',
-                        onTapHint: 'Open GitHub issues page',
-                        excludeSemantics: true,
-                        child: FilledButton.icon(
-                          onPressed: () => openUrl(
-                            context,
-                            Uri.parse(
-                              'https://github.com/EarthmanMuons/whatchord/issues',
-                            ),
-                          ),
-                          icon: const Icon(Icons.bug_report_outlined),
-                          label: const Row(
-                            children: [
-                              Text('Report Issue'),
-                              Spacer(),
-                              Icon(Icons.open_in_new, size: 18),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+        child: _AnalysisDetailsContent(
+          identity: identity,
+          canCopy: canCopy,
+          copyText: copyText,
         ),
       );
     },
   );
+}
+
+class _AnalysisDetailsContent extends StatelessWidget {
+  const _AnalysisDetailsContent({
+    required this.identity,
+    required this.canCopy,
+    required this.copyText,
+    this.showCloseButton = false,
+  });
+
+  final IdentityDisplay identity;
+  final bool canCopy;
+  final String? copyText;
+  final bool showCloseButton;
+
+  Widget _headerTitle(ThemeData theme) {
+    return Semantics(
+      header: true,
+      child: Text('Analysis Details', style: theme.textTheme.titleLarge),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = Theme.of(context);
+    final isSideSheet = showCloseButton;
+
+    return Material(
+      child: Padding(
+        padding: isSideSheet
+            ? const EdgeInsets.fromLTRB(0, 0, 0, 16)
+            : const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isSideSheet)
+              SizedBox(
+                height: 52,
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    top: 10,
+                    right: 12,
+                    bottom: 6,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _headerTitle(t),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'Close',
+                        onPressed: () => Navigator.of(context).maybePop(),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              Row(
+                children: [
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: _headerTitle(t),
+                    ),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 8),
+            Flexible(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: isSideSheet ? 16 : 0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SelectableText(
+                        identity.longLabel,
+                        style: t.textTheme.bodyLarge,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      if (!canCopy)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'No debug info available.',
+                            style: t.textTheme.bodyMedium,
+                          ),
+                        )
+                      else
+                        _DebugCopyBox(
+                          text: copyText!,
+                          style: t.textTheme.bodyMedium,
+                          background: t.colorScheme.surfaceContainerHighest,
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: isSideSheet ? 16 : 0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: canCopy
+                          ? () async {
+                              await Clipboard.setData(
+                                ClipboardData(text: copyText!),
+                              );
+                              if (context.mounted) {
+                                SemanticsService.sendAnnouncement(
+                                  View.of(context),
+                                  'Copied analysis details',
+                                  Directionality.of(context),
+                                );
+                              }
+
+                              HapticFeedback.lightImpact();
+                            }
+                          : null,
+                      icon: const Icon(Icons.copy),
+                      label: const Text('Copy'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Semantics(
+                      container: true,
+                      button: true,
+                      label: 'Report issue. Opens GitHub in your browser.',
+                      onTapHint: 'Open GitHub issues page',
+                      excludeSemantics: true,
+                      child: FilledButton.icon(
+                        onPressed: () => openUrl(
+                          context,
+                          Uri.parse(
+                            'https://github.com/EarthmanMuons/whatchord/issues',
+                          ),
+                        ),
+                        icon: const Icon(Icons.bug_report_outlined),
+                        label: const Row(
+                          children: [
+                            Text('Report Issue'),
+                            Spacer(),
+                            Icon(Icons.open_in_new, size: 18),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _DebugCopyBox extends StatefulWidget {

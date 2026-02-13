@@ -8,14 +8,9 @@ import 'package:whatchord/features/theory/theory.dart';
 import '../models/home_layout_config.dart';
 
 class DetailsSection extends ConsumerWidget {
-  const DetailsSection({
-    super.key,
-    required this.config,
-    required this.isLandscape,
-  });
+  const DetailsSection({super.key, required this.config});
 
   final HomeLayoutConfig config;
-  final bool isLandscape;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -24,16 +19,17 @@ class DetailsSection extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isLandscape)
+          if (config.isLandscape)
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: const NearTieChordCandidatesList(
+                child: NearTieChordCandidatesList(
                   enabled: true,
                   alignment: Alignment.topLeft,
                   textAlign: TextAlign.left,
                   gap: 6,
                   padding: EdgeInsets.only(bottom: 12),
+                  textScaleMultiplier: config.nearTieTextScale,
                   showScrollbarWhenOverflow: true,
                 ),
               ),
@@ -43,7 +39,10 @@ class DetailsSection extends ConsumerWidget {
 
           Align(
             alignment: Alignment.bottomLeft,
-            child: InputDisplay(padding: config.inputDisplayPadding),
+            child: InputDisplay(
+              padding: config.inputDisplayPadding,
+              visualScaleMultiplier: config.inputDisplayVisualScale,
+            ),
           ),
         ],
       ),

@@ -16,6 +16,9 @@ class IdentityCard extends StatelessWidget {
   /// SVG asset to show when idle.
   final String idleAsset;
 
+  /// Visual scaling applied for larger layout classes.
+  final double textScaleMultiplier;
+
   final bool fill;
 
   const IdentityCard({
@@ -23,6 +26,7 @@ class IdentityCard extends StatelessWidget {
     required this.identity,
     required this.showIdle,
     required this.idleAsset,
+    this.textScaleMultiplier = 1.0,
     this.fill = false,
   });
 
@@ -33,7 +37,20 @@ class IdentityCard extends StatelessWidget {
 
     final hasLabel = identity?.hasSecondaryLabel ?? false;
 
-    final base = theme.textTheme.displayMedium!;
+    final typographyScale = textScaleMultiplier.clamp(1.0, 2.0);
+    const autoSizeStep = 0.5;
+
+    TextStyle scaleStyle(TextStyle style) {
+      final fontSize = style.fontSize;
+      if (fontSize == null) return style;
+      return style.copyWith(fontSize: fontSize * typographyScale);
+    }
+
+    double snapToStep(double value, {double step = autoSizeStep}) {
+      return (value / step).roundToDouble() * step;
+    }
+
+    final base = scaleStyle(theme.textTheme.displayMedium!);
 
     final primaryStyle = base.copyWith(
       color: cs.onPrimary,
@@ -42,7 +59,7 @@ class IdentityCard extends StatelessWidget {
       height: 1.0,
     );
 
-    final secondaryStyle = theme.textTheme.titleMedium!.copyWith(
+    final secondaryStyle = scaleStyle(theme.textTheme.titleMedium!).copyWith(
       color: cs.onPrimary.withValues(alpha: 0.85),
       height: 1.1,
       letterSpacing: -0.2,
@@ -50,7 +67,7 @@ class IdentityCard extends StatelessWidget {
 
     final rootStyle = primaryStyle.copyWith(
       fontWeight: FontWeight.w500,
-      fontSize: primaryStyle.fontSize! + 6,
+      fontSize: (primaryStyle.fontSize! + 6 * typographyScale),
     );
 
     const minCardHeight = 132.0;
@@ -63,14 +80,16 @@ class IdentityCard extends StatelessWidget {
           textAlign: TextAlign.center,
           style: rootStyle,
           maxLines: 1,
-          minFontSize: 22,
+          minFontSize: snapToStep(22 * typographyScale),
+          stepGranularity: autoSizeStep,
         ),
         IntervalDisplay(:final intervalLabel) => AutoSizeText(
           intervalLabel,
           textAlign: TextAlign.center,
           style: rootStyle,
           maxLines: 1,
-          minFontSize: 22,
+          minFontSize: snapToStep(22 * typographyScale),
+          stepGranularity: autoSizeStep,
         ),
         ChordDisplay(:final symbol) => AutoSizeText.rich(
           TextSpan(
@@ -96,7 +115,8 @@ class IdentityCard extends StatelessWidget {
           textAlign: TextAlign.center,
           style: primaryStyle,
           maxLines: 1,
-          minFontSize: 22,
+          minFontSize: snapToStep(22 * typographyScale),
+          stepGranularity: autoSizeStep,
         ),
       };
     }
@@ -106,8 +126,8 @@ class IdentityCard extends StatelessWidget {
         opacity: 0.55,
         child: SvgPicture.asset(
           idleAsset,
-          width: 72,
-          height: 72,
+          width: 72 * typographyScale,
+          height: 72 * typographyScale,
           colorFilter: ColorFilter.mode(
             cs.onPrimary.withValues(alpha: 0.9),
             BlendMode.srcIn,
@@ -122,7 +142,8 @@ class IdentityCard extends StatelessWidget {
         textAlign: TextAlign.center,
         style: style,
         maxLines: 1,
-        minFontSize: 22,
+        minFontSize: snapToStep(22 * typographyScale),
+        stepGranularity: autoSizeStep,
       );
     }
 
@@ -273,10 +294,13 @@ class IdentityCard extends StatelessWidget {
                                         textAlign: TextAlign.center,
                                         style: secondaryStyle,
                                         maxLines: 1,
-                                        minFontSize: 6.0,
-                                        maxFontSize:
-                                            secondaryStyle.fontSize ?? 14.0,
-                                        stepGranularity: 0.5,
+                                        minFontSize: snapToStep(
+                                          6.0 * typographyScale,
+                                        ),
+                                        maxFontSize: snapToStep(
+                                          secondaryStyle.fontSize ?? 14.0,
+                                        ),
+                                        stepGranularity: autoSizeStep,
                                       ),
                                     ),
                                   ),
