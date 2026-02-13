@@ -206,7 +206,8 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
     final pedalSlotWidth = PedalIndicator.slotWidthFor(context);
     final heightScale = InputDisplaySizing.rowHeightScale(context);
 
-    final minHeight = 44.0 * heightScale;
+    final scaledMinHeight = 44.0 * heightScale;
+    final minHeight = scaledMinHeight < 48.0 ? 48.0 : scaledMinHeight;
     final showPrompt = _notes.isEmpty && ref.watch(inputIdleEligibleProvider);
 
     return Padding(

@@ -909,8 +909,7 @@ class _OffscreenNoteCue extends StatelessWidget {
           curve: Curves.easeOutCubic,
           child: Center(
             child: Material(
-              color: cs.surface.withValues(alpha: enabled ? 0.55 : 0.40),
-              borderRadius: BorderRadius.circular(12),
+              type: MaterialType.transparency,
               child: Semantics(
                 container: true,
                 label: semanticsLabel,
@@ -921,18 +920,32 @@ class _OffscreenNoteCue extends StatelessWidget {
                 child: Tooltip(
                   message: semanticsLabel,
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(24),
                     onTap: enabled ? onTap : null,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 6,
-                      ),
-                      child: Icon(
-                        icon,
-                        size: 20,
-                        color: cs.onSurfaceVariant.withValues(
-                          alpha: enabled ? 0.85 : 0.55,
+                    child: SizedBox(
+                      width: 48,
+                      height: 48,
+                      child: Center(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: cs.surface.withValues(
+                              alpha: enabled ? 0.55 : 0.40,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 6,
+                            ),
+                            child: Icon(
+                              icon,
+                              size: 20,
+                              color: cs.onSurfaceVariant.withValues(
+                                alpha: enabled ? 0.85 : 0.55,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),

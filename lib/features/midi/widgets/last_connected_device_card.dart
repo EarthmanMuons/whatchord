@@ -66,10 +66,9 @@ class LastConnectedDeviceCard extends ConsumerWidget {
         lastConnectedDisplayName ??
         'Last connected device';
 
-    final compactButtonStyle = TextButton.styleFrom(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      visualDensity: VisualDensity.compact,
-      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    final actionButtonStyle = TextButton.styleFrom(
+      minimumSize: const Size(48, 48),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     );
 
     return Card(
@@ -82,7 +81,7 @@ class LastConnectedDeviceCard extends ConsumerWidget {
           children: [
             if (isAttemptingConnection)
               FilledButton.tonal(
-                style: compactButtonStyle,
+                style: actionButtonStyle,
                 onPressed: () {
                   ref.read(midiConnectionStateProvider.notifier).cancel();
                 },
@@ -90,7 +89,7 @@ class LastConnectedDeviceCard extends ConsumerWidget {
               )
             else if (isConnectedToLastConnected)
               FilledButton.tonal(
-                style: compactButtonStyle,
+                style: actionButtonStyle,
                 onPressed: isAttemptingConnection
                     ? null
                     : () async {
@@ -102,7 +101,7 @@ class LastConnectedDeviceCard extends ConsumerWidget {
               )
             else if (!isConnected && hasLastConnected)
               FilledButton.tonal(
-                style: compactButtonStyle,
+                style: actionButtonStyle,
                 onPressed: isAttemptingConnection
                     ? null
                     : () {

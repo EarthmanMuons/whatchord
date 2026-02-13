@@ -10,25 +10,19 @@ import '../pages/midi_settings_page.dart';
 import '../providers/midi_connection_status_provider.dart';
 
 class MidiStatusIcon extends ConsumerWidget {
-  const MidiStatusIcon({super.key, this.isLandscape = false});
-
-  final bool isLandscape;
+  const MidiStatusIcon({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(midiConnectionStatusProvider);
-    return _MidiStatusIconButton(status: status, isLandscape: isLandscape);
+    return _MidiStatusIconButton(status: status);
   }
 }
 
 class _MidiStatusIconButton extends StatefulWidget {
-  const _MidiStatusIconButton({
-    required this.status,
-    required this.isLandscape,
-  });
+  const _MidiStatusIconButton({required this.status});
 
   final MidiConnectionStatus status;
-  final bool isLandscape;
 
   @override
   State<_MidiStatusIconButton> createState() => _MidiStatusIconButtonState();
@@ -138,18 +132,13 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
           tooltip: presentation.tooltip,
           icon: presentation.icon,
           color: presentation.iconColor,
-          visualDensity: widget.isLandscape
-              ? VisualDensity.compact
-              : VisualDensity.standard,
-          constraints: widget.isLandscape
-              ? const BoxConstraints(minWidth: 40, minHeight: 40)
-              : const BoxConstraints(),
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
           style: IconButton.styleFrom(
             backgroundColor: presentation.backgroundColor,
             side: BorderSide(color: presentation.borderColor),
             shape: const StadiumBorder(),
             padding: const EdgeInsets.all(8),
-            minimumSize: const Size(36, 36),
+            minimumSize: const Size(48, 48),
           ),
           onPressed: _handlePressed,
         ),

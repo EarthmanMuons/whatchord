@@ -23,7 +23,10 @@ class TonalityBar extends ConsumerWidget {
 
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
     final verticalPadding = textScale > 1.2 ? 4.0 : 12.0;
-    final minButtonHeight = textScale > 1.2 ? height : 40.0;
+    final minButtonHeight = textScale > 1.2 ? height : 48.0;
+    final effectiveMinButtonHeight = minButtonHeight < 48.0
+        ? 48.0
+        : minButtonHeight;
     final keyLabel = 'Key: ${selectedTonality.displayName}';
 
     void openTonalityPicker() {
@@ -78,13 +81,11 @@ class TonalityBar extends ConsumerWidget {
                       softWrap: false,
                     ),
                     style: TextButton.styleFrom(
-                      minimumSize: Size(0, minButtonHeight),
+                      minimumSize: Size(0, effectiveMinButtonHeight),
                       padding: EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: verticalPadding,
                       ),
-                      visualDensity: VisualDensity.compact,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                   ),
                 ),
