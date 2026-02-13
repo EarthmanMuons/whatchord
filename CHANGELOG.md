@@ -23,6 +23,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Fixed settings pages in landscape orientation so list content now respects
+  device safe-area insets and avoids camera cutout occlusion.
 - Fixed a last-connected-device state bug where forgetting a device and then
   reconnecting it could leave the card showing a disabled "Reconnect" action
   instead of "Disconnect".

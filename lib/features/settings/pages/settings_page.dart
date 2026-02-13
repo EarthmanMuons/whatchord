@@ -33,269 +33,276 @@ class SettingsPage extends ConsumerWidget {
         foregroundColor: cs.onSurface,
         scrolledUnderElevation: 0,
       ),
-      body: Scrollbar(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-          children: [
-            const SectionHeader(title: 'Input', icon: Icons.piano),
+      body: SafeArea(
+        top: false,
+        child: Scrollbar(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            children: [
+              const SectionHeader(title: 'Input', icon: Icons.piano),
 
-            Semantics(
-              onTapHint: 'Open MIDI settings',
-              child: ListTile(
-                title: const Text('MIDI settings'),
-                subtitle: Text(midiStatus.subtitle ?? midiStatus.title),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const MidiSettingsPage(),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            const SizedBox(height: 16),
-            const SectionHeader(
-              title: 'Chord Display Options',
-              icon: Icons.queue_music_outlined,
-            ),
-
-            const SubsectionLabel(title: 'Notation Style'),
-            RadioGroup<ChordNotationStyle>(
-              groupValue: chordNotationStyle,
-              onChanged: (ChordNotationStyle? style) {
-                if (style == null) return;
-                ref.read(chordNotationStyleProvider.notifier).setStyle(style);
-              },
-              child: const Column(
-                children: [
-                  RadioListTile<ChordNotationStyle>(
-                    title: Text('Textual'),
-                    subtitle: Text('E.g., Cmaj7, F#m7b5'),
-                    value: ChordNotationStyle.textual,
-                  ),
-                  RadioListTile<ChordNotationStyle>(
-                    title: Text('Symbolic'),
-                    subtitle: Text('E.g., CΔ7, F#ø7'),
-                    value: ChordNotationStyle.symbolic,
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
-            const SectionHeader(
-              title: 'Appearance',
-              icon: Icons.palette_outlined,
-            ),
-
-            const SubsectionLabel(title: 'Theme'),
-            const SizedBox(height: 8),
-
-            SegmentedButton<ThemeMode>(
-              segments: const <ButtonSegment<ThemeMode>>[
-                ButtonSegment(
-                  value: ThemeMode.system,
-                  label: Text('System'),
-                  icon: Icon(Icons.settings_outlined),
-                ),
-                ButtonSegment(
-                  value: ThemeMode.light,
-                  label: Text('Light'),
-                  icon: Icon(Icons.light_mode_outlined),
-                ),
-                ButtonSegment(
-                  value: ThemeMode.dark,
-                  label: Text('Dark'),
-                  icon: Icon(Icons.dark_mode_outlined),
-                ),
-              ],
-              selected: <ThemeMode>{themeMode},
-              onSelectionChanged: (selection) {
-                ref
-                    .read(appThemeModeProvider.notifier)
-                    .setThemeMode(selection.first);
-              },
-            ),
-
-            const SizedBox(height: 8),
-            ListTile(
-              leading: PaletteSwatch(palette: palette),
-              title: const Text('Color Palette'),
-              subtitle: Text(palette.label),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () async {
-                final selected = await showModalBottomSheet<AppPalette>(
-                  context: context,
-                  showDragHandle: true,
-                  builder: (context) {
-                    final current = palette;
-                    return SafeArea(
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          for (final p in palettes)
-                            ListTile(
-                              tileColor: p == current
-                                  ? Theme.of(context)
-                                        .colorScheme
-                                        .primaryContainer
-                                        .withValues(alpha: 0.35)
-                                  : null,
-                              leading: PaletteSwatch(palette: p),
-                              title: Text(p.label),
-                              trailing: p == current
-                                  ? const Icon(Icons.check)
-                                  : null,
-                              onTap: () => Navigator.of(context).pop(p),
-                            ),
-                        ],
+              Semantics(
+                onTapHint: 'Open MIDI settings',
+                child: ListTile(
+                  title: const Text('MIDI settings'),
+                  subtitle: Text(midiStatus.subtitle ?? midiStatus.title),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const MidiSettingsPage(),
                       ),
                     );
                   },
-                );
+                ),
+              ),
 
-                if (selected != null) {
-                  ref.read(appPaletteProvider.notifier).setPalette(selected);
-                }
-              },
-            ),
+              const SizedBox(height: 16),
+              const SectionHeader(
+                title: 'Chord Display Options',
+                icon: Icons.queue_music_outlined,
+              ),
 
-            const SizedBox(height: 16),
-            const SectionHeader(title: 'About'),
-            Semantics(
-              onLongPressHint: 'Copy app version to clipboard',
-              child: ListTile(
-                leading: const Icon(Icons.info_outline),
-                title: const Text('WhatChord'),
-                subtitle: ref
-                    .watch(appVersionProvider)
-                    .when(
-                      data: (v) => Text('Version $v'),
-                      loading: () => const Text('Version —'),
-                      error: (_, _) => const Text('Version unavailable'),
-                    ),
-                onLongPress: () async {
-                  final version = ref.read(appVersionProvider).asData?.value;
-                  if (version == null) return;
-
-                  final messenger = Platform.isIOS
-                      ? ScaffoldMessenger.maybeOf(context)
-                      : null;
-
-                  await Clipboard.setData(
-                    ClipboardData(text: 'WhatChord v$version'),
-                  );
-
-                  messenger?.hideCurrentSnackBar();
-                  messenger?.showSnackBar(
-                    const SnackBar(content: Text('Copied to clipboard')),
-                  );
+              const SubsectionLabel(title: 'Notation Style'),
+              RadioGroup<ChordNotationStyle>(
+                groupValue: chordNotationStyle,
+                onChanged: (ChordNotationStyle? style) {
+                  if (style == null) return;
+                  ref.read(chordNotationStyleProvider.notifier).setStyle(style);
                 },
-              ),
-            ),
-
-            Semantics(
-              onTapHint: 'Open support page in browser',
-              child: ListTile(
-                leading: const Icon(Icons.support_agent_outlined),
-                title: const Text('Support'),
-                subtitle: const Text('Report an issue or contact support'),
-                trailing: const Icon(Icons.open_in_new),
-                onTap: () {
-                  openUrl(
-                    context,
-                    Uri.parse(
-                      'https://github.com/EarthmanMuons/whatchord/blob/main/SUPPORT.md',
+                child: const Column(
+                  children: [
+                    RadioListTile<ChordNotationStyle>(
+                      title: Text('Textual'),
+                      subtitle: Text('E.g., Cmaj7, F#m7b5'),
+                      value: ChordNotationStyle.textual,
                     ),
-                  );
-                },
-              ),
-            ),
-
-            Semantics(
-              onTapHint: 'Open GitHub repository in browser',
-              child: ListTile(
-                leading: const Icon(Icons.code),
-                title: const Text('Source Code'),
-                subtitle: const Text('Browse the repository on GitHub'),
-                trailing: const Icon(Icons.open_in_new),
-                onTap: () {
-                  openUrl(
-                    context,
-                    Uri.parse('https://github.com/EarthmanMuons/whatchord'),
-                  );
-                },
-              ),
-            ),
-
-            Semantics(
-              onTapHint: 'Open privacy policy in browser',
-              child: ListTile(
-                leading: const Icon(Icons.privacy_tip_outlined),
-                title: const Text('Privacy Policy'),
-                subtitle: const Text('No data collected'),
-                trailing: const Icon(Icons.open_in_new),
-                onTap: () {
-                  openUrl(
-                    context,
-                    Uri.parse(
-                      'https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md',
+                    RadioListTile<ChordNotationStyle>(
+                      title: Text('Symbolic'),
+                      subtitle: Text('E.g., CΔ7, F#ø7'),
+                      value: ChordNotationStyle.symbolic,
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
-            ),
 
-            ListTile(
-              leading: const Icon(Icons.restart_alt),
-              title: const Text('Reset to Defaults'),
-              subtitle: const Text(
-                'Clear all saved preferences and MIDI settings',
+              const SizedBox(height: 16),
+              const SectionHeader(
+                title: 'Appearance',
+                icon: Icons.palette_outlined,
               ),
-              onTap: () async {
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Reset all settings?'),
-                    content: const Text(
-                      'This will restore all preferences and MIDI settings to their default values. '
-                      'Any connected MIDI devices will be disconnected. '
-                      'This action can’t be undone.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('Cancel'),
-                      ),
-                      FilledButton(
-                        onPressed: () => Navigator.of(context).pop(true),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.error,
-                          foregroundColor: Theme.of(
-                            context,
-                          ).colorScheme.onError,
-                        ),
-                        child: const Text('Reset'),
-                      ),
-                    ],
+
+              const SubsectionLabel(title: 'Theme'),
+              const SizedBox(height: 8),
+
+              SegmentedButton<ThemeMode>(
+                segments: const <ButtonSegment<ThemeMode>>[
+                  ButtonSegment(
+                    value: ThemeMode.system,
+                    label: Text('System'),
+                    icon: Icon(Icons.settings_outlined),
                   ),
-                );
+                  ButtonSegment(
+                    value: ThemeMode.light,
+                    label: Text('Light'),
+                    icon: Icon(Icons.light_mode_outlined),
+                  ),
+                  ButtonSegment(
+                    value: ThemeMode.dark,
+                    label: Text('Dark'),
+                    icon: Icon(Icons.dark_mode_outlined),
+                  ),
+                ],
+                selected: <ThemeMode>{themeMode},
+                onSelectionChanged: (selection) {
+                  ref
+                      .read(appThemeModeProvider.notifier)
+                      .setThemeMode(selection.first);
+                },
+              ),
 
-                if (confirmed != true) return;
-
-                await ref.read(settingsResetProvider).resetAllToDefaults();
-
-                if (context.mounted) {
-                  HapticFeedback.lightImpact();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Settings reset to defaults')),
+              const SizedBox(height: 8),
+              ListTile(
+                leading: PaletteSwatch(palette: palette),
+                title: const Text('Color Palette'),
+                subtitle: Text(palette.label),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () async {
+                  final selected = await showModalBottomSheet<AppPalette>(
+                    context: context,
+                    showDragHandle: true,
+                    builder: (context) {
+                      final current = palette;
+                      return SafeArea(
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: [
+                            for (final p in palettes)
+                              ListTile(
+                                tileColor: p == current
+                                    ? Theme.of(context)
+                                          .colorScheme
+                                          .primaryContainer
+                                          .withValues(alpha: 0.35)
+                                    : null,
+                                leading: PaletteSwatch(palette: p),
+                                title: Text(p.label),
+                                trailing: p == current
+                                    ? const Icon(Icons.check)
+                                    : null,
+                                onTap: () => Navigator.of(context).pop(p),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
                   );
-                }
-              },
-            ),
-          ],
+
+                  if (selected != null) {
+                    ref.read(appPaletteProvider.notifier).setPalette(selected);
+                  }
+                },
+              ),
+
+              const SizedBox(height: 16),
+              const SectionHeader(title: 'About'),
+              Semantics(
+                onLongPressHint: 'Copy app version to clipboard',
+                child: ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: const Text('WhatChord'),
+                  subtitle: ref
+                      .watch(appVersionProvider)
+                      .when(
+                        data: (v) => Text('Version $v'),
+                        loading: () => const Text('Version —'),
+                        error: (_, _) => const Text('Version unavailable'),
+                      ),
+                  onLongPress: () async {
+                    final version = ref.read(appVersionProvider).asData?.value;
+                    if (version == null) return;
+
+                    final messenger = Platform.isIOS
+                        ? ScaffoldMessenger.maybeOf(context)
+                        : null;
+
+                    await Clipboard.setData(
+                      ClipboardData(text: 'WhatChord v$version'),
+                    );
+
+                    messenger?.hideCurrentSnackBar();
+                    messenger?.showSnackBar(
+                      const SnackBar(content: Text('Copied to clipboard')),
+                    );
+                  },
+                ),
+              ),
+
+              Semantics(
+                onTapHint: 'Open support page in browser',
+                child: ListTile(
+                  leading: const Icon(Icons.support_agent_outlined),
+                  title: const Text('Support'),
+                  subtitle: const Text('Report an issue or contact support'),
+                  trailing: const Icon(Icons.open_in_new),
+                  onTap: () {
+                    openUrl(
+                      context,
+                      Uri.parse(
+                        'https://github.com/EarthmanMuons/whatchord/blob/main/SUPPORT.md',
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              Semantics(
+                onTapHint: 'Open GitHub repository in browser',
+                child: ListTile(
+                  leading: const Icon(Icons.code),
+                  title: const Text('Source Code'),
+                  subtitle: const Text('Browse the repository on GitHub'),
+                  trailing: const Icon(Icons.open_in_new),
+                  onTap: () {
+                    openUrl(
+                      context,
+                      Uri.parse('https://github.com/EarthmanMuons/whatchord'),
+                    );
+                  },
+                ),
+              ),
+
+              Semantics(
+                onTapHint: 'Open privacy policy in browser',
+                child: ListTile(
+                  leading: const Icon(Icons.privacy_tip_outlined),
+                  title: const Text('Privacy Policy'),
+                  subtitle: const Text('No data collected'),
+                  trailing: const Icon(Icons.open_in_new),
+                  onTap: () {
+                    openUrl(
+                      context,
+                      Uri.parse(
+                        'https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md',
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.restart_alt),
+                title: const Text('Reset to Defaults'),
+                subtitle: const Text(
+                  'Clear all saved preferences and MIDI settings',
+                ),
+                onTap: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Reset all settings?'),
+                      content: const Text(
+                        'This will restore all preferences and MIDI settings to their default values. '
+                        'Any connected MIDI devices will be disconnected. '
+                        'This action can’t be undone.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text('Cancel'),
+                        ),
+                        FilledButton(
+                          onPressed: () => Navigator.of(context).pop(true),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Theme.of(
+                              context,
+                            ).colorScheme.error,
+                            foregroundColor: Theme.of(
+                              context,
+                            ).colorScheme.onError,
+                          ),
+                          child: const Text('Reset'),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmed != true) return;
+
+                  await ref.read(settingsResetProvider).resetAllToDefaults();
+
+                  if (context.mounted) {
+                    HapticFeedback.lightImpact();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Settings reset to defaults'),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
