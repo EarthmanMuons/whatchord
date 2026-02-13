@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 
@@ -38,7 +38,7 @@ class AppBarTitle extends ConsumerWidget {
       softWrap: false,
     );
 
-    final enableGestures = kDebugMode || kForceDemoSupport;
+    final enableGestures = kDebugMode || kProfileMode || kForceDemoSupport;
     if (!enableGestures) return title;
 
     final demoEnabled = ref.watch(demoModeProvider);
