@@ -20,7 +20,8 @@ class PedalIndicator extends ConsumerStatefulWidget {
   }
 
   static double slotWidthFor(BuildContext context) {
-    return slotWidth * sizeScaleFor(context);
+    final scaled = slotWidth * sizeScaleFor(context);
+    return scaled < 48.0 ? 48.0 : scaled;
   }
 
   static double glyphSizeFor(BuildContext context) {
@@ -99,14 +100,14 @@ class _PedalIndicatorState extends ConsumerState<PedalIndicator> {
                   curve: Curves.easeOutCubic,
                   padding: pressPad,
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.center,
                     child: Transform.translate(
                       offset: opticalOffset,
                       child: SvgPicture.asset(
                         'assets/glyphs/keyboard_pedal_ped.svg',
                         width: glyphSize,
                         height: glyphSize,
-                        alignment: Alignment.centerLeft,
+                        alignment: Alignment.center,
                         colorFilter: ColorFilter.mode(
                           cs.onSurfaceVariant,
                           BlendMode.srcIn,

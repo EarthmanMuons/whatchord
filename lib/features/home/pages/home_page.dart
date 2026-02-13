@@ -16,6 +16,8 @@ import '../widgets/edge_to_edge_controller.dart';
 import '../widgets/keyboard_section.dart';
 import '../widgets/tonality_bar.dart';
 
+const _tonalityBarHeight = kToolbarHeight;
+
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -62,7 +64,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             ? landscapeLayoutConfig
             : portraitLayoutConfig;
 
-        final toolbarHeight = isLandscape ? 44.0 : kToolbarHeight;
+        final toolbarHeight = kToolbarHeight;
 
         const barBaseInset = 16.0;
         final maxHorizontalCutout = isLandscape
@@ -86,7 +88,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                       right: !isLandscape,
                       child: _HomeTopBar(
                         toolbarHeight: toolbarHeight,
-                        isLandscape: isLandscape,
                         horizontalInset: horizontalInset,
                       ),
                     ),
@@ -101,12 +102,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                       child: isLandscape
                           ? _HomeLandscape(
                               config: config,
-                              isLandscape: true,
                               horizontalInset: horizontalInset,
                             )
                           : _HomePortrait(
                               config: config,
-                              isLandscape: false,
                               horizontalInset: horizontalInset,
                             ),
                     ),
@@ -124,12 +123,10 @@ class _HomePageState extends ConsumerState<HomePage> {
 class _HomeTopBar extends ConsumerWidget {
   const _HomeTopBar({
     required this.toolbarHeight,
-    required this.isLandscape,
     required this.horizontalInset,
   });
 
   final double toolbarHeight;
-  final bool isLandscape;
   final double horizontalInset;
 
   @override
@@ -158,19 +155,14 @@ class _HomeTopBar extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              Transform.translate(
-                offset: Offset(isLandscape ? 0 : settingsIconDx, 0),
-                child: MidiStatusIcon(isLandscape: isLandscape),
-              ),
+              const MidiStatusIcon(),
               Transform.translate(
                 offset: const Offset(settingsIconDx, 0),
                 child: IconButton(
-                  visualDensity: isLandscape
-                      ? VisualDensity.compact
-                      : VisualDensity.standard,
-                  constraints: isLandscape
-                      ? const BoxConstraints(minWidth: 40, minHeight: 40)
-                      : const BoxConstraints(),
+                  constraints: const BoxConstraints(
+                    minWidth: 48,
+                    minHeight: 48,
+                  ),
                   icon: const Icon(Icons.settings),
                   tooltip: 'Settings',
                   onPressed: () {
@@ -195,11 +187,9 @@ class _HomeLandscape extends ConsumerWidget {
     // ignore: unused_element_parameter
     super.key,
     required this.config,
-    required this.isLandscape,
     required this.horizontalInset,
   });
   final HomeLayoutConfig config;
-  final bool isLandscape;
   final double horizontalInset;
 
   @override
@@ -213,14 +203,11 @@ class _HomeLandscape extends ConsumerWidget {
             children: [
               Expanded(
                 flex: 7,
-                child: AnalysisSection(
-                  config: config,
-                  isLandscape: isLandscape,
-                ),
+                child: AnalysisSection(config: config, isLandscape: true),
               ),
               Expanded(
                 flex: 6,
-                child: DetailsSection(config: config, isLandscape: isLandscape),
+                child: DetailsSection(config: config, isLandscape: true),
               ),
             ],
           ),
@@ -229,7 +216,7 @@ class _HomeLandscape extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             TonalityBar(
-              height: config.tonalityBarHeight,
+              height: _tonalityBarHeight,
               horizontalInset: horizontalInset,
             ),
             const Divider(height: 1),
@@ -246,11 +233,9 @@ class _HomePortrait extends ConsumerWidget {
     // ignore: unused_element_parameter
     super.key,
     required this.config,
-    required this.isLandscape,
     required this.horizontalInset,
   });
   final HomeLayoutConfig config;
-  final bool isLandscape;
   final double horizontalInset;
 
   @override
@@ -259,14 +244,14 @@ class _HomePortrait extends ConsumerWidget {
       children: [
         Flexible(
           fit: FlexFit.loose,
-          child: AnalysisSection(config: config, isLandscape: isLandscape),
+          child: AnalysisSection(config: config, isLandscape: false),
         ),
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             InputDisplay(padding: config.inputDisplayPadding),
             TonalityBar(
-              height: config.tonalityBarHeight,
+              height: _tonalityBarHeight,
               horizontalInset: horizontalInset,
             ),
             const Divider(height: 1),
