@@ -52,7 +52,7 @@ Future<T?> showHomeSideSheet<T>({
               resizeDuration: null,
               onDismissed: (_) => Navigator.of(context).maybePop(),
               child: Material(
-                color: Theme.of(context).colorScheme.surface,
+                color: Theme.of(context).colorScheme.surfaceContainerLow,
                 elevation: 2,
                 clipBehavior: Clip.antiAlias,
                 shape: const RoundedRectangleBorder(

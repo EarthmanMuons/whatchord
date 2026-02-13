@@ -59,7 +59,7 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
 
     final selectedRowBg = Color.alphaBlend(
       cs.primary.withValues(alpha: 0.06),
-      cs.surface,
+      cs.surfaceContainerLow,
     );
 
     return LayoutBuilder(
@@ -106,103 +106,108 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
           child: SafeArea(
             left: !isLandscape && !isSideSheet,
             right: !isLandscape && !isSideSheet,
-            child: SizedBox(
-              height: sheetHeight,
-              child: CustomScrollView(
-                controller: _controller,
-                slivers: [
-                  SliverPersistentHeader(
-                    pinned: true,
-                    delegate: _TonalityPickerHeaderDelegate(
-                      extent: headerHeight,
-                      chipWidth: _chipWidth,
-                      showCloseButton: isSideSheet,
-                      backgroundColor: cs.surfaceContainerLow,
+            child: ColoredBox(
+              color: cs.surfaceContainerLow,
+              child: SizedBox(
+                height: sheetHeight,
+                child: CustomScrollView(
+                  controller: _controller,
+                  slivers: [
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _TonalityPickerHeaderDelegate(
+                        extent: headerHeight,
+                        chipWidth: _chipWidth,
+                        showCloseButton: isSideSheet,
+                        backgroundColor: cs.surfaceContainerLow,
+                      ),
                     ),
-                  ),
-                  SliverFixedExtentList(
-                    itemExtent: _rowHeight,
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final row = _rows[index];
-                        final major = row.relativeMajor;
-                        final minor = row.relativeMinor;
+                    SliverFixedExtentList(
+                      itemExtent: _rowHeight,
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final row = _rows[index];
+                          final major = row.relativeMajor;
+                          final minor = row.relativeMinor;
 
-                        final rowSelected =
-                            selected == major || selected == minor;
-                        final majorSelected = selected == major;
-                        final minorSelected = selected == minor;
+                          final rowSelected =
+                              selected == major || selected == minor;
+                          final majorSelected = selected == major;
+                          final minorSelected = selected == minor;
 
-                        return DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: rowSelected
-                                ? selectedRowBg
-                                : Colors.transparent,
-                          ),
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          row.label,
-                                          style: theme.textTheme.bodyMedium
-                                              ?.copyWith(
-                                                color: cs.onSurfaceVariant,
-                                              ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: _chipWidth,
-                                        child: Align(
-                                          alignment: Alignment.center,
-                                          child: _TonalityChoiceChip(
-                                            label: major.label,
-                                            semanticsLabel: major.displayName,
-                                            selected: majorSelected,
-                                            onTap: () => _selectTonality(major),
+                          return DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: rowSelected
+                                  ? selectedRowBg
+                                  : Colors.transparent,
+                            ),
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            row.label,
+                                            style: theme.textTheme.bodyMedium
+                                                ?.copyWith(
+                                                  color: cs.onSurfaceVariant,
+                                                ),
                                           ),
                                         ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      SizedBox(
-                                        width: _chipWidth,
-                                        child: Align(
-                                          alignment: Alignment.center,
-                                          child: _TonalityChoiceChip(
-                                            label: minor.label,
-                                            semanticsLabel: minor.displayName,
-                                            selected: minorSelected,
-                                            onTap: () => _selectTonality(minor),
+                                        SizedBox(
+                                          width: _chipWidth,
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            child: _TonalityChoiceChip(
+                                              label: major.label,
+                                              semanticsLabel: major.displayName,
+                                              selected: majorSelected,
+                                              onTap: () =>
+                                                  _selectTonality(major),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(width: 12),
+                                        SizedBox(
+                                          width: _chipWidth,
+                                          child: Align(
+                                            alignment: Alignment.center,
+                                            child: _TonalityChoiceChip(
+                                              label: minor.label,
+                                              semanticsLabel: minor.displayName,
+                                              selected: minorSelected,
+                                              onTap: () =>
+                                                  _selectTonality(minor),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 16),
-                                child: Divider(height: 1),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      childCount: _rows.length, // finite
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 16),
+                                  child: Divider(height: 1),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        childCount: _rows.length, // finite
+                      ),
                     ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: SizedBox(height: isSideSheet ? 0 : 12),
-                  ),
-                ],
+                    SliverToBoxAdapter(
+                      child: SizedBox(height: isSideSheet ? 0 : 12),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -347,10 +352,6 @@ class _TonalityPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
                 ],
               ),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Divider(height: 1),
           ),
           Expanded(
             child: Padding(
