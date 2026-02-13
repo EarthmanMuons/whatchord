@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -45,11 +46,6 @@ class LastConnectedDeviceCard extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final isConnectedToLastConnected =
-        isConnected &&
-        connected != null &&
-        connected.id == lastConnectedIdNormalized;
-
     // Prefer the current connection name while busy/connected; otherwise fall back
     // to the transport snapshot.
     final effectiveConnectedName = (isAttemptingConnection || isConnected)
@@ -77,13 +73,13 @@ class LastConnectedDeviceCard extends ConsumerWidget {
     final bool canReconnect = !isConnected && hasLastConnected;
     final String primaryLabel = isAttemptingConnection
         ? 'Cancel'
-        : isConnectedToLastConnected
+        : isConnected
         ? 'Disconnect'
         : 'Reconnect';
 
     final VoidCallback? primaryAction = isAttemptingConnection
         ? () => ref.read(midiConnectionStateProvider.notifier).cancel()
-        : isConnectedToLastConnected
+        : isConnected
         ? () async {
             await ref.read(midiConnectionStateProvider.notifier).disconnect();
           }
@@ -96,6 +92,34 @@ class LastConnectedDeviceCard extends ConsumerWidget {
         : null;
 
     Future<void> forgetDevice() async {
+      final shouldForget = await showDialog<bool>(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Forget last connected device?'),
+            content: const Text(
+              'This clears the saved device so auto-reconnect will not use it.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.onError,
+                ),
+                child: const Text('Forget'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (shouldForget != true) return;
+
       await ref.read(midiConnectionStateProvider.notifier).disconnect();
 
       await ref
@@ -103,6 +127,7 @@ class LastConnectedDeviceCard extends ConsumerWidget {
           .clearLastConnectedDevice();
 
       if (!context.mounted) return;
+      HapticFeedback.lightImpact();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Last connected device forgotten')),
       );
@@ -131,7 +156,7 @@ class LastConnectedDeviceCard extends ConsumerWidget {
             Row(
               children: [
                 Expanded(
-                  child: FilledButton.tonal(
+                  child: FilledButton(
                     style: actionButtonStyle,
                     onPressed: primaryAction,
                     child: Text(primaryLabel),

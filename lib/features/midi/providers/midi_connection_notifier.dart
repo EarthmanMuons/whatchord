@@ -111,6 +111,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
           return;
         }
 
+        // Allow persisting the same device id again after disconnect/forget.
+        _lastPersistedDeviceId = null;
+
         // If we were connected and became disconnected, fall back to idle.
         if (state.phase == MidiConnectionPhase.connected) {
           state = const MidiConnectionState.idle();
