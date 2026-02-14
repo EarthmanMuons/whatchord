@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,7 +94,8 @@ class _MidiLifecycleController with WidgetsBindingObserver {
       case AppLifecycleState.detached:
         midi.setBackgrounded(true);
         connectionState.setBackgrounded(true);
-        connectionState.stopScanning();
+        // Fire-and-forget: we only need best-effort scan stop while backgrounding.
+        unawaited(connectionState.stopScanning());
         break;
     }
   }
