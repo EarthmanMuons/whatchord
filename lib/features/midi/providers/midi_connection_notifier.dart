@@ -52,7 +52,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     if (_debugLog) debugPrint('[CONN] cancel reason=$reason');
     _cancelRequested = true;
     _cancelRetry();
-    _attemptInFlight = false;
+    // Do not clear `_attemptInFlight` here: cancel only requests early exit.
+    // The active reconnect run clears the flag in tryAutoReconnect's `finally`
+    // after all in-flight async work has unwound.
 
     // If already connected, do not reset connection state.
     final connected = ref.read(midiDeviceManagerProvider).connectedDevice;
@@ -449,6 +451,8 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         timeout: _findTargetTimeout,
         onTimeout: null,
       );
+      if (_backgrounded || _cancelRequested) return;
+
       if (target == null) {
         if (_debugLog) {
           debugPrint('[CONN] reconnect no target id=$currentId');
@@ -467,6 +471,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
           );
         }
       }
+      if (_backgrounded || _cancelRequested) return;
 
       state = MidiConnectionState(
         phase: attempt == 1
@@ -490,12 +495,13 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       if (_debugLog) {
         debugPrint('[CONN] reconnect result ok=$ok attempt=$attempt');
       }
-      if (_cancelRequested) return;
+      if (_backgrounded || _cancelRequested) return;
       if (ok) {
         final published = await _awaitConnectedPublish(
           currentId,
           timeout: _connectedPublishTimeout,
         );
+        if (_backgrounded || _cancelRequested) return;
         if (published) return;
         if (_debugLog) {
           debugPrint(
@@ -513,9 +519,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         message: 'Retrying in ${delay.inSeconds}s…',
       );
 
-      if (_cancelRequested) return;
+      if (_backgrounded || _cancelRequested) return;
       await _sleep(delay);
-      if (_cancelRequested) return;
+      if (_backgrounded || _cancelRequested) return;
     }
 
     // Terminal state after max attempts.
