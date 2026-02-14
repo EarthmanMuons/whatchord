@@ -155,24 +155,13 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     List<MidiDevice> devices, {
     required String? connectedDeviceId,
   }) {
-    final localNameKeys = <String>{};
-
-    for (final device in devices) {
-      if (device.transport == MidiTransportType.network) continue;
-      final key = _nameKeyForMatching(device);
-      if (key != null) localNameKeys.add(key);
-    }
-
     return devices
         .where((device) {
-          if (device.id == connectedDeviceId) return true;
+          // iOS always exposes a generic "Network Session 1" CoreMIDI target
+          // that is not useful in this app's BLE-focused picker UI.
           if (device.transport != MidiTransportType.network) return true;
-
-          final networkNameKey = _nameKeyForMatching(device);
-          if (networkNameKey == null) return true;
-
-          // Hide network rows only when we already have a local counterpart.
-          return !localNameKeys.contains(networkNameKey);
+          // Keep an actively connected row visible for state clarity.
+          return device.id == connectedDeviceId;
         })
         .toList(growable: false);
   }
@@ -204,11 +193,6 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     if (device.transport == MidiTransportType.ble) score += 10;
     if (_hasBluetoothSuffix(device.name)) score -= 5;
     return score;
-  }
-
-  String? _nameKeyForMatching(MidiDevice device) {
-    final normalized = _normalizedDeviceName(device.name);
-    return normalized.isEmpty ? null : normalized;
   }
 
   bool _isBluetoothLikeDevice(MidiDevice device) {
