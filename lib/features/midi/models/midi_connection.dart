@@ -26,6 +26,8 @@ class MidiConnectionState {
   final String? message;
   final BluetoothUnavailability? unavailability;
 
+  static const Object _unset = Object();
+
   const MidiConnectionState({
     required this.phase,
     this.device,
@@ -49,19 +51,23 @@ class MidiConnectionState {
 
   MidiConnectionState copyWith({
     MidiConnectionPhase? phase,
-    MidiDevice? device,
+    Object? device = _unset, // MidiDevice? or null
     int? attempt,
-    Duration? nextDelay,
-    String? message,
-    BluetoothUnavailability? unavailability,
+    Object? nextDelay = _unset, // Duration? or null
+    Object? message = _unset, // String? or null
+    Object? unavailability = _unset, // BluetoothUnavailability? or null
   }) {
     return MidiConnectionState(
       phase: phase ?? this.phase,
-      device: device ?? this.device,
+      device: identical(device, _unset) ? this.device : device as MidiDevice?,
       attempt: attempt ?? this.attempt,
-      nextDelay: nextDelay ?? this.nextDelay,
-      message: message ?? this.message,
-      unavailability: unavailability ?? this.unavailability,
+      nextDelay: identical(nextDelay, _unset)
+          ? this.nextDelay
+          : nextDelay as Duration?,
+      message: identical(message, _unset) ? this.message : message as String?,
+      unavailability: identical(unavailability, _unset)
+          ? this.unavailability
+          : unavailability as BluetoothUnavailability?,
     );
   }
 }
