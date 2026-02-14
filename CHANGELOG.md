@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- Upgraded Flutter to `3.41.1` (with Dart `3.11.0`) and refreshed locked
+  dependencies to align the project with the latest stable SDK toolchain.
 - Improved home-screen accessibility by adding clearer VoiceOver/TalkBack
   announcements for identity states, MIDI connection status, and key selection.
 - Improved accessibility across settings sheets and modals with clearer semantic
