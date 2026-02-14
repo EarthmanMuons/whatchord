@@ -151,13 +151,40 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     return byKey.values.toList(growable: false);
   }
 
-  String _dedupeKey(MidiDevice device) {
-    final name = device.name.trim().toLowerCase();
-    final hasName = name.isNotEmpty;
-    final isBluetoothLike = device.transport == MidiTransportType.ble;
+  List<MidiDevice> _filterPickerDevicesForDisplay(
+    List<MidiDevice> devices, {
+    required String? connectedDeviceId,
+  }) {
+    final localNameKeys = <String>{};
 
-    // iOS can surface the same peripheral via BLE/native variants. Collapse
-    // Bluetooth duplicates by name, keep all others distinct by id.
+    for (final device in devices) {
+      if (device.transport == MidiTransportType.network) continue;
+      final key = _nameKeyForMatching(device);
+      if (key != null) localNameKeys.add(key);
+    }
+
+    return devices
+        .where((device) {
+          if (device.id == connectedDeviceId) return true;
+          if (device.transport != MidiTransportType.network) return true;
+
+          final networkNameKey = _nameKeyForMatching(device);
+          if (networkNameKey == null) return true;
+
+          // Hide network rows only when we already have a local counterpart.
+          return !localNameKeys.contains(networkNameKey);
+        })
+        .toList(growable: false);
+  }
+
+  String _dedupeKey(MidiDevice device) {
+    final name = _normalizedDeviceName(device.name);
+    final hasName = name.isNotEmpty;
+    final isBluetoothLike = _isBluetoothLikeDevice(device);
+
+    // iOS can surface the same peripheral via BLE/native variants, and some
+    // platforms append "Bluetooth"/"BLE" to the same physical device.
+    // Collapse Bluetooth-like duplicates by normalized name.
     if (isBluetoothLike && hasName) {
       return 'ble:$name';
     }
@@ -174,7 +201,40 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     if (device.id == connectedDeviceId) score += 100;
     if (device.isConnected) score += 50;
     if (device.id == connectingDeviceId) score += 25;
+    if (device.transport == MidiTransportType.ble) score += 10;
+    if (_hasBluetoothSuffix(device.name)) score -= 5;
     return score;
+  }
+
+  String? _nameKeyForMatching(MidiDevice device) {
+    final normalized = _normalizedDeviceName(device.name);
+    return normalized.isEmpty ? null : normalized;
+  }
+
+  bool _isBluetoothLikeDevice(MidiDevice device) {
+    if (device.transport == MidiTransportType.ble) return true;
+    final name = device.name.trim().toLowerCase();
+    if (name.contains('bluetooth')) return true;
+    return RegExp(r'\bble\b').hasMatch(name);
+  }
+
+  bool _hasBluetoothSuffix(String name) {
+    final normalized = name.trim().toLowerCase();
+    return RegExp(r'(\s+\(?bluetooth\)?|\s+\(?ble\)?)$').hasMatch(normalized);
+  }
+
+  String _normalizedDeviceName(String rawName) {
+    final collapsedWhitespace = rawName.trim().toLowerCase().replaceAll(
+      RegExp(r'\s+'),
+      ' ',
+    );
+    if (collapsedWhitespace.isEmpty) return '';
+
+    final withoutSuffix = collapsedWhitespace
+        .replaceAll(RegExp(r'(\s+\(?bluetooth\)?|\s+\(?ble\)?)$'), '')
+        .trim();
+
+    return withoutSuffix.isEmpty ? collapsedWhitespace : withoutSuffix;
   }
 
   @override
@@ -194,13 +254,10 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       midiDeviceManagerProvider.select((s) => s.connectedDevice?.id),
     );
 
-    final rawVisibleDevices = devices
-        .where(
-          (d) =>
-              d.transport != MidiTransportType.network ||
-              d.id == connectedDeviceId,
-        )
-        .toList();
+    final rawVisibleDevices = _filterPickerDevicesForDisplay(
+      devices,
+      connectedDeviceId: connectedDeviceId,
+    );
 
     final isAttemptingConnection = ref.watch(
       midiConnectionStateProvider.select((s) => s.isAttemptingConnection),
