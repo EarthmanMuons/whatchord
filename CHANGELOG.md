@@ -55,6 +55,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Fixed a MIDI auto-reconnect resume bug where a stale canceled state from
   backgrounding could block reconnect attempts and leave the status stuck on
   "Connecting...".
+- Fixed `MidiConnectionState.copyWith` so nullable fields can be explicitly
+  cleared, preventing stale reconnect messages, retry delays, and Bluetooth
+  unavailability details from leaking across connection phases.
 
 ## [2026.2.12] - 2026-02-12
 
