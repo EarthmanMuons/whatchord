@@ -21,6 +21,9 @@ final midiConnectionStateProvider =
 class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   static const int _maxAttempts = 5;
   static const Duration _maxBackoff = Duration(seconds: 16);
+  static const Duration _findTargetTimeout = Duration(seconds: 8);
+  static const Duration _reconnectAttemptTimeout = Duration(seconds: 12);
+  static const Duration _connectedPublishTimeout = Duration(seconds: 3);
   static const bool _debugLog = midiDebug;
 
   bool _startupAttempted = false;
@@ -238,6 +241,12 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     if (_backgrounded) return;
     if (_attemptInFlight) return;
 
+    // Background/pause flows intentionally set cancel=true to stop in-flight work.
+    // A new foreground reconnect trigger (resume/startup/manual/bt-ready) must
+    // clear that stale cancel marker, otherwise _reconnectWithBackoff bails
+    // immediately and UI can remain stuck in "Connecting…".
+    _cancelRequested = false;
+
     final isManual = reason == 'manual';
 
     // Only run the startup auto-reconnect sequence once per app run.
@@ -435,9 +444,10 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         debugPrint('[CONN] reconnect attempt=$attempt id=$currentId');
       }
 
-      final target = await _midi.findReconnectTarget(
-        deviceId: currentId,
-        hint: currentHint,
+      final target = await _withTimeout(
+        _midi.findReconnectTarget(deviceId: currentId, hint: currentHint),
+        timeout: _findTargetTimeout,
+        onTimeout: null,
       );
       if (target == null) {
         if (_debugLog) {
@@ -469,12 +479,30 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
             : 'Reconnecting to last connected device (attempt $attempt)…',
       );
 
-      final ok = target == null ? false : await _midi.reconnect(currentId);
+      final ok = target == null
+          ? false
+          : await _withTimeout(
+                  _midi.reconnect(currentId),
+                  timeout: _reconnectAttemptTimeout,
+                  onTimeout: false,
+                ) ??
+                false;
       if (_debugLog) {
         debugPrint('[CONN] reconnect result ok=$ok attempt=$attempt');
       }
       if (_cancelRequested) return;
-      if (ok) return;
+      if (ok) {
+        final published = await _awaitConnectedPublish(
+          currentId,
+          timeout: _connectedPublishTimeout,
+        );
+        if (published) return;
+        if (_debugLog) {
+          debugPrint(
+            '[CONN] reconnect missing connected publish id=$currentId; retry',
+          );
+        }
+      }
 
       final delay = _backoffForAttempt(attempt);
 
@@ -685,6 +713,37 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     } on TimeoutException {
       // Fall back to whatever we have at timeout (may still be unknown).
       return ref.read(midiDeviceManagerProvider).bluetoothState;
+    } finally {
+      sub.close();
+    }
+  }
+
+  Future<bool> _awaitConnectedPublish(
+    String expectedDeviceId, {
+    Duration timeout = const Duration(seconds: 3),
+  }) async {
+    final current = ref.read(midiDeviceManagerProvider).connectedDevice;
+    if (current?.id == expectedDeviceId && current?.isConnected == true) {
+      return true;
+    }
+
+    final completer = Completer<bool>();
+    late final ProviderSubscription<MidiDevice?> sub;
+
+    sub = ref.listen<MidiDevice?>(
+      midiDeviceManagerProvider.select((s) => s.connectedDevice),
+      (prev, next) {
+        final matched =
+            next?.id == expectedDeviceId && next?.isConnected == true;
+        if (matched && !completer.isCompleted) {
+          completer.complete(true);
+        }
+      },
+      fireImmediately: true,
+    );
+
+    try {
+      return await completer.future.timeout(timeout, onTimeout: () => false);
     } finally {
       sub.close();
     }
