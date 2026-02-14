@@ -14,6 +14,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Upgraded Flutter to `3.41.1` (with Dart `3.11.0`) and refreshed locked
   dependencies to align the project with the latest stable SDK toolchain.
+- Migrated the iOS app lifecycle to Apple's `UIScene` model by adopting
+  `FlutterSceneDelegate` configuration and implicit engine registration, so the
+  app remains launch-compatible with upcoming UIKit SDK requirements.
 - Improved home-screen accessibility by adding clearer VoiceOver/TalkBack
   announcements for identity states, MIDI connection status, and key selection.
 - Improved accessibility across settings sheets and modals with clearer semantic
