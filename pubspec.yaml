@@ -5,9 +5,11 @@ publish_to: none
 version: 2026.2.12+7
 
 environment:
-  sdk: ^3.10.8
   # pinned version used for automated testing and releases
-  flutter: 3.38.9
+  flutter: 3.41.1
+  # matching dart version for the above flutter release
+  # https://docs.flutter.dev/install/archive#stable-channel
+  sdk: ^3.11.0
 
 dependencies:
   flutter:
