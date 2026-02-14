@@ -36,6 +36,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved color palette picker accessibility with clearer selected-state
   semantics, explicit action hints, and consistent 48x48 close-button touch
   targets on larger-screen dialogs.
+- Hardened MIDI reconnect flows with defensive operation timeouts and
+  post-reconnect connection confirmation to prevent indefinite connecting states
+  when iOS transport calls stall or report ambiguous success.
+- Improved iOS reconnect target resolution by allowing name-based fallback when
+  CoreMIDI represents the same device as different transport types across
+  sessions.
 
 ### Fixed
 
@@ -44,6 +50,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Fixed a last-connected-device state bug where forgetting a device and then
   reconnecting it could leave the card showing a disabled "Reconnect" action
   instead of "Disconnect".
+- Fixed a MIDI auto-reconnect resume bug where a stale canceled state from
+  backgrounding could block reconnect attempts and leave the status stuck on
+  "Connecting...".
 
 ## [2026.2.12] - 2026-02-12
 

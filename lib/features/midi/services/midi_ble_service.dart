@@ -64,7 +64,8 @@ class MidiBleService {
 
   // ---- Scanning ----------------------------------------------------------
 
-  Future<void> startScanning() => _midi.startScanningForBluetoothDevices();
+  Future<void> startScanning({Duration timeout = const Duration(seconds: 3)}) =>
+      _midi.startScanningForBluetoothDevices().timeout(timeout);
 
   Future<void> stopScanning() async {
     // Plugin API is void; keep this Future-returning for call-site symmetry.

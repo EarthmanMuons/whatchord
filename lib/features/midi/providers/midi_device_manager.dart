@@ -840,7 +840,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     final hintName = hint.name.trim().toLowerCase();
     if (hintName.isEmpty) return null;
 
-    final matches = state.devices
+    final exactTransportMatches = state.devices
         .where(
           (d) =>
               d.transport == hint.transport &&
@@ -848,7 +848,20 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         )
         .toList();
 
-    if (matches.length == 1) return matches.first;
+    if (exactTransportMatches.length == 1) return exactTransportMatches.first;
+
+    // iOS/CoreMIDI can expose the same physical device as BLE or native across
+    // sessions/resume boundaries. If transport changed, fall back to name-only
+    // matching among local transports.
+    final nameOnlyMatches = state.devices
+        .where(
+          (d) =>
+              d.transport != MidiTransportType.network &&
+              d.name.trim().toLowerCase() == hintName,
+        )
+        .toList();
+
+    if (nameOnlyMatches.length == 1) return nameOnlyMatches.first;
     return null;
   }
 
