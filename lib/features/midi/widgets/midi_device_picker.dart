@@ -117,6 +117,66 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     }
   }
 
+  List<MidiDevice> _dedupePickerDevices(
+    List<MidiDevice> devices, {
+    required String? connectedDeviceId,
+    required String? connectingDeviceId,
+  }) {
+    final byKey = <String, MidiDevice>{};
+
+    for (final device in devices) {
+      final key = _dedupeKey(device);
+      final existing = byKey[key];
+      if (existing == null) {
+        byKey[key] = device;
+        continue;
+      }
+
+      final existingScore = _devicePriority(
+        existing,
+        connectedDeviceId: connectedDeviceId,
+        connectingDeviceId: connectingDeviceId,
+      );
+      final candidateScore = _devicePriority(
+        device,
+        connectedDeviceId: connectedDeviceId,
+        connectingDeviceId: connectingDeviceId,
+      );
+
+      if (candidateScore > existingScore) {
+        byKey[key] = device;
+      }
+    }
+
+    return byKey.values.toList(growable: false);
+  }
+
+  String _dedupeKey(MidiDevice device) {
+    final name = device.name.trim().toLowerCase();
+    final hasName = name.isNotEmpty;
+    final isBluetoothLike = device.transport == MidiTransportType.ble;
+
+    // iOS can surface the same peripheral via BLE/native variants. Collapse
+    // Bluetooth duplicates by name, keep all others distinct by id.
+    if (isBluetoothLike && hasName) {
+      return 'ble:$name';
+    }
+
+    return 'id:${device.id}';
+  }
+
+  int _devicePriority(
+    MidiDevice device, {
+    required String? connectedDeviceId,
+    required String? connectingDeviceId,
+  }) {
+    var score = 0;
+    if (device.id == connectedDeviceId) score += 100;
+    if (device.isConnected) score += 50;
+    if (device.id == connectingDeviceId) score += 25;
+    return score;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -134,7 +194,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       midiDeviceManagerProvider.select((s) => s.connectedDevice?.id),
     );
 
-    final visibleDevices = devices
+    final rawVisibleDevices = devices
         .where(
           (d) =>
               d.transport != MidiTransportType.network ||
@@ -151,6 +211,12 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       midiConnectionStateProvider.select(
         (s) => s.phase == MidiConnectionPhase.connecting ? s.device?.id : null,
       ),
+    );
+
+    final visibleDevices = _dedupePickerDevices(
+      rawVisibleDevices,
+      connectedDeviceId: connectedDeviceId,
+      connectingDeviceId: connectingDeviceId,
     );
 
     return SafeArea(

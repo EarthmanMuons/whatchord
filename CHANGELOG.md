@@ -42,6 +42,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved iOS reconnect target resolution by allowing name-based fallback when
   CoreMIDI represents the same device as different transport types across
   sessions.
+- Improved the MIDI device picker on iOS by collapsing duplicate Bluetooth
+  entries (BLE/native variants with the same name) into a single row.
 
 ### Fixed
 
