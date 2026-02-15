@@ -24,5 +24,7 @@ jobs:
     name: upload build
     if: github.event.release.prerelease == false
     uses: EarthmanMuons/reusable-workflows/.github/workflows/upload-build-ios.yml@main
+    secrets:
+      ASC_AUTH_KEY_B64: ${{ secrets.ASC_AUTH_KEY_B64 }}
     with:
       release_tag: ${{ github.event.release.tag_name }}
