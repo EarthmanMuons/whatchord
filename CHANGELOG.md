@@ -12,43 +12,34 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
-- Upgraded Flutter to `3.41.1` (with Dart `3.11.0`) and refreshed locked
-  dependencies to align the project with the latest stable SDK toolchain.
-- Migrated the iOS app lifecycle to Apple's `UIScene` model by adopting
-  `FlutterSceneDelegate` configuration and implicit engine registration, so the
-  app remains launch-compatible with upcoming UIKit SDK requirements.
-- Improved home-screen accessibility by adding clearer VoiceOver/TalkBack
-  announcements for identity states, MIDI connection status, and key selection.
-- Improved accessibility across settings sheets and modals with clearer semantic
-  headers, action hints, and announcements for screen readers.
-- Reduced motion when users disable animations by skipping programmatic
-  auto-scroll transitions and suppressing idle status-icon pulse animations.
-- Increased tap target sizes across home and MIDI controls to better meet
-  accessibility touch target guidance at default and large text scales.
-- Introduced size-class-aware home layouts for tablet devices, including larger
-  identity card presentation and scaled typography for the card, near-tie
-  candidates, and input display note/pedal controls.
-- Updated key signature picker and analysis details to use adaptive right-side
-  sheets on larger layouts with consistent rounded panel styling, unified header
-  treatment, and swipe-to-dismiss support.
-- Refined key signature picker labels and structure by adding a persistent "Key
-  Signature" title, renaming the primary column to "Accidentals", and improving
-  spacing and content-aware side-sheet height behavior.
-- Updated the Settings color palette picker to adapt by size class (bottom sheet
-  on compact screens, centered selection dialog on larger screens), keep the
-  picker open for live preview, and unify modal styling across both
-  presentations.
-- Improved color palette picker accessibility with clearer selected-state
-  semantics, explicit action hints, and consistent 48x48 close-button touch
-  targets on larger-screen dialogs.
-- Hardened MIDI reconnect flows with defensive operation timeouts and
-  post-reconnect connection confirmation to prevent indefinite connecting states
-  when iOS transport calls stall or report ambiguous success.
-- Improved iOS reconnect target resolution by allowing name-based fallback when
-  CoreMIDI represents the same device as different transport types across
-  sessions.
-- Improved the MIDI device picker on iOS by collapsing duplicate Bluetooth
+- Improved accessibility across the app with clearer VoiceOver/TalkBack
+  announcements for identity states, MIDI status, and key selection, plus better
+  semantic headers and action hints in sheets and modals.
+- Increased tap targets across home and MIDI controls, and improved reduced
+  motion support by skipping auto-scroll transitions and idle pulse animations
+  when animations are disabled.
+- Added size-class-aware layouts on larger screens, including a larger identity
+  card and improved typography/spacing for near-tie candidates and input
+  note/pedal controls.
+- Updated key signature and analysis details to use adaptive right-side sheets
+  on larger layouts with consistent styling, unified headers, and
+  swipe-to-dismiss.
+- Refined key signature picker wording and layout with a persistent "Key
+  Signature" title, a clearer "Accidentals" column label, and better spacing and
+  height behavior.
+- Updated the Settings color palette picker to adapt by size class, keep the
+  picker open for live preview, and improve accessibility with clearer
+  selected-state semantics, explicit hints, and consistent 48x48 close targets
+  on larger dialogs.
+- Improved MIDI reconnect reliability on iOS with operation timeouts,
+  post-reconnect confirmation, and better device matching when CoreMIDI reports
+  the same device under different transport types.
+- Improved iOS MIDI device list clarity by collapsing duplicate Bluetooth
   entries (BLE/native variants with the same name) into a single row.
+- Upgraded Flutter to `3.41.1` (Dart `3.11.0`) with refreshed locked
+  dependencies.
+- Migrated iOS lifecycle wiring to Apple's `UIScene` model
+  (`FlutterSceneDelegate`) to stay aligned with UIKit requirements.
 
 ### Fixed
 
@@ -60,15 +51,14 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Fixed a last-connected-device state bug where forgetting a device and then
   reconnecting it could leave the card showing a disabled "Reconnect" action
   instead of "Disconnect".
-- Fixed a MIDI auto-reconnect resume bug where a stale canceled state from
-  backgrounding could block reconnect attempts and leave the status stuck on
-  "Connecting...".
+- Fixed reconnect edge cases that could leave MIDI stuck on "Connecting..." or
+  "Reconnecting..." after app resume or canceled attempts.
 - Fixed `MidiConnectionState.copyWith` so nullable fields can be explicitly
   cleared, preventing stale reconnect messages, retry delays, and Bluetooth
   unavailability details from leaking across connection phases.
 - Fixed MIDI cancel/reconnect race conditions by enforcing strict single-flight
-  reconnect ownership and adding post-await cancellation checks so canceled
-  attempts stop cleanly without publishing extra retry UI states.
+  reconnect ownership and post-await cancellation checks so canceled attempts
+  stop cleanly without extra retry UI states.
 
 ## [2026.2.12] - 2026-02-12
 
