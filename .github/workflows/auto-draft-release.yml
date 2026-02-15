@@ -11,5 +11,15 @@ jobs:
     permissions:
       contents: write
     uses: EarthmanMuons/reusable-workflows/.github/workflows/draft-release-flutter.yml@main
+    secrets:
+      ANDROID_APP_SIGNING_KEYSTORE_B64: ${{ secrets.ANDROID_APP_SIGNING_KEYSTORE_B64 }}
+      ANDROID_APP_SIGNING_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_APP_SIGNING_KEYSTORE_PASSWORD }}
+      ANDROID_APP_SIGNING_KEY_PASSWORD: ${{ secrets.ANDROID_APP_SIGNING_KEY_PASSWORD }}
+      ANDROID_UPLOAD_KEYSTORE_B64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_B64 }}
+      ANDROID_UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+      ANDROID_UPLOAD_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+      IOS_SIGNING_CERT_B64: ${{ secrets.IOS_SIGNING_CERT_B64 }}
+      IOS_SIGNING_CERT_PASSWORD: ${{ secrets.IOS_SIGNING_CERT_PASSWORD }}
+      IOS_PROVISIONING_PROFILE_B64: ${{ secrets.IOS_PROVISIONING_PROFILE_B64 }}
     with:
       slug: whatchord
