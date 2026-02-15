@@ -49,7 +49,7 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
     required this.highlightedNoteNumbers,
     this.autoCenter = true,
     this.autoCenterSuppression = const Duration(seconds: 3),
-    this.fullWhiteKeyCount = 52,
+    this.fullWhiteKeyCount = PianoGeometry.fullKeyboardWhiteKeyCount,
     this.lowestNoteNumber = 21, // A0
     this.showMiddleCMarker = true,
     this.middleCLabel = 'C',
@@ -57,7 +57,7 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
   }) : assert(visibleWhiteKeyCount > 0);
 
   /// How many white keys should be visible in the viewport width.
-  /// (21 in portrait, 52 in landscape)
+  /// (fewer in portrait, often 52 in landscape)
   final int visibleWhiteKeyCount;
 
   final double height;
@@ -318,7 +318,10 @@ class _ScrollablePianoKeyboardState
   }
 
   double _whiteKeyWidthForViewport(double viewportWidth) =>
-      viewportWidth / widget.visibleWhiteKeyCount;
+      PianoGeometry.whiteKeyWidthForViewport(
+        viewportWidth: viewportWidth,
+        visibleWhiteKeyCount: widget.visibleWhiteKeyCount,
+      );
 
   double _contentWidthForWhiteKeyWidth(double whiteKeyWidth) =>
       whiteKeyWidth * widget.fullWhiteKeyCount;
@@ -766,7 +769,10 @@ class _ScrollablePianoKeyboardState
           });
         }
 
-        final whiteKeyWidth = viewportWidth / widget.visibleWhiteKeyCount;
+        final whiteKeyWidth = PianoGeometry.whiteKeyWidthForViewport(
+          viewportWidth: viewportWidth,
+          visibleWhiteKeyCount: widget.visibleWhiteKeyCount,
+        );
         final contentWidth = whiteKeyWidth * widget.fullWhiteKeyCount;
 
         // Lift decorations enough to get above the nav indicator.
