@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.2.15] - 2026-02-15
+
 ### Changed
 
 - Improved accessibility across the app with clearer VoiceOver/TalkBack
@@ -202,7 +204,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.2.12...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.2.15...HEAD
+[2026.2.15]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.2.12...v2026.2.15
 [2026.2.12]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.2.4...v2026.2.12
 [2026.2.4]:
