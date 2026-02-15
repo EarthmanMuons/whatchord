@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'package:whatchord/features/piano/services/piano_geometry.dart';
+
 enum HomeSizeClass { compact, medium, expanded }
+
+const _compactVisibleWhiteKeyCount = 21;
+const _fullKeyboardWhiteKeyCount = PianoGeometry.fullKeyboardWhiteKeyCount;
+const _keyboardLowestMidiNote = 21; // A0
+const _portraitAdaptiveMinWhiteKeyWidth = 18.0;
 
 const _mediumIdentityCardTextScale = 1.2;
 const _landscapeExpandedIdentityCardTextScale = 1.6;
@@ -135,7 +142,7 @@ HomeSideSheetConfig homeSideSheetConfigForSizeClass(HomeSizeClass sizeClass) {
 HomeLayoutConfig resolveHomeLayoutConfig(BoxConstraints constraints) {
   final isLandscape = constraints.maxWidth > constraints.maxHeight;
   final sizeClass = homeSizeClassFor(constraints);
-  return switch ((isLandscape, sizeClass)) {
+  final base = switch ((isLandscape, sizeClass)) {
     (false, HomeSizeClass.compact) => portraitCompactLayoutConfig,
     (false, HomeSizeClass.medium) => portraitMediumLayoutConfig,
     (false, HomeSizeClass.expanded) => portraitExpandedLayoutConfig,
@@ -143,6 +150,54 @@ HomeLayoutConfig resolveHomeLayoutConfig(BoxConstraints constraints) {
     (true, HomeSizeClass.medium) => landscapeMediumLayoutConfig,
     (true, HomeSizeClass.expanded) => landscapeExpandedLayoutConfig,
   };
+
+  final whiteKeyCount = _resolveVisibleWhiteKeyCount(
+    constraints: constraints,
+    isLandscape: isLandscape,
+    sizeClass: sizeClass,
+  );
+
+  if (base.whiteKeyCount == whiteKeyCount) return base;
+
+  return HomeLayoutConfig(
+    sizeClass: base.sizeClass,
+    isLandscape: base.isLandscape,
+    analysisPadding: base.analysisPadding,
+    chordCardMaxWidth: base.chordCardMaxWidth,
+    detailsSectionPadding: base.detailsSectionPadding,
+    inputDisplayPadding: base.inputDisplayPadding,
+    analysisCardPreferredWidth: base.analysisCardPreferredWidth,
+    analysisCardHeight: base.analysisCardHeight,
+    analysisCardMaxHeight: base.analysisCardMaxHeight,
+    analysisTopPadMin: base.analysisTopPadMin,
+    analysisTopPadMax: base.analysisTopPadMax,
+    analysisListGap: base.analysisListGap,
+    identityCardTextScale: base.identityCardTextScale,
+    nearTieTextScale: base.nearTieTextScale,
+    inputDisplayVisualScale: base.inputDisplayVisualScale,
+    tonalityButtonTextScale: base.tonalityButtonTextScale,
+    scaleDegreesTextScale: base.scaleDegreesTextScale,
+    middleCLabelTextScale: base.middleCLabelTextScale,
+    whiteKeyCount: whiteKeyCount,
+    whiteKeyAspectRatio: base.whiteKeyAspectRatio,
+    firstMidiNote: base.firstMidiNote,
+  );
+}
+
+int _resolveVisibleWhiteKeyCount({
+  required BoxConstraints constraints,
+  required bool isLandscape,
+  required HomeSizeClass sizeClass,
+}) {
+  if (isLandscape) return _fullKeyboardWhiteKeyCount;
+  if (sizeClass == HomeSizeClass.compact) return _compactVisibleWhiteKeyCount;
+
+  return PianoGeometry.visibleWhiteKeyCountForViewport(
+    viewportWidth: constraints.maxWidth,
+    minWhiteKeyWidth: _portraitAdaptiveMinWhiteKeyWidth,
+    minVisibleWhiteKeyCount: _compactVisibleWhiteKeyCount,
+    maxVisibleWhiteKeyCount: _fullKeyboardWhiteKeyCount,
+  );
 }
 
 const portraitCompactLayoutConfig = HomeLayoutConfig(
@@ -164,7 +219,7 @@ const portraitCompactLayoutConfig = HomeLayoutConfig(
   tonalityButtonTextScale: 1.0,
   scaleDegreesTextScale: 1.0,
   middleCLabelTextScale: 1.0,
-  whiteKeyCount: 21,
+  whiteKeyCount: _compactVisibleWhiteKeyCount,
   whiteKeyAspectRatio: 7.0,
   firstMidiNote: 48, // C3
 );
@@ -188,7 +243,7 @@ const portraitMediumLayoutConfig = HomeLayoutConfig(
   tonalityButtonTextScale: _mediumTonalityButtonTextScale,
   scaleDegreesTextScale: _mediumScaleDegreesTextScale,
   middleCLabelTextScale: _mediumMiddleCLabelTextScale,
-  whiteKeyCount: 21,
+  whiteKeyCount: _compactVisibleWhiteKeyCount,
   whiteKeyAspectRatio: 7.0,
   firstMidiNote: 48, // C3
 );
@@ -212,7 +267,7 @@ const portraitExpandedLayoutConfig = HomeLayoutConfig(
   tonalityButtonTextScale: _expandedTonalityButtonTextScale,
   scaleDegreesTextScale: _expandedScaleDegreesTextScale,
   middleCLabelTextScale: _expandedMiddleCLabelTextScale,
-  whiteKeyCount: 21,
+  whiteKeyCount: _compactVisibleWhiteKeyCount,
   whiteKeyAspectRatio: 7.0,
   firstMidiNote: 48, // C3
 );
@@ -237,9 +292,9 @@ const landscapeCompactLayoutConfig = HomeLayoutConfig(
   scaleDegreesTextScale: 1.0,
   middleCLabelTextScale: 1.0,
   // Full 88-key view: 52 white keys from A0 (MIDI 21) to C8.
-  whiteKeyCount: 52,
+  whiteKeyCount: _fullKeyboardWhiteKeyCount,
   whiteKeyAspectRatio: 7.0,
-  firstMidiNote: 21, // A0
+  firstMidiNote: _keyboardLowestMidiNote,
 );
 
 const landscapeMediumLayoutConfig = HomeLayoutConfig(
@@ -261,9 +316,9 @@ const landscapeMediumLayoutConfig = HomeLayoutConfig(
   tonalityButtonTextScale: _mediumTonalityButtonTextScale,
   scaleDegreesTextScale: _mediumScaleDegreesTextScale,
   middleCLabelTextScale: _mediumMiddleCLabelTextScale,
-  whiteKeyCount: 52,
+  whiteKeyCount: _fullKeyboardWhiteKeyCount,
   whiteKeyAspectRatio: 7.0,
-  firstMidiNote: 21, // A0
+  firstMidiNote: _keyboardLowestMidiNote,
 );
 
 const landscapeExpandedLayoutConfig = HomeLayoutConfig(
@@ -285,7 +340,7 @@ const landscapeExpandedLayoutConfig = HomeLayoutConfig(
   tonalityButtonTextScale: _expandedTonalityButtonTextScale,
   scaleDegreesTextScale: _expandedScaleDegreesTextScale,
   middleCLabelTextScale: _expandedMiddleCLabelTextScale,
-  whiteKeyCount: 52,
+  whiteKeyCount: _fullKeyboardWhiteKeyCount,
   whiteKeyAspectRatio: 7.0,
-  firstMidiNote: 21, // A0
+  firstMidiNote: _keyboardLowestMidiNote,
 );

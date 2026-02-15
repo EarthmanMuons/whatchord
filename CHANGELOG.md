@@ -21,6 +21,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Added size-class-aware layouts on larger screens, including a larger identity
   card and improved typography/spacing for near-tie candidates and input
   note/pedal controls.
+- Updated portrait tablet keyboard scaling to show more visible keys as screen
+  width increases, while preserving a minimum white-key width for readability.
 - Updated key signature and analysis details to use adaptive right-side sheets
   on larger layouts with consistent styling, unified headers, and
   swipe-to-dismiss.

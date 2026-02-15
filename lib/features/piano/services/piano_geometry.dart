@@ -44,6 +44,25 @@ class PianoGeometry {
   static const double smallBlackKeyBiasRatio = 0.10; // C#, D#
   static const double largeBlackKeyBiasRatio = 0.15; // F#, A#
 
+  static const int fullKeyboardWhiteKeyCount = 52;
+
+  static double whiteKeyWidthForViewport({
+    required double viewportWidth,
+    required int visibleWhiteKeyCount,
+  }) {
+    return viewportWidth / visibleWhiteKeyCount;
+  }
+
+  static int visibleWhiteKeyCountForViewport({
+    required double viewportWidth,
+    required double minWhiteKeyWidth,
+    int minVisibleWhiteKeyCount = 1,
+    int maxVisibleWhiteKeyCount = fullKeyboardWhiteKeyCount,
+  }) {
+    final rawCount = (viewportWidth / minWhiteKeyWidth).floor();
+    return rawCount.clamp(minVisibleWhiteKeyCount, maxVisibleWhiteKeyCount);
+  }
+
   // MIDI pitch classes (C=0).
   static const int _pcC = 0;
   static const int _pcD = 2;

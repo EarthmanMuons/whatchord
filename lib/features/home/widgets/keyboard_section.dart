@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/piano/piano.dart';
+import 'package:whatchord/features/piano/services/piano_geometry.dart';
 
 import '../models/home_layout_config.dart';
 
@@ -18,7 +19,10 @@ class KeyboardSection extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final whiteKeyWidth = width / config.whiteKeyCount;
+        final whiteKeyWidth = PianoGeometry.whiteKeyWidthForViewport(
+          viewportWidth: width,
+          visibleWhiteKeyCount: config.whiteKeyCount,
+        );
 
         var height = whiteKeyWidth * config.whiteKeyAspectRatio;
 
@@ -34,7 +38,7 @@ class KeyboardSection extends ConsumerWidget {
           autoCenter: true,
 
           // Full 88-key span (white keys A0..C8).
-          fullWhiteKeyCount: 52,
+          fullWhiteKeyCount: PianoGeometry.fullKeyboardWhiteKeyCount,
           lowestNoteNumber: 21,
 
           // Middle C marker (no octave to avoid C3/C4 convention issues).
