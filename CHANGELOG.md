@@ -33,13 +33,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   height behavior.
 - Updated the Settings color palette picker to adapt by size class, keep the
   picker open for live preview, and improve accessibility with clearer
-  selected-state semantics, explicit hints, and consistent 48x48 close targets
-  on larger dialogs.
-- Improved MIDI reconnect reliability on iOS with operation timeouts,
-  post-reconnect confirmation, and better device matching when CoreMIDI reports
-  the same device under different transport types.
-- Improved iOS MIDI device list clarity by collapsing duplicate Bluetooth
-  entries (BLE/native variants with the same name) into a single row.
+  selected-state semantics and explicit hints.
+- Improved MIDI reconnect reliability on iOS with operation timeouts, and
+  post-reconnect confirmation.
 - Upgraded Flutter to `3.41.1` (Dart `3.11.0`) with refreshed locked
   dependencies.
 - Migrated iOS lifecycle wiring to Apple's `UIScene` model
@@ -55,14 +51,13 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Fixed a last-connected-device state bug where forgetting a device and then
   reconnecting it could leave the card showing a disabled "Reconnect" action
   instead of "Disconnect".
-- Fixed reconnect edge cases that could leave MIDI stuck on "Connecting..." or
-  "Reconnecting..." after app resume or canceled attempts.
 - Fixed `MidiConnectionState.copyWith` so nullable fields can be explicitly
   cleared, preventing stale reconnect messages, retry delays, and Bluetooth
   unavailability details from leaking across connection phases.
-- Fixed MIDI cancel/reconnect race conditions by enforcing strict single-flight
-  reconnect ownership and post-await cancellation checks so canceled attempts
-  stop cleanly without extra retry UI states.
+- Fixed reconnect edge cases that could leave MIDI stuck on "Connecting..." or
+  "Reconnecting..." after app resume or canceled attempts by enforcing strict
+  single-flight reconnect ownership and post-await cancellation checks so
+  canceled attempts stop cleanly without extra retry UI states.
 
 ## [2026.2.12] - 2026-02-12
 
