@@ -1,0 +1,3 @@
+- Accessibility and large-text support are significantly improved app-wide, including screen reader support.
+- Tablet layouts now have explicit size-class support for a more native-feeling experience.
+- MIDI reconnect reliability on iOS is more robust.

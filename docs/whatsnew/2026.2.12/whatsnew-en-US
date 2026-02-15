@@ -1,0 +1,3 @@
+- Home screen layout improvements for large system text sizes to reduce overflows.
+- More compact MIDI status indicator in the home app bar.
+- Near-tie candidate list expands in portrait and adds scrolling support in landscape.
