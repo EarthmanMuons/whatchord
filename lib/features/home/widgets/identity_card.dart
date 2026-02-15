@@ -102,7 +102,8 @@ class IdentityCard extends StatelessWidget {
                   text: toSmufl(symbol.quality),
                   base: primaryStyle,
                   parenStyle: primaryStyle.copyWith(
-                    fontSize: (primaryStyle.fontSize ?? 14) + 2.0,
+                    fontSize: (primaryStyle.fontSize ?? 14) + 16.0,
+                    fontWeight: FontWeight.w300,
                   ),
                 ),
               ],
