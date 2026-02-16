@@ -1,3 +1,5 @@
+export 'audio/soundfont_assets.dart';
+
 export 'models/app_activity_state.dart';
 export 'models/app_palette.dart';
 

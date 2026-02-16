@@ -14,6 +14,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Added explicit support for wired USB MIDI device connection flows in MIDI
   settings and device selection UX.
+- Added a new Input settings Audio Monitor section with persisted enable/disable
+  and precise volume percentage control.
+- Added a minimal SoundFont-backed Audio Monitor engine using
+  `dart_melty_soundfont` and `flutter_pcm_sound`, isolated from chord analysis
+  and MIDI transport logic.
 
 ### Changed
 
@@ -23,6 +28,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   reflects Bluetooth, USB, or network transport when available.
 - Centralized serialized preference value mappings for theme mode and chord
   notation style to keep persisted settings stable across future enum refactors.
+- Updated reset-to-defaults behavior to clear Audio Monitor preferences in the
+  same pass as other persisted settings.
 
 ### Fixed
 
