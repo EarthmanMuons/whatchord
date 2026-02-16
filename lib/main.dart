@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:whatchord/core/core.dart';
+import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/home/home.dart';
 import 'package:whatchord/features/midi/midi.dart';
 
@@ -28,6 +29,7 @@ class MyApp extends ConsumerWidget {
     // Core app lifecycle hooks.
     ref.watch(appResumeWakeupProvider);
     ref.watch(appMidiLifecycleProvider);
+    ref.watch(appAudioMonitorLifecycleProvider);
 
     final themeMode = ref.watch(appThemeModeProvider);
     final palette = ref.watch(appPaletteProvider);

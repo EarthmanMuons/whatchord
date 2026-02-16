@@ -43,6 +43,7 @@ flutter:
   assets:
     - assets/glyphs/keyboard_pedal_ped.svg
     - assets/logo/whatchord_logo_circle.svg
+    - assets/soundfonts/generaluser-gs-v2.0.2-grand-piano.sf2
 
   fonts:
     - family: Bravura

@@ -6,16 +6,24 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/core.dart';
+import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import '../services/settings_reset_service.dart';
 
-class SettingsPage extends ConsumerWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends ConsumerState<SettingsPage> {
+  bool _isAdjustingAudioVolume = false;
+
+  @override
+  Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
     final chordNotationStyle = ref.watch(chordNotationStyleProvider);
@@ -25,6 +33,11 @@ class SettingsPage extends ConsumerWidget {
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
     final midiStatus = ref.watch(midiConnectionStatusProvider);
+    final audioSettings = ref.watch(audioMonitorSettingsNotifier);
+    final audioVolumePercent = (audioSettings.volume * 100).round();
+    final volumeIconColor = audioSettings.enabled
+        ? cs.onSurfaceVariant
+        : Theme.of(context).disabledColor;
 
     return Scaffold(
       appBar: AppBar(
@@ -44,7 +57,7 @@ class SettingsPage extends ConsumerWidget {
               Semantics(
                 onTapHint: 'Open MIDI settings',
                 child: ListTile(
-                  title: const Text('MIDI settings'),
+                  title: const Text('MIDI Settings'),
                   subtitle: Text(midiStatus.subtitle ?? midiStatus.title),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
@@ -54,6 +67,64 @@ class SettingsPage extends ConsumerWidget {
                       ),
                     );
                   },
+                ),
+              ),
+
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Audio Monitor'),
+                subtitle: const Text('Plays a piano sound from incoming MIDI'),
+                value: audioSettings.enabled,
+                onChanged: (enabled) {
+                  ref
+                      .read(audioMonitorSettingsNotifier.notifier)
+                      .setEnabled(enabled);
+                },
+              ),
+
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  _isAdjustingAudioVolume
+                      ? 'Volume $audioVolumePercent%'
+                      : 'Volume',
+                ),
+                subtitle: Semantics(
+                  label: 'Audio Monitor volume',
+                  value: '$audioVolumePercent percent',
+                  child: Row(
+                    children: [
+                      Icon(Icons.volume_mute_outlined, color: volumeIconColor),
+                      Expanded(
+                        child: Slider(
+                          value: audioSettings.volume,
+                          min: 0,
+                          max: 1,
+                          divisions: 100,
+                          onChangeStart: audioSettings.enabled
+                              ? (_) => setState(
+                                  () => _isAdjustingAudioVolume = true,
+                                )
+                              : null,
+                          onChangeEnd: audioSettings.enabled
+                              ? (_) => setState(
+                                  () => _isAdjustingAudioVolume = false,
+                                )
+                              : null,
+                          onChanged: audioSettings.enabled
+                              ? (value) {
+                                  ref
+                                      .read(
+                                        audioMonitorSettingsNotifier.notifier,
+                                      )
+                                      .setVolume(value);
+                                }
+                              : null,
+                        ),
+                      ),
+                      Icon(Icons.volume_up_outlined, color: volumeIconColor),
+                    ],
+                  ),
                 ),
               ),
 
@@ -228,7 +299,7 @@ class SettingsPage extends ConsumerWidget {
                 leading: const Icon(Icons.restart_alt),
                 title: const Text('Reset to Defaults'),
                 subtitle: const Text(
-                  'Clear all saved preferences and MIDI settings',
+                  'Clear all saved preferences, MIDI settings, and audio monitor settings',
                 ),
                 onTap: () async {
                   final confirmed = await showDialog<bool>(
@@ -236,7 +307,7 @@ class SettingsPage extends ConsumerWidget {
                     builder: (context) => AlertDialog(
                       title: const Text('Reset all settings?'),
                       content: const Text(
-                        'This will restore all preferences and MIDI settings to their default values. '
+                        'This will restore all preferences, MIDI settings, and audio monitor settings to their default values. '
                         'Any connected MIDI devices will be disconnected. '
                         'This action can’t be undone.',
                       ),
