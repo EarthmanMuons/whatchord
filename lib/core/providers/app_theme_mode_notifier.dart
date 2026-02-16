@@ -17,15 +17,22 @@ class AppThemeModeNotifier extends Notifier<ThemeMode> {
 
     if (stored == null) return ThemeMode.system;
 
-    return ThemeMode.values.firstWhere(
-      (m) => m.name == stored,
-      orElse: () => ThemeMode.system,
-    );
+    return switch (stored) {
+      CorePreferencesValues.themeModeSystem => ThemeMode.system,
+      CorePreferencesValues.themeModeLight => ThemeMode.light,
+      CorePreferencesValues.themeModeDark => ThemeMode.dark,
+      _ => ThemeMode.system,
+    };
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
     state = mode;
     final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString(CorePreferencesKeys.themeMode, mode.name);
+    final serialized = switch (mode) {
+      ThemeMode.system => CorePreferencesValues.themeModeSystem,
+      ThemeMode.light => CorePreferencesValues.themeModeLight,
+      ThemeMode.dark => CorePreferencesValues.themeModeDark,
+    };
+    await prefs.setString(CorePreferencesKeys.themeMode, serialized);
   }
 }
