@@ -341,82 +341,87 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         attempt: 1,
       );
 
-      final ok =
-          await _withTimeout(
-            _ensureBluetoothAccessOrPublishUnavailable(),
-            timeout: const Duration(seconds: 3),
-            onTimeout: false,
-          ) ??
-          false;
-      if (!ok) {
-        if (_debugLog) debugPrint('[CONN] bluetooth access not ok');
-        _cancelRetry();
-        return;
-      }
+      final requiresBluetooth =
+          (lastConnectedDevice?.transport ?? MidiTransportType.ble) ==
+          MidiTransportType.ble;
+      if (requiresBluetooth) {
+        final ok =
+            await _withTimeout(
+              _ensureBluetoothAccessOrPublishUnavailable(),
+              timeout: const Duration(seconds: 3),
+              onTimeout: false,
+            ) ??
+            false;
+        if (!ok) {
+          if (_debugLog) debugPrint('[CONN] bluetooth access not ok');
+          _cancelRetry();
+          return;
+        }
 
-      // If BT is clearly off/unauthorized, fail fast with stable UX.
-      var bt = ref.read(midiDeviceManagerProvider).bluetoothState;
-      if (bt == BluetoothState.poweredOff ||
-          bt == BluetoothState.unauthorized) {
-        if (_debugLog) debugPrint('[CONN] bluetooth unavailable bt=$bt');
-        _cancelRetry();
-        state = state.copyWith(
-          phase: MidiConnectionPhase.bluetoothUnavailable,
-          unavailability: bt == BluetoothState.poweredOff
-              ? BluetoothUnavailability.adapterOff
-              : BluetoothUnavailability.permissionDenied,
-          message: bt.displayName,
-          nextDelay: null,
-          attempt: 0,
-        );
-        return;
-      }
-
-      // If state is unknown, prime once (this often triggers the first real BT state),
-      // then wait briefly for a non-unknown state.
-      if (bt == BluetoothState.unknown) {
-        try {
-          await _withTimeout(
-            ref.read(midiDeviceManagerProvider.notifier).ensureReady(),
-            timeout: const Duration(seconds: 2),
-            onTimeout: null,
-          );
-        } catch (_) {
-          if (_debugLog) debugPrint('[CONN] bluetooth prime failed');
-          // If we cannot prime, treat as not-ready and stop.
+        // If BT is clearly off/unauthorized, fail fast with stable UX.
+        var bt = ref.read(midiDeviceManagerProvider).bluetoothState;
+        if (bt == BluetoothState.poweredOff ||
+            bt == BluetoothState.unauthorized) {
+          if (_debugLog) debugPrint('[CONN] bluetooth unavailable bt=$bt');
           _cancelRetry();
           state = state.copyWith(
             phase: MidiConnectionPhase.bluetoothUnavailable,
-            unavailability: BluetoothUnavailability.notReady,
-            message: 'Bluetooth is not ready yet.',
+            unavailability: bt == BluetoothState.poweredOff
+                ? BluetoothUnavailability.adapterOff
+                : BluetoothUnavailability.permissionDenied,
+            message: bt.displayName,
             nextDelay: null,
             attempt: 0,
           );
           return;
         }
 
-        bt = await _awaitBluetoothState() ?? BluetoothState.unknown;
-      }
+        // If state is unknown, prime once (this often triggers the first real BT state),
+        // then wait briefly for a non-unknown state.
+        if (bt == BluetoothState.unknown) {
+          try {
+            await _withTimeout(
+              ref.read(midiDeviceManagerProvider.notifier).ensureReady(),
+              timeout: const Duration(seconds: 2),
+              onTimeout: null,
+            );
+          } catch (_) {
+            if (_debugLog) debugPrint('[CONN] bluetooth prime failed');
+            // If we cannot prime, treat as not-ready and stop.
+            _cancelRetry();
+            state = state.copyWith(
+              phase: MidiConnectionPhase.bluetoothUnavailable,
+              unavailability: BluetoothUnavailability.notReady,
+              message: 'Bluetooth is not ready yet.',
+              nextDelay: null,
+              attempt: 0,
+            );
+            return;
+          }
 
-      if (!_bluetoothReady(bt)) {
-        if (_debugLog) debugPrint('[CONN] bluetooth not ready bt=$bt');
-        _cancelRetry();
-        final unavailableReason = switch (bt) {
-          BluetoothState.poweredOff => BluetoothUnavailability.adapterOff,
-          BluetoothState.unauthorized =>
-            BluetoothUnavailability.permissionDenied,
-          BluetoothState.unknown => BluetoothUnavailability.notReady,
-          BluetoothState.poweredOn => BluetoothUnavailability.notReady,
-        };
+          bt = await _awaitBluetoothState() ?? BluetoothState.unknown;
+        }
 
-        state = state.copyWith(
-          phase: MidiConnectionPhase.bluetoothUnavailable,
-          unavailability: unavailableReason,
-          message: bt.displayName,
-          nextDelay: null,
-          attempt: 0,
-        );
-        return;
+        if (!_bluetoothReady(bt)) {
+          if (_debugLog) debugPrint('[CONN] bluetooth not ready bt=$bt');
+          _cancelRetry();
+          final unavailableReason = switch (bt) {
+            BluetoothState.poweredOff => BluetoothUnavailability.adapterOff,
+            BluetoothState.unauthorized =>
+              BluetoothUnavailability.permissionDenied,
+            BluetoothState.unknown => BluetoothUnavailability.notReady,
+            BluetoothState.poweredOn => BluetoothUnavailability.notReady,
+          };
+
+          state = state.copyWith(
+            phase: MidiConnectionPhase.bluetoothUnavailable,
+            unavailability: unavailableReason,
+            message: bt.displayName,
+            nextDelay: null,
+            attempt: 0,
+          );
+          return;
+        }
       }
 
       await _reconnectWithBackoff(
@@ -587,15 +592,18 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     _cancelRetry();
     if (_debugLog) debugPrint('[CONN] refreshDevices restartScan=$restartScan');
 
-    final ok = await _ensureBluetoothAccessOrPublishUnavailable();
-    if (!ok) {
-      throw MidiException('Bluetooth unavailable (${state.unavailability})');
-    }
-
     if (restartScan) {
+      final ok = await _ensureBluetoothAccessOrPublishUnavailable();
+      if (!ok) {
+        // Keep local/native transport devices visible even when BLE scan is unavailable.
+        await _midi.refreshDevices(ensureScanning: false);
+        throw MidiException(
+          'Bluetooth unavailable for wireless scan (${state.unavailability})',
+        );
+      }
       await _midi.restartScanning();
     } else {
-      await _midi.refreshDevices(ensureScanning: true);
+      await _midi.refreshDevices(ensureScanning: false);
     }
   }
 
@@ -606,7 +614,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
     final ok = await _ensureBluetoothAccessOrPublishUnavailable();
     if (!ok) {
-      throw MidiException('Bluetooth unavailable (${state.unavailability})');
+      // Keep local/native transport devices visible even when BLE scan is unavailable.
+      await _midi.refreshDevices(ensureScanning: false);
+      return;
     }
 
     await _midi.startScanning();
@@ -623,9 +633,11 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     _cancelRetry();
     if (_debugLog) debugPrint('[CONN] connect id=${device.id}');
 
-    final ok = await _ensureBluetoothAccessOrPublishUnavailable();
-    if (!ok) {
-      throw MidiException('Bluetooth unavailable (${state.unavailability})');
+    if (device.transport == MidiTransportType.ble) {
+      final ok = await _ensureBluetoothAccessOrPublishUnavailable();
+      if (!ok) {
+        throw MidiException('Bluetooth unavailable (${state.unavailability})');
+      }
     }
 
     // Publish "connecting" with the specific device so UI can render per-row spinners.

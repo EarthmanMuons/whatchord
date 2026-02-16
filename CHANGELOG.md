@@ -10,6 +10,25 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added explicit support for wired USB MIDI device connection flows in MIDI
+  settings and device selection UX.
+
+### Changed
+
+- Updated MIDI settings and picker wording to explicitly cover both Bluetooth
+  and wired USB MIDI device connections.
+- Updated connected-status transport icon handling so the MIDI status control
+  reflects Bluetooth, USB, or network transport when available.
+
+### Fixed
+
+- Fixed MIDI transport type mapping so plugin `native` devices are treated as
+  wired USB transport in app UI and status labels.
+- Fixed manual MIDI device connection flows to avoid requiring Bluetooth
+  permissions when connecting non-Bluetooth devices.
+
 ## [2026.2.15] - 2026-02-15
 
 ### Changed

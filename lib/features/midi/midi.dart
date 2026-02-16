@@ -1,11 +1,11 @@
 // ignore: dangling_library_doc_comments
 ///
-/// MIDI-over-Bluetooth infrastructure.
+/// MIDI device connection infrastructure (Bluetooth + wired/native).
 ///
 /// ## Architecture Layers
 ///
 /// 1. **Transport** ([MidiDeviceManager]):
-///    - Bluetooth central management, scanning, device discovery
+///    - Bluetooth central management, scanning, and device discovery
 ///    - Low-level connect/disconnect operations
 ///
 /// 2. **Connection Workflow** ([MidiConnectionNotifier]):

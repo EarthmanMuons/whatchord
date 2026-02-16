@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import 'bluetooth_unavailability.dart';
 import 'midi_connection.dart';
+import 'midi_device.dart';
 
 /// UI-friendly presentation model for MIDI connection status.
 ///
@@ -20,6 +21,7 @@ class MidiConnectionStatus {
   final Duration? nextDelay;
   final String? diagnosticMessage;
   final String? deviceName;
+  final MidiTransportType? deviceTransport;
 
   const MidiConnectionStatus({
     required this.phase,
@@ -31,6 +33,7 @@ class MidiConnectionStatus {
     this.nextDelay,
     this.diagnosticMessage,
     this.deviceName,
+    this.deviceTransport,
   });
 
   bool get isConnected => phase == MidiConnectionPhase.connected;

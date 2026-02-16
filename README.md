@@ -32,7 +32,8 @@ conventional interpretations over simple note-matching.
 ## Features
 
 - **Real-time MIDI analysis**  
-  Connect a Bluetooth MIDI keyboard and see chords update instantly as you play.
+  Connect a Bluetooth or USB MIDI keyboard and see chords update instantly as
+  you play.
 
 - **Musically informed chord detection**  
   Goes beyond simple note-matching by ranking and resolving ambiguous
