@@ -7,6 +7,7 @@ import 'package:whatchord/features/demo/demo.dart';
 import '../models/bluetooth_unavailability.dart';
 import '../models/midi_connection.dart';
 import '../models/midi_connection_status.dart';
+import '../models/midi_device.dart';
 import 'midi_connection_notifier.dart';
 
 /// Provides UI-friendly presentation of MIDI connection information.
@@ -18,6 +19,7 @@ final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
       title: 'Connected',
       subtitle: 'Connected to Demo MIDI',
       deviceName: 'Demo MIDI',
+      deviceTransport: MidiTransportType.unknown,
     );
   }
 
@@ -30,6 +32,7 @@ final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
       title: 'Connected',
       subtitle: name != null ? 'Connected to $name' : 'Connected',
       deviceName: name,
+      deviceTransport: connectionState.device?.transport,
     ),
 
     MidiConnectionPhase.connecting => const MidiConnectionStatus(
@@ -64,19 +67,19 @@ final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
 
       final detail = switch (reason) {
         BluetoothUnavailability.adapterOff =>
-          'Turn on Bluetooth to discover and connect to MIDI devices.',
+          'Turn on Bluetooth to discover wireless MIDI devices. Wired USB MIDI devices may still be available.',
         BluetoothUnavailability.permissionDenied =>
           Platform.isAndroid
-              ? 'Allow the Nearby devices permission to scan and connect to Bluetooth MIDI devices.'
-              : 'Allow Bluetooth access to discover and connect to Bluetooth MIDI devices.',
+              ? 'Allow the Nearby devices permission to scan and connect to wireless Bluetooth MIDI devices.'
+              : 'Allow Bluetooth access to discover and connect to wireless Bluetooth MIDI devices.',
         BluetoothUnavailability.permissionPermanentlyDenied =>
           Platform.isAndroid
               ? 'Enable the Nearby devices permission in system settings for this app.'
-              : 'Enable Bluetooth access for this app in system settings.',
+              : 'Enable Bluetooth access for this app in system settings. Wired USB MIDI devices may still be available.',
         BluetoothUnavailability.unsupported =>
-          'This device does not support Bluetooth.',
-        BluetoothUnavailability.notReady ||
-        null => 'Bluetooth is not ready yet. Try again.',
+          'This device does not support Bluetooth MIDI. Wired USB MIDI devices may still be available.',
+        BluetoothUnavailability.notReady || null =>
+          'Bluetooth is not ready yet for wireless MIDI discovery. Try again, or connect a wired USB MIDI device.',
       };
 
       return MidiConnectionStatus(

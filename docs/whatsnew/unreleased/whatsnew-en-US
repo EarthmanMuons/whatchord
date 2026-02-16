@@ -1,1 +1,5 @@
--
+- MIDI device setup now uses clearer wording for both Bluetooth and wired USB
+  connections.
+- Device status icons now reflect transport type more accurately when connected.
+- Improved compatibility for wired MIDI devices when Bluetooth permissions are
+  unavailable.

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/midi_device.dart';
 import '../providers/midi_connection_notifier.dart';
 import '../providers/midi_device_manager.dart';
 import '../providers/midi_preferences_notifier.dart';
@@ -59,6 +60,16 @@ class LastConnectedDeviceCard extends ConsumerWidget {
         effectiveConnectedName ??
         lastConnectedDisplayName ??
         'Last connected device';
+    final displayTransport =
+        connected?.transport ??
+        lastConnected?.transport ??
+        MidiTransportType.ble;
+    final leadingIcon = switch (displayTransport) {
+      MidiTransportType.ble => Icons.bluetooth,
+      MidiTransportType.usb => Icons.usb,
+      MidiTransportType.network => Icons.wifi,
+      MidiTransportType.unknown => Icons.piano,
+    };
 
     final actionButtonStyle = FilledButton.styleFrom(
       minimumSize: const Size(48, 48),
@@ -141,7 +152,7 @@ class LastConnectedDeviceCard extends ConsumerWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.bluetooth),
+                Icon(leadingIcon),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(

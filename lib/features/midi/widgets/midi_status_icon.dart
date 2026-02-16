@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/midi_connection.dart';
 import '../models/midi_connection_status.dart';
+import '../models/midi_device.dart';
 import '../pages/midi_settings_page.dart';
 import '../providers/midi_connection_status_provider.dart';
 
@@ -160,8 +161,15 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
 
     switch (status.phase) {
       case MidiConnectionPhase.connected:
+        final connectedIcon = switch (status.deviceTransport) {
+          MidiTransportType.usb => const Icon(Icons.usb),
+          MidiTransportType.network => const Icon(Icons.wifi),
+          MidiTransportType.ble ||
+          MidiTransportType.unknown ||
+          null => const Icon(Icons.bluetooth),
+        };
         return (
-          icon: const Icon(Icons.bluetooth),
+          icon: connectedIcon,
           iconColor: Colors.green.shade600,
           backgroundColor: bg,
           borderColor: border,

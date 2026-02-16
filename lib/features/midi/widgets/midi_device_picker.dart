@@ -158,7 +158,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     return devices
         .where((device) {
           // iOS always exposes a generic "Network Session 1" CoreMIDI target
-          // that is not useful in this app's BLE-focused picker UI.
+          // that is not useful in this app's device picker UI.
           if (device.transport != MidiTransportType.network) return true;
           // Keep an actively connected row visible for state clarity.
           return device.id == connectedDeviceId;
@@ -427,18 +427,19 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
 
   Widget _buildScanningState() {
     return _buildEmptyState(
-      icon: Icons.bluetooth_searching,
+      icon: Icons.search,
       title: 'Scanning for devices...',
-      message: 'Make sure your MIDI device is powered on\nand in pairing mode.',
+      message:
+          'Make sure your MIDI device is powered on.\nFor Bluetooth devices, enable pairing/discovery mode.',
     );
   }
 
   Widget _buildNoDevicesState() {
     return _buildEmptyState(
-      icon: Icons.bluetooth_disabled,
+      icon: Icons.music_off,
       title: 'No devices found',
       message:
-          'Tap Refresh to scan again.\nMake sure your device is powered on and discoverable.',
+          'Tap Refresh to scan again.\nFor Bluetooth devices, make sure they are discoverable.\nFor wired devices, reconnect the USB cable and adapter.',
     );
   }
 

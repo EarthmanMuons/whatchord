@@ -169,9 +169,6 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   Future<void> refreshDevices({bool ensureScanning = true}) async {
     if (ensureScanning) {
       await _ensureScanning(); // primes + starts scan if needed
-    } else {
-      // Avoid "hidden" priming
-      if (!_centralStarted && !state.isScanning) return;
     }
 
     if (_debugLog) {
@@ -218,7 +215,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   Future<void> connect(MidiDevice device) async {
     try {
       if (_debugLog) debugPrint('[MGR] connect id=${device.id}');
-      await _ensureBluetoothCentralReady();
+      if (device.transport == MidiTransportType.ble) {
+        await _ensureBluetoothCentralReady();
+      }
 
       // Do not stop scanning until after connection is verified.
       // With the Bluetooth service boundary, we connect by id and verify by querying state.
@@ -243,7 +242,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       if (_debugLog) debugPrint('[MGR] disconnect id=${current.id}');
       // Best-effort; do not force a prime just to disconnect.
       // If central was never started, this should simply no-op.
-      await _disconnectBestEffort(current.id);
+      await _disconnectBestEffort(current.id, transport: current.transport);
     } catch (e) {
       debugPrint('Warning: Error disconnecting MIDI device: $e');
     } finally {
@@ -251,16 +250,26 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     }
   }
 
-  Future<void> _disconnectBestEffort(String deviceId) async {
-    if (!_centralStarted) return; // preserve "don’t prime to disconnect"
+  Future<void> _disconnectBestEffort(
+    String deviceId, {
+    required MidiTransportType transport,
+  }) async {
+    if (transport == MidiTransportType.ble && !_centralStarted) {
+      return; // preserve "don’t prime to disconnect"
+    }
     await _ble.disconnect(deviceId);
   }
 
   Future<bool> reconnect(String deviceId) async {
     try {
-      await _ensureBluetoothCentralReady();
-
-      await _ensureScanning();
+      final connected = state.connectedDevice;
+      final requiresBluetooth = connected?.id == deviceId
+          ? connected?.transport == MidiTransportType.ble
+          : true;
+      if (requiresBluetooth) {
+        await _ensureBluetoothCentralReady();
+        await _ensureScanning();
+      }
       await _refreshDeviceList(bypassThrottle: true);
 
       final device = await _waitForDevice(deviceId);
@@ -280,9 +289,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     MidiDevice? hint,
   }) async {
     try {
-      await _ensureBluetoothCentralReady();
-
-      await _ensureScanning();
+      final requiresBluetooth =
+          (hint?.transport ?? MidiTransportType.ble) == MidiTransportType.ble;
+      if (requiresBluetooth) {
+        await _ensureBluetoothCentralReady();
+        await _ensureScanning();
+      }
       await _refreshDeviceList(bypassThrottle: true);
 
       final byId = _findDeviceInList(state.devices, deviceId);
@@ -474,10 +486,6 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   Future<void> _safeRefreshDevices({required bool bypassThrottle}) async {
     try {
-      // Only refresh if we have already primed, or if scanning is active.
-      // This prevents "hidden" startup priming via refresh paths.
-      if (!_centralStarted && !state.isScanning) return;
-
       if (_debugLog) {
         debugPrint(
           '[MGR] refreshDevices safe bypass=$bypassThrottle '
@@ -512,8 +520,6 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   }
 
   Future<void> _updateDeviceListImpl() async {
-    if (!_centralStarted) return;
-
     final devices = await _ble.devices();
     if (_debugLog) {
       debugPrint(

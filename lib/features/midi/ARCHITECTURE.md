@@ -5,7 +5,7 @@ behaviors exist.
 
 ## Goals
 
-- Keep BLE transport logic isolated from UI.
+- Keep MIDI transport logic isolated from UI.
 - Keep reconnect behavior deterministic and cancelable.
 - Ensure lifecycle transitions (foreground/background) do not leave stale
   connected state.
@@ -30,11 +30,12 @@ It does not directly talk to the plugin.
 
 Transport and device graph manager.
 
-- Starts and primes Bluetooth central lazily.
+- Starts and primes Bluetooth central lazily for wireless scan/reconnect flows.
 - Starts/stops scanning and refreshes device snapshots.
 - Performs connect/disconnect/reconnect operations.
 - Reconciles stale connection snapshots against plugin truth.
-- Watches setup and Bluetooth state streams and keeps transport state updated.
+- Watches setup and Bluetooth state streams and keeps device transport state
+  updated.
 - Runs connected-device watchdog in foreground.
 
 It does not own user-facing reconnect policy.
@@ -75,7 +76,8 @@ No policy decisions live here.
 
 - `connected` is driven from manager connected-device stream.
 - `connecting` and `retrying` are transient reconnect phases.
-- `bluetoothUnavailable` is used for permission/adapter/not-ready states.
+- `bluetoothUnavailable` is used for wireless Bluetooth
+  permission/adapter/not-ready states.
 - `deviceUnavailable` is terminal after max reconnect attempts.
 - `error` is used for explicit connect failures.
 
