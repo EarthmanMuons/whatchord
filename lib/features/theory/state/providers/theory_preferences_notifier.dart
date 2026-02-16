@@ -18,15 +18,24 @@ class ChordNotationStyleNotifier extends Notifier<ChordNotationStyle> {
 
     if (stored == null) return ChordNotationStyle.textual;
 
-    return ChordNotationStyle.values.firstWhere(
-      (s) => s.name == stored,
-      orElse: () => ChordNotationStyle.textual,
-    );
+    return switch (stored) {
+      TheoryPreferencesValues.chordNotationStyleSymbolic =>
+        ChordNotationStyle.symbolic,
+      TheoryPreferencesValues.chordNotationStyleTextual =>
+        ChordNotationStyle.textual,
+      _ => ChordNotationStyle.textual,
+    };
   }
 
   Future<void> setStyle(ChordNotationStyle style) async {
     state = style;
     final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString(TheoryPreferencesKeys.chordNotationStyle, style.name);
+    final serialized = switch (style) {
+      ChordNotationStyle.symbolic =>
+        TheoryPreferencesValues.chordNotationStyleSymbolic,
+      ChordNotationStyle.textual =>
+        TheoryPreferencesValues.chordNotationStyleTextual,
+    };
+    await prefs.setString(TheoryPreferencesKeys.chordNotationStyle, serialized);
   }
 }
