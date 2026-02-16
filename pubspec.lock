@@ -137,6 +137,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.7"
+  dart_melty_soundfont:
+    dependency: "direct main"
+    description:
+      name: dart_melty_soundfont
+      sha256: ed961db658b588da49ae1d9e21ebb3b725677f2d78721a80c5e47cddde72a5d0
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   dbus:
     dependency: transitive
     description:
@@ -222,6 +230,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.1"
+  flutter_pcm_sound:
+    dependency: "direct main"
+    description:
+      name: flutter_pcm_sound
+      sha256: "15c6894da8195122001375084d51449bd77849579c93fca2800c00b615699dc0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.3"
   flutter_riverpod:
     dependency: "direct main"
     description:
