@@ -16,12 +16,12 @@ exports a 1024px adaptive icon foreground layer on a transparent background,
 forcing the mark to white.
 
 ```bash
-inkscape assets/logo/whatchord_logo.svg \
+inkscape assets/logos/whatchord_logo.svg \
   --batch-process \
   --actions="select-all;transform-scale:0.70,0.70;transform-translate:0,15;object-set-attribute:fill,#ffffff" \
   --export-type=png \
   --export-width=1024 \
-  --export-filename=assets/icon/foreground.png
+  --export-filename=assets/icons/foreground.png
 ```
 
 Notes:
@@ -31,7 +31,7 @@ Notes:
 
 ## Generate Platform Icon Assets
 
-After updating `assets/icon/foreground.png`, regenerate the launcher icon
+After updating `assets/icons/foreground.png`, regenerate the launcher icon
 assets:
 
 ```bash
