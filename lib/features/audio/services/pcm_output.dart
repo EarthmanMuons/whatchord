@@ -41,7 +41,7 @@ class PcmOutput {
     await FlutterPcmSound.setup(
       sampleRate: sampleRate,
       channelCount: channelCount,
-      iosAudioCategory: IosAudioCategory.ambient,
+      iosAudioCategory: IosAudioCategory.playback,
       iosAllowBackgroundAudio: false,
     );
     await FlutterPcmSound.setFeedThreshold(feedThresholdFrames);
