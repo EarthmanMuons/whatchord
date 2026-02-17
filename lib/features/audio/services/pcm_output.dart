@@ -15,11 +15,13 @@ class PcmOutput {
   final int feedThresholdFrames;
 
   bool _initialized = false;
+  Future<void> Function(int remainingFrames)? _onFeed;
 
   Future<void> initialize({
     required Future<void> Function(int remainingFrames) onFeed,
   }) async {
     if (_initialized) return;
+    _onFeed = onFeed;
 
     FlutterPcmSound.setFeedCallback((remainingFrames) {
       unawaited(onFeed(remainingFrames));
@@ -38,7 +40,13 @@ class PcmOutput {
 
   void start() {
     if (!_initialized) return;
-    FlutterPcmSound.start();
+    final invoked = FlutterPcmSound.start();
+    if (!invoked) {
+      final onFeed = _onFeed;
+      if (onFeed != null) {
+        unawaited(onFeed(0));
+      }
+    }
   }
 
   Future<void> feed(Int16List monoFrames) async {
@@ -52,6 +60,7 @@ class PcmOutput {
     if (!_initialized) return;
     FlutterPcmSound.setFeedCallback(null);
     await FlutterPcmSound.release();
+    _onFeed = null;
     _initialized = false;
   }
 }
