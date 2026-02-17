@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -113,7 +114,7 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
 
-    final presentation = _resolvePresentation(widget.status, cs);
+    final presentation = _resolvePresentation(context, widget.status, cs);
 
     return Semantics(
       container: true,
@@ -154,7 +155,11 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
     Color borderColor,
     String tooltip,
   })
-  _resolvePresentation(MidiConnectionStatus status, ColorScheme cs) {
+  _resolvePresentation(
+    BuildContext context,
+    MidiConnectionStatus status,
+    ColorScheme cs,
+  ) {
     final tooltip = _tooltipFromStatus(status);
     final tone = _toneForPhase(status.phase);
     final (bg, fg, border) = _resolveToneColors(tone, cs);
@@ -170,7 +175,7 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
         };
         return (
           icon: connectedIcon,
-          iconColor: Colors.green.shade600,
+          iconColor: CupertinoColors.systemGreen.resolveFrom(context),
           backgroundColor: bg,
           borderColor: border,
           tooltip: tooltip,

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../models/midi_connection.dart';
@@ -42,7 +43,7 @@ class MidiStatusCard extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                _buildDotForPhase(status, cs),
+                _buildDotForPhase(context, status, cs),
                 const SizedBox(width: 12),
                 Expanded(child: Text(detailText)),
               ],
@@ -61,13 +62,19 @@ class MidiStatusCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDotForPhase(MidiConnectionStatus status, ColorScheme cs) {
+  Widget _buildDotForPhase(
+    BuildContext context,
+    MidiConnectionStatus status,
+    ColorScheme cs,
+  ) {
     // Keep dot semantics consistent with pill tone mapping:
     // - normal/busy -> secondary
     // - error/unavailable -> error
     // - idle -> muted
     final color = switch (status.phase) {
-      MidiConnectionPhase.connected => Colors.green.shade600,
+      MidiConnectionPhase.connected => CupertinoColors.systemGreen.resolveFrom(
+        context,
+      ),
 
       MidiConnectionPhase.connecting ||
       MidiConnectionPhase.retrying => cs.secondary,
