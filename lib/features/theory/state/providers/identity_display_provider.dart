@@ -250,7 +250,7 @@ String _debugInput({required List<int> midis}) {
   return _debugSection('Input', [
     'MIDI notes: ${_fmtList(midis)}',
     'Note count: ${midis.length}',
-    'Pitch classes: ${_fmtList(pcs)}',
+    'Pitch classes (C=0): ${_fmtList(pcs)}',
   ]);
 }
 
