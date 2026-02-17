@@ -6,6 +6,7 @@ abstract class MidiConstants {
 
   /// Control Change (CC) numbers
   static const int sustainPedalController = 64;
+  static const int allNotesOffController = 123;
   static const int sustainPedalThreshold = 64; // >= 64 is "down"
 
   /// Velocity range: 0-127 (0 in NoteOn = NoteOff)
