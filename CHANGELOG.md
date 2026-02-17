@@ -26,6 +26,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   and wired USB MIDI device connections.
 - Updated connected-status transport icon handling so the MIDI status control
   reflects Bluetooth, USB, or network transport when available.
+- Expanded chord identity analysis details to include a Degrees line (for
+  example, `1 b3 5 b9 #11`) relative to the detected root with preserved
+  alterations.
 - Centralized serialized preference value mappings for theme mode and chord
   notation style to keep persisted settings stable across future enum refactors.
 - Updated reset-to-defaults behavior to clear Audio Monitor preferences in the
