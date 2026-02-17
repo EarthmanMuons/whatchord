@@ -131,6 +131,9 @@ class LastConnectedDeviceCard extends ConsumerWidget {
 
       if (shouldForget != true) return;
 
+      await ref
+          .read(midiConnectionStateProvider.notifier)
+          .cancel(reason: 'forget_last_connected');
       await ref.read(midiConnectionStateProvider.notifier).disconnect();
 
       await ref
