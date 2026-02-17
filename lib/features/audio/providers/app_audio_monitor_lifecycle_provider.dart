@@ -2,9 +2,20 @@ import 'package:flutter/widgets.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/features/input/input.dart';
+
 import 'audio_monitor_notifier.dart';
 
 final appAudioMonitorLifecycleProvider = Provider<void>((ref) {
+  ref.listen<AsyncValue<InputNoteEvent>>(inputNoteEventsProvider, (
+    previous,
+    next,
+  ) {
+    final event = next.asData?.value;
+    if (event == null) return;
+    ref.read(audioMonitorNotifier.notifier).onInputNoteEvent(event);
+  });
+
   final controller = _AudioMonitorLifecycleController(ref);
   controller.attach();
   ref.onDispose(controller.detach);

@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter_pcm_sound/flutter_pcm_sound.dart';
+
+import '../audio_debug.dart';
 
 class PcmOutput {
   PcmOutput({
@@ -14,6 +18,8 @@ class PcmOutput {
   final int channelCount;
   final int feedThresholdFrames;
 
+  static const bool _debugLog = audioDebug;
+
   bool _initialized = false;
   Future<void> Function(int remainingFrames)? _onFeed;
 
@@ -22,6 +28,11 @@ class PcmOutput {
   }) async {
     if (_initialized) return;
     _onFeed = onFeed;
+    if (_debugLog) {
+      debugPrint(
+        '[AUDIO_PCM] initialize sr=$sampleRate ch=$channelCount threshold=$feedThresholdFrames',
+      );
+    }
 
     FlutterPcmSound.setFeedCallback((remainingFrames) {
       unawaited(onFeed(remainingFrames));
