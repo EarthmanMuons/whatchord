@@ -64,10 +64,11 @@ class SoundFontSynthIsolateClient {
     });
   }
 
-  Future<void> noteOn(int midiNote) async {
+  Future<void> noteOn(int midiNote, {required int velocity}) async {
     _sendWithoutResponse(<String, Object>{
       'command': 'noteOn',
       'midiNote': midiNote,
+      'velocity': velocity.clamp(0, 127),
     });
   }
 
@@ -183,7 +184,10 @@ void _soundFontSynthIsolateMain(_SoundFontSynthInit init) {
           synth.setVolume((message['volume'] as num).toDouble());
           break;
         case 'noteOn':
-          synth.noteOn(message['midiNote'] as int);
+          synth.noteOn(
+            message['midiNote'] as int,
+            velocity: message['velocity'] as int? ?? 100,
+          );
           break;
         case 'noteOff':
           synth.noteOff(message['midiNote'] as int);

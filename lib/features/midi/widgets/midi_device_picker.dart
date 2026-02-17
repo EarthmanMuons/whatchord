@@ -151,21 +151,6 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     return byKey.values.toList(growable: false);
   }
 
-  List<MidiDevice> _filterPickerDevicesForDisplay(
-    List<MidiDevice> devices, {
-    required String? connectedDeviceId,
-  }) {
-    return devices
-        .where((device) {
-          // iOS always exposes a generic "Network Session 1" CoreMIDI target
-          // that is not useful in this app's device picker UI.
-          if (device.transport != MidiTransportType.network) return true;
-          // Keep an actively connected row visible for state clarity.
-          return device.id == connectedDeviceId;
-        })
-        .toList(growable: false);
-  }
-
   String _dedupeKey(MidiDevice device) {
     final name = _normalizedDeviceName(device.name);
     final hasName = name.isNotEmpty;
@@ -238,11 +223,6 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       midiDeviceManagerProvider.select((s) => s.connectedDevice?.id),
     );
 
-    final rawVisibleDevices = _filterPickerDevicesForDisplay(
-      devices,
-      connectedDeviceId: connectedDeviceId,
-    );
-
     final isAttemptingConnection = ref.watch(
       midiConnectionStateProvider.select((s) => s.isAttemptingConnection),
     );
@@ -255,7 +235,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     );
 
     final visibleDevices = _dedupePickerDevices(
-      rawVisibleDevices,
+      devices,
       connectedDeviceId: connectedDeviceId,
       connectingDeviceId: connectingDeviceId,
     );

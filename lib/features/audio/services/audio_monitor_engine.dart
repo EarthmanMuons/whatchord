@@ -1,12 +1,16 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import '../audio_debug.dart';
 import 'audio_monitor_config.dart';
 import 'pcm_output.dart';
 import 'soundfont_synth_isolate.dart';
 
 class AudioMonitorEngine {
+  static const bool _debugLog = audioDebug;
+
   AudioMonitorEngine({required this.soundFontAssetPath});
 
   final String soundFontAssetPath;
@@ -62,13 +66,19 @@ class AudioMonitorEngine {
     await _synth?.setVolume(_volume);
   }
 
-  Future<void> noteOn(int midiNote) async {
+  Future<void> noteOn(int midiNote, {int velocity = 100}) async {
     if (!_running) return;
-    await _synth?.noteOn(midiNote);
+    if (_debugLog) {
+      debugPrint('[AUDIO_ENG] noteOn note=$midiNote vel=$velocity');
+    }
+    await _synth?.noteOn(midiNote, velocity: velocity);
   }
 
   Future<void> noteOff(int midiNote) async {
     if (!_running) return;
+    if (_debugLog) {
+      debugPrint('[AUDIO_ENG] noteOff note=$midiNote');
+    }
     await _synth?.noteOff(midiNote);
   }
 
