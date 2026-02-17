@@ -69,7 +69,9 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
         break;
 
       case MidiMessageType.controlChange:
-        if (message.ccNumber == MidiConstants.sustainPedalController &&
+        if (message.ccNumber == MidiConstants.allNotesOffController) {
+          allNotesOff();
+        } else if (message.ccNumber == MidiConstants.sustainPedalController &&
             message.ccValue != null) {
           handlePedalValue(message.ccValue!);
         }
@@ -96,6 +98,10 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
       final nextSustained = {...state.sustained}..remove(midiNote);
       state = state.copyWith(pressed: nextPressed, sustained: nextSustained);
     }
+  }
+
+  void allNotesOff() {
+    state = state.copyWith(pressed: <int>{}, sustained: <int>{});
   }
 
   void setPedalDown(bool down) => _setPedalDown(down);
