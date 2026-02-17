@@ -56,6 +56,15 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   void setBackgrounded(bool backgrounded) {
     if (_backgrounded == backgrounded) return;
     _backgrounded = backgrounded;
+
+    if (backgrounded) {
+      // Force a silent baseline while backgrounded; on resume, audio should
+      // only reflect fresh note events.
+      _lastSoundingNotes = const <int>{};
+      _notesInEngine = const <int>{};
+      unawaited(_engine?.allNotesOff());
+    }
+
     _enqueue(_reconcile);
   }
 
