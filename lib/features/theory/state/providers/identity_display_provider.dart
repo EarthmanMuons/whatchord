@@ -119,6 +119,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         final extensionLabels = extensions.map((e) => e.shortLabel).toList();
 
         final members = ref.watch(chordMemberSpellingsProvider);
+        final degrees = ref.watch(chordMemberDegreesProvider);
 
         final debugText = _debugForChord(
           midis: midis,
@@ -131,6 +132,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           quality: qualityLabel,
           extensions: extensionLabels,
           members: members,
+          degrees: degrees,
           appVersion: appVersion,
         );
 
@@ -207,6 +209,7 @@ String _debugForChord({
   required String quality,
   required List<String> extensions,
   required List<String> members,
+  required List<String> degrees,
   required String? appVersion,
 }) {
   final realizedBassPc = midis.first % 12;
@@ -215,8 +218,9 @@ String _debugForChord({
     sections: [
       _debugSection('Chord Identity', [
         'Label: $chosenSymbol',
-        'Name: $longLabel',
+        'Degrees: ${degrees.isEmpty ? '(none)' : degrees.join(' ')}',
         'Members: ${members.isEmpty ? '(none)' : members.join(', ')}',
+        'Name: $longLabel',
       ]),
       _debugContext(keyName: keyName),
       _debugInput(midis: midis),
@@ -249,8 +253,8 @@ String _debugInput({required List<int> midis}) {
 
   return _debugSection('Input', [
     'MIDI notes: ${_fmtList(midis)}',
-    'Note count: ${midis.length}',
     'Pitch classes (C=0): ${_fmtList(pcs)}',
+    'Note count: ${midis.length}',
   ]);
 }
 

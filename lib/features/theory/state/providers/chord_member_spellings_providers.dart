@@ -29,6 +29,27 @@ final chordMemberSpellingsProvider = Provider<List<String>>((ref) {
   );
 });
 
+/// Role-aware degree tokens for the current voicing, relative to chord root.
+///
+/// Example: [1, b3, 5, b9, #11].
+final chordMemberDegreesProvider = Provider<List<String>>((ref) {
+  final mode = ref.watch(analysisModeProvider);
+  if (mode != AnalysisMode.chord) return const <String>[];
+
+  final best = ref.watch(bestChordCandidateProvider);
+  if (best == null) return const <String>[];
+
+  final midis = ref.watch(soundingNoteNumbersSortedProvider);
+  if (midis.isEmpty) return const <String>[];
+
+  final pcs = midis.map((m) => m % 12).toSet();
+
+  return ChordMemberDegreeFormatter.formatDegrees(
+    identity: best.identity,
+    pitchClasses: pcs,
+  );
+});
+
 /// Role-aware spelled chord members keyed by pitch class (0..11).
 ///
 /// This is preferred over a list of strings when we need a stable label per key/note.
