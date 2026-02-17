@@ -28,6 +28,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
   AudioMonitorEngine? _engine;
   bool _backgrounded = false;
+  bool _allowBootstrapOnNextStart = true;
   bool _needsBootstrapNoteOnSync = true;
   final Set<int> _eventDrivenPendingOn = <int>{};
   final Set<int> _eventDrivenPendingOff = <int>{};
@@ -42,6 +43,10 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       previous,
       next,
     ) {
+      if (previous?.enabled == false && next.enabled) {
+        // Enabling monitor should stay silent for already-held notes.
+        _allowBootstrapOnNextStart = false;
+      }
       _enqueueControl(_reconcile);
     });
 
@@ -98,6 +103,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     if (backgrounded) {
       // Force a silent baseline while backgrounded; on resume, audio should
       // only reflect fresh note events.
+      _allowBootstrapOnNextStart = false;
       _resetTrackingForStop();
       _lastSoundingNotes = const <int>{};
       unawaited(_engine?.allNotesOff());
@@ -156,7 +162,8 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
         startedNow = true;
       }
       if (startedNow) {
-        _needsBootstrapNoteOnSync = true;
+        _needsBootstrapNoteOnSync = _allowBootstrapOnNextStart;
+        _allowBootstrapOnNextStart = true;
       }
       await engine.setVolume(settings.volume);
       state = state.copyWith(
