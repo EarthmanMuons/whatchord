@@ -1,9 +1,12 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/input/input.dart';
 
+import '../audio_debug.dart';
 import '../models/audio_monitor_settings.dart';
 import '../models/audio_monitor_state.dart';
 import '../models/audio_monitor_status.dart';
@@ -21,6 +24,8 @@ final audioMonitorStatusProvider = Provider<AudioMonitorStatus>((ref) {
 });
 
 class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
+  static const bool _debugLog = audioDebug;
+
   AudioMonitorEngine? _engine;
   bool _backgrounded = false;
   Set<int> _lastSoundingNotes = const <int>{};
@@ -39,6 +44,16 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     ref.listen<Set<int>>(soundingNoteNumbersProvider, (previous, next) {
       _lastSoundingNotes = Set<int>.unmodifiable(next);
       _enqueue(_syncSoundingNotes);
+    });
+    ref.listen<InputNoteEvent?>(inputNoteEventsProvider, (previous, next) {
+      if (next == null) return;
+      if (_debugLog) {
+        debugPrint(
+          '[AUDIO_EVT] ${next.type.name} note=${next.noteNumber} '
+          'vel=${next.velocity} running=${_engine?.isRunning == true}',
+        );
+      }
+      _enqueue(() => _handleNoteEvent(next));
     });
 
     ref.onDispose(() {
@@ -127,6 +142,12 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
     final toTurnOff = _notesInEngine.difference(_lastSoundingNotes);
     final toTurnOn = _lastSoundingNotes.difference(_notesInEngine);
+    if (_debugLog && (toTurnOff.isNotEmpty || toTurnOn.isNotEmpty)) {
+      debugPrint(
+        '[AUDIO_SYNC] off=${toTurnOff.toList()..sort()} '
+        'on=${toTurnOn.toList()..sort()}',
+      );
+    }
 
     for (final midiNote in toTurnOff) {
       await engine.noteOff(midiNote);
@@ -136,6 +157,33 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     }
 
     _notesInEngine = Set<int>.unmodifiable(_lastSoundingNotes);
+  }
+
+  Future<void> _handleNoteEvent(InputNoteEvent event) async {
+    final engine = _engine;
+    if (engine == null || !engine.isRunning) return;
+
+    switch (event.type) {
+      case InputNoteEventType.noteOn:
+        final midiNote = event.noteNumber.clamp(0, 127);
+        final velocity = event.velocity.clamp(1, 127);
+
+        // Retrigger even if the note is already sounding (e.g., restrikes while sustained).
+        if (_debugLog) {
+          debugPrint('[AUDIO_NOTEON] retrigger note=$midiNote vel=$velocity');
+        }
+        await engine.noteOff(midiNote);
+        await engine.noteOn(midiNote, velocity: velocity);
+        _notesInEngine = Set<int>.unmodifiable({..._notesInEngine, midiNote});
+        break;
+
+      case InputNoteEventType.noteOff:
+        // Sustain behavior is controlled by sounding-note sync.
+        if (_debugLog) {
+          debugPrint('[AUDIO_NOTEOFF] note=${event.noteNumber}');
+        }
+        break;
+    }
   }
 
   Future<void> _stopEngine() async {
