@@ -66,7 +66,7 @@ class AnalysisSection extends ConsumerWidget {
                       child: IdentityCard(
                         identity: identity,
                         showIdle: showIdle,
-                        idleAsset: 'assets/logo/whatchord_logo_circle.svg',
+                        idleAsset: 'assets/logos/whatchord_logo_circle.svg',
                         textScaleMultiplier: config.identityCardTextScale,
                         fill: true,
                       ),
@@ -88,7 +88,7 @@ class AnalysisSection extends ConsumerWidget {
                                 identity: identity,
                                 showIdle: showIdle,
                                 idleAsset:
-                                    'assets/logo/whatchord_logo_circle.svg',
+                                    'assets/logos/whatchord_logo_circle.svg',
                                 textScaleMultiplier:
                                     config.identityCardTextScale,
                                 fill: true, // critical
