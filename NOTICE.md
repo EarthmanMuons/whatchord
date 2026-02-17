@@ -55,6 +55,8 @@ The original SoundFont is available from:
 
 - <https://schristiancollins.com/generaluser.php>
 
+**Copyright (c) 1997-2025, S. Christian Collins**
+
 GeneralUser GS is distributed under its own license terms. A copy of the license
 text is included below exactly as provided in the upstream distribution.
 
