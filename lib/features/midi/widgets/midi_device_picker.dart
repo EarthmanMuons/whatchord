@@ -292,7 +292,10 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
                   ),
           ),
 
-          const Divider(height: 1),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(height: 1),
+          ),
 
           // Device list
           Flexible(
