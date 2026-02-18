@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/models/app_colors.dart';
 import '../models/midi_connection.dart';
 import '../models/midi_connection_status.dart';
 
@@ -72,8 +72,8 @@ class MidiStatusCard extends StatelessWidget {
     // - error/unavailable -> error
     // - idle -> muted
     final color = switch (status.phase) {
-      MidiConnectionPhase.connected => CupertinoColors.systemGreen.resolveFrom(
-        context,
+      MidiConnectionPhase.connected => AppColors.midiConnected(
+        Theme.of(context).brightness,
       ),
 
       MidiConnectionPhase.connecting ||
