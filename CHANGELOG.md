@@ -44,6 +44,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   active reconnect retries and returns to Not connected.
 - Fixed connected MIDI status green contrast in light mode by using explicit
   theme-aware icon and status dot colors instead of platform system green.
+- Fixed iOS Audio Monitor playback failing to resume after alarm/call style
+  interruptions by rebuilding audio monitor output on foreground resume.
 
 ## [2026.2.15] - 2026-02-15
 

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,6 +52,11 @@ class _AudioMonitorLifecycleController with WidgetsBindingObserver {
         monitor.setBackgrounded(false);
         break;
       case AppLifecycleState.inactive:
+        // iOS system interruptions (alarms/calls) can leave the output unit in
+        // a bad state unless we rebuild on resume.
+        if (defaultTargetPlatform == TargetPlatform.iOS) {
+          monitor.setBackgrounded(true);
+        }
         break;
       case AppLifecycleState.paused:
       case AppLifecycleState.hidden:
