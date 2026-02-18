@@ -600,10 +600,29 @@ Future<T?> showAdaptiveSelectionSheet<T>({
       context: context,
       showDragHandle: true,
       backgroundColor: panelColor,
-      builder: (context) => ColoredBox(
-        color: panelColor,
-        child: SafeArea(child: builder(context)),
-      ),
+      builder: (context) {
+        final maxSheetHeight = MediaQuery.sizeOf(context).height * 0.72;
+
+        return ColoredBox(
+          color: panelColor,
+          child: SafeArea(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: maxSheetHeight),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ModalPanelHeader(title: title),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Divider(height: 1),
+                  ),
+                  Flexible(child: builder(context)),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -627,7 +646,10 @@ Future<T?> showAdaptiveSelectionSheet<T>({
               mainAxisSize: MainAxisSize.min,
               children: [
                 ModalPanelHeader(title: title, showCloseButton: true),
-                const Divider(height: 1),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Divider(height: 1),
+                ),
                 Flexible(child: builder(context)),
               ],
             ),
