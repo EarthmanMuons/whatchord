@@ -54,6 +54,7 @@ class TonalityBar extends ConsumerWidget {
           builder: (_) => const TonalityPickerSheet(),
           isScrollControlled: true,
           showDragHandle: true,
+          backgroundColor: cs.surfaceContainerLow,
         ),
       );
     }

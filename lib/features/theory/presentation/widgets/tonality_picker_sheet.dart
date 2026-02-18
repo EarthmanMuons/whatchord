@@ -106,28 +106,28 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
         return MediaQuery(
           data: mqAdjusted,
           child: SafeArea(
+            top: false,
             left: !isLandscape && !isSideSheet,
             right: !isLandscape && !isSideSheet,
             child: ColoredBox(
               color: cs.surfaceContainerLow,
               child: SizedBox(
                 height: sheetHeight,
-                child: CustomScrollView(
-                  controller: _controller,
-                  slivers: [
-                    SliverPersistentHeader(
-                      pinned: true,
-                      delegate: _TonalityPickerHeaderDelegate(
-                        extent: headerHeight,
-                        chipWidth: _chipWidth,
-                        showCloseButton: isSideSheet,
-                        backgroundColor: cs.surfaceContainerLow,
-                      ),
+                child: Column(
+                  children: [
+                    _TonalityPickerHeader(
+                      height: headerHeight,
+                      chipWidth: _chipWidth,
+                      showCloseButton: isSideSheet,
+                      backgroundColor: cs.surfaceContainerLow,
                     ),
-                    SliverFixedExtentList(
-                      itemExtent: _rowHeight,
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
+                    Expanded(
+                      child: ListView.builder(
+                        controller: _controller,
+                        itemExtent: _rowHeight,
+                        padding: EdgeInsets.only(bottom: isSideSheet ? 0 : 12),
+                        itemCount: _rows.length,
+                        itemBuilder: (context, index) {
                           final row = _rows[index];
                           final major = row.relativeMajor;
                           final minor = row.relativeMinor;
@@ -205,11 +205,7 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                             ),
                           );
                         },
-                        childCount: _rows.length, // finite
                       ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: SizedBox(height: isSideSheet ? 0 : 12),
                     ),
                   ],
                 ),
@@ -292,31 +288,21 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
   }
 }
 
-class _TonalityPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final double extent;
+class _TonalityPickerHeader extends StatelessWidget {
+  final double height;
   final double chipWidth;
   final bool showCloseButton;
   final Color backgroundColor;
 
-  const _TonalityPickerHeaderDelegate({
-    required this.extent,
+  const _TonalityPickerHeader({
+    required this.height,
     required this.chipWidth,
     required this.showCloseButton,
     required this.backgroundColor,
   });
 
   @override
-  double get minExtent => extent;
-
-  @override
-  double get maxExtent => extent;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
@@ -324,67 +310,62 @@ class _TonalityPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
       fontWeight: FontWeight.w600,
       color: cs.onSurface,
     );
-    return Material(
-      color: backgroundColor,
-      child: Column(
-        children: [
-          ModalPanelHeader(
-            title: 'Key Signature',
-            showCloseButton: showCloseButton,
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Semantics(
-                      header: true,
-                      child: Text('Accidentals', style: headerStyle),
-                    ),
-                  ),
-                  SizedBox(
-                    width: chipWidth,
-                    child: Semantics(
-                      header: true,
-                      child: Text(
-                        'Major',
-                        textAlign: TextAlign.center,
-                        style: headerStyle,
+    return SizedBox(
+      height: height,
+      child: Material(
+        color: backgroundColor,
+        child: Column(
+          children: [
+            ModalPanelHeader(
+              title: 'Key Signature',
+              showCloseButton: showCloseButton,
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Semantics(
+                        header: true,
+                        child: Text('Accidentals', style: headerStyle),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  SizedBox(
-                    width: chipWidth,
-                    child: Semantics(
-                      header: true,
-                      child: Text(
-                        'Minor',
-                        textAlign: TextAlign.center,
-                        style: headerStyle,
+                    SizedBox(
+                      width: chipWidth,
+                      child: Semantics(
+                        header: true,
+                        child: Text(
+                          'Major',
+                          textAlign: TextAlign.center,
+                          style: headerStyle,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    SizedBox(
+                      width: chipWidth,
+                      child: Semantics(
+                        header: true,
+                        child: Text(
+                          'Minor',
+                          textAlign: TextAlign.center,
+                          style: headerStyle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Divider(height: 1, thickness: 2),
-          ),
-        ],
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Divider(height: 1, thickness: 2),
+            ),
+          ],
+        ),
       ),
     );
-  }
-
-  @override
-  bool shouldRebuild(covariant _TonalityPickerHeaderDelegate oldDelegate) {
-    return oldDelegate.extent != extent ||
-        oldDelegate.chipWidth != chipWidth ||
-        oldDelegate.showCloseButton != showCloseButton ||
-        oldDelegate.backgroundColor != backgroundColor;
   }
 }
 
