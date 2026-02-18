@@ -42,6 +42,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   permissions when connecting non-Bluetooth devices.
 - Fixed forgetting the last connected MIDI device so it now immediately cancels
   active reconnect retries and returns to Not connected.
+- Fixed connected MIDI status green contrast in light mode by using explicit
+  theme-aware icon and status dot colors instead of platform system green.
 
 ## [2026.2.15] - 2026-02-15
 

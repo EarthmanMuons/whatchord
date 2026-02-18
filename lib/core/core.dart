@@ -1,6 +1,7 @@
 export 'audio/soundfont_assets.dart';
 
 export 'models/app_activity_state.dart';
+export 'models/app_colors.dart';
 export 'models/app_palette.dart';
 
 export 'providers/app_activity_notifier.dart';

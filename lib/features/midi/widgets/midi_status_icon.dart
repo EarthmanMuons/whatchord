@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/models/app_colors.dart';
 import '../models/midi_connection.dart';
 import '../models/midi_connection_status.dart';
 import '../models/midi_device.dart';
@@ -175,7 +175,7 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
         };
         return (
           icon: connectedIcon,
-          iconColor: CupertinoColors.systemGreen.resolveFrom(context),
+          iconColor: AppColors.midiConnected(Theme.of(context).brightness),
           backgroundColor: bg,
           borderColor: border,
           tooltip: tooltip,
