@@ -598,14 +598,20 @@ Future<T?> showAdaptiveSelectionSheet<T>({
   if (isCompact) {
     return showModalBottomSheet<T>(
       context: context,
+      isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: panelColor,
       builder: (context) {
-        final maxSheetHeight = MediaQuery.sizeOf(context).height * 0.72;
+        final mq = MediaQuery.of(context);
+        final isLandscape = mq.size.width > mq.size.height;
+        final maxSheetHeight = modalBottomSheetMaxHeight(context);
 
         return ColoredBox(
           color: panelColor,
           child: SafeArea(
+            top: false,
+            left: !isLandscape,
+            right: !isLandscape,
             child: ConstrainedBox(
               constraints: BoxConstraints(maxHeight: maxSheetHeight),
               child: Column(

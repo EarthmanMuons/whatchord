@@ -106,9 +106,20 @@ Future<MidiDevice?> showAdaptiveMidiDevicePicker(BuildContext context) {
   if (isCompact) {
     return showModalBottomSheet<MidiDevice>(
       context: context,
+      isScrollControlled: true,
       showDragHandle: true,
       backgroundColor: resolvePanelColor(context),
-      builder: (_) => const MidiDevicePicker(showCloseButton: false),
+      builder: (context) {
+        final maxSheetHeight = modalBottomSheetMaxHeight(
+          context,
+          portraitFraction: 0.82,
+        );
+
+        return ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: maxSheetHeight),
+          child: const MidiDevicePicker(showCloseButton: false),
+        );
+      },
     );
   }
 

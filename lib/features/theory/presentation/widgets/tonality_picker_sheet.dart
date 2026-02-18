@@ -96,12 +96,15 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
               )
             : mq;
 
-        final screenHeight = mqAdjusted.size.height;
         final sideSheetContentHeight =
             _sideSheetHeaderHeight + (_rows.length * _rowHeight) + 12.0;
+        final bottomSheetHeight = modalBottomSheetMaxHeight(
+          context,
+          portraitFraction: 0.42,
+        );
         final sheetHeight = isSideSheet
             ? sideSheetContentHeight.clamp(0.0, constraints.maxHeight)
-            : (isLandscape ? screenHeight : screenHeight * 0.42);
+            : bottomSheetHeight.clamp(0.0, constraints.maxHeight);
 
         return MediaQuery(
           data: mqAdjusted,

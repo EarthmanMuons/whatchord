@@ -19,4 +19,5 @@ export 'widgets/idle_blackout_overlay.dart';
 export 'widgets/palette_swatch.dart';
 export 'widgets/section_header.dart';
 export 'widgets/modal_panel_header.dart';
+export 'widgets/modal_sheet_sizing.dart';
 export 'widgets/subsection_label.dart';
