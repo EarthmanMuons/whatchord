@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord/features/input/models/input_note_event.dart';
 
 import 'demo_mode_notifier.dart';
-import 'demo_sounding_note_numbers_notifier.dart';
+import 'demo_note_state_notifier.dart';
 
 final demoNoteEventsProvider = Provider.autoDispose<Stream<InputNoteEvent>>((
   ref,
