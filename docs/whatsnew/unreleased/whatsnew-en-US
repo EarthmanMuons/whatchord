@@ -1,8 +1,5 @@
-- New optional Audio Monitor lets you hear played notes with a built-in
-  SoundFont instrument, directly from Input settings.
-- Audio Monitor volume now has an exact percentage slider for fine control.
-- MIDI device setup now uses clearer wording for both Bluetooth and wired USB
-  connections.
-- Device status icons now reflect transport type more accurately when connected.
-- Improved compatibility for wired MIDI devices when Bluetooth permissions are
-  unavailable.
+- Added support for USB MIDI keyboards and other wired MIDI devices.
+- New Audio Monitor lets you hear notes you play from your MIDI input.
+- Analysis Details now shows chord degrees for clearer harmonic context.
+- Improved MIDI connection stability and recovery in more real-world scenarios.
+- Polished UI behavior and interactions for a more consistent experience.

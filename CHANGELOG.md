@@ -12,40 +12,31 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Added explicit support for wired USB MIDI device connection flows in MIDI
-  settings and device selection UX.
-- Added a new Input settings Audio Monitor section with persisted enable/disable
-  and precise volume percentage control.
-- Added a minimal SoundFont-backed Audio Monitor engine using
-  `dart_melty_soundfont` and `flutter_pcm_sound`, isolated from chord analysis
-  and MIDI transport logic.
+- Added explicit support for wired USB MIDI connections, with transport-aware
+  connection flows in MIDI settings and device selection.
+- Added Audio Monitor in Input settings so you can hear incoming MIDI notes with
+  built-in SoundFont playback, plus persisted enable/disable and precise volume
+  control.
+- Added chord degree display in Analysis Details relative to the detected root.
 
 ### Changed
 
-- Updated MIDI settings and picker wording to explicitly cover both Bluetooth
-  and wired USB MIDI device connections.
-- Updated connected-status transport icon handling so the MIDI status control
-  reflects Bluetooth, USB, or network transport when available.
-- Expanded chord identity analysis details to include a Degrees line (for
-  example, `1 b3 5 b9 #11`) relative to the detected root with preserved
-  alterations.
-- Centralized serialized preference value mappings for theme mode and chord
-  notation style to keep persisted settings stable across future enum refactors.
-- Updated reset-to-defaults behavior to clear Audio Monitor preferences in the
-  same pass as other persisted settings.
+- Updated MIDI wording and status indicators to more clearly reflect Bluetooth,
+  USB, and network transports.
+- Refined sheets and pickers across analysis and MIDI flows with more consistent
+  headers, insets, spacing, and divider treatment, including landscape behavior.
+- Stabilized persisted settings mappings for theme and chord notation values.
 
 ### Fixed
 
-- Fixed MIDI transport type mapping so plugin `native` devices are treated as
-  wired USB transport in app UI and status labels.
-- Fixed manual MIDI device connection flows to avoid requiring Bluetooth
-  permissions when connecting non-Bluetooth devices.
-- Fixed forgetting the last connected MIDI device so it now immediately cancels
-  active reconnect retries and returns to Not connected.
-- Fixed connected MIDI status green contrast in light mode by using explicit
-  theme-aware icon and status dot colors instead of platform system green.
-- Fixed iOS Audio Monitor playback failing to resume after alarm/call style
-  interruptions by rebuilding audio monitor output on foreground resume.
+- Fixed wired and other non-Bluetooth manual MIDI connection flows so they no
+  longer require Bluetooth permission.
+- Fixed MIDI transport mapping so plugin `native` devices are labeled and shown
+  as USB transport in app UI.
+- Fixed reconnect behavior when forgetting the last device so active retries are
+  canceled immediately and status returns cleanly to Not connected.
+- Fixed MIDI note-state handling for `All Notes Off` (CC 123) and sustain-safe
+  restrike behavior.
 
 ## [2026.2.15] - 2026-02-15
 
