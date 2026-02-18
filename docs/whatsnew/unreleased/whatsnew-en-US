@@ -1,5 +1,0 @@
-- Added support for USB MIDI keyboards and other wired MIDI devices.
-- New Audio Monitor lets you hear notes you play from your MIDI input.
-- Analysis Details now shows chord degrees for clearer harmonic context.
-- Improved MIDI connection stability and recovery in more real-world scenarios.
-- Polished UI behavior and interactions for a more consistent experience.
