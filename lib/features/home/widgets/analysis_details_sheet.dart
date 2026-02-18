@@ -64,13 +64,6 @@ class _AnalysisDetailsContent extends StatelessWidget {
   final String? copyText;
   final bool showCloseButton;
 
-  Widget _headerTitle(ThemeData theme) {
-    return Semantics(
-      header: true,
-      child: Text('Analysis Details', style: theme.textTheme.titleLarge),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context);
@@ -88,31 +81,9 @@ class _AnalysisDetailsContent extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (isSideSheet)
-              SizedBox(
-                height: 52,
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    left: 16,
-                    top: 10,
-                    right: 12,
-                    bottom: 6,
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: _headerTitle(t),
-                        ),
-                      ),
-                      IconButton(
-                        tooltip: 'Close',
-                        onPressed: () => Navigator.of(context).maybePop(),
-                        icon: const Icon(Icons.close),
-                      ),
-                    ],
-                  ),
-                ),
+              const ModalPanelHeader(
+                title: 'Analysis Details',
+                showCloseButton: true,
               )
             else
               Row(
@@ -120,7 +91,13 @@ class _AnalysisDetailsContent extends StatelessWidget {
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: _headerTitle(t),
+                      child: Semantics(
+                        header: true,
+                        child: Text(
+                          'Analysis Details',
+                          style: t.textTheme.titleLarge,
+                        ),
+                      ),
                     ),
                   ),
                 ],
