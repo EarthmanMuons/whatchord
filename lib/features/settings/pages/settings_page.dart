@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
@@ -21,6 +22,79 @@ class SettingsPage extends ConsumerStatefulWidget {
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _isAdjustingAudioVolume = false;
+  Timer? _audioVolumeLabelDismissTimer;
+  Timer? _volumeRepeatTimer;
+  DateTime? _volumeRepeatStartedAt;
+
+  static const int _volumeNudgeStepPercent = 5;
+  static const int _volumeFastNudgeStepPercent = 10;
+  static const Duration _volumeRepeatInterval = Duration(milliseconds: 100);
+  static const Duration _volumeRepeatAccelerationDelay = Duration(
+    milliseconds: 800,
+  );
+
+  @override
+  void dispose() {
+    _audioVolumeLabelDismissTimer?.cancel();
+    _audioVolumeLabelDismissTimer = null;
+    _stopVolumeRepeat();
+    super.dispose();
+  }
+
+  void _showAudioVolumePercentLabel() {
+    _audioVolumeLabelDismissTimer?.cancel();
+    _audioVolumeLabelDismissTimer = null;
+    if (_isAdjustingAudioVolume) return;
+    setState(() => _isAdjustingAudioVolume = true);
+  }
+
+  void _scheduleAudioVolumePercentLabelDismiss() {
+    _audioVolumeLabelDismissTimer?.cancel();
+    _audioVolumeLabelDismissTimer = Timer(
+      const Duration(milliseconds: 900),
+      () {
+        if (!mounted) return;
+        setState(() => _isAdjustingAudioVolume = false);
+      },
+    );
+  }
+
+  void _adjustAudioVolumeByPercent(int deltaPercent) {
+    final settings = ref.read(audioMonitorSettingsNotifier);
+    if (!settings.enabled) return;
+    _showAudioVolumePercentLabel();
+
+    final notifier = ref.read(audioMonitorSettingsNotifier.notifier);
+    final currentPercent = (settings.volume * 100).round();
+    final nextPercent = (currentPercent + deltaPercent).clamp(0, 100);
+    if (nextPercent == currentPercent) return;
+
+    notifier.setVolume(nextPercent / 100);
+    HapticFeedback.selectionClick();
+  }
+
+  void _startVolumeRepeat(int direction) {
+    final settings = ref.read(audioMonitorSettingsNotifier);
+    if (!settings.enabled) return;
+
+    _stopVolumeRepeat();
+    _volumeRepeatStartedAt = DateTime.now();
+    _volumeRepeatTimer = Timer.periodic(_volumeRepeatInterval, (_) {
+      final startedAt = _volumeRepeatStartedAt;
+      if (startedAt == null) return;
+      final elapsed = DateTime.now().difference(startedAt);
+      final tickStep = elapsed >= _volumeRepeatAccelerationDelay
+          ? _volumeFastNudgeStepPercent
+          : _volumeNudgeStepPercent;
+      _adjustAudioVolumeByPercent(direction * tickStep);
+    });
+  }
+
+  void _stopVolumeRepeat() {
+    _volumeRepeatTimer?.cancel();
+    _volumeRepeatTimer = null;
+    _volumeRepeatStartedAt = null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,46 +158,113 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text(
-                  _isAdjustingAudioVolume
-                      ? 'Volume $audioVolumePercent%'
-                      : 'Volume',
+                title: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 180),
+                  switchInCurve: Curves.easeOut,
+                  switchOutCurve: Curves.easeIn,
+                  layoutBuilder: (currentChild, previousChildren) => Stack(
+                    alignment: Alignment.centerLeft,
+                    children: [...previousChildren, ?currentChild],
+                  ),
+                  transitionBuilder: (child, animation) =>
+                      FadeTransition(opacity: animation, child: child),
+                  child: Text(
+                    _isAdjustingAudioVolume
+                        ? 'Volume $audioVolumePercent%'
+                        : 'Volume',
+                    key: ValueKey<bool>(_isAdjustingAudioVolume),
+                  ),
                 ),
                 subtitle: Semantics(
                   label: 'Audio Monitor volume',
                   value: '$audioVolumePercent percent',
-                  child: Row(
-                    children: [
-                      Icon(Icons.volume_mute_outlined, color: volumeIconColor),
-                      Expanded(
-                        child: Slider(
-                          value: audioSettings.volume,
-                          min: 0,
-                          max: 1,
-                          divisions: 100,
-                          onChangeStart: audioSettings.enabled
-                              ? (_) => setState(
-                                  () => _isAdjustingAudioVolume = true,
-                                )
-                              : null,
-                          onChangeEnd: audioSettings.enabled
-                              ? (_) => setState(
-                                  () => _isAdjustingAudioVolume = false,
-                                )
-                              : null,
-                          onChanged: audioSettings.enabled
-                              ? (value) {
-                                  ref
-                                      .read(
-                                        audioMonitorSettingsNotifier.notifier,
-                                      )
-                                      .setVolume(value);
-                                }
-                              : null,
+                  child: SizedBox(
+                    height: 48,
+                    child: Stack(
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.volume_mute_outlined,
+                              color: volumeIconColor,
+                            ),
+                            Expanded(
+                              child: Slider(
+                                value: audioSettings.volume,
+                                min: 0,
+                                max: 1,
+                                divisions: 100,
+                                onChangeStart: audioSettings.enabled
+                                    ? (_) => _showAudioVolumePercentLabel()
+                                    : null,
+                                onChangeEnd: audioSettings.enabled
+                                    ? (_) =>
+                                          _scheduleAudioVolumePercentLabelDismiss()
+                                    : null,
+                                onChanged: audioSettings.enabled
+                                    ? (value) {
+                                        _showAudioVolumePercentLabel();
+                                        ref
+                                            .read(
+                                              audioMonitorSettingsNotifier
+                                                  .notifier,
+                                            )
+                                            .setVolume(value);
+                                      }
+                                    : null,
+                              ),
+                            ),
+                            Icon(
+                              Icons.volume_up_outlined,
+                              color: volumeIconColor,
+                            ),
+                          ],
                         ),
-                      ),
-                      Icon(Icons.volume_up_outlined, color: volumeIconColor),
-                    ],
+                        Positioned.fill(
+                          child: Row(
+                            children: [
+                              _VolumeNudgeHitTarget(
+                                semanticsLabel: 'Decrease volume',
+                                enabled: audioSettings.enabled,
+                                onTap: () {
+                                  _adjustAudioVolumeByPercent(
+                                    -_volumeNudgeStepPercent,
+                                  );
+                                  _scheduleAudioVolumePercentLabelDismiss();
+                                },
+                                onLongPressStart: () {
+                                  _showAudioVolumePercentLabel();
+                                  _startVolumeRepeat(-1);
+                                },
+                                onLongPressEnd: () {
+                                  _stopVolumeRepeat();
+                                  _scheduleAudioVolumePercentLabelDismiss();
+                                },
+                              ),
+                              const Expanded(child: SizedBox()),
+                              _VolumeNudgeHitTarget(
+                                semanticsLabel: 'Increase volume',
+                                enabled: audioSettings.enabled,
+                                onTap: () {
+                                  _adjustAudioVolumeByPercent(
+                                    _volumeNudgeStepPercent,
+                                  );
+                                  _scheduleAudioVolumePercentLabelDismiss();
+                                },
+                                onLongPressStart: () {
+                                  _showAudioVolumePercentLabel();
+                                  _startVolumeRepeat(1);
+                                },
+                                onLongPressEnd: () {
+                                  _stopVolumeRepeat();
+                                  _scheduleAudioVolumePercentLabelDismiss();
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -349,6 +490,39 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _VolumeNudgeHitTarget extends StatelessWidget {
+  const _VolumeNudgeHitTarget({
+    required this.semanticsLabel,
+    required this.enabled,
+    required this.onTap,
+    required this.onLongPressStart,
+    required this.onLongPressEnd,
+  });
+
+  final String semanticsLabel;
+  final bool enabled;
+  final VoidCallback onTap;
+  final VoidCallback onLongPressStart;
+  final VoidCallback onLongPressEnd;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: semanticsLabel,
+      enabled: enabled,
+      onTap: enabled ? onTap : null,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: enabled ? onTap : null,
+        onLongPressStart: enabled ? (_) => onLongPressStart() : null,
+        onLongPressEnd: enabled ? (_) => onLongPressEnd() : null,
+        onLongPressCancel: enabled ? onLongPressEnd : null,
+        child: const SizedBox(width: 48, height: 48),
       ),
     );
   }
