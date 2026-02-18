@@ -375,13 +375,14 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
 
           // Footer with refresh button
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextButton.icon(
                   icon: const Icon(Icons.refresh),
                   label: const Text('Refresh'),
+                  style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
                   onPressed: isAttemptingConnection ? null : _refresh,
                 ),
               ],
