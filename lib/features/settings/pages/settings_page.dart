@@ -158,22 +158,24 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 180),
-                  switchInCurve: Curves.easeOut,
-                  switchOutCurve: Curves.easeIn,
-                  layoutBuilder: (currentChild, previousChildren) => Stack(
-                    alignment: Alignment.centerLeft,
-                    children: [...previousChildren, ?currentChild],
-                  ),
-                  transitionBuilder: (child, animation) =>
-                      FadeTransition(opacity: animation, child: child),
-                  child: Text(
-                    _isAdjustingAudioVolume
-                        ? 'Volume $audioVolumePercent%'
-                        : 'Volume',
-                    key: ValueKey<bool>(_isAdjustingAudioVolume),
-                  ),
+                title: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Volume'),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 180),
+                      switchInCurve: Curves.easeOut,
+                      switchOutCurve: Curves.easeIn,
+                      transitionBuilder: (child, animation) =>
+                          FadeTransition(opacity: animation, child: child),
+                      child: _isAdjustingAudioVolume
+                          ? Text(
+                              ' $audioVolumePercent%',
+                              key: ValueKey<int>(audioVolumePercent),
+                            )
+                          : const SizedBox.shrink(key: ValueKey<String>('off')),
+                    ),
+                  ],
                 ),
                 subtitle: Semantics(
                   label: 'Audio Monitor volume',
