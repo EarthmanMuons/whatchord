@@ -54,7 +54,7 @@ class InputPedalController {
   void toggle() {
     final demoEnabled = ref.read(demoModeProvider);
     if (demoEnabled) {
-      ref.read(demoPedalDownProvider.notifier).toggle();
+      ref.read(demoNoteStateProvider.notifier).togglePedal();
       return;
     }
 
