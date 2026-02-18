@@ -194,10 +194,13 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                                     ),
                                   ),
                                 ),
-                                const Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 16),
-                                  child: Divider(height: 1),
-                                ),
+                                if (index < _rows.length - 1)
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: Divider(height: 1),
+                                  ),
                               ],
                             ),
                           );
