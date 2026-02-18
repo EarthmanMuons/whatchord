@@ -214,6 +214,8 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final mq = MediaQuery.of(context);
+    final isLandscape = mq.size.width > mq.size.height;
 
     final devices = ref.watch(
       midiDeviceManagerProvider.select((s) => s.devices),
@@ -245,6 +247,9 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     );
 
     return SafeArea(
+      top: false,
+      left: !isLandscape,
+      right: !isLandscape,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
