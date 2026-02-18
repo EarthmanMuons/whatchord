@@ -109,9 +109,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final midiStatus = ref.watch(midiConnectionStatusProvider);
     final audioSettings = ref.watch(audioMonitorSettingsNotifier);
     final audioVolumePercent = (audioSettings.volume * 100).round();
+    final disabledTextColor = cs.onSurface.withValues(alpha: 0.38);
+    final disabledIconColor = cs.onSurfaceVariant.withValues(alpha: 0.38);
+    final volumeLabelColor = audioSettings.enabled
+        ? cs.onSurface
+        : disabledTextColor;
     final volumeIconColor = audioSettings.enabled
         ? cs.onSurfaceVariant
-        : Theme.of(context).disabledColor;
+        : disabledIconColor;
 
     return Scaffold(
       appBar: AppBar(
@@ -161,7 +166,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 title: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Volume'),
+                    Text('Volume', style: TextStyle(color: volumeLabelColor)),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 180),
                       switchInCurve: Curves.easeOut,
@@ -171,6 +176,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       child: _isAdjustingAudioVolume
                           ? Text(
                               ' $audioVolumePercent%',
+                              style: TextStyle(color: volumeLabelColor),
                               key: ValueKey<int>(audioVolumePercent),
                             )
                           : const SizedBox.shrink(key: ValueKey<String>('off')),
@@ -178,8 +184,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ],
                 ),
                 subtitle: Semantics(
-                  label: 'Audio Monitor volume',
-                  value: '$audioVolumePercent percent',
+                  container: true,
+                  enabled: audioSettings.enabled,
                   child: SizedBox(
                     height: 48,
                     child: Stack(
