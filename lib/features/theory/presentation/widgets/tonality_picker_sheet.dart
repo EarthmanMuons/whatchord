@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/core/core.dart';
+
 import '../../domain/theory_domain.dart';
 import '../../state/providers/selected_tonality_notifier.dart';
 
@@ -319,39 +321,13 @@ class _TonalityPickerHeaderDelegate extends SliverPersistentHeaderDelegate {
       fontWeight: FontWeight.w600,
       color: cs.onSurface,
     );
-    final titleStyle = theme.textTheme.titleLarge;
-    final titleRowHeight = showCloseButton ? 52.0 : 40.0;
-
     return Material(
       color: backgroundColor,
       child: Column(
         children: [
-          SizedBox(
-            height: titleRowHeight,
-            child: Padding(
-              padding: EdgeInsets.only(
-                left: 16,
-                top: showCloseButton ? 10 : 0,
-                bottom: showCloseButton ? 6 : 0,
-                right: showCloseButton ? 12 : 16,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Semantics(
-                      header: true,
-                      child: Text('Key Signature', style: titleStyle),
-                    ),
-                  ),
-                  if (showCloseButton)
-                    IconButton(
-                      tooltip: 'Close',
-                      onPressed: () => Navigator.of(context).maybePop(),
-                      icon: const Icon(Icons.close),
-                    ),
-                ],
-              ),
-            ),
+          ModalPanelHeader(
+            title: 'Key Signature',
+            showCloseButton: showCloseButton,
           ),
           Expanded(
             child: Padding(

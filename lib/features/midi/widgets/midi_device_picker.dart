@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/core/core.dart';
+
 import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
 import '../providers/midi_connection_notifier.dart';
@@ -11,7 +13,9 @@ import '../providers/midi_device_manager.dart';
 
 /// Modal bottom sheet for scanning and selecting MIDI devices.
 class MidiDevicePicker extends ConsumerStatefulWidget {
-  const MidiDevicePicker({super.key});
+  const MidiDevicePicker({super.key, this.showCloseButton = true});
+
+  final bool showCloseButton;
 
   @override
   ConsumerState<MidiDevicePicker> createState() => _MidiDevicePickerState();
@@ -245,35 +249,10 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
         mainAxisSize: MainAxisSize.min,
         children: [
           // Header
-          SizedBox(
-            height: 60,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 16, right: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Semantics(
-                      header: true,
-                      child: Text(
-                        'Select MIDI Device',
-                        style: theme.textTheme.titleLarge,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    constraints: const BoxConstraints(
-                      minWidth: 48,
-                      minHeight: 48,
-                    ),
-                    tooltip: 'Close',
-                    icon: const Icon(Icons.close),
-                    onPressed: () async {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              ),
-            ),
+          ModalPanelHeader(
+            title: 'Select MIDI Device',
+            showCloseButton: widget.showCloseButton,
+            onClose: () => Navigator.of(context).pop(),
           ),
 
           // Error message (scan errors + connect errors)

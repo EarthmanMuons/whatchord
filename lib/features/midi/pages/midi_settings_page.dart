@@ -108,7 +108,7 @@ Future<MidiDevice?> showAdaptiveMidiDevicePicker(BuildContext context) {
       context: context,
       showDragHandle: true,
       backgroundColor: resolvePanelColor(context),
-      builder: (_) => const MidiDevicePicker(),
+      builder: (_) => const MidiDevicePicker(showCloseButton: false),
     );
   }
 
@@ -128,7 +128,7 @@ Future<MidiDevice?> showAdaptiveMidiDevicePicker(BuildContext context) {
           ),
           child: Material(
             color: resolvePanelColor(context),
-            child: const MidiDevicePicker(),
+            child: const MidiDevicePicker(showCloseButton: true),
           ),
         ),
       );

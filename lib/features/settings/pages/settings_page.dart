@@ -626,34 +626,7 @@ Future<T?> showAdaptiveSelectionSheet<T>({
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(
-                  height: 60,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 12),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Semantics(
-                            header: true,
-                            child: Text(
-                              title,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          constraints: const BoxConstraints(
-                            minWidth: 48,
-                            minHeight: 48,
-                          ),
-                          tooltip: 'Close',
-                          onPressed: () => Navigator.of(context).pop(),
-                          icon: const Icon(Icons.close),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                ModalPanelHeader(title: title, showCloseButton: true),
                 const Divider(height: 1),
                 Flexible(child: builder(context)),
               ],
