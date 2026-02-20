@@ -107,7 +107,7 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
                         textScaleMultiplier: widget.textScaleMultiplier,
                       ),
                       if (i < widget.values.length - 1)
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 11),
                     ],
                   ],
                 ),
