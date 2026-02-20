@@ -28,6 +28,11 @@ class SettingsResetService {
     await prefs.remove(TheoryPreferencesKeys.chordNotationStyle);
     await prefs.remove(TheoryPreferencesKeys.selectedTonality);
 
+    // Cancel any reconnect/backoff workflow before mutating persisted MIDI data.
+    // This immediately normalizes connection UI to "Not connected" when idle.
+    final connectionState = _ref.read(midiConnectionStateProvider.notifier);
+    await connectionState.cancel(reason: 'settings_reset');
+
     // MIDI preferences (delegate to MIDI's own reset)
     await _ref.read(midiPreferencesProvider.notifier).clearAllMidiData();
     await _ref.read(audioMonitorSettingsNotifier.notifier).clearAllAudioData();
@@ -41,9 +46,7 @@ class SettingsResetService {
     _ref.invalidate(audioMonitorSettingsNotifier);
     _ref.invalidate(midiSettingsOnboardingProvider);
 
-    // Reset MIDI connection state
-    final connectionState = _ref.read(midiConnectionStateProvider.notifier);
-    await connectionState.stopScanning();
+    // Ensure transport is disconnected after reset.
     await connectionState.disconnect();
   }
 }
