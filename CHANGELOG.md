@@ -30,6 +30,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   "Play some notes…").
 - Upgraded Flutter to `3.41.2` (Dart `3.11.0`) with refreshed locked
   dependencies.
+- Persisted selected key signature so the chosen tonality is restored across app
+  launches and reset correctly to C major when all settings are reset to
+  defaults.
 
 ## [2026.2.18] - 2026-02-18
 
