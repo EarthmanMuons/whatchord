@@ -34,6 +34,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   launches and reset correctly to C major when all settings are reset to
   defaults.
 
+### Fixed
+
+- Fixed Reset to Defaults during active MIDI reconnect attempts so retries are
+  canceled immediately and connection status returns to Not connected.
+
 ## [2026.2.18] - 2026-02-18
 
 ### Added
