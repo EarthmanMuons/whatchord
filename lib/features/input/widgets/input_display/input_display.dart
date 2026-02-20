@@ -290,6 +290,7 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
                                         style: theme.textTheme.bodyLarge
                                             ?.copyWith(
                                               color: cs.onSurfaceVariant,
+                                              letterSpacing: -0.1,
                                             ),
                                       ),
                                     ),
