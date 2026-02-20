@@ -94,6 +94,21 @@ class _MidiIconOnboardingOverlayState
     final state = ref.watch(midiSettingsOnboardingProvider);
     if (!state.shouldShowCoachMark) return const SizedBox.shrink();
 
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final dimColor = isDark
+        ? const Color.fromRGBO(0, 0, 0, 0.4)
+        : const Color.fromRGBO(0, 0, 0, 0.62);
+    final bubbleColor = isDark ? cs.surfaceContainerHigh : cs.surface;
+    final bubbleBorderColor = cs.outlineVariant.withValues(
+      alpha: isDark ? 0.52 : 0.3,
+    );
+    final arrowColor = Color.lerp(
+      cs.error,
+      const Color(0xFFE53935),
+      isDark ? 0.82 : 0.2,
+    )!;
+
     final rect = _targetRect;
     if (rect == null) {
       _scheduleTargetMeasurement();
@@ -103,12 +118,11 @@ class _MidiIconOnboardingOverlayState
           onTap: ref
               .read(midiSettingsOnboardingProvider.notifier)
               .markCoachMarkSeen,
-          child: const ColoredBox(color: Color(0xA6000000)),
+          child: ColoredBox(color: dimColor),
         ),
       );
     }
 
-    final cs = Theme.of(context).colorScheme;
     final mq = MediaQuery.of(context);
     final safeTop = mq.padding.top;
     const horizontalPadding = 12.0;
@@ -135,7 +149,8 @@ class _MidiIconOnboardingOverlayState
             child: CustomPaint(
               painter: _SpotlightPainter(
                 spotlightRect: spotlightRect,
-                dimColor: const Color(0xA6000000),
+                dimColor: dimColor,
+                featherSigmaFactor: isDark ? 0.14 : 0.11,
               ),
               child: const SizedBox.expand(),
             ),
@@ -149,26 +164,46 @@ class _MidiIconOnboardingOverlayState
                 container: true,
                 label: 'Connect your MIDI device',
                 child: Material(
-                  elevation: 8,
-                  color: cs.surface,
-                  borderRadius: BorderRadius.circular(14),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Connect your MIDI device',
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Tap here to select a Bluetooth or USB controller.',
-                          style: Theme.of(context).textTheme.bodySmall,
+                  elevation: isDark ? 12 : 8,
+                  shadowColor: Colors.black.withValues(
+                    alpha: isDark ? 0.58 : 0.26,
+                  ),
+                  color: bubbleColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: BorderSide(color: bubbleBorderColor),
+                  ),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(
+                            alpha: isDark ? 0.35 : 0.14,
+                          ),
+                          blurRadius: isDark ? 28 : 18,
+                          offset: Offset(0, isDark ? 12 : 8),
                         ),
                       ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Connect your MIDI device',
+                            style: Theme.of(context).textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w700),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Tap here to select a Bluetooth or USB controller.',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -179,7 +214,7 @@ class _MidiIconOnboardingOverlayState
             child: IgnorePointer(
               child: CustomPaint(
                 painter: _CurvedArrowPainter(
-                  color: cs.error.withValues(alpha: 0.84),
+                  color: arrowColor.withValues(alpha: isDark ? 0.94 : 0.84),
                   start: Offset(bubbleRect.right - 44, bubbleRect.top + 24),
                   control: Offset(rect.center.dx + 26, bubbleRect.top - 18),
                   end: Offset(rect.center.dx + 5, rect.center.dy + 16),
@@ -208,10 +243,12 @@ class _SpotlightPainter extends CustomPainter {
   const _SpotlightPainter({
     required this.spotlightRect,
     required this.dimColor,
+    required this.featherSigmaFactor,
   });
 
   final Rect spotlightRect;
   final Color dimColor;
+  final double featherSigmaFactor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -219,7 +256,7 @@ class _SpotlightPainter extends CustomPainter {
     canvas.saveLayer(bounds, Paint());
     canvas.drawRect(bounds, Paint()..color = dimColor);
 
-    final featherSigma = spotlightRect.shortestSide * 0.11;
+    final featherSigma = spotlightRect.shortestSide * featherSigmaFactor;
     canvas.drawRRect(
       RRect.fromRectAndRadius(spotlightRect, const Radius.circular(999)),
       Paint()
@@ -233,7 +270,8 @@ class _SpotlightPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _SpotlightPainter oldDelegate) {
     return oldDelegate.spotlightRect != spotlightRect ||
-        oldDelegate.dimColor != dimColor;
+        oldDelegate.dimColor != dimColor ||
+        oldDelegate.featherSigmaFactor != featherSigmaFactor;
   }
 }
 
