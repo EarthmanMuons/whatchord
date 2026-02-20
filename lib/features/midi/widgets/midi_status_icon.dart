@@ -12,19 +12,32 @@ import '../pages/midi_settings_page.dart';
 import '../providers/midi_connection_status_provider.dart';
 
 class MidiStatusIcon extends ConsumerWidget {
-  const MidiStatusIcon({super.key});
+  const MidiStatusIcon({super.key, this.onPressed, this.iconButtonKey});
+
+  final VoidCallback? onPressed;
+  final Key? iconButtonKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(midiConnectionStatusProvider);
-    return _MidiStatusIconButton(status: status);
+    return _MidiStatusIconButton(
+      status: status,
+      onPressed: onPressed,
+      iconButtonKey: iconButtonKey,
+    );
   }
 }
 
 class _MidiStatusIconButton extends StatefulWidget {
-  const _MidiStatusIconButton({required this.status});
+  const _MidiStatusIconButton({
+    required this.status,
+    this.onPressed,
+    this.iconButtonKey,
+  });
 
   final MidiConnectionStatus status;
+  final VoidCallback? onPressed;
+  final Key? iconButtonKey;
 
   @override
   State<_MidiStatusIconButton> createState() => _MidiStatusIconButtonState();
@@ -98,6 +111,11 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
       });
       _syncPulseTimer();
     }
+    final handler = widget.onPressed;
+    if (handler != null) {
+      handler();
+      return;
+    }
     Navigator.of(
       context,
     ).push(MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()));
@@ -131,6 +149,7 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
           return Transform.scale(scale: scale, child: child);
         },
         child: IconButton(
+          key: widget.iconButtonKey,
           tooltip: presentation.tooltip,
           icon: presentation.icon,
           color: presentation.iconColor,

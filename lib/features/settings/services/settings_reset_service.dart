@@ -6,6 +6,7 @@ import 'package:whatchord/core/providers/app_theme_mode_notifier.dart';
 import 'package:whatchord/core/providers/shared_preferences_provider.dart';
 import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/midi/midi.dart';
+import 'package:whatchord/features/onboarding/onboarding.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 final settingsResetProvider = Provider<SettingsResetService>((ref) {
@@ -29,12 +30,14 @@ class SettingsResetService {
     // MIDI preferences (delegate to MIDI's own reset)
     await _ref.read(midiPreferencesProvider.notifier).clearAllMidiData();
     await _ref.read(audioMonitorSettingsNotifier.notifier).clearAllAudioData();
+    await _ref.read(midiSettingsOnboardingProvider.notifier).reset();
 
     // Force rebuilds
     _ref.invalidate(appThemeModeProvider);
     _ref.invalidate(appPaletteProvider);
     _ref.invalidate(chordNotationStyleProvider);
     _ref.invalidate(audioMonitorSettingsNotifier);
+    _ref.invalidate(midiSettingsOnboardingProvider);
 
     // Reset MIDI connection state
     final connectionState = _ref.read(midiConnectionStateProvider.notifier);
