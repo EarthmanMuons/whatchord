@@ -102,7 +102,7 @@ class _MidiIconOnboardingOverlayState
           behavior: HitTestBehavior.opaque,
           onTap: ref
               .read(midiSettingsOnboardingProvider.notifier)
-              .dismissForSession,
+              .markCoachMarkSeen,
           child: const ColoredBox(color: Color(0xA6000000)),
         ),
       );
@@ -131,7 +131,7 @@ class _MidiIconOnboardingOverlayState
             behavior: HitTestBehavior.opaque,
             onTap: ref
                 .read(midiSettingsOnboardingProvider.notifier)
-                .dismissForSession,
+                .markCoachMarkSeen,
             child: CustomPaint(
               painter: _SpotlightPainter(
                 spotlightRect: spotlightRect,

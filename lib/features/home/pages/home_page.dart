@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -54,6 +55,9 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _openMidiSettings() {
+    unawaited(
+      ref.read(midiSettingsOnboardingProvider.notifier).markCoachMarkSeen(),
+    );
     Navigator.of(
       context,
     ).push(MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()));

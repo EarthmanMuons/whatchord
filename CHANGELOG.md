@@ -13,8 +13,15 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 ### Added
 
 - Added a first-launch MIDI coach mark on the home screen with a spotlighted
-  MIDI status icon, quick connection guidance, tap-outside dismiss, and
-  one-time completion tracking.
+  MIDI status icon, quick connection guidance, tap-outside dismiss, and one-time
+  completion tracking.
+
+### Changed
+
+- Updated MIDI onboarding behavior so the coach mark is a one-time prompt that
+  is marked seen on dismissal or MIDI icon tap, and made the inline prompt
+  connection-driven ("Connect a MIDI device to begin…" until connected, then
+  "Play some notes…").
 
 ## [2026.2.18] - 2026-02-18
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/core.dart';
+import 'package:whatchord/features/midi/midi.dart';
 
 import '../../models/sounding_note.dart';
 import '../../providers/input_idle_notifier.dart';
@@ -220,6 +221,16 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
     final scaledMinHeight = 44.0 * heightScale;
     final minHeight = scaledMinHeight < 48.0 ? 48.0 : scaledMinHeight;
     final showPrompt = _notes.isEmpty && ref.watch(inputIdleEligibleProvider);
+    final isMidiConnected = ref.watch(
+      midiConnectionStatusProvider.select((s) => s.isConnected),
+    );
+    final showInlineMidiGuidance = !isMidiConnected;
+    final promptText = showInlineMidiGuidance
+        ? 'Connect a MIDI device to begin…'
+        : 'Play some notes…';
+    final promptSemantics = showInlineMidiGuidance
+        ? 'Connect a MIDI device to begin'
+        : 'Play some notes';
 
     return Padding(
       padding: widget.padding,
@@ -251,8 +262,8 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
                                 child: Align(
                                   alignment: Alignment.centerLeft,
                                   child: Text(
-                                    'Play some notes…',
-                                    semanticsLabel: 'Play some notes',
+                                    promptText,
+                                    semanticsLabel: promptSemantics,
                                     style: theme.textTheme.bodyLarge?.copyWith(
                                       color: cs.onSurfaceVariant,
                                     ),
