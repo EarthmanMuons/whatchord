@@ -26,6 +26,7 @@ class ScaleDegrees extends StatefulWidget {
 class _ScaleDegreesState extends State<ScaleDegrees> {
   static const double _fadeWidth = 24.0;
   static const double _defaultIndicatorHeight = 56.0;
+  static const Duration _tooltipShowDuration = Duration(seconds: 3);
 
   final ScrollController _scrollController = ScrollController();
   bool _showLeftFade = false;
@@ -86,6 +87,7 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
       child: ExcludeSemantics(
         child: Tooltip(
           message: tooltipMessage,
+          showDuration: _tooltipShowDuration,
           child: LayoutBuilder(
             builder: (context, constraints) {
               WidgetsBinding.instance.addPostFrameCallback(
