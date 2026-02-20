@@ -121,6 +121,7 @@ class TonalityBar extends ConsumerWidget {
                   alignment: Alignment.centerRight,
                   child: ScaleDegrees(
                     current: degree,
+                    mode: selectedTonality.mode,
                     maxHeight: height,
                     fadeColor: cs.surfaceContainerLow,
                     textScaleMultiplier: scaleDegreesTextScaleMultiplier,
