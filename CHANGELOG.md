@@ -28,6 +28,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   is marked seen on dismissal or MIDI icon tap, and made the inline prompt
   connection-driven ("Connect a MIDI device to begin…" until connected, then
   "Play some notes…").
+- Upgraded Flutter to `3.41.2` (Dart `3.11.0`) with refreshed locked
+  dependencies.
 
 ## [2026.2.18] - 2026-02-18
 
