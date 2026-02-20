@@ -231,6 +231,13 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
     final promptSemantics = showInlineMidiGuidance
         ? 'Connect a MIDI device to begin'
         : 'Play some notes';
+    final VoidCallback? onPromptTap = showInlineMidiGuidance
+        ? () {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()),
+            );
+          }
+        : null;
 
     return Padding(
       padding: widget.padding,
@@ -261,11 +268,22 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
                                 physics: const BouncingScrollPhysics(),
                                 child: Align(
                                   alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    promptText,
-                                    semanticsLabel: promptSemantics,
-                                    style: theme.textTheme.bodyLarge?.copyWith(
-                                      color: cs.onSurfaceVariant,
+                                  child: Semantics(
+                                    button: showInlineMidiGuidance,
+                                    onTapHint: showInlineMidiGuidance
+                                        ? 'Open MIDI settings'
+                                        : null,
+                                    child: GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: onPromptTap,
+                                      child: Text(
+                                        promptText,
+                                        semanticsLabel: promptSemantics,
+                                        style: theme.textTheme.bodyLarge
+                                            ?.copyWith(
+                                              color: cs.onSurfaceVariant,
+                                            ),
+                                      ),
                                     ),
                                   ),
                                 ),
