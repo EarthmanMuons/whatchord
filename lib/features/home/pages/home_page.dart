@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/midi/midi.dart';
+import 'package:whatchord/features/onboarding/onboarding.dart';
 import 'package:whatchord/features/settings/settings.dart';
 
 import '../models/home_layout_config.dart';
@@ -27,6 +28,7 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   late final ProviderSubscription<MidiConnectionState> _midiSub;
+  final GlobalKey _midiStatusIconKey = GlobalKey(debugLabel: 'midiStatusIcon');
 
   @override
   void initState() {
@@ -49,6 +51,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   void dispose() {
     _midiSub.close();
     super.dispose();
+  }
+
+  void _openMidiSettings() {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()));
   }
 
   @override
@@ -75,37 +83,47 @@ class _HomePageState extends ConsumerState<HomePage> {
         return EdgeToEdgeController(
           child: WakelockController(
             child: Scaffold(
-              body: Column(
+              body: Stack(
                 children: [
-                  ColoredBox(
-                    color: cs.surfaceContainerLow,
-                    child: SafeArea(
-                      bottom: false, // only protect status bar
-                      left: !isLandscape, // allow full-bleed in landscape
-                      right: !isLandscape,
-                      child: _HomeTopBar(
-                        toolbarHeight: toolbarHeight,
-                        horizontalInset: horizontalInset,
+                  Column(
+                    children: [
+                      ColoredBox(
+                        color: cs.surfaceContainerLow,
+                        child: SafeArea(
+                          bottom: false, // only protect status bar
+                          left: !isLandscape, // allow full-bleed in landscape
+                          right: !isLandscape,
+                          child: _HomeTopBar(
+                            toolbarHeight: toolbarHeight,
+                            horizontalInset: horizontalInset,
+                            midiStatusIconKey: _midiStatusIconKey,
+                            onOpenMidiSettings: _openMidiSettings,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
 
-                  Expanded(
-                    child: SafeArea(
-                      top: false, // already handled above
-                      bottom: false, // piano draws to bottom
-                      left: !isLandscape,
-                      right: !isLandscape,
-                      child: isLandscape
-                          ? _HomeLandscape(
-                              config: config,
-                              horizontalInset: horizontalInset,
-                            )
-                          : _HomePortrait(
-                              config: config,
-                              horizontalInset: horizontalInset,
-                            ),
-                    ),
+                      Expanded(
+                        child: SafeArea(
+                          top: false, // already handled above
+                          bottom: false, // piano draws to bottom
+                          left: !isLandscape,
+                          right: !isLandscape,
+                          child: isLandscape
+                              ? _HomeLandscape(
+                                  config: config,
+                                  horizontalInset: horizontalInset,
+                                )
+                              : _HomePortrait(
+                                  config: config,
+                                  horizontalInset: horizontalInset,
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  MidiIconOnboardingOverlay(
+                    targetKey: _midiStatusIconKey,
+                    onTargetTap: _openMidiSettings,
                   ),
                 ],
               ),
@@ -121,10 +139,14 @@ class _HomeTopBar extends ConsumerWidget {
   const _HomeTopBar({
     required this.toolbarHeight,
     required this.horizontalInset,
+    required this.midiStatusIconKey,
+    required this.onOpenMidiSettings,
   });
 
   final double toolbarHeight;
   final double horizontalInset;
+  final GlobalKey midiStatusIconKey;
+  final VoidCallback onOpenMidiSettings;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -152,7 +174,10 @@ class _HomeTopBar extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              const MidiStatusIcon(),
+              MidiStatusIcon(
+                iconButtonKey: midiStatusIconKey,
+                onPressed: onOpenMidiSettings,
+              ),
               Transform.translate(
                 offset: const Offset(settingsIconDx, 0),
                 child: IconButton(
