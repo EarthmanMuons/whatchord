@@ -31,7 +31,7 @@ final demoNoteStateProvider =
     );
 
 class DemoNoteStateNotifier extends Notifier<DemoNoteState> {
-  static const Duration _noteOnSpacing = Duration(milliseconds: 100);
+  static const Duration _noteOnSpacing = Duration(milliseconds: 200);
   static const Duration _resetGap = Duration(milliseconds: 50);
 
   Timer? _timer;
@@ -62,8 +62,8 @@ class DemoNoteStateNotifier extends Notifier<DemoNoteState> {
       _applyCurrentStep(transitionNotes: true);
     });
 
-    ref.listen<DemoSequenceState>(demoSequenceProvider, (previous, next) {
-      if (previous?.index == next.index) return;
+    ref.listen<DemoStep>(demoCurrentStepProvider, (previous, next) {
+      if (identical(previous, next)) return;
       _applyCurrentStep(transitionNotes: ref.read(demoModeProvider));
     });
 
@@ -90,12 +90,7 @@ class DemoNoteStateNotifier extends Notifier<DemoNoteState> {
   }
 
   DemoStep _stepForCurrentIndex() {
-    final steps = DemoSequenceNotifier.steps;
-    final index = ref.read(demoSequenceProvider).index;
-    if (index < 0 || index >= steps.length) {
-      return const DemoStep();
-    }
-    return steps[index];
+    return ref.read(demoCurrentStepProvider);
   }
 
   void _transitionToNotes(Set<int> nextNotes) {

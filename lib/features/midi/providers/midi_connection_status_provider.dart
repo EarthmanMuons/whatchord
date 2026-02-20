@@ -13,7 +13,10 @@ import 'midi_connection_notifier.dart';
 /// Provides UI-friendly presentation of MIDI connection information.
 final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
   final demoEnabled = ref.watch(demoModeProvider);
-  if (demoEnabled) {
+  final demoVariant = ref.watch(demoModeVariantProvider);
+  final screenshotDemoEnabled =
+      demoEnabled && demoVariant == DemoModeVariant.screenshot;
+  if (screenshotDemoEnabled) {
     return const MidiConnectionStatus(
       phase: MidiConnectionPhase.connected,
       title: 'Connected',

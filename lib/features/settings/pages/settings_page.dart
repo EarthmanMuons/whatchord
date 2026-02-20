@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/audio/audio.dart';
+import 'package:whatchord/features/demo/demo.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
@@ -107,6 +108,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
     final midiStatus = ref.watch(midiConnectionStatusProvider);
+    final demoEnabled = ref.watch(demoModeProvider);
+    final demoVariant = ref.watch(demoModeVariantProvider);
+    final userDemoEnabled =
+        demoEnabled && demoVariant == DemoModeVariant.interactive;
     final audioSettings = ref.watch(audioMonitorSettingsNotifier);
     final audioVolumePercent = (audioSettings.volume * 100).round();
     final disabledTextColor = cs.onSurface.withValues(alpha: 0.38);
@@ -147,6 +152,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     );
                   },
                 ),
+              ),
+
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Demo Mode'),
+                subtitle: const Text(
+                  'Explore chord examples without a MIDI device',
+                ),
+                value: userDemoEnabled,
+                onChanged: (enabled) {
+                  ref
+                      .read(demoModeProvider.notifier)
+                      .setEnabledFor(
+                        enabled: enabled,
+                        variant: DemoModeVariant.interactive,
+                      );
+                },
               ),
 
               SwitchListTile(
