@@ -75,76 +75,89 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
     final fadeColor =
         widget.fadeColor ?? Theme.of(context).colorScheme.surfaceContainerLow;
     final maxHeight = widget.maxHeight ?? _defaultIndicatorHeight;
+    final tooltipMessage = _tooltipMessageForCurrent(widget.current);
 
     return Semantics(
       container: true,
       label: 'Scale degree',
       value: _semanticsValueForCurrent(widget.current),
       child: ExcludeSemantics(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            WidgetsBinding.instance.addPostFrameCallback((_) => _updateFades());
+        child: Tooltip(
+          message: tooltipMessage,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              WidgetsBinding.instance.addPostFrameCallback(
+                (_) => _updateFades(),
+              );
 
-            final scrollable = SingleChildScrollView(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  for (int i = 0; i < widget.values.length; i++) ...[
-                    _ScaleDegreeIndicator(
-                      label: widget.values[i].romanNumeral,
-                      isCurrent: widget.values[i] == widget.current,
-                      maxHeight: maxHeight,
-                      textScaleMultiplier: widget.textScaleMultiplier,
-                    ),
-                    if (i < widget.values.length - 1) const SizedBox(width: 12),
+              final scrollable = SingleChildScrollView(
+                controller: _scrollController,
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (int i = 0; i < widget.values.length; i++) ...[
+                      _ScaleDegreeIndicator(
+                        label: widget.values[i].romanNumeral,
+                        isCurrent: widget.values[i] == widget.current,
+                        maxHeight: maxHeight,
+                        textScaleMultiplier: widget.textScaleMultiplier,
+                      ),
+                      if (i < widget.values.length - 1)
+                        const SizedBox(width: 12),
+                    ],
                   ],
-                ],
-              ),
-            );
+                ),
+              );
 
-            return Stack(
-              children: [
-                scrollable,
-                if (_showLeftFade)
-                  Positioned(
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    width: _fadeWidth,
-                    child: IgnorePointer(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            colors: [fadeColor, fadeColor.withValues(alpha: 0)],
+              return Stack(
+                children: [
+                  scrollable,
+                  if (_showLeftFade)
+                    Positioned(
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: _fadeWidth,
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: [
+                                fadeColor,
+                                fadeColor.withValues(alpha: 0),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                if (_showRightFade)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    width: _fadeWidth,
-                    child: IgnorePointer(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.centerRight,
-                            end: Alignment.centerLeft,
-                            colors: [fadeColor, fadeColor.withValues(alpha: 0)],
+                  if (_showRightFade)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: _fadeWidth,
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.centerRight,
+                              end: Alignment.centerLeft,
+                              colors: [
+                                fadeColor,
+                                fadeColor.withValues(alpha: 0),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -161,6 +174,17 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
       ScaleDegree.six => 'vi, six',
       ScaleDegree.seven => 'vii diminished, seven',
     };
+  }
+
+  String _tooltipMessageForCurrent(ScaleDegree? degree) {
+    const explanation =
+        "Roman numerals show the chord's degree within a given musical key.";
+
+    if (degree == null) {
+      return '$explanation No degree is currently highlighted.';
+    }
+
+    return '$explanation Highlighted now: ${_semanticsValueForCurrent(degree)}.';
   }
 }
 
