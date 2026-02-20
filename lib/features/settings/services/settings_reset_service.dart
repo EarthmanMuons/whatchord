@@ -26,6 +26,7 @@ class SettingsResetService {
 
     // Theory preferences
     await prefs.remove(TheoryPreferencesKeys.chordNotationStyle);
+    await prefs.remove(TheoryPreferencesKeys.selectedTonality);
 
     // MIDI preferences (delegate to MIDI's own reset)
     await _ref.read(midiPreferencesProvider.notifier).clearAllMidiData();
@@ -36,6 +37,7 @@ class SettingsResetService {
     _ref.invalidate(appThemeModeProvider);
     _ref.invalidate(appPaletteProvider);
     _ref.invalidate(chordNotationStyleProvider);
+    _ref.invalidate(selectedTonalityProvider);
     _ref.invalidate(audioMonitorSettingsNotifier);
     _ref.invalidate(midiSettingsOnboardingProvider);
 
