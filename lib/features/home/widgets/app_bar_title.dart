@@ -42,22 +42,28 @@ class AppBarTitle extends ConsumerWidget {
     if (!enableGestures) return title;
 
     final demoEnabled = ref.watch(demoModeProvider);
+    final demoVariant = ref.watch(demoModeVariantProvider);
+    final screenshotDemoEnabled =
+        demoEnabled && demoVariant == DemoModeVariant.screenshot;
     final modeNotifier = ref.read(demoModeProvider.notifier);
     final seqNotifier = ref.read(demoSequenceProvider.notifier);
 
-    Future<void> toggleDemo() async {
-      modeNotifier.setEnabled(!demoEnabled);
+    Future<void> toggleScreenshotDemo() async {
+      modeNotifier.setEnabledFor(
+        enabled: !screenshotDemoEnabled,
+        variant: DemoModeVariant.screenshot,
+      );
       await HapticFeedback.lightImpact();
     }
 
     void prev() {
-      if (!demoEnabled) return;
+      if (!screenshotDemoEnabled) return;
       seqNotifier.prev();
       modeNotifier.applyCurrentStep();
     }
 
     void next() {
-      if (!demoEnabled) return;
+      if (!screenshotDemoEnabled) return;
       seqNotifier.next();
       modeNotifier.applyCurrentStep();
     }
@@ -86,7 +92,7 @@ class AppBarTitle extends ConsumerWidget {
               text: 'What',
               style: titleStyle,
               onTap: prev,
-              onLongPress: toggleDemo,
+              onLongPress: toggleScreenshotDemo,
             ),
           ),
           WidgetSpan(
@@ -96,7 +102,7 @@ class AppBarTitle extends ConsumerWidget {
               text: 'Chord',
               style: titleStyle.copyWith(fontWeight: FontWeight.w600),
               onTap: next,
-              onLongPress: toggleDemo,
+              onLongPress: toggleScreenshotDemo,
             ),
           ),
         ],

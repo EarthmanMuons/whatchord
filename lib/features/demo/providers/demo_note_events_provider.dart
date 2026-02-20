@@ -10,7 +10,9 @@ import 'demo_note_state_notifier.dart';
 final demoNoteEventsProvider = Provider.autoDispose<Stream<InputNoteEvent>>((
   ref,
 ) {
-  final controller = StreamController<InputNoteEvent>.broadcast(sync: true);
+  // Use async delivery to avoid re-entrant add() calls when demo mode and note
+  // state updates happen in the same provider notification stack.
+  final controller = StreamController<InputNoteEvent>.broadcast();
   var demoEnabled = ref.read(demoModeProvider);
   var lastDemoNotes = demoEnabled
       ? Set<int>.unmodifiable(ref.read(demoSoundingNoteNumbersProvider))

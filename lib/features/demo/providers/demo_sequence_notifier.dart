@@ -4,10 +4,29 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/theory/domain/models/tonality.dart';
 
+import 'demo_mode_variant_notifier.dart';
+
 final demoSequenceProvider =
     NotifierProvider<DemoSequenceNotifier, DemoSequenceState>(
       DemoSequenceNotifier.new,
     );
+
+final demoCurrentStepProvider = Provider<DemoStep>((ref) {
+  final steps = ref.watch(demoStepsProvider);
+  final index = ref.watch(demoSequenceProvider.select((state) => state.index));
+  if (steps.isEmpty || index < 0 || index >= steps.length) {
+    return const DemoStep();
+  }
+  return steps[index];
+});
+
+final demoStepsProvider = Provider<List<DemoStep>>((ref) {
+  final variant = ref.watch(demoModeVariantProvider);
+  return switch (variant) {
+    DemoModeVariant.interactive => DemoSequenceNotifier.interactiveSteps,
+    DemoModeVariant.screenshot => DemoSequenceNotifier.screenshotSteps,
+  };
+});
 
 class DemoSequenceState {
   final int index;
@@ -20,12 +39,19 @@ class DemoStep {
   final bool? pedalDown;
   final ThemeMode? themeMode;
   final Tonality? tonality;
+  final String? promptText;
 
-  const DemoStep({this.notes, this.pedalDown, this.themeMode, this.tonality});
+  const DemoStep({
+    this.notes,
+    this.pedalDown,
+    this.themeMode,
+    this.tonality,
+    this.promptText,
+  });
 }
 
 class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
-  static final List<DemoStep> steps = <DemoStep>[
+  static final List<DemoStep> screenshotSteps = <DemoStep>[
     // 1) SCREENSHOT: portrait, light mode, Key: C major, C major
     const DemoStep(
       notes: {60, 64, 67},
@@ -58,36 +84,56 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
 
     // 5) SCREENSHOT: portrait, light mode, Key: C major, C7#11 / F# (details screen)
 
-    // Ambiguous C6/9 or Am11 / C depending on tonality (C E G A D -> ...)
-    const DemoStep(
-      notes: {48, 57, 60, 64, 67, 74},
-      pedalDown: false,
-      tonality: Tonality('C', TonalityMode.major),
-    ),
-    const DemoStep(
-      notes: {48, 57, 60, 64, 67, 74},
-      tonality: Tonality('A', TonalityMode.minor),
-    ),
-
     // Fully diminished symmetrical (Eb Gb Bbb Dbb -> Ebdim7)
     const DemoStep(notes: {51, 54, 57, 60}),
+  ];
 
-    // Single note (C)
-    const DemoStep(notes: {60}, tonality: Tonality('C', TonalityMode.major)),
-
-    // // Dyad (C to E -> M3)
+  static final List<DemoStep> interactiveSteps = <DemoStep>[
     const DemoStep(
-      notes: {60, 64},
-      tonality: Tonality('C', TonalityMode.major),
+      notes: {},
+      promptText: 'Use the arrows to explore chord examples.',
+    ),
+    const DemoStep(
+      notes: {60},
+      promptText: 'A single note does not form a chord.',
+    ),
+    const DemoStep(notes: {60, 67}, promptText: 'Two notes form an interval.'),
+    const DemoStep(
+      notes: {60, 64, 67},
+      promptText: 'Three notes form a triad.',
+    ),
+    const DemoStep(
+      notes: {64, 67, 72},
+      promptText: 'Inversions are detected automatically.',
+    ),
+    const DemoStep(
+      notes: {60, 62, 64, 67, 69},
+      promptText: 'Extensions and alterations are recognized.',
+    ),
+    const DemoStep(
+      notes: {54, 57, 60, 64},
+      promptText: 'Even complex harmonies are analyzed correctly.',
     ),
   ];
 
   @override
   DemoSequenceState build() {
+    ref.listen<DemoModeVariant>(demoModeVariantProvider, (previous, next) {
+      if (previous == null || previous == next) return;
+      reset();
+    });
+
     return const DemoSequenceState(index: 0);
   }
 
-  DemoStep get currentStep => steps[state.index];
+  DemoStep get currentStep {
+    final steps = ref.read(demoStepsProvider);
+    final index = state.index;
+    if (steps.isEmpty || index < 0 || index >= steps.length) {
+      return const DemoStep();
+    }
+    return steps[index];
+  }
 
   void next() => _setIndex(state.index + 1);
   void prev() => _setIndex(state.index - 1);
@@ -96,7 +142,7 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
   void reset() => goTo(0);
 
   void _setIndex(int index) {
-    final len = steps.length;
+    final len = ref.read(demoStepsProvider).length;
     if (len == 0) return;
 
     final nextIndex = ((index % len) + len) % len;

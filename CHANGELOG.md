@@ -18,6 +18,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Added mode-aware scale degree Roman numerals in the tonality bar (major and
   natural minor forms), with tooltip guidance that names the highlighted
   function (for example, tonic, dominant, or subtonic).
+- Added a user-facing Demo Mode toggle in Settings that walks through guided
+  chord examples without requiring a MIDI device, including step navigation
+  chevrons on the identity card and inline step explanations.
 
 ### Changed
 

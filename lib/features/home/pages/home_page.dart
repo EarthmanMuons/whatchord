@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/features/demo/demo.dart';
 import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/onboarding/onboarding.dart';
@@ -13,6 +14,7 @@ import 'package:whatchord/features/settings/settings.dart';
 import '../models/home_layout_config.dart';
 import '../widgets/analysis_section.dart';
 import '../widgets/app_bar_title.dart';
+import '../widgets/demo_mode_explanation.dart';
 import '../widgets/details_section.dart';
 import '../widgets/edge_to_edge_controller.dart';
 import '../widgets/keyboard_section.dart';
@@ -36,10 +38,29 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.initState();
 
     _midiSub = ref.listenManual(midiConnectionStateProvider, (prev, next) {
+      if (!mounted) return;
       if (prev?.phase != MidiConnectionPhase.connected &&
           next.phase == MidiConnectionPhase.connected) {
+        final demoEnabled = ref.read(demoModeProvider);
+        final demoVariant = ref.read(demoModeVariantProvider);
+        final disableInteractiveDemo =
+            demoEnabled && demoVariant == DemoModeVariant.interactive;
+        if (disableInteractiveDemo) {
+          ref
+              .read(demoModeProvider.notifier)
+              .setEnabledFor(
+                enabled: false,
+                variant: DemoModeVariant.interactive,
+              );
+        }
+
         final name = next.device?.displayName;
-        final text = name != null ? 'MIDI connected: $name' : 'MIDI connected';
+        final baseText = name != null
+            ? 'MIDI connected: $name'
+            : 'MIDI connected';
+        final text = disableInteractiveDemo
+            ? '$baseText\nDemo Mode disabled'
+            : baseText;
 
         ScaffoldMessenger.of(
           context,
@@ -156,6 +177,10 @@ class _HomeTopBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final titleStyle = Theme.of(context).textTheme.titleLarge;
+    final demoEnabled = ref.watch(demoModeProvider);
+    final demoVariant = ref.watch(demoModeVariantProvider);
+    final showInteractiveDemoPill =
+        demoEnabled && demoVariant == DemoModeVariant.interactive;
 
     // Optical-only tweak.
     const settingsIconDx = 6.0;
@@ -177,6 +202,17 @@ class _HomeTopBar extends ConsumerWidget {
                   child: AppBarTitle(maxHeight: toolbarHeight),
                 ),
               ),
+              if (showInteractiveDemoPill)
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, right: 16),
+                  child: _DemoModePill(
+                    onPressed: () {
+                      ref
+                          .read(demoModeProvider.notifier)
+                          .setEnabledFor(enabled: false, variant: demoVariant);
+                    },
+                  ),
+                ),
               const SizedBox(width: 4),
               MidiStatusIcon(
                 iconButtonKey: midiStatusIconKey,
@@ -270,7 +306,9 @@ class _HomePortrait extends ConsumerWidget {
         ),
         Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const DemoModeExplanation(),
             InputDisplay(
               padding: config.inputDisplayPadding,
               visualScaleMultiplier: config.inputDisplayVisualScale,
@@ -286,6 +324,40 @@ class _HomePortrait extends ConsumerWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+class _DemoModePill extends StatelessWidget {
+  const _DemoModePill({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final textStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
+      fontSize: 13,
+      letterSpacing: 0.25,
+      fontWeight: FontWeight.w700,
+      color: cs.onSurface,
+    );
+    final scaler = TextScaler.linear(
+      MediaQuery.textScalerOf(context).scale(1.0).clamp(1.0, 1.35),
+    );
+
+    return Tooltip(
+      message: 'Turn off demo mode',
+      child: ActionChip(
+        onPressed: onPressed,
+        visualDensity: VisualDensity.compact,
+        materialTapTargetSize: MaterialTapTargetSize.padded,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        backgroundColor: cs.surface,
+        side: BorderSide(color: cs.outlineVariant),
+        labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+        label: Text('DEMO', textScaler: scaler, style: textStyle),
+      ),
     );
   }
 }

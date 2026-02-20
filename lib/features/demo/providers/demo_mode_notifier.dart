@@ -6,6 +6,7 @@ import 'package:whatchord/core/providers/app_theme_mode_notifier.dart';
 import 'package:whatchord/features/theory/domain/models/tonality.dart';
 import 'package:whatchord/features/theory/state/providers/selected_tonality_notifier.dart';
 
+import 'demo_mode_variant_notifier.dart';
 import 'demo_sequence_notifier.dart';
 
 final demoModeProvider = NotifierProvider<DemoModeNotifier, bool>(
@@ -26,22 +27,45 @@ class DemoModeNotifier extends Notifier<bool> {
   bool build() => false; // Default to off.
 
   void setEnabled(bool v) {
-    if (v == state) return;
-    if (v) {
-      _enterDemo();
-    } else {
-      _exitDemo();
-    }
-    state = v;
+    setEnabledFor(enabled: v, variant: ref.read(demoModeVariantProvider));
   }
 
   void toggle() => setEnabled(!state);
 
+  void setEnabledFor({
+    required bool enabled,
+    required DemoModeVariant variant,
+  }) {
+    final variantNotifier = ref.read(demoModeVariantProvider.notifier);
+    final currentVariant = ref.read(demoModeVariantProvider);
+
+    if (!enabled) {
+      if (state) {
+        _exitDemo();
+      }
+      variantNotifier.setVariant(variant);
+      state = false;
+      return;
+    }
+
+    if (!state) {
+      variantNotifier.setVariant(variant);
+      _enterDemo();
+      state = true;
+      return;
+    }
+
+    if (variant != currentVariant) {
+      variantNotifier.setVariant(variant);
+      ref.read(demoSequenceProvider.notifier).reset();
+      Future.microtask(applyCurrentStep);
+    }
+  }
+
   void applyCurrentStep() {
     if (!state) return;
 
-    final seq = ref.read(demoSequenceProvider);
-    final step = DemoSequenceNotifier.steps[seq.index];
+    final step = ref.read(demoCurrentStepProvider);
 
     if (step.themeMode != null) {
       ref.read(appThemeModeProvider.notifier).setThemeMode(step.themeMode!);

@@ -100,6 +100,13 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
       }
     });
 
+    // Keep idle visuals deterministic while cycling demo steps, including
+    // empty intro/outro steps that should show the idle glyph immediately.
+    ref.listen<DemoStep>(demoCurrentStepProvider, (prev, next) {
+      if (!ref.read(demoModeProvider)) return;
+      markIdleNow();
+    });
+
     // Engagement is defined strictly by whether any notes are sounding.
     // Sustain pedal state (touch or MIDI) must not directly affect engagement.
     ref.listen<int>(

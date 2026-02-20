@@ -1,9 +1,11 @@
 import 'dart:ui' show clampDouble;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/features/demo/demo.dart';
 import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
@@ -19,6 +21,32 @@ class AnalysisSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final identity = ref.watch(identityDisplayProvider);
     final showIdle = ref.watch(inputIdleEligibleProvider);
+    final demoEnabled = ref.watch(demoModeProvider);
+    final demoVariant = ref.watch(demoModeVariantProvider);
+    final showDemoControls =
+        demoEnabled && demoVariant == DemoModeVariant.interactive;
+
+    Future<void> stepDemo(
+      void Function(DemoSequenceNotifier notifier) step,
+    ) async {
+      if (!showDemoControls) return;
+      step(ref.read(demoSequenceProvider.notifier));
+      ref.read(demoModeProvider.notifier).applyCurrentStep();
+      await HapticFeedback.selectionClick();
+    }
+
+    Widget identityCard({required bool fillCard}) => _IdentityCardWithChevrons(
+      showControls: showDemoControls,
+      onPrevious: () => stepDemo((notifier) => notifier.prev()),
+      onNext: () => stepDemo((notifier) => notifier.next()),
+      child: IdentityCard(
+        identity: identity,
+        showIdle: showIdle,
+        idleAsset: 'assets/logos/whatchord_logo_circle.svg',
+        textScaleMultiplier: config.identityCardTextScale,
+        fill: fillCard,
+      ),
+    );
 
     return Padding(
       padding: config.analysisPadding,
@@ -63,13 +91,7 @@ class AnalysisSection extends ConsumerWidget {
                         maxWidth: cardW,
                         maxHeight: cardMaxH,
                       ),
-                      child: IdentityCard(
-                        identity: identity,
-                        showIdle: showIdle,
-                        idleAsset: 'assets/logos/whatchord_logo_circle.svg',
-                        textScaleMultiplier: config.identityCardTextScale,
-                        fill: true,
-                      ),
+                      child: identityCard(fillCard: true),
                     ),
                   )
                 : Align(
@@ -84,15 +106,7 @@ class AnalysisSection extends ConsumerWidget {
                             SizedBox(
                               width: cardW,
                               height: cardH,
-                              child: IdentityCard(
-                                identity: identity,
-                                showIdle: showIdle,
-                                idleAsset:
-                                    'assets/logos/whatchord_logo_circle.svg',
-                                textScaleMultiplier:
-                                    config.identityCardTextScale,
-                                fill: true, // critical
-                              ),
+                              child: identityCard(fillCard: true),
                             ),
 
                             if (!isLandscape) ...[
@@ -117,6 +131,106 @@ class AnalysisSection extends ConsumerWidget {
                   ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _IdentityCardWithChevrons extends StatelessWidget {
+  const _IdentityCardWithChevrons({
+    required this.child,
+    required this.showControls,
+    required this.onPrevious,
+    required this.onNext,
+  });
+
+  final Widget child;
+  final bool showControls;
+  final VoidCallback onPrevious;
+  final VoidCallback onNext;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!showControls) return child;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        child,
+        Align(
+          alignment: Alignment.centerLeft,
+          child: _DemoStepChevronButton(
+            icon: Icons.chevron_left,
+            tooltip: 'Previous demo step',
+            onTap: onPrevious,
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: _DemoStepChevronButton(
+            icon: Icons.chevron_right,
+            tooltip: 'Next demo step',
+            onTap: onNext,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DemoStepChevronButton extends StatefulWidget {
+  const _DemoStepChevronButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  @override
+  State<_DemoStepChevronButton> createState() => _DemoStepChevronButtonState();
+}
+
+class _DemoStepChevronButtonState extends State<_DemoStepChevronButton> {
+  bool _hovered = false;
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final active = _hovered || _pressed;
+    final iconColor = cs.onPrimary.withValues(alpha: active ? 0.96 : 0.68);
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: Semantics(
+        button: true,
+        label: widget.tooltip,
+        onTapHint: widget.tooltip,
+        onTap: widget.onTap,
+        child: Tooltip(
+          message: widget.tooltip,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapDown: (_) => setState(() => _pressed = true),
+            onTapUp: (_) => setState(() => _pressed = false),
+            onTapCancel: () => setState(() => _pressed = false),
+            onTap: widget.onTap,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              opacity: active ? 1.0 : 0.76,
+              child: SizedBox(
+                width: 56,
+                height: 56,
+                child: Icon(widget.icon, color: iconColor, size: 36),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

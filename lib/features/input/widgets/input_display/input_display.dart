@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/core.dart';
+import 'package:whatchord/features/demo/demo.dart';
 import 'package:whatchord/features/midi/midi.dart';
 
 import '../../models/sounding_note.dart';
@@ -220,7 +221,14 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
 
     final scaledMinHeight = 44.0 * heightScale;
     final minHeight = scaledMinHeight < 48.0 ? 48.0 : scaledMinHeight;
-    final showPrompt = _notes.isEmpty && ref.watch(inputIdleEligibleProvider);
+    final demoEnabled = ref.watch(demoModeProvider);
+    final demoVariant = ref.watch(demoModeVariantProvider);
+    final interactiveDemoEnabled =
+        demoEnabled && demoVariant == DemoModeVariant.interactive;
+    final showPrompt =
+        _notes.isEmpty &&
+        ref.watch(inputIdleEligibleProvider) &&
+        !interactiveDemoEnabled;
     final isMidiConnected = ref.watch(
       midiConnectionStatusProvider.select((s) => s.isConnected),
     );

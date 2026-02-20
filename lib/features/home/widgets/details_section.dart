@@ -6,6 +6,7 @@ import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/home_layout_config.dart';
+import 'demo_mode_explanation.dart';
 
 class DetailsSection extends ConsumerWidget {
   const DetailsSection({super.key, required this.config});
@@ -39,9 +40,19 @@ class DetailsSection extends ConsumerWidget {
 
           Align(
             alignment: Alignment.bottomLeft,
-            child: InputDisplay(
-              padding: config.inputDisplayPadding,
-              visualScaleMultiplier: config.inputDisplayVisualScale,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const DemoModeExplanation(
+                  textAlign: TextAlign.left,
+                  padding: EdgeInsets.fromLTRB(0, 0, 12, 8),
+                ),
+                InputDisplay(
+                  padding: config.inputDisplayPadding,
+                  visualScaleMultiplier: config.inputDisplayVisualScale,
+                ),
+              ],
             ),
           ),
         ],
