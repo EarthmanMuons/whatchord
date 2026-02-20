@@ -93,15 +93,17 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
 
     state = initial;
 
-    // When demo mode is turning OFF.
+    // When demo mode toggles, force idle immediately so we do not wait for
+    // any existing MIDI cooldown to expire before showing the glyph.
     ref.listen<bool>(demoModeProvider, (prev, next) {
-      if (prev == true && next == false) {
+      if ((prev == false && next == true) || (prev == true && next == false)) {
         markIdleNow();
       }
     });
 
-    // Keep idle visuals deterministic while cycling demo steps, including
-    // empty intro/outro steps that should show the idle glyph immediately.
+    // Keep idle visuals deterministic whenever a new demo step is loaded,
+    // including empty intro/outro steps that should show the idle glyph
+    // immediately.
     ref.listen<DemoStep>(demoCurrentStepProvider, (prev, next) {
       if (!ref.read(demoModeProvider)) return;
       markIdleNow();
