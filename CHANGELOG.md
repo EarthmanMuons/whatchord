@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Added a first-launch MIDI coach mark on the home screen with a spotlighted
   MIDI status icon, quick connection guidance, tap-outside dismiss, and one-time
   completion tracking.
+- Added mode-aware scale degree Roman numerals in the tonality bar (major and
+  natural minor forms), with tooltip guidance that names the highlighted
+  function (for example, tonic, dominant, or subtonic).
 
 ### Changed
 

@@ -4,6 +4,7 @@ import '../../domain/theory_domain.dart';
 
 class ScaleDegrees extends StatefulWidget {
   final ScaleDegree? current;
+  final TonalityMode mode;
   final values = ScaleDegree.values;
   final double? maxHeight;
   final Color? fadeColor;
@@ -12,6 +13,7 @@ class ScaleDegrees extends StatefulWidget {
   const ScaleDegrees({
     super.key,
     required this.current,
+    required this.mode,
     this.maxHeight,
     this.fadeColor,
     this.textScaleMultiplier = 1.0,
@@ -97,7 +99,9 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
                   children: [
                     for (int i = 0; i < widget.values.length; i++) ...[
                       _ScaleDegreeIndicator(
-                        label: widget.values[i].romanNumeral,
+                        label: widget.values[i].romanNumeralForMode(
+                          widget.mode,
+                        ),
                         isCurrent: widget.values[i] == widget.current,
                         maxHeight: maxHeight,
                         textScaleMultiplier: widget.textScaleMultiplier,
@@ -165,15 +169,9 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
 
   String _semanticsValueForCurrent(ScaleDegree? degree) {
     if (degree == null) return 'No diatonic match';
-    return switch (degree) {
-      ScaleDegree.one => 'I, one',
-      ScaleDegree.two => 'ii, two',
-      ScaleDegree.three => 'iii, three',
-      ScaleDegree.four => 'IV, four',
-      ScaleDegree.five => 'V, five',
-      ScaleDegree.six => 'vi, six',
-      ScaleDegree.seven => 'vii diminished, seven',
-    };
+    final spoken = degree.spokenRomanNumeralForMode(widget.mode);
+    final function = degree.functionNameForMode(widget.mode);
+    return '$spoken, $function';
   }
 
   String _tooltipMessageForCurrent(ScaleDegree? degree) {
@@ -184,7 +182,22 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
       return '$explanation No degree is currently highlighted.';
     }
 
-    return '$explanation Highlighted now: ${_semanticsValueForCurrent(degree)}.';
+    final numeral = degree.romanNumeralForMode(widget.mode);
+    final function = _titleCase(degree.functionNameForMode(widget.mode));
+    final degreeNumber = degree.index + 1;
+    return '$numeral - $function\nScale degree $degreeNumber in the current key.';
+  }
+
+  String _titleCase(String value) {
+    final words = value.split(' ');
+    return words
+        .map((word) {
+          if (word.isEmpty) return word;
+          final first = word[0].toUpperCase();
+          final rest = word.substring(1);
+          return '$first$rest';
+        })
+        .join(' ');
   }
 }
 
