@@ -107,9 +107,9 @@ class LastConnectedDeviceCard extends ConsumerWidget {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('Forget last connected device?'),
+            title: const Text('Forget this device?'),
             content: const Text(
-              'This clears the saved device so auto-reconnect will not use it.',
+              'This will disconnect your device and it won\'t reconnect automatically next time.',
             ),
             actions: [
               TextButton(
@@ -133,7 +133,7 @@ class LastConnectedDeviceCard extends ConsumerWidget {
 
       await ref
           .read(midiConnectionStateProvider.notifier)
-          .cancel(reason: 'forget_last_connected');
+          .cancel(reason: 'forget_device');
       await ref.read(midiConnectionStateProvider.notifier).disconnect();
 
       await ref
@@ -142,9 +142,9 @@ class LastConnectedDeviceCard extends ConsumerWidget {
 
       if (!context.mounted) return;
       HapticFeedback.lightImpact();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Last connected device forgotten')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Device forgotten')));
     }
 
     return Card(

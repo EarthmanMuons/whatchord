@@ -397,8 +397,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     return _buildEmptyState(
       icon: Icons.search,
       title: 'Scanning for devices...',
-      message:
-          'Make sure your MIDI device is powered on.\nFor Bluetooth devices, enable pairing/discovery mode.',
+      message: 'Make sure your devices are turned on and plugged in.',
     );
   }
 
@@ -407,7 +406,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
       icon: Icons.music_off,
       title: 'No devices found',
       message:
-          'Tap Refresh to scan again.\nFor Bluetooth devices, make sure they are discoverable.\nFor wired devices, reconnect the USB cable and adapter.',
+          'Tap Refresh to scan again.\nCheck that devices are powered on and USB cables are plugged in.',
     );
   }
 
