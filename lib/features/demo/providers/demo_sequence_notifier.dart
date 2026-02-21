@@ -95,24 +95,28 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
     ),
     const DemoStep(
       notes: {60},
-      promptText: 'A single note does not form a chord.',
+      promptText: 'Each note is analyzed in its musical context.',
     ),
-    const DemoStep(notes: {60, 67}, promptText: 'Two notes form an interval.'),
+    const DemoStep(
+      notes: {60, 67},
+      promptText: 'Two notes create an interval.',
+    ),
     const DemoStep(
       notes: {60, 64, 67},
-      promptText: 'Three notes form a triad.',
+      promptText: 'Three notes create a chord.',
     ),
     const DemoStep(
       notes: {64, 67, 72},
-      promptText: 'Inversions are detected automatically.',
+      promptText: 'Chord inversions are detected automatically.',
     ),
     const DemoStep(
       notes: {60, 62, 64, 67, 69},
-      promptText: 'Extensions and alterations are recognized.',
+      promptText: 'Extended and altered chords are recognized.',
     ),
     const DemoStep(
       notes: {54, 57, 60, 64},
-      promptText: 'Even complex harmonies are analyzed correctly.',
+      promptText:
+          'Complex chords are analyzed accurately.\nAlternative interpretations may also be shown.',
     ),
   ];
 

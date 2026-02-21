@@ -67,9 +67,7 @@ class MidiSettingsPage extends ConsumerWidget {
                         ? 'Choose different device'
                         : 'Choose device',
                   ),
-                  subtitle: const Text(
-                    'Scan for Bluetooth devices or select a wired MIDI device',
-                  ),
+                  subtitle: const Text('Scan for available MIDI devices'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () async {
                     await showAdaptiveMidiDevicePicker(context).whenComplete(

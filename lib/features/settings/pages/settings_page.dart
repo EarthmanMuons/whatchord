@@ -157,9 +157,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Demo Mode'),
-                subtitle: const Text(
-                  'Explore chord examples without a MIDI device',
-                ),
+                subtitle: const Text('Explore examples without a MIDI device'),
                 value: userDemoEnabled,
                 onChanged: (enabled) {
                   ref
@@ -174,7 +172,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Audio Monitor'),
-                subtitle: const Text('Plays a piano sound from incoming MIDI'),
+                subtitle: const Text('Hear piano sounds as you play'),
                 value: audioSettings.enabled,
                 onChanged: (enabled) {
                   ref
@@ -470,17 +468,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 leading: const Icon(Icons.restart_alt),
                 title: const Text('Reset to Defaults'),
                 subtitle: const Text(
-                  'Clear all saved preferences, MIDI settings, and audio monitor settings',
+                  'Clear all saved preferences and disconnect MIDI',
                 ),
                 onTap: () async {
                   final confirmed = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: const Text('Reset all settings?'),
+                      title: const Text('Reset to defaults?'),
                       content: const Text(
-                        'This will restore all preferences, MIDI settings, and audio monitor settings to their default values. '
-                        'Any connected MIDI devices will be disconnected. '
-                        'This action can’t be undone.',
+                        'This will reset your preferences and forget any saved MIDI devices.',
                       ),
                       actions: [
                         TextButton(
