@@ -94,28 +94,41 @@ class TonalityBar extends ConsumerWidget {
                 excludeSemantics: true,
                 child: Tooltip(
                   message: 'Choose key signature',
-                  child: FilledButton.tonalIcon(
+                  child: FilledButton.tonal(
                     onPressed: openTonalityPicker,
-                    icon: const Icon(Icons.music_note),
-                    label: Text(
-                      keyLabel,
-                      style: scaledKeyLabelStyle(textTheme.labelLarge),
-                      textScaler: clampLabelScaler(textTheme.labelLarge),
-                      maxLines: 1,
-                      overflow: TextOverflow.clip,
-                      softWrap: false,
-                    ),
-                    style: TextButton.styleFrom(
-                      minimumSize: Size(0, effectiveMinButtonHeight),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: verticalPadding,
+                    style: ButtonStyle(
+                      minimumSize: WidgetStatePropertyAll(
+                        Size(0, effectiveMinButtonHeight),
                       ),
+                      padding: WidgetStatePropertyAll(
+                        EdgeInsetsDirectional.fromSTEB(
+                          6,
+                          verticalPadding,
+                          10,
+                          verticalPadding,
+                        ),
+                      ),
+                      visualDensity: VisualDensity.standard,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.music_note),
+                        const SizedBox(width: 4),
+                        Text(
+                          keyLabel,
+                          style: scaledKeyLabelStyle(textTheme.labelLarge),
+                          textScaler: clampLabelScaler(textTheme.labelLarge),
+                          maxLines: 1,
+                          overflow: TextOverflow.clip,
+                          softWrap: false,
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 10),
               Expanded(
                 child: Align(
                   alignment: Alignment.centerRight,
