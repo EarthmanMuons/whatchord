@@ -12,29 +12,22 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Added a first-launch MIDI coach mark on the home screen with a spotlighted
-  MIDI status icon, quick connection guidance, tap-outside dismiss, and one-time
-  completion tracking.
-- Added mode-aware scale degree Roman numerals in the tonality bar (major and
-  natural minor forms), with tooltip guidance that names the highlighted
-  function (for example, tonic, dominant, or subtonic).
-- Added a user-facing Demo Mode toggle in Settings that walks through guided
-  chord examples without requiring a MIDI device, including step navigation
-  chevrons on the identity card and inline step explanations.
+- Added Demo Mode in Settings so you can explore guided chord examples without
+  connecting a MIDI device.
+- Added a first-launch MIDI coach mark that highlights where to connect and how
+  to get started.
+- Added mode-aware scale degree numerals (major and natural minor) with
+  contextual tooltips that explain each degree's function.
 
 ### Changed
 
-- Updated MIDI onboarding behavior so the coach mark is a one-time prompt that
-  is marked seen on dismissal or MIDI icon tap, and made the inline prompt
-  connection-driven ("Connect a MIDI device to begin…" until connected, then
-  "Play some notes…").
-- Tightened key signature button padding in the tonality bar so longer key
-  labels leave more room for the scale degree display at default text sizes.
+- Improved inline onboarding prompts so next-step guidance is clearer during
+  setup and connection.
+- Key signature selection now persists between app launches.
+- Refined copy and spacing across the app for a clearer, more consistent
+  experience.
 - Upgraded Flutter to `3.41.2` (Dart `3.11.0`) with refreshed locked
   dependencies.
-- Persisted selected key signature so the chosen tonality is restored across app
-  launches and reset correctly to C major when all settings are reset to
-  defaults.
 
 ### Fixed
 
