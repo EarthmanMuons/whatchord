@@ -91,30 +91,37 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
   static final List<DemoStep> interactiveSteps = <DemoStep>[
     const DemoStep(
       notes: {},
+      tonality: Tonality('C', TonalityMode.major),
       promptText: 'Use the arrows to explore chord examples.',
     ),
     const DemoStep(
       notes: {60},
+      tonality: Tonality('C', TonalityMode.major),
       promptText: 'Each note is analyzed in its musical context.',
     ),
     const DemoStep(
       notes: {60, 67},
+      tonality: Tonality('C', TonalityMode.major),
       promptText: 'Two notes create an interval.',
     ),
     const DemoStep(
       notes: {60, 64, 67},
+      tonality: Tonality('C', TonalityMode.major),
       promptText: 'Three notes create a chord.',
     ),
     const DemoStep(
       notes: {64, 67, 72},
+      tonality: Tonality('C', TonalityMode.major),
       promptText: 'Chord inversions are detected automatically.',
     ),
     const DemoStep(
       notes: {60, 62, 64, 67, 69},
+      tonality: Tonality('C', TonalityMode.major),
       promptText: 'Extended and altered chords are recognized.',
     ),
     const DemoStep(
       notes: {54, 57, 60, 64},
+      tonality: Tonality('C', TonalityMode.major),
       promptText:
           'Complex chords are analyzed accurately.\nAlternative interpretations may also be shown.',
     ),
