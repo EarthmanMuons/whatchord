@@ -28,6 +28,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   is marked seen on dismissal or MIDI icon tap, and made the inline prompt
   connection-driven ("Connect a MIDI device to begin…" until connected, then
   "Play some notes…").
+- Tightened key signature button padding in the tonality bar so longer key
+  labels leave more room for the scale degree display at default text sizes.
 - Upgraded Flutter to `3.41.2` (Dart `3.11.0`) with refreshed locked
   dependencies.
 - Persisted selected key signature so the chosen tonality is restored across app
