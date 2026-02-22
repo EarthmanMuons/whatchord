@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.2.22] - 2026-02-22
+
 ### Added
 
 - Added Demo Mode in Settings so you can explore guided chord examples without
@@ -253,7 +255,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.2.18...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.2.22...HEAD
+[2026.2.22]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.2.18...v2026.2.22
 [2026.2.18]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.2.15...v2026.2.18
 [2026.2.15]:
