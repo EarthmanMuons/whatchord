@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:whatchord/core/core.dart';
-import 'package:whatchord/features/onboarding/providers/midi_icon_onboarding_notifier.dart';
+import 'package:whatchord/features/onboarding/onboarding.dart';
 
 import '../models/midi_device.dart';
 import '../providers/midi_connection_notifier.dart';
@@ -26,9 +26,7 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
   @override
   void initState() {
     super.initState();
-    unawaited(
-      ref.read(midiSettingsOnboardingProvider.notifier).markCoachMarkSeen(),
-    );
+    unawaited(ref.read(midiSettingsOnboardingProvider.notifier).markSeen());
   }
 
   @override

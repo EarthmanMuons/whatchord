@@ -76,9 +76,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _openMidiSettings() {
-    unawaited(
-      ref.read(midiSettingsOnboardingProvider.notifier).markCoachMarkSeen(),
-    );
+    unawaited(ref.read(midiSettingsOnboardingProvider.notifier).markSeen());
     Navigator.of(
       context,
     ).push(MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()));

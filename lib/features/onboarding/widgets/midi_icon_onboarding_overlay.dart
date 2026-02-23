@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../providers/midi_icon_onboarding_notifier.dart';
+import '../providers/midi_settings_onboarding_notifier.dart';
 
 class MidiIconOnboardingOverlay extends ConsumerStatefulWidget {
   const MidiIconOnboardingOverlay({
@@ -115,9 +115,7 @@ class _MidiIconOnboardingOverlayState
       return Positioned.fill(
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: ref
-              .read(midiSettingsOnboardingProvider.notifier)
-              .markCoachMarkSeen,
+          onTap: ref.read(midiSettingsOnboardingProvider.notifier).markSeen,
           child: ColoredBox(color: dimColor),
         ),
       );
@@ -143,9 +141,7 @@ class _MidiIconOnboardingOverlayState
         children: [
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: ref
-                .read(midiSettingsOnboardingProvider.notifier)
-                .markCoachMarkSeen,
+            onTap: ref.read(midiSettingsOnboardingProvider.notifier).markSeen,
             child: CustomPaint(
               painter: _SpotlightPainter(
                 spotlightRect: spotlightRect,
