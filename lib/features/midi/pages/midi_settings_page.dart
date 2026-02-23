@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:whatchord/core/core.dart';
+import 'package:whatchord/features/onboarding/providers/midi_icon_onboarding_notifier.dart';
 
 import '../models/midi_device.dart';
 import '../providers/midi_connection_notifier.dart';
@@ -14,11 +15,24 @@ import '../widgets/last_connected_device_card.dart';
 import '../widgets/midi_device_picker.dart';
 import '../widgets/midi_status_card.dart';
 
-class MidiSettingsPage extends ConsumerWidget {
+class MidiSettingsPage extends ConsumerStatefulWidget {
   const MidiSettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MidiSettingsPage> createState() => _MidiSettingsPageState();
+}
+
+class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
+  @override
+  void initState() {
+    super.initState();
+    unawaited(
+      ref.read(midiSettingsOnboardingProvider.notifier).markCoachMarkSeen(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final status = ref.watch(midiConnectionStatusProvider);
 
