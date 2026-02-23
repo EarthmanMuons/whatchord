@@ -135,6 +135,7 @@ class TonalityBar extends ConsumerWidget {
                   child: ScaleDegrees(
                     current: degree,
                     mode: selectedTonality.mode,
+                    tonalityDisplayName: selectedTonality.displayName,
                     maxHeight: height,
                     fadeColor: cs.surfaceContainerLow,
                     textScaleMultiplier: scaleDegreesTextScaleMultiplier,
