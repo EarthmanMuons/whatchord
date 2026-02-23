@@ -5,6 +5,7 @@ import '../../domain/theory_domain.dart';
 class ScaleDegrees extends StatefulWidget {
   final ScaleDegree? current;
   final TonalityMode mode;
+  final String tonalityDisplayName;
   final values = ScaleDegree.values;
   final double? maxHeight;
   final Color? fadeColor;
@@ -14,6 +15,7 @@ class ScaleDegrees extends StatefulWidget {
     super.key,
     required this.current,
     required this.mode,
+    required this.tonalityDisplayName,
     this.maxHeight,
     this.fadeColor,
     this.textScaleMultiplier = 1.0,
@@ -170,13 +172,14 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
   }
 
   String _semanticsValueForCurrent(ScaleDegree? degree) {
+    final keyName = widget.tonalityDisplayName;
     if (degree == null) {
-      return 'Not diatonic in the selected key';
+      return 'Not diatonic in $keyName';
     }
 
-    final spoken = degree.spokenRomanNumeralForMode(widget.mode);
+    final spoken = degree.spokenScaleDegreeForMode(widget.mode);
     final function = degree.functionNameForMode(widget.mode);
-    return '$spoken ($function) in the selected key';
+    return '$spoken ($function) in $keyName';
   }
 
   String _tooltipMessageForCurrent(ScaleDegree? degree) {

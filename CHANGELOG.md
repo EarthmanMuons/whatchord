@@ -12,11 +12,13 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
-- Fixed Reset to Defaults so it fully exits Demo Mode and does not restore
-  stale demo snapshot theme or key settings during reset.
+- Fixed Reset to Defaults so it fully exits Demo Mode and does not restore stale
+  demo snapshot theme or key settings during reset.
 - Fixed MIDI coach mark onboarding so opening MIDI Settings marks the coach mark
   as seen, preventing it from reappearing on Home after a settings reset when
   users entered through the MIDI flow.
+- Fixed scale degree accessibility announcements to use clearer spoken degree
+  wording and include the current key name.
 
 ## [2026.2.22] - 2026-02-22
 

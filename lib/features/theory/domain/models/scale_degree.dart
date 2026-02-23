@@ -33,27 +33,27 @@ enum ScaleDegree {
     };
   }
 
-  String spokenRomanNumeralForMode(TonalityMode mode) {
+  String spokenScaleDegreeForMode(TonalityMode mode) {
     if (mode == TonalityMode.major) {
       return switch (this) {
-        ScaleDegree.one => 'I',
-        ScaleDegree.two => 'ii',
-        ScaleDegree.three => 'iii',
-        ScaleDegree.four => 'IV',
-        ScaleDegree.five => 'V',
-        ScaleDegree.six => 'vi',
-        ScaleDegree.seven => 'vii diminished',
+        ScaleDegree.one => 'first',
+        ScaleDegree.two => 'second',
+        ScaleDegree.three => 'third',
+        ScaleDegree.four => 'fourth',
+        ScaleDegree.five => 'fifth',
+        ScaleDegree.six => 'sixth',
+        ScaleDegree.seven => 'seventh, diminished',
       };
     }
 
     return switch (this) {
-      ScaleDegree.one => 'i',
-      ScaleDegree.two => 'ii diminished',
-      ScaleDegree.three => 'flat III',
-      ScaleDegree.four => 'iv',
-      ScaleDegree.five => 'v',
-      ScaleDegree.six => 'flat VI',
-      ScaleDegree.seven => 'flat VII',
+      ScaleDegree.one => 'first',
+      ScaleDegree.two => 'second, diminished',
+      ScaleDegree.three => 'flat third',
+      ScaleDegree.four => 'fourth',
+      ScaleDegree.five => 'fifth',
+      ScaleDegree.six => 'flat sixth',
+      ScaleDegree.seven => 'flat seventh',
     };
   }
 
