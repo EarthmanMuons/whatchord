@@ -5,6 +5,7 @@ import 'package:whatchord/core/providers/app_palette_notifier.dart';
 import 'package:whatchord/core/providers/app_theme_mode_notifier.dart';
 import 'package:whatchord/core/providers/shared_preferences_provider.dart';
 import 'package:whatchord/features/audio/audio.dart';
+import 'package:whatchord/features/demo/demo.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/onboarding/onboarding.dart';
 import 'package:whatchord/features/theory/theory.dart';
@@ -19,6 +20,12 @@ class SettingsResetService {
 
   Future<void> resetAllToDefaults() async {
     final prefs = _ref.read(sharedPreferencesProvider);
+
+    // Exit demo first so any snapshot restoration happens before preference
+    // keys are cleared. Otherwise demo shutdown can re-persist old values.
+    _ref
+        .read(demoModeProvider.notifier)
+        .setEnabledFor(enabled: false, variant: DemoModeVariant.interactive);
 
     // Core preferences
     await prefs.remove(CorePreferencesKeys.themeMode);

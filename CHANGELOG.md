@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed Reset to Defaults so it fully exits Demo Mode and does not restore
+  stale demo snapshot theme or key settings during reset.
+
 ## [2026.2.22] - 2026-02-22
 
 ### Added
