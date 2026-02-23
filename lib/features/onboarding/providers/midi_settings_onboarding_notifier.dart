@@ -36,7 +36,7 @@ class MidiSettingsOnboardingNotifier
     return MidiSettingsOnboardingState(hasSeenMidiCoachMark: hasSeen);
   }
 
-  Future<void> markCoachMarkSeen() async {
+  Future<void> markSeen() async {
     if (state.hasSeenMidiCoachMark) return;
 
     state = state.copyWith(hasSeenMidiCoachMark: true);
