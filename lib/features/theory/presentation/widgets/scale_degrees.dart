@@ -170,24 +170,25 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
   }
 
   String _semanticsValueForCurrent(ScaleDegree? degree) {
-    if (degree == null) return 'No diatonic match';
+    if (degree == null) {
+      return 'Not diatonic in the selected key';
+    }
+
     final spoken = degree.spokenRomanNumeralForMode(widget.mode);
     final function = degree.functionNameForMode(widget.mode);
-    return '$spoken, $function';
+    return '$spoken ($function) in the selected key';
   }
 
   String _tooltipMessageForCurrent(ScaleDegree? degree) {
-    const explanation =
-        "Roman numerals show the chord's degree within a given musical key.";
+    const prefix = "Scale degree in the selected key:";
 
     if (degree == null) {
-      return '$explanation No degree is currently highlighted.';
+      return '$prefix not diatonic';
     }
 
     final numeral = degree.romanNumeralForMode(widget.mode);
     final function = _titleCase(degree.functionNameForMode(widget.mode));
-    final degreeNumber = degree.index + 1;
-    return '$numeral - $function\nScale degree $degreeNumber in the current key.';
+    return '$prefix $numeral ($function)';
   }
 
   String _titleCase(String value) {
