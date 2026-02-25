@@ -52,15 +52,39 @@ class PianoTopEdgeShadowStyle {
 }
 
 class PianoKeyboardPainter extends CustomPainter {
+  static const double _pressedBlackBaseLift = 0.08;
+
+  static const double _pressedWhiteDarkenAlpha = 0.050;
+  static const double _pressedBlackDarkenAlpha = 0.030;
+
+  static const double _pressedWhiteLeftEdgeAlpha = 0.030;
+  static const double _pressedWhiteRightEdgeAlpha = 0.040;
+  static const double _pressedBlackLeftEdgeAlpha = 0.050;
+  static const double _pressedBlackRightEdgeAlpha = 0.065;
+
+  static const double _whiteTopGradientBlend = 0.84;
+  static const double _whiteTopGradientAlpha = 0.76;
+  static const double _whiteTopGradientCoverage = 0.42;
+  static const double _whiteTopGradientPlateau = 0.24;
+
+  static const double _blackTopGradientLightenFromWhiteTop = 0.14;
+  static const double _blackTopGradientSaturationBoost = 0.12;
+  static const double _blackTopGradientCoverage = 0.74;
+  static const double _blackTopGradientPlateau = 0.22;
+
+  static const double _whiteTopAccentWhiteMix = 0.28;
+  static const double _whiteTopAccentOpacity = 0.99;
+  static const double _blackTopAccentWhiteMix = 0.12;
+  static const double _blackTopAccentOpacity = 0.98;
+
   PianoKeyboardPainter({
     required this.whiteKeyCount,
     required this.firstMidiNote,
     required this.highlightedNoteNumbers,
     required this.whiteKeyColor,
-    required this.whiteKeyHighlightColor,
+    required this.pressedKeyHighlightColor,
     required this.whiteKeyBorderColor,
     required this.blackKeyColor,
-    required this.blackKeyHighlightColor,
     required this.backgroundColor,
     this.decorations = const <PianoKeyDecoration>[],
     this.decorationColor,
@@ -87,10 +111,9 @@ class PianoKeyboardPainter extends CustomPainter {
   final Set<int> highlightedNoteNumbers;
 
   final Color whiteKeyColor;
-  final Color whiteKeyHighlightColor;
+  final Color pressedKeyHighlightColor;
   final Color whiteKeyBorderColor;
   final Color blackKeyColor;
-  final Color blackKeyHighlightColor;
   final Color backgroundColor;
 
   /// Key decorations (e.g., middle C marker, scale markers).
@@ -127,12 +150,101 @@ class PianoKeyboardPainter extends CustomPainter {
     final whiteKeyHeight = height;
     final blackKeyWidth = whiteKeyWidth * PianoGeometry.blackKeyWidthRatio;
     final blackKeyHeight = whiteKeyHeight * PianoGeometry.blackKeyHeightRatio;
+    final topInset = (drawFeltStrip ? feltHeight : 0.0).clamp(0.0, height);
+
+    final whiteVisibleTop = topInset;
+    final whiteVisibleHeight = (whiteKeyHeight - whiteVisibleTop).clamp(
+      0.0,
+      whiteKeyHeight,
+    );
+    final blackVisibleTop = topInset.clamp(0.0, blackKeyHeight);
+    final blackVisibleHeight = (blackKeyHeight - blackVisibleTop).clamp(
+      0.0,
+      blackKeyHeight,
+    );
 
     final whiteFillPaint = Paint()..style = PaintingStyle.fill;
     final whiteBorderPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0
       ..color = whiteKeyBorderColor;
+    final blackFillPaint = Paint()..style = PaintingStyle.fill;
+    final pressedBlackBaseColor = Color.lerp(
+      blackKeyColor,
+      Colors.white,
+      _pressedBlackBaseLift,
+    )!;
+
+    final pressedWhiteDarkenPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = Colors.black.withValues(alpha: _pressedWhiteDarkenAlpha);
+    final pressedBlackDarkenPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = Colors.black.withValues(alpha: _pressedBlackDarkenAlpha);
+
+    final pressedWhiteLeftEdgePaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = Colors.black.withValues(alpha: _pressedWhiteLeftEdgeAlpha);
+    final pressedWhiteRightEdgePaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = Colors.black.withValues(alpha: _pressedWhiteRightEdgeAlpha);
+    final pressedBlackLeftEdgePaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = Colors.black.withValues(alpha: _pressedBlackLeftEdgeAlpha);
+    final pressedBlackRightEdgePaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = Colors.black.withValues(alpha: _pressedBlackRightEdgeAlpha);
+    final whitePressedTopGradientColor = Color.lerp(
+      whiteKeyColor,
+      pressedKeyHighlightColor,
+      _whiteTopGradientBlend,
+    )!.withValues(alpha: _whiteTopGradientAlpha);
+    final blackPressedTopGradientBaseColor = Color.lerp(
+      whitePressedTopGradientColor,
+      Colors.white,
+      _blackTopGradientLightenFromWhiteTop,
+    )!.withValues(alpha: 0.88);
+    final blackPressedTopGradientColor = _boostSaturation(
+      blackPressedTopGradientBaseColor,
+      amount: _blackTopGradientSaturationBoost,
+    );
+    final pressedWhiteAccentPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = _pressedTopAccentFromGradientTopColor(
+        whitePressedTopGradientColor,
+        whiteMix: _whiteTopAccentWhiteMix,
+        opacity: _whiteTopAccentOpacity,
+      );
+    final pressedBlackAccentPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = _pressedTopAccentFromGradientTopColor(
+        blackPressedTopGradientColor,
+        whiteMix: _blackTopAccentWhiteMix,
+        opacity: _blackTopAccentOpacity,
+      );
+
+    final whitePressedTopGradientPaint = _buildPressedTopGradientPaint(
+      keyWidth: whiteKeyWidth,
+      visibleTop: whiteVisibleTop,
+      visibleHeight: whiteVisibleHeight,
+      baseKeyColor: whiteKeyColor,
+      topOpacity: _whiteTopGradientAlpha,
+      blendFactor: _whiteTopGradientBlend,
+      coverageFraction: _whiteTopGradientCoverage,
+      plateauFraction: _whiteTopGradientPlateau,
+      topColorOverride: whitePressedTopGradientColor,
+    );
+    final blackPressedTopGradientPaint = _buildPressedTopGradientPaint(
+      keyWidth: blackKeyWidth,
+      visibleTop: blackVisibleTop,
+      visibleHeight: blackVisibleHeight,
+      baseKeyColor: blackKeyColor,
+      topOpacity: 0.96,
+      blendFactor: 0.94,
+      coverageFraction: _blackTopGradientCoverage,
+      plateauFraction: _blackTopGradientPlateau,
+      topColorOverride: blackPressedTopGradientColor,
+    );
 
     // White keys
     for (int i = 0; i < whiteKeyCount; i++) {
@@ -140,17 +252,35 @@ class PianoKeyboardPainter extends CustomPainter {
       final rect = Rect.fromLTWH(x, 0, whiteKeyWidth, whiteKeyHeight);
 
       final midi = _whiteMidiForIndex(i);
+      final isHighlighted = _isHighlighted(midi);
 
-      whiteFillPaint.color = _isHighlighted(midi)
-          ? whiteKeyHighlightColor
-          : whiteKeyColor;
+      whiteFillPaint.color = whiteKeyColor;
 
       canvas.drawRect(rect, whiteFillPaint);
+      if (isHighlighted) {
+        _paintPressedKeySurface(
+          canvas,
+          rect,
+          topInset: topInset,
+          darkenPaint: pressedWhiteDarkenPaint,
+          topGradientPaint: whitePressedTopGradientPaint,
+          topGradientCoverageFraction: _whiteTopGradientCoverage,
+          topAccentPaint: pressedWhiteAccentPaint,
+          leftEdgeShadowPaint: pressedWhiteLeftEdgePaint,
+          rightEdgeShadowPaint: pressedWhiteRightEdgePaint,
+        );
+      }
       canvas.drawRect(rect, whiteBorderPaint);
+      if (isHighlighted && topInset < rect.bottom) {
+        // Redraw after the border stroke so the pressed accent stays visible.
+        canvas.drawRect(
+          Rect.fromLTWH(rect.left, topInset, rect.width, 1.0),
+          pressedWhiteAccentPaint,
+        );
+      }
     }
 
     // Black keys
-    final blackFillPaint = Paint()..style = PaintingStyle.fill;
     final blackKeyRects = <Rect>[];
 
     for (int i = 0; i < whiteKeyCount - 1; i++) {
@@ -172,10 +302,24 @@ class PianoKeyboardPainter extends CustomPainter {
       final rect = Rect.fromLTWH(blackLeft, 0, blackKeyWidth, blackKeyHeight);
       blackKeyRects.add(rect);
 
-      blackFillPaint.color = _isHighlighted(blackMidi)
-          ? blackKeyHighlightColor
+      final isHighlightedBlack = _isHighlighted(blackMidi);
+      blackFillPaint.color = isHighlightedBlack
+          ? pressedBlackBaseColor
           : blackKeyColor;
       canvas.drawRect(rect, blackFillPaint);
+      if (isHighlightedBlack) {
+        _paintPressedKeySurface(
+          canvas,
+          rect,
+          topInset: topInset,
+          darkenPaint: pressedBlackDarkenPaint,
+          topGradientPaint: blackPressedTopGradientPaint,
+          topGradientCoverageFraction: _blackTopGradientCoverage,
+          topAccentPaint: pressedBlackAccentPaint,
+          leftEdgeShadowPaint: pressedBlackLeftEdgePaint,
+          rightEdgeShadowPaint: pressedBlackRightEdgePaint,
+        );
+      }
     }
 
     _paintTopEdgeShadow(canvas, size, blackKeyRects: blackKeyRects);
@@ -275,6 +419,117 @@ class PianoKeyboardPainter extends CustomPainter {
           topEdgeShadowStyle.blackKeyExtraOpacity,
         );
       }
+    }
+  }
+
+  Paint? _buildPressedTopGradientPaint({
+    required double keyWidth,
+    required double visibleTop,
+    required double visibleHeight,
+    required Color baseKeyColor,
+    required double topOpacity,
+    required double blendFactor,
+    required double coverageFraction,
+    required double plateauFraction,
+    Color? topColorOverride,
+  }) {
+    if (keyWidth <= 0 || visibleHeight <= 0) return null;
+
+    final gradientHeight = (visibleHeight * coverageFraction).clamp(
+      0.0,
+      visibleHeight,
+    );
+    if (gradientHeight <= 0) return null;
+
+    final topColor =
+        topColorOverride ??
+        Color.lerp(
+          baseKeyColor,
+          pressedKeyHighlightColor,
+          blendFactor.clamp(0.0, 1.0),
+        )!.withValues(alpha: topOpacity.clamp(0.0, 1.0));
+
+    final shaderRect = Rect.fromLTWH(0, visibleTop, keyWidth, gradientHeight);
+    final plateauStop = plateauFraction.clamp(0.0, 0.95);
+    return Paint()
+      ..style = PaintingStyle.fill
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: <Color>[topColor, topColor, topColor.withValues(alpha: 0.0)],
+        stops: <double>[0.0, plateauStop, 1.0],
+      ).createShader(shaderRect);
+  }
+
+  Color _boostSaturation(Color color, {required double amount}) {
+    final base = color.withValues(alpha: 1.0);
+    final hsl = HSLColor.fromColor(base);
+    final boosted = hsl.withSaturation(
+      (hsl.saturation + amount).clamp(0.0, 1.0),
+    );
+    return boosted.toColor().withValues(alpha: color.a);
+  }
+
+  Color _pressedTopAccentFromGradientTopColor(
+    Color gradientTopColor, {
+    required double whiteMix,
+    required double opacity,
+  }) {
+    final accent = Color.lerp(
+      gradientTopColor.withValues(alpha: 1.0),
+      Colors.white,
+      whiteMix.clamp(0.0, 1.0),
+    )!;
+    return accent.withValues(alpha: opacity.clamp(0.0, 1.0));
+  }
+
+  void _paintPressedKeySurface(
+    Canvas canvas,
+    Rect rect, {
+    required double topInset,
+    required Paint darkenPaint,
+    required Paint? topGradientPaint,
+    required double topGradientCoverageFraction,
+    required Paint topAccentPaint,
+    required Paint leftEdgeShadowPaint,
+    required Paint rightEdgeShadowPaint,
+  }) {
+    if (rect.isEmpty) return;
+
+    final visibleTop = rect.top < topInset ? topInset : rect.top;
+    final visibleHeight = rect.bottom - visibleTop;
+    if (visibleHeight <= 0) return;
+
+    canvas.drawRect(rect, darkenPaint);
+
+    if (topGradientPaint != null) {
+      final gradientHeight = (visibleHeight * topGradientCoverageFraction)
+          .clamp(0.0, visibleHeight);
+      if (gradientHeight > 0) {
+        canvas.drawRect(
+          Rect.fromLTWH(rect.left, visibleTop, rect.width, gradientHeight),
+          topGradientPaint,
+        );
+      }
+    }
+
+    final accentHeight = visibleHeight >= 1.0 ? 1.0 : visibleHeight;
+    if (accentHeight > 0) {
+      canvas.drawRect(
+        Rect.fromLTWH(rect.left, visibleTop, rect.width, accentHeight),
+        topAccentPaint,
+      );
+    }
+
+    if (rect.width >= 4.0) {
+      canvas.drawRect(
+        Rect.fromLTWH(rect.left + 1.0, visibleTop, 1.0, visibleHeight),
+        leftEdgeShadowPaint,
+      );
+      canvas.drawRect(
+        Rect.fromLTWH(rect.right - 2.0, visibleTop, 1.0, visibleHeight),
+        rightEdgeShadowPaint,
+      );
     }
   }
 
@@ -444,10 +699,9 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.topEdgeShadowStyle != topEdgeShadowStyle ||
         oldDelegate.backgroundColor != backgroundColor ||
         oldDelegate.whiteKeyColor != whiteKeyColor ||
-        oldDelegate.whiteKeyHighlightColor != whiteKeyHighlightColor ||
+        oldDelegate.pressedKeyHighlightColor != pressedKeyHighlightColor ||
         oldDelegate.whiteKeyBorderColor != whiteKeyBorderColor ||
         oldDelegate.blackKeyColor != blackKeyColor ||
-        oldDelegate.blackKeyHighlightColor != blackKeyHighlightColor ||
         oldDelegate.decorationColor != decorationColor ||
         oldDelegate.decorationTextScaleMultiplier !=
             decorationTextScaleMultiplier ||
