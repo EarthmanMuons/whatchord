@@ -14,16 +14,15 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Added an optional piano keyboard overlay that marks diatonic notes for the
-  selected key signature with subtle half-circle markers.
+- Added an optional piano keyboard overlay that marks notes in the selected key
+  signature with subtle diatonic note markers.
 
 ### Changed
 
-- Refined piano key rendering with a top-edge shadow gradient for stronger
-  depth/anchoring and improved contrast for top marker caps.
-- Updated pressed piano key highlights to use a unified accent color with
-  layered shading/gradient treatment for better contrast across white and black
-  keys.
+- Improved piano key rendering with stronger depth and clearer contrast,
+  including a top-edge shadow gradient and refined pressed-key highlights.
+- Shortened scale degree tooltip and semantics wording for a more concise,
+  consistent in-app explanation.
 
 ### Fixed
 
