@@ -55,10 +55,9 @@ class PianoKeyboard extends StatelessWidget {
           highlightedNoteNumbers: highlightedNoteNumbers,
 
           whiteKeyColor: palette.whiteKey,
-          whiteKeyHighlightColor: palette.whiteKeyHighlight,
+          pressedKeyHighlightColor: palette.pressedKeyHighlight,
           whiteKeyBorderColor: palette.border,
           blackKeyColor: palette.blackKey,
-          blackKeyHighlightColor: palette.blackKeyHighlight,
           backgroundColor: palette.background,
 
           decorations: decorations,

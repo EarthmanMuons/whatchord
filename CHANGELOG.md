@@ -19,6 +19,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Refined piano key rendering with a top-edge shadow gradient for stronger
   depth/anchoring and improved contrast for top marker caps.
+- Updated pressed piano key highlights to use a unified accent color with
+  layered shading/gradient treatment for better contrast across white and black
+  keys.
 
 ### Fixed
 
