@@ -22,8 +22,9 @@ class PianoKeyboardPainter extends CustomPainter {
     this.feltColor = const Color(0xFF800020),
     this.feltHeight = 2.0,
   }) : assert(
-         decorations.isEmpty || decorationColor != null,
-         'decorationTextColor must be provided when decorations are present',
+         decorationColor != null ||
+             !decorations.any((d) => d.style == PianoKeyDecorationStyle.label),
+         'decorationTextColor must be provided when label decorations are present',
        ),
        _geometry = PianoGeometry(
          firstWhiteMidi: firstMidiNote,
@@ -132,11 +133,70 @@ class PianoKeyboardPainter extends CustomPainter {
     }
 
     if (decorations.isNotEmpty) {
-      _paintDecorations(canvas, size, whiteKeyWidth);
+      _paintDecorations(
+        canvas,
+        size,
+        whiteKeyWidth: whiteKeyWidth,
+        blackKeyHeight: blackKeyHeight,
+      );
     }
   }
 
-  void _paintDecorations(Canvas canvas, Size size, double whiteKeyWidth) {
+  void _paintDecorations(
+    Canvas canvas,
+    Size size, {
+    required double whiteKeyWidth,
+    required double blackKeyHeight,
+  }) {
+    final totalWidth = size.width;
+    final topCapPaint = Paint()..style = PaintingStyle.fill;
+    final topInset = (drawFeltStrip ? feltHeight : 0.0).clamp(0.0, size.height);
+    final blackKeyWidth = whiteKeyWidth * PianoGeometry.blackKeyWidthRatio;
+    final minRenderableMidi = _geometry.whiteMidis.first;
+    final maxRenderableMidi = _geometry.whiteMidis.last;
+    final topCapRadius = (blackKeyWidth * 0.336).clamp(3.0, 10.0).toDouble();
+
+    for (final d in decorations) {
+      if (d.style != PianoKeyDecorationStyle.topCap) continue;
+
+      final keyRect = _geometry.keyRectForMidi(
+        midi: d.midiNote,
+        whiteKeyWidth: whiteKeyWidth,
+        totalWidth: totalWidth,
+      );
+      final isBlackKey = PianoGeometry.isBlackMidi(d.midiNote);
+
+      final lane = isBlackKey
+          ? (left: keyRect.left, right: keyRect.right)
+          : _whiteTopLaneBounds(
+              midi: d.midiNote,
+              keyRect: keyRect,
+              whiteKeyWidth: whiteKeyWidth,
+              totalWidth: totalWidth,
+              minRenderableMidi: minRenderableMidi,
+              maxRenderableMidi: maxRenderableMidi,
+            );
+      if (lane.right <= lane.left) continue;
+
+      final cx = (lane.left + lane.right) / 2.0;
+      final cy = topInset;
+      final keyBottom = isBlackKey ? blackKeyHeight : size.height;
+      if ((cy + topCapRadius) >= keyBottom) continue;
+
+      topCapPaint.color = _resolvedTopCapColor(isBlackKey: isBlackKey);
+
+      final clipRect = Rect.fromLTRB(
+        lane.left,
+        topInset,
+        lane.right,
+        keyBottom,
+      );
+      canvas.save();
+      canvas.clipRect(clipRect);
+      canvas.drawCircle(Offset(cx, cy), topCapRadius, topCapPaint);
+      canvas.restore();
+    }
+
     final color = decorationColor;
     if (color == null) return;
 
@@ -149,6 +209,10 @@ class PianoKeyboardPainter extends CustomPainter {
     final baseBottomPad = (whiteKeyWidth * 0.18).clamp(4.0, 8.0);
 
     for (final d in decorations) {
+      if (d.style != PianoKeyDecorationStyle.label) continue;
+      final label = d.label;
+      if (label == null || label.isEmpty) continue;
+
       final whiteIndex = _geometry.whiteIndexForMidi(d.midiNote);
       if (whiteIndex < 0 || whiteIndex >= whiteKeyCount) continue;
       final fontSize = (whiteKeyWidth * 0.52 * decorationTextScaleMultiplier)
@@ -156,7 +220,7 @@ class PianoKeyboardPainter extends CustomPainter {
           .toDouble();
 
       textPainter.text = TextSpan(
-        text: d.label,
+        text: label,
         style: TextStyle(
           color: color,
           fontSize: fontSize,
@@ -173,6 +237,60 @@ class PianoKeyboardPainter extends CustomPainter {
 
       textPainter.paint(canvas, Offset(dx, dy));
     }
+  }
+
+  Color _resolvedTopCapColor({required bool isBlackKey}) {
+    final hsl = HSLColor.fromColor(feltColor);
+    final adjusted = isBlackKey
+        ? hsl
+              .withSaturation((hsl.saturation * 0.32).clamp(0.06, 0.18))
+              .withLightness((hsl.lightness + 0.46).clamp(0.72, 0.86))
+              .toColor()
+        : hsl
+              .withSaturation((hsl.saturation * 0.26).clamp(0.05, 0.14))
+              .withLightness((hsl.lightness + 0.22).clamp(0.38, 0.52))
+              .toColor();
+
+    return adjusted.withValues(alpha: isBlackKey ? 0.64 : 0.46);
+  }
+
+  ({double left, double right}) _whiteTopLaneBounds({
+    required int midi,
+    required PianoKeyRect keyRect,
+    required double whiteKeyWidth,
+    required double totalWidth,
+    required int minRenderableMidi,
+    required int maxRenderableMidi,
+  }) {
+    double left = keyRect.left;
+    double right = keyRect.right;
+
+    final leftBlackMidi = midi - 1;
+    if (leftBlackMidi >= minRenderableMidi &&
+        leftBlackMidi <= maxRenderableMidi &&
+        PianoGeometry.isBlackMidi(leftBlackMidi)) {
+      final leftBlackRect = _geometry.keyRectForMidi(
+        midi: leftBlackMidi,
+        whiteKeyWidth: whiteKeyWidth,
+        totalWidth: totalWidth,
+      );
+      left = leftBlackRect.right.clamp(keyRect.left, keyRect.right);
+    }
+
+    final rightBlackMidi = midi + 1;
+    if (rightBlackMidi >= minRenderableMidi &&
+        rightBlackMidi <= maxRenderableMidi &&
+        PianoGeometry.isBlackMidi(rightBlackMidi)) {
+      final rightBlackRect = _geometry.keyRectForMidi(
+        midi: rightBlackMidi,
+        whiteKeyWidth: whiteKeyWidth,
+        totalWidth: totalWidth,
+      );
+      right = rightBlackRect.left.clamp(keyRect.left, keyRect.right);
+    }
+
+    if (right <= left) return (left: keyRect.left, right: keyRect.right);
+    return (left: left, right: right);
   }
 
   @override

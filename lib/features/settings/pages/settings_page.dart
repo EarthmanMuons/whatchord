@@ -102,6 +102,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final cs = Theme.of(context).colorScheme;
 
     final chordNotationStyle = ref.watch(chordNotationStyleProvider);
+    final showScaleNotes = ref.watch(showScaleNotesProvider);
     final themeMode = ref.watch(appThemeModeProvider);
     final palette = ref.watch(appPaletteProvider);
     final palettes = [...AppPalette.values]
@@ -324,6 +325,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   ],
                 ),
+              ),
+
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Show scale notes'),
+                subtitle: const Text('Mark notes in the current key'),
+                value: showScaleNotes,
+                onChanged: (enabled) {
+                  ref.read(showScaleNotesProvider.notifier).setEnabled(enabled);
+                },
               ),
 
               const SizedBox(height: 16),

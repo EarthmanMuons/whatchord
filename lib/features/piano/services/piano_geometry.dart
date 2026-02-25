@@ -45,6 +45,8 @@ class PianoGeometry {
   static const double largeBlackKeyBiasRatio = 0.15; // F#, A#
 
   static const int fullKeyboardWhiteKeyCount = 52;
+  static const int fullKeyboardLowestMidi = 21; // A0
+  static const int fullKeyboardHighestMidi = 108; // C8
 
   static double whiteKeyWidthForViewport({
     required double viewportWidth,

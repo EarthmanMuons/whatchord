@@ -2,6 +2,7 @@
 class TheoryPreferencesKeys {
   static const chordNotationStyle = 'theory.chordNotationStyle';
   static const selectedTonality = 'theory.selectedTonality';
+  static const showScaleNotes = 'theory.showScaleNotes';
 }
 
 /// Stable serialized values for theory preferences.

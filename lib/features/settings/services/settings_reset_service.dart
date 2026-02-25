@@ -34,6 +34,7 @@ class SettingsResetService {
     // Theory preferences
     await prefs.remove(TheoryPreferencesKeys.chordNotationStyle);
     await prefs.remove(TheoryPreferencesKeys.selectedTonality);
+    await prefs.remove(TheoryPreferencesKeys.showScaleNotes);
 
     // Cancel any reconnect/backoff workflow before mutating persisted MIDI data.
     // This immediately normalizes connection UI to "Not connected" when idle.
@@ -49,6 +50,7 @@ class SettingsResetService {
     _ref.invalidate(appThemeModeProvider);
     _ref.invalidate(appPaletteProvider);
     _ref.invalidate(chordNotationStyleProvider);
+    _ref.invalidate(showScaleNotesProvider);
     _ref.invalidate(selectedTonalityProvider);
     _ref.invalidate(audioMonitorSettingsNotifier);
     _ref.invalidate(midiSettingsOnboardingProvider);
