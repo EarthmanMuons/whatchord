@@ -3,6 +3,54 @@ import 'package:flutter/material.dart';
 import '../../models/piano_key_decoration.dart';
 import '../../services/piano_geometry.dart';
 
+@immutable
+class PianoTopEdgeShadowStyle {
+  const PianoTopEdgeShadowStyle({
+    this.enabled = true,
+    this.height = 14.0,
+    this.sharedOpacity = 0.14,
+    this.whiteKeyExtraOpacity = 0.0,
+    this.blackKeyExtraOpacity = 0.06,
+    this.color = Colors.black,
+  });
+
+  final bool enabled;
+  final double height;
+
+  /// Shared band drawn across the full keyboard width for consistent anchoring.
+  final double sharedOpacity;
+
+  /// Optional extra depth on white key surfaces only.
+  final double whiteKeyExtraOpacity;
+
+  /// Optional extra depth on black key surfaces only.
+  final double blackKeyExtraOpacity;
+
+  final Color color;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PianoTopEdgeShadowStyle &&
+          runtimeType == other.runtimeType &&
+          enabled == other.enabled &&
+          height == other.height &&
+          sharedOpacity == other.sharedOpacity &&
+          whiteKeyExtraOpacity == other.whiteKeyExtraOpacity &&
+          blackKeyExtraOpacity == other.blackKeyExtraOpacity &&
+          color == other.color;
+
+  @override
+  int get hashCode => Object.hash(
+    enabled,
+    height,
+    sharedOpacity,
+    whiteKeyExtraOpacity,
+    blackKeyExtraOpacity,
+    color,
+  );
+}
+
 class PianoKeyboardPainter extends CustomPainter {
   PianoKeyboardPainter({
     required this.whiteKeyCount,
@@ -21,6 +69,7 @@ class PianoKeyboardPainter extends CustomPainter {
     this.drawFeltStrip = true,
     this.feltColor = const Color(0xFF800020),
     this.feltHeight = 2.0,
+    this.topEdgeShadowStyle = const PianoTopEdgeShadowStyle(),
   }) : assert(
          decorationColor != null ||
              !decorations.any((d) => d.style == PianoKeyDecorationStyle.label),
@@ -54,6 +103,7 @@ class PianoKeyboardPainter extends CustomPainter {
   final bool drawFeltStrip;
   final Color feltColor;
   final double feltHeight;
+  final PianoTopEdgeShadowStyle topEdgeShadowStyle;
 
   final PianoGeometry _geometry;
 
@@ -101,6 +151,7 @@ class PianoKeyboardPainter extends CustomPainter {
 
     // Black keys
     final blackFillPaint = Paint()..style = PaintingStyle.fill;
+    final blackKeyRects = <Rect>[];
 
     for (int i = 0; i < whiteKeyCount - 1; i++) {
       final whitePc = _geometry.whitePitchClassForIndex(i);
@@ -119,12 +170,15 @@ class PianoKeyboardPainter extends CustomPainter {
       blackLeft = blackLeft.clamp(0.0, width - blackKeyWidth);
 
       final rect = Rect.fromLTWH(blackLeft, 0, blackKeyWidth, blackKeyHeight);
+      blackKeyRects.add(rect);
 
       blackFillPaint.color = _isHighlighted(blackMidi)
           ? blackKeyHighlightColor
           : blackKeyColor;
       canvas.drawRect(rect, blackFillPaint);
     }
+
+    _paintTopEdgeShadow(canvas, size, blackKeyRects: blackKeyRects);
 
     // Felt strip LAST so it stays visible.
     if (drawFeltStrip && feltHeight > 0) {
@@ -142,6 +196,88 @@ class PianoKeyboardPainter extends CustomPainter {
     }
   }
 
+  void _paintTopEdgeShadow(
+    Canvas canvas,
+    Size size, {
+    required List<Rect> blackKeyRects,
+  }) {
+    if (!topEdgeShadowStyle.enabled) return;
+
+    final topInset = (drawFeltStrip ? feltHeight : 0.0).clamp(0.0, size.height);
+    final maxHeight = (size.height - topInset).clamp(0.0, size.height);
+    if (maxHeight <= 0) return;
+
+    final shadowHeight = topEdgeShadowStyle.height.clamp(0.0, maxHeight);
+    if (shadowHeight <= 0) return;
+
+    final paint = Paint()..style = PaintingStyle.fill;
+    final baseColor = topEdgeShadowStyle.color;
+
+    Shader shaderForOpacity(Rect rect, double opacity) {
+      final alpha = opacity.clamp(0.0, 1.0);
+      return LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: <Color>[
+          baseColor.withValues(alpha: alpha),
+          baseColor.withValues(alpha: 0.0),
+        ],
+      ).createShader(rect);
+    }
+
+    void drawGradientRect(Rect rect, double opacity) {
+      if (opacity <= 0) return;
+      paint.shader = shaderForOpacity(rect, opacity);
+      canvas.drawRect(rect, paint);
+      paint.shader = null;
+    }
+
+    final sharedRect = Rect.fromLTWH(0, topInset, size.width, shadowHeight);
+    drawGradientRect(sharedRect, topEdgeShadowStyle.sharedOpacity);
+
+    if (topEdgeShadowStyle.whiteKeyExtraOpacity > 0) {
+      final whiteRect = Rect.fromLTWH(0, topInset, size.width, shadowHeight);
+      final blackOverlapPath = Path();
+      for (final rect in blackKeyRects) {
+        final overlap = Rect.fromLTRB(
+          rect.left.clamp(whiteRect.left, whiteRect.right),
+          rect.top.clamp(whiteRect.top, whiteRect.bottom),
+          rect.right.clamp(whiteRect.left, whiteRect.right),
+          rect.bottom.clamp(whiteRect.top, whiteRect.bottom),
+        );
+        if (!overlap.isEmpty) {
+          blackOverlapPath.addRect(overlap);
+        }
+      }
+
+      canvas.save();
+      canvas.clipPath(
+        Path.combine(
+          PathOperation.difference,
+          Path()..addRect(whiteRect),
+          blackOverlapPath,
+        ),
+      );
+      drawGradientRect(whiteRect, topEdgeShadowStyle.whiteKeyExtraOpacity);
+      canvas.restore();
+    }
+
+    if (topEdgeShadowStyle.blackKeyExtraOpacity > 0) {
+      for (final rect in blackKeyRects) {
+        final clippedTop = rect.top < topInset ? topInset : rect.top;
+        final clippedHeight = (rect.bottom - clippedTop).clamp(
+          0.0,
+          shadowHeight,
+        );
+        if (clippedHeight <= 0) continue;
+        drawGradientRect(
+          Rect.fromLTWH(rect.left, clippedTop, rect.width, clippedHeight),
+          topEdgeShadowStyle.blackKeyExtraOpacity,
+        );
+      }
+    }
+  }
+
   void _paintDecorations(
     Canvas canvas,
     Size size, {
@@ -150,11 +286,14 @@ class PianoKeyboardPainter extends CustomPainter {
   }) {
     final totalWidth = size.width;
     final topCapPaint = Paint()..style = PaintingStyle.fill;
+    final topCapStrokePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
     final topInset = (drawFeltStrip ? feltHeight : 0.0).clamp(0.0, size.height);
     final blackKeyWidth = whiteKeyWidth * PianoGeometry.blackKeyWidthRatio;
     final minRenderableMidi = _geometry.whiteMidis.first;
     final maxRenderableMidi = _geometry.whiteMidis.last;
-    final topCapRadius = (blackKeyWidth * 0.336).clamp(3.0, 10.0).toDouble();
+    final baseTopCapRadius = (blackKeyWidth * 0.35).clamp(3.0, 10.0).toDouble();
 
     for (final d in decorations) {
       if (d.style != PianoKeyDecorationStyle.topCap) continue;
@@ -181,9 +320,15 @@ class PianoKeyboardPainter extends CustomPainter {
       final cx = (lane.left + lane.right) / 2.0;
       final cy = topInset;
       final keyBottom = isBlackKey ? blackKeyHeight : size.height;
+      final topCapRadius = isBlackKey
+          ? baseTopCapRadius
+          : (baseTopCapRadius * 1.05).clamp(3.0, 10.5).toDouble();
       if ((cy + topCapRadius) >= keyBottom) continue;
 
       topCapPaint.color = _resolvedTopCapColor(isBlackKey: isBlackKey);
+      topCapStrokePaint.color = _resolvedTopCapStrokeColor(
+        isBlackKey: isBlackKey,
+      );
 
       final clipRect = Rect.fromLTRB(
         lane.left,
@@ -194,6 +339,7 @@ class PianoKeyboardPainter extends CustomPainter {
       canvas.save();
       canvas.clipRect(clipRect);
       canvas.drawCircle(Offset(cx, cy), topCapRadius, topCapPaint);
+      canvas.drawCircle(Offset(cx, cy), topCapRadius, topCapStrokePaint);
       canvas.restore();
     }
 
@@ -240,18 +386,12 @@ class PianoKeyboardPainter extends CustomPainter {
   }
 
   Color _resolvedTopCapColor({required bool isBlackKey}) {
-    final hsl = HSLColor.fromColor(feltColor);
-    final adjusted = isBlackKey
-        ? hsl
-              .withSaturation((hsl.saturation * 0.32).clamp(0.06, 0.18))
-              .withLightness((hsl.lightness + 0.46).clamp(0.72, 0.86))
-              .toColor()
-        : hsl
-              .withSaturation((hsl.saturation * 0.26).clamp(0.05, 0.14))
-              .withLightness((hsl.lightness + 0.22).clamp(0.38, 0.52))
-              .toColor();
+    return whiteKeyColor.withValues(alpha: isBlackKey ? 0.92 : 0.82);
+  }
 
-    return adjusted.withValues(alpha: isBlackKey ? 0.64 : 0.46);
+  Color _resolvedTopCapStrokeColor({required bool isBlackKey}) {
+    return (isBlackKey ? const Color(0xFFE0E0E0) : const Color(0xFF4A4A4A))
+        .withValues(alpha: isBlackKey ? 0.40 : 0.60);
   }
 
   ({double left, double right}) _whiteTopLaneBounds({
@@ -301,6 +441,7 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.drawFeltStrip != drawFeltStrip ||
         oldDelegate.feltColor != feltColor ||
         oldDelegate.feltHeight != feltHeight ||
+        oldDelegate.topEdgeShadowStyle != topEdgeShadowStyle ||
         oldDelegate.backgroundColor != backgroundColor ||
         oldDelegate.whiteKeyColor != whiteKeyColor ||
         oldDelegate.whiteKeyHighlightColor != whiteKeyHighlightColor ||

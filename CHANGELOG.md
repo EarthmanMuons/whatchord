@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Added an optional piano keyboard overlay that marks diatonic notes for the
   selected key signature with subtle half-circle markers.
 
+### Changed
+
+- Refined piano key rendering with a top-edge shadow gradient for stronger
+  depth/anchoring and improved contrast for top marker caps.
+
 ### Fixed
 
 - Fixed Reset to Defaults so it fully exits Demo Mode and does not restore stale
