@@ -10,6 +10,10 @@ final chordNotationStyleProvider =
       ChordNotationStyleNotifier.new,
     );
 
+final showScaleNotesProvider = NotifierProvider<ShowScaleNotesNotifier, bool>(
+  ShowScaleNotesNotifier.new,
+);
+
 class ChordNotationStyleNotifier extends Notifier<ChordNotationStyle> {
   @override
   ChordNotationStyle build() {
@@ -37,5 +41,19 @@ class ChordNotationStyleNotifier extends Notifier<ChordNotationStyle> {
         TheoryPreferencesValues.chordNotationStyleTextual,
     };
     await prefs.setString(TheoryPreferencesKeys.chordNotationStyle, serialized);
+  }
+}
+
+class ShowScaleNotesNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    return prefs.getBool(TheoryPreferencesKeys.showScaleNotes) ?? false;
+  }
+
+  Future<void> setEnabled(bool enabled) async {
+    state = enabled;
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.setBool(TheoryPreferencesKeys.showScaleNotes, enabled);
   }
 }

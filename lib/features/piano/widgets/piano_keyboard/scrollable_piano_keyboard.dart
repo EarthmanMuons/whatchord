@@ -54,6 +54,7 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
     this.showMiddleCMarker = true,
     this.middleCLabel = 'C',
     this.middleCLabelTextScale = 1.0,
+    this.markedNoteNumbers = const <int>{},
   }) : assert(visibleWhiteKeyCount > 0);
 
   /// How many white keys should be visible in the viewport width.
@@ -80,6 +81,9 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
   final bool showMiddleCMarker;
   final String middleCLabel;
   final double middleCLabelTextScale;
+
+  /// Note numbers rendered as top-edge marker caps (e.g., scale notes).
+  final Set<int> markedNoteNumbers;
 
   @override
   ConsumerState<ScrollablePianoKeyboard> createState() =>
@@ -782,8 +786,11 @@ class _ScrollablePianoKeyboardState
             ? (systemBottomInset * 0.3).clamp(0.0, 9.0)
             : 0.0;
         final decorationLift = base + lift;
+        final sortedMarkedNotes = widget.markedNoteNumbers.toList()..sort();
 
         final decorations = <PianoKeyDecoration>[
+          for (final midi in sortedMarkedNotes)
+            PianoKeyDecoration.topCap(midiNote: midi),
           if (widget.showMiddleCMarker)
             PianoKeyDecoration(
               midiNote: 60,
