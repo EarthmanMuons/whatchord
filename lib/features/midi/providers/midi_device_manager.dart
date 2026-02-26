@@ -343,7 +343,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     bool scanIfNeeded = false,
   }) {
     final inflight = _reconcileInFlight;
-    if (inflight != null) return inflight;
+    if (inflight != null) {
+      return inflight;
+    }
 
     if (_debugLog) {
       debugPrint(
@@ -365,7 +367,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     required bool scanIfNeeded,
   }) async {
     final current = state.connectedDevice;
-    if (current == null) return;
+    if (current == null) {
+      return;
+    }
 
     try {
       // If we believe we are connected, it is reasonable to prime the central
@@ -527,7 +531,6 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         'connected=${state.connectedDevice?.id}/${state.connectedDevice?.isConnected}',
       );
     }
-
     state = state.copyWith(devices: devices);
     _signalDevicesChanged();
 

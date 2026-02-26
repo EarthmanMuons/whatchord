@@ -24,6 +24,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   static const Duration _findTargetTimeout = Duration(seconds: 8);
   static const Duration _reconnectAttemptTimeout = Duration(seconds: 12);
   static const Duration _connectedPublishTimeout = Duration(seconds: 3);
+  static const Duration _longBackgroundReconnectThreshold = Duration(
+    minutes: 3,
+  );
   static const bool _debugLog = midiDebug;
 
   bool _startupAttempted = false;
@@ -34,6 +37,8 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
   bool _backgrounded = false;
   bool _attemptInFlight = false;
+  DateTime? _backgroundBeganAt;
+  Duration? _lastBackgroundDuration;
 
   // Dedupe guard: prevents repeated persistence writes when the
   // connected-device stream re-emits the same device id.
@@ -211,8 +216,20 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   }
 
   void setBackgrounded(bool value) {
+    if (_backgrounded == value) {
+      return;
+    }
     _backgrounded = value;
     if (_debugLog) debugPrint('[CONN] backgrounded=$_backgrounded');
+    if (_backgrounded) {
+      _backgroundBeganAt = DateTime.now();
+    } else {
+      final beganAt = _backgroundBeganAt;
+      _backgroundBeganAt = null;
+      _lastBackgroundDuration = beganAt == null
+          ? null
+          : DateTime.now().difference(beganAt);
+    }
     if (_backgrounded) {
       // Controller-owned policy: background cancels attempts and stops scanning.
       unawaited(cancel(reason: 'background'));
@@ -301,13 +318,19 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
       // If already connected to the last connected device, do nothing.
       final current = ref.read(midiDeviceManagerProvider).connectedDevice;
+      final forceResumeReconnect =
+          reason == 'resume' &&
+          (_lastBackgroundDuration ?? Duration.zero) >=
+              _longBackgroundReconnectThreshold;
       if (current?.id == lastConnectedDeviceId &&
           current?.isConnected == true) {
-        final stillConnected = await _withTimeout(
-          _midi.isStillConnected(lastConnectedDeviceId),
-          timeout: const Duration(seconds: 2),
-          onTimeout: false,
-        );
+        final stillConnected = forceResumeReconnect
+            ? false
+            : await _withTimeout(
+                _midi.isStillConnected(lastConnectedDeviceId),
+                timeout: const Duration(seconds: 2),
+                onTimeout: false,
+              );
         if (stillConnected == true) {
           if (_debugLog) {
             debugPrint('[CONN] stillConnected id=$lastConnectedDeviceId');
