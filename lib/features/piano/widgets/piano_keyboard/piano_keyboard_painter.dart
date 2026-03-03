@@ -64,12 +64,12 @@ class PianoKeyboardPainter extends CustomPainter {
 
   static const double _whiteTopGradientBlend = 0.84;
   static const double _whiteTopGradientAlpha = 0.76;
-  static const double _whiteTopGradientCoverage = 0.42;
+  static const double _whiteTopGradientCoverage = 0.56;
   static const double _whiteTopGradientPlateau = 0.24;
 
   static const double _blackTopGradientLightenFromWhiteTop = 0.14;
   static const double _blackTopGradientSaturationBoost = 0.12;
-  static const double _blackTopGradientCoverage = 0.74;
+  static const double _blackTopGradientCoverage = 0.88;
   static const double _blackTopGradientPlateau = 0.22;
 
   static const double _whiteTopAccentWhiteMix = 0.28;
