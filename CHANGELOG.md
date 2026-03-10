@@ -10,6 +10,17 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Extended the pressed-key highlight gradient farther down the piano keys so
+  active notes read more clearly at a glance.
+
+### Fixed
+
+- Fixed MIDI reconnect after the app has been backgrounded for a longer period
+  by forcing a full reconnect when the previous plugin connection state may be
+  stale.
+
 ## [2026.2.26] - 2026-02-26
 
 ### Added
