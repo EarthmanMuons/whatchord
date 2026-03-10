@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.3.10] - 2026-03-10
+
 ### Changed
 
 - Extended the pressed-key highlight gradient farther down the piano keys so
@@ -290,7 +292,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.2.26...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.3.10...HEAD
+[2026.3.10]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.2.26...v2026.3.10
 [2026.2.26]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.2.22...v2026.2.26
 [2026.2.22]:
