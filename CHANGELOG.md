@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added an Explore screen entry from Analysis Details for detected chords, with
+  structured controls for root, quality, extensions, and bass plus a
+  normalized keyboard view and live harmonic context.
+
 ## [2026.3.10] - 2026-03-10
 
 ### Changed
