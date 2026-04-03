@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'analysis_details_sheet.dart';
 
-class IdentityCard extends StatelessWidget {
+class IdentityCard extends ConsumerWidget {
   final IdentityDisplay? identity;
 
   /// When true, show the idle SVG instead of identity text.
@@ -31,9 +32,12 @@ class IdentityCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final exploreSeedIdentity = ref.watch(
+      bestChordCandidateProvider.select((candidate) => candidate?.identity),
+    );
 
     final hasLabel = identity?.hasSecondaryLabel ?? false;
 
@@ -352,7 +356,13 @@ class IdentityCard extends StatelessWidget {
       elevation: 0,
       color: cs.primary,
       child: InkWell(
-        onTap: () => showAnalysisDetailsSheet(context, identity: display),
+        onTap: () => showAnalysisDetailsSheet(
+          context,
+          identity: display,
+          exploreSeedIdentity: display is ChordDisplay
+              ? exploreSeedIdentity
+              : null,
+        ),
         borderRadius: cardBorderRadius,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: minCardHeight),

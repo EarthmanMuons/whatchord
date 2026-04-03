@@ -3,6 +3,8 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
 import 'package:whatchord/core/core.dart';
+import 'package:whatchord/features/explore/explore.dart';
+import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'adaptive_side_sheet.dart';
@@ -11,6 +13,7 @@ import 'adaptive_side_sheet.dart';
 Future<void> showAnalysisDetailsSheet(
   BuildContext context, {
   required IdentityDisplay identity,
+  ChordIdentity? exploreSeedIdentity,
 }) async {
   final copyText = identity.debugText?.trimRight();
   final canCopy = copyText != null && copyText.isNotEmpty;
@@ -23,6 +26,7 @@ Future<void> showAnalysisDetailsSheet(
         identity: identity,
         canCopy: canCopy,
         copyText: copyText,
+        exploreSeedIdentity: exploreSeedIdentity,
         showCloseButton: true,
       ),
     );
@@ -45,6 +49,7 @@ Future<void> showAnalysisDetailsSheet(
           identity: identity,
           canCopy: canCopy,
           copyText: copyText,
+          exploreSeedIdentity: exploreSeedIdentity,
         ),
       );
     },
@@ -56,12 +61,14 @@ class _AnalysisDetailsContent extends StatelessWidget {
     required this.identity,
     required this.canCopy,
     required this.copyText,
+    required this.exploreSeedIdentity,
     this.showCloseButton = false,
   });
 
   final IdentityDisplay identity;
   final bool canCopy;
   final String? copyText;
+  final ChordIdentity? exploreSeedIdentity;
   final bool showCloseButton;
 
   @override
@@ -70,6 +77,7 @@ class _AnalysisDetailsContent extends StatelessWidget {
     final isSideSheet = showCloseButton;
     final panelColor = t.colorScheme.surfaceContainerLow;
     final debugBoxColor = t.colorScheme.surface;
+    final canExplore = identity is ChordDisplay && exploreSeedIdentity != null;
 
     return Material(
       color: panelColor,
@@ -136,6 +144,24 @@ class _AnalysisDetailsContent extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
+            if (canExplore)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: isSideSheet ? 16 : 0),
+                child: FilledButton.icon(
+                  onPressed: () async {
+                    final navigator = Navigator.of(context);
+                    navigator.pop();
+                    await navigator.push<void>(
+                      ExploreChordPage.route(
+                        seedIdentity: exploreSeedIdentity!,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.explore_outlined),
+                  label: const Text('Explore this chord'),
+                ),
+              ),
+            if (canExplore) const SizedBox(height: 12),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: isSideSheet ? 16 : 0),
               child: Row(

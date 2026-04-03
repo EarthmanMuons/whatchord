@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/features/theory/domain/models/scale_degree.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'adaptive_side_sheet.dart';
@@ -13,19 +14,21 @@ class TonalityBar extends ConsumerWidget {
     this.horizontalInset = 16,
     this.keyTextScaleMultiplier = 1.0,
     this.scaleDegreesTextScaleMultiplier = 1.0,
+    this.degreeOverride,
   });
 
   final double height;
   final double horizontalInset;
   final double keyTextScaleMultiplier;
   final double scaleDegreesTextScaleMultiplier;
+  final ScaleDegree? degreeOverride;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final selectedTonality = ref.watch(selectedTonalityProvider);
-    final degree = ref.watch(detectedScaleDegreeProvider);
+    final degree = degreeOverride ?? ref.watch(detectedScaleDegreeProvider);
 
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
     final verticalPadding = textScale > 1.2 ? 4.0 : 12.0;
