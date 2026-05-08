@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 void main() {

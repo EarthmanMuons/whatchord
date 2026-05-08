@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord/features/theory/theory.dart';
 
 @immutable
 class ExploreChordState {

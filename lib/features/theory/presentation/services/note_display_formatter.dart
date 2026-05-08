@@ -8,6 +8,12 @@ String toGlyphAccidentals(String ascii) {
       .replaceAll('b', '♭');
 }
 
+/// Converts a canonical ASCII note token to the compact UI form.
+String noteDisplayLabel(String noteName) => toGlyphAccidentals(noteName);
+
+/// Converts a canonical ASCII token such as b9, #11, or m7(b5) to UI text.
+String theoryTokenDisplayLabel(String token) => toGlyphAccidentals(token);
+
 // Converts chord-symbol typography glyphs to SMuFL PUA codepoints.
 String toSmufl(String s) {
   // Accidentals (PUA)

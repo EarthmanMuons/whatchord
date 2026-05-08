@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/features/theory/theory.dart';
+
 import '../../models/sounding_note.dart';
 import '../../providers/pedal_state_provider.dart';
 import 'input_display_sizing.dart';
@@ -55,10 +57,12 @@ class NoteChip extends ConsumerWidget {
       height: 1.0,
       forceStrutHeight: true,
     );
+    final displayLabel = noteDisplayLabel(note.label);
+    final semanticLabel = NoteLongFormFormatter.format(note.label);
 
     return Semantics(
       container: true,
-      label: 'Note ${note.label}',
+      label: 'Note $semanticLabel',
       value: note.isSustained ? 'Sustained' : 'Pressed',
       child: ExcludeSemantics(
         child: AnimatedContainer(
@@ -72,7 +76,7 @@ class NoteChip extends ConsumerWidget {
             horizontal: 10 * sizeScale,
             vertical: (6 * verticalScale) + extraVertical,
           ),
-          child: Text(note.label, strutStyle: labelStrut, style: labelStyle),
+          child: Text(displayLabel, strutStyle: labelStrut, style: labelStyle),
         ),
       ),
     );

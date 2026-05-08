@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:whatchord/features/explore/services/explore_chord_options.dart';
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord/features/theory/theory.dart';
 
 void main() {
   group('buildExploreExtensionControlGroups', () {
@@ -46,16 +46,45 @@ void main() {
         ChordExtension.nine,
         ChordExtension.sharp9,
       ]);
+      expect(groups[0].choices.map((choice) => choice.label), [
+        'None',
+        '♭9',
+        '9',
+        '♯9',
+      ]);
       expect(groups[1].choices.map((choice) => choice.extension), [
         null,
         ChordExtension.eleven,
         ChordExtension.sharp11,
+      ]);
+      expect(groups[1].choices.map((choice) => choice.label), [
+        'None',
+        '11',
+        '♯11',
       ]);
       expect(groups[2].choices.map((choice) => choice.extension), [
         null,
         ChordExtension.flat13,
         ChordExtension.thirteen,
       ]);
+      expect(groups[2].choices.map((choice) => choice.label), [
+        'None',
+        '♭13',
+        '13',
+      ]);
+    });
+  });
+
+  group('extensionSetLabel', () {
+    test('uses glyph accidentals for UI labels', () {
+      expect(
+        extensionSetLabel(const {
+          ChordExtension.flat9,
+          ChordExtension.sharp11,
+          ChordExtension.flat13,
+        }),
+        '♭9, ♯11, ♭13',
+      );
     });
   });
 

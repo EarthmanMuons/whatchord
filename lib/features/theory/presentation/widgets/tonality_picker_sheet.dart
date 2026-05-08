@@ -6,6 +6,7 @@ import 'package:whatchord/core/core.dart';
 
 import '../../domain/theory_domain.dart';
 import '../../state/providers/selected_tonality_notifier.dart';
+import '../services/note_display_formatter.dart';
 
 enum TonalityPickerPresentation { bottomSheet, sideSheet }
 
@@ -171,7 +172,9 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                                           child: Align(
                                             alignment: Alignment.center,
                                             child: _TonalityChoiceChip(
-                                              label: major.label,
+                                              label: _tonalityDisplayLabel(
+                                                major,
+                                              ),
                                               semanticsLabel: major.displayName,
                                               selected: majorSelected,
                                               onTap: () =>
@@ -185,7 +188,9 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                                           child: Align(
                                             alignment: Alignment.center,
                                             child: _TonalityChoiceChip(
-                                              label: minor.label,
+                                              label: _tonalityDisplayLabel(
+                                                minor,
+                                              ),
                                               semanticsLabel: minor.displayName,
                                               selected: minorSelected,
                                               onTap: () =>
@@ -289,6 +294,11 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
       _centerSelectedRow(animated: true);
     });
   }
+}
+
+String _tonalityDisplayLabel(Tonality tonality) {
+  final tonic = noteDisplayLabel(tonality.tonic);
+  return tonality.isMajor ? tonic : tonic.toLowerCase();
 }
 
 class _TonalityPickerHeader extends StatelessWidget {

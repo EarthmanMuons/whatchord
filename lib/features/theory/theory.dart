@@ -1,3 +1,5 @@
+export 'domain/theory_domain.dart';
+
 export 'presentation/models/chord_presentation.dart';
 export 'presentation/models/chord_symbol.dart';
 export 'presentation/models/identity_display.dart';
@@ -7,6 +9,7 @@ export 'presentation/services/chord_presentation_builder.dart';
 export 'presentation/services/chord_quality_token_labels.dart';
 export 'presentation/services/chord_symbol_builder.dart';
 export 'presentation/services/note_display_formatter.dart';
+export 'presentation/services/note_long_form_formatter.dart';
 
 export 'presentation/widgets/near_tie_chord_candidates_list.dart';
 export 'presentation/widgets/scale_degrees.dart';

@@ -1,4 +1,3 @@
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/explore_chord_state.dart';

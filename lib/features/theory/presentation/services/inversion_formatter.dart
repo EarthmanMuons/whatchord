@@ -1,5 +1,6 @@
 import '../../domain/theory_domain.dart';
 import 'chord_tone_role_token_labels.dart';
+import 'note_display_formatter.dart';
 
 abstract final class InversionFormatter {
   static String? format(ChordIdentity id) {
@@ -14,7 +15,9 @@ abstract final class InversionFormatter {
 
     if (!isCoreMember) {
       final role = id.toneRolesByInterval[bassInterval];
-      return role == null ? 'non-root bass' : 'non-root bass: ${role.label}';
+      return role == null
+          ? 'non-root bass'
+          : 'non-root bass: ${theoryTokenDisplayLabel(role.label)}';
     }
 
     // Bass is a core chord tone -> classical inversion naming is appropriate.

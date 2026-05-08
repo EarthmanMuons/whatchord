@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/models/scale_degree.dart';
 import '../../domain/models/tonality.dart';
+import '../services/note_display_formatter.dart';
 import 'scale_degrees.dart';
 import 'tonality_picker_sheet.dart';
 
@@ -43,7 +44,8 @@ class TonalityBarView extends StatelessWidget {
     final effectiveMinButtonHeight = minButtonHeight < 48.0
         ? 48.0
         : minButtonHeight;
-    final keyLabel = 'Key: ${tonality.displayName}';
+    final keySemanticLabel = 'Key: ${tonality.displayName}';
+    final keyLabel = 'Key: ${toGlyphAccidentals(tonality.displayName)}';
 
     TextStyle? scaledKeyLabelStyle(TextStyle? baseStyle) {
       final fontSize = baseStyle?.fontSize;
@@ -73,7 +75,7 @@ class TonalityBarView extends StatelessWidget {
               Semantics(
                 container: true,
                 button: true,
-                label: keyLabel,
+                label: keySemanticLabel,
                 hint: 'Choose key signature.',
                 onTap: onOpenPicker,
                 onTapHint: 'Open key signature picker',

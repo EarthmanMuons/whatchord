@@ -10,7 +10,6 @@ import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/onboarding/onboarding.dart';
 import 'package:whatchord/features/piano/piano.dart';
 import 'package:whatchord/features/settings/settings.dart';
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import '../../home/models/home_layout_config.dart';
@@ -789,7 +788,9 @@ class _QualityWheelState extends State<_QualityWheel> {
                   itemBuilder: (context, page) {
                     final quality = _qualityForPage(page);
                     return _QualityWheelItem(
-                      label: quality.label(ChordQualityLabelForm.standalone),
+                      label: theoryTokenDisplayLabel(
+                        quality.label(ChordQualityLabelForm.standalone),
+                      ),
                       selected: quality == widget.value,
                       onTap: () => _selectQuality(quality),
                     );

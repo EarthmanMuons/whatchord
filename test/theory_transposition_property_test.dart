@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kiri_check/kiri_check.dart';
 
 import 'package:whatchord/features/theory/domain/analysis/chord_templates.dart';
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord/features/theory/theory.dart';
 
 const _supportedExtensionIntervals = <int>[1, 2, 3, 5, 6, 8, 9];
 const _analysisTake = 256;
