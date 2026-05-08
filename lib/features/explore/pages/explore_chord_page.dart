@@ -161,10 +161,10 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                       Expanded(
                         child: isLandscape
                             ? Padding(
-                                padding: const EdgeInsets.fromLTRB(
+                                padding: EdgeInsets.fromLTRB(
+                                  horizontalInset,
                                   16,
-                                  16,
-                                  16,
+                                  horizontalInset,
                                   12,
                                 ),
                                 child: Row(
