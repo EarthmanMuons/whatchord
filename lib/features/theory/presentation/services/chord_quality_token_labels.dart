@@ -7,7 +7,6 @@ const exploreChordQualityOrder = [
   ChordQualityToken.minor,
   ChordQualityToken.sus2,
   ChordQualityToken.sus4,
-  ChordQualityToken.power5,
   ChordQualityToken.diminished,
   ChordQualityToken.augmented,
   ChordQualityToken.major6,
@@ -50,8 +49,6 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'sus2';
       case ChordQualityToken.sus4:
         return 'sus4';
-      case ChordQualityToken.power5:
-        return '5';
       case ChordQualityToken.major6:
         return '6';
       case ChordQualityToken.minor6:
@@ -87,8 +84,6 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'sus2';
       case ChordQualityToken.sus4:
         return 'sus4';
-      case ChordQualityToken.power5:
-        return '5';
       case ChordQualityToken.major6:
         return '6';
       case ChordQualityToken.minor6:
@@ -124,8 +119,6 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'sus2';
       case ChordQualityToken.sus4:
         return 'sus4';
-      case ChordQualityToken.power5:
-        return '5';
       case ChordQualityToken.major6:
         return '6';
       case ChordQualityToken.minor6:
@@ -161,8 +154,6 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'suspended second';
       case ChordQualityToken.sus4:
         return 'suspended fourth';
-      case ChordQualityToken.power5:
-        return 'power chord';
       case ChordQualityToken.major6:
         return 'major sixth';
       case ChordQualityToken.minor6:

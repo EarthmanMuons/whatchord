@@ -118,13 +118,7 @@ void main() {
     // Strict exclusions
     // -------------------------
 
-    // Suspensions / power chords: strict classifier returns null.
-    deg(
-      name: 'C G in C major => null (power chord)',
-      pcs: ['C', 'G'],
-      expected: null,
-      expectTop: (top) => expect(top.quality, ChordQualityToken.power5),
-    ),
+    // Suspensions: strict classifier returns null.
     deg(
       name: 'C F G in C major => null (sus4)',
       pcs: ['C', 'F', 'G'],

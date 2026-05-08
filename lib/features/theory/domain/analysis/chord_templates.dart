@@ -78,7 +78,7 @@ const int _major7 = 11;
 /// Template list (ordered for clarity, not scoring priority).
 ///
 /// The analyzer tests all templates; order doesn't affect results.
-/// Organized by complexity: triads -> power -> 6ths -> 7ths
+/// Organized by complexity: triads -> 6ths -> 7ths
 const chordTemplates = <ChordTemplate>[
   // Major triad: R + M3 + (P5)
   // - M3 defines major quality
@@ -145,16 +145,6 @@ const chordTemplates = <ChordTemplate>[
     optionalMask: 0,
     penaltyMask:
         (1 << _minor3) | (1 << _major3) | (1 << _minor7) | (1 << _major7),
-  ),
-
-  // Power chord (5): R + P5
-  // - No third (tonally ambiguous / distortion-friendly)
-  // - Penalty: thirds prevent stealing major/minor triad candidates
-  ChordTemplate(
-    quality: ChordQualityToken.power5,
-    requiredMask: (1 << _perfect5),
-    optionalMask: 0,
-    penaltyMask: (1 << _minor3) | (1 << _major3),
   ),
 
   // Major 6th: R + M3 + (P5) + 6

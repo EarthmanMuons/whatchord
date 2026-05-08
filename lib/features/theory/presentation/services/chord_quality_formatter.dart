@@ -186,7 +186,7 @@ class ChordQualityFormatter {
 
       // Add-tones are formatted differently depending on harmonic "family".
       // For seventh-family chords, parentheses improve readability (C7(add13)).
-      // For triad-like qualities (including sus and power chords), inline add-tones
+      // For triad-like qualities, inline add-tones
       // are currently preferred (Cadd9, Csus4add9).
       //
       // NOTE: Some notation styles prefer Csus4(add9). If we want to support that
