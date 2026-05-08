@@ -718,6 +718,8 @@ class _QualityWheelState extends State<_QualityWheel> {
   static const _qualities = exploreChordQualityOrder;
   static final _qualityCount = _qualities.length;
   static const _initialLoop = 500;
+  static const _wheelHeight = 64.0;
+  static const _wheelContentPadding = EdgeInsets.fromLTRB(8, 10, 8, 6);
 
   late final PageController _controller;
   late int _currentPage;
@@ -776,10 +778,10 @@ class _QualityWheelState extends State<_QualityWheel> {
           decoration: const InputDecoration(
             labelText: 'Quality',
             border: OutlineInputBorder(),
-            contentPadding: EdgeInsets.fromLTRB(8, 12, 8, 8),
+            contentPadding: _wheelContentPadding,
           ),
           child: SizedBox(
-            height: 72,
+            height: _wheelHeight,
             child: Stack(
               children: [
                 PageView.builder(
@@ -890,7 +892,7 @@ class _QualityWheelItem extends StatelessWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(
                 minWidth: selected ? 76 : 64,
-                minHeight: selected ? 48 : 44,
+                minHeight: 48,
               ),
               child: Center(
                 child: FittedBox(
@@ -927,6 +929,8 @@ class _RootWheel extends StatefulWidget {
 class _RootWheelState extends State<_RootWheel> {
   static const _pitchClassCount = 12;
   static const _initialLoop = 500;
+  static const _wheelHeight = 64.0;
+  static const _wheelContentPadding = EdgeInsets.fromLTRB(8, 10, 8, 6);
 
   late final PageController _controller;
   late int _currentPage;
@@ -985,10 +989,10 @@ class _RootWheelState extends State<_RootWheel> {
           decoration: const InputDecoration(
             labelText: 'Root',
             border: OutlineInputBorder(),
-            contentPadding: EdgeInsets.fromLTRB(8, 12, 8, 8),
+            contentPadding: _wheelContentPadding,
           ),
           child: SizedBox(
-            height: 72,
+            height: _wheelHeight,
             child: Stack(
               children: [
                 PageView.builder(
@@ -1085,7 +1089,7 @@ class _RootWheelItem extends StatelessWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(
                 minWidth: selected ? 46 : 40,
-                minHeight: selected ? 48 : 44,
+                minHeight: 48,
               ),
               child: Center(
                 child: FittedBox(
