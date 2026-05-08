@@ -779,45 +779,25 @@ class _QualityWheelState extends State<_QualityWheel> {
             border: OutlineInputBorder(),
             contentPadding: EdgeInsets.fromLTRB(8, 12, 8, 8),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(
-                height: 72,
-                child: Stack(
-                  children: [
-                    PageView.builder(
-                      controller: _controller,
-                      onPageChanged: _handlePageChanged,
-                      itemBuilder: (context, page) {
-                        final quality = _qualityForPage(page);
-                        return _QualityWheelItem(
-                          label: quality.label(
-                            ChordQualityLabelForm.standalone,
-                          ),
-                          selected: quality == widget.value,
-                          onTap: () => _selectQuality(quality),
-                        );
-                      },
-                    ),
-                    const Positioned.fill(child: _RootWheelEdgeFades()),
-                  ],
+          child: SizedBox(
+            height: 72,
+            child: Stack(
+              children: [
+                PageView.builder(
+                  controller: _controller,
+                  onPageChanged: _handlePageChanged,
+                  itemBuilder: (context, page) {
+                    final quality = _qualityForPage(page);
+                    return _QualityWheelItem(
+                      label: quality.label(ChordQualityLabelForm.standalone),
+                      selected: quality == widget.value,
+                      onTap: () => _selectQuality(quality),
+                    );
+                  },
                 ),
-              ),
-              const SizedBox(height: 4),
-              Center(
-                child: Text(
-                  _titleCase(selectedLabel),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
+                const Positioned.fill(child: _RootWheelEdgeFades()),
+              ],
+            ),
           ),
         ),
       ),
@@ -1592,14 +1572,4 @@ class _ExploreMemberChip extends StatelessWidget {
       ),
     );
   }
-}
-
-String _titleCase(String value) {
-  return value
-      .split(' ')
-      .map((word) {
-        if (word.isEmpty) return word;
-        return '${word[0].toUpperCase()}${word.substring(1)}';
-      })
-      .join(' ');
 }
