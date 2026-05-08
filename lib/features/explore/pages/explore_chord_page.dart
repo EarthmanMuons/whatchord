@@ -40,7 +40,13 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
   @override
   void initState() {
     super.initState();
-    _state = ExploreChordState.fromIdentity(widget.seedIdentity);
+    final seedState = ExploreChordState.fromIdentity(widget.seedIdentity);
+    _state = seedState.copyWith(
+      extensions: normalizeExtensionsForQuality(
+        quality: seedState.quality,
+        extensions: seedState.extensions,
+      ),
+    );
   }
 
   @override

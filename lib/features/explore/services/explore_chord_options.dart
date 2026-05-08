@@ -1,5 +1,7 @@
 import 'package:whatchord/features/theory/theory.dart';
 
+import 'explore_chord_derivation.dart';
+
 class ExploreExtensionControlGroup {
   const ExploreExtensionControlGroup({
     required this.label,
@@ -28,6 +30,8 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
   ChordQualityToken quality,
 ) {
   if (quality.isSeventhFamily) {
+    final available = _availableSeventhFamilyExtensions(quality);
+
     return [
       ExploreExtensionControlGroup(
         label: '9',
@@ -37,21 +41,24 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
             label: 'None',
             semanticLabel: 'No ninth',
           ),
-          ExploreExtensionChoice(
-            label: theoryTokenDisplayLabel('b9'),
-            semanticLabel: 'Flat ninth',
-            extension: ChordExtension.flat9,
-          ),
-          const ExploreExtensionChoice(
-            label: '9',
-            semanticLabel: 'Ninth',
-            extension: ChordExtension.nine,
-          ),
-          ExploreExtensionChoice(
-            label: theoryTokenDisplayLabel('#9'),
-            semanticLabel: 'Sharp ninth',
-            extension: ChordExtension.sharp9,
-          ),
+          if (available.contains(ChordExtension.flat9))
+            ExploreExtensionChoice(
+              label: theoryTokenDisplayLabel('b9'),
+              semanticLabel: 'Flat ninth',
+              extension: ChordExtension.flat9,
+            ),
+          if (available.contains(ChordExtension.nine))
+            const ExploreExtensionChoice(
+              label: '9',
+              semanticLabel: 'Ninth',
+              extension: ChordExtension.nine,
+            ),
+          if (available.contains(ChordExtension.sharp9))
+            ExploreExtensionChoice(
+              label: theoryTokenDisplayLabel('#9'),
+              semanticLabel: 'Sharp ninth',
+              extension: ChordExtension.sharp9,
+            ),
         ],
       ),
       ExploreExtensionControlGroup(
@@ -62,16 +69,18 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
             label: 'None',
             semanticLabel: 'No eleventh',
           ),
-          const ExploreExtensionChoice(
-            label: '11',
-            semanticLabel: 'Eleventh',
-            extension: ChordExtension.eleven,
-          ),
-          ExploreExtensionChoice(
-            label: theoryTokenDisplayLabel('#11'),
-            semanticLabel: 'Sharp eleventh',
-            extension: ChordExtension.sharp11,
-          ),
+          if (available.contains(ChordExtension.eleven))
+            const ExploreExtensionChoice(
+              label: '11',
+              semanticLabel: 'Eleventh',
+              extension: ChordExtension.eleven,
+            ),
+          if (available.contains(ChordExtension.sharp11))
+            ExploreExtensionChoice(
+              label: theoryTokenDisplayLabel('#11'),
+              semanticLabel: 'Sharp eleventh',
+              extension: ChordExtension.sharp11,
+            ),
         ],
       ),
       ExploreExtensionControlGroup(
@@ -82,16 +91,18 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
             label: 'None',
             semanticLabel: 'No thirteenth',
           ),
-          ExploreExtensionChoice(
-            label: theoryTokenDisplayLabel('b13'),
-            semanticLabel: 'Flat thirteenth',
-            extension: ChordExtension.flat13,
-          ),
-          const ExploreExtensionChoice(
-            label: '13',
-            semanticLabel: 'Thirteenth',
-            extension: ChordExtension.thirteen,
-          ),
+          if (available.contains(ChordExtension.flat13))
+            ExploreExtensionChoice(
+              label: theoryTokenDisplayLabel('b13'),
+              semanticLabel: 'Flat thirteenth',
+              extension: ChordExtension.flat13,
+            ),
+          if (available.contains(ChordExtension.thirteen))
+            const ExploreExtensionChoice(
+              label: '13',
+              semanticLabel: 'Thirteenth',
+              extension: ChordExtension.thirteen,
+            ),
         ],
       ),
     ];
@@ -156,43 +167,55 @@ Set<ChordExtension> normalizeExtensionsForQuality({
   required Set<ChordExtension> extensions,
 }) {
   final normalized = <ChordExtension>{};
+  final availableSeventhExtensions = quality.isSeventhFamily
+      ? _availableSeventhFamilyExtensions(quality)
+      : const <ChordExtension>{};
+  void addSeventhExtension(ChordExtension extension) {
+    if (availableSeventhExtensions.contains(extension)) {
+      normalized.add(extension);
+    }
+  }
 
   for (final extension in extensions) {
     switch (extension) {
       case ChordExtension.add9:
-        normalized.add(
-          quality.isSeventhFamily ? ChordExtension.nine : ChordExtension.add9,
-        );
+        if (quality.isSeventhFamily) {
+          addSeventhExtension(ChordExtension.nine);
+        } else {
+          normalized.add(ChordExtension.add9);
+        }
         break;
       case ChordExtension.add11:
-        normalized.add(
-          quality.isSeventhFamily
-              ? ChordExtension.eleven
-              : ChordExtension.add11,
-        );
+        if (quality.isSeventhFamily) {
+          addSeventhExtension(ChordExtension.eleven);
+        } else {
+          normalized.add(ChordExtension.add11);
+        }
         break;
       case ChordExtension.add13:
         if (quality.isSeventhFamily) {
-          normalized.add(ChordExtension.thirteen);
+          addSeventhExtension(ChordExtension.thirteen);
         } else if (!quality.isSixFamily) {
           normalized.add(ChordExtension.add13);
         }
         break;
       case ChordExtension.nine:
-        normalized.add(
-          quality.isSeventhFamily ? ChordExtension.nine : ChordExtension.add9,
-        );
+        if (quality.isSeventhFamily) {
+          addSeventhExtension(ChordExtension.nine);
+        } else {
+          normalized.add(ChordExtension.add9);
+        }
         break;
       case ChordExtension.eleven:
-        normalized.add(
-          quality.isSeventhFamily
-              ? ChordExtension.eleven
-              : ChordExtension.add11,
-        );
+        if (quality.isSeventhFamily) {
+          addSeventhExtension(ChordExtension.eleven);
+        } else {
+          normalized.add(ChordExtension.add11);
+        }
         break;
       case ChordExtension.thirteen:
         if (quality.isSeventhFamily) {
-          normalized.add(ChordExtension.thirteen);
+          addSeventhExtension(ChordExtension.thirteen);
         } else if (!quality.isSixFamily) {
           normalized.add(ChordExtension.add13);
         }
@@ -201,14 +224,30 @@ Set<ChordExtension> normalizeExtensionsForQuality({
       case ChordExtension.sharp9:
       case ChordExtension.sharp11:
       case ChordExtension.flat13:
-        if (quality.isSeventhFamily) {
-          normalized.add(extension);
-        }
+        addSeventhExtension(extension);
         break;
     }
   }
 
   return Set<ChordExtension>.unmodifiable(normalized);
+}
+
+Set<ChordExtension> _availableSeventhFamilyExtensions(
+  ChordQualityToken quality,
+) {
+  final coreIntervals = coreIntervalsForQuality(quality);
+  return {
+    for (final extension in const {
+      ChordExtension.flat9,
+      ChordExtension.nine,
+      ChordExtension.sharp9,
+      ChordExtension.eleven,
+      ChordExtension.sharp11,
+      ChordExtension.flat13,
+      ChordExtension.thirteen,
+    })
+      if (!coreIntervals.contains(extension.intervalAboveRoot)) extension,
+  };
 }
 
 String extensionSetId(Set<ChordExtension> extensions) {
