@@ -53,10 +53,6 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
       tonality: tonality,
       notation: notation,
     );
-    final extensionOptions = buildExploreExtensionOptions(
-      quality: _state.quality,
-      currentExtensions: _state.extensions,
-    );
     void onRootChanged(int value) {
       setState(() {
         final next = _state.copyWith(rootPc: value);
@@ -202,7 +198,6 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                           state: _state,
                                           identity: identity,
                                           tonality: tonality,
-                                          extensionOptions: extensionOptions,
                                           isLandscape: true,
                                           onRootChanged: onRootChanged,
                                           onQualityChanged: onQualityChanged,
@@ -236,7 +231,6 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                       state: _state,
                                       identity: identity,
                                       tonality: tonality,
-                                      extensionOptions: extensionOptions,
                                       isLandscape: false,
                                       onRootChanged: onRootChanged,
                                       onQualityChanged: onQualityChanged,
@@ -462,7 +456,6 @@ class _ExploreControls extends ConsumerWidget {
     required this.state,
     required this.identity,
     required this.tonality,
-    required this.extensionOptions,
     required this.isLandscape,
     required this.onRootChanged,
     required this.onQualityChanged,
@@ -473,7 +466,6 @@ class _ExploreControls extends ConsumerWidget {
   final ExploreChordState state;
   final ChordIdentity identity;
   final Tonality tonality;
-  final List<ExploreExtensionOption> extensionOptions;
   final bool isLandscape;
   final ValueChanged<int> onRootChanged;
   final ValueChanged<ChordQualityToken> onQualityChanged;
@@ -482,7 +474,7 @@ class _ExploreControls extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedExtensionId = extensionSetId(state.extensions);
+    final extensionGroups = buildExploreExtensionControlGroups(state.quality);
     final memberPitchClasses =
         ChordPresentationBuilder.chordMemberPitchClassesFromMask(
           rootPc: identity.rootPc,
@@ -544,22 +536,18 @@ class _ExploreControls extends ConsumerWidget {
             ),
             SizedBox(
               width: controlWidth,
-              child: _LabeledDropdown<String>(
-                label: 'Extensions',
-                value: selectedExtensionId,
-                items: [
-                  for (final option in extensionOptions)
-                    DropdownMenuItem<String>(
-                      value: option.id,
-                      child: Text(option.label),
+              child: _ExtensionBuilder(
+                groups: extensionGroups,
+                selectedExtensions: state.extensions,
+                onChoiceSelected: (group, choice) {
+                  onExtensionsChanged(
+                    selectExploreExtensionChoice(
+                      quality: state.quality,
+                      currentExtensions: state.extensions,
+                      group: group,
+                      choice: choice,
                     ),
-                ],
-                onChanged: (value) {
-                  if (value == null) return;
-                  final option = extensionOptions.firstWhere(
-                    (candidate) => candidate.id == value,
                   );
-                  onExtensionsChanged(option.extensions);
                 },
               ),
             ),
@@ -618,6 +606,84 @@ class _ExploreControls extends ConsumerWidget {
       chordRootName: root,
       role: role,
     );
+  }
+}
+
+class _ExtensionBuilder extends StatelessWidget {
+  const _ExtensionBuilder({
+    required this.groups,
+    required this.selectedExtensions,
+    required this.onChoiceSelected,
+  });
+
+  final List<ExploreExtensionControlGroup> groups;
+  final Set<ChordExtension> selectedExtensions;
+  final void Function(
+    ExploreExtensionControlGroup group,
+    ExploreExtensionChoice choice,
+  )
+  onChoiceSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final labelStyle = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+
+    return Semantics(
+      container: true,
+      label: 'Extensions',
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'Extensions',
+          border: OutlineInputBorder(),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var index = 0; index < groups.length; index++) ...[
+              if (index > 0) const SizedBox(height: 12),
+              Text(groups[index].label, style: labelStyle),
+              const SizedBox(height: 6),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final choice in groups[index].choices)
+                    Semantics(
+                      button: true,
+                      selected: _isSelected(groups[index], choice),
+                      label: choice.semanticLabel,
+                      child: ChoiceChip(
+                        label: Text(choice.label),
+                        selected: _isSelected(groups[index], choice),
+                        onSelected: (_) =>
+                            onChoiceSelected(groups[index], choice),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool _isSelected(
+    ExploreExtensionControlGroup group,
+    ExploreExtensionChoice choice,
+  ) {
+    final extension = choice.extension;
+    if (extension != null) return selectedExtensions.contains(extension);
+
+    return group.choices
+        .where((candidate) => candidate.extension != null)
+        .every(
+          (candidate) => !selectedExtensions.contains(candidate.extension),
+        );
   }
 }
 
