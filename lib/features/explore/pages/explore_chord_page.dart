@@ -431,22 +431,18 @@ class _ChordMembersSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Chord Members', style: theme.textTheme.titleSmall),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final member in members)
-              _ExploreMemberChip(label: toGlyphAccidentals(member)),
-          ],
-        ),
-      ],
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      label: 'Chord members',
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (final member in members)
+            _ExploreMemberChip(label: toGlyphAccidentals(member)),
+        ],
+      ),
     );
   }
 }
@@ -485,72 +481,70 @@ class _ExploreControls extends ConsumerWidget {
         ? ((MediaQuery.sizeOf(context).width - 48) / 2).clamp(180.0, 360.0)
         : double.infinity;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Controls', style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            SizedBox(
-              width: controlWidth,
-              child: _RootWheel(
-                value: state.rootPc,
-                tonality: tonality,
-                onChanged: onRootChanged,
-              ),
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      label: 'Explore controls',
+      child: Wrap(
+        spacing: 12,
+        runSpacing: 12,
+        children: [
+          SizedBox(
+            width: controlWidth,
+            child: _RootWheel(
+              value: state.rootPc,
+              tonality: tonality,
+              onChanged: onRootChanged,
             ),
-            SizedBox(
-              width: controlWidth,
-              child: _QualityWheel(
-                value: state.quality,
-                onChanged: onQualityChanged,
-              ),
+          ),
+          SizedBox(
+            width: controlWidth,
+            child: _QualityWheel(
+              value: state.quality,
+              onChanged: onQualityChanged,
             ),
-            SizedBox(
-              width: controlWidth,
-              child: _ExtensionBuilder(
-                groups: extensionGroups,
-                selectedExtensions: state.extensions,
-                onChoiceSelected: (group, choice) {
-                  onExtensionsChanged(
-                    selectExploreExtensionChoice(
-                      quality: state.quality,
-                      currentExtensions: state.extensions,
-                      group: group,
-                      choice: choice,
-                    ),
-                  );
-                },
-              ),
+          ),
+          SizedBox(
+            width: controlWidth,
+            child: _ExtensionBuilder(
+              groups: extensionGroups,
+              selectedExtensions: state.extensions,
+              onChoiceSelected: (group, choice) {
+                onExtensionsChanged(
+                  selectExploreExtensionChoice(
+                    quality: state.quality,
+                    currentExtensions: state.extensions,
+                    group: group,
+                    choice: choice,
+                  ),
+                );
+              },
             ),
-            SizedBox(
-              width: controlWidth,
-              child: _BassSelector(
-                value: state.bassPc,
-                choices: [
-                  for (final pc in _sortedPitchClasses(
-                    memberPitchClasses,
-                    identity.rootPc,
-                  ))
-                    _BassChoice(
-                      pc: pc,
-                      label: pc == identity.rootPc
-                          ? 'Root'
-                          : '/${toGlyphAccidentals(_spellBass(pc: pc, identity: identity, tonality: tonality))}',
-                      semanticLabel: pc == identity.rootPc
-                          ? 'Root position'
-                          : 'Bass ${_spellBass(pc: pc, identity: identity, tonality: tonality)}',
-                    ),
-                ],
-                onChanged: onBassChanged,
-              ),
+          ),
+          SizedBox(
+            width: controlWidth,
+            child: _BassSelector(
+              value: state.bassPc,
+              choices: [
+                for (final pc in _sortedPitchClasses(
+                  memberPitchClasses,
+                  identity.rootPc,
+                ))
+                  _BassChoice(
+                    pc: pc,
+                    label: pc == identity.rootPc
+                        ? 'Root'
+                        : '/${toGlyphAccidentals(_spellBass(pc: pc, identity: identity, tonality: tonality))}',
+                    semanticLabel: pc == identity.rootPc
+                        ? 'Root position'
+                        : 'Bass ${_spellBass(pc: pc, identity: identity, tonality: tonality)}',
+                  ),
+              ],
+              onChanged: onBassChanged,
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 
