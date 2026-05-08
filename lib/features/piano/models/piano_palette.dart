@@ -4,16 +4,22 @@ import 'package:flutter/material.dart';
 class PianoPalette {
   final Color background;
   final Color whiteKey;
-  final Color pressedKeyHighlight;
+  final Color pressedWhiteKey;
+  final Color pressedBlackKey;
   final Color blackKey;
   final Color border;
+  final Color pressedWhiteKeyBorder;
+  final Color pressedWhiteKeySeparator;
 
   const PianoPalette({
     required this.background,
     required this.whiteKey,
-    required this.pressedKeyHighlight,
+    required this.pressedWhiteKey,
+    required this.pressedBlackKey,
     required this.blackKey,
     required this.border,
+    required this.pressedWhiteKeyBorder,
+    required this.pressedWhiteKeySeparator,
   });
 }
 
@@ -28,20 +34,40 @@ PianoPalette buildPianoPalette(ColorScheme cs) {
 
   final blackKey = const Color(0xFF111111);
 
-  final pressedKeyHighlight = isDark
-      ? Color.alphaBlend(whiteKey.withValues(alpha: 0.18), cs.primaryContainer)
-      : Color.alphaBlend(whiteKey.withValues(alpha: 0.18), cs.primary);
-
   final border = Color.alphaBlend(
     Colors.black.withValues(alpha: isDark ? 0.30 : 0.22),
     whiteKey,
   );
 
+  final pressedKeyAccent = isDark ? cs.primary : cs.inversePrimary;
+
+  final pressedWhiteKey = Color.alphaBlend(
+    pressedKeyAccent.withValues(alpha: isDark ? 0.42 : 0.54),
+    whiteKey,
+  );
+
+  final pressedBlackKey = Color.alphaBlend(
+    Colors.black.withValues(alpha: isDark ? 0.22 : 0.20),
+    pressedKeyAccent,
+  );
+
+  final pressedWhiteKeyBorder = Color.alphaBlend(
+    pressedKeyAccent.withValues(alpha: isDark ? 0.78 : 0.82),
+    border,
+  );
+
+  final pressedWhiteKeySeparator = isDark
+      ? border
+      : Color.alphaBlend(Colors.black.withValues(alpha: 0.24), pressedWhiteKey);
+
   return PianoPalette(
     background: background,
     whiteKey: whiteKey,
-    pressedKeyHighlight: pressedKeyHighlight,
+    pressedWhiteKey: pressedWhiteKey,
+    pressedBlackKey: pressedBlackKey,
     blackKey: blackKey,
     border: border,
+    pressedWhiteKeyBorder: pressedWhiteKeyBorder,
+    pressedWhiteKeySeparator: pressedWhiteKeySeparator,
   );
 }

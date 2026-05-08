@@ -16,6 +16,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   structured controls for root, quality, extensions, and bass plus a normalized
   keyboard view and live harmonic context.
 
+### Changed
+
+- Made highlighted piano keys use stronger theme-based fills and outlines so
+  active white and black notes are easier to distinguish.
+
 ### Fixed
 
 - Fixed accidental labels in key, note, and Explore controls so sharps and flats
