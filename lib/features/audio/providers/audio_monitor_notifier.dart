@@ -25,6 +25,7 @@ final audioMonitorStatusProvider = Provider<AudioMonitorStatus>((ref) {
 
 class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   static const bool _debugLog = audioDebug;
+  static const Duration _previewDuration = Duration(milliseconds: 1400);
 
   AudioMonitorEngine? _engine;
   bool _backgrounded = false;
@@ -34,6 +35,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   final Set<int> _eventDrivenPendingOff = <int>{};
   Set<int> _lastSoundingNotes = const <int>{};
   Set<int> _notesInEngine = const <int>{};
+  Timer? _previewTimer;
   Future<void> _controlOps = Future<void>.value();
   Future<void> _noteOps = Future<void>.value();
 
@@ -46,6 +48,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       if (previous?.enabled == false && next.enabled) {
         // Enabling monitor should stay silent for already-held notes.
         _allowBootstrapOnNextStart = false;
+        _needsBootstrapNoteOnSync = false;
       }
       _enqueueControl(_reconcile);
     });
@@ -56,6 +59,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     });
 
     ref.onDispose(() {
+      _cancelPreviewTimer();
       unawaited(_stopEngine());
     });
 
@@ -65,6 +69,14 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     _enqueueControl(_reconcile);
 
     return const AudioMonitorState.disabled();
+  }
+
+  void playPreviewNotes(Iterable<int> midiNotes) {
+    final notes = midiNotes.map((note) => note.clamp(0, 127)).toSet().toList()
+      ..sort();
+    if (notes.isEmpty || _backgrounded) return;
+
+    _enqueueControl(() => _playPreviewNotes(notes));
   }
 
   void onInputNoteEvent(InputNoteEvent event) {
@@ -105,6 +117,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       // only reflect fresh note events.
       _allowBootstrapOnNextStart = false;
       _resetTrackingForStop();
+      _cancelPreviewTimer();
       _lastSoundingNotes = const <int>{};
       unawaited(_engine?.allNotesOff());
     }
@@ -248,9 +261,74 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
   Future<void> _stopEngine() async {
     final engine = _engine;
+    _cancelPreviewTimer();
     _resetTrackingForStop();
     if (engine == null) return;
     await engine.stop();
+  }
+
+  Future<void> _playPreviewNotes(List<int> midiNotes) async {
+    _cancelPreviewTimer();
+
+    if (_backgrounded) return;
+
+    final engine = await _ensureEngineStarted();
+    if (engine == null) return;
+
+    final settings = ref.read(audioMonitorSettingsNotifier);
+    await engine.setVolume(settings.volume);
+    await engine.allNotesOff();
+    _resetTrackingForSilentState();
+
+    for (final midiNote in midiNotes) {
+      await engine.noteOn(midiNote, velocity: audioMonitorFixedVelocity);
+    }
+
+    _previewTimer = Timer(_previewDuration, () {
+      _enqueueControl(_finishPreview);
+    });
+  }
+
+  Future<void> _finishPreview() async {
+    _cancelPreviewTimer();
+
+    final engine = _engine;
+    if (engine != null && engine.isRunning) {
+      await engine.allNotesOff();
+    }
+
+    final settings = ref.read(audioMonitorSettingsNotifier);
+    if (!settings.enabled || _backgrounded) {
+      await _stopEngine();
+      state = const AudioMonitorState.disabled();
+    } else {
+      await _syncSoundingNotes();
+    }
+  }
+
+  Future<AudioMonitorEngine?> _ensureEngineStarted() async {
+    final engine = _engine ??= AudioMonitorEngine(
+      soundFontAssetPath: audioMonitorSoundFontAssetPath,
+    );
+
+    try {
+      if (!engine.isRunning) {
+        await engine.start();
+      }
+      return engine;
+    } catch (e) {
+      await _stopEngine();
+      state = AudioMonitorState(
+        status: AudioMonitorStatus.error,
+        errorMessage: e.toString(),
+      );
+      return null;
+    }
+  }
+
+  void _cancelPreviewTimer() {
+    _previewTimer?.cancel();
+    _previewTimer = null;
   }
 
   Future<void> _handleNoteOnEvent(
