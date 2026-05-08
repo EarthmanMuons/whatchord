@@ -16,6 +16,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   structured controls for root, quality, extensions, and bass plus a normalized
   keyboard view and live harmonic context.
 
+### Fixed
+
+- Fixed accidental labels in key, note, and Explore controls so sharps and flats
+  use musical symbols consistently in the UI.
+
 ### Removed
 
 - Removed `5` chord naming for open fifth dyads so piano analysis no longer

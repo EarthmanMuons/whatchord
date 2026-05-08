@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/theory/domain/models/tonality.dart';
+import 'package:whatchord/features/theory/theory.dart';
 
 import 'demo_mode_variant_notifier.dart';
 

@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/explore/explore.dart';
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'adaptive_side_sheet.dart';

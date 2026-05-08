@@ -1,4 +1,4 @@
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord/features/theory/theory.dart';
 
 class ExploreExtensionControlGroup {
   const ExploreExtensionControlGroup({
@@ -28,24 +28,27 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
   ChordQualityToken quality,
 ) {
   if (quality.isSeventhFamily) {
-    return const [
+    return [
       ExploreExtensionControlGroup(
         label: '9',
         allowsMultiple: false,
         choices: [
-          ExploreExtensionChoice(label: 'None', semanticLabel: 'No ninth'),
+          const ExploreExtensionChoice(
+            label: 'None',
+            semanticLabel: 'No ninth',
+          ),
           ExploreExtensionChoice(
-            label: 'b9',
+            label: theoryTokenDisplayLabel('b9'),
             semanticLabel: 'Flat ninth',
             extension: ChordExtension.flat9,
           ),
-          ExploreExtensionChoice(
+          const ExploreExtensionChoice(
             label: '9',
             semanticLabel: 'Ninth',
             extension: ChordExtension.nine,
           ),
           ExploreExtensionChoice(
-            label: '#9',
+            label: theoryTokenDisplayLabel('#9'),
             semanticLabel: 'Sharp ninth',
             extension: ChordExtension.sharp9,
           ),
@@ -55,14 +58,17 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
         label: '11',
         allowsMultiple: false,
         choices: [
-          ExploreExtensionChoice(label: 'None', semanticLabel: 'No eleventh'),
-          ExploreExtensionChoice(
+          const ExploreExtensionChoice(
+            label: 'None',
+            semanticLabel: 'No eleventh',
+          ),
+          const ExploreExtensionChoice(
             label: '11',
             semanticLabel: 'Eleventh',
             extension: ChordExtension.eleven,
           ),
           ExploreExtensionChoice(
-            label: '#11',
+            label: theoryTokenDisplayLabel('#11'),
             semanticLabel: 'Sharp eleventh',
             extension: ChordExtension.sharp11,
           ),
@@ -72,13 +78,16 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
         label: '13',
         allowsMultiple: false,
         choices: [
-          ExploreExtensionChoice(label: 'None', semanticLabel: 'No thirteenth'),
+          const ExploreExtensionChoice(
+            label: 'None',
+            semanticLabel: 'No thirteenth',
+          ),
           ExploreExtensionChoice(
-            label: 'b13',
+            label: theoryTokenDisplayLabel('b13'),
             semanticLabel: 'Flat thirteenth',
             extension: ChordExtension.flat13,
           ),
-          ExploreExtensionChoice(
+          const ExploreExtensionChoice(
             label: '13',
             semanticLabel: 'Thirteenth',
             extension: ChordExtension.thirteen,
@@ -136,7 +145,7 @@ Set<ChordExtension> selectExploreExtensionChoice({
 
 ExploreExtensionChoice _choice(ChordExtension extension) {
   return ExploreExtensionChoice(
-    label: extension.shortLabel,
+    label: theoryTokenDisplayLabel(extension.shortLabel),
     semanticLabel: extension.longLabel,
     extension: extension,
   );
@@ -215,5 +224,7 @@ String extensionSetLabel(Set<ChordExtension> extensions) {
 
   final ordered = extensions.toList()
     ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
-  return ordered.map((extension) => extension.shortLabel).join(', ');
+  return ordered
+      .map((extension) => theoryTokenDisplayLabel(extension.shortLabel))
+      .join(', ');
 }

@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/providers/app_theme_mode_notifier.dart';
-import 'package:whatchord/features/theory/domain/models/tonality.dart';
-import 'package:whatchord/features/theory/state/providers/selected_tonality_notifier.dart';
+import 'package:whatchord/features/theory/theory.dart';
 
 import 'demo_mode_variant_notifier.dart';
 import 'demo_sequence_notifier.dart';
