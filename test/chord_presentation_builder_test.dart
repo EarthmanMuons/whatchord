@@ -27,7 +27,7 @@ void main() {
     expect(presentation.normalizedVoicing, [60, 64, 67]);
   });
 
-  test('keeps slash bass below the normalized root voicing', () {
+  test('rotates first-inversion slash bass into a compact voicing', () {
     final identity = _identity(
       root: 'C',
       bass: 'E',
@@ -43,7 +43,76 @@ void main() {
 
     expect(presentation.symbol.toString(), 'C / E');
     expect(presentation.longLabel, 'C major over E');
-    expect(presentation.normalizedVoicing, [52, 60, 64, 67]);
+    expect(presentation.normalizedVoicing, [52, 55, 60]);
+  });
+
+  test('rotates second-inversion slash bass into a compact voicing', () {
+    final identity = _identity(
+      root: 'C',
+      bass: 'G',
+      quality: ChordQualityToken.major,
+      intervals: const [0, 4, 7],
+    );
+
+    final presentation = ChordPresentationBuilder.fromIdentity(
+      identity: identity,
+      tonality: const Tonality('C', TonalityMode.major),
+      notation: notation,
+    );
+
+    expect(presentation.normalizedVoicing, [55, 60, 64]);
+  });
+
+  test('rotates seventh-chord slash bass without duplicated pitch classes', () {
+    final identity = _identity(
+      root: 'C',
+      bass: 'Bb',
+      quality: ChordQualityToken.dominant7,
+      intervals: const [0, 4, 7, 10],
+    );
+
+    final presentation = ChordPresentationBuilder.fromIdentity(
+      identity: identity,
+      tonality: const Tonality('C', TonalityMode.major),
+      notation: notation,
+    );
+
+    expect(presentation.normalizedVoicing, [58, 60, 64, 67]);
+  });
+
+  test('keeps extensions above the selected slash bass', () {
+    final identity = _identity(
+      root: 'C',
+      bass: 'E',
+      quality: ChordQualityToken.dominant7,
+      extensions: const {ChordExtension.nine},
+      intervals: const [0, 2, 4, 7, 10],
+    );
+
+    final presentation = ChordPresentationBuilder.fromIdentity(
+      identity: identity,
+      tonality: const Tonality('C', TonalityMode.major),
+      notation: notation,
+    );
+
+    expect(presentation.normalizedVoicing, [52, 55, 58, 60, 62]);
+  });
+
+  test('stacks root-position seventh extensions above the core chord', () {
+    final identity = _identity(
+      root: 'C',
+      quality: ChordQualityToken.dominant7,
+      extensions: const {ChordExtension.nine},
+      intervals: const [0, 2, 4, 7, 10],
+    );
+
+    final presentation = ChordPresentationBuilder.fromIdentity(
+      identity: identity,
+      tonality: const Tonality('C', TonalityMode.major),
+      notation: notation,
+    );
+
+    expect(presentation.normalizedVoicing, [60, 64, 67, 70, 74]);
   });
 
   test('includes extension labels and altered member degrees', () {

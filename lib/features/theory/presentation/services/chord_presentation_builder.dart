@@ -81,21 +81,27 @@ abstract final class ChordPresentationBuilder {
     if (intervals.isEmpty) return const <int>[];
 
     final rootMidi = 60 + identity.rootPc;
+    final bassInterval = identity.hasSlashBass
+        ? _normalizedInterval(identity.bassPc - identity.rootPc)
+        : 0;
+    final bassMidi = _bassMidiForNormalizedVoicing(
+      rootMidi: rootMidi,
+      bassInterval: bassInterval,
+      hasSlashBass: identity.hasSlashBass,
+    );
+    final voicingIntervals = identity.hasSlashBass
+        ? _compactIntervalsAboveBass(
+            intervals: intervals,
+            bassInterval: bassInterval,
+          )
+        : _rootPositionStackIntervals(intervals, identity);
     final notes = <int>[];
 
-    if (identity.hasSlashBass) {
-      final bassInterval = _normalizedInterval(
-        identity.bassPc - identity.rootPc,
-      );
-      var bassMidi = rootMidi + bassInterval;
-      while (bassMidi >= rootMidi) {
-        bassMidi -= 12;
-      }
-      notes.add(bassMidi);
-    }
-
-    for (final interval in intervals) {
-      var midi = rootMidi + interval;
+    for (final interval in voicingIntervals) {
+      final offset = identity.hasSlashBass
+          ? _normalizedInterval(interval - bassInterval)
+          : _rootPositionStackOffset(interval, identity);
+      var midi = bassMidi + offset;
       while (notes.isNotEmpty && midi <= notes.last) {
         midi += 12;
       }
@@ -103,6 +109,55 @@ abstract final class ChordPresentationBuilder {
     }
 
     return List<int>.unmodifiable(notes);
+  }
+
+  static List<int> _compactIntervalsAboveBass({
+    required List<int> intervals,
+    required int bassInterval,
+  }) {
+    final out = intervals.toList()
+      ..sort((a, b) {
+        final offsetA = _normalizedInterval(a - bassInterval);
+        final offsetB = _normalizedInterval(b - bassInterval);
+        final primary = offsetA.compareTo(offsetB);
+        if (primary != 0) return primary;
+        return a.compareTo(b);
+      });
+
+    return out;
+  }
+
+  static List<int> _rootPositionStackIntervals(
+    List<int> intervals,
+    ChordIdentity identity,
+  ) {
+    final out = intervals.toList()
+      ..sort((a, b) {
+        final offsetA = _rootPositionStackOffset(a, identity);
+        final offsetB = _rootPositionStackOffset(b, identity);
+        final primary = offsetA.compareTo(offsetB);
+        if (primary != 0) return primary;
+        return a.compareTo(b);
+      });
+
+    return out;
+  }
+
+  static int _rootPositionStackOffset(int interval, ChordIdentity identity) {
+    final role = identity.toneRolesByInterval[interval];
+    return switch (role) {
+      ChordToneRole.flat9 ||
+      ChordToneRole.nine ||
+      ChordToneRole.sharp9 ||
+      ChordToneRole.add9 ||
+      ChordToneRole.eleven ||
+      ChordToneRole.sharp11 ||
+      ChordToneRole.add11 ||
+      ChordToneRole.flat13 ||
+      ChordToneRole.thirteenth ||
+      ChordToneRole.add13 => interval + 12,
+      _ => interval,
+    };
   }
 
   static int _fallbackDegreeRank(int interval) {
@@ -116,6 +171,20 @@ abstract final class ChordPresentationBuilder {
       10 || 11 => 7,
       _ => 99,
     };
+  }
+
+  static int _bassMidiForNormalizedVoicing({
+    required int rootMidi,
+    required int bassInterval,
+    required bool hasSlashBass,
+  }) {
+    var bassMidi = rootMidi + bassInterval;
+    if (hasSlashBass) {
+      while (bassMidi >= rootMidi) {
+        bassMidi -= 12;
+      }
+    }
+    return bassMidi;
   }
 
   static int _normalizedInterval(int value) {
