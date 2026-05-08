@@ -123,7 +123,27 @@ class _AnalysisDetailsContent extends StatelessWidget {
                         style: t.textTheme.bodyLarge,
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
+                      if (canExplore) const SizedBox(height: 8),
+                      if (canExplore)
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isSideSheet ? 16 : 0,
+                          ),
+                          child: FilledButton.tonalIcon(
+                            onPressed: () async {
+                              final navigator = Navigator.of(context);
+                              navigator.pop();
+                              await navigator.push<void>(
+                                ExploreChordPage.route(
+                                  seedIdentity: exploreSeedIdentity!,
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.explore_outlined),
+                            label: const Text('Explore this chord'),
+                          ),
+                        ),
+                      const SizedBox(height: 10),
                       if (!canCopy)
                         Align(
                           alignment: Alignment.centerLeft,
@@ -144,24 +164,6 @@ class _AnalysisDetailsContent extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            if (canExplore)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: isSideSheet ? 16 : 0),
-                child: FilledButton.icon(
-                  onPressed: () async {
-                    final navigator = Navigator.of(context);
-                    navigator.pop();
-                    await navigator.push<void>(
-                      ExploreChordPage.route(
-                        seedIdentity: exploreSeedIdentity!,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.explore_outlined),
-                  label: const Text('Explore this chord'),
-                ),
-              ),
-            if (canExplore) const SizedBox(height: 12),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: isSideSheet ? 16 : 0),
               child: Row(
@@ -196,7 +198,7 @@ class _AnalysisDetailsContent extends StatelessWidget {
                       label: 'Report issue. Opens GitHub in your browser.',
                       onTapHint: 'Open GitHub issues page',
                       excludeSemantics: true,
-                      child: FilledButton.icon(
+                      child: OutlinedButton.icon(
                         onPressed: () => openUrl(
                           context,
                           Uri.parse(
