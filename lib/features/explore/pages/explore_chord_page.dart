@@ -762,7 +762,7 @@ class _RootWheelItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Center(
         child: Material(
-          color: selected ? cs.primaryContainer : Colors.transparent,
+          color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
           borderRadius: BorderRadius.circular(8),
           child: InkWell(
             borderRadius: BorderRadius.circular(8),
@@ -895,22 +895,11 @@ class _BassSelector extends StatelessWidget {
           labelText: 'Bass Note',
           border: OutlineInputBorder(),
         ),
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final choice in choices)
-              Semantics(
-                button: true,
-                selected: choice.pc == value,
-                label: choice.semanticLabel,
-                child: ChoiceChip(
-                  label: Text(choice.label),
-                  selected: choice.pc == value,
-                  onSelected: (_) => onChanged(choice.pc),
-                ),
-              ),
-          ],
+        child: _ExploreSegmentedChoiceGroup(
+          labels: [for (final choice in choices) choice.label],
+          semanticLabels: [for (final choice in choices) choice.semanticLabel],
+          selectedIndex: _selectedIndex(),
+          onSelected: (index) => onChanged(choices[index].pc),
         ),
       ),
     );
@@ -921,6 +910,13 @@ class _BassSelector extends StatelessWidget {
       if (choice.pc == value) return choice;
     }
     return null;
+  }
+
+  int _selectedIndex() {
+    for (var index = 0; index < choices.length; index++) {
+      if (choices[index].pc == value) return index;
+    }
+    return 0;
   }
 }
 
@@ -962,24 +958,40 @@ class _ExtensionBuilder extends StatelessWidget {
               if (index > 0) const SizedBox(height: 12),
               Text(groups[index].label, style: labelStyle),
               const SizedBox(height: 6),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final choice in groups[index].choices)
-                    Semantics(
-                      button: true,
-                      selected: _isSelected(groups[index], choice),
-                      label: choice.semanticLabel,
-                      child: ChoiceChip(
-                        label: Text(choice.label),
+              if (groups[index].allowsMultiple)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final choice in groups[index].choices)
+                      Semantics(
+                        button: true,
                         selected: _isSelected(groups[index], choice),
-                        onSelected: (_) =>
-                            onChoiceSelected(groups[index], choice),
+                        label: choice.semanticLabel,
+                        child: _ExploreMultiChoiceChip(
+                          label: choice.label,
+                          selected: _isSelected(groups[index], choice),
+                          onSelected: (_) =>
+                              onChoiceSelected(groups[index], choice),
+                        ),
                       ),
-                    ),
-                ],
-              ),
+                  ],
+                )
+              else
+                _ExploreSegmentedChoiceGroup(
+                  labels: [
+                    for (final choice in groups[index].choices) choice.label,
+                  ],
+                  semanticLabels: [
+                    for (final choice in groups[index].choices)
+                      choice.semanticLabel,
+                  ],
+                  selectedIndex: _selectedIndex(groups[index]),
+                  onSelected: (choiceIndex) => onChoiceSelected(
+                    groups[index],
+                    groups[index].choices[choiceIndex],
+                  ),
+                ),
             ],
           ],
         ),
@@ -999,6 +1011,159 @@ class _ExtensionBuilder extends StatelessWidget {
         .every(
           (candidate) => !selectedExtensions.contains(candidate.extension),
         );
+  }
+
+  int _selectedIndex(ExploreExtensionControlGroup group) {
+    for (var index = 0; index < group.choices.length; index++) {
+      if (_isSelected(group, group.choices[index])) return index;
+    }
+    return 0;
+  }
+}
+
+class _ExploreSegmentedChoiceGroup extends StatelessWidget {
+  const _ExploreSegmentedChoiceGroup({
+    required this.labels,
+    required this.semanticLabels,
+    required this.selectedIndex,
+    required this.onSelected,
+  });
+
+  final List<String> labels;
+  final List<String> semanticLabels;
+  final int selectedIndex;
+  final ValueChanged<int> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final radius = BorderRadius.circular(8);
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Material(
+        color: cs.surfaceContainerLow,
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.70)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var index = 0; index < labels.length; index++) ...[
+              if (index > 0)
+                SizedBox(
+                  height: 40,
+                  child: VerticalDivider(
+                    width: 1,
+                    thickness: 1,
+                    color: cs.outlineVariant.withValues(alpha: 0.70),
+                  ),
+                ),
+              _ExploreSegmentedChoice(
+                label: labels[index],
+                semanticLabel: semanticLabels[index],
+                selected: index == selectedIndex,
+                onTap: () => onSelected(index),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ExploreSegmentedChoice extends StatelessWidget {
+  const _ExploreSegmentedChoice({
+    required this.label,
+    required this.semanticLabel,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final String semanticLabel;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final labelStyle = theme.textTheme.labelLarge?.copyWith(
+      color: selected ? cs.onPrimaryContainer : cs.onSurface,
+      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+    );
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: semanticLabel,
+      child: ExcludeSemantics(
+        child: Material(
+          color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
+          child: InkWell(
+            onTap: onTap,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 40, minWidth: 52),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                child: Center(
+                  child: Text(label, maxLines: 1, style: labelStyle),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ExploreMultiChoiceChip extends StatelessWidget {
+  const _ExploreMultiChoiceChip({
+    required this.label,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final String label;
+  final bool selected;
+  final ValueChanged<bool> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final labelStyle = theme.textTheme.labelLarge?.copyWith(
+      color: selected ? cs.onPrimaryContainer : cs.onSurface,
+      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+    );
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+      side: BorderSide(
+        color: selected
+            ? Colors.transparent
+            : cs.outlineVariant.withValues(alpha: 0.60),
+      ),
+    );
+
+    return FilterChip(
+      label: Text(label, style: labelStyle),
+      selected: selected,
+      onSelected: onSelected,
+      showCheckmark: true,
+      checkmarkColor: cs.onPrimaryContainer,
+      backgroundColor: cs.surfaceContainerLow,
+      selectedColor: cs.primaryContainer,
+      shape: shape,
+    );
   }
 }
 
