@@ -541,27 +541,24 @@ class _ExploreControls extends ConsumerWidget {
             ),
             SizedBox(
               width: controlWidth,
-              child: _LabeledDropdown<int>(
-                label: 'Bass',
+              child: _BassSelector(
                 value: state.bassPc,
-                items: [
+                choices: [
                   for (final pc in _sortedPitchClasses(
                     memberPitchClasses,
                     identity.rootPc,
                   ))
-                    DropdownMenuItem<int>(
-                      value: pc,
-                      child: Text(
-                        pc == identity.rootPc
-                            ? 'Root position'
-                            : '/${toGlyphAccidentals(_spellBass(pc: pc, identity: identity, tonality: tonality))}',
-                      ),
+                    _BassChoice(
+                      pc: pc,
+                      label: pc == identity.rootPc
+                          ? 'Root'
+                          : '/${toGlyphAccidentals(_spellBass(pc: pc, identity: identity, tonality: tonality))}',
+                      semanticLabel: pc == identity.rootPc
+                          ? 'Root position'
+                          : 'Bass ${_spellBass(pc: pc, identity: identity, tonality: tonality)}',
                     ),
                 ],
-                onChanged: (value) {
-                  if (value == null) return;
-                  onBassChanged(value);
-                },
+                onChanged: onBassChanged,
               ),
             ),
           ],
@@ -859,6 +856,71 @@ class _RootWheelFade extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _BassChoice {
+  const _BassChoice({
+    required this.pc,
+    required this.label,
+    required this.semanticLabel,
+  });
+
+  final int pc;
+  final String label;
+  final String semanticLabel;
+}
+
+class _BassSelector extends StatelessWidget {
+  const _BassSelector({
+    required this.value,
+    required this.choices,
+    required this.onChanged,
+  });
+
+  final int value;
+  final List<_BassChoice> choices;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedChoice = _selectedChoice();
+
+    return Semantics(
+      container: true,
+      label: 'Bass Note',
+      value: selectedChoice?.semanticLabel,
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'Bass Note',
+          border: OutlineInputBorder(),
+        ),
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final choice in choices)
+              Semantics(
+                button: true,
+                selected: choice.pc == value,
+                label: choice.semanticLabel,
+                child: ChoiceChip(
+                  label: Text(choice.label),
+                  selected: choice.pc == value,
+                  onSelected: (_) => onChanged(choice.pc),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _BassChoice? _selectedChoice() {
+    for (final choice in choices) {
+      if (choice.pc == value) return choice;
+    }
+    return null;
   }
 }
 
