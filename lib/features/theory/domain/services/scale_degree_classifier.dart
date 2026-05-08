@@ -43,9 +43,8 @@ abstract final class ScaleDegreeClassifier {
 
     final q = chord.quality;
 
-    // Conservative exclusions (optional; keep if you want “strict functional degree”
-    // to exclude suspensions/power chords).
-    if (q.isSus || q == ChordQualityToken.power5) return null;
+    // Conservative exclusions for strict functional degree.
+    if (q.isSus) return null;
 
     // Degree whitelist gate (cheap and prevents “obviously non-diatonic” labels).
     final allowedQualities = _allowedQualitiesForDegree(tonality, degree);

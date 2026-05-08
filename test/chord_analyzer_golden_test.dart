@@ -50,7 +50,7 @@ class GoldenCase {
 
   /// Optional override; defaults to pcs.length.
   ///
-  /// Use this to simulate octave duplications (e.g., power chord with doubled root).
+  /// Use this to simulate octave duplications.
   final int? noteCount;
 
   /// Optional per-case tonality override (defaults to C major).
@@ -256,31 +256,10 @@ void main() {
     ),
 
     // -------------------------------------------------------------------------
-    // Power chords and sus chords
+    // Suspended chords
     // -------------------------------------------------------------------------
 
-    // Pure power chord.
-    golden(
-      name: 'C G -> C5',
-      pcs: ['C', 'G'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.power5);
-      },
-    ),
-
-    // Power chord with octave duplication: mask stays the same; noteCount changes.
-    golden(
-      name: 'C G C -> C5',
-      pcs: ['C', 'G'],
-      noteCount: 3,
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.power5);
-      },
-    ),
-
-    // Power chord with added 4th: prefer sus4 headline.
+    // Sus4 identification.
     golden(
       name: 'C F G -> Csus4',
       pcs: ['C', 'F', 'G'],

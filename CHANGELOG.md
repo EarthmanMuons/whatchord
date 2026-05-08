@@ -16,6 +16,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   structured controls for root, quality, extensions, and bass plus a normalized
   keyboard view and live harmonic context.
 
+### Removed
+
+- Removed `5` chord naming for open fifth dyads so piano analysis no longer
+  labels incomplete two-note patterns as power chords.
+
 ## [2026.3.10] - 2026-03-10
 
 ### Changed

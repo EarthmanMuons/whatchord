@@ -70,9 +70,6 @@ int canonicalPresentIntervalsMask({
       addInterval(5);
       addInterval(7);
       break;
-    case ChordQualityToken.power5:
-      addInterval(7);
-      break;
     case ChordQualityToken.major6:
       addInterval(4);
       addInterval(7);
