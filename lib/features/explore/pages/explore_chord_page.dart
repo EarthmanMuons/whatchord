@@ -504,22 +504,9 @@ class _ExploreControls extends ConsumerWidget {
             ),
             SizedBox(
               width: controlWidth,
-              child: _LabeledDropdown<ChordQualityToken>(
-                label: 'Quality',
+              child: _QualityWheel(
                 value: state.quality,
-                items: [
-                  for (final quality in ChordQualityToken.values)
-                    DropdownMenuItem<ChordQualityToken>(
-                      value: quality,
-                      child: Text(
-                        _titleCase(quality.label(ChordQualityLabelForm.long)),
-                      ),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value == null) return;
-                  onQualityChanged(value);
-                },
+                onChanged: onQualityChanged,
               ),
             ),
             SizedBox(
@@ -590,6 +577,229 @@ class _ExploreControls extends ConsumerWidget {
       tonality: tonality,
       chordRootName: root,
       role: role,
+    );
+  }
+}
+
+class _QualityWheel extends StatefulWidget {
+  const _QualityWheel({required this.value, required this.onChanged});
+
+  final ChordQualityToken value;
+  final ValueChanged<ChordQualityToken> onChanged;
+
+  @override
+  State<_QualityWheel> createState() => _QualityWheelState();
+}
+
+class _QualityWheelState extends State<_QualityWheel> {
+  static const _qualities = exploreChordQualityOrder;
+  static final _qualityCount = _qualities.length;
+  static const _initialLoop = 500;
+
+  late final PageController _controller;
+  late int _currentPage;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentPage = (_initialLoop * _qualityCount) + _indexOf(widget.value);
+    _controller = PageController(
+      initialPage: _currentPage,
+      viewportFraction: 0.34,
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant _QualityWheel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value == widget.value) return;
+
+    final visiblePage = _controller.hasClients
+        ? (_controller.page?.round() ?? _currentPage)
+        : _currentPage;
+    if (_qualityForPage(visiblePage) == widget.value) return;
+
+    final targetPage = _nearestPageForQuality(widget.value);
+    _currentPage = targetPage;
+    if (!_controller.hasClients) return;
+
+    _controller.animateToPage(
+      targetPage,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedLabel = _longLabel(widget.value);
+
+    return Semantics(
+      container: true,
+      label: 'Quality',
+      value: selectedLabel,
+      increasedValue: _longLabel(_nextQuality(widget.value)),
+      decreasedValue: _longLabel(_previousQuality(widget.value)),
+      onIncrease: () => widget.onChanged(_nextQuality(widget.value)),
+      onDecrease: () => widget.onChanged(_previousQuality(widget.value)),
+      child: ExcludeSemantics(
+        child: InputDecorator(
+          decoration: const InputDecoration(
+            labelText: 'Quality',
+            border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.fromLTRB(8, 12, 8, 8),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(
+                height: 72,
+                child: Stack(
+                  children: [
+                    PageView.builder(
+                      controller: _controller,
+                      onPageChanged: _handlePageChanged,
+                      itemBuilder: (context, page) {
+                        final quality = _qualityForPage(page);
+                        return _QualityWheelItem(
+                          label: quality.label(
+                            ChordQualityLabelForm.standalone,
+                          ),
+                          selected: quality == widget.value,
+                          onTap: () => _selectQuality(quality),
+                        );
+                      },
+                    ),
+                    const Positioned.fill(child: _RootWheelEdgeFades()),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 4),
+              Center(
+                child: Text(
+                  _titleCase(selectedLabel),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handlePageChanged(int page) {
+    _currentPage = page;
+    final quality = _qualityForPage(page);
+    if (quality == widget.value) return;
+    widget.onChanged(quality);
+  }
+
+  void _selectQuality(ChordQualityToken quality) {
+    final targetPage = _nearestPageForQuality(quality);
+    _currentPage = targetPage;
+    _controller.animateToPage(
+      targetPage,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+    );
+    if (quality != widget.value) widget.onChanged(quality);
+  }
+
+  int _nearestPageForQuality(ChordQualityToken quality) {
+    final currentPage = _controller.hasClients
+        ? (_controller.page?.round() ?? _currentPage)
+        : _currentPage;
+    final currentIndex = _indexForPage(currentPage);
+    var delta = (_indexOf(quality) - currentIndex) % _qualityCount;
+    if (delta > _qualityCount / 2) delta -= _qualityCount;
+    return currentPage + delta;
+  }
+
+  ChordQualityToken _qualityForPage(int page) =>
+      _qualities[_indexForPage(page)];
+
+  ChordQualityToken _nextQuality(ChordQualityToken quality) {
+    return _qualities[(_indexOf(quality) + 1) % _qualityCount];
+  }
+
+  ChordQualityToken _previousQuality(ChordQualityToken quality) {
+    return _qualities[(_indexOf(quality) - 1) % _qualityCount];
+  }
+
+  int _indexForPage(int page) => page % _qualityCount;
+
+  int _indexOf(ChordQualityToken quality) {
+    final index = _qualities.indexOf(quality);
+    return index < 0 ? 0 : index;
+  }
+
+  String _longLabel(ChordQualityToken quality) {
+    return quality.label(ChordQualityLabelForm.long);
+  }
+}
+
+class _QualityWheelItem extends StatelessWidget {
+  const _QualityWheelItem({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final labelStyle =
+        (selected ? theme.textTheme.titleLarge : theme.textTheme.titleMedium)
+            ?.copyWith(
+              color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Center(
+        child: Material(
+          color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(8),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: onTap,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: selected ? 76 : 64,
+                minHeight: selected ? 48 : 44,
+              ),
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: selected ? 8 : 6),
+                    child: Text(label, maxLines: 1, style: labelStyle),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -1163,35 +1373,6 @@ class _ExploreMultiChoiceChip extends StatelessWidget {
       backgroundColor: cs.surfaceContainerLow,
       selectedColor: cs.primaryContainer,
       shape: shape,
-    );
-  }
-}
-
-class _LabeledDropdown<T> extends StatelessWidget {
-  const _LabeledDropdown({
-    required this.label,
-    required this.value,
-    required this.items,
-    required this.onChanged,
-  });
-
-  final String label;
-  final T value;
-  final List<DropdownMenuItem<T>> items;
-  final ValueChanged<T?> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<T>(
-      initialValue: value,
-      items: items,
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
-      isExpanded: true,
-      menuMaxHeight: math.min(MediaQuery.sizeOf(context).height * 0.5, 360),
     );
   }
 }
