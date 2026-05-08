@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/onboarding/onboarding.dart';
@@ -183,6 +184,8 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                             const SizedBox(height: 20),
                                             _ChordMembersSection(
                                               members: presentation.members,
+                                              previewNotes: presentation
+                                                  .normalizedVoicing,
                                             ),
                                           ],
                                         ),
@@ -226,6 +229,8 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                     const SizedBox(height: 20),
                                     _ChordMembersSection(
                                       members: presentation.members,
+                                      previewNotes:
+                                          presentation.normalizedVoicing,
                                     ),
                                     const SizedBox(height: 20),
                                     Expanded(
@@ -308,24 +313,17 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
 }
 
 class _ExploreMidiAction extends StatelessWidget {
-  const _ExploreMidiAction({required this.ref});
+  const _ExploreMidiAction({required this.onPressed});
 
-  final WidgetRef ref;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return MidiStatusIcon(
-      onPressed: () {
-        unawaited(ref.read(midiSettingsOnboardingProvider.notifier).markSeen());
-        Navigator.of(context).push(
-          MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()),
-        );
-      },
-    );
+    return MidiStatusIcon(onPressed: onPressed);
   }
 }
 
-class _ExploreTopBar extends ConsumerWidget {
+class _ExploreTopBar extends StatelessWidget {
   const _ExploreTopBar({
     required this.horizontalInset,
     required this.onOpenMidiSettings,
@@ -335,7 +333,7 @@ class _ExploreTopBar extends ConsumerWidget {
   final VoidCallback onOpenMidiSettings;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final titleStyle = Theme.of(context).textTheme.titleLarge;
 
@@ -366,7 +364,7 @@ class _ExploreTopBar extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              _ExploreMidiAction(ref: ref),
+              _ExploreMidiAction(onPressed: onOpenMidiSettings),
               Transform.translate(
                 offset: const Offset(6, 0),
                 child: IconButton(
@@ -554,9 +552,13 @@ class _ExploreSummary extends StatelessWidget {
 }
 
 class _ChordMembersSection extends StatelessWidget {
-  const _ChordMembersSection({required this.members});
+  const _ChordMembersSection({
+    required this.members,
+    required this.previewNotes,
+  });
 
   final List<String> members;
+  final List<int> previewNotes;
 
   @override
   Widget build(BuildContext context) {
@@ -567,10 +569,52 @@ class _ChordMembersSection extends StatelessWidget {
       child: Wrap(
         spacing: 8,
         runSpacing: 8,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: _ExplorePlayButton(previewNotes: previewNotes),
+          ),
           for (final member in members)
             _ExploreMemberChip(label: toGlyphAccidentals(member)),
         ],
+      ),
+    );
+  }
+}
+
+class _ExplorePlayButton extends ConsumerWidget {
+  const _ExplorePlayButton({required this.previewNotes});
+
+  final List<int> previewNotes;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    void playChord() {
+      ref.read(audioMonitorNotifier.notifier).playPreviewNotes(previewNotes);
+    }
+
+    return Semantics(
+      button: true,
+      label: 'Play chord',
+      onTapHint: 'Play the current Explore chord',
+      onTap: playChord,
+      child: Tooltip(
+        message: 'Play chord',
+        child: ExcludeSemantics(
+          child: IconButton.filledTonal(
+            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+            style: IconButton.styleFrom(
+              fixedSize: const Size.square(48),
+              shape: const CircleBorder(),
+              backgroundColor: cs.secondaryContainer,
+              foregroundColor: cs.onSecondaryContainer,
+            ),
+            onPressed: playChord,
+            icon: const Icon(Icons.play_arrow),
+          ),
+        ),
       ),
     );
   }

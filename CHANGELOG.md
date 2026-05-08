@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Added an Explore screen entry from Analysis Details for detected chords, with
   structured controls for root, quality, extensions, and bass plus a normalized
   keyboard view and live harmonic context.
+- Added a Play button to Explore so you can hear the current chord without a
+  MIDI device.
 
 ### Changed
 
