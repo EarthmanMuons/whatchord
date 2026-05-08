@@ -496,22 +496,10 @@ class _ExploreControls extends ConsumerWidget {
           children: [
             SizedBox(
               width: controlWidth,
-              child: _LabeledDropdown<int>(
-                label: 'Root',
+              child: _RootWheel(
                 value: state.rootPc,
-                items: [
-                  for (var pc = 0; pc < 12; pc++)
-                    DropdownMenuItem<int>(
-                      value: pc,
-                      child: Text(
-                        toGlyphAccidentals(pcToName(pc, tonality: tonality)),
-                      ),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value == null) return;
-                  onRootChanged(value);
-                },
+                tonality: tonality,
+                onChanged: onRootChanged,
               ),
             ),
             SizedBox(
@@ -605,6 +593,271 @@ class _ExploreControls extends ConsumerWidget {
       tonality: tonality,
       chordRootName: root,
       role: role,
+    );
+  }
+}
+
+class _RootWheel extends StatefulWidget {
+  const _RootWheel({
+    required this.value,
+    required this.tonality,
+    required this.onChanged,
+  });
+
+  final int value;
+  final Tonality tonality;
+  final ValueChanged<int> onChanged;
+
+  @override
+  State<_RootWheel> createState() => _RootWheelState();
+}
+
+class _RootWheelState extends State<_RootWheel> {
+  static const _pitchClassCount = 12;
+  static const _initialLoop = 500;
+
+  late final PageController _controller;
+  late int _currentPage;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentPage = (_initialLoop * _pitchClassCount) + widget.value;
+    _controller = PageController(
+      initialPage: _currentPage,
+      viewportFraction: 0.22,
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant _RootWheel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.value == widget.value) return;
+
+    final visiblePage = _controller.hasClients
+        ? (_controller.page?.round() ?? _currentPage)
+        : _currentPage;
+    if (_pcForPage(visiblePage) == widget.value) return;
+
+    final targetPage = _nearestPageForPc(widget.value);
+    _currentPage = targetPage;
+    if (!_controller.hasClients) return;
+
+    _controller.animateToPage(
+      targetPage,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedLabel = _labelForPc(widget.value);
+
+    return Semantics(
+      container: true,
+      label: 'Root',
+      value: selectedLabel,
+      increasedValue: _labelForPc(_nextPc(widget.value)),
+      decreasedValue: _labelForPc(_previousPc(widget.value)),
+      onIncrease: () => widget.onChanged(_nextPc(widget.value)),
+      onDecrease: () => widget.onChanged(_previousPc(widget.value)),
+      child: ExcludeSemantics(
+        child: InputDecorator(
+          decoration: const InputDecoration(
+            labelText: 'Root',
+            border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.fromLTRB(8, 12, 8, 8),
+          ),
+          child: SizedBox(
+            height: 72,
+            child: Stack(
+              children: [
+                PageView.builder(
+                  controller: _controller,
+                  onPageChanged: _handlePageChanged,
+                  itemBuilder: (context, page) {
+                    final pc = _pcForPage(page);
+                    return _RootWheelItem(
+                      label: _labelForPc(pc),
+                      selected: pc == widget.value,
+                      onTap: () => _selectPc(pc),
+                    );
+                  },
+                ),
+                const Positioned.fill(child: _RootWheelEdgeFades()),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _handlePageChanged(int page) {
+    _currentPage = page;
+    final pc = _pcForPage(page);
+    if (pc == widget.value) return;
+    widget.onChanged(pc);
+  }
+
+  void _selectPc(int pc) {
+    final targetPage = _nearestPageForPc(pc);
+    _currentPage = targetPage;
+    _controller.animateToPage(
+      targetPage,
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOutCubic,
+    );
+    if (pc != widget.value) widget.onChanged(pc);
+  }
+
+  int _nearestPageForPc(int pc) {
+    final currentPage = _controller.hasClients
+        ? (_controller.page?.round() ?? _currentPage)
+        : _currentPage;
+    final currentPc = _pcForPage(currentPage);
+    var delta = (pc - currentPc) % _pitchClassCount;
+    if (delta > _pitchClassCount / 2) delta -= _pitchClassCount;
+    return currentPage + delta;
+  }
+
+  int _pcForPage(int page) => page % _pitchClassCount;
+
+  int _nextPc(int pc) => (pc + 1) % _pitchClassCount;
+
+  int _previousPc(int pc) => (pc - 1) % _pitchClassCount;
+
+  String _labelForPc(int pc) {
+    return toGlyphAccidentals(pcToName(pc, tonality: widget.tonality));
+  }
+}
+
+class _RootWheelItem extends StatelessWidget {
+  const _RootWheelItem({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final textStyle =
+        (selected ? theme.textTheme.titleLarge : theme.textTheme.titleMedium)
+            ?.copyWith(
+              color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Center(
+        child: Material(
+          color: selected ? cs.primaryContainer : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: onTap,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: selected ? 46 : 40,
+                minHeight: selected ? 48 : 44,
+              ),
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: selected ? 8 : 4),
+                    child: Text(label, maxLines: 1, style: textStyle),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RootWheelEdgeFades extends StatelessWidget {
+  const _RootWheelEdgeFades();
+
+  static const _fadeWidth = 56.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final surface = Theme.of(context).colorScheme.surface;
+
+    return IgnorePointer(
+      child: Stack(
+        children: [
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: _fadeWidth,
+            child: _RootWheelFade(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              surface: surface,
+            ),
+          ),
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: _fadeWidth,
+            child: _RootWheelFade(
+              begin: Alignment.centerRight,
+              end: Alignment.centerLeft,
+              surface: surface,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RootWheelFade extends StatelessWidget {
+  const _RootWheelFade({
+    required this.begin,
+    required this.end,
+    required this.surface,
+  });
+
+  final AlignmentGeometry begin;
+  final AlignmentGeometry end;
+  final Color surface;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: begin,
+          end: end,
+          stops: const [0.0, 0.55, 1.0],
+          colors: [
+            surface,
+            surface.withValues(alpha: 0.82),
+            surface.withValues(alpha: 0),
+          ],
+        ),
+      ),
     );
   }
 }
