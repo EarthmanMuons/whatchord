@@ -13,9 +13,11 @@ import 'package:whatchord/features/settings/settings.dart';
 import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
+import '../../home/models/home_layout_config.dart';
+import '../../home/widgets/adaptive_side_sheet.dart';
 import '../models/explore_chord_state.dart';
-import '../providers/explore_chord_providers.dart';
 import '../services/explore_chord_derivation.dart';
+import '../services/explore_chord_options.dart';
 
 class ExploreChordPage extends ConsumerStatefulWidget {
   const ExploreChordPage({super.key, required this.seedIdentity});
@@ -46,16 +48,11 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
     final identity = buildExploreChordIdentity(_state);
     final tonality = ref.watch(selectedTonalityProvider);
     final notation = ref.watch(chordNotationStyleProvider);
-    final voicing = normalizedVoicingForIdentity(identity);
-    final members = ChordMemberSpeller.spellMembers(
+    final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      pitchClasses: chordMemberPitchClassesFromMask(
-        rootPc: identity.rootPc,
-        presentIntervalsMask: identity.presentIntervalsMask,
-      ),
       tonality: tonality,
+      notation: notation,
     );
-    final scaleDegree = tonality.scaleDegreeForChord(identity);
     final extensionOptions = buildExploreExtensionOptions(
       quality: _state.quality,
       currentExtensions: _state.extensions,
@@ -185,13 +182,11 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                               CrossAxisAlignment.stretch,
                                           children: [
                                             _ExploreSummary(
-                                              identity: identity,
-                                              tonality: tonality,
-                                              notation: notation,
+                                              presentation: presentation,
                                             ),
                                             const SizedBox(height: 20),
                                             _ChordMembersSection(
-                                              members: members,
+                                              members: presentation.members,
                                             ),
                                           ],
                                         ),
@@ -231,13 +226,11 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
                                   children: [
-                                    _ExploreSummary(
-                                      identity: identity,
-                                      tonality: tonality,
-                                      notation: notation,
-                                    ),
+                                    _ExploreSummary(presentation: presentation),
                                     const SizedBox(height: 20),
-                                    _ChordMembersSection(members: members),
+                                    _ChordMembersSection(
+                                      members: presentation.members,
+                                    ),
                                     const SizedBox(height: 20),
                                     _ExploreControls(
                                       state: _state,
@@ -254,18 +247,36 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                 ),
                               ),
                       ),
-                      TonalityBar(
+                      TonalityBarView(
                         height: kToolbarHeight,
+                        tonality: tonality,
+                        degree: presentation.scaleDegree,
+                        onOpenPicker: () => openTonalityPicker(
+                          context,
+                          useSideSheet: useHomeSideSheet(context),
+                          showSideSheet:
+                              ({
+                                required context,
+                                required barrierLabel,
+                                required builder,
+                              }) {
+                                showHomeSideSheet<void>(
+                                  context: context,
+                                  barrierLabel: barrierLabel,
+                                  builder: builder,
+                                );
+                              },
+                        ),
                         horizontalInset: horizontalInset,
                         keyTextScaleMultiplier: config.tonalityButtonTextScale,
                         scaleDegreesTextScaleMultiplier:
                             config.scaleDegreesTextScale,
-                        degreeOverride: scaleDegree,
                       ),
                       const Divider(height: 1),
                       _ExploreKeyboard(
                         config: config,
-                        highlightedNotes: voicing.toSet(),
+                        highlightedNotes: presentation.normalizedVoicing
+                            .toSet(),
                         markedNotes: markedNoteNumbers,
                       ),
                     ],
@@ -281,10 +292,11 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
 
   ExploreChordState _withValidBass(ExploreChordState candidate) {
     final identity = buildExploreChordIdentity(candidate);
-    final pitchClasses = chordMemberPitchClassesFromMask(
-      rootPc: identity.rootPc,
-      presentIntervalsMask: identity.presentIntervalsMask,
-    );
+    final pitchClasses =
+        ChordPresentationBuilder.chordMemberPitchClassesFromMask(
+          rootPc: identity.rootPc,
+          presentIntervalsMask: identity.presentIntervalsMask,
+        );
 
     final bassPc = pitchClasses.contains(candidate.bassPc)
         ? candidate.bassPc
@@ -381,41 +393,24 @@ class _ExploreTopBar extends ConsumerWidget {
 }
 
 class _ExploreSummary extends StatelessWidget {
-  const _ExploreSummary({
-    required this.identity,
-    required this.tonality,
-    required this.notation,
-  });
+  const _ExploreSummary({required this.presentation});
 
-  final ChordIdentity identity;
-  final Tonality tonality;
-  final ChordNotationStyle notation;
+  final ChordPresentation presentation;
 
   @override
   Widget build(BuildContext context) {
-    final symbol = ChordSymbolBuilder.fromIdentity(
-      identity: identity,
-      tonality: tonality,
-      notation: notation,
-    );
-
-    final longLabel = ChordLongFormFormatter.format(
-      identity: identity,
-      tonality: tonality,
-    );
-
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Semantics(
       container: true,
       header: true,
-      label: longLabel,
+      label: presentation.longLabel,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            toSmufl(symbol.toString()),
+            toSmufl(presentation.symbol.toString()),
             style: textTheme.headlineMedium?.copyWith(
               color: colorScheme.onSurface,
               fontFamilyFallback: const ['Bravura'],
@@ -424,7 +419,7 @@ class _ExploreSummary extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Text(
-            longLabel,
+            presentation.longLabel,
             style: textTheme.bodyLarge?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
@@ -488,10 +483,11 @@ class _ExploreControls extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedExtensionId = extensionSetId(state.extensions);
-    final memberPitchClasses = chordMemberPitchClassesFromMask(
-      rootPc: identity.rootPc,
-      presentIntervalsMask: identity.presentIntervalsMask,
-    );
+    final memberPitchClasses =
+        ChordPresentationBuilder.chordMemberPitchClassesFromMask(
+          rootPc: identity.rootPc,
+          presentIntervalsMask: identity.presentIntervalsMask,
+        );
 
     final controlWidth = isLandscape
         ? ((MediaQuery.sizeOf(context).width - 48) / 2).clamp(180.0, 360.0)

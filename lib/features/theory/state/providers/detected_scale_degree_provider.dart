@@ -1,17 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/theory_domain.dart';
-import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
-import 'chord_candidates_providers.dart';
+import 'chord_presentation_provider.dart';
 
 final detectedScaleDegreeProvider = Provider<ScaleDegree?>((ref) {
   final mode = ref.watch(analysisModeProvider);
   if (mode != AnalysisMode.chord) return null;
 
-  final best = ref.watch(bestChordCandidateProvider);
-  if (best == null) return null;
-
-  final context = ref.watch(analysisContextProvider);
-  return context.tonality.scaleDegreeForChord(best.identity);
+  return ref.watch(chordPresentationProvider)?.scaleDegree;
 });
