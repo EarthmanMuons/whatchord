@@ -7,17 +7,13 @@ import 'package:whatchord/features/input/input.dart';
 
 import '../../domain/theory_domain.dart';
 import '../../presentation/models/identity_display.dart';
-import '../../presentation/services/chord_long_form_formatter.dart';
 import '../../presentation/services/chord_quality_token_labels.dart';
-import '../../presentation/services/chord_symbol_builder.dart';
 import '../../presentation/services/interval_formatter.dart';
 import '../../presentation/services/inversion_formatter.dart';
 import '../../presentation/services/note_long_form_formatter.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
-import 'chord_candidates_providers.dart';
-import 'chord_member_spellings_providers.dart';
-import 'theory_preferences_notifier.dart';
+import 'chord_presentation_provider.dart';
 
 final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
   final mode = ref.watch(analysisModeProvider);
@@ -88,28 +84,14 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
 
     case AnalysisMode.chord:
       {
-        final id = ref.watch(
-          bestChordCandidateProvider.select((c) => c?.identity),
-        );
-        if (id == null) return null;
-
-        final notation = ref.watch(chordNotationStyleProvider);
-
-        final symbol = ChordSymbolBuilder.fromIdentity(
-          identity: id,
-          tonality: tonality,
-          notation: notation,
-        );
+        final presentation = ref.watch(chordPresentationProvider);
+        if (presentation == null) return null;
+        final id = presentation.identity;
 
         final inversion = InversionFormatter.format(id);
         final secondaryLabel = (inversion == null || inversion.trim().isEmpty)
             ? 'Chord'
             : 'Chord · $inversion';
-
-        final longLabel = ChordLongFormFormatter.format(
-          identity: id,
-          tonality: tonality,
-        );
 
         final qualityLabel = id.quality.label(ChordQualityLabelForm.long);
 
@@ -118,27 +100,24 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
 
         final extensionLabels = extensions.map((e) => e.shortLabel).toList();
 
-        final members = ref.watch(chordMemberSpellingsProvider);
-        final degrees = ref.watch(chordMemberDegreesProvider);
-
         final debugText = _debugForChord(
           midis: midis,
           keyName: tonality.displayName,
-          chosenSymbol: symbol.toString(),
-          longLabel: longLabel,
+          chosenSymbol: presentation.symbol.toString(),
+          longLabel: presentation.longLabel,
           rootPc: id.rootPc,
           bassPc: id.bassPc,
           hasSlash: id.hasSlashBass,
           quality: qualityLabel,
           extensions: extensionLabels,
-          members: members,
-          degrees: degrees,
+          members: presentation.members,
+          degrees: presentation.memberDegrees,
           appVersion: appVersion,
         );
 
         return ChordDisplay(
-          symbol: symbol,
-          longLabel: longLabel,
+          symbol: presentation.symbol,
+          longLabel: presentation.longLabel,
           secondaryLabel: secondaryLabel,
           debugText: debugText,
         );
