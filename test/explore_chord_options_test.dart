@@ -73,6 +73,37 @@ void main() {
         '13',
       ]);
     });
+
+    test('diminished seventh omits extensions already in the chord', () {
+      final groups = buildExploreExtensionControlGroups(
+        ChordQualityToken.diminished7,
+      );
+
+      expect(groups[0].choices.map((choice) => choice.extension), [
+        null,
+        ChordExtension.flat9,
+        ChordExtension.nine,
+      ]);
+      expect(groups[1].choices.map((choice) => choice.extension), [
+        null,
+        ChordExtension.eleven,
+      ]);
+      expect(groups[2].choices.map((choice) => choice.extension), [
+        null,
+        ChordExtension.flat13,
+      ]);
+    });
+
+    test('suspended seventh omits the redundant natural eleventh', () {
+      final groups = buildExploreExtensionControlGroups(
+        ChordQualityToken.dominant7sus4,
+      );
+
+      expect(groups[1].choices.map((choice) => choice.extension), [
+        null,
+        ChordExtension.sharp11,
+      ]);
+    });
   });
 
   group('extensionSetLabel', () {
@@ -153,6 +184,21 @@ void main() {
       );
 
       expect(normalized, isEmpty);
+    });
+
+    test('drops seventh-family extensions that duplicate core chord tones', () {
+      final normalized = normalizeExtensionsForQuality(
+        quality: ChordQualityToken.diminished7,
+        extensions: const {
+          ChordExtension.sharp9,
+          ChordExtension.sharp11,
+          ChordExtension.thirteen,
+          ChordExtension.flat9,
+          ChordExtension.eleven,
+        },
+      );
+
+      expect(normalized, {ChordExtension.flat9, ChordExtension.eleven});
     });
   });
 
