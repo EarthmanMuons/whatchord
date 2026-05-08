@@ -16,6 +16,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   structured controls for root, quality, extensions, and bass plus a
   normalized keyboard view and live harmonic context.
 
+### Changed
+
+- Reworked Explore screen extension controls into grouped tone choices so
+  added tones, natural extensions, and alterations can be combined more
+  intuitively.
+
 ## [2026.3.10] - 2026-03-10
 
 ### Changed
