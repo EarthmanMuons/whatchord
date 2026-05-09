@@ -641,8 +641,20 @@ class _ExploreSummary extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            toSmufl(presentation.symbol.toString()),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(text: toSmufl(presentation.symbol.root)),
+                if (presentation.symbol.quality.isNotEmpty) ...[
+                  const TextSpan(text: '\u200A'),
+                  TextSpan(text: toSmufl(presentation.symbol.quality)),
+                ],
+                if (presentation.symbol.hasBass) ...[
+                  const TextSpan(text: ' / '),
+                  TextSpan(text: toSmufl(presentation.symbol.bassRequired)),
+                ],
+              ],
+            ),
             style: textTheme.headlineMedium?.copyWith(
               color: colorScheme.onSurface,
               fontFamilyFallback: const ['Bravura'],
