@@ -7,6 +7,7 @@ import 'package:whatchord/features/input/input.dart';
 
 import '../../domain/theory_domain.dart';
 import '../../presentation/models/identity_display.dart';
+import '../../presentation/services/chord_long_form_formatter.dart';
 import '../../presentation/services/chord_quality_token_labels.dart';
 import '../../presentation/services/interval_formatter.dart';
 import '../../presentation/services/inversion_formatter.dart';
@@ -99,12 +100,17 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
         final extensionLabels = extensions.map((e) => e.shortLabel).toList();
+        final debugLongLabel = ChordLongFormFormatter.format(
+          identity: id,
+          tonality: tonality,
+          accidentalStyle: ChordLongFormAccidentalStyle.plainText,
+        );
 
         final debugText = _debugForChord(
           midis: midis,
           keyName: tonality.displayName,
           chosenSymbol: presentation.symbol.toString(),
-          longLabel: presentation.longLabel,
+          longLabel: debugLongLabel,
           rootPc: id.rootPc,
           bassPc: id.bassPc,
           hasSlash: id.hasSlashBass,

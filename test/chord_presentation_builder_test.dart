@@ -129,9 +129,22 @@ void main() {
     );
 
     expect(presentation.symbol.toString(), 'G7(b9,#11)');
+    expect(
+      presentation.longLabel,
+      'G dominant seventh with flat ninth and sharp eleventh',
+    );
     expect(presentation.members, ['G', 'Ab', 'B', 'C#', 'D', 'F']);
     expect(presentation.memberDegrees, ['1', '3', '5', 'b7', 'b9', '#11']);
     expect(presentation.scaleDegree, isNull);
+
+    expect(
+      ChordLongFormFormatter.format(
+        identity: identity,
+        tonality: const Tonality('C', TonalityMode.major),
+        accidentalStyle: ChordLongFormAccidentalStyle.plainText,
+      ),
+      'G dominant seventh with flat ninth and sharp eleventh',
+    );
   });
 
   test('returns null scale degree for non-diatonic presentation', () {
@@ -148,6 +161,7 @@ void main() {
     );
 
     expect(presentation.symbol.toString(), 'C#');
+    expect(presentation.longLabel, 'C♯ major');
     expect(presentation.scaleDegree, isNull);
   });
 }
