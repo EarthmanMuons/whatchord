@@ -45,8 +45,8 @@ conventional interpretations over simple note-matching.
   candidates rather than hiding uncertainty.
 
 - **Interactive chord exploration**  
-  Tap the identity card to open Explore, where you can adjust root, quality,
-  extensions, and bass notes without needing a full chord under your fingers.
+  Tap the identity card to open Explore, where you can adjust the chord root,
+  quality, extensions, and bass notes without needing keys under your fingers.
 
 - **Context-aware spelling**  
   Notes and chord symbols are spelled using the current key signature _and_ the
