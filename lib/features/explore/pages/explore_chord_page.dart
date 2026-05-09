@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -7,8 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/input/input.dart';
-import 'package:whatchord/features/midi/midi.dart';
-import 'package:whatchord/features/onboarding/onboarding.dart';
 import 'package:whatchord/features/piano/piano.dart';
 import 'package:whatchord/features/settings/settings.dart';
 import 'package:whatchord/features/theory/theory.dart';
@@ -135,21 +132,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                   bottom: false,
                   left: !isLandscape,
                   right: !isLandscape,
-                  child: _ExploreTopBar(
-                    horizontalInset: horizontalInset,
-                    onOpenMidiSettings: () {
-                      unawaited(
-                        ref
-                            .read(midiSettingsOnboardingProvider.notifier)
-                            .markSeen(),
-                      );
-                      Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const MidiSettingsPage(),
-                        ),
-                      );
-                    },
-                  ),
+                  child: _ExploreTopBar(horizontalInset: horizontalInset),
                 ),
               ),
               Expanded(
@@ -318,25 +301,10 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
   }
 }
 
-class _ExploreMidiAction extends StatelessWidget {
-  const _ExploreMidiAction({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return MidiStatusIcon(onPressed: onPressed);
-  }
-}
-
 class _ExploreTopBar extends StatelessWidget {
-  const _ExploreTopBar({
-    required this.horizontalInset,
-    required this.onOpenMidiSettings,
-  });
+  const _ExploreTopBar({required this.horizontalInset});
 
   final double horizontalInset;
-  final VoidCallback onOpenMidiSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -379,7 +347,6 @@ class _ExploreTopBar extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 4),
-              _ExploreMidiAction(onPressed: onOpenMidiSettings),
               Transform.translate(
                 offset: const Offset(6, 0),
                 child: IconButton(
