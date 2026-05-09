@@ -29,6 +29,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Fixed accidental labels in key, note, and Explore controls so sharps and flats
   use musical symbols consistently in the UI.
+- Fixed the idle blackout screen so iOS status bar icons stay visible when the
+  app is using the light theme.
 
 ### Removed
 

@@ -29,6 +29,7 @@ class _EdgeToEdgeControllerState extends State<EdgeToEdgeController> {
         statusBarColor: Colors.transparent,
         systemNavigationBarColor: Colors.transparent,
         statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
         systemNavigationBarIconBrightness: isDark
             ? Brightness.light
             : Brightness.dark,
