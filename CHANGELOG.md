@@ -21,6 +21,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Made highlighted piano keys use stronger theme-based fills and outlines so
   active white and black notes are easier to distinguish.
+- Made Help & Support open in-app first, with chord-card Analysis Details
+  guidance before linking to GitHub or email support.
 - Made the main identity card open Explore directly, including when idle or
   playing a single note or interval, while moving Analysis Details to long
   press.

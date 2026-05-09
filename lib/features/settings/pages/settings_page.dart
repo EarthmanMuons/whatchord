@@ -424,20 +424,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ),
 
               Semantics(
-                onTapHint: 'Open support page in browser',
+                onTapHint: 'Open help and support',
                 child: ListTile(
                   leading: const Icon(Icons.support_agent_outlined),
-                  title: const Text('Support'),
-                  subtitle: const Text('Report an issue or contact support'),
-                  trailing: const Icon(Icons.open_in_new),
-                  onTap: () {
-                    openUrl(
-                      context,
-                      Uri.parse(
-                        'https://github.com/EarthmanMuons/whatchord/blob/main/SUPPORT.md',
-                      ),
-                    );
-                  },
+                  title: const Text('Help & Support'),
+                  subtitle: const Text('Instructions, reporting, and contact'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => showSupportSheet(context),
                 ),
               ),
 

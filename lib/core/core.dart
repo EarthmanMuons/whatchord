@@ -21,3 +21,4 @@ export 'widgets/section_header.dart';
 export 'widgets/modal_panel_header.dart';
 export 'widgets/modal_sheet_sizing.dart';
 export 'widgets/subsection_label.dart';
+export 'widgets/support_sheet.dart';
