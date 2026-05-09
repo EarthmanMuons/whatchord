@@ -4,7 +4,7 @@ abstract final class NoteLongFormFormatter {
     final s = noteName.trim();
     if (s.isEmpty) return s;
 
-    if (s.length == 1) return s;
+    if (s.length == 1) return '${s.toUpperCase()} natural';
 
     final letter = s[0].toUpperCase();
     final accidental = s.substring(1);
@@ -13,6 +13,7 @@ abstract final class NoteLongFormFormatter {
       '#' => '$letter sharp',
       'b' => '$letter flat',
       '##' => '$letter double sharp',
+      'x' => '$letter double sharp',
       'bb' => '$letter double flat',
       _ => s, // fallback
     };

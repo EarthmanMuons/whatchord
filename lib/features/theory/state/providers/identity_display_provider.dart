@@ -66,7 +66,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
 
         return IntervalDisplay(
           referenceName: root,
-          intervalLabel: interval.short,
+          intervalLabel: interval.long,
           longLabel: interval.long,
           secondaryLabel: 'Interval · from $root',
           debugText: _debugForInterval(
@@ -75,7 +75,6 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
             bassMidi: bassMidi,
             upperMidi: upperMidi,
             semitones: interval.semitones,
-            intervalShort: interval.short,
             intervalLong: interval.long,
             fromRoot: root,
             appVersion: appVersion,
@@ -145,7 +144,10 @@ String _debugForNote({
 }) {
   return _debugDoc(
     sections: [
-      _debugSection('Note Identity', ['Label: $noteName', 'Name: $longLabel']),
+      _debugSection('Note Identity', [
+        'Displayed: $noteName',
+        'Full name: $longLabel',
+      ]),
       _debugContext(keyName: keyName),
       _debugInput(midis: midis),
       _debugApp(appVersion: appVersion),
@@ -160,15 +162,13 @@ String _debugForInterval({
   required int upperMidi,
   required int semitones,
   required String fromRoot,
-  required String intervalShort,
   required String intervalLong,
   required String? appVersion,
 }) {
   return _debugDoc(
     sections: [
       _debugSection('Interval Identity', [
-        'Label: $intervalShort',
-        'Name: $intervalLong',
+        'Full name: $intervalLong',
         'Reference: from $fromRoot',
       ]),
       _debugContext(keyName: keyName),
@@ -202,10 +202,10 @@ String _debugForChord({
   return _debugDoc(
     sections: [
       _debugSection('Chord Identity', [
-        'Label: $chosenSymbol',
+        'Displayed: $chosenSymbol',
+        'Full name: $longLabel',
         'Degrees: ${degrees.isEmpty ? '(none)' : degrees.join(' ')}',
         'Members: ${members.isEmpty ? '(none)' : members.join(', ')}',
-        'Name: $longLabel',
       ]),
       _debugContext(keyName: keyName),
       _debugInput(midis: midis),
