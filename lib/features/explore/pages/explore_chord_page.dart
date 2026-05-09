@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -32,7 +33,21 @@ class ExploreChordPage extends ConsumerStatefulWidget {
 }
 
 class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
+  static const Duration _previewDuration = Duration(milliseconds: 1400);
+  static const Duration _rolledPreviewStep = Duration(milliseconds: 180);
+  static const Duration _rolledPreviewNoteDuration = Duration(
+    milliseconds: 220,
+  );
+  static const Duration _rolledPreviewBlockGap = Duration(milliseconds: 260);
+  static const Duration _rolledPreviewBlockDuration = Duration(
+    milliseconds: 1400,
+  );
+
   late ExploreChordState _state;
+  final List<Timer> _previewAnimationTimers = <Timer>[];
+  Set<int> _previewActiveNotes = const <int>{};
+  bool _isPreviewAnimationRunning = false;
+  int _previewAnimationGeneration = 0;
 
   @override
   void initState() {
@@ -47,6 +62,12 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
   }
 
   @override
+  void dispose() {
+    _cancelPreviewAnimation(notify: false);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final identity = buildExploreChordIdentity(_state);
     final tonality = ref.watch(selectedTonalityProvider);
@@ -57,6 +78,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
       notation: notation,
     );
     void onRootChanged(int value) {
+      _cancelPreviewAnimation();
       setState(() {
         final next = _state.copyWith(rootPc: value);
         _state = _withValidBass(next);
@@ -64,6 +86,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
     }
 
     void onQualityChanged(ChordQualityToken value) {
+      _cancelPreviewAnimation();
       setState(() {
         final normalizedExtensions = normalizeExtensionsForQuality(
           quality: value,
@@ -78,6 +101,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
     }
 
     void onExtensionsChanged(Set<ChordExtension> value) {
+      _cancelPreviewAnimation();
       setState(() {
         final next = _state.copyWith(
           extensions: normalizeExtensionsForQuality(
@@ -90,6 +114,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
     }
 
     void onBassChanged(int value) {
+      _cancelPreviewAnimation();
       setState(() {
         _state = _withValidBass(_state.copyWith(bassPc: value));
       });
@@ -110,6 +135,12 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
         : const <int>{};
 
     final cs = Theme.of(context).colorScheme;
+    final previewPitchClasses = {
+      for (final midiNote in _previewActiveNotes) midiNote % 12,
+    };
+    final displayedKeyboardNotes = _isPreviewAnimationRunning
+        ? _previewActiveNotes
+        : presentation.normalizedVoicing.toSet();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -175,6 +206,14 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                               members: presentation.members,
                                               previewNotes: presentation
                                                   .normalizedVoicing,
+                                              activePitchClasses:
+                                                  previewPitchClasses,
+                                              memberPitchClasses:
+                                                  _memberPitchClassesInOrder(
+                                                    identity,
+                                                  ),
+                                              onPreviewStarted:
+                                                  _startPreviewAnimation,
                                             ),
                                           ],
                                         ),
@@ -220,6 +259,10 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                       members: presentation.members,
                                       previewNotes:
                                           presentation.normalizedVoicing,
+                                      activePitchClasses: previewPitchClasses,
+                                      memberPitchClasses:
+                                          _memberPitchClassesInOrder(identity),
+                                      onPreviewStarted: _startPreviewAnimation,
                                     ),
                                     const SizedBox(height: 20),
                                     Expanded(
@@ -270,8 +313,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                       const Divider(height: 1),
                       _ExploreKeyboard(
                         config: config,
-                        highlightedNotes: presentation.normalizedVoicing
-                            .toSet(),
+                        highlightedNotes: displayedKeyboardNotes,
                         markedNotes: markedNoteNumbers,
                       ),
                     ],
@@ -298,6 +340,93 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
         : candidate.rootPc;
 
     return candidate.copyWith(bassPc: bassPc);
+  }
+
+  List<int> _memberPitchClassesInOrder(ChordIdentity identity) {
+    return ChordPresentationBuilder.sortedIntervalsForIdentity(
+      identity,
+    ).map((interval) => (identity.rootPc + interval) % 12).toList();
+  }
+
+  void _startPreviewAnimation(List<int> previewNotes) {
+    final notes =
+        previewNotes.map((note) => note.clamp(0, 127)).toSet().toList()..sort();
+    if (notes.isEmpty) return;
+
+    _cancelPreviewAnimation();
+    final generation = ++_previewAnimationGeneration;
+
+    void setActive(Set<int> notes) {
+      if (!mounted || generation != _previewAnimationGeneration) return;
+      setState(() {
+        _isPreviewAnimationRunning = true;
+        _previewActiveNotes = Set<int>.unmodifiable(notes);
+      });
+    }
+
+    void schedule(Duration delay, VoidCallback callback) {
+      _previewAnimationTimers.add(Timer(delay, callback));
+    }
+
+    if (notes.length == 1) {
+      setActive(notes.toSet());
+      schedule(_previewDuration, () => _finishPreviewAnimation(generation));
+      return;
+    }
+
+    final activeNotes = <int>{};
+    for (var i = 0; i < notes.length; i++) {
+      final midiNote = notes[i];
+      final noteStart = _rolledPreviewStep * i;
+      schedule(noteStart, () {
+        activeNotes.add(midiNote);
+        setActive(activeNotes);
+      });
+      schedule(noteStart + _rolledPreviewNoteDuration, () {
+        activeNotes.remove(midiNote);
+        setActive(activeNotes);
+      });
+    }
+
+    final blockStart =
+        _rolledPreviewStep * notes.length + _rolledPreviewBlockGap;
+    schedule(blockStart, () => setActive(notes.toSet()));
+    schedule(
+      blockStart + _rolledPreviewBlockDuration,
+      () => _finishPreviewAnimation(generation),
+    );
+  }
+
+  void _finishPreviewAnimation(int generation) {
+    if (!mounted || generation != _previewAnimationGeneration) return;
+    setState(() {
+      _isPreviewAnimationRunning = false;
+      _previewActiveNotes = const <int>{};
+    });
+    _clearPreviewAnimationTimers();
+  }
+
+  void _cancelPreviewAnimation({bool notify = true}) {
+    _previewAnimationGeneration++;
+    _clearPreviewAnimationTimers();
+    if ((_previewActiveNotes.isEmpty && !_isPreviewAnimationRunning) ||
+        !mounted ||
+        !notify) {
+      _isPreviewAnimationRunning = false;
+      _previewActiveNotes = const <int>{};
+      return;
+    }
+    setState(() {
+      _isPreviewAnimationRunning = false;
+      _previewActiveNotes = const <int>{};
+    });
+  }
+
+  void _clearPreviewAnimationTimers() {
+    for (final timer in _previewAnimationTimers) {
+      timer.cancel();
+    }
+    _previewAnimationTimers.clear();
   }
 }
 
@@ -537,10 +666,16 @@ class _ChordMembersSection extends StatelessWidget {
   const _ChordMembersSection({
     required this.members,
     required this.previewNotes,
+    required this.activePitchClasses,
+    required this.memberPitchClasses,
+    required this.onPreviewStarted,
   });
 
   final List<String> members;
   final List<int> previewNotes;
+  final Set<int> activePitchClasses;
+  final List<int> memberPitchClasses;
+  final ValueChanged<List<int>> onPreviewStarted;
 
   @override
   Widget build(BuildContext context) {
@@ -555,10 +690,18 @@ class _ChordMembersSection extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(right: 4),
-            child: _ExplorePlayButton(previewNotes: previewNotes),
+            child: _ExplorePlayButton(
+              previewNotes: previewNotes,
+              onPreviewStarted: onPreviewStarted,
+            ),
           ),
-          for (final member in members)
-            _ExploreMemberChip(label: toGlyphAccidentals(member)),
+          for (var i = 0; i < members.length; i++)
+            _ExploreMemberChip(
+              label: toGlyphAccidentals(members[i]),
+              active:
+                  i < memberPitchClasses.length &&
+                  activePitchClasses.contains(memberPitchClasses[i]),
+            ),
         ],
       ),
     );
@@ -566,14 +709,19 @@ class _ChordMembersSection extends StatelessWidget {
 }
 
 class _ExplorePlayButton extends ConsumerWidget {
-  const _ExplorePlayButton({required this.previewNotes});
+  const _ExplorePlayButton({
+    required this.previewNotes,
+    required this.onPreviewStarted,
+  });
 
   final List<int> previewNotes;
+  final ValueChanged<List<int>> onPreviewStarted;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     void playChord() {
+      onPreviewStarted(previewNotes);
       ref
           .read(audioMonitorNotifier.notifier)
           .playRolledPreviewNotes(previewNotes);
@@ -1557,9 +1705,10 @@ class _ExploreKeyboard extends StatelessWidget {
 }
 
 class _ExploreMemberChip extends StatelessWidget {
-  const _ExploreMemberChip({required this.label});
+  const _ExploreMemberChip({required this.label, required this.active});
 
   final String label;
+  final bool active;
 
   @override
   Widget build(BuildContext context) {
@@ -1569,7 +1718,8 @@ class _ExploreMemberChip extends StatelessWidget {
     final verticalScale = InputDisplaySizing.noteVerticalScale(context);
 
     final labelStyle = theme.textTheme.titleMedium?.copyWith(
-      color: cs.onSurface,
+      color: active ? cs.onPrimaryContainer : cs.onSurface,
+      fontWeight: active ? FontWeight.w700 : null,
     );
     final fontSize = labelStyle?.fontSize ?? 16.0;
     final defaultHeight = labelStyle?.height ?? 1.2;
@@ -1587,22 +1737,23 @@ class _ExploreMemberChip extends StatelessWidget {
       container: true,
       label: 'Chord member $label',
       child: ExcludeSemantics(
-        child: DecoratedBox(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
           decoration: BoxDecoration(
-            color: cs.surfaceContainerLow,
+            color: active ? cs.primaryContainer : cs.surfaceContainerLow,
             borderRadius: BorderRadius.circular(10 * sizeScale),
             border: Border.all(
-              color: cs.outlineVariant.withValues(alpha: 0.60),
-              width: 1.0,
+              color: active
+                  ? cs.primary.withValues(alpha: 0.82)
+                  : cs.outlineVariant.withValues(alpha: 0.60),
+              width: active ? 1.6 : 1.0,
             ),
           ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 10 * sizeScale,
-              vertical: (6 * verticalScale) + extraVertical,
-            ),
-            child: Text(label, strutStyle: labelStrut, style: labelStyle),
+          padding: EdgeInsets.symmetric(
+            horizontal: 10 * sizeScale,
+            vertical: (6 * verticalScale) + extraVertical,
           ),
+          child: Text(label, strutStyle: labelStrut, style: labelStyle),
         ),
       ),
     );

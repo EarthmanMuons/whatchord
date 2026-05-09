@@ -29,8 +29,6 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Fixed accidental labels in key, note, and Explore controls so sharps and flats
   use musical symbols consistently in the UI.
-- Fixed Explore extension choices so options that duplicate an existing chord
-  tone are not shown or kept in the chord name.
 
 ### Removed
 
