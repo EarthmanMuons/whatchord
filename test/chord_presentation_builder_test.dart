@@ -26,7 +26,7 @@ void main() {
     expect(presentation.normalizedVoicing, [60, 64, 67]);
   });
 
-  test('rotates first-inversion slash bass into a compact voicing', () {
+  test('rotates first-inversion slash bass above root position', () {
     final identity = _identity(
       root: 'C',
       bass: 'E',
@@ -42,10 +42,10 @@ void main() {
 
     expect(presentation.symbol.toString(), 'C / E');
     expect(presentation.longLabel, 'C major over E');
-    expect(presentation.normalizedVoicing, [52, 55, 60]);
+    expect(presentation.normalizedVoicing, [64, 67, 72]);
   });
 
-  test('rotates second-inversion slash bass into a compact voicing', () {
+  test('rotates second-inversion slash bass above root position', () {
     final identity = _identity(
       root: 'C',
       bass: 'G',
@@ -59,7 +59,7 @@ void main() {
       notation: notation,
     );
 
-    expect(presentation.normalizedVoicing, [55, 60, 64]);
+    expect(presentation.normalizedVoicing, [67, 72, 76]);
   });
 
   test('rotates seventh-chord slash bass without duplicated pitch classes', () {
@@ -76,7 +76,7 @@ void main() {
       notation: notation,
     );
 
-    expect(presentation.normalizedVoicing, [58, 60, 64, 67]);
+    expect(presentation.normalizedVoicing, [70, 72, 76, 79]);
   });
 
   test('keeps extensions above the selected slash bass', () {
@@ -94,7 +94,7 @@ void main() {
       notation: notation,
     );
 
-    expect(presentation.normalizedVoicing, [52, 55, 58, 60, 62]);
+    expect(presentation.normalizedVoicing, [64, 67, 70, 72, 74]);
   });
 
   test('stacks root-position seventh extensions above the core chord', () {
