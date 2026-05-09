@@ -7,19 +7,26 @@ import 'package:whatchord/features/theory/theory.dart';
 
 void main() {
   group('buildExploreExtensionControlGroups', () {
-    test('major qualities expose add-tone and sharp-eleventh toggles', () {
+    test('major qualities group exclusive eleventh choices separately', () {
       final groups = buildExploreExtensionControlGroups(
         ChordQualityToken.major,
       );
 
-      expect(groups, hasLength(1));
-      expect(groups.single.label, 'Extensions');
-      expect(groups.single.allowsMultiple, isTrue);
-      expect(groups.single.choices.map((choice) => choice.extension), [
+      expect(groups.map((group) => group.label), ['Add tones', '11']);
+      expect(groups.map((group) => group.allowsMultiple), [true, false]);
+      expect(groups[0].choices.map((choice) => choice.extension), [
         ChordExtension.add9,
+        ChordExtension.add13,
+      ]);
+      expect(groups[1].choices.map((choice) => choice.extension), [
+        null,
         ChordExtension.add11,
         ChordExtension.sharp11,
-        ChordExtension.add13,
+      ]);
+      expect(groups[1].choices.map((choice) => choice.label), [
+        'None',
+        'add11',
+        '♯11',
       ]);
     });
 
@@ -43,12 +50,15 @@ void main() {
         ChordQualityToken.augmented,
       );
 
-      expect(groups, hasLength(1));
-      expect(groups.single.choices.map((choice) => choice.extension), [
+      expect(groups.map((group) => group.label), ['Add tones', '11']);
+      expect(groups[0].choices.map((choice) => choice.extension), [
         ChordExtension.add9,
+        ChordExtension.add13,
+      ]);
+      expect(groups[1].choices.map((choice) => choice.extension), [
+        null,
         ChordExtension.add11,
         ChordExtension.sharp11,
-        ChordExtension.add13,
       ]);
     });
 
@@ -57,10 +67,12 @@ void main() {
         ChordQualityToken.major6,
       );
 
-      expect(groups, hasLength(1));
-      expect(groups.single.label, 'Extensions');
-      expect(groups.single.choices.map((choice) => choice.extension), [
+      expect(groups.map((group) => group.label), ['Add tones', '11']);
+      expect(groups[0].choices.map((choice) => choice.extension), [
         ChordExtension.add9,
+      ]);
+      expect(groups[1].choices.map((choice) => choice.extension), [
+        null,
         ChordExtension.add11,
         ChordExtension.sharp11,
       ]);
@@ -278,7 +290,7 @@ void main() {
     test('toggles add tones independently', () {
       final group = buildExploreExtensionControlGroups(
         ChordQualityToken.major,
-      ).single;
+      ).first;
 
       final withAdd9 = selectExploreExtensionChoice(
         quality: ChordQualityToken.major,
@@ -302,7 +314,7 @@ void main() {
     test('replaces natural and sharp eleventh choices for major qualities', () {
       final group = buildExploreExtensionControlGroups(
         ChordQualityToken.major,
-      ).single;
+      )[1];
 
       final withSharp11 = selectExploreExtensionChoice(
         quality: ChordQualityToken.major,
@@ -321,6 +333,25 @@ void main() {
       );
 
       expect(withAdd11, {ChordExtension.add11});
+    });
+
+    test('none clears triad-like eleventh choices only', () {
+      final group = buildExploreExtensionControlGroups(
+        ChordQualityToken.major,
+      )[1];
+
+      final normalized = selectExploreExtensionChoice(
+        quality: ChordQualityToken.major,
+        currentExtensions: const {
+          ChordExtension.add9,
+          ChordExtension.sharp11,
+          ChordExtension.add13,
+        },
+        group: group,
+        choice: group.choices[0],
+      );
+
+      expect(normalized, {ChordExtension.add9, ChordExtension.add13});
     });
 
     test('replaces selected choices within the same seventh degree', () {

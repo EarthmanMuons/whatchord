@@ -108,6 +108,31 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
     ];
   }
 
+  if (_allowsTriadLikeSharp11(quality)) {
+    return [
+      ExploreExtensionControlGroup(
+        label: 'Add tones',
+        allowsMultiple: true,
+        choices: [
+          _choice(ChordExtension.add9),
+          if (!quality.isSixFamily) _choice(ChordExtension.add13),
+        ],
+      ),
+      ExploreExtensionControlGroup(
+        label: '11',
+        allowsMultiple: false,
+        choices: [
+          const ExploreExtensionChoice(
+            label: 'None',
+            semanticLabel: 'No eleventh',
+          ),
+          _choice(ChordExtension.add11),
+          _choice(ChordExtension.sharp11),
+        ],
+      ),
+    ];
+  }
+
   return [
     ExploreExtensionControlGroup(
       label: 'Extensions',
@@ -115,7 +140,6 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
       choices: [
         _choice(ChordExtension.add9),
         _choice(ChordExtension.add11),
-        if (_allowsTriadLikeSharp11(quality)) _choice(ChordExtension.sharp11),
         if (!quality.isSixFamily) _choice(ChordExtension.add13),
       ],
     ),
