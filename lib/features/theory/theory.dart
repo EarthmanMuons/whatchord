@@ -18,6 +18,7 @@ export 'presentation/widgets/tonality_picker_sheet.dart';
 
 export 'state/persistence/theory_preferences_keys.dart';
 export 'state/providers/chord_candidates_providers.dart';
+export 'state/providers/chord_input_provider.dart';
 export 'state/providers/chord_member_spellings_providers.dart';
 export 'state/providers/chord_presentation_provider.dart';
 export 'state/providers/detected_scale_degree_provider.dart';
