@@ -37,24 +37,24 @@ conventional interpretations over simple note-matching.
 
 - **Musically informed chord detection**  
   Goes beyond simple note-matching by ranking and resolving ambiguous
-  interpretations using smart musical rules (e.g., inversions, extensions, upper
-  structures, diatonic preference).
+  interpretations using musical context such as inversions, extensions, upper
+  structures, and diatonic preference.
 
 - **Ambiguity-aware user interface**  
-  When multiple interpretations are plausible, WhatChord surfaces alternative
+  When multiple interpretations are plausible, WhatChord shows alternative
   candidates rather than hiding uncertainty.
 
 - **Interactive chord exploration**  
-  Tap the identity card to open Explore, where you can adjust the chord root,
-  quality, extensions, and bass notes without needing keys under your fingers.
+  Tap the chord card to open Explore Chords, where you can adjust the root,
+  quality, extensions, and bass notes even when no keyboard is connected.
 
 - **Context-aware spelling**  
   Notes and chord symbols are spelled using the current key signature _and_ the
   identified chord context, producing appropriate enharmonic spellings.
 
 - **Notation style preferences**  
-  Supports multiple chord symbol conventions (e.g., textual vs. symbolic),
-  balancing readability with precision.
+  Supports multiple chord symbol conventions, including textual and symbolic
+  notation, so you can choose the style that reads best for you.
 
 ## Screenshots
 
@@ -64,8 +64,8 @@ Here's WhatChord in action:
 
 ## Installation
 
-WhatChord is available through multiple official distribution channels. Choose
-the option that best fits your platform and update preferences.
+WhatChord is available to install in several ways. Choose the option that best
+fits your platform and update preferences.
 
 ### iOS (App Store)
 
@@ -97,7 +97,7 @@ WhatChord is available on the Google Play Store for supported Android devices.
 
 > Google Play availability may vary by region during staged rollouts.
 
-### Android (Direct APK via GitHub)
+### Android (GitHub APK)
 
 For advanced users who prefer direct distribution or third-party updater
 workflows, WhatChord also publishes **signed Android APKs** as GitHub Releases.
@@ -160,7 +160,7 @@ usage inform improvements.
 If you believe a chord has been identified incorrectly, please [open an
 issue][ISSUE] on the GitHub repository. When possible, include the notes you
 played, the key signature, and the chord WhatChord reported versus the expected
-result. Long-press the identity card to open Analysis Details when you need
+result. Long-press the chord card to open Analysis Details when you need
 diagnostic information to share. Sharing this data helps debug edge cases and
 improve the engine.
 
