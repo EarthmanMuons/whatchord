@@ -58,7 +58,7 @@ final class IntervalDisplay extends IdentityDisplay {
   /// Reference pitch name (typically the bass or chosen anchor).
   final String referenceName;
 
-  /// Interval label text (e.g., "m3", "P8", "m9").
+  /// Interval label text shown as the primary identity (e.g., "Minor 3rd").
   final String intervalLabel;
 }
 

@@ -21,6 +21,16 @@ void main() {
     });
   });
 
+  group('NoteLongFormFormatter', () {
+    test('spells notes in plain English', () {
+      expect(NoteLongFormFormatter.format('C'), 'C natural');
+      expect(NoteLongFormFormatter.format('Bb'), 'B flat');
+      expect(NoteLongFormFormatter.format('F#'), 'F sharp');
+      expect(NoteLongFormFormatter.format('Abb'), 'A double flat');
+      expect(NoteLongFormFormatter.format('Fx'), 'F double sharp');
+    });
+  });
+
   group('chordSymbolDisplayLabel', () {
     test('converts root, quality, and slash bass accidentals for UI', () {
       final symbol = ChordSymbol(root: 'Bb', quality: '7(#11)', bass: 'F#');
