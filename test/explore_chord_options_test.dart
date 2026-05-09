@@ -1,21 +1,53 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:whatchord/features/explore/models/explore_chord_state.dart';
+import 'package:whatchord/features/explore/services/explore_chord_derivation.dart';
 import 'package:whatchord/features/explore/services/explore_chord_options.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 void main() {
   group('buildExploreExtensionControlGroups', () {
-    test('triad-like qualities expose add-tone toggles only', () {
+    test('major qualities expose add-tone and sharp-eleventh toggles', () {
       final groups = buildExploreExtensionControlGroups(
         ChordQualityToken.major,
       );
 
       expect(groups, hasLength(1));
-      expect(groups.single.label, 'Added tones');
+      expect(groups.single.label, 'Extensions');
       expect(groups.single.allowsMultiple, isTrue);
       expect(groups.single.choices.map((choice) => choice.extension), [
         ChordExtension.add9,
         ChordExtension.add11,
+        ChordExtension.sharp11,
+        ChordExtension.add13,
+      ]);
+    });
+
+    test('minor triad-like qualities expose natural add-tone toggles only', () {
+      final groups = buildExploreExtensionControlGroups(
+        ChordQualityToken.minor,
+      );
+
+      expect(groups, hasLength(1));
+      expect(groups.single.label, 'Extensions');
+      expect(groups.single.allowsMultiple, isTrue);
+      expect(groups.single.choices.map((choice) => choice.extension), [
+        ChordExtension.add9,
+        ChordExtension.add11,
+        ChordExtension.add13,
+      ]);
+    });
+
+    test('augmented qualities expose sharp-eleventh color', () {
+      final groups = buildExploreExtensionControlGroups(
+        ChordQualityToken.augmented,
+      );
+
+      expect(groups, hasLength(1));
+      expect(groups.single.choices.map((choice) => choice.extension), [
+        ChordExtension.add9,
+        ChordExtension.add11,
+        ChordExtension.sharp11,
         ChordExtension.add13,
       ]);
     });
@@ -26,10 +58,11 @@ void main() {
       );
 
       expect(groups, hasLength(1));
-      expect(groups.single.label, 'Added tones');
+      expect(groups.single.label, 'Extensions');
       expect(groups.single.choices.map((choice) => choice.extension), [
         ChordExtension.add9,
         ChordExtension.add11,
+        ChordExtension.sharp11,
       ]);
     });
 
@@ -120,6 +153,26 @@ void main() {
   });
 
   group('normalizeExtensionsForQuality', () {
+    test('keeps a major sharp-eleventh slash bass valid for page seeding', () {
+      final normalized = normalizeExtensionsForQuality(
+        quality: ChordQualityToken.major,
+        extensions: const {ChordExtension.sharp11},
+      );
+      final identity = buildExploreChordIdentity(
+        ExploreChordState(
+          rootPc: 8,
+          bassPc: 2,
+          quality: ChordQualityToken.major,
+          extensions: normalized,
+        ),
+      );
+
+      expect(identity.rootPc, 8);
+      expect(identity.bassPc, 2);
+      expect(identity.quality, ChordQualityToken.major);
+      expect(identity.extensions, {ChordExtension.sharp11});
+    });
+
     test('converts triad add tones to natural seventh-family extensions', () {
       final normalized = normalizeExtensionsForQuality(
         quality: ChordQualityToken.dominant7,
@@ -146,7 +199,6 @@ void main() {
             ChordExtension.nine,
             ChordExtension.eleven,
             ChordExtension.thirteen,
-            ChordExtension.flat9,
             ChordExtension.sharp11,
           },
         );
@@ -154,10 +206,30 @@ void main() {
         expect(normalized, {
           ChordExtension.add9,
           ChordExtension.add11,
+          ChordExtension.sharp11,
           ChordExtension.add13,
         });
       },
     );
+
+    test('preserves sharp eleventh for supported triad-like qualities', () {
+      final major = normalizeExtensionsForQuality(
+        quality: ChordQualityToken.major,
+        extensions: const {ChordExtension.sharp11},
+      );
+      final major6 = normalizeExtensionsForQuality(
+        quality: ChordQualityToken.major6,
+        extensions: const {ChordExtension.sharp11},
+      );
+      final augmented = normalizeExtensionsForQuality(
+        quality: ChordQualityToken.augmented,
+        extensions: const {ChordExtension.sharp11},
+      );
+
+      expect(major, {ChordExtension.sharp11});
+      expect(major6, {ChordExtension.sharp11});
+      expect(augmented, {ChordExtension.sharp11});
+    });
 
     test('drops redundant thirteenth for sixth qualities', () {
       final normalized = normalizeExtensionsForQuality(
@@ -225,6 +297,30 @@ void main() {
       );
 
       expect(withoutAdd9, isEmpty);
+    });
+
+    test('replaces natural and sharp eleventh choices for major qualities', () {
+      final group = buildExploreExtensionControlGroups(
+        ChordQualityToken.major,
+      ).single;
+
+      final withSharp11 = selectExploreExtensionChoice(
+        quality: ChordQualityToken.major,
+        currentExtensions: const {ChordExtension.add11},
+        group: group,
+        choice: group.choices[2],
+      );
+
+      expect(withSharp11, {ChordExtension.sharp11});
+
+      final withAdd11 = selectExploreExtensionChoice(
+        quality: ChordQualityToken.major,
+        currentExtensions: withSharp11,
+        group: group,
+        choice: group.choices[1],
+      );
+
+      expect(withAdd11, {ChordExtension.add11});
     });
 
     test('replaces selected choices within the same seventh degree', () {
