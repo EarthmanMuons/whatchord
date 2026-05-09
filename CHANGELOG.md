@@ -12,9 +12,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Added an Explore screen entry from Analysis Details for detected chords, with
-  structured controls for root, quality, extensions, and bass plus a normalized
-  keyboard view and live harmonic context.
+- Added an Explore screen for trying chord roots, qualities, extensions, and
+  bass notes with a normalized keyboard view and live harmonic context.
 - Added a Play button to Explore so you can hear the current chord without a
   MIDI device.
 
@@ -22,6 +21,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Made highlighted piano keys use stronger theme-based fills and outlines so
   active white and black notes are easier to distinguish.
+- Made the main identity card open Explore directly, including when idle or
+  playing a single note or interval, while moving Analysis Details to long
+  press.
 
 ### Fixed
 

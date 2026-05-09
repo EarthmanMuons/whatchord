@@ -44,6 +44,10 @@ conventional interpretations over simple note-matching.
   When multiple interpretations are plausible, WhatChord surfaces alternative
   candidates rather than hiding uncertainty.
 
+- **Interactive chord exploration**  
+  Tap the identity card to open Explore, where you can adjust root, quality,
+  extensions, and bass notes without needing a full chord under your fingers.
+
 - **Context-aware spelling**  
   Notes and chord symbols are spelled using the current key signature _and_ the
   identified chord context, producing appropriate enharmonic spellings.
@@ -156,8 +160,9 @@ usage inform improvements.
 If you believe a chord has been identified incorrectly, please [open an
 issue][ISSUE] on the GitHub repository. When possible, include the notes you
 played, the key signature, and the chord WhatChord reported versus the expected
-result. You can also tap on the chord identity card to access detailed analysis
-information. Sharing this data helps diagnose edge cases and improve the engine.
+result. Long-press the identity card to open Analysis Details when you need
+diagnostic information to share. Sharing this data helps debug edge cases and
+improve the engine.
 
 [ISSUE]: https://github.com/EarthmanMuons/whatchord/issues/new/choose
 

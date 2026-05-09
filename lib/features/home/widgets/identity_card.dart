@@ -4,6 +4,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:whatchord/features/explore/explore.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'analysis_details_sheet.dart';
@@ -35,9 +36,7 @@ class IdentityCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final exploreSeedIdentity = ref.watch(
-      bestChordCandidateProvider.select((candidate) => candidate?.identity),
-    );
+    final exploreSeedIdentity = ref.watch(exploreSeedIdentityProvider);
 
     final hasLabel = identity?.hasSecondaryLabel ?? false;
 
@@ -163,6 +162,18 @@ class IdentityCard extends ConsumerWidget {
     };
 
     Widget switchedChild() {
+      void openExplore() {
+        Navigator.of(
+          context,
+        ).push(ExploreChordPage.route(seedIdentity: exploreSeedIdentity));
+      }
+
+      void openAnalysisDetails() {
+        final display = identity;
+        if (display == null) return;
+        showAnalysisDetailsSheet(context, identity: display);
+      }
+
       String? semanticsSecondaryValue(IdentityDisplay display) {
         final raw = display.secondaryLabel?.trim();
         if (raw == null || raw.isEmpty) return null;
@@ -207,7 +218,10 @@ class IdentityCard extends ConsumerWidget {
                   excludeSemantics: true,
 
                   button: true,
-                  onTapHint: 'Show analysis details',
+                  onTap: openExplore,
+                  onTapHint: 'Open Explore',
+                  onLongPress: openAnalysisDetails,
+                  onLongPressHint: 'Show analysis details',
                   child: hasLabel
                       ? LayoutBuilder(
                           builder: (context, c) {
@@ -324,31 +338,25 @@ class IdentityCard extends ConsumerWidget {
                 child: Semantics(
                   container: true,
                   label: 'Waiting for input',
-                  hint: 'Play notes to identify a note, interval, or chord.',
+                  hint: 'Open Explore.',
+                  button: true,
+                  onTap: openExplore,
+                  onTapHint: 'Open Explore',
                   child: ExcludeSemantics(child: idleGlyph()),
                 ),
               )
             : KeyedSubtree(
                 key: const ValueKey('placeholder'),
-                child: ExcludeSemantics(child: placeholderText(primaryStyle)),
+                child: Semantics(
+                  container: true,
+                  label: 'No input',
+                  hint: 'Open Explore.',
+                  button: true,
+                  onTap: openExplore,
+                  onTapHint: 'Open Explore',
+                  child: ExcludeSemantics(child: placeholderText(primaryStyle)),
+                ),
               ),
-      );
-    }
-
-    if (display == null) {
-      // No identity; keep card inert.
-      return Card(
-        elevation: 0,
-        color: cs.primary,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: minCardHeight),
-          child: Padding(
-            padding: padding,
-            child: fill
-                ? SizedBox.expand(child: switchedChild())
-                : switchedChild(),
-          ),
-        ),
       );
     }
 
@@ -356,13 +364,12 @@ class IdentityCard extends ConsumerWidget {
       elevation: 0,
       color: cs.primary,
       child: InkWell(
-        onTap: () => showAnalysisDetailsSheet(
+        onTap: () => Navigator.of(
           context,
-          identity: display,
-          exploreSeedIdentity: display is ChordDisplay
-              ? exploreSeedIdentity
-              : null,
-        ),
+        ).push(ExploreChordPage.route(seedIdentity: exploreSeedIdentity)),
+        onLongPress: display == null
+            ? null
+            : () => showAnalysisDetailsSheet(context, identity: display),
         borderRadius: cardBorderRadius,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: minCardHeight),
