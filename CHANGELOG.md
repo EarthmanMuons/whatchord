@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.5.9] - 2026-05-09
+
 ### Added
 
 - Added an Explore screen for trying chord roots, qualities, extensions, and
@@ -321,7 +323,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.3.10...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.9...HEAD
+[2026.5.9]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.3.10...v2026.5.9
 [2026.3.10]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.2.26...v2026.3.10
 [2026.2.26]:
