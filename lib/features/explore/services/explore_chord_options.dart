@@ -110,11 +110,12 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
 
   return [
     ExploreExtensionControlGroup(
-      label: 'Added tones',
+      label: 'Extensions',
       allowsMultiple: true,
       choices: [
         _choice(ChordExtension.add9),
         _choice(ChordExtension.add11),
+        if (_allowsTriadLikeSharp11(quality)) _choice(ChordExtension.sharp11),
         if (!quality.isSixFamily) _choice(ChordExtension.add13),
       ],
     ),
@@ -139,6 +140,7 @@ Set<ChordExtension> selectExploreExtensionChoice({
     if (next.contains(extension)) {
       next.remove(extension);
     } else {
+      _removeMutuallyExclusiveTriadLikeExtensions(next, extension);
       next.add(extension);
     }
   } else {
@@ -222,14 +224,45 @@ Set<ChordExtension> normalizeExtensionsForQuality({
         break;
       case ChordExtension.flat9:
       case ChordExtension.sharp9:
-      case ChordExtension.sharp11:
       case ChordExtension.flat13:
         addSeventhExtension(extension);
+        break;
+      case ChordExtension.sharp11:
+        if (quality.isSeventhFamily) {
+          addSeventhExtension(extension);
+        } else if (_allowsTriadLikeSharp11(quality)) {
+          normalized.add(ChordExtension.sharp11);
+        }
         break;
     }
   }
 
   return Set<ChordExtension>.unmodifiable(normalized);
+}
+
+bool _allowsTriadLikeSharp11(ChordQualityToken quality) {
+  return switch (quality) {
+    ChordQualityToken.major ||
+    ChordQualityToken.major6 ||
+    ChordQualityToken.augmented => true,
+    _ => false,
+  };
+}
+
+void _removeMutuallyExclusiveTriadLikeExtensions(
+  Set<ChordExtension> extensions,
+  ChordExtension selected,
+) {
+  switch (selected) {
+    case ChordExtension.add11:
+      extensions.remove(ChordExtension.sharp11);
+      break;
+    case ChordExtension.sharp11:
+      extensions.remove(ChordExtension.add11);
+      break;
+    default:
+      break;
+  }
 }
 
 Set<ChordExtension> _availableSeventhFamilyExtensions(
