@@ -662,7 +662,7 @@ class _ExploreSummary extends StatelessWidget {
   }
 }
 
-class _ChordMembersSection extends StatelessWidget {
+class _ChordMembersSection extends StatefulWidget {
   const _ChordMembersSection({
     required this.members,
     required this.previewNotes,
@@ -678,6 +678,121 @@ class _ChordMembersSection extends StatelessWidget {
   final ValueChanged<List<int>> onPreviewStarted;
 
   @override
+  State<_ChordMembersSection> createState() => _ChordMembersSectionState();
+}
+
+class _ChordMembersSectionState extends State<_ChordMembersSection>
+    with TickerProviderStateMixin {
+  static const Duration _insertDuration = Duration(milliseconds: 140);
+  static const Duration _removeDuration = Duration(milliseconds: 120);
+
+  late List<_ExploreMemberChipEntry> _entries;
+
+  @override
+  void initState() {
+    super.initState();
+    _entries = _createInitialEntries();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ChordMembersSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _applyMemberDiff();
+  }
+
+  @override
+  void dispose() {
+    for (final entry in _entries) {
+      entry.controller.dispose();
+    }
+    super.dispose();
+  }
+
+  List<_ExploreMemberChipEntry> _createInitialEntries() {
+    return [
+      for (var i = 0; i < widget.members.length; i++)
+        _ExploreMemberChipEntry(
+          data: _memberDataAt(i),
+          controller: AnimationController(
+            vsync: this,
+            duration: _insertDuration,
+            reverseDuration: _removeDuration,
+            value: 1.0,
+          ),
+        ),
+    ];
+  }
+
+  _ExploreMemberChipData _memberDataAt(int index) {
+    final pitchClass = index < widget.memberPitchClasses.length
+        ? widget.memberPitchClasses[index]
+        : null;
+    final id = pitchClass == null
+        ? 'label:${widget.members[index]}'
+        : 'pc:$pitchClass';
+
+    return _ExploreMemberChipData(
+      id: id,
+      label: toGlyphAccidentals(widget.members[index]),
+      active:
+          pitchClass != null && widget.activePitchClasses.contains(pitchClass),
+    );
+  }
+
+  void _applyMemberDiff() {
+    final nextData = [
+      for (var i = 0; i < widget.members.length; i++) _memberDataAt(i),
+    ];
+    final nextIds = {for (final data in nextData) data.id};
+    final entriesById = {
+      for (final entry in _entries)
+        if (!entry.removing) entry.data.id: entry,
+    };
+    final nextEntries = <_ExploreMemberChipEntry>[];
+
+    for (final data in nextData) {
+      final existing = entriesById[data.id];
+      if (existing != null) {
+        existing.data = data;
+        nextEntries.add(existing);
+        continue;
+      }
+
+      final entry = _ExploreMemberChipEntry(
+        data: data,
+        controller: AnimationController(
+          vsync: this,
+          duration: _insertDuration,
+          reverseDuration: _removeDuration,
+        ),
+      );
+      nextEntries.add(entry);
+      entry.controller.forward();
+    }
+
+    for (final entry in _entries) {
+      if (entry.removing || nextIds.contains(entry.data.id)) continue;
+
+      entry.removing = true;
+      entry.controller.reverse().whenComplete(() {
+        if (!mounted) return;
+        setState(() {
+          _entries.remove(entry);
+        });
+        entry.controller.dispose();
+      });
+
+      final oldIndex = _entries.indexOf(entry);
+      final insertIndex = oldIndex.clamp(0, nextEntries.length);
+      nextEntries.insert(insertIndex, entry);
+    }
+
+    setState(() {
+      _entries = nextEntries;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
@@ -691,18 +806,62 @@ class _ChordMembersSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 4),
             child: _ExplorePlayButton(
-              previewNotes: previewNotes,
-              onPreviewStarted: onPreviewStarted,
+              previewNotes: widget.previewNotes,
+              onPreviewStarted: widget.onPreviewStarted,
             ),
           ),
-          for (var i = 0; i < members.length; i++)
-            _ExploreMemberChip(
-              label: toGlyphAccidentals(members[i]),
-              active:
-                  i < memberPitchClasses.length &&
-                  activePitchClasses.contains(memberPitchClasses[i]),
+          for (final entry in _entries)
+            _AnimatedExploreMemberChip(
+              key: ValueKey(entry.data.id),
+              entry: entry,
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _ExploreMemberChipData {
+  const _ExploreMemberChipData({
+    required this.id,
+    required this.label,
+    required this.active,
+  });
+
+  final String id;
+  final String label;
+  final bool active;
+}
+
+class _ExploreMemberChipEntry {
+  _ExploreMemberChipEntry({required this.data, required this.controller});
+
+  _ExploreMemberChipData data;
+  final AnimationController controller;
+  bool removing = false;
+}
+
+class _AnimatedExploreMemberChip extends StatelessWidget {
+  const _AnimatedExploreMemberChip({super.key, required this.entry});
+
+  final _ExploreMemberChipEntry entry;
+
+  @override
+  Widget build(BuildContext context) {
+    final curved = CurvedAnimation(
+      parent: entry.controller,
+      curve: Curves.easeOutCubic,
+    );
+
+    return SizeTransition(
+      sizeFactor: curved,
+      axis: Axis.horizontal,
+      child: FadeTransition(
+        opacity: curved,
+        child: _ExploreMemberChip(
+          label: entry.data.label,
+          active: entry.data.active,
+        ),
       ),
     );
   }
