@@ -1,29 +1,34 @@
 import '../../domain/theory_domain.dart';
 import 'chord_quality_token_labels.dart';
+import 'note_display_formatter.dart';
 
 class ChordLongFormFormatter {
   static String format({
     required ChordIdentity identity,
     required Tonality tonality,
+    ChordLongFormAccidentalStyle accidentalStyle =
+        ChordLongFormAccidentalStyle.glyph,
   }) {
-    final root = pcToName(identity.rootPc, tonality: tonality);
+    final rootName = pcToName(identity.rootPc, tonality: tonality);
+    final root = _noteName(rootName, accidentalStyle);
 
     final quality = identity.quality.label(ChordQualityLabelForm.long);
     final extPhrase = extensionsLongPhrase(identity.extensions);
 
-    // Base: "C major seventh", "F# half-diminished seventh", etc.
+    // Base: "C major seventh", "F♯ half-diminished seventh", etc.
     var s = '$root $quality$extPhrase';
 
     if (identity.hasSlashBass) {
       final interval = (identity.bassPc - identity.rootPc) % 12;
       final role = identity.toneRolesByInterval[interval];
 
-      final bass = spellPitchClass(
+      final bassName = spellPitchClass(
         identity.bassPc,
         tonality: tonality,
-        chordRootName: root,
+        chordRootName: rootName,
         role: role,
       );
+      final bass = _noteName(bassName, accidentalStyle);
 
       if (bass != root) {
         s = '$s over $bass';
@@ -33,6 +38,8 @@ class ChordLongFormFormatter {
     return s.trim();
   }
 }
+
+enum ChordLongFormAccidentalStyle { glyph, plainText }
 
 String extensionsLongPhrase(Set<ChordExtension> exts) {
   if (exts.isEmpty) return '';
@@ -48,7 +55,7 @@ String extensionsLongPhrase(Set<ChordExtension> exts) {
     if (e.isAddTone) {
       adds.add(e.longLabel); // "add nine"
     } else {
-      real.add(e.longLabel); // "flat nine", "sharp eleven", "thirteen"
+      real.add(e.longLabel); // "flat ninth", "sharp eleventh", "thirteenth"
     }
   }
 
@@ -62,6 +69,13 @@ String extensionsLongPhrase(Set<ChordExtension> exts) {
   if (adds.isNotEmpty) parts.add(_englishJoin(adds));
 
   return ' with ${_englishJoin(parts)}';
+}
+
+String _noteName(String noteName, ChordLongFormAccidentalStyle style) {
+  return switch (style) {
+    ChordLongFormAccidentalStyle.glyph => noteDisplayLabel(noteName),
+    ChordLongFormAccidentalStyle.plainText => noteName,
+  };
 }
 
 String _englishJoin(List<String> items) {
