@@ -469,7 +469,7 @@ class _ExploreTopBar extends StatelessWidget {
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
-                  'Explore',
+                  'Explore Chords',
                   style: titleStyle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
