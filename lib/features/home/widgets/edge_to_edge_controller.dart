@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:whatchord/core/core.dart';
+
 class EdgeToEdgeController extends StatefulWidget {
   const EdgeToEdgeController({super.key, required this.child});
 
@@ -21,19 +23,8 @@ class _EdgeToEdgeControllerState extends State<EdgeToEdgeController> {
   @override
   Widget build(BuildContext context) {
     // Keep bars transparent so edge-to-edge looks intentional.
-    final brightness = Theme.of(context).brightness;
-    final isDark = brightness == Brightness.dark;
-
     SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        systemNavigationBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-        statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-        systemNavigationBarIconBrightness: isDark
-            ? Brightness.light
-            : Brightness.dark,
-      ),
+      systemUiOverlayStyleFor(Theme.of(context).brightness),
     );
 
     return widget.child;
