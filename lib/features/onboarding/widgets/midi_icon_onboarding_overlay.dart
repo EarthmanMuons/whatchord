@@ -131,7 +131,7 @@ class _MidiIconOnboardingOverlayState
       mq.size.width - horizontalPadding - bubbleWidth,
     );
     final bubbleTop = math.max(safeTop + 10, rect.bottom + 30);
-    final bubbleRect = Rect.fromLTWH(bubbleLeft, bubbleTop, bubbleWidth, 112);
+    final bubbleRect = Rect.fromLTWH(bubbleLeft, bubbleTop, bubbleWidth, 0);
 
     const spotlightPadding = 14.0;
     final spotlightRect = rect.inflate(spotlightPadding);
@@ -158,7 +158,7 @@ class _MidiIconOnboardingOverlayState
               constraints: BoxConstraints(maxWidth: bubbleRect.width),
               child: Semantics(
                 container: true,
-                label: 'Connect your MIDI device',
+                label: 'Connect MIDI or Explore Chords',
                 child: Material(
                   elevation: isDark ? 12 : 8,
                   shadowColor: Colors.black.withValues(
@@ -189,13 +189,13 @@ class _MidiIconOnboardingOverlayState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Connect your MIDI device',
+                            'Connect MIDI or Explore Chords',
                             style: Theme.of(context).textTheme.titleSmall
                                 ?.copyWith(fontWeight: FontWeight.w700),
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Tap here to select a Bluetooth or USB controller.',
+                            'Tap here to select a Bluetooth or USB controller. To try chords without MIDI, tap the chord card.',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
