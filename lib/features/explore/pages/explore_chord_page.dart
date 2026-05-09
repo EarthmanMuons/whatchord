@@ -1334,8 +1334,10 @@ class _ExtensionBuilder extends StatelessWidget {
           children: [
             for (var index = 0; index < groups.length; index++) ...[
               if (index > 0) const SizedBox(height: 12),
-              Text(groups[index].label, style: labelStyle),
-              const SizedBox(height: 6),
+              if (groups.length > 1 || !groups[index].allowsMultiple) ...[
+                Text(groups[index].label, style: labelStyle),
+                const SizedBox(height: 6),
+              ],
               if (groups[index].allowsMultiple)
                 Wrap(
                   spacing: 8,
