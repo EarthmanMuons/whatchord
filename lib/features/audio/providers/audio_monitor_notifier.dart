@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/core/services/cancelable_timer_sequence.dart';
 import 'package:whatchord/features/input/input.dart';
 
 import '../audio_debug.dart';
@@ -26,6 +27,14 @@ final audioMonitorStatusProvider = Provider<AudioMonitorStatus>((ref) {
 class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   static const bool _debugLog = audioDebug;
   static const Duration _previewDuration = Duration(milliseconds: 1400);
+  static const Duration _rolledPreviewStep = Duration(milliseconds: 180);
+  static const Duration _rolledPreviewNoteDuration = Duration(
+    milliseconds: 220,
+  );
+  static const Duration _rolledPreviewBlockGap = Duration(milliseconds: 260);
+  static const Duration _rolledPreviewBlockDuration = Duration(
+    milliseconds: 1400,
+  );
 
   AudioMonitorEngine? _engine;
   bool _backgrounded = false;
@@ -35,7 +44,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   final Set<int> _eventDrivenPendingOff = <int>{};
   Set<int> _lastSoundingNotes = const <int>{};
   Set<int> _notesInEngine = const <int>{};
-  Timer? _previewTimer;
+  final CancelableTimerSequence _previewSequence = CancelableTimerSequence();
   Future<void> _controlOps = Future<void>.value();
   Future<void> _noteOps = Future<void>.value();
 
@@ -59,7 +68,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     });
 
     ref.onDispose(() {
-      _cancelPreviewTimer();
+      _cancelPreviewTimers();
       unawaited(_stopEngine());
     });
 
@@ -77,6 +86,19 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     if (notes.isEmpty || _backgrounded) return;
 
     _enqueueControl(() => _playPreviewNotes(notes));
+  }
+
+  void playRolledPreviewNotes(Iterable<int> midiNotes) {
+    final notes = midiNotes.map((note) => note.clamp(0, 127)).toSet().toList()
+      ..sort();
+    if (notes.isEmpty || _backgrounded) return;
+
+    if (notes.length == 1) {
+      _enqueueControl(() => _playPreviewNotes(notes));
+      return;
+    }
+
+    _enqueueControl(() => _playRolledPreviewNotes(notes));
   }
 
   void onInputNoteEvent(InputNoteEvent event) {
@@ -117,7 +139,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       // only reflect fresh note events.
       _allowBootstrapOnNextStart = false;
       _resetTrackingForStop();
-      _cancelPreviewTimer();
+      _cancelPreviewTimers();
       _lastSoundingNotes = const <int>{};
       unawaited(_engine?.allNotesOff());
     }
@@ -261,14 +283,14 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
   Future<void> _stopEngine() async {
     final engine = _engine;
-    _cancelPreviewTimer();
+    _cancelPreviewTimers();
     _resetTrackingForStop();
     if (engine == null) return;
     await engine.stop();
   }
 
   Future<void> _playPreviewNotes(List<int> midiNotes) async {
-    _cancelPreviewTimer();
+    final generation = _previewSequence.restart();
 
     if (_backgrounded) return;
 
@@ -284,13 +306,56 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       await engine.noteOn(midiNote, velocity: audioMonitorFixedVelocity);
     }
 
-    _previewTimer = Timer(_previewDuration, () {
-      _enqueueControl(_finishPreview);
-    });
+    _previewSequence.schedule(_previewDuration, (_) {
+      _enqueuePreviewControl(generation, _finishPreview);
+    }, generation: generation);
+  }
+
+  Future<void> _playRolledPreviewNotes(List<int> midiNotes) async {
+    final generation = _previewSequence.restart();
+
+    if (_backgrounded) return;
+
+    final engine = await _ensureEngineStarted();
+    if (engine == null) return;
+
+    final settings = ref.read(audioMonitorSettingsNotifier);
+    await engine.setVolume(settings.volume);
+    await engine.allNotesOff();
+    _resetTrackingForSilentState();
+
+    for (var i = 0; i < midiNotes.length; i++) {
+      final midiNote = midiNotes[i];
+      final noteStart = _rolledPreviewStep * i;
+      _previewSequence.schedule(noteStart, (_) {
+        _enqueuePreviewControl(generation, () async {
+          await engine.noteOn(midiNote, velocity: audioMonitorFixedVelocity);
+        });
+      }, generation: generation);
+      _previewSequence.schedule(noteStart + _rolledPreviewNoteDuration, (_) {
+        _enqueuePreviewControl(generation, () async {
+          await engine.noteOff(midiNote);
+        });
+      }, generation: generation);
+    }
+
+    final blockStart =
+        _rolledPreviewStep * midiNotes.length + _rolledPreviewBlockGap;
+    _previewSequence.schedule(blockStart, (_) {
+      _enqueuePreviewControl(generation, () async {
+        await engine.allNotesOff();
+        for (final midiNote in midiNotes) {
+          await engine.noteOn(midiNote, velocity: audioMonitorFixedVelocity);
+        }
+      });
+    }, generation: generation);
+    _previewSequence.schedule(blockStart + _rolledPreviewBlockDuration, (_) {
+      _enqueuePreviewControl(generation, _finishPreview);
+    }, generation: generation);
   }
 
   Future<void> _finishPreview() async {
-    _cancelPreviewTimer();
+    _cancelPreviewTimers();
 
     final engine = _engine;
     if (engine != null && engine.isRunning) {
@@ -326,9 +391,15 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     }
   }
 
-  void _cancelPreviewTimer() {
-    _previewTimer?.cancel();
-    _previewTimer = null;
+  void _enqueuePreviewControl(int generation, Future<void> Function() action) {
+    _enqueueControl(() async {
+      if (!_previewSequence.isCurrent(generation) || _backgrounded) return;
+      await action();
+    });
+  }
+
+  void _cancelPreviewTimers() {
+    _previewSequence.cancel();
   }
 
   Future<void> _handleNoteOnEvent(

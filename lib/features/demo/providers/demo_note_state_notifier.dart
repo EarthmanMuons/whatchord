@@ -1,8 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:whatchord/core/services/cancelable_timer_sequence.dart';
 
 import 'demo_mode_notifier.dart';
 import 'demo_sequence_notifier.dart';
@@ -34,14 +34,13 @@ class DemoNoteStateNotifier extends Notifier<DemoNoteState> {
   static const Duration _noteOnSpacing = Duration(milliseconds: 200);
   static const Duration _resetGap = Duration(milliseconds: 50);
 
-  Timer? _timer;
-  int _transitionEpoch = 0;
+  final CancelableTimerSequence _transitionSequence = CancelableTimerSequence();
   Set<int> _soundingNoteNumbers = const <int>{};
   bool _isPedalDown = false;
 
   @override
   DemoNoteState build() {
-    ref.onDispose(_cancelTimer);
+    ref.onDispose(_transitionSequence.dispose);
 
     final initialStep = _stepForCurrentIndex();
     _isPedalDown = initialStep.pedalDown ?? false;
@@ -52,8 +51,7 @@ class DemoNoteStateNotifier extends Notifier<DemoNoteState> {
 
     ref.listen<bool>(demoModeProvider, (previous, next) {
       if (!next) {
-        _cancelTimer();
-        _transitionEpoch++;
+        _transitionSequence.cancel();
         _soundingNoteNumbers = const <int>{};
         _commitState();
         return;
@@ -94,9 +92,7 @@ class DemoNoteStateNotifier extends Notifier<DemoNoteState> {
   }
 
   void _transitionToNotes(Set<int> nextNotes) {
-    _cancelTimer();
-    _transitionEpoch++;
-    final epoch = _transitionEpoch;
+    final generation = _transitionSequence.restart();
 
     // Force a clean note-off baseline before arpeggiating into the next step.
     _soundingNoteNumbers = const <int>{};
@@ -105,32 +101,16 @@ class DemoNoteStateNotifier extends Notifier<DemoNoteState> {
     if (nextNotes.isEmpty) return;
 
     final orderedNotes = nextNotes.toList()..sort();
-    var index = 0;
-
-    void scheduleNext(Duration delay) {
-      _timer = Timer(delay, () {
-        if (epoch != _transitionEpoch) return;
-
+    for (var index = 0; index < orderedNotes.length; index++) {
+      final note = orderedNotes[index];
+      _transitionSequence.schedule(_resetGap + _noteOnSpacing * index, (_) {
         _soundingNoteNumbers = Set<int>.unmodifiable({
           ..._soundingNoteNumbers,
-          orderedNotes[index],
+          note,
         });
         _commitState();
-        index++;
-        if (index >= orderedNotes.length) {
-          _timer = null;
-          return;
-        }
-        scheduleNext(_noteOnSpacing);
-      });
+      }, generation: generation);
     }
-
-    scheduleNext(_resetGap);
-  }
-
-  void _cancelTimer() {
-    _timer?.cancel();
-    _timer = null;
   }
 
   void _commitState() {

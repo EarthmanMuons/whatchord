@@ -574,7 +574,9 @@ class _ExplorePlayButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     void playChord() {
-      ref.read(audioMonitorNotifier.notifier).playPreviewNotes(previewNotes);
+      ref
+          .read(audioMonitorNotifier.notifier)
+          .playRolledPreviewNotes(previewNotes);
     }
 
     return Semantics(
