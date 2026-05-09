@@ -1,3 +1,5 @@
+import '../models/chord_symbol.dart';
+
 /// Converts canonical ASCII accidentals into nicer display glyphs.
 String toGlyphAccidentals(String ascii) {
   // Convert double accidentals first to avoid partial replacement.
@@ -13,6 +15,15 @@ String noteDisplayLabel(String noteName) => toGlyphAccidentals(noteName);
 
 /// Converts a canonical ASCII token such as b9, #11, or m7(b5) to UI text.
 String theoryTokenDisplayLabel(String token) => toGlyphAccidentals(token);
+
+/// Converts a canonical chord symbol to compact UI text.
+String chordSymbolDisplayLabel(ChordSymbol symbol) {
+  final base =
+      '${noteDisplayLabel(symbol.root)}${theoryTokenDisplayLabel(symbol.quality)}';
+  return symbol.hasBass
+      ? '$base / ${noteDisplayLabel(symbol.bassRequired)}'
+      : base;
+}
 
 // Converts chord-symbol typography glyphs to SMuFL PUA codepoints.
 String toSmufl(String s) {

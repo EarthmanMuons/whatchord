@@ -20,4 +20,12 @@ void main() {
       expect(theoryTokenDisplayLabel('m7(b5)'), 'm7(♭5)');
     });
   });
+
+  group('chordSymbolDisplayLabel', () {
+    test('converts root, quality, and slash bass accidentals for UI', () {
+      final symbol = ChordSymbol(root: 'Bb', quality: '7(#11)', bass: 'F#');
+
+      expect(chordSymbolDisplayLabel(symbol), 'B♭7(♯11) / F♯');
+    });
+  });
 }

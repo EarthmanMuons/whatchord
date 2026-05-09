@@ -7,6 +7,7 @@ import '../../state/providers/chord_candidates_providers.dart';
 import '../../state/providers/theory_preferences_notifier.dart';
 import '../services/chord_long_form_formatter.dart';
 import '../services/chord_symbol_builder.dart';
+import '../services/note_display_formatter.dart';
 
 class NearTieChordCandidatesList extends ConsumerStatefulWidget {
   const NearTieChordCandidatesList({
@@ -110,7 +111,7 @@ class _NearTieChordCandidatesListState
           );
 
           return Text(
-            symbol.toString(),
+            chordSymbolDisplayLabel(symbol),
             semanticsLabel: spokenLabel,
             style: textStyle,
             textAlign: widget.textAlign,
