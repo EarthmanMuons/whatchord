@@ -633,6 +633,15 @@ class _ExploreSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
+    final symbolStyle = textTheme.headlineMedium?.copyWith(
+      color: colorScheme.onSurface,
+      fontFamilyFallback: const ['Bravura'],
+      height: 1.0,
+    );
+    final rootStyle = symbolStyle?.copyWith(
+      fontWeight: FontWeight.w500,
+      fontSize: (symbolStyle.fontSize ?? 14) + 6,
+    );
 
     return Semantics(
       container: true,
@@ -644,7 +653,10 @@ class _ExploreSummary extends StatelessWidget {
           Text.rich(
             TextSpan(
               children: [
-                TextSpan(text: toSmufl(presentation.symbol.root)),
+                TextSpan(
+                  text: toSmufl(presentation.symbol.root),
+                  style: rootStyle,
+                ),
                 if (presentation.symbol.quality.isNotEmpty) ...[
                   const TextSpan(text: '\u200A'),
                   TextSpan(text: toSmufl(presentation.symbol.quality)),
@@ -655,11 +667,7 @@ class _ExploreSummary extends StatelessWidget {
                 ],
               ],
             ),
-            style: textTheme.headlineMedium?.copyWith(
-              color: colorScheme.onSurface,
-              fontFamilyFallback: const ['Bravura'],
-              height: 1.0,
-            ),
+            style: symbolStyle,
           ),
           const SizedBox(height: 6),
           Text(
