@@ -7,14 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../models/app_activity_state.dart';
 import '../providers/app_activity_notifier.dart';
-
-const _blackoutSystemUiOverlayStyle = SystemUiOverlayStyle(
-  statusBarColor: Colors.transparent,
-  statusBarIconBrightness: Brightness.light,
-  statusBarBrightness: Brightness.dark,
-  systemNavigationBarColor: Colors.transparent,
-  systemNavigationBarIconBrightness: Brightness.light,
-);
+import '../services/system_ui_overlay_styles.dart';
 
 class IdleBlackoutOverlay extends ConsumerStatefulWidget {
   const IdleBlackoutOverlay({super.key, required this.child});
@@ -73,8 +66,8 @@ class _IdleBlackoutOverlayState extends ConsumerState<IdleBlackoutOverlay> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: useBlackoutSystemUi
-          ? _blackoutSystemUiOverlayStyle
-          : _systemUiOverlayStyleFor(Theme.of(context).brightness),
+          ? blackoutSystemUiOverlayStyle
+          : systemUiOverlayStyleFor(Theme.of(context).brightness),
       child: Listener(
         behavior: HitTestBehavior.translucent,
         onPointerDown: (_) => ref
@@ -96,7 +89,7 @@ class _IdleBlackoutOverlayState extends ConsumerState<IdleBlackoutOverlay> {
                       ? const Duration(milliseconds: 420)
                       : _fadeOutDuration,
                   curve: Curves.easeInOutCubic,
-                  child: const ColoredBox(color: Colors.black),
+                  child: _BlackoutLayer(applySystemUi: useBlackoutSystemUi),
                 ),
               ),
             ),
@@ -107,16 +100,20 @@ class _IdleBlackoutOverlayState extends ConsumerState<IdleBlackoutOverlay> {
   }
 }
 
-SystemUiOverlayStyle _systemUiOverlayStyleFor(Brightness brightness) {
-  final isDark = brightness == Brightness.dark;
+class _BlackoutLayer extends StatelessWidget {
+  const _BlackoutLayer({required this.applySystemUi});
 
-  return SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-    statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
-    systemNavigationBarColor: Colors.transparent,
-    systemNavigationBarIconBrightness: isDark
-        ? Brightness.light
-        : Brightness.dark,
-  );
+  final bool applySystemUi;
+
+  @override
+  Widget build(BuildContext context) {
+    const blackout = ColoredBox(color: Colors.black);
+
+    if (!applySystemUi) return blackout;
+
+    return const AnnotatedRegion<SystemUiOverlayStyle>(
+      value: blackoutSystemUiOverlayStyle,
+      child: blackout,
+    );
+  }
 }

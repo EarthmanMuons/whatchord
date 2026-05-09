@@ -13,6 +13,7 @@ export 'providers/shared_preferences_provider.dart';
 
 export 'services/app_theme_builder.dart';
 export 'services/open_url.dart';
+export 'services/system_ui_overlay_styles.dart';
 
 export 'widgets/adaptive_side_sheet.dart';
 export 'widgets/idle_blackout_overlay.dart';
