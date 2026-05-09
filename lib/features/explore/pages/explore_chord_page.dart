@@ -343,6 +343,9 @@ class _ExploreTopBar extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final titleStyle = Theme.of(context).textTheme.titleLarge;
 
+    // Optical-only tweak.
+    const arrowIconDx = -6.0;
+
     return Material(
       color: cs.surfaceContainerLow,
       child: SizedBox(
@@ -354,11 +357,17 @@ class _ExploreTopBar extends StatelessWidget {
           ),
           child: Row(
             children: [
-              IconButton(
-                tooltip: 'Back',
-                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-                onPressed: () => Navigator.of(context).maybePop(),
-                icon: const Icon(Icons.arrow_back),
+              Transform.translate(
+                offset: const Offset(arrowIconDx, 0),
+                child: IconButton(
+                  tooltip: 'Back',
+                  constraints: const BoxConstraints(
+                    minWidth: 48,
+                    minHeight: 48,
+                  ),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  icon: const Icon(Icons.arrow_back),
+                ),
               ),
               const SizedBox(width: 4),
               Expanded(
