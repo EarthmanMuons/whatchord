@@ -167,22 +167,20 @@ class _AnalysisDetailsContent extends StatelessWidget {
                     child: Semantics(
                       container: true,
                       button: true,
-                      label: 'Report issue. Opens GitHub in your browser.',
-                      onTapHint: 'Open GitHub issues page',
+                      label: 'Report issue. Opens help and support.',
+                      onTapHint: 'Open help and support',
                       excludeSemantics: true,
                       child: OutlinedButton.icon(
-                        onPressed: () => openUrl(
+                        onPressed: () => showSupportSheet(
                           context,
-                          Uri.parse(
-                            'https://github.com/EarthmanMuons/whatchord/issues',
-                          ),
+                          supportContext: SupportSheetContext.analysisDetails,
                         ),
                         icon: const Icon(Icons.bug_report_outlined),
                         label: const Row(
                           children: [
                             Text('Report Issue'),
                             Spacer(),
-                            Icon(Icons.open_in_new, size: 18),
+                            Icon(Icons.chevron_right, size: 18),
                           ],
                         ),
                       ),

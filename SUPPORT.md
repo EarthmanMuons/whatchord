@@ -25,6 +25,7 @@ Please include:
 
 ## 🔍 Incorrect chord identification?
 
-If you think WhatChord has identified a chord incorrectly, please include the
-copied _Analysis Details_ from the app if possible, as this helps us reproduce
-the exact analysis context.
+If you think WhatChord has identified a chord incorrectly, long-press the chord
+card to open _Analysis Details_. Please include the copied diagnostics
+information from the app if possible, as this helps us reproduce the exact
+analysis context.
