@@ -37,6 +37,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   );
 
   AudioMonitorEngine? _engine;
+  bool _disposed = false;
   bool _backgrounded = false;
   bool _allowBootstrapOnNextStart = true;
   bool _needsBootstrapNoteOnSync = true;
@@ -45,8 +46,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   Set<int> _lastSoundingNotes = const <int>{};
   Set<int> _notesInEngine = const <int>{};
   final CancelableTimerSequence _previewSequence = CancelableTimerSequence();
-  Future<void> _controlOps = Future<void>.value();
-  Future<void> _noteOps = Future<void>.value();
+  Future<void> _audioOps = Future<void>.value();
 
   @override
   AudioMonitorState build() {
@@ -54,28 +54,34 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       previous,
       next,
     ) {
-      if (previous?.enabled == false && next.enabled) {
-        // Enabling monitor should stay silent for already-held notes.
-        _allowBootstrapOnNextStart = false;
-        _needsBootstrapNoteOnSync = false;
-      }
-      _enqueueControl(_reconcile);
+      _enqueueAudioOperation(() async {
+        if (previous?.enabled == false && next.enabled) {
+          // Enabling monitor should stay silent for already-held notes.
+          _allowBootstrapOnNextStart = false;
+          _needsBootstrapNoteOnSync = false;
+        }
+        await _reconcile();
+      });
     });
 
     ref.listen<Set<int>>(soundingNoteNumbersProvider, (previous, next) {
-      _lastSoundingNotes = Set<int>.unmodifiable(next);
-      _enqueueControl(_syncSoundingNotes);
+      final soundingNotes = Set<int>.unmodifiable(next);
+      _enqueueAudioOperation(() async {
+        _lastSoundingNotes = soundingNotes;
+        await _syncSoundingNotes();
+      });
     });
 
     ref.onDispose(() {
+      _disposed = true;
       _cancelPreviewTimers();
-      unawaited(_stopEngine());
+      _enqueueAudioOperation(_stopEngine, runWhenDisposed: true);
     });
 
     _lastSoundingNotes = Set<int>.unmodifiable(
       ref.read(soundingNoteNumbersProvider),
     );
-    _enqueueControl(_reconcile);
+    _enqueueAudioOperation(_reconcile);
 
     return const AudioMonitorState.disabled();
   }
@@ -85,7 +91,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       ..sort();
     if (notes.isEmpty || _backgrounded) return;
 
-    _enqueueControl(() => _playPreviewNotes(notes));
+    _enqueueAudioOperation(() => _playPreviewNotes(notes));
   }
 
   void playRolledPreviewNotes(Iterable<int> midiNotes) {
@@ -94,11 +100,11 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     if (notes.isEmpty || _backgrounded) return;
 
     if (notes.length == 1) {
-      _enqueueControl(() => _playPreviewNotes(notes));
+      _enqueueAudioOperation(() => _playPreviewNotes(notes));
       return;
     }
 
-    _enqueueControl(() => _playRolledPreviewNotes(notes));
+    _enqueueAudioOperation(() => _playRolledPreviewNotes(notes));
   }
 
   void onInputNoteEvent(InputNoteEvent event) {
@@ -108,16 +114,12 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
         'vel=${event.velocity} running=${_engine?.isRunning == true}',
       );
     }
-    final settings = ref.read(audioMonitorSettingsNotifier);
-    final shouldRun = settings.enabled && !_backgrounded;
-    final isRunning = _engine?.isRunning == true;
+    _enqueueAudioOperation(() async {
+      final settings = ref.read(audioMonitorSettingsNotifier);
+      final shouldRun = settings.enabled && !_backgrounded;
+      final isRunning = _engine?.isRunning == true;
+      if (!shouldRun) return;
 
-    if (shouldRun && isRunning) {
-      _enqueueNote(() => _handleNoteEvent(event));
-      return;
-    }
-
-    _enqueueControl(() async {
       if (shouldRun && !isRunning) {
         if (_debugLog) {
           debugPrint(
@@ -126,7 +128,9 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
         }
         await _reconcile();
       }
-      await _handleNoteEvent(event);
+      if (!_backgrounded) {
+        await _handleNoteEvent(event);
+      }
     });
   }
 
@@ -135,40 +139,38 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     _backgrounded = backgrounded;
 
     if (backgrounded) {
-      // Force a silent baseline while backgrounded; on resume, audio should
-      // only reflect fresh note events.
-      _allowBootstrapOnNextStart = false;
-      _resetTrackingForStop();
-      _cancelPreviewTimers();
-      _lastSoundingNotes = const <int>{};
-      unawaited(_engine?.allNotesOff());
+      _enqueueAudioOperation(() async {
+        // Force a silent baseline while backgrounded; on resume, audio should
+        // only reflect fresh note events.
+        _allowBootstrapOnNextStart = false;
+        _resetTrackingForStop();
+        _cancelPreviewTimers();
+        _lastSoundingNotes = const <int>{};
+        await _engine?.allNotesOff();
+        await _reconcile();
+      });
+      return;
     }
 
-    _enqueueControl(_reconcile);
+    _enqueueAudioOperation(_reconcile);
   }
 
-  void _enqueueControl(Future<void> Function() action) {
-    _controlOps = _controlOps.then((_) => action()).catchError((
-      Object error,
-      StackTrace stackTrace,
-    ) {
-      state = AudioMonitorState(
-        status: AudioMonitorStatus.error,
-        errorMessage: error.toString(),
-      );
-    });
-  }
-
-  void _enqueueNote(Future<void> Function() action) {
-    _noteOps = _noteOps.then((_) => action()).catchError((
-      Object error,
-      StackTrace stackTrace,
-    ) {
-      state = AudioMonitorState(
-        status: AudioMonitorStatus.error,
-        errorMessage: error.toString(),
-      );
-    });
+  void _enqueueAudioOperation(
+    Future<void> Function() action, {
+    bool runWhenDisposed = false,
+  }) {
+    _audioOps = _audioOps
+        .then((_) async {
+          if (_disposed && !runWhenDisposed) return;
+          await action();
+        })
+        .catchError((Object error, StackTrace stackTrace) {
+          if (_disposed) return;
+          state = AudioMonitorState(
+            status: AudioMonitorStatus.error,
+            errorMessage: error.toString(),
+          );
+        });
   }
 
   Future<void> _reconcile() async {
@@ -392,7 +394,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   }
 
   void _enqueuePreviewControl(int generation, Future<void> Function() action) {
-    _enqueueControl(() async {
+    _enqueueAudioOperation(() async {
       if (!_previewSequence.isCurrent(generation) || _backgrounded) return;
       await action();
     });
