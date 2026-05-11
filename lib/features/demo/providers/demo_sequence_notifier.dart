@@ -137,15 +137,6 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
     return const DemoSequenceState(index: 0);
   }
 
-  DemoStep get currentStep {
-    final steps = ref.read(demoStepsProvider);
-    final index = state.index;
-    if (steps.isEmpty || index < 0 || index >= steps.length) {
-      return const DemoStep();
-    }
-    return steps[index];
-  }
-
   void next() => _setIndex(state.index + 1);
   void prev() => _setIndex(state.index - 1);
 
