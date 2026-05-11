@@ -132,7 +132,7 @@ void main(List<String> args) {
   );
   stdout.writeln('');
   stdout.writeln(
-    'Note: sorting uses near-tie heuristics within ±${ChordCandidateRanking.nearTieWindow.toStringAsFixed(2)}',
+    'Note: sorting uses shared ranking decisions; most heuristics apply within ±${ChordCandidateRanking.nearTieWindow.toStringAsFixed(2)}, with documented hard rules for structural ambiguities.',
   );
   stdout.writeln('');
 
