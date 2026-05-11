@@ -62,7 +62,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
 
     // Start scanning when the picker opens.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startScanning();
+      unawaited(_startScanning());
     });
   }
 

@@ -75,7 +75,7 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
     );
     _pulseController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        _pulseController.reverse();
+        unawaited(_pulseController.reverse());
       }
     });
     _syncPulseTimer();
@@ -101,7 +101,7 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
 
   void _triggerPulse() {
     if (!_shouldPulse || _pulseController.isAnimating) return;
-    _pulseController.forward(from: 0);
+    unawaited(_pulseController.forward(from: 0));
   }
 
   void _handlePressed() {
@@ -116,9 +116,11 @@ class _MidiStatusIconButtonState extends State<_MidiStatusIconButton>
       handler();
       return;
     }
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()));
+    unawaited(
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage())),
+    );
   }
 
   @override

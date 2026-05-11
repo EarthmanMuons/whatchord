@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -95,8 +97,8 @@ class LastConnectedDeviceCard extends ConsumerWidget {
             await ref.read(midiConnectionStateProvider.notifier).disconnect();
           }
         : canReconnect
-        ? () {
-            ref
+        ? () async {
+            await ref
                 .read(midiConnectionStateProvider.notifier)
                 .tryAutoReconnect(reason: 'manual');
           }
@@ -141,10 +143,10 @@ class LastConnectedDeviceCard extends ConsumerWidget {
           .clearLastConnectedDevice();
 
       if (!context.mounted) return;
-      HapticFeedback.lightImpact();
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Device forgotten')));
+      await HapticFeedback.lightImpact();
     }
 
     return Card(

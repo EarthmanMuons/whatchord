@@ -140,7 +140,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
       // Best-effort stop scanning.
       try {
-        if (state.isScanning) _ble.stopScanning();
+        if (state.isScanning) unawaited(_ble.stopScanning());
       } catch (_) {}
 
       // Best-effort disconnect.
@@ -202,7 +202,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     if (!state.isScanning) return;
 
     try {
-      _ble.stopScanning();
+      await _ble.stopScanning();
     } catch (e) {
       debugPrint('Warning: Error stopping MIDI scan: $e');
     } finally {
@@ -825,7 +825,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       debugPrint('pulseScan($reason) failed: $e');
     } finally {
       try {
-        _ble.stopScanning();
+        await _ble.stopScanning();
       } catch (e) {
         debugPrint('pulseScan($reason) stop failed: $e');
       } finally {

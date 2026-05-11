@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -257,7 +258,7 @@ class _ScrollablePianoKeyboardState
         _ctl.position.maxScrollExtent,
       );
 
-      _animateTo(target);
+      unawaited(_animateTo(target));
       return;
     } else {
       // Center Middle C (MIDI 60) when idle.
@@ -272,7 +273,7 @@ class _ScrollablePianoKeyboardState
         _ctl.position.maxScrollExtent,
       );
 
-      _animateTo(target);
+      unawaited(_animateTo(target));
     }
   }
 
@@ -542,7 +543,7 @@ class _ScrollablePianoKeyboardState
       final delta = (target - _ctl.offset).abs();
       if (!force && delta < _minMeaningfulDelta) return;
 
-      _animateTo(target);
+      unawaited(_animateTo(target));
       return;
     }
 
@@ -589,7 +590,7 @@ class _ScrollablePianoKeyboardState
         );
         final delta = (target - _ctl.offset).abs();
         if (delta >= _minMeaningfulDelta) {
-          _animateTo(target);
+          unawaited(_animateTo(target));
         }
         return;
       }
@@ -604,7 +605,7 @@ class _ScrollablePianoKeyboardState
             .clamp(0.0, _ctl.position.maxScrollExtent);
         final delta = (target - _ctl.offset).abs();
         if (delta >= _minMeaningfulDelta) {
-          _animateTo(target);
+          unawaited(_animateTo(target));
         }
         return;
       }
@@ -649,7 +650,7 @@ class _ScrollablePianoKeyboardState
     final delta = (target - _ctl.offset).abs();
     if (!force && delta < _minMeaningfulDelta) return;
 
-    _animateTo(target);
+    unawaited(_animateTo(target));
   }
 
   void _maybeReanchorAfterRemoval(
@@ -708,7 +709,7 @@ class _ScrollablePianoKeyboardState
     final delta = (target - _ctl.offset).abs();
     if (delta < _minMeaningfulDelta) return;
 
-    _animateTo(target);
+    unawaited(_animateTo(target));
   }
 
   Future<void> _handleChevronTap(AxisDirection direction) async {

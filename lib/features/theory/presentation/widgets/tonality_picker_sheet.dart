@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -278,15 +280,19 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
       return;
     }
 
-    _controller.animateTo(
-      clamped,
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOutCubic,
+    unawaited(
+      _controller.animateTo(
+        clamped,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+      ),
     );
   }
 
   void _selectTonality(Tonality tonality) {
-    ref.read(selectedTonalityProvider.notifier).setTonality(tonality);
+    unawaited(
+      ref.read(selectedTonalityProvider.notifier).setTonality(tonality),
+    );
 
     // Recenter after selection so the choice stays visually anchored.
     WidgetsBinding.instance.addPostFrameCallback((_) {

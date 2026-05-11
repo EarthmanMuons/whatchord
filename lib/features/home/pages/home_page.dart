@@ -77,9 +77,11 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   void _openMidiSettings() {
     unawaited(ref.read(midiSettingsOnboardingProvider.notifier).markSeen());
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()));
+    unawaited(
+      Navigator.of(
+        context,
+      ).push(MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage())),
+    );
   }
 
   @override
@@ -226,9 +228,11 @@ class _HomeTopBar extends ConsumerWidget {
                   icon: const Icon(Icons.settings),
                   tooltip: 'Settings',
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const SettingsPage(),
+                    unawaited(
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const SettingsPage(),
+                        ),
                       ),
                     );
                   },

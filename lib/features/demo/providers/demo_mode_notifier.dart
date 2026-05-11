@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,7 +59,7 @@ class DemoModeNotifier extends Notifier<bool> {
     if (variant != currentVariant) {
       variantNotifier.setVariant(variant);
       ref.read(demoSequenceProvider.notifier).reset();
-      Future.microtask(applyCurrentStep);
+      unawaited(Future<void>.microtask(applyCurrentStep));
     }
   }
 
@@ -67,10 +69,14 @@ class DemoModeNotifier extends Notifier<bool> {
     final step = ref.read(demoCurrentStepProvider);
 
     if (step.themeMode != null) {
-      ref.read(appThemeModeProvider.notifier).setThemeMode(step.themeMode!);
+      unawaited(
+        ref.read(appThemeModeProvider.notifier).setThemeMode(step.themeMode!),
+      );
     }
     if (step.tonality != null) {
-      ref.read(selectedTonalityProvider.notifier).setTonality(step.tonality!);
+      unawaited(
+        ref.read(selectedTonalityProvider.notifier).setTonality(step.tonality!),
+      );
     }
   }
 
@@ -81,7 +87,7 @@ class DemoModeNotifier extends Notifier<bool> {
     );
 
     // Important: apply AFTER providers have finished building.
-    Future.microtask(applyCurrentStep);
+    unawaited(Future<void>.microtask(applyCurrentStep));
   }
 
   void _exitDemo() {
@@ -89,8 +95,12 @@ class DemoModeNotifier extends Notifier<bool> {
     _snapshot = null;
     if (snap == null) return;
 
-    ref.read(appThemeModeProvider.notifier).setThemeMode(snap.themeMode);
-    ref.read(selectedTonalityProvider.notifier).setTonality(snap.tonality);
+    unawaited(
+      ref.read(appThemeModeProvider.notifier).setThemeMode(snap.themeMode),
+    );
+    unawaited(
+      ref.read(selectedTonalityProvider.notifier).setTonality(snap.tonality),
+    );
 
     // Reset demo sequence so next session starts clean.
     ref.read(demoSequenceProvider.notifier).reset();

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -17,7 +19,7 @@ class _EdgeToEdgeControllerState extends State<EdgeToEdgeController> {
   void initState() {
     super.initState();
     // Idempotent: safe to call; aligns with Android 15+ default.
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
   }
 
   @override

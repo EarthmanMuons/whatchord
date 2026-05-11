@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../domain/models/scale_degree.dart';
@@ -156,12 +158,14 @@ void openTonalityPicker(
     return;
   }
 
-  Navigator.of(context, rootNavigator: true).push(
-    ModalBottomSheetRoute(
-      builder: (_) => const TonalityPickerSheet(),
-      isScrollControlled: true,
-      showDragHandle: true,
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
+  unawaited(
+    Navigator.of(context, rootNavigator: true).push(
+      ModalBottomSheetRoute(
+        builder: (_) => const TonalityPickerSheet(),
+        isScrollControlled: true,
+        showDragHandle: true,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
+      ),
     ),
   );
 }

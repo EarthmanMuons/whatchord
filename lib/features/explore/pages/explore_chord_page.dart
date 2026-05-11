@@ -298,10 +298,12 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                 required barrierLabel,
                                 required builder,
                               }) {
-                                showHomeSideSheet<void>(
-                                  context: context,
-                                  barrierLabel: barrierLabel,
-                                  builder: builder,
+                                unawaited(
+                                  showHomeSideSheet<void>(
+                                    context: context,
+                                    barrierLabel: barrierLabel,
+                                    builder: builder,
+                                  ),
                                 );
                               },
                         ),
@@ -485,9 +487,11 @@ class _ExploreTopBar extends StatelessWidget {
                   ),
                   tooltip: 'Settings',
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const SettingsPage(),
+                    unawaited(
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const SettingsPage(),
+                        ),
                       ),
                     );
                   },
@@ -787,20 +791,22 @@ class _ChordMembersSectionState extends State<_ChordMembersSection>
         ),
       );
       nextEntries.add(entry);
-      entry.controller.forward();
+      unawaited(entry.controller.forward());
     }
 
     for (final entry in _entries) {
       if (entry.removing || nextIds.contains(entry.data.id)) continue;
 
       entry.removing = true;
-      entry.controller.reverse().whenComplete(() {
-        if (!mounted) return;
-        setState(() {
-          _entries.remove(entry);
-        });
-        entry.controller.dispose();
-      });
+      unawaited(
+        entry.controller.reverse().whenComplete(() {
+          if (!mounted) return;
+          setState(() {
+            _entries.remove(entry);
+          });
+          entry.controller.dispose();
+        }),
+      );
 
       final oldIndex = _entries.indexOf(entry);
       final insertIndex = oldIndex.clamp(0, nextEntries.length);
@@ -1103,10 +1109,12 @@ class _QualityWheelState extends State<_QualityWheel> {
     _currentPage = targetPage;
     if (!_controller.hasClients) return;
 
-    _controller.animateToPage(
-      targetPage,
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOutCubic,
+    unawaited(
+      _controller.animateToPage(
+        targetPage,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+      ),
     );
   }
 
@@ -1172,10 +1180,12 @@ class _QualityWheelState extends State<_QualityWheel> {
   void _selectQuality(ChordQualityToken quality) {
     final targetPage = _nearestPageForQuality(quality);
     _currentPage = targetPage;
-    _controller.animateToPage(
-      targetPage,
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOutCubic,
+    unawaited(
+      _controller.animateToPage(
+        targetPage,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+      ),
     );
     if (quality != widget.value) widget.onChanged(quality);
   }
@@ -1314,10 +1324,12 @@ class _RootWheelState extends State<_RootWheel> {
     _currentPage = targetPage;
     if (!_controller.hasClients) return;
 
-    _controller.animateToPage(
-      targetPage,
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOutCubic,
+    unawaited(
+      _controller.animateToPage(
+        targetPage,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+      ),
     );
   }
 
@@ -1381,10 +1393,12 @@ class _RootWheelState extends State<_RootWheel> {
   void _selectPc(int pc) {
     final targetPage = _nearestPageForPc(pc);
     _currentPage = targetPage;
-    _controller.animateToPage(
-      targetPage,
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOutCubic,
+    unawaited(
+      _controller.animateToPage(
+        targetPage,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+      ),
     );
     if (pc != widget.value) widget.onChanged(pc);
   }

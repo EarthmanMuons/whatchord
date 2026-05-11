@@ -25,7 +25,7 @@ String normalizeNoteNameToAscii(String name) {
 
   // 1) Normalize glyph accidentals to ASCII tokens.
   // Do double-accidentals first to avoid partial replacement issues.
-  var t = s
+  final t = s
       .replaceAll('𝄪', 'x') // double sharp
       .replaceAll('𝄫', 'bb') // double flat
       .replaceAll('♯', '#')

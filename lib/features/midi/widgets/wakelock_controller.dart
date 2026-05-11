@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +22,7 @@ class _WakelockControllerState extends ConsumerState<WakelockController> {
   @override
   void dispose() {
     // Safety: ensure wakelock is off when leaving this subtree.
-    WakelockPlus.disable();
+    unawaited(WakelockPlus.disable());
     super.dispose();
   }
 
@@ -34,7 +36,7 @@ class _WakelockControllerState extends ConsumerState<WakelockController> {
       // Avoid doing platform work in the middle of the build pipeline.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        WakelockPlus.toggle(enable: shouldEnableWakelock);
+        unawaited(WakelockPlus.toggle(enable: shouldEnableWakelock));
       });
     }
 
