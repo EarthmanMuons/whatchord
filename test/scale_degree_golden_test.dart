@@ -38,6 +38,8 @@ class ScaleDegreeCase {
 
   /// Expected strict degree (null = not diatonic under strict rules).
   final ScaleDegree? expectedDegree;
+  final ScaleDegreeSource? expectedSource;
+  final String? expectedRomanNumeral;
 
   /// Sanity-check the winning chord identity.
   final void Function(ChordIdentity top)? expectTop;
@@ -49,6 +51,8 @@ class ScaleDegreeCase {
     this.noteCount,
     required this.tonality,
     required this.expectedDegree,
+    this.expectedSource,
+    this.expectedRomanNumeral,
     this.expectTop,
   });
 }
@@ -60,6 +64,8 @@ ScaleDegreeCase deg({
   int? noteCount,
   Tonality tonality = const Tonality('C', TonalityMode.major),
   required ScaleDegree? expected,
+  ScaleDegreeSource? expectedSource,
+  String? expectedRomanNumeral,
   void Function(ChordIdentity top)? expectTop,
 }) {
   return ScaleDegreeCase(
@@ -69,6 +75,8 @@ ScaleDegreeCase deg({
     noteCount: noteCount,
     tonality: tonality,
     expectedDegree: expected,
+    expectedSource: expectedSource,
+    expectedRomanNumeral: expectedRomanNumeral,
     expectTop: expectTop,
   );
 }
@@ -160,19 +168,95 @@ void main() {
     ),
 
     // -------------------------
-    // A natural minor sanity
+    // A minor: natural-minor key signature plus harmonic-minor functions.
     // -------------------------
     deg(
       name: 'A C E in A minor => i',
       pcs: ['A', 'C', 'E'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.one,
+      expectedSource: ScaleDegreeSource.naturalMinor,
+      expectedRomanNumeral: 'i',
     ),
     deg(
-      name: 'G B D F in A minor => VII (G7 is diatonic in natural minor model)',
+      name: 'E G B in A minor => v',
+      pcs: ['E', 'G', 'B'],
+      tonality: const Tonality('A', TonalityMode.minor),
+      expected: ScaleDegree.five,
+      expectedSource: ScaleDegreeSource.naturalMinor,
+      expectedRomanNumeral: 'v',
+    ),
+    deg(
+      name: 'E G# B in A minor => V (harmonic minor)',
+      pcs: ['E', 'G#', 'B'],
+      tonality: const Tonality('A', TonalityMode.minor),
+      expected: ScaleDegree.five,
+      expectedSource: ScaleDegreeSource.harmonicMinor,
+      expectedRomanNumeral: 'V',
+    ),
+    deg(
+      name: 'E G# B D in A minor => V7 (harmonic minor)',
+      pcs: ['E', 'G#', 'B', 'D'],
+      tonality: const Tonality('A', TonalityMode.minor),
+      expected: ScaleDegree.five,
+      expectedSource: ScaleDegreeSource.harmonicMinor,
+      expectedRomanNumeral: 'V7',
+      expectTop: (top) => expect(top.quality, ChordQualityToken.dominant7),
+    ),
+    deg(
+      name: 'E G# B D F in A minor => V7b9 (harmonic minor)',
+      pcs: ['E', 'G#', 'B', 'D', 'F'],
+      tonality: const Tonality('A', TonalityMode.minor),
+      expected: ScaleDegree.five,
+      expectedSource: ScaleDegreeSource.harmonicMinor,
+      expectedRomanNumeral: 'V7',
+      expectTop: (top) {
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(top.extensions, contains(ChordExtension.flat9));
+      },
+    ),
+    deg(
+      name: 'G B D F in A minor => bVII7 (natural minor)',
       pcs: ['G', 'B', 'D', 'F'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.seven,
+      expectedSource: ScaleDegreeSource.naturalMinor,
+      expectedRomanNumeral: '♭VII7',
+    ),
+    deg(
+      name: 'G# B D in A minor => vii° (harmonic minor)',
+      pcs: ['G#', 'B', 'D'],
+      tonality: const Tonality('A', TonalityMode.minor),
+      expected: ScaleDegree.seven,
+      expectedSource: ScaleDegreeSource.harmonicMinor,
+      expectedRomanNumeral: 'vii°',
+    ),
+    deg(
+      name: 'G# B D F in A minor => vii°7 (harmonic minor)',
+      pcs: ['G#', 'B', 'D', 'F'],
+      tonality: const Tonality('A', TonalityMode.minor),
+      expected: ScaleDegree.seven,
+      expectedSource: ScaleDegreeSource.harmonicMinor,
+      expectedRomanNumeral: 'vii°7',
+      expectTop: (top) => expect(top.quality, ChordQualityToken.diminished7),
+    ),
+    deg(
+      name: 'C E G# in A minor => bIII+ (harmonic minor)',
+      pcs: ['C', 'E', 'G#'],
+      tonality: const Tonality('A', TonalityMode.minor),
+      expected: ScaleDegree.three,
+      expectedSource: ScaleDegreeSource.harmonicMinor,
+      expectedRomanNumeral: '♭III+',
+      expectTop: (top) => expect(top.quality, ChordQualityToken.augmented),
+    ),
+    deg(
+      name: 'A C E G# in A minor => i(maj7) (harmonic minor)',
+      pcs: ['A', 'C', 'E', 'G#'],
+      tonality: const Tonality('A', TonalityMode.minor),
+      expected: ScaleDegree.one,
+      expectedSource: ScaleDegreeSource.harmonicMinor,
+      expectedRomanNumeral: 'i(maj7)',
+      expectTop: (top) => expect(top.quality, ChordQualityToken.minorMajor7),
     ),
   ];
 
@@ -196,7 +280,7 @@ void main() {
       // Sanity-check top chord identity if requested.
       c.expectTop?.call(top);
 
-      final degree = ScaleDegreeClassifier.degreeForChord(
+      final analysis = ScaleDegreeClassifier.analyzeChord(
         c.tonality,
         top,
         presentIntervalsMask: top.presentIntervalsMask,
@@ -205,7 +289,7 @@ void main() {
       );
 
       expect(
-        degree,
+        analysis?.degree,
         c.expectedDegree,
         reason: [
           'Scale degree mismatch',
@@ -215,6 +299,13 @@ void main() {
           '  TopChord: $top',
         ].join('\n'),
       );
+
+      if (c.expectedSource != null) {
+        expect(analysis?.source, c.expectedSource);
+      }
+      if (c.expectedRomanNumeral != null) {
+        expect(analysis?.romanNumeral, c.expectedRomanNumeral);
+      }
     });
   }
 }

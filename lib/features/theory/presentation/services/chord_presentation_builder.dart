@@ -36,7 +36,7 @@ abstract final class ChordPresentationBuilder {
         pitchClasses: memberPitchClasses,
       ),
       memberPitchClasses: memberPitchClasses,
-      scaleDegree: tonality.scaleDegreeForChord(identity),
+      scaleDegreeAnalysis: tonality.scaleDegreeAnalysisForChord(identity),
       normalizedVoicing: normalizedVoicingForIdentity(identity),
     );
   }

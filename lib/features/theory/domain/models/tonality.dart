@@ -54,22 +54,34 @@ class Tonality {
   ScaleDegree? scaleDegreeForRootPc(int rootPc) =>
       ScaleDegreeClassifier.degreeForRootPc(this, rootPc);
 
-  /// Convenience: strict diatonic degree for a chord identity using the
-  /// chord’s actual present-interval mask.
+  /// Convenience: strict functional analysis for a chord identity using the
+  /// chord's actual present-interval mask.
   ///
   /// This is intentionally a thin delegating wrapper; all rules live in
   /// [ScaleDegreeClassifier].
-  ScaleDegree? scaleDegreeForChord(
+  ScaleDegreeAnalysis? scaleDegreeAnalysisForChord(
     ChordIdentity id, {
     bool rejectUnexplainedTones = true,
   }) {
-    return ScaleDegreeClassifier.degreeForChord(
+    return ScaleDegreeClassifier.analyzeChord(
       this,
       id,
       presentIntervalsMask: id.presentIntervalsMask,
       strictVoicingValidation: true,
       rejectUnexplainedTones: rejectUnexplainedTones,
     );
+  }
+
+  /// Convenience: strict functional degree for a chord identity using the
+  /// chord's actual present-interval mask.
+  ScaleDegree? scaleDegreeForChord(
+    ChordIdentity id, {
+    bool rejectUnexplainedTones = true,
+  }) {
+    return scaleDegreeAnalysisForChord(
+      id,
+      rejectUnexplainedTones: rejectUnexplainedTones,
+    )?.degree;
   }
 
   @override

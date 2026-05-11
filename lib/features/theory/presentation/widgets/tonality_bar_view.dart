@@ -18,7 +18,7 @@ class TonalityBarView extends StatelessWidget {
     super.key,
     required this.height,
     required this.tonality,
-    required this.degree,
+    required this.scaleDegreeAnalysis,
     required this.onOpenPicker,
     this.horizontalInset = 16,
     this.keyTextScaleMultiplier = 1.0,
@@ -27,7 +27,7 @@ class TonalityBarView extends StatelessWidget {
 
   final double height;
   final Tonality tonality;
-  final ScaleDegree? degree;
+  final ScaleDegreeAnalysis? scaleDegreeAnalysis;
   final VoidCallback onOpenPicker;
   final double horizontalInset;
   final double keyTextScaleMultiplier;
@@ -121,7 +121,7 @@ class TonalityBarView extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: ScaleDegrees(
-                    current: degree,
+                    current: scaleDegreeAnalysis,
                     mode: tonality.mode,
                     tonalityDisplayName: tonality.displayName,
                     maxHeight: height,
