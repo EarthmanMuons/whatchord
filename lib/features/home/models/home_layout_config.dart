@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:whatchord/features/piano/services/piano_geometry.dart';
+import 'package:whatchord/features/piano/piano.dart';
 
 enum HomeSizeClass { compact, medium, expanded }
 
