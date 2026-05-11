@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/input/models/input_note_event.dart';
+import 'package:whatchord/features/input/input.dart';
 
 import '../models/midi_message.dart';
 import 'midi_message_providers.dart';
