@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Fixed Audio Monitor event queuing so startup, previews, and live note playback
   are serialized more consistently, reducing the chance of rough first playback
   or stuck audio state.
+- Fixed chord analysis caching so long sessions keep memory use bounded.
 
 ## [2026.5.9] - 2026-05-09
 
