@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:auto_size_text/auto_size_text.dart';
@@ -163,15 +165,17 @@ class IdentityCard extends ConsumerWidget {
 
     Widget switchedChild() {
       void openExplore() {
-        Navigator.of(
-          context,
-        ).push(ExploreChordPage.route(seedIdentity: exploreSeedIdentity));
+        unawaited(
+          Navigator.of(
+            context,
+          ).push(ExploreChordPage.route(seedIdentity: exploreSeedIdentity)),
+        );
       }
 
       void openAnalysisDetails() {
         final display = identity;
         if (display == null) return;
-        showAnalysisDetailsSheet(context, identity: display);
+        unawaited(showAnalysisDetailsSheet(context, identity: display));
       }
 
       String? semanticsSecondaryValue(IdentityDisplay display) {

@@ -148,14 +148,14 @@ class _AnalysisDetailsContent extends StatelessWidget {
                                 ClipboardData(text: copyText!),
                               );
                               if (context.mounted) {
-                                SemanticsService.sendAnnouncement(
+                                await SemanticsService.sendAnnouncement(
                                   View.of(context),
                                   'Copied analysis details',
                                   Directionality.of(context),
                                 );
                               }
 
-                              HapticFeedback.lightImpact();
+                              await HapticFeedback.lightImpact();
                             }
                           : null,
                       icon: const Icon(Icons.copy),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,10 +36,12 @@ class TonalityBar extends ConsumerWidget {
         useSideSheet: useHomeSideSheet(context),
         showSideSheet:
             ({required context, required barrierLabel, required builder}) {
-              showHomeSideSheet<void>(
-                context: context,
-                barrierLabel: barrierLabel,
-                builder: builder,
+              unawaited(
+                showHomeSideSheet<void>(
+                  context: context,
+                  barrierLabel: barrierLabel,
+                  builder: builder,
+                ),
               );
             },
       ),

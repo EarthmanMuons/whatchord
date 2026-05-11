@@ -70,8 +70,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final nextPercent = (currentPercent + deltaPercent).clamp(0, 100);
     if (nextPercent == currentPercent) return;
 
-    notifier.setVolume(nextPercent / 100);
-    HapticFeedback.selectionClick();
+    unawaited(notifier.setVolume(nextPercent / 100));
+    unawaited(HapticFeedback.selectionClick());
   }
 
   void _startVolumeRepeat(int direction) {
@@ -146,9 +146,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   subtitle: Text(midiStatus.subtitle ?? midiStatus.title),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const MidiSettingsPage(),
+                    unawaited(
+                      Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const MidiSettingsPage(),
+                        ),
                       ),
                     );
                   },
@@ -176,9 +178,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 subtitle: const Text('Hear piano sounds as you play'),
                 value: audioSettings.enabled,
                 onChanged: (enabled) {
-                  ref
-                      .read(audioMonitorSettingsNotifier.notifier)
-                      .setEnabled(enabled);
+                  unawaited(
+                    ref
+                        .read(audioMonitorSettingsNotifier.notifier)
+                        .setEnabled(enabled),
+                  );
                 },
               ),
 
@@ -233,12 +237,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 onChanged: audioSettings.enabled
                                     ? (value) {
                                         _showAudioVolumePercentLabel();
-                                        ref
-                                            .read(
-                                              audioMonitorSettingsNotifier
-                                                  .notifier,
-                                            )
-                                            .setVolume(value);
+                                        unawaited(
+                                          ref
+                                              .read(
+                                                audioMonitorSettingsNotifier
+                                                    .notifier,
+                                              )
+                                              .setVolume(value),
+                                        );
                                       }
                                     : null,
                               ),
@@ -309,7 +315,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 groupValue: chordNotationStyle,
                 onChanged: (ChordNotationStyle? style) {
                   if (style == null) return;
-                  ref.read(chordNotationStyleProvider.notifier).setStyle(style);
+                  unawaited(
+                    ref
+                        .read(chordNotationStyleProvider.notifier)
+                        .setStyle(style),
+                  );
                 },
                 child: const Column(
                   children: [
@@ -333,7 +343,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 subtitle: const Text('Mark notes in the current key'),
                 value: showScaleNotes,
                 onChanged: (enabled) {
-                  ref.read(showScaleNotesProvider.notifier).setEnabled(enabled);
+                  unawaited(
+                    ref
+                        .read(showScaleNotesProvider.notifier)
+                        .setEnabled(enabled),
+                  );
                 },
               ),
 
@@ -366,9 +380,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ],
                 selected: <ThemeMode>{themeMode},
                 onSelectionChanged: (selection) {
-                  ref
-                      .read(appThemeModeProvider.notifier)
-                      .setThemeMode(selection.first);
+                  unawaited(
+                    ref
+                        .read(appThemeModeProvider.notifier)
+                        .setThemeMode(selection.first),
+                  );
                 },
               ),
 
@@ -442,9 +458,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   subtitle: const Text('Browse the repository on GitHub'),
                   trailing: const Icon(Icons.open_in_new),
                   onTap: () {
-                    openUrl(
-                      context,
-                      Uri.parse('https://github.com/EarthmanMuons/whatchord'),
+                    unawaited(
+                      openUrl(
+                        context,
+                        Uri.parse('https://github.com/EarthmanMuons/whatchord'),
+                      ),
                     );
                   },
                 ),
@@ -458,10 +476,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   subtitle: const Text('No data collected'),
                   trailing: const Icon(Icons.open_in_new),
                   onTap: () {
-                    openUrl(
-                      context,
-                      Uri.parse(
-                        'https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md',
+                    unawaited(
+                      openUrl(
+                        context,
+                        Uri.parse(
+                          'https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md',
+                        ),
                       ),
                     );
                   },
@@ -508,12 +528,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   await ref.read(settingsResetProvider).resetAllToDefaults();
 
                   if (context.mounted) {
-                    HapticFeedback.lightImpact();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Settings reset to defaults'),
                       ),
                     );
+                    await HapticFeedback.lightImpact();
                   }
                 },
               ),

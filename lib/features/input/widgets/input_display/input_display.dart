@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -118,9 +120,9 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
 
         // Interruptible: immediately retarget animation.
         if (next) {
-          _pedalCtl.forward();
+          unawaited(_pedalCtl.forward());
         } else {
-          _pedalCtl.reverse();
+          unawaited(_pedalCtl.reverse());
         }
       },
     );
@@ -241,8 +243,12 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
         : 'Play some notes';
     final VoidCallback? onPromptTap = showInlineMidiGuidance
         ? () {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const MidiSettingsPage()),
+            unawaited(
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const MidiSettingsPage(),
+                ),
+              ),
             );
           }
         : null;

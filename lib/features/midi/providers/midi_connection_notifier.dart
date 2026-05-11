@@ -197,11 +197,13 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         _cancelRequested = false;
 
         if (!_backgrounded) {
-          Future.microtask(() {
-            if (_backgrounded) return;
-            if (_attemptInFlight) return;
-            unawaited(tryAutoReconnect(reason: 'bt-ready'));
-          });
+          unawaited(
+            Future<void>.microtask(() {
+              if (_backgrounded) return;
+              if (_attemptInFlight) return;
+              unawaited(tryAutoReconnect(reason: 'bt-ready'));
+            }),
+          );
         } else {
           // clear stale UI if we're backgrounded.
           if (state.phase == MidiConnectionPhase.bluetoothUnavailable) {
@@ -300,7 +302,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       }
 
       final lastConnectedDeviceId = prefs.lastConnectedDeviceId;
-      var lastConnectedDevice = prefs.lastConnectedDevice;
+      final lastConnectedDevice = prefs.lastConnectedDevice;
       if (lastConnectedDeviceId == null ||
           lastConnectedDeviceId.trim().isEmpty) {
         if (_debugLog) debugPrint('[CONN] no lastConnectedDeviceId');
@@ -734,7 +736,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<BluetoothState?> _awaitBluetoothState({
     Duration timeout = const Duration(milliseconds: 800),
   }) async {
-    BluetoothState current = ref.read(midiDeviceManagerProvider).bluetoothState;
+    final current = ref.read(midiDeviceManagerProvider).bluetoothState;
     if (current != BluetoothState.unknown) return current;
 
     final completer = Completer<BluetoothState>();
