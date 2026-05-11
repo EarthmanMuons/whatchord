@@ -34,30 +34,7 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b, {
     required Tonality tonality,
   }) {
-    // Primary: higher score wins.
-    final delta = b.score - a.score;
-
-    final fa = _CandidateFeatures.from(a);
-    final fb = _CandidateFeatures.from(b);
-
-    // Special case: altered dominant7 vs dim7 runs even outside near-tie window
-    // because it resolves a fundamental structural ambiguity (e.g., C7#9 vs Eb°7)
-    // where the dominant reading is strongly preferred when shell tones are present.
-    final hard = _preferAlteredDom7(a, b, fa, fb, tonality);
-    if (hard != null && hard != 0) return hard;
-
-    // Normal scoring gate.
-    if (delta.abs() > nearTieWindow) {
-      return delta > 0 ? 1 : -1;
-    }
-
-    for (final rule in _tieBreakerRules) {
-      final r = rule.apply(a, b, fa, fb, tonality);
-      if (r != null && r != 0) return r;
-    }
-
-    // Deterministic final tie-breaker: lower rootPc.
-    return a.identity.rootPc.compareTo(b.identity.rootPc);
+    return _decide(a, b, tonality: tonality).result;
   }
 
   /// Same as [compare], but returns detailed information about which rule decided.
@@ -67,7 +44,28 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b, {
     required Tonality tonality,
   }) {
+    return _decide(a, b, tonality: tonality);
+  }
+
+  static RankingDecision _decide(
+    ChordCandidate a,
+    ChordCandidate b, {
+    required Tonality tonality,
+  }) {
     final delta = b.score - a.score;
+    final fa = _CandidateFeatures.from(a);
+    final fb = _CandidateFeatures.from(b);
+
+    for (final rule in _hardRules) {
+      final r = rule.apply(a, b, fa, fb, tonality);
+      if (r != null && r != 0) {
+        return RankingDecision(
+          result: r,
+          decidedByRule: rule.name,
+          scoreDelta: delta,
+        );
+      }
+    }
 
     if (delta.abs() > nearTieWindow) {
       final result = delta > 0 ? 1 : -1;
@@ -77,9 +75,6 @@ abstract final class ChordCandidateRanking {
         scoreDelta: delta,
       );
     }
-
-    final fa = _CandidateFeatures.from(a);
-    final fb = _CandidateFeatures.from(b);
 
     for (final rule in _tieBreakerRules) {
       final r = rule.apply(a, b, fa, fb, tonality);
@@ -106,9 +101,12 @@ abstract final class ChordCandidateRanking {
   // - Functional harmony (diatonic, dominant alterations)
   // - Simplicity (fewer extensions/alterations, avoid suspensions)
 
+  static final List<_NamedRule> _hardRules = <_NamedRule>[
+    _NamedRule('Prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
+  ];
+
   static final List<_NamedRule> _tieBreakerRules = <_NamedRule>[
     _NamedRule('Prefer root-position 6th over inverted 7th', _prefer6thInRoot),
-    _NamedRule('Prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
     _NamedRule(
       'Prefer upper-structure dominant7 slash',
       _preferUpperStructureDom7,
