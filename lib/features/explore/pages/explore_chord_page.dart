@@ -288,7 +288,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                       TonalityBarView(
                         height: kToolbarHeight,
                         tonality: tonality,
-                        degree: presentation.scaleDegree,
+                        scaleDegreeAnalysis: presentation.scaleDegreeAnalysis,
                         onOpenPicker: () => openTonalityPicker(
                           context,
                           useSideSheet: useHomeSideSheet(context),

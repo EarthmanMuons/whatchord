@@ -28,7 +28,7 @@ class TonalityBar extends ConsumerWidget {
       keyTextScaleMultiplier: keyTextScaleMultiplier,
       scaleDegreesTextScaleMultiplier: scaleDegreesTextScaleMultiplier,
       tonality: ref.watch(selectedTonalityProvider),
-      degree: ref.watch(detectedScaleDegreeProvider),
+      scaleDegreeAnalysis: ref.watch(detectedScaleDegreeAnalysisProvider),
       onOpenPicker: () => openTonalityPicker(
         context,
         useSideSheet: useHomeSideSheet(context),

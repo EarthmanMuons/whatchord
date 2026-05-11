@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added harmonic-minor scale-degree recognition so common minor-key functions
+  like V7 and leading-tone diminished chords are identified alongside
+  natural-minor functions.
+
 ### Fixed
 
 - Fixed Audio Monitor event queuing so startup, previews, and live note playback

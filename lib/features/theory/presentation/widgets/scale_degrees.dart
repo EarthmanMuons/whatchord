@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../domain/theory_domain.dart';
 
 class ScaleDegrees extends StatefulWidget {
-  final ScaleDegree? current;
+  final ScaleDegreeAnalysis? current;
   final TonalityMode mode;
   final String tonalityDisplayName;
   final values = ScaleDegree.values;
@@ -103,10 +103,8 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
                   children: [
                     for (int i = 0; i < widget.values.length; i++) ...[
                       _ScaleDegreeIndicator(
-                        label: widget.values[i].romanNumeralForMode(
-                          widget.mode,
-                        ),
-                        isCurrent: widget.values[i] == widget.current,
+                        label: _labelForDegree(widget.values[i]),
+                        isCurrent: widget.values[i] == widget.current?.degree,
                         maxHeight: maxHeight,
                         textScaleMultiplier: widget.textScaleMultiplier,
                       ),
@@ -171,27 +169,35 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
     );
   }
 
-  String _semanticsValueForCurrent(ScaleDegree? degree) {
+  String _semanticsValueForCurrent(ScaleDegreeAnalysis? analysis) {
     final keyName = widget.tonalityDisplayName;
-    if (degree == null) {
-      return 'Not diatonic in $keyName';
+    if (analysis == null) {
+      return 'No scale-degree match in $keyName';
     }
 
-    final spoken = degree.spokenScaleDegreeForMode(widget.mode);
-    final function = degree.functionNameForMode(widget.mode);
-    return '$spoken ($function) in $keyName';
+    final source = analysis.source == ScaleDegreeSource.major
+        ? ''
+        : ', ${analysis.source.displayLabel}';
+    return '${analysis.spokenScaleDegree} '
+        '(${analysis.functionName}$source) in $keyName';
   }
 
-  String _tooltipMessageForCurrent(ScaleDegree? degree) {
-    const prefix = "Scale degree in the selected key:";
-
-    if (degree == null) {
-      return '$prefix not diatonic';
+  String _tooltipMessageForCurrent(ScaleDegreeAnalysis? analysis) {
+    if (analysis == null) {
+      return 'Scale degree\nNo match';
     }
 
-    final numeral = degree.romanNumeralForMode(widget.mode);
-    final function = _titleCase(degree.functionNameForMode(widget.mode));
-    return '$prefix $numeral ($function)';
+    final function = _titleCase(analysis.functionName);
+    final source = analysis.source == ScaleDegreeSource.major
+        ? ''
+        : ' · ${analysis.source.displayLabel}';
+    return 'Scale degree\n${analysis.romanNumeral} ($function$source)';
+  }
+
+  String _labelForDegree(ScaleDegree degree) {
+    final current = widget.current;
+    if (current?.degree == degree) return current!.romanNumeral;
+    return degree.romanNumeralForMode(widget.mode);
   }
 
   String _titleCase(String value) {

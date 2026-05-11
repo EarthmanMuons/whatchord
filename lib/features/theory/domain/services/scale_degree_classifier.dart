@@ -4,7 +4,7 @@ import '../models/chord_identity.dart';
 import '../models/scale_degree.dart';
 import '../models/tonality.dart';
 
-/// Pedantic diatonic scale-degree classification for analyzed chords.
+/// Pedantic source-aware scale-degree classification for analyzed chords.
 ///
 /// See notes in this file: strict classification requires the real voicing mask.
 abstract final class ScaleDegreeClassifier {
@@ -21,16 +21,16 @@ abstract final class ScaleDegreeClassifier {
     required ChordIdentity chord,
     bool rejectUnexplainedTones = true,
   }) {
-    return degreeForChord(
+    return analyzeChord(
       tonality,
       chord,
       presentIntervalsMask: chord.presentIntervalsMask,
       strictVoicingValidation: true,
       rejectUnexplainedTones: rejectUnexplainedTones,
-    );
+    )?.degree;
   }
 
-  /// Returns the diatonic functional degree for [chord] in [tonality], or null.
+  /// Returns the functional degree for [chord] in [tonality], or null.
   static ScaleDegree? degreeForChord(
     Tonality tonality,
     ChordIdentity chord, {
@@ -38,7 +38,47 @@ abstract final class ScaleDegreeClassifier {
     bool strictVoicingValidation = true,
     bool rejectUnexplainedTones = false,
   }) {
-    final degree = degreeForRootPc(tonality, chord.rootPc);
+    return analyzeChord(
+      tonality,
+      chord,
+      presentIntervalsMask: presentIntervalsMask,
+      strictVoicingValidation: strictVoicingValidation,
+      rejectUnexplainedTones: rejectUnexplainedTones,
+    )?.degree;
+  }
+
+  /// Returns source-aware functional analysis for [chord] in [tonality].
+  static ScaleDegreeAnalysis? analyzeChord(
+    Tonality tonality,
+    ChordIdentity chord, {
+    int? presentIntervalsMask,
+    bool strictVoicingValidation = true,
+    bool rejectUnexplainedTones = false,
+  }) {
+    for (final source in _sourcesForTonality(tonality)) {
+      final analysis = _analyzeChordInSource(
+        tonality,
+        chord,
+        source: source,
+        presentIntervalsMask: presentIntervalsMask,
+        strictVoicingValidation: strictVoicingValidation,
+        rejectUnexplainedTones: rejectUnexplainedTones,
+      );
+      if (analysis != null) return analysis;
+    }
+
+    return null;
+  }
+
+  static ScaleDegreeAnalysis? _analyzeChordInSource(
+    Tonality tonality,
+    ChordIdentity chord, {
+    required ScaleDegreeSource source,
+    int? presentIntervalsMask,
+    bool strictVoicingValidation = true,
+    bool rejectUnexplainedTones = false,
+  }) {
+    final degree = _degreeForRootPcInSource(tonality, chord.rootPc, source);
     if (degree == null) return null;
 
     final q = chord.quality;
@@ -47,18 +87,21 @@ abstract final class ScaleDegreeClassifier {
     if (q.isSus) return null;
 
     // Degree whitelist gate (cheap and prevents “obviously non-diatonic” labels).
-    final allowedQualities = _allowedQualitiesForDegree(tonality, degree);
+    final allowedQualities = _allowedQualitiesForDegree(source, degree);
 
     // IMPORTANT: added-sixth chords should be treated as diatonic if their
     // underlying triad quality is diatonic AND the 6 is diatonic to the key.
     final baseQualityForWhitelist = _baseQualityForSix(q) ?? q;
     if (!allowedQualities.contains(baseQualityForWhitelist)) return null;
 
-    // Extension policy: altered extensions are non-diatonic in this model.
+    // Extension policy: every declared extension must belong to the active
+    // source collection. This keeps major-key altered dominants chromatic while
+    // allowing minor-key V7b9 when it comes from harmonic minor.
     if (!_extensionsAreDiatonicToKey(
       tonality,
       chord.rootPc,
       chord.extensions,
+      source,
     )) {
       return null;
     }
@@ -90,9 +133,14 @@ abstract final class ScaleDegreeClassifier {
     final extMask = _extensionMask(chord.extensions);
     if ((relMask & extMask) != extMask) return null;
 
-    // 3) Any present base tones must be diatonic to the key.
+    // 3) Any present base tones must belong to the active source collection.
     final presentBase = relMask & baseMask;
-    if (!_allIntervalsInMaskAreDiatonic(tonality, chord.rootPc, presentBase)) {
+    if (!_allIntervalsInMaskAreDiatonic(
+      tonality,
+      chord.rootPc,
+      presentBase,
+      source,
+    )) {
       return null;
     }
 
@@ -103,38 +151,65 @@ abstract final class ScaleDegreeClassifier {
       if (unexplained != 0) return null;
     }
 
-    return degree;
+    return ScaleDegreeAnalysis(
+      degree: degree,
+      source: source,
+      romanNumeral: _romanNumeralFor(degree, source, q),
+      spokenScaleDegree: _spokenScaleDegreeFor(degree, source),
+      functionName: _functionNameFor(degree, source),
+    );
   }
 
   /// Returns scale degree for a root pitch class only (no quality validation).
   static ScaleDegree? degreeForRootPc(Tonality tonality, int rootPc) {
+    final source = tonality.isMajor
+        ? ScaleDegreeSource.major
+        : ScaleDegreeSource.naturalMinor;
+    return _degreeForRootPcInSource(tonality, rootPc, source);
+  }
+
+  static ScaleDegree? _degreeForRootPcInSource(
+    Tonality tonality,
+    int rootPc,
+    ScaleDegreeSource source,
+  ) {
     final rel = (rootPc - tonality.tonicPitchClass) % 12;
     final interval = rel < 0 ? rel + 12 : rel;
 
-    if (tonality.isMajor) {
-      // Major scale: 0,2,4,5,7,9,11
-      return switch (interval) {
-        0 => ScaleDegree.one,
-        2 => ScaleDegree.two,
-        4 => ScaleDegree.three,
-        5 => ScaleDegree.four,
-        7 => ScaleDegree.five,
-        9 => ScaleDegree.six,
-        11 => ScaleDegree.seven,
-        _ => null,
-      };
-    } else {
-      // Natural minor: 0,2,3,5,7,8,10
-      return switch (interval) {
-        0 => ScaleDegree.one,
-        2 => ScaleDegree.two,
-        3 => ScaleDegree.three,
-        5 => ScaleDegree.four,
-        7 => ScaleDegree.five,
-        8 => ScaleDegree.six,
-        10 => ScaleDegree.seven,
-        _ => null,
-      };
+    switch (source) {
+      case ScaleDegreeSource.major:
+        return switch (interval) {
+          0 => ScaleDegree.one,
+          2 => ScaleDegree.two,
+          4 => ScaleDegree.three,
+          5 => ScaleDegree.four,
+          7 => ScaleDegree.five,
+          9 => ScaleDegree.six,
+          11 => ScaleDegree.seven,
+          _ => null,
+        };
+      case ScaleDegreeSource.naturalMinor:
+        return switch (interval) {
+          0 => ScaleDegree.one,
+          2 => ScaleDegree.two,
+          3 => ScaleDegree.three,
+          5 => ScaleDegree.four,
+          7 => ScaleDegree.five,
+          8 => ScaleDegree.six,
+          10 => ScaleDegree.seven,
+          _ => null,
+        };
+      case ScaleDegreeSource.harmonicMinor:
+        return switch (interval) {
+          0 => ScaleDegree.one,
+          2 => ScaleDegree.two,
+          3 => ScaleDegree.three,
+          5 => ScaleDegree.four,
+          7 => ScaleDegree.five,
+          8 => ScaleDegree.six,
+          11 => ScaleDegree.seven,
+          _ => null,
+        };
     }
   }
 
@@ -159,11 +234,12 @@ abstract final class ScaleDegreeClassifier {
     Tonality tonality,
     int rootPc,
     int intervalsMask,
+    ScaleDegreeSource source,
   ) {
     for (var i = 0; i < 12; i++) {
       if ((intervalsMask & (1 << i)) == 0) continue;
       final pc = _pcAdd(rootPc, i);
-      if (!tonality.containsPitchClass(pc)) return false;
+      if (!_containsPitchClass(tonality, pc, source)) return false;
     }
     return true;
   }
@@ -180,12 +256,11 @@ abstract final class ScaleDegreeClassifier {
     Tonality tonality,
     int rootPc,
     Set<ChordExtension> exts,
+    ScaleDegreeSource source,
   ) {
     for (final e in exts) {
-      if (e.isAlteration) return false;
-
       final pc = _pcAdd(rootPc, e.intervalAboveRoot);
-      if (!tonality.containsPitchClass(pc)) return false;
+      if (!_containsPitchClass(tonality, pc, source)) return false;
     }
     return true;
   }
@@ -204,71 +279,203 @@ abstract final class ScaleDegreeClassifier {
   }
 
   static Set<ChordQualityToken> _allowedQualitiesForDegree(
-    Tonality tonality,
+    ScaleDegreeSource source,
     ScaleDegree d,
   ) {
-    if (tonality.isMajor) {
-      return switch (d) {
-        ScaleDegree.one => const {
-          ChordQualityToken.major,
-          ChordQualityToken.major7,
-        },
-        ScaleDegree.two => const {
-          ChordQualityToken.minor,
-          ChordQualityToken.minor7,
-        },
-        ScaleDegree.three => const {
-          ChordQualityToken.minor,
-          ChordQualityToken.minor7,
-        },
-        ScaleDegree.four => const {
-          ChordQualityToken.major,
-          ChordQualityToken.major7,
-        },
-        ScaleDegree.five => const {
-          ChordQualityToken.major,
-          ChordQualityToken.dominant7,
-        },
-        ScaleDegree.six => const {
-          ChordQualityToken.minor,
-          ChordQualityToken.minor7,
-        },
-        ScaleDegree.seven => const {
-          ChordQualityToken.diminished,
-          ChordQualityToken.halfDiminished7,
-        },
-      };
-    } else {
-      return switch (d) {
-        ScaleDegree.one => const {
-          ChordQualityToken.minor,
-          ChordQualityToken.minor7,
-        },
-        ScaleDegree.two => const {
-          ChordQualityToken.diminished,
-          ChordQualityToken.halfDiminished7,
-        },
-        ScaleDegree.three => const {
-          ChordQualityToken.major,
-          ChordQualityToken.major7,
-        },
-        ScaleDegree.four => const {
-          ChordQualityToken.minor,
-          ChordQualityToken.minor7,
-        },
-        ScaleDegree.five => const {
-          ChordQualityToken.minor,
-          ChordQualityToken.minor7,
-        },
-        ScaleDegree.six => const {
-          ChordQualityToken.major,
-          ChordQualityToken.major7,
-        },
-        ScaleDegree.seven => const {
-          ChordQualityToken.major,
-          ChordQualityToken.dominant7,
-        },
-      };
+    switch (source) {
+      case ScaleDegreeSource.major:
+        return switch (d) {
+          ScaleDegree.one => const {
+            ChordQualityToken.major,
+            ChordQualityToken.major7,
+          },
+          ScaleDegree.two => const {
+            ChordQualityToken.minor,
+            ChordQualityToken.minor7,
+          },
+          ScaleDegree.three => const {
+            ChordQualityToken.minor,
+            ChordQualityToken.minor7,
+          },
+          ScaleDegree.four => const {
+            ChordQualityToken.major,
+            ChordQualityToken.major7,
+          },
+          ScaleDegree.five => const {
+            ChordQualityToken.major,
+            ChordQualityToken.dominant7,
+          },
+          ScaleDegree.six => const {
+            ChordQualityToken.minor,
+            ChordQualityToken.minor7,
+          },
+          ScaleDegree.seven => const {
+            ChordQualityToken.diminished,
+            ChordQualityToken.halfDiminished7,
+          },
+        };
+      case ScaleDegreeSource.naturalMinor:
+        return switch (d) {
+          ScaleDegree.one => const {
+            ChordQualityToken.minor,
+            ChordQualityToken.minor7,
+          },
+          ScaleDegree.two => const {
+            ChordQualityToken.diminished,
+            ChordQualityToken.halfDiminished7,
+          },
+          ScaleDegree.three => const {
+            ChordQualityToken.major,
+            ChordQualityToken.major7,
+          },
+          ScaleDegree.four => const {
+            ChordQualityToken.minor,
+            ChordQualityToken.minor7,
+          },
+          ScaleDegree.five => const {
+            ChordQualityToken.minor,
+            ChordQualityToken.minor7,
+          },
+          ScaleDegree.six => const {
+            ChordQualityToken.major,
+            ChordQualityToken.major7,
+          },
+          ScaleDegree.seven => const {
+            ChordQualityToken.major,
+            ChordQualityToken.dominant7,
+          },
+        };
+      case ScaleDegreeSource.harmonicMinor:
+        return switch (d) {
+          ScaleDegree.one => const {
+            ChordQualityToken.minor,
+            ChordQualityToken.minorMajor7,
+          },
+          ScaleDegree.two => const {
+            ChordQualityToken.diminished,
+            ChordQualityToken.halfDiminished7,
+          },
+          ScaleDegree.three => const {ChordQualityToken.augmented},
+          ScaleDegree.four => const {
+            ChordQualityToken.minor,
+            ChordQualityToken.minor7,
+          },
+          ScaleDegree.five => const {
+            ChordQualityToken.major,
+            ChordQualityToken.dominant7,
+          },
+          ScaleDegree.six => const {
+            ChordQualityToken.major,
+            ChordQualityToken.major7,
+          },
+          ScaleDegree.seven => const {
+            ChordQualityToken.diminished,
+            ChordQualityToken.diminished7,
+          },
+        };
     }
+  }
+
+  static List<ScaleDegreeSource> _sourcesForTonality(Tonality tonality) {
+    if (tonality.isMajor) return const [ScaleDegreeSource.major];
+    return const [
+      ScaleDegreeSource.naturalMinor,
+      ScaleDegreeSource.harmonicMinor,
+    ];
+  }
+
+  static bool _containsPitchClass(
+    Tonality tonality,
+    int pc,
+    ScaleDegreeSource source,
+  ) {
+    final rel = (pc - tonality.tonicPitchClass) % 12;
+    final interval = rel < 0 ? rel + 12 : rel;
+
+    return switch (source) {
+      ScaleDegreeSource.major => switch (interval) {
+        0 || 2 || 4 || 5 || 7 || 9 || 11 => true,
+        _ => false,
+      },
+      ScaleDegreeSource.naturalMinor => switch (interval) {
+        0 || 2 || 3 || 5 || 7 || 8 || 10 => true,
+        _ => false,
+      },
+      ScaleDegreeSource.harmonicMinor => switch (interval) {
+        0 || 2 || 3 || 5 || 7 || 8 || 11 => true,
+        _ => false,
+      },
+    };
+  }
+
+  static String _romanNumeralFor(
+    ScaleDegree degree,
+    ScaleDegreeSource source,
+    ChordQualityToken quality,
+  ) {
+    final base = switch (source) {
+      ScaleDegreeSource.major => degree.romanNumeralForMode(TonalityMode.major),
+      ScaleDegreeSource.naturalMinor => degree.romanNumeralForMode(
+        TonalityMode.minor,
+      ),
+      ScaleDegreeSource.harmonicMinor => switch (degree) {
+        ScaleDegree.one => 'i',
+        ScaleDegree.two => 'ii°',
+        ScaleDegree.three => '♭III+',
+        ScaleDegree.four => 'iv',
+        ScaleDegree.five => 'V',
+        ScaleDegree.six => '♭VI',
+        ScaleDegree.seven => 'vii°',
+      },
+    };
+
+    return switch (quality) {
+      ChordQualityToken.dominant7 => '${base}7',
+      ChordQualityToken.major7 => '${base}maj7',
+      ChordQualityToken.minor7 => '${base}7',
+      ChordQualityToken.minorMajor7 => '$base(maj7)',
+      ChordQualityToken.halfDiminished7 => '${base}7',
+      ChordQualityToken.diminished7 => '${base}7',
+      _ => base,
+    };
+  }
+
+  static String _spokenScaleDegreeFor(
+    ScaleDegree degree,
+    ScaleDegreeSource source,
+  ) {
+    if (source == ScaleDegreeSource.major) {
+      return degree.spokenScaleDegreeForMode(TonalityMode.major);
+    }
+    if (source == ScaleDegreeSource.naturalMinor) {
+      return degree.spokenScaleDegreeForMode(TonalityMode.minor);
+    }
+    return switch (degree) {
+      ScaleDegree.one => 'first',
+      ScaleDegree.two => 'second, diminished',
+      ScaleDegree.three => 'flat third, augmented',
+      ScaleDegree.four => 'fourth',
+      ScaleDegree.five => 'fifth, major',
+      ScaleDegree.six => 'flat sixth',
+      ScaleDegree.seven => 'raised seventh, diminished',
+    };
+  }
+
+  static String _functionNameFor(ScaleDegree degree, ScaleDegreeSource source) {
+    if (source == ScaleDegreeSource.major) {
+      return degree.functionNameForMode(TonalityMode.major);
+    }
+    if (source == ScaleDegreeSource.naturalMinor) {
+      return degree.functionNameForMode(TonalityMode.minor);
+    }
+    return switch (degree) {
+      ScaleDegree.one => 'tonic',
+      ScaleDegree.two => 'supertonic',
+      ScaleDegree.three => 'mediant',
+      ScaleDegree.four => 'subdominant',
+      ScaleDegree.five => 'dominant',
+      ScaleDegree.six => 'submediant',
+      ScaleDegree.seven => 'leading tone',
+    };
   }
 }

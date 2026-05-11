@@ -115,6 +115,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           hasSlash: id.hasSlashBass,
           quality: qualityLabel,
           extensions: extensionLabels,
+          scaleDegreeAnalysis: presentation.scaleDegreeAnalysis,
           members: presentation.members,
           degrees: presentation.memberDegrees,
           appVersion: appVersion,
@@ -193,6 +194,7 @@ String _debugForChord({
   required bool hasSlash,
   required String quality,
   required List<String> extensions,
+  required ScaleDegreeAnalysis? scaleDegreeAnalysis,
   required List<String> members,
   required List<String> degrees,
   required String? appVersion,
@@ -211,6 +213,7 @@ String _debugForChord({
       _debugInput(midis: midis),
       _debugSection('Details', [
         'Root pitch class: $rootPc',
+        'Scale degree: ${_scaleDegreeDebugLabel(scaleDegreeAnalysis)}',
         'Quality: $quality',
         'Extensions: ${_fmtList(extensions)}',
         'Bass pitch class: $realizedBassPc',
@@ -218,6 +221,12 @@ String _debugForChord({
       _debugApp(appVersion: appVersion),
     ],
   );
+}
+
+String _scaleDegreeDebugLabel(ScaleDegreeAnalysis? analysis) {
+  if (analysis == null) return '(none)';
+  return '${analysis.romanNumeral} (${analysis.functionName}, '
+      '${analysis.source.displayLabel})';
 }
 
 String _fmtList<T>(Iterable<T> items, {String empty = '(none)'}) {

@@ -70,3 +70,35 @@ enum ScaleDegree {
     };
   }
 }
+
+enum ScaleDegreeSource {
+  major,
+  naturalMinor,
+  harmonicMinor;
+
+  String get displayLabel {
+    return switch (this) {
+      ScaleDegreeSource.major => 'major',
+      ScaleDegreeSource.naturalMinor => 'natural minor',
+      ScaleDegreeSource.harmonicMinor => 'harmonic minor',
+    };
+  }
+}
+
+class ScaleDegreeAnalysis {
+  const ScaleDegreeAnalysis({
+    required this.degree,
+    required this.source,
+    required this.romanNumeral,
+    required this.spokenScaleDegree,
+    required this.functionName,
+  });
+
+  final ScaleDegree degree;
+  final ScaleDegreeSource source;
+  final String romanNumeral;
+  final String spokenScaleDegree;
+  final String functionName;
+
+  bool get isHarmonicMinor => source == ScaleDegreeSource.harmonicMinor;
+}

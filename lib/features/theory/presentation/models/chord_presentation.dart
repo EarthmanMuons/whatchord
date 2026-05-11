@@ -12,7 +12,7 @@ class ChordPresentation {
     required this.members,
     required this.memberDegrees,
     required this.memberPitchClasses,
-    required this.scaleDegree,
+    required this.scaleDegreeAnalysis,
     required this.normalizedVoicing,
   });
 
@@ -22,6 +22,8 @@ class ChordPresentation {
   final List<String> members;
   final List<String> memberDegrees;
   final Set<int> memberPitchClasses;
-  final ScaleDegree? scaleDegree;
+  final ScaleDegreeAnalysis? scaleDegreeAnalysis;
   final List<int> normalizedVoicing;
+
+  ScaleDegree? get scaleDegree => scaleDegreeAnalysis?.degree;
 }
