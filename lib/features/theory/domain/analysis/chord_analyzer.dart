@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math' as math;
 
 import 'package:meta/meta.dart';
@@ -63,8 +64,11 @@ class RankedCandidateDebug {
 /// - Penalize missing tones, penalty tones, and unexplained extras
 /// - Normalize by chord complexity to allow fair comparison
 abstract final class ChordAnalyzer {
-  static final Map<int, List<ChordCandidate>> _cache =
-      <int, List<ChordCandidate>>{};
+  @visibleForTesting
+  static const int cacheCapacity = 512;
+
+  static final LinkedHashMap<int, List<ChordCandidate>> _cache =
+      LinkedHashMap<int, List<ChordCandidate>>();
 
   static List<ChordCandidate> analyze(
     ChordInput input, {
@@ -75,7 +79,14 @@ abstract final class ChordAnalyzer {
     // (e.g., diatonic preference, tonic-as-I rule).
     final key = Object.hash(input.cacheKey, context, take);
     final cached = _cache[key];
-    if (cached != null) return cached;
+    if (cached != null) {
+      // Promote cache hits so eviction removes the least recently used entry,
+      // not merely the oldest inserted entry.
+      _cache
+        ..remove(key)
+        ..[key] = cached;
+      return cached;
+    }
 
     final eval = _evaluateAll(input, context: context, debug: false);
 
@@ -85,10 +96,16 @@ abstract final class ChordAnalyzer {
         .toList(growable: false);
 
     _cache[key] = result;
+    if (_cache.length > cacheCapacity) {
+      _cache.remove(_cache.keys.first);
+    }
     return result;
   }
 
   static void clearCache() => _cache.clear();
+
+  @visibleForTesting
+  static int get cacheSize => _cache.length;
 
   /// Debug entrypoint for CLI tooling.
   ///
