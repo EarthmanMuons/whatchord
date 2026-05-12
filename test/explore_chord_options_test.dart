@@ -89,8 +89,8 @@ void main() {
       );
 
       expect(groups.map((group) => group.label), [
-        'Extension',
-        'Added tone',
+        'Highest extension',
+        'Added tones',
         'Colors',
       ]);
       expect(groups.map((group) => group.allowsMultiple), [false, false, true]);

@@ -42,7 +42,7 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
     final headlineChoices = <ExploreExtensionChoice>[
       const ExploreExtensionChoice(
         label: 'None',
-        semanticLabel: 'No extension headline',
+        semanticLabel: 'No highest extension',
       ),
       if (availableHeadlines.contains(ChordExtension.nine))
         _headlineChoice(ChordExtension.nine),
@@ -55,7 +55,7 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
     final addToneChoices = <ExploreExtensionChoice>[
       const ExploreExtensionChoice(
         label: 'None',
-        semanticLabel: 'No added tone',
+        semanticLabel: 'No added tones',
       ),
       if (availableAddTones.contains(ChordExtension.add9))
         _choice(ChordExtension.add9),
@@ -93,14 +93,14 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
 
     return [
       ExploreExtensionControlGroup(
-        label: 'Extension',
+        label: 'Highest extension',
         role: ExploreExtensionControlRole.headline,
         allowsMultiple: false,
         choices: headlineChoices,
       ),
       if (addToneChoices.length > 1)
         ExploreExtensionControlGroup(
-          label: 'Added tone',
+          label: 'Added tones',
           role: ExploreExtensionControlRole.addedTone,
           allowsMultiple: false,
           choices: addToneChoices,
