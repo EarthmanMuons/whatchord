@@ -45,7 +45,7 @@ conventional interpretations over simple note-matching.
   candidates rather than hiding uncertainty.
 
 - **Interactive chord exploration**  
-  Tap the chord card to open Explore Chords, where you can adjust the root,
+  Tap the chord card to enter explore mode, where you can adjust the root,
   quality, extensions, and bass notes even when no keyboard is connected.
 
 - **Context-aware spelling**  
@@ -53,8 +53,8 @@ conventional interpretations over simple note-matching.
   identified chord context, producing appropriate enharmonic spellings.
 
 - **Notation style preferences**  
-  Supports multiple chord symbol conventions, including textual and symbolic
-  notation, so you can choose the style that reads best for you.
+  Choose between text-based and traditional symbolic chord notation conventions
+  so chord names read naturally to you.
 
 ## Screenshots
 
@@ -114,8 +114,6 @@ install APK releases directly from GitHub while verifying developer signatures.
 3. Obtanium will automatically detect new releases and prompt you to update.
 4. Verify the APK signature against the published developer key (see below).
 
-> Automated, signed APK builds are published with every official GitHub Release.
-
 [REPO]: https://github.com/EarthmanMuons/whatchord
 
 ### Developer Signing Key (Android)
@@ -160,9 +158,10 @@ usage inform improvements.
 If you believe a chord has been identified incorrectly, please [open an
 issue][ISSUE] on the GitHub repository. When possible, include the notes you
 played, the key signature, and the chord WhatChord reported versus the expected
-result. Long-press the chord card to open Analysis Details when you need
-diagnostic information to share. Sharing this data helps debug edge cases and
-improve the engine.
+result. Sharing this data helps debug edge cases and improve the engine.
+
+You can long-press the chord card to open Analysis Details and collect
+diagnostic information for a report.
 
 [ISSUE]: https://github.com/EarthmanMuons/whatchord/issues/new/choose
 
