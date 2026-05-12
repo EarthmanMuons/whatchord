@@ -14,7 +14,7 @@ import 'package:whatchord/features/theory/theory.dart';
 import '../../home/models/home_layout_config.dart';
 import '../../home/widgets/adaptive_side_sheet.dart';
 import '../models/explore_chord_state.dart';
-import '../services/explore_chord_derivation.dart';
+import '../services/explore_chord_example_builder.dart';
 import '../services/explore_chord_options.dart';
 
 class ExploreChordPage extends ConsumerStatefulWidget {
@@ -69,14 +69,14 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
 
   @override
   Widget build(BuildContext context) {
-    final identity = buildExploreChordIdentity(_state);
     final tonality = ref.watch(selectedTonalityProvider);
     final notation = ref.watch(chordNotationStyleProvider);
-    final presentation = ChordPresentationBuilder.fromIdentity(
-      identity: identity,
+    final example = ExploreChordExampleBuilder.build(
+      state: _state,
       tonality: tonality,
       notation: notation,
     );
+    final presentation = example.presentation;
     void onRootChanged(int value) {
       _cancelPreviewAnimation();
       setState(() {
@@ -140,7 +140,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
     };
     final displayedKeyboardNotes = _isPreviewAnimationRunning
         ? _previewActiveNotes
-        : presentation.normalizedVoicing.toSet();
+        : example.normalizedVoicing.toSet();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -203,15 +203,13 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                             ),
                                             const SizedBox(height: 20),
                                             _ChordMembersSection(
-                                              members: presentation.members,
-                                              previewNotes: presentation
-                                                  .normalizedVoicing,
+                                              members: example.members,
+                                              previewNotes:
+                                                  example.normalizedVoicing,
                                               activePitchClasses:
                                                   previewPitchClasses,
-                                              memberPitchClasses:
-                                                  _memberPitchClassesInOrder(
-                                                    identity,
-                                                  ),
+                                              memberPitchClasses: example
+                                                  .memberPitchClassesInOrder,
                                               onPreviewStarted:
                                                   _startPreviewAnimation,
                                             ),
@@ -228,7 +226,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                         ),
                                         child: _ExploreControls(
                                           state: _state,
-                                          identity: identity,
+                                          identity: example.identity,
                                           tonality: tonality,
                                           isLandscape: true,
                                           onRootChanged: onRootChanged,
@@ -256,12 +254,11 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                     _ExploreSummary(presentation: presentation),
                                     const SizedBox(height: 20),
                                     _ChordMembersSection(
-                                      members: presentation.members,
-                                      previewNotes:
-                                          presentation.normalizedVoicing,
+                                      members: example.members,
+                                      previewNotes: example.normalizedVoicing,
                                       activePitchClasses: previewPitchClasses,
                                       memberPitchClasses:
-                                          _memberPitchClassesInOrder(identity),
+                                          example.memberPitchClassesInOrder,
                                       onPreviewStarted: _startPreviewAnimation,
                                     ),
                                     const SizedBox(height: 20),
@@ -270,7 +267,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                         padding: const EdgeInsets.only(top: 4),
                                         child: _ExploreControls(
                                           state: _state,
-                                          identity: identity,
+                                          identity: example.identity,
                                           tonality: tonality,
                                           isLandscape: false,
                                           onRootChanged: onRootChanged,
@@ -330,24 +327,15 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
   }
 
   ExploreChordState _withValidBass(ExploreChordState candidate) {
-    final identity = buildExploreChordIdentity(candidate);
-    final pitchClasses =
-        ChordPresentationBuilder.chordMemberPitchClassesFromMask(
-          rootPc: identity.rootPc,
-          presentIntervalsMask: identity.presentIntervalsMask,
-        );
+    final pitchClasses = ExploreChordExampleBuilder.canonicalBassPitchClasses(
+      candidate,
+    );
 
     final bassPc = pitchClasses.contains(candidate.bassPc)
         ? candidate.bassPc
         : candidate.rootPc;
 
     return candidate.copyWith(bassPc: bassPc);
-  }
-
-  List<int> _memberPitchClassesInOrder(ChordIdentity identity) {
-    return ChordPresentationBuilder.sortedIntervalsForIdentity(
-      identity,
-    ).map((interval) => (identity.rootPc + interval) % 12).toList();
   }
 
   void _startPreviewAnimation(List<int> previewNotes) {
@@ -1644,7 +1632,7 @@ class _ExtensionBuilder extends StatelessWidget {
           children: [
             for (var index = 0; index < groups.length; index++) ...[
               if (index > 0) const SizedBox(height: 12),
-              if (groups.length > 1 || !groups[index].allowsMultiple) ...[
+              if (groups.length > 1) ...[
                 Text(groups[index].label, style: labelStyle),
                 const SizedBox(height: 6),
               ],
