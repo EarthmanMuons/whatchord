@@ -16,6 +16,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   like V7 and leading-tone diminished chords are identified alongside
   natural-minor functions.
 
+### Changed
+
+- Made Explore Chords extended examples more idiomatic, with clearer extension
+  choices and preview voicings that better match common musician expectations.
+
 ### Fixed
 
 - Fixed Audio Monitor event queuing so startup, previews, and live note playback
