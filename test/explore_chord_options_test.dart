@@ -16,22 +16,26 @@ void main() {
           ChordQualityToken.major,
         );
 
-        expect(groups.map((group) => group.label), ['Extension']);
-        expect(groups.map((group) => group.allowsMultiple), [false]);
-        expect(groups.single.choices.map((choice) => choice.extension), [
-          null,
+        expect(groups.map((group) => group.label), ['Added tones', 'Colors']);
+        expect(groups.map((group) => group.role), [
+          ExploreExtensionControlRole.addedTones,
+          ExploreExtensionControlRole.colors,
+        ]);
+        expect(groups.map((group) => group.allowsMultiple), [true, true]);
+        expect(groups[0].choices.map((choice) => choice.extension), [
           ChordExtension.add9,
           ChordExtension.add11,
-          ChordExtension.sharp11,
           ChordExtension.add13,
         ]);
-        expect(groups.single.choices.map((choice) => choice.label), [
-          'None',
+        expect(groups[0].choices.map((choice) => choice.label), [
           'add9',
           'add11',
-          '♯11',
           'add13',
         ]);
+        expect(groups[1].choices.map((choice) => choice.extension), [
+          ChordExtension.sharp11,
+        ]);
+        expect(groups[1].choices.map((choice) => choice.label), ['♯11']);
       },
     );
 
@@ -43,10 +47,10 @@ void main() {
         );
 
         expect(groups, hasLength(1));
-        expect(groups.single.label, 'Extension');
-        expect(groups.single.allowsMultiple, isFalse);
+        expect(groups.single.label, 'Added tones');
+        expect(groups.single.role, ExploreExtensionControlRole.addedTones);
+        expect(groups.single.allowsMultiple, isTrue);
         expect(groups.single.choices.map((choice) => choice.extension), [
-          null,
           ChordExtension.add9,
           ChordExtension.add11,
           ChordExtension.add13,
@@ -59,13 +63,14 @@ void main() {
         ChordQualityToken.augmented,
       );
 
-      expect(groups.map((group) => group.label), ['Extension']);
-      expect(groups.single.choices.map((choice) => choice.extension), [
-        null,
+      expect(groups.map((group) => group.label), ['Added tones', 'Colors']);
+      expect(groups[0].choices.map((choice) => choice.extension), [
         ChordExtension.add9,
         ChordExtension.add11,
-        ChordExtension.sharp11,
         ChordExtension.add13,
+      ]);
+      expect(groups[1].choices.map((choice) => choice.extension), [
+        ChordExtension.sharp11,
       ]);
     });
 
@@ -74,11 +79,12 @@ void main() {
         ChordQualityToken.major6,
       );
 
-      expect(groups.map((group) => group.label), ['Extension']);
-      expect(groups.single.choices.map((choice) => choice.extension), [
-        null,
+      expect(groups.map((group) => group.label), ['Added tones', 'Colors']);
+      expect(groups[0].choices.map((choice) => choice.extension), [
         ChordExtension.add9,
         ChordExtension.add11,
+      ]);
+      expect(groups[1].choices.map((choice) => choice.extension), [
         ChordExtension.sharp11,
       ]);
     });
@@ -93,7 +99,12 @@ void main() {
         'Added tones',
         'Colors',
       ]);
-      expect(groups.map((group) => group.allowsMultiple), [false, false, true]);
+      expect(groups.map((group) => group.role), [
+        ExploreExtensionControlRole.highestExtension,
+        ExploreExtensionControlRole.addedTones,
+        ExploreExtensionControlRole.colors,
+      ]);
+      expect(groups.map((group) => group.allowsMultiple), [false, true, true]);
       expect(groups[0].choices.map((choice) => choice.extension), [
         null,
         ChordExtension.nine,
@@ -107,14 +118,10 @@ void main() {
         '13',
       ]);
       expect(groups[1].choices.map((choice) => choice.extension), [
-        null,
-        ChordExtension.add9,
         ChordExtension.add11,
         ChordExtension.add13,
       ]);
       expect(groups[1].choices.map((choice) => choice.label), [
-        'None',
-        'add9',
         'add11',
         'add13',
       ]);
@@ -143,8 +150,6 @@ void main() {
         ChordExtension.eleven,
       ]);
       expect(groups[1].choices.map((choice) => choice.extension), [
-        null,
-        ChordExtension.add9,
         ChordExtension.add11,
       ]);
       expect(groups[2].choices.map((choice) => choice.extension), [
@@ -199,62 +204,49 @@ void main() {
     test('all non-seventh qualities have intentional extension choices', () {
       final expectations = {
         ChordQualityToken.major: [
-          null,
           ChordExtension.add9,
           ChordExtension.add11,
-          ChordExtension.sharp11,
           ChordExtension.add13,
+          ChordExtension.sharp11,
         ],
         ChordQualityToken.minor: [
-          null,
           ChordExtension.add9,
           ChordExtension.add11,
           ChordExtension.add13,
         ],
         ChordQualityToken.diminished: [
-          null,
           ChordExtension.add9,
           ChordExtension.add11,
           ChordExtension.add13,
         ],
         ChordQualityToken.augmented: [
-          null,
           ChordExtension.add9,
           ChordExtension.add11,
+          ChordExtension.add13,
           ChordExtension.sharp11,
-          ChordExtension.add13,
         ],
-        ChordQualityToken.sus2: [
-          null,
-          ChordExtension.add11,
-          ChordExtension.add13,
-        ],
-        ChordQualityToken.sus4: [
-          null,
-          ChordExtension.add9,
-          ChordExtension.add13,
-        ],
+        ChordQualityToken.sus2: [ChordExtension.add11, ChordExtension.add13],
+        ChordQualityToken.sus4: [ChordExtension.add9, ChordExtension.add13],
         ChordQualityToken.major6: [
-          null,
           ChordExtension.add9,
           ChordExtension.add11,
           ChordExtension.sharp11,
         ],
-        ChordQualityToken.minor6: [
-          null,
-          ChordExtension.add9,
-          ChordExtension.add11,
-        ],
+        ChordQualityToken.minor6: [ChordExtension.add9, ChordExtension.add11],
       };
 
       for (final entry in expectations.entries) {
         final groups = buildExploreExtensionControlGroups(entry.key);
+        final choices = [
+          for (final group in groups)
+            for (final choice in group.choices) choice.extension,
+        ];
+        expect(choices, entry.value, reason: entry.key.name);
         expect(
-          groups.single.choices.map((choice) => choice.extension),
-          entry.value,
+          groups.every((group) => group.allowsMultiple),
+          isTrue,
           reason: entry.key.name,
         );
-        expect(groups.single.allowsMultiple, isFalse, reason: entry.key.name);
       }
     });
   });
@@ -293,22 +285,24 @@ void main() {
       expect(identity.extensions, {ChordExtension.sharp11});
     });
 
-    test('preserves seventh-family add tones separately from headlines', () {
-      final normalized = normalizeExtensionsForQuality(
-        quality: ChordQualityToken.dominant7,
-        extensions: const {
-          ChordExtension.add9,
-          ChordExtension.add11,
-          ChordExtension.add13,
-        },
-      );
+    test(
+      'promotes seventh-family add ninth while preserving skipped add tones',
+      () {
+        final ninth = normalizeExtensionsForQuality(
+          quality: ChordQualityToken.dominant7,
+          extensions: const {ChordExtension.add9},
+        );
 
-      expect(normalized, {
-        ChordExtension.add9,
-        ChordExtension.add11,
-        ChordExtension.add13,
-      });
-    });
+        expect(ninth, {ChordExtension.nine});
+
+        final skipped = normalizeExtensionsForQuality(
+          quality: ChordQualityToken.dominant7,
+          extensions: const {ChordExtension.add11, ChordExtension.add13},
+        );
+
+        expect(skipped, {ChordExtension.add11, ChordExtension.add13});
+      },
+    );
 
     test(
       'converts natural extensions to add tones for triad-like qualities',
@@ -417,7 +411,7 @@ void main() {
   });
 
   group('selectExploreExtensionChoice', () {
-    test('selects triad-like extension choices exclusively', () {
+    test('selects triad-like added tones independently', () {
       final group = buildExploreExtensionControlGroups(
         ChordQualityToken.major,
       ).first;
@@ -426,7 +420,7 @@ void main() {
         quality: ChordQualityToken.major,
         currentExtensions: const {},
         group: group,
-        choice: group.choices[1],
+        choice: group.choices[0],
       );
 
       expect(withAdd9, {ChordExtension.add9});
@@ -435,22 +429,24 @@ void main() {
         quality: ChordQualityToken.major,
         currentExtensions: withAdd9,
         group: group,
-        choice: group.choices[4],
+        choice: group.choices[2],
       );
 
-      expect(withAdd13, {ChordExtension.add13});
+      expect(withAdd13, {ChordExtension.add9, ChordExtension.add13});
     });
 
     test('replaces natural and sharp eleventh choices for major qualities', () {
-      final group = buildExploreExtensionControlGroups(
+      final groups = buildExploreExtensionControlGroups(
         ChordQualityToken.major,
-      ).first;
+      );
+      final addToneGroup = groups[0];
+      final colorGroup = groups[1];
 
       final withSharp11 = selectExploreExtensionChoice(
         quality: ChordQualityToken.major,
         currentExtensions: const {ChordExtension.add11},
-        group: group,
-        choice: group.choices[3],
+        group: colorGroup,
+        choice: colorGroup.choices[0],
       );
 
       expect(withSharp11, {ChordExtension.sharp11});
@@ -458,30 +454,41 @@ void main() {
       final withAdd11 = selectExploreExtensionChoice(
         quality: ChordQualityToken.major,
         currentExtensions: withSharp11,
-        group: group,
-        choice: group.choices[2],
+        group: addToneGroup,
+        choice: addToneGroup.choices[1],
       );
 
       expect(withAdd11, {ChordExtension.add11});
     });
 
-    test('none clears triad-like extension choices', () {
-      final group = buildExploreExtensionControlGroups(
+    test('toggles triad-like extension choices within their groups', () {
+      final groups = buildExploreExtensionControlGroups(
         ChordQualityToken.major,
-      ).first;
+      );
+      final addToneGroup = groups[0];
+      final colorGroup = groups[1];
 
-      final normalized = selectExploreExtensionChoice(
+      final withoutAdd13 = selectExploreExtensionChoice(
         quality: ChordQualityToken.major,
         currentExtensions: const {
           ChordExtension.add9,
           ChordExtension.sharp11,
           ChordExtension.add13,
         },
-        group: group,
-        choice: group.choices[0],
+        group: addToneGroup,
+        choice: addToneGroup.choices[2],
       );
 
-      expect(normalized, isEmpty);
+      expect(withoutAdd13, {ChordExtension.add9, ChordExtension.sharp11});
+
+      final withoutSharp11 = selectExploreExtensionChoice(
+        quality: ChordQualityToken.major,
+        currentExtensions: withoutAdd13,
+        group: colorGroup,
+        choice: colorGroup.choices[0],
+      );
+
+      expect(withoutSharp11, {ChordExtension.add9});
     });
 
     test('replaces the seventh-family headline choice', () {
@@ -503,20 +510,125 @@ void main() {
       });
     });
 
-    test('selects seventh-family add tones independently from headlines', () {
+    test(
+      'promotes skipped added tones when a later headline completes them',
+      () {
+        final headlineGroup = buildExploreExtensionControlGroups(
+          ChordQualityToken.dominant7,
+        ).first;
+
+        final withEleven = selectExploreExtensionChoice(
+          quality: ChordQualityToken.dominant7,
+          currentExtensions: const {ChordExtension.add11},
+          group: headlineGroup,
+          choice: headlineGroup.choices[1],
+        );
+
+        expect(withEleven, {ChordExtension.eleven});
+      },
+    );
+
+    test('promotes seventh-family added tones when they complete a stack', () {
+      final headlineGroup = buildExploreExtensionControlGroups(
+        ChordQualityToken.dominant7,
+      ).first;
       final addToneGroup = buildExploreExtensionControlGroups(
         ChordQualityToken.dominant7,
       )[1];
 
-      final normalized = selectExploreExtensionChoice(
+      final withNine = selectExploreExtensionChoice(
         quality: ChordQualityToken.dominant7,
-        currentExtensions: const {ChordExtension.thirteen},
-        group: addToneGroup,
-        choice: addToneGroup.choices[3],
+        currentExtensions: const {},
+        group: headlineGroup,
+        choice: headlineGroup.choices[1],
       );
 
-      expect(normalized, {ChordExtension.add13});
+      expect(withNine, {ChordExtension.nine});
+
+      final withEleven = selectExploreExtensionChoice(
+        quality: ChordQualityToken.dominant7,
+        currentExtensions: withNine,
+        group: addToneGroup,
+        choice: addToneGroup.choices[0],
+      );
+
+      expect(withEleven, {ChordExtension.eleven});
+
+      final withThirteen = selectExploreExtensionChoice(
+        quality: ChordQualityToken.dominant7,
+        currentExtensions: withEleven,
+        group: addToneGroup,
+        choice: addToneGroup.choices[1],
+      );
+
+      expect(withThirteen, {ChordExtension.thirteen});
     });
+
+    test(
+      'keeps seventh-family added tones explicit when lower tones are skipped',
+      () {
+        final addToneGroup = buildExploreExtensionControlGroups(
+          ChordQualityToken.dominant7,
+        )[1];
+
+        final withAdd11 = selectExploreExtensionChoice(
+          quality: ChordQualityToken.dominant7,
+          currentExtensions: const {},
+          group: addToneGroup,
+          choice: addToneGroup.choices[0],
+        );
+
+        expect(withAdd11, {ChordExtension.add11});
+
+        final withAdd13 = selectExploreExtensionChoice(
+          quality: ChordQualityToken.dominant7,
+          currentExtensions: const {},
+          group: addToneGroup,
+          choice: addToneGroup.choices[1],
+        );
+
+        expect(withAdd13, {ChordExtension.add13});
+
+        final normalized = selectExploreExtensionChoice(
+          quality: ChordQualityToken.dominant7,
+          currentExtensions: const {ChordExtension.thirteen},
+          group: addToneGroup,
+          choice: addToneGroup.choices[1],
+        );
+
+        expect(normalized, {ChordExtension.add13});
+
+        final withNineAndAdd13 = selectExploreExtensionChoice(
+          quality: ChordQualityToken.dominant7,
+          currentExtensions: const {ChordExtension.nine},
+          group: addToneGroup,
+          choice: addToneGroup.choices[1],
+        );
+
+        expect(withNineAndAdd13, {ChordExtension.nine, ChordExtension.add13});
+      },
+    );
+
+    test(
+      'promotes seventh-family added tones above complete altered stacks',
+      () {
+        final addToneGroup = buildExploreExtensionControlGroups(
+          ChordQualityToken.dominant7,
+        )[1];
+
+        final normalized = selectExploreExtensionChoice(
+          quality: ChordQualityToken.dominant7,
+          currentExtensions: const {
+            ChordExtension.flat9,
+            ChordExtension.eleven,
+          },
+          group: addToneGroup,
+          choice: addToneGroup.choices[1],
+        );
+
+        expect(normalized, {ChordExtension.flat9, ChordExtension.thirteen});
+      },
+    );
 
     test('none clears the seventh-family headline only', () {
       final headlineGroup = buildExploreExtensionControlGroups(
