@@ -103,6 +103,10 @@ abstract final class ChordCandidateRanking {
 
   static final List<_NamedRule> _hardRules = <_NamedRule>[
     _NamedRule('Prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
+    _NamedRule(
+      'Prefer close root-position dominant7 over non-dominant slash',
+      _preferDom7RootOverNonDomSlash,
+    ),
   ];
 
   static final List<_NamedRule> _tieBreakerRules = <_NamedRule>[
@@ -113,12 +117,9 @@ abstract final class ChordCandidateRanking {
     ),
     _NamedRule('Prefer root-position diminished7', _preferDim7InRoot),
     _NamedRule('Prefer dominant7 over dim7 slash', _preferDom7Shell),
-    _NamedRule(
-      'Prefer root-position dominant7 over non-dominant slash',
-      _preferDom7RootOverNonDomSlash,
-    ),
     _NamedRule('Prefer fewer alterations', _preferFewerAlterations),
     _NamedRule('Prefer diatonic chords', _preferDiatonic),
+    _NamedRule('Prefer tonic chord', _preferTonicChord),
     _NamedRule('Prefer I chord when bass is tonic', _preferTonicAsI),
     _NamedRule(
       'Prefer natural extensions over adds, then fewer total',
@@ -148,7 +149,9 @@ abstract final class ChordCandidateRanking {
     final fsix = aIs6 ? fa : fb;
     final fother = aIs6 ? fb : fa;
 
-    if (fsix.isRootPosition && !fother.isRootPosition && !fother.hasRealExt) {
+    if (fsix.isRootPosition &&
+        !fother.isRootPosition &&
+        fother.extensionCount == 0) {
       return aIs6 ? -1 : 1;
     }
 
@@ -340,6 +343,8 @@ abstract final class ChordCandidateRanking {
 
     final fDom = aIsPreferred ? fa : fb;
     final fOther = aIsPreferred ? fb : fa;
+    final domCandidate = aIsPreferred ? a : b;
+    final otherCandidate = aIsPreferred ? b : a;
 
     // Only when the competing interpretation is a slash and not itself dominant7.
     if (!fOther.isSlashBass) return null;
@@ -349,6 +354,8 @@ abstract final class ChordCandidateRanking {
     final domHasColor =
         (fDom.extPref.naturalCount + fDom.extPref.alterationCount) > 0;
     if (!domHasColor) return null;
+
+    if (domCandidate.score + 0.25 < otherCandidate.score) return null;
 
     return aIsPreferred ? -1 : 1;
   }
@@ -382,6 +389,29 @@ abstract final class ChordCandidateRanking {
 
     if (aOk == bOk) return null;
     return bOk ? 1 : -1;
+  }
+
+  /// Prefers the selected key's tonic chord in otherwise ambiguous near-ties.
+  ///
+  /// This lets context resolve relative major/minor sonorities without overriding
+  /// stronger structural evidence.
+  static int? _preferTonicChord(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality tonality,
+  ) {
+    final da = tonality.scaleDegreeForChord(a.identity);
+    final db = tonality.scaleDegreeForChord(b.identity);
+    if (da == null || db == null) return null;
+
+    final aIsI = da == ScaleDegree.one;
+    final bIsI = db == ScaleDegree.one;
+
+    if (aIsI == bIsI) return null;
+
+    return bIsI ? 1 : -1;
   }
 
   /// Prefers the I chord when the bass is the tonic pitch class.

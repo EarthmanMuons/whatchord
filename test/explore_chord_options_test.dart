@@ -88,8 +88,12 @@ void main() {
         ChordQualityToken.dominant7,
       );
 
-      expect(groups.map((group) => group.label), ['Extension', 'Colors']);
-      expect(groups.map((group) => group.allowsMultiple), [false, true]);
+      expect(groups.map((group) => group.label), [
+        'Extension',
+        'Added tone',
+        'Colors',
+      ]);
+      expect(groups.map((group) => group.allowsMultiple), [false, false, true]);
       expect(groups[0].choices.map((choice) => choice.extension), [
         null,
         ChordExtension.nine,
@@ -98,17 +102,29 @@ void main() {
       ]);
       expect(groups[0].choices.map((choice) => choice.label), [
         'None',
+        '9',
+        '11',
+        '13',
+      ]);
+      expect(groups[1].choices.map((choice) => choice.extension), [
+        null,
+        ChordExtension.add9,
+        ChordExtension.add11,
+        ChordExtension.add13,
+      ]);
+      expect(groups[1].choices.map((choice) => choice.label), [
+        'None',
         'add9',
         'add11',
         'add13',
       ]);
-      expect(groups[1].choices.map((choice) => choice.extension), [
+      expect(groups[2].choices.map((choice) => choice.extension), [
         ChordExtension.flat9,
         ChordExtension.sharp9,
         ChordExtension.sharp11,
         ChordExtension.flat13,
       ]);
-      expect(groups[1].choices.map((choice) => choice.label), [
+      expect(groups[2].choices.map((choice) => choice.label), [
         '♭9',
         '♯9',
         '♯11',
@@ -127,6 +143,11 @@ void main() {
         ChordExtension.eleven,
       ]);
       expect(groups[1].choices.map((choice) => choice.extension), [
+        null,
+        ChordExtension.add9,
+        ChordExtension.add11,
+      ]);
+      expect(groups[2].choices.map((choice) => choice.extension), [
         ChordExtension.flat9,
         ChordExtension.flat13,
       ]);
@@ -144,11 +165,11 @@ void main() {
       ]);
       expect(groups.first.choices.map((choice) => choice.label), [
         'None',
-        'add9',
-        'add13',
+        '9',
+        '13',
       ]);
       expect(
-        groups[1].choices.map((choice) => choice.extension),
+        groups[2].choices.map((choice) => choice.extension),
         contains(ChordExtension.sharp11),
       );
     });
@@ -168,9 +189,9 @@ void main() {
         ]);
         expect(groups.first.choices.map((choice) => choice.label), [
           'None',
-          'add9',
-          'add11',
-          'add13',
+          '9',
+          '11',
+          '13',
         ]);
       },
     );
@@ -272,7 +293,7 @@ void main() {
       expect(identity.extensions, {ChordExtension.sharp11});
     });
 
-    test('converts supported triad add tones to seventh-family extensions', () {
+    test('preserves seventh-family add tones separately from headlines', () {
       final normalized = normalizeExtensionsForQuality(
         quality: ChordQualityToken.dominant7,
         extensions: const {
@@ -283,9 +304,9 @@ void main() {
       );
 
       expect(normalized, {
-        ChordExtension.nine,
-        ChordExtension.eleven,
-        ChordExtension.thirteen,
+        ChordExtension.add9,
+        ChordExtension.add11,
+        ChordExtension.add13,
       });
     });
 
@@ -482,6 +503,21 @@ void main() {
       });
     });
 
+    test('selects seventh-family add tones independently from headlines', () {
+      final addToneGroup = buildExploreExtensionControlGroups(
+        ChordQualityToken.dominant7,
+      )[1];
+
+      final normalized = selectExploreExtensionChoice(
+        quality: ChordQualityToken.dominant7,
+        currentExtensions: const {ChordExtension.thirteen},
+        group: addToneGroup,
+        choice: addToneGroup.choices[3],
+      );
+
+      expect(normalized, {ChordExtension.add13});
+    });
+
     test('none clears the seventh-family headline only', () {
       final headlineGroup = buildExploreExtensionControlGroups(
         ChordQualityToken.dominant7,
@@ -504,7 +540,7 @@ void main() {
     test('replaces mutually exclusive seventh-family color choices', () {
       final colorGroup = buildExploreExtensionControlGroups(
         ChordQualityToken.dominant7,
-      )[1];
+      )[2];
 
       final normalized = selectExploreExtensionChoice(
         quality: ChordQualityToken.dominant7,
@@ -614,17 +650,47 @@ void main() {
       },
     );
 
-    test('omits the weak fifth and implies ninth for a thirteenth example', () {
+    test(
+      'uses implied ninth but no sharp eleventh for a dominant thirteenth example',
+      () {
+        final example = _example(
+          quality: ChordQualityToken.dominant7,
+          extensions: const {ChordExtension.thirteen},
+        );
+
+        expect(example.presentation.symbol.toString(), 'C13');
+        expect(example.members, ['C', 'E', 'G', 'Bb', 'D', 'A']);
+        expect(example.memberDegrees, ['1', '3', '5', 'b7', '9', '13']);
+        expect(example.normalizedVoicing, [60, 64, 67, 70, 74, 81]);
+      },
+    );
+
+    test('uses only the selected added tone for a dominant add-thirteenth', () {
       final example = _example(
         quality: ChordQualityToken.dominant7,
-        extensions: const {ChordExtension.thirteen},
+        extensions: const {ChordExtension.add13},
       );
 
-      expect(example.presentation.symbol.toString(), 'C13');
-      expect(example.members, ['C', 'E', 'Bb', 'D', 'A']);
-      expect(example.memberDegrees, ['1', '3', 'b7', '9', '13']);
-      expect(example.normalizedVoicing, [60, 64, 70, 74, 81]);
+      expect(example.presentation.symbol.toString(), 'C7(add13)');
+      expect(example.members, ['C', 'E', 'G', 'Bb', 'A']);
+      expect(example.memberDegrees, ['1', '3', '5', 'b7', '13']);
+      expect(example.normalizedVoicing, [60, 64, 67, 70, 81]);
     });
+
+    test(
+      'uses explicit sharp-eleventh color for a dominant thirteenth sharp-eleventh',
+      () {
+        final example = _example(
+          quality: ChordQualityToken.dominant7,
+          extensions: const {ChordExtension.sharp11, ChordExtension.thirteen},
+        );
+
+        expect(example.presentation.symbol.toString(), 'C13#11');
+        expect(example.members, ['C', 'E', 'G', 'Bb', 'D', 'F#', 'A']);
+        expect(example.memberDegrees, ['1', '3', '5', 'b7', '9', '#11', '13']);
+        expect(example.normalizedVoicing, [60, 64, 67, 70, 74, 78, 81]);
+      },
+    );
 
     test('uses altered ninth instead of implied natural ninth', () {
       final example = _example(
@@ -633,9 +699,35 @@ void main() {
       );
 
       expect(example.presentation.symbol.toString(), 'C13b9');
-      expect(example.members, ['C', 'E', 'Bb', 'Db', 'A']);
-      expect(example.memberDegrees, ['1', '3', 'b7', 'b9', '13']);
-      expect(example.normalizedVoicing, [60, 64, 70, 73, 81]);
+      expect(example.members, ['C', 'E', 'G', 'Bb', 'Db', 'A']);
+      expect(example.memberDegrees, ['1', '3', '5', 'b7', 'b9', '13']);
+      expect(example.normalizedVoicing, [60, 64, 67, 70, 73, 81]);
+    });
+
+    test('round-trips dominant thirteenth examples through the analyzer', () {
+      for (final entry in const {
+        'C13': {ChordExtension.thirteen},
+        'C7(add13)': {ChordExtension.add13},
+        'C13#11': {ChordExtension.sharp11, ChordExtension.thirteen},
+      }.entries) {
+        final example = _example(
+          quality: ChordQualityToken.dominant7,
+          extensions: entry.value,
+        );
+        final analyzed = ChordAnalyzer.analyze(
+          _inputFromVoicing(example.normalizedVoicing),
+          context: _context(),
+        );
+
+        expect(analyzed, isNotEmpty, reason: entry.key);
+        final symbol = ChordSymbolBuilder.fromIdentity(
+          identity: analyzed.first.identity,
+          tonality: const Tonality('C', TonalityMode.major),
+          notation: ChordNotationStyle.textual,
+        ).toString();
+
+        expect(symbol, entry.key);
+      }
     });
   });
 }
@@ -653,5 +745,27 @@ ExploreChordExample _example({
     ),
     tonality: const Tonality('C', TonalityMode.major),
     notation: ChordNotationStyle.textual,
+  );
+}
+
+AnalysisContext _context() {
+  const tonality = Tonality('C', TonalityMode.major);
+  final keySignature = KeySignature.fromTonality(tonality);
+  return AnalysisContext(
+    tonality: tonality,
+    keySignature: keySignature,
+    spellingPolicy: NoteSpellingPolicy(preferFlats: keySignature.prefersFlats),
+  );
+}
+
+ChordInput _inputFromVoicing(List<int> voicing) {
+  var mask = 0;
+  for (final note in voicing) {
+    mask |= 1 << (note % 12);
+  }
+  return ChordInput(
+    pcMask: mask,
+    bassPc: voicing.first % 12,
+    noteCount: voicing.length,
   );
 }

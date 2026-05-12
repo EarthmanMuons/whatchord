@@ -20,9 +20,15 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Made Explore Chords extended examples more idiomatic, with clearer extension
   choices and preview voicings that better match common musician expectations.
+- Made dominant seventh Explore controls distinguish headline extensions from
+  exact added tones.
 
 ### Fixed
 
+- Fixed upper-extension chord analysis so lone elevenths use add11 naming and
+  sharp-eleventh dominant thirteenths rank ahead of remote slash-chord readings.
+- Fixed dominant add-thirteenth analysis so it stays distinct from full
+  thirteenth chords.
 - Fixed Audio Monitor event queuing so startup, previews, and live note playback
   are serialized more consistently, reducing the chance of rough first playback
   or stuck audio state.

@@ -137,6 +137,30 @@ void main() {
       },
     ),
 
+    // A lone 11 on a dominant seventh is an added tone, not a true 11th chord.
+    golden(
+      name: 'C E G Bb F -> C7(add11)',
+      pcs: ['C', 'E', 'G', 'Bb', 'F'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(top.extensions, contains(ChordExtension.add11));
+        expect(top.extensions, isNot(contains(ChordExtension.eleven)));
+      },
+    ),
+
+    // A true dominant 11 includes the implied ninth.
+    golden(
+      name: 'C E G Bb D F -> C11',
+      pcs: ['C', 'E', 'G', 'Bb', 'D', 'F'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(top.extensions, contains(ChordExtension.nine));
+        expect(top.extensions, contains(ChordExtension.eleven));
+      },
+    ),
+
     // Major 9.
     golden(
       name: 'C E G B D -> Cmaj9',
@@ -159,6 +183,42 @@ void main() {
           top.extensions,
           containsAll(<ChordExtension>[
             ChordExtension.nine,
+            ChordExtension.thirteen,
+          ]),
+        );
+      },
+    ),
+
+    // Dominant 13 with a sharp eleventh should beat remote slash reinterpretations.
+    golden(
+      name: 'C E G Bb D F# A -> C13#11',
+      pcs: ['C', 'E', 'G', 'Bb', 'D', 'F#', 'A'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(
+          top.extensions,
+          containsAll(<ChordExtension>[
+            ChordExtension.nine,
+            ChordExtension.sharp11,
+            ChordExtension.thirteen,
+          ]),
+        );
+      },
+    ),
+
+    // The fifth is optional in extended dominant voicings.
+    golden(
+      name: 'C E Bb D F# A -> C13#11',
+      pcs: ['C', 'E', 'Bb', 'D', 'F#', 'A'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(
+          top.extensions,
+          containsAll(<ChordExtension>[
+            ChordExtension.nine,
+            ChordExtension.sharp11,
             ChordExtension.thirteen,
           ]),
         );
@@ -313,14 +373,15 @@ void main() {
       },
     ),
 
-    // Dominant 7 should beat major 6 when the b7 is present.
+    // Dominant 7 with a lone 13 is an added tone, not a true 13th chord.
     golden(
-      name: 'C E G Bb A -> C13',
+      name: 'C E G Bb A -> C7(add13)',
       pcs: ['C', 'E', 'G', 'Bb', 'A'],
       expectTop: (top) {
         expect(top.rootPc, pc('C'));
         expect(top.quality, ChordQualityToken.dominant7);
-        expect(top.extensions, contains(ChordExtension.thirteen));
+        expect(top.extensions, contains(ChordExtension.add13));
+        expect(top.extensions, isNot(contains(ChordExtension.thirteen)));
       },
     ),
 
@@ -336,13 +397,13 @@ void main() {
 
     // Tonality-specific ranking: same pitch-class set, different "best" chord in A minor.
     golden(
-      name: 'C E G A D --key=A:min -> Am11 / C',
+      name: 'C E G A D --key=A:min -> Am7(add11) / C',
       pcs: ['C', 'E', 'G', 'A', 'D'],
       tonality: const Tonality('A', TonalityMode.minor),
       expectTop: (top) {
         expect(top.rootPc, pc('A'));
         expect(top.quality, ChordQualityToken.minor7);
-        expect(top.extensions, contains(ChordExtension.eleven));
+        expect(top.extensions, contains(ChordExtension.add11));
         expect(top.bassPc, pc('C'));
       },
     ),
@@ -388,7 +449,7 @@ void main() {
       expectTop: (top) {
         expect(top.rootPc, pc('C'));
         expect(top.quality, ChordQualityToken.diminished7);
-        expect(top.extensions, contains(ChordExtension.eleven));
+        expect(top.extensions, contains(ChordExtension.add11));
       },
     ),
     golden(
