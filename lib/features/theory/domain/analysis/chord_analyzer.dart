@@ -342,6 +342,16 @@ abstract final class ChordAnalyzer {
       );
     }
 
+    final dominantStackDelta = _dominantStackCoherenceBonus(
+      quality: template.quality,
+      extensions: extensions,
+      bassInterval: bassInterval,
+    );
+    if (dominantStackDelta != 0) {
+      raw += dominantStackDelta;
+      add('dominant stack', dominantStackDelta);
+    }
+
     // Penalize 6-chord interpretations for 3-note voicings that omit the 5th.
     // Helps avoid "root-3-6" ambiguity by disfavoring incomplete 6th chords.
     //
@@ -401,6 +411,22 @@ abstract final class ChordAnalyzer {
     final hasFifth = (relMask & fifthBit) != 0;
 
     return !hasFifth;
+  }
+
+  static double _dominantStackCoherenceBonus({
+    required ChordQualityToken quality,
+    required Set<ChordExtension> extensions,
+    required int bassInterval,
+  }) {
+    // Lydian-dominant 13ths are commonly voiced without the fifth. Without this
+    // small structural bonus, the scorer overvalues remote slash readings that
+    // happen to reinterpret the thirteenth as a perfect fifth.
+    if (quality != ChordQualityToken.dominant7) return 0;
+    if (bassInterval != 0) return 0;
+    if (!extensions.contains(ChordExtension.nine)) return 0;
+    if (!extensions.contains(ChordExtension.thirteen)) return 0;
+    if (!extensions.contains(ChordExtension.sharp11)) return 0;
+    return 2.1;
   }
 
   /// Calculates the interval (in semitones, 0..11) from rootPc to pc.
@@ -468,8 +494,12 @@ Set<ChordExtension> _extensionsFromExtras(
   final has13 = (extrasMask & (1 << 9)) != 0;
 
   if (has9) out.add(has7 ? ChordExtension.nine : ChordExtension.add9);
-  if (has11) out.add(has7 ? ChordExtension.eleven : ChordExtension.add11);
-  if (has13) out.add(has7 ? ChordExtension.thirteen : ChordExtension.add13);
+  if (has11) {
+    out.add(has7 && has9 ? ChordExtension.eleven : ChordExtension.add11);
+  }
+  if (has13) {
+    out.add(has7 && has9 ? ChordExtension.thirteen : ChordExtension.add13);
+  }
 
   return out;
 }

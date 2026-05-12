@@ -89,10 +89,6 @@ abstract final class ExploreChordExampleBuilder {
       intervals.add(extension.intervalAboveRoot);
     }
 
-    if (_shouldOmitFifth(state.quality, extensions)) {
-      intervals.remove(7);
-    }
-
     final roles = ChordToneRoles.build(
       quality: state.quality,
       extensions: extensions,
@@ -148,24 +144,6 @@ abstract final class ExploreChordExampleBuilder {
       out.add(ChordExtension.add9);
     }
     return Set<ChordExtension>.unmodifiable(out);
-  }
-
-  static bool _shouldOmitFifth(
-    ChordQualityToken quality,
-    Set<ChordExtension> extensions,
-  ) {
-    if (!quality.isSeventhFamily) return false;
-    if (quality == ChordQualityToken.dominant7sus4) return false;
-    if (quality == ChordQualityToken.halfDiminished7 ||
-        quality == ChordQualityToken.diminished7) {
-      return false;
-    }
-    if (extensions.contains(ChordExtension.sharp11) ||
-        extensions.contains(ChordExtension.flat13) ||
-        extensions.contains(ChordExtension.thirteen)) {
-      return true;
-    }
-    return false;
   }
 
   static List<int> _canonicalVoicing({
