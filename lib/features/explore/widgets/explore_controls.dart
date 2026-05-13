@@ -38,75 +38,95 @@ class ExploreControls extends StatelessWidget {
           presentIntervalsMask: identity.presentIntervalsMask,
         );
 
-    final controlWidth = isLandscape
-        ? ((MediaQuery.sizeOf(context).width - 48) / 2).clamp(180.0, 360.0)
-        : double.infinity;
-
     return Semantics(
       container: true,
       explicitChildNodes: true,
       label: 'Explore controls',
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        children: [
-          SizedBox(
-            width: controlWidth,
-            child: _RootWheel(
-              value: state.rootPc,
-              tonality: tonality,
-              onChanged: onRootChanged,
-            ),
-          ),
-          SizedBox(
-            width: controlWidth,
-            child: _QualityWheel(
-              value: state.quality,
-              onChanged: onQualityChanged,
-            ),
-          ),
-          SizedBox(
-            width: controlWidth,
-            child: _ExtensionBuilder(
-              groups: extensionGroups,
-              selectedExtensions: state.extensions,
-              onChoiceSelected: (group, choice) {
-                onExtensionsChanged(
-                  selectExploreExtensionChoice(
-                    quality: state.quality,
-                    currentExtensions: state.extensions,
-                    group: group,
-                    choice: choice,
-                  ),
-                );
-              },
-            ),
-          ),
-          SizedBox(
-            width: controlWidth,
-            child: _BassSelector(
-              value: state.bassPc,
-              choices: [
-                for (final pc in _sortedPitchClasses(
-                  memberPitchClasses,
-                  identity.rootPc,
-                ))
-                  _BassChoice(
-                    pc: pc,
-                    label: pc == identity.rootPc
-                        ? 'Root'
-                        : '/${toGlyphAccidentals(_spellBass(pc: pc, identity: identity, tonality: tonality))}',
-                    semanticLabel: pc == identity.rootPc
-                        ? 'Root position'
-                        : 'Bass ${_spellBass(pc: pc, identity: identity, tonality: tonality)}',
-                  ),
-              ],
-              onChanged: onBassChanged,
-            ),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final controlWidth = _controlWidthFor(
+            availableWidth: constraints.maxWidth,
+            isLandscape: isLandscape,
+          );
+
+          return Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              SizedBox(
+                width: controlWidth,
+                child: _RootWheel(
+                  value: state.rootPc,
+                  tonality: tonality,
+                  onChanged: onRootChanged,
+                ),
+              ),
+              SizedBox(
+                width: controlWidth,
+                child: _QualityWheel(
+                  value: state.quality,
+                  onChanged: onQualityChanged,
+                ),
+              ),
+              SizedBox(
+                width: controlWidth,
+                child: _ExtensionBuilder(
+                  groups: extensionGroups,
+                  selectedExtensions: state.extensions,
+                  onChoiceSelected: (group, choice) {
+                    onExtensionsChanged(
+                      selectExploreExtensionChoice(
+                        quality: state.quality,
+                        currentExtensions: state.extensions,
+                        group: group,
+                        choice: choice,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(
+                width: controlWidth,
+                child: _BassSelector(
+                  value: state.bassPc,
+                  choices: [
+                    for (final pc in _sortedPitchClasses(
+                      memberPitchClasses,
+                      identity.rootPc,
+                    ))
+                      _BassChoice(
+                        pc: pc,
+                        label: pc == identity.rootPc
+                            ? 'Root'
+                            : '/${toGlyphAccidentals(_spellBass(pc: pc, identity: identity, tonality: tonality))}',
+                        semanticLabel: pc == identity.rootPc
+                            ? 'Root position'
+                            : 'Bass ${_spellBass(pc: pc, identity: identity, tonality: tonality)}',
+                      ),
+                  ],
+                  onChanged: onBassChanged,
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
+  }
+
+  double _controlWidthFor({
+    required double availableWidth,
+    required bool isLandscape,
+  }) {
+    if (!isLandscape) return double.infinity;
+    if (!availableWidth.isFinite) return 420;
+
+    const gap = 12.0;
+    const minTwoColumnWidth = 340.0;
+    final twoColumnWidth = (availableWidth - gap) / 2;
+    if (twoColumnWidth >= minTwoColumnWidth) return twoColumnWidth;
+
+    return availableWidth;
   }
 
   List<int> _sortedPitchClasses(Set<int> pitchClasses, int rootPc) {
@@ -136,6 +156,19 @@ class ExploreControls extends StatelessWidget {
   }
 }
 
+double _wheelViewportFraction({
+  required double viewportWidth,
+  required double targetItemWidth,
+}) {
+  if (!viewportWidth.isFinite || viewportWidth <= 0) return 1;
+  return (targetItemWidth / viewportWidth).clamp(0.08, 0.92);
+}
+
+bool _viewportFractionChanged(double? previous, double next) {
+  if (previous == null) return true;
+  return (previous - next).abs() > 0.001;
+}
+
 class _QualityWheel extends StatefulWidget {
   const _QualityWheel({required this.value, required this.onChanged});
 
@@ -151,19 +184,17 @@ class _QualityWheelState extends State<_QualityWheel> {
   static final _qualityCount = _qualities.length;
   static const _initialLoop = 500;
   static const _wheelHeight = 64.0;
+  static const _targetItemWidth = 116.0;
   static const _wheelContentPadding = EdgeInsets.fromLTRB(8, 10, 8, 6);
 
-  late final PageController _controller;
+  PageController? _controller;
+  double? _viewportFraction;
   late int _currentPage;
 
   @override
   void initState() {
     super.initState();
     _currentPage = (_initialLoop * _qualityCount) + _indexOf(widget.value);
-    _controller = PageController(
-      initialPage: _currentPage,
-      viewportFraction: 0.34,
-    );
   }
 
   @override
@@ -171,17 +202,18 @@ class _QualityWheelState extends State<_QualityWheel> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.value == widget.value) return;
 
-    final visiblePage = _controller.hasClients
-        ? (_controller.page?.round() ?? _currentPage)
+    final controller = _controller;
+    final visiblePage = controller?.hasClients == true
+        ? (controller?.page?.round() ?? _currentPage)
         : _currentPage;
     if (_qualityForPage(visiblePage) == widget.value) return;
 
     final targetPage = _nearestPageForQuality(widget.value);
     _currentPage = targetPage;
-    if (!_controller.hasClients) return;
+    if (controller?.hasClients != true) return;
 
     unawaited(
-      _controller.animateToPage(
+      controller!.animateToPage(
         targetPage,
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOutCubic,
@@ -191,7 +223,7 @@ class _QualityWheelState extends State<_QualityWheel> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -216,28 +248,58 @@ class _QualityWheelState extends State<_QualityWheel> {
           ),
           child: SizedBox(
             height: _wheelHeight,
-            child: Stack(
-              children: [
-                PageView.builder(
-                  controller: _controller,
-                  onPageChanged: _handlePageChanged,
-                  itemBuilder: (context, page) {
-                    final quality = _qualityForPage(page);
-                    return _QualityWheelItem(
-                      label: theoryTokenDisplayLabel(
-                        quality.label(ChordQualityLabelForm.standalone),
-                      ),
-                      selected: quality == widget.value,
-                      onTap: () => _selectQuality(quality),
-                    );
-                  },
-                ),
-                const Positioned.fill(child: _RootWheelEdgeFades()),
-              ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final controller = _controllerForViewport(
+                  _wheelViewportFraction(
+                    viewportWidth: constraints.maxWidth,
+                    targetItemWidth: _targetItemWidth,
+                  ),
+                );
+
+                return Stack(
+                  children: [
+                    PageView.builder(
+                      controller: controller,
+                      onPageChanged: _handlePageChanged,
+                      itemBuilder: (context, page) {
+                        final quality = _qualityForPage(page);
+                        return _QualityWheelItem(
+                          label: theoryTokenDisplayLabel(
+                            quality.label(ChordQualityLabelForm.standalone),
+                          ),
+                          selected: quality == widget.value,
+                          onTap: () => _selectQuality(quality),
+                        );
+                      },
+                    ),
+                    const Positioned.fill(child: _RootWheelEdgeFades()),
+                  ],
+                );
+              },
             ),
           ),
         ),
       ),
+    );
+  }
+
+  PageController _controllerForViewport(double viewportFraction) {
+    final existing = _controller;
+    if (existing != null &&
+        !_viewportFractionChanged(_viewportFraction, viewportFraction)) {
+      return existing;
+    }
+
+    final page = existing?.hasClients == true
+        ? (existing?.page?.round() ?? _currentPage)
+        : _currentPage;
+    existing?.dispose();
+    _currentPage = page;
+    _viewportFraction = viewportFraction;
+    return _controller = PageController(
+      initialPage: _currentPage,
+      viewportFraction: viewportFraction,
     );
   }
 
@@ -249,21 +311,25 @@ class _QualityWheelState extends State<_QualityWheel> {
   }
 
   void _selectQuality(ChordQualityToken quality) {
+    final controller = _controller;
     final targetPage = _nearestPageForQuality(quality);
     _currentPage = targetPage;
-    unawaited(
-      _controller.animateToPage(
-        targetPage,
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutCubic,
-      ),
-    );
+    if (controller?.hasClients == true) {
+      unawaited(
+        controller!.animateToPage(
+          targetPage,
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+        ),
+      );
+    }
     if (quality != widget.value) widget.onChanged(quality);
   }
 
   int _nearestPageForQuality(ChordQualityToken quality) {
-    final currentPage = _controller.hasClients
-        ? (_controller.page?.round() ?? _currentPage)
+    final controller = _controller;
+    final currentPage = controller?.hasClients == true
+        ? (controller?.page?.round() ?? _currentPage)
         : _currentPage;
     final currentIndex = _indexForPage(currentPage);
     var delta = (_indexOf(quality) - currentIndex) % _qualityCount;
@@ -366,19 +432,17 @@ class _RootWheelState extends State<_RootWheel> {
   static const _pitchClassCount = 12;
   static const _initialLoop = 500;
   static const _wheelHeight = 64.0;
+  static const _targetItemWidth = 72.0;
   static const _wheelContentPadding = EdgeInsets.fromLTRB(8, 10, 8, 6);
 
-  late final PageController _controller;
+  PageController? _controller;
+  double? _viewportFraction;
   late int _currentPage;
 
   @override
   void initState() {
     super.initState();
     _currentPage = (_initialLoop * _pitchClassCount) + widget.value;
-    _controller = PageController(
-      initialPage: _currentPage,
-      viewportFraction: 0.22,
-    );
   }
 
   @override
@@ -386,17 +450,18 @@ class _RootWheelState extends State<_RootWheel> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.value == widget.value) return;
 
-    final visiblePage = _controller.hasClients
-        ? (_controller.page?.round() ?? _currentPage)
+    final controller = _controller;
+    final visiblePage = controller?.hasClients == true
+        ? (controller?.page?.round() ?? _currentPage)
         : _currentPage;
     if (_pcForPage(visiblePage) == widget.value) return;
 
     final targetPage = _nearestPageForPc(widget.value);
     _currentPage = targetPage;
-    if (!_controller.hasClients) return;
+    if (controller?.hasClients != true) return;
 
     unawaited(
-      _controller.animateToPage(
+      controller!.animateToPage(
         targetPage,
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOutCubic,
@@ -406,7 +471,7 @@ class _RootWheelState extends State<_RootWheel> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -431,26 +496,56 @@ class _RootWheelState extends State<_RootWheel> {
           ),
           child: SizedBox(
             height: _wheelHeight,
-            child: Stack(
-              children: [
-                PageView.builder(
-                  controller: _controller,
-                  onPageChanged: _handlePageChanged,
-                  itemBuilder: (context, page) {
-                    final pc = _pcForPage(page);
-                    return _RootWheelItem(
-                      label: _labelForPc(pc),
-                      selected: pc == widget.value,
-                      onTap: () => _selectPc(pc),
-                    );
-                  },
-                ),
-                const Positioned.fill(child: _RootWheelEdgeFades()),
-              ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final controller = _controllerForViewport(
+                  _wheelViewportFraction(
+                    viewportWidth: constraints.maxWidth,
+                    targetItemWidth: _targetItemWidth,
+                  ),
+                );
+
+                return Stack(
+                  children: [
+                    PageView.builder(
+                      controller: controller,
+                      onPageChanged: _handlePageChanged,
+                      itemBuilder: (context, page) {
+                        final pc = _pcForPage(page);
+                        return _RootWheelItem(
+                          label: _labelForPc(pc),
+                          selected: pc == widget.value,
+                          onTap: () => _selectPc(pc),
+                        );
+                      },
+                    ),
+                    const Positioned.fill(child: _RootWheelEdgeFades()),
+                  ],
+                );
+              },
             ),
           ),
         ),
       ),
+    );
+  }
+
+  PageController _controllerForViewport(double viewportFraction) {
+    final existing = _controller;
+    if (existing != null &&
+        !_viewportFractionChanged(_viewportFraction, viewportFraction)) {
+      return existing;
+    }
+
+    final page = existing?.hasClients == true
+        ? (existing?.page?.round() ?? _currentPage)
+        : _currentPage;
+    existing?.dispose();
+    _currentPage = page;
+    _viewportFraction = viewportFraction;
+    return _controller = PageController(
+      initialPage: _currentPage,
+      viewportFraction: viewportFraction,
     );
   }
 
@@ -462,21 +557,25 @@ class _RootWheelState extends State<_RootWheel> {
   }
 
   void _selectPc(int pc) {
+    final controller = _controller;
     final targetPage = _nearestPageForPc(pc);
     _currentPage = targetPage;
-    unawaited(
-      _controller.animateToPage(
-        targetPage,
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutCubic,
-      ),
-    );
+    if (controller?.hasClients == true) {
+      unawaited(
+        controller!.animateToPage(
+          targetPage,
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+        ),
+      );
+    }
     if (pc != widget.value) widget.onChanged(pc);
   }
 
   int _nearestPageForPc(int pc) {
-    final currentPage = _controller.hasClients
-        ? (_controller.page?.round() ?? _currentPage)
+    final controller = _controller;
+    final currentPage = controller?.hasClients == true
+        ? (controller?.page?.round() ?? _currentPage)
         : _currentPage;
     final currentPc = _pcForPage(currentPage);
     var delta = (pc - currentPc) % _pitchClassCount;
