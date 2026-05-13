@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,7 @@ class ChordMembersSection extends StatefulWidget {
   const ChordMembersSection({
     super.key,
     required this.members,
+    required this.memberDegrees,
     required this.previewNotes,
     required this.activePitchClasses,
     required this.memberPitchClasses,
@@ -19,6 +21,7 @@ class ChordMembersSection extends StatefulWidget {
   });
 
   final List<String> members;
+  final List<String> memberDegrees;
   final List<int> previewNotes;
   final Set<int> activePitchClasses;
   final List<int> memberPitchClasses;
@@ -34,6 +37,7 @@ class _ChordMembersSectionState extends State<ChordMembersSection>
   static const Duration _removeDuration = Duration(milliseconds: 120);
 
   late List<_ExploreMemberChipEntry> _entries;
+  bool _showDegrees = false;
 
   @override
   void initState() {
@@ -74,13 +78,21 @@ class _ChordMembersSectionState extends State<ChordMembersSection>
     final pitchClass = index < widget.memberPitchClasses.length
         ? widget.memberPitchClasses[index]
         : null;
+    final noteLabel = toGlyphAccidentals(widget.members[index]);
+    final degreeLabel = index < widget.memberDegrees.length
+        ? toGlyphAccidentals(widget.memberDegrees[index])
+        : noteLabel;
     final id = pitchClass == null
         ? 'label:${widget.members[index]}'
         : 'pc:$pitchClass';
 
     return _ExploreMemberChipData(
       id: id,
-      label: toGlyphAccidentals(widget.members[index]),
+      label: _showDegrees ? degreeLabel : noteLabel,
+      alternateLabel: _showDegrees ? noteLabel : degreeLabel,
+      semanticLabel: _showDegrees
+          ? 'Chord member $noteLabel, degree $degreeLabel'
+          : 'Chord member $noteLabel',
       active:
           pitchClass != null && widget.activePitchClasses.contains(pitchClass),
     );
@@ -159,6 +171,15 @@ class _ChordMembersSectionState extends State<ChordMembersSection>
               onPreviewStarted: widget.onPreviewStarted,
             ),
           ),
+          _MemberDisplayModeButton(
+            showDegrees: _showDegrees,
+            onPressed: () {
+              setState(() {
+                _showDegrees = !_showDegrees;
+              });
+              _applyMemberDiff();
+            },
+          ),
           for (final entry in _entries)
             _AnimatedExploreMemberChip(
               key: ValueKey(entry.data.id),
@@ -174,11 +195,15 @@ class _ExploreMemberChipData {
   const _ExploreMemberChipData({
     required this.id,
     required this.label,
+    required this.alternateLabel,
+    required this.semanticLabel,
     required this.active,
   });
 
   final String id;
   final String label;
+  final String alternateLabel;
+  final String semanticLabel;
   final bool active;
 }
 
@@ -209,6 +234,8 @@ class _AnimatedExploreMemberChip extends StatelessWidget {
         opacity: curved,
         child: _ExploreMemberChip(
           label: entry.data.label,
+          alternateLabel: entry.data.alternateLabel,
+          semanticLabel: entry.data.semanticLabel,
           active: entry.data.active,
         ),
       ),
@@ -260,10 +287,93 @@ class _ExplorePlayButton extends ConsumerWidget {
   }
 }
 
+class _MemberDisplayModeButton extends StatelessWidget {
+  const _MemberDisplayModeButton({
+    required this.showDegrees,
+    required this.onPressed,
+  });
+
+  final bool showDegrees;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final value = showDegrees ? 'Degrees' : 'Note names';
+    final tooltip = showDegrees ? 'Show note names' : 'Show chord degrees';
+    final activeStyle = theme.textTheme.labelSmall?.copyWith(
+      color: cs.onSurface,
+      fontWeight: FontWeight.w800,
+      height: 1.0,
+    );
+    final inactiveStyle = theme.textTheme.labelSmall?.copyWith(
+      color: theme.disabledColor,
+      fontWeight: FontWeight.w500,
+      height: 1.0,
+    );
+
+    return Semantics(
+      button: true,
+      label: 'Chord member display',
+      value: value,
+      onTap: onPressed,
+      onTapHint: tooltip,
+      child: Tooltip(
+        message: tooltip,
+        child: ExcludeSemantics(
+          child: InkResponse(
+            containedInkWell: false,
+            highlightShape: BoxShape.circle,
+            radius: 24,
+            onTap: onPressed,
+            child: SizedBox.square(
+              dimension: 48,
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'name',
+                      strutStyle: const StrutStyle(
+                        fontSize: 11,
+                        height: 1.0,
+                        forceStrutHeight: true,
+                      ),
+                      style: showDegrees ? inactiveStyle : activeStyle,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'deg',
+                      strutStyle: const StrutStyle(
+                        fontSize: 11,
+                        height: 1.0,
+                        forceStrutHeight: true,
+                      ),
+                      style: showDegrees ? activeStyle : inactiveStyle,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ExploreMemberChip extends StatelessWidget {
-  const _ExploreMemberChip({required this.label, required this.active});
+  const _ExploreMemberChip({
+    required this.label,
+    required this.alternateLabel,
+    required this.semanticLabel,
+    required this.active,
+  });
 
   final String label;
+  final String alternateLabel;
+  final String semanticLabel;
   final bool active;
 
   @override
@@ -288,30 +398,102 @@ class _ExploreMemberChip extends StatelessWidget {
       height: 1.0,
       forceStrutHeight: true,
     );
+    final horizontalPadding = 10 * sizeScale;
+    final chipTextWidth = math.max(
+      _measureLabelWidth(context, label, labelStyle),
+      _measureLabelWidth(context, alternateLabel, labelStyle),
+    );
 
     return Semantics(
       container: true,
-      label: 'Chord member $label',
+      label: semanticLabel,
       child: ExcludeSemantics(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 120),
-          decoration: BoxDecoration(
-            color: active ? cs.primaryContainer : cs.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(10 * sizeScale),
-            border: Border.all(
-              color: active
-                  ? cs.primary.withValues(alpha: 0.82)
-                  : cs.outlineVariant.withValues(alpha: 0.60),
-              width: active ? 1.6 : 1.0,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 340),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (child, animation) {
+            return _ExploreMemberChipFlipTransition(
+              animation: animation,
+              incoming: child.key == ValueKey(label),
+              child: child,
+            );
+          },
+          child: AnimatedContainer(
+            key: ValueKey(label),
+            duration: const Duration(milliseconds: 120),
+            decoration: BoxDecoration(
+              color: active ? cs.primaryContainer : cs.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(10 * sizeScale),
+              border: Border.all(
+                color: active
+                    ? cs.primary.withValues(alpha: 0.82)
+                    : cs.outlineVariant.withValues(alpha: 0.60),
+                width: active ? 1.6 : 1.0,
+              ),
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: (6 * verticalScale) + extraVertical,
+            ),
+            child: SizedBox(
+              width: chipTextWidth,
+              child: Text(
+                label,
+                strutStyle: labelStrut,
+                style: labelStyle,
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
-          padding: EdgeInsets.symmetric(
-            horizontal: 10 * sizeScale,
-            vertical: (6 * verticalScale) + extraVertical,
-          ),
-          child: Text(label, strutStyle: labelStrut, style: labelStyle),
         ),
       ),
+    );
+  }
+
+  double _measureLabelWidth(
+    BuildContext context,
+    String text,
+    TextStyle? style,
+  ) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      maxLines: 1,
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout();
+    return painter.width;
+  }
+}
+
+class _ExploreMemberChipFlipTransition extends StatelessWidget {
+  const _ExploreMemberChipFlipTransition({
+    required this.animation,
+    required this.incoming,
+    required this.child,
+  });
+
+  final Animation<double> animation;
+  final bool incoming;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: animation,
+      child: child,
+      builder: (context, child) {
+        final value = animation.value;
+        final angle = (incoming ? 1 - value : value - 1) * (math.pi / 2);
+
+        return Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, 0.001)
+            ..rotateX(angle),
+          child: child,
+        );
+      },
     );
   }
 }
