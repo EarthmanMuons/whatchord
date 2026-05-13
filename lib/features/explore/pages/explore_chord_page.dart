@@ -10,6 +10,7 @@ import 'package:whatchord/features/piano/piano.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/explore_chord_state.dart';
+import '../providers/explore_preferences_notifier.dart';
 import '../services/explore_chord_example_builder.dart';
 import '../services/explore_chord_state_transitions.dart';
 import '../services/explore_preview_animation_controller.dart';
@@ -67,6 +68,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
   Widget build(BuildContext context) {
     final tonality = ref.watch(selectedTonalityProvider);
     final notation = ref.watch(chordNotationStyleProvider);
+    final showChordMemberDegrees = ref.watch(exploreChordMemberDegreesProvider);
     final example = ExploreChordExampleBuilder.build(
       state: _state,
       tonality: tonality,
@@ -167,6 +169,17 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                               members: example.members,
                                               memberDegrees:
                                                   example.memberDegrees,
+                                              showDegrees:
+                                                  showChordMemberDegrees,
+                                              onShowDegreesChanged: (value) =>
+                                                  unawaited(
+                                                    ref
+                                                        .read(
+                                                          exploreChordMemberDegreesProvider
+                                                              .notifier,
+                                                        )
+                                                        .setShowDegrees(value),
+                                                  ),
                                               previewNotes:
                                                   example.normalizedVoicing,
                                               activePitchClasses:
@@ -235,6 +248,15 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                     ChordMembersSection(
                                       members: example.members,
                                       memberDegrees: example.memberDegrees,
+                                      showDegrees: showChordMemberDegrees,
+                                      onShowDegreesChanged: (value) => unawaited(
+                                        ref
+                                            .read(
+                                              exploreChordMemberDegreesProvider
+                                                  .notifier,
+                                            )
+                                            .setShowDegrees(value),
+                                      ),
                                       previewNotes: example.normalizedVoicing,
                                       activePitchClasses: previewPitchClasses,
                                       memberPitchClasses:

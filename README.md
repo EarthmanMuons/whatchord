@@ -100,7 +100,8 @@ WhatChord is available on the Google Play Store for supported Android devices.
 ### Android (GitHub APK)
 
 For advanced users who prefer direct distribution or third-party updater
-workflows, WhatChord also publishes **signed Android APKs** as GitHub Releases.
+workflows, WhatChord also publishes **signed Android APKs** with every GitHub
+Release.
 
 #### Recommended: Obtanium
 

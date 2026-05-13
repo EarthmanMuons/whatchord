@@ -20,12 +20,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
-- Made Explore Chords root and quality scrubbers use wider layouts on larger
-  screens without stretching individual choices.
 - Made Explore Chords extended examples more idiomatic, with clearer extension
   choices and preview voicings that better match common musician expectations.
 - Made dominant seventh Explore controls distinguish headline extensions from
   exact added tones.
+- Made Explore Chords root and quality scrubbers use wider layouts on larger
+  screens without stretching individual choices.
 
 ### Fixed
 
