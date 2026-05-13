@@ -222,7 +222,7 @@ String _debugForChord({
       _debugSection('Chord Identity', [
         'Displayed: $chosenSymbol',
         'Full name: $longLabel',
-        'Degrees: ${degrees.isEmpty ? '(none)' : degrees.join(' ')}',
+        'Degrees: ${degrees.isEmpty ? '(none)' : degrees.join(', ')}',
         'Members: ${members.isEmpty ? '(none)' : members.join(', ')}',
       ]),
       _debugAlternatives(alternatives),
