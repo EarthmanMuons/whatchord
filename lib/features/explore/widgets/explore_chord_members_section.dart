@@ -164,21 +164,24 @@ class _ChordMembersSectionState extends State<ChordMembersSection>
         runSpacing: 8,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: _ExplorePlayButton(
-              previewNotes: widget.previewNotes,
-              onPreviewStarted: widget.onPreviewStarted,
-            ),
-          ),
-          _MemberDisplayModeButton(
-            showDegrees: _showDegrees,
-            onPressed: () {
-              setState(() {
-                _showDegrees = !_showDegrees;
-              });
-              _applyMemberDiff();
-            },
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _ExplorePlayButton(
+                previewNotes: widget.previewNotes,
+                onPreviewStarted: widget.onPreviewStarted,
+              ),
+              const SizedBox(width: 4),
+              _MemberDisplayModeButton(
+                showDegrees: _showDegrees,
+                onPressed: () {
+                  setState(() {
+                    _showDegrees = !_showDegrees;
+                  });
+                  _applyMemberDiff();
+                },
+              ),
+            ],
           ),
           for (final entry in _entries)
             _AnimatedExploreMemberChip(
