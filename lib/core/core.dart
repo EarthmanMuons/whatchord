@@ -12,6 +12,7 @@ export 'providers/app_version_provider.dart';
 export 'providers/shared_preferences_provider.dart';
 
 export 'services/app_theme_builder.dart';
+export 'services/cancelable_timer_sequence.dart';
 export 'services/open_url.dart';
 export 'services/system_ui_overlay_styles.dart';
 

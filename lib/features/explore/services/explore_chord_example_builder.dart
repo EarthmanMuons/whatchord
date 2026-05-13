@@ -17,9 +17,9 @@ abstract final class ExploreChordExampleBuilder {
     required Tonality tonality,
     required ChordNotationStyle notation,
   }) {
-    final presentationIdentity = buildExploreChordIdentity(state);
+    final selectedIdentity = buildExploreChordIdentity(state);
     final presentation = ChordPresentationBuilder.fromIdentity(
-      identity: presentationIdentity,
+      identity: selectedIdentity,
       tonality: tonality,
       notation: notation,
     );
@@ -43,7 +43,7 @@ abstract final class ExploreChordExampleBuilder {
     final bassPc = pitchClasses.contains(state.bassPc)
         ? state.bassPc
         : state.rootPc;
-    final identity = ChordIdentity(
+    final exampleIdentity = ChordIdentity(
       rootPc: state.rootPc,
       bassPc: bassPc,
       quality: state.quality,
@@ -57,14 +57,14 @@ abstract final class ExploreChordExampleBuilder {
 
     return ExploreChordExample(
       presentation: presentation,
-      identity: identity,
+      identity: exampleIdentity,
       members: _spellMembersInIntervalOrder(
-        identity: identity,
+        identity: exampleIdentity,
         intervals: exampleIntervals,
         tonality: tonality,
       ),
       memberDegrees: _formatDegreesInIntervalOrder(
-        identity: identity,
+        identity: exampleIdentity,
         intervals: exampleIntervals,
       ),
       memberPitchClasses: pitchClasses,
@@ -73,13 +73,13 @@ abstract final class ExploreChordExampleBuilder {
         rootPc: state.rootPc,
         bassPc: bassPc,
         intervals: exampleIntervals,
-        identity: identity,
+        identity: exampleIdentity,
       ),
     );
   }
 
   static List<int> _canonicalExampleIntervals(ExploreChordState state) {
-    final intervals = <int>{...coreIntervalsForQuality(state.quality)};
+    final intervals = <int>{...state.quality.coreIntervals};
     final extensions = _canonicalExampleExtensions(
       state.quality,
       state.extensions,
@@ -134,9 +134,9 @@ abstract final class ExploreChordExampleBuilder {
   ) {
     final out = <ChordExtension>{...selected};
     if (!quality.isSeventhFamily &&
-        !coreIntervalsForQuality(
-          quality,
-        ).contains(ChordExtension.add9.intervalAboveRoot) &&
+        !quality.coreIntervals.contains(
+          ChordExtension.add9.intervalAboveRoot,
+        ) &&
         !out.contains(ChordExtension.add9) &&
         (out.contains(ChordExtension.add11) ||
             out.contains(ChordExtension.sharp11) ||
