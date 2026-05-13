@@ -14,6 +14,8 @@ class ChordMembersSection extends StatefulWidget {
     super.key,
     required this.members,
     required this.memberDegrees,
+    required this.showDegrees,
+    required this.onShowDegreesChanged,
     required this.previewNotes,
     required this.activePitchClasses,
     required this.memberPitchClasses,
@@ -22,6 +24,8 @@ class ChordMembersSection extends StatefulWidget {
 
   final List<String> members;
   final List<String> memberDegrees;
+  final bool showDegrees;
+  final ValueChanged<bool> onShowDegreesChanged;
   final List<int> previewNotes;
   final Set<int> activePitchClasses;
   final List<int> memberPitchClasses;
@@ -37,7 +41,6 @@ class _ChordMembersSectionState extends State<ChordMembersSection>
   static const Duration _removeDuration = Duration(milliseconds: 120);
 
   late List<_ExploreMemberChipEntry> _entries;
-  bool _showDegrees = false;
 
   @override
   void initState() {
@@ -48,7 +51,13 @@ class _ChordMembersSectionState extends State<ChordMembersSection>
   @override
   void didUpdateWidget(covariant ChordMembersSection oldWidget) {
     super.didUpdateWidget(oldWidget);
-    _applyMemberDiff();
+    if (oldWidget.showDegrees != widget.showDegrees ||
+        oldWidget.members != widget.members ||
+        oldWidget.memberDegrees != widget.memberDegrees ||
+        oldWidget.activePitchClasses != widget.activePitchClasses ||
+        oldWidget.memberPitchClasses != widget.memberPitchClasses) {
+      _applyMemberDiff();
+    }
   }
 
   @override
@@ -88,9 +97,9 @@ class _ChordMembersSectionState extends State<ChordMembersSection>
 
     return _ExploreMemberChipData(
       id: id,
-      label: _showDegrees ? degreeLabel : noteLabel,
-      alternateLabel: _showDegrees ? noteLabel : degreeLabel,
-      semanticLabel: _showDegrees
+      label: widget.showDegrees ? degreeLabel : noteLabel,
+      alternateLabel: widget.showDegrees ? noteLabel : degreeLabel,
+      semanticLabel: widget.showDegrees
           ? 'Chord member $noteLabel, degree $degreeLabel'
           : 'Chord member $noteLabel',
       active:
@@ -173,13 +182,9 @@ class _ChordMembersSectionState extends State<ChordMembersSection>
               ),
               const SizedBox(width: 4),
               _MemberDisplayModeButton(
-                showDegrees: _showDegrees,
-                onPressed: () {
-                  setState(() {
-                    _showDegrees = !_showDegrees;
-                  });
-                  _applyMemberDiff();
-                },
+                showDegrees: widget.showDegrees,
+                onPressed: () =>
+                    widget.onShowDegreesChanged(!widget.showDegrees),
               ),
             ],
           ),
