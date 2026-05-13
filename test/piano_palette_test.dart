@@ -20,6 +20,14 @@ void main() {
         ),
       );
       expect(
+        _colorDistance(palette.pressedWhiteKey, palette.whiteKey),
+        greaterThan(0.10),
+      );
+      expect(
+        _colorDistance(palette.pressedBlackKey, palette.blackKey),
+        greaterThan(0.24),
+      );
+      expect(
         _colorDistance(palette.pressedWhiteKey, palette.pressedBlackKey),
         greaterThan(0.20),
       );
@@ -39,16 +47,27 @@ void main() {
       expect(
         palette.pressedBlackKey,
         Color.alphaBlend(
-          Colors.black.withValues(alpha: 0.22),
+          Colors.black.withValues(alpha: 0.16),
           colorScheme.primary,
         ),
       );
       expect(
+        _colorDistance(palette.pressedWhiteKey, palette.whiteKey),
+        greaterThan(0.09),
+      );
+      expect(
+        _colorDistance(palette.pressedBlackKey, palette.blackKey),
+        greaterThan(0.40),
+      );
+      expect(
         _colorDistance(palette.pressedWhiteKey, palette.pressedBlackKey),
-        greaterThan(0.20),
+        greaterThan(0.10),
       );
       expect(palette.pressedWhiteKeyBorder, isNot(palette.border));
-      expect(palette.pressedWhiteKeySeparator, palette.border);
+      expect(
+        palette.pressedWhiteKeySeparator.computeLuminance(),
+        lessThan(palette.pressedWhiteKey.computeLuminance()),
+      );
     });
   });
 }

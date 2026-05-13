@@ -42,22 +42,22 @@ PianoPalette buildPianoPalette(ColorScheme cs) {
   final pressedKeyAccent = isDark ? cs.primary : cs.inversePrimary;
 
   final pressedWhiteKey = Color.alphaBlend(
-    pressedKeyAccent.withValues(alpha: isDark ? 0.42 : 0.54),
+    pressedKeyAccent.withValues(alpha: isDark ? 0.78 : 0.66),
     whiteKey,
   );
 
   final pressedBlackKey = Color.alphaBlend(
-    Colors.black.withValues(alpha: isDark ? 0.22 : 0.20),
+    Colors.black.withValues(alpha: isDark ? 0.16 : 0.20),
     pressedKeyAccent,
   );
 
   final pressedWhiteKeyBorder = Color.alphaBlend(
-    pressedKeyAccent.withValues(alpha: isDark ? 0.78 : 0.82),
+    pressedKeyAccent.withValues(alpha: isDark ? 0.94 : 0.90),
     border,
   );
 
   final pressedWhiteKeySeparator = isDark
-      ? border
+      ? Color.alphaBlend(Colors.black.withValues(alpha: 0.34), pressedWhiteKey)
       : Color.alphaBlend(Colors.black.withValues(alpha: 0.24), pressedWhiteKey);
 
   return PianoPalette(
