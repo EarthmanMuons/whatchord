@@ -160,7 +160,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Demo Mode'),
-                subtitle: const Text('Explore examples without a MIDI device'),
+                subtitle: const Text(
+                  'Take a guided tour without a MIDI device',
+                ),
                 value: userDemoEnabled,
                 onChanged: (enabled) {
                   ref
