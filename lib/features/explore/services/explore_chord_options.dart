@@ -369,7 +369,7 @@ bool _allowsTriadLikeSharp11(ChordQualityToken quality) {
 }
 
 Set<ChordExtension> _availableTriadLikeExtensions(ChordQualityToken quality) {
-  final coreIntervals = quality.coreIntervals;
+  final canonicalIntervals = quality.canonicalIntervals;
   return {
     for (final extension in const {
       ChordExtension.add9,
@@ -377,7 +377,7 @@ Set<ChordExtension> _availableTriadLikeExtensions(ChordQualityToken quality) {
       ChordExtension.add13,
       ChordExtension.sharp11,
     })
-      if (!coreIntervals.contains(extension.intervalAboveRoot) &&
+      if (!canonicalIntervals.contains(extension.intervalAboveRoot) &&
           (!_isTriadLikeSharp11(extension) || _allowsTriadLikeSharp11(quality)))
         extension,
   };
@@ -489,7 +489,7 @@ void _removeConflictingSeventhFamilyExtensions(
 Set<ChordExtension> _availableSeventhFamilyHighestExtensions(
   ChordQualityToken quality,
 ) {
-  final coreIntervals = quality.coreIntervals;
+  final canonicalIntervals = quality.canonicalIntervals;
   return {
     for (final extension in const {
       ChordExtension.flat9,
@@ -497,22 +497,22 @@ Set<ChordExtension> _availableSeventhFamilyHighestExtensions(
       ChordExtension.eleven,
       ChordExtension.thirteen,
     })
-      if (!coreIntervals.contains(extension.intervalAboveRoot)) extension,
+      if (!canonicalIntervals.contains(extension.intervalAboveRoot)) extension,
   };
 }
 
 Set<ChordExtension> _availableSeventhFamilyAddTones(ChordQualityToken quality) {
-  final coreIntervals = quality.coreIntervals;
+  final canonicalIntervals = quality.canonicalIntervals;
   return {
     for (final extension in const {ChordExtension.add11, ChordExtension.add13})
-      if (!coreIntervals.contains(extension.intervalAboveRoot)) extension,
+      if (!canonicalIntervals.contains(extension.intervalAboveRoot)) extension,
   };
 }
 
 Set<ChordExtension> _availableSeventhFamilyColorExtensions(
   ChordQualityToken quality,
 ) {
-  final coreIntervals = quality.coreIntervals;
+  final canonicalIntervals = quality.canonicalIntervals;
   return {
     for (final extension in const {
       ChordExtension.flat9,
@@ -520,6 +520,6 @@ Set<ChordExtension> _availableSeventhFamilyColorExtensions(
       ChordExtension.sharp11,
       ChordExtension.flat13,
     })
-      if (!coreIntervals.contains(extension.intervalAboveRoot)) extension,
+      if (!canonicalIntervals.contains(extension.intervalAboveRoot)) extension,
   };
 }

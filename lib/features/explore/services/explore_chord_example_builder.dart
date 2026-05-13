@@ -79,7 +79,7 @@ abstract final class ExploreChordExampleBuilder {
   }
 
   static List<int> _canonicalExampleIntervals(ExploreChordState state) {
-    final intervals = <int>{...state.quality.coreIntervals};
+    final intervals = <int>{...state.quality.canonicalIntervals};
     final extensions = _canonicalExampleExtensions(
       state.quality,
       state.extensions,
@@ -134,7 +134,7 @@ abstract final class ExploreChordExampleBuilder {
   ) {
     final out = <ChordExtension>{...selected};
     if (!quality.isSeventhFamily &&
-        !quality.coreIntervals.contains(
+        !quality.canonicalIntervals.contains(
           ChordExtension.add9.intervalAboveRoot,
         ) &&
         !out.contains(ChordExtension.add9) &&

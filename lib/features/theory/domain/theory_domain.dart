@@ -17,6 +17,7 @@ export 'models/tonality.dart';
 // Domain services (pure)
 export 'services/chord_member_degree_formatter.dart';
 export 'services/chord_member_speller.dart';
+export 'services/chord_quality_intervals.dart';
 export 'services/chord_tone_roles.dart';
 export 'services/note_spelling.dart';
 export 'services/pitch_class.dart';
