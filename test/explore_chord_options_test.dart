@@ -251,19 +251,6 @@ void main() {
     });
   });
 
-  group('extensionSetLabel', () {
-    test('uses glyph accidentals for UI labels', () {
-      expect(
-        extensionSetLabel(const {
-          ChordExtension.flat9,
-          ChordExtension.sharp11,
-          ChordExtension.flat13,
-        }),
-        '♭9, ♯11, ♭13',
-      );
-    });
-  });
-
   group('normalizeExtensionsForQuality', () {
     test('keeps a major sharp-eleventh slash bass valid for page seeding', () {
       final normalized = normalizeExtensionsForQuality(
