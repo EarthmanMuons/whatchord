@@ -44,7 +44,7 @@ int canonicalPresentIntervalsMask({
     mask |= 1 << (interval % 12);
   }
 
-  for (final interval in quality.coreIntervals) {
+  for (final interval in quality.canonicalIntervals) {
     addInterval(interval);
   }
 
