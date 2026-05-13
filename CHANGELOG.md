@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.5.13] - 2026-05-13
+
 ### Added
 
 - Added an Explore Chords toggle for switching chord member chips between note
@@ -351,7 +353,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.9...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.13...HEAD
+[2026.5.13]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.9...v2026.5.13
 [2026.5.9]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.3.10...v2026.5.9
 [2026.3.10]:
