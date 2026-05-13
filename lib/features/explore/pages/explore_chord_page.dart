@@ -165,6 +165,8 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                             const SizedBox(height: 20),
                                             ChordMembersSection(
                                               members: example.members,
+                                              memberDegrees:
+                                                  example.memberDegrees,
                                               previewNotes:
                                                   example.normalizedVoicing,
                                               activePitchClasses:
@@ -232,6 +234,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                     const SizedBox(height: 20),
                                     ChordMembersSection(
                                       members: example.members,
+                                      memberDegrees: example.memberDegrees,
                                       previewNotes: example.normalizedVoicing,
                                       activePitchClasses: previewPitchClasses,
                                       memberPitchClasses:

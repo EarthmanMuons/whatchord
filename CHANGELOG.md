@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
+- Added an Explore Chords toggle for switching chord member chips between note
+  names and chord degrees.
 - Added harmonic-minor scale-degree recognition so common minor-key functions
   like V7 and leading-tone diminished chords are identified alongside
   natural-minor functions.
