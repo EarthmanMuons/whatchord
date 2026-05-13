@@ -16,6 +16,9 @@ class ExploreSummary extends StatelessWidget {
       fontFamilyFallback: const ['Bravura'],
       height: 1.0,
     );
+    final symbolDetailStyle = symbolStyle?.copyWith(
+      color: colorScheme.onSurface.withValues(alpha: 0.74),
+    );
     final rootStyle = symbolStyle?.copyWith(
       fontWeight: FontWeight.w500,
       fontSize: (symbolStyle.fontSize ?? 14) + 6,
@@ -36,12 +39,18 @@ class ExploreSummary extends StatelessWidget {
                   style: rootStyle,
                 ),
                 if (presentation.symbol.quality.isNotEmpty) ...[
-                  const TextSpan(text: '\u200A'),
-                  TextSpan(text: toSmufl(presentation.symbol.quality)),
+                  TextSpan(text: '\u2009', style: symbolDetailStyle),
+                  TextSpan(
+                    text: toSmufl(presentation.symbol.quality),
+                    style: symbolDetailStyle,
+                  ),
                 ],
                 if (presentation.symbol.hasBass) ...[
-                  const TextSpan(text: ' / '),
-                  TextSpan(text: toSmufl(presentation.symbol.bassRequired)),
+                  TextSpan(text: ' / ', style: symbolDetailStyle),
+                  TextSpan(
+                    text: toSmufl(presentation.symbol.bassRequired),
+                    style: symbolDetailStyle,
+                  ),
                 ],
               ],
             ),
