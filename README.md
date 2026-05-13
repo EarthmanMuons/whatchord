@@ -23,8 +23,9 @@
   /></a>
 </p>
 
-WhatChord listens to live MIDI input and identifies the most musically plausible
-chord as you play. It is optimized for speed and accuracy, favoring stable,
+WhatChord identifies chords from live Bluetooth or USB MIDI input and includes
+an explore mode for building chords without a connected keyboard. It is
+optimized for speed, accuracy, and musician-expected naming, favoring stable,
 conventional interpretations over simple note-matching.
 
 ---
@@ -35,6 +36,10 @@ conventional interpretations over simple note-matching.
   Connect a Bluetooth or USB MIDI keyboard and see chords update instantly as
   you play.
 
+- **Explore chords**  
+  Build and hear chords without a connected keyboard by adjusting the root,
+  quality, extensions, and bass note.
+
 - **Musically informed chord detection**  
   Goes beyond simple note-matching by ranking and resolving ambiguous
   interpretations using musical context such as inversions, extensions, upper
@@ -43,10 +48,6 @@ conventional interpretations over simple note-matching.
 - **Ambiguity-aware user interface**  
   When multiple interpretations are plausible, WhatChord shows alternative
   candidates rather than hiding uncertainty.
-
-- **Interactive chord exploration**  
-  Tap the chord card to enter explore mode, where you can adjust the root,
-  quality, extensions, and bass notes even when no keyboard is connected.
 
 - **Context-aware spelling**  
   Notes and chord symbols are spelled using the current key signature _and_ the
@@ -141,9 +142,9 @@ E8:21:56:94:BA:A2:E0:A3:48:E6:97:49:3E:8B:A9:92:94:93:5E:46:DD:17:03:2C:3C:67:F3
 WhatChord is particularly useful for:
 
 - Pianists and keyboardists exploring harmony at the instrument
-- Students learning chord construction, extensions, and inversions
+- Students learning chord construction, extensions, inversions, and voicings
 - Educators demonstrating harmonic concepts in real time
-- Composers and improvisers checking complex voicings
+- Composers and improvisers checking or exploring complex harmony
 
 It provides immediate, intelligent feedback while you play. It is **not**
 intended to replace formal analysis tools or notation software, but to
