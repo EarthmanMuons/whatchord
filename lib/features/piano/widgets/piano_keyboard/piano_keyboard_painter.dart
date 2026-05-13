@@ -147,8 +147,7 @@ class PianoKeyboardPainter extends CustomPainter {
       ..strokeWidth = _pressedWhiteBorderWidth
       ..color = pressedWhiteKeyBorderColor;
     final pressedWhiteSeparatorPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
+      ..style = PaintingStyle.fill
       ..color = pressedWhiteKeySeparatorColor;
     final blackFillPaint = Paint()..style = PaintingStyle.fill;
     final pressedWhiteAccentPaint = Paint()
@@ -196,14 +195,13 @@ class PianoKeyboardPainter extends CustomPainter {
           Rect.fromLTWH(rect.left, topInset, rect.width, 1.0),
           pressedWhiteAccentPaint,
         );
-        canvas.drawLine(
-          Offset(rect.left, topInset),
-          Offset(rect.left, rect.bottom),
+        final separatorHeight = rect.bottom - topInset;
+        canvas.drawRect(
+          Rect.fromLTWH(rect.left, topInset, 1.0, separatorHeight),
           pressedWhiteSeparatorPaint,
         );
-        canvas.drawLine(
-          Offset(rect.right, topInset),
-          Offset(rect.right, rect.bottom),
+        canvas.drawRect(
+          Rect.fromLTWH(rect.right - 1.0, topInset, 1.0, separatorHeight),
           pressedWhiteSeparatorPaint,
         );
       }
