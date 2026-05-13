@@ -74,6 +74,9 @@ class IdentityCard extends ConsumerWidget {
       fontWeight: FontWeight.w500,
       fontSize: (primaryStyle.fontSize! + 6 * typographyScale),
     );
+    final chordDetailStyle = primaryStyle.copyWith(
+      color: cs.onPrimary.withValues(alpha: 0.86),
+    );
 
     const minCardHeight = 132.0;
     const padding = EdgeInsets.symmetric(horizontal: 20);
@@ -102,19 +105,22 @@ class IdentityCard extends ConsumerWidget {
             children: <InlineSpan>[
               TextSpan(text: toSmufl(symbol.root), style: rootStyle),
               if (symbol.quality.isNotEmpty) ...[
-                const TextSpan(text: '\u200A'),
+                const TextSpan(text: '\u2009'),
                 ...buildChordSpans(
                   text: toSmufl(symbol.quality),
-                  base: primaryStyle,
-                  parenStyle: primaryStyle.copyWith(
+                  base: chordDetailStyle,
+                  parenStyle: chordDetailStyle.copyWith(
                     fontSize: (primaryStyle.fontSize ?? 14) + 16.0,
                     fontWeight: FontWeight.w300,
                   ),
                 ),
               ],
               if (symbol.hasBass) ...[
-                const TextSpan(text: ' / '),
-                TextSpan(text: toSmufl(symbol.bassRequired)),
+                TextSpan(text: ' / ', style: chordDetailStyle),
+                TextSpan(
+                  text: toSmufl(symbol.bassRequired),
+                  style: chordDetailStyle,
+                ),
               ],
             ],
           ),
