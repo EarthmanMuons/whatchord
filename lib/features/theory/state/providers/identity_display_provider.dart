@@ -9,12 +9,15 @@ import '../../domain/theory_domain.dart';
 import '../../presentation/models/identity_display.dart';
 import '../../presentation/services/chord_long_form_formatter.dart';
 import '../../presentation/services/chord_quality_token_labels.dart';
+import '../../presentation/services/chord_symbol_builder.dart';
 import '../../presentation/services/interval_formatter.dart';
 import '../../presentation/services/inversion_formatter.dart';
 import '../../presentation/services/note_long_form_formatter.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
+import 'chord_candidates_providers.dart';
 import 'chord_presentation_provider.dart';
+import 'theory_preferences_notifier.dart';
 
 final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
   final mode = ref.watch(analysisModeProvider);
@@ -87,6 +90,17 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         final presentation = ref.watch(chordPresentationProvider);
         if (presentation == null) return null;
         final id = presentation.identity;
+        final notation = ref.watch(chordNotationStyleProvider);
+        final alternatives = ref
+            .watch(nearTieChordCandidatesProvider)
+            .map(
+              (c) => ChordSymbolBuilder.formatIdentity(
+                identity: c.identity,
+                tonality: tonality,
+                notation: notation,
+              ),
+            )
+            .toList(growable: false);
 
         final inversion = InversionFormatter.format(id);
         final secondaryLabel = (inversion == null || inversion.trim().isEmpty)
@@ -115,6 +129,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           hasSlash: id.hasSlashBass,
           quality: qualityLabel,
           extensions: extensionLabels,
+          alternatives: alternatives,
           scaleDegreeAnalysis: presentation.scaleDegreeAnalysis,
           members: presentation.members,
           degrees: presentation.memberDegrees,
@@ -194,6 +209,7 @@ String _debugForChord({
   required bool hasSlash,
   required String quality,
   required List<String> extensions,
+  required List<String> alternatives,
   required ScaleDegreeAnalysis? scaleDegreeAnalysis,
   required List<String> members,
   required List<String> degrees,
@@ -209,14 +225,15 @@ String _debugForChord({
         'Degrees: ${degrees.isEmpty ? '(none)' : degrees.join(' ')}',
         'Members: ${members.isEmpty ? '(none)' : members.join(', ')}',
       ]),
+      _debugAlternatives(alternatives),
       _debugContext(keyName: keyName),
       _debugInput(midis: midis),
       _debugSection('Details', [
         'Root pitch class: $rootPc',
-        'Scale degree: ${_scaleDegreeDebugLabel(scaleDegreeAnalysis)}',
         'Quality: $quality',
         'Extensions: ${_fmtList(extensions)}',
         'Bass pitch class: $realizedBassPc',
+        'Scale degree: ${_scaleDegreeDebugLabel(scaleDegreeAnalysis)}',
       ]),
       _debugApp(appVersion: appVersion),
     ],
@@ -236,6 +253,11 @@ String _fmtList<T>(Iterable<T> items, {String empty = '(none)'}) {
 
 String _debugSection(String title, List<String> lines) {
   return [title, ...lines.map((l) => '• $l')].join('\n');
+}
+
+String _debugAlternatives(List<String> alternatives) {
+  final lines = alternatives.isEmpty ? const ['(none)'] : alternatives;
+  return _debugSection('Alternatives', lines);
 }
 
 String _debugContext({required String keyName}) {
