@@ -16,6 +16,12 @@ extend-ignore-re = [
   "\\$\\{[^}]+\\}nd\\b",
 ]
 
+[type.html]
+extend-ignore-re = [
+  # plural ordinal suffixes (e.g. "4ths") used in musical-interval terminology
+  "\\b\\d+ths\\b",
+]
+
 [type.readme]
 # oddly, the built-in `readme` type isn't matching this properly
 extend-glob = ["README.md"]

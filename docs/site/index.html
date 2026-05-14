@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WhatChord — Real-Time MIDI Chord Recognition</title>
+    <meta
+      name="description"
+      content="WhatChord identifies chords from your MIDI keyboard in real time, with musically informed analysis that names chords the way musicians expect. Free, no ads, all on-device."
+    />
+    <meta
+      property="og:title"
+      content="WhatChord — Real-Time MIDI Chord Recognition"
+    />
+    <meta
+      property="og:description"
+      content="Connect a MIDI keyboard and see chord names instantly. Musically informed analysis, free, no ads, all on-device."
+    />
+    <meta
+      property="og:image"
+      content="../../docs/screenshots/theme_modes.webp"
+    />
+    <meta property="og:type" content="website" />
+    <link rel="icon" type="image/webp" href="../images/whatchord_logo.webp" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav class="site-nav">
+      <div class="nav-inner">
+        <a class="nav-logo" href="index.html">
+          <img src="../images/whatchord_logo.webp" alt="WhatChord logo" />
+          <span>What<span class="logo-bold">Chord</span></span>
+        </a>
+        <div class="nav-spacer"></div>
+        <ul class="nav-links">
+          <li><a href="articles/chord-naming.html">For Musicians</a></li>
+          <li><a href="articles/under-the-hood.html">Under the Hood</a></li>
+        </ul>
+        <a
+          class="btn btn-ghost"
+          href="https://github.com/EarthmanMuons/whatchord"
+          ><img
+            class="github-icon"
+            src="images/GitHub_Invertocat_White.png"
+            alt=""
+          /><span class="source-label">Source</span></a
+        >
+        <a
+          class="btn btn-primary btn-get-app"
+          href="https://apps.apple.com/us/app/whatchord-midi/id6758409779"
+          >Get the app</a
+        >
+      </div>
+    </nav>
+
+    <main>
+      <!-- ─── Hero ─────────────────────────────────────────────────── -->
+      <section class="hero">
+        <div class="wrap">
+          <div class="hero-eyebrow">
+            Free · No ads · All analysis on-device
+          </div>
+          <h1>Stop guessing what chord you're playing.</h1>
+          <p class="hero-sub">
+            Connect any Bluetooth or USB MIDI keyboard and WhatChord identifies
+            chords instantly, with names that match what musicians actually use.
+            No internet required. Available on iOS and Android.
+          </p>
+          <div class="store-badges">
+            <a href="https://apps.apple.com/us/app/whatchord-midi/id6758409779">
+              <img
+                class="store-badge"
+                src="../images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+                alt="Download on the App Store"
+              />
+            </a>
+            <a href="#" data-android-beta>
+              <img
+                class="store-badge"
+                src="../images/GetItOnGooglePlay_Badge_Web_color_English.svg"
+                alt="Get it on Google Play"
+              />
+            </a>
+          </div>
+          <div class="hero-screenshot">
+            <img
+              src="images/theme_modes.webp"
+              alt="WhatChord identifying a C7♯11/F♯ chord, shown in light and dark themes side by side"
+            />
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Features ──────────────────────────────────────────────── -->
+      <section class="features">
+        <div class="wrap">
+          <div class="features-inner">
+            <!-- Feature 1: Real-time -->
+            <div class="feature">
+              <div class="feature-text">
+                <div class="feature-label">Real-time recognition</div>
+                <h3>See the chord name as you play it.</h3>
+                <p>
+                  WhatChord responds as notes arrive. No extra setup, no chord
+                  book required. It handles everything from simple beginner
+                  triads to complex jazz voicings with the same quick feedback.
+                </p>
+              </div>
+              <div class="feature-img-wrap">
+                <img
+                  src="images/dm7.webp"
+                  alt="WhatChord identifying Dm7 in real time, showing the chord name and piano keyboard"
+                />
+              </div>
+            </div>
+
+            <!-- Feature 2: Explore -->
+            <div class="feature reverse">
+              <div class="feature-text">
+                <div class="feature-label">Explore chords</div>
+                <h3>Learn chords even without a keyboard.</h3>
+                <p>
+                  Not near your instrument? Explore mode lets you build a wide
+                  range of chords by choosing the root, quality, extensions, and
+                  bass note. Each selection shows a clear example on the piano
+                  keyboard and plays it back in the app. No MIDI device needed.
+                </p>
+              </div>
+              <div class="feature-img-wrap">
+                <img
+                  src="images/explore_chords.webp"
+                  alt="WhatChord Explore Chords mode showing chord builder controls and piano keyboard"
+                />
+              </div>
+            </div>
+
+            <!-- Feature 3: Musically informed -->
+            <div class="feature">
+              <div class="feature-text">
+                <div class="feature-label">Musically informed</div>
+                <h3>Chord names the way musicians write them.</h3>
+                <p>
+                  A basic note-matching approach can identify simple triads, but
+                  real voicings often need more context. WhatChord scores and
+                  ranks multiple plausible interpretations using musical
+                  heuristics: inversions, extensions, upper structures, altered
+                  dominants, and key signature. It picks the name a musician
+                  would expect. When a voicing is genuinely ambiguous, the app
+                  shows the alternatives rather than hiding them.
+                </p>
+              </div>
+              <div class="feature-img-wrap">
+                <img
+                  src="images/analysis_details.webp"
+                  alt="WhatChord showing detailed chord analysis with intervals and scale degrees"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── What makes it different ────────────────────────────── -->
+      <section class="difference">
+        <div class="wrap">
+          <div class="section-label">What makes it different</div>
+          <h2 class="section-title">
+            Musically informed, not just note-matched.
+          </h2>
+          <p class="section-sub">
+            The same four notes can point to more than one chord name. Context
+            is what makes the useful answer possible.
+          </p>
+          <div class="compare-grid">
+            <div class="compare-card">
+              <div class="compare-label">Without musical context</div>
+              <div class="compare-chord">Ambiguous</div>
+              <div class="compare-notes">F♯ &nbsp; C &nbsp; E &nbsp; B♭</div>
+              <p class="compare-explanation">
+                These are just four pitch classes. A basic note matcher does not
+                know which note should be treated as the root, whether the bass
+                is structural or colorful, or why B♭ matters in a dominant 7th
+                chord.
+              </p>
+            </div>
+            <div class="compare-card better">
+              <div class="compare-label">WhatChord</div>
+              <div class="compare-chord">C7♯11/F♯</div>
+              <div class="compare-notes">F♯ &nbsp; C &nbsp; E &nbsp; B♭</div>
+              <p class="compare-explanation">
+                Recognizes the notes as a C7 chord with a raised 11th and F♯ in
+                the bass. It writes the seventh as
+                <strong>B♭, not A♯,</strong> because that is how a C7 chord is
+                spelled.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Audience ───────────────────────────────────────────── -->
+      <section class="audience">
+        <div class="wrap">
+          <div class="section-label">Who uses it</div>
+          <h2 class="section-title">For players at every level.</h2>
+          <div class="audience-grid">
+            <div class="audience-card">
+              <div class="audience-icon">🎹</div>
+              <h4>Pianists &amp; keyboardists</h4>
+              <p>
+                Get immediate confirmation on what your hands are doing.
+                Especially useful when you hear something interesting and need
+                to name it fast.
+              </p>
+            </div>
+            <div class="audience-card">
+              <div class="audience-icon">🎓</div>
+              <h4>Music students</h4>
+              <p>
+                Learn chord construction by exploring voicings interactively, or
+                verify that what you're playing matches what your theory
+                textbook describes.
+              </p>
+            </div>
+            <div class="audience-card">
+              <div class="audience-icon">📖</div>
+              <h4>Educators</h4>
+              <p>
+                Demonstrate inversions, extensions, and altered chords in real
+                time. Show students a live analysis of the exact notes being
+                played in class or at rehearsal.
+              </p>
+            </div>
+            <div class="audience-card">
+              <div class="audience-icon">🎵</div>
+              <h4>Composers &amp; improvisers</h4>
+              <p>
+                Check complex extended voicings quickly without breaking flow.
+                Identify that mysterious cluster you stumbled upon mid-session
+                and want to remember.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Privacy ────────────────────────────────────────────── -->
+      <section class="privacy">
+        <div class="wrap">
+          <div class="privacy-inner">
+            <div class="section-label">Privacy</div>
+            <h2 class="section-title">On-device. Open source. No strings.</h2>
+            <p class="section-sub">
+              WhatChord does not collect your data, connect to the internet
+              during use, or show advertisements. All chord analysis runs
+              entirely on your device. Your playing stays yours.
+            </p>
+            <a
+              class="oss-callout"
+              href="https://github.com/EarthmanMuons/whatchord/blob/main/LICENSE"
+              >Open source · Zero Clause BSD License
+              <span class="oss-arrow">→</span></a
+            >
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Articles ───────────────────────────────────────────── -->
+      <section class="articles-section">
+        <div class="wrap">
+          <div class="section-label">Go deeper</div>
+          <h2 class="section-title">How it works.</h2>
+          <p class="section-sub">
+            Two in-depth pieces: one for musicians curious about why chord
+            naming is genuinely hard, and one for engineers who want to see the
+            algorithm.
+          </p>
+          <div class="articles-grid">
+            <a class="article-card" href="articles/chord-naming.html">
+              <div class="article-tag">For musicians</div>
+              <h3>Why Chord Naming Is Harder Than It Looks</h3>
+              <p>
+                The inversions, extensions, altered tones, and enharmonic
+                ambiguities that make real chord recognition a genuine musical
+                challenge, and how WhatChord handles them.
+              </p>
+              <span class="read-more">Read the article →</span>
+            </a>
+            <a class="article-card" href="articles/under-the-hood.html">
+              <div class="article-tag">Technical deep-dive</div>
+              <h3>Under the Hood: Building a Real-Time Chord Recognizer</h3>
+              <p>
+                A detailed look at the bitmasks, chord-quality templates,
+                scoring and ranking heuristics, and LRU cache that power
+                real-time chord identification in a Flutter app.
+              </p>
+              <span class="read-more">Read the article →</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-left">
+          <span class="footer-copy">
+            © 2025–2026
+            <a href="mailto:support@earthmanmuons.com">Aaron Bull Schaefer</a>
+            and contributors · 0BSD License
+          </span>
+        </div>
+        <ul class="footer-links">
+          <li>
+            <a href="https://github.com/EarthmanMuons/whatchord">GitHub</a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md"
+              >Privacy</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/EarthmanMuons/whatchord/blob/main/SUPPORT.md"
+              >Support</a
+            >
+          </li>
+        </ul>
+      </div>
+    </footer>
+    <dialog id="android-dialog">
+      <div class="dialog-content">
+        <h3>Join the Android beta</h3>
+        <p>
+          WhatChord for Android is currently in closed testing. Email
+          <a
+            href="mailto:support@earthmanmuons.com?subject=WhatChord%20Android%20Beta"
+            >support@earthmanmuons.com</a
+          >
+          with your Gmail address and we'll add you to the tester pool.
+        </p>
+        <button
+          class="btn btn-primary"
+          onclick="document.getElementById('android-dialog').close()"
+        >
+          Got it
+        </button>
+      </div>
+    </dialog>
+    <script>
+      (function () {
+        function openAndroidDialog(e) {
+          e.preventDefault();
+          document.getElementById("android-dialog").showModal();
+        }
+        document.querySelectorAll("[data-android-beta]").forEach(function (el) {
+          el.addEventListener("click", openAndroidDialog);
+        });
+        if (/android/i.test(navigator.userAgent)) {
+          document.querySelectorAll(".btn-get-app").forEach(function (el) {
+            el.href = "#";
+            el.addEventListener("click", openAndroidDialog);
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

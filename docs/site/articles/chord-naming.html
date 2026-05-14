@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Why Chord Naming Is Harder Than It Looks — WhatChord</title>
+    <meta
+      name="description"
+      content="The inversions, extensions, altered tones, and enharmonic ambiguities that make real chord recognition a genuine musical challenge."
+    />
+    <meta
+      property="og:title"
+      content="Why Chord Naming Is Harder Than It Looks"
+    />
+    <meta
+      property="og:description"
+      content="The musical ambiguities that make automated chord recognition a genuine challenge, and what WhatChord does about them."
+    />
+    <meta property="og:type" content="article" />
+    <link
+      rel="icon"
+      type="image/webp"
+      href="../../images/whatchord_logo.webp"
+    />
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <nav class="site-nav">
+      <div class="nav-inner">
+        <a class="nav-logo" href="../index.html">
+          <img src="../../images/whatchord_logo.webp" alt="WhatChord logo" />
+          <span>What<span class="logo-bold">Chord</span></span>
+        </a>
+        <div class="nav-spacer"></div>
+        <ul class="nav-links">
+          <li><a href="chord-naming.html">For Musicians</a></li>
+          <li><a href="under-the-hood.html">Under the Hood</a></li>
+        </ul>
+        <a
+          class="btn btn-ghost"
+          href="https://github.com/EarthmanMuons/whatchord"
+          ><img
+            class="github-icon"
+            src="../images/GitHub_Invertocat_White.png"
+            alt=""
+          /><span class="source-label">Source</span></a
+        >
+        <a
+          class="btn btn-primary btn-get-app"
+          href="https://apps.apple.com/us/app/whatchord-midi/id6758409779"
+          >Get the app</a
+        >
+      </div>
+    </nav>
+
+    <article>
+      <div class="article-wrap">
+        <header class="article-header">
+          <a class="article-back" href="../index.html">← WhatChord</a>
+          <div class="article-tag">For musicians</div>
+          <h1>Why Chord Naming Is Harder Than It Looks</h1>
+          <p class="article-deck">
+            This article discusses the inversions, extensions, altered tones,
+            and enharmonic ambiguities that make real chord recognition a
+            genuine musical challenge, and what WhatChord does about them.
+          </p>
+        </header>
+
+        <div class="article-body">
+          <h2>It starts with a deceptively simple question</h2>
+
+          <p>
+            You press four notes on a keyboard. A computer reads four numbers.
+            What chord is it?
+          </p>
+
+          <p>
+            The instinct is to say: look it up in a table. C major is C-E-G.
+            Done. But that instinct breaks down quickly when you sit down with a
+            real piece of music, even something straightforward, and start
+            paying attention to what you are actually hearing versus what the
+            notes technically spell out.
+          </p>
+
+          <p>
+            Chord naming is a form of musical interpretation, not just pattern
+            matching. The same set of notes can legitimately be described in
+            several different ways, and musicians navigate this ambiguity
+            constantly through context, convention, and voice-leading intuition.
+            Teaching that intuition to a computer requires encoding a surprising
+            amount of musical knowledge.
+          </p>
+
+          <p>
+            WhatChord is built around that encoding. This article walks through
+            the specific challenges it is designed to handle.
+          </p>
+
+          <h2>The same notes, different chords</h2>
+
+          <p>
+            Start with a simple example. Play the notes C, E♭, G♭, and A
+            together. What chord is that?
+          </p>
+
+          <p>
+            It is a fully diminished 7th chord. That much is clear from the
+            interval structure: four notes, each a minor third apart, stacking
+            perfectly up the octave. But here is the catch: fully diminished 7th
+            chords are
+            <em>symmetrical</em>. Every voicing of this chord divides the octave
+            into four equal parts. That means the same four piano keys can
+            support four different diminished-7th readings.
+          </p>
+
+          <div class="callout">
+            <p>
+              <strong>Cdim7</strong> = C - E♭ - G♭ - B♭♭ &nbsp;&nbsp;
+              <strong>Adim7/C</strong> = A - C - E♭ - G♭ &nbsp;&nbsp;
+              <strong>D♯dim7/C</strong> = D♯ - F♯ - A - C &nbsp;&nbsp;
+              <strong>F♯dim7/C</strong> = F♯ - A - C - E♭
+            </p>
+          </div>
+
+          <p>
+            So which name is "right"? In isolation, none of them is more correct
+            than the others. They are four enharmonic descriptions of identical
+            musical content. The right answer depends on context: what key you
+            are in, what chord came before, which note the bass instrument is
+            playing, and where the progression is heading.
+          </p>
+
+          <p>
+            WhatChord resolves this using diatonic context. When you have set a
+            key signature, the app prefers the diminished 7th reading that best
+            fits the key, specifically the one whose root is a natural leading
+            tone. In D♭ major, these same piano keys naturally point to Cdim7,
+            the leading-tone diminished 7th that resolves to D♭. Without a key
+            signature, it falls back to preferring root position: the
+            interpretation where the bass note is named as the root, which is a
+            clear default when no surrounding harmony is available.
+          </p>
+
+          <h2>Inversions: the bass note changes everything</h2>
+
+          <p>
+            Inversion is the most common reason a chord sounds like something
+            else. When the third is in the bass instead of the root, a major
+            chord starts to feel unstable, like it wants to resolve. When the
+            fifth is in the bass, the chord floats ambiguously between two
+            functions.
+          </p>
+
+          <p>
+            Classical theory calls these first and second inversion. Jazz and
+            pop use slash notation: C/E (C major with E in the bass), C/G (C
+            major with G in the bass). Either way, the relationship between the
+            bass note and the chord tones above it matters, and it affects how
+            the chord is named.
+          </p>
+
+          <p>
+            A MIDI keyboard tells WhatChord the pitch class of every sounding
+            note, including the lowest one. The lowest note is treated as the
+            bass note and scored separately from the upper structure. A chord
+            where the bass is the root earns a higher score than the same chord
+            with a bass that requires slash notation. Not because root position
+            is "more correct," but because it is the more common interpretation
+            and more informative to name explicitly as root position first.
+          </p>
+
+          <p>
+            This scoring matters for a subtle reason. Consider C, E, G, A played
+            with C in the bass. Is that
+            <span class="chord">C6</span>
+            or
+            <span class="chord">Am7/C</span>? Both are completely valid
+            readings: C6 is a major chord with an added 6th; Am7/C is an A minor
+            7th chord in first inversion. In real music, both readings show up.
+            WhatChord's default is to show C6 as the primary interpretation,
+            with the root in the bass and the 6th reading being structurally
+            simpler, and Am7/C appears below the chord identity card as an
+            alternative.
+          </p>
+
+          <h2>Extensions: when does an extra note become part of the chord?</h2>
+
+          <p>
+            A triad has three notes. A 7th chord has four. But jazz pianists
+            regularly play voicings with five, six, or even seven distinct pitch
+            classes and still call it a single chord.
+          </p>
+
+          <p>
+            The theory behind this is that tonal music organizes extensions in a
+            stack: 7, 9, 11, 13. Each interval builds on the ones below it. A
+            "real" major 9th chord (<span class="chord">Cmaj9</span>) contains
+            the major 7th as well. The 9 is an extension of the 7th-family
+            chord, not just a note tacked on. By contrast,
+            <span class="chord">Cadd9</span> skips the 7th entirely and adds the
+            9th on top of a basic triad. They are different sounds with
+            different names, even though both contain C, E, G, and D.
+          </p>
+
+          <p>
+            WhatChord uses this distinction when labeling extensions. A 9 needs
+            the 7th below it. An 11 or 13 needs both the 7th and the 9th,
+            because those names imply a larger stack of chord tones. Without
+            that support, the same notes are labeled as add tones: add9, add11,
+            or add13. The rule is simple to state and surprisingly hard to get
+            right in practice, because voicings often omit the 5th while keeping
+            the tones that define the chord function.
+          </p>
+
+          <h2>Altered dominants: the most complicated single chord type</h2>
+
+          <p>
+            Dominant 7th chords (<span class="chord">G7</span>,
+            <span class="chord">C7</span>, <span class="chord">F7</span>) are
+            the workhorses of functional harmony. They create tension that
+            resolves, and because jazz musicians spend so much time on them,
+            dominant 7ths have accumulated more extensions and alterations than
+            any other chord type.
+          </p>
+
+          <p>
+            The "altered scale," the seventh mode of melodic minor, provides a
+            vocabulary of alterations that can be stacked on a dominant chord:
+            flat 9, sharp 9, sharp 11, flat 13. A heavily altered dominant might
+            look like <span class="chord">G7♯9♯11♭13</span>: G plus its major
+            3rd (B), its minor 7th (F), and three altered upper extensions. That
+            is six distinct pitch classes in a single chord.
+          </p>
+
+          <p>
+            The <span class="chord">G7♯9</span> is particularly famous, known
+            popularly as the "Hendrix chord" for its prominence in "Purple
+            Haze." It is a dominant 7th with a sharpened 9th: G, B, F, and A♯ in
+            the upper structure. That A♯ is the same piano key as B♭, but the
+            chord role is different: it is the raised 9th above G. Without
+            musical context, a naive recognizer might call the same keys a
+            diminished chord, a minor chord with a strange bass, or something
+            else entirely. WhatChord recognizes the dominant shell (major 3rd +
+            flat 7th) as the anchor, treats the sharp 9 as an alteration on that
+            dominant function, and reports <span class="chord">G7♯9</span> as
+            expected.
+          </p>
+
+          <p>
+            This matters because dominant chords with alterations arise
+            constantly in jazz, blues, and rock. Getting them wrong breaks trust
+            with any musician who knows what they sound like.
+          </p>
+
+          <h2>Upper-structure voicings</h2>
+
+          <p>
+            Experienced jazz pianists often build dominant chord voicings using
+            an "upper structure" technique: the left hand plays the shell tones
+            (the 3rd and flat 7th of the dominant), and the right hand plays
+            what sounds like a completely different chord, often a simple triad
+            or 7th chord built on some other root. The result is a rich, modern
+            color that resists simple labeling.
+          </p>
+
+          <p>
+            WhatChord handles this by looking for the dominant shell,
+            specifically whether the major 3rd and flat 7th are both present,
+            and treating notes above that shell as a coherent extended color
+            rather than as competing chord roots. When the bass is itself a
+            color tone (like the ♯11 of the dominant), it gets recognized as an
+            intentional upper-structure voicing and spelled out accordingly.
+          </p>
+
+          <h2>Enharmonic spelling: C♯ versus D♭</h2>
+
+          <p>
+            C♯ and D♭ are the same key on a piano. They are the same MIDI note
+            number. But they mean different things, and writing the wrong one in
+            a chord symbol or lead sheet is a mistake that musicians notice
+            immediately.
+          </p>
+
+          <p>
+            In the key of E major, the pitch C♯ is the sixth degree of the
+            scale. Writing that same piano key as D♭ would be technically
+            enharmonic but functionally wrong. In the key of A♭ major, the same
+            piano key is D♭, the fourth degree of the scale.
+          </p>
+
+          <p>
+            Chord symbols follow the same logic. A dominant 7th built on G
+            spells its minor 7th as F (four semitones below the octave), never
+            E♯. A diminished 7th on B spells its top note as A♭, the diminished
+            7th above B, not G♯, even though they are identical pitches.
+          </p>
+
+          <p>
+            WhatChord uses both the key signature and the identified chord root
+            to determine enharmonic spelling. When you have set the key
+            signature to three flats (E♭ major or C minor), the app will favor
+            flat spellings for chord tones and extensions throughout. When it
+            identifies a dominant 7th on G, it spells the 7th as F regardless of
+            key context, because that is what the chord quality demands. These
+            two sources of context combine to produce spellings that look like
+            what a professional musician or copyist would write.
+          </p>
+
+          <h2>Ambiguity is a feature, not a problem</h2>
+
+          <p>
+            Some voicings are genuinely ambiguous. Not because the algorithm
+            failed, but because the music itself has multiple valid
+            interpretations.
+          </p>
+
+          <p>
+            The classic example is the major 6th versus the relative minor 7th.
+            <span class="chord">C6</span>
+            (C, E, G, A) and
+            <span class="chord">Am7/C</span>
+            (A, C, E, G with C in the bass) contain the exact same pitch
+            classes. Both are common, both are correct, and which name you
+            prefer depends entirely on harmonic context: are you at the end of a
+            phrase resolving to tonic, or are you in the middle of a ii-V-I in G
+            major? The notes do not tell you. The music around them does.
+          </p>
+
+          <p>
+            Rather than arbitrarily committing to one name, WhatChord shows both
+            when scores are close. The primary result is the highest-ranked
+            interpretation, displayed as the main chord name. Other plausible
+            readings appear below the chord identity card. A musician looking at
+            the screen gets the most likely reading immediately, but can see at
+            a glance that another name is also in play.
+          </p>
+
+          <p>
+            This is the more honest representation of what the notes actually
+            contain. Knowing that
+            <span class="chord">C7♯11/F♯</span>
+            is the top interpretation, with
+            <span class="chord">F♯7♯9</span>
+            as a plausible alternative, gives you more information than being
+            confidently told the wrong one.
+          </p>
+
+          <h2>Where WhatChord fits</h2>
+
+          <p>
+            WhatChord is a real-time chord identifier optimized for speed and
+            accuracy in the kinds of harmonic situations working musicians
+            actually encounter: jazz voicings, extended chords, altered
+            dominants, inversions, and the various ambiguous cases that sit
+            between well-defined categories.
+          </p>
+
+          <p>
+            Today, each snapshot of sounding notes is evaluated independently,
+            using the current key signature setting as context. Progressions,
+            key changes, voice leading, and ensemble-aware interpretation are
+            all interesting avenues for future development. That is the larger
+            point: chord naming is harder than it looks because the notes are
+            only the beginning.
+          </p>
+
+          <p>
+            If you want to see how that musical judgment is represented in code,
+            the underlying algorithm is described in more technical depth in the
+            <a href="under-the-hood.html">companion article</a>.
+          </p>
+
+          <div class="article-cta">
+            <h3>Try it on your own keyboard.</h3>
+            <p>
+              Free for iOS and Android. No subscription, no ads, no internet
+              required.
+            </p>
+            <div class="store-badges" style="margin-bottom: 16px">
+              <a
+                href="https://apps.apple.com/us/app/whatchord-midi/id6758409779"
+              >
+                <img
+                  class="store-badge"
+                  src="../../images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+                  alt="Download on the App Store"
+                />
+              </a>
+              <a href="#" data-android-beta>
+                <img
+                  class="store-badge"
+                  src="../../images/GetItOnGooglePlay_Badge_Web_color_English.svg"
+                  alt="Get it on Google Play"
+                />
+              </a>
+            </div>
+          </div>
+
+          <div class="article-related">
+            <h4>Also on this site</h4>
+            <a
+              class="article-card"
+              href="under-the-hood.html"
+              style="margin-top: 0"
+            >
+              <div class="article-tag">Technical deep-dive</div>
+              <h3>Under the Hood: Building a Real-Time Chord Recognizer</h3>
+              <p>
+                The bitmasks, chord-quality templates, scoring and ranking
+                heuristics, and LRU cache behind real-time chord recognition.
+              </p>
+              <span class="read-more">Read the article →</span>
+            </a>
+          </div>
+        </div>
+        <!-- /article-body -->
+      </div>
+      <!-- /article-wrap -->
+    </article>
+
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-left">
+          <span class="footer-copy">
+            © 2025–2026
+            <a href="mailto:support@earthmanmuons.com">Aaron Bull Schaefer</a>
+            and contributors · 0BSD License
+          </span>
+        </div>
+        <ul class="footer-links">
+          <li>
+            <a href="https://github.com/EarthmanMuons/whatchord">GitHub</a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md"
+              >Privacy</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/EarthmanMuons/whatchord/blob/main/SUPPORT.md"
+              >Support</a
+            >
+          </li>
+        </ul>
+      </div>
+    </footer>
+
+    <dialog id="android-dialog">
+      <div class="dialog-content">
+        <h3>Join the Android beta</h3>
+        <p>
+          WhatChord for Android is currently in closed testing. Email
+          <a
+            href="mailto:support@earthmanmuons.com?subject=WhatChord%20Android%20Beta"
+            >support@earthmanmuons.com</a
+          >
+          with your Gmail address and we'll add you to the tester pool.
+        </p>
+        <button
+          class="btn btn-primary"
+          onclick="document.getElementById('android-dialog').close()"
+        >
+          Got it
+        </button>
+      </div>
+    </dialog>
+    <script>
+      (function () {
+        function openAndroidDialog(e) {
+          e.preventDefault();
+          document.getElementById("android-dialog").showModal();
+        }
+        document.querySelectorAll("[data-android-beta]").forEach(function (el) {
+          el.addEventListener("click", openAndroidDialog);
+        });
+        if (/android/i.test(navigator.userAgent)) {
+          document.querySelectorAll(".btn-get-app").forEach(function (el) {
+            el.href = "#";
+            el.addEventListener("click", openAndroidDialog);
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

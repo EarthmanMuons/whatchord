@@ -72,6 +72,9 @@ class ChordTemplate {
 ///
 /// The analyzer tests all templates; order doesn't affect results.
 /// Organized by complexity: triads -> 6ths -> 7ths
+///
+/// NOTE: docs/site/articles/under-the-hood.html lists and describes each
+/// template. Update the article when templates are added, removed, or changed.
 final chordTemplates = <ChordTemplate>[
   // Major triad: R + M3 + (P5)
   // - M3 defines major quality

@@ -63,6 +63,9 @@ class RankedCandidateDebug {
 /// - Reward structural completeness (required tones present)
 /// - Penalize missing tones, penalty tones, and unexplained extras
 /// - Normalize by chord complexity to allow fair comparison
+///
+/// NOTE: docs/site/articles/under-the-hood.html documents this pipeline in
+/// detail. Update the article when scoring weights or algorithm structure changes.
 abstract final class ChordAnalyzer {
   @visibleForTesting
   static const int cacheCapacity = 512;

@@ -86,6 +86,13 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
 
     // Fully diminished symmetrical (Eb Gb Bbb Dbb -> Ebdim7)
     const DemoStep(notes: {51, 54, 57, 60}),
+
+    // 6) SCREENSHOT: portrait, dark mode, Key: C major, Dm7
+    const DemoStep(
+      notes: {62, 65, 69, 72},
+      themeMode: ThemeMode.dark,
+      tonality: Tonality('C', TonalityMode.major),
+    ),
   ];
 
   static final List<DemoStep> interactiveSteps = <DemoStep>[
