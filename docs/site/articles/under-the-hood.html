@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Under the Hood: Building a Real-Time Chord Recognizer | WhatChord
+    </title>
+    <meta
+      name="description"
+      content="A technical deep-dive into the pitch-class bitmasks, chord-quality templates, scoring and ranking heuristics, and LRU cache behind real-time chord identification."
+    />
+    <meta
+      property="og:title"
+      content="Under the Hood: Building a Real-Time Chord Recognizer"
+    />
+    <meta
+      property="og:description"
+      content="A detailed look at the bitmasks, templates, scoring and ranking heuristics, and LRU cache that power real-time chord identification in a Flutter app."
+    />
+    <meta property="og:type" content="article" />
+    <link
+      rel="icon"
+      type="image/webp"
+      href="../../images/whatchord_logo.webp"
+    />
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <nav class="site-nav">
+      <div class="nav-inner">
+        <a class="nav-logo" href="../index.html">
+          <img src="../../images/whatchord_logo.webp" alt="WhatChord logo" />
+          <span>What<span class="logo-bold">Chord</span></span>
+        </a>
+        <div class="nav-spacer"></div>
+        <ul class="nav-links">
+          <li><a href="chord-naming.html">For Musicians</a></li>
+          <li><a href="under-the-hood.html">Under the Hood</a></li>
+        </ul>
+        <a
+          class="btn btn-ghost"
+          href="https://github.com/EarthmanMuons/whatchord"
+          ><img
+            class="github-icon"
+            src="../images/GitHub_Invertocat_White.png"
+            alt=""
+          /><span class="source-label">Source</span></a
+        >
+        <a
+          class="btn btn-primary btn-get-app"
+          href="https://apps.apple.com/us/app/whatchord-midi/id6758409779"
+          >Get the app</a
+        >
+      </div>
+    </nav>
+
+    <article>
+      <div class="article-wrap">
+        <header class="article-header">
+          <a class="article-back" href="../index.html">← WhatChord</a>
+          <div class="article-tag">Technical deep-dive</div>
+          <h1>Under the Hood: Building a Real-Time Chord Recognizer</h1>
+          <p class="article-deck">
+            This article walks through the analysis engine behind WhatChord:
+            pitch-class bitmasks, chord-quality templates, scoring and ranking
+            heuristics, and the small LRU cache that keeps real-time chord
+            identification fast in a Flutter app.
+          </p>
+        </header>
+
+        <div class="article-body">
+          <h2>The problem is not a lookup</h2>
+
+          <p>
+            The first intuition when building a chord recognizer is to build a
+            dictionary. There are only 12 pitch classes, which means there are
+            only <code>2^12 = 4096</code> possible pitch-class sets. Store a
+            name for each set, and when a user plays C-E-G, look up {C, E, G}
+            and return “<span class="chord">C major</span>.”
+          </p>
+
+          <p>
+            The problem is not memory. Four thousand entries is trivial. The
+            problem is meaning. A pitch-class set does not contain enough
+            information to decide what musicians will call it.
+          </p>
+
+          <p>
+            Pianists often leave out notes that a dictionary entry might expect.
+            Extended chords add notes that no fixed dictionary entry
+            anticipates. And the same set of pitch classes, as discussed in the
+            <a href="chord-naming.html">companion article</a>, can legitimately
+            be described as multiple different chords depending on musical
+            context.
+          </p>
+
+          <p>
+            What you actually need is a scoring model. It has to evaluate how
+            well any given set of notes fits each chord type, rank all plausible
+            interpretations, and apply musical judgment when scores are close.
+            That is the approach WhatChord takes.
+          </p>
+
+          <h2>Overview: a four-stage pipeline</h2>
+
+          <p>
+            Before diving into each component, here is the overall shape of the
+            algorithm. A snapshot of sounding notes enters at the top; a ranked
+            list of chord interpretations comes out at the bottom.
+          </p>
+
+          <div class="pipeline-flow">
+            <div class="pf-endpoint">
+              Input: set of sounding pitch classes + lowest (bass) note
+            </div>
+            <div class="pf-arrow">↓</div>
+            <div class="pf-box">
+              <div class="pf-name">Pitch-class bitmask</div>
+              <div class="pf-sub">
+                12-bit integer: one bit per semitone in the octave
+              </div>
+            </div>
+            <div class="pf-arrow">↓</div>
+            <div class="pf-box">
+              <div class="pf-name">Candidate generation</div>
+              <div class="pf-sub">
+                Each sounding note becomes a candidate root, scored against
+                every chord template, extensions extracted
+              </div>
+            </div>
+            <div class="pf-arrow">↓</div>
+            <div class="pf-box">
+              <div class="pf-name">Score normalization</div>
+              <div class="pf-sub">
+                Raw scores are normalized for fair comparison across chord
+                complexities
+              </div>
+            </div>
+            <div class="pf-arrow">↓</div>
+            <div class="pf-box">
+              <div class="pf-name">Ranking</div>
+              <div class="pf-sub">
+                Musical heuristics resolve ambiguous scores; hard structural
+                rules override when the score alone would pick the wrong answer
+              </div>
+            </div>
+            <div class="pf-arrow">↓</div>
+            <div class="pf-endpoint">
+              Output: top ranked chord candidates, result cached in LRU
+            </div>
+          </div>
+
+          <p>
+            The rest of this article walks through each stage in detail, ending
+            with a discussion of known limitations.
+          </p>
+
+          <h2>Pitch classes and bitmasks</h2>
+
+          <p>
+            Western music theory operates in 12-tone equal temperament (12-TET):
+            12 equal semitones per octave. <em>Pitch class</em> is the note’s
+            position within that octave, ignoring which octave it’s in, so
+            middle C, the C above it, and the C three octaves below all share
+            pitch class 0. In WhatChord, pitch classes are numbered 0 (C)
+            through 11 (B).
+          </p>
+
+          <p>
+            A chord is a set of pitch classes. WhatChord represents this as a
+            12-bit integer mask where bit <em>n</em> is set if pitch class
+            <em>n</em> is present. C major (C=0, E=4, G=7) looks like this:
+          </p>
+
+          <table
+            class="bit-field"
+            aria-label="Bitmask for C major: bits 0, 4, 7 set"
+          >
+            <thead>
+              <tr>
+                <th>11</th>
+                <th>10</th>
+                <th>9</th>
+                <th>8</th>
+                <th>7</th>
+                <th>6</th>
+                <th>5</th>
+                <th>4</th>
+                <th>3</th>
+                <th>2</th>
+                <th>1</th>
+                <th>0</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="note-row">
+                <td>B</td>
+                <td>A♯</td>
+                <td>A</td>
+                <td>G♯</td>
+                <td>G</td>
+                <td>F♯</td>
+                <td>F</td>
+                <td>E</td>
+                <td>D♯</td>
+                <td>D</td>
+                <td>C♯</td>
+                <td>C</td>
+              </tr>
+              <tr class="bit-row">
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="b1">1</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="b1">1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>0</td>
+                <td class="b1">1</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code><span class="cm">// Pitch classes: C=0, E=4, G=7</span>
+<span class="kw">int</span> pcMask = (<span class="nu">1</span> &lt;&lt; <span class="nu">0</span>) | (<span class="nu">1</span> &lt;&lt; <span class="nu">4</span>) | (<span class="nu">1</span> &lt;&lt; <span class="nu">7</span>);
+<span class="cm">// pcMask == 0b000010010001 == 0x091</span></code></pre>
+
+          <p>
+            This representation is surprisingly convenient. Checking whether a
+            pitch class is present is a single bitwise AND. Counting present
+            notes is a popcount. Rotating the voicing relative to a candidate
+            root is a loop over bits with modular arithmetic. All of these
+            operations are cheap.
+          </p>
+
+          <p>
+            A key design decision:
+            <strong
+              >only pitch classes actually present in the voicing are tested as
+              candidate roots.</strong
+            >
+            There are no “ghost roots” and the algorithm never proposes an
+            interpretation where the chord is rooted on a note that is not being
+            played. This keeps the candidate count small (bounded by the number
+            of sounding notes, typically 3–7) and avoids obviously wrong
+            readings.
+          </p>
+
+          <p>
+            This is a deliberate “solo keyboard” assumption. WhatChord is
+            currently optimized for the common case where the same MIDI stream
+            contains both the harmony and the bass note. A future ensemble mode
+            could relax that rule for settings where another instrument is
+            carrying the bass, allowing rootless voicings to imply roots that
+            are not literally present in the keyboard part.
+          </p>
+
+          <h2>Chord templates</h2>
+
+          <p>
+            WhatChord also defines chord qualities as bitmask templates. Each
+            one describes three sets of intervals relative to the root:
+          </p>
+
+          <ul>
+            <li>
+              <strong>Required:</strong> tones that must be present to identify
+              this quality. Missing more than one required tone causes the
+              template to be skipped entirely.
+            </li>
+            <li>
+              <strong>Optional:</strong> tones frequently omitted in real
+              voicings (almost always the perfect 5th). Present when played,
+              unremarkable when absent.
+            </li>
+            <li>
+              <strong>Penalty:</strong> tones that actively contradict this
+              quality. Having a major 3rd present when you are trying to
+              identify a minor chord hurts the score.
+            </li>
+          </ul>
+
+          <p>The 15 templates, organized by complexity:</p>
+
+          <table class="score-table">
+            <thead>
+              <tr>
+                <th>Quality</th>
+                <th>Required intervals</th>
+                <th>Optional</th>
+                <th>Key penalty tones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Major</td>
+                <td class="mono">R, M3</td>
+                <td class="mono">P5</td>
+                <td class="mono">m3, m7, M7</td>
+              </tr>
+              <tr>
+                <td>Minor</td>
+                <td class="mono">R, m3</td>
+                <td class="mono">P5</td>
+                <td class="mono">M3, m7, M7</td>
+              </tr>
+              <tr>
+                <td>Diminished</td>
+                <td class="mono">R, m3, ♭5</td>
+                <td>—</td>
+                <td class="mono">M3, P5</td>
+              </tr>
+              <tr>
+                <td>Augmented</td>
+                <td class="mono">R, M3, ♯5</td>
+                <td>—</td>
+                <td class="mono">m3, P5</td>
+              </tr>
+              <tr>
+                <td>Sus2</td>
+                <td class="mono">R, M2, P5</td>
+                <td>—</td>
+                <td class="mono">m3, M3, m7, M7</td>
+              </tr>
+              <tr>
+                <td>Sus4</td>
+                <td class="mono">R, P4, P5</td>
+                <td>—</td>
+                <td class="mono">m3, M3, m7, M7</td>
+              </tr>
+              <tr>
+                <td>Major 6</td>
+                <td class="mono">R, M3, M6</td>
+                <td class="mono">P5</td>
+                <td class="mono">m3, m7, M7</td>
+              </tr>
+              <tr>
+                <td>Minor 6</td>
+                <td class="mono">R, m3, M6</td>
+                <td class="mono">P5</td>
+                <td class="mono">M3, m7, M7</td>
+              </tr>
+              <tr>
+                <td>Dominant 7</td>
+                <td class="mono">R, M3, m7</td>
+                <td class="mono">P5</td>
+                <td class="mono">M7, m3</td>
+              </tr>
+              <tr>
+                <td>7sus4</td>
+                <td class="mono">R, P4, m7</td>
+                <td class="mono">P5</td>
+                <td class="mono">m3, M3, M7</td>
+              </tr>
+              <tr>
+                <td>Major 7</td>
+                <td class="mono">R, M3, M7</td>
+                <td class="mono">P5</td>
+                <td class="mono">m7, m3</td>
+              </tr>
+              <tr>
+                <td>Minor 7</td>
+                <td class="mono">R, m3, m7</td>
+                <td class="mono">P5</td>
+                <td class="mono">M7, M3</td>
+              </tr>
+              <tr>
+                <td>Minor-Major 7</td>
+                <td class="mono">R, m3, M7</td>
+                <td class="mono">P5</td>
+                <td class="mono">M3, m7</td>
+              </tr>
+              <tr>
+                <td>Half-Diminished 7</td>
+                <td class="mono">R, m3, ♭5, m7</td>
+                <td>—</td>
+                <td class="mono">P5, M3, M7</td>
+              </tr>
+              <tr>
+                <td>Fully Diminished 7</td>
+                <td class="mono">R, m3, ♭5, d7</td>
+                <td>—</td>
+                <td class="mono">m7, P5, M3, M7</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>
+            Notice that the perfect 5th is optional for most chord families.
+            This reflects how professional players actually voice chords,
+            particularly in jazz where shell voicings commonly leave out the
+            5th. Requiring the 5th would cause the algorithm to fail on some of
+            the most idiomatic voicings in common use.
+          </p>
+
+          <p>
+            Penalty tones are not hard rejections. The template is still scored,
+            it just loses points. This handles cases where a note might
+            simultaneously belong to one chord and partially fit another, and
+            lets the score reflect the degree of fit rather than producing a
+            binary yes/no.
+          </p>
+
+          <h2>Template scoring</h2>
+
+          <p>
+            For each candidate root (each pitch class present in the voicing),
+            WhatChord rotates the pitch class mask relative to that root to get
+            an interval mask. Then it scores that interval mask against all 15
+            templates.
+          </p>
+
+          <pre><code><span class="cm">// Rotate: compute intervals above rootPc for each sounding note</span>
+<span class="kw">int</span> <span class="fn">rotateMaskToRoot</span>(<span class="kw">int</span> pcMask, <span class="kw">int</span> rootPc) {
+  <span class="kw">var</span> rel = <span class="nu">0</span>;
+  <span class="kw">for</span> (<span class="kw">var</span> pc = <span class="nu">0</span>; pc &lt; <span class="nu">12</span>; pc++) {
+    <span class="kw">if</span> ((pcMask &amp; (<span class="nu">1</span> &lt;&lt; pc)) == <span class="nu">0</span>) <span class="kw">continue</span>;
+    <span class="kw">final</span> interval = (pc - rootPc) % <span class="nu">12</span>;
+    rel |= (<span class="nu">1</span> &lt;&lt; (interval &lt; <span class="nu">0</span> ? interval + <span class="nu">12</span> : interval));
+  }
+  <span class="kw">return</span> rel;
+}</code></pre>
+
+          <p>
+            The scoring formula accumulates raw points from several components:
+          </p>
+
+          <table class="score-table">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Weight</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Each required tone present</td>
+                <td class="pos mono">+4.0</td>
+                <td>Structural foundation</td>
+              </tr>
+              <tr>
+                <td>Each missing required tone</td>
+                <td class="neg mono">-6.0</td>
+                <td>Max 1 allowed; 2+ causes the template to be rejected</td>
+              </tr>
+              <tr>
+                <td>Each optional tone present</td>
+                <td class="pos mono">+1.5</td>
+                <td>Adds color without being essential</td>
+              </tr>
+              <tr>
+                <td>Each penalty tone present</td>
+                <td class="neg mono">-3.0</td>
+                <td>Contradicts the chord quality</td>
+              </tr>
+              <tr>
+                <td>Each unexplained “extra” tone</td>
+                <td class="neg mono">-0.5</td>
+                <td>
+                  Before extension extraction; small because extensions are real
+                </td>
+              </tr>
+              <tr>
+                <td>Bass is root or inversion tone</td>
+                <td class="pos mono">+1.0</td>
+                <td>Root position, 1st inv, 2nd inv, 3rd inv</td>
+              </tr>
+              <tr>
+                <td>Bass is color tone (7th-family chord)</td>
+                <td class="pos mono">+0.75</td>
+                <td>Upper-structure voicing, legitimate</td>
+              </tr>
+              <tr>
+                <td>Bass is extension (triad + slash)</td>
+                <td class="pos mono">+0.25</td>
+                <td>Add-chord slash notation</td>
+              </tr>
+              <tr>
+                <td>Bass unexplained by template</td>
+                <td class="neg mono">-0.25</td>
+                <td>Arbitrary slash</td>
+              </tr>
+              <tr>
+                <td>Alteration penalty (any altered extension)</td>
+                <td class="neg mono">-0.60</td>
+                <td>
+                  <code>-0.30</code> for fully dim7 (see Diminished 7th section
+                  below)
+                </td>
+              </tr>
+              <tr>
+                <td>Lydian-dominant 13th coherence bonus</td>
+                <td class="pos mono">+2.1</td>
+                <td>
+                  Applied when root-position dominant has 9, ♯11, and 13 all
+                  present
+                </td>
+              </tr>
+              <tr>
+                <td>6th chord without 5th (3-note voicing)</td>
+                <td class="neg mono">-0.60</td>
+                <td>Disambiguates C6(no5) from Am7/C</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>
+            The raw score is then divided by
+            <code>sqrt(requiredToneCount)</code>
+            to normalize across chord complexities:
+          </p>
+
+          <pre><code><span class="kw">final</span> denom = reqCount &gt; <span class="nu">0</span> ? math.<span class="fn">sqrt</span>(reqCount.<span class="fn">toDouble</span>()) : <span class="nu">1.0</span>;
+<span class="kw">final</span> normalized = raw / denom;</code></pre>
+
+          <p>
+            Without normalization, 7th chords (which have more required tones)
+            would consistently outscore triads just by having more opportunities
+            to earn the <code>+4.0</code> required-tone bonus. A perfectly
+            matched C major triad would lose to a slightly-mismatched C dominant
+            7th. The square root normalization (rather than linear) preserves
+            meaningful score separation while preventing that over-penalization
+            of complex chords.
+          </p>
+
+          <h2>Extension extraction</h2>
+
+          <p>
+            After template scoring, any tone not accounted for by the base
+            template (required + optional + penalty) lands in the “extras” mask.
+            These get converted to named extensions:
+          </p>
+
+          <ul>
+            <li>
+              <strong>Alterations</strong> (from the extras mask): flat 9
+              (semitone 1), sharp 9 (semitone 3), sharp 11 (semitone 6), flat 13
+              (semitone 8)
+            </li>
+            <li>
+              <strong>Natural extensions:</strong> 9 (semitone 2), 11 (semitone
+              5), 13 (semitone 9)
+            </li>
+          </ul>
+
+          <p>
+            Whether natural extensions become “9/11/13” or “add9/add11/add13”
+            depends on the stack below them. A 9 needs the 7th. An 11 or 13
+            needs both the 7th and 9th; the 11 itself is not required before
+            labeling a 13, because 11ths are often omitted in chord symbols and
+            real voicings. Without that support, the same pitch class is labeled
+            as an add tone instead.
+          </p>
+
+          <h2>How the weights were tuned</h2>
+
+          <p>
+            The scoring weights were not established arbitrarily. They were
+            tuned empirically against a set of golden test cases: specific
+            voicings where the desired output was known in advance. Each golden
+            case captures a chord a musician would name unambiguously, together
+            with structural assertions about the winning candidate’s root,
+            quality, and extensions.
+          </p>
+
+          <p>
+            The test suite covers major, minor, diminished, dominant, altered,
+            and extended voicings across different inversions and genuinely
+            ambiguous situations. The tuning loop looked like this:
+          </p>
+
+          <ol>
+            <li>Run the golden test suite.</li>
+            <li>
+              For any case that failed, use the <code>chord-debug</code> CLI
+              tool to inspect the full ranked candidate list with score
+              breakdowns.
+            </li>
+            <li>
+              Adjust weights, add rules, or add scoring bonuses until the
+              failing case passed.
+            </li>
+            <li>Re-run the full suite to verify no regressions.</li>
+          </ol>
+
+          <p>
+            The <code>chord-debug</code> tool runs the full analysis pipeline on
+            any set of notes and prints each candidate with its score,
+            individual weight contributions, and the ranking rule that decided
+            its position relative to the previous candidate:
+          </p>
+
+          <pre><code>$ dart run tool/chord_debug.dart F# Bb C E
+
+pcs: Bb, C, E, F# |  bass: F#  |  key: C major
+
+ 1) C7#11 / F#     6.73
+     members: root=C  major3=E  sharp11=F#  flat7=Bb
+     req+12  bass+0.75  alt-0.60 extra-0.50  raw=11.65 / sqrt(3) =&gt; 6.73
+
+ 2) F#7#11         6.87  Δ +0.14 ~tie
+     (vs prev: Prefer upper-structure dominant7 slash)
+     members: root=F#  major3=A#  sharp11=B#  flat7=E
+     req+12  bass+1  alt-0.60  extra-0.50  raw=11.90 / sqrt(3) =&gt; 6.87
+
+ 3) F##11          3.47  Δ -3.26
+     (vs prev: Score outside near-tie window)</code></pre>
+
+          <p>
+            One detail worth noting: MIDI gives the app pitch classes, not note
+            names. Pitch class 10 can be written as A♯ or B♭. In this result,
+            the algorithm has already identified C as the chord root and pitch
+            class 10 as the 7th above that root. A C dominant 7th is spelled
+            with B♭, so WhatChord prints B♭ even if the same piano key could be
+            named A♯ in another context.
+          </p>
+
+          <p>
+            The output above reveals why
+            <span class="chord">C7♯11/F♯</span> ranks first despite having a
+            lower raw score than <span class="chord">F♯7♯11</span>: the scores
+            are within the near-tie window (<code>0.14</code> &lt;
+            <code>0.20</code>), so tie-breaker rules engage. The upper-structure
+            dominant slash rule fires and prefers the slash interpretation when
+            the bass note is a color tone (F♯ is the ♯11 of C) with no other
+            alterations.
+          </p>
+
+          <p>
+            That kind of diagnostic visibility was essential for understanding
+            why the algorithm chose wrong answers and what needed to change. A
+            weight that fixed one case would sometimes break another, and the
+            only way to make progress without regressing was to have the full
+            ranked list visible while making targeted adjustments.
+          </p>
+
+          <h2>The ranking problem</h2>
+
+          <p>
+            The debug output above shows why scoring is only the first half of
+            the problem. Once multiple readings are plausible, the analysis
+            engine needs a separate ranking layer that encodes musical
+            priorities more directly than a single numeric score can.
+          </p>
+
+          <p>
+            This is not an isolated case. Several common note sets produce
+            near-identical scores for multiple plausible interpretations, and
+            the raw score cannot distinguish which one a musician would name:
+          </p>
+
+          <ul>
+            <li>
+              C-E-G-A: <span class="chord">C6</span> vs.
+              <span class="chord">Am7/C</span> (identical scores; the 6th chord
+              in root position should win)
+            </li>
+            <li>
+              B-D-F-A♭: <span class="chord">Bdim7</span> vs.
+              <span class="chord">G♯dim7/B</span> vs.
+              <span class="chord">Ddim7/C♭</span> vs.
+              <span class="chord">Fdim7/C♭</span>
+              (all four readings score identically due to dim7 symmetry)
+            </li>
+          </ul>
+
+          <p>
+            Some ambiguities are close enough for ordinary tie-breakers. Others
+            need stronger structural rules, because a musically unlikely reading
+            can sometimes score higher than the conventional name.
+          </p>
+
+          <p>
+            WhatChord handles all of these cases with a two-layer decision
+            process.
+          </p>
+
+          <h3>Hard rules</h3>
+
+          <p>
+            These rules always apply regardless of score difference, when
+            certain structural conditions are met:
+          </p>
+
+          <ol>
+            <li>
+              <strong
+                >Prefer altered dominant 7th over diminished 7th slash.</strong
+              >
+              When a dominant 7th in root position has its shell tones (M3 + ♭7)
+              present and color tones (extensions or alterations), and the
+              competing diminished reading would be a slash chord whose bass is
+              a color tone, prefer the dominant. This fires even when the
+              diminished reading scores higher.
+            </li>
+            <li>
+              <strong
+                >Prefer close root-position dominant 7th over non-dominant
+                slash.</strong
+              >
+              When a dominant 7th with shell tones and at least one extension or
+              alteration would lose to a remote, non-dominant slash chord, the
+              dominant wins (provided the score difference is not too large).
+            </li>
+          </ol>
+
+          <h3>The near-tie window</h3>
+
+          <p>
+            If neither hard rule fires and the score difference is greater than
+            <code>0.20</code> (the <code>nearTieWindow</code> constant), the
+            higher-scoring candidate wins on score alone.
+          </p>
+
+          <p>
+            When scores are within the near-tie window, tie-breaker rules are
+            applied sequentially. The first rule that produces a non-tie result
+            decides the ordering:
+          </p>
+
+          <ol>
+            <li>
+              Prefer root-position 6th over inverted 7th (the C6 vs. Am7/C case)
+            </li>
+            <li>
+              Prefer upper-structure dominant 7th slash (color bass with no
+              other alterations)
+            </li>
+            <li>
+              Prefer root-position diminished 7th (symmetrical chords default to
+              bass-as-root)
+            </li>
+            <li>Prefer dominant 7th shell over dim7 slash</li>
+            <li>Prefer fewer alterations</li>
+            <li>Prefer diatonic chords (given the key signature)</li>
+            <li>Prefer the tonic chord (I) over other diatonic options</li>
+            <li>Prefer I when the bass is the tonic pitch class</li>
+            <li>
+              Prefer natural extensions (9/11/13) over add-tones; then fewer
+              total extensions
+            </li>
+            <li>Prefer root position</li>
+            <li>Prefer 1st inversion over 2nd inversion</li>
+            <li>Prefer 7th chords over triads</li>
+            <li>Prefer fewer extensions</li>
+            <li>Avoid suspended chords</li>
+          </ol>
+
+          <p>
+            If all of these rules still have not produced a winner, there is a
+            deterministic fallback: sort by root pitch class numerically. This
+            ensures the output is always consistent for the same input, even for
+            exotic voicings.
+          </p>
+
+          <p>
+            The ordering of these rules encodes musical priorities. Structural
+            clarity (root position, shell tones) comes before contextual
+            preferences (diatonic, tonic). Conventional naming (fewer
+            alterations, natural extensions) comes before complexity. Suspended
+            chords are deprioritized last because they are valid but less
+            common, and should only win when nothing else fits.
+          </p>
+
+          <h2>Diminished 7th: a special case in scoring</h2>
+
+          <p>
+            Fully diminished 7th chords receive a softer alteration penalty
+            (<code>-0.30</code> instead of <code>-0.60</code>) when competing
+            against other chord readings. The reason is their symmetry problem.
+          </p>
+
+          <p>
+            When you add one extra note to a diminished 7th voicing, the
+            algorithm can try to reinterpret the original dim7 notes as a
+            different root’s dim7 chord, treating the “extra” note as an
+            addition. Without softening the penalty, this reinterpretation often
+            scores better than the natural reading, because the reinterpreted
+            dim7 has no “alteration” (the extra note is now natural to its root)
+            while the original reading does (the extra note is an alteration).
+            Musicians do not think about diminished 7ths that way, so the
+            penalty is halved to restore the expected behavior.
+          </p>
+
+          <h2>Caching for real-time performance</h2>
+
+          <p>
+            Running the full pipeline (up to 12 candidate roots × 15 templates =
+            180 template evaluations) on every MIDI state change would be
+            wasteful. In practice, a pianist tends to produce many repeated
+            input states throughout a musical piece.
+          </p>
+
+          <p>
+            WhatChord uses a 512-entry Least Recently Used (LRU) cache
+            implemented as a <code>LinkedHashMap</code>. The cache key is a hash
+            of three inputs:
+          </p>
+
+          <ul>
+            <li>The pitch class set</li>
+            <li>The analysis context (key signature + tonality)</li>
+            <li>
+              The <code>take</code> parameter (how many candidates to return,
+              default 8)
+            </li>
+          </ul>
+
+          <p>
+            The context is included in the key because diatonic preference rules
+            depend on it; a different key signature can change which candidate
+            ranks first even for identical voicings.
+          </p>
+
+          <pre><code><span class="kw">final</span> key = Object.<span class="fn">hash</span>(input.cacheKey, context, take);
+<span class="kw">final</span> cached = _cache[key];
+<span class="kw">if</span> (cached != <span class="kw">null</span>) {
+  <span class="cm">// Promote on hit so eviction removes LRU, not FIFO</span>
+  _cache
+    ..<span class="fn">remove</span>(key)
+    ..[key] = cached;
+  <span class="kw">return</span> cached;
+}</code></pre>
+
+          <p>
+            The LinkedHashMap preserves insertion order. On a cache hit, the
+            entry is removed and re-inserted at the end (most recently used). On
+            eviction, the first key is removed (least recently used). This is
+            the standard LRU pattern in Dart without a separate doubly-linked
+            list.
+          </p>
+
+          <p>
+            The 512-entry capacity was set by benchmarking four workload types:
+            random input, bounded exhaustive input, realistic tonal
+            progressions, and simulated live note transitions (individual notes
+            added and removed one at a time, as a player would actually play).
+            Random and exhaustive inputs showed little cache locality because
+            each chord state was unique. Tonal progressions and live transitions
+            showed high reuse: real playing revisits the same chord states
+            repeatedly within a short window. A 512-entry cache preserved nearly
+            all of the realistic-workload hit rate, and increasing the cache
+            size produced no material improvement. So the capacity, like the
+            scoring weights, was set by measurement rather than intuition.
+          </p>
+
+          <h2>Analyzing vs. exploring</h2>
+
+          <p>
+            WhatChord has two modes with different objectives. In analysis mode,
+            the algorithm optimizes for musician-expected naming of a real
+            observed voicing: whatever notes are actually sounding, in whatever
+            inversion or extension the player chose.
+          </p>
+
+          <p>
+            In Explore mode, the user selects a chord symbol (root + quality +
+            extensions) and asks “show me an example of this.” The algorithm
+            runs in reverse: given a target chord identity, find a canonical
+            voicing that a musician would expect for that chord. The analysis
+            scores are used, but the objective is different: prefer clean,
+            root-position, complete voicings that represent the chord clearly.
+          </p>
+
+          <p>
+            This distinction matters because the “correct” output for a given
+            set of notes in analysis mode is not always the same as the most
+            pedagogically clear example of a chord type. Analysis and Explore
+            use the same engine but ask it different questions.
+          </p>
+
+          <h2>What the algorithm does not handle</h2>
+
+          <p>A few things are known limitations or non-goals:</p>
+
+          <ul>
+            <li>
+              <strong>Polychords.</strong> Two simultaneous independent
+              harmonies (a D♭ major triad over a C dominant 7th, common in
+              Stravinsky) are not modeled. The algorithm will find the best
+              single-chord description of the combined note set.
+            </li>
+            <li>
+              <strong>Temporal context.</strong> Each snapshot of sounding notes
+              is analyzed independently. The algorithm does not track what chord
+              came before and does not use progression history to inform
+              interpretation. Using temporal context to further increase
+              accuracy is a natural direction for future improvement.
+            </li>
+            <li>
+              <strong>Non-12-TET tuning.</strong> Western music theory operates
+              in 12-tone equal temperament (12-TET), and MIDI uses integer
+              semitone values to match. Microtonal intervals, quarter tones, and
+              just intonation systems have no representation in this model.
+            </li>
+          </ul>
+
+          <p>
+            The scoring heuristics are tuned from experience. They encode
+            accumulated musical convention, but they are adjustable constants,
+            not proven axioms. Edge cases and counterexamples help improve them.
+          </p>
+
+          <h2>The codebase</h2>
+
+          <p>
+            WhatChord is written in <a href="https://dart.dev/">Dart</a> using
+            the <a href="https://flutter.dev/">Flutter</a> framework. The chord
+            analysis engine lives entirely in
+            <code>lib/features/theory/domain/analysis/</code>, three files with
+            no platform dependencies and a unit test suite that verifies
+            known-correct outputs across major, minor, dominant, altered,
+            extended, and ambiguous chord types.
+          </p>
+
+          <p>
+            The project is open source and released under the Zero Clause BSD
+            License, which means you are free to use, modify, and share the code
+            however you like.
+          </p>
+
+          <p>
+            If you find a chord that WhatChord misidentifies, the best way to
+            report it is to long-press the chord card to open
+            <em>Analysis Details</em>, copy the diagnostic output, and
+            <a
+              href="https://github.com/EarthmanMuons/whatchord/issues/new/choose"
+              >open a GitHub issue</a
+            >. The diagnostic output includes the exact pitch classes and
+            context that produced the result, which makes it straightforward to
+            reproduce and debug.
+          </p>
+
+          <div class="article-cta">
+            <h3>See it in action.</h3>
+            <p>
+              Free for iOS and Android. No subscription, no ads, all analysis
+              on-device.
+            </p>
+            <div class="store-badges" style="margin-bottom: 16px">
+              <a
+                href="https://apps.apple.com/us/app/whatchord-midi/id6758409779"
+              >
+                <img
+                  class="store-badge"
+                  src="../../images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+                  alt="Download on the App Store"
+                />
+              </a>
+              <a href="#" data-android-beta>
+                <img
+                  class="store-badge"
+                  src="../../images/GetItOnGooglePlay_Badge_Web_color_English.svg"
+                  alt="Get it on Google Play"
+                />
+              </a>
+            </div>
+            <a
+              class="btn btn-ghost"
+              href="https://github.com/EarthmanMuons/whatchord"
+              ><img
+                class="github-icon"
+                src="../images/GitHub_Invertocat_White.png"
+                alt=""
+              /><span>View source on GitHub</span></a
+            >
+          </div>
+
+          <div class="article-related">
+            <h4>Also on this site</h4>
+            <a
+              class="article-card"
+              href="chord-naming.html"
+              style="margin-top: 0"
+            >
+              <div class="article-tag">For musicians</div>
+              <h3>Why Chord Naming Is Harder Than It Looks</h3>
+              <p>
+                The musical challenges, including inversions, enharmonics,
+                altered dominants, and genuine ambiguity, explained without the
+                code.
+              </p>
+              <span class="read-more">Read the article →</span>
+            </a>
+          </div>
+        </div>
+        <!-- /article-body -->
+      </div>
+      <!-- /article-wrap -->
+    </article>
+
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-left">
+          <span class="footer-copy">
+            © 2025–2026
+            <a href="mailto:support@earthmanmuons.com">Aaron Bull Schaefer</a>
+            and contributors · 0BSD License
+          </span>
+        </div>
+        <ul class="footer-links">
+          <li>
+            <a href="https://github.com/EarthmanMuons/whatchord">GitHub</a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md"
+              >Privacy</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/EarthmanMuons/whatchord/blob/main/SUPPORT.md"
+              >Support</a
+            >
+          </li>
+        </ul>
+      </div>
+    </footer>
+
+    <dialog id="android-dialog">
+      <div class="dialog-content">
+        <h3>Join the Android beta</h3>
+        <p>
+          WhatChord for Android is currently in closed testing. Email
+          <a
+            href="mailto:support@earthmanmuons.com?subject=WhatChord%20Android%20Beta"
+            >support@earthmanmuons.com</a
+          >
+          with your Gmail address and we'll add you to the tester pool.
+        </p>
+        <button
+          class="btn btn-primary"
+          onclick="document.getElementById('android-dialog').close()"
+        >
+          Got it
+        </button>
+      </div>
+    </dialog>
+    <script>
+      (function () {
+        function openAndroidDialog(e) {
+          e.preventDefault();
+          document.getElementById("android-dialog").showModal();
+        }
+        document.querySelectorAll("[data-android-beta]").forEach(function (el) {
+          el.addEventListener("click", openAndroidDialog);
+        });
+        if (/android/i.test(navigator.userAgent)) {
+          document.querySelectorAll(".btn-get-app").forEach(function (el) {
+            el.href = "#";
+            el.addEventListener("click", openAndroidDialog);
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

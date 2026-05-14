@@ -22,6 +22,9 @@ class RankingDecision {
 /// When scores are within [nearTieWindow], applies heuristics to choose the
 /// most musically appropriate interpretation (e.g., preferring root position,
 /// diatonic chords, natural extensions, etc.).
+///
+/// NOTE: docs/site/articles/under-the-hood.html documents the ranking rules in
+/// detail. Update the article when rules, their order, or nearTieWindow changes.
 abstract final class ChordCandidateRanking {
   /// Score difference threshold for engaging tie-breaker rules.
   /// A value of 0.20 allows rules to resolve ambiguous interpretations
