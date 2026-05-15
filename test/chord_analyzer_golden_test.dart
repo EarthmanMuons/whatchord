@@ -268,6 +268,17 @@ void main() {
       },
     ),
 
+    // Hendrix chord: dominant shell plus #9 should not be treated as a minor-third penalty.
+    golden(
+      name: 'G B D F A# -> G7#9',
+      pcs: ['G', 'B', 'D', 'F', 'A#'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('G'));
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(top.extensions, contains(ChordExtension.sharp9));
+      },
+    ),
+
     // Dominant b9 + #11.
     golden(
       name: 'C E G Bb Db F# -> C7(b9,#11)',

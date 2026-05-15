@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed Hendrix chord analysis so dominant seventh sharp-ninth voicings like
+  G-B-D-F-A# are identified as 7#9 chords.
+
 ## [2026.5.13] - 2026-05-13
 
 ### Added
