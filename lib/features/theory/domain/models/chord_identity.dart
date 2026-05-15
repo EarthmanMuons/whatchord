@@ -133,8 +133,13 @@ enum ChordQualityToken {
   major6,
   minor6,
   dominant7,
+  dominant7sus2,
   dominant7sus4,
+  dominant7Sharp5,
   major7,
+  major7sus2,
+  major7sus4,
+  major7Sharp5,
   minor7,
   minorMajor7,
   halfDiminished7,
@@ -147,8 +152,13 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
   ChordQualityFamily get family {
     switch (this) {
       case ChordQualityToken.dominant7:
+      case ChordQualityToken.dominant7sus2:
       case ChordQualityToken.dominant7sus4:
+      case ChordQualityToken.dominant7Sharp5:
       case ChordQualityToken.major7:
+      case ChordQualityToken.major7sus2:
+      case ChordQualityToken.major7sus4:
+      case ChordQualityToken.major7Sharp5:
       case ChordQualityToken.minor7:
       case ChordQualityToken.minorMajor7:
       case ChordQualityToken.halfDiminished7:
@@ -176,7 +186,10 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
     switch (this) {
       case ChordQualityToken.sus2:
       case ChordQualityToken.sus4:
+      case ChordQualityToken.dominant7sus2:
       case ChordQualityToken.dominant7sus4:
+      case ChordQualityToken.major7sus2:
+      case ChordQualityToken.major7sus4:
         return true;
       default:
         return false;

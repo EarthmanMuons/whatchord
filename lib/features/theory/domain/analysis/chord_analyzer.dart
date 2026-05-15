@@ -407,7 +407,11 @@ abstract final class ChordAnalyzer {
     required ChordTemplate template,
     required int relMask,
   }) {
-    if (template.quality != ChordQualityToken.dominant7) return 0;
+    final quality = template.quality;
+    final isSharpNineDominantQuality =
+        quality == ChordQualityToken.dominant7 ||
+        quality == ChordQualityToken.dominant7Sharp5;
+    if (!isSharpNineDominantQuality) return 0;
 
     const majorThirdBit = 1 << 4;
     const flatSevenBit = 1 << 10;

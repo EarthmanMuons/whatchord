@@ -53,11 +53,26 @@ abstract final class InversionFormatter {
       case ChordQualityToken.dominant7:
         return const {0, 4, 7, 10}; // 1, 3, 5, b7
 
+      case ChordQualityToken.dominant7sus2:
+        return const {0, 2, 7, 10}; // 1, 2, 5, b7
+
       case ChordQualityToken.dominant7sus4:
         return const {0, 5, 7, 10}; // 1, 4, 5, b7
 
+      case ChordQualityToken.dominant7Sharp5:
+        return const {0, 4, 8, 10}; // 1, 3, #5, b7
+
       case ChordQualityToken.major7:
         return const {0, 4, 7, 11}; // 1, 3, 5, 7
+
+      case ChordQualityToken.major7sus2:
+        return const {0, 2, 7, 11}; // 1, 2, 5, 7
+
+      case ChordQualityToken.major7sus4:
+        return const {0, 5, 7, 11}; // 1, 4, 5, 7
+
+      case ChordQualityToken.major7Sharp5:
+        return const {0, 4, 8, 11}; // 1, 3, #5, 7
 
       case ChordQualityToken.minor7:
         return const {0, 3, 7, 10}; // 1, b3, 5, b7

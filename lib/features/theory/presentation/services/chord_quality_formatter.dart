@@ -102,8 +102,13 @@ class ChordQualityFormatter {
     // Seventh-family qualities are the ones that headline 9/11/13.
     switch (quality) {
       case ChordQualityToken.dominant7:
+      case ChordQualityToken.dominant7sus2:
       case ChordQualityToken.dominant7sus4:
+      case ChordQualityToken.dominant7Sharp5:
       case ChordQualityToken.major7:
+      case ChordQualityToken.major7sus2:
+      case ChordQualityToken.major7sus4:
+      case ChordQualityToken.major7Sharp5:
       case ChordQualityToken.minor7:
       case ChordQualityToken.minorMajor7:
       case ChordQualityToken.halfDiminished7:
@@ -140,6 +145,18 @@ class ChordQualityFormatter {
     if (base.startsWith('7sus')) {
       // Replace the leading '7' with the extension headline.
       return '$ext${base.substring(1)}';
+    }
+
+    if (base.startsWith('maj7sus')) {
+      return 'maj$ext${base.substring(4)}';
+    }
+
+    if (base.contains('7#5')) {
+      return base.replaceFirst('7#5', '$ext#5');
+    }
+
+    if (base.contains('7♯5')) {
+      return base.replaceFirst('7♯5', '$ext♯5');
     }
 
     // Handle minor-major seventh textual form: m(maj7) -> m(maj9), etc.

@@ -355,7 +355,10 @@ abstract final class ScaleDegreeClassifier {
             ChordQualityToken.diminished,
             ChordQualityToken.halfDiminished7,
           },
-          ScaleDegree.three => const {ChordQualityToken.augmented},
+          ScaleDegree.three => const {
+            ChordQualityToken.augmented,
+            ChordQualityToken.major7Sharp5,
+          },
           ScaleDegree.four => const {
             ChordQualityToken.minor,
             ChordQualityToken.minor7,
@@ -363,6 +366,7 @@ abstract final class ScaleDegreeClassifier {
           ScaleDegree.five => const {
             ChordQualityToken.major,
             ChordQualityToken.dominant7,
+            ChordQualityToken.dominant7Sharp5,
           },
           ScaleDegree.six => const {
             ChordQualityToken.major,
@@ -431,7 +435,12 @@ abstract final class ScaleDegreeClassifier {
 
     return switch (quality) {
       ChordQualityToken.dominant7 => '${base}7',
+      ChordQualityToken.dominant7sus2 => '${base}7sus2',
+      ChordQualityToken.dominant7Sharp5 => '${base}7#5',
       ChordQualityToken.major7 => '${base}maj7',
+      ChordQualityToken.major7sus2 => '${base}maj7sus2',
+      ChordQualityToken.major7sus4 => '${base}maj7sus4',
+      ChordQualityToken.major7Sharp5 => '${base}maj7#5',
       ChordQualityToken.minor7 => '${base}7',
       ChordQualityToken.minorMajor7 => '$base(maj7)',
       ChordQualityToken.halfDiminished7 => '${base}7',

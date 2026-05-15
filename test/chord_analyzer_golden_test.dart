@@ -325,6 +325,70 @@ void main() {
       },
     ),
 
+    // Dominant 7 suspended 2.
+    golden(
+      name: 'C D G Bb -> C7sus2',
+      pcs: ['C', 'D', 'G', 'Bb'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7sus2);
+      },
+    ),
+
+    // Major 7 suspended 2.
+    golden(
+      name: 'C D G B -> Cmaj7sus2',
+      pcs: ['C', 'D', 'G', 'B'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.major7sus2);
+      },
+    ),
+
+    // Major 7 suspended 4.
+    golden(
+      name: 'C F G B -> Cmaj7sus4',
+      pcs: ['C', 'F', 'G', 'B'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.major7sus4);
+      },
+    ),
+
+    // Dominant 7 sharp 5 should treat the augmented fifth as a core tone.
+    golden(
+      name: 'C E G# Bb -> C7#5',
+      pcs: ['C', 'E', 'G#', 'Bb'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7Sharp5);
+        expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
+      },
+    ),
+
+    // Major 7 sharp 5 should treat the augmented fifth as a core tone.
+    golden(
+      name: 'C E G# B -> Cmaj7#5',
+      pcs: ['C', 'E', 'G#', 'B'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.major7Sharp5);
+        expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
+      },
+    ),
+
+    // Altered augmented dominants keep both the #5 core tone and #9 color.
+    golden(
+      name: 'C E G# Bb D# -> C7#5#9',
+      pcs: ['C', 'E', 'G#', 'Bb', 'D#'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7Sharp5);
+        expect(top.extensions, contains(ChordExtension.sharp9));
+        expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
+      },
+    ),
+
     // -------------------------------------------------------------------------
     // Suspended chords
     // -------------------------------------------------------------------------

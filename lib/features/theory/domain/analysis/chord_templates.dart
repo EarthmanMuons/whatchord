@@ -178,6 +178,19 @@ final chordTemplates = <ChordTemplate>[
     penaltyMask: (1 << majorSeventhInterval) | (1 << minorThirdInterval),
   ),
 
+  // 7sus2: R + M2 + (P5) + b7
+  // - Suspended second replaces the third in a dominant seventh context
+  // - P5 optional (common voicings omit it: R-2-b7)
+  // - Penalty: any third (would resolve suspension), P4 (sus4), M7
+  ChordTemplate.fromIntervals(
+    ChordQualityToken.dominant7sus2.intervals,
+    penaltyMask:
+        (1 << minorThirdInterval) |
+        (1 << majorThirdInterval) |
+        (1 << perfectFourthInterval) |
+        (1 << majorSeventhInterval),
+  ),
+
   // 7sus4: R + P4 + (P5) + b7
   // - Dominant seventh with suspended 4th
   // - P5 optional (common voicings omit it: R-4-b7)
@@ -190,6 +203,17 @@ final chordTemplates = <ChordTemplate>[
         (1 << majorSeventhInterval),
   ),
 
+  // Dominant 7 sharp 5: R + M3 + #5 + b7
+  // - Augmented fifth is a defining chord tone, not a b13 color
+  // - Penalty: P5 (would suggest plain dominant7), M7, m3
+  ChordTemplate.fromIntervals(
+    ChordQualityToken.dominant7Sharp5.intervals,
+    penaltyMask:
+        (1 << perfectFifthInterval) |
+        (1 << majorSeventhInterval) |
+        (1 << minorThirdInterval),
+  ),
+
   // Major 7th: R + M3 + (P5) + M7
   // - Major third + major seventh (stable, color chord)
   // - P5 optional
@@ -197,6 +221,43 @@ final chordTemplates = <ChordTemplate>[
   ChordTemplate.fromIntervals(
     ChordQualityToken.major7.intervals,
     penaltyMask: (1 << minorSeventhInterval) | (1 << minorThirdInterval),
+  ),
+
+  // Major 7 suspended 2: R + M2 + (P5) + M7
+  // - Suspended second replaces the third in a major seventh context
+  // - P5 optional
+  // - Penalty: any third (would resolve suspension), P4 (sus4), b7
+  ChordTemplate.fromIntervals(
+    ChordQualityToken.major7sus2.intervals,
+    penaltyMask:
+        (1 << minorThirdInterval) |
+        (1 << majorThirdInterval) |
+        (1 << perfectFourthInterval) |
+        (1 << minorSeventhInterval),
+  ),
+
+  // Major 7 suspended 4: R + P4 + (P5) + M7
+  // - Suspended fourth replaces the third in a major seventh context
+  // - P5 optional
+  // - Penalty: any third (would resolve suspension), M2 (sus2), b7
+  ChordTemplate.fromIntervals(
+    ChordQualityToken.major7sus4.intervals,
+    penaltyMask:
+        (1 << minorThirdInterval) |
+        (1 << majorThirdInterval) |
+        (1 << majorSecondInterval) |
+        (1 << minorSeventhInterval),
+  ),
+
+  // Major 7 sharp 5: R + M3 + #5 + M7
+  // - Augmented major seventh color, common as maj7#5
+  // - Penalty: P5 (would suggest plain major7), b7, m3
+  ChordTemplate.fromIntervals(
+    ChordQualityToken.major7Sharp5.intervals,
+    penaltyMask:
+        (1 << perfectFifthInterval) |
+        (1 << minorSeventhInterval) |
+        (1 << minorThirdInterval),
   ),
 
   // Minor 7th: R + m3 + (P5) + b7
