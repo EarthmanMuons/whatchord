@@ -12,8 +12,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Added analysis support for seventh suspended-second and augmented-seventh
-  chord qualities, including 7sus2, maj7sus2, maj7sus4, 7#5, and maj7#5.
+- Added analysis support for seventh suspended-second, flat-five, and
+  augmented-seventh chord qualities, including 7sus2, maj7sus2, maj7sus4, 7b5,
+  maj7b5, 7#5, and maj7#5.
 
 ### Fixed
 

@@ -121,6 +121,14 @@ const chordQualityIntervalSets = <ChordQualityIntervals>[
     omittableMask: 1 << perfectFifthInterval,
   ),
   ChordQualityIntervals(
+    quality: ChordQualityToken.dominant7Flat5,
+    canonicalMask:
+        chordRootBit |
+        (1 << majorThirdInterval) |
+        (1 << diminishedFifthInterval) |
+        (1 << minorSeventhInterval),
+  ),
+  ChordQualityIntervals(
     quality: ChordQualityToken.dominant7Sharp5,
     canonicalMask:
         chordRootBit |
@@ -154,6 +162,14 @@ const chordQualityIntervalSets = <ChordQualityIntervals>[
         (1 << perfectFifthInterval) |
         (1 << majorSeventhInterval),
     omittableMask: 1 << perfectFifthInterval,
+  ),
+  ChordQualityIntervals(
+    quality: ChordQualityToken.major7Flat5,
+    canonicalMask:
+        chordRootBit |
+        (1 << majorThirdInterval) |
+        (1 << diminishedFifthInterval) |
+        (1 << majorSeventhInterval),
   ),
   ChordQualityIntervals(
     quality: ChordQualityToken.major7Sharp5,

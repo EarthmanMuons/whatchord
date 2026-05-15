@@ -203,6 +203,17 @@ final chordTemplates = <ChordTemplate>[
         (1 << majorSeventhInterval),
   ),
 
+  // Dominant 7 flat 5: R + M3 + b5 + b7
+  // - Diminished fifth is a defining chord tone, not a #11 color
+  // - Penalty: P5 (would suggest plain dominant7), M7, m3
+  ChordTemplate.fromIntervals(
+    ChordQualityToken.dominant7Flat5.intervals,
+    penaltyMask:
+        (1 << perfectFifthInterval) |
+        (1 << majorSeventhInterval) |
+        (1 << minorThirdInterval),
+  ),
+
   // Dominant 7 sharp 5: R + M3 + #5 + b7
   // - Augmented fifth is a defining chord tone, not a b13 color
   // - Penalty: P5 (would suggest plain dominant7), M7, m3
@@ -247,6 +258,17 @@ final chordTemplates = <ChordTemplate>[
         (1 << majorThirdInterval) |
         (1 << majorSecondInterval) |
         (1 << minorSeventhInterval),
+  ),
+
+  // Major 7 flat 5: R + M3 + b5 + M7
+  // - Diminished fifth is a defining chord tone, not a #11 color
+  // - Penalty: P5 (would suggest plain major7), b7, m3
+  ChordTemplate.fromIntervals(
+    ChordQualityToken.major7Flat5.intervals,
+    penaltyMask:
+        (1 << perfectFifthInterval) |
+        (1 << minorSeventhInterval) |
+        (1 << minorThirdInterval),
   ),
 
   // Major 7 sharp 5: R + M3 + #5 + M7
