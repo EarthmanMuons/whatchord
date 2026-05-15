@@ -103,6 +103,15 @@ const chordQualityIntervalSets = <ChordQualityIntervals>[
     omittableMask: 1 << perfectFifthInterval,
   ),
   ChordQualityIntervals(
+    quality: ChordQualityToken.dominant7sus2,
+    canonicalMask:
+        chordRootBit |
+        (1 << majorSecondInterval) |
+        (1 << perfectFifthInterval) |
+        (1 << minorSeventhInterval),
+    omittableMask: 1 << perfectFifthInterval,
+  ),
+  ChordQualityIntervals(
     quality: ChordQualityToken.dominant7sus4,
     canonicalMask:
         chordRootBit |
@@ -112,6 +121,14 @@ const chordQualityIntervalSets = <ChordQualityIntervals>[
     omittableMask: 1 << perfectFifthInterval,
   ),
   ChordQualityIntervals(
+    quality: ChordQualityToken.dominant7Sharp5,
+    canonicalMask:
+        chordRootBit |
+        (1 << majorThirdInterval) |
+        (1 << augmentedFifthInterval) |
+        (1 << minorSeventhInterval),
+  ),
+  ChordQualityIntervals(
     quality: ChordQualityToken.major7,
     canonicalMask:
         chordRootBit |
@@ -119,6 +136,32 @@ const chordQualityIntervalSets = <ChordQualityIntervals>[
         (1 << perfectFifthInterval) |
         (1 << majorSeventhInterval),
     omittableMask: 1 << perfectFifthInterval,
+  ),
+  ChordQualityIntervals(
+    quality: ChordQualityToken.major7sus2,
+    canonicalMask:
+        chordRootBit |
+        (1 << majorSecondInterval) |
+        (1 << perfectFifthInterval) |
+        (1 << majorSeventhInterval),
+    omittableMask: 1 << perfectFifthInterval,
+  ),
+  ChordQualityIntervals(
+    quality: ChordQualityToken.major7sus4,
+    canonicalMask:
+        chordRootBit |
+        (1 << perfectFourthInterval) |
+        (1 << perfectFifthInterval) |
+        (1 << majorSeventhInterval),
+    omittableMask: 1 << perfectFifthInterval,
+  ),
+  ChordQualityIntervals(
+    quality: ChordQualityToken.major7Sharp5,
+    canonicalMask:
+        chordRootBit |
+        (1 << majorThirdInterval) |
+        (1 << augmentedFifthInterval) |
+        (1 << majorSeventhInterval),
   ),
   ChordQualityIntervals(
     quality: ChordQualityToken.minor7,

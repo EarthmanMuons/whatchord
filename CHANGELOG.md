@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added analysis support for seventh suspended-second and augmented-seventh
+  chord qualities, including 7sus2, maj7sus2, maj7sus4, 7#5, and maj7#5.
+
 ### Fixed
 
 - Fixed Hendrix chord analysis so dominant seventh sharp-ninth voicings like
