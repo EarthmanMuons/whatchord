@@ -648,6 +648,19 @@ void main() {
       },
     ),
 
+    // Complete minor-major 7 with #11 should keep the F-rooted sonority rather
+    // than prefer a remote major7#5(add11) slash interpretation.
+    golden(
+      name: 'Ab B C E F -> Fm(maj7)#11 / Ab',
+      pcs: ['Ab', 'B', 'C', 'E', 'F'],
+      expectedSymbol: 'Fm(maj7)#11 / Ab',
+      expectTop: (top) {
+        expect(top.rootPc, pc('F'));
+        expect(top.quality, ChordQualityToken.minorMajor7);
+        expect(top.extensions, contains(ChordExtension.sharp11));
+      },
+    ),
+
     // -------------------------------------------------------------------------
     // (Intentionally excluded / future work)
     // -------------------------------------------------------------------------
