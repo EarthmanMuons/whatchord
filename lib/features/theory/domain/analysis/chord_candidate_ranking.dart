@@ -107,7 +107,7 @@ abstract final class ChordCandidateRanking {
   static final List<_NamedRule> _hardRules = <_NamedRule>[
     _NamedRule('Prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
     _NamedRule(
-      'Prefer conventional altered seventh over non-dominant add11 slash',
+      'Prefer conventional altered seventh over add11 slash',
       _preferConventionalAlteredSeventhOverAdd11Slash,
     ),
     _NamedRule(
@@ -128,7 +128,7 @@ abstract final class ChordCandidateRanking {
     ),
     _NamedRule('Prefer root-position diminished7', _preferDim7InRoot),
     _NamedRule('Prefer dominant7 over dim7 slash', _preferDom7Shell),
-    _NamedRule('Prefer fewer alterations', _preferFewerAlterations),
+    _NamedRule('Prefer fewer altered/tension colors', _preferFewerAlterations),
     _NamedRule('Prefer diatonic chords', _preferDiatonic),
     _NamedRule('Prefer tonic chord', _preferTonicChord),
     _NamedRule('Prefer I chord when bass is tonic', _preferTonicAsI),
