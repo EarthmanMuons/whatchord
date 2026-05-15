@@ -107,6 +107,10 @@ abstract final class ChordCandidateRanking {
   static final List<_NamedRule> _hardRules = <_NamedRule>[
     _NamedRule('Prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
     _NamedRule(
+      'Prefer conventional altered seventh over non-dominant add11 slash',
+      _preferConventionalAlteredSeventhOverAdd11Slash,
+    ),
+    _NamedRule(
       'Prefer close root-position dominant7 over non-dominant slash',
       _preferDom7RootOverNonDomSlash,
     ),
@@ -394,6 +398,40 @@ abstract final class ChordCandidateRanking {
     return rootIsA ? -1 : 1;
   }
 
+  /// Avoids promoting remote, non-dominant slash readings whose "simple" color
+  /// is a natural 11 against a major third.
+  ///
+  /// Example: {Ab, B, C, E, F} is better read as Fm(maj7)#11/Ab than as
+  /// Cmaj7#5(add11)/G#, because the F-rooted reading is a normal inversion of
+  /// a complete altered seventh chord while the C-rooted reading depends on a
+  /// non-dominant add11 clash and a less stable slash bass.
+  static int? _preferConventionalAlteredSeventhOverAdd11Slash(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsQuestionableSlash = fa.isQuestionableAdd11Slash;
+    final bIsQuestionableSlash = fb.isQuestionableAdd11Slash;
+    if (aIsQuestionableSlash == bIsQuestionableSlash) return null;
+
+    final questionable = aIsQuestionableSlash ? a : b;
+    final conventional = aIsQuestionableSlash ? b : a;
+    final fq = aIsQuestionableSlash ? fa : fb;
+    final fc = aIsQuestionableSlash ? fb : fa;
+
+    if (!fc.isSeventhFamily) return null;
+    if (fc.extensionTensionCount == 0) return null;
+    if (fc.bassRoleRank >= fq.bassRoleRank) return null;
+
+    // Keep this rule bounded to close structural ambiguities. Wider gaps should
+    // still be decided by the raw template fit.
+    if (conventional.score + 0.55 < questionable.score) return null;
+
+    return aIsQuestionableSlash ? 1 : -1;
+  }
+
   static int? _preferFewerAlterations(
     ChordCandidate a,
     ChordCandidate b,
@@ -401,9 +439,7 @@ abstract final class ChordCandidateRanking {
     _CandidateFeatures fb,
     Tonality _,
   ) {
-    final cmp = fa.extPref.alterationCount.compareTo(
-      fb.extPref.alterationCount,
-    );
+    final cmp = fa.extensionTensionCount.compareTo(fb.extensionTensionCount);
     if (cmp == 0) return null;
     return cmp;
   }
@@ -602,6 +638,8 @@ class _CandidateFeatures {
   final bool bassIsColorTone;
 
   final int extensionCount;
+  final int extensionTensionCount;
+  final bool isQuestionableAdd11Slash;
   final ExtensionPreference extPref;
   final bool hasRealExt;
 
@@ -623,6 +661,8 @@ class _CandidateFeatures {
     required this.bassRoleRank,
     required this.bassIsColorTone,
     required this.extensionCount,
+    required this.extensionTensionCount,
+    required this.isQuestionableAdd11Slash,
     required this.extPref,
     required this.hasRealExt,
   });
@@ -669,9 +709,44 @@ class _CandidateFeatures {
       bassRoleRank: _bassRoleRank(id),
       bassIsColorTone: bassIsColorTone,
       extensionCount: id.extensions.length,
+      extensionTensionCount: _extensionTensionCount(id, pref),
+      isQuestionableAdd11Slash: _isQuestionableAdd11Slash(id, rootPos),
       extPref: pref,
       hasRealExt: realExt,
     );
+  }
+
+  static bool _isQuestionableAdd11Slash(ChordIdentity id, bool rootPos) {
+    if (rootPos) return false;
+    if (id.quality == ChordQualityToken.dominant7 ||
+        id.quality == ChordQualityToken.dominant7Flat5 ||
+        id.quality == ChordQualityToken.dominant7Sharp5) {
+      return false;
+    }
+    return _hasMajorThirdNaturalEleventh(id);
+  }
+
+  static int _extensionTensionCount(
+    ChordIdentity id,
+    ExtensionPreference pref,
+  ) {
+    var count = pref.alterationCount;
+
+    // A natural 11 against a major third is at least as harmonically loaded as
+    // an altered color. Do not let the "fewer alterations" tie-breaker prefer
+    // this spelling over an otherwise stronger #11/rooted interpretation.
+    if (_hasMajorThirdNaturalEleventh(id)) count++;
+
+    return count;
+  }
+
+  static bool _hasMajorThirdNaturalEleventh(ChordIdentity id) {
+    final roles = id.toneRolesByInterval.values;
+    final hasMajorThird = roles.contains(ChordToneRole.major3);
+    final hasNaturalEleventh =
+        id.extensions.contains(ChordExtension.add11) ||
+        id.extensions.contains(ChordExtension.eleven);
+    return hasMajorThird && hasNaturalEleventh;
   }
 
   /// Returns true if the voicing contains the dominant7 "shell" (major 3rd + flat 7th).
