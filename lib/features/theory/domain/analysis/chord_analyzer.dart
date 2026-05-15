@@ -273,6 +273,13 @@ abstract final class ChordAnalyzer {
     final has7 = template.quality.isSeventhFamily;
     final extensions = _extensionsFromExtras(extrasMask, has7: has7);
 
+    if (_flatFiveConflictsWithNaturalThirteenth(
+      quality: template.quality,
+      extensions: extensions,
+    )) {
+      return null;
+    }
+
     // Raw scoring components (single source of truth).
     var raw = 0.0;
 
@@ -410,6 +417,7 @@ abstract final class ChordAnalyzer {
     final quality = template.quality;
     final isSharpNineDominantQuality =
         quality == ChordQualityToken.dominant7 ||
+        quality == ChordQualityToken.dominant7Flat5 ||
         quality == ChordQualityToken.dominant7Sharp5;
     if (!isSharpNineDominantQuality) return 0;
 
@@ -444,6 +452,21 @@ abstract final class ChordAnalyzer {
     final hasFifth = (relMask & fifthBit) != 0;
 
     return !hasFifth;
+  }
+
+  static bool _flatFiveConflictsWithNaturalThirteenth({
+    required ChordQualityToken quality,
+    required Set<ChordExtension> extensions,
+  }) {
+    final isFlatFiveQuality =
+        quality == ChordQualityToken.dominant7Flat5 ||
+        quality == ChordQualityToken.major7Flat5;
+    if (!isFlatFiveQuality) return false;
+
+    // With a natural thirteenth present, the tritone usually functions as #11
+    // color rather than a literal b5 core tone: C-E-Bb-D-F#-A -> C13#11.
+    return extensions.contains(ChordExtension.thirteen) ||
+        extensions.contains(ChordExtension.add13);
   }
 
   static double _dominantStackCoherenceBonus({

@@ -366,6 +366,17 @@ void main() {
       },
     ),
 
+    // Dominant 7 flat 5 should treat the diminished fifth as a core tone.
+    golden(
+      name: 'C E Gb Bb -> C7b5',
+      pcs: ['C', 'E', 'Gb', 'Bb'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7Flat5);
+        expect(top.toneRolesByInterval[6], ChordToneRole.flat5);
+      },
+    ),
+
     // Major 7 sharp 5 should treat the augmented fifth as a core tone.
     golden(
       name: 'C E G# B -> Cmaj7#5',
@@ -374,6 +385,17 @@ void main() {
         expect(top.rootPc, pc('C'));
         expect(top.quality, ChordQualityToken.major7Sharp5);
         expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
+      },
+    ),
+
+    // Major 7 flat 5 should treat the diminished fifth as a core tone.
+    golden(
+      name: 'C E Gb B -> Cmaj7b5',
+      pcs: ['C', 'E', 'Gb', 'B'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.major7Flat5);
+        expect(top.toneRolesByInterval[6], ChordToneRole.flat5);
       },
     ),
 
@@ -386,6 +408,18 @@ void main() {
         expect(top.quality, ChordQualityToken.dominant7Sharp5);
         expect(top.extensions, contains(ChordExtension.sharp9));
         expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
+      },
+    ),
+
+    // Altered flat-five dominants keep both the b5 core tone and #9 color.
+    golden(
+      name: 'C E Gb Bb D# -> C7b5#9',
+      pcs: ['C', 'E', 'Gb', 'Bb', 'D#'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7Flat5);
+        expect(top.extensions, contains(ChordExtension.sharp9));
+        expect(top.toneRolesByInterval[6], ChordToneRole.flat5);
       },
     ),
 
@@ -588,28 +622,14 @@ void main() {
       },
     ),
 
-    // Dominant altered context: interpret F# as #11 (not Gb as b5) when structure supports 7#11.
+    // Complete flat-five dominant sevenths should use the core b5 quality.
     golden(
-      name: 'F# C E Bb -> C7#11 / F#',
+      name: 'F# C E Bb -> Gb7b5',
       pcs: ['F#', 'C', 'E', 'Bb'],
       tonality: const Tonality('Db', TonalityMode.major), // flat-leaning
       expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(top.extensions, contains(ChordExtension.sharp11));
-        expect(top.bassPc, pc('F#'));
-      },
-    ),
-
-    // Same pitch classes, different key: should not flip when chord-structure evidence is strong.
-    golden(
-      name: 'Gb C E Bb --key=Gb:maj -> C7#11 / F#',
-      pcs: ['Gb', 'C', 'E', 'Bb'],
-      tonality: const Tonality('Gb', TonalityMode.major),
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(top.extensions, contains(ChordExtension.sharp11));
+        expect(top.rootPc, pc('F#'));
+        expect(top.quality, ChordQualityToken.dominant7Flat5);
         expect(top.bassPc, pc('F#'));
       },
     ),

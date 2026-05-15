@@ -74,7 +74,7 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       tonality: Tonality('E', TonalityMode.minor),
     ),
 
-    // 4) SCREENSHOT: landscape, light mode, Key: C major, C7#11 / F#
+    // 4) SCREENSHOT: landscape, light mode, Key: C major, F#7b5
     const DemoStep(
       notes: {54, 58, 60, 64},
       pedalDown: true,
@@ -82,7 +82,7 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       tonality: Tonality('C', TonalityMode.major),
     ),
 
-    // 5) SCREENSHOT: portrait, light mode, Key: C major, C7#11 / F# (details screen)
+    // 5) SCREENSHOT: portrait, light mode, Key: C major, F#7b5 (details screen)
 
     // Fully diminished symmetrical (Eb Gb Bbb Dbb -> Ebdim7)
     const DemoStep(notes: {51, 54, 57, 60}),

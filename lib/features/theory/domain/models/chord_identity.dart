@@ -135,10 +135,12 @@ enum ChordQualityToken {
   dominant7,
   dominant7sus2,
   dominant7sus4,
+  dominant7Flat5,
   dominant7Sharp5,
   major7,
   major7sus2,
   major7sus4,
+  major7Flat5,
   major7Sharp5,
   minor7,
   minorMajor7,
@@ -154,10 +156,12 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
       case ChordQualityToken.dominant7:
       case ChordQualityToken.dominant7sus2:
       case ChordQualityToken.dominant7sus4:
+      case ChordQualityToken.dominant7Flat5:
       case ChordQualityToken.dominant7Sharp5:
       case ChordQualityToken.major7:
       case ChordQualityToken.major7sus2:
       case ChordQualityToken.major7sus4:
+      case ChordQualityToken.major7Flat5:
       case ChordQualityToken.major7Sharp5:
       case ChordQualityToken.minor7:
       case ChordQualityToken.minorMajor7:

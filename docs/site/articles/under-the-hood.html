@@ -284,7 +284,7 @@
             </li>
           </ul>
 
-          <p>The 20 templates, organized by complexity:</p>
+          <p>The 22 templates, organized by complexity:</p>
 
           <table class="score-table">
             <thead>
@@ -363,6 +363,12 @@
                 <td class="mono">m3, M3, M7</td>
               </tr>
               <tr>
+                <td>7♭5</td>
+                <td class="mono">R, M3, ♭5, m7</td>
+                <td>—</td>
+                <td class="mono">P5, M7, m3</td>
+              </tr>
+              <tr>
                 <td>7♯5</td>
                 <td class="mono">R, M3, ♯5, m7</td>
                 <td>—</td>
@@ -385,6 +391,12 @@
                 <td class="mono">R, P4, M7</td>
                 <td class="mono">P5</td>
                 <td class="mono">m3, M3, M2, m7</td>
+              </tr>
+              <tr>
+                <td>Major 7♭5</td>
+                <td class="mono">R, M3, ♭5, M7</td>
+                <td>—</td>
+                <td class="mono">P5, m7, m3</td>
               </tr>
               <tr>
                 <td>Major 7♯5</td>
@@ -440,7 +452,7 @@
           <p>
             For each candidate root (each pitch class present in the voicing),
             WhatChord rotates the pitch class mask relative to that root to get
-            an interval mask. Then it scores that interval mask against all 20
+            an interval mask. Then it scores that interval mask against all 22
             templates.
           </p>
 
@@ -589,14 +601,13 @@
 
           <p>
             There is one dominant-context exception: when a dominant 7th shell
-            has both the major third and flat seventh, interval 3 is treated as a
-            sharp ninth rather than as the template’s minor-third penalty. That
-            lets voicings such as G-B-D-F-A♯ score and spell as
+            has both the major third and flat seventh, interval 3 is treated as
+            a sharp ninth rather than as the template’s minor-third penalty.
+            That lets voicings such as G-B-D-F-A♯ score and spell as
             <span class="chord">G7♯9</span> instead of plain
             <span class="chord">G7</span> with an unexplained contradictory
             tone. The same exception applies to augmented dominant sevenths, so
-            C-E-G♯-B♭-D♯ can be identified as
-            <span class="chord">C7♯5♯9</span>.
+            C-E-G♯-B♭-D♯ can be identified as <span class="chord">C7♯5♯9</span>.
           </p>
 
           <h2>How the weights were tuned</h2>
@@ -641,36 +652,36 @@
 
 pcs: Bb, C, E, F# |  bass: F#  |  key: C major
 
- 1) C7#11 / F#     6.73
-     members: root=C  major3=E  sharp11=F#  flat7=Bb
-     req+12  bass+0.75  alt-0.60 extra-0.50  raw=11.65 / sqrt(3) =&gt; 6.73
+ 1) F#7b5          8.50
+     members: root=F#  major3=A#  flat5=C  flat7=E
+     req+16  bass+1  raw=17.00 / sqrt(4) =&gt; 8.50
 
- 2) F#7#11         6.87  Δ +0.14 ~tie
-     (vs prev: Prefer upper-structure dominant7 slash)
-     members: root=F#  major3=A#  sharp11=B#  flat7=E
-     req+12  bass+1  alt-0.60  extra-0.50  raw=11.90 / sqrt(3) =&gt; 6.87
+ 2) C7b5 / Gb      8.50  Δ +0.00 ~tie
+     (vs prev: Prefer root position)
+     members: root=C  major3=E  flat5=Gb  flat7=Bb
+     req+16  bass+1  raw=17.00 / sqrt(4) =&gt; 8.50
 
- 3) F##11          3.47  Δ -3.26
+ 3) C7#11 / F#     6.73  Δ -1.77
      (vs prev: Score outside near-tie window)</code></pre>
 
           <p>
             One detail worth noting: MIDI gives the app pitch classes, not note
             names. Pitch class 10 can be written as A♯ or B♭. In this result,
-            the algorithm has already identified C as the chord root and pitch
-            class 10 as the 7th above that root. A C dominant 7th is spelled
-            with B♭, so WhatChord prints B♭ even if the same piano key could be
-            named A♯ in another context.
+            the algorithm has identified F♯ as the chord root and pitch class 10
+            as the major third above that root. An F♯ dominant seventh is
+            spelled with A♯, so WhatChord prints A♯ even if the same piano key
+            could be named B♭ in another context.
           </p>
 
           <p>
-            The output above reveals why
-            <span class="chord">C7♯11/F♯</span> ranks first despite having a
-            lower raw score than <span class="chord">F♯7♯11</span>: the scores
-            are within the near-tie window (<code>0.14</code> &lt;
-            <code>0.20</code>), so tie-breaker rules engage. The upper-structure
-            dominant slash rule fires and prefers the slash interpretation when
-            the bass note is a color tone (F♯ is the ♯11 of C) with no other
-            alterations.
+            The output above also shows why explicit flat-five seventh templates
+            matter. Without them, the same pitch classes are forced into a
+            looser <span class="chord">C7♯11/F♯</span> reading. With the flat
+            fifth modeled as a core chord tone,
+            <span class="chord">F♯7♭5</span> and
+            <span class="chord">C7♭5/G♭</span> can be scored directly, and the
+            ranking layer resolves their equal score by preferring root
+            position.
           </p>
 
           <p>
@@ -748,6 +759,15 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
               When a dominant 7th with shell tones and at least one extension or
               alteration would lose to a remote, non-dominant slash chord, the
               dominant wins (provided the score difference is not too large).
+            </li>
+            <li>
+              <strong
+                >Prefer root-position altered-fifth dominant over slash.</strong
+              >
+              Flat-five and sharp-five dominant sevenths are tritone-symmetric.
+              When a root-position altered-fifth dominant with a real alteration
+              competes against a close slash reading that only has added or
+              natural color tones, prefer the root-position name.
             </li>
           </ol>
 
@@ -832,8 +852,8 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
           <h2>Caching for real-time performance</h2>
 
           <p>
-            Running the full pipeline (up to 12 candidate roots × 20 templates =
-            240 template evaluations) on every MIDI state change would be
+            Running the full pipeline (up to 12 candidate roots × 22 templates =
+            264 template evaluations) on every MIDI state change would be
             wasteful. In practice, a pianist tends to produce many repeated
             input states throughout a musical piece.
           </p>

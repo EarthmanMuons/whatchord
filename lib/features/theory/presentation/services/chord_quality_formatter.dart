@@ -104,10 +104,12 @@ class ChordQualityFormatter {
       case ChordQualityToken.dominant7:
       case ChordQualityToken.dominant7sus2:
       case ChordQualityToken.dominant7sus4:
+      case ChordQualityToken.dominant7Flat5:
       case ChordQualityToken.dominant7Sharp5:
       case ChordQualityToken.major7:
       case ChordQualityToken.major7sus2:
       case ChordQualityToken.major7sus4:
+      case ChordQualityToken.major7Flat5:
       case ChordQualityToken.major7Sharp5:
       case ChordQualityToken.minor7:
       case ChordQualityToken.minorMajor7:
@@ -157,6 +159,14 @@ class ChordQualityFormatter {
 
     if (base.contains('7♯5')) {
       return base.replaceFirst('7♯5', '$ext♯5');
+    }
+
+    if (base.contains('7b5')) {
+      return base.replaceFirst('7b5', '${ext}b5');
+    }
+
+    if (base.contains('7♭5')) {
+      return base.replaceFirst('7♭5', '$ext♭5');
     }
 
     // Handle minor-major seventh textual form: m(maj7) -> m(maj9), etc.

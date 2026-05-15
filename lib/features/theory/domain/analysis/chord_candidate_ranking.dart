@@ -110,6 +110,10 @@ abstract final class ChordCandidateRanking {
       'Prefer close root-position dominant7 over non-dominant slash',
       _preferDom7RootOverNonDomSlash,
     ),
+    _NamedRule(
+      'Prefer root-position altered-fifth dominant over slash',
+      _preferRootAlteredFifthDom7,
+    ),
   ];
 
   static final List<_NamedRule> _tieBreakerRules = <_NamedRule>[
@@ -363,6 +367,33 @@ abstract final class ChordCandidateRanking {
     return aIsPreferred ? -1 : 1;
   }
 
+  static int? _preferRootAlteredFifthDom7(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    if (!fa.isAlteredFifthDom7 || !fb.isAlteredFifthDom7) return null;
+    if (fa.isRootPosition == fb.isRootPosition) return null;
+
+    final rootIsA = fa.isRootPosition;
+    final fRoot = rootIsA ? fa : fb;
+    final fSlash = rootIsA ? fb : fa;
+    final rootCandidate = rootIsA ? a : b;
+    final slashCandidate = rootIsA ? b : a;
+
+    if (!fRoot.dom7HasShell || !fSlash.dom7HasShell) return null;
+
+    final rootHasAlteration = fRoot.extPref.alterationCount > 0;
+    final slashHasOnlyAddOrNaturalColor = fSlash.extPref.alterationCount == 0;
+    if (!rootHasAlteration || !slashHasOnlyAddOrNaturalColor) return null;
+
+    if (rootCandidate.score + 0.50 < slashCandidate.score) return null;
+
+    return rootIsA ? -1 : 1;
+  }
+
   static int? _preferFewerAlterations(
     ChordCandidate a,
     ChordCandidate b,
@@ -559,6 +590,8 @@ class _CandidateFeatures {
   final bool isSus;
 
   final bool isDom7;
+  final bool isAlteredFifthDom7;
+  final bool isFlatFiveDom7;
   final bool isDom7RootPosition;
   final bool isDom7Slash;
   final bool dom7HasShell;
@@ -580,6 +613,8 @@ class _CandidateFeatures {
     required this.isDimFamily,
     required this.isSus,
     required this.isDom7,
+    required this.isAlteredFifthDom7,
+    required this.isFlatFiveDom7,
     required this.isDom7RootPosition,
     required this.isDom7Slash,
     required this.dom7HasShell,
@@ -606,10 +641,13 @@ class _CandidateFeatures {
     final bassIsColorTone = isSlashBass ? _bassIsColorTone(id) : false;
 
     final isDom7 = q == ChordQualityToken.dominant7;
+    final isFlatFiveDom7 = q == ChordQualityToken.dominant7Flat5;
+    final isAlteredFifthDom7 =
+        isFlatFiveDom7 || q == ChordQualityToken.dominant7Sharp5;
     final isDom7RootPosition = isDom7 && rootPos;
     final isDom7Slash = isDom7 && isSlashBass;
 
-    final dom7HasShell = isDom7 && _dom7HasShell(id);
+    final dom7HasShell = (isDom7 || isAlteredFifthDom7) && _dom7HasShell(id);
     final dom7SlashHasNonBassAlterations =
         isDom7Slash && _dom7SlashHasNonBassAlterations(id);
 
@@ -621,6 +659,8 @@ class _CandidateFeatures {
       isDimFamily: isDimFamily,
       isSus: q.isSus,
       isDom7: isDom7,
+      isAlteredFifthDom7: isAlteredFifthDom7,
+      isFlatFiveDom7: isFlatFiveDom7,
       isDom7RootPosition: isDom7RootPosition,
       isDom7Slash: isDom7Slash,
       dom7HasShell: dom7HasShell,
