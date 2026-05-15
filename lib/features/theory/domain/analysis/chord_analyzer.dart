@@ -245,7 +245,12 @@ abstract final class ChordAnalyzer {
     final missingRequiredMask = required & ~relMask;
     final presentRequiredMask = required & relMask;
     final presentOptionalMask = optional & relMask;
-    final presentPenaltyMask = penalty & relMask;
+    final functionalPenaltyExtensionsMask = _functionalPenaltyExtensionsMask(
+      template: template,
+      relMask: relMask,
+    );
+    final presentPenaltyMask =
+        (penalty & relMask) & ~functionalPenaltyExtensionsMask;
 
     final missingCount = _popCount(missingRequiredMask);
 
@@ -260,7 +265,8 @@ abstract final class ChordAnalyzer {
 
     // Extras: tones that are neither base (required/optional) nor penalty.
     final base = required | optional;
-    final extrasMask = relMask & ~(base | penalty);
+    final extrasMask =
+        (relMask & ~(base | penalty)) | functionalPenaltyExtensionsMask;
     final extrasCount = _popCount(extrasMask);
 
     // Extract extensions first so bass scoring can recognize extension-bass as legitimate.
@@ -395,6 +401,26 @@ abstract final class ChordAnalyzer {
         extensions.contains(ChordExtension.sharp9) ||
         extensions.contains(ChordExtension.sharp11) ||
         extensions.contains(ChordExtension.flat13);
+  }
+
+  static int _functionalPenaltyExtensionsMask({
+    required ChordTemplate template,
+    required int relMask,
+  }) {
+    if (template.quality != ChordQualityToken.dominant7) return 0;
+
+    const majorThirdBit = 1 << 4;
+    const flatSevenBit = 1 << 10;
+    const sharpNineBit = 1 << 3;
+
+    final hasDominantShell =
+        (relMask & majorThirdBit) != 0 && (relMask & flatSevenBit) != 0;
+    if (!hasDominantShell) return 0;
+
+    // In dominant context, interval 3 can be the altered ninth rather than a
+    // contradictory minor third: G-B-D-F-A# is G7#9, not plain G7 with a penalty.
+    if ((relMask & sharpNineBit) == 0) return 0;
+    return sharpNineBit;
   }
 
   static bool _has6ChordWithout5({
