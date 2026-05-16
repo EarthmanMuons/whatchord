@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Made highlighted black-key separators match the darker highlighted-key
   treatment used on white keys.
+- Added Help & Support guidance for opening Explore from the chord card.
 
 ### Fixed
 
