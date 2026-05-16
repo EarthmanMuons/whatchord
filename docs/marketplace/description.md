@@ -14,7 +14,7 @@ FEATURES
   Chord names update immediately as you play.
 
 - Explore chords  
-  Build and hear chords without a keyboard by adjusting the root, quality, extensions, and bass note.
+  Tap the chord card to open explore mode and build or hear chords without a keyboard by adjusting the root, quality, extensions, and bass note.
 
 - Musically informed analysis  
   Recognizes inversions, extensions, slash chords, upper structures, altered tones, and complex harmony.
