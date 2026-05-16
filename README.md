@@ -28,6 +28,8 @@ an explore mode for building chords without a connected keyboard. It is
 optimized for speed, accuracy, and musician-expected naming, favoring stable,
 conventional interpretations over simple note-matching.
 
+**Website:** <https://whatchord.earthmanmuons.com>
+
 ---
 
 ## Features
