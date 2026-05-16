@@ -76,19 +76,24 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
     // 4) SCREENSHOT: landscape, dark mode, Key: C major -> Bm7(b5)
     const DemoStep(
       notes: {59, 62, 65, 69},
+      pedalDown: true,
       themeMode: ThemeMode.dark,
       tonality: Tonality('C', TonalityMode.major),
     ),
 
-    // 5) SCREENSHOT: landscape, light mode, Key: C major -> C13#11
+    // 5) SCREENSHOT: landscape, light mode, Key: C major -> G7b9
     const DemoStep(
-      notes: {60, 64, 70, 74, 78, 81},
-      pedalDown: true,
+      notes: {55, 59, 62, 65, 68},
       themeMode: ThemeMode.light,
       tonality: Tonality('C', TonalityMode.major),
     ),
 
     // 6) SCREENSHOT: portrait, light mode, Key: C major -> C13#11, analysis details
+    const DemoStep(
+      notes: {60, 64, 70, 74, 78, 81},
+      themeMode: ThemeMode.light,
+      tonality: Tonality('C', TonalityMode.major),
+    ),
   ];
 
   static final List<DemoStep> interactiveSteps = <DemoStep>[
