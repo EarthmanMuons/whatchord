@@ -16,10 +16,7 @@
       property="og:description"
       content="Connect a MIDI keyboard and see chord names instantly. Musically informed analysis, free, no ads, all on-device."
     />
-    <meta
-      property="og:image"
-      content="images/theme_modes.webp"
-    />
+    <meta property="og:image" content="images/theme_modes.webp" />
     <meta property="og:type" content="website" />
     <link rel="icon" type="image/webp" href="images/whatchord_logo.webp" />
     <link rel="stylesheet" href="css/style.css" />
@@ -83,7 +80,7 @@
           <div class="hero-screenshot">
             <img
               src="images/theme_modes.webp"
-              alt="WhatChord identifying a C7♯11/F♯ chord, shown in light and dark themes side by side"
+              alt="WhatChord identifying a C13♯11 chord, shown in light and dark themes side by side"
             />
           </div>
         </div>
@@ -106,7 +103,7 @@
               </div>
               <div class="feature-img-wrap">
                 <img
-                  src="images/dm7.webp"
+                  src="images/real_time.webp"
                   alt="WhatChord identifying Dm7 in real time, showing the chord name and piano keyboard"
                 />
               </div>
@@ -166,30 +163,29 @@
             Musically informed, not just note-matched.
           </h2>
           <p class="section-sub">
-            The same four notes can point to more than one chord name. Context
+            The same notes can point to more than one chord name. Context
             is what makes the useful answer possible.
           </p>
           <div class="compare-grid">
             <div class="compare-card">
               <div class="compare-label">Without musical context</div>
               <div class="compare-chord">Ambiguous</div>
-              <div class="compare-notes">F♯ &nbsp; C &nbsp; E &nbsp; B♭</div>
+              <div class="compare-notes">G &nbsp; B &nbsp; D &nbsp; F &nbsp; A♭</div>
               <p class="compare-explanation">
-                These are just four pitch classes. A basic note matcher does not
-                know which note should be treated as the root, whether the bass
-                is structural or colorful, or why B♭ matters in a dominant 7th
-                chord.
+                These are just pitch classes. A basic note matcher does not know
+                whether to treat the sound as a dominant 7th chord with tension,
+                or as one of several diminished-7th shapes.
               </p>
             </div>
             <div class="compare-card better">
               <div class="compare-label">WhatChord</div>
-              <div class="compare-chord">C7♯11/F♯</div>
-              <div class="compare-notes">F♯ &nbsp; C &nbsp; E &nbsp; B♭</div>
+              <div class="compare-chord">G7♭9</div>
+              <div class="compare-notes">G &nbsp; B &nbsp; D &nbsp; F &nbsp; A♭</div>
               <p class="compare-explanation">
-                Recognizes the notes as a C7 chord with a raised 11th and F♯ in
-                the bass. It writes the seventh as
-                <strong>B♭, not A♯,</strong> because that is how a C7 chord is
-                spelled.
+                Recognizes the diminished color as part of a G dominant chord.
+                It writes the tension as
+                <strong>A♭, not G♯,</strong> because the note is acting as the
+                flat 9th above G.
               </p>
             </div>
           </div>

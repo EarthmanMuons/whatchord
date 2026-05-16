@@ -26,8 +26,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Fixed Explore Chords preview voicings so A and B roots sit below middle C
   instead of above it.
-- Fixed Explore Chords dominant altered colors so flat ninth and sharp ninth
-  can be selected together.
+- Fixed Explore Chords dominant altered colors so flat ninth and sharp ninth can
+  be selected together.
 - Fixed Hendrix chord analysis so dominant seventh sharp-ninth voicings like
   G-B-D-F-A# are identified as 7#9 chords.
 
