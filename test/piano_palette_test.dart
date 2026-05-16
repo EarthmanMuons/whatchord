@@ -36,6 +36,10 @@ void main() {
         palette.pressedWhiteKeySeparator.computeLuminance(),
         lessThan(palette.pressedWhiteKey.computeLuminance()),
       );
+      expect(
+        palette.pressedBlackKeySeparator.computeLuminance(),
+        lessThan(palette.pressedBlackKey.computeLuminance()),
+      );
     });
 
     test('uses distinct highlighted colors in dark themes', () {
@@ -47,7 +51,7 @@ void main() {
       expect(
         palette.pressedBlackKey,
         Color.alphaBlend(
-          Colors.black.withValues(alpha: 0.16),
+          Colors.black.withValues(alpha: 0.22),
           colorScheme.primary,
         ),
       );
@@ -67,6 +71,10 @@ void main() {
       expect(
         palette.pressedWhiteKeySeparator.computeLuminance(),
         lessThan(palette.pressedWhiteKey.computeLuminance()),
+      );
+      expect(
+        palette.pressedBlackKeySeparator.computeLuminance(),
+        lessThan(palette.pressedBlackKey.computeLuminance()),
       );
     });
   });

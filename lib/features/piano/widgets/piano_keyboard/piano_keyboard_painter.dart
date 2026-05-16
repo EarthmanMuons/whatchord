@@ -53,7 +53,6 @@ class PianoTopEdgeShadowStyle {
 
 class PianoKeyboardPainter extends CustomPainter {
   static const double _pressedWhiteEdgeAlpha = 0.08;
-  static const double _pressedBlackEdgeAlpha = 0.16;
   static const double _pressedWhiteBorderWidth = 1.35;
 
   PianoKeyboardPainter({
@@ -66,6 +65,7 @@ class PianoKeyboardPainter extends CustomPainter {
     required this.whiteKeyBorderColor,
     required this.pressedWhiteKeyBorderColor,
     required this.pressedWhiteKeySeparatorColor,
+    required this.pressedBlackKeySeparatorColor,
     required this.blackKeyColor,
     required this.backgroundColor,
     this.decorations = const <PianoKeyDecoration>[],
@@ -98,6 +98,7 @@ class PianoKeyboardPainter extends CustomPainter {
   final Color whiteKeyBorderColor;
   final Color pressedWhiteKeyBorderColor;
   final Color pressedWhiteKeySeparatorColor;
+  final Color pressedBlackKeySeparatorColor;
   final Color blackKeyColor;
   final Color backgroundColor;
 
@@ -149,6 +150,9 @@ class PianoKeyboardPainter extends CustomPainter {
     final pressedWhiteSeparatorPaint = Paint()
       ..style = PaintingStyle.fill
       ..color = pressedWhiteKeySeparatorColor;
+    final pressedBlackSeparatorPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..color = pressedBlackKeySeparatorColor;
     final blackFillPaint = Paint()..style = PaintingStyle.fill;
     final pressedWhiteAccentPaint = Paint()
       ..style = PaintingStyle.fill
@@ -159,10 +163,6 @@ class PianoKeyboardPainter extends CustomPainter {
     final pressedWhiteEdgePaint = Paint()
       ..style = PaintingStyle.fill
       ..color = Colors.black.withValues(alpha: _pressedWhiteEdgeAlpha);
-    final pressedBlackEdgePaint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = Colors.black.withValues(alpha: _pressedBlackEdgeAlpha);
-
     // White keys
     for (int i = 0; i < whiteKeyCount; i++) {
       final x = i * whiteKeyWidth;
@@ -240,7 +240,10 @@ class PianoKeyboardPainter extends CustomPainter {
           rect,
           topInset: topInset,
           topAccentPaint: pressedBlackAccentPaint,
-          edgeShadowPaint: pressedBlackEdgePaint,
+          edgeShadowPaint: pressedBlackSeparatorPaint,
+          edgeInset: 0.0,
+          edgeWidth: 2.0,
+          bottomEdgeHeight: 2.0,
         );
       }
     }
@@ -351,6 +354,9 @@ class PianoKeyboardPainter extends CustomPainter {
     required double topInset,
     required Paint topAccentPaint,
     required Paint edgeShadowPaint,
+    double edgeInset = 1.0,
+    double edgeWidth = 1.0,
+    double bottomEdgeHeight = 0.0,
   }) {
     if (rect.isEmpty) return;
 
@@ -368,11 +374,34 @@ class PianoKeyboardPainter extends CustomPainter {
 
     if (rect.width >= 4.0) {
       canvas.drawRect(
-        Rect.fromLTWH(rect.left + 1.0, visibleTop, 1.0, visibleHeight),
+        Rect.fromLTWH(
+          rect.left + edgeInset,
+          visibleTop,
+          edgeWidth,
+          visibleHeight,
+        ),
         edgeShadowPaint,
       );
       canvas.drawRect(
-        Rect.fromLTWH(rect.right - 2.0, visibleTop, 1.0, visibleHeight),
+        Rect.fromLTWH(
+          rect.right - edgeInset - edgeWidth,
+          visibleTop,
+          edgeWidth,
+          visibleHeight,
+        ),
+        edgeShadowPaint,
+      );
+    }
+
+    if (bottomEdgeHeight > 0) {
+      final resolvedHeight = bottomEdgeHeight.clamp(0.0, visibleHeight);
+      canvas.drawRect(
+        Rect.fromLTWH(
+          rect.left,
+          rect.bottom - resolvedHeight,
+          rect.width,
+          resolvedHeight,
+        ),
         edgeShadowPaint,
       );
     }
@@ -550,6 +579,8 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.pressedWhiteKeyBorderColor != pressedWhiteKeyBorderColor ||
         oldDelegate.pressedWhiteKeySeparatorColor !=
             pressedWhiteKeySeparatorColor ||
+        oldDelegate.pressedBlackKeySeparatorColor !=
+            pressedBlackKeySeparatorColor ||
         oldDelegate.blackKeyColor != blackKeyColor ||
         oldDelegate.decorationColor != decorationColor ||
         oldDelegate.decorationTextScaleMultiplier !=
