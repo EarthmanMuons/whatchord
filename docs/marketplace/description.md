@@ -2,13 +2,13 @@ Real-time chord recognition for Bluetooth and USB MIDI keyboards, plus an explor
 
 Stop guessing what chord you're playing.
 
-WhatChord listens to your MIDI keyboard and identifies chords instantly, helping you learn progressions, check voicings, explore harmony, and name what you are hearing. When you are away from your instrument, explore mode lets you build and hear chords by choosing roots, qualities, extensions, and bass notes directly in the app.
+WhatChord listens to your MIDI keyboard and identifies chords instantly, helping you learn progressions, check voicings, understand harmony, and name what you're hearing. When you're away from your instrument, explore mode lets you build and hear chords by choosing roots, qualities, extensions, and bass notes directly in the app.
 
 Play. Learn. Explore.
 
 WhatChord goes beyond simple note matching. Its musically informed analysis considers inversions, extensions, slash chords, altered tones, harmonic context, and conventional naming practices so chord names appear the way musicians expect to see them.
 
-Features
+FEATURES
 
 - Real-time chord recognition  
   Chord names update immediately as you play.
@@ -31,14 +31,14 @@ Features
 - MIDI compatibility  
   Works with standard Bluetooth MIDI and USB MIDI keyboards and controllers.
 
-Comprehensive Recognition
+RECOGNITION
 
-WhatChord identifies everything from beginner piano chords to advanced jazz voicings. Whether you are practicing theory, learning progressions, exploring altered dominants, or working through dense extended chords, the app names what you play with accuracy and musical intent.
+WhatChord identifies everything from simple triads to rich extended harmony. Whether you're practicing theory, learning progressions, exploring altered dominants, or working through dense extended chords, the app names what you play with accuracy and musical intent.
 
-Privacy
+PRIVACY
 
 WhatChord is free, contains no ads, and collects no personal data. All analysis happens locally on your device.
 
-Get Started
+GET STARTED
 
 Connect a Bluetooth or USB MIDI keyboard for live recognition, or open explore mode and start building chords right away.
