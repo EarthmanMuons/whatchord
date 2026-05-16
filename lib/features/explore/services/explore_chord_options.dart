@@ -466,12 +466,10 @@ void _removeConflictingSeventhFamilyExtensions(
       extensions.remove(ChordExtension.flat13);
       break;
     case ChordExtension.flat9:
-      extensions.remove(ChordExtension.sharp9);
       extensions.remove(ChordExtension.nine);
       extensions.remove(ChordExtension.add9);
       break;
     case ChordExtension.sharp9:
-      extensions.remove(ChordExtension.flat9);
       extensions.remove(ChordExtension.nine);
       extensions.remove(ChordExtension.add9);
       break;
