@@ -908,31 +908,6 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
             scoring weights, was set by measurement rather than intuition.
           </p>
 
-          <h2>Analyzing vs. exploring</h2>
-
-          <p>
-            WhatChord has two modes with different objectives. In analysis mode,
-            the algorithm optimizes for musician-expected naming of a real
-            observed voicing: whatever notes are actually sounding, in whatever
-            inversion or extension the player chose.
-          </p>
-
-          <p>
-            In Explore mode, the user selects a chord symbol (root + quality +
-            extensions) and asks “show me an example of this.” The algorithm
-            runs in reverse: given a target chord identity, find a canonical
-            voicing that a musician would expect for that chord. The analysis
-            scores are used, but the objective is different: prefer clean,
-            root-position, complete voicings that represent the chord clearly.
-          </p>
-
-          <p>
-            This distinction matters because the “correct” output for a given
-            set of notes in analysis mode is not always the same as the most
-            pedagogically clear example of a chord type. Analysis and Explore
-            use the same engine but ask it different questions.
-          </p>
-
           <h2>What the algorithm does not handle</h2>
 
           <p>A few things are known limitations or non-goals:</p>
