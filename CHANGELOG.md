@@ -12,24 +12,29 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Added analysis support for seventh suspended-second, flat-five, and
-  augmented-seventh chord qualities, including 7sus2, maj7sus2, maj7sus4, 7b5,
-  maj7b5, 7#5, and maj7#5.
+- Added analysis support for more seventh-chord families, including suspended,
+  flat-five, and augmented-fifth qualities such as 7sus2, maj7sus2, maj7sus4,
+  7b5, maj7b5, 7#5, and maj7#5.
+- Added a project website with screenshots, feature overviews, and deeper
+  articles about chord naming and the analysis pipeline.
 
 ### Changed
 
-- Made highlighted black-key separators match the darker highlighted-key
-  treatment used on white keys.
-- Added Help & Support guidance for opening Explore from the chord card.
+- Made highlighted black keys easier to read by matching their separators to the
+  darker highlighted-key treatment used on white keys.
+- Made explore mode easier to discover by adding chord-card guidance in Help &
+  Support and project documentation.
 
 ### Fixed
 
+- Fixed dominant sharp-ninth analysis so Hendrix-style voicings like G-B-D-F-A#
+  are identified as 7#9 chords.
+- Fixed chord ranking so conventional altered seventh names are preferred over
+  questionable add11 slash-chord alternatives.
+- Fixed Explore Chords dominant altered tones so flat ninth and sharp ninth can
+  be selected together.
 - Fixed Explore Chords preview voicings so A and B roots sit below middle C
   instead of above it.
-- Fixed Explore Chords dominant altered colors so flat ninth and sharp ninth can
-  be selected together.
-- Fixed Hendrix chord analysis so dominant seventh sharp-ninth voicings like
-  G-B-D-F-A# are identified as 7#9 chords.
 
 ## [2026.5.13] - 2026-05-13
 
