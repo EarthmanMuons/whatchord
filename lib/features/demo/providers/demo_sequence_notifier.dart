@@ -52,47 +52,43 @@ class DemoStep {
 
 class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
   static final List<DemoStep> screenshotSteps = <DemoStep>[
-    // 1) SCREENSHOT: portrait, light mode, Key: C major, C major
+    // 1) SCREENSHOT: portrait, light mode, Key: C major -> C major
     const DemoStep(
       notes: {60, 64, 67},
       themeMode: ThemeMode.light,
       tonality: Tonality('C', TonalityMode.major),
     ),
 
-    // 2) SCREENSHOT: portrait, dark mode, Key: C major, Am / C
+    // 2) SCREENSHOT: portrait, dark mode, Key: C major -> Am/C
     const DemoStep(
       notes: {60, 64, 69},
       themeMode: ThemeMode.dark,
       tonality: Tonality('C', TonalityMode.major),
     ),
 
-    // 3) SCREENSHOT: landscape, dark mode, Key: E minor, F#m7(b5)
+    // 3) SCREENSHOT: portrait, light mode, Key: C major -> C6/9, explore mode
     const DemoStep(
-      notes: {54, 57, 60, 64},
-      pedalDown: false,
-      themeMode: ThemeMode.dark,
-      tonality: Tonality('E', TonalityMode.minor),
+      notes: {60, 64, 67, 69, 74},
+      themeMode: ThemeMode.light,
+      tonality: Tonality('C', TonalityMode.major),
     ),
 
-    // 4) SCREENSHOT: landscape, light mode, Key: C major, F#7b5
+    // 4) SCREENSHOT: landscape, dark mode, Key: C major -> Bm7(b5)
     const DemoStep(
-      notes: {54, 58, 60, 64},
+      notes: {59, 62, 65, 69},
+      themeMode: ThemeMode.dark,
+      tonality: Tonality('C', TonalityMode.major),
+    ),
+
+    // 5) SCREENSHOT: landscape, light mode, Key: C major -> C13#11
+    const DemoStep(
+      notes: {60, 64, 70, 74, 78, 81},
       pedalDown: true,
       themeMode: ThemeMode.light,
       tonality: Tonality('C', TonalityMode.major),
     ),
 
-    // 5) SCREENSHOT: portrait, light mode, Key: C major, F#7b5 (details screen)
-
-    // Fully diminished symmetrical (Eb Gb Bbb Dbb -> Ebdim7)
-    const DemoStep(notes: {51, 54, 57, 60}),
-
-    // 6) SCREENSHOT: portrait, dark mode, Key: C major, Dm7
-    const DemoStep(
-      notes: {62, 65, 69, 72},
-      themeMode: ThemeMode.dark,
-      tonality: Tonality('C', TonalityMode.major),
-    ),
+    // 6) SCREENSHOT: portrait, light mode, Key: C major -> C13#11, analysis details
   ];
 
   static final List<DemoStep> interactiveSteps = <DemoStep>[
@@ -101,33 +97,39 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       tonality: Tonality('C', TonalityMode.major),
       promptText: 'Use the arrows to explore chord examples.',
     ),
+    // C, note
     const DemoStep(
       notes: {60},
       tonality: Tonality('C', TonalityMode.major),
       promptText: 'Each note is analyzed in its musical context.',
     ),
+    // Perfect 5th, interval
     const DemoStep(
       notes: {60, 67},
       tonality: Tonality('C', TonalityMode.major),
       promptText: 'Two notes create an interval.',
     ),
+    // C major, chord
     const DemoStep(
       notes: {60, 64, 67},
       tonality: Tonality('C', TonalityMode.major),
       promptText: 'Three notes create a chord.',
     ),
+    // C/E, inversion
     const DemoStep(
       notes: {64, 67, 72},
       tonality: Tonality('C', TonalityMode.major),
       promptText: 'Chord inversions are detected automatically.',
     ),
+    // C6/9, extended
     const DemoStep(
-      notes: {60, 62, 64, 67, 69},
+      notes: {60, 64, 67, 69, 74},
       tonality: Tonality('C', TonalityMode.major),
       promptText: 'Extended and altered chords are recognized.',
     ),
+    // Bm7(b5)
     const DemoStep(
-      notes: {54, 57, 60, 64},
+      notes: {59, 62, 65, 69},
       tonality: Tonality('C', TonalityMode.major),
       promptText:
           'Complex chords are analyzed accurately.\nAlternative interpretations may also be shown.',
