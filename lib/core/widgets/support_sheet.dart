@@ -89,10 +89,17 @@ class _SupportSheetContent extends StatelessWidget {
                   const _SupportBodyText(
                     'For chord identification reports, copy Analysis Details first when possible. It includes the exact notes, key context, and app version needed to reproduce the result.',
                   )
-                else
+                else ...[
+                  const _SupportSectionTitle('Explore Chords'),
+                  const SizedBox(height: 8),
+                  const _SupportBodyText(
+                    'Tap the chord card to open explore mode and try chord roots, qualities, extensions, and bass notes without a MIDI device.',
+                  ),
+                  const SizedBox(height: 10),
                   const _SupportBodyText(
                     'Long-press the chord card to open Analysis Details when you need diagnostic information for a chord result.',
                   ),
+                ],
                 const SizedBox(height: 16),
                 const _SupportSectionTitle('Get Support'),
                 const SizedBox(height: 8),
