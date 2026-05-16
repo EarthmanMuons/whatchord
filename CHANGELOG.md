@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.5.16] - 2026-05-16
+
 ### Added
 
 - Added analysis support for more seventh-chord families, including suspended,
@@ -380,7 +382,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.13...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.16...HEAD
+[2026.5.16]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.13...v2026.5.16
 [2026.5.13]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.5.9...v2026.5.13
 [2026.5.9]:
