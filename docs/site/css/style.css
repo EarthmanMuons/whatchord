@@ -997,12 +997,14 @@ footer {
   text-align: center;
   transition:
     border-color 0.18s,
-    background 0.18s;
+    background 0.18s,
+    transform 0.18s;
 }
 
 .pf-box:hover {
-  border-color: var(--accent-border);
-  background: rgba(64 128 255 / 0.08);
+  border-color: var(--border-strong);
+  background: rgba(255 255 255 / 0.04);
+  transform: translateY(-2px);
 }
 
 .pf-name {
