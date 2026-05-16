@@ -64,7 +64,7 @@ Here's WhatChord in action:
 <p>
   <img
     src="docs/site/images/theme_modes.webp"
-    alt="WhatChord identifying a C7#11 chord over F# from the notes F#, C, E, and Bb, shown in light and dark themes."
+    alt="WhatChord identifying a C13#11 chord from the notes C, E, Bb, D, F#, and A, shown in light and dark themes."
     style="width: 800px"
   >
 </p>
