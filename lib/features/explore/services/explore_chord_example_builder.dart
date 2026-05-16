@@ -158,7 +158,7 @@ abstract final class ExploreChordExampleBuilder {
     final orderedIntervals = identity.hasSlashBass
         ? _intervalsAboveBass(intervals, bassInterval)
         : intervals;
-    final bassMidi = 60 + rootPc + bassInterval;
+    final bassMidi = _canonicalPitchClassMidi(bassPc);
     final notes = <int>[];
 
     for (final interval in orderedIntervals) {
@@ -173,6 +173,11 @@ abstract final class ExploreChordExampleBuilder {
     }
 
     return List<int>.unmodifiable(notes);
+  }
+
+  static int _canonicalPitchClassMidi(int pitchClass) {
+    final midi = 60 + pitchClass;
+    return pitchClass >= 9 ? midi - 12 : midi;
   }
 
   static List<int> _intervalsAboveBass(List<int> intervals, int bassInterval) {

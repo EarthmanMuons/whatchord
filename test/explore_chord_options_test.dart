@@ -676,6 +676,20 @@ void main() {
       expect(example.normalizedVoicing, [60, 65, 67]);
     });
 
+    test('uses the lower octave for roots just below middle C', () {
+      final aMajor = _example(rootPc: 9, quality: ChordQualityToken.major);
+      final bMajor = _example(rootPc: 11, quality: ChordQualityToken.major);
+
+      expect(aMajor.normalizedVoicing, [57, 61, 64]);
+      expect(bMajor.normalizedVoicing, [59, 63, 66]);
+    });
+
+    test('uses the lower octave for slash bass notes just below middle C', () {
+      final example = _example(quality: ChordQualityToken.major7, bassPc: 11);
+
+      expect(example.normalizedVoicing, [59, 60, 64, 67]);
+    });
+
     test('implies added ninth for major sharp-eleventh examples', () {
       final example = _example(
         quality: ChordQualityToken.major,
@@ -836,13 +850,15 @@ void main() {
 }
 
 ExploreChordExample _example({
+  int rootPc = 0,
+  int? bassPc,
   required ChordQualityToken quality,
   Set<ChordExtension> extensions = const {},
 }) {
   return ExploreChordExampleBuilder.build(
     state: ExploreChordState(
-      rootPc: 0,
-      bassPc: 0,
+      rootPc: rootPc,
+      bassPc: bassPc ?? rootPc,
       quality: quality,
       extensions: extensions,
     ),
