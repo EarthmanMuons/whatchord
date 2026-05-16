@@ -37,8 +37,8 @@ conventional interpretations over simple note-matching.
   you play.
 
 - **Explore chords**  
-  Build and hear chords without a connected keyboard by adjusting the root,
-  quality, extensions, and bass note.
+  Tap the chord card to open explore mode and try chord roots, qualities,
+  extensions, and bass notes without a MIDI device.
 
 - **Musically informed chord detection**  
   Goes beyond simple note-matching by ranking and resolving ambiguous
