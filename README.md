@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="200" src="docs/images/whatchord_logo.webp" alt="WhatChord logo">
+  <img width="200" src="docs/site/images/whatchord_logo.webp" alt="WhatChord logo">
 </p>
 
 <h1 align="center">WhatChord</h1>
@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://apps.apple.com/us/app/whatchord-midi/id6758409779">
     <img
-      src="docs/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+      src="docs/site/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
       alt="Download on the App Store"
       style="height: 60px"
       hspace="15"
@@ -16,7 +16,7 @@
     href="https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord"
   >
     <img
-      src="docs/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
+      src="docs/site/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
       alt="Get it on Google Play"
       style="height: 60px"
       hspace="15"
@@ -61,7 +61,13 @@ conventional interpretations over simple note-matching.
 
 Here's WhatChord in action:
 
-![WhatChord identifying a C7#11 chord over F# from the notes F#, C, E, and Bb, shown in light and dark themes.](docs/screenshots/theme_modes.webp)
+<p>
+  <img
+    src="docs/site/images/theme_modes.webp"
+    alt="WhatChord identifying a C7#11 chord over F# from the notes F#, C, E, and Bb, shown in light and dark themes."
+    style="width: 800px"
+  >
+</p>
 
 ## Installation
 
@@ -75,7 +81,7 @@ WhatChord is available on the App Store for iPhone and iPad.
 <p>
   <a href="https://apps.apple.com/us/app/whatchord-midi/id6758409779">
     <img
-      src="docs/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
+      src="docs/site/images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
       alt="Download on the App Store"
       style="height:60px; width:auto; margin:15px; vertical-align:middle;"
     >
@@ -89,7 +95,7 @@ WhatChord is available on the Google Play Store for supported Android devices.
 <p>
   <a href="https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord">
     <img
-      src="docs/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
+      src="docs/site/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
       alt="Get it on Google Play"
       style="height:60px; width:auto; margin:15px; vertical-align:middle;"
     >
