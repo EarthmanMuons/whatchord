@@ -23,9 +23,6 @@
   --accent-light: #7aaaff;
   --accent-bg: rgba(64 128 255 / 0.09);
   --accent-border: rgba(64 128 255 / 0.28);
-  --green: #34c759;
-  --green-bg: rgba(52 199 89 / 0.1);
-  --green-border: rgba(52 199 89 / 0.28);
   --r: 10px;
   --r-lg: 18px;
   --r-xl: 24px;
@@ -498,34 +495,6 @@ section {
   margin: 0 auto;
 }
 
-.privacy-badges {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 36px;
-}
-
-.privacy-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 16px;
-  border-radius: 100px;
-  background: #16161f;
-  border: 1px solid var(--border-mid);
-  font-size: 0.85rem;
-  color: var(--text-2);
-}
-
-.privacy-badge .dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green);
-  flex-shrink: 0;
-}
-
 .oss-callout {
   display: inline-flex;
   align-items: center;
@@ -689,6 +658,20 @@ footer {
   color: var(--text-2);
 }
 
+.footer-copy a {
+  color: var(--text-2);
+  transition: color 0.15s;
+}
+
+.footer-copy a:hover {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.footer-license {
+  white-space: nowrap;
+}
+
 .footer-links {
   display: flex;
   gap: 20px;
@@ -847,18 +830,9 @@ footer {
 .nu {
   color: #f78c6c;
 } /* number */
-.st {
-  color: #c3e88d;
-} /* string */
 .fn {
   color: #82aaff;
 } /* function/method */
-.ty {
-  color: #ffcb6b;
-} /* type */
-.op {
-  color: #89ddff;
-} /* operator */
 
 .chord {
   font-weight: 600;
@@ -872,13 +846,6 @@ footer {
   border-radius: var(--r);
   padding: 20px 24px;
   margin: 28px 0;
-}
-
-.callout.green {
-  border-left-color: var(--green);
-}
-.callout.amber {
-  border-left-color: #f59e0b;
 }
 
 .callout p {
@@ -945,13 +912,6 @@ footer {
 .article-cta p {
   color: var(--text-2);
   margin-bottom: 24px;
-}
-
-.cta-buttons {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
 }
 
 .article-related {
@@ -1113,14 +1073,14 @@ footer {
     flex-direction: column;
     align-items: center;
   }
-  .privacy-badges {
-    justify-content: flex-start;
-  }
-  .cta-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
   .source-label {
     display: none;
+  }
+  .footer-separator {
+    display: none;
+  }
+  .footer-license {
+    display: block;
+    margin-top: 4px;
   }
 }
