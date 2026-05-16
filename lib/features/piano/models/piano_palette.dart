@@ -10,6 +10,7 @@ class PianoPalette {
   final Color border;
   final Color pressedWhiteKeyBorder;
   final Color pressedWhiteKeySeparator;
+  final Color pressedBlackKeySeparator;
 
   const PianoPalette({
     required this.background,
@@ -20,6 +21,7 @@ class PianoPalette {
     required this.border,
     required this.pressedWhiteKeyBorder,
     required this.pressedWhiteKeySeparator,
+    required this.pressedBlackKeySeparator,
   });
 }
 
@@ -47,7 +49,7 @@ PianoPalette buildPianoPalette(ColorScheme cs) {
   );
 
   final pressedBlackKey = Color.alphaBlend(
-    Colors.black.withValues(alpha: isDark ? 0.16 : 0.20),
+    Colors.black.withValues(alpha: isDark ? 0.22 : 0.20),
     pressedKeyAccent,
   );
 
@@ -59,6 +61,9 @@ PianoPalette buildPianoPalette(ColorScheme cs) {
   final pressedWhiteKeySeparator = isDark
       ? Color.alphaBlend(Colors.black.withValues(alpha: 0.34), pressedWhiteKey)
       : Color.alphaBlend(Colors.black.withValues(alpha: 0.24), pressedWhiteKey);
+  final pressedBlackKeySeparator = isDark
+      ? Color.alphaBlend(Colors.black.withValues(alpha: 0.12), pressedBlackKey)
+      : Color.alphaBlend(Colors.black.withValues(alpha: 0.10), pressedBlackKey);
 
   return PianoPalette(
     background: background,
@@ -69,5 +74,6 @@ PianoPalette buildPianoPalette(ColorScheme cs) {
     border: border,
     pressedWhiteKeyBorder: pressedWhiteKeyBorder,
     pressedWhiteKeySeparator: pressedWhiteKeySeparator,
+    pressedBlackKeySeparator: pressedBlackKeySeparator,
   );
 }
