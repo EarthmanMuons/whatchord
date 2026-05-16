@@ -1,4 +1,7 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
@@ -23,47 +26,73 @@ class ExploreSummary extends StatelessWidget {
       fontWeight: FontWeight.w500,
       fontSize: (symbolStyle.fontSize ?? 14) + 6,
     );
+    final copyText =
+        '${chordSymbolDisplayLabel(presentation.symbol)}\n'
+        '${presentation.longLabel}';
+
+    Future<void> copyToClipboard() async {
+      final messenger = Platform.isIOS
+          ? ScaffoldMessenger.maybeOf(context)
+          : null;
+
+      await Clipboard.setData(ClipboardData(text: copyText));
+
+      messenger?.hideCurrentSnackBar();
+      messenger?.showSnackBar(
+        const SnackBar(content: Text('Copied to clipboard')),
+      );
+    }
 
     return Semantics(
       container: true,
       header: true,
       label: presentation.longLabel,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text.rich(
-            TextSpan(
-              children: [
+      onLongPress: copyToClipboard,
+      onLongPressHint: 'Copy chord name to clipboard',
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          excludeFromSemantics: true,
+          onLongPress: copyToClipboard,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text.rich(
                 TextSpan(
-                  text: toSmufl(presentation.symbol.root),
-                  style: rootStyle,
+                  children: [
+                    TextSpan(
+                      text: toSmufl(presentation.symbol.root),
+                      style: rootStyle,
+                    ),
+                    if (presentation.symbol.quality.isNotEmpty) ...[
+                      TextSpan(text: '\u2009', style: symbolDetailStyle),
+                      TextSpan(
+                        text: toSmufl(presentation.symbol.quality),
+                        style: symbolDetailStyle,
+                      ),
+                    ],
+                    if (presentation.symbol.hasBass) ...[
+                      TextSpan(text: ' / ', style: symbolDetailStyle),
+                      TextSpan(
+                        text: toSmufl(presentation.symbol.bassRequired),
+                        style: symbolDetailStyle,
+                      ),
+                    ],
+                  ],
                 ),
-                if (presentation.symbol.quality.isNotEmpty) ...[
-                  TextSpan(text: '\u2009', style: symbolDetailStyle),
-                  TextSpan(
-                    text: toSmufl(presentation.symbol.quality),
-                    style: symbolDetailStyle,
-                  ),
-                ],
-                if (presentation.symbol.hasBass) ...[
-                  TextSpan(text: ' / ', style: symbolDetailStyle),
-                  TextSpan(
-                    text: toSmufl(presentation.symbol.bassRequired),
-                    style: symbolDetailStyle,
-                  ),
-                ],
-              ],
-            ),
-            style: symbolStyle,
+                style: symbolStyle,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                presentation.longLabel,
+                style: textTheme.bodyLarge?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            presentation.longLabel,
-            style: textTheme.bodyLarge?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
