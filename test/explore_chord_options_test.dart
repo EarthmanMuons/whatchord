@@ -636,7 +636,7 @@ void main() {
       expect(normalized, {ChordExtension.sharp11, ChordExtension.flat13});
     });
 
-    test('replaces mutually exclusive seventh-family color choices', () {
+    test('stacks altered ninth color choices', () {
       final colorGroup = buildExploreExtensionControlGroups(
         ChordQualityToken.dominant7,
       )[2];
@@ -651,7 +651,11 @@ void main() {
         choice: colorGroup.choices[1],
       );
 
-      expect(normalized, {ChordExtension.sharp9, ChordExtension.thirteen});
+      expect(normalized, {
+        ChordExtension.flat9,
+        ChordExtension.sharp9,
+        ChordExtension.thirteen,
+      });
     });
   });
 
