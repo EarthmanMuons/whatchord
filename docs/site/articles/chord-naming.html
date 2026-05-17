@@ -56,9 +56,9 @@
           <div class="article-tag">For musicians</div>
           <h1>Why Chord Naming Is Harder Than It Looks</h1>
           <p class="article-deck">
-            This article discusses the inversions, extensions, altered tones,
-            and enharmonic ambiguities that make real chord recognition a
-            genuine musical challenge, and what WhatChord does about them.
+            Inversions, extensions, altered tones, and enharmonic ambiguities
+            make real chord recognition a genuine musical challenge. Here is how
+            WhatChord handles them.
           </p>
         </header>
 
@@ -111,9 +111,9 @@
 
           <div class="callout">
             <p>
-              <strong>Cdim7</strong> = C - E♭ - G♭ - B♭♭ &nbsp;&nbsp;
-              <strong>Adim7/C</strong> = A - C - E♭ - G♭ &nbsp;&nbsp;
-              <strong>D♯dim7/C</strong> = D♯ - F♯ - A - C &nbsp;&nbsp;
+              <strong>Cdim7</strong> = C - E♭ - G♭ - B♭♭<br />
+              <strong>Adim7/C</strong> = A - C - E♭ - G♭<br />
+              <strong>D♯dim7/C</strong> = D♯ - F♯ - A - C<br />
               <strong>F♯dim7/C</strong> = F♯ - A - C - E♭
             </p>
           </div>
@@ -211,8 +211,8 @@
           <h2>Altered dominants: the most complicated single chord type</h2>
 
           <p>
-            Dominant 7th chords (<span class="chord">G7</span>,
-            <span class="chord">C7</span>, <span class="chord">F7</span>) are
+            Dominant 7th chords such as <span class="chord">G7</span>,
+            <span class="chord">C7</span>, and <span class="chord">F7</span> are
             the workhorses of functional harmony. They create tension that
             resolves, and because jazz musicians spend so much time on them,
             dominant 7ths have accumulated more extensions and alterations than
@@ -248,7 +248,7 @@
             with any musician who knows what they sound like.
           </p>
 
-          <h2>Upper-structure voicings</h2>
+          <h3>Upper-structure voicings</h3>
 
           <p>
             Experienced jazz pianists often build dominant chord voicings using
@@ -260,20 +260,19 @@
           </p>
 
           <p>
-            WhatChord handles this by looking for the dominant shell,
-            specifically whether the major 3rd and flat 7th are both present,
-            and treating notes above that shell as a coherent extended color
-            rather than as competing chord roots. When the bass is itself a
-            color tone (like the ♯11 of the dominant), it gets recognized as an
-            intentional upper-structure voicing and spelled out accordingly.
+            In these cases, WhatChord keeps the dominant shell as the anchor
+            instead of treating the upper notes as unrelated chord roots. If the
+            bass is itself a color tone, such as the ♯11, the result is shown as
+            an intentional upper-structure voicing rather than a mistaken root
+            change.
           </p>
 
-          <h2>Enharmonic spelling: C♯ versus D♭</h2>
+          <h2>Enharmonic spelling</h2>
 
           <p>
             C♯ and D♭ are the same key on a piano. They are the same MIDI note
-            number. But they mean different things, and writing the wrong one in
-            a chord symbol or lead sheet is a mistake that musicians notice
+            number, but they mean different things. Writing the wrong one in a
+            chord symbol or lead sheet is a mistake that musicians notice
             immediately.
           </p>
 
@@ -311,15 +310,11 @@
           </p>
 
           <p>
-            The classic example is the major 6th versus the relative minor 7th.
-            <span class="chord">C6</span>
-            (C, E, G, A) and
-            <span class="chord">Am7/C</span>
-            (A, C, E, G with C in the bass) contain the exact same pitch
-            classes. Both are common, both are correct, and which name you
-            prefer depends entirely on harmonic context: are you at the end of a
-            phrase resolving to tonic, or are you in the middle of a ii-V-I in G
-            major? The notes do not tell you. The music around them does.
+            The C6 versus Am7/C case from earlier is the basic version of this
+            problem: the notes are identical, but the musical meaning depends on
+            where the harmony is going. Are you at the end of a phrase resolving
+            to tonic, or are you in the middle of a ii-V-I in G major? The notes
+            do not tell you. The music around them does.
           </p>
 
           <p>
@@ -344,11 +339,10 @@
           <h2>Where WhatChord fits</h2>
 
           <p>
-            WhatChord is a real-time chord identifier optimized for speed and
-            accuracy in the kinds of harmonic situations working musicians
-            actually encounter: jazz voicings, extended chords, altered
-            dominants, inversions, and the various ambiguous cases that sit
-            between well-defined categories.
+            WhatChord is not trying to pretend that chord names are objective
+            facts. It tries to make the same practical judgment a good player
+            would make first, while still showing plausible alternatives when
+            the notes support more than one name.
           </p>
 
           <p>
