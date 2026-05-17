@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -101,10 +101,23 @@
                   rich extended harmony with the same quick feedback.
                 </p>
               </div>
-              <div class="feature-img-wrap">
+              <div class="feature-img-wrap motion-media" data-motion-media>
+                <video
+                  class="motion-video"
+                  autoplay
+                  muted
+                  loop
+                  playsinline
+                  preload="metadata"
+                  aria-hidden="true"
+                  data-motion-video
+                >
+                  <source src="images/real_time.mp4" type="video/mp4" />
+                </video>
                 <img
+                  class="motion-fallback"
                   src="images/real_time.webp"
-                  alt="WhatChord identifying Dm7 in real time, showing the chord name and piano keyboard"
+                  alt="WhatChord identifying G7/B in real time, showing the chord name and piano keyboard"
                 />
               </div>
             </div>
@@ -367,6 +380,35 @@
             el.addEventListener("click", openAndroidDialog);
           });
         }
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          return;
+        }
+
+        document.querySelectorAll("[data-motion-media]").forEach(function (el) {
+          var video = el.querySelector("[data-motion-video]");
+          if (!video) return;
+
+          function activateVideo() {
+            var play = video.play();
+            if (play && typeof play.then === "function") {
+              play
+                .then(function () {
+                  el.classList.add("is-video-active");
+                })
+                .catch(function () {});
+              return;
+            }
+
+            el.classList.add("is-video-active");
+          }
+
+          if (video.readyState >= 3) {
+            activateVideo();
+          } else {
+            video.addEventListener("canplay", activateVideo, { once: true });
+          }
+        });
       })();
     </script>
   </body>

@@ -81,9 +81,9 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       tonality: Tonality('C', TonalityMode.major),
     ),
 
-    // 2) SCREENSHOT: portrait, dark mode, Key: C major -> Am/C
+    // 2) SCREENSHOT: portrait, dark mode, Key: C major -> G7/B
     const DemoStep(
-      notes: {60, 64, 69},
+      notes: {59, 62, 65, 67},
       themeMode: ThemeMode.dark,
       tonality: Tonality('C', TonalityMode.major),
     ),
