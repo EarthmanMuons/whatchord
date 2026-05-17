@@ -119,6 +119,31 @@
                   src="images/real_time.webp"
                   alt="WhatChord identifying G7/B in real time, showing the chord name and piano keyboard"
                 />
+                <button
+                  class="motion-toggle"
+                  type="button"
+                  aria-label="Pause animation"
+                  data-motion-toggle
+                  hidden
+                >
+                  <svg
+                    class="motion-toggle-pause"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path d="M8 5h3v14H8z" />
+                    <path d="M13 5h3v14h-3z" />
+                  </svg>
+                  <svg
+                    class="motion-toggle-play"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </button>
               </div>
             </div>
 
@@ -387,20 +412,61 @@
 
         document.querySelectorAll("[data-motion-media]").forEach(function (el) {
           var video = el.querySelector("[data-motion-video]");
+          var toggle = el.querySelector("[data-motion-toggle]");
           if (!video) return;
+
+          function setPaused(isPaused) {
+            el.classList.toggle("is-video-paused", isPaused);
+            if (toggle) {
+              toggle.setAttribute(
+                "aria-label",
+                isPaused ? "Play animation" : "Pause animation",
+              );
+            }
+          }
+
+          function activateVideoControl() {
+            el.classList.add("is-video-active");
+            setPaused(video.paused);
+            if (toggle) {
+              toggle.hidden = false;
+            }
+          }
 
           function activateVideo() {
             var play = video.play();
             if (play && typeof play.then === "function") {
               play
                 .then(function () {
-                  el.classList.add("is-video-active");
+                  activateVideoControl();
                 })
                 .catch(function () {});
               return;
             }
 
-            el.classList.add("is-video-active");
+            activateVideoControl();
+          }
+
+          if (toggle) {
+            toggle.addEventListener("click", function () {
+              if (video.paused) {
+                var play = video.play();
+                if (play && typeof play.then === "function") {
+                  play
+                    .then(function () {
+                      activateVideoControl();
+                    })
+                    .catch(function () {});
+                  return;
+                }
+
+                activateVideoControl();
+                return;
+              }
+
+              video.pause();
+              setPaused(true);
+            });
           }
 
           if (video.readyState >= 3) {
