@@ -1107,6 +1107,18 @@ footer {
   .footer-separator {
     display: none;
   }
+  .footer-inner {
+    align-items: center;
+    text-align: center;
+  }
+  .footer-left {
+    justify-content: center;
+    width: 100%;
+  }
+  .footer-links {
+    justify-content: center;
+    width: 100%;
+  }
   .footer-license {
     display: block;
     margin-top: 4px;
