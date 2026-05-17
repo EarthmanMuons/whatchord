@@ -371,6 +371,12 @@ abstract final class ChordCandidateRanking {
     return aIsPreferred ? -1 : 1;
   }
 
+  /// Prefers root-position altered-fifth dominants over close slash readings.
+  ///
+  /// Flat-five and sharp-five dominant sevenths are tritone-symmetric, so a
+  /// slash interpretation can score competitively even when the root-position
+  /// name is clearer. Prefer the root-position reading when it has a real
+  /// alteration and the slash reading only has added or natural color tones.
   static int? _preferRootAlteredFifthDom7(
     ChordCandidate a,
     ChordCandidate b,

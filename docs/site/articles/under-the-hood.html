@@ -83,8 +83,8 @@
           </p>
 
           <p>
-            Pianists often leave out notes that a dictionary entry might expect.
-            Extended chords add notes that no fixed dictionary entry
+            Piano players often leave out notes that a dictionary entry might
+            expect. Extended chords add notes that no fixed dictionary entry
             anticipates. And the same set of pitch classes, as discussed in the
             <a href="chord-naming.html">companion article</a>, can legitimately
             be described as multiple different chords depending on musical
@@ -226,11 +226,11 @@
 <span class="cm">// pcMask == 0b000010010001 == 0x091</span></code></pre>
 
           <p>
-            This representation is surprisingly convenient. Checking whether a
-            pitch class is present is a single bitwise AND. Counting present
-            notes is a popcount. Rotating the voicing relative to a candidate
-            root is a loop over bits with modular arithmetic. All of these
-            operations are cheap.
+            This representation is compact and fast. Checking whether a pitch
+            class is present is a single bitwise AND. Counting present notes is
+            a popcount. Rotating the voicing relative to a candidate root is a
+            loop over bits with modular arithmetic. All of these operations are
+            cheap.
           </p>
 
           <p>
@@ -564,6 +564,16 @@
             of complex chords.
           </p>
 
+          <h3>Diminished 7th penalty</h3>
+
+          <p>
+            Fully diminished 7th chords receive a softer alteration penalty
+            because their symmetry makes alternate roots score unusually well.
+            Halving that penalty helps preserve the reading musicians expect
+            when an added tone could otherwise make a rotated diminished
+            interpretation look artificially cleaner.
+          </p>
+
           <h2>Extension extraction</h2>
 
           <p>
@@ -656,12 +666,9 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
      (vs prev: Score outside near-tie window)</code></pre>
 
           <p>
-            One detail worth noting: MIDI gives the app pitch classes, not note
-            names. Pitch class 10 can be written as A♯ or B♭. In this result,
-            the algorithm has identified F♯ as the chord root and pitch class 10
-            as the major third above that root. An F♯ dominant seventh is
-            spelled with A♯, so WhatChord prints A♯ even if the same piano key
-            could be named B♭ in another context.
+            The same diagnostic output also exposes enharmonic spelling
+            decisions: MIDI provides pitch classes, and WhatChord chooses note
+            names from the winning chord context.
           </p>
 
           <p>
@@ -703,62 +710,20 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
           </ul>
 
           <p>
-            Some ambiguities are close enough for ordinary tie-breakers. Others
-            need stronger structural rules, because a musically unlikely reading
-            can sometimes score higher than the conventional name.
-          </p>
-
-          <p>
-            WhatChord handles all of these cases with a two-layer decision
-            process.
+            WhatChord handles these ambiguities with two ranking paths: narrow
+            structural overrides for cases where the conventional name should
+            win despite score, and ordered tie-breakers for candidates whose
+            scores are already close.
           </p>
 
           <h3>Hard rules</h3>
 
           <p>
-            These rules always apply regardless of score difference, when
-            certain structural conditions are met:
+            Hard rules are intentionally narrow. They cover cases where remote
+            slash-chord interpretations can outscore conventional root-position
+            dominant, altered-dominant, or diminished-seventh names that
+            musicians are more likely to use.
           </p>
-
-          <ol>
-            <li>
-              <strong
-                >Prefer altered dominant 7th over diminished 7th slash.</strong
-              >
-              When a dominant 7th in root position has its shell tones (M3 + ♭7)
-              present and color tones (extensions or alterations), and the
-              competing diminished reading would be a slash chord whose bass is
-              a color tone, prefer the dominant. This fires even when the
-              diminished reading scores higher.
-            </li>
-            <li>
-              <strong
-                >Prefer conventional altered seventh over add11 slash.</strong
-              >
-              When a complete altered seventh chord in a normal inversion
-              competes against a remote, non-dominant slash reading whose
-              natural 11 clashes with a major third, prefer the conventional
-              seventh-chord name if the score difference is close.
-            </li>
-            <li>
-              <strong
-                >Prefer close root-position dominant 7th over non-dominant
-                slash.</strong
-              >
-              When a dominant 7th with shell tones and at least one extension or
-              alteration would lose to a remote, non-dominant slash chord, the
-              dominant wins (provided the score difference is not too large).
-            </li>
-            <li>
-              <strong
-                >Prefer root-position altered-fifth dominant over slash.</strong
-              >
-              Flat-five and sharp-five dominant sevenths are tritone-symmetric.
-              When a root-position altered-fifth dominant with a real alteration
-              competes against a close slash reading that only has added or
-              natural color tones, prefer the root-position name.
-            </li>
-          </ol>
 
           <h3>The near-tie window</h3>
 
@@ -821,26 +786,6 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
             common, and should only win when nothing else fits.
           </p>
 
-          <h2>Diminished 7th: a special case in scoring</h2>
-
-          <p>
-            Fully diminished 7th chords receive a softer alteration penalty
-            (<code>-0.30</code> instead of <code>-0.60</code>) when competing
-            against other chord readings. The reason is their symmetry problem.
-          </p>
-
-          <p>
-            When you add one extra note to a diminished 7th voicing, the
-            algorithm can try to reinterpret the original dim7 notes as a
-            different root’s dim7 chord, treating the “extra” note as an
-            addition. Without softening the penalty, this reinterpretation often
-            scores better than the natural reading, because the reinterpreted
-            dim7 has no “alteration” (the extra note is now natural to its root)
-            while the original reading does (the extra note is an alteration).
-            Musicians do not think about diminished 7ths that way, so the
-            penalty is halved to restore the expected behavior.
-          </p>
-
           <h2>Caching for real-time performance</h2>
 
           <p>
@@ -890,17 +835,10 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
           </p>
 
           <p>
-            The 512-entry capacity was set by benchmarking four workload types:
-            random input, bounded exhaustive input, realistic tonal
-            progressions, and simulated live note transitions (individual notes
-            added and removed one at a time, as a player would actually play).
-            Random and exhaustive inputs showed little cache locality because
-            each chord state was unique. Tonal progressions and live transitions
-            showed high reuse: real playing revisits the same chord states
-            repeatedly within a short window. A 512-entry cache preserved nearly
-            all of the realistic-workload hit rate, and increasing the cache
-            size produced no material improvement. So the capacity, like the
-            scoring weights, was set by measurement rather than intuition.
+            The 512-entry capacity was chosen from benchmarks across random
+            inputs, exhaustive inputs, tonal progressions, and simulated live
+            note transitions. Realistic playing showed high reuse, and larger
+            caches produced no material improvement.
           </p>
 
           <h2>What the algorithm does not handle</h2>
