@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-enum DemoModeVariant { interactive, screenshot }
+enum DemoModeVariant { interactive, screenshot, animation }
 
 final demoModeVariantProvider =
     NotifierProvider<DemoModeVariantNotifier, DemoModeVariant>(

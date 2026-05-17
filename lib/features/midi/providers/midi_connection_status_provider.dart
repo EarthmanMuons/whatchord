@@ -14,9 +14,11 @@ import 'midi_connection_notifier.dart';
 final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
   final demoEnabled = ref.watch(demoModeProvider);
   final demoVariant = ref.watch(demoModeVariantProvider);
-  final screenshotDemoEnabled =
-      demoEnabled && demoVariant == DemoModeVariant.screenshot;
-  if (screenshotDemoEnabled) {
+  final showDemoConnection =
+      demoEnabled &&
+      (demoVariant == DemoModeVariant.screenshot ||
+          demoVariant == DemoModeVariant.animation);
+  if (showDemoConnection) {
     return const MidiConnectionStatus(
       phase: MidiConnectionPhase.connected,
       title: 'Connected',
