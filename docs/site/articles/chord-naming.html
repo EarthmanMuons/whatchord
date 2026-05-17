@@ -173,10 +173,9 @@
             <span class="chord">Am7/C</span>? Both are completely valid
             readings: C6 is a major chord with an added 6th; Am7/C is an A minor
             7th chord in first inversion. In real music, both readings show up.
-            WhatChord's default is to show C6 as the primary interpretation,
-            with the root in the bass and the 6th reading being structurally
-            simpler, and Am7/C appears below the chord identity card as an
-            alternative.
+            WhatChord's default is to show C6 as the primary interpretation: the
+            root is in the bass and no inversion notation is required. Am7/C
+            appears below the chord identity card as an alternative.
           </p>
 
           <h2>Extensions: when does an extra note become part of the chord?</h2>
@@ -229,15 +228,15 @@
           </p>
 
           <p>
-            The <span class="chord">G7♯9</span> is particularly famous, known
-            popularly as the "Hendrix chord" for its prominence in "Purple
-            Haze." It is a dominant 7th with a sharpened 9th: G, B, F, and A♯ in
-            the upper structure. That A♯ is the same piano key as B♭, but the
-            chord role is different: it is the raised 9th above G. Without
-            musical context, a naive recognizer might call the same keys a
-            diminished chord, a minor chord with a strange bass, or something
-            else entirely. WhatChord recognizes the dominant shell (major 3rd +
-            flat 7th) as the anchor, treats the sharp 9 as an alteration on that
+            The dominant 7th sharp-nine chord is particularly well-known,
+            nicknamed the "Hendrix chord" for its prominent use in "Purple
+            Haze," where it appears as E7♯9. Building one on G, the notes are G,
+            B, F, and A♯. That A♯ is the same piano key as B♭, but the chord
+            role is different: it is the raised 9th above G. Without musical
+            context, a naive recognizer might call the same keys a diminished
+            chord, a minor chord with a strange bass, or something else
+            entirely. WhatChord recognizes the dominant shell (major 3rd + flat
+            7th) as the anchor, treats the sharp 9 as an alteration on that
             dominant function, and reports <span class="chord">G7♯9</span> as
             expected.
           </p>
@@ -285,7 +284,7 @@
 
           <p>
             Chord symbols follow the same logic. A dominant 7th built on G
-            spells its minor 7th as F (four semitones below the octave), never
+            spells its minor 7th as F (two semitones below the octave), never
             E♯. A diminished 7th on B spells its top note as A♭, the diminished
             7th above B, not G♯, even though they are identical pitches.
           </p>
@@ -328,12 +327,14 @@
 
           <p>
             This is the more honest representation of what the notes actually
-            contain. Knowing that
-            <span class="chord">C7♯11/F♯</span>
-            is the top interpretation, with
-            <span class="chord">F♯7♯9</span>
-            as a plausible alternative, gives you more information than being
-            confidently told the wrong one.
+            contain. The four notes C, E, F♯, and B♭ are a clean example: they
+            score identically as <span class="chord">C7♭5</span> and
+            <span class="chord">F♯7♭5/C</span>, two dominant 7th♭5 chords whose
+            roots sit a tritone apart, the same symmetry that underlies tritone
+            substitution in jazz. WhatChord shows
+            <span class="chord">C7♭5</span> as primary (root in the bass), with
+            <span class="chord">F♯7♭5/C</span> listed as an equally scored
+            alternative.
           </p>
 
           <h2>Where WhatChord fits</h2>
