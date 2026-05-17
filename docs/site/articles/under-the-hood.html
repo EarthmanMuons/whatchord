@@ -429,10 +429,8 @@
 
           <p>
             Notice that the perfect 5th is optional for most chord families.
-            This reflects how professional players actually voice chords,
-            particularly in jazz where shell voicings commonly leave out the
-            5th. Requiring the 5th would cause the algorithm to fail on some of
-            the most idiomatic voicings in common use.
+            Requiring it would cause the algorithm to miss many idiomatic
+            voicings in common use.
           </p>
 
           <p>
@@ -596,14 +594,11 @@
           </p>
 
           <p>
-            There is one dominant-context exception: when a dominant 7th shell
-            has both the major third and flat seventh, interval 3 is treated as
-            a sharp ninth rather than as the template’s minor-third penalty.
-            That lets voicings such as G-B-D-F-A♯ score and spell as
-            <span class="chord">G7♯9</span> instead of plain
-            <span class="chord">G7</span> with an unexplained contradictory
-            tone. The same exception applies to augmented dominant sevenths, so
-            C-E-G♯-B♭-D♯ can be identified as <span class="chord">C7♯5♯9</span>.
+            There is one dominant-context exception: with a complete dominant
+            7th shell, interval 3 is interpreted as a sharp ninth instead of a
+            minor-third penalty. That lets voicings such as G-B-D-F-A♯ score and
+            spell as <span class="chord">G7♯9</span> rather than as a dominant
+            7th with an unexplained contradictory tone.
           </p>
 
           <h2>How the weights were tuned</h2>
