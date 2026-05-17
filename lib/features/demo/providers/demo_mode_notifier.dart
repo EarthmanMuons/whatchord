@@ -23,9 +23,33 @@ class _DemoSnapshot {
 
 class DemoModeNotifier extends Notifier<bool> {
   _DemoSnapshot? _snapshot;
+  Timer? _autoAdvanceTimer;
+
+  static const Duration _autoAdvanceInterval = Duration(milliseconds: 2000);
 
   @override
-  bool build() => false; // Default to off.
+  bool build() {
+    ref.onDispose(_cancelAutoAdvance);
+    return false; // Default to off.
+  }
+
+  void _cancelAutoAdvance() {
+    _autoAdvanceTimer?.cancel();
+    _autoAdvanceTimer = null;
+  }
+
+  void _updateAutoAdvance() {
+    final isAnimation =
+        ref.read(demoModeVariantProvider) == DemoModeVariant.animation;
+    if (state && isAnimation) {
+      _autoAdvanceTimer ??= Timer.periodic(_autoAdvanceInterval, (_) {
+        ref.read(demoSequenceProvider.notifier).next();
+        applyCurrentStep();
+      });
+    } else {
+      _cancelAutoAdvance();
+    }
+  }
 
   void setEnabled(bool v) {
     setEnabledFor(enabled: v, variant: ref.read(demoModeVariantProvider));
@@ -53,6 +77,7 @@ class DemoModeNotifier extends Notifier<bool> {
       variantNotifier.setVariant(variant);
       _enterDemo();
       state = true;
+      _updateAutoAdvance();
       return;
     }
 
@@ -60,6 +85,7 @@ class DemoModeNotifier extends Notifier<bool> {
       variantNotifier.setVariant(variant);
       ref.read(demoSequenceProvider.notifier).reset();
       unawaited(Future<void>.microtask(applyCurrentStep));
+      _updateAutoAdvance();
     }
   }
 
@@ -91,6 +117,7 @@ class DemoModeNotifier extends Notifier<bool> {
   }
 
   void _exitDemo() {
+    _cancelAutoAdvance();
     final snap = _snapshot;
     _snapshot = null;
     if (snap == null) return;

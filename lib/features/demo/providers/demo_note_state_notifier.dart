@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord/core/services/cancelable_timer_sequence.dart';
 
 import 'demo_mode_notifier.dart';
+import 'demo_mode_variant_notifier.dart';
 import 'demo_sequence_notifier.dart';
 
 @immutable
@@ -31,8 +32,10 @@ final demoNoteStateProvider =
     );
 
 class DemoNoteStateNotifier extends Notifier<DemoNoteState> {
-  static const Duration _noteOnSpacing = Duration(milliseconds: 200);
-  static const Duration _resetGap = Duration(milliseconds: 50);
+  static const Duration _defaultNoteOnSpacing = Duration(milliseconds: 200);
+  static const Duration _defaultResetGap = Duration(milliseconds: 50);
+  static const Duration _animationNoteOnSpacing = Duration(milliseconds: 90);
+  static const Duration _animationResetGap = Duration(milliseconds: 25);
 
   final CancelableTimerSequence _transitionSequence = CancelableTimerSequence();
   Set<int> _soundingNoteNumbers = const <int>{};
@@ -101,9 +104,16 @@ class DemoNoteStateNotifier extends Notifier<DemoNoteState> {
     if (nextNotes.isEmpty) return;
 
     final orderedNotes = nextNotes.toList()..sort();
+    final isAnimation =
+        ref.read(demoModeVariantProvider) == DemoModeVariant.animation;
+    final resetGap = isAnimation ? _animationResetGap : _defaultResetGap;
+    final noteOnSpacing = isAnimation
+        ? _animationNoteOnSpacing
+        : _defaultNoteOnSpacing;
+
     for (var index = 0; index < orderedNotes.length; index++) {
       final note = orderedNotes[index];
-      _transitionSequence.schedule(_resetGap + _noteOnSpacing * index, (_) {
+      _transitionSequence.schedule(resetGap + noteOnSpacing * index, (_) {
         _soundingNoteNumbers = Set<int>.unmodifiable({
           ..._soundingNoteNumbers,
           note,

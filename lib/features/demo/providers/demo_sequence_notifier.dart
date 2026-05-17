@@ -23,6 +23,7 @@ final demoCurrentStepProvider = Provider<DemoStep>((ref) {
 final demoStepsProvider = Provider<List<DemoStep>>((ref) {
   final variant = ref.watch(demoModeVariantProvider);
   return switch (variant) {
+    DemoModeVariant.animation => DemoSequenceNotifier.animationSteps,
     DemoModeVariant.interactive => DemoSequenceNotifier.interactiveSteps,
     DemoModeVariant.screenshot => DemoSequenceNotifier.screenshotSteps,
   };
@@ -51,6 +52,27 @@ class DemoStep {
 }
 
 class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
+  static final List<DemoStep> animationSteps = <DemoStep>[
+    // Dm7 -- ii chord, root position
+    const DemoStep(
+      notes: {62, 65, 69, 72},
+      themeMode: ThemeMode.dark,
+      tonality: Tonality('C', TonalityMode.major),
+    ),
+    // G7/B -- V chord, first inversion
+    const DemoStep(
+      notes: {59, 62, 65, 67},
+      themeMode: ThemeMode.dark,
+      tonality: Tonality('C', TonalityMode.major),
+    ),
+    // Cmaj7 -- I chord, root position
+    const DemoStep(
+      notes: {60, 64, 67, 71},
+      themeMode: ThemeMode.dark,
+      tonality: Tonality('C', TonalityMode.major),
+    ),
+  ];
+
   static final List<DemoStep> screenshotSteps = <DemoStep>[
     // 1) SCREENSHOT: portrait, light mode, Key: C major -> C major
     const DemoStep(

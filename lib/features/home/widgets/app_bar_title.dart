@@ -48,11 +48,14 @@ class AppBarTitle extends ConsumerWidget {
     final modeNotifier = ref.read(demoModeProvider.notifier);
     final seqNotifier = ref.read(demoSequenceProvider.notifier);
 
-    Future<void> toggleScreenshotDemo() async {
-      modeNotifier.setEnabledFor(
-        enabled: !screenshotDemoEnabled,
-        variant: DemoModeVariant.screenshot,
-      );
+    Future<void> toggleDemoVariant(DemoModeVariant variant) async {
+      if (demoEnabled) {
+        modeNotifier.setEnabledFor(enabled: false, variant: demoVariant);
+        await HapticFeedback.lightImpact();
+        return;
+      }
+
+      modeNotifier.setEnabledFor(enabled: true, variant: variant);
       await HapticFeedback.lightImpact();
     }
 
@@ -92,7 +95,7 @@ class AppBarTitle extends ConsumerWidget {
               text: 'What',
               style: titleStyle,
               onTap: prev,
-              onLongPress: toggleScreenshotDemo,
+              onLongPress: () => toggleDemoVariant(DemoModeVariant.animation),
             ),
           ),
           WidgetSpan(
@@ -102,7 +105,7 @@ class AppBarTitle extends ConsumerWidget {
               text: 'Chord',
               style: titleStyle.copyWith(fontWeight: FontWeight.w600),
               onTap: next,
-              onLongPress: toggleScreenshotDemo,
+              onLongPress: () => toggleDemoVariant(DemoModeVariant.screenshot),
             ),
           ),
         ],
