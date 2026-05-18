@@ -40,20 +40,25 @@ void main() {
     );
 
     test(
-      'minor triad-like qualities expose segmented natural add tones only',
+      'minor qualities expose segmented add tones with sharp-eleventh color',
       () {
         final groups = buildExploreExtensionControlGroups(
           ChordQualityToken.minor,
         );
 
-        expect(groups, hasLength(1));
-        expect(groups.single.label, 'Added tones');
-        expect(groups.single.role, ExploreExtensionControlRole.addedTones);
-        expect(groups.single.allowsMultiple, isTrue);
-        expect(groups.single.choices.map((choice) => choice.extension), [
+        expect(groups.map((group) => group.label), ['Added tones', 'Colors']);
+        expect(groups.map((group) => group.role), [
+          ExploreExtensionControlRole.addedTones,
+          ExploreExtensionControlRole.colors,
+        ]);
+        expect(groups.map((group) => group.allowsMultiple), [true, true]);
+        expect(groups[0].choices.map((choice) => choice.extension), [
           ChordExtension.add9,
           ChordExtension.add11,
           ChordExtension.add13,
+        ]);
+        expect(groups[1].choices.map((choice) => choice.extension), [
+          ChordExtension.sharp11,
         ]);
       },
     );
@@ -85,6 +90,7 @@ void main() {
         ChordExtension.add11,
       ]);
       expect(groups[1].choices.map((choice) => choice.extension), [
+        ChordExtension.flat9,
         ChordExtension.sharp11,
       ]);
     });
@@ -213,6 +219,7 @@ void main() {
           ChordExtension.add9,
           ChordExtension.add11,
           ChordExtension.add13,
+          ChordExtension.sharp11,
         ],
         ChordQualityToken.diminished: [
           ChordExtension.add9,
@@ -230,9 +237,15 @@ void main() {
         ChordQualityToken.major6: [
           ChordExtension.add9,
           ChordExtension.add11,
+          ChordExtension.flat9,
           ChordExtension.sharp11,
         ],
-        ChordQualityToken.minor6: [ChordExtension.add9, ChordExtension.add11],
+        ChordQualityToken.minor6: [
+          ChordExtension.add9,
+          ChordExtension.add11,
+          ChordExtension.flat9,
+          ChordExtension.sharp11,
+        ],
       };
 
       for (final entry in expectations.entries) {
@@ -318,8 +331,16 @@ void main() {
         quality: ChordQualityToken.major,
         extensions: const {ChordExtension.sharp11},
       );
+      final minor = normalizeExtensionsForQuality(
+        quality: ChordQualityToken.minor,
+        extensions: const {ChordExtension.sharp11},
+      );
       final major6 = normalizeExtensionsForQuality(
         quality: ChordQualityToken.major6,
+        extensions: const {ChordExtension.sharp11},
+      );
+      final minor6 = normalizeExtensionsForQuality(
+        quality: ChordQualityToken.minor6,
         extensions: const {ChordExtension.sharp11},
       );
       final augmented = normalizeExtensionsForQuality(
@@ -328,8 +349,29 @@ void main() {
       );
 
       expect(major, {ChordExtension.sharp11});
+      expect(minor, {ChordExtension.sharp11});
       expect(major6, {ChordExtension.sharp11});
+      expect(minor6, {ChordExtension.sharp11});
       expect(augmented, {ChordExtension.sharp11});
+    });
+
+    test('preserves flat ninth for sixth qualities', () {
+      final major6 = normalizeExtensionsForQuality(
+        quality: ChordQualityToken.major6,
+        extensions: const {ChordExtension.flat9},
+      );
+      final minor6 = normalizeExtensionsForQuality(
+        quality: ChordQualityToken.minor6,
+        extensions: const {ChordExtension.flat9},
+      );
+      final major = normalizeExtensionsForQuality(
+        quality: ChordQualityToken.major,
+        extensions: const {ChordExtension.flat9},
+      );
+
+      expect(major6, {ChordExtension.flat9});
+      expect(minor6, {ChordExtension.flat9});
+      expect(major, isEmpty);
     });
 
     test('drops redundant thirteenth for sixth qualities', () {
@@ -367,7 +409,7 @@ void main() {
       expect(sus4, {ChordExtension.add9, ChordExtension.add13});
     });
 
-    test('drops alterations for non-seventh qualities', () {
+    test('drops unsupported alterations for non-seventh qualities', () {
       final normalized = normalizeExtensionsForQuality(
         quality: ChordQualityToken.minor,
         extensions: const {
@@ -378,7 +420,7 @@ void main() {
         },
       );
 
-      expect(normalized, isEmpty);
+      expect(normalized, {ChordExtension.sharp11});
     });
 
     test('drops seventh-family extensions that duplicate core chord tones', () {
@@ -476,6 +518,32 @@ void main() {
       );
 
       expect(withoutSharp11, {ChordExtension.add9});
+    });
+
+    test('replaces natural and flat ninth choices for sixth qualities', () {
+      final groups = buildExploreExtensionControlGroups(
+        ChordQualityToken.minor6,
+      );
+      final addToneGroup = groups[0];
+      final colorGroup = groups[1];
+
+      final withFlat9 = selectExploreExtensionChoice(
+        quality: ChordQualityToken.minor6,
+        currentExtensions: const {ChordExtension.add9},
+        group: colorGroup,
+        choice: colorGroup.choices[0],
+      );
+
+      expect(withFlat9, {ChordExtension.flat9});
+
+      final withAdd9 = selectExploreExtensionChoice(
+        quality: ChordQualityToken.minor6,
+        currentExtensions: withFlat9,
+        group: addToneGroup,
+        choice: addToneGroup.choices[0],
+      );
+
+      expect(withAdd9, {ChordExtension.add9});
     });
 
     test('replaces the seventh-family headline choice', () {
@@ -702,6 +770,19 @@ void main() {
       expect(example.normalizedVoicing, [60, 64, 67, 74, 78]);
     });
 
+    test('builds minor sharp-eleventh examples', () {
+      final example = _example(
+        rootPc: 9,
+        quality: ChordQualityToken.minor,
+        extensions: const {ChordExtension.sharp11},
+      );
+
+      expect(example.presentation.symbol.toString(), 'Am#11');
+      expect(example.members, ['A', 'C', 'E', 'D#']);
+      expect(example.memberDegrees, ['1', 'b3', '5', '#11']);
+      expect(example.normalizedVoicing, [57, 60, 64, 75]);
+    });
+
     test('implies added ninth for major added-thirteenth examples', () {
       final example = _example(
         quality: ChordQualityToken.major,
@@ -724,6 +805,27 @@ void main() {
       expect(example.members, ['C', 'Eb', 'G', 'A', 'D', 'F']);
       expect(example.memberDegrees, ['1', 'b3', '5', '6', '9', '11']);
       expect(example.normalizedVoicing, [60, 63, 67, 69, 74, 77]);
+    });
+
+    test('builds sixth flat-ninth examples', () {
+      final major = _example(
+        quality: ChordQualityToken.major6,
+        extensions: const {ChordExtension.flat9},
+      );
+      final minor = _example(
+        quality: ChordQualityToken.minor6,
+        extensions: const {ChordExtension.flat9},
+      );
+
+      expect(major.presentation.symbol.toString(), 'C6b9');
+      expect(major.members, ['C', 'E', 'G', 'A', 'Db']);
+      expect(major.memberDegrees, ['1', '3', '5', '6', 'b9']);
+      expect(major.normalizedVoicing, [60, 64, 67, 69, 73]);
+
+      expect(minor.presentation.symbol.toString(), 'Cm6b9');
+      expect(minor.members, ['C', 'Eb', 'G', 'A', 'Db']);
+      expect(minor.memberDegrees, ['1', 'b3', '5', '6', 'b9']);
+      expect(minor.normalizedVoicing, [60, 63, 67, 69, 73]);
     });
 
     test(

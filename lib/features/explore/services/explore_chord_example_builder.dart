@@ -138,12 +138,24 @@ abstract final class ExploreChordExampleBuilder {
           ChordExtension.add9.intervalAboveRoot,
         ) &&
         !out.contains(ChordExtension.add9) &&
-        (out.contains(ChordExtension.add11) ||
-            out.contains(ChordExtension.sharp11) ||
-            out.contains(ChordExtension.add13))) {
+        _shouldImplyTriadLikeAdd9(quality, out)) {
       out.add(ChordExtension.add9);
     }
     return Set<ChordExtension>.unmodifiable(out);
+  }
+
+  static bool _shouldImplyTriadLikeAdd9(
+    ChordQualityToken quality,
+    Set<ChordExtension> selected,
+  ) {
+    if (selected.contains(ChordExtension.add11) ||
+        selected.contains(ChordExtension.add13)) {
+      return true;
+    }
+
+    return selected.contains(ChordExtension.sharp11) &&
+        quality != ChordQualityToken.minor &&
+        quality != ChordQualityToken.minor6;
   }
 
   static List<int> _canonicalVoicing({
