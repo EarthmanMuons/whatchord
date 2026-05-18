@@ -119,40 +119,44 @@
           </div>
 
           <p>
-            So which name is "right"? In isolation, none of them is more correct
-            than the others. They are four enharmonic descriptions of identical
-            musical content. The right answer depends on context: what key you
-            are in, what chord came before, which note the bass instrument is
-            playing, and where the progression is heading.
+            So which name is "right"? Without tonal context, none of the four
+            spellings is automatically more correct than the others. They are
+            enharmonic descriptions of identical piano keys, and the right
+            answer depends on musical context: what key you are in, what chord
+            came before, which note is functioning as the bass, and where the
+            progression is heading.
           </p>
 
           <p>
             WhatChord resolves this using diatonic context. When you have set a
             key signature, the app prefers the diminished 7th reading that best
-            fits the key, specifically the one whose root is a natural leading
-            tone. In D♭ major, these same piano keys naturally point to Cdim7,
-            the leading-tone diminished 7th that resolves to D♭. Without a key
-            signature, it falls back to preferring root position: the
-            interpretation where the bass note is named as the root, which is a
-            clear default when no surrounding harmony is available.
+            fits the key, specifically the one whose root is the diatonic
+            leading tone. In D♭ major, these same piano keys naturally point to
+            <span class="chord">Cdim7</span>, the leading-tone diminished 7th
+            that resolves to D♭. Without a key signature, it falls back to
+            preferring root position: the interpretation where the bass note is
+            named as the root, which is a clear default when no surrounding
+            harmony is available.
           </p>
 
           <h2>Inversions: the bass note changes everything</h2>
 
           <p>
-            Inversion is the most common reason a chord sounds like something
-            else. When the third is in the bass instead of the root, a major
-            chord starts to feel unstable, like it wants to resolve. When the
-            fifth is in the bass, the chord floats ambiguously between two
-            functions.
+            Inversion is one of the main reasons a chord name needs more than a
+            pitch-class lookup. When the third is in the bass instead of the
+            root, a major chord carries a different weight than it does in root
+            position. When the fifth is in the bass, the same pitch classes can
+            sound stable in one progression and transitional in another,
+            depending on the surrounding music.
           </p>
 
           <p>
             Classical theory calls these first and second inversion. Jazz and
-            pop use slash notation: C/E (C major with E in the bass), C/G (C
-            major with G in the bass). Either way, the relationship between the
-            bass note and the chord tones above it matters, and it affects how
-            the chord is named.
+            pop use slash notation: <span class="chord">C/E</span> (C major with
+            E in the bass), <span class="chord">C/G</span> (C major with G in
+            the bass). Either way, the relationship between the bass note and
+            the chord tones above it matters, and it affects how the chord is
+            named.
           </p>
 
           <p>
@@ -171,11 +175,13 @@
             <span class="chord">C6</span>
             or
             <span class="chord">Am7/C</span>? Both are completely valid
-            readings: C6 is a major chord with an added 6th; Am7/C is an A minor
-            7th chord in first inversion. In real music, both readings show up.
-            WhatChord's default is to show C6 as the primary interpretation: the
-            root is in the bass and no inversion notation is required. Am7/C
-            appears below the chord identity card as an alternative.
+            readings: <span class="chord">C6</span> is a major chord with an
+            added 6th; <span class="chord">Am7/C</span> is an A minor 7th chord
+            in first inversion. In real music, both readings show up.
+            WhatChord's default is to show <span class="chord">C6</span> as the
+            primary interpretation: the root is in the bass and no inversion
+            notation is required. <span class="chord">Am7/C</span> appears below
+            the chord identity card as an alternative.
           </p>
 
           <h2>Extensions: when does an extra note become part of the chord?</h2>
@@ -187,58 +193,60 @@
           </p>
 
           <p>
-            The theory behind this is that tonal music organizes extensions in a
-            stack: 7, 9, 11, 13. Each interval builds on the ones below it. A
-            "real" major 9th chord (<span class="chord">Cmaj9</span>) contains
-            the major 7th as well. The 9 is an extension of the 7th-family
-            chord, not just a note tacked on. By contrast,
+            In tertian chord-symbol practice, extensions are named as part of a
+            stack: 7, 9, 11, 13. A major 9th chord (<span class="chord"
+              >Cmaj9</span
+            >) normally implies the major 7th as well. The 9 is an extension of
+            the 7th-family chord, not just a note tacked on. By contrast,
             <span class="chord">Cadd9</span> skips the 7th entirely and adds the
             9th on top of a basic triad. They are different sounds with
             different names, even though both contain C, E, G, and D.
           </p>
 
           <p>
-            WhatChord uses this distinction when labeling extensions. A 9 needs
-            the 7th below it. An 11 or 13 needs both the 7th and the 9th,
-            because those names imply a larger stack of chord tones. Without
-            that support, the same notes are labeled as add tones: add9, add11,
-            or add13. The rule is simple to state and surprisingly hard to get
-            right in practice, because voicings often omit the 5th while keeping
-            the tones that define the chord function.
+            WhatChord uses a conservative version of this distinction when
+            labeling extensions. A 9 needs the 7th below it. An 11 needs both
+            the 7th and the 9th. A 13 needs the 7th and 9th, but not a sounding
+            11, matching common chord-symbol practice where the 11th is often
+            omitted. Without that support, the same notes are labeled as add
+            tones: add9, add11, or add13. The rule is simple to state and
+            surprisingly hard to get right in practice, because voicings often
+            omit the 5th while keeping the tones that define the chord function.
           </p>
 
-          <h2>Altered dominants: the most complicated single chord type</h2>
+          <h2>Altered dominants: a dense naming problem</h2>
 
           <p>
             Dominant 7th chords such as <span class="chord">G7</span>,
             <span class="chord">C7</span>, and <span class="chord">F7</span> are
             the workhorses of functional harmony. They create tension that
             resolves, and because jazz musicians spend so much time on them,
-            dominant 7ths have accumulated more extensions and alterations than
-            any other chord type.
+            dominant 7ths have accumulated a particularly rich vocabulary of
+            extensions and alterations.
           </p>
 
           <p>
             The "altered scale," the seventh mode of melodic minor, provides a
             vocabulary of alterations that can be stacked on a dominant chord:
-            flat 9, sharp 9, sharp 11, flat 13. A heavily altered dominant might
-            look like <span class="chord">G7♯9♯11♭13</span>: G plus its major
-            3rd (B), its minor 7th (F), and three altered upper extensions. That
-            is six distinct pitch classes in a single chord.
+            flat 9, sharp 9, sharp 11 or flat 5, and flat 13 or sharp 5. A
+            heavily altered dominant might look like
+            <span class="chord">G7♯9♯11♭13</span>: G plus its major 3rd (B), its
+            minor 7th (F), and three altered upper extensions. That is six
+            distinct pitch classes in a single chord.
           </p>
 
           <p>
             The dominant 7th sharp-nine chord is particularly well-known,
             nicknamed the "Hendrix chord" for its prominent use in "Purple
-            Haze," where it appears as E7♯9. Building one on G, the notes are G,
-            B, F, and A♯. That A♯ is the same piano key as B♭, but the chord
-            role is different: it is the raised 9th above G. Without musical
-            context, a naive recognizer might call the same keys a diminished
-            chord, a minor chord with a strange bass, or something else
-            entirely. WhatChord recognizes the dominant shell (major 3rd + flat
-            7th) as the anchor, treats the sharp 9 as an alteration on that
-            dominant function, and reports <span class="chord">G7♯9</span> as
-            expected.
+            Haze," where it appears as <span class="chord">E7♯9</span>. Building
+            one on G, the notes are G, B, F, and A♯. That A♯ is the same piano
+            key as B♭, but the chord role is different: it is the raised 9th
+            above G. Without musical context, a naive recognizer might call the
+            same keys a diminished chord, a minor chord with a strange bass, or
+            something else entirely. WhatChord recognizes the dominant shell
+            (major 3rd + flat 7th) as the anchor, treats the sharp 9 as an
+            alteration on that dominant function, and reports
+            <span class="chord">G7♯9</span> as expected.
           </p>
 
           <p>
@@ -252,17 +260,17 @@
           <p>
             Experienced jazz pianists often build dominant chord voicings using
             an "upper structure" technique: the left hand plays the shell tones
-            (the 3rd and flat 7th of the dominant), and the right hand plays
-            what sounds like a completely different chord, often a simple triad
-            or 7th chord built on some other root. The result is a rich, modern
-            color that resists simple labeling.
+            (usually the 3rd and flat 7th of the dominant, often with a bass
+            root supplied nearby), and the right hand plays what sounds like a
+            separate chord, often a simple triad built on another scale degree.
+            The result is a rich color that resists simple labeling.
           </p>
 
           <p>
             In these cases, WhatChord keeps the dominant shell as the anchor
             instead of treating the upper notes as unrelated chord roots. If the
-            bass is itself a color tone, such as the ♯11, the result is shown as
-            an intentional upper-structure voicing rather than a mistaken root
+            bass is itself a color tone, such as the ♯11, the result is kept in
+            the dominant family rather than being treated as an unrelated root
             change.
           </p>
 
@@ -309,11 +317,12 @@
           </p>
 
           <p>
-            The C6 versus Am7/C case from earlier is the basic version of this
-            problem: the notes are identical, but the musical meaning depends on
-            where the harmony is going. Are you at the end of a phrase resolving
-            to tonic, or are you in the middle of a ii-V-I in G major? The notes
-            do not tell you. The music around them does.
+            The <span class="chord">C6</span> versus
+            <span class="chord">Am7/C</span> case from earlier is the basic
+            version of this problem: the notes are identical, but the musical
+            meaning depends on where the harmony is going. Are you at the end of
+            a phrase resolving to tonic, or are you in the middle of a ii-V-I in
+            G major? The notes do not tell you. The music around them does.
           </p>
 
           <p>
@@ -326,8 +335,8 @@
           </p>
 
           <p>
-            This is the more honest representation of what the notes actually
-            contain. The four notes C, E, F♯, and B♭ are a clean example: they
+            This is the more honest representation of what the notes can
+            support. The four notes C, E, F♯, and B♭ are a clean example: they
             score identically as <span class="chord">C7♭5</span> and
             <span class="chord">F♯7♭5/C</span>, two dominant 7th♭5 chords whose
             roots sit a tritone apart, the same symmetry that underlies tritone
