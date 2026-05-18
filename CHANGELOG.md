@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed chord ranking so complete minor sharp-eleventh voicings are preferred
+  over remote altered major-7-sus4 names.
+
 ## [2026.5.16] - 2026-05-16
 
 ### Added

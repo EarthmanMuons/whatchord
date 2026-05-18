@@ -64,6 +64,36 @@ void main() {
     );
   });
 
+  test('complete minor sharp11 beats altered major7sus4', () {
+    final minorSharp11 = ChordCandidate(
+      identity: _identity(
+        quality: ChordQualityToken.minor,
+        rootPc: 9,
+        bassPc: 4,
+        presentIntervals: const {0, 3, 6, 7},
+        extensions: const {ChordExtension.sharp11},
+      ),
+      score: 9.65,
+    );
+
+    final alteredSus = ChordCandidate(
+      identity: _identity(
+        quality: ChordQualityToken.major7sus4,
+        rootPc: 4,
+        bassPc: 4,
+        presentIntervals: const {0, 5, 8, 11},
+        extensions: const {ChordExtension.flat13},
+      ),
+      score: 10,
+    );
+
+    _expectRule(
+      minorSharp11,
+      alteredSus,
+      'Prefer complete minor sharp11 over altered maj7sus4',
+    );
+  });
+
   test('root-position dominant7 beats close non-dominant slash', () {
     final dominant = ChordCandidate(
       identity: _identity(

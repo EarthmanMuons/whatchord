@@ -241,6 +241,19 @@ void main() {
       },
     ),
 
+    // Complete minor triad with #11 should beat a remote altered maj7sus4 name.
+    golden(
+      name: 'E A C D# --bass=E -> Am#11 / E',
+      pcs: ['E', 'A', 'C', 'D#'],
+      bass: 'E',
+      expectTop: (top) {
+        expect(top.rootPc, pc('A'));
+        expect(top.bassPc, pc('E'));
+        expect(top.quality, ChordQualityToken.minor);
+        expect(top.extensions, contains(ChordExtension.sharp11));
+      },
+    ),
+
     // Major 6 in first inversion.
     golden(
       name: 'C E G A --bass=E -> C6 / E',
