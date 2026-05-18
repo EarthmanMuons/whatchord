@@ -111,6 +111,10 @@ abstract final class ChordCandidateRanking {
       _preferConventionalAlteredSeventhOverAdd11Slash,
     ),
     _NamedRule(
+      'Prefer complete minor sharp11 over altered maj7sus4',
+      _preferCompleteMinorSharp11OverAlteredMaj7Sus4,
+    ),
+    _NamedRule(
       'Prefer close root-position dominant7 over non-dominant slash',
       _preferDom7RootOverNonDomSlash,
     ),
@@ -438,6 +442,38 @@ abstract final class ChordCandidateRanking {
     return aIsQuestionableSlash ? 1 : -1;
   }
 
+  /// Prefers a complete minor triad with a single sharp-eleventh color over a
+  /// root-position major-7-sus4 reading that needs an altered thirteenth.
+  ///
+  /// Example: {E, A, C, D#} is more defensibly Am#11/E than Emaj7sus4(b13):
+  /// the A-rooted reading preserves a complete minor triad, while the E-rooted
+  /// reading has neither a third nor fifth and depends on b13 color.
+  static int? _preferCompleteMinorSharp11OverAlteredMaj7Sus4(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsMinorSharp11 = fa.isCompleteMinorSharp11;
+    final bIsMinorSharp11 = fb.isCompleteMinorSharp11;
+    if (aIsMinorSharp11 == bIsMinorSharp11) return null;
+
+    final fMinor = aIsMinorSharp11 ? fa : fb;
+    final fSus = aIsMinorSharp11 ? fb : fa;
+    final minorCandidate = aIsMinorSharp11 ? a : b;
+    final susCandidate = aIsMinorSharp11 ? b : a;
+
+    if (!fMinor.isSecondInversion) return null;
+    if (!fSus.isAlteredMajor7Sus4) return null;
+
+    // Keep the override narrow: if the template score strongly favors the sus
+    // reading, let score win.
+    if (minorCandidate.score + 0.35 < susCandidate.score) return null;
+
+    return aIsMinorSharp11 ? -1 : 1;
+  }
+
   static int? _preferFewerAlterations(
     ChordCandidate a,
     ChordCandidate b,
@@ -630,6 +666,9 @@ class _CandidateFeatures {
   final bool isDim7;
   final bool isDimFamily;
   final bool isSus;
+  final bool isCompleteMinorSharp11;
+  final bool isSecondInversion;
+  final bool isAlteredMajor7Sus4;
 
   final bool isDom7;
   final bool isAlteredFifthDom7;
@@ -656,6 +695,9 @@ class _CandidateFeatures {
     required this.isDim7,
     required this.isDimFamily,
     required this.isSus,
+    required this.isCompleteMinorSharp11,
+    required this.isSecondInversion,
+    required this.isAlteredMajor7Sus4,
     required this.isDom7,
     required this.isAlteredFifthDom7,
     required this.isFlatFiveDom7,
@@ -704,6 +746,9 @@ class _CandidateFeatures {
       isDim7: isDim7,
       isDimFamily: isDimFamily,
       isSus: q.isSus,
+      isCompleteMinorSharp11: _isCompleteMinorSharp11(id),
+      isSecondInversion: _bassRoleRank(id) == 2,
+      isAlteredMajor7Sus4: _isAlteredMajor7Sus4(id, rootPos),
       isDom7: isDom7,
       isAlteredFifthDom7: isAlteredFifthDom7,
       isFlatFiveDom7: isFlatFiveDom7,
@@ -720,6 +765,24 @@ class _CandidateFeatures {
       extPref: pref,
       hasRealExt: realExt,
     );
+  }
+
+  static bool _isCompleteMinorSharp11(ChordIdentity id) {
+    if (id.quality != ChordQualityToken.minor) return false;
+    if (id.extensions.length != 1) return false;
+    if (!id.extensions.contains(ChordExtension.sharp11)) return false;
+
+    final roles = id.toneRolesByInterval.values;
+    return roles.contains(ChordToneRole.root) &&
+        roles.contains(ChordToneRole.minor3) &&
+        roles.contains(ChordToneRole.perfect5) &&
+        roles.contains(ChordToneRole.sharp11);
+  }
+
+  static bool _isAlteredMajor7Sus4(ChordIdentity id, bool rootPos) {
+    if (!rootPos) return false;
+    if (id.quality != ChordQualityToken.major7sus4) return false;
+    return id.extensions.contains(ChordExtension.flat13);
   }
 
   static bool _isQuestionableAdd11Slash(ChordIdentity id, bool rootPos) {
