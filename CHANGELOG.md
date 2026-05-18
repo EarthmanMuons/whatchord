@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added Explore Chords sharp-eleventh color choices for minor and minor-sixth
+  chords, plus flat-ninth colors for sixth chords, including symbols like Am#11
+  and Cm6b9.
+
 ### Fixed
 
 - Fixed chord ranking so complete minor sharp-eleventh voicings are preferred

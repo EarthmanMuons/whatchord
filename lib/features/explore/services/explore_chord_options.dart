@@ -132,6 +132,8 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
         role: ExploreExtensionControlRole.colors,
         allowsMultiple: true,
         choices: [
+          if (availableColors.contains(ChordExtension.flat9))
+            _choice(ChordExtension.flat9),
           if (availableColors.contains(ChordExtension.sharp11))
             _choice(ChordExtension.sharp11),
         ],
@@ -318,10 +320,16 @@ Set<ChordExtension> normalizeExtensionsForQuality({
           addTriadLikeExtension(ChordExtension.add13);
         }
         break;
-      case ChordExtension.flat9:
       case ChordExtension.sharp9:
       case ChordExtension.flat13:
         addSeventhColor(extension);
+        break;
+      case ChordExtension.flat9:
+        if (quality.isSeventhFamily) {
+          addSeventhColor(extension);
+        } else {
+          addTriadLikeExtension(ChordExtension.flat9);
+        }
         break;
       case ChordExtension.sharp11:
         if (quality.isSeventhFamily) {
@@ -362,8 +370,17 @@ void _promoteSeventhFamilyCompletedStacks(Set<ChordExtension> extensions) {
 bool _allowsTriadLikeSharp11(ChordQualityToken quality) {
   return switch (quality) {
     ChordQualityToken.major ||
+    ChordQualityToken.minor ||
     ChordQualityToken.major6 ||
+    ChordQualityToken.minor6 ||
     ChordQualityToken.augmented => true,
+    _ => false,
+  };
+}
+
+bool _allowsTriadLikeFlat9(ChordQualityToken quality) {
+  return switch (quality) {
+    ChordQualityToken.major6 || ChordQualityToken.minor6 => true,
     _ => false,
   };
 }
@@ -372,13 +389,16 @@ Set<ChordExtension> _availableTriadLikeExtensions(ChordQualityToken quality) {
   final canonicalIntervals = quality.canonicalIntervals;
   return {
     for (final extension in const {
+      ChordExtension.flat9,
       ChordExtension.add9,
       ChordExtension.add11,
       ChordExtension.add13,
       ChordExtension.sharp11,
     })
       if (!canonicalIntervals.contains(extension.intervalAboveRoot) &&
-          (!_isTriadLikeSharp11(extension) || _allowsTriadLikeSharp11(quality)))
+          (!_isTriadLikeSharp11(extension) ||
+              _allowsTriadLikeSharp11(quality)) &&
+          (!_isTriadLikeFlat9(extension) || _allowsTriadLikeFlat9(quality)))
         extension,
   };
 }
@@ -400,8 +420,13 @@ Set<ChordExtension> _availableTriadLikeColorExtensions(
 ) {
   final available = _availableTriadLikeExtensions(quality);
   return {
+    if (available.contains(ChordExtension.flat9)) ChordExtension.flat9,
     if (available.contains(ChordExtension.sharp11)) ChordExtension.sharp11,
   };
+}
+
+bool _isTriadLikeFlat9(ChordExtension extension) {
+  return extension == ChordExtension.flat9;
 }
 
 bool _isTriadLikeSharp11(ChordExtension extension) {
@@ -417,6 +442,12 @@ void _removeMutuallyExclusiveTriadLikeExtensions(
   ChordExtension selected,
 ) {
   switch (selected) {
+    case ChordExtension.add9:
+      extensions.remove(ChordExtension.flat9);
+      break;
+    case ChordExtension.flat9:
+      extensions.remove(ChordExtension.add9);
+      break;
     case ChordExtension.add11:
       extensions.remove(ChordExtension.sharp11);
       break;
