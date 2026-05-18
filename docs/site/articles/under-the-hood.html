@@ -155,18 +155,21 @@
           <h2>Pitch classes and bitmasks</h2>
 
           <p>
-            Western music theory operates in 12-tone equal temperament (12-TET):
-            12 equal semitones per octave. <em>Pitch class</em> is the note’s
-            position within that octave, ignoring which octave it’s in, so
-            middle C, the C above it, and the C three octaves below all share
+            WhatChord models the common 12-tone equal temperament (12-TET)
+            pitch-class framework used by MIDI keyboards, which divides each
+            octave into equal semitone positions. A <em>pitch class</em> is the
+            note’s position within that octave, ignoring which octave it’s in,
+            so middle C, the C above it, and the C three octaves below all share
             pitch class 0. In WhatChord, pitch classes are numbered 0 (C)
             through 11 (B).
           </p>
 
           <p>
-            A chord is a set of pitch classes. WhatChord represents this as a
-            12-bit integer mask where bit <em>n</em> is set if pitch class
-            <em>n</em> is present. C major (C=0, E=4, G=7) looks like this:
+            For analysis, WhatChord collapses the sounding notes into a set of
+            pitch classes plus the lowest sounding note as bass. The pitch-class
+            set is represented as a 12-bit integer mask where bit <em>n</em> is
+            set if pitch class <em>n</em> is present. C major (C=0, E=4, G=7)
+            looks like this:
           </p>
 
           <table
@@ -227,10 +230,10 @@
 
           <p>
             This representation is compact and fast. Checking whether a pitch
-            class is present is a single bitwise AND. Counting present notes is
-            a popcount. Rotating the voicing relative to a candidate root is a
-            loop over bits with modular arithmetic. All of these operations are
-            cheap.
+            class is present is a single bitwise AND. Counting present pitch
+            classes is a popcount. Rotating the set relative to a candidate root
+            is a loop over bits with modular arithmetic. All of these operations
+            are cheap.
           </p>
 
           <p>
@@ -596,11 +599,11 @@
 
           <p>
             Whether natural extensions become “9/11/13” or “add9/add11/add13”
-            depends on the stack below them. A 9 needs the 7th. An 11 or 13
-            needs both the 7th and 9th; the 11 itself is not required before
-            labeling a 13, because 11ths are often omitted in chord symbols and
-            real voicings. Without that support, the same pitch class is labeled
-            as an add tone instead.
+            depends on the stack below them. In WhatChord's conservative naming
+            model, a 9 needs the 7th, and an 11 needs both the 7th and 9th. A 13
+            needs the 7th and 9th, but not a sounding 11, matching common
+            chord-symbol practice where the 11th is often omitted. Without that
+            support, the same pitch class is labeled as an add tone instead.
           </p>
 
           <p>
@@ -616,10 +619,10 @@
           <p>
             The scoring weights were not established arbitrarily. They were
             tuned empirically against a set of golden test cases: specific
-            voicings where the desired output was known in advance. Each golden
-            case captures a chord a musician would name unambiguously, together
-            with structural assertions about the winning candidate’s root,
-            quality, and extensions.
+            voicings where the expected output was chosen in advance. Most
+            golden cases capture chords a musician would name unambiguously;
+            ambiguous cases pin the intended primary reading for the current
+            scoring and ranking model.
           </p>
 
           <p>
@@ -722,8 +725,8 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
           <p>
             Hard rules are intentionally narrow. They cover cases where remote
             slash-chord interpretations can outscore conventional root-position
-            dominant, altered-dominant, or diminished-seventh names that
-            musicians are more likely to use.
+            dominant, altered-dominant, altered-seventh, or diminished-seventh
+            names that musicians are more likely to use.
           </p>
 
           <h3>The near-tie window</h3>
@@ -766,7 +769,9 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
             </li>
             <li>Prefer root position</li>
             <li>Prefer 1st inversion over 2nd inversion</li>
-            <li>Prefer 7th chords over triads</li>
+            <li>
+              Prefer 7th chords over triads when both fit the played notes
+            </li>
             <li>Prefer fewer extensions</li>
             <li>Avoid suspended chords</li>
           </ol>
@@ -783,8 +788,9 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
             clarity (root position, shell tones) comes before contextual
             preferences (diatonic, tonic). Conventional naming (fewer
             alterations, natural extensions) comes before complexity. Suspended
-            chords are deprioritized last because they are valid but less
-            common, and should only win when nothing else fits.
+            chords are deprioritized late because they are valid but easy to
+            over-detect when a third is absent, so they should win only when the
+            surrounding evidence supports them.
           </p>
 
           <h2>Caching for real-time performance</h2>
@@ -861,10 +867,10 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
               accuracy is a natural direction for future improvement.
             </li>
             <li>
-              <strong>Non-12-TET tuning.</strong> Western music theory operates
-              in 12-tone equal temperament (12-TET), and MIDI uses integer
-              semitone values to match. Microtonal intervals, quarter tones, and
-              just intonation systems have no representation in this model.
+              <strong>Non-12-TET tuning.</strong> This engine is built around 12
+              pitch classes and standard MIDI note numbers. Microtonal
+              intervals, quarter tones, and just-intonation distinctions have no
+              representation in this model.
             </li>
           </ul>
 
