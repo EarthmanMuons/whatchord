@@ -87,11 +87,6 @@
             amount of musical knowledge.
           </p>
 
-          <p>
-            WhatChord is built around that encoding. This article walks through
-            the specific challenges it is designed to handle.
-          </p>
-
           <h2>The same notes, different chords</h2>
 
           <p>
@@ -128,10 +123,10 @@
           </p>
 
           <p>
-            WhatChord resolves this using diatonic context. When you have set a
-            key signature, the app prefers the diminished 7th reading that best
-            fits the key, specifically the one whose root is the diatonic
-            leading tone. In D♭ major, these same piano keys naturally point to
+            The app resolves this using diatonic context. When you have set a
+            key signature, it prefers the diminished 7th reading that best fits
+            the key, specifically the one whose root is the diatonic leading
+            tone. In D♭ major, these same piano keys naturally point to
             <span class="chord">Cdim7</span>, the leading-tone diminished 7th
             that resolves to D♭. Without a key signature, it falls back to
             preferring root position: the interpretation where the bass note is
@@ -160,7 +155,7 @@
           </p>
 
           <p>
-            A MIDI keyboard tells WhatChord the pitch class of every sounding
+            A MIDI keyboard tells the analyzer the pitch class of every sounding
             note, including the lowest one. The lowest note is treated as the
             bass note and scored separately from the upper structure. A chord
             where the bass is the root earns a higher score than the same chord
@@ -177,8 +172,8 @@
             <span class="chord">Am7/C</span>? Both are completely valid
             readings: <span class="chord">C6</span> is a major chord with an
             added 6th; <span class="chord">Am7/C</span> is an A minor 7th chord
-            in first inversion. In real music, both readings show up.
-            WhatChord's default is to show <span class="chord">C6</span> as the
+            in first inversion. In real music, both readings show up. The
+            default behavior is to show <span class="chord">C6</span> as the
             primary interpretation: the root is in the bass and no inversion
             notation is required. <span class="chord">Am7/C</span> appears below
             the chord identity card as an alternative.
@@ -193,7 +188,7 @@
           </p>
 
           <p>
-            In tertian chord-symbol practice, extensions are named as part of a
+            In common chord-symbol practice, extensions are named as part of a
             stack: 7, 9, 11, 13. A major 9th chord (<span class="chord"
               >Cmaj9</span
             >) normally implies the major 7th as well. The 9 is an extension of
@@ -243,7 +238,7 @@
             key as B♭, but the chord role is different: it is the raised 9th
             above G. Without musical context, a naive recognizer might call the
             same keys a diminished chord, a minor chord with a strange bass, or
-            something else entirely. WhatChord recognizes the dominant shell
+            something else entirely. The analyzer recognizes the dominant shell
             (major 3rd + flat 7th) as the anchor, treats the sharp 9 as an
             alteration on that dominant function, and reports
             <span class="chord">G7♯9</span> as expected.
@@ -267,7 +262,7 @@
           </p>
 
           <p>
-            In these cases, WhatChord keeps the dominant shell as the anchor
+            In these cases, the analyzer keeps the dominant shell as the anchor
             instead of treating the upper notes as unrelated chord roots. If the
             bass is itself a color tone, such as the ♯11, the result is kept in
             the dominant family rather than being treated as an unrelated root
@@ -298,14 +293,14 @@
           </p>
 
           <p>
-            WhatChord uses both the key signature and the identified chord root
-            to determine enharmonic spelling. When you have set the key
-            signature to three flats (E♭ major or C minor), the app will favor
-            flat spellings for chord tones and extensions throughout. When it
-            identifies a dominant 7th on G, it spells the 7th as F regardless of
-            key context, because that is what the chord quality demands. These
-            two sources of context combine to produce spellings that look like
-            what a professional musician or copyist would write.
+            The app uses both the key signature and the identified chord root to
+            determine enharmonic spelling. When you have set the key signature
+            to three flats (E♭ major or C minor), it will favor flat spellings
+            for chord tones and extensions throughout. When it identifies a
+            dominant 7th on G, it spells the 7th as F regardless of key context,
+            because that is what the chord quality demands. These two sources of
+            context combine to produce spellings that look like what a
+            professional musician or copyist would write.
           </p>
 
           <h2>Ambiguity is a feature, not a problem</h2>
@@ -326,12 +321,13 @@
           </p>
 
           <p>
-            Rather than arbitrarily committing to one name, WhatChord shows both
-            when scores are close. The primary result is the highest-ranked
-            interpretation, displayed as the main chord name. Other plausible
-            readings appear below the chord identity card. A musician looking at
-            the screen gets the most likely reading immediately, but can see at
-            a glance that another name is also in play.
+            Rather than arbitrarily committing to one name, the interface can
+            show both when scores are close. The primary result is the
+            highest-ranked interpretation, displayed as the main chord name.
+            Other plausible readings appear below the chord identity card. A
+            musician looking at the screen gets the most likely reading
+            immediately, but can see at a glance that another name is also in
+            play.
           </p>
 
           <p>
@@ -340,7 +336,7 @@
             score identically as <span class="chord">C7♭5</span> and
             <span class="chord">F♯7♭5/C</span>, two dominant 7th♭5 chords whose
             roots sit a tritone apart, the same symmetry that underlies tritone
-            substitution in jazz. WhatChord shows
+            substitution in jazz. The app shows
             <span class="chord">C7♭5</span> as primary (root in the bass), with
             <span class="chord">F♯7♭5/C</span> listed as an equally scored
             alternative.

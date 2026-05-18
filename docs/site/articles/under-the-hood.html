@@ -95,7 +95,6 @@
             What you actually need is a scoring model. It has to evaluate how
             well any given set of notes fits each chord type, rank all plausible
             interpretations, and apply musical judgment when scores are close.
-            That is the approach WhatChord takes.
           </p>
 
           <h2>Overview: a four-stage pipeline</h2>
@@ -160,12 +159,12 @@
             octave into equal semitone positions. A <em>pitch class</em> is the
             note’s position within that octave, ignoring which octave it’s in,
             so middle C, the C above it, and the C three octaves below all share
-            pitch class 0. In WhatChord, pitch classes are numbered 0 (C)
+            pitch class 0. In this engine, pitch classes are numbered 0 (C)
             through 11 (B).
           </p>
 
           <p>
-            For analysis, WhatChord collapses the sounding notes into a set of
+            For analysis, the engine collapses the sounding notes into a set of
             pitch classes plus the lowest sounding note as bass. The pitch-class
             set is represented as a 12-bit integer mask where bit <em>n</em> is
             set if pitch class <em>n</em> is present. C major (C=0, E=4, G=7)
@@ -250,19 +249,19 @@
           </p>
 
           <p>
-            This is a deliberate “solo keyboard” assumption. WhatChord is
-            currently optimized for the common case where the same MIDI stream
-            contains both the harmony and the bass note. A future ensemble mode
-            could relax that rule for settings where another instrument is
-            carrying the bass, allowing rootless voicings to imply roots that
-            are not literally present in the keyboard part.
+            This is a deliberate “solo keyboard” assumption. The current engine
+            is optimized for the common case where the same MIDI stream contains
+            both the harmony and the bass note. A future ensemble mode could
+            relax that rule for settings where another instrument is carrying
+            the bass, allowing rootless voicings to imply roots that are not
+            literally present in the keyboard part.
           </p>
 
           <h2>Chord templates</h2>
 
           <p>
-            WhatChord also defines chord qualities as bitmask templates. Each
-            one describes three sets of intervals relative to the root:
+            Chord qualities are also defined as bitmask templates. Each one
+            describes three sets of intervals relative to the root:
           </p>
 
           <ul>
@@ -448,9 +447,9 @@
 
           <p>
             For each candidate root (each pitch class present in the voicing),
-            WhatChord rotates the pitch class mask relative to that root to get
-            an interval mask. Then it scores that interval mask against all 22
-            templates.
+            the analyzer rotates the pitch class mask relative to that root to
+            get an interval mask. Then it scores that interval mask against all
+            22 templates.
           </p>
 
           <pre><code><span class="cm">// Rotate: compute intervals above rootPc for each sounding note</span>
@@ -599,11 +598,11 @@
 
           <p>
             Whether natural extensions become “9/11/13” or “add9/add11/add13”
-            depends on the stack below them. In WhatChord's conservative naming
-            model, a 9 needs the 7th, and an 11 needs both the 7th and 9th. A 13
-            needs the 7th and 9th, but not a sounding 11, matching common
-            chord-symbol practice where the 11th is often omitted. Without that
-            support, the same pitch class is labeled as an add tone instead.
+            depends on the stack below them. In this conservative naming model,
+            a 9 needs the 7th, and an 11 needs both the 7th and 9th. A 13 needs
+            the 7th and 9th, but not a sounding 11, matching common chord-symbol
+            practice where the 11th is often omitted. Without that support, the
+            same pitch class is labeled as an add tone instead.
           </p>
 
           <p>
@@ -670,7 +669,7 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
 
           <p>
             The same diagnostic output also exposes enharmonic spelling
-            decisions: MIDI provides pitch classes, and WhatChord chooses note
+            decisions: MIDI provides pitch classes, and the engine chooses note
             names from the winning chord context.
           </p>
 
@@ -714,10 +713,10 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
           </ul>
 
           <p>
-            WhatChord handles these ambiguities with two ranking paths: narrow
-            structural overrides for cases where the conventional name should
-            win despite score, and ordered tie-breakers for candidates whose
-            scores are already close.
+            The analyzer handles these ambiguities with two ranking paths:
+            narrow structural overrides for cases where the conventional name
+            should win despite score, and ordered tie-breakers for candidates
+            whose scores are already close.
           </p>
 
           <h3>Hard rules</h3>
@@ -803,7 +802,7 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
           </p>
 
           <p>
-            WhatChord uses a 512-entry Least Recently Used (LRU) cache
+            The engine uses a 512-entry Least Recently Used (LRU) cache
             implemented as a <code>LinkedHashMap</code>. The cache key is a hash
             of three inputs:
           </p>
@@ -899,8 +898,8 @@ pcs: Bb, C, E, F# |  bass: F#  |  key: C major
           </p>
 
           <p>
-            If you find a chord that WhatChord misidentifies, the best way to
-            report it is to long-press the chord card to open
+            If you find a misidentified chord, the best way to report it is to
+            long-press the chord card to open
             <em>Analysis Details</em>, copy the diagnostic output, and
             <a
               href="https://github.com/EarthmanMuons/whatchord/issues/new/choose"
