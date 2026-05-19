@@ -22,6 +22,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Fixed chord ranking so complete minor sharp-eleventh voicings are preferred
   over remote altered major-7-sus4 names.
+- Fixed Analysis Details so copied note names, chord symbols, members, and
+  degree labels use the same accidental symbols as the rest of the interface.
 
 ## [2026.5.16] - 2026-05-16
 
