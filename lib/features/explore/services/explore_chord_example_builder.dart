@@ -16,12 +16,14 @@ abstract final class ExploreChordExampleBuilder {
     required ExploreChordState state,
     required Tonality tonality,
     required ChordNotationStyle notation,
+    NoteNameSystem noteNameSystem = NoteNameSystem.international,
   }) {
     final selectedIdentity = buildExploreChordIdentity(state);
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: selectedIdentity,
       tonality: tonality,
       notation: notation,
+      noteNameSystem: noteNameSystem,
     );
 
     final exampleIntervals = _canonicalExampleIntervals(state);

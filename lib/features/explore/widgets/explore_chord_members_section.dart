@@ -14,6 +14,7 @@ class ChordMembersSection extends StatefulWidget {
     super.key,
     required this.members,
     required this.memberDegrees,
+    required this.noteNameSystem,
     required this.showDegrees,
     required this.onShowDegreesChanged,
     required this.previewNotes,
@@ -24,6 +25,7 @@ class ChordMembersSection extends StatefulWidget {
 
   final List<String> members;
   final List<String> memberDegrees;
+  final NoteNameSystem noteNameSystem;
   final bool showDegrees;
   final ValueChanged<bool> onShowDegreesChanged;
   final List<int> previewNotes;
@@ -54,6 +56,7 @@ class _ChordMembersSectionState extends State<ChordMembersSection>
     if (oldWidget.showDegrees != widget.showDegrees ||
         oldWidget.members != widget.members ||
         oldWidget.memberDegrees != widget.memberDegrees ||
+        oldWidget.noteNameSystem != widget.noteNameSystem ||
         oldWidget.activePitchClasses != widget.activePitchClasses ||
         oldWidget.memberPitchClasses != widget.memberPitchClasses) {
       _applyMemberDiff();
@@ -87,7 +90,14 @@ class _ChordMembersSectionState extends State<ChordMembersSection>
     final pitchClass = index < widget.memberPitchClasses.length
         ? widget.memberPitchClasses[index]
         : null;
-    final noteLabel = toGlyphAccidentals(widget.members[index]);
+    final noteLabel = noteDisplayLabel(
+      widget.members[index],
+      noteNameSystem: widget.noteNameSystem,
+    );
+    final noteSemantics = noteSemanticLabel(
+      widget.members[index],
+      noteNameSystem: widget.noteNameSystem,
+    );
     final degreeLabel = index < widget.memberDegrees.length
         ? toGlyphAccidentals(widget.memberDegrees[index])
         : noteLabel;
@@ -100,8 +110,8 @@ class _ChordMembersSectionState extends State<ChordMembersSection>
       label: widget.showDegrees ? degreeLabel : noteLabel,
       alternateLabel: widget.showDegrees ? noteLabel : degreeLabel,
       semanticLabel: widget.showDegrees
-          ? 'Chord member $noteLabel, degree $degreeLabel'
-          : 'Chord member $noteLabel',
+          ? 'Chord member $noteSemantics, degree $degreeLabel'
+          : 'Chord member $noteSemantics',
       active:
           pitchClass != null && widget.activePitchClasses.contains(pitchClass),
     );

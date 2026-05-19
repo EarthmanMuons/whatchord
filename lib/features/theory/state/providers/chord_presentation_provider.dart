@@ -14,10 +14,12 @@ final chordPresentationProvider = Provider<ChordPresentation?>((ref) {
 
   final tonality = ref.watch(analysisContextProvider.select((c) => c.tonality));
   final notation = ref.watch(chordNotationStyleProvider);
+  final noteNameSystem = ref.watch(noteNameSystemProvider);
 
   return ChordPresentationBuilder.fromIdentity(
     identity: identity,
     tonality: tonality,
     notation: notation,
+    noteNameSystem: noteNameSystem,
   );
 });

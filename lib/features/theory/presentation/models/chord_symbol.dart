@@ -2,6 +2,8 @@ import 'package:meta/meta.dart';
 
 enum ChordNotationStyle { symbolic, textual }
 
+enum NoteNameSystem { international, german, fixedDo }
+
 @immutable
 class ChordSymbol {
   final String root; // canonical ASCII, e.g. "C", "F#", "Bb"

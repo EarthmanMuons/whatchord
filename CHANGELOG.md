@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
+- Added a Note Names setting for International, German, and Fixed-Do chord and
+  note labels.
 - Added Explore Chords sharp-eleventh color choices for minor and minor-sixth
   chords, plus flat-ninth colors for sixth chords, including symbols like Am#11
   and Cm6b9.

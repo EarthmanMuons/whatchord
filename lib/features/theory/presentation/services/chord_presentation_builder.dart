@@ -9,6 +9,7 @@ abstract final class ChordPresentationBuilder {
     required ChordIdentity identity,
     required Tonality tonality,
     required ChordNotationStyle notation,
+    NoteNameSystem noteNameSystem = NoteNameSystem.international,
   }) {
     final memberPitchClasses = chordMemberPitchClassesFromMask(
       rootPc: identity.rootPc,
@@ -25,6 +26,13 @@ abstract final class ChordPresentationBuilder {
       longLabel: ChordLongFormFormatter.format(
         identity: identity,
         tonality: tonality,
+        noteNameSystem: noteNameSystem,
+      ),
+      semanticLongLabel: ChordLongFormFormatter.format(
+        identity: identity,
+        tonality: tonality,
+        noteNameSystem: noteNameSystem,
+        accidentalStyle: ChordLongFormAccidentalStyle.plainText,
       ),
       members: ChordMemberSpeller.spellMembers(
         identity: identity,

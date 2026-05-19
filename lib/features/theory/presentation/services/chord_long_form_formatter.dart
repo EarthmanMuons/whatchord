@@ -1,4 +1,5 @@
 import '../../domain/theory_domain.dart';
+import '../models/chord_symbol.dart';
 import 'chord_quality_token_labels.dart';
 import 'note_display_formatter.dart';
 
@@ -6,11 +7,12 @@ class ChordLongFormFormatter {
   static String format({
     required ChordIdentity identity,
     required Tonality tonality,
+    NoteNameSystem noteNameSystem = NoteNameSystem.international,
     ChordLongFormAccidentalStyle accidentalStyle =
         ChordLongFormAccidentalStyle.glyph,
   }) {
     final rootName = pcToName(identity.rootPc, tonality: tonality);
-    final root = _noteName(rootName, accidentalStyle);
+    final root = _noteName(rootName, accidentalStyle, noteNameSystem);
 
     final quality = identity.quality.label(ChordQualityLabelForm.long);
     final extPhrase = extensionsLongPhrase(identity.extensions);
@@ -28,7 +30,7 @@ class ChordLongFormFormatter {
         chordRootName: rootName,
         role: role,
       );
-      final bass = _noteName(bassName, accidentalStyle);
+      final bass = _noteName(bassName, accidentalStyle, noteNameSystem);
 
       if (bass != root) {
         s = '$s over $bass';
@@ -71,10 +73,21 @@ String extensionsLongPhrase(Set<ChordExtension> exts) {
   return ' with ${_englishJoin(parts)}';
 }
 
-String _noteName(String noteName, ChordLongFormAccidentalStyle style) {
+String _noteName(
+  String noteName,
+  ChordLongFormAccidentalStyle style,
+  NoteNameSystem noteNameSystem,
+) {
   return switch (style) {
-    ChordLongFormAccidentalStyle.glyph => noteDisplayLabel(noteName),
-    ChordLongFormAccidentalStyle.plainText => noteName,
+    ChordLongFormAccidentalStyle.glyph => noteDisplayLabel(
+      noteName,
+      noteNameSystem: noteNameSystem,
+    ),
+    ChordLongFormAccidentalStyle.plainText => noteSemanticLabel(
+      noteName,
+      noteNameSystem: noteNameSystem,
+      includeNatural: false,
+    ),
   };
 }
 

@@ -39,6 +39,7 @@ class IdentityCard extends ConsumerWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final exploreSeedIdentity = ref.watch(exploreSeedIdentityProvider);
+    final noteNameSystem = ref.watch(noteNameSystemProvider);
 
     final hasLabel = identity?.hasSecondaryLabel ?? false;
 
@@ -100,29 +101,12 @@ class IdentityCard extends ConsumerWidget {
           stepGranularity: autoSizeStep,
         ),
         ChordDisplay(:final symbol) => AutoSizeText.rich(
-          TextSpan(
-            style: primaryStyle,
-            children: <InlineSpan>[
-              TextSpan(text: toSmufl(symbol.root), style: rootStyle),
-              if (symbol.quality.isNotEmpty) ...[
-                const TextSpan(text: '\u2009'),
-                ...buildChordSpans(
-                  text: toSmufl(symbol.quality),
-                  base: chordDetailStyle,
-                  parenStyle: chordDetailStyle.copyWith(
-                    fontSize: (primaryStyle.fontSize ?? 14) + 16.0,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-              ],
-              if (symbol.hasBass) ...[
-                TextSpan(text: ' / ', style: chordDetailStyle),
-                TextSpan(
-                  text: toSmufl(symbol.bassRequired),
-                  style: chordDetailStyle,
-                ),
-              ],
-            ],
+          _chordDisplaySpan(
+            symbol: symbol,
+            noteNameSystem: noteNameSystem,
+            primaryStyle: primaryStyle,
+            rootStyle: rootStyle,
+            chordDetailStyle: chordDetailStyle,
           ),
           textAlign: TextAlign.center,
           style: primaryStyle,
@@ -432,4 +416,39 @@ List<InlineSpan> buildChordSpans({
 
   flush();
   return spans;
+}
+
+TextSpan _chordDisplaySpan({
+  required ChordSymbol symbol,
+  required NoteNameSystem noteNameSystem,
+  required TextStyle primaryStyle,
+  required TextStyle rootStyle,
+  required TextStyle chordDetailStyle,
+}) {
+  final display = chordSymbolDisplayParts(
+    symbol,
+    noteNameSystem: noteNameSystem,
+  );
+
+  return TextSpan(
+    style: primaryStyle,
+    children: <InlineSpan>[
+      TextSpan(text: toSmufl(display.root), style: rootStyle),
+      if (display.quality.isNotEmpty) ...[
+        TextSpan(text: display.rootQualitySeparator, style: chordDetailStyle),
+        ...buildChordSpans(
+          text: toSmufl(display.quality),
+          base: chordDetailStyle,
+          parenStyle: chordDetailStyle.copyWith(
+            fontSize: (primaryStyle.fontSize ?? 14) + 16.0,
+            fontWeight: FontWeight.w300,
+          ),
+        ),
+      ],
+      if (display.hasBass) ...[
+        TextSpan(text: ' / ', style: chordDetailStyle),
+        TextSpan(text: toSmufl(display.bassRequired), style: chordDetailStyle),
+      ],
+    ],
+  );
 }

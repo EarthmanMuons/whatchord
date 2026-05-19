@@ -3,15 +3,22 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:whatchord/features/theory/theory.dart';
 
-class ExploreSummary extends StatelessWidget {
+class ExploreSummary extends ConsumerWidget {
   const ExploreSummary({super.key, required this.presentation});
 
   final ChordPresentation presentation;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final noteNameSystem = ref.watch(noteNameSystemProvider);
+    final displaySymbol = chordSymbolDisplayParts(
+      presentation.symbol,
+      noteNameSystem: noteNameSystem,
+    );
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final symbolStyle = textTheme.headlineMedium?.copyWith(
@@ -27,7 +34,7 @@ class ExploreSummary extends StatelessWidget {
       fontSize: (symbolStyle.fontSize ?? 14) + 6,
     );
     final copyText =
-        '${chordSymbolDisplayLabel(presentation.symbol)}\n'
+        '$displaySymbol\n'
         '${presentation.longLabel}';
 
     Future<void> copyToClipboard() async {
@@ -46,7 +53,7 @@ class ExploreSummary extends StatelessWidget {
     return Semantics(
       container: true,
       header: true,
-      label: presentation.longLabel,
+      label: presentation.semanticLongLabel,
       onLongPress: copyToClipboard,
       onLongPressHint: 'Copy chord name to clipboard',
       child: Material(
@@ -62,20 +69,23 @@ class ExploreSummary extends StatelessWidget {
                 TextSpan(
                   children: [
                     TextSpan(
-                      text: toSmufl(presentation.symbol.root),
+                      text: toSmufl(displaySymbol.root),
                       style: rootStyle,
                     ),
-                    if (presentation.symbol.quality.isNotEmpty) ...[
-                      TextSpan(text: '\u2009', style: symbolDetailStyle),
+                    if (displaySymbol.quality.isNotEmpty) ...[
                       TextSpan(
-                        text: toSmufl(presentation.symbol.quality),
+                        text: displaySymbol.rootQualitySeparator,
+                        style: symbolDetailStyle,
+                      ),
+                      TextSpan(
+                        text: toSmufl(displaySymbol.quality),
                         style: symbolDetailStyle,
                       ),
                     ],
-                    if (presentation.symbol.hasBass) ...[
+                    if (displaySymbol.hasBass) ...[
                       TextSpan(text: ' / ', style: symbolDetailStyle),
                       TextSpan(
-                        text: toSmufl(presentation.symbol.bassRequired),
+                        text: toSmufl(displaySymbol.bassRequired),
                         style: symbolDetailStyle,
                       ),
                     ],

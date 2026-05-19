@@ -8,6 +8,8 @@ import 'package:whatchord/core/core.dart';
 
 import '../../domain/theory_domain.dart';
 import '../../state/providers/selected_tonality_notifier.dart';
+import '../../state/providers/theory_preferences_notifier.dart';
+import '../models/chord_symbol.dart';
 import '../services/note_display_formatter.dart';
 
 enum TonalityPickerPresentation { bottomSheet, sideSheet }
@@ -58,6 +60,7 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final selected = ref.watch(selectedTonalityProvider);
+    final noteNameSystem = ref.watch(noteNameSystemProvider);
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -176,8 +179,13 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                                             child: _TonalityChoiceChip(
                                               label: _tonalityDisplayLabel(
                                                 major,
+                                                noteNameSystem,
                                               ),
-                                              semanticsLabel: major.displayName,
+                                              semanticsLabel:
+                                                  _tonalitySemanticsLabel(
+                                                    major,
+                                                    noteNameSystem,
+                                                  ),
                                               selected: majorSelected,
                                               onTap: () =>
                                                   _selectTonality(major),
@@ -192,8 +200,13 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                                             child: _TonalityChoiceChip(
                                               label: _tonalityDisplayLabel(
                                                 minor,
+                                                noteNameSystem,
                                               ),
-                                              semanticsLabel: minor.displayName,
+                                              semanticsLabel:
+                                                  _tonalitySemanticsLabel(
+                                                    minor,
+                                                    noteNameSystem,
+                                                  ),
                                               selected: minorSelected,
                                               onTap: () =>
                                                   _selectTonality(minor),
@@ -302,9 +315,15 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
   }
 }
 
-String _tonalityDisplayLabel(Tonality tonality) {
-  final tonic = noteDisplayLabel(tonality.tonic);
-  return tonality.isMajor ? tonic : tonic.toLowerCase();
+String _tonalityDisplayLabel(Tonality tonality, NoteNameSystem noteNameSystem) {
+  return tonalityPickerTonicLabel(tonality, noteNameSystem: noteNameSystem);
+}
+
+String _tonalitySemanticsLabel(
+  Tonality tonality,
+  NoteNameSystem noteNameSystem,
+) {
+  return tonalitySemanticLabel(tonality, noteNameSystem: noteNameSystem);
 }
 
 class _TonalityPickerHeader extends StatelessWidget {

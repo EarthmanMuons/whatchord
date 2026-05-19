@@ -102,6 +102,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final cs = Theme.of(context).colorScheme;
 
     final chordNotationStyle = ref.watch(chordNotationStyleProvider);
+    final noteNameSystem = ref.watch(noteNameSystemProvider);
     final showScaleNotes = ref.watch(showScaleNotesProvider);
     final themeMode = ref.watch(appThemeModeProvider);
     final palette = ref.watch(appPaletteProvider);
@@ -325,15 +326,45 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 },
                 child: const Column(
                   children: [
-                    RadioListTile<ChordNotationStyle>(
+                    _SettingsRadioOption<ChordNotationStyle>(
                       title: Text('Textual'),
-                      subtitle: Text('E.g., Cmaj7, F#m7b5'),
+                      subtitle: Text('Cmaj7, F#m7b5, Bdim7'),
                       value: ChordNotationStyle.textual,
                     ),
-                    RadioListTile<ChordNotationStyle>(
+                    _SettingsRadioOption<ChordNotationStyle>(
                       title: Text('Symbolic'),
-                      subtitle: Text('E.g., CΔ7, F#ø7'),
+                      subtitle: Text('CΔ7, F#ø7, B°7'),
                       value: ChordNotationStyle.symbolic,
+                    ),
+                  ],
+                ),
+              ),
+
+              const SubsectionLabel(title: 'Note Names'),
+              RadioGroup<NoteNameSystem>(
+                groupValue: noteNameSystem,
+                onChanged: (NoteNameSystem? system) {
+                  if (system == null) return;
+                  unawaited(
+                    ref.read(noteNameSystemProvider.notifier).setSystem(system),
+                  );
+                },
+                child: const Column(
+                  children: [
+                    _SettingsRadioOption<NoteNameSystem>(
+                      title: Text('International'),
+                      subtitle: Text('C, F♯, B♭'),
+                      value: NoteNameSystem.international,
+                    ),
+                    _SettingsRadioOption<NoteNameSystem>(
+                      title: Text('German'),
+                      subtitle: Text('C, Fis, B'),
+                      value: NoteNameSystem.german,
+                    ),
+                    _SettingsRadioOption<NoteNameSystem>(
+                      title: Text('Fixed-Do'),
+                      subtitle: Text('Do, Fa♯, Si♭'),
+                      value: NoteNameSystem.fixedDo,
                     ),
                   ],
                 ),
@@ -576,6 +607,29 @@ class _VolumeNudgeHitTarget extends StatelessWidget {
         onLongPressCancel: enabled ? onLongPressEnd : null,
         child: const SizedBox(width: 48, height: 48),
       ),
+    );
+  }
+}
+
+class _SettingsRadioOption<T> extends StatelessWidget {
+  const _SettingsRadioOption({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+  });
+
+  final Widget title;
+  final Widget subtitle;
+  final T value;
+
+  @override
+  Widget build(BuildContext context) {
+    return RadioListTile<T>(
+      contentPadding: EdgeInsets.zero,
+      visualDensity: const VisualDensity(vertical: -2),
+      title: title,
+      subtitle: subtitle,
+      value: value,
     );
   }
 }

@@ -7,11 +7,11 @@ import 'package:whatchord/features/input/input.dart';
 
 import '../../domain/theory_domain.dart';
 import '../../presentation/models/identity_display.dart';
-import '../../presentation/services/chord_long_form_formatter.dart';
 import '../../presentation/services/chord_quality_token_labels.dart';
 import '../../presentation/services/chord_symbol_builder.dart';
 import '../../presentation/services/interval_formatter.dart';
 import '../../presentation/services/inversion_formatter.dart';
+import '../../presentation/services/note_display_formatter.dart';
 import '../../presentation/services/note_long_form_formatter.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
@@ -27,6 +27,11 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
   if (midis.isEmpty) return null;
 
   final tonality = ref.watch(analysisContextProvider.select((c) => c.tonality));
+  final noteNameSystem = ref.watch(noteNameSystemProvider);
+  final keyName = tonalityDisplayLabel(
+    tonality,
+    noteNameSystem: noteNameSystem,
+  );
 
   final appVersion = ref.watch(appVersionProvider).asData?.value;
 
@@ -35,15 +40,22 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
       {
         final pc = midis.first % 12;
         final name = pcToName(pc, tonality: tonality);
-        final longLabel = NoteLongFormFormatter.format(name);
+        final displayName = noteDisplayLabel(
+          name,
+          noteNameSystem: noteNameSystem,
+        );
+        final longLabel = NoteLongFormFormatter.format(
+          name,
+          noteNameSystem: noteNameSystem,
+        );
 
         return NoteDisplay(
-          noteName: name,
+          noteName: displayName,
           longLabel: longLabel,
           secondaryLabel: 'Note',
           debugText: _debugForNote(
             midis: midis,
-            keyName: tonality.displayName,
+            keyName: keyName,
             noteName: name,
             longLabel: longLabel,
             appVersion: appVersion,
@@ -66,15 +78,19 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
 
         final bassPc = bassMidi % 12;
         final root = pcToName(bassPc, tonality: tonality);
+        final displayRoot = noteDisplayLabel(
+          root,
+          noteNameSystem: noteNameSystem,
+        );
 
         return IntervalDisplay(
-          referenceName: root,
+          referenceName: displayRoot,
           intervalLabel: interval.long,
           longLabel: interval.long,
-          secondaryLabel: 'Interval · from $root',
+          secondaryLabel: 'Interval · from $displayRoot',
           debugText: _debugForInterval(
             midis: midis,
-            keyName: tonality.displayName,
+            keyName: keyName,
             bassMidi: bassMidi,
             upperMidi: upperMidi,
             semitones: interval.semitones,
@@ -94,10 +110,13 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         final alternatives = ref
             .watch(nearTieChordCandidatesProvider)
             .map(
-              (c) => ChordSymbolBuilder.formatIdentity(
-                identity: c.identity,
-                tonality: tonality,
-                notation: notation,
+              (c) => chordSymbolDisplayLabel(
+                ChordSymbolBuilder.fromIdentity(
+                  identity: c.identity,
+                  tonality: tonality,
+                  notation: notation,
+                ),
+                noteNameSystem: noteNameSystem,
               ),
             )
             .toList(growable: false);
@@ -113,17 +132,14 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
         final extensionLabels = extensions.map((e) => e.shortLabel).toList();
-        final debugLongLabel = ChordLongFormFormatter.format(
-          identity: id,
-          tonality: tonality,
-          accidentalStyle: ChordLongFormAccidentalStyle.plainText,
-        );
-
         final debugText = _debugForChord(
           midis: midis,
-          keyName: tonality.displayName,
-          chosenSymbol: presentation.symbol.toString(),
-          longLabel: debugLongLabel,
+          keyName: keyName,
+          chosenSymbol: chordSymbolDisplayLabel(
+            presentation.symbol,
+            noteNameSystem: noteNameSystem,
+          ),
+          longLabel: presentation.semanticLongLabel,
           rootPc: id.rootPc,
           bassPc: id.bassPc,
           hasSlash: id.hasSlashBass,
@@ -138,7 +154,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
 
         return ChordDisplay(
           symbol: presentation.symbol,
-          longLabel: presentation.longLabel,
+          longLabel: presentation.semanticLongLabel,
           secondaryLabel: secondaryLabel,
           debugText: debugText,
         );

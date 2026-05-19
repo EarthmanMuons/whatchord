@@ -68,11 +68,13 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
   Widget build(BuildContext context) {
     final tonality = ref.watch(selectedTonalityProvider);
     final notation = ref.watch(chordNotationStyleProvider);
+    final noteNameSystem = ref.watch(noteNameSystemProvider);
     final showChordMemberDegrees = ref.watch(exploreChordMemberDegreesProvider);
     final example = ExploreChordExampleBuilder.build(
       state: _state,
       tonality: tonality,
       notation: notation,
+      noteNameSystem: noteNameSystem,
     );
     final presentation = example.presentation;
 
@@ -169,6 +171,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                               members: example.members,
                                               memberDegrees:
                                                   example.memberDegrees,
+                                              noteNameSystem: noteNameSystem,
                                               showDegrees:
                                                   showChordMemberDegrees,
                                               onShowDegreesChanged: (value) =>
@@ -205,6 +208,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                           state: _state,
                                           identity: example.identity,
                                           tonality: tonality,
+                                          noteNameSystem: noteNameSystem,
                                           isLandscape: true,
                                           onRootChanged: (value) => updateState(
                                             exploreStateWithRoot(_state, value),
@@ -248,6 +252,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                     ChordMembersSection(
                                       members: example.members,
                                       memberDegrees: example.memberDegrees,
+                                      noteNameSystem: noteNameSystem,
                                       showDegrees: showChordMemberDegrees,
                                       onShowDegreesChanged: (value) => unawaited(
                                         ref
@@ -272,6 +277,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                           state: _state,
                                           identity: example.identity,
                                           tonality: tonality,
+                                          noteNameSystem: noteNameSystem,
                                           isLandscape: false,
                                           onRootChanged: (value) => updateState(
                                             exploreStateWithRoot(_state, value),
