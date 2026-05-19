@@ -74,7 +74,7 @@ abstract final class ChordCandidateRanking {
       final result = delta > 0 ? 1 : -1;
       return RankingDecision(
         result: result,
-        decidedByRule: 'Score (outside near-tie window)',
+        decidedByRule: 'score outside near-tie window',
         scoreDelta: delta,
       );
     }
@@ -93,7 +93,7 @@ abstract final class ChordCandidateRanking {
     final finalResult = a.identity.rootPc.compareTo(b.identity.rootPc);
     return RankingDecision(
       result: finalResult,
-      decidedByRule: 'Deterministic fallback: rootPc',
+      decidedByRule: 'deterministic fallback: rootPc',
       scoreDelta: delta,
     );
   }
@@ -105,50 +105,50 @@ abstract final class ChordCandidateRanking {
   // - Simplicity (fewer extensions/alterations, avoid suspensions)
 
   static final List<_NamedRule> _hardRules = <_NamedRule>[
-    _NamedRule('Prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
+    _NamedRule('prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
     _NamedRule(
-      'Prefer conventional altered seventh over add11 slash',
+      'prefer conventional altered seventh over add11 slash',
       _preferConventionalAlteredSeventhOverAdd11Slash,
     ),
     _NamedRule(
-      'Prefer complete minor sharp11 over altered maj7sus4',
+      'prefer complete minor sharp11 over altered maj7sus4',
       _preferCompleteMinorSharp11OverAlteredMaj7Sus4,
     ),
     _NamedRule(
-      'Prefer close root-position dominant7 over non-dominant slash',
+      'prefer close root-position dominant7 over non-dominant slash',
       _preferDom7RootOverNonDomSlash,
     ),
     _NamedRule(
-      'Prefer root-position altered-fifth dominant over slash',
+      'prefer root-position altered-fifth dominant over slash',
       _preferRootAlteredFifthDom7,
     ),
   ];
 
   static final List<_NamedRule> _tieBreakerRules = <_NamedRule>[
-    _NamedRule('Prefer root-position 6th over inverted 7th', _prefer6thInRoot),
+    _NamedRule('prefer root-position 6th over inverted 7th', _prefer6thInRoot),
     _NamedRule(
-      'Prefer complete triad over incomplete inverted 6th',
+      'prefer complete triad over incomplete inverted 6th',
       _preferCompleteTriadOverIncompleteInvertedSixth,
     ),
     _NamedRule(
-      'Prefer upper-structure dominant7 slash',
+      'prefer upper-structure dominant7 slash',
       _preferUpperStructureDom7,
     ),
-    _NamedRule('Prefer root-position diminished7', _preferDim7InRoot),
-    _NamedRule('Prefer dominant7 over dim7 slash', _preferDom7Shell),
-    _NamedRule('Prefer fewer altered/tension colors', _preferFewerAlterations),
-    _NamedRule('Prefer diatonic chords', _preferDiatonic),
-    _NamedRule('Prefer tonic chord', _preferTonicChord),
-    _NamedRule('Prefer I chord when bass is tonic', _preferTonicAsI),
+    _NamedRule('prefer root-position diminished7', _preferDim7InRoot),
+    _NamedRule('prefer dominant7 over dim7 slash', _preferDom7Shell),
+    _NamedRule('prefer fewer altered/tension colors', _preferFewerAlterations),
+    _NamedRule('prefer diatonic chords', _preferDiatonic),
+    _NamedRule('prefer tonic chord', _preferTonicChord),
+    _NamedRule('prefer I chord when bass is tonic', _preferTonicAsI),
     _NamedRule(
-      'Prefer natural extensions over adds, then fewer total',
+      'prefer natural extensions over adds, then fewer total',
       _preferNaturalExtensions,
     ),
-    _NamedRule('Prefer root position', _preferRootPosition),
-    _NamedRule('Prefer 1st inversion over 2nd inversion', _prefer1stInversion),
-    _NamedRule('Prefer 7th chords over triads', _prefer7thChords),
-    _NamedRule('Prefer fewer extensions', _preferFewerExtensions),
-    _NamedRule('Avoid suspended chords', _avoidSuspended),
+    _NamedRule('prefer root position', _preferRootPosition),
+    _NamedRule('prefer 1st inversion over 2nd inversion', _prefer1stInversion),
+    _NamedRule('prefer 7th chords over triads', _prefer7thChords),
+    _NamedRule('prefer fewer extensions', _preferFewerExtensions),
+    _NamedRule('avoid suspended chords', _avoidSuspended),
   ];
 
   /// Resolves ambiguity between 6th chords and inverted 7th chords.

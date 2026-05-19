@@ -1,6 +1,8 @@
 import '../../domain/models/tonality.dart';
 import '../models/chord_symbol.dart';
 
+enum ChordSymbolDisplaySpacing { typographic, plain }
+
 class ChordSymbolDisplayParts {
   const ChordSymbolDisplayParts({
     required this.root,
@@ -98,22 +100,27 @@ String theoryTokenDisplayLabel(String token) => toGlyphAccidentals(token);
 String chordSymbolDisplayLabel(
   ChordSymbol symbol, {
   NoteNameSystem noteNameSystem = NoteNameSystem.international,
+  ChordSymbolDisplaySpacing spacing = ChordSymbolDisplaySpacing.typographic,
 }) {
   return chordSymbolDisplayParts(
     symbol,
     noteNameSystem: noteNameSystem,
+    spacing: spacing,
   ).toString();
 }
 
 ChordSymbolDisplayParts chordSymbolDisplayParts(
   ChordSymbol symbol, {
   NoteNameSystem noteNameSystem = NoteNameSystem.international,
+  ChordSymbolDisplaySpacing spacing = ChordSymbolDisplaySpacing.typographic,
 }) {
   final formatter = _NoteNameFormatter(noteNameSystem);
   final quality = theoryTokenDisplayLabel(symbol.quality);
   return ChordSymbolDisplayParts(
     root: formatter.compact(symbol.root),
-    rootQualitySeparator: quality.isEmpty ? '' : formatter.rootQualitySeparator,
+    rootQualitySeparator: quality.isEmpty
+        ? ''
+        : formatter.rootQualitySeparator(spacing: spacing),
     quality: quality,
     bass: symbol.hasBass ? formatter.compact(symbol.bassRequired) : null,
   );
@@ -124,9 +131,10 @@ class _NoteNameFormatter {
 
   final NoteNameSystem system;
 
-  String get rootQualitySeparator {
+  String rootQualitySeparator({required ChordSymbolDisplaySpacing spacing}) {
     return switch (system) {
-      NoteNameSystem.international || NoteNameSystem.german => '\u2009',
+      NoteNameSystem.international || NoteNameSystem.german =>
+        spacing == ChordSymbolDisplaySpacing.typographic ? '\u2009' : '',
       NoteNameSystem.fixedDo => ' ',
     };
   }

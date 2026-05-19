@@ -2,51 +2,62 @@
 //
 // Pure-Dart CLI harness for inspecting chord analysis ranking.
 //
-// Usage:
-//   dart run tool/chord_debug.dart C E G D
-//   dart run tool/chord_debug.dart C E G Bb D --bass=C
-//   dart run tool/chord_debug.dart 60 64 67 74
-//   dart run tool/chord_debug.dart 60 64 67 70 74 --top=12
+// Usage: dart run tool/chord_debug.dart [notes...] [options]
 //
-// Optional flags:
-//   --top=N           Number of ranked candidates to show (default 4)
-//   --bass=PC         Override bass pitch class (e.g., C, Eb, F#)
-//
-//   --compact         Use a condensed, single-line-per-candidate output
-//                     (useful for small screens or quick comparison)
-//
-//   --reasons=N       Show up to N score-reason tokens per candidate
-//                     (default 3; ignored in --details mode)
-//
-//   --details         Show full score reasons and full ranking decision data
-//                     (overrides --reasons and disables compact output)
-//
-//   --key=KEY         Tonality for tie-breaks/spelling (default C:maj).
-//                     Examples: C, C:maj, A:min, Eb:maj, F#:min
-//
-//   --notation=STYLE  Chord notation style for symbol formatting (default textual).
-//                     Examples: textual, symbolic
+// Run with --help for examples and options.
 
 import 'dart:io';
 
 import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import 'package:whatchord/features/theory/presentation/models/chord_symbol.dart';
 import 'package:whatchord/features/theory/presentation/services/chord_symbol_builder.dart';
+import 'package:whatchord/features/theory/presentation/services/note_display_formatter.dart';
+
+const _usage = '''
+Usage:
+  dart run tool/chord_debug.dart [notes...] [options]
+
+Examples:
+  dart run tool/chord_debug.dart C E G D
+  dart run tool/chord_debug.dart C E G Bb D --bass=C
+  dart run tool/chord_debug.dart 60 64 67 74
+  dart run tool/chord_debug.dart 60 64 67 70 74 --top=12
+
+Notes may be pitch names or MIDI note numbers.
+
+Options:
+  -h, --help             Show this help text.
+  -t, --top=N            Number of ranked candidates to show. Default: 4.
+  -b, --bass=PC          Override bass pitch class, for example C, Eb, F#.
+  -k, --key=KEY          Tonality for tie-breaks/spelling. Default: C:maj.
+                         Examples: C, C:maj, A:min, Eb:maj, F#:min.
+  -n, --notation=STYLE   Chord symbol style. Valid: textual, symbolic.
+                         Default: textual.
+  -v, --verbose          Include input and ChordIdentity diagnostics.
+  -c, --compact          Use a condensed, single-line-per-candidate output.
+''';
 
 void main(List<String> args) {
+  if (_hasFlag(args, 'help', 'h')) {
+    stdout.write(_usage);
+    return;
+  }
+
   if (args.isEmpty) {
     stderr.writeln('Provide notes (pitch names or MIDI numbers).');
+    stderr.writeln('');
+    stderr.write(_usage);
     exitCode = 2;
     return;
   }
 
-  final top = _readIntFlag(args, 'top') ?? 4;
-  final bassName = _readStringFlag(args, 'bass');
+  final top = _readIntFlag(args, 'top', 't') ?? 4;
+  final bassName = _readStringFlag(args, 'bass', 'b');
   final bassDisplayFromFlag = bassName == null
       ? null
-      : normalizeNoteNameToAscii(bassName);
+      : _displayNoteLabel(bassName);
 
-  final keyFlag = _readStringFlag(args, 'key') ?? 'C:maj';
+  final keyFlag = _readStringFlag(args, 'key', 'k') ?? 'C:maj';
   final tonality = _parseTonalityFlag(keyFlag);
 
   final ks = KeySignature.fromTonality(tonality);
@@ -62,12 +73,11 @@ void main(List<String> args) {
     spellingPolicy: spellingPolicy,
   );
 
-  // Notation style (default textual).
-  final notationFlag = _readStringFlag(args, 'notation');
+  final notationFlag = _readStringFlag(args, 'notation', 'n');
   final notation = _parseNotationFlag(notationFlag);
 
   // Extract positional args (notes), ignoring flags.
-  final noteTokens = args.where((a) => !a.startsWith('--')).toList();
+  final noteTokens = _readNoteTokens(args);
   if (noteTokens.isEmpty) {
     stderr.writeln('No notes provided.');
     exitCode = 2;
@@ -97,44 +107,46 @@ void main(List<String> args) {
     bassPc: bassPc,
     noteCount: midi.isNotEmpty ? midi.length : pcs.length,
   );
-  stdout.writeln('input: $input');
 
-  final pcNames =
-      pcs
-          .map((pc) {
-            // If the user provided a name for this pc, prefer it.
-            final preserved = inputPcLabels[pc];
-            if (preserved != null) return preserved;
+  final pcDisplays = pcs.toSet().map((pc) {
+    // If the user provided a name for this pc, prefer it.
+    final preserved = inputPcLabels[pc];
+    if (preserved != null) return (label: _displayNoteLabel(preserved), pc: pc);
 
-            // Otherwise (e.g., MIDI-only input), fall back to spelling.
-            return _pcLabel(
-              pc,
-              context: context,
-              chordRootName: null,
-              role: null,
-            );
-          })
-          .toSet()
-          .toList()
-        ..sort();
+    // Otherwise (e.g., MIDI-only input), fall back to spelling.
+    return (
+      label: _displayNoteLabel(
+        _pcLabel(pc, context: context, chordRootName: null, role: null),
+      ),
+      pc: pc,
+    );
+  }).toList()..sort((a, b) => a.label.compareTo(b.label));
 
-  stdout.writeln('pcs: ${pcNames.join(', ')}');
+  final pcNames = [for (final display in pcDisplays) display.label];
 
   final bassLabel =
       bassDisplayFromFlag ??
-      inputPcLabels[bassPc] ??
-      _pcLabel(bassPc, context: context, chordRootName: null, role: null);
+      _displayOptionalNoteLabel(inputPcLabels[bassPc]) ??
+      _displayNoteLabel(
+        _pcLabel(bassPc, context: context, chordRootName: null, role: null),
+      );
 
-  stdout.writeln('bass: $bassLabel');
-
-  stdout.writeln(
-    'key: ${context.tonality.displayName} (${context.keySignature.label})',
-  );
-  stdout.writeln('');
-  stdout.writeln(
-    'Note: sorting uses shared ranking decisions; most heuristics apply within ±${ChordCandidateRanking.nearTieWindow.toStringAsFixed(2)}, with documented hard rules for structural ambiguities.',
-  );
-  stdout.writeln('');
+  final verbose = _hasFlag(args, 'verbose', 'v');
+  final compact = _hasFlag(args, 'compact', 'c');
+  if (verbose && !compact) {
+    stdout.writeln(
+      'input: noteCount=${input.noteCount}  bassPc=${input.bassPc}  '
+      'mask=${_formatPcMask(input.pcMask)} (bits 11..0)',
+    );
+    stdout.writeln('pc numbers: ${_formatPcNumbers(pcDisplays)}');
+  }
+  if (!compact) {
+    stdout.writeln(
+      'pcs: ${pcNames.join(' ')}  |  bass: $bassLabel (pc $bassPc)  |  key: '
+      '${tonalityDisplayLabel(context.tonality)}',
+    );
+    stdout.writeln('');
+  }
 
   final results = ChordAnalyzer.analyzeDebug(
     input,
@@ -149,19 +161,18 @@ void main(List<String> args) {
 
   final bestScore = results.first.candidate.score;
 
-  final compact = args.contains('--compact');
-  final details = args.contains('--details');
-  final reasonsTop = _readIntFlag(args, 'reasons') ?? (details ? 999 : 3);
-
   for (var i = 0; i < results.length; i++) {
     final r = results[i];
     final c = r.candidate;
     final id = c.identity;
 
-    final symbol = ChordSymbolBuilder.formatIdentity(
-      identity: id,
-      tonality: context.tonality,
-      notation: notation,
+    final symbol = chordSymbolDisplayLabel(
+      ChordSymbolBuilder.fromIdentity(
+        identity: id,
+        tonality: context.tonality,
+        notation: notation,
+      ),
+      spacing: ChordSymbolDisplaySpacing.plain,
     );
 
     final score = c.score;
@@ -169,50 +180,53 @@ void main(List<String> args) {
     final nearTie =
         deltaBest.abs() <= ChordCandidateRanking.nearTieWindow && i != 0;
 
-    final rule = r.vsPrevious?.decidedByRule;
+    final rule = _formatRankingRule(r.vsPrevious?.decidedByRule);
 
     // One-line summary.
     final rank = (i + 1).toString().padLeft(2);
     final sym = _padRight(symbol, 12);
-    final scoreStr = score.toStringAsFixed(3).padLeft(7);
-    final deltaStr = _fmtSigned(deltaBest, width: 7, decimals: 3);
+    final scoreStr = score.toStringAsFixed(2).padLeft(6);
+    final deltaStr = i == 0
+        ? ''
+        : '  Δ${_fmtSigned(deltaBest, width: 6, decimals: 2)}';
     final tieStr = nearTie ? ' ~tie' : '';
-    final ruleStr = (i == 0 || rule == null) ? '' : '  (vs prev: $rule)';
+    final ruleStr = compact && i != 0 && rule.isNotEmpty
+        ? '  (vs prev: $rule)'
+        : '';
 
-    stdout.writeln('$rank) $sym $scoreStr  Δ$deltaStr$tieStr$ruleStr');
+    stdout.writeln('$rank) $sym $scoreStr$deltaStr$tieStr$ruleStr');
 
-    if (!compact) {
+    if (compact) continue;
+
+    if (i != 0 && rule.isNotEmpty) {
+      stdout.writeln('     (vs prev: $rule)');
+    }
+
+    if (verbose) {
       stdout.writeln('     ${_formatIdentityCompact(id)}');
+    }
 
-      // Role-aware chord-member spellings.
-      final members = _formatChordMembersByRole(id, context: context);
-      if (members.isNotEmpty) {
-        stdout.writeln('     members: $members');
-      }
+    // Role-aware chord-member spellings.
+    final members = _formatChordMembersByRole(id, context: context);
+    if (members.isNotEmpty) {
+      stdout.writeln('     members: $members');
     }
 
     // Reasons: tokenized & compact.
     final tokens = _reasonTokens(
       r.scoreReasons,
-      take: reasonsTop,
       includeNormalize: true,
-      details: details,
+      includeReasonDetails: verbose,
+      includeNormalizationDenom: verbose,
+      requiredToneCount: _requiredToneCountFromReasons(r.scoreReasons),
     );
 
     if (tokens.isNotEmpty) {
       // Indent 5 spaces to align under the candidate line.
-      stdout.writeln('     ${tokens.join('  ')}');
+      stdout.writeln('     scoring: ${tokens.join('  ')}');
     }
 
-    // Optional full decision dump in --details mode.
-    if (details && r.vsPrevious != null) {
-      final d = r.vsPrevious!;
-      stdout.writeln(
-        '     decision: result=${d.result} scoreDelta=${d.scoreDelta.toStringAsFixed(3)}',
-      );
-    }
-
-    if (!compact) stdout.writeln('');
+    stdout.writeln('');
   }
 }
 
@@ -290,7 +304,7 @@ String _formatChordMembersByRole(
     );
 
     // Use role.name (enum name) as the token key.
-    parts.add('${role.name}=$name');
+    parts.add('${role.name}=${_displayNoteLabel(name)}');
   }
 
   return parts.join('  ');
@@ -389,33 +403,6 @@ Tonality _parseTonalityFlag(String raw) {
   return Tonality(tonicAscii, mode);
 }
 
-ChordNotationStyle _parseNotationFlag(String? raw) {
-  if (raw == null) return ChordNotationStyle.textual;
-
-  final s = raw.trim().toLowerCase();
-  if (s.isEmpty) return ChordNotationStyle.textual;
-
-  // Allow a few aliases so the CLI remains ergonomic.
-  // Keep this intentionally small: fail fast on unknown values.
-  return switch (s) {
-    'textual' => ChordNotationStyle.textual,
-    'symbolic' => ChordNotationStyle.symbolic,
-
-    // Common mental-model aliases.
-    'text' => ChordNotationStyle.textual,
-    'symbol' => ChordNotationStyle.symbolic,
-
-    _ => _failUnknownNotation(raw),
-  };
-}
-
-Never _failUnknownNotation(String raw) {
-  stderr.writeln('Unknown --notation value: "$raw"');
-  stderr.writeln('Valid: textual, symbolic');
-  exitCode = 2;
-  throw StateError('Invalid --notation=$raw');
-}
-
 String _formatIdentityCompact(ChordIdentity id) {
   // Start from the model's canonical toString().
   var s = id.toString();
@@ -428,24 +415,86 @@ String _formatIdentityCompact(ChordIdentity id) {
   return s;
 }
 
-int? _readIntFlag(List<String> args, String name) {
-  final prefix = '--$name=';
-  for (final a in args) {
-    if (a.startsWith(prefix)) {
-      return int.tryParse(a.substring(prefix.length));
+ChordNotationStyle _parseNotationFlag(String? raw) {
+  if (raw == null) return ChordNotationStyle.textual;
+
+  final s = raw.trim().toLowerCase();
+  if (s.isEmpty) return ChordNotationStyle.textual;
+
+  return switch (s) {
+    'textual' || 'text' => ChordNotationStyle.textual,
+    'symbolic' || 'symbol' => ChordNotationStyle.symbolic,
+    _ => _failUnknownNotation(raw),
+  };
+}
+
+Never _failUnknownNotation(String raw) {
+  stderr.writeln('Unknown --notation value: "$raw"');
+  stderr.writeln('Valid: textual, symbolic');
+  exit(2);
+}
+
+bool _hasFlag(List<String> args, String name, String shortName) {
+  return args.contains('--$name') || args.contains('-$shortName');
+}
+
+int? _readIntFlag(List<String> args, String name, String shortName) {
+  final value = _readStringFlag(args, name, shortName);
+  return value == null ? null : int.tryParse(value);
+}
+
+String? _readStringFlag(List<String> args, String name, String shortName) {
+  final long = '--$name';
+  final longPrefix = '$long=';
+  final short = '-$shortName';
+  final shortPrefix = '$short=';
+
+  for (var i = 0; i < args.length; i++) {
+    final arg = args[i];
+    if (arg.startsWith(longPrefix)) {
+      return arg.substring(longPrefix.length);
+    }
+    if (arg == long && i + 1 < args.length) {
+      return args[i + 1];
+    }
+    if (arg.startsWith(shortPrefix)) {
+      return arg.substring(shortPrefix.length);
+    }
+    if (arg == short && i + 1 < args.length) {
+      return args[i + 1];
     }
   }
+
   return null;
 }
 
-String? _readStringFlag(List<String> args, String name) {
-  final prefix = '--$name=';
-  for (final a in args) {
-    if (a.startsWith(prefix)) {
-      return a.substring(prefix.length);
+List<String> _readNoteTokens(List<String> args) {
+  const valueFlags = {
+    '--top',
+    '--bass',
+    '--key',
+    '--notation',
+    '-t',
+    '-b',
+    '-k',
+    '-n',
+  };
+
+  final out = <String>[];
+  for (var i = 0; i < args.length; i++) {
+    final arg = args[i];
+    if (arg.startsWith('--') || RegExp(r'^-[A-Za-z]').hasMatch(arg)) {
+      final flag = arg.split('=').first;
+      if (valueFlags.contains(flag) &&
+          !arg.contains('=') &&
+          i + 1 < args.length) {
+        i++;
+      }
+      continue;
     }
+    out.add(arg);
   }
-  return null;
+  return out;
 }
 
 String _padRight(String s, int width) {
@@ -459,14 +508,32 @@ String _fmtSigned(double v, {required int width, int decimals = 2}) {
   return s.padLeft(width);
 }
 
+String _displayNoteLabel(String noteName) {
+  return noteDisplayLabel(normalizeNoteNameToAscii(noteName));
+}
+
+String? _displayOptionalNoteLabel(String? noteName) {
+  if (noteName == null) return null;
+  return _displayNoteLabel(noteName);
+}
+
+String _formatPcMask(int mask) => mask.toRadixString(2).padLeft(12, '0');
+
+String _formatPcNumbers(List<({String label, int pc})> pcDisplays) {
+  return [
+    for (final display in pcDisplays) '${display.label}=${display.pc}',
+  ].join('  ');
+}
+
 /// Converts ScoreReason entries into compact CLI tokens.
 /// Example tokens:
-///   req+12  miss-6  opt+3  bass+1  alt-0.6  raw=8.40 denom=1.73 => 4.85
+///   req+12  miss-6  opt+3  bass+1  alt-0.6  => 8.40 raw, 4.85 final
 List<String> _reasonTokens(
   List<ScoreReason> reasons, {
-  required int take,
   required bool includeNormalize,
-  required bool details,
+  required bool includeReasonDetails,
+  required bool includeNormalizationDenom,
+  required int requiredToneCount,
 }) {
   if (reasons.isEmpty) return const [];
 
@@ -480,31 +547,70 @@ List<String> _reasonTokens(
       normalize = r;
       continue;
     }
-    // Ignore pure zero deltas unless in details mode.
-    if (!details && r.delta == 0.0) continue;
+    if (r.delta == 0.0) continue;
     deltas.add(r);
   }
 
   // Sort delta reasons by absolute impact.
   deltas.sort((a, b) => b.delta.abs().compareTo(a.delta.abs()));
 
-  // Take top N delta reasons.
-  final picked = deltas.take(take).toList(growable: false);
-
   final tokens = <String>[];
-  for (final r in picked) {
-    tokens.add(_formatDeltaToken(r));
+  for (final r in deltas) {
+    tokens.add(
+      _formatDeltaToken(r, includeReasonDetails: includeReasonDetails),
+    );
   }
 
   if (includeNormalize && normalize != null && normalize.detail != null) {
     // IMPORTANT: render normalize as info, not +0.00.
-    tokens.add(normalize.detail!);
+    tokens.add(
+      _formatNormalizeToken(
+        normalize.detail!,
+        includeDenom: includeNormalizationDenom,
+        requiredToneCount: requiredToneCount,
+      ),
+    );
   }
 
   return tokens;
 }
 
-String _formatDeltaToken(ScoreReason r) {
+String _formatRankingRule(String? rule) {
+  if (rule == null || rule.isEmpty) return '';
+  return rule.replaceAll(RegExp(r'[()]'), '').replaceAll(RegExp(r'\s+'), ' ');
+}
+
+String _formatNormalizeToken(
+  String detail, {
+  required bool includeDenom,
+  required int requiredToneCount,
+}) {
+  final match = RegExp(
+    r'^raw=([^\s]+) denom=([^\s]+) => (.+)$',
+  ).firstMatch(detail);
+  if (match == null) return detail;
+
+  final raw = match.group(1)!;
+  final denom = match.group(2)!;
+  final normalized = match.group(3)!;
+  if (includeDenom) {
+    return '=>  $raw raw / sqrt($requiredToneCount required tones, denom=$denom), $normalized final';
+  }
+  return '=>  $raw raw, $normalized final';
+}
+
+int _requiredToneCountFromReasons(List<ScoreReason> reasons) {
+  for (final reason in reasons) {
+    if (reason.label != 'required tones') continue;
+    final detail = reason.detail;
+    if (detail == null) continue;
+    final match = RegExp(r'^count=(\d+)$').firstMatch(detail);
+    if (match != null) return int.parse(match.group(1)!);
+  }
+  return 1;
+}
+
+String _formatDeltaToken(ScoreReason r, {required bool includeReasonDetails}) {
   // Map long labels to compact keys for CLI.
   final key = switch (r.label) {
     'required tones' => 'req',
@@ -526,7 +632,8 @@ String _formatDeltaToken(ScoreReason r) {
   final num = asInt ? v.toStringAsFixed(0) : v.toStringAsFixed(2);
 
   // If detail is tiny (like count=3), include it in brackets.
-  final detail = (r.detail == null || r.detail!.isEmpty)
+  final detail =
+      (!includeReasonDetails || r.detail == null || r.detail!.isEmpty)
       ? ''
       : (r.detail!.length <= 10 ? '[${r.detail}]' : '');
 
