@@ -127,6 +127,10 @@ abstract final class ChordCandidateRanking {
   static final List<_NamedRule> _tieBreakerRules = <_NamedRule>[
     _NamedRule('Prefer root-position 6th over inverted 7th', _prefer6thInRoot),
     _NamedRule(
+      'Prefer complete triad over incomplete inverted 6th',
+      _preferCompleteTriadOverIncompleteInvertedSixth,
+    ),
+    _NamedRule(
       'Prefer upper-structure dominant7 slash',
       _preferUpperStructureDom7,
     ),
@@ -169,6 +173,32 @@ abstract final class ChordCandidateRanking {
         fother.extensionCount == 0) {
       return aIs6 ? -1 : 1;
     }
+
+    return null;
+  }
+
+  /// Prefers a complete major/minor triad over an incomplete inverted 6th chord.
+  ///
+  /// Example: {B, E, G} with B in the bass can be read as G6/B or Em/B.
+  /// The E minor triad is complete, while the G6 reading omits its fifth and
+  /// depends on an inversion. Keep this narrow so root-position 6th colors
+  /// with an omitted fifth are not demoted to relative-minor slash chords.
+  static int? _preferCompleteTriadOverIncompleteInvertedSixth(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsIncompleteSixth = fa.isIncompleteInvertedSixth;
+    final bIsIncompleteSixth = fb.isIncompleteInvertedSixth;
+    if (aIsIncompleteSixth == bIsIncompleteSixth) return null;
+
+    final aIsCompleteTriad = fa.isCompleteMajorMinorTriad;
+    final bIsCompleteTriad = fb.isCompleteMajorMinorTriad;
+
+    if (aIsIncompleteSixth && bIsCompleteTriad) return 1;
+    if (bIsIncompleteSixth && aIsCompleteTriad) return -1;
 
     return null;
   }
@@ -667,6 +697,8 @@ class _CandidateFeatures {
   final bool isDimFamily;
   final bool isSus;
   final bool isCompleteMinorSharp11;
+  final bool isCompleteMajorMinorTriad;
+  final bool isIncompleteInvertedSixth;
   final bool isSecondInversion;
   final bool isAlteredMajor7Sus4;
 
@@ -696,6 +728,8 @@ class _CandidateFeatures {
     required this.isDimFamily,
     required this.isSus,
     required this.isCompleteMinorSharp11,
+    required this.isCompleteMajorMinorTriad,
+    required this.isIncompleteInvertedSixth,
     required this.isSecondInversion,
     required this.isAlteredMajor7Sus4,
     required this.isDom7,
@@ -747,6 +781,8 @@ class _CandidateFeatures {
       isDimFamily: isDimFamily,
       isSus: q.isSus,
       isCompleteMinorSharp11: _isCompleteMinorSharp11(id),
+      isCompleteMajorMinorTriad: _isCompleteMajorMinorTriad(id),
+      isIncompleteInvertedSixth: _isIncompleteInvertedSixth(id, rootPos),
       isSecondInversion: _bassRoleRank(id) == 2,
       isAlteredMajor7Sus4: _isAlteredMajor7Sus4(id, rootPos),
       isDom7: isDom7,
@@ -777,6 +813,31 @@ class _CandidateFeatures {
         roles.contains(ChordToneRole.minor3) &&
         roles.contains(ChordToneRole.perfect5) &&
         roles.contains(ChordToneRole.sharp11);
+  }
+
+  static bool _isCompleteMajorMinorTriad(ChordIdentity id) {
+    final q = id.quality;
+    if (q != ChordQualityToken.major && q != ChordQualityToken.minor) {
+      return false;
+    }
+    if (id.extensions.isNotEmpty) return false;
+
+    final roles = id.toneRolesByInterval.values;
+    final hasThird = q == ChordQualityToken.major
+        ? roles.contains(ChordToneRole.major3)
+        : roles.contains(ChordToneRole.minor3);
+
+    return roles.contains(ChordToneRole.root) &&
+        hasThird &&
+        roles.contains(ChordToneRole.perfect5);
+  }
+
+  static bool _isIncompleteInvertedSixth(ChordIdentity id, bool rootPos) {
+    if (!id.quality.isSixFamily) return false;
+    if (rootPos) return false;
+
+    final roles = id.toneRolesByInterval.values;
+    return !roles.contains(ChordToneRole.perfect5);
   }
 
   static bool _isAlteredMajor7Sus4(ChordIdentity id, bool rootPos) {
