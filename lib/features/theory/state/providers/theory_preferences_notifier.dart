@@ -14,6 +14,11 @@ final showScaleNotesProvider = NotifierProvider<ShowScaleNotesNotifier, bool>(
   ShowScaleNotesNotifier.new,
 );
 
+final noteNameSystemProvider =
+    NotifierProvider<NoteNameSystemNotifier, NoteNameSystem>(
+      NoteNameSystemNotifier.new,
+    );
+
 class ChordNotationStyleNotifier extends Notifier<ChordNotationStyle> {
   @override
   ChordNotationStyle build() {
@@ -41,6 +46,36 @@ class ChordNotationStyleNotifier extends Notifier<ChordNotationStyle> {
         TheoryPreferencesValues.chordNotationStyleTextual,
     };
     await prefs.setString(TheoryPreferencesKeys.chordNotationStyle, serialized);
+  }
+}
+
+class NoteNameSystemNotifier extends Notifier<NoteNameSystem> {
+  @override
+  NoteNameSystem build() {
+    final prefs = ref.watch(sharedPreferencesProvider);
+    final stored = prefs.getString(TheoryPreferencesKeys.noteNameSystem);
+
+    if (stored == null) return NoteNameSystem.international;
+
+    return switch (stored) {
+      TheoryPreferencesValues.noteNameSystemGerman => NoteNameSystem.german,
+      TheoryPreferencesValues.noteNameSystemFixedDo => NoteNameSystem.fixedDo,
+      TheoryPreferencesValues.noteNameSystemInternational =>
+        NoteNameSystem.international,
+      _ => NoteNameSystem.international,
+    };
+  }
+
+  Future<void> setSystem(NoteNameSystem system) async {
+    state = system;
+    final prefs = ref.read(sharedPreferencesProvider);
+    final serialized = switch (system) {
+      NoteNameSystem.international =>
+        TheoryPreferencesValues.noteNameSystemInternational,
+      NoteNameSystem.german => TheoryPreferencesValues.noteNameSystemGerman,
+      NoteNameSystem.fixedDo => TheoryPreferencesValues.noteNameSystemFixedDo,
+    };
+    await prefs.setString(TheoryPreferencesKeys.noteNameSystem, serialized);
   }
 }
 

@@ -34,6 +34,7 @@ class SettingsResetService {
 
     // Theory preferences
     await prefs.remove(TheoryPreferencesKeys.chordNotationStyle);
+    await prefs.remove(TheoryPreferencesKeys.noteNameSystem);
     await prefs.remove(TheoryPreferencesKeys.selectedTonality);
     await prefs.remove(TheoryPreferencesKeys.showScaleNotes);
 
@@ -54,6 +55,7 @@ class SettingsResetService {
     _ref.invalidate(appThemeModeProvider);
     _ref.invalidate(appPaletteProvider);
     _ref.invalidate(chordNotationStyleProvider);
+    _ref.invalidate(noteNameSystemProvider);
     _ref.invalidate(showScaleNotesProvider);
     _ref.invalidate(selectedTonalityProvider);
     _ref.invalidate(exploreChordMemberDegreesProvider);

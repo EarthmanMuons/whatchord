@@ -67,6 +67,7 @@ class _NearTieChordCandidatesListState
       analysisContextProvider.select((c) => c.tonality),
     );
     final notation = ref.watch(chordNotationStyleProvider);
+    final noteNameSystem = ref.watch(noteNameSystemProvider);
 
     final base =
         widget.styleOverride ??
@@ -108,10 +109,12 @@ class _NearTieChordCandidatesListState
           final spokenLabel = ChordLongFormFormatter.format(
             identity: c.identity,
             tonality: tonality,
+            noteNameSystem: noteNameSystem,
+            accidentalStyle: ChordLongFormAccidentalStyle.plainText,
           );
 
           return Text(
-            chordSymbolDisplayLabel(symbol),
+            chordSymbolDisplayLabel(symbol, noteNameSystem: noteNameSystem),
             semanticsLabel: spokenLabel,
             style: textStyle,
             textAlign: widget.textAlign,

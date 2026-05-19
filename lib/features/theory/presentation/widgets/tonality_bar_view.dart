@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../domain/models/scale_degree.dart';
 import '../../domain/models/tonality.dart';
+import '../../state/providers/theory_preferences_notifier.dart';
 import '../services/note_display_formatter.dart';
 import 'scale_degrees.dart';
 import 'tonality_picker_sheet.dart';
@@ -15,7 +18,7 @@ typedef TonalitySideSheetPresenter =
       required WidgetBuilder builder,
     });
 
-class TonalityBarView extends StatelessWidget {
+class TonalityBarView extends ConsumerWidget {
   const TonalityBarView({
     super.key,
     required this.height,
@@ -36,9 +39,10 @@ class TonalityBarView extends StatelessWidget {
   final double scaleDegreesTextScaleMultiplier;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final noteNameSystem = ref.watch(noteNameSystemProvider);
 
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
     final verticalPadding = textScale > 1.2 ? 4.0 : 12.0;
@@ -46,8 +50,10 @@ class TonalityBarView extends StatelessWidget {
     final effectiveMinButtonHeight = minButtonHeight < 48.0
         ? 48.0
         : minButtonHeight;
-    final keySemanticLabel = 'Key: ${tonality.displayName}';
-    final keyLabel = 'Key: ${toGlyphAccidentals(tonality.displayName)}';
+    final keySemanticLabel =
+        'Key: ${tonalitySemanticLabel(tonality, noteNameSystem: noteNameSystem)}';
+    final keyLabel =
+        'Key: ${tonalityDisplayLabel(tonality, noteNameSystem: noteNameSystem)}';
 
     TextStyle? scaledKeyLabelStyle(TextStyle? baseStyle) {
       final fontSize = baseStyle?.fontSize;
@@ -125,7 +131,10 @@ class TonalityBarView extends StatelessWidget {
                   child: ScaleDegrees(
                     current: scaleDegreeAnalysis,
                     mode: tonality.mode,
-                    tonalityDisplayName: tonality.displayName,
+                    tonalityDisplayName: tonalitySemanticLabel(
+                      tonality,
+                      noteNameSystem: noteNameSystem,
+                    ),
                     maxHeight: height,
                     fadeColor: cs.surfaceContainerLow,
                     textScaleMultiplier: scaleDegreesTextScaleMultiplier,

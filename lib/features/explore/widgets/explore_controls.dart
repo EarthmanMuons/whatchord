@@ -13,6 +13,7 @@ class ExploreControls extends StatelessWidget {
     required this.state,
     required this.identity,
     required this.tonality,
+    required this.noteNameSystem,
     required this.isLandscape,
     required this.onRootChanged,
     required this.onQualityChanged,
@@ -23,6 +24,7 @@ class ExploreControls extends StatelessWidget {
   final ExploreChordState state;
   final ChordIdentity identity;
   final Tonality tonality;
+  final NoteNameSystem noteNameSystem;
   final bool isLandscape;
   final ValueChanged<int> onRootChanged;
   final ValueChanged<ChordQualityToken> onQualityChanged;
@@ -58,6 +60,7 @@ class ExploreControls extends StatelessWidget {
                 child: _RootWheel(
                   value: state.rootPc,
                   tonality: tonality,
+                  noteNameSystem: noteNameSystem,
                   onChanged: onRootChanged,
                 ),
               ),
@@ -98,10 +101,16 @@ class ExploreControls extends StatelessWidget {
                         pc: pc,
                         label: pc == identity.rootPc
                             ? 'Root'
-                            : '/${toGlyphAccidentals(_spellBass(pc: pc, identity: identity, tonality: tonality))}',
+                            : '/${noteDisplayLabel(
+                                _spellBass(pc: pc, identity: identity, tonality: tonality),
+                                noteNameSystem: noteNameSystem,
+                              )}',
                         semanticLabel: pc == identity.rootPc
                             ? 'Root position'
-                            : 'Bass ${_spellBass(pc: pc, identity: identity, tonality: tonality)}',
+                            : 'Bass ${noteSemanticLabel(
+                                _spellBass(pc: pc, identity: identity, tonality: tonality),
+                                noteNameSystem: noteNameSystem,
+                              )}',
                       ),
                   ],
                   onChanged: onBassChanged,
@@ -417,11 +426,13 @@ class _RootWheel extends StatefulWidget {
   const _RootWheel({
     required this.value,
     required this.tonality,
+    required this.noteNameSystem,
     required this.onChanged,
   });
 
   final int value;
   final Tonality tonality;
+  final NoteNameSystem noteNameSystem;
   final ValueChanged<int> onChanged;
 
   @override
@@ -590,7 +601,10 @@ class _RootWheelState extends State<_RootWheel> {
   int _previousPc(int pc) => (pc - 1) % _pitchClassCount;
 
   String _labelForPc(int pc) {
-    return toGlyphAccidentals(pcToName(pc, tonality: widget.tonality));
+    return noteDisplayLabel(
+      pcToName(pc, tonality: widget.tonality),
+      noteNameSystem: widget.noteNameSystem,
+    );
   }
 }
 

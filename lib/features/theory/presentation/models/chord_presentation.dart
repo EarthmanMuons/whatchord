@@ -9,6 +9,7 @@ class ChordPresentation {
     required this.identity,
     required this.symbol,
     required this.longLabel,
+    required this.semanticLongLabel,
     required this.members,
     required this.memberDegrees,
     required this.memberPitchClasses,
@@ -19,6 +20,7 @@ class ChordPresentation {
   final ChordIdentity identity;
   final ChordSymbol symbol;
   final String longLabel;
+  final String semanticLongLabel;
   final List<String> members;
   final List<String> memberDegrees;
   final Set<int> memberPitchClasses;

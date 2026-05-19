@@ -1,6 +1,7 @@
 /// Storage keys and persisted values for music theory preferences.
 class TheoryPreferencesKeys {
   static const chordNotationStyle = 'theory.chordNotationStyle';
+  static const noteNameSystem = 'theory.noteNameSystem';
   static const selectedTonality = 'theory.selectedTonality';
   static const showScaleNotes = 'theory.showScaleNotes';
 }
@@ -9,6 +10,9 @@ class TheoryPreferencesKeys {
 class TheoryPreferencesValues {
   static const chordNotationStyleSymbolic = 'symbolic';
   static const chordNotationStyleTextual = 'textual';
+  static const noteNameSystemInternational = 'international';
+  static const noteNameSystemGerman = 'german';
+  static const noteNameSystemFixedDo = 'fixedDo';
   static const tonalityModeMajor = 'major';
   static const tonalityModeMinor = 'minor';
 }

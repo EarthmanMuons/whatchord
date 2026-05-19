@@ -33,6 +33,7 @@ class NoteChip extends ConsumerWidget {
     final isPedalDown = ref.watch(
       inputPedalStateProvider.select((s) => s.isDown),
     );
+    final noteNameSystem = ref.watch(noteNameSystemProvider);
 
     final bgColor = cs.surfaceContainerLow;
     final fgColor = cs.onSurface;
@@ -57,8 +58,14 @@ class NoteChip extends ConsumerWidget {
       height: 1.0,
       forceStrutHeight: true,
     );
-    final displayLabel = noteDisplayLabel(note.label);
-    final semanticLabel = NoteLongFormFormatter.format(note.label);
+    final displayLabel = noteDisplayLabel(
+      note.label,
+      noteNameSystem: noteNameSystem,
+    );
+    final semanticLabel = NoteLongFormFormatter.format(
+      note.label,
+      noteNameSystem: noteNameSystem,
+    );
 
     return Semantics(
       container: true,
