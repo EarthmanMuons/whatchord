@@ -653,19 +653,19 @@
 
           <pre><code>$ dart run tool/chord_debug.dart F# Bb C E
 
-pcs: Bb, C, E, F# |  bass: F#  |  key: C major
+pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
 
- 1) F#7b5          8.50
-     members: root=F#  major3=A#  flat5=C  flat7=E
-     req+16  bass+1  raw=17.00 / sqrt(4) =&gt; 8.50
+ 1) F♯7♭5          8.50
+     members: root=F♯  major3=A♯  flat5=C  flat7=E
+     scoring: req+16  bass+1  =&gt;  17.00 raw, 8.50 final
 
- 2) C7b5 / Gb      8.50  Δ +0.00 ~tie
-     (vs prev: Prefer root position)
-     members: root=C  major3=E  flat5=Gb  flat7=Bb
-     req+16  bass+1  raw=17.00 / sqrt(4) =&gt; 8.50
+ 2) C7♭5 / G♭      8.50  Δ +0.00 ~tie
+     (vs prev: prefer root position)
+     members: root=C  major3=E  flat5=G♭  flat7=B♭
+     scoring: req+16  bass+1  =&gt;  17.00 raw, 8.50 final
 
- 3) C7#11 / F#     6.73  Δ -1.77
-     (vs prev: Score outside near-tie window)</code></pre>
+ 3) C7♯11 / F♯     6.73  Δ -1.77
+     (vs prev: score outside near-tie window)</code></pre>
 
           <p>
             The same diagnostic output also exposes enharmonic spelling

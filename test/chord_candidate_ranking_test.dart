@@ -30,7 +30,7 @@ void main() {
     _expectRule(
       dominant,
       diminishedSlash,
-      'Prefer altered dominant7 over dim7 slash',
+      'prefer altered dominant7 over dim7 slash',
     );
   });
 
@@ -60,7 +60,7 @@ void main() {
     _expectRule(
       conventional,
       add11Slash,
-      'Prefer conventional altered seventh over add11 slash',
+      'prefer conventional altered seventh over add11 slash',
     );
   });
 
@@ -90,7 +90,7 @@ void main() {
     _expectRule(
       minorSharp11,
       alteredSus,
-      'Prefer complete minor sharp11 over altered maj7sus4',
+      'prefer complete minor sharp11 over altered maj7sus4',
     );
   });
 
@@ -123,7 +123,7 @@ void main() {
     _expectRule(
       dominant,
       remoteSlash,
-      'Prefer close root-position dominant7 over non-dominant slash',
+      'prefer close root-position dominant7 over non-dominant slash',
     );
   });
 
@@ -153,7 +153,7 @@ void main() {
     _expectRule(
       rootPosition,
       slash,
-      'Prefer root-position altered-fifth dominant over slash',
+      'prefer root-position altered-fifth dominant over slash',
     );
   });
 
@@ -181,7 +181,7 @@ void main() {
     _expectTieRule(
       completeTriad,
       incompleteSixth,
-      'Prefer complete triad over incomplete inverted 6th',
+      'prefer complete triad over incomplete inverted 6th',
     );
   });
 }
