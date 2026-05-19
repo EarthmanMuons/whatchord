@@ -56,7 +56,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           debugText: _debugForNote(
             midis: midis,
             keyName: keyName,
-            noteName: name,
+            noteName: displayName,
             longLabel: longLabel,
             appVersion: appVersion,
           ),
@@ -95,7 +95,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
             upperMidi: upperMidi,
             semitones: interval.semitones,
             intervalLong: interval.long,
-            fromRoot: root,
+            fromRoot: displayRoot,
             appVersion: appVersion,
           ),
         );
@@ -131,7 +131,9 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         final extensions = [...id.extensions]
           ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
-        final extensionLabels = extensions.map((e) => e.shortLabel).toList();
+        final extensionLabels = extensions
+            .map((e) => theoryTokenDisplayLabel(e.shortLabel))
+            .toList();
         final debugText = _debugForChord(
           midis: midis,
           keyName: keyName,
@@ -139,22 +141,25 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
             presentation.symbol,
             noteNameSystem: noteNameSystem,
           ),
-          longLabel: presentation.semanticLongLabel,
+          longLabel: presentation.longLabel,
           rootPc: id.rootPc,
-          bassPc: id.bassPc,
-          hasSlash: id.hasSlashBass,
           quality: qualityLabel,
           extensions: extensionLabels,
           alternatives: alternatives,
           scaleDegreeAnalysis: presentation.scaleDegreeAnalysis,
-          members: presentation.members,
-          degrees: presentation.memberDegrees,
+          members: presentation.members
+              .map((m) => noteDisplayLabel(m, noteNameSystem: noteNameSystem))
+              .toList(),
+          degrees: presentation.memberDegrees
+              .map(theoryTokenDisplayLabel)
+              .toList(),
           appVersion: appVersion,
         );
 
         return ChordDisplay(
           symbol: presentation.symbol,
-          longLabel: presentation.semanticLongLabel,
+          longLabel: presentation.longLabel,
+          semanticLongLabel: presentation.semanticLongLabel,
           secondaryLabel: secondaryLabel,
           debugText: debugText,
         );
@@ -221,8 +226,6 @@ String _debugForChord({
   required String chosenSymbol,
   required String longLabel,
   required int rootPc,
-  required int bassPc,
-  required bool hasSlash,
   required String quality,
   required List<String> extensions,
   required List<String> alternatives,

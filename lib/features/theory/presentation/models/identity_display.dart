@@ -11,17 +11,21 @@ import 'chord_symbol.dart';
 sealed class IdentityDisplay {
   const IdentityDisplay({
     required this.longLabel,
+    String? semanticLongLabel,
     this.secondaryLabel,
     this.debugText,
-  });
+  }) : semanticLongLabel = semanticLongLabel ?? longLabel;
 
-  /// Plain-English explanation shown on long-press.
+  /// User-facing explanation shown in analysis details.
   ///
   /// Examples:
   /// - "C major seventh"
-  /// - "F sharp half-diminished seventh over A"
+  /// - "F♯ half-diminished seventh over A"
   /// - "Perfect fifth"
   final String longLabel;
+
+  /// Plain-English label for accessibility.
+  final String semanticLongLabel;
 
   /// Optional second-line label (e.g., "Note", "Interval", "Chord: 1st inversion").
   final String? secondaryLabel;
@@ -67,6 +71,7 @@ final class ChordDisplay extends IdentityDisplay {
   const ChordDisplay({
     required this.symbol,
     required super.longLabel,
+    super.semanticLongLabel,
     super.secondaryLabel,
     super.debugText,
   });
