@@ -77,7 +77,7 @@ void main(List<String> args) {
   final notation = _parseNotationFlag(notationFlag);
 
   // Extract positional args (notes), ignoring flags.
-  final noteTokens = _readNoteTokens(args);
+  final noteTokens = _readNoteTokens(args).expand(_splitNoteToken).toList();
   if (noteTokens.isEmpty) {
     stderr.writeln('No notes provided.');
     exitCode = 2;
@@ -495,6 +495,13 @@ List<String> _readNoteTokens(List<String> args) {
     out.add(arg);
   }
   return out;
+}
+
+Iterable<String> _splitNoteToken(String token) sync* {
+  for (final part in token.split(',')) {
+    final trimmed = part.trim();
+    if (trimmed.isNotEmpty) yield trimmed;
+  }
 }
 
 String _padRight(String s, int width) {
