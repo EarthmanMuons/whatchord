@@ -266,6 +266,32 @@ void main() {
       },
     ),
 
+    // Complete triad should beat an incomplete inverted 6th reading.
+    golden(
+      name: 'B E G B --bass=B --key=D:maj -> Em / B',
+      pcs: ['B', 'E', 'G'],
+      bass: 'B',
+      noteCount: 4,
+      tonality: const Tonality('D', TonalityMode.major),
+      expectTop: (top) {
+        expect(top.rootPc, pc('E'));
+        expect(top.bassPc, pc('B'));
+        expect(top.quality, ChordQualityToken.minor);
+      },
+    ),
+
+    // Root-position 6(no5) with a doubled root remains a legitimate 6th chord.
+    golden(
+      name: 'C E A C -> C6',
+      pcs: ['C', 'E', 'A'],
+      noteCount: 4,
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.bassPc, pc('C'));
+        expect(top.quality, ChordQualityToken.major6);
+      },
+    ),
+
     // -------------------------------------------------------------------------
     // Altered/colored dominants
     // -------------------------------------------------------------------------

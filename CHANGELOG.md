@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Fixed chord ranking so complete triads are preferred over incomplete inverted
+  sixth-chord spellings in close ambiguities.
 - Fixed chord ranking so complete minor sharp-eleventh voicings are preferred
   over remote altered major-7-sus4 names.
 - Fixed Analysis Details so copied note names, chord symbols, members, and

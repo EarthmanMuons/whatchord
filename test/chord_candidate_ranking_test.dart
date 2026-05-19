@@ -156,6 +156,34 @@ void main() {
       'Prefer root-position altered-fifth dominant over slash',
     );
   });
+
+  test('complete triad beats incomplete inverted 6th in a near-tie', () {
+    final completeTriad = ChordCandidate(
+      identity: _identity(
+        quality: ChordQualityToken.minor,
+        rootPc: 4,
+        bassPc: 11,
+        presentIntervals: const {0, 3, 7},
+      ),
+      score: 7.42,
+    );
+
+    final incompleteSixth = ChordCandidate(
+      identity: _identity(
+        quality: ChordQualityToken.major6,
+        rootPc: 7,
+        bassPc: 11,
+        presentIntervals: const {0, 4, 9},
+      ),
+      score: 7.50,
+    );
+
+    _expectTieRule(
+      completeTriad,
+      incompleteSixth,
+      'Prefer complete triad over incomplete inverted 6th',
+    );
+  });
 }
 
 void _expectRule(
@@ -182,6 +210,33 @@ void _expectRule(
   expect(
     explanation.scoreDelta.abs(),
     greaterThan(ChordCandidateRanking.nearTieWindow),
+  );
+}
+
+void _expectTieRule(
+  ChordCandidate preferred,
+  ChordCandidate other,
+  String ruleName,
+) {
+  const tonality = Tonality('C', TonalityMode.major);
+
+  final comparison = ChordCandidateRanking.compare(
+    preferred,
+    other,
+    tonality: tonality,
+  );
+  final explanation = ChordCandidateRanking.explain(
+    preferred,
+    other,
+    tonality: tonality,
+  );
+
+  expect(comparison, explanation.result);
+  expect(comparison, -1);
+  expect(explanation.decidedByRule, ruleName);
+  expect(
+    explanation.scoreDelta.abs(),
+    lessThanOrEqualTo(ChordCandidateRanking.nearTieWindow),
   );
 }
 
