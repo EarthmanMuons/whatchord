@@ -18,6 +18,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   chords, plus flat-ninth colors for sixth chords, including symbols like Am#11
   and Cm6b9.
 
+### Changed
+
+- Changed Explore Chords to build chords from separate base quality, sixth or
+  seventh, and fifth controls instead of one long quality list.
+
 ### Fixed
 
 - Fixed chord ranking so complete triads are preferred over incomplete inverted

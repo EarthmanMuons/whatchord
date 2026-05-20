@@ -1,14 +1,17 @@
 import 'package:whatchord/features/theory/theory.dart';
 
+import '../models/explore_chord_spec.dart';
 import '../models/explore_chord_state.dart';
 import 'explore_chord_example_builder.dart';
 import 'explore_chord_options.dart';
 
 ExploreChordState normalizeExploreChordState(ExploreChordState state) {
+  final spec = state.spec.normalized();
   return _withValidBass(
     state.copyWith(
+      spec: spec,
       extensions: normalizeExtensionsForQuality(
-        quality: state.quality,
+        quality: spec.quality,
         extensions: state.extensions,
       ),
     ),
@@ -19,15 +22,67 @@ ExploreChordState exploreStateWithRoot(ExploreChordState state, int rootPc) {
   return _withValidBass(state.copyWith(rootPc: rootPc));
 }
 
+ExploreChordState exploreStateWithBaseQuality(
+  ExploreChordState state,
+  ExploreBaseQuality baseQuality,
+) {
+  final nextSpec = state.spec.copyWith(
+    baseQuality: baseQuality,
+    fifthAlteration: defaultFifthAlterationFor(baseQuality),
+  );
+  return _withValidBass(
+    state.copyWith(
+      spec: nextSpec,
+      extensions: normalizeExtensionsForQuality(
+        quality: nextSpec.quality,
+        extensions: state.extensions,
+      ),
+    ),
+  );
+}
+
+ExploreChordState exploreStateWithSeventhKind(
+  ExploreChordState state,
+  ExploreSeventhKind seventhKind,
+) {
+  final nextSpec = state.spec.copyWith(seventhKind: seventhKind);
+  return _withValidBass(
+    state.copyWith(
+      spec: nextSpec,
+      extensions: normalizeExtensionsForQuality(
+        quality: nextSpec.quality,
+        extensions: state.extensions,
+      ),
+    ),
+  );
+}
+
+ExploreChordState exploreStateWithFifthAlteration(
+  ExploreChordState state,
+  ExploreFifthAlteration fifthAlteration,
+) {
+  final nextSpec = state.spec.copyWith(fifthAlteration: fifthAlteration);
+  return _withValidBass(
+    state.copyWith(
+      spec: nextSpec,
+      extensions: normalizeExtensionsForQuality(
+        quality: nextSpec.quality,
+        extensions: state.extensions,
+      ),
+    ),
+  );
+}
+
 ExploreChordState exploreStateWithQuality(
   ExploreChordState state,
   ChordQualityToken quality,
 ) {
+  final nextSpec = ExploreChordSpec.fromQuality(quality);
   return _withValidBass(
     state.copyWith(
-      quality: quality,
+      spec: nextSpec,
       extensions: normalizeExtensionsForQuality(
-        quality: quality,
+        quality: nextSpec.quality,
         extensions: state.extensions,
       ),
     ),

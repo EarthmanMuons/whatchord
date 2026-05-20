@@ -213,9 +213,23 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                           onRootChanged: (value) => updateState(
                                             exploreStateWithRoot(_state, value),
                                           ),
-                                          onQualityChanged: (value) =>
+                                          onBaseQualityChanged: (value) =>
                                               updateState(
-                                                exploreStateWithQuality(
+                                                exploreStateWithBaseQuality(
+                                                  _state,
+                                                  value,
+                                                ),
+                                              ),
+                                          onSeventhKindChanged: (value) =>
+                                              updateState(
+                                                exploreStateWithSeventhKind(
+                                                  _state,
+                                                  value,
+                                                ),
+                                              ),
+                                          onFifthAlterationChanged: (value) =>
+                                              updateState(
+                                                exploreStateWithFifthAlteration(
                                                   _state,
                                                   value,
                                                 ),
@@ -282,9 +296,23 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                           onRootChanged: (value) => updateState(
                                             exploreStateWithRoot(_state, value),
                                           ),
-                                          onQualityChanged: (value) =>
+                                          onBaseQualityChanged: (value) =>
                                               updateState(
-                                                exploreStateWithQuality(
+                                                exploreStateWithBaseQuality(
+                                                  _state,
+                                                  value,
+                                                ),
+                                              ),
+                                          onSeventhKindChanged: (value) =>
+                                              updateState(
+                                                exploreStateWithSeventhKind(
+                                                  _state,
+                                                  value,
+                                                ),
+                                              ),
+                                          onFifthAlterationChanged: (value) =>
+                                              updateState(
+                                                exploreStateWithFifthAlteration(
                                                   _state,
                                                   value,
                                                 ),

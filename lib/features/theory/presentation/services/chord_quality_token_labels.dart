@@ -2,31 +2,6 @@ import '../../domain/theory_domain.dart' show ChordQualityToken;
 
 enum ChordQualityLabelForm { symbol, suffix, standalone, long }
 
-const exploreChordQualityOrder = [
-  ChordQualityToken.major,
-  ChordQualityToken.minor,
-  ChordQualityToken.diminished,
-  ChordQualityToken.augmented,
-  ChordQualityToken.sus2,
-  ChordQualityToken.sus4,
-  ChordQualityToken.major6,
-  ChordQualityToken.minor6,
-  ChordQualityToken.dominant7,
-  ChordQualityToken.dominant7sus2,
-  ChordQualityToken.dominant7sus4,
-  ChordQualityToken.dominant7Flat5,
-  ChordQualityToken.dominant7Sharp5,
-  ChordQualityToken.major7,
-  ChordQualityToken.major7sus2,
-  ChordQualityToken.major7sus4,
-  ChordQualityToken.major7Flat5,
-  ChordQualityToken.major7Sharp5,
-  ChordQualityToken.minor7,
-  ChordQualityToken.minorMajor7,
-  ChordQualityToken.halfDiminished7,
-  ChordQualityToken.diminished7,
-];
-
 /// Formatting-only labels for chord quality tokens.
 extension ChordQualityTokenLabels on ChordQualityToken {
   String label(ChordQualityLabelForm form) {

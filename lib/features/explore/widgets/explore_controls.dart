@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
+import '../models/explore_chord_spec.dart';
 import '../models/explore_chord_state.dart';
 import '../services/explore_chord_options.dart';
 
@@ -16,7 +17,9 @@ class ExploreControls extends StatelessWidget {
     required this.noteNameSystem,
     required this.isLandscape,
     required this.onRootChanged,
-    required this.onQualityChanged,
+    required this.onBaseQualityChanged,
+    required this.onSeventhKindChanged,
+    required this.onFifthAlterationChanged,
     required this.onExtensionsChanged,
     required this.onBassChanged,
   });
@@ -27,7 +30,9 @@ class ExploreControls extends StatelessWidget {
   final NoteNameSystem noteNameSystem;
   final bool isLandscape;
   final ValueChanged<int> onRootChanged;
-  final ValueChanged<ChordQualityToken> onQualityChanged;
+  final ValueChanged<ExploreBaseQuality> onBaseQualityChanged;
+  final ValueChanged<ExploreSeventhKind> onSeventhKindChanged;
+  final ValueChanged<ExploreFifthAlteration> onFifthAlterationChanged;
   final ValueChanged<Set<ChordExtension>> onExtensionsChanged;
   final ValueChanged<int> onBassChanged;
 
@@ -66,11 +71,36 @@ class ExploreControls extends StatelessWidget {
               ),
               SizedBox(
                 width: controlWidth,
-                child: _QualityWheel(
-                  value: state.quality,
-                  onChanged: onQualityChanged,
+                child: _BaseQualitySelector(
+                  value: state.baseQuality,
+                  onChanged: onBaseQualityChanged,
                 ),
               ),
+              SizedBox(
+                width: controlWidth,
+                child: _SeventhKindSelector(
+                  baseQuality: state.baseQuality,
+                  value: state.seventhKind,
+                  choices: availableSeventhKindsFor(state.baseQuality),
+                  onChanged: onSeventhKindChanged,
+                ),
+              ),
+              if (availableFifthAlterationsFor(
+                    baseQuality: state.baseQuality,
+                    seventhKind: state.seventhKind,
+                  ).length >
+                  1)
+                SizedBox(
+                  width: controlWidth,
+                  child: _FifthAlterationSelector(
+                    value: state.fifthAlteration,
+                    choices: availableFifthAlterationsFor(
+                      baseQuality: state.baseQuality,
+                      seventhKind: state.seventhKind,
+                    ),
+                    onChanged: onFifthAlterationChanged,
+                  ),
+                ),
               SizedBox(
                 width: controlWidth,
                 child: _ExtensionBuilder(
@@ -165,35 +195,144 @@ class ExploreControls extends StatelessWidget {
   }
 }
 
-double _wheelViewportFraction({
-  required double viewportWidth,
-  required double targetItemWidth,
-}) {
-  if (!viewportWidth.isFinite || viewportWidth <= 0) return 1;
-  return (targetItemWidth / viewportWidth).clamp(0.08, 0.92);
-}
+class _BaseQualitySelector extends StatelessWidget {
+  const _BaseQualitySelector({required this.value, required this.onChanged});
 
-bool _viewportFractionChanged(double? previous, double next) {
-  if (previous == null) return true;
-  return (previous - next).abs() > 0.001;
-}
+  static const _choices = ExploreBaseQuality.values;
 
-class _QualityWheel extends StatefulWidget {
-  const _QualityWheel({required this.value, required this.onChanged});
-
-  final ChordQualityToken value;
-  final ValueChanged<ChordQualityToken> onChanged;
+  final ExploreBaseQuality value;
+  final ValueChanged<ExploreBaseQuality> onChanged;
 
   @override
-  State<_QualityWheel> createState() => _QualityWheelState();
+  Widget build(BuildContext context) {
+    return _OptionWheel<ExploreBaseQuality>(
+      label: 'Quality',
+      value: value,
+      choices: _choices,
+      labelFor: _baseQualityLabel,
+      semanticLabelFor: _baseQualitySemanticLabel,
+      onChanged: onChanged,
+    );
+  }
 }
 
-class _QualityWheelState extends State<_QualityWheel> {
-  static const _qualities = exploreChordQualityOrder;
-  static final _qualityCount = _qualities.length;
+class _SeventhKindSelector extends StatelessWidget {
+  const _SeventhKindSelector({
+    required this.baseQuality,
+    required this.value,
+    required this.choices,
+    required this.onChanged,
+  });
+
+  final ExploreBaseQuality baseQuality;
+  final ExploreSeventhKind value;
+  final List<ExploreSeventhKind> choices;
+  final ValueChanged<ExploreSeventhKind> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedIndex = _selectedIndex();
+
+    return Semantics(
+      container: true,
+      label: 'Sixth / Seventh',
+      value: _seventhKindSemanticLabel(choices[selectedIndex]),
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'Sixth / Seventh',
+          border: OutlineInputBorder(),
+        ),
+        child: _ExploreSegmentedChoiceGroup(
+          labels: [
+            for (final choice in choices)
+              theoryTokenDisplayLabel(_seventhKindLabel(choice, baseQuality)),
+          ],
+          semanticLabels: [
+            for (final choice in choices) _seventhKindSemanticLabel(choice),
+          ],
+          selectedIndex: selectedIndex,
+          onSelected: (index) => onChanged(choices[index]),
+        ),
+      ),
+    );
+  }
+
+  int _selectedIndex() {
+    final index = choices.indexOf(value);
+    return index < 0 ? 0 : index;
+  }
+}
+
+class _FifthAlterationSelector extends StatelessWidget {
+  const _FifthAlterationSelector({
+    required this.value,
+    required this.choices,
+    required this.onChanged,
+  });
+
+  final ExploreFifthAlteration value;
+  final List<ExploreFifthAlteration> choices;
+  final ValueChanged<ExploreFifthAlteration> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedIndex = _selectedIndex();
+
+    return Semantics(
+      container: true,
+      label: 'Fifth',
+      value: _fifthAlterationSemanticLabel(choices[selectedIndex]),
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'Fifth',
+          border: OutlineInputBorder(),
+        ),
+        child: _ExploreSegmentedChoiceGroup(
+          labels: [
+            for (final choice in choices)
+              theoryTokenDisplayLabel(_fifthAlterationLabel(choice)),
+          ],
+          semanticLabels: [
+            for (final choice in choices) _fifthAlterationSemanticLabel(choice),
+          ],
+          selectedIndex: selectedIndex,
+          onSelected: (index) => onChanged(choices[index]),
+        ),
+      ),
+    );
+  }
+
+  int _selectedIndex() {
+    final index = choices.indexOf(value);
+    return index < 0 ? 0 : index;
+  }
+}
+
+class _OptionWheel<T> extends StatefulWidget {
+  const _OptionWheel({
+    required this.label,
+    required this.value,
+    required this.choices,
+    required this.labelFor,
+    required this.semanticLabelFor,
+    required this.onChanged,
+  });
+
+  final String label;
+  final T value;
+  final List<T> choices;
+  final String Function(T value) labelFor;
+  final String Function(T value) semanticLabelFor;
+  final ValueChanged<T> onChanged;
+
+  @override
+  State<_OptionWheel<T>> createState() => _OptionWheelState<T>();
+}
+
+class _OptionWheelState<T> extends State<_OptionWheel<T>> {
   static const _initialLoop = 500;
   static const _wheelHeight = 64.0;
-  static const _targetItemWidth = 116.0;
+  static const _targetItemWidth = 96.0;
   static const _wheelContentPadding = EdgeInsets.fromLTRB(8, 10, 8, 6);
 
   PageController? _controller;
@@ -203,26 +342,30 @@ class _QualityWheelState extends State<_QualityWheel> {
   @override
   void initState() {
     super.initState();
-    _currentPage = (_initialLoop * _qualityCount) + _indexOf(widget.value);
+    _currentPage =
+        (_initialLoop * widget.choices.length) + _indexOf(widget.value);
   }
 
   @override
-  void didUpdateWidget(covariant _QualityWheel oldWidget) {
+  void didUpdateWidget(covariant _OptionWheel<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.choices != widget.choices) {
+      _resetControllerToValue();
+      return;
+    }
+
     if (oldWidget.value == widget.value) return;
 
-    final controller = _controller;
-    final visiblePage = controller?.hasClients == true
-        ? (controller?.page?.round() ?? _currentPage)
-        : _currentPage;
-    if (_qualityForPage(visiblePage) == widget.value) return;
+    final visiblePage = _visiblePage;
+    if (_valueForPage(visiblePage) == widget.value) return;
 
-    final targetPage = _nearestPageForQuality(widget.value);
+    final targetPage = _nearestPageForValue(widget.value);
     _currentPage = targetPage;
-    if (controller?.hasClients != true) return;
+    if (_controller?.hasClients != true) return;
 
     unawaited(
-      controller!.animateToPage(
+      _controller!.animateToPage(
         targetPage,
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOutCubic,
@@ -238,21 +381,20 @@ class _QualityWheelState extends State<_QualityWheel> {
 
   @override
   Widget build(BuildContext context) {
-    final selectedLabel = _longLabel(widget.value);
-
+    final selectedLabel = widget.semanticLabelFor(widget.value);
     return Semantics(
       container: true,
-      label: 'Quality',
+      label: widget.label,
       value: selectedLabel,
-      increasedValue: _longLabel(_nextQuality(widget.value)),
-      decreasedValue: _longLabel(_previousQuality(widget.value)),
-      onIncrease: () => widget.onChanged(_nextQuality(widget.value)),
-      onDecrease: () => widget.onChanged(_previousQuality(widget.value)),
+      increasedValue: widget.semanticLabelFor(_nextValue(widget.value)),
+      decreasedValue: widget.semanticLabelFor(_previousValue(widget.value)),
+      onIncrease: () => widget.onChanged(_nextValue(widget.value)),
+      onDecrease: () => widget.onChanged(_previousValue(widget.value)),
       child: ExcludeSemantics(
         child: InputDecorator(
-          decoration: const InputDecoration(
-            labelText: 'Quality',
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            labelText: widget.label,
+            border: const OutlineInputBorder(),
             contentPadding: _wheelContentPadding,
           ),
           child: SizedBox(
@@ -272,13 +414,13 @@ class _QualityWheelState extends State<_QualityWheel> {
                       controller: controller,
                       onPageChanged: _handlePageChanged,
                       itemBuilder: (context, page) {
-                        final quality = _qualityForPage(page);
-                        return _QualityWheelItem(
+                        final value = _valueForPage(page);
+                        return _WheelItem(
                           label: theoryTokenDisplayLabel(
-                            quality.label(ChordQualityLabelForm.standalone),
+                            widget.labelFor(value),
                           ),
-                          selected: quality == widget.value,
-                          onTap: () => _selectQuality(quality),
+                          selected: value == widget.value,
+                          onTap: () => _selectValue(value),
                         );
                       },
                     ),
@@ -314,14 +456,14 @@ class _QualityWheelState extends State<_QualityWheel> {
 
   void _handlePageChanged(int page) {
     _currentPage = page;
-    final quality = _qualityForPage(page);
-    if (quality == widget.value) return;
-    widget.onChanged(quality);
+    final value = _valueForPage(page);
+    if (value == widget.value) return;
+    widget.onChanged(value);
   }
 
-  void _selectQuality(ChordQualityToken quality) {
+  void _selectValue(T value) {
     final controller = _controller;
-    final targetPage = _nearestPageForQuality(quality);
+    final targetPage = _nearestPageForValue(value);
     _currentPage = targetPage;
     if (controller?.hasClients == true) {
       unawaited(
@@ -332,94 +474,128 @@ class _QualityWheelState extends State<_QualityWheel> {
         ),
       );
     }
-    if (quality != widget.value) widget.onChanged(quality);
+    if (value != widget.value) widget.onChanged(value);
   }
 
-  int _nearestPageForQuality(ChordQualityToken quality) {
-    final controller = _controller;
-    final currentPage = controller?.hasClients == true
-        ? (controller?.page?.round() ?? _currentPage)
-        : _currentPage;
+  int _nearestPageForValue(T value) {
+    final currentPage = _visiblePage;
     final currentIndex = _indexForPage(currentPage);
-    var delta = (_indexOf(quality) - currentIndex) % _qualityCount;
-    if (delta > _qualityCount / 2) delta -= _qualityCount;
+    var delta = (_indexOf(value) - currentIndex) % widget.choices.length;
+    if (delta > widget.choices.length / 2) delta -= widget.choices.length;
     return currentPage + delta;
   }
 
-  ChordQualityToken _qualityForPage(int page) =>
-      _qualities[_indexForPage(page)];
+  int get _visiblePage => _controller?.hasClients == true
+      ? (_controller?.page?.round() ?? _currentPage)
+      : _currentPage;
 
-  ChordQualityToken _nextQuality(ChordQualityToken quality) {
-    return _qualities[(_indexOf(quality) + 1) % _qualityCount];
+  T _valueForPage(int page) => widget.choices[_indexForPage(page)];
+
+  T _nextValue(T value) {
+    return widget.choices[(_indexOf(value) + 1) % widget.choices.length];
   }
 
-  ChordQualityToken _previousQuality(ChordQualityToken quality) {
-    return _qualities[(_indexOf(quality) - 1) % _qualityCount];
+  T _previousValue(T value) {
+    return widget.choices[(_indexOf(value) - 1) % widget.choices.length];
   }
 
-  int _indexForPage(int page) => page % _qualityCount;
+  int _indexForPage(int page) => page % widget.choices.length;
 
-  int _indexOf(ChordQualityToken quality) {
-    final index = _qualities.indexOf(quality);
+  int _indexOf(T value) {
+    final index = widget.choices.indexOf(value);
     return index < 0 ? 0 : index;
   }
 
-  String _longLabel(ChordQualityToken quality) {
-    return quality.label(ChordQualityLabelForm.long);
+  void _resetControllerToValue() {
+    _controller?.dispose();
+    _controller = null;
+    _viewportFraction = null;
+    _currentPage =
+        (_initialLoop * widget.choices.length) + _indexOf(widget.value);
   }
 }
 
-class _QualityWheelItem extends StatelessWidget {
-  const _QualityWheelItem({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
+String _baseQualityLabel(ExploreBaseQuality quality) {
+  return switch (quality) {
+    ExploreBaseQuality.major => 'maj',
+    ExploreBaseQuality.minor => 'min',
+    ExploreBaseQuality.diminished => 'dim',
+    ExploreBaseQuality.augmented => 'aug',
+    ExploreBaseQuality.sus2 => 'sus2',
+    ExploreBaseQuality.sus4 => 'sus4',
+  };
+}
 
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
+String _baseQualitySemanticLabel(ExploreBaseQuality quality) {
+  return switch (quality) {
+    ExploreBaseQuality.major => 'Major',
+    ExploreBaseQuality.minor => 'Minor',
+    ExploreBaseQuality.diminished => 'Diminished',
+    ExploreBaseQuality.augmented => 'Augmented',
+    ExploreBaseQuality.sus2 => 'Suspended second',
+    ExploreBaseQuality.sus4 => 'Suspended fourth',
+  };
+}
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final labelStyle =
-        (selected ? theme.textTheme.titleLarge : theme.textTheme.titleMedium)
-            ?.copyWith(
-              color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            );
+String _seventhKindLabel(
+  ExploreSeventhKind kind,
+  ExploreBaseQuality baseQuality,
+) {
+  return switch (kind) {
+    ExploreSeventhKind.none => 'None',
+    ExploreSeventhKind.sixth => switch (baseQuality) {
+      ExploreBaseQuality.minor => 'min6',
+      _ => 'maj6',
+    },
+    ExploreSeventhKind.dominant7 => '7',
+    ExploreSeventhKind.major7 => 'maj7',
+    ExploreSeventhKind.minor7 => 'min7',
+    ExploreSeventhKind.minorMajor7 => 'minmaj7',
+    ExploreSeventhKind.halfDiminished7 => 'hdim7',
+    ExploreSeventhKind.diminished7 => 'dim7',
+  };
+}
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Center(
-        child: Material(
-          color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(8),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap: onTap,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: selected ? 76 : 64,
-                minHeight: 48,
-              ),
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: selected ? 8 : 6),
-                    child: Text(label, maxLines: 1, style: labelStyle),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+String _seventhKindSemanticLabel(ExploreSeventhKind kind) {
+  return switch (kind) {
+    ExploreSeventhKind.none => 'No sixth or seventh',
+    ExploreSeventhKind.sixth => 'Sixth',
+    ExploreSeventhKind.dominant7 => 'Dominant seventh',
+    ExploreSeventhKind.major7 => 'Major seventh',
+    ExploreSeventhKind.minor7 => 'Minor seventh',
+    ExploreSeventhKind.minorMajor7 => 'Minor-major seventh',
+    ExploreSeventhKind.halfDiminished7 => 'Half-diminished seventh',
+    ExploreSeventhKind.diminished7 => 'Diminished seventh',
+  };
+}
+
+String _fifthAlterationLabel(ExploreFifthAlteration alteration) {
+  return switch (alteration) {
+    ExploreFifthAlteration.natural => '5',
+    ExploreFifthAlteration.flat => 'b5',
+    ExploreFifthAlteration.sharp => '#5',
+  };
+}
+
+String _fifthAlterationSemanticLabel(ExploreFifthAlteration alteration) {
+  return switch (alteration) {
+    ExploreFifthAlteration.natural => 'Natural fifth',
+    ExploreFifthAlteration.flat => 'Flat fifth',
+    ExploreFifthAlteration.sharp => 'Sharp fifth',
+  };
+}
+
+double _wheelViewportFraction({
+  required double viewportWidth,
+  required double targetItemWidth,
+}) {
+  if (!viewportWidth.isFinite || viewportWidth <= 0) return 1;
+  return (targetItemWidth / viewportWidth).clamp(0.08, 0.92);
+}
+
+bool _viewportFractionChanged(double? previous, double next) {
+  if (previous == null) return true;
+  return (previous - next).abs() > 0.001;
 }
 
 class _RootWheel extends StatefulWidget {
@@ -649,6 +825,59 @@ class _RootWheelItem extends StatelessWidget {
                   fit: BoxFit.scaleDown,
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: selected ? 8 : 4),
+                    child: Text(label, maxLines: 1, style: textStyle),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WheelItem extends StatelessWidget {
+  const _WheelItem({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final textStyle =
+        (selected ? theme.textTheme.titleLarge : theme.textTheme.titleMedium)
+            ?.copyWith(
+              color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: Center(
+        child: Material(
+          color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(8),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: onTap,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minWidth: selected ? 76 : 64,
+                minHeight: 48,
+              ),
+              child: Center(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: selected ? 8 : 6),
                     child: Text(label, maxLines: 1, style: textStyle),
                   ),
                 ),
