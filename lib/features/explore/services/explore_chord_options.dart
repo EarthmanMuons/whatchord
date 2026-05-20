@@ -1,6 +1,6 @@
 import 'package:whatchord/features/theory/theory.dart';
 
-enum ExploreExtensionControlRole { highestExtension, addedTones, colors }
+enum ExploreExtensionControlRole { highestExtension, addedTones, alterations }
 
 class ExploreExtensionControlGroup {
   const ExploreExtensionControlGroup({
@@ -87,7 +87,7 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
 
     return [
       ExploreExtensionControlGroup(
-        label: 'Highest extension',
+        label: 'Stacked extension',
         role: ExploreExtensionControlRole.highestExtension,
         allowsMultiple: false,
         choices: highestExtensionChoices,
@@ -101,8 +101,8 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
         ),
       if (colorChoices.isNotEmpty)
         ExploreExtensionControlGroup(
-          label: 'Colors',
-          role: ExploreExtensionControlRole.colors,
+          label: 'Alterations',
+          role: ExploreExtensionControlRole.alterations,
           allowsMultiple: true,
           choices: colorChoices,
         ),
@@ -128,8 +128,8 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
       ),
     if (availableColors.isNotEmpty)
       ExploreExtensionControlGroup(
-        label: 'Colors',
-        role: ExploreExtensionControlRole.colors,
+        label: 'Alterations',
+        role: ExploreExtensionControlRole.alterations,
         allowsMultiple: true,
         choices: [
           if (availableColors.contains(ChordExtension.flat9))

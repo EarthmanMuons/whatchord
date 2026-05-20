@@ -2,11 +2,27 @@ import 'package:meta/meta.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
+import 'explore_chord_spec.dart';
+
 @immutable
 class ExploreChordState {
-  const ExploreChordState({
+  factory ExploreChordState({
+    required int rootPc,
+    required ChordQualityToken quality,
+    required Set<ChordExtension> extensions,
+    required int bassPc,
+  }) {
+    return ExploreChordState.fromSpec(
+      rootPc: rootPc,
+      spec: ExploreChordSpec.fromQuality(quality),
+      extensions: extensions,
+      bassPc: bassPc,
+    );
+  }
+
+  const ExploreChordState.fromSpec({
     required this.rootPc,
-    required this.quality,
+    required this.spec,
     required this.extensions,
     required this.bassPc,
   });
@@ -21,19 +37,27 @@ class ExploreChordState {
   }
 
   final int rootPc;
-  final ChordQualityToken quality;
+  final ExploreChordSpec spec;
   final Set<ChordExtension> extensions;
   final int bassPc;
 
+  ChordQualityToken get quality => spec.quality;
+
+  ExploreBaseQuality get baseQuality => spec.baseQuality;
+
+  ExploreSeventhKind get seventhKind => spec.seventhKind;
+
+  ExploreFifthAlteration get fifthAlteration => spec.fifthAlteration;
+
   ExploreChordState copyWith({
     int? rootPc,
-    ChordQualityToken? quality,
+    ExploreChordSpec? spec,
     Set<ChordExtension>? extensions,
     int? bassPc,
   }) {
-    return ExploreChordState(
+    return ExploreChordState.fromSpec(
       rootPc: rootPc ?? this.rootPc,
-      quality: quality ?? this.quality,
+      spec: spec ?? this.spec,
       extensions: Set<ChordExtension>.unmodifiable(
         extensions ?? this.extensions,
       ),
@@ -46,13 +70,13 @@ class ExploreChordState {
       identical(this, other) ||
       other is ExploreChordState &&
           other.rootPc == rootPc &&
-          other.quality == quality &&
+          other.spec == spec &&
           other.bassPc == bassPc &&
           _setEquals(other.extensions, extensions);
 
   @override
   int get hashCode =>
-      Object.hash(rootPc, quality, bassPc, Object.hashAllUnordered(extensions));
+      Object.hash(rootPc, spec, bassPc, Object.hashAllUnordered(extensions));
 
   static bool _setEquals<T>(Set<T> a, Set<T> b) {
     if (identical(a, b)) return true;

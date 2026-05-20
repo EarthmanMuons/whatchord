@@ -1,13 +1,70 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:whatchord/features/explore/models/explore_chord_example.dart';
+import 'package:whatchord/features/explore/models/explore_chord_spec.dart';
 import 'package:whatchord/features/explore/models/explore_chord_state.dart';
 import 'package:whatchord/features/explore/services/explore_chord_example_builder.dart';
 import 'package:whatchord/features/explore/services/explore_chord_derivation.dart';
 import 'package:whatchord/features/explore/services/explore_chord_options.dart';
+import 'package:whatchord/features/explore/services/explore_chord_state_transitions.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 void main() {
+  group('ExploreChordSpec', () {
+    test(
+      'round-trips analyzer quality seeds through compositional controls',
+      () {
+        for (final quality in ChordQualityToken.values) {
+          final spec = ExploreChordSpec.fromQuality(quality);
+
+          expect(spec.quality, quality, reason: quality.name);
+        }
+      },
+    );
+
+    test(
+      'normalizes unavailable seventh choices when base quality changes',
+      () {
+        final state = ExploreChordState.fromSpec(
+          rootPc: 0,
+          spec: const ExploreChordSpec(
+            baseQuality: ExploreBaseQuality.major,
+            seventhKind: ExploreSeventhKind.dominant7,
+            fifthAlteration: ExploreFifthAlteration.sharp,
+          ),
+          extensions: const {},
+          bassPc: 0,
+        );
+
+        final minor = exploreStateWithBaseQuality(
+          state,
+          ExploreBaseQuality.minor,
+        );
+
+        expect(minor.baseQuality, ExploreBaseQuality.minor);
+        expect(minor.seventhKind, ExploreSeventhKind.none);
+        expect(minor.fifthAlteration, ExploreFifthAlteration.natural);
+        expect(minor.quality, ChordQualityToken.minor);
+      },
+    );
+
+    test('builds altered seventh qualities from separate controls', () {
+      final dominantSharpFive = ExploreChordSpec(
+        baseQuality: ExploreBaseQuality.major,
+        seventhKind: ExploreSeventhKind.dominant7,
+        fifthAlteration: ExploreFifthAlteration.sharp,
+      ).quality;
+      final majorFlatFive = ExploreChordSpec(
+        baseQuality: ExploreBaseQuality.major,
+        seventhKind: ExploreSeventhKind.major7,
+        fifthAlteration: ExploreFifthAlteration.flat,
+      ).quality;
+
+      expect(dominantSharpFive, ChordQualityToken.dominant7Sharp5);
+      expect(majorFlatFive, ChordQualityToken.major7Flat5);
+    });
+  });
+
   group('buildExploreExtensionControlGroups', () {
     test(
       'major qualities expose segmented extensions with sharp-eleventh color',
@@ -16,10 +73,13 @@ void main() {
           ChordQualityToken.major,
         );
 
-        expect(groups.map((group) => group.label), ['Added tones', 'Colors']);
+        expect(groups.map((group) => group.label), [
+          'Added tones',
+          'Alterations',
+        ]);
         expect(groups.map((group) => group.role), [
           ExploreExtensionControlRole.addedTones,
-          ExploreExtensionControlRole.colors,
+          ExploreExtensionControlRole.alterations,
         ]);
         expect(groups.map((group) => group.allowsMultiple), [true, true]);
         expect(groups[0].choices.map((choice) => choice.extension), [
@@ -46,10 +106,13 @@ void main() {
           ChordQualityToken.minor,
         );
 
-        expect(groups.map((group) => group.label), ['Added tones', 'Colors']);
+        expect(groups.map((group) => group.label), [
+          'Added tones',
+          'Alterations',
+        ]);
         expect(groups.map((group) => group.role), [
           ExploreExtensionControlRole.addedTones,
-          ExploreExtensionControlRole.colors,
+          ExploreExtensionControlRole.alterations,
         ]);
         expect(groups.map((group) => group.allowsMultiple), [true, true]);
         expect(groups[0].choices.map((choice) => choice.extension), [
@@ -68,7 +131,10 @@ void main() {
         ChordQualityToken.augmented,
       );
 
-      expect(groups.map((group) => group.label), ['Added tones', 'Colors']);
+      expect(groups.map((group) => group.label), [
+        'Added tones',
+        'Alterations',
+      ]);
       expect(groups[0].choices.map((choice) => choice.extension), [
         ChordExtension.add9,
         ChordExtension.add11,
@@ -84,7 +150,10 @@ void main() {
         ChordQualityToken.major6,
       );
 
-      expect(groups.map((group) => group.label), ['Added tones', 'Colors']);
+      expect(groups.map((group) => group.label), [
+        'Added tones',
+        'Alterations',
+      ]);
       expect(groups[0].choices.map((choice) => choice.extension), [
         ChordExtension.add9,
         ChordExtension.add11,
@@ -101,14 +170,14 @@ void main() {
       );
 
       expect(groups.map((group) => group.label), [
-        'Highest extension',
+        'Stacked extension',
         'Added tones',
-        'Colors',
+        'Alterations',
       ]);
       expect(groups.map((group) => group.role), [
         ExploreExtensionControlRole.highestExtension,
         ExploreExtensionControlRole.addedTones,
-        ExploreExtensionControlRole.colors,
+        ExploreExtensionControlRole.alterations,
       ]);
       expect(groups.map((group) => group.allowsMultiple), [false, true, true]);
       expect(groups[0].choices.map((choice) => choice.extension), [
