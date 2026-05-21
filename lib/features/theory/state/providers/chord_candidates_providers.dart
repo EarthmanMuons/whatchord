@@ -5,6 +5,8 @@ import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
 import 'chord_input_provider.dart';
 
+const _rankingDetailsCandidateLimit = 12;
+
 final chordCandidatesProvider = Provider<List<ChordCandidate>>((ref) {
   final input = ref.watch(chordInputProvider);
   if (input == null) return const <ChordCandidate>[];
@@ -51,5 +53,9 @@ final rankedChordCandidateDebugProvider = Provider<List<RankedCandidateDebug>>((
   if (mode != AnalysisMode.chord) return const <RankedCandidateDebug>[];
 
   final context = ref.watch(analysisContextProvider);
-  return ChordAnalyzer.analyzeDebug(input, context: context, take: 5);
+  return ChordAnalyzer.analyzeDebug(
+    input,
+    context: context,
+    take: _rankingDetailsCandidateLimit,
+  );
 });

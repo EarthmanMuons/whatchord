@@ -130,6 +130,7 @@ class _RankingDetailsBody extends StatelessWidget {
             _CandidateRankCard(
               rank: i + 1,
               row: visible[i],
+              higherRankedCandidate: i == 0 ? null : visible[i - 1].candidate,
               bestScore: chosen.candidate.score,
               symbol: _symbolFor(visible[i].candidate.identity),
               longLabel: ChordLongFormFormatter.format(
@@ -166,7 +167,11 @@ class _RankingDetailsBody extends StatelessWidget {
       return 'This was the strongest match for the notes currently sounding.';
     }
 
-    return _plainDecision(decision.decidedByRule, forChosen: true);
+    return _plainDecision(
+      decision.decidedByRule,
+      forChosen: true,
+      winner: visible.first.candidate,
+    );
   }
 }
 
@@ -235,6 +240,7 @@ class _CandidateRankCard extends StatelessWidget {
   const _CandidateRankCard({
     required this.rank,
     required this.row,
+    required this.higherRankedCandidate,
     required this.bestScore,
     required this.symbol,
     required this.longLabel,
@@ -242,6 +248,7 @@ class _CandidateRankCard extends StatelessWidget {
 
   final int rank;
   final RankedCandidateDebug row;
+  final ChordCandidate? higherRankedCandidate;
   final double bestScore;
   final String symbol;
   final String longLabel;
@@ -299,7 +306,10 @@ class _CandidateRankCard extends StatelessWidget {
             if (rank != 1 && row.vsPrevious?.decidedByRule != null) ...[
               const SizedBox(height: 6),
               Text(
-                _plainDecision(row.vsPrevious!.decidedByRule),
+                _plainDecision(
+                  row.vsPrevious!.decidedByRule,
+                  winner: higherRankedCandidate,
+                ),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: cs.onSurfaceVariant,
                 ),
@@ -464,15 +474,20 @@ int? _reasonCount(RankedCandidateDebug row, String label) {
   return null;
 }
 
-String _plainDecision(String? rule, {bool forChosen = false}) {
+String _plainDecision(
+  String? rule, {
+  bool forChosen = false,
+  ChordCandidate? winner,
+}) {
   final sentence = switch (rule) {
     'score outside near-tie window' => 'its fit score was clearly stronger.',
     'prefer root-position 6th over inverted 7th' =>
       'the sixth-chord name is in root position, while the seventh-chord reading is inverted.',
     'prefer complete triad over incomplete inverted 6th' =>
       'a complete triad is clearer than an incomplete inverted sixth chord.',
-    'prefer upper-structure dominant7 slash' =>
-      'the slash bass reads as an intentional dominant color tone.',
+    'prefer upper-structure dominant7 slash' => _upperStructureDominantReason(
+      winner,
+    ),
     'prefer root-position diminished7' =>
       'the diminished seventh is clearest when the bass is named as the root.',
     'prefer dominant7 over dim7 slash' ||
@@ -481,19 +496,18 @@ String _plainDecision(String? rule, {bool forChosen = false}) {
     'prefer fewer altered/tension colors' =>
       'it needs fewer altered color tones.',
     'prefer diatonic chords' => 'it fits the selected key more directly.',
-    'prefer tonic chord' => 'it favors the tonic chord in the selected key.',
+    'prefer tonic chord' => 'it is the tonic chord in the selected key.',
     'prefer I chord when bass is tonic' =>
-      'the bass is the tonic, making the I-chord reading clearer.',
+      'with the tonic in the bass, it gives the clearest I-chord reading.',
     'prefer natural extensions over adds, then fewer total' =>
       'natural extensions give a cleaner chord name than added-tone spellings.',
-    'prefer root position' => 'the bass supports the chord root more directly.',
+    'prefer root position' => 'its bass is the chord root.',
     'prefer 1st inversion over 2nd inversion' =>
-      'first inversion is usually clearer than second inversion here.',
+      'its bass is a more stable chord tone for this inversion.',
     'prefer 7th chords over triads' =>
       'the seventh-chord reading explains more of the voicing.',
     'prefer fewer extensions' => 'it needs fewer extensions.',
-    'avoid suspended chords' =>
-      'a non-suspended chord name is clearer for this voicing.',
+    'avoid suspended chords' => 'it avoids a suspended-chord name here.',
     'prefer close root-position dominant7 over non-dominant slash' =>
       'a close root-position dominant seventh is clearer than a remote slash-chord reading.',
     'prefer root-position altered-fifth dominant over slash' =>
@@ -509,4 +523,12 @@ String _plainDecision(String? rule, {bool forChosen = false}) {
 
   if (forChosen) return 'This ranked first because $sentence';
   return 'The option above ranks higher because $sentence';
+}
+
+String _upperStructureDominantReason(ChordCandidate? winner) {
+  if (winner?.identity.hasSlashBass ?? false) {
+    return 'the slash bass reads as an intentional dominant color tone.';
+  }
+
+  return 'the root-position dominant reading is clearer than the slash-bass alternative.';
 }
