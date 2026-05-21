@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
+- Added a tappable chord alternatives area that explains why the current chord
+  ranked above close alternatives.
 - Added explore mode copy choices for chord symbol, readable name, and Harte
   notation export.
 

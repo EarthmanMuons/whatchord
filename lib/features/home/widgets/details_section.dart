@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +8,7 @@ import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/home_layout_config.dart';
+import 'chord_ranking_details_sheet.dart';
 import 'demo_mode_explanation.dart';
 
 class DetailsSection extends ConsumerWidget {
@@ -32,6 +35,7 @@ class DetailsSection extends ConsumerWidget {
                   padding: EdgeInsets.only(bottom: 12),
                   textScaleMultiplier: config.nearTieTextScale,
                   showScrollbarWhenOverflow: true,
+                  onTap: () => unawaited(showChordRankingDetailsSheet(context)),
                 ),
               ),
             )

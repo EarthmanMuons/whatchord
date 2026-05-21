@@ -22,6 +22,7 @@ class NearTieChordCandidatesList extends ConsumerStatefulWidget {
     this.styleOverride,
     this.textScaleMultiplier = 1.0,
     this.showScrollbarWhenOverflow = false,
+    this.onTap,
   });
 
   final bool enabled;
@@ -34,6 +35,7 @@ class NearTieChordCandidatesList extends ConsumerStatefulWidget {
   final TextStyle? styleOverride;
   final double textScaleMultiplier;
   final bool showScrollbarWhenOverflow;
+  final VoidCallback? onTap;
 
   @override
   ConsumerState<NearTieChordCandidatesList> createState() =>
@@ -141,9 +143,24 @@ class _NearTieChordCandidatesListState
     // Using a SizedBox with a key ensures AnimatedSwitcher recognizes changes.
     Widget empty() => const SizedBox(key: ValueKey('ambiguous_empty'));
 
+    final canTap = hasContent && widget.onTap != null;
+
+    Widget interactive({required Widget child}) {
+      if (!canTap) return child;
+
+      return GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: widget.onTap,
+        child: child,
+      );
+    }
+
     return Semantics(
       container: true,
       label: 'Alternative chord candidates',
+      button: canTap,
+      onTap: canTap ? widget.onTap : null,
+      onTapHint: canTap ? 'Explain chord alternatives' : null,
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 120),
         reverseDuration: const Duration(milliseconds: 90),
@@ -180,7 +197,7 @@ class _NearTieChordCandidatesListState
           );
         },
 
-        child: hasContent ? content() : empty(),
+        child: interactive(child: hasContent ? content() : empty()),
       ),
     );
   }

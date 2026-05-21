@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' show clampDouble;
 
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/home_layout_config.dart';
+import 'chord_ranking_details_sheet.dart';
 import 'identity_card.dart';
 
 class AnalysisSection extends ConsumerWidget {
@@ -121,6 +123,9 @@ class AnalysisSection extends ConsumerWidget {
                                   textAlign: TextAlign.center,
                                   gap: 8,
                                   textScaleMultiplier: config.nearTieTextScale,
+                                  onTap: () => unawaited(
+                                    showChordRankingDetailsSheet(context),
+                                  ),
                                 ),
                               ),
                             ],
