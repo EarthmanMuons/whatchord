@@ -40,3 +40,16 @@ final nearTieChordCandidatesProvider = Provider<List<ChordCandidate>>((ref) {
 
   return out;
 });
+
+final rankedChordCandidateDebugProvider = Provider<List<RankedCandidateDebug>>((
+  ref,
+) {
+  final input = ref.watch(chordInputProvider);
+  if (input == null) return const <RankedCandidateDebug>[];
+
+  final mode = ref.watch(analysisModeProvider);
+  if (mode != AnalysisMode.chord) return const <RankedCandidateDebug>[];
+
+  final context = ref.watch(analysisContextProvider);
+  return ChordAnalyzer.analyzeDebug(input, context: context, take: 5);
+});
