@@ -465,7 +465,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
                     messenger?.hideCurrentSnackBar();
                     messenger?.showSnackBar(
-                      const SnackBar(content: Text('Copied to clipboard')),
+                      const SnackBar(
+                        content: Text('Copied software version to clipboard'),
+                      ),
                     );
                   },
                 ),
