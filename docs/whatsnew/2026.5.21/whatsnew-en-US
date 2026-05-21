@@ -1,0 +1,4 @@
+- Note names can now use International, German, or Fixed-Do labels throughout the app.
+- Explore Chords controls are easier to scan, with separate choices for base quality, sixths or sevenths, and fifth alterations.
+- Explore mode includes more minor, minor-sixth, and sixth-chord altered colors.
+- Chord analysis handles more close ambiguities correctly, including minor sharp-eleventh voicings and complete triads.
