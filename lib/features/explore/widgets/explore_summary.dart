@@ -31,35 +31,94 @@ class ExploreSummary extends ConsumerWidget {
       fontWeight: FontWeight.w500,
       fontSize: (symbolStyle.fontSize ?? 14) + 6,
     );
-    final copyText =
-        '$displaySymbol\n'
-        '${presentation.longLabel}';
+    final copyChoices = [
+      _ExploreCopyChoice(
+        title: 'Chord symbol',
+        icon: Icons.music_note,
+        value: chordSymbolDisplayLabel(
+          presentation.symbol,
+          noteNameSystem: noteNameSystem,
+          spacing: ChordSymbolDisplaySpacing.plain,
+        ),
+        copiedLabel: 'chord symbol',
+      ),
+      _ExploreCopyChoice(
+        title: 'Readable name',
+        icon: Icons.notes,
+        value: presentation.longLabel,
+        copiedLabel: 'readable name',
+      ),
+      _ExploreCopyChoice(
+        title: 'Harte notation',
+        icon: Icons.data_object,
+        value: HarteChordFormatter.format(presentation.identity),
+        copiedLabel: 'Harte notation',
+      ),
+    ];
 
-    Future<void> copyToClipboard() async {
+    Future<void> copyToClipboard(_ExploreCopyChoice choice) async {
       final messenger = Theme.of(context).platform == TargetPlatform.iOS
           ? ScaffoldMessenger.maybeOf(context)
           : null;
 
-      await Clipboard.setData(ClipboardData(text: copyText));
+      await Clipboard.setData(ClipboardData(text: choice.value));
 
       messenger?.hideCurrentSnackBar();
       messenger?.showSnackBar(
-        const SnackBar(content: Text('Copied to clipboard')),
+        SnackBar(content: Text('Copied ${choice.copiedLabel} to clipboard')),
       );
+    }
+
+    Future<void> showCopyDialog() async {
+      final choice = await showDialog<_ExploreCopyChoice>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text('Copy'),
+            contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final choice in copyChoices)
+                  ListTile(
+                    leading: Icon(choice.icon),
+                    title: Text(choice.title),
+                    subtitle: Text(
+                      choice.value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: const Icon(Icons.copy),
+                    onTap: () => Navigator.of(dialogContext).pop(choice),
+                  ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Cancel'),
+              ),
+            ],
+          );
+        },
+      );
+      if (choice == null || !context.mounted) return;
+
+      await copyToClipboard(choice);
     }
 
     return Semantics(
       container: true,
       header: true,
       label: presentation.semanticLongLabel,
-      onLongPress: copyToClipboard,
-      onLongPressHint: 'Copy chord name to clipboard',
+      onLongPress: showCopyDialog,
+      onLongPressHint: 'Choose chord text to copy',
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
           excludeFromSemantics: true,
-          onLongPress: copyToClipboard,
+          onLongPress: showCopyDialog,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -104,4 +163,18 @@ class ExploreSummary extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _ExploreCopyChoice {
+  const _ExploreCopyChoice({
+    required this.title,
+    required this.icon,
+    required this.value,
+    required this.copiedLabel,
+  });
+
+  final String title;
+  final IconData icon;
+  final String value;
+  final String copiedLabel;
 }

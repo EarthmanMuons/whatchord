@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added explore mode copy choices for chord symbol, readable name, and Harte
+  notation export.
+
 ## [2026.5.21] - 2026-05-21
 
 ### Added
