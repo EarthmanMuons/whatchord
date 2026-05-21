@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -456,7 +455,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     final version = ref.read(appVersionProvider).asData?.value;
                     if (version == null) return;
 
-                    final messenger = Platform.isIOS
+                    final messenger =
+                        Theme.of(context).platform == TargetPlatform.iOS
                         ? ScaffoldMessenger.maybeOf(context)
                         : null;
 

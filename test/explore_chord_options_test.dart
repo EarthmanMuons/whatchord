@@ -7,6 +7,7 @@ import 'package:whatchord/features/explore/services/explore_chord_example_builde
 import 'package:whatchord/features/explore/services/explore_chord_derivation.dart';
 import 'package:whatchord/features/explore/services/explore_chord_options.dart';
 import 'package:whatchord/features/explore/services/explore_chord_state_transitions.dart';
+import 'package:whatchord/features/explore/services/explore_extension_rules.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 void main() {

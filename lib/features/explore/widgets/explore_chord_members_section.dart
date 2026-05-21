@@ -9,8 +9,8 @@ import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
-class ChordMembersSection extends StatefulWidget {
-  const ChordMembersSection({
+class ExploreChordMembersSection extends StatefulWidget {
+  const ExploreChordMembersSection({
     super.key,
     required this.members,
     required this.memberDegrees,
@@ -34,10 +34,11 @@ class ChordMembersSection extends StatefulWidget {
   final ValueChanged<List<int>> onPreviewStarted;
 
   @override
-  State<ChordMembersSection> createState() => _ChordMembersSectionState();
+  State<ExploreChordMembersSection> createState() =>
+      _ExploreChordMembersSectionState();
 }
 
-class _ChordMembersSectionState extends State<ChordMembersSection>
+class _ExploreChordMembersSectionState extends State<ExploreChordMembersSection>
     with TickerProviderStateMixin {
   static const Duration _insertDuration = Duration(milliseconds: 140);
   static const Duration _removeDuration = Duration(milliseconds: 120);
@@ -51,7 +52,7 @@ class _ChordMembersSectionState extends State<ChordMembersSection>
   }
 
   @override
-  void didUpdateWidget(covariant ChordMembersSection oldWidget) {
+  void didUpdateWidget(covariant ExploreChordMembersSection oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.showDegrees != widget.showDegrees ||
         oldWidget.members != widget.members ||
