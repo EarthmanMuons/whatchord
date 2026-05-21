@@ -7,10 +7,10 @@ enum HomeSizeClass { compact, medium, expanded }
 const _compactVisibleWhiteKeyCount = 21;
 const _fullKeyboardWhiteKeyCount = PianoGeometry.fullKeyboardWhiteKeyCount;
 const _keyboardLowestMidiNote = 21; // A0
-const _portraitAdaptiveMinWhiteKeyWidth = 18.0;
+const _adaptiveMinWhiteKeyWidth = 18.0;
 
 const _mediumIdentityCardTextScale = 1.2;
-const _landscapeExpandedIdentityCardTextScale = 1.6;
+const _expandedIdentityTextScale = 1.6;
 const _mediumNearTieTextScale = 1.15;
 const _expandedNearTieTextScale = 1.3;
 const _mediumInputDisplayVisualScale = 1.15;
@@ -194,7 +194,7 @@ int _resolveVisibleWhiteKeyCount({
 
   return PianoGeometry.visibleWhiteKeyCountForViewport(
     viewportWidth: constraints.maxWidth,
-    minWhiteKeyWidth: _portraitAdaptiveMinWhiteKeyWidth,
+    minWhiteKeyWidth: _adaptiveMinWhiteKeyWidth,
     minVisibleWhiteKeyCount: _compactVisibleWhiteKeyCount,
     maxVisibleWhiteKeyCount: _fullKeyboardWhiteKeyCount,
   );
@@ -334,7 +334,7 @@ const landscapeExpandedLayoutConfig = HomeLayoutConfig(
   analysisTopPadMin: 0,
   analysisTopPadMax: 0,
   analysisListGap: 24,
-  identityCardTextScale: _landscapeExpandedIdentityCardTextScale,
+  identityCardTextScale: _expandedIdentityTextScale,
   nearTieTextScale: _expandedNearTieTextScale,
   inputDisplayVisualScale: _expandedInputDisplayVisualScale,
   tonalityButtonTextScale: _expandedTonalityButtonTextScale,

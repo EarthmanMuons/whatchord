@@ -372,7 +372,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       if (requiresBluetooth) {
         final ok =
             await _withTimeout(
-              _ensureBluetoothAccessOrPublishUnavailable(),
+              _ensureBluetoothAccessOrSetUnavailable(),
               timeout: const Duration(seconds: 3),
               onTimeout: false,
             ) ??
@@ -618,7 +618,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     if (_debugLog) debugPrint('[CONN] refreshDevices restartScan=$restartScan');
 
     if (restartScan) {
-      final ok = await _ensureBluetoothAccessOrPublishUnavailable();
+      final ok = await _ensureBluetoothAccessOrSetUnavailable();
       if (!ok) {
         // Keep local/native transport devices visible even when BLE scan is unavailable.
         await _midi.refreshDevices(ensureScanning: false);
@@ -637,7 +637,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     _cancelRetry();
     if (_debugLog) debugPrint('[CONN] startScanning');
 
-    final ok = await _ensureBluetoothAccessOrPublishUnavailable();
+    final ok = await _ensureBluetoothAccessOrSetUnavailable();
     if (!ok) {
       // Keep local/native transport devices visible even when BLE scan is unavailable.
       await _midi.refreshDevices(ensureScanning: false);
@@ -659,7 +659,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     if (_debugLog) debugPrint('[CONN] connect id=${device.id}');
 
     if (device.transport == MidiTransportType.ble) {
-      final ok = await _ensureBluetoothAccessOrPublishUnavailable();
+      final ok = await _ensureBluetoothAccessOrSetUnavailable();
       if (!ok) {
         throw MidiException('Bluetooth unavailable (${state.unavailability})');
       }
@@ -710,7 +710,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     return connected?.isConnected == true;
   }
 
-  Future<bool> _ensureBluetoothAccessOrPublishUnavailable() async {
+  Future<bool> _ensureBluetoothAccessOrSetUnavailable() async {
     final access = await _midi.ensureBluetoothAccess();
     if (access.isReady) return true;
 
