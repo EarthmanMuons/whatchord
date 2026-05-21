@@ -13,24 +13,24 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 ### Added
 
 - Added a Note Names setting for International, German, and Fixed-Do chord and
-  note labels.
-- Added Explore Chords sharp-eleventh color choices for minor and minor-sixth
-  chords, plus flat-ninth colors for sixth chords, including symbols like Am#11
-  and Cm6b9.
+  note labels throughout the app.
+- Added more Explore Chords altered-color choices, including sharp elevenths for
+  minor and minor-sixth chords and flat ninths for sixth chords, with symbols
+  such as Am#11 and Cm6b9.
 
 ### Changed
 
-- Changed Explore Chords to build chords from separate base quality, sixth or
-  seventh, and fifth controls instead of one long quality list.
+- Split Explore Chords quality controls into base quality, sixth or seventh, and
+  fifth choices so longer chord lists are easier to scan.
 
 ### Fixed
 
-- Fixed chord ranking so complete triads are preferred over incomplete inverted
-  sixth-chord spellings in close ambiguities.
 - Fixed chord ranking so complete minor sharp-eleventh voicings are preferred
   over remote altered major-7-sus4 names.
-- Fixed Analysis Details so copied note names, chord symbols, members, and
-  degree labels use the same accidental symbols as the rest of the interface.
+- Fixed chord ranking so complete triads are preferred over incomplete inverted
+  sixth-chord spellings in close ambiguities.
+- Fixed Analysis Details copy actions so note names, chord symbols, members, and
+  degree labels use the same accidentals as the rest of the interface.
 
 ## [2026.5.16] - 2026-05-16
 
