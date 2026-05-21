@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -38,7 +36,7 @@ class ExploreSummary extends ConsumerWidget {
         '${presentation.longLabel}';
 
     Future<void> copyToClipboard() async {
-      final messenger = Platform.isIOS
+      final messenger = Theme.of(context).platform == TargetPlatform.iOS
           ? ScaffoldMessenger.maybeOf(context)
           : null;
 

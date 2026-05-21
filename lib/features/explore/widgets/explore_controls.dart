@@ -39,6 +39,11 @@ class ExploreControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final extensionGroups = buildExploreExtensionControlGroups(state.quality);
+    final seventhKindChoices = availableSeventhKindsFor(state.baseQuality);
+    final fifthAlterationChoices = availableFifthAlterationsFor(
+      baseQuality: state.baseQuality,
+      seventhKind: state.seventhKind,
+    );
     final memberPitchClasses =
         ChordPresentationBuilder.chordMemberPitchClassesFromMask(
           rootPc: identity.rootPc,
@@ -76,28 +81,22 @@ class ExploreControls extends StatelessWidget {
                   onChanged: onBaseQualityChanged,
                 ),
               ),
-              SizedBox(
-                width: controlWidth,
-                child: _SeventhKindSelector(
-                  baseQuality: state.baseQuality,
-                  value: state.seventhKind,
-                  choices: availableSeventhKindsFor(state.baseQuality),
-                  onChanged: onSeventhKindChanged,
-                ),
-              ),
-              if (availableFifthAlterationsFor(
+              if (seventhKindChoices.length > 1)
+                SizedBox(
+                  width: controlWidth,
+                  child: _SeventhKindSelector(
                     baseQuality: state.baseQuality,
-                    seventhKind: state.seventhKind,
-                  ).length >
-                  1)
+                    value: state.seventhKind,
+                    choices: seventhKindChoices,
+                    onChanged: onSeventhKindChanged,
+                  ),
+                ),
+              if (fifthAlterationChoices.length > 1)
                 SizedBox(
                   width: controlWidth,
                   child: _FifthAlterationSelector(
                     value: state.fifthAlteration,
-                    choices: availableFifthAlterationsFor(
-                      baseQuality: state.baseQuality,
-                      seventhKind: state.seventhKind,
-                    ),
+                    choices: fifthAlterationChoices,
                     onChanged: onFifthAlterationChanged,
                   ),
                 ),
@@ -127,20 +126,15 @@ class ExploreControls extends StatelessWidget {
                       memberPitchClasses,
                       identity.rootPc,
                     ))
-                      _BassChoice(
+                      _buildBassChoice(
                         pc: pc,
-                        label: pc == identity.rootPc
-                            ? 'Root'
-                            : '/${noteDisplayLabel(
-                                _spellBass(pc: pc, identity: identity, tonality: tonality),
-                                noteNameSystem: noteNameSystem,
-                              )}',
-                        semanticLabel: pc == identity.rootPc
-                            ? 'Root position'
-                            : 'Bass ${noteSemanticLabel(
-                                _spellBass(pc: pc, identity: identity, tonality: tonality),
-                                noteNameSystem: noteNameSystem,
-                              )}',
+                        rootPc: identity.rootPc,
+                        bassName: _spellBass(
+                          pc: pc,
+                          identity: identity,
+                          tonality: tonality,
+                        ),
+                        noteNameSystem: noteNameSystem,
                       ),
                   ],
                   onChanged: onBassChanged,
@@ -171,8 +165,8 @@ class ExploreControls extends StatelessWidget {
   List<int> _sortedPitchClasses(Set<int> pitchClasses, int rootPc) {
     final values = pitchClasses.toList();
     values.sort((a, b) {
-      final intervalA = (a - rootPc) % 12;
-      final intervalB = (b - rootPc) % 12;
+      final intervalA = _normalizedPitchClass(a - rootPc);
+      final intervalB = _normalizedPitchClass(b - rootPc);
       return intervalA.compareTo(intervalB);
     });
     return values;
@@ -184,13 +178,36 @@ class ExploreControls extends StatelessWidget {
     required Tonality tonality,
   }) {
     final root = pcToName(identity.rootPc, tonality: tonality);
-    final interval = (pc - identity.rootPc) % 12;
+    final interval = _normalizedPitchClass(pc - identity.rootPc);
     final role = identity.toneRolesByInterval[interval];
     return spellPitchClass(
       pc,
       tonality: tonality,
       chordRootName: root,
       role: role,
+    );
+  }
+
+  int _normalizedPitchClass(int value) {
+    final normalized = value % 12;
+    return normalized < 0 ? normalized + 12 : normalized;
+  }
+
+  _BassChoice _buildBassChoice({
+    required int pc,
+    required int rootPc,
+    required String bassName,
+    required NoteNameSystem noteNameSystem,
+  }) {
+    if (pc == rootPc) {
+      return _BassChoice(pc: pc, label: 'Root', semanticLabel: 'Root position');
+    }
+
+    return _BassChoice(
+      pc: pc,
+      label: '/${noteDisplayLabel(bassName, noteNameSystem: noteNameSystem)}',
+      semanticLabel:
+          'Bass ${noteSemanticLabel(bassName, noteNameSystem: noteNameSystem)}',
     );
   }
 }
@@ -308,7 +325,7 @@ class _FifthAlterationSelector extends StatelessWidget {
   }
 }
 
-class _OptionWheel<T> extends StatefulWidget {
+class _OptionWheel<T> extends StatelessWidget {
   const _OptionWheel({
     required this.label,
     required this.value,
@@ -326,13 +343,57 @@ class _OptionWheel<T> extends StatefulWidget {
   final ValueChanged<T> onChanged;
 
   @override
-  State<_OptionWheel<T>> createState() => _OptionWheelState<T>();
+  Widget build(BuildContext context) {
+    return _CyclicWheel<T>(
+      label: label,
+      value: value,
+      choices: choices,
+      displayLabelFor: (value) => theoryTokenDisplayLabel(labelFor(value)),
+      semanticLabelFor: semanticLabelFor,
+      targetItemWidth: 96,
+      selectedMinWidth: 76,
+      unselectedMinWidth: 64,
+      selectedHorizontalPadding: 8,
+      unselectedHorizontalPadding: 6,
+      onChanged: onChanged,
+    );
+  }
 }
 
-class _OptionWheelState<T> extends State<_OptionWheel<T>> {
+class _CyclicWheel<T> extends StatefulWidget {
+  const _CyclicWheel({
+    required this.label,
+    required this.value,
+    required this.choices,
+    required this.displayLabelFor,
+    required this.semanticLabelFor,
+    required this.targetItemWidth,
+    required this.selectedMinWidth,
+    required this.unselectedMinWidth,
+    required this.selectedHorizontalPadding,
+    required this.unselectedHorizontalPadding,
+    required this.onChanged,
+  });
+
+  final String label;
+  final T value;
+  final List<T> choices;
+  final String Function(T value) displayLabelFor;
+  final String Function(T value) semanticLabelFor;
+  final double targetItemWidth;
+  final double selectedMinWidth;
+  final double unselectedMinWidth;
+  final double selectedHorizontalPadding;
+  final double unselectedHorizontalPadding;
+  final ValueChanged<T> onChanged;
+
+  @override
+  State<_CyclicWheel<T>> createState() => _CyclicWheelState<T>();
+}
+
+class _CyclicWheelState<T> extends State<_CyclicWheel<T>> {
   static const _initialLoop = 500;
   static const _wheelHeight = 64.0;
-  static const _targetItemWidth = 96.0;
   static const _wheelContentPadding = EdgeInsets.fromLTRB(8, 10, 8, 6);
 
   PageController? _controller;
@@ -347,7 +408,7 @@ class _OptionWheelState<T> extends State<_OptionWheel<T>> {
   }
 
   @override
-  void didUpdateWidget(covariant _OptionWheel<T> oldWidget) {
+  void didUpdateWidget(covariant _CyclicWheel<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.choices != widget.choices) {
@@ -404,7 +465,7 @@ class _OptionWheelState<T> extends State<_OptionWheel<T>> {
                 final controller = _controllerForViewport(
                   _wheelViewportFraction(
                     viewportWidth: constraints.maxWidth,
-                    targetItemWidth: _targetItemWidth,
+                    targetItemWidth: widget.targetItemWidth,
                   ),
                 );
 
@@ -416,15 +477,19 @@ class _OptionWheelState<T> extends State<_OptionWheel<T>> {
                       itemBuilder: (context, page) {
                         final value = _valueForPage(page);
                         return _WheelItem(
-                          label: theoryTokenDisplayLabel(
-                            widget.labelFor(value),
-                          ),
+                          label: widget.displayLabelFor(value),
                           selected: value == widget.value,
+                          selectedMinWidth: widget.selectedMinWidth,
+                          unselectedMinWidth: widget.unselectedMinWidth,
+                          selectedHorizontalPadding:
+                              widget.selectedHorizontalPadding,
+                          unselectedHorizontalPadding:
+                              widget.unselectedHorizontalPadding,
                           onTap: () => _selectValue(value),
                         );
                       },
                     ),
-                    const Positioned.fill(child: _RootWheelEdgeFades()),
+                    const Positioned.fill(child: _WheelEdgeFades()),
                   ],
                 );
               },
@@ -480,7 +545,7 @@ class _OptionWheelState<T> extends State<_OptionWheel<T>> {
   int _nearestPageForValue(T value) {
     final currentPage = _visiblePage;
     final currentIndex = _indexForPage(currentPage);
-    var delta = (_indexOf(value) - currentIndex) % widget.choices.length;
+    var delta = _wrapIndex(_indexOf(value) - currentIndex);
     if (delta > widget.choices.length / 2) delta -= widget.choices.length;
     return currentPage + delta;
   }
@@ -496,10 +561,15 @@ class _OptionWheelState<T> extends State<_OptionWheel<T>> {
   }
 
   T _previousValue(T value) {
-    return widget.choices[(_indexOf(value) - 1) % widget.choices.length];
+    return widget.choices[_wrapIndex(_indexOf(value) - 1)];
   }
 
-  int _indexForPage(int page) => page % widget.choices.length;
+  int _indexForPage(int page) => _wrapIndex(page);
+
+  int _wrapIndex(int value) {
+    final index = value % widget.choices.length;
+    return index < 0 ? index + widget.choices.length : index;
+  }
 
   int _indexOf(T value) {
     final index = widget.choices.indexOf(value);
@@ -598,7 +668,7 @@ bool _viewportFractionChanged(double? previous, double next) {
   return (previous - next).abs() > 0.001;
 }
 
-class _RootWheel extends StatefulWidget {
+class _RootWheel extends StatelessWidget {
   const _RootWheel({
     required this.value,
     required this.tonality,
@@ -612,227 +682,26 @@ class _RootWheel extends StatefulWidget {
   final ValueChanged<int> onChanged;
 
   @override
-  State<_RootWheel> createState() => _RootWheelState();
-}
-
-class _RootWheelState extends State<_RootWheel> {
-  static const _pitchClassCount = 12;
-  static const _initialLoop = 500;
-  static const _wheelHeight = 64.0;
-  static const _targetItemWidth = 72.0;
-  static const _wheelContentPadding = EdgeInsets.fromLTRB(8, 10, 8, 6);
-
-  PageController? _controller;
-  double? _viewportFraction;
-  late int _currentPage;
-
-  @override
-  void initState() {
-    super.initState();
-    _currentPage = (_initialLoop * _pitchClassCount) + widget.value;
-  }
-
-  @override
-  void didUpdateWidget(covariant _RootWheel oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.value == widget.value) return;
-
-    final controller = _controller;
-    final visiblePage = controller?.hasClients == true
-        ? (controller?.page?.round() ?? _currentPage)
-        : _currentPage;
-    if (_pcForPage(visiblePage) == widget.value) return;
-
-    final targetPage = _nearestPageForPc(widget.value);
-    _currentPage = targetPage;
-    if (controller?.hasClients != true) return;
-
-    unawaited(
-      controller!.animateToPage(
-        targetPage,
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutCubic,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final selectedLabel = _labelForPc(widget.value);
-
-    return Semantics(
-      container: true,
+    return _CyclicWheel<int>(
       label: 'Root',
-      value: selectedLabel,
-      increasedValue: _labelForPc(_nextPc(widget.value)),
-      decreasedValue: _labelForPc(_previousPc(widget.value)),
-      onIncrease: () => widget.onChanged(_nextPc(widget.value)),
-      onDecrease: () => widget.onChanged(_previousPc(widget.value)),
-      child: ExcludeSemantics(
-        child: InputDecorator(
-          decoration: const InputDecoration(
-            labelText: 'Root',
-            border: OutlineInputBorder(),
-            contentPadding: _wheelContentPadding,
-          ),
-          child: SizedBox(
-            height: _wheelHeight,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final controller = _controllerForViewport(
-                  _wheelViewportFraction(
-                    viewportWidth: constraints.maxWidth,
-                    targetItemWidth: _targetItemWidth,
-                  ),
-                );
-
-                return Stack(
-                  children: [
-                    PageView.builder(
-                      controller: controller,
-                      onPageChanged: _handlePageChanged,
-                      itemBuilder: (context, page) {
-                        final pc = _pcForPage(page);
-                        return _RootWheelItem(
-                          label: _labelForPc(pc),
-                          selected: pc == widget.value,
-                          onTap: () => _selectPc(pc),
-                        );
-                      },
-                    ),
-                    const Positioned.fill(child: _RootWheelEdgeFades()),
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
-      ),
+      value: value,
+      choices: const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+      displayLabelFor: _labelForPc,
+      semanticLabelFor: _labelForPc,
+      targetItemWidth: 72,
+      selectedMinWidth: 46,
+      unselectedMinWidth: 40,
+      selectedHorizontalPadding: 8,
+      unselectedHorizontalPadding: 4,
+      onChanged: onChanged,
     );
   }
-
-  PageController _controllerForViewport(double viewportFraction) {
-    final existing = _controller;
-    if (existing != null &&
-        !_viewportFractionChanged(_viewportFraction, viewportFraction)) {
-      return existing;
-    }
-
-    final page = existing?.hasClients == true
-        ? (existing?.page?.round() ?? _currentPage)
-        : _currentPage;
-    existing?.dispose();
-    _currentPage = page;
-    _viewportFraction = viewportFraction;
-    return _controller = PageController(
-      initialPage: _currentPage,
-      viewportFraction: viewportFraction,
-    );
-  }
-
-  void _handlePageChanged(int page) {
-    _currentPage = page;
-    final pc = _pcForPage(page);
-    if (pc == widget.value) return;
-    widget.onChanged(pc);
-  }
-
-  void _selectPc(int pc) {
-    final controller = _controller;
-    final targetPage = _nearestPageForPc(pc);
-    _currentPage = targetPage;
-    if (controller?.hasClients == true) {
-      unawaited(
-        controller!.animateToPage(
-          targetPage,
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOutCubic,
-        ),
-      );
-    }
-    if (pc != widget.value) widget.onChanged(pc);
-  }
-
-  int _nearestPageForPc(int pc) {
-    final controller = _controller;
-    final currentPage = controller?.hasClients == true
-        ? (controller?.page?.round() ?? _currentPage)
-        : _currentPage;
-    final currentPc = _pcForPage(currentPage);
-    var delta = (pc - currentPc) % _pitchClassCount;
-    if (delta > _pitchClassCount / 2) delta -= _pitchClassCount;
-    return currentPage + delta;
-  }
-
-  int _pcForPage(int page) => page % _pitchClassCount;
-
-  int _nextPc(int pc) => (pc + 1) % _pitchClassCount;
-
-  int _previousPc(int pc) => (pc - 1) % _pitchClassCount;
 
   String _labelForPc(int pc) {
     return noteDisplayLabel(
-      pcToName(pc, tonality: widget.tonality),
-      noteNameSystem: widget.noteNameSystem,
-    );
-  }
-}
-
-class _RootWheelItem extends StatelessWidget {
-  const _RootWheelItem({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final textStyle =
-        (selected ? theme.textTheme.titleLarge : theme.textTheme.titleMedium)
-            ?.copyWith(
-              color: selected ? cs.onPrimaryContainer : cs.onSurfaceVariant,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            );
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: Center(
-        child: Material(
-          color: selected ? cs.primaryContainer : cs.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(8),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(8),
-            onTap: onTap,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: selected ? 46 : 40,
-                minHeight: 48,
-              ),
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: selected ? 8 : 4),
-                    child: Text(label, maxLines: 1, style: textStyle),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+      pcToName(pc, tonality: tonality),
+      noteNameSystem: noteNameSystem,
     );
   }
 }
@@ -841,11 +710,19 @@ class _WheelItem extends StatelessWidget {
   const _WheelItem({
     required this.label,
     required this.selected,
+    required this.selectedMinWidth,
+    required this.unselectedMinWidth,
+    required this.selectedHorizontalPadding,
+    required this.unselectedHorizontalPadding,
     required this.onTap,
   });
 
   final String label;
   final bool selected;
+  final double selectedMinWidth;
+  final double unselectedMinWidth;
+  final double selectedHorizontalPadding;
+  final double unselectedHorizontalPadding;
   final VoidCallback onTap;
 
   @override
@@ -870,14 +747,18 @@ class _WheelItem extends StatelessWidget {
             onTap: onTap,
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minWidth: selected ? 76 : 64,
+                minWidth: selected ? selectedMinWidth : unselectedMinWidth,
                 minHeight: 48,
               ),
               child: Center(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: selected ? 8 : 6),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: selected
+                          ? selectedHorizontalPadding
+                          : unselectedHorizontalPadding,
+                    ),
                     child: Text(label, maxLines: 1, style: textStyle),
                   ),
                 ),
@@ -890,8 +771,8 @@ class _WheelItem extends StatelessWidget {
   }
 }
 
-class _RootWheelEdgeFades extends StatelessWidget {
-  const _RootWheelEdgeFades();
+class _WheelEdgeFades extends StatelessWidget {
+  const _WheelEdgeFades();
 
   static const _fadeWidth = 56.0;
 
@@ -907,7 +788,7 @@ class _RootWheelEdgeFades extends StatelessWidget {
             top: 0,
             bottom: 0,
             width: _fadeWidth,
-            child: _RootWheelFade(
+            child: _WheelFade(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
               surface: surface,
@@ -918,7 +799,7 @@ class _RootWheelEdgeFades extends StatelessWidget {
             top: 0,
             bottom: 0,
             width: _fadeWidth,
-            child: _RootWheelFade(
+            child: _WheelFade(
               begin: Alignment.centerRight,
               end: Alignment.centerLeft,
               surface: surface,
@@ -930,8 +811,8 @@ class _RootWheelEdgeFades extends StatelessWidget {
   }
 }
 
-class _RootWheelFade extends StatelessWidget {
-  const _RootWheelFade({
+class _WheelFade extends StatelessWidget {
+  const _WheelFade({
     required this.begin,
     required this.end,
     required this.surface,

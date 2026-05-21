@@ -6,7 +6,7 @@ import 'explore_chord_derivation.dart';
 
 abstract final class ExploreChordExampleBuilder {
   static Set<int> canonicalBassPitchClasses(ExploreChordState state) {
-    final intervals = _canonicalExampleIntervals(state);
+    final intervals = _canonicalExampleParts(state).intervals;
     return Set<int>.unmodifiable(
       intervals.map((interval) => (state.rootPc + interval) % 12),
     );
@@ -18,74 +18,63 @@ abstract final class ExploreChordExampleBuilder {
     required ChordNotationStyle notation,
     NoteNameSystem noteNameSystem = NoteNameSystem.international,
   }) {
-    final selectedIdentity = buildExploreChordIdentity(state);
+    final displayIdentity = buildExploreChordIdentity(state);
     final presentation = ChordPresentationBuilder.fromIdentity(
-      identity: selectedIdentity,
+      identity: displayIdentity,
       tonality: tonality,
       notation: notation,
       noteNameSystem: noteNameSystem,
     );
 
-    final exampleIntervals = _canonicalExampleIntervals(state);
-    final exampleExtensions = _canonicalExampleExtensions(
-      state.quality,
-      state.extensions,
-    );
-    final exampleMask = _maskOfIntervals(exampleIntervals);
-    final toneRoles = ChordToneRoles.build(
-      quality: state.quality,
-      extensions: exampleExtensions,
-      relMask: exampleMask,
-    );
+    final parts = _canonicalExampleParts(state);
     final pitchClasses =
         ChordPresentationBuilder.chordMemberPitchClassesFromMask(
           rootPc: state.rootPc,
-          presentIntervalsMask: exampleMask,
+          presentIntervalsMask: parts.mask,
         );
     final bassPc = pitchClasses.contains(state.bassPc)
         ? state.bassPc
         : state.rootPc;
-    final exampleIdentity = ChordIdentity(
+    final canonicalExampleIdentity = ChordIdentity(
       rootPc: state.rootPc,
       bassPc: bassPc,
       quality: state.quality,
-      extensions: exampleExtensions,
-      toneRolesByInterval: toneRoles,
-      presentIntervalsMask: exampleMask,
+      extensions: parts.extensions,
+      toneRolesByInterval: parts.toneRoles,
+      presentIntervalsMask: parts.mask,
     );
-    final orderedPitchClasses = exampleIntervals
+    final orderedPitchClasses = parts.intervals
         .map((interval) => (state.rootPc + interval) % 12)
         .toList(growable: false);
 
     return ExploreChordExample(
       presentation: presentation,
-      identity: exampleIdentity,
+      identity: canonicalExampleIdentity,
       members: _spellMembersInIntervalOrder(
-        identity: exampleIdentity,
-        intervals: exampleIntervals,
+        identity: canonicalExampleIdentity,
+        intervals: parts.intervals,
         tonality: tonality,
       ),
       memberDegrees: _formatDegreesInIntervalOrder(
-        identity: exampleIdentity,
-        intervals: exampleIntervals,
+        identity: canonicalExampleIdentity,
+        intervals: parts.intervals,
       ),
       memberPitchClasses: pitchClasses,
       memberPitchClassesInOrder: orderedPitchClasses,
       normalizedVoicing: _canonicalVoicing(
         rootPc: state.rootPc,
         bassPc: bassPc,
-        intervals: exampleIntervals,
-        identity: exampleIdentity,
+        intervals: parts.intervals,
+        identity: canonicalExampleIdentity,
       ),
     );
   }
 
-  static List<int> _canonicalExampleIntervals(ExploreChordState state) {
+  static List<int> _canonicalExampleIntervals(
+    ExploreChordState state,
+    Set<ChordExtension> extensions,
+  ) {
     final intervals = <int>{...state.quality.canonicalIntervals};
-    final extensions = _canonicalExampleExtensions(
-      state.quality,
-      state.extensions,
-    );
 
     for (final extension in extensions) {
       intervals.add(extension.intervalAboveRoot);
@@ -106,6 +95,29 @@ abstract final class ExploreChordExampleBuilder {
         return a.compareTo(b);
       });
     return List<int>.unmodifiable(ordered);
+  }
+
+  static _CanonicalExampleParts _canonicalExampleParts(
+    ExploreChordState state,
+  ) {
+    final extensions = _canonicalExampleExtensions(
+      state.quality,
+      state.extensions,
+    );
+    final intervals = _canonicalExampleIntervals(state, extensions);
+    final mask = _maskOfIntervals(intervals);
+    final toneRoles = ChordToneRoles.build(
+      quality: state.quality,
+      extensions: extensions,
+      relMask: mask,
+    );
+
+    return _CanonicalExampleParts(
+      intervals: intervals,
+      extensions: extensions,
+      mask: mask,
+      toneRoles: toneRoles,
+    );
   }
 
   static Set<ChordExtension> _canonicalExampleExtensions(
@@ -302,4 +314,18 @@ abstract final class ExploreChordExampleBuilder {
     final normalized = value % 12;
     return normalized < 0 ? normalized + 12 : normalized;
   }
+}
+
+class _CanonicalExampleParts {
+  const _CanonicalExampleParts({
+    required this.intervals,
+    required this.extensions,
+    required this.mask,
+    required this.toneRoles,
+  });
+
+  final List<int> intervals;
+  final Set<ChordExtension> extensions;
+  final int mask;
+  final Map<int, ChordToneRole> toneRoles;
 }

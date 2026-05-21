@@ -9,6 +9,7 @@ import 'package:whatchord/features/home/home.dart';
 import 'package:whatchord/features/piano/piano.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
+import '../models/explore_chord_example.dart';
 import '../models/explore_chord_state.dart';
 import '../providers/explore_preferences_notifier.dart';
 import '../services/explore_chord_example_builder.dart';
@@ -78,13 +79,6 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
     );
     final presentation = example.presentation;
 
-    void updateState(ExploreChordState next) {
-      _previewAnimationController.cancel();
-      setState(() {
-        _state = next;
-      });
-    }
-
     final showScaleNotes = ref.watch(showScaleNotesProvider);
     final diatonicPitchClasses = ref.watch(diatonicPitchClassesProvider);
 
@@ -140,199 +134,16 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                   child: Column(
                     children: [
                       Expanded(
-                        child: isLandscape
-                            ? Padding(
-                                padding: EdgeInsets.fromLTRB(
-                                  horizontalInset,
-                                  16,
-                                  horizontalInset,
-                                  12,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Expanded(
-                                      flex: 7,
-                                      child: ExploreFadedScrollView(
-                                        padding: const EdgeInsets.only(
-                                          top: 4,
-                                          right: 12,
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.stretch,
-                                          children: [
-                                            ExploreSummary(
-                                              presentation: presentation,
-                                            ),
-                                            const SizedBox(height: 20),
-                                            ChordMembersSection(
-                                              members: example.members,
-                                              memberDegrees:
-                                                  example.memberDegrees,
-                                              noteNameSystem: noteNameSystem,
-                                              showDegrees:
-                                                  showChordMemberDegrees,
-                                              onShowDegreesChanged: (value) =>
-                                                  unawaited(
-                                                    ref
-                                                        .read(
-                                                          exploreChordMemberDegreesProvider
-                                                              .notifier,
-                                                        )
-                                                        .setShowDegrees(value),
-                                                  ),
-                                              previewNotes:
-                                                  example.normalizedVoicing,
-                                              activePitchClasses:
-                                                  previewPitchClasses,
-                                              memberPitchClasses: example
-                                                  .memberPitchClassesInOrder,
-                                              onPreviewStarted:
-                                                  _previewAnimationController
-                                                      .start,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      flex: 6,
-                                      child: ExploreFadedScrollView(
-                                        padding: const EdgeInsets.only(
-                                          top: 4,
-                                          left: 12,
-                                        ),
-                                        child: ExploreControls(
-                                          state: _state,
-                                          identity: example.identity,
-                                          tonality: tonality,
-                                          noteNameSystem: noteNameSystem,
-                                          isLandscape: true,
-                                          onRootChanged: (value) => updateState(
-                                            exploreStateWithRoot(_state, value),
-                                          ),
-                                          onBaseQualityChanged: (value) =>
-                                              updateState(
-                                                exploreStateWithBaseQuality(
-                                                  _state,
-                                                  value,
-                                                ),
-                                              ),
-                                          onSeventhKindChanged: (value) =>
-                                              updateState(
-                                                exploreStateWithSeventhKind(
-                                                  _state,
-                                                  value,
-                                                ),
-                                              ),
-                                          onFifthAlterationChanged: (value) =>
-                                              updateState(
-                                                exploreStateWithFifthAlteration(
-                                                  _state,
-                                                  value,
-                                                ),
-                                              ),
-                                          onExtensionsChanged: (value) =>
-                                              updateState(
-                                                exploreStateWithExtensions(
-                                                  _state,
-                                                  value,
-                                                ),
-                                              ),
-                                          onBassChanged: (value) => updateState(
-                                            exploreStateWithBass(_state, value),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  16,
-                                  16,
-                                  16,
-                                  16,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    ExploreSummary(presentation: presentation),
-                                    const SizedBox(height: 20),
-                                    ChordMembersSection(
-                                      members: example.members,
-                                      memberDegrees: example.memberDegrees,
-                                      noteNameSystem: noteNameSystem,
-                                      showDegrees: showChordMemberDegrees,
-                                      onShowDegreesChanged: (value) => unawaited(
-                                        ref
-                                            .read(
-                                              exploreChordMemberDegreesProvider
-                                                  .notifier,
-                                            )
-                                            .setShowDegrees(value),
-                                      ),
-                                      previewNotes: example.normalizedVoicing,
-                                      activePitchClasses: previewPitchClasses,
-                                      memberPitchClasses:
-                                          example.memberPitchClassesInOrder,
-                                      onPreviewStarted:
-                                          _previewAnimationController.start,
-                                    ),
-                                    const SizedBox(height: 20),
-                                    Expanded(
-                                      child: ExploreFadedScrollView(
-                                        padding: const EdgeInsets.only(top: 4),
-                                        child: ExploreControls(
-                                          state: _state,
-                                          identity: example.identity,
-                                          tonality: tonality,
-                                          noteNameSystem: noteNameSystem,
-                                          isLandscape: false,
-                                          onRootChanged: (value) => updateState(
-                                            exploreStateWithRoot(_state, value),
-                                          ),
-                                          onBaseQualityChanged: (value) =>
-                                              updateState(
-                                                exploreStateWithBaseQuality(
-                                                  _state,
-                                                  value,
-                                                ),
-                                              ),
-                                          onSeventhKindChanged: (value) =>
-                                              updateState(
-                                                exploreStateWithSeventhKind(
-                                                  _state,
-                                                  value,
-                                                ),
-                                              ),
-                                          onFifthAlterationChanged: (value) =>
-                                              updateState(
-                                                exploreStateWithFifthAlteration(
-                                                  _state,
-                                                  value,
-                                                ),
-                                              ),
-                                          onExtensionsChanged: (value) =>
-                                              updateState(
-                                                exploreStateWithExtensions(
-                                                  _state,
-                                                  value,
-                                                ),
-                                              ),
-                                          onBassChanged: (value) => updateState(
-                                            exploreStateWithBass(_state, value),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                        child: _buildMainContent(
+                          example: example,
+                          presentation: presentation,
+                          tonality: tonality,
+                          noteNameSystem: noteNameSystem,
+                          showChordMemberDegrees: showChordMemberDegrees,
+                          previewPitchClasses: previewPitchClasses,
+                          isLandscape: isLandscape,
+                          horizontalInset: horizontalInset,
+                        ),
                       ),
                       TonalityBarView(
                         height: kToolbarHeight,
@@ -376,5 +187,145 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
         );
       },
     );
+  }
+
+  Widget _buildMainContent({
+    required ExploreChordExample example,
+    required ChordPresentation presentation,
+    required Tonality tonality,
+    required NoteNameSystem noteNameSystem,
+    required bool showChordMemberDegrees,
+    required Set<int> previewPitchClasses,
+    required bool isLandscape,
+    required double horizontalInset,
+  }) {
+    if (isLandscape) {
+      return Padding(
+        padding: EdgeInsets.fromLTRB(horizontalInset, 16, horizontalInset, 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 7,
+              child: ExploreFadedScrollView(
+                padding: const EdgeInsets.only(top: 4, right: 12),
+                child: _buildSummaryAndMembers(
+                  example: example,
+                  presentation: presentation,
+                  noteNameSystem: noteNameSystem,
+                  showChordMemberDegrees: showChordMemberDegrees,
+                  previewPitchClasses: previewPitchClasses,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 6,
+              child: ExploreFadedScrollView(
+                padding: const EdgeInsets.only(top: 4, left: 12),
+                child: _buildControls(
+                  example: example,
+                  tonality: tonality,
+                  noteNameSystem: noteNameSystem,
+                  isLandscape: true,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildSummaryAndMembers(
+            example: example,
+            presentation: presentation,
+            noteNameSystem: noteNameSystem,
+            showChordMemberDegrees: showChordMemberDegrees,
+            previewPitchClasses: previewPitchClasses,
+          ),
+          const SizedBox(height: 20),
+          Expanded(
+            child: ExploreFadedScrollView(
+              padding: const EdgeInsets.only(top: 4),
+              child: _buildControls(
+                example: example,
+                tonality: tonality,
+                noteNameSystem: noteNameSystem,
+                isLandscape: false,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSummaryAndMembers({
+    required ExploreChordExample example,
+    required ChordPresentation presentation,
+    required NoteNameSystem noteNameSystem,
+    required bool showChordMemberDegrees,
+    required Set<int> previewPitchClasses,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ExploreSummary(presentation: presentation),
+        const SizedBox(height: 20),
+        ExploreChordMembersSection(
+          members: example.members,
+          memberDegrees: example.memberDegrees,
+          noteNameSystem: noteNameSystem,
+          showDegrees: showChordMemberDegrees,
+          onShowDegreesChanged: (value) => unawaited(
+            ref
+                .read(exploreChordMemberDegreesProvider.notifier)
+                .setShowDegrees(value),
+          ),
+          previewNotes: example.normalizedVoicing,
+          activePitchClasses: previewPitchClasses,
+          memberPitchClasses: example.memberPitchClassesInOrder,
+          onPreviewStarted: _previewAnimationController.start,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildControls({
+    required ExploreChordExample example,
+    required Tonality tonality,
+    required NoteNameSystem noteNameSystem,
+    required bool isLandscape,
+  }) {
+    return ExploreControls(
+      state: _state,
+      identity: example.identity,
+      tonality: tonality,
+      noteNameSystem: noteNameSystem,
+      isLandscape: isLandscape,
+      onRootChanged: (value) =>
+          _updateState(exploreStateWithRoot(_state, value)),
+      onBaseQualityChanged: (value) =>
+          _updateState(exploreStateWithBaseQuality(_state, value)),
+      onSeventhKindChanged: (value) =>
+          _updateState(exploreStateWithSeventhKind(_state, value)),
+      onFifthAlterationChanged: (value) =>
+          _updateState(exploreStateWithFifthAlteration(_state, value)),
+      onExtensionsChanged: (value) =>
+          _updateState(exploreStateWithExtensions(_state, value)),
+      onBassChanged: (value) =>
+          _updateState(exploreStateWithBass(_state, value)),
+    );
+  }
+
+  void _updateState(ExploreChordState next) {
+    _previewAnimationController.cancel();
+    setState(() {
+      _state = next;
+    });
   }
 }
