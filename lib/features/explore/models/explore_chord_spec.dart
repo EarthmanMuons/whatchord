@@ -88,7 +88,7 @@ class ExploreChordSpec {
         fifthAlteration: ExploreFifthAlteration.flat,
       ),
       ChordQualityToken.dominant7Sharp5 => const ExploreChordSpec(
-        baseQuality: ExploreBaseQuality.augmented,
+        baseQuality: ExploreBaseQuality.major,
         seventhKind: ExploreSeventhKind.dominant7,
         fifthAlteration: ExploreFifthAlteration.sharp,
       ),
@@ -113,7 +113,7 @@ class ExploreChordSpec {
         fifthAlteration: ExploreFifthAlteration.flat,
       ),
       ChordQualityToken.major7Sharp5 => const ExploreChordSpec(
-        baseQuality: ExploreBaseQuality.augmented,
+        baseQuality: ExploreBaseQuality.major,
         seventhKind: ExploreSeventhKind.major7,
         fifthAlteration: ExploreFifthAlteration.sharp,
       ),
@@ -218,11 +218,7 @@ List<ExploreSeventhKind> availableSeventhKindsFor(
       ExploreSeventhKind.diminished7,
       ExploreSeventhKind.halfDiminished7,
     ],
-    ExploreBaseQuality.augmented => const [
-      ExploreSeventhKind.none,
-      ExploreSeventhKind.dominant7,
-      ExploreSeventhKind.major7,
-    ],
+    ExploreBaseQuality.augmented => const [ExploreSeventhKind.none],
     ExploreBaseQuality.sus2 || ExploreBaseQuality.sus4 => const [
       ExploreSeventhKind.none,
       ExploreSeventhKind.dominant7,
@@ -322,10 +318,6 @@ ChordQualityToken _qualityFromSpec({
       ChordQualityToken.diminished,
     (ExploreBaseQuality.augmented, ExploreSeventhKind.none, _) =>
       ChordQualityToken.augmented,
-    (ExploreBaseQuality.augmented, ExploreSeventhKind.dominant7, _) =>
-      ChordQualityToken.dominant7Sharp5,
-    (ExploreBaseQuality.augmented, ExploreSeventhKind.major7, _) =>
-      ChordQualityToken.major7Sharp5,
     (ExploreBaseQuality.sus2, ExploreSeventhKind.none, _) =>
       ChordQualityToken.sus2,
     (ExploreBaseQuality.sus2, ExploreSeventhKind.dominant7, _) =>

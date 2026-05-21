@@ -63,6 +63,26 @@ void main() {
       expect(dominantSharpFive, ChordQualityToken.dominant7Sharp5);
       expect(majorFlatFive, ChordQualityToken.major7Flat5);
     });
+
+    test('keeps augmented quality triad-only', () {
+      expect(availableSeventhKindsFor(ExploreBaseQuality.augmented), [
+        ExploreSeventhKind.none,
+      ]);
+
+      final dominantSharpFive = ExploreChordSpec.fromQuality(
+        ChordQualityToken.dominant7Sharp5,
+      );
+      final majorSharpFive = ExploreChordSpec.fromQuality(
+        ChordQualityToken.major7Sharp5,
+      );
+
+      expect(dominantSharpFive.baseQuality, ExploreBaseQuality.major);
+      expect(dominantSharpFive.seventhKind, ExploreSeventhKind.dominant7);
+      expect(dominantSharpFive.fifthAlteration, ExploreFifthAlteration.sharp);
+      expect(majorSharpFive.baseQuality, ExploreBaseQuality.major);
+      expect(majorSharpFive.seventhKind, ExploreSeventhKind.major7);
+      expect(majorSharpFive.fifthAlteration, ExploreFifthAlteration.sharp);
+    });
   });
 
   group('buildExploreExtensionControlGroups', () {
