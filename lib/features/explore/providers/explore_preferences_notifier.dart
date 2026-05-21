@@ -5,11 +5,11 @@ import 'package:whatchord/core/providers/shared_preferences_provider.dart';
 import '../persistence/explore_preferences_keys.dart';
 
 final exploreChordMemberDegreesProvider =
-    NotifierProvider<ExploreChordMemberDegreesNotifier, bool>(
-      ExploreChordMemberDegreesNotifier.new,
+    NotifierProvider<ExploreMemberDegreesNotifier, bool>(
+      ExploreMemberDegreesNotifier.new,
     );
 
-class ExploreChordMemberDegreesNotifier extends Notifier<bool> {
+class ExploreMemberDegreesNotifier extends Notifier<bool> {
   @override
   bool build() {
     final prefs = ref.watch(sharedPreferencesProvider);

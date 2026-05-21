@@ -48,7 +48,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     setState(() => _isAdjustingAudioVolume = true);
   }
 
-  void _scheduleAudioVolumePercentLabelDismiss() {
+  void _scheduleVolumeLabelDismiss() {
     _audioVolumeLabelDismissTimer?.cancel();
     _audioVolumeLabelDismissTimer = Timer(
       const Duration(milliseconds: 900),
@@ -233,8 +233,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     ? (_) => _showAudioVolumePercentLabel()
                                     : null,
                                 onChangeEnd: audioSettings.enabled
-                                    ? (_) =>
-                                          _scheduleAudioVolumePercentLabelDismiss()
+                                    ? (_) => _scheduleVolumeLabelDismiss()
                                     : null,
                                 onChanged: audioSettings.enabled
                                     ? (value) {
@@ -267,7 +266,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   _adjustAudioVolumeByPercent(
                                     -_volumeNudgeStepPercent,
                                   );
-                                  _scheduleAudioVolumePercentLabelDismiss();
+                                  _scheduleVolumeLabelDismiss();
                                 },
                                 onLongPressStart: () {
                                   _showAudioVolumePercentLabel();
@@ -275,7 +274,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 },
                                 onLongPressEnd: () {
                                   _stopVolumeRepeat();
-                                  _scheduleAudioVolumePercentLabelDismiss();
+                                  _scheduleVolumeLabelDismiss();
                                 },
                               ),
                               const Expanded(child: SizedBox()),
@@ -286,7 +285,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   _adjustAudioVolumeByPercent(
                                     _volumeNudgeStepPercent,
                                   );
-                                  _scheduleAudioVolumePercentLabelDismiss();
+                                  _scheduleVolumeLabelDismiss();
                                 },
                                 onLongPressStart: () {
                                   _showAudioVolumePercentLabel();
@@ -294,7 +293,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 },
                                 onLongPressEnd: () {
                                   _stopVolumeRepeat();
-                                  _scheduleAudioVolumePercentLabelDismiss();
+                                  _scheduleVolumeLabelDismiss();
                                 },
                               ),
                             ],
