@@ -7,12 +7,41 @@ import 'package:whatchord/features/theory/theory.dart';
 
 import 'adaptive_side_sheet.dart';
 
-Future<void> showChordRankingDetailsSheet(BuildContext context) async {
+class ChordRankingDetailsSnapshot {
+  ChordRankingDetailsSnapshot._({
+    required List<RankedCandidateDebug> candidates,
+    required this.tonality,
+    required this.notation,
+    required this.noteNameSystem,
+  }) : candidates = List.unmodifiable(candidates);
+
+  factory ChordRankingDetailsSnapshot.capture(WidgetRef ref) {
+    return ChordRankingDetailsSnapshot._(
+      candidates: ref.read(rankedChordCandidateDebugProvider),
+      tonality: ref.read(analysisContextProvider).tonality,
+      notation: ref.read(chordNotationStyleProvider),
+      noteNameSystem: ref.read(noteNameSystemProvider),
+    );
+  }
+
+  final List<RankedCandidateDebug> candidates;
+  final Tonality tonality;
+  final ChordNotationStyle notation;
+  final NoteNameSystem noteNameSystem;
+}
+
+Future<void> showChordRankingDetailsSheet(
+  BuildContext context, {
+  required ChordRankingDetailsSnapshot snapshot,
+}) async {
   if (useHomeSideSheet(context)) {
     await showHomeSideSheet<void>(
       context: context,
       barrierLabel: 'Dismiss chord ranking details',
-      builder: (_) => const _ChordRankingDetailsContent(showCloseButton: true),
+      builder: (_) => _ChordRankingDetailsContent(
+        snapshot: snapshot,
+        showCloseButton: true,
+      ),
     );
     return;
   }
@@ -26,28 +55,26 @@ Future<void> showChordRankingDetailsSheet(BuildContext context) async {
       final mq = MediaQuery.of(context);
       return ConstrainedBox(
         constraints: BoxConstraints(maxHeight: mq.size.height * 0.75),
-        child: const _ChordRankingDetailsContent(),
+        child: _ChordRankingDetailsContent(snapshot: snapshot),
       );
     },
   );
 }
 
-class _ChordRankingDetailsContent extends ConsumerWidget {
-  const _ChordRankingDetailsContent({this.showCloseButton = false});
+class _ChordRankingDetailsContent extends StatelessWidget {
+  const _ChordRankingDetailsContent({
+    required this.snapshot,
+    this.showCloseButton = false,
+  });
 
+  final ChordRankingDetailsSnapshot snapshot;
   final bool showCloseButton;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final isSideSheet = showCloseButton;
-    final candidates = ref.watch(rankedChordCandidateDebugProvider);
-    final tonality = ref.watch(
-      analysisContextProvider.select((c) => c.tonality),
-    );
-    final notation = ref.watch(chordNotationStyleProvider);
-    final noteNameSystem = ref.watch(noteNameSystemProvider);
 
     return Material(
       color: cs.surfaceContainerLow,
@@ -79,13 +106,13 @@ class _ChordRankingDetailsContent extends ConsumerWidget {
             Flexible(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: isSideSheet ? 16 : 0),
-                child: candidates.isEmpty
+                child: snapshot.candidates.isEmpty
                     ? const _EmptyRankingDetails()
                     : _RankingDetailsBody(
-                        candidates: candidates,
-                        tonality: tonality,
-                        notation: notation,
-                        noteNameSystem: noteNameSystem,
+                        candidates: snapshot.candidates,
+                        tonality: snapshot.tonality,
+                        notation: snapshot.notation,
+                        noteNameSystem: snapshot.noteNameSystem,
                       ),
               ),
             ),
@@ -159,12 +186,12 @@ class _RankingDetailsBody extends StatelessWidget {
 
   String _chosenReason(List<RankedCandidateDebug> visible) {
     if (visible.length < 2) {
-      return 'This was the strongest match for the notes currently sounding.';
+      return 'This was the strongest chord match for the notes.';
     }
 
     final decision = visible[1].vsPrevious;
     if (decision == null) {
-      return 'This was the strongest match for the notes currently sounding.';
+      return 'This was the strongest chord match for the notes.';
     }
 
     return _plainDecision(

@@ -124,7 +124,13 @@ class AnalysisSection extends ConsumerWidget {
                                   gap: 8,
                                   textScaleMultiplier: config.nearTieTextScale,
                                   onTap: () => unawaited(
-                                    showChordRankingDetailsSheet(context),
+                                    showChordRankingDetailsSheet(
+                                      context,
+                                      snapshot:
+                                          ChordRankingDetailsSnapshot.capture(
+                                            ref,
+                                          ),
+                                    ),
                                   ),
                                 ),
                               ),
