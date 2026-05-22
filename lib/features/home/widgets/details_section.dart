@@ -35,7 +35,12 @@ class DetailsSection extends ConsumerWidget {
                   padding: EdgeInsets.only(bottom: 12),
                   textScaleMultiplier: config.nearTieTextScale,
                   showScrollbarWhenOverflow: true,
-                  onTap: () => unawaited(showChordRankingDetailsSheet(context)),
+                  onTap: () => unawaited(
+                    showChordRankingDetailsSheet(
+                      context,
+                      snapshot: ChordRankingDetailsSnapshot.capture(ref),
+                    ),
+                  ),
                 ),
               ),
             )
