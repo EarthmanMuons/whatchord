@@ -150,7 +150,7 @@ class _RankingDetailsBody extends StatelessWidget {
           _SummaryPanel(symbol: chosenSymbol, reason: chosenReason),
           const SizedBox(height: 14),
           const SectionHeader(
-            title: 'Ranking',
+            title: 'Ranking Alternatives',
             icon: Icons.format_list_numbered,
           ),
           for (var i = 0; i < visible.length; i++) ...[
