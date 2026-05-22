@@ -161,6 +161,24 @@ void main() {
       },
     ),
 
+    // Root-position lydian dominant should beat a remote altered-fifth slash
+    // reinterpretation such as D11#5/C.
+    golden(
+      name: 'C E G Bb D F# -> C9#11',
+      pcs: ['C', 'E', 'G', 'Bb', 'D', 'F#'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.dominant7);
+        expect(
+          top.extensions,
+          containsAll(<ChordExtension>[
+            ChordExtension.nine,
+            ChordExtension.sharp11,
+          ]),
+        );
+      },
+    ),
+
     // Major 9.
     golden(
       name: 'C E G B D -> Cmaj9',

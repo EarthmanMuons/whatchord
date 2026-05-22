@@ -157,6 +157,39 @@ void main() {
     );
   });
 
+  test(
+    'root-position extended dominant beats altered-fifth slash near-tie',
+    () {
+      final rootPosition = ChordCandidate(
+        identity: _identity(
+          quality: ChordQualityToken.dominant7,
+          rootPc: 0,
+          bassPc: 0,
+          presentIntervals: const {0, 2, 4, 6, 7, 10},
+          extensions: const {ChordExtension.nine, ChordExtension.sharp11},
+        ),
+        score: 7.91,
+      );
+
+      final slash = ChordCandidate(
+        identity: _identity(
+          quality: ChordQualityToken.dominant7Sharp5,
+          rootPc: 2,
+          bassPc: 0,
+          presentIntervals: const {0, 2, 4, 5, 8, 10},
+          extensions: const {ChordExtension.nine, ChordExtension.eleven},
+        ),
+        score: 8,
+      );
+
+      _expectTieRule(
+        rootPosition,
+        slash,
+        'prefer root-position extended dominant over altered-fifth slash',
+      );
+    },
+  );
+
   test('complete triad beats incomplete inverted 6th in a near-tie', () {
     final completeTriad = ChordCandidate(
       identity: _identity(
