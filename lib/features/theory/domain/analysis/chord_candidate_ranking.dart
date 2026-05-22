@@ -134,6 +134,10 @@ abstract final class ChordCandidateRanking {
       'prefer upper-structure dominant7 slash',
       _preferUpperStructureDom7,
     ),
+    _NamedRule(
+      'prefer root-position extended dominant over altered-fifth slash',
+      _preferRootExtendedDom7OverAlteredFifthSlash,
+    ),
     _NamedRule('prefer root-position diminished7', _preferDim7InRoot),
     _NamedRule('prefer dominant7 over dim7 slash', _preferDom7Shell),
     _NamedRule('prefer fewer altered/tension colors', _preferFewerAlterations),
@@ -289,6 +293,42 @@ abstract final class ChordCandidateRanking {
     }
   }
 
+  /// Prefers a conventional root-position extended dominant over a remote
+  /// altered-fifth dominant slash spelling in close calls.
+  ///
+  /// Example: {C, E, G, Bb, D, F#} is better read as C9#11 than D11#5/C.
+  /// The D-rooted spelling is possible, but it treats the bass as a seventh and
+  /// respells Bb as A#; the C-rooted reading has the bass, shell, and extensions
+  /// aligned with the observed voicing.
+  static int? _preferRootExtendedDom7OverAlteredFifthSlash(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsPreferred = _isRootExtendedDom7(a.identity, fa);
+    final bIsPreferred = _isRootExtendedDom7(b.identity, fb);
+    if (aIsPreferred == bIsPreferred) return null;
+
+    final fOther = aIsPreferred ? fb : fa;
+    if (!fOther.isAlteredFifthDom7) return null;
+    if (!fOther.isSlashBass) return null;
+    if (!fOther.dom7HasShell) return null;
+
+    return aIsPreferred ? -1 : 1;
+  }
+
+  static bool _isRootExtendedDom7(
+    ChordIdentity id,
+    _CandidateFeatures features,
+  ) {
+    if (!features.isDom7RootPosition) return false;
+    if (!features.dom7HasShell) return false;
+    if (!id.extensions.contains(ChordExtension.nine)) return false;
+    return id.extensions.contains(ChordExtension.sharp11);
+  }
+
   /// Prefers root-position diminished7 even though they're symmetrical.
   ///
   /// Fully diminished 7th chords have identical interval structure in all inversions
@@ -394,6 +434,7 @@ abstract final class ChordCandidateRanking {
     // Only when the competing interpretation is a slash and not itself dominant7.
     if (!fOther.isSlashBass) return null;
     if (fOther.isDom7) return null;
+    if (fOther.isAlteredFifthDom7) return null;
 
     // Ensure the dominant reading is not "plain"; it should have some color.
     final domHasColor =

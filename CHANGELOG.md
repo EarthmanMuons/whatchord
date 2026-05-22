@@ -17,6 +17,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Added explore mode copy choices for chord symbol, readable name, and Harte
   notation export.
 
+### Fixed
+
+- Fixed lydian-dominant chord ranking so voicings such as C-E-G-Bb-D-F# are
+  identified as C9#11 instead of a remote altered-fifth slash chord.
+
 ## [2026.5.21] - 2026-05-21
 
 ### Added

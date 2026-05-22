@@ -474,14 +474,15 @@ abstract final class ChordAnalyzer {
     required Set<ChordExtension> extensions,
     required int bassInterval,
   }) {
-    // Lydian-dominant 13ths are commonly voiced without the fifth. Without this
-    // small structural bonus, the scorer overvalues remote slash readings that
-    // happen to reinterpret the thirteenth as a perfect fifth.
+    // Lydian-dominant stacks are commonly voiced as root-position dominant
+    // chords with 9/#11 color. Without this small structural bonus, the scorer
+    // overvalues remote altered-fifth slash readings that happen to reinterpret
+    // one color tone as a required chord tone.
     if (quality != ChordQualityToken.dominant7) return 0;
     if (bassInterval != 0) return 0;
     if (!extensions.contains(ChordExtension.nine)) return 0;
-    if (!extensions.contains(ChordExtension.thirteen)) return 0;
     if (!extensions.contains(ChordExtension.sharp11)) return 0;
+    if (!extensions.contains(ChordExtension.thirteen)) return 0.8;
     return 2.1;
   }
 
