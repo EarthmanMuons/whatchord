@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.5.23] - 2026-05-23
+
 ### Added
 
 - Added a "Why This Chord?" alternatives view that explains why the current
@@ -420,7 +422,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.21...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.23...HEAD
+[2026.5.23]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.21...v2026.5.23
 [2026.5.21]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.5.16...v2026.5.21
 [2026.5.16]:
