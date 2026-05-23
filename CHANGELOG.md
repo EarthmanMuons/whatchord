@@ -12,12 +12,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Added a website article about validating WhatChord's chord vocabulary against
-  a large public chord corpus.
-- Added a tappable chord alternatives area that explains why the current chord
-  ranked above close alternatives.
+- Added a "Why This Chord?" alternatives view that explains why the current
+  chord ranked above close alternatives.
 - Added explore mode copy choices for chord symbol, readable name, and Harte
   notation export.
+- Added a website article about validating WhatChord's chord vocabulary against
+  a large public chord corpus.
 
 ### Fixed
 
