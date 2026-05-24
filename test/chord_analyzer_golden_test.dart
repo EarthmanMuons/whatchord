@@ -4,12 +4,6 @@ import 'package:whatchord/features/theory/theory.dart';
 
 import 'helpers/theory_test_helpers.dart';
 
-/// If the test name includes `-> SYMBOL`, treat that as the expected rendered symbol.
-String expectedSymbolFromCaseName(String name) {
-  final i = name.indexOf('->');
-  return (i == -1) ? name : name.substring(i + 2).trim();
-}
-
 class GoldenCase {
   final String name;
 
@@ -27,10 +21,8 @@ class GoldenCase {
   /// Optional per-case tonality override (defaults to C major).
   final Tonality? tonality;
 
-  /// Optional override for the rendered symbol assertion.
-  ///
-  /// If omitted, we use the `-> ...` portion of [name] (when present), or [name] itself.
-  final String? expectedSymbol;
+  /// Expected rendered symbol.
+  final String expectedSymbol;
 
   /// Expected winning root pitch name.
   final String? expectedRoot;
@@ -55,11 +47,11 @@ class GoldenCase {
 
   const GoldenCase({
     required this.name,
+    required this.expectedSymbol,
     required this.pcs,
     this.bass,
     this.noteCount,
     this.tonality,
-    this.expectedSymbol,
     this.expectedRoot,
     this.expectedBass,
     this.expectedQuality,
@@ -73,11 +65,11 @@ class GoldenCase {
 /// Small helper so each case reads as "notes -> expectation".
 GoldenCase golden({
   required String name,
+  required String expectedSymbol,
   required List<String> pcs,
   String? bass,
   int? noteCount,
   Tonality? tonality,
-  String? expectedSymbol,
   String? expectedRoot,
   String? expectedBass,
   ChordQualityToken? expectedQuality,
@@ -88,11 +80,11 @@ GoldenCase golden({
 }) {
   return GoldenCase(
     name: name,
+    expectedSymbol: expectedSymbol,
     pcs: pcs,
     bass: bass,
     noteCount: noteCount,
     tonality: tonality,
-    expectedSymbol: expectedSymbol,
     expectedRoot: expectedRoot,
     expectedBass: expectedBass,
     expectedQuality: expectedQuality,
@@ -115,6 +107,7 @@ void main() {
     // Plain major triad should not be displaced by remote m#5.
     golden(
       name: 'C E G -> C',
+      expectedSymbol: 'C',
       pcs: ['C', 'E', 'G'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major,
@@ -123,6 +116,7 @@ void main() {
     // Major triad with an added 9 should not be displaced by remote m7#5.
     golden(
       name: 'C E G D -> Cadd9',
+      expectedSymbol: 'Cadd9',
       pcs: ['C', 'E', 'G', 'D'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major,
@@ -132,6 +126,7 @@ void main() {
     // Straight dominant 7.
     golden(
       name: 'C E G Bb -> C7',
+      expectedSymbol: 'C7',
       pcs: ['C', 'E', 'G', 'Bb'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
@@ -141,6 +136,7 @@ void main() {
     // Dominant 9.
     golden(
       name: 'C E G Bb D -> C9',
+      expectedSymbol: 'C9',
       pcs: ['C', 'E', 'G', 'Bb', 'D'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
@@ -150,6 +146,7 @@ void main() {
     // A lone 11 on a dominant seventh is an added tone, not a true 11th chord.
     golden(
       name: 'C E G Bb F -> C7(add11)',
+      expectedSymbol: 'C7(add11)',
       pcs: ['C', 'E', 'G', 'Bb', 'F'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
@@ -160,6 +157,7 @@ void main() {
     // A true dominant 11 includes the implied ninth.
     golden(
       name: 'C E G Bb D F -> C11',
+      expectedSymbol: 'C11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
@@ -170,6 +168,7 @@ void main() {
     // reinterpretation such as D11#5/C.
     golden(
       name: 'C E G Bb D F# -> C9#11',
+      expectedSymbol: 'C9#11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F#'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
@@ -179,6 +178,7 @@ void main() {
     // Major 9.
     golden(
       name: 'C E G B D -> Cmaj9',
+      expectedSymbol: 'Cmaj9',
       pcs: ['C', 'E', 'G', 'B', 'D'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major7,
@@ -188,6 +188,7 @@ void main() {
     // 13th (as 7 + 9 + 13).
     golden(
       name: 'C E G Bb D A -> C13',
+      expectedSymbol: 'C13',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'A'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
@@ -197,6 +198,7 @@ void main() {
     // Dominant 13 with a sharp eleventh should beat remote slash reinterpretations.
     golden(
       name: 'C E G Bb D F# A -> C13#11',
+      expectedSymbol: 'C13#11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F#', 'A'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
@@ -210,6 +212,7 @@ void main() {
     // The fifth is optional in extended dominant voicings.
     golden(
       name: 'C E Bb D F# A -> C13#11',
+      expectedSymbol: 'C13#11',
       pcs: ['C', 'E', 'Bb', 'D', 'F#', 'A'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
@@ -227,6 +230,7 @@ void main() {
     // Same sonority as C9, but with a non-root bass should render a slash chord.
     golden(
       name: 'C E G Bb D --bass=G -> C9 / G',
+      expectedSymbol: 'C9 / G',
       pcs: ['C', 'E', 'G', 'Bb', 'D'],
       bass: 'G',
       expectedRoot: 'C',
@@ -237,6 +241,7 @@ void main() {
     // Complete minor triad with #11 should beat a remote altered maj7sus4 name.
     golden(
       name: 'E A C D# --bass=E -> Am#11 / E',
+      expectedSymbol: 'Am#11 / E',
       pcs: ['E', 'A', 'C', 'D#'],
       bass: 'E',
       expectedRoot: 'A',
@@ -248,6 +253,7 @@ void main() {
     // Major 6 in first inversion.
     golden(
       name: 'C E G A --bass=E -> C6 / E',
+      expectedSymbol: 'C6 / E',
       pcs: ['C', 'E', 'G', 'A'],
       bass: 'E',
       expectedRoot: 'C',
@@ -258,6 +264,7 @@ void main() {
     // Complete triad should beat an incomplete inverted 6th reading.
     golden(
       name: 'B E G B --bass=B --key=D:maj -> Em / B',
+      expectedSymbol: 'Em / B',
       pcs: ['B', 'E', 'G'],
       bass: 'B',
       noteCount: 4,
@@ -270,6 +277,7 @@ void main() {
     // Root-position 6(no5) with a doubled root remains a legitimate 6th chord.
     golden(
       name: 'C E A C -> C6',
+      expectedSymbol: 'C6',
       pcs: ['C', 'E', 'A'],
       noteCount: 4,
       expectedRoot: 'C',
@@ -284,6 +292,7 @@ void main() {
     // Dominant b9.
     golden(
       name: 'C E G Bb Db -> C7b9',
+      expectedSymbol: 'C7b9',
       pcs: ['C', 'E', 'G', 'Bb', 'Db'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
@@ -293,6 +302,7 @@ void main() {
     // Hendrix chord: dominant shell plus #9 should not be treated as a minor-third penalty.
     golden(
       name: 'G B D F A# -> G7#9',
+      expectedSymbol: 'G7#9',
       pcs: ['G', 'B', 'D', 'F', 'A#'],
       expectedRoot: 'G',
       expectedQuality: ChordQualityToken.dominant7,
@@ -302,6 +312,7 @@ void main() {
     // Dominant b9 + #11.
     golden(
       name: 'C E G Bb Db F# -> C7(b9,#11)',
+      expectedSymbol: 'C7(b9,#11)',
       pcs: ['C', 'E', 'G', 'Bb', 'Db', 'F#'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
@@ -311,6 +322,7 @@ void main() {
     // Dominant b9 + #11 + b13.
     golden(
       name: 'C E G Bb Db F# Ab -> C7(b9,#11,b13)',
+      expectedSymbol: 'C7(b9,#11,b13)',
       pcs: ['C', 'E', 'G', 'Bb', 'Db', 'F#', 'Ab'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
@@ -324,6 +336,7 @@ void main() {
     // Dominant 7 suspended 4 with 9 should promote to the combined headline.
     golden(
       name: 'C F G Bb D -> C9sus4',
+      expectedSymbol: 'C9sus4',
       pcs: ['C', 'F', 'G', 'Bb', 'D'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7sus4,
@@ -333,6 +346,7 @@ void main() {
     // Dominant 7 suspended 2.
     golden(
       name: 'C D G Bb -> C7sus2',
+      expectedSymbol: 'C7sus2',
       pcs: ['C', 'D', 'G', 'Bb'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7sus2,
@@ -341,6 +355,7 @@ void main() {
     // Major 7 suspended 2.
     golden(
       name: 'C D G B -> Cmaj7sus2',
+      expectedSymbol: 'Cmaj7sus2',
       pcs: ['C', 'D', 'G', 'B'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major7sus2,
@@ -349,6 +364,7 @@ void main() {
     // Major 7 suspended 4.
     golden(
       name: 'C F G B -> Cmaj7sus4',
+      expectedSymbol: 'Cmaj7sus4',
       pcs: ['C', 'F', 'G', 'B'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major7sus4,
@@ -357,6 +373,7 @@ void main() {
     // Dominant 7 sharp 5 should treat the augmented fifth as a core tone.
     golden(
       name: 'C E G# Bb -> C7#5',
+      expectedSymbol: 'C7#5',
       pcs: ['C', 'E', 'G#', 'Bb'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7Sharp5,
@@ -366,6 +383,7 @@ void main() {
     // Minor sharp 5 should treat the augmented fifth as a core tone.
     golden(
       name: 'C Eb G# -> Cm#5',
+      expectedSymbol: 'Cm#5',
       pcs: ['C', 'Eb', 'G#'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.minorSharp5,
@@ -375,6 +393,7 @@ void main() {
     // Minor 7 sharp 5 should treat the augmented fifth as a core tone.
     golden(
       name: 'C Eb G# Bb -> Cm7#5',
+      expectedSymbol: 'Cm7#5',
       pcs: ['C', 'Eb', 'G#', 'Bb'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.minor7Sharp5,
@@ -384,6 +403,7 @@ void main() {
     // Dominant 7 flat 5 should treat the diminished fifth as a core tone.
     golden(
       name: 'C E Gb Bb -> C7b5',
+      expectedSymbol: 'C7b5',
       pcs: ['C', 'E', 'Gb', 'Bb'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7Flat5,
@@ -393,6 +413,7 @@ void main() {
     // Major 7 sharp 5 should treat the augmented fifth as a core tone.
     golden(
       name: 'C E G# B -> Cmaj7#5',
+      expectedSymbol: 'Cmaj7#5',
       pcs: ['C', 'E', 'G#', 'B'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major7Sharp5,
@@ -402,6 +423,7 @@ void main() {
     // Major 7 flat 5 should treat the diminished fifth as a core tone.
     golden(
       name: 'C E Gb B -> Cmaj7b5',
+      expectedSymbol: 'Cmaj7b5',
       pcs: ['C', 'E', 'Gb', 'B'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major7Flat5,
@@ -411,6 +433,7 @@ void main() {
     // Altered augmented dominants keep both the #5 core tone and #9 color.
     golden(
       name: 'C E G# Bb D# -> C7#5#9',
+      expectedSymbol: 'C7#5#9',
       pcs: ['C', 'E', 'G#', 'Bb', 'D#'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7Sharp5,
@@ -421,6 +444,7 @@ void main() {
     // Altered flat-five dominants keep both the b5 core tone and #9 color.
     golden(
       name: 'C E Gb Bb D# -> C7b5#9',
+      expectedSymbol: 'C7b5#9',
       pcs: ['C', 'E', 'Gb', 'Bb', 'D#'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7Flat5,
@@ -435,6 +459,7 @@ void main() {
     // Sus4 identification.
     golden(
       name: 'C F G -> Csus4',
+      expectedSymbol: 'Csus4',
       pcs: ['C', 'F', 'G'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.sus4,
@@ -443,6 +468,7 @@ void main() {
     // Sus2 identification.
     golden(
       name: 'C D G -> Csus2',
+      expectedSymbol: 'Csus2',
       pcs: ['C', 'D', 'G'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.sus2,
@@ -455,6 +481,7 @@ void main() {
     // Major 6.
     golden(
       name: 'C E G A -> C6',
+      expectedSymbol: 'C6',
       pcs: ['C', 'E', 'G', 'A'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major6,
@@ -463,6 +490,7 @@ void main() {
     // Minor 6.
     golden(
       name: 'A C E F# -> Am6',
+      expectedSymbol: 'Am6',
       pcs: ['A', 'C', 'E', 'F#'],
       expectedRoot: 'A',
       expectedQuality: ChordQualityToken.minor6,
@@ -471,6 +499,7 @@ void main() {
     // 6/9 sonority: represented as major6 + add9 in this system.
     golden(
       name: 'C E G A D -> C6/9',
+      expectedSymbol: 'C6/9',
       pcs: ['C', 'E', 'G', 'A', 'D'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major6,
@@ -480,6 +509,7 @@ void main() {
     // Dominant 7 with a lone 13 is an added tone, not a true 13th chord.
     golden(
       name: 'C E G Bb A -> C7(add13)',
+      expectedSymbol: 'C7(add13)',
       pcs: ['C', 'E', 'G', 'Bb', 'A'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
@@ -490,6 +520,7 @@ void main() {
     // 6th-family should beat 7th-family when the 7 is missing.
     golden(
       name: 'G Bb D E -> Gm6',
+      expectedSymbol: 'Gm6',
       pcs: ['G', 'Bb', 'D', 'E'],
       expectedRoot: 'G',
       expectedQuality: ChordQualityToken.minor6,
@@ -498,6 +529,7 @@ void main() {
     // Tonality-specific ranking: same pitch-class set, different "best" chord in A minor.
     golden(
       name: 'C E G A D --key=A:min -> Am7(add11) / C',
+      expectedSymbol: 'Am7(add11) / C',
       pcs: ['C', 'E', 'G', 'A', 'D'],
       tonality: const Tonality('A', TonalityMode.minor),
       expectedRoot: 'A',
@@ -513,6 +545,7 @@ void main() {
     // Half-diminished 7th (m7b5).
     golden(
       name: 'B D F A -> Bm7(b5)',
+      expectedSymbol: 'Bm7(b5)',
       pcs: ['B', 'D', 'F', 'A'],
       expectedRoot: 'B',
       expectedQuality: ChordQualityToken.halfDiminished7,
@@ -521,6 +554,7 @@ void main() {
     // Half-diminished headline promotion with a 9 extension.
     golden(
       name: 'C Eb Gb Bb D -> Cm9(b5)',
+      expectedSymbol: 'Cm9(b5)',
       pcs: ['C', 'Eb', 'Gb', 'Bb', 'D'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.halfDiminished7,
@@ -530,6 +564,7 @@ void main() {
     // Diminished seventh with color tones: verify extension mapping stays stable.
     golden(
       name: 'C Eb Gb A D -> Cdim7(add9)',
+      expectedSymbol: 'Cdim7(add9)',
       pcs: ['C', 'Eb', 'Gb', 'A', 'D'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.diminished7,
@@ -537,6 +572,7 @@ void main() {
     ),
     golden(
       name: 'C Eb Gb A F -> Cdim7(add11)',
+      expectedSymbol: 'Cdim7(add11)',
       pcs: ['C', 'Eb', 'Gb', 'A', 'F'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.diminished7,
@@ -544,6 +580,7 @@ void main() {
     ),
     golden(
       name: 'C Eb Gb A Ab -> Cdim7(b13)',
+      expectedSymbol: 'Cdim7(b13)',
       pcs: ['C', 'Eb', 'Gb', 'A', 'Ab'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.diminished7,
@@ -551,6 +588,7 @@ void main() {
     ),
     golden(
       name: 'C Eb Gb A Db -> Cdim7(b9)',
+      expectedSymbol: 'Cdim7(b9)',
       pcs: ['C', 'Eb', 'Gb', 'A', 'Db'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.diminished7,
@@ -564,6 +602,7 @@ void main() {
     // In F# major (6 sharps), we should prefer E# over F for the leading tone triad.
     golden(
       name: 'E# G# B --key=F#:maj -> E#dim',
+      expectedSymbol: 'E#dim',
       pcs: ['E#', 'G#', 'B'],
       tonality: const Tonality('F#', TonalityMode.major),
       expectedRoot: 'E#',
@@ -573,6 +612,7 @@ void main() {
     // In Cb major (7 flats), we should prefer Fb over E for the subdominant chord.
     golden(
       name: 'Fb Ab Cb --key=Cb:maj -> Fb',
+      expectedSymbol: 'Fb',
       pcs: ['Fb', 'Ab', 'Cb'],
       tonality: const Tonality('Cb', TonalityMode.major),
       expectedRoot: 'Fb',
@@ -586,6 +626,7 @@ void main() {
     // Diminished context: interpret Gb as b5 (not F# as #11) when structure supports dim.
     golden(
       name: 'Gb C Eb -> Cdim / Gb',
+      expectedSymbol: 'Cdim / Gb',
       pcs: ['Gb', 'C', 'Eb'],
       tonality: const Tonality('D', TonalityMode.major), // sharp-leaning
       expectedRoot: 'C',
@@ -596,6 +637,7 @@ void main() {
     // Complete flat-five dominant sevenths should use the core b5 quality.
     golden(
       name: 'F# C E Bb -> Gb7b5',
+      expectedSymbol: 'Gb7b5',
       pcs: ['F#', 'C', 'E', 'Bb'],
       tonality: const Tonality('Db', TonalityMode.major), // flat-leaning
       expectedRoot: 'F#',
@@ -610,6 +652,7 @@ void main() {
     // Minor-major 7 shell (no fifth).
     golden(
       name: 'C Eb B -> Cm(maj7)',
+      expectedSymbol: 'Cm(maj7)',
       pcs: ['C', 'Eb', 'B'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.minorMajor7,
@@ -619,8 +662,8 @@ void main() {
     // than prefer a remote major7#5(add11) slash interpretation.
     golden(
       name: 'Ab B C E F -> Fm(maj7)#11 / Ab',
-      pcs: ['Ab', 'B', 'C', 'E', 'F'],
       expectedSymbol: 'Fm(maj7)#11 / Ab',
+      pcs: ['Ab', 'B', 'C', 'E', 'F'],
       expectedRoot: 'F',
       expectedQuality: ChordQualityToken.minorMajor7,
       expectedExtensions: {ChordExtension.sharp11},
@@ -663,17 +706,18 @@ void main() {
         notation: testNotation,
       ).toString();
 
-      final expectedSymbol =
-          c.expectedSymbol ?? expectedSymbolFromCaseName(c.name);
-
-      expect(actualSymbol, expectedSymbol, reason: 'Rendered symbol mismatch');
+      expect(
+        actualSymbol,
+        c.expectedSymbol,
+        reason: 'Rendered symbol mismatch',
+      );
 
       try {
         expectTopIdentity(top, c);
       } on TestFailure catch (e) {
         fail(
           [
-            'Expected chord: $expectedSymbol',
+            'Expected chord: ${c.expectedSymbol}',
             '  Actual chord: $actualSymbol',
             '      Tonality: ${tonality.tonic} ${tonality.mode.name}',
             '         Notes: ${c.pcs.join(" ")}',
