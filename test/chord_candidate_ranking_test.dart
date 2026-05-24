@@ -2,27 +2,25 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:whatchord/features/theory/domain/theory_domain.dart';
 
+import 'helpers/theory_test_helpers.dart';
+
 void main() {
   test('altered dominant7 beats dim7 slash outside the near-tie window', () {
-    final dominant = ChordCandidate(
-      identity: _identity(
-        quality: ChordQualityToken.dominant7,
-        rootPc: 0,
-        bassPc: 0,
-        presentIntervals: const {0, 1, 4, 10},
-        extensions: const {ChordExtension.flat9},
-      ),
+    final dominant = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'C',
+      bass: 'C',
+      presentIntervals: const {0, 1, 4, 10},
+      extensions: const {ChordExtension.flat9},
       score: 1,
     );
 
-    final diminishedSlash = ChordCandidate(
-      identity: _identity(
-        quality: ChordQualityToken.diminished7,
-        rootPc: 10,
-        bassPc: 0,
-        presentIntervals: const {0, 2, 3, 6, 9},
-        extensions: const {ChordExtension.nine},
-      ),
+    final diminishedSlash = _candidate(
+      quality: ChordQualityToken.diminished7,
+      root: 'Bb',
+      bass: 'C',
+      presentIntervals: const {0, 2, 3, 6, 9},
+      extensions: const {ChordExtension.nine},
       // Intentionally outside the near-tie window in the other direction.
       score: 10,
     );
@@ -35,25 +33,21 @@ void main() {
   });
 
   test('conventional altered seventh beats non-dominant add11 slash', () {
-    final conventional = ChordCandidate(
-      identity: _identity(
-        quality: ChordQualityToken.minorMajor7,
-        rootPc: 5,
-        bassPc: 8,
-        presentIntervals: const {0, 3, 6, 7, 11},
-        extensions: const {ChordExtension.sharp11},
-      ),
+    final conventional = _candidate(
+      quality: ChordQualityToken.minorMajor7,
+      root: 'F',
+      bass: 'Ab',
+      presentIntervals: const {0, 3, 6, 7, 11},
+      extensions: const {ChordExtension.sharp11},
       score: 9.6,
     );
 
-    final add11Slash = ChordCandidate(
-      identity: _identity(
-        quality: ChordQualityToken.major7Sharp5,
-        rootPc: 0,
-        bassPc: 8,
-        presentIntervals: const {0, 4, 5, 8, 11},
-        extensions: const {ChordExtension.add11},
-      ),
+    final add11Slash = _candidate(
+      quality: ChordQualityToken.major7Sharp5,
+      root: 'C',
+      bass: 'Ab',
+      presentIntervals: const {0, 4, 5, 8, 11},
+      extensions: const {ChordExtension.add11},
       score: 10,
     );
 
@@ -65,25 +59,21 @@ void main() {
   });
 
   test('complete minor sharp11 beats altered major7sus4', () {
-    final minorSharp11 = ChordCandidate(
-      identity: _identity(
-        quality: ChordQualityToken.minor,
-        rootPc: 9,
-        bassPc: 4,
-        presentIntervals: const {0, 3, 6, 7},
-        extensions: const {ChordExtension.sharp11},
-      ),
+    final minorSharp11 = _candidate(
+      quality: ChordQualityToken.minor,
+      root: 'A',
+      bass: 'E',
+      presentIntervals: const {0, 3, 6, 7},
+      extensions: const {ChordExtension.sharp11},
       score: 9.65,
     );
 
-    final alteredSus = ChordCandidate(
-      identity: _identity(
-        quality: ChordQualityToken.major7sus4,
-        rootPc: 4,
-        bassPc: 4,
-        presentIntervals: const {0, 5, 8, 11},
-        extensions: const {ChordExtension.flat13},
-      ),
+    final alteredSus = _candidate(
+      quality: ChordQualityToken.major7sus4,
+      root: 'E',
+      bass: 'E',
+      presentIntervals: const {0, 5, 8, 11},
+      extensions: const {ChordExtension.flat13},
       score: 10,
     );
 
@@ -95,28 +85,24 @@ void main() {
   });
 
   test('root-position dominant7 beats close non-dominant slash', () {
-    final dominant = ChordCandidate(
-      identity: _identity(
-        quality: ChordQualityToken.dominant7,
-        rootPc: 0,
-        bassPc: 0,
-        presentIntervals: const {0, 1, 4, 6, 8, 10},
-        extensions: const {
-          ChordExtension.flat9,
-          ChordExtension.sharp11,
-          ChordExtension.flat13,
-        },
-      ),
+    final dominant = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'C',
+      bass: 'C',
+      presentIntervals: const {0, 1, 4, 6, 8, 10},
+      extensions: const {
+        ChordExtension.flat9,
+        ChordExtension.sharp11,
+        ChordExtension.flat13,
+      },
       score: 9.79,
     );
 
-    final remoteSlash = ChordCandidate(
-      identity: _identity(
-        quality: ChordQualityToken.minorMajor7,
-        rootPc: 1,
-        bassPc: 0,
-        presentIntervals: const {0, 3, 7, 11},
-      ),
+    final remoteSlash = _candidate(
+      quality: ChordQualityToken.minorMajor7,
+      root: 'Db',
+      bass: 'C',
+      presentIntervals: const {0, 3, 7, 11},
       score: 10,
     );
 
@@ -128,25 +114,21 @@ void main() {
   });
 
   test('root-position altered-fifth dominant beats close slash reading', () {
-    final rootPosition = ChordCandidate(
-      identity: _identity(
-        quality: ChordQualityToken.dominant7Flat5,
-        rootPc: 0,
-        bassPc: 0,
-        presentIntervals: const {0, 3, 4, 6, 10},
-        extensions: const {ChordExtension.sharp9},
-      ),
+    final rootPosition = _candidate(
+      quality: ChordQualityToken.dominant7Flat5,
+      root: 'C',
+      bass: 'C',
+      presentIntervals: const {0, 3, 4, 6, 10},
+      extensions: const {ChordExtension.sharp9},
       score: 9.6,
     );
 
-    final slash = ChordCandidate(
-      identity: _identity(
-        quality: ChordQualityToken.dominant7Flat5,
-        rootPc: 6,
-        bassPc: 0,
-        presentIntervals: const {0, 2, 4, 6, 10},
-        extensions: const {ChordExtension.nine},
-      ),
+    final slash = _candidate(
+      quality: ChordQualityToken.dominant7Flat5,
+      root: 'F#',
+      bass: 'C',
+      presentIntervals: const {0, 2, 4, 6, 10},
+      extensions: const {ChordExtension.nine},
       score: 10,
     );
 
@@ -160,25 +142,21 @@ void main() {
   test(
     'root-position extended dominant beats altered-fifth slash near-tie',
     () {
-      final rootPosition = ChordCandidate(
-        identity: _identity(
-          quality: ChordQualityToken.dominant7,
-          rootPc: 0,
-          bassPc: 0,
-          presentIntervals: const {0, 2, 4, 6, 7, 10},
-          extensions: const {ChordExtension.nine, ChordExtension.sharp11},
-        ),
+      final rootPosition = _candidate(
+        quality: ChordQualityToken.dominant7,
+        root: 'C',
+        bass: 'C',
+        presentIntervals: const {0, 2, 4, 6, 7, 10},
+        extensions: const {ChordExtension.nine, ChordExtension.sharp11},
         score: 7.91,
       );
 
-      final slash = ChordCandidate(
-        identity: _identity(
-          quality: ChordQualityToken.dominant7Sharp5,
-          rootPc: 2,
-          bassPc: 0,
-          presentIntervals: const {0, 2, 4, 5, 8, 10},
-          extensions: const {ChordExtension.nine, ChordExtension.eleven},
-        ),
+      final slash = _candidate(
+        quality: ChordQualityToken.dominant7Sharp5,
+        root: 'D',
+        bass: 'C',
+        presentIntervals: const {0, 2, 4, 5, 8, 10},
+        extensions: const {ChordExtension.nine, ChordExtension.eleven},
         score: 8,
       );
 
@@ -191,23 +169,19 @@ void main() {
   );
 
   test('complete triad beats incomplete inverted 6th in a near-tie', () {
-    final completeTriad = ChordCandidate(
-      identity: _identity(
-        quality: ChordQualityToken.minor,
-        rootPc: 4,
-        bassPc: 11,
-        presentIntervals: const {0, 3, 7},
-      ),
+    final completeTriad = _candidate(
+      quality: ChordQualityToken.minor,
+      root: 'E',
+      bass: 'B',
+      presentIntervals: const {0, 3, 7},
       score: 7.42,
     );
 
-    final incompleteSixth = ChordCandidate(
-      identity: _identity(
-        quality: ChordQualityToken.major6,
-        rootPc: 7,
-        bassPc: 11,
-        presentIntervals: const {0, 4, 9},
-      ),
+    final incompleteSixth = _candidate(
+      quality: ChordQualityToken.major6,
+      root: 'G',
+      bass: 'B',
+      presentIntervals: const {0, 4, 9},
       score: 7.50,
     );
 
@@ -270,6 +244,26 @@ void _expectTieRule(
   expect(
     explanation.scoreDelta.abs(),
     lessThanOrEqualTo(ChordCandidateRanking.nearTieWindow),
+  );
+}
+
+ChordCandidate _candidate({
+  required ChordQualityToken quality,
+  required String root,
+  required String bass,
+  required Set<int> presentIntervals,
+  required double score,
+  Set<ChordExtension> extensions = const {},
+}) {
+  return ChordCandidate(
+    identity: _identity(
+      quality: quality,
+      rootPc: pc(root),
+      bassPc: pc(bass),
+      presentIntervals: presentIntervals,
+      extensions: extensions,
+    ),
+    score: score,
   );
 }
 
