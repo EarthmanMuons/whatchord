@@ -51,7 +51,10 @@ class ExploreSummary extends ConsumerWidget {
       _ExploreCopyChoice(
         title: 'Harte notation',
         icon: Icons.data_object,
-        value: HarteChordFormatter.format(presentation.identity),
+        value: HarteChordFormatter.format(
+          presentation.identity,
+          rootName: presentation.symbol.root,
+        ),
         copiedLabel: 'Harte notation',
       ),
     ];

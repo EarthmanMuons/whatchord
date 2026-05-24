@@ -74,6 +74,17 @@ void main() {
     expect(HarteChordFormatter.format(identity), 'Eb:min9/5');
   });
 
+  test('preserves an explicit enharmonic root spelling', () {
+    final identity = _identity(
+      root: 'C#',
+      quality: ChordQualityToken.minor,
+      intervals: const [0, 3, 7],
+    );
+
+    expect(HarteChordFormatter.format(identity, rootName: 'C#'), 'C#:min');
+    expect(HarteChordFormatter.format(identity, rootName: 'Db'), 'Db:min');
+  });
+
   test('keeps suspended fourth as official shorthand with extra degrees', () {
     final identity = _identity(
       root: 'Bb',

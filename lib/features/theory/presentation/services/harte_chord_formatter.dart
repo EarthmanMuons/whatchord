@@ -7,8 +7,8 @@ import '../../domain/theory_domain.dart';
 /// The formatter uses official shorthand labels when their component set is
 /// present, and writes unsupported chord types as explicit degree lists.
 abstract final class HarteChordFormatter {
-  static String format(ChordIdentity identity) {
-    final root = _rootName(identity.rootPc);
+  static String format(ChordIdentity identity, {String? rootName}) {
+    final root = _rootName(identity.rootPc, preferredName: rootName);
     final degrees = _degrees(identity);
     final body = _body(degrees);
     final bass = _bass(identity);
@@ -119,7 +119,12 @@ abstract final class HarteChordFormatter {
     };
   }
 
-  static String _rootName(int pc) {
+  static String _rootName(int pc, {String? preferredName}) {
+    if (preferredName != null &&
+        pitchClassFromNoteName(preferredName) == pc % 12) {
+      return normalizeNoteNameToAscii(preferredName);
+    }
+
     return switch (pc % 12) {
       0 => 'C',
       1 => 'Db',
