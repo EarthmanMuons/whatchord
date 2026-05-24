@@ -627,12 +627,14 @@ String _plainDecision(
   final sentence = switch (rule) {
     'score outside near-tie window' => 'its fit score was clearly stronger.',
     'prefer root-position 6th over inverted 7th' =>
-      'the sixth-chord name is in root position, while the seventh-chord reading is inverted.',
+      'the sixth-chord name is in root position, while the alternate reading puts another chord over a non-root bass.',
     'prefer complete triad over incomplete inverted 6th' =>
       'a complete triad is clearer than an incomplete inverted sixth chord.',
     'prefer upper-structure dominant7 slash' => _upperStructureDominantReason(
       winner,
     ),
+    'prefer root-position extended dominant over altered-fifth slash' =>
+      'the root-position dominant name aligns the bass, seventh shell, and upper extensions more naturally than an inverted altered-fifth reading.',
     'prefer root-position diminished7' =>
       'the diminished seventh is clearest when the bass is named as the root.',
     'prefer dominant7 over dim7 slash' ||
@@ -648,13 +650,14 @@ String _plainDecision(
       'natural extensions give a cleaner chord name than added-tone spellings.',
     'prefer root position' => 'its bass is the chord root.',
     'prefer 1st inversion over 2nd inversion' =>
-      'its bass is a more stable chord tone for this inversion.',
+      'its bass note is a more stable chord tone.',
     'prefer 7th chords over triads' =>
       'the seventh-chord reading explains more of the voicing.',
     'prefer fewer extensions' => 'it needs fewer extensions.',
-    'avoid suspended chords' => 'it avoids a suspended-chord name here.',
+    'avoid suspended chords' =>
+      'a chord with a clear third is a more specific match than a suspended reading.',
     'prefer close root-position dominant7 over non-dominant slash' =>
-      'a close root-position dominant seventh is clearer than a remote slash-chord reading.',
+      'a root-position dominant seventh is clearer than the alternative slash-chord name for these notes.',
     'prefer root-position altered-fifth dominant over slash' =>
       'the root-position altered dominant name is clearer than the slash reading.',
     'prefer conventional altered seventh over add11 slash' =>
@@ -662,7 +665,7 @@ String _plainDecision(
     'prefer complete minor sharp11 over altered maj7sus4' =>
       'the complete minor sharp-eleven reading is clearer than the altered suspended reading.',
     'deterministic fallback: rootPc' =>
-      'the remaining options were effectively tied, so the stable fallback order was used.',
+      'these interpretations were essentially equivalent, so the app chose a consistent spelling.',
     _ => 'the ranking rules made it the clearest name for this voicing.',
   };
 
@@ -672,7 +675,7 @@ String _plainDecision(
 
 String _upperStructureDominantReason(ChordCandidate? winner) {
   if (winner?.identity.hasSlashBass ?? false) {
-    return 'the slash bass reads as an intentional dominant color tone.';
+    return 'the bass note sounds like an intentional color note rather than a separate chord root.';
   }
 
   return 'the root-position dominant reading is clearer than the slash-bass alternative.';
