@@ -25,6 +25,17 @@ void main() {
       ),
       'C:dim7',
     );
+
+    expect(
+      HarteChordFormatter.format(
+        _identity(
+          root: 'C',
+          quality: ChordQualityToken.minor7Sharp5,
+          intervals: const [0, 3, 8, 10],
+        ),
+      ),
+      'C:min7(#5)',
+    );
   });
 
   test('adds extra degrees to official shorthands', () {

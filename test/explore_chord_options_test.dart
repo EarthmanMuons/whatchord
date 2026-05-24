@@ -65,6 +65,44 @@ void main() {
       expect(majorFlatFive, ChordQualityToken.major7Flat5);
     });
 
+    test('allows sharp-five choices for minor and minor seventh qualities', () {
+      expect(
+        availableFifthAlterationsFor(
+          baseQuality: ExploreBaseQuality.minor,
+          seventhKind: ExploreSeventhKind.none,
+        ),
+        [ExploreFifthAlteration.natural, ExploreFifthAlteration.sharp],
+      );
+      expect(
+        availableFifthAlterationsFor(
+          baseQuality: ExploreBaseQuality.minor,
+          seventhKind: ExploreSeventhKind.minor7,
+        ),
+        [ExploreFifthAlteration.natural, ExploreFifthAlteration.sharp],
+      );
+      expect(
+        availableFifthAlterationsFor(
+          baseQuality: ExploreBaseQuality.minor,
+          seventhKind: ExploreSeventhKind.minorMajor7,
+        ),
+        [ExploreFifthAlteration.natural],
+      );
+
+      final minorSharpFive = ExploreChordSpec(
+        baseQuality: ExploreBaseQuality.minor,
+        seventhKind: ExploreSeventhKind.none,
+        fifthAlteration: ExploreFifthAlteration.sharp,
+      ).quality;
+      final minor7SharpFive = ExploreChordSpec(
+        baseQuality: ExploreBaseQuality.minor,
+        seventhKind: ExploreSeventhKind.minor7,
+        fifthAlteration: ExploreFifthAlteration.sharp,
+      ).quality;
+
+      expect(minorSharpFive, ChordQualityToken.minorSharp5);
+      expect(minor7SharpFive, ChordQualityToken.minor7Sharp5);
+    });
+
     test('keeps augmented quality triad-only', () {
       expect(availableSeventhKindsFor(ExploreBaseQuality.augmented), [
         ExploreSeventhKind.none,

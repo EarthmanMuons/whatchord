@@ -112,6 +112,7 @@ class ChordQualityFormatter {
       case ChordQualityToken.major7Flat5:
       case ChordQualityToken.major7Sharp5:
       case ChordQualityToken.minor7:
+      case ChordQualityToken.minor7Sharp5:
       case ChordQualityToken.minorMajor7:
       case ChordQualityToken.halfDiminished7:
         return true;

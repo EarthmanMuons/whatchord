@@ -104,7 +104,17 @@ void main() {
     // Major / dominant / extended tertian harmony
     // -------------------------------------------------------------------------
 
-    // Major triad with an added 9 should not collapse to sus.
+    // Plain major triad should not be displaced by remote m#5.
+    golden(
+      name: 'C E G -> C',
+      pcs: ['C', 'E', 'G'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.major);
+      },
+    ),
+
+    // Major triad with an added 9 should not be displaced by remote m7#5.
     golden(
       name: 'C E G D -> Cadd9',
       pcs: ['C', 'E', 'G', 'D'],
@@ -419,6 +429,28 @@ void main() {
       expectTop: (top) {
         expect(top.rootPc, pc('C'));
         expect(top.quality, ChordQualityToken.dominant7Sharp5);
+        expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
+      },
+    ),
+
+    // Minor sharp 5 should treat the augmented fifth as a core tone.
+    golden(
+      name: 'C Eb G# -> Cm#5',
+      pcs: ['C', 'Eb', 'G#'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.minorSharp5);
+        expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
+      },
+    ),
+
+    // Minor 7 sharp 5 should treat the augmented fifth as a core tone.
+    golden(
+      name: 'C Eb G# Bb -> Cm7#5',
+      pcs: ['C', 'Eb', 'G#', 'Bb'],
+      expectTop: (top) {
+        expect(top.rootPc, pc('C'));
+        expect(top.quality, ChordQualityToken.minor7Sharp5);
         expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
       },
     ),

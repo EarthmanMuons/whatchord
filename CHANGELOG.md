@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added analysis and Explore Chords support for minor sharp-five and minor
+  seventh sharp-five chords.
+
 ### Fixed
 
 - Fixed a couple of "Why This Chord?" ranking explanations so close alternatives
