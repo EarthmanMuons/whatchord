@@ -283,7 +283,7 @@
             </li>
           </ul>
 
-          <p>The 22 templates, organized by complexity:</p>
+          <p>The 24 templates, organized by complexity:</p>
 
           <table class="score-table">
             <thead>
@@ -306,6 +306,12 @@
                 <td class="mono">R, m3</td>
                 <td class="mono">P5</td>
                 <td class="mono">M3, m7, M7</td>
+              </tr>
+              <tr>
+                <td>Minor ♯5</td>
+                <td class="mono">R, m3, ♯5</td>
+                <td>—</td>
+                <td class="mono">M3, P5, m7, M7</td>
               </tr>
               <tr>
                 <td>Diminished</td>
@@ -410,6 +416,12 @@
                 <td class="mono">M7, M3</td>
               </tr>
               <tr>
+                <td>Minor 7♯5</td>
+                <td class="mono">R, m3, ♯5, m7</td>
+                <td>—</td>
+                <td class="mono">P5, M7, M3</td>
+              </tr>
+              <tr>
                 <td>Minor-Major 7</td>
                 <td class="mono">R, m3, M7</td>
                 <td class="mono">P5</td>
@@ -450,7 +462,7 @@
             For each candidate root (each pitch class present in the voicing),
             the analyzer rotates the pitch class mask relative to that root to
             get an interval mask. Then it scores that interval mask against all
-            22 templates.
+            24 templates.
           </p>
 
           <pre><code><span class="cm">// Rotate: compute intervals above rootPc for each sounding note</span>
@@ -819,8 +831,8 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
           <h2>Caching for real-time performance</h2>
 
           <p>
-            Running the full pipeline (up to 12 candidate roots × 22 templates =
-            264 template evaluations) on every MIDI state change would be
+            Running the full pipeline (up to 12 candidate roots × 24 templates =
+            288 template evaluations) on every MIDI state change would be
             wasteful. In practice, a pianist tends to produce many repeated
             input states throughout a musical piece.
           </p>

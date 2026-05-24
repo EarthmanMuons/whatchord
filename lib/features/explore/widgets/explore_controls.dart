@@ -81,23 +81,18 @@ class ExploreControls extends StatelessWidget {
                   onChanged: onBaseQualityChanged,
                 ),
               ),
-              if (seventhKindChoices.length > 1)
+              if (seventhKindChoices.length > 1 ||
+                  fifthAlterationChoices.length > 1)
                 SizedBox(
                   width: controlWidth,
-                  child: _SeventhKindSelector(
+                  child: _CoreTonesSelector(
                     baseQuality: state.baseQuality,
-                    value: state.seventhKind,
-                    choices: seventhKindChoices,
-                    onChanged: onSeventhKindChanged,
-                  ),
-                ),
-              if (fifthAlterationChoices.length > 1)
-                SizedBox(
-                  width: controlWidth,
-                  child: _FifthAlterationSelector(
-                    value: state.fifthAlteration,
-                    choices: fifthAlterationChoices,
-                    onChanged: onFifthAlterationChanged,
+                    seventhKind: state.seventhKind,
+                    seventhKindChoices: seventhKindChoices,
+                    fifthAlteration: state.fifthAlteration,
+                    fifthAlterationChoices: fifthAlterationChoices,
+                    onSeventhKindChanged: onSeventhKindChanged,
+                    onFifthAlterationChanged: onFifthAlterationChanged,
                   ),
                 ),
               SizedBox(
@@ -233,95 +228,134 @@ class _BaseQualitySelector extends StatelessWidget {
   }
 }
 
-class _SeventhKindSelector extends StatelessWidget {
-  const _SeventhKindSelector({
+class _CoreTonesSelector extends StatelessWidget {
+  const _CoreTonesSelector({
     required this.baseQuality,
-    required this.value,
-    required this.choices,
-    required this.onChanged,
+    required this.seventhKind,
+    required this.seventhKindChoices,
+    required this.fifthAlteration,
+    required this.fifthAlterationChoices,
+    required this.onSeventhKindChanged,
+    required this.onFifthAlterationChanged,
   });
 
   final ExploreBaseQuality baseQuality;
-  final ExploreSeventhKind value;
-  final List<ExploreSeventhKind> choices;
-  final ValueChanged<ExploreSeventhKind> onChanged;
+  final ExploreSeventhKind seventhKind;
+  final List<ExploreSeventhKind> seventhKindChoices;
+  final ExploreFifthAlteration fifthAlteration;
+  final List<ExploreFifthAlteration> fifthAlterationChoices;
+  final ValueChanged<ExploreSeventhKind> onSeventhKindChanged;
+  final ValueChanged<ExploreFifthAlteration> onFifthAlterationChanged;
 
   @override
   Widget build(BuildContext context) {
-    final selectedIndex = _selectedIndex();
+    final showFifth = fifthAlterationChoices.length > 1;
+    final showSeventh = seventhKindChoices.length > 1;
+    final fifthIndex = _selectedIndex(fifthAlterationChoices, fifthAlteration);
+    final seventhIndex = _selectedIndex(seventhKindChoices, seventhKind);
 
     return Semantics(
       container: true,
-      label: 'Sixth / Seventh',
-      value: _seventhKindSemanticLabel(choices[selectedIndex]),
+      label: 'Core tones',
       child: InputDecorator(
         decoration: const InputDecoration(
-          labelText: 'Sixth / Seventh',
+          labelText: 'Core Tones',
           border: OutlineInputBorder(),
         ),
-        child: _ExploreSegmentedChoiceGroup(
-          labels: [
-            for (final choice in choices)
-              theoryTokenDisplayLabel(_seventhKindLabel(choice, baseQuality)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (showFifth)
+              _CoreToneSegmentedControl(
+                label: 'Fifth',
+                value: _fifthAlterationSemanticLabel(
+                  fifthAlterationChoices[fifthIndex],
+                ),
+                labels: [
+                  for (final choice in fifthAlterationChoices)
+                    theoryTokenDisplayLabel(_fifthAlterationLabel(choice)),
+                ],
+                semanticLabels: [
+                  for (final choice in fifthAlterationChoices)
+                    _fifthAlterationSemanticLabel(choice),
+                ],
+                selectedIndex: fifthIndex,
+                onSelected: (index) =>
+                    onFifthAlterationChanged(fifthAlterationChoices[index]),
+              ),
+            if (showFifth && showSeventh) const SizedBox(height: 12),
+            if (showSeventh)
+              _CoreToneSegmentedControl(
+                label: 'Sixth / Seventh',
+                value: _seventhKindSemanticLabel(
+                  seventhKindChoices[seventhIndex],
+                ),
+                labels: [
+                  for (final choice in seventhKindChoices)
+                    theoryTokenDisplayLabel(
+                      _seventhKindLabel(choice, baseQuality),
+                    ),
+                ],
+                semanticLabels: [
+                  for (final choice in seventhKindChoices)
+                    _seventhKindSemanticLabel(choice),
+                ],
+                selectedIndex: seventhIndex,
+                onSelected: (index) =>
+                    onSeventhKindChanged(seventhKindChoices[index]),
+              ),
           ],
-          semanticLabels: [
-            for (final choice in choices) _seventhKindSemanticLabel(choice),
-          ],
-          selectedIndex: selectedIndex,
-          onSelected: (index) => onChanged(choices[index]),
         ),
       ),
     );
   }
 
-  int _selectedIndex() {
+  int _selectedIndex<T>(List<T> choices, T value) {
     final index = choices.indexOf(value);
     return index < 0 ? 0 : index;
   }
 }
 
-class _FifthAlterationSelector extends StatelessWidget {
-  const _FifthAlterationSelector({
+class _CoreToneSegmentedControl extends StatelessWidget {
+  const _CoreToneSegmentedControl({
+    required this.label,
     required this.value,
-    required this.choices,
-    required this.onChanged,
+    required this.labels,
+    required this.semanticLabels,
+    required this.selectedIndex,
+    required this.onSelected,
   });
 
-  final ExploreFifthAlteration value;
-  final List<ExploreFifthAlteration> choices;
-  final ValueChanged<ExploreFifthAlteration> onChanged;
+  final String label;
+  final String value;
+  final List<String> labels;
+  final List<String> semanticLabels;
+  final int selectedIndex;
+  final ValueChanged<int> onSelected;
 
   @override
   Widget build(BuildContext context) {
-    final selectedIndex = _selectedIndex();
+    final textTheme = Theme.of(context).textTheme;
 
     return Semantics(
       container: true,
-      label: 'Fifth',
-      value: _fifthAlterationSemanticLabel(choices[selectedIndex]),
-      child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Fifth',
-          border: OutlineInputBorder(),
-        ),
-        child: _ExploreSegmentedChoiceGroup(
-          labels: [
-            for (final choice in choices)
-              theoryTokenDisplayLabel(_fifthAlterationLabel(choice)),
-          ],
-          semanticLabels: [
-            for (final choice in choices) _fifthAlterationSemanticLabel(choice),
-          ],
-          selectedIndex: selectedIndex,
-          onSelected: (index) => onChanged(choices[index]),
-        ),
+      label: label,
+      value: value,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: textTheme.labelMedium),
+          const SizedBox(height: 6),
+          _ExploreSegmentedChoiceGroup(
+            labels: labels,
+            semanticLabels: semanticLabels,
+            selectedIndex: selectedIndex,
+            onSelected: onSelected,
+          ),
+        ],
       ),
     );
-  }
-
-  int _selectedIndex() {
-    final index = choices.indexOf(value);
-    return index < 0 ? 0 : index;
   }
 }
 

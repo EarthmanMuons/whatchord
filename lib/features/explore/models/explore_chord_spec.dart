@@ -37,6 +37,11 @@ class ExploreChordSpec {
         seventhKind: ExploreSeventhKind.none,
         fifthAlteration: ExploreFifthAlteration.natural,
       ),
+      ChordQualityToken.minorSharp5 => const ExploreChordSpec(
+        baseQuality: ExploreBaseQuality.minor,
+        seventhKind: ExploreSeventhKind.none,
+        fifthAlteration: ExploreFifthAlteration.sharp,
+      ),
       ChordQualityToken.diminished => const ExploreChordSpec(
         baseQuality: ExploreBaseQuality.diminished,
         seventhKind: ExploreSeventhKind.none,
@@ -121,6 +126,11 @@ class ExploreChordSpec {
         baseQuality: ExploreBaseQuality.minor,
         seventhKind: ExploreSeventhKind.minor7,
         fifthAlteration: ExploreFifthAlteration.natural,
+      ),
+      ChordQualityToken.minor7Sharp5 => const ExploreChordSpec(
+        baseQuality: ExploreBaseQuality.minor,
+        seventhKind: ExploreSeventhKind.minor7,
+        fifthAlteration: ExploreFifthAlteration.sharp,
       ),
       ChordQualityToken.minorMajor7 => const ExploreChordSpec(
         baseQuality: ExploreBaseQuality.minor,
@@ -241,6 +251,10 @@ List<ExploreFifthAlteration> availableFifthAlterationsFor({
         ExploreFifthAlteration.sharp,
       ],
     ExploreBaseQuality.major => const [ExploreFifthAlteration.natural],
+    ExploreBaseQuality.minor
+        when seventhKind == ExploreSeventhKind.none ||
+            seventhKind == ExploreSeventhKind.minor7 =>
+      const [ExploreFifthAlteration.natural, ExploreFifthAlteration.sharp],
     ExploreBaseQuality.minor => const [ExploreFifthAlteration.natural],
     ExploreBaseQuality.diminished => const [ExploreFifthAlteration.flat],
     ExploreBaseQuality.augmented => const [ExploreFifthAlteration.sharp],
@@ -271,7 +285,9 @@ ChordQualityToken _qualityFromSpec({
     return ChordQualityToken.diminished7;
   }
   if (seventhKind == ExploreSeventhKind.minor7) {
-    return ChordQualityToken.minor7;
+    return fifthAlteration == ExploreFifthAlteration.sharp
+        ? ChordQualityToken.minor7Sharp5
+        : ChordQualityToken.minor7;
   }
   if (seventhKind == ExploreSeventhKind.minorMajor7) {
     return ChordQualityToken.minorMajor7;
@@ -310,6 +326,12 @@ ChordQualityToken _qualityFromSpec({
       ChordQualityToken.major7Sharp5,
     (ExploreBaseQuality.major, ExploreSeventhKind.major7, _) =>
       ChordQualityToken.major7,
+    (
+      ExploreBaseQuality.minor,
+      ExploreSeventhKind.none,
+      ExploreFifthAlteration.sharp,
+    ) =>
+      ChordQualityToken.minorSharp5,
     (ExploreBaseQuality.minor, ExploreSeventhKind.none, _) =>
       ChordQualityToken.minor,
     (ExploreBaseQuality.minor, ExploreSeventhKind.sixth, _) =>

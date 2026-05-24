@@ -99,6 +99,19 @@ final chordTemplates = <ChordTemplate>[
         (1 << majorSeventhInterval),
   ),
 
+  // Minor sharp 5: R + m3 + #5
+  // - m3 + #5 define the altered minor color
+  // - No optional tones; the altered fifth is the distinguishing tone
+  // - Penalty: M3, P5, b7, M7 (would suggest other minor/seventh qualities)
+  ChordTemplate.fromIntervals(
+    ChordQualityToken.minorSharp5.intervals,
+    penaltyMask:
+        (1 << majorThirdInterval) |
+        (1 << perfectFifthInterval) |
+        (1 << minorSeventhInterval) |
+        (1 << majorSeventhInterval),
+  ),
+
   // Diminished triad: R + m3 + b5
   // - m3 + b5 define diminished quality
   // - No optional tones (tight structure)
@@ -289,6 +302,17 @@ final chordTemplates = <ChordTemplate>[
   ChordTemplate.fromIntervals(
     ChordQualityToken.minor7.intervals,
     penaltyMask: (1 << majorSeventhInterval) | (1 << majorThirdInterval),
+  ),
+
+  // Minor 7 sharp 5: R + m3 + #5 + b7
+  // - Augmented fifth is a defining chord tone, not a b13 color
+  // - Penalty: P5 (would suggest plain minor7), M7, M3
+  ChordTemplate.fromIntervals(
+    ChordQualityToken.minor7Sharp5.intervals,
+    penaltyMask:
+        (1 << perfectFifthInterval) |
+        (1 << majorSeventhInterval) |
+        (1 << majorThirdInterval),
   ),
 
   // Minor-major 7th: R + m3 + (P5) + M7

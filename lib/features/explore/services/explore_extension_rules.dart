@@ -344,6 +344,7 @@ bool _allowsTriadLikeSharp11(ChordQualityToken quality) {
   return switch (quality) {
     ChordQualityToken.major ||
     ChordQualityToken.minor ||
+    ChordQualityToken.minorSharp5 ||
     ChordQualityToken.major6 ||
     ChordQualityToken.minor6 ||
     ChordQualityToken.augmented => true,

@@ -126,6 +126,7 @@ class ChordIdentity {
 enum ChordQualityToken {
   major,
   minor,
+  minorSharp5,
   diminished,
   augmented,
   sus2,
@@ -143,6 +144,7 @@ enum ChordQualityToken {
   major7Flat5,
   major7Sharp5,
   minor7,
+  minor7Sharp5,
   minorMajor7,
   halfDiminished7,
   diminished7,
@@ -164,6 +166,7 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
       case ChordQualityToken.major7Flat5:
       case ChordQualityToken.major7Sharp5:
       case ChordQualityToken.minor7:
+      case ChordQualityToken.minor7Sharp5:
       case ChordQualityToken.minorMajor7:
       case ChordQualityToken.halfDiminished7:
       case ChordQualityToken.diminished7:

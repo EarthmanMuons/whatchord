@@ -332,6 +332,18 @@ abstract final class ChordAnalyzer {
     raw += bassDelta;
     add('bass fit', bassDelta, detail: 'interval=$bassInterval');
 
+    // Minor sharp-five sonorities are real but uncommon. When the bass is the
+    // altered fifth, common add-chord voicings can otherwise be overread as a
+    // remote slash minor-sharp-five chord (for example Cadd9 as Em7#5/C).
+    const minorSharpFiveAlteredFifthBassPenaltyRaw = 3.0;
+    if (_hasMinorSharpFiveAlteredFifthBass(
+      quality: template.quality,
+      bassInterval: bassInterval,
+    )) {
+      raw -= minorSharpFiveAlteredFifthBassPenaltyRaw;
+      add('m#5 bass', -minorSharpFiveAlteredFifthBassPenaltyRaw);
+    }
+
     // Alteration penalty: prefer simpler spellings over altered interpretations.
     //
     // Special case: Fully diminished seventh chords are symmetric (minor-third stacks).
@@ -452,6 +464,16 @@ abstract final class ChordAnalyzer {
     final hasFifth = (relMask & fifthBit) != 0;
 
     return !hasFifth;
+  }
+
+  static bool _hasMinorSharpFiveAlteredFifthBass({
+    required ChordQualityToken quality,
+    required int bassInterval,
+  }) {
+    final isMinorSharpFiveQuality =
+        quality == ChordQualityToken.minorSharp5 ||
+        quality == ChordQualityToken.minor7Sharp5;
+    return isMinorSharpFiveQuality && bassInterval == 8;
   }
 
   static bool _flatFiveConflictsWithNaturalThirteenth({
