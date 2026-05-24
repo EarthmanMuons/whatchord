@@ -6,6 +6,8 @@ import 'package:kiri_check/kiri_check.dart';
 import 'package:whatchord/features/theory/domain/analysis/chord_templates.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
+import 'helpers/theory_test_helpers.dart';
+
 const _supportedExtensionIntervals = <int>[1, 2, 3, 5, 6, 8, 9];
 const _analysisTake = 256;
 
@@ -34,7 +36,9 @@ void main() {
         _generatedChordCaseArbitrary(),
         maxExamples: 200,
         (testCase) {
-          final originalContext = _makeContext(testCase.tonality);
+          final originalContext = makeAnalysisContext(
+            tonality: testCase.tonality,
+          );
           final originalResults = ChordAnalyzer.analyze(
             testCase.input,
             context: originalContext,
@@ -51,7 +55,9 @@ void main() {
             testCase.tonality,
             testCase.transposeBy,
           );
-          final transposedContext = _makeContext(transposedTonality);
+          final transposedContext = makeAnalysisContext(
+            tonality: transposedTonality,
+          );
           final transposedResults = ChordAnalyzer.analyze(
             transposedInput,
             context: transposedContext,
@@ -146,15 +152,6 @@ Arbitrary<_GeneratedChordCase> _generatedChordCaseArbitrary() {
       });
     });
   });
-}
-
-AnalysisContext _makeContext(Tonality tonality) {
-  final keySignature = KeySignature.fromTonality(tonality);
-  return AnalysisContext(
-    tonality: tonality,
-    keySignature: keySignature,
-    spellingPolicy: NoteSpellingPolicy(preferFlats: keySignature.prefersFlats),
-  );
 }
 
 ChordInput _transposeInput(ChordInput input, int semitones) {

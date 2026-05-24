@@ -2,32 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
-AnalysisContext makeContext({
-  Tonality tonality = const Tonality('C', TonalityMode.major),
-  NoteSpellingPolicy? spellingPolicy,
-}) {
-  final ks = KeySignature.fromTonality(tonality);
-  final policy =
-      spellingPolicy ?? NoteSpellingPolicy(preferFlats: ks.prefersFlats);
-
-  return AnalysisContext(
-    tonality: tonality,
-    keySignature: ks,
-    spellingPolicy: policy,
-  );
-}
-
-int pc(String name) => pitchClassFromNoteName(name);
-
-int maskOf(Iterable<int> pcs) {
-  var m = 0;
-  for (final p in pcs) {
-    m |= (1 << (p % 12));
-  }
-  return m;
-}
-
-int maskOfNames(List<String> names) => maskOf(names.map(pc));
+import 'helpers/theory_test_helpers.dart';
 
 class ScaleDegreeCase {
   final String name;
@@ -281,16 +256,13 @@ void main() {
 
   for (final c in cases) {
     test(c.name, () {
-      final bassPc = pc(c.bass ?? c.pcs.first);
-      final count = c.noteCount ?? c.pcs.length;
-
-      final input = ChordInput(
-        pcMask: maskOfNames(c.pcs),
-        bassPc: bassPc,
-        noteCount: count,
+      final input = chordInputFromNames(
+        names: c.pcs,
+        bass: c.bass,
+        noteCount: c.noteCount,
       );
 
-      final ctx = makeContext(tonality: c.tonality);
+      final ctx = makeAnalysisContext(tonality: c.tonality);
       final results = ChordAnalyzer.analyze(input, context: ctx);
 
       expect(results, isNotEmpty, reason: 'No candidates returned');
