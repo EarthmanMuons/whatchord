@@ -440,20 +440,6 @@ void main() {
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.minorMajor7,
     ),
-
-    // -------------------------------------------------------------------------
-    // (Intentionally excluded / future work)
-    // -------------------------------------------------------------------------
-    //
-    // // Minor vs major third contradiction
-    // // This is useful as a "known hard" case, but should remain commented until
-    // // you decide the intended UX and scoring behavior.
-    // golden(
-    //   name: 'C Eb E G -> ???',
-    //   pcs: ['C', 'Eb', 'E', 'G'],
-    //   expectedRoot: 'C',
-    //   expectedQuality: ChordQualityToken.minor,
-    // ),
   ];
 
   runChordAnalyzerGoldenCases(cases);
