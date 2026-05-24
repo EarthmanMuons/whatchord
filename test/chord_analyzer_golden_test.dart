@@ -32,8 +32,26 @@ class GoldenCase {
   /// If omitted, we use the `-> ...` portion of [name] (when present), or [name] itself.
   final String? expectedSymbol;
 
-  /// Additional structural assertions on the winning identity.
-  final void Function(ChordIdentity top) expectTop;
+  /// Expected winning root pitch name.
+  final String? expectedRoot;
+
+  /// Expected winning bass pitch name. Defaults to [bass] when omitted.
+  final String? expectedBass;
+
+  /// Expected winning quality.
+  final ChordQualityToken? expectedQuality;
+
+  /// Extensions that must appear on the winning identity.
+  final Set<ChordExtension> expectedExtensions;
+
+  /// Whether the winning identity must have no extensions.
+  final bool expectNoExtensions;
+
+  /// Extensions that must not appear on the winning identity.
+  final Set<ChordExtension> unexpectedExtensions;
+
+  /// Tone roles that must appear at specific intervals on the winning identity.
+  final Map<int, ChordToneRole> expectedToneRolesByInterval;
 
   const GoldenCase({
     required this.name,
@@ -42,7 +60,13 @@ class GoldenCase {
     this.noteCount,
     this.tonality,
     this.expectedSymbol,
-    required this.expectTop,
+    this.expectedRoot,
+    this.expectedBass,
+    this.expectedQuality,
+    this.expectedExtensions = const {},
+    this.expectNoExtensions = false,
+    this.unexpectedExtensions = const {},
+    this.expectedToneRolesByInterval = const {},
   });
 }
 
@@ -54,7 +78,13 @@ GoldenCase golden({
   int? noteCount,
   Tonality? tonality,
   String? expectedSymbol,
-  required void Function(ChordIdentity top) expectTop,
+  String? expectedRoot,
+  String? expectedBass,
+  ChordQualityToken? expectedQuality,
+  Set<ChordExtension> expectedExtensions = const {},
+  bool expectNoExtensions = false,
+  Set<ChordExtension> unexpectedExtensions = const {},
+  Map<int, ChordToneRole> expectedToneRolesByInterval = const {},
 }) {
   return GoldenCase(
     name: name,
@@ -63,7 +93,13 @@ GoldenCase golden({
     noteCount: noteCount,
     tonality: tonality,
     expectedSymbol: expectedSymbol,
-    expectTop: expectTop,
+    expectedRoot: expectedRoot,
+    expectedBass: expectedBass,
+    expectedQuality: expectedQuality,
+    expectedExtensions: expectedExtensions,
+    expectNoExtensions: expectNoExtensions,
+    unexpectedExtensions: unexpectedExtensions,
+    expectedToneRolesByInterval: expectedToneRolesByInterval,
   );
 }
 
@@ -80,67 +116,54 @@ void main() {
     golden(
       name: 'C E G -> C',
       pcs: ['C', 'E', 'G'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.major);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major,
     ),
 
     // Major triad with an added 9 should not be displaced by remote m7#5.
     golden(
       name: 'C E G D -> Cadd9',
       pcs: ['C', 'E', 'G', 'D'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.major);
-        expect(top.extensions, contains(ChordExtension.add9));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.add9},
     ),
 
     // Straight dominant 7.
     golden(
       name: 'C E G Bb -> C7',
       pcs: ['C', 'E', 'G', 'Bb'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(top.extensions, isEmpty);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectNoExtensions: true,
     ),
 
     // Dominant 9.
     golden(
       name: 'C E G Bb D -> C9',
       pcs: ['C', 'E', 'G', 'Bb', 'D'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(top.extensions, contains(ChordExtension.nine));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine},
     ),
 
     // A lone 11 on a dominant seventh is an added tone, not a true 11th chord.
     golden(
       name: 'C E G Bb F -> C7(add11)',
       pcs: ['C', 'E', 'G', 'Bb', 'F'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(top.extensions, contains(ChordExtension.add11));
-        expect(top.extensions, isNot(contains(ChordExtension.eleven)));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.add11},
+      unexpectedExtensions: {ChordExtension.eleven},
     ),
 
     // A true dominant 11 includes the implied ninth.
     golden(
       name: 'C E G Bb D F -> C11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(top.extensions, contains(ChordExtension.nine));
-        expect(top.extensions, contains(ChordExtension.eleven));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.eleven},
     ),
 
     // Root-position lydian dominant should beat a remote altered-fifth slash
@@ -148,62 +171,39 @@ void main() {
     golden(
       name: 'C E G Bb D F# -> C9#11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F#'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(
-          top.extensions,
-          containsAll(<ChordExtension>[
-            ChordExtension.nine,
-            ChordExtension.sharp11,
-          ]),
-        );
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
     ),
 
     // Major 9.
     golden(
       name: 'C E G B D -> Cmaj9',
       pcs: ['C', 'E', 'G', 'B', 'D'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.major7);
-        expect(top.extensions, contains(ChordExtension.nine));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major7,
+      expectedExtensions: {ChordExtension.nine},
     ),
 
     // 13th (as 7 + 9 + 13).
     golden(
       name: 'C E G Bb D A -> C13',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'A'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(
-          top.extensions,
-          containsAll(<ChordExtension>[
-            ChordExtension.nine,
-            ChordExtension.thirteen,
-          ]),
-        );
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
     ),
 
     // Dominant 13 with a sharp eleventh should beat remote slash reinterpretations.
     golden(
       name: 'C E G Bb D F# A -> C13#11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F#', 'A'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(
-          top.extensions,
-          containsAll(<ChordExtension>[
-            ChordExtension.nine,
-            ChordExtension.sharp11,
-            ChordExtension.thirteen,
-          ]),
-        );
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.nine,
+        ChordExtension.sharp11,
+        ChordExtension.thirteen,
       },
     ),
 
@@ -211,17 +211,12 @@ void main() {
     golden(
       name: 'C E Bb D F# A -> C13#11',
       pcs: ['C', 'E', 'Bb', 'D', 'F#', 'A'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(
-          top.extensions,
-          containsAll(<ChordExtension>[
-            ChordExtension.nine,
-            ChordExtension.sharp11,
-            ChordExtension.thirteen,
-          ]),
-        );
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.nine,
+        ChordExtension.sharp11,
+        ChordExtension.thirteen,
       },
     ),
 
@@ -234,11 +229,9 @@ void main() {
       name: 'C E G Bb D --bass=G -> C9 / G',
       pcs: ['C', 'E', 'G', 'Bb', 'D'],
       bass: 'G',
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.bassPc, pc('G'));
-        expect(top.quality, ChordQualityToken.dominant7);
-      },
+      expectedRoot: 'C',
+      expectedBass: 'G',
+      expectedQuality: ChordQualityToken.dominant7,
     ),
 
     // Complete minor triad with #11 should beat a remote altered maj7sus4 name.
@@ -246,12 +239,10 @@ void main() {
       name: 'E A C D# --bass=E -> Am#11 / E',
       pcs: ['E', 'A', 'C', 'D#'],
       bass: 'E',
-      expectTop: (top) {
-        expect(top.rootPc, pc('A'));
-        expect(top.bassPc, pc('E'));
-        expect(top.quality, ChordQualityToken.minor);
-        expect(top.extensions, contains(ChordExtension.sharp11));
-      },
+      expectedRoot: 'A',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.minor,
+      expectedExtensions: {ChordExtension.sharp11},
     ),
 
     // Major 6 in first inversion.
@@ -259,11 +250,9 @@ void main() {
       name: 'C E G A --bass=E -> C6 / E',
       pcs: ['C', 'E', 'G', 'A'],
       bass: 'E',
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.bassPc, pc('E'));
-        expect(top.quality, ChordQualityToken.major6);
-      },
+      expectedRoot: 'C',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.major6,
     ),
 
     // Complete triad should beat an incomplete inverted 6th reading.
@@ -273,11 +262,9 @@ void main() {
       bass: 'B',
       noteCount: 4,
       tonality: const Tonality('D', TonalityMode.major),
-      expectTop: (top) {
-        expect(top.rootPc, pc('E'));
-        expect(top.bassPc, pc('B'));
-        expect(top.quality, ChordQualityToken.minor);
-      },
+      expectedRoot: 'E',
+      expectedBass: 'B',
+      expectedQuality: ChordQualityToken.minor,
     ),
 
     // Root-position 6(no5) with a doubled root remains a legitimate 6th chord.
@@ -285,11 +272,9 @@ void main() {
       name: 'C E A C -> C6',
       pcs: ['C', 'E', 'A'],
       noteCount: 4,
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.bassPc, pc('C'));
-        expect(top.quality, ChordQualityToken.major6);
-      },
+      expectedRoot: 'C',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.major6,
     ),
 
     // -------------------------------------------------------------------------
@@ -300,56 +285,39 @@ void main() {
     golden(
       name: 'C E G Bb Db -> C7b9',
       pcs: ['C', 'E', 'G', 'Bb', 'Db'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(top.extensions, contains(ChordExtension.flat9));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9},
     ),
 
     // Hendrix chord: dominant shell plus #9 should not be treated as a minor-third penalty.
     golden(
       name: 'G B D F A# -> G7#9',
       pcs: ['G', 'B', 'D', 'F', 'A#'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('G'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(top.extensions, contains(ChordExtension.sharp9));
-      },
+      expectedRoot: 'G',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.sharp9},
     ),
 
     // Dominant b9 + #11.
     golden(
       name: 'C E G Bb Db F# -> C7(b9,#11)',
       pcs: ['C', 'E', 'G', 'Bb', 'Db', 'F#'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(
-          top.extensions,
-          containsAll(<ChordExtension>[
-            ChordExtension.flat9,
-            ChordExtension.sharp11,
-          ]),
-        );
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9, ChordExtension.sharp11},
     ),
 
     // Dominant b9 + #11 + b13.
     golden(
       name: 'C E G Bb Db F# Ab -> C7(b9,#11,b13)',
       pcs: ['C', 'E', 'G', 'Bb', 'Db', 'F#', 'Ab'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(
-          top.extensions,
-          containsAll(<ChordExtension>[
-            ChordExtension.flat9,
-            ChordExtension.sharp11,
-            ChordExtension.flat13,
-          ]),
-        );
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.flat9,
+        ChordExtension.sharp11,
+        ChordExtension.flat13,
       },
     ),
 
@@ -357,131 +325,107 @@ void main() {
     golden(
       name: 'C F G Bb D -> C9sus4',
       pcs: ['C', 'F', 'G', 'Bb', 'D'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7sus4);
-        expect(top.extensions, contains(ChordExtension.nine));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7sus4,
+      expectedExtensions: {ChordExtension.nine},
     ),
 
     // Dominant 7 suspended 2.
     golden(
       name: 'C D G Bb -> C7sus2',
       pcs: ['C', 'D', 'G', 'Bb'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7sus2);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7sus2,
     ),
 
     // Major 7 suspended 2.
     golden(
       name: 'C D G B -> Cmaj7sus2',
       pcs: ['C', 'D', 'G', 'B'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.major7sus2);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major7sus2,
     ),
 
     // Major 7 suspended 4.
     golden(
       name: 'C F G B -> Cmaj7sus4',
       pcs: ['C', 'F', 'G', 'B'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.major7sus4);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major7sus4,
     ),
 
     // Dominant 7 sharp 5 should treat the augmented fifth as a core tone.
     golden(
       name: 'C E G# Bb -> C7#5',
       pcs: ['C', 'E', 'G#', 'Bb'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7Sharp5);
-        expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedToneRolesByInterval: {8: ChordToneRole.sharp5},
     ),
 
     // Minor sharp 5 should treat the augmented fifth as a core tone.
     golden(
       name: 'C Eb G# -> Cm#5',
       pcs: ['C', 'Eb', 'G#'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.minorSharp5);
-        expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.minorSharp5,
+      expectedToneRolesByInterval: {8: ChordToneRole.sharp5},
     ),
 
     // Minor 7 sharp 5 should treat the augmented fifth as a core tone.
     golden(
       name: 'C Eb G# Bb -> Cm7#5',
       pcs: ['C', 'Eb', 'G#', 'Bb'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.minor7Sharp5);
-        expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.minor7Sharp5,
+      expectedToneRolesByInterval: {8: ChordToneRole.sharp5},
     ),
 
     // Dominant 7 flat 5 should treat the diminished fifth as a core tone.
     golden(
       name: 'C E Gb Bb -> C7b5',
       pcs: ['C', 'E', 'Gb', 'Bb'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7Flat5);
-        expect(top.toneRolesByInterval[6], ChordToneRole.flat5);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7Flat5,
+      expectedToneRolesByInterval: {6: ChordToneRole.flat5},
     ),
 
     // Major 7 sharp 5 should treat the augmented fifth as a core tone.
     golden(
       name: 'C E G# B -> Cmaj7#5',
       pcs: ['C', 'E', 'G#', 'B'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.major7Sharp5);
-        expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major7Sharp5,
+      expectedToneRolesByInterval: {8: ChordToneRole.sharp5},
     ),
 
     // Major 7 flat 5 should treat the diminished fifth as a core tone.
     golden(
       name: 'C E Gb B -> Cmaj7b5',
       pcs: ['C', 'E', 'Gb', 'B'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.major7Flat5);
-        expect(top.toneRolesByInterval[6], ChordToneRole.flat5);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major7Flat5,
+      expectedToneRolesByInterval: {6: ChordToneRole.flat5},
     ),
 
     // Altered augmented dominants keep both the #5 core tone and #9 color.
     golden(
       name: 'C E G# Bb D# -> C7#5#9',
       pcs: ['C', 'E', 'G#', 'Bb', 'D#'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7Sharp5);
-        expect(top.extensions, contains(ChordExtension.sharp9));
-        expect(top.toneRolesByInterval[8], ChordToneRole.sharp5);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedExtensions: {ChordExtension.sharp9},
+      expectedToneRolesByInterval: {8: ChordToneRole.sharp5},
     ),
 
     // Altered flat-five dominants keep both the b5 core tone and #9 color.
     golden(
       name: 'C E Gb Bb D# -> C7b5#9',
       pcs: ['C', 'E', 'Gb', 'Bb', 'D#'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7Flat5);
-        expect(top.extensions, contains(ChordExtension.sharp9));
-        expect(top.toneRolesByInterval[6], ChordToneRole.flat5);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7Flat5,
+      expectedExtensions: {ChordExtension.sharp9},
+      expectedToneRolesByInterval: {6: ChordToneRole.flat5},
     ),
 
     // -------------------------------------------------------------------------
@@ -492,20 +436,16 @@ void main() {
     golden(
       name: 'C F G -> Csus4',
       pcs: ['C', 'F', 'G'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.sus4);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.sus4,
     ),
 
     // Sus2 identification.
     golden(
       name: 'C D G -> Csus2',
       pcs: ['C', 'D', 'G'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.sus2);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.sus2,
     ),
 
     // -------------------------------------------------------------------------
@@ -516,53 +456,43 @@ void main() {
     golden(
       name: 'C E G A -> C6',
       pcs: ['C', 'E', 'G', 'A'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.major6);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major6,
     ),
 
     // Minor 6.
     golden(
       name: 'A C E F# -> Am6',
       pcs: ['A', 'C', 'E', 'F#'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('A'));
-        expect(top.quality, ChordQualityToken.minor6);
-      },
+      expectedRoot: 'A',
+      expectedQuality: ChordQualityToken.minor6,
     ),
 
     // 6/9 sonority: represented as major6 + add9 in this system.
     golden(
       name: 'C E G A D -> C6/9',
       pcs: ['C', 'E', 'G', 'A', 'D'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.major6);
-        expect(top.extensions, contains(ChordExtension.add9));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major6,
+      expectedExtensions: {ChordExtension.add9},
     ),
 
     // Dominant 7 with a lone 13 is an added tone, not a true 13th chord.
     golden(
       name: 'C E G Bb A -> C7(add13)',
       pcs: ['C', 'E', 'G', 'Bb', 'A'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(top.extensions, contains(ChordExtension.add13));
-        expect(top.extensions, isNot(contains(ChordExtension.thirteen)));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.add13},
+      unexpectedExtensions: {ChordExtension.thirteen},
     ),
 
     // 6th-family should beat 7th-family when the 7 is missing.
     golden(
       name: 'G Bb D E -> Gm6',
       pcs: ['G', 'Bb', 'D', 'E'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('G'));
-        expect(top.quality, ChordQualityToken.minor6);
-      },
+      expectedRoot: 'G',
+      expectedQuality: ChordQualityToken.minor6,
     ),
 
     // Tonality-specific ranking: same pitch-class set, different "best" chord in A minor.
@@ -570,12 +500,10 @@ void main() {
       name: 'C E G A D --key=A:min -> Am7(add11) / C',
       pcs: ['C', 'E', 'G', 'A', 'D'],
       tonality: const Tonality('A', TonalityMode.minor),
-      expectTop: (top) {
-        expect(top.rootPc, pc('A'));
-        expect(top.quality, ChordQualityToken.minor7);
-        expect(top.extensions, contains(ChordExtension.add11));
-        expect(top.bassPc, pc('C'));
-      },
+      expectedRoot: 'A',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.minor7,
+      expectedExtensions: {ChordExtension.add11},
     ),
 
     // -------------------------------------------------------------------------
@@ -586,59 +514,47 @@ void main() {
     golden(
       name: 'B D F A -> Bm7(b5)',
       pcs: ['B', 'D', 'F', 'A'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('B'));
-        expect(top.quality, ChordQualityToken.halfDiminished7);
-      },
+      expectedRoot: 'B',
+      expectedQuality: ChordQualityToken.halfDiminished7,
     ),
 
     // Half-diminished headline promotion with a 9 extension.
     golden(
       name: 'C Eb Gb Bb D -> Cm9(b5)',
       pcs: ['C', 'Eb', 'Gb', 'Bb', 'D'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.halfDiminished7);
-        expect(top.extensions, contains(ChordExtension.nine));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.halfDiminished7,
+      expectedExtensions: {ChordExtension.nine},
     ),
 
     // Diminished seventh with color tones: verify extension mapping stays stable.
     golden(
       name: 'C Eb Gb A D -> Cdim7(add9)',
       pcs: ['C', 'Eb', 'Gb', 'A', 'D'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.diminished7);
-        expect(top.extensions, contains(ChordExtension.nine));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.diminished7,
+      expectedExtensions: {ChordExtension.nine},
     ),
     golden(
       name: 'C Eb Gb A F -> Cdim7(add11)',
       pcs: ['C', 'Eb', 'Gb', 'A', 'F'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.diminished7);
-        expect(top.extensions, contains(ChordExtension.add11));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.diminished7,
+      expectedExtensions: {ChordExtension.add11},
     ),
     golden(
       name: 'C Eb Gb A Ab -> Cdim7(b13)',
       pcs: ['C', 'Eb', 'Gb', 'A', 'Ab'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.diminished7);
-        expect(top.extensions, contains(ChordExtension.flat13));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.diminished7,
+      expectedExtensions: {ChordExtension.flat13},
     ),
     golden(
       name: 'C Eb Gb A Db -> Cdim7(b9)',
       pcs: ['C', 'Eb', 'Gb', 'A', 'Db'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.diminished7);
-        expect(top.extensions, contains(ChordExtension.flat9));
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.diminished7,
+      expectedExtensions: {ChordExtension.flat9},
     ),
 
     // -------------------------------------------------------------------------
@@ -650,10 +566,8 @@ void main() {
       name: 'E# G# B --key=F#:maj -> E#dim',
       pcs: ['E#', 'G#', 'B'],
       tonality: const Tonality('F#', TonalityMode.major),
-      expectTop: (top) {
-        expect(top.rootPc, pc('E#')); // pc('E#') == pc('F')
-        expect(top.quality, ChordQualityToken.diminished);
-      },
+      expectedRoot: 'E#',
+      expectedQuality: ChordQualityToken.diminished,
     ),
 
     // In Cb major (7 flats), we should prefer Fb over E for the subdominant chord.
@@ -661,10 +575,8 @@ void main() {
       name: 'Fb Ab Cb --key=Cb:maj -> Fb',
       pcs: ['Fb', 'Ab', 'Cb'],
       tonality: const Tonality('Cb', TonalityMode.major),
-      expectTop: (top) {
-        expect(top.rootPc, pc('Fb')); // pc('Fb') == pc('E')
-        expect(top.quality, ChordQualityToken.major);
-      },
+      expectedRoot: 'Fb',
+      expectedQuality: ChordQualityToken.major,
     ),
 
     // -------------------------------------------------------------------------
@@ -676,11 +588,9 @@ void main() {
       name: 'Gb C Eb -> Cdim / Gb',
       pcs: ['Gb', 'C', 'Eb'],
       tonality: const Tonality('D', TonalityMode.major), // sharp-leaning
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.diminished);
-        expect(top.bassPc, pc('Gb'));
-      },
+      expectedRoot: 'C',
+      expectedBass: 'Gb',
+      expectedQuality: ChordQualityToken.diminished,
     ),
 
     // Complete flat-five dominant sevenths should use the core b5 quality.
@@ -688,11 +598,9 @@ void main() {
       name: 'F# C E Bb -> Gb7b5',
       pcs: ['F#', 'C', 'E', 'Bb'],
       tonality: const Tonality('Db', TonalityMode.major), // flat-leaning
-      expectTop: (top) {
-        expect(top.rootPc, pc('F#'));
-        expect(top.quality, ChordQualityToken.dominant7Flat5);
-        expect(top.bassPc, pc('F#'));
-      },
+      expectedRoot: 'F#',
+      expectedBass: 'F#',
+      expectedQuality: ChordQualityToken.dominant7Flat5,
     ),
 
     // -------------------------------------------------------------------------
@@ -703,10 +611,8 @@ void main() {
     golden(
       name: 'C Eb B -> Cm(maj7)',
       pcs: ['C', 'Eb', 'B'],
-      expectTop: (top) {
-        expect(top.rootPc, pc('C'));
-        expect(top.quality, ChordQualityToken.minorMajor7);
-      },
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.minorMajor7,
     ),
 
     // Complete minor-major 7 with #11 should keep the F-rooted sonority rather
@@ -715,11 +621,9 @@ void main() {
       name: 'Ab B C E F -> Fm(maj7)#11 / Ab',
       pcs: ['Ab', 'B', 'C', 'E', 'F'],
       expectedSymbol: 'Fm(maj7)#11 / Ab',
-      expectTop: (top) {
-        expect(top.rootPc, pc('F'));
-        expect(top.quality, ChordQualityToken.minorMajor7);
-        expect(top.extensions, contains(ChordExtension.sharp11));
-      },
+      expectedRoot: 'F',
+      expectedQuality: ChordQualityToken.minorMajor7,
+      expectedExtensions: {ChordExtension.sharp11},
     ),
 
     // -------------------------------------------------------------------------
@@ -732,10 +636,8 @@ void main() {
     // golden(
     //   name: 'C Eb E G -> ???',
     //   pcs: ['C', 'Eb', 'E', 'G'],
-    //   expectTop: (top) {
-    //     expect(top.rootPc, pc('C'));
-    //     expect(top.quality, ChordQualityToken.minor);
-    //   },
+    //   expectedRoot: 'C',
+    //   expectedQuality: ChordQualityToken.minor,
     // ),
   ];
 
@@ -767,7 +669,7 @@ void main() {
       expect(actualSymbol, expectedSymbol, reason: 'Rendered symbol mismatch');
 
       try {
-        c.expectTop(top);
+        expectTopIdentity(top, c);
       } on TestFailure catch (e) {
         fail(
           [
@@ -784,5 +686,30 @@ void main() {
         );
       }
     });
+  }
+}
+
+void expectTopIdentity(ChordIdentity top, GoldenCase c) {
+  if (c.expectedRoot != null) {
+    expect(top.rootPc, pc(c.expectedRoot!));
+  }
+  final expectedBass = c.expectedBass ?? c.bass;
+  if (expectedBass != null) {
+    expect(top.bassPc, pc(expectedBass));
+  }
+  if (c.expectedQuality != null) {
+    expect(top.quality, c.expectedQuality);
+  }
+  if (c.expectNoExtensions) {
+    expect(top.extensions, isEmpty);
+  }
+  for (final extension in c.expectedExtensions) {
+    expect(top.extensions, contains(extension));
+  }
+  for (final extension in c.unexpectedExtensions) {
+    expect(top.extensions, isNot(contains(extension)));
+  }
+  for (final entry in c.expectedToneRolesByInterval.entries) {
+    expect(top.toneRolesByInterval[entry.key], entry.value);
   }
 }
