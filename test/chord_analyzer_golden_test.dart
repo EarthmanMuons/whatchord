@@ -2,35 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
-/// Builds an [AnalysisContext] from a tonality, deriving key signature + default spelling policy.
-AnalysisContext makeContext({
-  Tonality tonality = const Tonality('C', TonalityMode.major),
-  NoteSpellingPolicy? spellingPolicy,
-}) {
-  final ks = KeySignature.fromTonality(tonality);
-  final policy =
-      spellingPolicy ?? NoteSpellingPolicy(preferFlats: ks.prefersFlats);
-
-  return AnalysisContext(
-    tonality: tonality,
-    keySignature: ks,
-    spellingPolicy: policy,
-  );
-}
-
-const defaultTonality = Tonality('C', TonalityMode.major);
-
-int maskOf(Iterable<int> pcs) {
-  var m = 0;
-  for (final pc in pcs) {
-    m |= (1 << (pc % 12));
-  }
-  return m;
-}
-
-int pc(String name) => pitchClassFromNoteName(name);
-
-int maskOfNames(List<String> names) => maskOf(names.map(pc));
+import 'helpers/theory_test_helpers.dart';
 
 /// If the test name includes `-> SYMBOL`, treat that as the expected rendered symbol.
 String expectedSymbolFromCaseName(String name) {
@@ -769,17 +741,15 @@ void main() {
 
   for (final c in cases) {
     test(c.name, () {
-      final bassPc = pc(c.bass ?? c.pcs.first);
-      final count = c.noteCount ?? c.pcs.length;
-
-      final input = ChordInput(
-        pcMask: maskOfNames(c.pcs),
-        bassPc: bassPc,
-        noteCount: count,
+      final input = chordInputFromNames(
+        names: c.pcs,
+        bass: c.bass,
+        noteCount: c.noteCount,
       );
 
-      final tonality = c.tonality ?? defaultTonality;
-      final ctx = makeContext(tonality: tonality);
+      final count = input.noteCount;
+      final tonality = c.tonality ?? defaultTestTonality;
+      final ctx = makeAnalysisContext(tonality: tonality);
       final results = ChordAnalyzer.analyze(input, context: ctx);
 
       expect(results, isNotEmpty, reason: 'No candidates returned');
