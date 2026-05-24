@@ -57,6 +57,7 @@ HARTE_SHORTHANDS = {
 WHATCHORD_BASES = {
     "major": ({"3"}, {"5"}),
     "minor": ({"b3"}, {"5"}),
+    "minorSharp5": ({"b3", "#5"}, set()),
     "diminished": ({"b3", "b5"}, set()),
     "augmented": ({"3", "#5"}, set()),
     "sus2": ({"2", "5"}, set()),
@@ -74,6 +75,7 @@ WHATCHORD_BASES = {
     "major7Flat5": ({"3", "b5", "7"}, set()),
     "major7Sharp5": ({"3", "#5", "7"}, set()),
     "minor7": ({"b3", "b7"}, {"5"}),
+    "minor7Sharp5": ({"b3", "#5", "b7"}, set()),
     "minorMajor7": ({"b3", "7"}, {"5"}),
     "halfDiminished7": ({"b3", "b5", "b7"}, set()),
     "diminished7": ({"b3", "b5", "bb7"}, set()),
@@ -280,6 +282,17 @@ def main() -> int:
         for label, count in label_counts.most_common()
     ]
     unsupported_rows = [row for row in body_rows if row["class"] != "supported"]
+    supported_observations = sum(
+        count
+        for body, count in body_counts.items()
+        if body_classes[body] == "supported"
+    )
+    supported_duration = sum(
+        duration
+        for body, duration in body_durations.items()
+        if body_classes[body] == "supported"
+    )
+    total_duration = sum(body_durations.values())
 
     write_csv(args.out_dir / "choco_chord_bodies.csv", body_rows)
     write_csv(args.out_dir / "choco_chord_labels.csv", label_rows)
@@ -289,6 +302,17 @@ def main() -> int:
     print(f"Chord observations, excluding N/X: {observations}")
     print(f"Distinct full labels: {len(label_counts)}")
     print(f"Distinct chord bodies: {len(body_counts)}")
+    print(
+        "Supported observations: "
+        f"{supported_observations} "
+        f"({percentage(supported_observations, observations):.2f}%)"
+    )
+    print(
+        "Supported duration: "
+        f"{supported_duration:.3f} "
+        f"({percentage(supported_duration, total_duration):.2f}%)"
+    )
+    print(f"Unsupported chord bodies: {len(unsupported_rows)}")
     print()
     print(f"Top {args.top} chord bodies:")
     for row in body_rows[: args.top]:
@@ -331,6 +355,12 @@ def degree_sort_key(degree: str) -> tuple[int, str]:
         13: 9,
     }
     return order.get(numeric, 99), degree
+
+
+def percentage(value: float, total: float) -> float:
+    if total == 0:
+        return 0
+    return (value / total) * 100
 
 
 if __name__ == "__main__":
