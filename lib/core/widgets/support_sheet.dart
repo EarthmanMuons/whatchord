@@ -95,18 +95,19 @@ class _SupportSheetContent extends StatelessWidget {
                   const _SupportInstruction(
                     action: 'Tap the chord card',
                     description:
-                        'to try roots, qualities, extensions, and bass notes in explore mode.',
+                        'to explore chords with different roots, qualities, extensions, and bass notes.',
                   ),
                   const SizedBox(height: 8),
                   const _SupportInstruction(
-                    action: 'Tap alternatives',
-                    description: 'to see why the current chord ranked first.',
+                    action: 'Tap an alternative',
+                    description:
+                        'to see why WhatChord ranked the current chord first.',
                   ),
                   const SizedBox(height: 8),
                   const _SupportInstruction(
                     action: 'Long-press the chord card',
                     description:
-                        'to show diagnostic details for a chord result.',
+                        'to show diagnostic details for reporting a chord result.',
                   ),
                 ],
                 const SizedBox(height: 16),
