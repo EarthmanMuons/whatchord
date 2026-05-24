@@ -16,8 +16,9 @@ class ScaleDegreeCase {
   final ScaleDegreeSource? expectedSource;
   final String? expectedRomanNumeral;
 
-  /// Sanity-check the winning chord identity.
-  final void Function(ChordIdentity top)? expectTop;
+  /// Sanity-checks for the winning analyzer identity.
+  final ChordQualityToken? expectedQuality;
+  final Set<ChordExtension> expectedExtensions;
 
   const ScaleDegreeCase({
     required this.name,
@@ -28,7 +29,8 @@ class ScaleDegreeCase {
     required this.expectedDegree,
     this.expectedSource,
     this.expectedRomanNumeral,
-    this.expectTop,
+    this.expectedQuality,
+    this.expectedExtensions = const {},
   });
 }
 
@@ -41,7 +43,8 @@ ScaleDegreeCase deg({
   required ScaleDegree? expected,
   ScaleDegreeSource? expectedSource,
   String? expectedRomanNumeral,
-  void Function(ChordIdentity top)? expectTop,
+  ChordQualityToken? expectedQuality,
+  Set<ChordExtension> expectedExtensions = const {},
 }) {
   return ScaleDegreeCase(
     name: name,
@@ -52,7 +55,8 @@ ScaleDegreeCase deg({
     expectedDegree: expected,
     expectedSource: expectedSource,
     expectedRomanNumeral: expectedRomanNumeral,
-    expectTop: expectTop,
+    expectedQuality: expectedQuality,
+    expectedExtensions: expectedExtensions,
   );
 }
 
@@ -70,7 +74,7 @@ void main() {
       name: 'C E G B in C major => I (maj7)',
       pcs: ['C', 'E', 'G', 'B'],
       expected: ScaleDegree.one,
-      expectTop: (top) => expect(top.quality, ChordQualityToken.major7),
+      expectedQuality: ChordQualityToken.major7,
     ),
     deg(
       name: 'D F A in C major => ii',
@@ -81,20 +85,19 @@ void main() {
       name: 'D F A C in C major => ii (m7)',
       pcs: ['D', 'F', 'A', 'C'],
       expected: ScaleDegree.two,
-      expectTop: (top) => expect(top.quality, ChordQualityToken.minor7),
+      expectedQuality: ChordQualityToken.minor7,
     ),
     deg(
       name: 'G B D F in C major => V (dom7)',
       pcs: ['G', 'B', 'D', 'F'],
       expected: ScaleDegree.five,
-      expectTop: (top) => expect(top.quality, ChordQualityToken.dominant7),
+      expectedQuality: ChordQualityToken.dominant7,
     ),
     deg(
       name: 'B D F A in C major => vii° (ø7)',
       pcs: ['B', 'D', 'F', 'A'],
       expected: ScaleDegree.seven,
-      expectTop: (top) =>
-          expect(top.quality, ChordQualityToken.halfDiminished7),
+      expectedQuality: ChordQualityToken.halfDiminished7,
     ),
 
     // -------------------------
@@ -106,7 +109,7 @@ void main() {
       name: 'C F G in C major => null (sus4)',
       pcs: ['C', 'F', 'G'],
       expected: null,
-      expectTop: (top) => expect(top.quality, ChordQualityToken.sus4),
+      expectedQuality: ChordQualityToken.sus4,
     ),
 
     // Altered dominants are non-diatonic under natural major/minor strictness.
@@ -114,10 +117,8 @@ void main() {
       name: 'C E G Bb Db in C major => null (V7b9 is chromatic)',
       pcs: ['C', 'E', 'G', 'Bb', 'Db'],
       expected: null,
-      expectTop: (top) {
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(top.extensions, contains(ChordExtension.flat9));
-      },
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9},
     ),
 
     // 6th chords: allowed only when chord-member tones are diatonic (strict).
@@ -125,14 +126,14 @@ void main() {
       name: 'C E G A in C major => I (C6 treated as added-sixth)',
       pcs: ['C', 'E', 'G', 'A'],
       expected: ScaleDegree.one,
-      expectTop: (top) => expect(top.quality, ChordQualityToken.major6),
+      expectedQuality: ChordQualityToken.major6,
     ),
     deg(
       name: 'A C E F# in C major => null (Am6 has F#; non-diatonic)',
       pcs: ['A', 'C', 'E', 'F#'],
       expected: null,
       // Your analyzer likely still returns Am6; the classifier rejects degree.
-      expectTop: (top) => expect(top.quality, ChordQualityToken.minor6),
+      expectedQuality: ChordQualityToken.minor6,
     ),
 
     // Diminished7 is not diatonic in C major natural scale.
@@ -176,7 +177,7 @@ void main() {
       expected: ScaleDegree.five,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'V7',
-      expectTop: (top) => expect(top.quality, ChordQualityToken.dominant7),
+      expectedQuality: ChordQualityToken.dominant7,
     ),
     deg(
       name: 'E G# B D F in A minor => V7b9 (harmonic minor)',
@@ -185,10 +186,8 @@ void main() {
       expected: ScaleDegree.five,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'V7',
-      expectTop: (top) {
-        expect(top.quality, ChordQualityToken.dominant7);
-        expect(top.extensions, contains(ChordExtension.flat9));
-      },
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9},
     ),
     deg(
       name: 'E G# C D in A minor => V7#5 (harmonic minor)',
@@ -197,8 +196,7 @@ void main() {
       expected: ScaleDegree.five,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'V7#5',
-      expectTop: (top) =>
-          expect(top.quality, ChordQualityToken.dominant7Sharp5),
+      expectedQuality: ChordQualityToken.dominant7Sharp5,
     ),
     deg(
       name: 'G B D F in A minor => bVII7 (natural minor)',
@@ -223,7 +221,7 @@ void main() {
       expected: ScaleDegree.seven,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'vii°7',
-      expectTop: (top) => expect(top.quality, ChordQualityToken.diminished7),
+      expectedQuality: ChordQualityToken.diminished7,
     ),
     deg(
       name: 'C E G# in A minor => bIII+ (harmonic minor)',
@@ -232,7 +230,7 @@ void main() {
       expected: ScaleDegree.three,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: '♭III+',
-      expectTop: (top) => expect(top.quality, ChordQualityToken.augmented),
+      expectedQuality: ChordQualityToken.augmented,
     ),
     deg(
       name: 'C E G# B in A minor => bIIImaj7#5 (harmonic minor)',
@@ -241,7 +239,7 @@ void main() {
       expected: ScaleDegree.three,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: '♭III+maj7#5',
-      expectTop: (top) => expect(top.quality, ChordQualityToken.major7Sharp5),
+      expectedQuality: ChordQualityToken.major7Sharp5,
     ),
     deg(
       name: 'A C E G# in A minor => i(maj7) (harmonic minor)',
@@ -250,7 +248,7 @@ void main() {
       expected: ScaleDegree.one,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'i(maj7)',
-      expectTop: (top) => expect(top.quality, ChordQualityToken.minorMajor7),
+      expectedQuality: ChordQualityToken.minorMajor7,
     ),
   ];
 
@@ -268,8 +266,12 @@ void main() {
       expect(results, isNotEmpty, reason: 'No candidates returned');
       final top = results.first.identity;
 
-      // Sanity-check top chord identity if requested.
-      c.expectTop?.call(top);
+      if (c.expectedQuality != null) {
+        expect(top.quality, c.expectedQuality);
+      }
+      for (final extension in c.expectedExtensions) {
+        expect(top.extensions, contains(extension));
+      }
 
       final analysis = ScaleDegreeClassifier.analyzeChord(
         c.tonality,
