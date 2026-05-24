@@ -49,7 +49,8 @@ conventional interpretations over simple note-matching.
 
 - **Ambiguity-aware user interface**  
   When multiple interpretations are plausible, WhatChord shows alternative
-  candidates rather than hiding uncertainty.
+  candidates rather than hiding uncertainty, and lets you tap them to see why
+  the current chord ranked first.
 
 - **Context-aware spelling**  
   Notes and chord symbols are spelled using the current key signature _and_ the

@@ -90,14 +90,23 @@ class _SupportSheetContent extends StatelessWidget {
                     'For chord identification reports, copy Analysis Details first when possible. It includes the exact notes, key context, and app version needed to reproduce the result.',
                   )
                 else ...[
-                  const _SupportSectionTitle('Explore Chords'),
+                  const _SupportSectionTitle('Chord Card Actions'),
                   const SizedBox(height: 8),
-                  const _SupportBodyText(
-                    'Tap the chord card to open explore mode and try chord roots, qualities, extensions, and bass notes without a MIDI device.',
+                  const _SupportInstruction(
+                    action: 'Tap the chord card',
+                    description:
+                        'to try roots, qualities, extensions, and bass notes in explore mode.',
                   ),
-                  const SizedBox(height: 10),
-                  const _SupportBodyText(
-                    'Long-press the chord card to open Analysis Details when you need diagnostic information for a chord result.',
+                  const SizedBox(height: 8),
+                  const _SupportInstruction(
+                    action: 'Tap alternatives',
+                    description: 'to see why the current chord ranked first.',
+                  ),
+                  const SizedBox(height: 8),
+                  const _SupportInstruction(
+                    action: 'Long-press the chord card',
+                    description:
+                        'to show diagnostic details for a chord result.',
                   ),
                 ],
                 const SizedBox(height: 16),
@@ -157,6 +166,31 @@ class _SupportBodyText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(text, style: Theme.of(context).textTheme.bodyMedium);
+  }
+}
+
+class _SupportInstruction extends StatelessWidget {
+  const _SupportInstruction({required this.action, required this.description});
+
+  final String action;
+  final String description;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.bodyMedium;
+
+    return Text.rich(
+      TextSpan(
+        style: style,
+        children: [
+          TextSpan(
+            text: '$action ',
+            style: style?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          TextSpan(text: description),
+        ],
+      ),
+    );
   }
 }
 
