@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed a couple of "Why This Chord?" ranking explanations so close alternatives
+  are described more clearly.
+
 ## [2026.5.23] - 2026-05-23
 
 ### Added
