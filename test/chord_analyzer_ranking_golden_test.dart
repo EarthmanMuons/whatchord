@@ -11,7 +11,7 @@ void main() {
     // Root-position lydian dominant should beat a remote altered-fifth slash
     // reinterpretation such as D11#5/C.
     golden(
-      name: 'C E G Bb D F# -> C9#11',
+      description: 'root-position lydian dominant beats altered-fifth slash',
       expectedSymbol: 'C9#11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F#'],
       expectedRoot: 'C',
@@ -21,7 +21,7 @@ void main() {
 
     // Dominant 13 with a sharp eleventh should beat remote slash reinterpretations.
     golden(
-      name: 'C E G Bb D F# A -> C13#11',
+      description: 'root-position thirteenth sharp eleventh beats remote slash',
       expectedSymbol: 'C13#11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F#', 'A'],
       expectedRoot: 'C',
@@ -39,7 +39,7 @@ void main() {
 
     // Complete minor triad with #11 should beat a remote altered maj7sus4 name.
     golden(
-      name: 'E A C D# --bass=E -> Am#11 / E',
+      description: 'complete minor sharp eleventh beats altered sus slash',
       expectedSymbol: 'Am#11 / E',
       pcs: ['E', 'A', 'C', 'D#'],
       bass: 'E',
@@ -51,7 +51,7 @@ void main() {
 
     // Complete triad should beat an incomplete inverted 6th reading.
     golden(
-      name: 'B E G B --bass=B --key=D:maj -> Em / B',
+      description: 'complete triad beats incomplete inverted sixth',
       expectedSymbol: 'Em / B',
       pcs: ['B', 'E', 'G'],
       bass: 'B',
@@ -68,7 +68,7 @@ void main() {
 
     // 6th-family should beat 7th-family when the 7 is missing.
     golden(
-      name: 'G Bb D E -> Gm6',
+      description: 'sixth-family beats seventh-family when seventh is absent',
       expectedSymbol: 'Gm6',
       pcs: ['G', 'Bb', 'D', 'E'],
       expectedRoot: 'G',
@@ -77,7 +77,7 @@ void main() {
 
     // Tonality-specific ranking: same pitch-class set, different "best" chord in A minor.
     golden(
-      name: 'C E G A D --key=A:min -> Am7(add11) / C',
+      description: 'minor-key tonality bias changes best interpretation',
       expectedSymbol: 'Am7(add11) / C',
       pcs: ['C', 'E', 'G', 'A', 'D'],
       tonality: const Tonality('A', TonalityMode.minor),
@@ -94,7 +94,8 @@ void main() {
     // Complete minor-major 7 with #11 should keep the F-rooted sonority rather
     // than prefer a remote major7#5(add11) slash interpretation.
     golden(
-      name: 'Ab B C E F -> Fm(maj7)#11 / Ab',
+      description:
+          'minor-major sharp eleventh beats remote major sharp-five slash',
       expectedSymbol: 'Fm(maj7)#11 / Ab',
       pcs: ['Ab', 'B', 'C', 'E', 'F'],
       expectedRoot: 'F',

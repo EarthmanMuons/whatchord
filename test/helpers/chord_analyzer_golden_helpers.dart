@@ -5,7 +5,7 @@ import 'package:whatchord/features/theory/theory.dart';
 import 'theory_test_helpers.dart';
 
 class GoldenCase {
-  final String name;
+  final String description;
 
   /// Pitch names like ["C", "E", "G", "Bb", "D"] (order is irrelevant for the mask).
   final List<String> pcs;
@@ -49,7 +49,7 @@ class GoldenCase {
   final String? skipReason;
 
   const GoldenCase({
-    required this.name,
+    required this.description,
     required this.expectedSymbol,
     required this.pcs,
     this.bass,
@@ -66,9 +66,9 @@ class GoldenCase {
   });
 }
 
-/// Small helper so each case reads as "notes -> expectation".
+/// Small helper so each case keeps purpose separate from notes and assertions.
 GoldenCase golden({
-  required String name,
+  required String description,
   required String expectedSymbol,
   required List<String> pcs,
   String? bass,
@@ -84,7 +84,7 @@ GoldenCase golden({
   String? skipReason,
 }) {
   return GoldenCase(
-    name: name,
+    description: description,
     expectedSymbol: expectedSymbol,
     pcs: pcs,
     bass: bass,
@@ -106,7 +106,7 @@ void runChordAnalyzerGoldenCases(Iterable<GoldenCase> cases) {
   const testNotation = ChordNotationStyle.textual;
 
   for (final c in cases) {
-    test(c.name, () {
+    test(_testName(c), () {
       final input = chordInputFromNames(
         names: c.pcs,
         bass: c.bass,
@@ -152,6 +152,26 @@ void runChordAnalyzerGoldenCases(Iterable<GoldenCase> cases) {
       }
     }, skip: c.skipReason);
   }
+}
+
+String _testName(GoldenCase c) {
+  final parts = <String>[
+    c.description,
+    '${c.pcs.join(" ")} -> ${c.expectedSymbol}',
+  ];
+  final bass = c.bass;
+  if (bass != null) {
+    parts.add('bass $bass');
+  }
+  final tonality = c.tonality;
+  if (tonality != null) {
+    parts.add('key ${tonality.displayName}');
+  }
+  if (c.noteCount != null) {
+    parts.add('note count ${c.noteCount}');
+  }
+
+  return parts.join(' | ');
 }
 
 void expectTopIdentity(ChordIdentity top, GoldenCase c) {

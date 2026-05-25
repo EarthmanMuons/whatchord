@@ -10,7 +10,7 @@ void main() {
 
     // In F# major (6 sharps), we should prefer E# over F for the leading tone triad.
     golden(
-      name: 'E# G# B --key=F#:maj -> E#dim',
+      description: 'sharp key preserves leading-tone diminished spelling',
       expectedSymbol: 'E#dim',
       pcs: ['E#', 'G#', 'B'],
       tonality: const Tonality('F#', TonalityMode.major),
@@ -20,7 +20,7 @@ void main() {
 
     // In Cb major (7 flats), we should prefer Fb over E for the subdominant chord.
     golden(
-      name: 'Fb Ab Cb --key=Cb:maj -> Fb',
+      description: 'flat key preserves subdominant spelling',
       expectedSymbol: 'Fb',
       pcs: ['Fb', 'Ab', 'Cb'],
       tonality: const Tonality('Cb', TonalityMode.major),
@@ -34,7 +34,7 @@ void main() {
 
     // Diminished context: interpret Gb as b5 (not F# as #11) when structure supports dim.
     golden(
-      name: 'Gb C Eb -> Cdim / Gb',
+      description: 'diminished structure overrides sharp-leaning key spelling',
       expectedSymbol: 'Cdim / Gb',
       pcs: ['Gb', 'C', 'Eb'],
       tonality: const Tonality('D', TonalityMode.major), // sharp-leaning
@@ -45,7 +45,7 @@ void main() {
 
     // Complete flat-five dominant sevenths should use the core b5 quality.
     golden(
-      name: 'F# C E Bb -> Gb7b5',
+      description: 'flat-leaning key spells complete flat-five dominant',
       expectedSymbol: 'Gb7b5',
       pcs: ['F#', 'C', 'E', 'Bb'],
       tonality: const Tonality('Db', TonalityMode.major), // flat-leaning

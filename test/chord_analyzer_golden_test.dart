@@ -10,7 +10,7 @@ void main() {
 
     // Plain major triad.
     golden(
-      name: 'C E G -> C',
+      description: 'plain major triad',
       expectedSymbol: 'C',
       pcs: ['C', 'E', 'G'],
       expectedRoot: 'C',
@@ -19,7 +19,7 @@ void main() {
 
     // Major triad with an added 9.
     golden(
-      name: 'C E G D -> Cadd9',
+      description: 'major triad with added ninth',
       expectedSymbol: 'Cadd9',
       pcs: ['C', 'E', 'G', 'D'],
       expectedRoot: 'C',
@@ -29,7 +29,7 @@ void main() {
 
     // Straight dominant 7.
     golden(
-      name: 'C E G Bb -> C7',
+      description: 'straight dominant seventh',
       expectedSymbol: 'C7',
       pcs: ['C', 'E', 'G', 'Bb'],
       expectedRoot: 'C',
@@ -39,7 +39,7 @@ void main() {
 
     // Dominant 9.
     golden(
-      name: 'C E G Bb D -> C9',
+      description: 'dominant ninth',
       expectedSymbol: 'C9',
       pcs: ['C', 'E', 'G', 'Bb', 'D'],
       expectedRoot: 'C',
@@ -49,7 +49,7 @@ void main() {
 
     // A lone 11 on a dominant seventh is an added tone, not a true 11th chord.
     golden(
-      name: 'C E G Bb F -> C7(add11)',
+      description: 'dominant seventh with lone added eleventh',
       expectedSymbol: 'C7(add11)',
       pcs: ['C', 'E', 'G', 'Bb', 'F'],
       expectedRoot: 'C',
@@ -60,7 +60,7 @@ void main() {
 
     // A true dominant 11 includes the implied ninth.
     golden(
-      name: 'C E G Bb D F -> C11',
+      description: 'dominant eleventh with implied ninth present',
       expectedSymbol: 'C11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F'],
       expectedRoot: 'C',
@@ -70,7 +70,7 @@ void main() {
 
     // Major 9.
     golden(
-      name: 'C E G B D -> Cmaj9',
+      description: 'major ninth',
       expectedSymbol: 'Cmaj9',
       pcs: ['C', 'E', 'G', 'B', 'D'],
       expectedRoot: 'C',
@@ -80,7 +80,7 @@ void main() {
 
     // 13th (as 7 + 9 + 13).
     golden(
-      name: 'C E G Bb D A -> C13',
+      description: 'dominant thirteenth with ninth',
       expectedSymbol: 'C13',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'A'],
       expectedRoot: 'C',
@@ -90,7 +90,7 @@ void main() {
 
     // The fifth is optional in extended dominant voicings.
     golden(
-      name: 'C E Bb D F# A -> C13#11',
+      description: 'dominant thirteenth sharp eleventh with omitted fifth',
       expectedSymbol: 'C13#11',
       pcs: ['C', 'E', 'Bb', 'D', 'F#', 'A'],
       expectedRoot: 'C',
@@ -108,7 +108,7 @@ void main() {
 
     // Same sonority as C9, but with a non-root bass should render a slash chord.
     golden(
-      name: 'C E G Bb D --bass=G -> C9 / G',
+      description: 'dominant ninth over fifth in the bass',
       expectedSymbol: 'C9 / G',
       pcs: ['C', 'E', 'G', 'Bb', 'D'],
       bass: 'G',
@@ -119,7 +119,7 @@ void main() {
 
     // Major 6 in first inversion.
     golden(
-      name: 'C E G A --bass=E -> C6 / E',
+      description: 'major sixth in first inversion',
       expectedSymbol: 'C6 / E',
       pcs: ['C', 'E', 'G', 'A'],
       bass: 'E',
@@ -130,7 +130,7 @@ void main() {
 
     // Root-position 6(no5) with a doubled root remains a legitimate 6th chord.
     golden(
-      name: 'C E A C -> C6',
+      description: 'major sixth without fifth and doubled root',
       expectedSymbol: 'C6',
       pcs: ['C', 'E', 'A'],
       noteCount: 4,
@@ -145,7 +145,7 @@ void main() {
 
     // Dominant b9.
     golden(
-      name: 'C E G Bb Db -> C7b9',
+      description: 'dominant seventh flat ninth',
       expectedSymbol: 'C7b9',
       pcs: ['C', 'E', 'G', 'Bb', 'Db'],
       expectedRoot: 'C',
@@ -155,7 +155,7 @@ void main() {
 
     // Hendrix chord: dominant shell plus #9 should not be treated as a minor-third penalty.
     golden(
-      name: 'G B D F A# -> G7#9',
+      description: 'dominant seventh sharp ninth',
       expectedSymbol: 'G7#9',
       pcs: ['G', 'B', 'D', 'F', 'A#'],
       expectedRoot: 'G',
@@ -165,7 +165,7 @@ void main() {
 
     // Dominant b9 + #11.
     golden(
-      name: 'C E G Bb Db F# -> C7(b9,#11)',
+      description: 'dominant seventh with flat ninth and sharp eleventh',
       expectedSymbol: 'C7(b9,#11)',
       pcs: ['C', 'E', 'G', 'Bb', 'Db', 'F#'],
       expectedRoot: 'C',
@@ -175,7 +175,7 @@ void main() {
 
     // Dominant b9 + #11 + b13.
     golden(
-      name: 'C E G Bb Db F# Ab -> C7(b9,#11,b13)',
+      description: 'dominant seventh with three altered extensions',
       expectedSymbol: 'C7(b9,#11,b13)',
       pcs: ['C', 'E', 'G', 'Bb', 'Db', 'F#', 'Ab'],
       expectedRoot: 'C',
@@ -189,7 +189,7 @@ void main() {
 
     // Dominant 7 suspended 4 with 9 should promote to the combined headline.
     golden(
-      name: 'C F G Bb D -> C9sus4',
+      description: 'dominant ninth suspended fourth',
       expectedSymbol: 'C9sus4',
       pcs: ['C', 'F', 'G', 'Bb', 'D'],
       expectedRoot: 'C',
@@ -199,7 +199,7 @@ void main() {
 
     // Dominant 7 suspended 2.
     golden(
-      name: 'C D G Bb -> C7sus2',
+      description: 'dominant seventh suspended second',
       expectedSymbol: 'C7sus2',
       pcs: ['C', 'D', 'G', 'Bb'],
       expectedRoot: 'C',
@@ -208,7 +208,7 @@ void main() {
 
     // Major 7 suspended 2.
     golden(
-      name: 'C D G B -> Cmaj7sus2',
+      description: 'major seventh suspended second',
       expectedSymbol: 'Cmaj7sus2',
       pcs: ['C', 'D', 'G', 'B'],
       expectedRoot: 'C',
@@ -217,7 +217,7 @@ void main() {
 
     // Major 7 suspended 4.
     golden(
-      name: 'C F G B -> Cmaj7sus4',
+      description: 'major seventh suspended fourth',
       expectedSymbol: 'Cmaj7sus4',
       pcs: ['C', 'F', 'G', 'B'],
       expectedRoot: 'C',
@@ -226,7 +226,7 @@ void main() {
 
     // Dominant 7 sharp 5 should treat the augmented fifth as a core tone.
     golden(
-      name: 'C E G# Bb -> C7#5',
+      description: 'dominant seventh sharp fifth',
       expectedSymbol: 'C7#5',
       pcs: ['C', 'E', 'G#', 'Bb'],
       expectedRoot: 'C',
@@ -236,7 +236,7 @@ void main() {
 
     // Minor sharp 5 should treat the augmented fifth as a core tone.
     golden(
-      name: 'C Eb G# -> Cm#5',
+      description: 'minor sharp fifth',
       expectedSymbol: 'Cm#5',
       pcs: ['C', 'Eb', 'G#'],
       expectedRoot: 'C',
@@ -246,7 +246,7 @@ void main() {
 
     // Minor 7 sharp 5 should treat the augmented fifth as a core tone.
     golden(
-      name: 'C Eb G# Bb -> Cm7#5',
+      description: 'minor seventh sharp fifth',
       expectedSymbol: 'Cm7#5',
       pcs: ['C', 'Eb', 'G#', 'Bb'],
       expectedRoot: 'C',
@@ -256,7 +256,7 @@ void main() {
 
     // Dominant 7 flat 5 should treat the diminished fifth as a core tone.
     golden(
-      name: 'C E Gb Bb -> C7b5',
+      description: 'dominant seventh flat fifth',
       expectedSymbol: 'C7b5',
       pcs: ['C', 'E', 'Gb', 'Bb'],
       expectedRoot: 'C',
@@ -266,7 +266,7 @@ void main() {
 
     // Major 7 sharp 5 should treat the augmented fifth as a core tone.
     golden(
-      name: 'C E G# B -> Cmaj7#5',
+      description: 'major seventh sharp fifth',
       expectedSymbol: 'Cmaj7#5',
       pcs: ['C', 'E', 'G#', 'B'],
       expectedRoot: 'C',
@@ -276,7 +276,7 @@ void main() {
 
     // Major 7 flat 5 should treat the diminished fifth as a core tone.
     golden(
-      name: 'C E Gb B -> Cmaj7b5',
+      description: 'major seventh flat fifth',
       expectedSymbol: 'Cmaj7b5',
       pcs: ['C', 'E', 'Gb', 'B'],
       expectedRoot: 'C',
@@ -286,7 +286,7 @@ void main() {
 
     // Altered augmented dominants keep both the #5 core tone and #9 color.
     golden(
-      name: 'C E G# Bb D# -> C7#5#9',
+      description: 'altered augmented dominant with sharp ninth',
       expectedSymbol: 'C7#5#9',
       pcs: ['C', 'E', 'G#', 'Bb', 'D#'],
       expectedRoot: 'C',
@@ -297,7 +297,7 @@ void main() {
 
     // Altered flat-five dominants keep both the b5 core tone and #9 color.
     golden(
-      name: 'C E Gb Bb D# -> C7b5#9',
+      description: 'altered flat-five dominant with sharp ninth',
       expectedSymbol: 'C7b5#9',
       pcs: ['C', 'E', 'Gb', 'Bb', 'D#'],
       expectedRoot: 'C',
@@ -312,7 +312,7 @@ void main() {
 
     // Sus4 identification.
     golden(
-      name: 'C F G -> Csus4',
+      description: 'suspended fourth triad',
       expectedSymbol: 'Csus4',
       pcs: ['C', 'F', 'G'],
       expectedRoot: 'C',
@@ -321,7 +321,7 @@ void main() {
 
     // Sus2 identification.
     golden(
-      name: 'C D G -> Csus2',
+      description: 'suspended second triad',
       expectedSymbol: 'Csus2',
       pcs: ['C', 'D', 'G'],
       expectedRoot: 'C',
@@ -334,7 +334,7 @@ void main() {
 
     // Major 6.
     golden(
-      name: 'C E G A -> C6',
+      description: 'major sixth',
       expectedSymbol: 'C6',
       pcs: ['C', 'E', 'G', 'A'],
       expectedRoot: 'C',
@@ -343,7 +343,7 @@ void main() {
 
     // Minor 6.
     golden(
-      name: 'A C E F# -> Am6',
+      description: 'minor sixth',
       expectedSymbol: 'Am6',
       pcs: ['A', 'C', 'E', 'F#'],
       expectedRoot: 'A',
@@ -352,7 +352,7 @@ void main() {
 
     // 6/9 sonority: represented as major6 + add9 in this system.
     golden(
-      name: 'C E G A D -> C6/9',
+      description: 'six-nine sonority',
       expectedSymbol: 'C6/9',
       pcs: ['C', 'E', 'G', 'A', 'D'],
       expectedRoot: 'C',
@@ -362,7 +362,7 @@ void main() {
 
     // Dominant 7 with a lone 13 is an added tone, not a true 13th chord.
     golden(
-      name: 'C E G Bb A -> C7(add13)',
+      description: 'dominant seventh with lone added thirteenth',
       expectedSymbol: 'C7(add13)',
       pcs: ['C', 'E', 'G', 'Bb', 'A'],
       expectedRoot: 'C',
@@ -377,7 +377,7 @@ void main() {
 
     // Half-diminished 7th (m7b5).
     golden(
-      name: 'B D F A -> Bm7(b5)',
+      description: 'half-diminished seventh',
       expectedSymbol: 'Bm7(b5)',
       pcs: ['B', 'D', 'F', 'A'],
       expectedRoot: 'B',
@@ -386,7 +386,7 @@ void main() {
 
     // Half-diminished headline promotion with a 9 extension.
     golden(
-      name: 'C Eb Gb Bb D -> Cm9(b5)',
+      description: 'half-diminished ninth headline',
       expectedSymbol: 'Cm9(b5)',
       pcs: ['C', 'Eb', 'Gb', 'Bb', 'D'],
       expectedRoot: 'C',
@@ -396,7 +396,7 @@ void main() {
 
     // Diminished seventh with color tones: verify extension mapping stays stable.
     golden(
-      name: 'C Eb Gb A D -> Cdim7(add9)',
+      description: 'diminished seventh with added ninth',
       expectedSymbol: 'Cdim7(add9)',
       pcs: ['C', 'Eb', 'Gb', 'A', 'D'],
       expectedRoot: 'C',
@@ -404,7 +404,7 @@ void main() {
       expectedExtensions: {ChordExtension.nine},
     ),
     golden(
-      name: 'C Eb Gb A F -> Cdim7(add11)',
+      description: 'diminished seventh with added eleventh',
       expectedSymbol: 'Cdim7(add11)',
       pcs: ['C', 'Eb', 'Gb', 'A', 'F'],
       expectedRoot: 'C',
@@ -412,7 +412,7 @@ void main() {
       expectedExtensions: {ChordExtension.add11},
     ),
     golden(
-      name: 'C Eb Gb A Ab -> Cdim7(b13)',
+      description: 'diminished seventh with flat thirteenth',
       expectedSymbol: 'Cdim7(b13)',
       pcs: ['C', 'Eb', 'Gb', 'A', 'Ab'],
       expectedRoot: 'C',
@@ -420,7 +420,7 @@ void main() {
       expectedExtensions: {ChordExtension.flat13},
     ),
     golden(
-      name: 'C Eb Gb A Db -> Cdim7(b9)',
+      description: 'diminished seventh with flat ninth',
       expectedSymbol: 'Cdim7(b9)',
       pcs: ['C', 'Eb', 'Gb', 'A', 'Db'],
       expectedRoot: 'C',
@@ -434,7 +434,7 @@ void main() {
 
     // Minor-major 7 shell (no fifth).
     golden(
-      name: 'C Eb B -> Cm(maj7)',
+      description: 'minor-major seventh shell without fifth',
       expectedSymbol: 'Cm(maj7)',
       pcs: ['C', 'Eb', 'B'],
       expectedRoot: 'C',
