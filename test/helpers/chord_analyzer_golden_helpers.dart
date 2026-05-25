@@ -24,6 +24,9 @@ class GoldenCase {
   /// Expected rendered symbol.
   final String expectedSymbol;
 
+  /// Expected rendered symbols for ranked candidates after the winner.
+  final List<String> expectedAlternateSymbols;
+
   /// Expected winning root pitch name.
   final String? expectedRoot;
 
@@ -49,6 +52,7 @@ class GoldenCase {
     required this.description,
     required this.expectedSymbol,
     required this.pcs,
+    this.expectedAlternateSymbols = const [],
     this.bass,
     this.noteCount,
     this.tonality,
@@ -67,6 +71,7 @@ GoldenCase golden({
   required String description,
   required String expectedSymbol,
   required List<String> pcs,
+  List<String> expectedAlternateSymbols = const [],
   String? bass,
   int? noteCount,
   Tonality? tonality,
@@ -82,6 +87,7 @@ GoldenCase golden({
     description: description,
     expectedSymbol: expectedSymbol,
     pcs: pcs,
+    expectedAlternateSymbols: expectedAlternateSymbols,
     bass: bass,
     noteCount: noteCount,
     tonality: tonality,
@@ -126,6 +132,12 @@ void runChordAnalyzerGoldenCases(Iterable<GoldenCase> cases) {
         c.expectedSymbol,
         reason: 'Rendered symbol mismatch',
       );
+      expectAlternateSymbols(
+        results,
+        c,
+        tonality: tonality,
+        notation: testNotation,
+      );
 
       try {
         expectTopIdentity(top, c);
@@ -166,6 +178,35 @@ String _testName(GoldenCase c) {
   }
 
   return parts.join(' | ');
+}
+
+void expectAlternateSymbols(
+  List<ChordCandidate> results,
+  GoldenCase c, {
+  required Tonality tonality,
+  required ChordNotationStyle notation,
+}) {
+  if (c.expectedAlternateSymbols.isEmpty) {
+    return;
+  }
+
+  final actualSymbols = results
+      .skip(1)
+      .take(c.expectedAlternateSymbols.length)
+      .map(
+        (candidate) => ChordSymbolBuilder.fromIdentity(
+          identity: candidate.identity,
+          tonality: tonality,
+          notation: notation,
+        ).toString(),
+      )
+      .toList(growable: false);
+
+  expect(
+    actualSymbols,
+    c.expectedAlternateSymbols,
+    reason: 'Rendered alternate symbol mismatch',
+  );
 }
 
 void expectTopIdentity(ChordIdentity top, GoldenCase c) {
