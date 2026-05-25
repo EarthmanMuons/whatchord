@@ -42,6 +42,7 @@ class _ExploreChordMembersSectionState extends State<ExploreChordMembersSection>
     with TickerProviderStateMixin {
   static const Duration _insertDuration = Duration(milliseconds: 140);
   static const Duration _removeDuration = Duration(milliseconds: 120);
+  static const Duration _resizeDuration = Duration(milliseconds: 90);
 
   late List<_ExploreMemberChipEntry> _entries;
 
@@ -122,6 +123,18 @@ class _ExploreChordMembersSectionState extends State<ExploreChordMembersSection>
     final nextData = [
       for (var i = 0; i < widget.members.length; i++) _memberDataAt(i),
     ];
+
+    final stableEntries = _entries.where((entry) => !entry.removing).toList();
+    if (stableEntries.length == nextData.length) {
+      setState(() {
+        for (var i = 0; i < nextData.length; i++) {
+          stableEntries[i].data = nextData[i];
+        }
+        _entries = stableEntries;
+      });
+      return;
+    }
+
     final nextIds = {for (final data in nextData) data.id};
     final entriesById = {
       for (final entry in _entries)
@@ -200,10 +213,7 @@ class _ExploreChordMembersSectionState extends State<ExploreChordMembersSection>
             ],
           ),
           for (final entry in _entries)
-            _AnimatedExploreMemberChip(
-              key: ValueKey(entry.data.id),
-              entry: entry,
-            ),
+            _AnimatedExploreMemberChip(key: ObjectKey(entry), entry: entry),
         ],
       ),
     );
@@ -427,41 +437,52 @@ class _ExploreMemberChip extends StatelessWidget {
       container: true,
       label: semanticLabel,
       child: ExcludeSemantics(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 340),
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeInCubic,
-          transitionBuilder: (child, animation) {
-            return _ExploreMemberChipFlipTransition(
-              animation: animation,
-              incoming: child.key == ValueKey(label),
-              child: child,
-            );
-          },
-          child: AnimatedContainer(
-            key: ValueKey(label),
-            duration: const Duration(milliseconds: 120),
-            decoration: BoxDecoration(
-              color: active ? cs.primaryContainer : cs.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(10 * sizeScale),
-              border: Border.all(
-                color: active
-                    ? cs.primary.withValues(alpha: 0.82)
-                    : cs.outlineVariant.withValues(alpha: 0.60),
-                width: active ? 1.6 : 1.0,
+        child: AnimatedSize(
+          duration: _ExploreChordMembersSectionState._resizeDuration,
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.centerLeft,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 340),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            layoutBuilder: (currentChild, previousChildren) {
+              return _CurrentSizeSwitcherLayout(
+                currentChild: currentChild,
+                previousChildren: previousChildren,
+              );
+            },
+            transitionBuilder: (child, animation) {
+              return _ExploreMemberChipFlipTransition(
+                animation: animation,
+                incoming: child.key == ValueKey(label),
+                child: child,
+              );
+            },
+            child: AnimatedContainer(
+              key: ValueKey(label),
+              duration: const Duration(milliseconds: 120),
+              decoration: BoxDecoration(
+                color: active ? cs.primaryContainer : cs.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(10 * sizeScale),
+                border: Border.all(
+                  color: active
+                      ? cs.primary.withValues(alpha: 0.82)
+                      : cs.outlineVariant.withValues(alpha: 0.60),
+                  width: active ? 1.6 : 1.0,
+                ),
               ),
-            ),
-            padding: EdgeInsets.symmetric(
-              horizontal: horizontalPadding,
-              vertical: (6 * verticalScale) + extraVertical,
-            ),
-            child: SizedBox(
-              width: chipTextWidth,
-              child: Text(
-                label,
-                strutStyle: labelStrut,
-                style: labelStyle,
-                textAlign: TextAlign.center,
+              padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding,
+                vertical: (6 * verticalScale) + extraVertical,
+              ),
+              child: SizedBox(
+                width: chipTextWidth,
+                child: Text(
+                  label,
+                  strutStyle: labelStrut,
+                  style: labelStyle,
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ),
@@ -513,6 +534,31 @@ class _ExploreMemberChipFlipTransition extends StatelessWidget {
           child: child,
         );
       },
+    );
+  }
+}
+
+class _CurrentSizeSwitcherLayout extends StatelessWidget {
+  const _CurrentSizeSwitcherLayout({
+    required this.currentChild,
+    required this.previousChildren,
+  });
+
+  final Widget? currentChild;
+  final List<Widget> previousChildren;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.hardEdge,
+      children: [
+        for (final child in previousChildren)
+          Positioned.fill(
+            child: Align(alignment: Alignment.center, child: child),
+          ),
+        ?currentChild,
+      ],
     );
   }
 }
