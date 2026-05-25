@@ -2,6 +2,7 @@ import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
 import '../models/tonality.dart';
 import 'note_spelling.dart' show pcToName, spellPitchClass;
+import 'pitch_class.dart';
 
 /// Role-aware spelling for the *currently sounding* chord members.
 abstract final class ChordMemberSpeller {
@@ -23,7 +24,7 @@ abstract final class ChordMemberSpeller {
     final entries = <_Member>[];
 
     for (final pc in pitchClasses) {
-      final interval = _interval(pc, identity.rootPc);
+      final interval = intervalAboveRoot(pc, identity.rootPc);
       final role = identity.toneRolesByInterval[interval];
 
       final name = spellPitchClass(
@@ -48,12 +49,6 @@ abstract final class ChordMemberSpeller {
     });
 
     return entries.map((e) => e.name).toList(growable: false);
-  }
-
-  static int _interval(int pc, int rootPc) {
-    final d = pc - rootPc;
-    final m = d % 12;
-    return m < 0 ? m + 12 : m;
   }
 
   static int _degreeRank(ChordToneRole? role, int interval) {

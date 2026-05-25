@@ -4,6 +4,7 @@ import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
 import '../models/scale_degree.dart';
 import '../models/tonality.dart';
+import '../services/pitch_class.dart';
 
 class RankingDecision {
   final int result;
@@ -960,7 +961,7 @@ class _CandidateFeatures {
 
     // Identify which extension token corresponds to the bass role (if any),
     // so we can ignore it when deciding if the chord has "extra" alterations.
-    final bassInterval = _interval(id.bassPc, id.rootPc);
+    final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
     final bassRole = id.toneRolesByInterval[bassInterval];
     final bassExt = _extensionFromRole(bassRole);
 
@@ -1003,7 +1004,7 @@ class _CandidateFeatures {
   ///
   /// This distinction helps identify upper-structure voicings vs traditional inversions.
   static bool _bassIsColorTone(ChordIdentity id) {
-    final interval = _interval(id.bassPc, id.rootPc);
+    final interval = intervalAboveRoot(id.bassPc, id.rootPc);
     final role = id.toneRolesByInterval[interval];
 
     if (role == null) {
@@ -1028,14 +1029,8 @@ class _CandidateFeatures {
         role == ChordToneRole.dim7;
   }
 
-  static int _interval(int pc, int rootPc) {
-    final d = pc - rootPc;
-    final m = d % 12;
-    return m < 0 ? m + 12 : m;
-  }
-
   static int _bassRoleRank(ChordIdentity id) {
-    final interval = _interval(id.bassPc, id.rootPc);
+    final interval = intervalAboveRoot(id.bassPc, id.rootPc);
 
     // Rank inversions by commonality/stability:
     if (interval == 0) return 0; // Root position
