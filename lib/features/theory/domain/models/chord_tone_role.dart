@@ -14,6 +14,7 @@ enum ChordToneRole {
 
   // 3rd-degree family
   minor3,
+  splitMinor3,
   major3,
 
   // 4th-degree family
@@ -55,6 +56,7 @@ extension ChordToneRoleDegree on ChordToneRole {
         return 2;
 
       case ChordToneRole.minor3:
+      case ChordToneRole.splitMinor3:
       case ChordToneRole.major3:
         return 3;
 

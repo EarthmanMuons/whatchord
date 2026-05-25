@@ -934,9 +934,9 @@ void main() {
       );
 
       expect(example.presentation.symbol.toString(), 'C(add#9)');
-      expect(example.members, ['C', 'E', 'G', 'D#']);
-      expect(example.memberDegrees, ['1', '3', '5', '#9']);
-      expect(example.normalizedVoicing, [60, 64, 67, 75]);
+      expect(example.members, ['C', 'Eb', 'E', 'G']);
+      expect(example.memberDegrees, ['1', 'b3', '3', '5']);
+      expect(example.normalizedVoicing, [60, 63, 64, 67]);
     });
 
     test('builds minor sharp-eleventh examples', () {

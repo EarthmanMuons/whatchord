@@ -31,7 +31,7 @@ void main() {
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major,
       expectedExtensions: {ChordExtension.addSharp9},
-      expectedToneRolesByInterval: {3: ChordToneRole.addSharp9},
+      expectedToneRolesByInterval: {3: ChordToneRole.splitMinor3},
     ),
 
     golden(
@@ -41,7 +41,7 @@ void main() {
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major,
       expectedExtensions: {ChordExtension.addSharp9},
-      expectedToneRolesByInterval: {3: ChordToneRole.addSharp9},
+      expectedToneRolesByInterval: {3: ChordToneRole.splitMinor3},
     ),
 
     golden(
@@ -51,7 +51,7 @@ void main() {
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major6,
       expectedExtensions: {ChordExtension.addSharp9},
-      expectedToneRolesByInterval: {3: ChordToneRole.addSharp9},
+      expectedToneRolesByInterval: {3: ChordToneRole.splitMinor3},
     ),
 
     golden(

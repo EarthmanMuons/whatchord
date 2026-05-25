@@ -590,6 +590,7 @@ String _roleLabel(ChordToneRole role) {
     ChordToneRole.add9 => 'the added ninth',
     ChordToneRole.addSharp9 => 'the added sharp ninth',
     ChordToneRole.minor3 => 'the minor third',
+    ChordToneRole.splitMinor3 => 'the split minor third',
     ChordToneRole.major3 => 'the major third',
     ChordToneRole.sus4 => 'the suspended fourth',
     ChordToneRole.eleven => 'the eleventh',
