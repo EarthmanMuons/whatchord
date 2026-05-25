@@ -4,6 +4,7 @@
 *.pyc
 *.swp
 .DS_Store
+.venv/
 .atom/
 .build/
 .buildlog/
@@ -32,6 +33,7 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+/node_modules/
 bugreport-*.zip
 flutter_*.png
 
