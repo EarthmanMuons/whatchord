@@ -5,7 +5,7 @@ import 'package:whatchord/features/theory/theory.dart';
 import 'helpers/theory_test_helpers.dart';
 
 class ScaleDegreeCase {
-  final String name;
+  final String description;
   final List<String> pcs;
   final String? bass;
   final int? noteCount;
@@ -21,7 +21,7 @@ class ScaleDegreeCase {
   final Set<ChordExtension> expectedExtensions;
 
   const ScaleDegreeCase({
-    required this.name,
+    required this.description,
     required this.pcs,
     this.bass,
     this.noteCount,
@@ -35,7 +35,7 @@ class ScaleDegreeCase {
 }
 
 ScaleDegreeCase deg({
-  required String name,
+  required String description,
   required List<String> pcs,
   String? bass,
   int? noteCount,
@@ -47,7 +47,7 @@ ScaleDegreeCase deg({
   Set<ChordExtension> expectedExtensions = const {},
 }) {
   return ScaleDegreeCase(
-    name: name,
+    description: description,
     pcs: pcs,
     bass: bass,
     noteCount: noteCount,
@@ -66,35 +66,35 @@ void main() {
     // C major: triads + 7ths
     // -------------------------
     deg(
-      name: 'C E G in C major => I',
+      description: 'major tonic triad',
       pcs: ['C', 'E', 'G'],
       expected: ScaleDegree.one,
     ),
     deg(
-      name: 'C E G B in C major => I (maj7)',
+      description: 'major tonic seventh',
       pcs: ['C', 'E', 'G', 'B'],
       expected: ScaleDegree.one,
       expectedQuality: ChordQualityToken.major7,
     ),
     deg(
-      name: 'D F A in C major => ii',
+      description: 'supertonic minor triad',
       pcs: ['D', 'F', 'A'],
       expected: ScaleDegree.two,
     ),
     deg(
-      name: 'D F A C in C major => ii (m7)',
+      description: 'supertonic minor seventh',
       pcs: ['D', 'F', 'A', 'C'],
       expected: ScaleDegree.two,
       expectedQuality: ChordQualityToken.minor7,
     ),
     deg(
-      name: 'G B D F in C major => V (dom7)',
+      description: 'dominant seventh',
       pcs: ['G', 'B', 'D', 'F'],
       expected: ScaleDegree.five,
       expectedQuality: ChordQualityToken.dominant7,
     ),
     deg(
-      name: 'B D F A in C major => vii° (ø7)',
+      description: 'leading-tone half-diminished seventh',
       pcs: ['B', 'D', 'F', 'A'],
       expected: ScaleDegree.seven,
       expectedQuality: ChordQualityToken.halfDiminished7,
@@ -106,7 +106,7 @@ void main() {
 
     // Suspensions: strict classifier returns null.
     deg(
-      name: 'C F G in C major => null (sus4)',
+      description: 'suspended chord has no strict degree',
       pcs: ['C', 'F', 'G'],
       expected: null,
       expectedQuality: ChordQualityToken.sus4,
@@ -114,7 +114,7 @@ void main() {
 
     // Altered dominants are non-diatonic under natural major/minor strictness.
     deg(
-      name: 'C E G Bb Db in C major => null (V7b9 is chromatic)',
+      description: 'chromatic altered dominant has no strict major degree',
       pcs: ['C', 'E', 'G', 'Bb', 'Db'],
       expected: null,
       expectedQuality: ChordQualityToken.dominant7,
@@ -123,22 +123,23 @@ void main() {
 
     // 6th chords: allowed only when chord-member tones are diatonic (strict).
     deg(
-      name: 'C E G A in C major => I (C6 treated as added-sixth)',
+      description: 'diatonic added-sixth tonic',
       pcs: ['C', 'E', 'G', 'A'],
       expected: ScaleDegree.one,
       expectedQuality: ChordQualityToken.major6,
     ),
     deg(
-      name: 'A C E F# in C major => null (Am6 has F#; non-diatonic)',
+      description: 'non-diatonic minor sixth has no strict major degree',
       pcs: ['A', 'C', 'E', 'F#'],
       expected: null,
-      // Your analyzer likely still returns Am6; the classifier rejects degree.
+      // The analyzer still returns Am6; the classifier rejects the degree.
       expectedQuality: ChordQualityToken.minor6,
     ),
 
     // Diminished7 is not diatonic in C major natural scale.
     deg(
-      name: 'B D F Ab in C major => null (fully diminished7 is borrowed)',
+      description:
+          'borrowed fully diminished seventh has no strict major degree',
       pcs: ['B', 'D', 'F', 'Ab'],
       expected: null,
     ),
@@ -147,7 +148,7 @@ void main() {
     // A minor: natural-minor key signature plus harmonic-minor functions.
     // -------------------------
     deg(
-      name: 'A C E in A minor => i',
+      description: 'minor tonic triad',
       pcs: ['A', 'C', 'E'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.one,
@@ -155,7 +156,7 @@ void main() {
       expectedRomanNumeral: 'i',
     ),
     deg(
-      name: 'E G B in A minor => v',
+      description: 'natural-minor dominant minor triad',
       pcs: ['E', 'G', 'B'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.five,
@@ -163,7 +164,7 @@ void main() {
       expectedRomanNumeral: 'v',
     ),
     deg(
-      name: 'E G# B in A minor => V (harmonic minor)',
+      description: 'harmonic-minor dominant triad',
       pcs: ['E', 'G#', 'B'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.five,
@@ -171,7 +172,7 @@ void main() {
       expectedRomanNumeral: 'V',
     ),
     deg(
-      name: 'E G# B D in A minor => V7 (harmonic minor)',
+      description: 'harmonic-minor dominant seventh',
       pcs: ['E', 'G#', 'B', 'D'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.five,
@@ -180,7 +181,7 @@ void main() {
       expectedQuality: ChordQualityToken.dominant7,
     ),
     deg(
-      name: 'E G# B D F in A minor => V7b9 (harmonic minor)',
+      description: 'harmonic-minor dominant flat ninth',
       pcs: ['E', 'G#', 'B', 'D', 'F'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.five,
@@ -190,7 +191,7 @@ void main() {
       expectedExtensions: {ChordExtension.flat9},
     ),
     deg(
-      name: 'E G# C D in A minor => V7#5 (harmonic minor)',
+      description: 'harmonic-minor dominant sharp fifth',
       pcs: ['E', 'G#', 'C', 'D'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.five,
@@ -199,7 +200,7 @@ void main() {
       expectedQuality: ChordQualityToken.dominant7Sharp5,
     ),
     deg(
-      name: 'G B D F in A minor => bVII7 (natural minor)',
+      description: 'natural-minor flat seventh dominant seventh',
       pcs: ['G', 'B', 'D', 'F'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.seven,
@@ -207,7 +208,7 @@ void main() {
       expectedRomanNumeral: '♭VII7',
     ),
     deg(
-      name: 'G# B D in A minor => vii° (harmonic minor)',
+      description: 'harmonic-minor leading-tone diminished triad',
       pcs: ['G#', 'B', 'D'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.seven,
@@ -215,7 +216,7 @@ void main() {
       expectedRomanNumeral: 'vii°',
     ),
     deg(
-      name: 'G# B D F in A minor => vii°7 (harmonic minor)',
+      description: 'harmonic-minor leading-tone diminished seventh',
       pcs: ['G#', 'B', 'D', 'F'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.seven,
@@ -224,7 +225,7 @@ void main() {
       expectedQuality: ChordQualityToken.diminished7,
     ),
     deg(
-      name: 'C E G# in A minor => bIII+ (harmonic minor)',
+      description: 'harmonic-minor augmented mediant',
       pcs: ['C', 'E', 'G#'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.three,
@@ -233,7 +234,7 @@ void main() {
       expectedQuality: ChordQualityToken.augmented,
     ),
     deg(
-      name: 'C E G# B in A minor => bIIImaj7#5 (harmonic minor)',
+      description: 'harmonic-minor augmented mediant seventh',
       pcs: ['C', 'E', 'G#', 'B'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.three,
@@ -242,7 +243,7 @@ void main() {
       expectedQuality: ChordQualityToken.major7Sharp5,
     ),
     deg(
-      name: 'A C E G# in A minor => i(maj7) (harmonic minor)',
+      description: 'harmonic-minor tonic major seventh',
       pcs: ['A', 'C', 'E', 'G#'],
       tonality: const Tonality('A', TonalityMode.minor),
       expected: ScaleDegree.one,
@@ -253,7 +254,7 @@ void main() {
   ];
 
   for (final c in cases) {
-    test(c.name, () {
+    test(_testName(c), () {
       final input = chordInputFromNames(
         names: c.pcs,
         bass: c.bass,
@@ -301,4 +302,21 @@ void main() {
       }
     });
   }
+}
+
+String _testName(ScaleDegreeCase c) {
+  final expected = c.expectedRomanNumeral ?? c.expectedDegree?.name ?? 'null';
+  final parts = [
+    c.description,
+    '${c.pcs.join(" ")} in ${c.tonality.displayName} -> $expected',
+  ];
+  final bass = c.bass;
+  if (bass != null) {
+    parts.add('bass $bass');
+  }
+  if (c.noteCount != null) {
+    parts.add('note count ${c.noteCount}');
+  }
+
+  return parts.join(' | ');
 }
