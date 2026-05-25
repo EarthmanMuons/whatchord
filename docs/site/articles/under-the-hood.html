@@ -560,6 +560,14 @@
                 </td>
               </tr>
               <tr>
+                <td>Sus chord with suspended tone in bass</td>
+                <td class="neg mono">-2.00</td>
+                <td>
+                  Demotes unusual inversions like D7sus2/E (sus2 in bass) so
+                  competing add-chord or triad readings can win via tie-breakers
+                </td>
+              </tr>
+              <tr>
                 <td>6th chord without 5th (3-note voicing)</td>
                 <td class="neg mono">-0.60</td>
                 <td>Disambiguates C6(no5) from Am7/C</td>
@@ -632,16 +640,12 @@
           </p>
 
           <p>
-            There are two controlled exceptions for interval 3. With a complete
-            dominant 7th shell, interval 3 is interpreted as a sharp ninth
-            instead of a minor-third penalty. That lets voicings such as
-            G-B-D-F-A♯ score and spell as
-            <span class="chord">G7♯9</span> rather than as a dominant 7th with an
-            unexplained contradictory tone. In major-family triads, a
-            simultaneous minor and major third is treated as a split third: the
-            major third keeps the chord quality, and the minor-third pitch class
-            is renamed as an added sharp ninth, as in
-            <span class="chord">C(add♯9)</span> for C-E♭-E-G.
+            Interval 3 is normally a minor third, but the analyzer allows a few
+            narrow musical exceptions where that pitch clearly functions as
+            sharp-nine color instead: dominant 7th shells with ♯9 color, and
+            major-family split-third voicings. These exceptions keep common
+            blues and altered-dominant sounds from being misread as
+            contradictions.
           </p>
 
           <h2>How the weights were tuned</h2>
@@ -786,8 +790,9 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
               Prefer root-position 6th over inverted 7th (the C6 vs. Am7/C case)
             </li>
             <li>
-              Prefer a complete major/minor triad over an incomplete inverted
-              6th chord (the Em/B vs. G6/B case)
+              Prefer a complete major/minor triad core, including simple
+              add-tone color, over an incomplete inverted 6th chord (the Em/B
+              vs. G6/B case)
             </li>
             <li>
               Prefer upper-structure dominant 7th slash (color bass with no

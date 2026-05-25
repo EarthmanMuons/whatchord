@@ -350,6 +350,25 @@ abstract final class ChordAnalyzer {
       add('m#5 bass', -minorSharpFiveAlteredFifthBassPenaltyRaw);
     }
 
+    // Sus chords with the suspended tone itself in the bass are rare and
+    // awkward to read. Musicians almost never write "D7sus2/E" (the suspension
+    // in the bass); instead they hear the voicing from a different root where
+    // the bass is a normal core tone. Penalize enough that a competing
+    // add-chord or triad reading can win through the diatonic and
+    // root-position tie-breakers when one exists.
+    //
+    // Root-position sus chords (bassInterval == 0) are unaffected because the
+    // root is always a core tone. Inversions with the 5th or 7th in bass are
+    // also unaffected; only the suspended tone itself triggers the penalty.
+    const susToneInBassPenaltyRaw = 2.0;
+    if (_hasSusToneInBass(
+      quality: template.quality,
+      bassInterval: bassInterval,
+    )) {
+      raw -= susToneInBassPenaltyRaw;
+      add('sus-tone bass', -susToneInBassPenaltyRaw);
+    }
+
     // Alteration penalty: prefer simpler spellings over altered interpretations.
     //
     // Special case: Fully diminished seventh chords are symmetric (minor-third stacks).
@@ -502,6 +521,26 @@ abstract final class ChordAnalyzer {
         quality == ChordQualityToken.minorSharp5 ||
         quality == ChordQualityToken.minor7Sharp5;
     return isMinorSharpFiveQuality && bassInterval == 8;
+  }
+
+  /// Returns true when a sus chord has its suspended tone (not the root) in
+  /// the bass. The sus2 interval is 2 (M2); the sus4 interval is 5 (P4).
+  static bool _hasSusToneInBass({
+    required ChordQualityToken quality,
+    required int bassInterval,
+  }) {
+    switch (quality) {
+      case ChordQualityToken.sus2:
+      case ChordQualityToken.dominant7sus2:
+      case ChordQualityToken.major7sus2:
+        return bassInterval == 2;
+      case ChordQualityToken.sus4:
+      case ChordQualityToken.dominant7sus4:
+      case ChordQualityToken.major7sus4:
+        return bassInterval == 5;
+      default:
+        return false;
+    }
   }
 
   static bool _flatFiveConflictsWithNaturalThirteenth({
