@@ -5,7 +5,7 @@ import 'helpers/chord_analyzer_golden_helpers.dart';
 void main() {
   final cases = <GoldenCase>[
     golden(
-      name: 'C Eb E G -> Cm',
+      description: 'minor and major third contradiction',
       expectedSymbol: 'Cm',
       pcs: ['C', 'Eb', 'E', 'G'],
       expectedRoot: 'C',
