@@ -157,6 +157,7 @@ abstract final class ChordPresentationBuilder {
       ChordToneRole.nine ||
       ChordToneRole.sharp9 ||
       ChordToneRole.add9 ||
+      ChordToneRole.addSharp9 ||
       ChordToneRole.eleven ||
       ChordToneRole.sharp11 ||
       ChordToneRole.add11 ||

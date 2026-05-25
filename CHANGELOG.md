@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
+- Added split-third analysis and explore mode support, so voicings such as
+  C-Eb-E-G can be named and explored as C(add#9).
 - Added analysis and Explore Chords support for minor sharp-five and minor
   seventh sharp-five chords.
 

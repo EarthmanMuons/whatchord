@@ -12,8 +12,6 @@ the narrowest file that explains why the case exists.
   important behavior is that one plausible interpretation beats another.
 - `chord_analyzer_spelling_golden_test.dart`: key-signature, enharmonic, and
   spelling-context behavior.
-- `chord_analyzer_pending_golden_test.dart`: documented analyzer cases with an
-  explicit `skipReason` because the intended musical behavior is not settled.
 - `chord_candidate_ranking_test.dart`: direct unit tests for
   `ChordCandidateRanking` rules. Use this when the rule decision itself matters
   more than the full analyzer pipeline.

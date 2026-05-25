@@ -220,6 +220,7 @@ class ChordQualityFormatter {
       // NOTE: Some notation styles prefer Csus4(add9). If we want to support that
       // distinction later, this branch is the correct place to specialize sus handling.
       if (ext.isAddTone) {
+        if (ext == ChordExtension.addSharp9) return true;
         return quality.isSeventhFamily;
       }
       return false; // b9, #11, 9, 11, 13 inline when alone

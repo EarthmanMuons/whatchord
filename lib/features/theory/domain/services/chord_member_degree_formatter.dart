@@ -109,6 +109,8 @@ extension on ChordToneRole {
         return '#9';
       case ChordToneRole.add9:
         return '9';
+      case ChordToneRole.addSharp9:
+        return '#9';
 
       case ChordToneRole.minor3:
         return 'b3';

@@ -116,6 +116,8 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
         choices: [
           if (addTones.contains(ChordExtension.add9))
             _choice(ChordExtension.add9),
+          if (addTones.contains(ChordExtension.addSharp9))
+            _choice(ChordExtension.addSharp9),
           if (addTones.contains(ChordExtension.add11))
             _choice(ChordExtension.add11),
           if (addTones.contains(ChordExtension.add13))

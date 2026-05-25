@@ -8,6 +8,7 @@ import '../models/chord_candidate.dart';
 import '../models/chord_extension.dart';
 import '../models/chord_identity.dart';
 import '../models/chord_input.dart';
+import '../services/chord_quality_intervals.dart';
 import '../services/chord_tone_roles.dart';
 import 'chord_candidate_ranking.dart';
 import 'chord_templates.dart';
@@ -248,6 +249,7 @@ abstract final class ChordAnalyzer {
     final functionalPenaltyExtensionsMask = _functionalPenaltyExtensionsMask(
       template: template,
       relMask: relMask,
+      bassInterval: bassInterval,
     );
     final presentPenaltyMask =
         (penalty & relMask) & ~functionalPenaltyExtensionsMask;
@@ -271,7 +273,11 @@ abstract final class ChordAnalyzer {
 
     // Extract extensions first so bass scoring can recognize extension-bass as legitimate.
     final has7 = template.quality.isSeventhFamily;
-    final extensions = _extensionsFromExtras(extrasMask, has7: has7);
+    final extensions = _extensionsFromExtras(
+      extrasMask,
+      has7: has7,
+      quality: template.quality,
+    );
 
     if (_flatFiveConflictsWithNaturalThirteenth(
       quality: template.quality,
@@ -425,8 +431,13 @@ abstract final class ChordAnalyzer {
   static int _functionalPenaltyExtensionsMask({
     required ChordTemplate template,
     required int relMask,
+    required int bassInterval,
   }) {
     final quality = template.quality;
+    if (bassInterval == 0 && _isSplitThirdMajorQuality(quality, relMask)) {
+      return 1 << minorThirdInterval;
+    }
+
     final isSharpNineDominantQuality =
         quality == ChordQualityToken.dominant7 ||
         quality == ChordQualityToken.dominant7Flat5 ||
@@ -445,6 +456,23 @@ abstract final class ChordAnalyzer {
     // contradictory minor third: G-B-D-F-A# is G7#9, not plain G7 with a penalty.
     if ((relMask & sharpNineBit) == 0) return 0;
     return sharpNineBit;
+  }
+
+  static bool _isSplitThirdMajorQuality(
+    ChordQualityToken quality,
+    int relMask,
+  ) {
+    final allowsAddedSharpNine =
+        quality == ChordQualityToken.major ||
+        quality == ChordQualityToken.major6 ||
+        quality == ChordQualityToken.augmented;
+    if (!allowsAddedSharpNine) return false;
+
+    const majorThirdBit = 1 << majorThirdInterval;
+    const minorThirdBit = 1 << minorThirdInterval;
+    final hasBothThirds =
+        (relMask & majorThirdBit) != 0 && (relMask & minorThirdBit) != 0;
+    return hasBothThirds;
   }
 
   static bool _has6ChordWithout5({
@@ -558,12 +586,19 @@ class _ScoredTemplate {
 Set<ChordExtension> _extensionsFromExtras(
   int extrasMask, {
   required bool has7,
+  required ChordQualityToken quality,
 }) {
   final out = <ChordExtension>{};
 
   // Alterations.
   if ((extrasMask & (1 << 1)) != 0) out.add(ChordExtension.flat9);
-  if ((extrasMask & (1 << 3)) != 0) out.add(ChordExtension.sharp9);
+  if ((extrasMask & (1 << 3)) != 0) {
+    out.add(
+      has7 || !_isSplitThirdAddSharpNineQuality(quality)
+          ? ChordExtension.sharp9
+          : ChordExtension.addSharp9,
+    );
+  }
   if ((extrasMask & (1 << 6)) != 0) out.add(ChordExtension.sharp11);
   if ((extrasMask & (1 << 8)) != 0) out.add(ChordExtension.flat13);
 
@@ -581,6 +616,12 @@ Set<ChordExtension> _extensionsFromExtras(
   }
 
   return out;
+}
+
+bool _isSplitThirdAddSharpNineQuality(ChordQualityToken quality) {
+  return quality == ChordQualityToken.major ||
+      quality == ChordQualityToken.major6 ||
+      quality == ChordQualityToken.augmented;
 }
 
 /// Bitwise popcount utility for small integer masks using the standard

@@ -184,6 +184,9 @@ abstract final class ChordToneRoles {
         case ChordExtension.sharp9:
           addExt(3, ChordToneRole.sharp9);
           break;
+        case ChordExtension.addSharp9:
+          addExt(3, ChordToneRole.addSharp9);
+          break;
         case ChordExtension.eleven:
           addExt(5, ChordToneRole.eleven);
           break;
