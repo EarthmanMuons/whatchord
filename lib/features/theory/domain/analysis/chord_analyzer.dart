@@ -481,16 +481,14 @@ abstract final class ChordAnalyzer {
         quality == ChordQualityToken.dominant7Sharp5;
     if (!isSharpNineDominantQuality) return 0;
 
-    const majorThirdBit = 1 << 4;
-    const flatSevenBit = 1 << 10;
-    const sharpNineBit = 1 << 3;
-
     final hasDominantShell =
-        (relMask & majorThirdBit) != 0 && (relMask & flatSevenBit) != 0;
+        (relMask & (1 << majorThirdInterval)) != 0 &&
+        (relMask & (1 << minorSeventhInterval)) != 0;
     if (!hasDominantShell) return 0;
 
-    // In dominant context, interval 3 can be the altered ninth rather than a
+    // In dominant context, interval 3 is the altered ninth rather than a
     // contradictory minor third: G-B-D-F-A# is G7#9, not plain G7 with a penalty.
+    const sharpNineBit = 1 << minorThirdInterval; // same interval, dominant function
     if ((relMask & sharpNineBit) == 0) return 0;
     return sharpNineBit;
   }
@@ -524,9 +522,7 @@ abstract final class ChordAnalyzer {
         quality == ChordQualityToken.minor6;
     if (!isSixChord) return false;
 
-    // Perfect fifth is interval 7 above the root.
-    const fifthBit = 1 << 7;
-    final hasFifth = (relMask & fifthBit) != 0;
+    final hasFifth = (relMask & (1 << perfectFifthInterval)) != 0;
 
     return !hasFifth;
   }
