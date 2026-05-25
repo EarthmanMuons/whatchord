@@ -241,7 +241,9 @@ abstract final class ExploreChordExampleBuilder {
       return switch (role) {
         ChordToneRole.root => 10,
         ChordToneRole.sus2 => 20,
-        ChordToneRole.minor3 || ChordToneRole.major3 => 30,
+        ChordToneRole.minor3 ||
+        ChordToneRole.splitMinor3 ||
+        ChordToneRole.major3 => 30,
         ChordToneRole.sus4 => 40,
         ChordToneRole.flat5 ||
         ChordToneRole.perfect5 ||

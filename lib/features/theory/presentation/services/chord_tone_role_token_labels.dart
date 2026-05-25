@@ -22,6 +22,8 @@ extension ChordToneRoleTokenLabels on ChordToneRole {
 
       case ChordToneRole.minor3:
         return 'b3';
+      case ChordToneRole.splitMinor3:
+        return 'b3';
       case ChordToneRole.major3:
         return '3';
 

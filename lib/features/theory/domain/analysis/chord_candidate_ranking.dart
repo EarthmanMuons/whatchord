@@ -966,6 +966,7 @@ class _CandidateFeatures {
       ChordToneRole.thirteenth => ChordExtension.thirteen,
       ChordToneRole.add9 => ChordExtension.add9,
       ChordToneRole.addSharp9 => ChordExtension.addSharp9,
+      ChordToneRole.splitMinor3 => ChordExtension.addSharp9,
       ChordToneRole.add11 => ChordExtension.add11,
       ChordToneRole.add13 => ChordExtension.add13,
       _ => null,
