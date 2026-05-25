@@ -10,6 +10,7 @@ enum ChordToneRole {
   nine,
   sharp9,
   add9,
+  addSharp9,
 
   // 3rd-degree family
   minor3,
@@ -50,6 +51,7 @@ extension ChordToneRoleDegree on ChordToneRole {
       case ChordToneRole.nine:
       case ChordToneRole.sharp9:
       case ChordToneRole.add9:
+      case ChordToneRole.addSharp9:
         return 2;
 
       case ChordToneRole.minor3:

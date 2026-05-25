@@ -225,6 +225,7 @@ abstract final class ExploreChordExampleBuilder {
       ChordToneRole.nine ||
       ChordToneRole.sharp9 ||
       ChordToneRole.add9 ||
+      ChordToneRole.addSharp9 ||
       ChordToneRole.eleven ||
       ChordToneRole.sharp11 ||
       ChordToneRole.add11 ||
@@ -250,7 +251,8 @@ abstract final class ExploreChordExampleBuilder {
         ChordToneRole.flat9 ||
         ChordToneRole.nine ||
         ChordToneRole.sharp9 ||
-        ChordToneRole.add9 => 80,
+        ChordToneRole.add9 ||
+        ChordToneRole.addSharp9 => 80,
         ChordToneRole.eleven ||
         ChordToneRole.sharp11 ||
         ChordToneRole.add11 => 90,

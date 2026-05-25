@@ -56,6 +56,13 @@ Set<ChordExtension> normalizeExtensionsForQuality({
           addTriadLikeExtension(ChordExtension.add9);
         }
         break;
+      case ChordExtension.addSharp9:
+        if (quality.isSeventhFamily) {
+          addSeventhAlteration(ChordExtension.sharp9);
+        } else {
+          addTriadLikeExtension(ChordExtension.addSharp9);
+        }
+        break;
       case ChordExtension.add11:
         if (quality.isSeventhFamily) {
           addSeventhAddTone(ChordExtension.add11);
@@ -92,6 +99,12 @@ Set<ChordExtension> normalizeExtensionsForQuality({
         }
         break;
       case ChordExtension.sharp9:
+        if (quality.isSeventhFamily) {
+          addSeventhAlteration(extension);
+        } else {
+          addTriadLikeExtension(ChordExtension.addSharp9);
+        }
+        break;
       case ChordExtension.flat13:
         addSeventhAlteration(extension);
         break;
@@ -131,6 +144,10 @@ void promoteAddedToneToStack(
     case ChordExtension.add9:
       extensions.remove(ChordExtension.add9);
       extensions.add(ChordExtension.nine);
+      break;
+    case ChordExtension.addSharp9:
+      extensions.remove(ChordExtension.addSharp9);
+      extensions.add(ChordExtension.sharp9);
       break;
     case ChordExtension.add11:
       if (!hasAnyNinth(extensions)) break;
@@ -173,9 +190,15 @@ void removeTriadLikeConflicts(
   switch (selected) {
     case ChordExtension.add9:
       extensions.remove(ChordExtension.flat9);
+      extensions.remove(ChordExtension.addSharp9);
+      break;
+    case ChordExtension.addSharp9:
+      extensions.remove(ChordExtension.flat9);
+      extensions.remove(ChordExtension.add9);
       break;
     case ChordExtension.flat9:
       extensions.remove(ChordExtension.add9);
+      extensions.remove(ChordExtension.addSharp9);
       break;
     case ChordExtension.add11:
       extensions.remove(ChordExtension.sharp11);
@@ -198,6 +221,7 @@ void removeSeventhConflicts(
   switch (selected) {
     case ChordExtension.nine:
       extensions.remove(ChordExtension.add9);
+      extensions.remove(ChordExtension.addSharp9);
       extensions.remove(ChordExtension.flat9);
       extensions.remove(ChordExtension.sharp9);
       break;
@@ -218,6 +242,15 @@ void removeSeventhConflicts(
       extensions.remove(ChordExtension.thirteen);
       extensions.remove(ChordExtension.flat9);
       extensions.remove(ChordExtension.sharp9);
+      extensions.remove(ChordExtension.addSharp9);
+      break;
+    case ChordExtension.addSharp9:
+      extensions.remove(ChordExtension.nine);
+      extensions.remove(ChordExtension.eleven);
+      extensions.remove(ChordExtension.thirteen);
+      extensions.remove(ChordExtension.flat9);
+      extensions.remove(ChordExtension.sharp9);
+      extensions.remove(ChordExtension.add9);
       break;
     case ChordExtension.add11:
       extensions.remove(ChordExtension.eleven);
@@ -231,10 +264,12 @@ void removeSeventhConflicts(
     case ChordExtension.flat9:
       extensions.remove(ChordExtension.nine);
       extensions.remove(ChordExtension.add9);
+      extensions.remove(ChordExtension.addSharp9);
       break;
     case ChordExtension.sharp9:
       extensions.remove(ChordExtension.nine);
       extensions.remove(ChordExtension.add9);
+      extensions.remove(ChordExtension.addSharp9);
       break;
     case ChordExtension.sharp11:
       extensions.remove(ChordExtension.eleven);
@@ -254,6 +289,7 @@ Set<ChordExtension> triadLikeExtensions(ChordQualityToken quality) {
     for (final extension in const {
       ChordExtension.flat9,
       ChordExtension.add9,
+      ChordExtension.addSharp9,
       ChordExtension.add11,
       ChordExtension.add13,
       ChordExtension.sharp11,
@@ -261,6 +297,8 @@ Set<ChordExtension> triadLikeExtensions(ChordQualityToken quality) {
       if (!canonicalIntervals.contains(extension.intervalAboveRoot) &&
           (extension != ChordExtension.sharp11 ||
               _allowsTriadLikeSharp11(quality)) &&
+          (extension != ChordExtension.addSharp9 ||
+              _allowsTriadLikeAddSharp9(quality)) &&
           (extension != ChordExtension.flat9 || _allowsTriadLikeFlat9(quality)))
         extension,
   };
@@ -271,6 +309,7 @@ Set<ChordExtension> triadLikeAddTones(ChordQualityToken quality) {
   return {
     for (final extension in const {
       ChordExtension.add9,
+      ChordExtension.addSharp9,
       ChordExtension.add11,
       ChordExtension.add13,
     })
@@ -347,6 +386,15 @@ bool _allowsTriadLikeSharp11(ChordQualityToken quality) {
     ChordQualityToken.minorSharp5 ||
     ChordQualityToken.major6 ||
     ChordQualityToken.minor6 ||
+    ChordQualityToken.augmented => true,
+    _ => false,
+  };
+}
+
+bool _allowsTriadLikeAddSharp9(ChordQualityToken quality) {
+  return switch (quality) {
+    ChordQualityToken.major ||
+    ChordQualityToken.major6 ||
     ChordQualityToken.augmented => true,
     _ => false,
   };

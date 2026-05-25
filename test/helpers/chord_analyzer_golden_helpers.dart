@@ -45,9 +45,6 @@ class GoldenCase {
   /// Tone roles that must appear at specific intervals on the winning identity.
   final Map<int, ChordToneRole> expectedToneRolesByInterval;
 
-  /// Optional reason this case is documented but not active yet.
-  final String? skipReason;
-
   const GoldenCase({
     required this.description,
     required this.expectedSymbol,
@@ -62,7 +59,6 @@ class GoldenCase {
     this.expectNoExtensions = false,
     this.unexpectedExtensions = const {},
     this.expectedToneRolesByInterval = const {},
-    this.skipReason,
   });
 }
 
@@ -81,7 +77,6 @@ GoldenCase golden({
   bool expectNoExtensions = false,
   Set<ChordExtension> unexpectedExtensions = const {},
   Map<int, ChordToneRole> expectedToneRolesByInterval = const {},
-  String? skipReason,
 }) {
   return GoldenCase(
     description: description,
@@ -97,7 +92,6 @@ GoldenCase golden({
     expectNoExtensions: expectNoExtensions,
     unexpectedExtensions: unexpectedExtensions,
     expectedToneRolesByInterval: expectedToneRolesByInterval,
-    skipReason: skipReason,
   );
 }
 
@@ -150,7 +144,7 @@ void runChordAnalyzerGoldenCases(Iterable<GoldenCase> cases) {
           ].join('\n'),
         );
       }
-    }, skip: c.skipReason);
+    });
   }
 }
 

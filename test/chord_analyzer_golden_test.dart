@@ -25,6 +25,36 @@ void main() {
     ),
 
     golden(
+      description: 'major triad with split third as added sharp ninth',
+      expectedSymbol: 'C(add#9)',
+      pcs: ['C', 'Eb', 'E', 'G'],
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.addSharp9},
+      expectedToneRolesByInterval: {3: ChordToneRole.addSharp9},
+    ),
+
+    golden(
+      description: 'split third shell without fifth',
+      expectedSymbol: 'C(add#9)',
+      pcs: ['C', 'Eb', 'E'],
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.addSharp9},
+      expectedToneRolesByInterval: {3: ChordToneRole.addSharp9},
+    ),
+
+    golden(
+      description: 'major sixth with split third as added sharp ninth',
+      expectedSymbol: 'C6(add#9)',
+      pcs: ['C', 'Eb', 'E', 'G', 'A'],
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major6,
+      expectedExtensions: {ChordExtension.addSharp9},
+      expectedToneRolesByInterval: {3: ChordToneRole.addSharp9},
+    ),
+
+    golden(
       description: 'straight dominant seventh',
       expectedSymbol: 'C7',
       pcs: ['C', 'E', 'G', 'Bb'],

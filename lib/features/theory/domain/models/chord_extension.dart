@@ -4,6 +4,7 @@ enum ChordExtension {
   flat9,
   nine,
   sharp9,
+  addSharp9,
   eleven,
   sharp11,
   flat13,
@@ -25,20 +26,22 @@ extension ChordExtensionOrdering on ChordExtension {
         return 2;
       case ChordExtension.sharp9:
         return 3;
-      case ChordExtension.eleven:
+      case ChordExtension.addSharp9:
         return 4;
-      case ChordExtension.sharp11:
+      case ChordExtension.eleven:
         return 5;
-      case ChordExtension.flat13:
+      case ChordExtension.sharp11:
         return 6;
-      case ChordExtension.thirteen:
+      case ChordExtension.flat13:
         return 7;
-      case ChordExtension.add9:
+      case ChordExtension.thirteen:
         return 8;
-      case ChordExtension.add11:
+      case ChordExtension.add9:
         return 9;
-      case ChordExtension.add13:
+      case ChordExtension.add11:
         return 10;
+      case ChordExtension.add13:
+        return 11;
     }
   }
 }
@@ -53,6 +56,8 @@ extension ChordExtensionLabels on ChordExtension {
         return '9';
       case ChordExtension.sharp9:
         return '#9';
+      case ChordExtension.addSharp9:
+        return 'add#9';
       case ChordExtension.eleven:
         return '11';
       case ChordExtension.sharp11:
@@ -79,6 +84,8 @@ extension ChordExtensionLabels on ChordExtension {
         return 'ninth';
       case ChordExtension.sharp9:
         return 'sharp ninth';
+      case ChordExtension.addSharp9:
+        return 'added sharp ninth';
       case ChordExtension.eleven:
         return 'eleventh';
       case ChordExtension.sharp11:
@@ -101,6 +108,7 @@ extension ChordExtensionSemantics on ChordExtension {
   bool get isAddTone {
     switch (this) {
       case ChordExtension.add9:
+      case ChordExtension.addSharp9:
       case ChordExtension.add11:
       case ChordExtension.add13:
         return true;
@@ -180,6 +188,7 @@ extension ChordExtensionInterval on ChordExtension {
       case ChordExtension.add9:
         return 2;
       case ChordExtension.sharp9:
+      case ChordExtension.addSharp9:
         return 3;
       case ChordExtension.eleven:
       case ChordExtension.add11:
