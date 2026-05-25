@@ -98,6 +98,13 @@ String normalizeNoteNameToAscii(String name) {
   return '$letter$accText';
 }
 
+/// Semitone interval from [rootPc] up to [pc], mod 12 (always 0..11).
+int intervalAboveRoot(int pc, int rootPc) {
+  final d = pc - rootPc;
+  final m = d % 12;
+  return m < 0 ? m + 12 : m;
+}
+
 /// Returns the pitch class (0..11) for a note name.
 /// Accepts Unicode accidentals, but internally canonicalizes to ASCII first.
 int pitchClassFromNoteName(String name) {

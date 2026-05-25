@@ -1,5 +1,6 @@
 import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
+import 'pitch_class.dart';
 
 /// Role-aware degree tokens for currently sounding chord members.
 ///
@@ -13,7 +14,7 @@ abstract final class ChordMemberDegreeFormatter {
 
     final entries = <_DegreeEntry>[];
     for (final pc in pitchClasses) {
-      final interval = _interval(pc, identity.rootPc);
+      final interval = intervalAboveRoot(pc, identity.rootPc);
       final role = identity.toneRolesByInterval[interval];
       final label = _label(role, interval);
       entries.add(_DegreeEntry(interval: interval, role: role, label: label));
@@ -36,12 +37,6 @@ abstract final class ChordMemberDegreeFormatter {
     });
 
     return entries.map((e) => e.label).toList(growable: false);
-  }
-
-  static int _interval(int pc, int rootPc) {
-    final d = pc - rootPc;
-    final m = d % 12;
-    return m < 0 ? m + 12 : m;
   }
 
   static String _label(ChordToneRole? role, int interval) {

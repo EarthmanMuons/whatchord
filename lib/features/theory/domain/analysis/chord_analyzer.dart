@@ -10,6 +10,7 @@ import '../models/chord_identity.dart';
 import '../models/chord_input.dart';
 import '../services/chord_quality_intervals.dart';
 import '../services/chord_tone_roles.dart';
+import '../services/pitch_class.dart';
 import 'chord_candidate_ranking.dart';
 import 'chord_templates.dart';
 
@@ -165,7 +166,7 @@ abstract final class ChordAnalyzer {
       if ((pcMask & (1 << rootPc)) == 0) continue;
 
       final relMask = _rotateMaskToRoot(pcMask, rootPc);
-      final bassInterval = _interval(input.bassPc, rootPc);
+      final bassInterval = intervalAboveRoot(input.bassPc, rootPc);
 
       for (final tmpl in chordTemplates) {
         final reasons = debug ? <ScoreReason>[] : null;
@@ -575,20 +576,13 @@ abstract final class ChordAnalyzer {
     return 2.1;
   }
 
-  /// Calculates the interval (in semitones, 0..11) from rootPc to pc.
-  static int _interval(int pc, int rootPc) {
-    final d = pc - rootPc;
-    final m = d % 12;
-    return m < 0 ? m + 12 : m;
-  }
-
   /// Rotates a 12-bit pitch-class mask to be relative to the given root.
   /// Example: {C, E, G} with root=C → bitmask 100010001 (intervals 0, 4, 7)
   static int _rotateMaskToRoot(int pcMask, int rootPc) {
     var rel = 0;
     for (var pc = 0; pc < 12; pc++) {
       if ((pcMask & (1 << pc)) == 0) continue;
-      final interval = _interval(pc, rootPc);
+      final interval = intervalAboveRoot(pc, rootPc);
       rel |= (1 << interval);
     }
     return rel;
