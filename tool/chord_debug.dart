@@ -47,6 +47,17 @@ void main(List<String> args) {
     return;
   }
 
+  final unknownFlags = _unknownFlags(args);
+  if (unknownFlags.isNotEmpty) {
+    stderr.writeln(
+      'Unknown flag${unknownFlags.length == 1 ? '' : 's'}: '
+      '${unknownFlags.join(', ')}',
+    );
+    stderr.writeln('Use --help to see supported options.');
+    exitCode = 2;
+    return;
+  }
+
   if (args.isEmpty) {
     stderr.writeln('Provide notes (pitch names or MIDI numbers).');
     stderr.writeln('');
@@ -578,6 +589,41 @@ bool _hasFlag(List<String> args, String name, String shortName) {
 
 bool _hasLongFlag(List<String> args, String name) {
   return args.contains('--$name');
+}
+
+List<String> _unknownFlags(List<String> args) {
+  const knownFlags = {
+    '--help',
+    '--top',
+    '--bass',
+    '--key',
+    '--notation',
+    '--format',
+    '--json',
+    '--verbose',
+    '--compact',
+    '-h',
+    '-t',
+    '-b',
+    '-k',
+    '-n',
+    '-f',
+    '-v',
+    '-c',
+  };
+
+  final unknown = <String>[];
+  for (final arg in args) {
+    if (!arg.startsWith('--') && !RegExp(r'^-[A-Za-z]').hasMatch(arg)) {
+      continue;
+    }
+
+    final flag = arg.split('=').first;
+    if (!knownFlags.contains(flag)) {
+      unknown.add(flag);
+    }
+  }
+  return unknown;
 }
 
 int? _readIntFlag(List<String> args, String name, String shortName) {
