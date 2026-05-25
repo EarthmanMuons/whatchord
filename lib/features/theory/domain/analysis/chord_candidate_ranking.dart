@@ -181,12 +181,17 @@ abstract final class ChordCandidateRanking {
     return null;
   }
 
-  /// Prefers a complete major/minor triad over an incomplete inverted 6th chord.
+  /// Prefers a complete major/minor triad core over an incomplete inverted 6th
+  /// chord.
   ///
   /// Example: {B, E, G} with B in the bass can be read as G6/B or Em/B.
   /// The E minor triad is complete, while the G6 reading omits its fifth and
   /// depends on an inversion. Keep this narrow so root-position 6th colors
   /// with an omitted fifth are not demoted to relative-minor slash chords.
+  ///
+  /// The complete triad may carry simple add-tone color: {A, C, D, E} with E
+  /// bass is better read as Amadd11/E than C6/9/E, because the A minor triad is
+  /// complete while the C6/9 reading omits the fifth.
   static int? _preferCompleteTriadOverIncompleteInvertedSixth(
     ChordCandidate a,
     ChordCandidate b,
@@ -822,7 +827,7 @@ class _CandidateFeatures {
       isDimFamily: isDimFamily,
       isSus: q.isSus,
       isCompleteMinorSharp11: _isCompleteMinorSharp11(id),
-      isCompleteMajorMinorTriad: _isCompleteMajorMinorTriad(id),
+      isCompleteMajorMinorTriad: _isCompleteMajorMinorTriadCore(id),
       isIncompleteInvertedSixth: _isIncompleteInvertedSixth(id, rootPos),
       isSecondInversion: _bassRoleRank(id) == 2,
       isAlteredMajor7Sus4: _isAlteredMajor7Sus4(id, rootPos),
@@ -856,12 +861,16 @@ class _CandidateFeatures {
         roles.contains(ChordToneRole.sharp11);
   }
 
-  static bool _isCompleteMajorMinorTriad(ChordIdentity id) {
+  static bool _isCompleteMajorMinorTriadCore(ChordIdentity id) {
     final q = id.quality;
     if (q != ChordQualityToken.major && q != ChordQualityToken.minor) {
       return false;
     }
-    if (id.extensions.isNotEmpty) return false;
+    if (id.extensions.any(
+      (extension) => _isTriadCoreDestabilizingExtension(extension, quality: q),
+    )) {
+      return false;
+    }
 
     final roles = id.toneRolesByInterval.values;
     final hasThird = q == ChordQualityToken.major
@@ -871,6 +880,22 @@ class _CandidateFeatures {
     return roles.contains(ChordToneRole.root) &&
         hasThird &&
         roles.contains(ChordToneRole.perfect5);
+  }
+
+  static bool _isTriadCoreDestabilizingExtension(
+    ChordExtension extension, {
+    required ChordQualityToken quality,
+  }) {
+    if (quality == ChordQualityToken.major &&
+        extension == ChordExtension.add11) {
+      return true;
+    }
+
+    return extension == ChordExtension.flat9 ||
+        extension == ChordExtension.sharp9 ||
+        extension == ChordExtension.addSharp9 ||
+        extension == ChordExtension.sharp11 ||
+        extension == ChordExtension.flat13;
   }
 
   static bool _isIncompleteInvertedSixth(ChordIdentity id, bool rootPos) {

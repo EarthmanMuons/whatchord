@@ -78,6 +78,49 @@ void main() {
     ),
 
     // -------------------------------------------------------------------------
+    // Sus-tone-in-bass penalty
+    // -------------------------------------------------------------------------
+
+    // {A, C, D, E} with E bass could be read as D7sus2/E (sus2 in bass),
+    // C6/9/E (incomplete inverted sixth), or Amadd11/E (complete minor triad
+    // with added color). The sus-bass penalty demotes D7sus2/E into a near-tie,
+    // and the complete-triad-core rule prefers the Am reading over C6/9/E.
+    golden(
+      description: 'am add11 beats incomplete inverted sixth',
+      expectedSymbol: 'Amadd11 / E',
+      pcs: ['A', 'C', 'D', 'E'],
+      bass: 'E',
+      expectedRoot: 'A',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.minor,
+      expectedExtensions: {ChordExtension.add11},
+    ),
+
+    golden(
+      description: 'am add11 beats sus2-tone-in-bass in A minor context',
+      expectedSymbol: 'Amadd11 / E',
+      pcs: ['A', 'C', 'D', 'E'],
+      bass: 'E',
+      tonality: const Tonality('A', TonalityMode.minor),
+      expectedRoot: 'A',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.minor,
+      expectedExtensions: {ChordExtension.add11},
+    ),
+
+    golden(
+      description: 'transposed add11 beats incomplete inverted sixth',
+      expectedSymbol: 'Dmadd11 / A',
+      pcs: ['D', 'F', 'G', 'A'],
+      bass: 'A',
+      tonality: const Tonality('F', TonalityMode.major),
+      expectedRoot: 'D',
+      expectedBass: 'A',
+      expectedQuality: ChordQualityToken.minor,
+      expectedExtensions: {ChordExtension.add11},
+    ),
+
+    // -------------------------------------------------------------------------
     // Compact voicing disambiguation
     // -------------------------------------------------------------------------
     golden(
