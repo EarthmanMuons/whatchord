@@ -488,7 +488,8 @@ abstract final class ChordAnalyzer {
 
     // In dominant context, interval 3 is the altered ninth rather than a
     // contradictory minor third: G-B-D-F-A# is G7#9, not plain G7 with a penalty.
-    const sharpNineBit = 1 << minorThirdInterval; // same interval, dominant function
+    const sharpNineBit =
+        1 << minorThirdInterval; // same interval, dominant function
     if ((relMask & sharpNineBit) == 0) return 0;
     return sharpNineBit;
   }
@@ -600,6 +601,65 @@ abstract final class ChordAnalyzer {
     }
     return rel;
   }
+
+  /// Extracts extension tokens from the "extra" tone mask.
+  ///
+  /// Maps interval positions to ChordExtension enums:
+  /// - Alterations: b9(1), #9(3), #11(6), b13(8)
+  /// - Natural extensions: 9(2), 11(5), 13(9)
+  ///
+  /// Natural extensions become "add9/add11/add13" for triads,
+  /// or stacked "9/11/13" for 7th-family chords (where they're more idiomatic).
+  static Set<ChordExtension> _extensionsFromExtras(
+    int extrasMask, {
+    required bool has7,
+    required ChordQualityToken quality,
+  }) {
+    final out = <ChordExtension>{};
+
+    // Alterations.
+    if ((extrasMask & (1 << 1)) != 0) out.add(ChordExtension.flat9);
+    if ((extrasMask & (1 << 3)) != 0) {
+      out.add(
+        has7 || !_isSplitThirdAddSharpNineQuality(quality)
+            ? ChordExtension.sharp9
+            : ChordExtension.addSharp9,
+      );
+    }
+    if ((extrasMask & (1 << 6)) != 0) out.add(ChordExtension.sharp11);
+    if ((extrasMask & (1 << 8)) != 0) out.add(ChordExtension.flat13);
+
+    // Natural extensions/add tones.
+    final has9 = (extrasMask & (1 << 2)) != 0;
+    final has11 = (extrasMask & (1 << 5)) != 0;
+    final has13 = (extrasMask & (1 << 9)) != 0;
+
+    if (has9) out.add(has7 ? ChordExtension.nine : ChordExtension.add9);
+    if (has11) {
+      out.add(has7 && has9 ? ChordExtension.eleven : ChordExtension.add11);
+    }
+    if (has13) {
+      out.add(has7 && has9 ? ChordExtension.thirteen : ChordExtension.add13);
+    }
+
+    return out;
+  }
+
+  static bool _isSplitThirdAddSharpNineQuality(ChordQualityToken quality) {
+    return quality == ChordQualityToken.major ||
+        quality == ChordQualityToken.major6 ||
+        quality == ChordQualityToken.augmented;
+  }
+
+  /// Bitwise popcount for small integer masks using the Kernighan algorithm.
+  static int _popCount(int v) {
+    var c = 0;
+    while (v != 0) {
+      v &= v - 1; // clear lowest set bit
+      c++;
+    }
+    return c;
+  }
 }
 
 class _Evaluated {
@@ -619,64 +679,4 @@ class _ScoredTemplate {
   final Set<ChordExtension> extensions;
 
   const _ScoredTemplate({required this.score, required this.extensions});
-}
-
-/// Extracts extension tokens from the "extra" tone mask.
-///
-/// Maps interval positions to ChordExtension enums:
-/// - Alterations: b9(1), #9(3), #11(6), b13(8)
-/// - Natural extensions: 9(2), 11(5), 13(9)
-///
-/// Natural extensions become "add9/add11/add13" for triads,
-/// or stacked "9/11/13" for 7th-family chords (where they're more idiomatic).
-Set<ChordExtension> _extensionsFromExtras(
-  int extrasMask, {
-  required bool has7,
-  required ChordQualityToken quality,
-}) {
-  final out = <ChordExtension>{};
-
-  // Alterations.
-  if ((extrasMask & (1 << 1)) != 0) out.add(ChordExtension.flat9);
-  if ((extrasMask & (1 << 3)) != 0) {
-    out.add(
-      has7 || !_isSplitThirdAddSharpNineQuality(quality)
-          ? ChordExtension.sharp9
-          : ChordExtension.addSharp9,
-    );
-  }
-  if ((extrasMask & (1 << 6)) != 0) out.add(ChordExtension.sharp11);
-  if ((extrasMask & (1 << 8)) != 0) out.add(ChordExtension.flat13);
-
-  // Natural extensions/add tones.
-  final has9 = (extrasMask & (1 << 2)) != 0;
-  final has11 = (extrasMask & (1 << 5)) != 0;
-  final has13 = (extrasMask & (1 << 9)) != 0;
-
-  if (has9) out.add(has7 ? ChordExtension.nine : ChordExtension.add9);
-  if (has11) {
-    out.add(has7 && has9 ? ChordExtension.eleven : ChordExtension.add11);
-  }
-  if (has13) {
-    out.add(has7 && has9 ? ChordExtension.thirteen : ChordExtension.add13);
-  }
-
-  return out;
-}
-
-bool _isSplitThirdAddSharpNineQuality(ChordQualityToken quality) {
-  return quality == ChordQualityToken.major ||
-      quality == ChordQualityToken.major6 ||
-      quality == ChordQualityToken.augmented;
-}
-
-/// Bitwise popcount utility for small integer masks using the standard
-/// Kernighan algorithm.
-int _popCount(int v) {
-  var c = 0;
-  while (v != 0) {
-    v &= v - 1; // clear lowest set bit
-    c++;
-  }
-  return c;
 }
