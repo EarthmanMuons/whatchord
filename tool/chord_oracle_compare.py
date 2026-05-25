@@ -116,6 +116,21 @@ class OracleResult:
         return self.labels[0] if self.labels else ""
 
 
+@dataclass(frozen=True)
+class SemanticChordKey:
+    root_pc: int
+    degrees: tuple[str, ...]
+    bass_pc: int | None = None
+
+    def without_bass(self) -> "SemanticChordKey":
+        return SemanticChordKey(root_pc=self.root_pc, degrees=self.degrees)
+
+    def display(self) -> str:
+        bass = "" if self.bass_pc is None else f"/bass{self.bass_pc}"
+        degrees = ",".join(self.degrees) if self.degrees else "1"
+        return f"pc{self.root_pc}{bass}:{{{degrees}}}"
+
+
 class Oracle:
     name: str
 
@@ -510,25 +525,54 @@ def build_row(
     candidates = what.get("candidates", [])
     best = candidates[0] if candidates else {}
     whatchord_label = comparable_label(str(best.get("symbol", "")))
+    whatchord_key = semantic_key_from_whatchord(best)
     comparable_oracles = {
         name: comparable_labels([result.primary])
         for name, result in oracle_results.items()
         if comparable_labels([result.primary])
     }
+    primary_semantic_oracles = {
+        name: semantic_keys([result.primary])
+        for name, result in oracle_results.items()
+        if semantic_keys([result.primary])
+    }
+    all_semantic_oracles = {
+        name: semantic_keys(result.labels)
+        for name, result in oracle_results.items()
+        if semantic_keys(result.labels)
+    }
     matching_oracles = [
-        name for name, labels in comparable_oracles.items() if whatchord_label in labels
-    ]
-    disagreeing_oracles = [
         name
         for name, labels in comparable_oracles.items()
-        if whatchord_label not in labels
+        if whatchord_label and whatchord_label in labels
+    ]
+    semantic_matching_oracles = [
+        name
+        for name, keys in primary_semantic_oracles.items()
+        if semantic_key_matches(whatchord_key, keys)
+    ]
+    for name in semantic_matching_oracles:
+        if name not in matching_oracles:
+            matching_oracles.append(name)
+    disagreeing_oracles = [
+        name
+        for name in oracle_results
+        if name in comparable_oracles or name in primary_semantic_oracles
+        if name not in matching_oracles
+    ]
+    alternate_matching_oracles = [
+        name
+        for name, keys in all_semantic_oracles.items()
+        if name not in matching_oracles and semantic_key_matches(whatchord_key, keys)
     ]
     review_flag = "agree"
     if not best:
         review_flag = "no-whatchord-candidate"
     elif any(result.status == "error" for result in oracle_results.values()):
         review_flag = "oracle-error"
-    elif not whatchord_label or not comparable_oracles:
+    elif (not whatchord_label and whatchord_key is None) or (
+        not comparable_oracles and not primary_semantic_oracles
+    ):
         review_flag = "insufficient-oracle-labels"
     elif matching_oracles and disagreeing_oracles:
         review_flag = "oracle-split"
@@ -541,6 +585,13 @@ def build_row(
     normalized_parts.extend(
         f"{name}={' | '.join(labels)}"
         for name, labels in comparable_oracles.items()
+    )
+    semantic_parts = []
+    if whatchord_key is not None:
+        semantic_parts.append(f"whatchord={whatchord_key.display()}")
+    semantic_parts.extend(
+        f"{name}={' | '.join(key.display() for key in keys)}"
+        for name, keys in all_semantic_oracles.items()
     )
 
     row: dict[str, object] = {
@@ -556,7 +607,9 @@ def build_row(
         "review_flag": review_flag,
         "matching_oracles": " ".join(matching_oracles),
         "disagreeing_oracles": " ".join(disagreeing_oracles),
+        "alternate_matching_oracles": " ".join(alternate_matching_oracles),
         "normalized_labels": " || ".join(normalized_parts),
+        "semantic_labels": " || ".join(semantic_parts),
     }
     for name, result in oracle_results.items():
         row[f"{name}_status"] = result.status
@@ -575,6 +628,311 @@ def comparable_labels(labels: Iterable[str]) -> tuple[str, ...]:
         seen.add(comparable)
         out.append(comparable)
     return tuple(out)
+
+
+def semantic_keys(labels: Iterable[str]) -> tuple[SemanticChordKey, ...]:
+    out = []
+    seen = set()
+    for label in labels:
+        key = semantic_key_from_label(label)
+        if key is None or key in seen:
+            continue
+        seen.add(key)
+        out.append(key)
+    return tuple(out)
+
+
+def semantic_key_matches(
+    whatchord_key: SemanticChordKey | None,
+    oracle_keys: Iterable[SemanticChordKey],
+) -> bool:
+    if whatchord_key is None:
+        return False
+
+    whatchord_loose = whatchord_key.without_bass()
+    for oracle_key in oracle_keys:
+        if oracle_key.without_bass() != whatchord_loose:
+            continue
+        if oracle_key.bass_pc is None or whatchord_key.bass_pc is None:
+            return True
+        if oracle_key.bass_pc == whatchord_key.bass_pc:
+            return True
+    return False
+
+
+def semantic_key_from_whatchord(candidate: dict) -> SemanticChordKey | None:
+    try:
+        root_pc = int(candidate["rootPc"])
+    except (KeyError, TypeError, ValueError):
+        return None
+
+    roles = candidate.get("toneRolesByInterval", {})
+    degrees = []
+    if isinstance(roles, dict):
+        for role in roles.values():
+            degree = DEGREE_BY_ROLE.get(str(role))
+            if degree:
+                degrees.append(degree)
+
+    bass_pc = None
+    try:
+        candidate_bass = int(candidate["bassPc"])
+        if candidate_bass != root_pc:
+            bass_pc = candidate_bass
+    except (KeyError, TypeError, ValueError):
+        pass
+
+    return SemanticChordKey(
+        root_pc=root_pc,
+        bass_pc=bass_pc,
+        degrees=sort_degrees(set(degrees)),
+    )
+
+
+def semantic_key_from_label(label: str) -> SemanticChordKey | None:
+    parsed = parse_chord_label(label)
+    if parsed is None:
+        return None
+
+    root_pc, quality, bass_pc, slash_suffix = parsed
+    degrees = degrees_from_quality(quality, root_pc=root_pc)
+    if slash_suffix:
+        degrees.update(degrees_from_quality(slash_suffix, root_pc=root_pc, base_only=False))
+    if not degrees:
+        return None
+
+    return SemanticChordKey(
+        root_pc=root_pc,
+        bass_pc=bass_pc,
+        degrees=sort_degrees(degrees),
+    )
+
+
+def parse_chord_label(label: str) -> tuple[int, str, int | None, str] | None:
+    value = label.strip()
+    if not value:
+        return None
+
+    normalized = value.replace("♯", "#").replace("♭", "b")
+    normalized = normalized.replace("-", "b")
+    normalized = re.sub(r"\s+", "", normalized)
+
+    root_match = re.match(r"^([A-Ga-g](?:#{1,2}|b{1,2})?)(.*)$", normalized)
+    if root_match is None:
+        return None
+
+    root_pc = pitch_class_number(root_match.group(1))
+    if root_pc is None:
+        return None
+
+    rest = root_match.group(2)
+    bass_pc = None
+    slash_suffix = ""
+    slash_match = re.search(r"/([A-Ga-g](?:#{1,2}|b{1,2})?)(.*)$", rest)
+    if slash_match is not None:
+        bass_pc = pitch_class_number(slash_match.group(1))
+        slash_suffix = slash_match.group(2)
+        rest = rest[: slash_match.start()]
+
+    return root_pc, rest, bass_pc, slash_suffix
+
+
+def degrees_from_quality(
+    raw: str,
+    *,
+    root_pc: int,
+    base_only: bool = True,
+) -> set[str]:
+    value = raw.strip()
+    if not value:
+        return {"3", "5"} if base_only else set()
+
+    absolute_adds = {
+        degree_from_interval((pc - root_pc) % 12, prefer_extensions=True)
+        for pc in (
+            pitch_class_number(match.group(1))
+            for match in re.finditer(r"add([A-Ga-g](?:#{1,2}|b{1,2})?)", value)
+        )
+        if pc is not None
+    }
+    absolute_adds.discard("")
+    value = re.sub(r"add[A-Ga-g](?:#{1,2}|b{1,2})?", "", value)
+
+    compact = value.replace(" ", "")
+    compact = compact.replace("(", "").replace(")", "")
+    compact = compact.replace("Δ", "maj")
+    if compact == "M":
+        compact = "maj"
+    elif compact.startswith("M"):
+        compact = "maj" + compact[1:]
+    compact = compact.replace("major", "maj").replace("minor", "min")
+    compact = compact.replace("dom", "")
+    compact = compact.lower()
+
+    degrees = set(absolute_adds)
+    if base_only:
+        degrees.update(base_degrees(compact))
+
+    degrees.update(extension_degrees(compact, has_third=has_third(degrees)))
+    return {degree for degree in degrees if degree}
+
+
+def base_degrees(compact: str) -> set[str]:
+    if not compact or compact == "maj":
+        return {"3", "5"}
+    headline = headline_extension(compact)
+    if compact.startswith(("ø", "m7b5")) or "halfdim" in compact:
+        return {"b3", "b5", "b7"}
+    if compact.startswith("dim"):
+        return {"b3", "b5", "bb7"} if "7" in compact else {"b3", "b5"}
+    if compact.startswith("aug"):
+        return {"3", "#5"}
+    if compact.startswith("sus2") or "sus2" in compact:
+        out = {"2", "5"}
+    elif compact.startswith("sus4") or "sus4" in compact:
+        out = {"4", "5"}
+    elif compact.startswith("minmaj") or compact.startswith("mmaj"):
+        out = {"b3", "5", "7"}
+    elif compact.startswith("min") or (compact.startswith("m") and not compact.startswith("maj")):
+        out = {"b3", "5"}
+    else:
+        out = {"3", "5"}
+
+    if "#5" in compact or "+5" in compact:
+        out.discard("5")
+        out.add("#5")
+    if "b5" in compact:
+        out.discard("5")
+        out.add("b5")
+    if "maj7" in compact or "ma7" in compact:
+        out.add("7")
+    elif ("7" in compact or headline is not None) and "bb7" not in out:
+        out.add("b7")
+    if "b6" in compact:
+        out.add("b13")
+    if re.search(r"(^|[^0-9b#])6([^0-9]|$)", compact):
+        out.add("6")
+    return out
+
+
+def extension_degrees(compact: str, *, has_third: bool) -> set[str]:
+    out = set()
+    token_patterns = (
+        ("b13", "b13"),
+        ("#11", "#11"),
+        ("b9", "b9"),
+        ("#9", "#9"),
+        ("add#9", "#9"),
+        ("addb9", "b9"),
+        ("add13", "13"),
+        ("add11", "11"),
+        ("add9", "9"),
+        ("add6", "13"),
+        ("add4", "11" if has_third else "4"),
+        ("add2", "9" if has_third else "2"),
+    )
+    for token, degree in token_patterns:
+        if token in compact:
+            out.add(degree)
+
+    if re.search(r"(?<![a-z0-9#b])13(?![0-9])", compact):
+        out.add("13")
+    if re.search(r"(?<![a-z0-9#b])11(?![0-9])", compact):
+        out.add("11")
+    if re.search(r"(?<![a-z0-9#b])9(?![0-9])", compact):
+        out.add("9")
+    headline = headline_extension(compact)
+    if headline == "9":
+        out.add("9")
+    elif headline == "11":
+        out.update({"9", "11"})
+    elif headline == "13":
+        out.update({"9", "13"})
+    return out
+
+
+def headline_extension(compact: str) -> str | None:
+    if re.match(r"^(maj|min|m)?13", compact):
+        return "13"
+    if re.match(r"^(maj|min|m)?11", compact):
+        return "11"
+    if re.match(r"^(maj|min|m)?9", compact):
+        return "9"
+    return None
+
+
+def degree_from_interval(interval: int, *, prefer_extensions: bool) -> str:
+    return {
+        0: "1",
+        1: "b9",
+        2: "9" if prefer_extensions else "2",
+        3: "#9",
+        4: "3",
+        5: "11" if prefer_extensions else "4",
+        6: "#11",
+        7: "5",
+        8: "#5",
+        9: "13" if prefer_extensions else "6",
+        10: "b7",
+        11: "7",
+    }.get(interval % 12, "")
+
+
+def has_third(degrees: set[str]) -> bool:
+    return "3" in degrees or "b3" in degrees
+
+
+def sort_degrees(degrees: set[str]) -> tuple[str, ...]:
+    return tuple(sorted(degrees, key=lambda degree: (DEGREE_SORT_RANK.get(degree, 99), degree)))
+
+
+DEGREE_SORT_RANK = {
+    "2": 5,
+    "b3": 10,
+    "3": 11,
+    "4": 15,
+    "b5": 20,
+    "5": 21,
+    "#5": 22,
+    "6": 30,
+    "bb7": 38,
+    "b7": 39,
+    "7": 40,
+    "b9": 50,
+    "9": 51,
+    "#9": 52,
+    "11": 60,
+    "#11": 61,
+    "b13": 70,
+    "13": 71,
+}
+
+
+DEGREE_BY_ROLE = {
+    "sus2": "2",
+    "nine": "9",
+    "add9": "9",
+    "flat9": "b9",
+    "sharp9": "#9",
+    "addSharp9": "#9",
+    "splitMinor3": "b3",
+    "minor3": "b3",
+    "major3": "3",
+    "sus4": "4",
+    "eleven": "11",
+    "add11": "11",
+    "sharp11": "#11",
+    "flat5": "b5",
+    "perfect5": "5",
+    "sharp5": "#5",
+    "sixth": "6",
+    "flat13": "b13",
+    "thirteenth": "13",
+    "add13": "13",
+    "dim7": "bb7",
+    "flat7": "b7",
+    "major7": "7",
+}
 
 
 def write_csv(path: Path, rows: list[dict[str, object]]) -> None:
@@ -690,12 +1048,16 @@ def attention_row_text(index: int, row: dict[str, object]) -> list[str]:
         lines.append(f"   matches:     {row['matching_oracles']}")
     if row["disagreeing_oracles"]:
         lines.append(f"   differs:     {row['disagreeing_oracles']}")
+    if row["alternate_matching_oracles"]:
+        lines.append(f"   alt matches: {row['alternate_matching_oracles']}")
     raw_labels = oracle_label_lines(row)
     if raw_labels:
         lines.append("   oracle labels:")
         lines.extend(f"     {line}" for line in raw_labels)
     if row["normalized_labels"]:
         lines.append(f"   normalized:  {row['normalized_labels']}")
+    if row["semantic_labels"]:
+        lines.append(f"   semantic:    {row['semantic_labels']}")
     return lines
 
 
@@ -708,7 +1070,11 @@ def chord_debug_command(row: dict[str, object]) -> str:
 def oracle_label_lines(row: dict[str, object]) -> list[str]:
     lines = []
     for key, value in row.items():
-        if key.endswith("_labels") and key != "normalized_labels" and value:
+        if (
+            key.endswith("_labels")
+            and key not in {"normalized_labels", "semantic_labels"}
+            and value
+        ):
             oracle = key[: -len("_labels")]
             primary = str(value).split(" | ")[0]
             lines.append(f"{oracle.ljust(ORACLE_NAME_WIDTH)}: {primary}")
@@ -806,28 +1172,47 @@ def comparable_quality_token(raw: str) -> str:
 
 
 def pitch_class_key(note: str) -> str:
+    pc = pitch_class_number(note)
+    if pc is None:
+        return ""
+    return f"pc{pc}"
+
+
+def pitch_class_number(note: str) -> int | None:
     value = note.strip().replace("♯", "#").replace("♭", "b").replace("-", "b")
     if not value:
-        return ""
+        return None
     letter = value[0].upper()
     pc_by_letter = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
     if letter not in pc_by_letter:
-        return ""
+        return None
     pc = pc_by_letter[letter]
     for accidental in value[1:]:
         if accidental == "#":
             pc += 1
         elif accidental == "b":
             pc -= 1
-    return f"pc{pc % 12}"
+    return pc % 12
 
 
 def _bass_first(notes: tuple[str, ...], bass: str) -> tuple[str, ...]:
-    return (bass, *[note for note in notes if note != bass])
+    normalized_bass = oracle_note_name(bass)
+    return (
+        normalized_bass,
+        *[oracle_note_name(note) for note in notes if note != bass],
+    )
 
 
 def _music21_voicing(notes: tuple[str, ...], bass: str) -> list[str]:
-    return [f"{bass}3", *[f"{note}4" for note in notes if note != bass]]
+    normalized_bass = oracle_note_name(bass)
+    return [
+        f"{normalized_bass}3",
+        *[f"{oracle_note_name(note)}4" for note in notes if note != bass],
+    ]
+
+
+def oracle_note_name(label: object) -> str:
+    return str(label).replace("♯", "#").replace("♭", "b")
 
 
 if __name__ == "__main__":

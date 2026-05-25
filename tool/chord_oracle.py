@@ -20,7 +20,9 @@ from chord_oracle_compare import (
     Music21Oracle,
     PychordOracle,
     TonalOracle,
-    comparable_label,
+    oracle_note_name,
+    semantic_key_from_whatchord,
+    semantic_keys,
 )
 
 DEFAULT_TOP = 1
@@ -54,29 +56,12 @@ def main() -> int:
     ]
     what = run_chord_debug(chord_debug, debug_args)
     input_data = what["input"]
-    notes = tuple(item["label"] for item in input_data["pitchClasses"])
-    bass = str(input_data["bassLabel"])
+    notes = tuple(oracle_note_name(item["label"]) for item in input_data["pitchClasses"])
+    bass = oracle_note_name(input_data["bassLabel"])
     candidates = what.get("candidates", [])[: args.top]
 
     oracles = available_oracles(args.oracles or list(DEFAULT_ORACLES))
     oracle_results = {oracle.name: oracle.detect(notes, bass) for oracle in oracles}
-
-    print(f"input:       {' '.join(notes)}   bass={bass}")
-    print(f"chord-debug: {chord_debug_command(passthrough, args.top)}")
-    print()
-    if candidates:
-        print("WhatChord:")
-        for index, candidate in enumerate(candidates, start=1):
-            print(f"  {index}. {candidate.get('symbol', '')}")
-            print(f"     Harte: {candidate.get('harte', '')}")
-    else:
-        print("WhatChord:   <no candidate>")
-
-    print()
-    print("Oracles:")
-    if not oracle_results:
-        print("  <none available>")
-        return 0
 
     for name, result in oracle_results.items():
         if result.status != "ok":
@@ -84,15 +69,28 @@ def main() -> int:
             continue
         if not result.labels:
             detail = f" ({result.detail})" if result.detail else ""
-            print(f"  {name.ljust(ORACLE_NAME_WIDTH)}: <no comparable label>{detail}")
+            print(f"  {name.ljust(ORACLE_NAME_WIDTH)}: <no label>{detail}")
             continue
         labels = result.labels[: args.top]
         for index, label in enumerate(labels):
-            comparable = comparable_label(label)
-            normalized = f"  [normalized: {comparable}]" if comparable else ""
+            semantic = semantic_keys([label])
+            semantic_label = (
+                f"  [semantic: {semantic[0].display()}]" if semantic else ""
+            )
             prefix = name.ljust(ORACLE_NAME_WIDTH) if index == 0 else " " * ORACLE_NAME_WIDTH
-            rank = f"{index + 1}. " if args.top > 1 else ""
-            print(f"  {prefix}: {rank}{label}{normalized}")
+            print(f"  {prefix}: {index + 1}. {label}  {semantic_label}")
+
+    if not oracle_results:
+        print("  <no oracles available>")
+
+    print("---------")
+    if candidates:
+        for index, candidate in enumerate(candidates, start=1):
+            semantic = semantic_key_from_whatchord(candidate)
+            semantic_label = f"  [semantic: {semantic.display()}]" if semantic else ""
+            print(f"  whatchord: {index}. {candidate.get('symbol', '')}{semantic_label}")
+    else:
+        print("  whatchord: <no candidate>")
 
     return 0
 
@@ -112,13 +110,6 @@ Use --top=N to show multiple ranked WhatChord and oracle labels where available.
 Use --oracles music21 tonal pychord to limit external oracle output.
 """
     )
-
-
-def chord_debug_command(passthrough: list[str], top: int) -> str:
-    command = ["bin/chord-debug", *passthrough]
-    if top != DEFAULT_TOP:
-        command.append(f"--top={top}")
-    return " ".join(command)
 
 
 def run_chord_debug(chord_debug: Path, args: list[str]) -> dict:
