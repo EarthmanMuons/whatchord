@@ -1,0 +1,24 @@
+[tools]
+node = "22"
+python = "3.12"
+uv = "latest"
+
+[env]
+_.python.venv = { path = ".venv", create = true }
+
+[tasks."oracle:install"]
+description = "Install optional chord oracle dependencies for local comparison runs"
+run = [
+  "uv pip install music21 pychord",
+  "npm install --no-save --no-package-lock @tonaljs/tonal",
+]
+
+[tasks."oracle:compare"]
+description = "Run the chord oracle comparison harness"
+depends = ["oracle:install"]
+run = "python tool/chord_oracle_compare.py"
+
+[tasks."oracle:compare:sample"]
+description = "Run a small chord oracle comparison sample"
+depends = ["oracle:install"]
+run = "python tool/chord_oracle_compare.py --max-cases 20"

@@ -6,11 +6,13 @@
 //
 // Run with --help for examples and options.
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import 'package:whatchord/features/theory/presentation/models/chord_symbol.dart';
 import 'package:whatchord/features/theory/presentation/services/chord_symbol_builder.dart';
+import 'package:whatchord/features/theory/presentation/services/harte_chord_formatter.dart';
 import 'package:whatchord/features/theory/presentation/services/note_display_formatter.dart';
 
 const _usage = '''
@@ -33,6 +35,8 @@ Options:
                          Examples: C, C:maj, A:min, Eb:maj, F#:min.
   -n, --notation=STYLE   Chord symbol style. Valid: textual, symbolic.
                          Default: textual.
+  -f, --format=FORMAT    Output format. Valid: text, json. Default: text.
+      --json             Alias for --format=json.
   -v, --verbose          Include input and ChordIdentity diagnostics.
   -c, --compact          Use a condensed, single-line-per-candidate output.
 ''';
@@ -75,6 +79,7 @@ void main(List<String> args) {
 
   final notationFlag = _readStringFlag(args, 'notation', 'n');
   final notation = _parseNotationFlag(notationFlag);
+  final outputFormat = _parseOutputFormatFlag(args);
 
   // Extract positional args (notes), ignoring flags.
   final noteTokens = _readNoteTokens(args).expand(_splitNoteToken).toList();
@@ -133,6 +138,25 @@ void main(List<String> args) {
 
   final verbose = _hasFlag(args, 'verbose', 'v');
   final compact = _hasFlag(args, 'compact', 'c');
+
+  final results = ChordAnalyzer.analyzeDebug(
+    input,
+    context: context,
+    take: top,
+  );
+
+  if (outputFormat == _OutputFormat.json) {
+    _writeJsonOutput(
+      input: input,
+      context: context,
+      notation: notation,
+      pcDisplays: pcDisplays,
+      bassLabel: bassLabel,
+      results: results,
+    );
+    return;
+  }
+
   if (verbose && !compact) {
     stdout.writeln(
       'input: noteCount=${input.noteCount}  bassPc=${input.bassPc}  '
@@ -147,12 +171,6 @@ void main(List<String> args) {
     );
     stdout.writeln('');
   }
-
-  final results = ChordAnalyzer.analyzeDebug(
-    input,
-    context: context,
-    take: top,
-  );
 
   if (results.isEmpty) {
     stdout.writeln('No candidates.');
@@ -310,6 +328,105 @@ String _formatChordMembersByRole(
   return parts.join('  ');
 }
 
+void _writeJsonOutput({
+  required ChordInput input,
+  required AnalysisContext context,
+  required ChordNotationStyle notation,
+  required List<({String label, int pc})> pcDisplays,
+  required String bassLabel,
+  required List<RankedCandidateDebug> results,
+}) {
+  final bestScore = results.isEmpty ? null : results.first.candidate.score;
+  final payload = <String, Object?>{
+    'input': <String, Object?>{
+      'noteCount': input.noteCount,
+      'pcMask': input.pcMask,
+      'pcMaskBinary': _formatPcMask(input.pcMask),
+      'pitchClasses': [
+        for (final display in pcDisplays)
+          <String, Object?>{'pc': display.pc, 'label': display.label},
+      ],
+      'bassPc': input.bassPc,
+      'bassLabel': bassLabel,
+      'key': tonalityDisplayLabel(context.tonality),
+    },
+    'candidates': [
+      for (var i = 0; i < results.length; i++)
+        _candidateJson(
+          rank: i + 1,
+          result: results[i],
+          bestScore: bestScore,
+          context: context,
+          notation: notation,
+        ),
+    ],
+  };
+
+  stdout.writeln(const JsonEncoder.withIndent('  ').convert(payload));
+}
+
+Map<String, Object?> _candidateJson({
+  required int rank,
+  required RankedCandidateDebug result,
+  required double? bestScore,
+  required AnalysisContext context,
+  required ChordNotationStyle notation,
+}) {
+  final c = result.candidate;
+  final id = c.identity;
+  final rootName = _pcLabel(
+    id.rootPc,
+    context: context,
+    chordRootName: null,
+    role: ChordToneRole.root,
+  );
+  final symbol = chordSymbolDisplayLabel(
+    ChordSymbolBuilder.fromIdentity(
+      identity: id,
+      tonality: context.tonality,
+      notation: notation,
+    ),
+    spacing: ChordSymbolDisplaySpacing.plain,
+  );
+  final sortedExtensions = id.extensions.toList()
+    ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+  final sortedRoles = id.toneRolesByInterval.entries.toList()
+    ..sort((a, b) => a.key.compareTo(b.key));
+  final deltaBest = bestScore == null ? null : c.score - bestScore;
+
+  return <String, Object?>{
+    'rank': rank,
+    'symbol': symbol,
+    'harte': HarteChordFormatter.format(id, rootName: rootName),
+    'score': c.score,
+    'deltaBest': deltaBest,
+    'nearTie':
+        deltaBest != null &&
+        rank != 1 &&
+        deltaBest.abs() <= ChordCandidateRanking.nearTieWindow,
+    'rootPc': id.rootPc,
+    'rootName': rootName,
+    'bassPc': id.bassPc,
+    'quality': id.quality.name,
+    'extensions': [for (final extension in sortedExtensions) extension.name],
+    'presentIntervalsMask': id.presentIntervalsMask,
+    'toneRolesByInterval': {
+      for (final entry in sortedRoles) entry.key.toString(): entry.value.name,
+    },
+    'template': result.template.quality.name,
+    'scoreReasons': [
+      for (final reason in result.scoreReasons)
+        <String, Object?>{
+          'label': reason.label,
+          'delta': reason.delta,
+          if (reason.detail != null) 'detail': reason.detail,
+        },
+    ],
+    if (result.vsPrevious?.decidedByRule != null)
+      'vsPreviousRule': result.vsPrevious!.decidedByRule.toString(),
+  };
+}
+
 ({List<int> midiNotes, List<int> pitchClasses, Map<int, String> pcLabels})
 _parseNotes(List<String> tokens) {
   final midi = <int>[];
@@ -428,14 +545,39 @@ ChordNotationStyle _parseNotationFlag(String? raw) {
   };
 }
 
+_OutputFormat _parseOutputFormatFlag(List<String> args) {
+  if (_hasLongFlag(args, 'json')) return _OutputFormat.json;
+
+  final raw = _readStringFlag(args, 'format', 'f');
+  if (raw == null || raw.trim().isEmpty) return _OutputFormat.text;
+
+  return switch (raw.trim().toLowerCase()) {
+    'text' => _OutputFormat.text,
+    'json' => _OutputFormat.json,
+    _ => _failUnknownFormat(raw),
+  };
+}
+
+Never _failUnknownFormat(String raw) {
+  stderr.writeln('Unknown --format value: "$raw"');
+  stderr.writeln('Valid: text, json');
+  exit(2);
+}
+
 Never _failUnknownNotation(String raw) {
   stderr.writeln('Unknown --notation value: "$raw"');
   stderr.writeln('Valid: textual, symbolic');
   exit(2);
 }
 
+enum _OutputFormat { text, json }
+
 bool _hasFlag(List<String> args, String name, String shortName) {
   return args.contains('--$name') || args.contains('-$shortName');
+}
+
+bool _hasLongFlag(List<String> args, String name) {
+  return args.contains('--$name');
 }
 
 int? _readIntFlag(List<String> args, String name, String shortName) {
@@ -474,10 +616,12 @@ List<String> _readNoteTokens(List<String> args) {
     '--bass',
     '--key',
     '--notation',
+    '--format',
     '-t',
     '-b',
     '-k',
     '-n',
+    '-f',
   };
 
   final out = <String>[];
