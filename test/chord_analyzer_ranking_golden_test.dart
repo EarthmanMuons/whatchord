@@ -55,6 +55,18 @@ void main() {
       expectedQuality: ChordQualityToken.minor,
     ),
 
+    golden(
+      description:
+          'root-position dominant sus beats complete second-inversion sus',
+      expectedSymbol: 'G7sus4',
+      expectedAlternateSymbols: ['Csus4 / G'],
+      pcs: ['C', 'F', 'G'],
+      bass: 'G',
+      expectedRoot: 'G',
+      expectedBass: 'G',
+      expectedQuality: ChordQualityToken.dominant7sus4,
+    ),
+
     // -------------------------------------------------------------------------
     // Sixth-family ranking
     // -------------------------------------------------------------------------
