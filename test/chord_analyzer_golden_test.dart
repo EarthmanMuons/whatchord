@@ -7,8 +7,6 @@ void main() {
     // -------------------------------------------------------------------------
     // Major / dominant / extended tertian harmony
     // -------------------------------------------------------------------------
-
-    // Plain major triad.
     golden(
       description: 'plain major triad',
       expectedSymbol: 'C',
@@ -17,7 +15,6 @@ void main() {
       expectedQuality: ChordQualityToken.major,
     ),
 
-    // Major triad with an added 9.
     golden(
       description: 'major triad with added ninth',
       expectedSymbol: 'Cadd9',
@@ -27,7 +24,6 @@ void main() {
       expectedExtensions: {ChordExtension.add9},
     ),
 
-    // Straight dominant 7.
     golden(
       description: 'straight dominant seventh',
       expectedSymbol: 'C7',
@@ -37,7 +33,6 @@ void main() {
       expectNoExtensions: true,
     ),
 
-    // Dominant 9.
     golden(
       description: 'dominant ninth',
       expectedSymbol: 'C9',
@@ -68,7 +63,6 @@ void main() {
       expectedExtensions: {ChordExtension.nine, ChordExtension.eleven},
     ),
 
-    // Major 9.
     golden(
       description: 'major ninth',
       expectedSymbol: 'Cmaj9',
@@ -117,7 +111,6 @@ void main() {
       expectedQuality: ChordQualityToken.dominant7,
     ),
 
-    // Major 6 in first inversion.
     golden(
       description: 'major sixth in first inversion',
       expectedSymbol: 'C6 / E',
@@ -142,8 +135,6 @@ void main() {
     // -------------------------------------------------------------------------
     // Altered/colored dominants
     // -------------------------------------------------------------------------
-
-    // Dominant b9.
     golden(
       description: 'dominant seventh flat ninth',
       expectedSymbol: 'C7b9',
@@ -163,7 +154,6 @@ void main() {
       expectedExtensions: {ChordExtension.sharp9},
     ),
 
-    // Dominant b9 + #11.
     golden(
       description: 'dominant seventh with flat ninth and sharp eleventh',
       expectedSymbol: 'C7(b9,#11)',
@@ -173,7 +163,6 @@ void main() {
       expectedExtensions: {ChordExtension.flat9, ChordExtension.sharp11},
     ),
 
-    // Dominant b9 + #11 + b13.
     golden(
       description: 'dominant seventh with three altered extensions',
       expectedSymbol: 'C7(b9,#11,b13)',
@@ -197,7 +186,6 @@ void main() {
       expectedExtensions: {ChordExtension.nine},
     ),
 
-    // Dominant 7 suspended 2.
     golden(
       description: 'dominant seventh suspended second',
       expectedSymbol: 'C7sus2',
@@ -206,7 +194,6 @@ void main() {
       expectedQuality: ChordQualityToken.dominant7sus2,
     ),
 
-    // Major 7 suspended 2.
     golden(
       description: 'major seventh suspended second',
       expectedSymbol: 'Cmaj7sus2',
@@ -215,7 +202,6 @@ void main() {
       expectedQuality: ChordQualityToken.major7sus2,
     ),
 
-    // Major 7 suspended 4.
     golden(
       description: 'major seventh suspended fourth',
       expectedSymbol: 'Cmaj7sus4',
@@ -309,8 +295,6 @@ void main() {
     // -------------------------------------------------------------------------
     // Suspended chords
     // -------------------------------------------------------------------------
-
-    // Sus4 identification.
     golden(
       description: 'suspended fourth triad',
       expectedSymbol: 'Csus4',
@@ -319,7 +303,6 @@ void main() {
       expectedQuality: ChordQualityToken.sus4,
     ),
 
-    // Sus2 identification.
     golden(
       description: 'suspended second triad',
       expectedSymbol: 'Csus2',
@@ -331,8 +314,6 @@ void main() {
     // -------------------------------------------------------------------------
     // 6th-family
     // -------------------------------------------------------------------------
-
-    // Major 6.
     golden(
       description: 'major sixth',
       expectedSymbol: 'C6',
@@ -341,7 +322,6 @@ void main() {
       expectedQuality: ChordQualityToken.major6,
     ),
 
-    // Minor 6.
     golden(
       description: 'minor sixth',
       expectedSymbol: 'Am6',
@@ -374,8 +354,6 @@ void main() {
     // -------------------------------------------------------------------------
     // Diminished-family (half-diminished and diminished7)
     // -------------------------------------------------------------------------
-
-    // Half-diminished 7th (m7b5).
     golden(
       description: 'half-diminished seventh',
       expectedSymbol: 'Bm7(b5)',
@@ -384,7 +362,6 @@ void main() {
       expectedQuality: ChordQualityToken.halfDiminished7,
     ),
 
-    // Half-diminished headline promotion with a 9 extension.
     golden(
       description: 'half-diminished ninth headline',
       expectedSymbol: 'Cm9(b5)',
@@ -431,8 +408,6 @@ void main() {
     // -------------------------------------------------------------------------
     // Shells / compact voicings
     // -------------------------------------------------------------------------
-
-    // Minor-major 7 shell (no fifth).
     golden(
       description: 'minor-major seventh shell without fifth',
       expectedSymbol: 'Cm(maj7)',
