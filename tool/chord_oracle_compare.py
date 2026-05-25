@@ -41,7 +41,8 @@ DEFAULT_REPORT_LIMIT = 50
 REVIEW_FLAG_EXPLANATIONS = {
     "disagreement": "Comparable oracle labels were available, but none matched WhatChord's top label.",
     "oracle-split": "At least one oracle matched WhatChord and at least one comparable oracle disagreed.",
-    "insufficient-oracle-labels": "The row did not have enough comparable external chord labels for a useful comparison.",
+    "insufficient-oracle-labels": "Only one oracle returned a comparable primary label.",
+    "unrecognized-by-oracles": "No oracle returned a comparable primary label.",
     "oracle-error": "At least one oracle failed while processing the row.",
     "no-whatchord-candidate": "WhatChord did not produce a candidate for the input.",
     "agree": "Comparable oracle labels matched WhatChord's top label.",
@@ -52,7 +53,8 @@ REVIEW_PRIORITY = {
     "no-whatchord-candidate": 2,
     "oracle-error": 3,
     "insufficient-oracle-labels": 4,
-    "agree": 5,
+    "unrecognized-by-oracles": 5,
+    "agree": 6,
 }
 PRACTICAL_INTERVAL_SETS = (
     (0, 4, 7),
@@ -323,7 +325,9 @@ def main() -> int:
     if args.case_order == "random":
         if seed is None:
             seed = str(secrets.randbits(64))
-        random.Random(seed).shuffle(generated_cases)
+        rng = random.Random(seed)
+        rng.shuffle(generated_cases)
+        generated_cases.sort(key=case_sampling_priority)
 
     cases = generated_cases[: args.max_cases] if args.max_cases else generated_cases
 
@@ -349,8 +353,9 @@ def main() -> int:
 
     for case in cases:
         what = run_whatchord(chord_debug, case, top=args.top)
+        oracle_notes, oracle_bass = oracle_input_from_whatchord(what, fallback=case)
         oracle_results = {
-            oracle.name: oracle.detect(case.notes, case.bass) for oracle in oracles
+            oracle.name: oracle.detect(oracle_notes, oracle_bass) for oracle in oracles
         }
         row = build_row(case, what, oracle_results)
         rows.append(row)
@@ -503,6 +508,24 @@ def canonical_pc_set(pcs: tuple[int, ...]) -> tuple[int, ...]:
     return min(rotations)
 
 
+PRACTICAL_CASE_KEYS = {
+    canonical_pc_set(tuple(sorted(pc % 12 for pc in intervals)))
+    for intervals in PRACTICAL_INTERVAL_SETS
+}
+
+
+def case_sampling_priority(case: Case) -> tuple[int, int, int]:
+    practical_rank = (
+        0 if canonical_pc_set(case.pcs) in PRACTICAL_CASE_KEYS else 1
+    )
+    return practical_rank, len(case.pcs), chromatic_adjacency_count(case.pcs)
+
+
+def chromatic_adjacency_count(pcs: tuple[int, ...]) -> int:
+    pc_set = set(pcs)
+    return sum(1 for pc in pc_set if (pc + 1) % 12 in pc_set)
+
+
 def run_whatchord(chord_debug: Path, case: Case, *, top: int) -> dict:
     cmd = [
         str(chord_debug),
@@ -515,6 +538,24 @@ def run_whatchord(chord_debug: Path, case: Case, *, top: int) -> dict:
     if result.returncode != 0:
         raise RuntimeError(f"WhatChord failed for {case.case_id}: {result.stderr}")
     return json.loads(result.stdout)
+
+
+def oracle_input_from_whatchord(
+    what: dict,
+    *,
+    fallback: Case,
+) -> tuple[tuple[str, ...], str]:
+    input_data = what.get("input", {})
+    pitch_classes = input_data.get("pitchClasses", [])
+    notes = tuple(
+        oracle_note_name(item.get("label", ""))
+        for item in pitch_classes
+        if isinstance(item, dict) and item.get("label")
+    )
+    bass = input_data.get("bassLabel")
+    if notes and bass:
+        return notes, oracle_note_name(bass)
+    return fallback.notes, fallback.bass
 
 
 def build_row(
@@ -541,6 +582,11 @@ def build_row(
         for name, result in oracle_results.items()
         if semantic_keys(result.labels)
     }
+    comparable_primary_oracle_names = [
+        name
+        for name in oracle_results
+        if name in comparable_oracles or name in primary_semantic_oracles
+    ]
     matching_oracles = [
         name
         for name, labels in comparable_oracles.items()
@@ -570,9 +616,11 @@ def build_row(
         review_flag = "no-whatchord-candidate"
     elif any(result.status == "error" for result in oracle_results.values()):
         review_flag = "oracle-error"
-    elif (not whatchord_label and whatchord_key is None) or (
-        not comparable_oracles and not primary_semantic_oracles
-    ):
+    elif not comparable_primary_oracle_names:
+        review_flag = "unrecognized-by-oracles"
+    elif len(comparable_primary_oracle_names) == 1:
+        review_flag = "insufficient-oracle-labels"
+    elif not whatchord_label and whatchord_key is None:
         review_flag = "insufficient-oracle-labels"
     elif matching_oracles and disagreeing_oracles:
         review_flag = "oracle-split"
