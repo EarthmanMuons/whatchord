@@ -75,6 +75,36 @@ abstract final class ChordAnalyzer {
   static final LinkedHashMap<int, List<ChordCandidate>> _cache =
       LinkedHashMap<int, List<ChordCandidate>>();
 
+  // ---- Scoring weights (tuned empirically) ----------------------------------
+  // See docs/site/articles/under-the-hood.html for the full scoring model.
+
+  // Core per-tone weights (positive magnitude; sign applied at use site).
+  static const _reqWeight = 4.0; // required tone present
+  static const _missWeight = 6.0; // required tone missing
+  static const _optWeight = 1.5; // optional tone present
+  static const _penWeight = 3.0; // penalty (contradicting) tone present
+  static const _extraWeight = 0.5; // unexplained extra tone
+
+  // Bass fit scores.
+  static const _bassBase = 1.00; // bass is a required/optional tone
+  static const _bassColor =
+      0.75; // bass is a color/extension tone on 7th-family chord
+  static const _bassAdd = 0.25; // bass is an add/extension tone on a triad
+  static const _bassMiss = -0.25; // bass pitch not accounted for by template
+
+  // One-off structural penalties (applied as raw -= constant).
+  static const _minorSharp5BassPenalty = 3.0; // m#5/m7#5 with the #5 in bass
+  static const _susToneBassPenalty =
+      2.0; // sus chord with suspended tone in bass
+  static const _sixChordNo5Penalty =
+      0.60; // 6th chord omitting the 5th in a 3-note voicing
+  static const _altPenalty = 0.60; // alteration spelling preference
+  static const _altPenaltyDim7 = 0.30; // softened for symmetric dim7
+
+  // Dominant-stack coherence bonuses.
+  static const _domStackPartial = 0.8; // root-position dom7 + 9 + #11
+  static const _domStackFull = 2.1; // root-position dom7 + 9 + #11 + 13
+
   static List<ChordCandidate> analyze(
     ChordInput input, {
     required AnalysisContext context,
@@ -255,12 +285,12 @@ abstract final class ChordAnalyzer {
     final presentPenaltyMask =
         (penalty & relMask) & ~functionalPenaltyExtensionsMask;
 
-    final missingCount = _popCount(missingRequiredMask);
+    final missCount = _popCount(missingRequiredMask);
 
     // Allow up to 1 missing required tone for sparse voicings.
     // Example: dominant7 without the 5th (shell voicing) is still valid.
     // More than 1 missing tone suggests wrong template entirely.
-    if (missingCount > 1) return null;
+    if (missCount > 1) return null;
 
     final reqCount = _popCount(presentRequiredMask);
     final optCount = _popCount(presentOptionalMask);
@@ -270,7 +300,7 @@ abstract final class ChordAnalyzer {
     final base = required | optional;
     final extrasMask =
         (relMask & ~(base | penalty)) | functionalPenaltyExtensionsMask;
-    final extrasCount = _popCount(extrasMask);
+    final extraCount = _popCount(extrasMask);
 
     // Extract extensions first so bass scoring can recognize extension-bass as legitimate.
     final has7 = template.quality.isSeventhFamily;
@@ -290,51 +320,41 @@ abstract final class ChordAnalyzer {
     // Raw scoring components (single source of truth).
     var raw = 0.0;
 
-    // Scoring weights (tuned empirically):
-    // - Required tones: +4.0 each (structural foundation)
-    // - Missing required: -6.0 each (dealbreaker for incomplete chords)
-    // - Optional tones: +1.5 each (adds color without being essential)
-    // - Penalty tones: -3.0 each (contradicts chord quality)
-    // - Extras: -0.5 each (unexplained complexity)
-
-    final reqDelta = reqCount * 4.0;
+    final reqDelta = reqCount * _reqWeight;
     raw += reqDelta;
     add('required tones', reqDelta, detail: 'count=$reqCount');
 
-    final missDelta = -missingCount * 6.0;
+    final missDelta = -missCount * _missWeight;
     raw += missDelta;
-    add('missing required', missDelta, detail: 'count=$missingCount');
+    add('missing required', missDelta, detail: 'count=$missCount');
 
-    final optDelta = optCount * 1.5;
+    final optDelta = optCount * _optWeight;
     raw += optDelta;
     add('optional tones', optDelta, detail: 'count=$optCount');
 
-    final penDelta = -penCount * 3.0;
+    final penDelta = -penCount * _penWeight;
     raw += penDelta;
     add('penalty tones', penDelta, detail: 'count=$penCount');
 
-    final extraDelta = -extrasCount * 0.5;
+    final extraDelta = -extraCount * _extraWeight;
     raw += extraDelta;
-    add('extras', extraDelta, detail: 'count=$extrasCount');
+    add('extras', extraDelta, detail: 'count=$extraCount');
 
     // Bass scoring priority (reflects common voicing practices):
-    // 1. Bass is a base tone (required/optional): +1.0 (inversions/root position)
-    // 2. Bass is an extension on 7th-family chord: +0.75 (upper-structure voicing)
-    // 3. Bass is an extension on triad: +0.25 (add-chord slash notation)
-    // 4. Bass is missing from template: -0.25 (arbitrary slash bass)
+    // base tone > color/extension tone on 7th chord > add tone on triad > not in template
     final bassBit = 1 << bassInterval;
     final double bassDelta;
     if ((base & bassBit) != 0) {
-      bassDelta = 1.0;
+      bassDelta = _bassBase;
     } else if ((extrasMask & bassBit) != 0) {
       // If the bass is being interpreted as an extension/alteration tone on a
       // seventh-family chord, treat it as a legitimate "color bass" rather than
       // an arbitrary extra tone.
       final isColorBass =
           template.quality.isSeventhFamily && extensions.isNotEmpty;
-      bassDelta = isColorBass ? 0.75 : 0.25;
+      bassDelta = isColorBass ? _bassColor : _bassAdd;
     } else {
-      bassDelta = -0.25;
+      bassDelta = _bassMiss;
     }
     raw += bassDelta;
     add('bass fit', bassDelta, detail: 'interval=$bassInterval');
@@ -342,13 +362,12 @@ abstract final class ChordAnalyzer {
     // Minor sharp-five sonorities are real but uncommon. When the bass is the
     // altered fifth, common add-chord voicings can otherwise be overread as a
     // remote slash minor-sharp-five chord (for example Cadd9 as Em7#5/C).
-    const minorSharpFiveAlteredFifthBassPenaltyRaw = 3.0;
     if (_hasMinorSharpFiveAlteredFifthBass(
       quality: template.quality,
       bassInterval: bassInterval,
     )) {
-      raw -= minorSharpFiveAlteredFifthBassPenaltyRaw;
-      add('m#5 bass', -minorSharpFiveAlteredFifthBassPenaltyRaw);
+      raw -= _minorSharp5BassPenalty;
+      add('m#5 bass', -_minorSharp5BassPenalty);
     }
 
     // Sus chords with the suspended tone itself in the bass are rare and
@@ -361,13 +380,12 @@ abstract final class ChordAnalyzer {
     // Root-position sus chords (bassInterval == 0) are unaffected because the
     // root is always a core tone. Inversions with the 5th or 7th in bass are
     // also unaffected; only the suspended tone itself triggers the penalty.
-    const susToneInBassPenaltyRaw = 2.0;
     if (_hasSusToneInBass(
       quality: template.quality,
       bassInterval: bassInterval,
     )) {
-      raw -= susToneInBassPenaltyRaw;
-      add('sus-tone bass', -susToneInBassPenaltyRaw);
+      raw -= _susToneBassPenalty;
+      add('sus-tone bass', -_susToneBassPenalty);
     }
 
     // Alteration penalty: prefer simpler spellings over altered interpretations.
@@ -382,8 +400,8 @@ abstract final class ChordAnalyzer {
     // ambiguous contexts, so we soften the alteration penalty specifically for dim7
     // to avoid over-favoring slash-root reinterpretations.
     final altPenalty = (template.quality == ChordQualityToken.diminished7)
-        ? 0.30
-        : 0.60;
+        ? _altPenaltyDim7
+        : _altPenalty;
 
     if (_hasAlterations(extensions)) {
       raw -= altPenalty;
@@ -410,14 +428,13 @@ abstract final class ChordAnalyzer {
     // Helps avoid "root-3-6" ambiguity by disfavoring incomplete 6th chords.
     //
     // Example: {C, E, A} could be C6(no5) or Am7/C → prefer Am7/C
-    const sixChordNo5PenaltyRaw = 0.60;
     if (_has6ChordWithout5(
       quality: template.quality,
       relMask: relMask,
       inputNoteCount: inputNoteCount,
     )) {
-      raw -= sixChordNo5PenaltyRaw;
-      add('sixNo5', -sixChordNo5PenaltyRaw, detail: 'n=$inputNoteCount');
+      raw -= _sixChordNo5Penalty;
+      add('sixNo5', -_sixChordNo5Penalty, detail: 'n=$inputNoteCount');
     }
 
     // Normalize by sqrt(required_tone_count) to allow fair comparison across
@@ -572,8 +589,8 @@ abstract final class ChordAnalyzer {
     if (bassInterval != 0) return 0;
     if (!extensions.contains(ChordExtension.nine)) return 0;
     if (!extensions.contains(ChordExtension.sharp11)) return 0;
-    if (!extensions.contains(ChordExtension.thirteen)) return 0.8;
-    return 2.1;
+    if (!extensions.contains(ChordExtension.thirteen)) return _domStackPartial;
+    return _domStackFull;
   }
 
   /// Rotates a 12-bit pitch-class mask to be relative to the given root.
