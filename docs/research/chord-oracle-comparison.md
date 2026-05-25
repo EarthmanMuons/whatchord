@@ -63,13 +63,9 @@ transposition-equivalent pitch-class sets are collapsed before bass choices are
 expanded. The seed list is only a supplement; the main discovery surface is the
 randomized canonical pitch-class pool.
 
-Use `--no-include-practical-seeds` to inspect the raw chromatic enumeration
-order. That mode starts with compact chromatic sets such as `C Db D`, so it is
-less useful as a quick musical sample.
-
-When random order is used without `--seed`, the harness generates a seed, prints
-it, and stores it in `chord_oracle_summary.json`. To reproduce the same selected
-cases and order later:
+Random order is the default. Without `--seed`, the harness generates a seed,
+prints it, and stores it in `chord_oracle_summary.json`. To reproduce the same
+selected cases and order later:
 
 ```sh
 python3 tool/chord_oracle_compare.py --seed 12345 --max-cases 20
@@ -99,52 +95,44 @@ text. Each WhatChord row includes:
 - second-ranked candidate;
 - near-tie signal for diagnostics.
 
-That makes the output useful both for human review and for later summarization.
-
 ## Running
 
-Install whichever advisory oracles you want to compare. For example:
+Install whichever advisory oracles you want to compare:
 
 ```sh
 python3 -m pip install music21 pychord
 npm install @tonaljs/tonal
 ```
 
-If you use `mise`, the project config can install the optional oracle
-dependencies into local ignored directories:
+If you use `mise`, `mise run oracle:install` handles this into local ignored
+directories.
 
-```sh
-mise run oracle:install
-```
-
-Then run:
+Then run a 500-case sample:
 
 ```sh
 python3 tool/chord_oracle_compare.py --max-cases 500
 ```
 
-Or with `mise`:
+For an exhaustive canonical pass over all 3- to 7-note pitch-class sets:
 
 ```sh
-mise run oracle:compare
+python3 tool/chord_oracle_compare.py --max-cases 0
 ```
 
-For a smaller sample while reviewing the workflow:
+To include every transposition instead of canonical representatives:
 
 ```sh
-mise run oracle:compare:sample
+python3 tool/chord_oracle_compare.py --all-transpositions --max-cases 0
 ```
 
-For quick manual exploration of one voicing, use:
+For quick manual exploration of a single voicing:
 
 ```sh
 bin/chord-oracle C D E A --bass=E
 ```
 
-It accepts the same note and common option style as `bin/chord-debug`, then
-prints WhatChord's top label plus available oracle labels. When `mise` is
-available, the wrapper runs through `mise exec` so it can see the local oracle
-dependencies.
+It accepts the same note and option style as `bin/chord-debug`, then prints
+WhatChord's top label plus available oracle labels.
 
 Outputs are written to:
 
@@ -154,50 +142,9 @@ build/oracle-compare/chord_oracle_summary.json
 build/oracle-compare/chord_oracle_report.txt
 ```
 
-Start with `chord_oracle_report.txt` for human review. The CSV keeps the full
-row-level data, while the report focuses on the rows most likely to need
-attention, includes a review-flag legend, and gives copy/pasteable
-`bin/chord-debug` commands for each case. It also includes a full `mise exec`
-command with the run seed and generation options so the same sample can be
-reproduced.
-
-## Cleaning Up Local Installs
-
-The `mise` workflow keeps project dependency installs local and ignored by git.
-To remove the project-local Python and Node dependencies:
-
-```sh
-rm -rf .venv node_modules
-```
-
-To remove generated comparison reports:
-
-```sh
-rm -rf build/oracle-compare
-```
-
-The Python, Node, and uv runtimes themselves are stored in mise's shared install
-directory, not inside this repository. If you also want to remove those
-mise-managed runtimes from your machine, run:
-
-```sh
-mise uninstall python@3.12 node@22 uv
-```
-
-Only do that if no other local project relies on those same mise tool versions.
-
-To run an exhaustive canonical pass for the default 3- to 7-note pitch-class
-sets:
-
-```sh
-python3 tool/chord_oracle_compare.py --max-cases 0
-```
-
-To include every transposition:
-
-```sh
-python3 tool/chord_oracle_compare.py --all-transpositions --max-cases 0
-```
+Start with `chord_oracle_report.txt`. The report focuses on rows most likely to
+need attention, includes a review-flag legend, and gives copy/pasteable
+`bin/chord-debug` commands for each case.
 
 ## Reading The CSV
 
