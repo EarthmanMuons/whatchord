@@ -32,6 +32,11 @@ class ExploreChordSpec {
         seventhKind: ExploreSeventhKind.none,
         fifthAlteration: ExploreFifthAlteration.natural,
       ),
+      ChordQualityToken.majorFlat5 => const ExploreChordSpec(
+        baseQuality: ExploreBaseQuality.major,
+        seventhKind: ExploreSeventhKind.none,
+        fifthAlteration: ExploreFifthAlteration.flat,
+      ),
       ChordQualityToken.minor => const ExploreChordSpec(
         baseQuality: ExploreBaseQuality.minor,
         seventhKind: ExploreSeventhKind.none,
@@ -250,6 +255,8 @@ List<ExploreFifthAlteration> availableFifthAlterationsFor({
         ExploreFifthAlteration.flat,
         ExploreFifthAlteration.sharp,
       ],
+    ExploreBaseQuality.major when seventhKind == ExploreSeventhKind.none =>
+      const [ExploreFifthAlteration.natural, ExploreFifthAlteration.flat],
     ExploreBaseQuality.major => const [ExploreFifthAlteration.natural],
     ExploreBaseQuality.minor
         when seventhKind == ExploreSeventhKind.none ||
@@ -294,6 +301,12 @@ ChordQualityToken _qualityFromSpec({
   }
 
   return switch ((baseQuality, seventhKind, fifthAlteration)) {
+    (
+      ExploreBaseQuality.major,
+      ExploreSeventhKind.none,
+      ExploreFifthAlteration.flat,
+    ) =>
+      ChordQualityToken.majorFlat5,
     (ExploreBaseQuality.major, ExploreSeventhKind.none, _) =>
       ChordQualityToken.major,
     (ExploreBaseQuality.major, ExploreSeventhKind.sixth, _) =>

@@ -29,6 +29,11 @@ abstract final class ChordToneRoles {
         addBase(7, ChordToneRole.perfect5);
         break;
 
+      case ChordQualityToken.majorFlat5:
+        addBase(4, ChordToneRole.major3);
+        addBase(6, ChordToneRole.flat5);
+        break;
+
       case ChordQualityToken.minor:
         addBase(3, ChordToneRole.minor3);
         addBase(7, ChordToneRole.perfect5);

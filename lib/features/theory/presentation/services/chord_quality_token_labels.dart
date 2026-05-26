@@ -21,6 +21,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
     switch (this) {
       case ChordQualityToken.major:
         return '';
+      case ChordQualityToken.majorFlat5:
+        return '(♭5)';
       case ChordQualityToken.minor:
         return '−';
       case ChordQualityToken.minorSharp5:
@@ -74,6 +76,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
     switch (this) {
       case ChordQualityToken.major:
         return '';
+      case ChordQualityToken.majorFlat5:
+        return '(b5)';
       case ChordQualityToken.minor:
         return 'm';
       case ChordQualityToken.minorSharp5:
@@ -127,6 +131,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
     switch (this) {
       case ChordQualityToken.major:
         return 'maj';
+      case ChordQualityToken.majorFlat5:
+        return '(b5)';
       case ChordQualityToken.minor:
         return 'm';
       case ChordQualityToken.minorSharp5:
@@ -180,6 +186,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
     switch (this) {
       case ChordQualityToken.major:
         return 'major';
+      case ChordQualityToken.majorFlat5:
+        return 'major flat fifth';
       case ChordQualityToken.minor:
         return 'minor';
       case ChordQualityToken.minorSharp5:
