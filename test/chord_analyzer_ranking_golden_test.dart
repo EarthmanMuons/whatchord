@@ -79,6 +79,19 @@ void main() {
     ),
 
     golden(
+      description: 'upper-structure major triad over ninth bass',
+      expectedSymbol: 'C#add9 / D#',
+      expectedAlternateSymbols: ['E#m7#5 / D#'],
+      pcs: ['D#', 'C#', 'E#', 'G#'],
+      bass: 'D#',
+      tonality: const Tonality('C#', TonalityMode.major),
+      expectedRoot: 'C#',
+      expectedBass: 'D#',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.add9},
+    ),
+
+    golden(
       description:
           'root-position dominant sus beats complete second-inversion sus',
       expectedSymbol: 'G7sus4',

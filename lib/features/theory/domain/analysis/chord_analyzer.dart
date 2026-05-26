@@ -105,6 +105,9 @@ abstract final class ChordAnalyzer {
   static const _domStackPartial = 0.8; // root-position dom7 + 9 + #11
   static const _domStackFull = 2.1; // root-position dom7 + 9 + #11 + 13
 
+  // Upper-structure slash-triad bonus.
+  static const _add9BassUpperTriadBonus = 3.2; // e.g. D/E, C#/D#
+
   static List<ChordCandidate> analyze(
     ChordInput input, {
     required AnalysisContext context,
@@ -424,6 +427,17 @@ abstract final class ChordAnalyzer {
       add('dominant stack', dominantStackDelta);
     }
 
+    final add9BassUpperTriadDelta = _add9BassUpperTriadBonusFor(
+      quality: template.quality,
+      extensions: extensions,
+      relMask: relMask,
+      bassInterval: bassInterval,
+    );
+    if (add9BassUpperTriadDelta != 0) {
+      raw += add9BassUpperTriadDelta;
+      add('add9 bass triad', add9BassUpperTriadDelta);
+    }
+
     // Penalize 6-chord interpretations for 3-note voicings that omit the 5th.
     // Helps avoid "root-3-6" ambiguity by disfavoring incomplete 6th chords.
     //
@@ -587,6 +601,34 @@ abstract final class ChordAnalyzer {
     if (!extensions.contains(ChordExtension.sharp11)) return 0;
     if (!extensions.contains(ChordExtension.thirteen)) return _domStackPartial;
     return _domStackFull;
+  }
+
+  static double _add9BassUpperTriadBonusFor({
+    required ChordQualityToken quality,
+    required Set<ChordExtension> extensions,
+    required int relMask,
+    required int bassInterval,
+  }) {
+    // A complete major/minor triad over a bass a whole step above the root is
+    // commonly heard as an upper-structure slash chord (D/E, C#/D#), not as a
+    // remote altered seventh or incomplete sus reinterpretation.
+    final isPlainMajorMinor =
+        quality == ChordQualityToken.major ||
+        quality == ChordQualityToken.minor;
+    if (!isPlainMajorMinor) return 0;
+    if (bassInterval != majorSecondInterval) return 0;
+    if (extensions.length != 1 || !extensions.contains(ChordExtension.add9)) {
+      return 0;
+    }
+
+    final thirdInterval = quality == ChordQualityToken.major
+        ? majorThirdInterval
+        : minorThirdInterval;
+    final hasThird = (relMask & (1 << thirdInterval)) != 0;
+    final hasFifth = (relMask & (1 << perfectFifthInterval)) != 0;
+    if (!hasThird || !hasFifth) return 0;
+
+    return _add9BassUpperTriadBonus;
   }
 
   /// Rotates a 12-bit pitch-class mask to be relative to the given root.
