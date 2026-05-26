@@ -1,5 +1,7 @@
 import 'package:whatchord/features/theory/theory.dart';
 
+import '../models/explore_chord_spec.dart';
+import '../models/explore_chord_state.dart';
 import 'explore_extension_rules.dart';
 
 enum ExploreExtensionControlRole { highestExtension, addedTones, alterations }
@@ -33,110 +35,22 @@ class ExploreExtensionChoice {
 List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
   ChordQualityToken quality,
 ) {
-  if (quality.isSeventhFamily) {
-    final stack = seventhStackExtensions(quality);
-    final addTones = seventhAddTones(quality);
-    final alterations = seventhAlterations(quality);
-    final stackChoices = <ExploreExtensionChoice>[
-      const ExploreExtensionChoice(
-        label: 'None',
-        semanticLabel: 'No highest extension',
-      ),
-      if (stack.contains(ChordExtension.nine)) _choice(ChordExtension.nine),
-      if (stack.contains(ChordExtension.eleven)) _choice(ChordExtension.eleven),
-      if (stack.contains(ChordExtension.thirteen))
-        _choice(ChordExtension.thirteen),
-    ];
-    final addToneChoices = <ExploreExtensionChoice>[
-      if (addTones.contains(ChordExtension.add9)) _choice(ChordExtension.add9),
-      if (addTones.contains(ChordExtension.add11))
-        _choice(ChordExtension.add11),
-      if (addTones.contains(ChordExtension.add13))
-        _choice(ChordExtension.add13),
-    ];
-    final alterationChoices = <ExploreExtensionChoice>[
-      if (alterations.contains(ChordExtension.flat9))
-        ExploreExtensionChoice(
-          label: theoryTokenDisplayLabel('b9'),
-          semanticLabel: 'Flat ninth',
-          extension: ChordExtension.flat9,
-        ),
-      if (alterations.contains(ChordExtension.sharp9))
-        ExploreExtensionChoice(
-          label: theoryTokenDisplayLabel('#9'),
-          semanticLabel: 'Sharp ninth',
-          extension: ChordExtension.sharp9,
-        ),
-      if (alterations.contains(ChordExtension.sharp11))
-        ExploreExtensionChoice(
-          label: theoryTokenDisplayLabel('#11'),
-          semanticLabel: 'Sharp eleventh',
-          extension: ChordExtension.sharp11,
-        ),
-      if (alterations.contains(ChordExtension.flat13))
-        ExploreExtensionChoice(
-          label: theoryTokenDisplayLabel('b13'),
-          semanticLabel: 'Flat thirteenth',
-          extension: ChordExtension.flat13,
-        ),
-    ];
+  return quality.isSeventhFamily
+      ? _seventhExtensionGroups(quality)
+      : _triadLikeExtensionGroups(quality);
+}
 
+List<ExploreExtensionControlGroup> buildExploreExtensionControlGroupsForState(
+  ExploreChordState state,
+) {
+  if (_canPromoteMinorTriadToStackedExtension(state)) {
     return [
-      ExploreExtensionControlGroup(
-        label: 'Stacked extension',
-        role: ExploreExtensionControlRole.highestExtension,
-        allowsMultiple: false,
-        choices: stackChoices,
-      ),
-      if (addToneChoices.isNotEmpty)
-        ExploreExtensionControlGroup(
-          label: 'Added tones',
-          role: ExploreExtensionControlRole.addedTones,
-          allowsMultiple: true,
-          choices: addToneChoices,
-        ),
-      if (alterationChoices.isNotEmpty)
-        ExploreExtensionControlGroup(
-          label: 'Alterations',
-          role: ExploreExtensionControlRole.alterations,
-          allowsMultiple: true,
-          choices: alterationChoices,
-        ),
+      _minorTriadStackedExtensionGroup(state.quality),
+      ...buildExploreExtensionControlGroups(state.quality),
     ];
   }
 
-  final addTones = triadLikeAddTones(quality);
-  final alterations = triadLikeAlterations(quality);
-  return [
-    if (addTones.isNotEmpty)
-      ExploreExtensionControlGroup(
-        label: 'Added tones',
-        role: ExploreExtensionControlRole.addedTones,
-        allowsMultiple: true,
-        choices: [
-          if (addTones.contains(ChordExtension.add9))
-            _choice(ChordExtension.add9),
-          if (addTones.contains(ChordExtension.addSharp9))
-            _choice(ChordExtension.addSharp9),
-          if (addTones.contains(ChordExtension.add11))
-            _choice(ChordExtension.add11),
-          if (addTones.contains(ChordExtension.add13))
-            _choice(ChordExtension.add13),
-        ],
-      ),
-    if (alterations.isNotEmpty)
-      ExploreExtensionControlGroup(
-        label: 'Alterations',
-        role: ExploreExtensionControlRole.alterations,
-        allowsMultiple: true,
-        choices: [
-          if (alterations.contains(ChordExtension.flat9))
-            _choice(ChordExtension.flat9),
-          if (alterations.contains(ChordExtension.sharp11))
-            _choice(ChordExtension.sharp11),
-        ],
-      ),
-  ];
+  return buildExploreExtensionControlGroups(state.quality);
 }
 
 Set<ChordExtension> selectExploreExtensionChoice({
@@ -185,6 +99,28 @@ Set<ChordExtension> selectExploreExtensionChoice({
   return normalizeExtensionsForQuality(quality: quality, extensions: next);
 }
 
+ExploreChordState selectExploreExtensionChoiceForState({
+  required ExploreChordState state,
+  required ExploreExtensionControlGroup group,
+  required ExploreExtensionChoice choice,
+}) {
+  var spec = state.spec;
+  if (_canPromoteMinorTriadToStackedExtension(state) &&
+      group.role == ExploreExtensionControlRole.highestExtension &&
+      choice.extension?.isNaturalExtension == true) {
+    spec = spec.copyWith(seventhKind: ExploreSeventhKind.minor7);
+  }
+
+  final extensions = selectExploreExtensionChoice(
+    quality: spec.quality,
+    currentExtensions: state.extensions,
+    group: group,
+    choice: choice,
+  );
+
+  return state.copyWith(spec: spec, extensions: extensions);
+}
+
 ExploreExtensionChoice _choice(ChordExtension extension) {
   return ExploreExtensionChoice(
     label: theoryTokenDisplayLabel(extension.shortLabel),
@@ -192,3 +128,187 @@ ExploreExtensionChoice _choice(ChordExtension extension) {
     extension: extension,
   );
 }
+
+List<ExploreExtensionControlGroup> _seventhExtensionGroups(
+  ChordQualityToken quality,
+) {
+  final addToneChoices = _choicesInOrder(
+    seventhAddTones(quality),
+    _seventhAddToneChoiceOrder,
+  );
+  final alterationChoices = _choicesInOrder(
+    seventhAlterations(quality),
+    _seventhAlterationChoiceOrder,
+    choiceFor: _alterationChoice,
+  );
+
+  return [
+    ExploreExtensionControlGroup(
+      label: 'Stacked extension',
+      role: ExploreExtensionControlRole.highestExtension,
+      allowsMultiple: false,
+      choices: [
+        const ExploreExtensionChoice(
+          label: 'None',
+          semanticLabel: 'No highest extension',
+        ),
+        ..._choicesInOrder(
+          seventhStackExtensions(quality),
+          _seventhStackChoiceOrder,
+        ),
+      ],
+    ),
+    if (addToneChoices.isNotEmpty)
+      ExploreExtensionControlGroup(
+        label: 'Added tones',
+        role: ExploreExtensionControlRole.addedTones,
+        allowsMultiple: true,
+        choices: addToneChoices,
+      ),
+    if (alterationChoices.isNotEmpty)
+      ExploreExtensionControlGroup(
+        label: 'Alterations',
+        role: ExploreExtensionControlRole.alterations,
+        allowsMultiple: true,
+        choices: alterationChoices,
+      ),
+  ];
+}
+
+List<ExploreExtensionControlGroup> _triadLikeExtensionGroups(
+  ChordQualityToken quality,
+) {
+  final addToneChoices = _choicesInOrder(
+    triadLikeAddTones(quality),
+    _triadLikeAddToneChoiceOrder,
+  );
+  final alterationChoices = _choicesInOrder(
+    triadLikeAlterations(quality),
+    _triadLikeAlterationChoiceOrder,
+    choiceFor: _triadLikeAlterationChoice,
+  );
+
+  return [
+    if (addToneChoices.isNotEmpty)
+      ExploreExtensionControlGroup(
+        label: 'Added tones',
+        role: ExploreExtensionControlRole.addedTones,
+        allowsMultiple: true,
+        choices: addToneChoices,
+      ),
+    if (alterationChoices.isNotEmpty)
+      ExploreExtensionControlGroup(
+        label: 'Alterations',
+        role: ExploreExtensionControlRole.alterations,
+        allowsMultiple: true,
+        choices: alterationChoices,
+      ),
+  ];
+}
+
+List<ExploreExtensionChoice> _choicesInOrder(
+  Set<ChordExtension> available,
+  List<ChordExtension> order, {
+  ExploreExtensionChoice Function(ChordExtension extension) choiceFor = _choice,
+}) {
+  return [
+    for (final extension in order)
+      if (available.contains(extension)) choiceFor(extension),
+  ];
+}
+
+ExploreExtensionChoice _alterationChoice(ChordExtension extension) {
+  return switch (extension) {
+    ChordExtension.flat9 => ExploreExtensionChoice(
+      label: theoryTokenDisplayLabel('b9'),
+      semanticLabel: 'Flat ninth',
+      extension: ChordExtension.flat9,
+    ),
+    ChordExtension.sharp9 => ExploreExtensionChoice(
+      label: theoryTokenDisplayLabel('#9'),
+      semanticLabel: 'Sharp ninth',
+      extension: ChordExtension.sharp9,
+    ),
+    ChordExtension.sharp11 => ExploreExtensionChoice(
+      label: theoryTokenDisplayLabel('#11'),
+      semanticLabel: 'Sharp eleventh',
+      extension: ChordExtension.sharp11,
+    ),
+    ChordExtension.flat13 => ExploreExtensionChoice(
+      label: theoryTokenDisplayLabel('b13'),
+      semanticLabel: 'Flat thirteenth',
+      extension: ChordExtension.flat13,
+    ),
+    _ => _choice(extension),
+  };
+}
+
+ExploreExtensionChoice _triadLikeAlterationChoice(ChordExtension extension) {
+  if (extension == ChordExtension.addSharp9) {
+    return ExploreExtensionChoice(
+      label: theoryTokenDisplayLabel('#9'),
+      semanticLabel: 'Sharp ninth',
+      extension: ChordExtension.addSharp9,
+    );
+  }
+
+  return _alterationChoice(extension);
+}
+
+bool _canPromoteMinorTriadToStackedExtension(ExploreChordState state) {
+  return state.baseQuality == ExploreBaseQuality.minor &&
+      state.seventhKind == ExploreSeventhKind.none;
+}
+
+ExploreExtensionControlGroup _minorTriadStackedExtensionGroup(
+  ChordQualityToken quality,
+) {
+  final stack = seventhStackExtensions(
+    quality == ChordQualityToken.minorSharp5
+        ? ChordQualityToken.minor7Sharp5
+        : ChordQualityToken.minor7,
+  );
+
+  return ExploreExtensionControlGroup(
+    label: 'Stacked extension',
+    role: ExploreExtensionControlRole.highestExtension,
+    allowsMultiple: false,
+    choices: [
+      const ExploreExtensionChoice(
+        label: 'None',
+        semanticLabel: 'No highest extension',
+      ),
+      if (stack.contains(ChordExtension.nine)) _choice(ChordExtension.nine),
+      if (stack.contains(ChordExtension.eleven)) _choice(ChordExtension.eleven),
+      if (stack.contains(ChordExtension.thirteen))
+        _choice(ChordExtension.thirteen),
+    ],
+  );
+}
+
+const _seventhStackChoiceOrder = [
+  ChordExtension.nine,
+  ChordExtension.eleven,
+  ChordExtension.thirteen,
+];
+
+const _seventhAddToneChoiceOrder = [ChordExtension.add11, ChordExtension.add13];
+
+const _seventhAlterationChoiceOrder = [
+  ChordExtension.flat9,
+  ChordExtension.sharp9,
+  ChordExtension.sharp11,
+  ChordExtension.flat13,
+];
+
+const _triadLikeAddToneChoiceOrder = [
+  ChordExtension.add9,
+  ChordExtension.add11,
+  ChordExtension.add13,
+];
+
+const _triadLikeAlterationChoiceOrder = [
+  ChordExtension.flat9,
+  ChordExtension.addSharp9,
+  ChordExtension.sharp11,
+];

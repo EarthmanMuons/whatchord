@@ -272,11 +272,23 @@ void removeSeventhConflicts(
       extensions.remove(ChordExtension.addSharp9);
       break;
     case ChordExtension.sharp11:
-      extensions.remove(ChordExtension.eleven);
+      final replacedStackedEleventh = extensions.remove(ChordExtension.eleven);
+      if (replacedStackedEleventh && !hasAnyNinth(extensions)) {
+        extensions.add(ChordExtension.nine);
+      }
       extensions.remove(ChordExtension.add11);
       break;
     case ChordExtension.flat13:
-      extensions.remove(ChordExtension.thirteen);
+      final replacedStackedThirteenth = extensions.remove(
+        ChordExtension.thirteen,
+      );
+      if (replacedStackedThirteenth) {
+        if (extensions.contains(ChordExtension.sharp11)) {
+          if (!hasAnyNinth(extensions)) extensions.add(ChordExtension.nine);
+        } else {
+          extensions.add(ChordExtension.eleven);
+        }
+      }
       extensions.remove(ChordExtension.add13);
       break;
   }
@@ -284,24 +296,9 @@ void removeSeventhConflicts(
 
 /// Extensions available before splitting them into add-tone and alteration UI.
 Set<ChordExtension> triadLikeExtensions(ChordQualityToken quality) {
-  final canonicalIntervals = quality.canonicalIntervals;
-  return {
-    for (final extension in const {
-      ChordExtension.flat9,
-      ChordExtension.add9,
-      ChordExtension.addSharp9,
-      ChordExtension.add11,
-      ChordExtension.add13,
-      ChordExtension.sharp11,
-    })
-      if (!canonicalIntervals.contains(extension.intervalAboveRoot) &&
-          (extension != ChordExtension.sharp11 ||
-              _allowsTriadLikeSharp11(quality)) &&
-          (extension != ChordExtension.addSharp9 ||
-              _allowsTriadLikeAddSharp9(quality)) &&
-          (extension != ChordExtension.flat9 || _allowsTriadLikeFlat9(quality)))
-        extension,
-  };
+  return Set<ChordExtension>.unmodifiable(
+    _triadLikeExtensionsByQuality[quality] ?? const <ChordExtension>{},
+  );
 }
 
 Set<ChordExtension> triadLikeAddTones(ChordQualityToken quality) {
@@ -309,7 +306,6 @@ Set<ChordExtension> triadLikeAddTones(ChordQualityToken quality) {
   return {
     for (final extension in const {
       ChordExtension.add9,
-      ChordExtension.addSharp9,
       ChordExtension.add11,
       ChordExtension.add13,
     })
@@ -321,21 +317,13 @@ Set<ChordExtension> triadLikeAlterations(ChordQualityToken quality) {
   final available = triadLikeExtensions(quality);
   return {
     if (available.contains(ChordExtension.flat9)) ChordExtension.flat9,
+    if (available.contains(ChordExtension.addSharp9)) ChordExtension.addSharp9,
     if (available.contains(ChordExtension.sharp11)) ChordExtension.sharp11,
   };
 }
 
 Set<ChordExtension> seventhStackExtensions(ChordQualityToken quality) {
-  final canonicalIntervals = quality.canonicalIntervals;
-  return {
-    for (final extension in const {
-      ChordExtension.flat9,
-      ChordExtension.nine,
-      ChordExtension.eleven,
-      ChordExtension.thirteen,
-    })
-      if (!canonicalIntervals.contains(extension.intervalAboveRoot)) extension,
-  };
+  return _extensionsNotInCore(quality, _seventhStackExtensionOrder);
 }
 
 /// Add-tone choices for seventh-family chords intentionally start above add9.
@@ -343,22 +331,20 @@ Set<ChordExtension> seventhStackExtensions(ChordQualityToken quality) {
 /// In this UI, choosing an added ninth on a seventh chord promotes directly to
 /// the stacked ninth.
 Set<ChordExtension> seventhAddTones(ChordQualityToken quality) {
-  final canonicalIntervals = quality.canonicalIntervals;
-  return {
-    for (final extension in const {ChordExtension.add11, ChordExtension.add13})
-      if (!canonicalIntervals.contains(extension.intervalAboveRoot)) extension,
-  };
+  return _extensionsNotInCore(quality, _seventhAddToneOrder);
 }
 
 Set<ChordExtension> seventhAlterations(ChordQualityToken quality) {
+  return _extensionsNotInCore(quality, _seventhAlterationOrder);
+}
+
+Set<ChordExtension> _extensionsNotInCore(
+  ChordQualityToken quality,
+  List<ChordExtension> candidates,
+) {
   final canonicalIntervals = quality.canonicalIntervals;
   return {
-    for (final extension in const {
-      ChordExtension.flat9,
-      ChordExtension.sharp9,
-      ChordExtension.sharp11,
-      ChordExtension.flat13,
-    })
+    for (final extension in candidates)
       if (!canonicalIntervals.contains(extension.intervalAboveRoot)) extension,
   };
 }
@@ -379,30 +365,63 @@ void _replaceWithStackedThirteenth(Set<ChordExtension> extensions) {
   extensions.add(ChordExtension.thirteen);
 }
 
-bool _allowsTriadLikeSharp11(ChordQualityToken quality) {
-  return switch (quality) {
-    ChordQualityToken.major ||
-    ChordQualityToken.minor ||
-    ChordQualityToken.minorSharp5 ||
-    ChordQualityToken.major6 ||
-    ChordQualityToken.minor6 ||
-    ChordQualityToken.augmented => true,
-    _ => false,
-  };
-}
+const _triadLikeExtensionsByQuality = <ChordQualityToken, Set<ChordExtension>>{
+  // Major/minor 6ths and diminished sevenths are core-tone choices, so plain
+  // major, minor, and diminished triads do not expose add13 duplicates.
+  ChordQualityToken.major: {
+    ChordExtension.add9,
+    ChordExtension.add11,
+    ChordExtension.addSharp9,
+    ChordExtension.sharp11,
+  },
+  ChordQualityToken.minor: {
+    ChordExtension.add9,
+    ChordExtension.add11,
+    ChordExtension.sharp11,
+  },
+  ChordQualityToken.minorSharp5: {
+    ChordExtension.add9,
+    ChordExtension.add11,
+    ChordExtension.add13,
+    ChordExtension.sharp11,
+  },
+  ChordQualityToken.diminished: {ChordExtension.add9, ChordExtension.add11},
+  ChordQualityToken.augmented: {
+    ChordExtension.add9,
+    ChordExtension.add11,
+    ChordExtension.add13,
+    ChordExtension.addSharp9,
+    ChordExtension.sharp11,
+  },
+  ChordQualityToken.sus2: {ChordExtension.add11, ChordExtension.add13},
+  ChordQualityToken.sus4: {ChordExtension.add9, ChordExtension.add13},
+  ChordQualityToken.major6: {
+    ChordExtension.add9,
+    ChordExtension.add11,
+    ChordExtension.flat9,
+    ChordExtension.addSharp9,
+    ChordExtension.sharp11,
+  },
+  ChordQualityToken.minor6: {
+    ChordExtension.add9,
+    ChordExtension.add11,
+    ChordExtension.flat9,
+    ChordExtension.sharp11,
+  },
+};
 
-bool _allowsTriadLikeAddSharp9(ChordQualityToken quality) {
-  return switch (quality) {
-    ChordQualityToken.major ||
-    ChordQualityToken.major6 ||
-    ChordQualityToken.augmented => true,
-    _ => false,
-  };
-}
+const _seventhStackExtensionOrder = [
+  ChordExtension.flat9,
+  ChordExtension.nine,
+  ChordExtension.eleven,
+  ChordExtension.thirteen,
+];
 
-bool _allowsTriadLikeFlat9(ChordQualityToken quality) {
-  return switch (quality) {
-    ChordQualityToken.major6 || ChordQualityToken.minor6 => true,
-    _ => false,
-  };
-}
+const _seventhAddToneOrder = [ChordExtension.add11, ChordExtension.add13];
+
+const _seventhAlterationOrder = [
+  ChordExtension.flat9,
+  ChordExtension.sharp9,
+  ChordExtension.sharp11,
+  ChordExtension.flat13,
+];
