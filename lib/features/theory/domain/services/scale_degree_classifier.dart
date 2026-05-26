@@ -13,9 +13,9 @@ abstract final class ScaleDegreeClassifier {
     for (final t in chordTemplates) t.quality: t,
   };
 
-  /// Convenience API matching your test callsites.
-  ///
-  /// Uses the chord’s own presentIntervalsMask and enforces strict validation.
+  /// Classifies [chord] using its own voicing as the interval mask, with strict
+  /// validation enabled. Returns null if the chord does not cleanly fit a
+  /// functional degree in [tonality].
   static ScaleDegree? strict({
     required Tonality tonality,
     required ChordIdentity chord,
