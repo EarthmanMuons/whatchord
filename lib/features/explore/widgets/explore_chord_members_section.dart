@@ -43,13 +43,21 @@ class _ExploreChordMembersSectionState extends State<ExploreChordMembersSection>
   static const Duration _insertDuration = Duration(milliseconds: 140);
   static const Duration _removeDuration = Duration(milliseconds: 120);
   static const Duration _resizeDuration = Duration(milliseconds: 90);
+  static const double _fadeWidth = 34.0;
 
   late List<_ExploreMemberChipEntry> _entries;
+  final _scrollController = ScrollController();
+  bool _showLeadingFade = false;
+  bool _showTrailingFade = false;
 
   @override
   void initState() {
     super.initState();
     _entries = _createInitialEntries();
+    _scrollController.addListener(_updateScrollFade);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _updateScrollFade();
+    });
   }
 
   @override
@@ -67,10 +75,34 @@ class _ExploreChordMembersSectionState extends State<ExploreChordMembersSection>
 
   @override
   void dispose() {
+    _scrollController.removeListener(_updateScrollFade);
+    _scrollController.dispose();
     for (final entry in _entries) {
       entry.controller.dispose();
     }
     super.dispose();
+  }
+
+  void _updateScrollFade() {
+    if (!_scrollController.hasClients) return;
+
+    final position = _scrollController.position;
+    if (!position.hasContentDimensions) return;
+
+    const epsilon = 0.5;
+    final maxExtent = position.maxScrollExtent;
+    final pixels = position.pixels;
+    final nextLeading = maxExtent > epsilon && pixels > epsilon;
+    final nextTrailing = maxExtent > epsilon && pixels < maxExtent - epsilon;
+
+    if (nextLeading == _showLeadingFade && nextTrailing == _showTrailingFade) {
+      return;
+    }
+
+    setState(() {
+      _showLeadingFade = nextLeading;
+      _showTrailingFade = nextTrailing;
+    });
   }
 
   List<_ExploreMemberChipEntry> _createInitialEntries() {
@@ -184,36 +216,105 @@ class _ExploreChordMembersSectionState extends State<ExploreChordMembersSection>
     setState(() {
       _entries = nextEntries;
     });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _updateScrollFade();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _updateScrollFade();
+    });
+
     return Semantics(
       container: true,
       explicitChildNodes: true,
       label: 'Chord members',
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        crossAxisAlignment: WrapCrossAlignment.center,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _ExplorePlayButton(
-                previewNotes: widget.previewNotes,
-                onPreviewStarted: widget.onPreviewStarted,
-              ),
-              const SizedBox(width: 4),
-              _MemberDisplayModeButton(
-                showDegrees: widget.showDegrees,
-                onPressed: () =>
-                    widget.onShowDegreesChanged(!widget.showDegrees),
-              ),
-            ],
+          _ExplorePlayButton(
+            previewNotes: widget.previewNotes,
+            onPreviewStarted: widget.onPreviewStarted,
           ),
-          for (final entry in _entries)
-            _AnimatedExploreMemberChip(key: ObjectKey(entry), entry: entry),
+          const SizedBox(width: 4),
+          _MemberDisplayModeButton(
+            showDegrees: widget.showDegrees,
+            onPressed: () => widget.onShowDegreesChanged(!widget.showDegrees),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  controller: _scrollController,
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var i = 0; i < _entries.length; i++)
+                        Padding(
+                          padding: EdgeInsets.only(
+                            right: i == _entries.length - 1 ? 0 : 8,
+                          ),
+                          child: _AnimatedExploreMemberChip(
+                            key: ObjectKey(_entries[i]),
+                            entry: _entries[i],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                if (_showLeadingFade)
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: _fadeWidth,
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [
+                              cs.surface,
+                              cs.surface.withValues(alpha: 0),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (_showTrailingFade)
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: _fadeWidth,
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerRight,
+                            end: Alignment.centerLeft,
+                            colors: [
+                              cs.surface,
+                              cs.surface.withValues(alpha: 0),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );

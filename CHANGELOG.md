@@ -17,6 +17,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Added analysis and Explore Chords support for minor sharp-five and minor
   seventh sharp-five chords.
 
+### Changed
+
+- Kept Explore Chords member chips on one horizontally scrollable row to avoid
+  layout jumps while changing chord options.
+
 ### Fixed
 
 - Fixed readable chord names so standard ninth, eleventh, and thirteenth chords
