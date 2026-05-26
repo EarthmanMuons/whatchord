@@ -45,8 +45,8 @@ where mature tools disagree with WhatChord's primary label.
 The harness generates pitch-class sets rather than scraping named chord lists.
 It first builds a deterministic candidate pool:
 
-1. Starts with a small set of practical seed shapes so common chord families are
-   represented even in tiny samples.
+1. Adds a small set of practical seed shapes so common chord families are
+   represented in the generated pool.
 2. Then enumerates chromatic pitch-class sets of size 3 through 7.
 3. Canonicalizes transpositions so equivalent shapes are tested once.
 4. Tests every pitch class in the set as the bass.
@@ -61,7 +61,9 @@ seeds, and all bass choices, the generated pool is currently around sixteen
 hundred cases. That is much smaller than every raw note-name combination because
 transposition-equivalent pitch-class sets are collapsed before bass choices are
 expanded. The seed list is only a supplement; the main discovery surface is the
-randomized canonical pitch-class pool.
+randomized canonical pitch-class pool. In random mode, practical seeds are
+shuffled with the rest of the pool rather than being forced to the front of a
+limited sample.
 
 Random order is the default. Without `--seed`, the harness generates a seed,
 prints it, and stores it in `chord_oracle_summary.json`. To reproduce the same
