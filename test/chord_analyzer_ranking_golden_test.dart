@@ -56,6 +56,17 @@ void main() {
     ),
 
     golden(
+      description: 'complete major inversion beats minor sharp fifth',
+      expectedSymbol: 'Ab / C',
+      expectedAlternateSymbols: ['Cm#5'],
+      pcs: ['C', 'Eb', 'Ab'],
+      bass: 'C',
+      expectedRoot: 'Ab',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.major,
+    ),
+
+    golden(
       description:
           'root-position dominant sus beats complete second-inversion sus',
       expectedSymbol: 'G7sus4',
