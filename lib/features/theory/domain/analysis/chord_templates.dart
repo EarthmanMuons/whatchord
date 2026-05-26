@@ -88,6 +88,19 @@ final chordTemplates = <ChordTemplate>[
         (1 << majorSeventhInterval),
   ),
 
+  // Major flat 5: R + M3 + b5
+  // - M3 defines major quality; b5 replaces the perfect fifth
+  // - No optional tones (all three intervals are the chord)
+  // - Penalty: P5 (contradicts b5), m3 (contradicts major), b7/M7 (would suggest seventh chords)
+  ChordTemplate.fromIntervals(
+    ChordQualityToken.majorFlat5.intervals,
+    penaltyMask:
+        (1 << perfectFifthInterval) |
+        (1 << minorThirdInterval) |
+        (1 << minorSeventhInterval) |
+        (1 << majorSeventhInterval),
+  ),
+
   // Minor triad: R + m3 + (P5)
   // - m3 defines minor quality
   // - Penalty: M3, b7, M7 (would suggest major/seventh chords)

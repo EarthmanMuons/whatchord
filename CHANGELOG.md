@@ -21,6 +21,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Kept Explore Chords member chips on one horizontally scrollable row to avoid
   layout jumps while changing chord options.
+- Identify sparse root-major-third-tritone voicings (e.g. Ab-C-D) as flat-five
+  chords (Ab(b5)) rather than sharp-eleven extensions (Ab#11), matching the
+  reading most musicians would expect.
 
 ### Fixed
 

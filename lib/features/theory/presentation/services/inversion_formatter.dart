@@ -33,6 +33,9 @@ abstract final class InversionFormatter {
       case ChordQualityToken.major6:
         return const {0, 4, 7}; // 1, 3, 5
 
+      case ChordQualityToken.majorFlat5:
+        return const {0, 4, 6}; // 1, 3, b5
+
       case ChordQualityToken.minor:
       case ChordQualityToken.minor6:
         return const {0, 3, 7}; // 1, b3, 5

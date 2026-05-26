@@ -313,6 +313,45 @@ void main() {
       expectedToneRolesByInterval: {6: ChordToneRole.flat5},
     ),
 
+    // Major flat 5: three-note root+M3+tritone. The tritone replaces the fifth,
+    // so it reads as a flat-five chord rather than a major triad with a #11
+    // extension. When the natural fifth (P5) is absent, the flat-five template
+    // wins cleanly; adding P5 to the voicing shifts the winner back to the
+    // plain major template with a #11 extension.
+    golden(
+      description: 'major flat fifth triad (tritone replaces fifth)',
+      expectedSymbol: 'C(b5)',
+      pcs: ['C', 'E', 'Gb'],
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.majorFlat5,
+      expectNoExtensions: true,
+      expectedToneRolesByInterval: {6: ChordToneRole.flat5},
+    ),
+
+    // The oracle case: Ab-C-D in a flat-key context spells as Ab(b5).
+    golden(
+      description: 'major flat fifth triad in flat key context',
+      expectedSymbol: 'Ab(b5)',
+      pcs: ['Ab', 'C', 'D'],
+      bass: 'Ab',
+      tonality: Tonality('Ab', TonalityMode.major),
+      expectedRoot: 'Ab',
+      expectedQuality: ChordQualityToken.majorFlat5,
+      expectNoExtensions: true,
+      expectedToneRolesByInterval: {6: ChordToneRole.flat5},
+    ),
+
+    golden(
+      description:
+          'major flat fifth triad with P5 present reverts to major #11',
+      expectedSymbol: 'Ab#11',
+      pcs: ['Ab', 'C', 'Eb', 'D'],
+      bass: 'Ab',
+      expectedRoot: 'Ab',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.sharp11},
+    ),
+
     // Altered augmented dominants keep both the #5 core tone and #9 color.
     golden(
       description: 'altered augmented dominant with sharp ninth',

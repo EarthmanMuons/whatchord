@@ -125,6 +125,7 @@ class ChordIdentity {
 
 enum ChordQualityToken {
   major,
+  majorFlat5,
   minor,
   minorSharp5,
   diminished,

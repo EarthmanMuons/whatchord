@@ -44,6 +44,13 @@ const chordQualityIntervalSets = <ChordQualityIntervals>[
     omittableMask: 1 << perfectFifthInterval,
   ),
   ChordQualityIntervals(
+    quality: ChordQualityToken.majorFlat5,
+    canonicalMask:
+        chordRootBit |
+        (1 << majorThirdInterval) |
+        (1 << diminishedFifthInterval),
+  ),
+  ChordQualityIntervals(
     quality: ChordQualityToken.minor,
     canonicalMask:
         chordRootBit | (1 << minorThirdInterval) | (1 << perfectFifthInterval),
