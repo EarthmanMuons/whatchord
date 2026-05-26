@@ -68,6 +68,18 @@ void main() {
 
     golden(
       description:
+          'complete second-inversion major triad beats minor sharp fifth',
+      expectedSymbol: 'Ab / Eb',
+      expectedAlternateSymbols: ['Cm#5 / Eb'],
+      pcs: ['C', 'Eb', 'Ab'],
+      bass: 'Eb',
+      expectedRoot: 'Ab',
+      expectedBass: 'Eb',
+      expectedQuality: ChordQualityToken.major,
+    ),
+
+    golden(
+      description:
           'root-position dominant sus beats complete second-inversion sus',
       expectedSymbol: 'G7sus4',
       expectedAlternateSymbols: ['Csus4 / G'],
