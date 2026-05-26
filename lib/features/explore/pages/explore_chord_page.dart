@@ -251,6 +251,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
           Expanded(
             child: ExploreFadedScrollView(
               padding: const EdgeInsets.only(top: 4),
+              maintainVisualPositionOnResize: true,
               child: _buildControls(
                 example: example,
                 tonality: tonality,
@@ -315,8 +316,8 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
           _updateState(exploreStateWithSeventhKind(_state, value)),
       onFifthAlterationChanged: (value) =>
           _updateState(exploreStateWithFifthAlteration(_state, value)),
-      onStateChanged: (value) =>
-          _updateState(normalizeExploreChordState(value)),
+      onExtensionsChanged: (value) =>
+          _updateState(exploreStateWithExtensions(_state, value)),
       onBassChanged: (value) =>
           _updateState(exploreStateWithBass(_state, value)),
     );

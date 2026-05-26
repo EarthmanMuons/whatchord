@@ -335,33 +335,6 @@ void main() {
       },
     );
 
-    test('minor triads expose stacked extensions for m7-family promotion', () {
-      final groups = buildExploreExtensionControlGroupsForState(
-        ExploreChordState.fromSpec(
-          rootPc: 2,
-          spec: const ExploreChordSpec(
-            baseQuality: ExploreBaseQuality.minor,
-            seventhKind: ExploreSeventhKind.none,
-            fifthAlteration: ExploreFifthAlteration.natural,
-          ),
-          extensions: const {},
-          bassPc: 2,
-        ),
-      );
-
-      expect(groups.map((group) => group.label), [
-        'Stacked extension',
-        'Added tones',
-        'Alterations',
-      ]);
-      expect(groups.first.choices.map((choice) => choice.extension), [
-        null,
-        ChordExtension.nine,
-        ChordExtension.eleven,
-        ChordExtension.thirteen,
-      ]);
-    });
-
     test('all non-seventh qualities have intentional extension choices', () {
       final expectations = {
         ChordQualityToken.major: [
@@ -1176,31 +1149,6 @@ void main() {
         expect(normalized, {ChordExtension.eleven, ChordExtension.flat13});
       },
     );
-
-    test('stacked minor-triad choices promote to minor seventh quality', () {
-      final state = ExploreChordState.fromSpec(
-        rootPc: 2,
-        spec: const ExploreChordSpec(
-          baseQuality: ExploreBaseQuality.minor,
-          seventhKind: ExploreSeventhKind.none,
-          fifthAlteration: ExploreFifthAlteration.natural,
-        ),
-        extensions: const {},
-        bassPc: 2,
-      );
-      final headlineGroup = buildExploreExtensionControlGroupsForState(
-        state,
-      ).first;
-
-      final next = selectExploreExtensionChoiceForState(
-        state: state,
-        group: headlineGroup,
-        choice: headlineGroup.choices[2],
-      );
-
-      expect(next.quality, ChordQualityToken.minor7);
-      expect(next.extensions, {ChordExtension.eleven});
-    });
   });
 
   group('ExploreChordExampleBuilder', () {
@@ -1234,16 +1182,16 @@ void main() {
       expect(example.normalizedVoicing, [59, 60, 64, 67]);
     });
 
-    test('implies added ninth for major sharp-eleventh examples', () {
+    test('keeps major sharp-eleventh examples literal', () {
       final example = _example(
         quality: ChordQualityToken.major,
         extensions: const {ChordExtension.sharp11},
       );
 
       expect(example.presentation.symbol.toString(), 'C#11');
-      expect(example.members, ['C', 'E', 'G', 'D', 'F#']);
-      expect(example.memberDegrees, ['1', '3', '5', '9', '#11']);
-      expect(example.normalizedVoicing, [60, 64, 67, 74, 78]);
+      expect(example.members, ['C', 'E', 'G', 'F#']);
+      expect(example.memberDegrees, ['1', '3', '5', '#11']);
+      expect(example.normalizedVoicing, [60, 64, 67, 78]);
     });
 
     test('builds split-third add sharp-nine examples', () {

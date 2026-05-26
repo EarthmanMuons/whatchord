@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
 class ExploreFadedScrollView extends StatefulWidget {
-  const ExploreFadedScrollView({super.key, required this.child, this.padding});
+  const ExploreFadedScrollView({
+    super.key,
+    required this.child,
+    this.padding,
+    this.maintainVisualPositionOnResize = false,
+  });
 
   final Widget child;
   final EdgeInsetsGeometry? padding;
+  final bool maintainVisualPositionOnResize;
 
   @override
   State<ExploreFadedScrollView> createState() => _ExploreFadedScrollViewState();
@@ -16,6 +22,7 @@ class _ExploreFadedScrollViewState extends State<ExploreFadedScrollView> {
   final ScrollController _controller = ScrollController();
   bool _showTopFade = false;
   bool _showBottomFade = false;
+  double? _lastViewportHeight;
 
   @override
   void initState() {
@@ -67,6 +74,7 @@ class _ExploreFadedScrollViewState extends State<ExploreFadedScrollView> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        _handleViewportResize(constraints.maxHeight);
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) _updateFades();
         });
@@ -118,5 +126,34 @@ class _ExploreFadedScrollViewState extends State<ExploreFadedScrollView> {
         );
       },
     );
+  }
+
+  void _handleViewportResize(double height) {
+    if (!height.isFinite) return;
+
+    final previous = _lastViewportHeight;
+    _lastViewportHeight = height;
+
+    if (!widget.maintainVisualPositionOnResize || previous == null) return;
+
+    final delta = previous - height;
+    if (delta.abs() <= 0.5) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_controller.hasClients) return;
+
+      final position = _controller.position;
+      if (!position.hasContentDimensions) return;
+      if (position.pixels <= 0.5 && delta < 0) return;
+
+      final target = (position.pixels + delta).clamp(
+        position.minScrollExtent,
+        position.maxScrollExtent,
+      );
+      if ((target - position.pixels).abs() <= 0.5) return;
+
+      _controller.jumpTo(target);
+      _updateFades();
+    });
   }
 }
