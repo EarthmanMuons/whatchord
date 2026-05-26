@@ -51,7 +51,6 @@ String spellPitchClass(
 /// Ab; a major triad rooted there spells cleanly as Ab-C-Eb, not G#-B#-D#.
 String spellChordRoot(ChordIdentity identity, {required Tonality tonality}) {
   final tonalName = pcToName(identity.rootPc, tonality: tonality);
-  if (!identity.hasSlashBass) return tonalName;
   if (_isDiatonicName(tonalName, tonality: tonality)) return tonalName;
 
   final candidates = _candidateNamesForPc(identity.rootPc);

@@ -11,7 +11,7 @@ class ChordLongFormFormatter {
     ChordLongFormAccidentalStyle accidentalStyle =
         ChordLongFormAccidentalStyle.glyph,
   }) {
-    final rootName = pcToName(identity.rootPc, tonality: tonality);
+    final rootName = spellChordRoot(identity, tonality: tonality);
     final root = _noteName(rootName, accidentalStyle, noteNameSystem);
 
     final quality = identity.quality.label(ChordQualityLabelForm.long);
