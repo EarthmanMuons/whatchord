@@ -190,7 +190,7 @@ class _NearTieChordCandidatesListState
               child: SizeTransition(
                 sizeFactor: animation,
                 axis: widget.axis,
-                axisAlignment: -1.0,
+                alignment: AlignmentDirectional.topStart,
                 child: child,
               ),
             ),
