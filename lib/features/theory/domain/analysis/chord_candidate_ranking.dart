@@ -820,6 +820,8 @@ class _CandidateFeatures {
     final dom7SlashHasNonBassAlterations =
         isDom7Slash && _dom7SlashHasNonBassAlterations(id);
 
+    final hasMaj3Nat11 = _hasMajorThirdNaturalEleventh(id);
+
     return _CandidateFeatures(
       isRootPosition: rootPos,
       isSixFamily: q.isSixFamily,
@@ -843,8 +845,12 @@ class _CandidateFeatures {
       bassRoleRank: _bassRoleRank(id),
       bassIsColorTone: bassIsColorTone,
       extensionCount: id.extensions.length,
-      extensionTensionCount: _extensionTensionCount(id, pref),
-      isQuestionableAdd11Slash: _isQuestionableAdd11Slash(id, rootPos),
+      extensionTensionCount: _extensionTensionCount(pref, hasMaj3Nat11),
+      isQuestionableAdd11Slash: _isQuestionableAdd11Slash(
+        id,
+        rootPos,
+        hasMaj3Nat11,
+      ),
       extPref: pref,
       hasRealExt: realExt,
     );
@@ -913,26 +919,30 @@ class _CandidateFeatures {
     return id.extensions.contains(ChordExtension.flat13);
   }
 
-  static bool _isQuestionableAdd11Slash(ChordIdentity id, bool rootPos) {
+  static bool _isQuestionableAdd11Slash(
+    ChordIdentity id,
+    bool rootPos,
+    bool hasMaj3Nat11,
+  ) {
     if (rootPos) return false;
     if (id.quality == ChordQualityToken.dominant7 ||
         id.quality == ChordQualityToken.dominant7Flat5 ||
         id.quality == ChordQualityToken.dominant7Sharp5) {
       return false;
     }
-    return _hasMajorThirdNaturalEleventh(id);
+    return hasMaj3Nat11;
   }
 
   static int _extensionTensionCount(
-    ChordIdentity id,
     ExtensionPreference pref,
+    bool hasMaj3Nat11,
   ) {
     var count = pref.alterationCount;
 
     // A natural 11 against a major third is at least as harmonically loaded as
     // an altered color. Do not let the "fewer alterations" tie-breaker prefer
     // this spelling over an otherwise stronger #11/rooted interpretation.
-    if (_hasMajorThirdNaturalEleventh(id)) count++;
+    if (hasMaj3Nat11) count++;
 
     return count;
   }
