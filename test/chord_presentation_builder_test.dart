@@ -160,8 +160,8 @@ void main() {
       notation: notation,
     );
 
-    expect(presentation.symbol.toString(), 'C#');
-    expect(presentation.longLabel, 'C♯ major');
+    expect(presentation.symbol.toString(), 'Db');
+    expect(presentation.longLabel, 'D♭ major');
     expect(presentation.scaleDegree, isNull);
   });
 }

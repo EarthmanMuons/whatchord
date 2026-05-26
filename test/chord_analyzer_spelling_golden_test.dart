@@ -53,6 +53,18 @@ void main() {
       expectedBass: 'F#',
       expectedQuality: ChordQualityToken.dominant7Flat5,
     ),
+
+    // Augmented triads are symmetric by pitch class, but root spelling should
+    // still avoid double-sharp member names when a clean spelling exists.
+    golden(
+      description: 'root-position augmented triad uses readable root spelling',
+      expectedSymbol: 'Abaug',
+      pcs: ['C', 'E', 'Ab'],
+      bass: 'Ab',
+      expectedRoot: 'Ab',
+      expectedBass: 'Ab',
+      expectedQuality: ChordQualityToken.augmented,
+    ),
   ];
 
   runChordAnalyzerGoldenCases(cases);
