@@ -1,7 +1,7 @@
 import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
 import '../models/tonality.dart';
-import 'note_spelling.dart' show pcToName, spellPitchClass;
+import 'note_spelling.dart' show spellChordRoot, spellPitchClass;
 import 'pitch_class.dart';
 
 /// Role-aware spelling for the *currently sounding* chord members.
@@ -18,7 +18,7 @@ abstract final class ChordMemberSpeller {
   }) {
     if (pitchClasses.isEmpty) return const <String>[];
 
-    final rootName = pcToName(identity.rootPc, tonality: tonality);
+    final rootName = spellChordRoot(identity, tonality: tonality);
 
     // Build (interval -> spelled name) for all present tones we can classify.
     final entries = <_Member>[];

@@ -250,13 +250,26 @@ void main() {
       expectedToneRolesByInterval: {8: ChordToneRole.sharp5},
     ),
 
-    // Minor sharp 5 should treat the augmented fifth as a core tone.
+    // The pitch-class set also admits Cm#5, but a complete first-inversion
+    // major triad is the more conventional default for MIDI-style input.
     golden(
-      description: 'minor sharp fifth',
-      expectedSymbol: 'Cm#5',
+      description: 'first-inversion major triad beats minor sharp fifth',
+      expectedSymbol: 'Ab / C',
       pcs: ['C', 'Eb', 'G#'],
+      expectedRoot: 'Ab',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.major,
+    ),
+
+    // With added ninth color, the C-root altered minor reading is more coherent
+    // than treating the D as sharp-eleventh color on Ab/C.
+    golden(
+      description: 'minor sharp fifth with added ninth',
+      expectedSymbol: 'Cm#5add9',
+      pcs: ['C', 'Eb', 'G#', 'D'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.minorSharp5,
+      expectedExtensions: {ChordExtension.add9},
       expectedToneRolesByInterval: {8: ChordToneRole.sharp5},
     ),
 

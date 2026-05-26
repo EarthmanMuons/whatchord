@@ -21,6 +21,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Fixed a couple of "Why This Chord?" ranking explanations so close alternatives
   are described more clearly.
+- Fixed an enharmonic chord-ranking case so A-flat major over C is preferred
+  over C minor sharp-five for the notes C-Eb-Ab.
 - Fixed explore mode member chip transitions so changes are easier to follow
   while scrubbing through options.
 - Fixed explore mode Harte notation copy so sharp root spellings such as C#m are

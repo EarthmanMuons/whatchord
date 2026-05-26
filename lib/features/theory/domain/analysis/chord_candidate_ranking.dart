@@ -139,6 +139,10 @@ abstract final class ChordCandidateRanking {
       'prefer root-position extended dominant over altered-fifth slash',
       _preferRootExtendedDom7OverAlteredFifthSlash,
     ),
+    _NamedRule(
+      'prefer complete major inversion over minor sharp-five',
+      _preferCompleteMajorInversionOverMinorSharpFive,
+    ),
     _NamedRule('prefer root-position diminished7', _preferDim7InRoot),
     _NamedRule('prefer dominant7 over dim7 slash', _preferDom7Shell),
     _NamedRule('prefer fewer altered/tension colors', _preferFewerAlterations),
@@ -326,6 +330,29 @@ abstract final class ChordCandidateRanking {
     if (!fOther.dom7HasShell) return null;
 
     return aIsPreferred ? -1 : 1;
+  }
+
+  /// Prefers the ordinary first-inversion major triad reading over the
+  /// enharmonically equivalent root-position minor-sharp-five reading.
+  ///
+  /// Example: {C, Eb, Ab} with C in the bass is normally heard and written as
+  /// Ab/C, not Cm#5. The latter is pitch-class valid, but it depends on spelling
+  /// Ab as G# and treats a complete consonant triad as an altered minor color.
+  static int? _preferCompleteMajorInversionOverMinorSharpFive(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsMajorInversion = fa.isCompleteMajorTriadFirstInversion;
+    final bIsMajorInversion = fb.isCompleteMajorTriadFirstInversion;
+    if (aIsMajorInversion == bIsMajorInversion) return null;
+
+    final fOther = aIsMajorInversion ? fb : fa;
+    if (!fOther.isRootPositionMinorSharpFive) return null;
+
+    return aIsMajorInversion ? -1 : 1;
   }
 
   static bool _isRootExtendedDom7(
@@ -748,6 +775,8 @@ class _CandidateFeatures {
   final bool isSus;
   final bool isCompleteMinorSharp11;
   final bool isCompleteMajorMinorTriad;
+  final bool isCompleteMajorTriadFirstInversion;
+  final bool isRootPositionMinorSharpFive;
   final bool isIncompleteInvertedSixth;
   final bool isSecondInversion;
   final bool isAlteredMajor7Sus4;
@@ -779,6 +808,8 @@ class _CandidateFeatures {
     required this.isSus,
     required this.isCompleteMinorSharp11,
     required this.isCompleteMajorMinorTriad,
+    required this.isCompleteMajorTriadFirstInversion,
+    required this.isRootPositionMinorSharpFive,
     required this.isIncompleteInvertedSixth,
     required this.isSecondInversion,
     required this.isAlteredMajor7Sus4,
@@ -834,6 +865,12 @@ class _CandidateFeatures {
       isSus: q.isSus,
       isCompleteMinorSharp11: _isCompleteMinorSharp11(id),
       isCompleteMajorMinorTriad: _isCompleteMajorMinorTriadCore(id),
+      isCompleteMajorTriadFirstInversion: _isCompleteMajorTriadFirstInversion(
+        id,
+        rootPos,
+      ),
+      isRootPositionMinorSharpFive:
+          rootPos && q == ChordQualityToken.minorSharp5,
       isIncompleteInvertedSixth: _isIncompleteInvertedSixth(id, rootPos),
       isSecondInversion: _bassRoleRank(id) == 2,
       isAlteredMajor7Sus4: _isAlteredMajor7Sus4(id, rootPos),
@@ -889,6 +926,21 @@ class _CandidateFeatures {
 
     return roles.contains(ChordToneRole.root) &&
         hasThird &&
+        roles.contains(ChordToneRole.perfect5);
+  }
+
+  static bool _isCompleteMajorTriadFirstInversion(
+    ChordIdentity id,
+    bool rootPos,
+  ) {
+    if (rootPos) return false;
+    if (id.quality != ChordQualityToken.major) return false;
+    if (id.extensions.isNotEmpty) return false;
+    if (_bassRoleRank(id) != 1) return false;
+
+    final roles = id.toneRolesByInterval.values;
+    return roles.contains(ChordToneRole.root) &&
+        roles.contains(ChordToneRole.major3) &&
         roles.contains(ChordToneRole.perfect5);
   }
 

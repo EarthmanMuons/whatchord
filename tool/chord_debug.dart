@@ -300,12 +300,7 @@ String _formatChordMembersByRole(
   required AnalysisContext context,
 }) {
   // Determine the chord root name once, then reuse for all member spellings.
-  final rootName = _pcLabel(
-    id.rootPc,
-    context: context,
-    chordRootName: null,
-    role: ChordToneRole.root,
-  );
+  final rootName = spellChordRoot(id, tonality: context.tonality);
 
   final entries = <MapEntry<int, ChordToneRole>>[
     const MapEntry<int, ChordToneRole>(0, ChordToneRole.root),
@@ -385,12 +380,7 @@ Map<String, Object?> _candidateJson({
 }) {
   final c = result.candidate;
   final id = c.identity;
-  final rootName = _pcLabel(
-    id.rootPc,
-    context: context,
-    chordRootName: null,
-    role: ChordToneRole.root,
-  );
+  final rootName = spellChordRoot(id, tonality: context.tonality);
   final symbol = chordSymbolDisplayLabel(
     ChordSymbolBuilder.fromIdentity(
       identity: id,

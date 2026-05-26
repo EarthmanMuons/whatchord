@@ -1,3 +1,4 @@
+import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
 import '../models/key_signature.dart';
 import '../models/tonality.dart';
@@ -41,6 +42,45 @@ String spellPitchClass(
   }
 
   return targetLetter + _accidentalToAscii(delta);
+}
+
+/// Chooses a root spelling that keeps the whole chord readable.
+///
+/// Tonality still matters, but role-aware member spellings can override a
+/// chromatic tie. For example, pitch class 8 in C major is ambiguous as G# or
+/// Ab; a major triad rooted there spells cleanly as Ab-C-Eb, not G#-B#-D#.
+String spellChordRoot(ChordIdentity identity, {required Tonality tonality}) {
+  final tonalName = pcToName(identity.rootPc, tonality: tonality);
+  if (!identity.hasSlashBass) return tonalName;
+  if (_isDiatonicName(tonalName, tonality: tonality)) return tonalName;
+
+  final candidates = _candidateNamesForPc(identity.rootPc);
+
+  _RootSpellingCandidate? best;
+  for (final name in candidates) {
+    final score = _scoreChordRootName(
+      identity,
+      rootName: name,
+      tonality: tonality,
+      tonalName: tonalName,
+    );
+    final candidate = _RootSpellingCandidate(name: name, score: score);
+    if (best == null ||
+        candidate.score < best.score ||
+        (candidate.score == best.score && candidate.name == tonalName)) {
+      best = candidate;
+    }
+  }
+
+  return best?.name ?? tonalName;
+}
+
+bool _isDiatonicName(String name, {required Tonality tonality}) {
+  final diatonic = _buildDiatonicPcToName(
+    fifths: tonality.keySignature.fifths,
+    tonicLetter: _tonicLetter(tonality.tonic),
+  );
+  return diatonic.values.contains(normalizeNoteNameToAscii(name));
 }
 
 /// Tonality-aware pitch-class spelling (key-signature correct).
@@ -192,6 +232,63 @@ String _accidentalToAscii(int acc) {
   };
 }
 
+List<String> _candidateNamesForPc(int pc) {
+  final targetPc = pc % 12;
+  final out = <String>[];
+
+  for (final letter in _letters) {
+    final naturalPc = _naturalPcByLetter[letter]!;
+    var delta = (targetPc - naturalPc) % 12;
+    if (delta > 6) delta -= 12;
+    if (delta < -2 || delta > 2) continue;
+    out.add(letter + _accidentalToAscii(delta));
+  }
+
+  return out;
+}
+
+int _scoreChordRootName(
+  ChordIdentity identity, {
+  required String rootName,
+  required Tonality tonality,
+  required String tonalName,
+}) {
+  var score = 0;
+
+  if (rootName != tonalName) score += 3;
+  score += _noteNamePenalty(rootName);
+
+  for (final entry in identity.toneRolesByInterval.entries) {
+    final pc = (identity.rootPc + entry.key) % 12;
+    final member = spellPitchClass(
+      pc,
+      tonality: tonality,
+      chordRootName: rootName,
+      role: entry.value,
+    );
+    score += _noteNamePenalty(member);
+  }
+
+  return score;
+}
+
+int _noteNamePenalty(String name) {
+  final ascii = normalizeNoteNameToAscii(name);
+  if (ascii.isEmpty) return 1000;
+
+  final accidental = ascii.substring(1);
+  var score = 0;
+  for (final c in accidental.split('')) {
+    if (c == '#' || c == 'b') score += 10;
+    if (c == 'x') score += 20;
+  }
+  if (accidental.length == 2) score += 30;
+  if (ascii == 'B#' || ascii == 'Cb' || ascii == 'E#' || ascii == 'Fb') {
+    score += 16;
+  }
+  return score;
+}
+
 String _fallbackSharpName(int pc) {
   const sharps = [
     'C',
@@ -212,6 +309,12 @@ String _fallbackSharpName(int pc) {
 
 class _Candidate {
   _Candidate({required this.name, required this.score});
+  final String name;
+  final int score;
+}
+
+class _RootSpellingCandidate {
+  _RootSpellingCandidate({required this.name, required this.score});
   final String name;
   final int score;
 }
