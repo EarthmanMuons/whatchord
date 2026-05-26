@@ -150,7 +150,10 @@ abstract final class ChordCandidateRanking {
       _preferNaturalExtensions,
     ),
     _NamedRule('prefer root position', _preferRootPosition),
-    _NamedRule('prefer 1st inversion over 2nd inversion', _prefer1stInversion),
+    _NamedRule(
+      'prefer more conventional inversion',
+      _preferConventionalInversion,
+    ),
     _NamedRule('prefer 7th chords over triads', _prefer7thChords),
     _NamedRule('prefer fewer extensions', _preferFewerExtensions),
     _NamedRule('avoid suspended chords', _avoidSuspended),
@@ -670,7 +673,7 @@ abstract final class ChordCandidateRanking {
     return fb.isRootPosition ? 1 : -1;
   }
 
-  static int? _prefer1stInversion(
+  static int? _preferConventionalInversion(
     ChordCandidate a,
     ChordCandidate b,
     _CandidateFeatures fa,
