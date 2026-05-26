@@ -19,6 +19,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Fixed readable chord names so standard ninth, eleventh, and thirteenth chords
+  use more natural musician phrasing.
 - Fixed a couple of "Why This Chord?" ranking explanations so close alternatives
   are described more clearly.
 - Fixed Explore Chords extension controls so minor eleventh chords are easier to

@@ -14,8 +14,14 @@ class ChordLongFormFormatter {
     final rootName = spellChordRoot(identity, tonality: tonality);
     final root = _noteName(rootName, accidentalStyle, noteNameSystem);
 
-    final quality = identity.quality.label(ChordQualityLabelForm.long);
-    final extPhrase = extensionsLongPhrase(identity.extensions);
+    final quality = _qualityLongPhrase(
+      quality: identity.quality,
+      extensions: identity.extensions,
+    );
+    final extPhrase = _extensionsLongPhrase(
+      identity.extensions,
+      absorbedHeadline: _headlineExtensionFor(identity),
+    );
 
     // Base: "C major seventh", "F♯ half-diminished seventh", etc.
     var s = '$root $quality$extPhrase';
@@ -44,6 +50,13 @@ class ChordLongFormFormatter {
 enum ChordLongFormAccidentalStyle { glyph, plainText }
 
 String extensionsLongPhrase(Set<ChordExtension> exts) {
+  return _extensionsLongPhrase(exts);
+}
+
+String _extensionsLongPhrase(
+  Set<ChordExtension> exts, {
+  ChordExtension? absorbedHeadline,
+}) {
   if (exts.isEmpty) return '';
 
   final ordered = exts.toList()
@@ -54,6 +67,8 @@ String extensionsLongPhrase(Set<ChordExtension> exts) {
   final real = <String>[];
 
   for (final e in ordered) {
+    if (_isAbsorbedExtension(e, absorbedHeadline)) continue;
+
     if (e.isAddTone) {
       adds.add(e.longLabel); // "add nine"
     } else {
@@ -69,8 +84,76 @@ String extensionsLongPhrase(Set<ChordExtension> exts) {
   final parts = <String>[];
   if (real.isNotEmpty) parts.add(_englishJoin(real));
   if (adds.isNotEmpty) parts.add(_englishJoin(adds));
+  if (parts.isEmpty) return '';
 
   return ' with ${_englishJoin(parts)}';
+}
+
+String _qualityLongPhrase({
+  required ChordQualityToken quality,
+  required Set<ChordExtension> extensions,
+}) {
+  final base = quality.label(ChordQualityLabelForm.long);
+  final headline = _headlineExtensionForParts(
+    quality: quality,
+    extensions: extensions,
+  );
+
+  if (headline == null) return base;
+
+  final promoted = _replaceSeventhWithHeadline(base, headline.longLabel);
+  return promoted == base ? base : promoted;
+}
+
+ChordExtension? _headlineExtensionFor(ChordIdentity identity) {
+  return _headlineExtensionForParts(
+    quality: identity.quality,
+    extensions: identity.extensions,
+  );
+}
+
+ChordExtension? _headlineExtensionForParts({
+  required ChordQualityToken quality,
+  required Set<ChordExtension> extensions,
+}) {
+  if (!quality.isSeventhFamily || quality == ChordQualityToken.diminished7) {
+    return null;
+  }
+
+  if (extensions.contains(ChordExtension.thirteen)) {
+    return ChordExtension.thirteen;
+  }
+  if (extensions.contains(ChordExtension.eleven)) {
+    return ChordExtension.eleven;
+  }
+  if (extensions.contains(ChordExtension.nine)) {
+    return ChordExtension.nine;
+  }
+
+  return null;
+}
+
+bool _isAbsorbedExtension(ChordExtension extension, ChordExtension? headline) {
+  switch (headline) {
+    case ChordExtension.nine:
+      return extension == ChordExtension.nine;
+    case ChordExtension.eleven:
+      return extension == ChordExtension.nine ||
+          extension == ChordExtension.eleven;
+    case ChordExtension.thirteen:
+      return extension == ChordExtension.nine ||
+          extension == ChordExtension.eleven ||
+          extension == ChordExtension.thirteen;
+    default:
+      return false;
+  }
+}
+
+String _replaceSeventhWithHeadline(String base, String headline) {
+  if (base.contains('seventh')) {
+    return base.replaceFirst('seventh', headline);
+  }
+  return base;
 }
 
 String _noteName(

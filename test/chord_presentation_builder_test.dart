@@ -147,6 +147,87 @@ void main() {
     );
   });
 
+  test('promotes seventh-family natural extensions in long labels', () {
+    final dominantNinth = _identity(
+      root: 'C',
+      quality: ChordQualityToken.dominant7,
+      extensions: const {ChordExtension.nine},
+      intervals: const [0, 2, 4, 7, 10],
+    );
+    final minorEleventh = _identity(
+      root: 'D',
+      quality: ChordQualityToken.minor7,
+      extensions: const {ChordExtension.nine, ChordExtension.eleven},
+      intervals: const [0, 2, 3, 5, 7, 10],
+    );
+    final majorThirteenth = _identity(
+      root: 'F',
+      quality: ChordQualityToken.major7,
+      extensions: const {
+        ChordExtension.nine,
+        ChordExtension.eleven,
+        ChordExtension.thirteen,
+      },
+      intervals: const [0, 2, 4, 5, 7, 9, 11],
+    );
+
+    expect(
+      ChordLongFormFormatter.format(
+        identity: dominantNinth,
+        tonality: const Tonality('C', TonalityMode.major),
+      ),
+      'C dominant ninth',
+    );
+    expect(
+      ChordLongFormFormatter.format(
+        identity: minorEleventh,
+        tonality: const Tonality('C', TonalityMode.major),
+      ),
+      'D minor eleventh',
+    );
+    expect(
+      ChordLongFormFormatter.format(
+        identity: majorThirteenth,
+        tonality: const Tonality('C', TonalityMode.major),
+      ),
+      'F major thirteenth',
+    );
+  });
+
+  test('keeps added tones and alterations as long-label modifiers', () {
+    final minorAddEleventh = _identity(
+      root: 'D',
+      quality: ChordQualityToken.minor7,
+      extensions: const {ChordExtension.add11},
+      intervals: const [0, 3, 5, 7, 10],
+    );
+    final dominantSharpEleventh = _identity(
+      root: 'G',
+      quality: ChordQualityToken.dominant7,
+      extensions: const {
+        ChordExtension.nine,
+        ChordExtension.sharp11,
+        ChordExtension.thirteen,
+      },
+      intervals: const [0, 2, 4, 6, 7, 9, 10],
+    );
+
+    expect(
+      ChordLongFormFormatter.format(
+        identity: minorAddEleventh,
+        tonality: const Tonality('C', TonalityMode.major),
+      ),
+      'D minor seventh with added eleventh',
+    );
+    expect(
+      ChordLongFormFormatter.format(
+        identity: dominantSharpEleventh,
+        tonality: const Tonality('C', TonalityMode.major),
+      ),
+      'G dominant thirteenth with sharp eleventh',
+    );
+  });
+
   test('returns null scale degree for non-diatonic presentation', () {
     final identity = _identity(
       root: 'Db',
