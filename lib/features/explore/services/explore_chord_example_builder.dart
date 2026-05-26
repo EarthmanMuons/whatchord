@@ -162,11 +162,6 @@ abstract final class ExploreChordExampleBuilder {
     ChordQualityToken quality,
     Set<ChordExtension> selected,
   ) {
-    if (selected.contains(ChordExtension.add11) ||
-        selected.contains(ChordExtension.add13)) {
-      return true;
-    }
-
     return selected.contains(ChordExtension.sharp11) &&
         quality != ChordQualityToken.minor &&
         quality != ChordQualityToken.minor6;

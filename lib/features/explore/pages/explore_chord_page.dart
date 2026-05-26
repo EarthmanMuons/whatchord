@@ -315,8 +315,8 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
           _updateState(exploreStateWithSeventhKind(_state, value)),
       onFifthAlterationChanged: (value) =>
           _updateState(exploreStateWithFifthAlteration(_state, value)),
-      onExtensionsChanged: (value) =>
-          _updateState(exploreStateWithExtensions(_state, value)),
+      onStateChanged: (value) =>
+          _updateState(normalizeExploreChordState(value)),
       onBassChanged: (value) =>
           _updateState(exploreStateWithBass(_state, value)),
     );

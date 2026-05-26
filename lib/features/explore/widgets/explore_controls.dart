@@ -20,7 +20,7 @@ class ExploreControls extends StatelessWidget {
     required this.onBaseQualityChanged,
     required this.onSeventhKindChanged,
     required this.onFifthAlterationChanged,
-    required this.onExtensionsChanged,
+    required this.onStateChanged,
     required this.onBassChanged,
   });
 
@@ -33,12 +33,12 @@ class ExploreControls extends StatelessWidget {
   final ValueChanged<ExploreBaseQuality> onBaseQualityChanged;
   final ValueChanged<ExploreSeventhKind> onSeventhKindChanged;
   final ValueChanged<ExploreFifthAlteration> onFifthAlterationChanged;
-  final ValueChanged<Set<ChordExtension>> onExtensionsChanged;
+  final ValueChanged<ExploreChordState> onStateChanged;
   final ValueChanged<int> onBassChanged;
 
   @override
   Widget build(BuildContext context) {
-    final extensionGroups = buildExploreExtensionControlGroups(state.quality);
+    final extensionGroups = buildExploreExtensionControlGroupsForState(state);
     final seventhKindChoices = availableSeventhKindsFor(state.baseQuality);
     final fifthAlterationChoices = availableFifthAlterationsFor(
       baseQuality: state.baseQuality,
@@ -101,10 +101,9 @@ class ExploreControls extends StatelessWidget {
                   groups: extensionGroups,
                   selectedExtensions: state.extensions,
                   onChoiceSelected: (group, choice) {
-                    onExtensionsChanged(
-                      selectExploreExtensionChoice(
-                        quality: state.quality,
-                        currentExtensions: state.extensions,
+                    onStateChanged(
+                      selectExploreExtensionChoiceForState(
+                        state: state,
                         group: group,
                         choice: choice,
                       ),

@@ -21,6 +21,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Fixed a couple of "Why This Chord?" ranking explanations so close alternatives
   are described more clearly.
+- Fixed Explore Chords extension controls so minor eleventh chords are easier to
+  build, altered extensions preserve the rest of the selected stack, and
+  duplicate added-thirteenth choices are avoided.
 - Fixed enharmonic chord ranking so complete major-triad inversions are
   preferred over equivalent minor sharp-five interpretations.
 - Fixed slash-triad chord ranking so voicings such as C#/D# are preferred over
