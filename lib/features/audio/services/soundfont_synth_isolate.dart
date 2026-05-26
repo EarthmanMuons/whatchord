@@ -6,14 +6,11 @@ import 'soundfont_synth.dart';
 
 class SoundFontSynthIsolateClient {
   SoundFontSynthIsolateClient._({
-    required Isolate isolate,
-    required SendPort sendPort,
-    required ReceivePort responses,
-    required StreamSubscription<dynamic> responsesSub,
-  }) : _isolate = isolate,
-       _sendPort = sendPort,
-       _responses = responses,
-       _responsesSub = responsesSub;
+    required this._isolate,
+    required this._sendPort,
+    required this._responses,
+    required this._responsesSub,
+  });
 
   final Isolate _isolate;
   final SendPort _sendPort;
