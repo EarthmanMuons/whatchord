@@ -1,7 +1,5 @@
 import 'package:whatchord/features/theory/theory.dart';
 
-import '../models/explore_chord_spec.dart';
-import '../models/explore_chord_state.dart';
 import 'explore_extension_rules.dart';
 
 enum ExploreExtensionControlRole { highestExtension, addedTones, alterations }
@@ -38,19 +36,6 @@ List<ExploreExtensionControlGroup> buildExploreExtensionControlGroups(
   return quality.isSeventhFamily
       ? _seventhExtensionGroups(quality)
       : _triadLikeExtensionGroups(quality);
-}
-
-List<ExploreExtensionControlGroup> buildExploreExtensionControlGroupsForState(
-  ExploreChordState state,
-) {
-  if (_canPromoteMinorTriadToStackedExtension(state)) {
-    return [
-      _minorTriadStackedExtensionGroup(state.quality),
-      ...buildExploreExtensionControlGroups(state.quality),
-    ];
-  }
-
-  return buildExploreExtensionControlGroups(state.quality);
 }
 
 Set<ChordExtension> selectExploreExtensionChoice({
@@ -97,28 +82,6 @@ Set<ChordExtension> selectExploreExtensionChoice({
   }
 
   return normalizeExtensionsForQuality(quality: quality, extensions: next);
-}
-
-ExploreChordState selectExploreExtensionChoiceForState({
-  required ExploreChordState state,
-  required ExploreExtensionControlGroup group,
-  required ExploreExtensionChoice choice,
-}) {
-  var spec = state.spec;
-  if (_canPromoteMinorTriadToStackedExtension(state) &&
-      group.role == ExploreExtensionControlRole.highestExtension &&
-      choice.extension?.isNaturalExtension == true) {
-    spec = spec.copyWith(seventhKind: ExploreSeventhKind.minor7);
-  }
-
-  final extensions = selectExploreExtensionChoice(
-    quality: spec.quality,
-    currentExtensions: state.extensions,
-    group: group,
-    choice: choice,
-  );
-
-  return state.copyWith(spec: spec, extensions: extensions);
 }
 
 ExploreExtensionChoice _choice(ChordExtension extension) {
@@ -253,37 +216,6 @@ ExploreExtensionChoice _triadLikeAlterationChoice(ChordExtension extension) {
   }
 
   return _alterationChoice(extension);
-}
-
-bool _canPromoteMinorTriadToStackedExtension(ExploreChordState state) {
-  return state.baseQuality == ExploreBaseQuality.minor &&
-      state.seventhKind == ExploreSeventhKind.none;
-}
-
-ExploreExtensionControlGroup _minorTriadStackedExtensionGroup(
-  ChordQualityToken quality,
-) {
-  final stack = seventhStackExtensions(
-    quality == ChordQualityToken.minorSharp5
-        ? ChordQualityToken.minor7Sharp5
-        : ChordQualityToken.minor7,
-  );
-
-  return ExploreExtensionControlGroup(
-    label: 'Stacked extension',
-    role: ExploreExtensionControlRole.highestExtension,
-    allowsMultiple: false,
-    choices: [
-      const ExploreExtensionChoice(
-        label: 'None',
-        semanticLabel: 'No highest extension',
-      ),
-      if (stack.contains(ChordExtension.nine)) _choice(ChordExtension.nine),
-      if (stack.contains(ChordExtension.eleven)) _choice(ChordExtension.eleven),
-      if (stack.contains(ChordExtension.thirteen))
-        _choice(ChordExtension.thirteen),
-    ],
-  );
 }
 
 const _seventhStackChoiceOrder = [

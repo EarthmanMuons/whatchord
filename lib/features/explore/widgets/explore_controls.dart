@@ -20,7 +20,7 @@ class ExploreControls extends StatelessWidget {
     required this.onBaseQualityChanged,
     required this.onSeventhKindChanged,
     required this.onFifthAlterationChanged,
-    required this.onStateChanged,
+    required this.onExtensionsChanged,
     required this.onBassChanged,
   });
 
@@ -33,12 +33,12 @@ class ExploreControls extends StatelessWidget {
   final ValueChanged<ExploreBaseQuality> onBaseQualityChanged;
   final ValueChanged<ExploreSeventhKind> onSeventhKindChanged;
   final ValueChanged<ExploreFifthAlteration> onFifthAlterationChanged;
-  final ValueChanged<ExploreChordState> onStateChanged;
+  final ValueChanged<Set<ChordExtension>> onExtensionsChanged;
   final ValueChanged<int> onBassChanged;
 
   @override
   Widget build(BuildContext context) {
-    final extensionGroups = buildExploreExtensionControlGroupsForState(state);
+    final extensionGroups = buildExploreExtensionControlGroups(state.quality);
     final seventhKindChoices = availableSeventhKindsFor(state.baseQuality);
     final fifthAlterationChoices = availableFifthAlterationsFor(
       baseQuality: state.baseQuality,
@@ -101,9 +101,10 @@ class ExploreControls extends StatelessWidget {
                   groups: extensionGroups,
                   selectedExtensions: state.extensions,
                   onChoiceSelected: (group, choice) {
-                    onStateChanged(
-                      selectExploreExtensionChoiceForState(
-                        state: state,
+                    onExtensionsChanged(
+                      selectExploreExtensionChoice(
+                        quality: state.quality,
+                        currentExtensions: state.extensions,
                         group: group,
                         choice: choice,
                       ),
@@ -261,52 +262,76 @@ class _CoreTonesSelector extends StatelessWidget {
           labelText: 'Core Tones',
           border: OutlineInputBorder(),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (showFifth)
-              _CoreToneSegmentedControl(
-                label: 'Fifth',
-                value: _fifthAlterationSemanticLabel(
-                  fifthAlterationChoices[fifthIndex],
-                ),
-                labels: [
-                  for (final choice in fifthAlterationChoices)
-                    theoryTokenDisplayLabel(_fifthAlterationLabel(choice)),
-                ],
-                semanticLabels: [
-                  for (final choice in fifthAlterationChoices)
-                    _fifthAlterationSemanticLabel(choice),
-                ],
-                selectedIndex: fifthIndex,
-                onSelected: (index) =>
-                    onFifthAlterationChanged(fifthAlterationChoices[index]),
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 180),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeOutCubic,
+                transitionBuilder: _coreToneTransition,
+                child: showFifth
+                    ? _CoreToneSegmentedControl(
+                        key: const ValueKey('fifth'),
+                        label: 'Fifth',
+                        value: _fifthAlterationSemanticLabel(
+                          fifthAlterationChoices[fifthIndex],
+                        ),
+                        labels: [
+                          for (final choice in fifthAlterationChoices)
+                            theoryTokenDisplayLabel(
+                              _fifthAlterationLabel(choice),
+                            ),
+                        ],
+                        semanticLabels: [
+                          for (final choice in fifthAlterationChoices)
+                            _fifthAlterationSemanticLabel(choice),
+                        ],
+                        selectedIndex: fifthIndex,
+                        onSelected: (index) => onFifthAlterationChanged(
+                          fifthAlterationChoices[index],
+                        ),
+                      )
+                    : const SizedBox.shrink(key: ValueKey('no-fifth')),
               ),
-            if (showFifth && showSeventh) const SizedBox(height: 12),
-            if (showSeventh)
-              _CoreToneSegmentedControl(
-                label: 'Sixth / Seventh',
-                value: _seventhKindSemanticLabel(
-                  seventhKindChoices[seventhIndex],
+              if (showFifth && showSeventh) const SizedBox(height: 12),
+              if (showSeventh)
+                _CoreToneSegmentedControl(
+                  label: 'Sixth / Seventh',
+                  value: _seventhKindSemanticLabel(
+                    seventhKindChoices[seventhIndex],
+                  ),
+                  labels: [
+                    for (final choice in seventhKindChoices)
+                      theoryTokenDisplayLabel(
+                        _seventhKindLabel(choice, baseQuality),
+                      ),
+                  ],
+                  semanticLabels: [
+                    for (final choice in seventhKindChoices)
+                      _seventhKindSemanticLabel(choice),
+                  ],
+                  selectedIndex: seventhIndex,
+                  onSelected: (index) =>
+                      onSeventhKindChanged(seventhKindChoices[index]),
                 ),
-                labels: [
-                  for (final choice in seventhKindChoices)
-                    theoryTokenDisplayLabel(
-                      _seventhKindLabel(choice, baseQuality),
-                    ),
-                ],
-                semanticLabels: [
-                  for (final choice in seventhKindChoices)
-                    _seventhKindSemanticLabel(choice),
-                ],
-                selectedIndex: seventhIndex,
-                onSelected: (index) =>
-                    onSeventhKindChanged(seventhKindChoices[index]),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _coreToneTransition(Widget child, Animation<double> animation) {
+    return SizeTransition(
+      sizeFactor: animation,
+      alignment: AlignmentDirectional.topStart,
+      child: FadeTransition(opacity: animation, child: child),
     );
   }
 
@@ -318,6 +343,7 @@ class _CoreTonesSelector extends StatelessWidget {
 
 class _CoreToneSegmentedControl extends StatelessWidget {
   const _CoreToneSegmentedControl({
+    super.key,
     required this.label,
     required this.value,
     required this.labels,

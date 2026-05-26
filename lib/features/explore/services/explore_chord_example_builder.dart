@@ -146,25 +146,7 @@ abstract final class ExploreChordExampleBuilder {
     ChordQualityToken quality,
     Set<ChordExtension> selected,
   ) {
-    final out = <ChordExtension>{...selected};
-    if (!quality.isSeventhFamily &&
-        !quality.canonicalIntervals.contains(
-          ChordExtension.add9.intervalAboveRoot,
-        ) &&
-        !out.contains(ChordExtension.add9) &&
-        _shouldImplyTriadLikeAdd9(quality, out)) {
-      out.add(ChordExtension.add9);
-    }
-    return Set<ChordExtension>.unmodifiable(out);
-  }
-
-  static bool _shouldImplyTriadLikeAdd9(
-    ChordQualityToken quality,
-    Set<ChordExtension> selected,
-  ) {
-    return selected.contains(ChordExtension.sharp11) &&
-        quality != ChordQualityToken.minor &&
-        quality != ChordQualityToken.minor6;
+    return Set<ChordExtension>.unmodifiable(selected);
   }
 
   static List<int> _canonicalVoicing({
