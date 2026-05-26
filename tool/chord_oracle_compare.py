@@ -258,7 +258,7 @@ def main() -> int:
         "--include-practical-seeds",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Start with common chord shapes before exhaustive chromatic sets.",
+        help="Include common chord shapes in the generated case pool.",
     )
     parser.add_argument(
         "--max-cases",
@@ -327,7 +327,6 @@ def main() -> int:
             seed = str(secrets.randbits(64))
         rng = random.Random(seed)
         rng.shuffle(generated_cases)
-        generated_cases.sort(key=case_sampling_priority)
 
     cases = generated_cases[: args.max_cases] if args.max_cases else generated_cases
 
@@ -506,24 +505,6 @@ def canonical_pc_set(pcs: tuple[int, ...]) -> tuple[int, ...]:
     for root in pcs:
         rotations.append(tuple(sorted((pc - root) % 12 for pc in pcs)))
     return min(rotations)
-
-
-PRACTICAL_CASE_KEYS = {
-    canonical_pc_set(tuple(sorted(pc % 12 for pc in intervals)))
-    for intervals in PRACTICAL_INTERVAL_SETS
-}
-
-
-def case_sampling_priority(case: Case) -> tuple[int, int, int]:
-    practical_rank = (
-        0 if canonical_pc_set(case.pcs) in PRACTICAL_CASE_KEYS else 1
-    )
-    return practical_rank, len(case.pcs), chromatic_adjacency_count(case.pcs)
-
-
-def chromatic_adjacency_count(pcs: tuple[int, ...]) -> int:
-    pc_set = set(pcs)
-    return sum(1 for pc in pc_set if (pc + 1) % 12 in pc_set)
 
 
 def run_whatchord(chord_debug: Path, case: Case, *, top: int) -> dict:
