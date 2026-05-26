@@ -494,21 +494,20 @@ abstract final class ChordAnalyzer {
     return sharpNineBit;
   }
 
+  static bool _allowsAddSharpNine(ChordQualityToken quality) {
+    return quality == ChordQualityToken.major ||
+        quality == ChordQualityToken.major6 ||
+        quality == ChordQualityToken.augmented;
+  }
+
   static bool _isSplitThirdMajorQuality(
     ChordQualityToken quality,
     int relMask,
   ) {
-    final allowsAddedSharpNine =
-        quality == ChordQualityToken.major ||
-        quality == ChordQualityToken.major6 ||
-        quality == ChordQualityToken.augmented;
-    if (!allowsAddedSharpNine) return false;
-
+    if (!_allowsAddSharpNine(quality)) return false;
     const majorThirdBit = 1 << majorThirdInterval;
     const minorThirdBit = 1 << minorThirdInterval;
-    final hasBothThirds =
-        (relMask & majorThirdBit) != 0 && (relMask & minorThirdBit) != 0;
-    return hasBothThirds;
+    return (relMask & majorThirdBit) != 0 && (relMask & minorThirdBit) != 0;
   }
 
   static bool _has6ChordWithout5({
@@ -621,7 +620,7 @@ abstract final class ChordAnalyzer {
     if ((extrasMask & (1 << 1)) != 0) out.add(ChordExtension.flat9);
     if ((extrasMask & (1 << 3)) != 0) {
       out.add(
-        has7 || !_isSplitThirdAddSharpNineQuality(quality)
+        has7 || !_allowsAddSharpNine(quality)
             ? ChordExtension.sharp9
             : ChordExtension.addSharp9,
       );
@@ -643,12 +642,6 @@ abstract final class ChordAnalyzer {
     }
 
     return out;
-  }
-
-  static bool _isSplitThirdAddSharpNineQuality(ChordQualityToken quality) {
-    return quality == ChordQualityToken.major ||
-        quality == ChordQualityToken.major6 ||
-        quality == ChordQualityToken.augmented;
   }
 
   /// Bitwise popcount for small integer masks using the Kernighan algorithm.
