@@ -18,6 +18,8 @@ class DetailsSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final identity = ref.watch(identityDisplayProvider);
+
     return Padding(
       padding: config.detailsSectionPadding,
       child: Column(
@@ -35,6 +37,7 @@ class DetailsSection extends ConsumerWidget {
                   padding: EdgeInsets.only(bottom: 12),
                   textScaleMultiplier: config.nearTieTextScale,
                   showScrollbarWhenOverflow: true,
+                  tappableWhenEmpty: identity is ChordDisplay,
                   onTap: () => unawaited(
                     showChordRankingDetailsSheet(
                       context,

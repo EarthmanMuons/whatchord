@@ -123,6 +123,7 @@ class AnalysisSection extends ConsumerWidget {
                                   textAlign: TextAlign.center,
                                   gap: 8,
                                   textScaleMultiplier: config.nearTieTextScale,
+                                  tappableWhenEmpty: identity is ChordDisplay,
                                   onTap: () => unawaited(
                                     showChordRankingDetailsSheet(
                                       context,
