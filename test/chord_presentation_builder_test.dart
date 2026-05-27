@@ -136,7 +136,7 @@ void main() {
     );
 
     expect(presentation.symbol.toString(), 'Gadd9');
-    expect(presentation.longLabel, 'G major with added ninth');
+    expect(presentation.longLabel, 'G major with added nine');
     expect(InversionFormatter.format(identity), isNull);
   });
 
@@ -274,7 +274,7 @@ void main() {
     );
 
     expect(presentation.symbol.toString(), 'Gadd9 / A');
-    expect(presentation.longLabel, 'G major with added ninth over A');
+    expect(presentation.longLabel, 'G major with added nine over A');
     expect(InversionFormatter.format(identity), 'non-root bass: add9');
   });
 
@@ -312,7 +312,7 @@ void main() {
     expect(presentation.symbol.toString(), 'G7(b9,#11)');
     expect(
       presentation.longLabel,
-      'G dominant seventh with flat ninth and sharp eleventh',
+      'G dominant seventh with flat nine and sharp eleven',
     );
     expect(presentation.members, ['G', 'Ab', 'B', 'C#', 'D', 'F']);
     expect(presentation.memberDegrees, ['1', '3', '5', 'b7', 'b9', '#11']);
@@ -324,7 +324,7 @@ void main() {
         tonality: const Tonality('C', TonalityMode.major),
         accidentalStyle: ChordLongFormAccidentalStyle.plainText,
       ),
-      'G dominant seventh with flat ninth and sharp eleventh',
+      'G dominant seventh with flat nine and sharp eleven',
     );
   });
 
@@ -357,21 +357,21 @@ void main() {
         identity: dominantNinth,
         tonality: const Tonality('C', TonalityMode.major),
       ),
-      'C dominant ninth',
+      'C dominant nine',
     );
     expect(
       ChordLongFormFormatter.format(
         identity: minorEleventh,
         tonality: const Tonality('C', TonalityMode.major),
       ),
-      'D minor eleventh',
+      'D minor eleven',
     );
     expect(
       ChordLongFormFormatter.format(
         identity: majorThirteenth,
         tonality: const Tonality('C', TonalityMode.major),
       ),
-      'F major thirteenth',
+      'F major thirteen',
     );
   });
 
@@ -398,14 +398,14 @@ void main() {
         identity: minorAddEleventh,
         tonality: const Tonality('C', TonalityMode.major),
       ),
-      'D minor seventh with added eleventh',
+      'D minor seventh with added eleven',
     );
     expect(
       ChordLongFormFormatter.format(
         identity: dominantSharpEleventh,
         tonality: const Tonality('C', TonalityMode.major),
       ),
-      'G dominant thirteenth with sharp eleventh',
+      'G dominant thirteen with sharp eleven',
     );
   });
 

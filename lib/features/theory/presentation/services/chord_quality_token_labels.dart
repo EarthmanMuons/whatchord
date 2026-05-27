@@ -187,11 +187,11 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.major:
         return 'major';
       case ChordQualityToken.majorFlat5:
-        return 'major flat fifth';
+        return 'major flat five';
       case ChordQualityToken.minor:
         return 'minor';
       case ChordQualityToken.minorSharp5:
-        return 'minor sharp fifth';
+        return 'minor sharp five';
       case ChordQualityToken.diminished:
         return 'diminished';
       case ChordQualityToken.augmented:
@@ -211,9 +211,9 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.dominant7sus4:
         return 'dominant seventh suspended fourth';
       case ChordQualityToken.dominant7Flat5:
-        return 'dominant seventh flat fifth';
+        return 'dominant seventh flat five';
       case ChordQualityToken.dominant7Sharp5:
-        return 'dominant seventh sharp fifth';
+        return 'dominant seventh sharp five';
       case ChordQualityToken.major7:
         return 'major seventh';
       case ChordQualityToken.major7sus2:
@@ -221,13 +221,13 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.major7sus4:
         return 'major seventh suspended fourth';
       case ChordQualityToken.major7Flat5:
-        return 'major seventh flat fifth';
+        return 'major seventh flat five';
       case ChordQualityToken.major7Sharp5:
-        return 'major seventh sharp fifth';
+        return 'major seventh sharp five';
       case ChordQualityToken.minor7:
         return 'minor seventh';
       case ChordQualityToken.minor7Sharp5:
-        return 'minor seventh sharp fifth';
+        return 'minor seventh sharp five';
       case ChordQualityToken.minorMajor7:
         return 'minor-major seventh';
       case ChordQualityToken.halfDiminished7:

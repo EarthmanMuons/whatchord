@@ -79,27 +79,27 @@ extension ChordExtensionLabels on ChordExtension {
   String get longLabel {
     switch (this) {
       case ChordExtension.flat9:
-        return 'flat ninth';
+        return 'flat nine';
       case ChordExtension.nine:
-        return 'ninth';
+        return 'nine';
       case ChordExtension.sharp9:
-        return 'sharp ninth';
+        return 'sharp nine';
       case ChordExtension.addSharp9:
-        return 'added sharp ninth';
+        return 'added sharp nine';
       case ChordExtension.eleven:
-        return 'eleventh';
+        return 'eleven';
       case ChordExtension.sharp11:
-        return 'sharp eleventh';
+        return 'sharp eleven';
       case ChordExtension.flat13:
-        return 'flat thirteenth';
+        return 'flat thirteen';
       case ChordExtension.thirteen:
-        return 'thirteenth';
+        return 'thirteen';
       case ChordExtension.add9:
-        return 'added ninth';
+        return 'added nine';
       case ChordExtension.add11:
-        return 'added eleventh';
+        return 'added eleven';
       case ChordExtension.add13:
-        return 'added thirteenth';
+        return 'added thirteen';
     }
   }
 }
