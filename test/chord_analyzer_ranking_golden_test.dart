@@ -106,7 +106,7 @@ void main() {
     golden(
       description: 'root-position ninth sus beats remote slash readings',
       expectedSymbol: 'D9sus4',
-      expectedAlternateSymbols: ['Em7#5(add11) / D', 'Am7(add11) / D'],
+      expectedAlternateSymbols: ['Am7 / D', 'Em7#5(add11) / D'],
       pcs: ['C', 'D', 'E', 'G', 'A'],
       bass: 'D',
       expectedRoot: 'D',

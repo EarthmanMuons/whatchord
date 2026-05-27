@@ -203,6 +203,30 @@ void main() {
     },
   );
 
+  test(
+    'uses minor7-slash-bass display when slash bass supplies the eleventh',
+    () {
+      final identity = _identity(
+        root: 'A',
+        bass: 'D',
+        quality: ChordQualityToken.minor7,
+        extensions: const {ChordExtension.add11},
+        intervals: const [0, 3, 5, 7, 10],
+      );
+
+      final presentation = ChordPresentationBuilder.fromIdentity(
+        identity: identity,
+        tonality: const Tonality('C', TonalityMode.major),
+        notation: notation,
+      );
+
+      expect(presentation.symbol.toString(), 'Am7 / D');
+      expect(presentation.longLabel, 'A minor seventh over D');
+      expect(InversionFormatter.format(identity), 'slash bass: 11');
+      expect(presentation.memberDegrees, ['1', 'b3', '5', 'b7', '11']);
+    },
+  );
+
   test('uses conventional long labels for root-position six-nine chords', () {
     final major = _identity(
       root: 'C',

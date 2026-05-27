@@ -125,6 +125,10 @@ abstract final class ChordCandidateRanking {
       _preferNinthBassSeventhOverAlteredSlash,
     ),
     _NamedRule(
+      'prefer minor7 eleventh-bass slash over minor7 sharp-five slash',
+      _preferMinor7EleventhBassSlashOverMinor7SharpFiveSlash,
+    ),
+    _NamedRule(
       'prefer root-position altered-fifth dominant over slash',
       _preferRootAlteredFifthDom7,
     ),
@@ -576,6 +580,37 @@ abstract final class ChordCandidateRanking {
     return aIsPreferred ? -1 : 1;
   }
 
+  /// Prefers the complete minor seventh upper-structure slash reading over a
+  /// remote minor-seven-sharp-five slash spelling.
+  ///
+  /// Example: {D, A, C, E, G} with D in the bass has D9sus4 as the strongest
+  /// root-position sus reading, but if comparing slash alternatives, Am7/D is
+  /// clearer than Em7#5(add11)/D. The latter respells C as B# and turns a
+  /// complete minor seventh chord into a remote altered-fifth chord.
+  static int? _preferMinor7EleventhBassSlashOverMinor7SharpFiveSlash(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsPreferred = fa.isCompleteMinor7EleventhBassSlash;
+    final bIsPreferred = fb.isCompleteMinor7EleventhBassSlash;
+    if (aIsPreferred == bIsPreferred) return null;
+
+    final fOther = aIsPreferred ? fb : fa;
+    final preferredCandidate = aIsPreferred ? a : b;
+    final otherCandidate = aIsPreferred ? b : a;
+    if (!fOther.isSlashBass) return null;
+    if (otherCandidate.identity.quality != ChordQualityToken.minor7Sharp5) {
+      return null;
+    }
+
+    if (preferredCandidate.score + 0.55 < otherCandidate.score) return null;
+
+    return aIsPreferred ? -1 : 1;
+  }
+
   /// Prefers root-position altered-fifth dominants over close slash readings.
   ///
   /// Flat-five and sharp-five dominant sevenths are tritone-symmetric, so a
@@ -873,6 +908,7 @@ class _CandidateFeatures {
   final bool isMinorSharpFive;
   final bool isIncompleteInvertedSixth;
   final bool isCompleteNinthBassSeventhChord;
+  final bool isCompleteMinor7EleventhBassSlash;
   final bool isSecondInversion;
   final bool isAlteredMajor7Sus4;
   final bool isRootDominantSus;
@@ -908,6 +944,7 @@ class _CandidateFeatures {
     required this.isMinorSharpFive,
     required this.isIncompleteInvertedSixth,
     required this.isCompleteNinthBassSeventhChord,
+    required this.isCompleteMinor7EleventhBassSlash,
     required this.isSecondInversion,
     required this.isAlteredMajor7Sus4,
     required this.isRootDominantSus,
@@ -970,6 +1007,7 @@ class _CandidateFeatures {
       isMinorSharpFive: q == ChordQualityToken.minorSharp5,
       isIncompleteInvertedSixth: _isIncompleteInvertedSixth(id, rootPos),
       isCompleteNinthBassSeventhChord: _isCompleteNinthBassSeventhChord(id),
+      isCompleteMinor7EleventhBassSlash: _isCompleteMinor7EleventhBassSlash(id),
       isSecondInversion: _bassRoleRank(id) == 2,
       isAlteredMajor7Sus4: _isAlteredMajor7Sus4(id, rootPos),
       isRootDominantSus: _isRootDominantSus(id, rootPos),
@@ -1088,6 +1126,24 @@ class _CandidateFeatures {
         hasThird &&
         roles.contains(ChordToneRole.perfect5) &&
         hasSeventh;
+  }
+
+  static bool _isCompleteMinor7EleventhBassSlash(ChordIdentity id) {
+    if (id.quality != ChordQualityToken.minor7) return false;
+    if (id.rootPc == id.bassPc) return false;
+    if (id.extensions.length != 1 ||
+        !id.extensions.contains(ChordExtension.add11)) {
+      return false;
+    }
+
+    final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
+    if (bassInterval != perfectFourthInterval) return false;
+
+    final roles = id.toneRolesByInterval.values;
+    return roles.contains(ChordToneRole.root) &&
+        roles.contains(ChordToneRole.minor3) &&
+        roles.contains(ChordToneRole.perfect5) &&
+        roles.contains(ChordToneRole.flat7);
   }
 
   static bool _isAlteredMajor7Sus4(ChordIdentity id, bool rootPos) {
