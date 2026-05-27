@@ -140,33 +140,48 @@ class _RankingDetailsBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final chosen = candidates.first;
     final visible = _visibleCandidates(candidates);
-    final chosenSymbol = _symbolFor(chosen.candidate.identity);
-    final chosenReason = _chosenReason(visible);
 
     return _FadedVerticalScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _SummaryPanel(symbol: chosenSymbol, reason: chosenReason),
-          const SizedBox(height: 14),
-          const SectionHeader(
-            title: 'Ranking Alternatives',
-            icon: Icons.format_list_numbered,
-          ),
-          for (var i = 0; i < visible.length; i++) ...[
-            _CandidateRankCard(
-              rank: i + 1,
-              row: visible[i],
-              higherRankedCandidate: i == 0 ? null : visible[i - 1].candidate,
-              bestScore: chosen.candidate.score,
-              symbol: _symbolFor(visible[i].candidate.identity),
-              longLabel: ChordLongFormFormatter.format(
-                identity: visible[i].candidate.identity,
-                tonality: tonality,
-                noteNameSystem: noteNameSystem,
-              ),
+          _CandidateRankCard(
+            rank: 1,
+            row: visible[0],
+            thisCandidate: visible[0].candidate,
+            nextDecision: visible.length > 1 ? visible[1].vsPrevious : null,
+            bestScore: chosen.candidate.score,
+            symbol: _symbolFor(visible[0].candidate.identity),
+            longLabel: ChordLongFormFormatter.format(
+              identity: visible[0].candidate.identity,
+              tonality: tonality,
+              noteNameSystem: noteNameSystem,
             ),
-            if (i != visible.length - 1) const SizedBox(height: 8),
+          ),
+          if (visible.length > 1) ...[
+            const SizedBox(height: 14),
+            const SectionHeader(
+              title: 'Ranking Alternatives',
+              icon: Icons.format_list_numbered,
+            ),
+            for (var i = 1; i < visible.length; i++) ...[
+              _CandidateRankCard(
+                rank: i + 1,
+                row: visible[i],
+                thisCandidate: visible[i].candidate,
+                nextDecision: i + 1 < visible.length
+                    ? visible[i + 1].vsPrevious
+                    : null,
+                bestScore: chosen.candidate.score,
+                symbol: _symbolFor(visible[i].candidate.identity),
+                longLabel: ChordLongFormFormatter.format(
+                  identity: visible[i].candidate.identity,
+                  tonality: tonality,
+                  noteNameSystem: noteNameSystem,
+                ),
+              ),
+              if (i != visible.length - 1) const SizedBox(height: 8),
+            ],
           ],
         ],
       ),
@@ -181,23 +196,6 @@ class _RankingDetailsBody extends StatelessWidget {
         notation: notation,
       ),
       noteNameSystem: noteNameSystem,
-    );
-  }
-
-  String _chosenReason(List<RankedCandidateDebug> visible) {
-    if (visible.length < 2) {
-      return 'This was the strongest chord match for the notes.';
-    }
-
-    final decision = visible[1].vsPrevious;
-    if (decision == null) {
-      return 'This was the strongest chord match for the notes.';
-    }
-
-    return _plainDecision(
-      decision.decidedByRule,
-      forChosen: true,
-      winner: visible.first.candidate,
     );
   }
 }
@@ -326,43 +324,12 @@ List<RankedCandidateDebug> _visibleCandidates(
   return candidates.take(5).toList(growable: false);
 }
 
-class _SummaryPanel extends StatelessWidget {
-  const _SummaryPanel({required this.symbol, required this.reason});
-
-  final String symbol;
-  final String reason;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: cs.outlineVariant),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Chosen: $symbol', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(reason, style: theme.textTheme.bodyMedium),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _CandidateRankCard extends StatelessWidget {
   const _CandidateRankCard({
     required this.rank,
     required this.row,
-    required this.higherRankedCandidate,
+    required this.thisCandidate,
+    required this.nextDecision,
     required this.bestScore,
     required this.symbol,
     required this.longLabel,
@@ -370,7 +337,8 @@ class _CandidateRankCard extends StatelessWidget {
 
   final int rank;
   final RankedCandidateDebug row;
-  final ChordCandidate? higherRankedCandidate;
+  final ChordCandidate thisCandidate;
+  final RankingDecision? nextDecision;
   final double bestScore;
   final String symbol;
   final String longLabel;
@@ -387,6 +355,7 @@ class _CandidateRankCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: cs.surface,
         borderRadius: BorderRadius.circular(8),
+        border: rank == 1 ? Border.all(color: cs.outlineVariant) : null,
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -425,12 +394,12 @@ class _CandidateRankCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(evidence, style: theme.textTheme.bodyMedium),
-            if (rank != 1 && row.vsPrevious?.decidedByRule != null) ...[
+            if (nextDecision?.decidedByRule != null) ...[
               const SizedBox(height: 6),
               Text(
                 _plainDecision(
-                  row.vsPrevious!.decidedByRule,
-                  winner: higherRankedCandidate,
+                  nextDecision!.decidedByRule,
+                  winner: thisCandidate,
                 ),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: cs.onSurfaceVariant,
@@ -487,9 +456,9 @@ class _EmptyRankingDetails extends StatelessWidget {
 
 String _fitLabel(double deltaFromBest) {
   if (deltaFromBest.abs() <= ChordCandidateRanking.nearTieWindow) {
-    return 'Close fit';
+    return 'Near tie';
   }
-  return 'Lower fit';
+  return 'Unlikely';
 }
 
 String _evidenceFor(RankedCandidateDebug row) {
@@ -598,11 +567,7 @@ int? _reasonCount(RankedCandidateDebug row, String label) {
   return null;
 }
 
-String _plainDecision(
-  String? rule, {
-  bool forChosen = false,
-  ChordCandidate? winner,
-}) {
+String _plainDecision(String? rule, {ChordCandidate? winner}) {
   final sentence = switch (rule) {
     'score outside near-tie window' => 'its fit score was clearly stronger.',
     'prefer root-position 6th over inverted 7th' =>
@@ -648,8 +613,7 @@ String _plainDecision(
     _ => 'the ranking rules made it the clearest name for this voicing.',
   };
 
-  if (forChosen) return 'This ranked first because $sentence';
-  return 'The option above ranks higher because $sentence';
+  return 'Ranked better than the next option because $sentence';
 }
 
 String _upperStructureDominantReason(ChordCandidate? winner) {
