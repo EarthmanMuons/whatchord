@@ -80,7 +80,7 @@ void main() {
 
     golden(
       description: 'upper-structure major triad over ninth bass',
-      expectedSymbol: 'C#add9 / D#',
+      expectedSymbol: 'C# / D#',
       expectedAlternateSymbols: ['E#m7#5 / D#'],
       pcs: ['D#', 'C#', 'E#', 'G#'],
       bass: 'D#',
@@ -101,6 +101,18 @@ void main() {
       expectedRoot: 'G',
       expectedBass: 'G',
       expectedQuality: ChordQualityToken.dominant7sus4,
+    ),
+
+    golden(
+      description: 'root-position ninth sus beats remote slash readings',
+      expectedSymbol: 'D9sus4',
+      expectedAlternateSymbols: ['Em7#5(add11) / D', 'Am7(add11) / D'],
+      pcs: ['C', 'D', 'E', 'G', 'A'],
+      bass: 'D',
+      expectedRoot: 'D',
+      expectedBass: 'D',
+      expectedQuality: ChordQualityToken.dominant7sus4,
+      expectedExtensions: {ChordExtension.nine},
     ),
 
     // -------------------------------------------------------------------------

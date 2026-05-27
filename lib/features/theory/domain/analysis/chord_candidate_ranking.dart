@@ -136,6 +136,10 @@ abstract final class ChordCandidateRanking {
       _preferUpperStructureDom7,
     ),
     _NamedRule(
+      'prefer root-position dominant sus over slash',
+      _preferRootDominantSusOverSlash,
+    ),
+    _NamedRule(
       'prefer root-position extended dominant over altered-fifth slash',
       _preferRootExtendedDom7OverAlteredFifthSlash,
     ),
@@ -332,6 +336,32 @@ abstract final class ChordCandidateRanking {
     if (!fOther.isAlteredFifthDom7) return null;
     if (!fOther.isSlashBass) return null;
     if (!fOther.dom7HasShell) return null;
+
+    return aIsPreferred ? -1 : 1;
+  }
+
+  /// Prefers a bass-rooted suspended dominant over remote slash spellings.
+  ///
+  /// Example: {D, G, A, C, E} with D in the bass is normally read as D9sus4,
+  /// not Em7#5(add11)/D. The latter is pitch-class valid, but it respells C as
+  /// B# and turns a straightforward dominant sus voicing into a remote altered
+  /// seventh slash chord.
+  static int? _preferRootDominantSusOverSlash(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsPreferred = fa.isRootDominantSus;
+    final bIsPreferred = fb.isRootDominantSus;
+    if (aIsPreferred == bIsPreferred) return null;
+
+    final fPreferred = aIsPreferred ? fa : fb;
+    if (fPreferred.extPref.alterationCount > 0) return null;
+
+    final fOther = aIsPreferred ? fb : fa;
+    if (!fOther.isSlashBass) return null;
 
     return aIsPreferred ? -1 : 1;
   }
@@ -810,6 +840,7 @@ class _CandidateFeatures {
   final bool isIncompleteInvertedSixth;
   final bool isSecondInversion;
   final bool isAlteredMajor7Sus4;
+  final bool isRootDominantSus;
 
   final bool isDom7;
   final bool isAlteredFifthDom7;
@@ -843,6 +874,7 @@ class _CandidateFeatures {
     required this.isIncompleteInvertedSixth,
     required this.isSecondInversion,
     required this.isAlteredMajor7Sus4,
+    required this.isRootDominantSus,
     required this.isDom7,
     required this.isAlteredFifthDom7,
     required this.isFlatFiveDom7,
@@ -903,6 +935,7 @@ class _CandidateFeatures {
       isIncompleteInvertedSixth: _isIncompleteInvertedSixth(id, rootPos),
       isSecondInversion: _bassRoleRank(id) == 2,
       isAlteredMajor7Sus4: _isAlteredMajor7Sus4(id, rootPos),
+      isRootDominantSus: _isRootDominantSus(id, rootPos),
       isDom7: isDom7,
       isAlteredFifthDom7: isAlteredFifthDom7,
       isFlatFiveDom7: isFlatFiveDom7,
@@ -997,6 +1030,21 @@ class _CandidateFeatures {
     if (!rootPos) return false;
     if (id.quality != ChordQualityToken.major7sus4) return false;
     return id.extensions.contains(ChordExtension.flat13);
+  }
+
+  static bool _isRootDominantSus(ChordIdentity id, bool rootPos) {
+    if (!rootPos) return false;
+    final q = id.quality;
+    if (q != ChordQualityToken.dominant7sus2 &&
+        q != ChordQualityToken.dominant7sus4) {
+      return false;
+    }
+
+    final roles = id.toneRolesByInterval.values;
+    final hasSuspension = q == ChordQualityToken.dominant7sus2
+        ? roles.contains(ChordToneRole.sus2)
+        : roles.contains(ChordToneRole.sus4);
+    return hasSuspension && roles.contains(ChordToneRole.flat7);
   }
 
   static bool _isQuestionableAdd11Slash(
