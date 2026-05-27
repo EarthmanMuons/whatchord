@@ -100,6 +100,8 @@ abstract final class ChordAnalyzer {
       0.60; // 6th chord omitting the 5th in a 3-note voicing
   static const _altPenalty = 0.60; // alteration spelling preference
   static const _altPenaltyDim7 = 0.30; // softened for symmetric dim7
+  static const _altPenaltyTriad =
+      0.30; // softened for non-seventh-family chords
 
   // Dominant-stack coherence bonuses.
   static const _domStackPartial = 0.8; // root-position dom7 + 9 + #11
@@ -303,15 +305,26 @@ abstract final class ChordAnalyzer {
     final base = required | optional;
     final extrasMask =
         (relMask & ~(base | penalty)) | functionalPenaltyExtensionsMask;
-    final extraCount = _popCount(extrasMask);
 
-    // Extract extensions first so bass scoring can recognize extension-bass as legitimate.
+    // Extract extensions before counting extras so the alt-penalty check below
+    // can inform which extra tones are already covered by that penalty.
     final has7 = template.quality.isSeventhFamily;
     final extensions = _extensionsFromExtras(
       extrasMask,
       has7: has7,
       quality: template.quality,
     );
+
+    // The flat alt penalty below covers the cost of having any alteration
+    // extension outside the base template — so the first such extra should not
+    // also be counted as an unexplained tone. Additional alteration extras
+    // beyond the first still incur the per-tone extra penalty because the flat
+    // penalty doesn't scale with count.
+    const alterationIntervalBits = (1 << 1) | (1 << 3) | (1 << 6) | (1 << 8);
+    final hasAltExtras =
+        _hasAlterations(extensions) &&
+        (extrasMask & alterationIntervalBits) != 0;
+    final extraCount = _popCount(extrasMask) - (hasAltExtras ? 1 : 0);
 
     if (_flatFiveConflictsWithNaturalThirteenth(
       quality: template.quality,
@@ -402,18 +415,28 @@ abstract final class ChordAnalyzer {
     // Musicians typically expect the bass-root reading for symmetric dim7 chords in
     // ambiguous contexts, so we soften the alteration penalty specifically for dim7
     // to avoid over-favoring slash-root reinterpretations.
-    final altPenalty = (template.quality == ChordQualityToken.diminished7)
-        ? _altPenaltyDim7
-        : _altPenalty;
+    final altPenalty = switch (template.quality) {
+      ChordQualityToken.diminished7 => _altPenaltyDim7,
+      _
+          when !template.quality.isSeventhFamily &&
+              !template.quality.isSixFamily =>
+        _altPenaltyTriad,
+      _ => _altPenalty,
+    };
 
     if (_hasAlterations(extensions)) {
       raw -= altPenalty;
       add(
         'alterations penalty',
         -altPenalty,
-        detail: template.quality == ChordQualityToken.diminished7
-            ? 'dim7 softened'
-            : null,
+        detail: switch (template.quality) {
+          ChordQualityToken.diminished7 => 'dim7 softened',
+          _
+              when !template.quality.isSeventhFamily &&
+                  !template.quality.isSixFamily =>
+            'triad softened',
+          _ => null,
+        },
       );
     }
 

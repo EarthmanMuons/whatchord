@@ -143,6 +143,10 @@ abstract final class ChordCandidateRanking {
       'prefer complete major inversion over minor sharp-five',
       _preferCompleteMajorInversionOverMinorSharpFive,
     ),
+    _NamedRule(
+      'prefer complete major inversion over seventh-family color-bass slash',
+      _preferCompleteMajorInversionOverSeventhColorBassSlash,
+    ),
     _NamedRule('prefer root-position diminished7', _preferDim7InRoot),
     _NamedRule('prefer dominant7 over dim7 slash', _preferDom7Shell),
     _NamedRule('prefer fewer altered/tension colors', _preferFewerAlterations),
@@ -352,6 +356,31 @@ abstract final class ChordCandidateRanking {
 
     final fOther = aIsMajorInversion ? fb : fa;
     if (!fOther.isMinorSharpFive) return null;
+
+    return aIsMajorInversion ? -1 : 1;
+  }
+
+  /// Prefers a complete major triad inversion over a seventh-family slash chord
+  /// where the bass note only appears as a color-tone add-extension.
+  ///
+  /// Example: {A, B, C, F} with A in the bass reads naturally as F(#11)/A
+  /// (first inversion, bass=M3), not Cmaj7sus4(add13)/A where the bass A is
+  /// merely an add13 extension on an unrelated root. The inversion reading keeps
+  /// all four tones in a single coherent chord name without borrowing the bass
+  /// as an ornament.
+  static int? _preferCompleteMajorInversionOverSeventhColorBassSlash(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsMajorInversion = fa.isCompleteMajorTriadInversion;
+    final bIsMajorInversion = fb.isCompleteMajorTriadInversion;
+    if (aIsMajorInversion == bIsMajorInversion) return null;
+
+    final fOther = aIsMajorInversion ? fb : fa;
+    if (!fOther.isSeventhFamily || !fOther.bassIsColorTone) return null;
 
     return aIsMajorInversion ? -1 : 1;
   }
@@ -932,7 +961,6 @@ class _CandidateFeatures {
   static bool _isCompleteMajorTriadInversion(ChordIdentity id, bool rootPos) {
     if (rootPos) return false;
     if (id.quality != ChordQualityToken.major) return false;
-    if (id.extensions.isNotEmpty) return false;
     if (_bassRoleRank(id) > 2) return false;
 
     final roles = id.toneRolesByInterval.values;

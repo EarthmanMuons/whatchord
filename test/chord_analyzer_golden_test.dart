@@ -261,16 +261,20 @@ void main() {
       expectedQuality: ChordQualityToken.major,
     ),
 
-    // With added ninth color, the C-root altered minor reading is more coherent
-    // than treating the D as sharp-eleventh color on Ab/C.
+    // The same inversion-over-minorSharp5 preference that produces F#11/A for
+    // {A, C, F, B} also applies here: Ab major (Ab, C, Eb) is a complete triad
+    // in first inversion with D as #11, which is more natural than reading D as
+    // add9 on the less common Cm#5 quality.
     golden(
-      description: 'minor sharp fifth with added ninth',
-      expectedSymbol: 'Cm#5add9',
+      description:
+          'major triad inversion beats minor sharp-five with added ninth',
+      expectedSymbol: 'Ab#11 / C',
       pcs: ['C', 'Eb', 'G#', 'D'],
-      expectedRoot: 'C',
-      expectedQuality: ChordQualityToken.minorSharp5,
-      expectedExtensions: {ChordExtension.add9},
-      expectedToneRolesByInterval: {8: ChordToneRole.sharp5},
+      expectedRoot: 'Ab',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.sharp11},
+      expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
     ),
 
     // Minor 7 sharp 5 should treat the augmented fifth as a core tone.
