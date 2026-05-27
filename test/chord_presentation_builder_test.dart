@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord/features/theory/presentation/services/inversion_formatter.dart';
 
 void main() {
   const notation = ChordNotationStyle.textual;
@@ -95,6 +96,68 @@ void main() {
     );
 
     expect(presentation.normalizedVoicing, [64, 67, 70, 72, 74]);
+  });
+
+  test('uses upper-structure slash display for add9 slash bass triads', () {
+    final identity = _identity(
+      root: 'G',
+      bass: 'A',
+      quality: ChordQualityToken.major,
+      extensions: const {ChordExtension.add9},
+      intervals: const [0, 2, 4, 7],
+    );
+
+    final presentation = ChordPresentationBuilder.fromIdentity(
+      identity: identity,
+      tonality: const Tonality('C', TonalityMode.major),
+      notation: notation,
+    );
+
+    expect(presentation.symbol.toString(), 'G / A');
+    expect(presentation.longLabel, 'G major over A');
+    expect(presentation.semanticLongLabel, 'G major over A');
+    expect(InversionFormatter.format(identity), 'upper-structure slash');
+    expect(presentation.members, ['G', 'A', 'B', 'D']);
+    expect(presentation.memberDegrees, ['1', '3', '5', '9']);
+  });
+
+  test('keeps root-position add9 triads explicit', () {
+    final identity = _identity(
+      root: 'G',
+      quality: ChordQualityToken.major,
+      extensions: const {ChordExtension.add9},
+      intervals: const [0, 2, 4, 7],
+    );
+
+    final presentation = ChordPresentationBuilder.fromIdentity(
+      identity: identity,
+      tonality: const Tonality('C', TonalityMode.major),
+      notation: notation,
+    );
+
+    expect(presentation.symbol.toString(), 'Gadd9');
+    expect(presentation.longLabel, 'G major with added ninth');
+    expect(InversionFormatter.format(identity), isNull);
+  });
+
+  test('keeps incomplete add9 slash triads explicit', () {
+    final identity = _identity(
+      root: 'G',
+      bass: 'A',
+      quality: ChordQualityToken.major,
+      extensions: const {ChordExtension.add9},
+      intervals: const [0, 2, 4],
+    );
+
+    final presentation = ChordPresentationBuilder.fromIdentity(
+      identity: identity,
+      tonality: const Tonality('C', TonalityMode.major),
+      notation: notation,
+    );
+
+    expect(presentation.symbol.toString(), 'Gadd9 / A');
+    expect(presentation.longLabel, 'G major with added ninth over A');
+    expect(InversionFormatter.format(identity), 'non-root bass: add9');
   });
 
   test('stacks root-position seventh extensions above the core chord', () {
