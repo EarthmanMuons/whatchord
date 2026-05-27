@@ -270,6 +270,34 @@ void main() {
     );
   });
 
+  test('root-position add-chord beats sus-family slash outside near-tie', () {
+    // {C, E, G, F}: musicians hear Cadd11, not Fmaj7sus2/C.
+    // The sus reading earns a higher raw score (clean template fit with 3
+    // required tones) but is a remote, convoluted name for a simple voicing.
+    final addChord = _candidate(
+      quality: ChordQualityToken.major,
+      root: 'C',
+      bass: 'C',
+      presentIntervals: const {0, 4, 5, 7},
+      extensions: const {ChordExtension.add11},
+      score: 7.07,
+    );
+
+    final susSlash = _candidate(
+      quality: ChordQualityToken.major7sus2,
+      root: 'F',
+      bass: 'C',
+      presentIntervals: const {0, 2, 7, 11},
+      score: 8.37,
+    );
+
+    _expectRule(
+      addChord,
+      susSlash,
+      'prefer root-position add-chord over sus slash',
+    );
+  });
+
   test('complete major inversion beats minor sharp-five in a near-tie', () {
     for (final bass in ['C', 'Eb']) {
       final majorInversion = _candidate(
