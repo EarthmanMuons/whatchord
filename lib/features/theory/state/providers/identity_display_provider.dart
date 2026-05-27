@@ -87,7 +87,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           referenceName: displayRoot,
           intervalLabel: interval.long,
           longLabel: interval.long,
-          secondaryLabel: 'Interval · from $displayRoot',
+          secondaryLabel: 'Interval · above $displayRoot',
           debugText: _debugForInterval(
             midis: midis,
             keyName: keyName,
