@@ -1,5 +1,6 @@
 import '../../domain/theory_domain.dart';
 import '../models/chord_symbol.dart';
+import 'chord_display_conventions.dart';
 import 'chord_quality_token_labels.dart';
 import 'note_display_formatter.dart';
 
@@ -13,14 +14,18 @@ class ChordLongFormFormatter {
   }) {
     final rootName = spellChordRoot(identity, tonality: tonality);
     final root = _noteName(rootName, accidentalStyle, noteNameSystem);
+    final extensions = ChordDisplayConventions.displayedExtensions(identity);
 
     final quality = _qualityLongPhrase(
       quality: identity.quality,
-      extensions: identity.extensions,
+      extensions: extensions,
     );
     final extPhrase = _extensionsLongPhrase(
-      identity.extensions,
-      absorbedHeadline: _headlineExtensionFor(identity),
+      extensions,
+      absorbedHeadline: _headlineExtensionForParts(
+        quality: identity.quality,
+        extensions: extensions,
+      ),
     );
 
     // Base: "C major seventh", "F♯ half-diminished seventh", etc.
@@ -103,13 +108,6 @@ String _qualityLongPhrase({
 
   final promoted = _replaceSeventhWithHeadline(base, headline.longLabel);
   return promoted == base ? base : promoted;
-}
-
-ChordExtension? _headlineExtensionFor(ChordIdentity identity) {
-  return _headlineExtensionForParts(
-    quality: identity.quality,
-    extensions: identity.extensions,
-  );
 }
 
 ChordExtension? _headlineExtensionForParts({

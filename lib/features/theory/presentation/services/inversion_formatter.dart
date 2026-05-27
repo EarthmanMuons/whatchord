@@ -1,4 +1,5 @@
 import '../../domain/theory_domain.dart';
+import 'chord_display_conventions.dart';
 import 'chord_tone_role_token_labels.dart';
 import 'note_display_formatter.dart';
 
@@ -7,6 +8,10 @@ abstract final class InversionFormatter {
     if (!id.hasSlashBass) return null;
 
     final bassInterval = _interval(id.bassPc, id.rootPc);
+
+    if (ChordDisplayConventions.usesUpperStructureSlashTriad(id)) {
+      return 'upper-structure slash';
+    }
 
     // Only treat true chord-members as inversions (root/3rd/5th/7th).
     final isCoreMember = _coreMemberIntervals(

@@ -1,5 +1,6 @@
 import '../../domain/theory_domain.dart';
 import '../models/chord_symbol.dart';
+import 'chord_display_conventions.dart';
 import 'chord_quality_formatter.dart';
 
 class ChordSymbolBuilder {
@@ -24,7 +25,7 @@ class ChordSymbolBuilder {
 
     final quality = ChordQualityFormatter.format(
       quality: identity.quality,
-      extensions: identity.extensions,
+      extensions: ChordDisplayConventions.displayedExtensions(identity),
       notation: notation,
     );
 
