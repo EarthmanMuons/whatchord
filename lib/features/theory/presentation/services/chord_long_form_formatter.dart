@@ -77,15 +77,15 @@ String _extensionsLongPhrase(
     if (e.isAddTone) {
       adds.add(e.longLabel); // "add nine"
     } else {
-      real.add(e.longLabel); // "flat ninth", "sharp eleventh", "thirteenth"
+      real.add(e.longLabel); // "flat nine", "sharp eleven", "thirteen"
     }
   }
 
   // Example outputs:
   // - "with flat nine and sharp eleven"
   // - "with nine and thirteen"
-  // - "with add nine"
-  // - "with nine, sharp eleven, and add thirteen"
+  // - "with added nine"
+  // - "with nine, sharp eleven, and added thirteen"
   final parts = <String>[];
   if (real.isNotEmpty) parts.add(_englishJoin(real));
   if (adds.isNotEmpty) parts.add(_englishJoin(adds));
