@@ -168,6 +168,32 @@ void main() {
     },
   );
 
+  test('root-position dominant sus beats slash reinterpretation near-tie', () {
+    final rootPositionSus = _candidate(
+      quality: ChordQualityToken.dominant7sus4,
+      root: 'D',
+      bass: 'D',
+      presentIntervals: const {0, 2, 5, 7, 10},
+      extensions: const {ChordExtension.nine},
+      score: 8.08,
+    );
+
+    final alteredSlash = _candidate(
+      quality: ChordQualityToken.minor7Sharp5,
+      root: 'E',
+      bass: 'D',
+      presentIntervals: const {0, 3, 5, 8, 10},
+      extensions: const {ChordExtension.add11},
+      score: 8.25,
+    );
+
+    _expectTieRule(
+      rootPositionSus,
+      alteredSlash,
+      'prefer root-position dominant sus over slash',
+    );
+  });
+
   test('complete triad beats incomplete inverted 6th in a near-tie', () {
     final completeTriad = _candidate(
       quality: ChordQualityToken.minor,
