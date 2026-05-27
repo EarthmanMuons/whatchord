@@ -22,7 +22,7 @@ class ChordLongFormFormatter {
     );
     final extPhrase = _extensionsLongPhrase(
       extensions,
-      absorbedHeadline: _headlineExtensionForParts(
+      absorbedHeadline: _absorbedLongFormExtensionForParts(
         quality: identity.quality,
         extensions: extensions,
       ),
@@ -98,6 +98,14 @@ String _qualityLongPhrase({
   required ChordQualityToken quality,
   required Set<ChordExtension> extensions,
 }) {
+  if (quality.isSixFamily && extensions.contains(ChordExtension.add9)) {
+    return switch (quality) {
+      ChordQualityToken.major6 => 'major six-nine',
+      ChordQualityToken.minor6 => 'minor six-nine',
+      _ => quality.label(ChordQualityLabelForm.long),
+    };
+  }
+
   final base = quality.label(ChordQualityLabelForm.long);
   final headline = _headlineExtensionForParts(
     quality: quality,
@@ -108,6 +116,17 @@ String _qualityLongPhrase({
 
   final promoted = _replaceSeventhWithHeadline(base, headline.longLabel);
   return promoted == base ? base : promoted;
+}
+
+ChordExtension? _absorbedLongFormExtensionForParts({
+  required ChordQualityToken quality,
+  required Set<ChordExtension> extensions,
+}) {
+  if (quality.isSixFamily && extensions.contains(ChordExtension.add9)) {
+    return ChordExtension.add9;
+  }
+
+  return _headlineExtensionForParts(quality: quality, extensions: extensions);
 }
 
 ChordExtension? _headlineExtensionForParts({
@@ -142,6 +161,8 @@ bool _isAbsorbedExtension(ChordExtension extension, ChordExtension? headline) {
       return extension == ChordExtension.nine ||
           extension == ChordExtension.eleven ||
           extension == ChordExtension.thirteen;
+    case ChordExtension.add9:
+      return extension == ChordExtension.add9;
     default:
       return false;
   }

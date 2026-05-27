@@ -27,8 +27,23 @@ abstract final class ChordDisplayConventions {
         requiredTriadMask;
   }
 
+  static bool usesSixNineSlashBassConvention(ChordIdentity identity) {
+    if (!identity.hasSlashBass) return false;
+    if (!identity.quality.isSixFamily) return false;
+    if (identity.extensions.length != 1 ||
+        !identity.extensions.contains(ChordExtension.add9)) {
+      return false;
+    }
+
+    final bassInterval = (identity.bassPc - identity.rootPc) % 12;
+    return bassInterval == majorSecondInterval;
+  }
+
   static Set<ChordExtension> displayedExtensions(ChordIdentity identity) {
-    if (usesUpperStructureSlashTriad(identity)) return const {};
+    if (usesUpperStructureSlashTriad(identity) ||
+        usesSixNineSlashBassConvention(identity)) {
+      return const {};
+    }
     return identity.extensions;
   }
 }

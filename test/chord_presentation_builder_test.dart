@@ -140,6 +140,59 @@ void main() {
     expect(InversionFormatter.format(identity), isNull);
   });
 
+  test('uses six-slash-bass display when slash bass supplies the ninth', () {
+    final identity = _identity(
+      root: 'C',
+      bass: 'D',
+      quality: ChordQualityToken.major6,
+      extensions: const {ChordExtension.add9},
+      intervals: const [0, 2, 4, 7, 9],
+    );
+
+    final presentation = ChordPresentationBuilder.fromIdentity(
+      identity: identity,
+      tonality: const Tonality('C', TonalityMode.major),
+      notation: notation,
+    );
+
+    expect(presentation.symbol.toString(), 'C6 / D');
+    expect(presentation.longLabel, 'C major sixth over D');
+    expect(InversionFormatter.format(identity), 'slash bass: 9');
+    expect(presentation.members, ['C', 'D', 'E', 'G', 'A']);
+    expect(presentation.memberDegrees, ['1', '3', '5', '6', '9']);
+  });
+
+  test('uses conventional long labels for root-position six-nine chords', () {
+    final major = _identity(
+      root: 'C',
+      quality: ChordQualityToken.major6,
+      extensions: const {ChordExtension.add9},
+      intervals: const [0, 2, 4, 7, 9],
+    );
+    final minor = _identity(
+      root: 'C',
+      quality: ChordQualityToken.minor6,
+      extensions: const {ChordExtension.add9},
+      intervals: const [0, 2, 3, 7, 9],
+    );
+
+    final majorPresentation = ChordPresentationBuilder.fromIdentity(
+      identity: major,
+      tonality: const Tonality('C', TonalityMode.major),
+      notation: notation,
+    );
+    final minorPresentation = ChordPresentationBuilder.fromIdentity(
+      identity: minor,
+      tonality: const Tonality('C', TonalityMode.major),
+      notation: notation,
+    );
+
+    expect(majorPresentation.symbol.toString(), 'C6/9');
+    expect(majorPresentation.longLabel, 'C major six-nine');
+    expect(minorPresentation.symbol.toString(), 'Cm6/9');
+    expect(minorPresentation.longLabel, 'C minor six-nine');
+  });
+
   test('keeps incomplete add9 slash triads explicit', () {
     final identity = _identity(
       root: 'G',
