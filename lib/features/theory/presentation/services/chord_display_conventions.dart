@@ -39,9 +39,22 @@ abstract final class ChordDisplayConventions {
     return bassInterval == majorSecondInterval;
   }
 
+  static bool usesSeventhNinthSlashBassConvention(ChordIdentity identity) {
+    if (!identity.hasSlashBass) return false;
+    if (!identity.quality.isSeventhFamily) return false;
+    if (identity.extensions.length != 1 ||
+        !identity.extensions.contains(ChordExtension.nine)) {
+      return false;
+    }
+
+    final bassInterval = (identity.bassPc - identity.rootPc) % 12;
+    return bassInterval == majorSecondInterval;
+  }
+
   static Set<ChordExtension> displayedExtensions(ChordIdentity identity) {
     if (usesUpperStructureSlashTriad(identity) ||
-        usesSixNineSlashBassConvention(identity)) {
+        usesSixNineSlashBassConvention(identity) ||
+        usesSeventhNinthSlashBassConvention(identity)) {
       return const {};
     }
     return identity.extensions;

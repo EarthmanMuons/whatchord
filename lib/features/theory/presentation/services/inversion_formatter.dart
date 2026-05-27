@@ -15,6 +15,9 @@ abstract final class InversionFormatter {
     if (ChordDisplayConventions.usesSixNineSlashBassConvention(id)) {
       return 'slash bass: 9';
     }
+    if (ChordDisplayConventions.usesSeventhNinthSlashBassConvention(id)) {
+      return 'slash bass: 9';
+    }
 
     // Only treat true chord-members as inversions (root/3rd/5th/7th).
     final isCoreMember = _coreMemberIntervals(

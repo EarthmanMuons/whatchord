@@ -115,6 +115,18 @@ void main() {
       expectedExtensions: {ChordExtension.nine},
     ),
 
+    golden(
+      description: 'ninth-bass dominant stack beats altered slash',
+      expectedSymbol: 'C7 / D',
+      expectedAlternateSymbols: ['Gm6add11 / D'],
+      pcs: ['D', 'C', 'E', 'G', 'Bb'],
+      bass: 'D',
+      expectedRoot: 'C',
+      expectedBass: 'D',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine},
+    ),
+
     // -------------------------------------------------------------------------
     // Sixth-family ranking
     // -------------------------------------------------------------------------
