@@ -22,6 +22,7 @@ class NearTieChordCandidatesList extends ConsumerStatefulWidget {
     this.styleOverride,
     this.textScaleMultiplier = 1.0,
     this.showScrollbarWhenOverflow = false,
+    this.tappableWhenEmpty = false,
     this.onTap,
   });
 
@@ -35,6 +36,10 @@ class NearTieChordCandidatesList extends ConsumerStatefulWidget {
   final TextStyle? styleOverride;
   final double textScaleMultiplier;
   final bool showScrollbarWhenOverflow;
+
+  /// When true, the tap gesture and a minimum-height hit area remain active
+  /// even when there are no near-tie candidates to display.
+  final bool tappableWhenEmpty;
   final VoidCallback? onTap;
 
   @override
@@ -140,10 +145,24 @@ class _NearTieChordCandidatesListState
     }
 
     // Empty state must still occupy an animatable child.
-    // Using a SizedBox with a key ensures AnimatedSwitcher recognizes changes.
-    Widget empty() => const SizedBox(key: ValueKey('ambiguous_empty'));
+    // Using a key ensures AnimatedSwitcher recognizes state changes.
+    Widget empty() {
+      if (!widget.tappableWhenEmpty) {
+        return const SizedBox(key: ValueKey('ambiguous_empty'));
+      }
+      return Align(
+        key: const ValueKey('ambiguous_empty'),
+        alignment: widget.alignment,
+        child: Icon(
+          Icons.format_list_numbered,
+          color: cs.onSurface.withValues(alpha: 0.35),
+          size: 20,
+        ),
+      );
+    }
 
-    final canTap = hasContent && widget.onTap != null;
+    final canTap =
+        (hasContent || widget.tappableWhenEmpty) && widget.onTap != null;
 
     Widget interactive({required Widget child}) {
       if (!canTap) return child;
@@ -157,10 +176,10 @@ class _NearTieChordCandidatesListState
 
     return Semantics(
       container: true,
-      label: 'Alternative chord candidates',
+      label: hasContent ? 'Alternative chord candidates' : null,
       button: canTap,
       onTap: canTap ? widget.onTap : null,
-      onTapHint: canTap ? 'Explain chord alternatives' : null,
+      onTapHint: canTap ? 'Show chord ranking details' : null,
       child: AnimatedSwitcher(
         duration: const Duration(milliseconds: 120),
         reverseDuration: const Duration(milliseconds: 90),

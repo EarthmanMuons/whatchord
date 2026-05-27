@@ -323,30 +323,7 @@ class _FadedVerticalScrollViewState extends State<_FadedVerticalScrollView> {
 List<RankedCandidateDebug> _visibleCandidates(
   List<RankedCandidateDebug> candidates,
 ) {
-  if (candidates.length < 2) return candidates;
-
-  final bestScore = candidates.first.candidate.score;
-  final out = <RankedCandidateDebug>[candidates.first];
-  var includedLowerFit = false;
-
-  for (var i = 1; i < candidates.length; i++) {
-    final candidate = candidates[i];
-    final deltaFromBest = bestScore - candidate.candidate.score;
-    final isClose = deltaFromBest.abs() <= ChordCandidateRanking.nearTieWindow;
-
-    if (isClose) {
-      out.add(candidate);
-      continue;
-    }
-
-    if (!includedLowerFit) {
-      out.add(candidate);
-      includedLowerFit = true;
-    }
-    break;
-  }
-
-  return out;
+  return candidates.take(5).toList(growable: false);
 }
 
 class _SummaryPanel extends StatelessWidget {
