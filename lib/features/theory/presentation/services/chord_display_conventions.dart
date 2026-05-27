@@ -51,10 +51,34 @@ abstract final class ChordDisplayConventions {
     return bassInterval == majorSecondInterval;
   }
 
+  static bool usesMinorSeventhEleventhSlashBassConvention(
+    ChordIdentity identity,
+  ) {
+    if (!identity.hasSlashBass) return false;
+    if (identity.quality != ChordQualityToken.minor7) return false;
+    if (identity.extensions.length != 1 ||
+        !identity.extensions.contains(ChordExtension.add11)) {
+      return false;
+    }
+
+    final bassInterval = (identity.bassPc - identity.rootPc) % 12;
+    if (bassInterval != perfectFourthInterval) return false;
+
+    const requiredMinor7Mask =
+        (1 << 0) |
+        (1 << minorThirdInterval) |
+        (1 << perfectFifthInterval) |
+        (1 << minorSeventhInterval);
+
+    return (identity.presentIntervalsMask & requiredMinor7Mask) ==
+        requiredMinor7Mask;
+  }
+
   static Set<ChordExtension> displayedExtensions(ChordIdentity identity) {
     if (usesUpperStructureSlashTriad(identity) ||
         usesSixNineSlashBassConvention(identity) ||
-        usesSeventhNinthSlashBassConvention(identity)) {
+        usesSeventhNinthSlashBassConvention(identity) ||
+        usesMinorSeventhEleventhSlashBassConvention(identity)) {
       return const {};
     }
     return identity.extensions;

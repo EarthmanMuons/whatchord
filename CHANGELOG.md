@@ -25,10 +25,14 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   G/A and C6/9/D as C6/D.
 - Display ninth-in-the-bass seventh slash chords more conventionally, such as
   C9/D as C7/D and Cmaj9/D as Cmaj7/D.
+- Display complete minor seventh chords over an eleventh bass more
+  conventionally, such as Am7add11/D as Am7/D.
 - Prefer bass-rooted dominant sus names such as D9sus4 over remote altered slash
   reinterpretations.
 - Prefer ninth-in-the-bass seventh chord names such as C7/D over remote altered
   slash reinterpretations.
+- Prefer complete minor seventh slash alternatives such as Am7/D over remote
+  minor seventh sharp-five slash spellings.
 - Identify sparse root-major-third-tritone voicings (e.g. Ab-C-D) as flat-five
   chords (Ab(b5)) rather than sharp-eleven extensions (Ab#11), matching the
   reading most musicians would expect.

@@ -194,6 +194,32 @@ void main() {
     );
   });
 
+  test('minor7 eleventh-bass slash beats minor7 sharp-five slash', () {
+    final minor7Slash = _candidate(
+      quality: ChordQualityToken.minor7,
+      root: 'A',
+      bass: 'D',
+      presentIntervals: const {0, 3, 5, 7, 10},
+      extensions: const {ChordExtension.add11},
+      score: 7.94,
+    );
+
+    final alteredSlash = _candidate(
+      quality: ChordQualityToken.minor7Sharp5,
+      root: 'E',
+      bass: 'D',
+      presentIntervals: const {0, 3, 5, 8, 10},
+      extensions: const {ChordExtension.add11},
+      score: 8.25,
+    );
+
+    _expectRule(
+      minor7Slash,
+      alteredSlash,
+      'prefer minor7 eleventh-bass slash over minor7 sharp-five slash',
+    );
+  });
+
   test('ninth-bass seventh chord beats altered slash outside near-tie', () {
     final ninthBassSeventh = _candidate(
       quality: ChordQualityToken.dominant7,
