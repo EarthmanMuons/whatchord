@@ -8,8 +8,9 @@ class ChordSymbolBuilder {
     required ChordIdentity identity,
     required Tonality tonality,
     required ChordNotationStyle notation,
+    String? rootName,
   }) {
-    final root = spellChordRoot(identity, tonality: tonality);
+    final root = rootName ?? spellChordRoot(identity, tonality: tonality);
 
     String? bass;
     if (identity.hasSlashBass) {

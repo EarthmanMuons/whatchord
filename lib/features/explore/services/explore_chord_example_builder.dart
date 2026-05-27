@@ -24,6 +24,7 @@ abstract final class ExploreChordExampleBuilder {
       tonality: tonality,
       notation: notation,
       noteNameSystem: noteNameSystem,
+      rootName: pcToName(state.rootPc, tonality: tonality),
     );
 
     final parts = _canonicalExampleParts(state);

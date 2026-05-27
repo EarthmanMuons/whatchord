@@ -11,8 +11,10 @@ class ChordLongFormFormatter {
     NoteNameSystem noteNameSystem = NoteNameSystem.international,
     ChordLongFormAccidentalStyle accidentalStyle =
         ChordLongFormAccidentalStyle.glyph,
+    String? rootNameOverride,
   }) {
-    final rootName = spellChordRoot(identity, tonality: tonality);
+    final rootName =
+        rootNameOverride ?? spellChordRoot(identity, tonality: tonality);
     final root = _noteName(rootName, accidentalStyle, noteNameSystem);
     final extensions = ChordDisplayConventions.displayedExtensions(identity);
 
