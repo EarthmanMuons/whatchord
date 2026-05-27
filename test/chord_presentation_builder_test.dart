@@ -162,6 +162,47 @@ void main() {
     expect(presentation.memberDegrees, ['1', '3', '5', '6', '9']);
   });
 
+  test(
+    'uses seventh-slash-bass display when slash bass supplies the ninth',
+    () {
+      final dominant = _identity(
+        root: 'C',
+        bass: 'D',
+        quality: ChordQualityToken.dominant7,
+        extensions: const {ChordExtension.nine},
+        intervals: const [0, 2, 4, 7, 10],
+      );
+      final major = _identity(
+        root: 'C',
+        bass: 'D',
+        quality: ChordQualityToken.major7,
+        extensions: const {ChordExtension.nine},
+        intervals: const [0, 2, 4, 7, 11],
+      );
+
+      final dominantPresentation = ChordPresentationBuilder.fromIdentity(
+        identity: dominant,
+        tonality: const Tonality('C', TonalityMode.major),
+        notation: notation,
+      );
+      final majorPresentation = ChordPresentationBuilder.fromIdentity(
+        identity: major,
+        tonality: const Tonality('C', TonalityMode.major),
+        notation: notation,
+      );
+
+      expect(dominantPresentation.symbol.toString(), 'C7 / D');
+      expect(dominantPresentation.longLabel, 'C dominant seventh over D');
+      expect(InversionFormatter.format(dominant), 'slash bass: 9');
+      expect(dominantPresentation.memberDegrees, ['1', '3', '5', 'b7', '9']);
+
+      expect(majorPresentation.symbol.toString(), 'Cmaj7 / D');
+      expect(majorPresentation.longLabel, 'C major seventh over D');
+      expect(InversionFormatter.format(major), 'slash bass: 9');
+      expect(majorPresentation.memberDegrees, ['1', '3', '5', '7', '9']);
+    },
+  );
+
   test('uses conventional long labels for root-position six-nine chords', () {
     final major = _identity(
       root: 'C',

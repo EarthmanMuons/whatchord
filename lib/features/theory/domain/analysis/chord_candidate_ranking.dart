@@ -4,6 +4,7 @@ import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
 import '../models/scale_degree.dart';
 import '../models/tonality.dart';
+import '../services/chord_quality_intervals.dart';
 import '../services/pitch_class.dart';
 
 class RankingDecision {
@@ -118,6 +119,10 @@ abstract final class ChordCandidateRanking {
     _NamedRule(
       'prefer close root-position dominant7 over non-dominant slash',
       _preferDom7RootOverNonDomSlash,
+    ),
+    _NamedRule(
+      'prefer ninth-bass seventh chord over altered slash',
+      _preferNinthBassSeventhOverAlteredSlash,
     ),
     _NamedRule(
       'prefer root-position altered-fifth dominant over slash',
@@ -542,6 +547,35 @@ abstract final class ChordCandidateRanking {
     return aIsPreferred ? -1 : 1;
   }
 
+  /// Prefers a complete seventh chord with the ninth in the bass over a remote
+  /// altered slash spelling.
+  ///
+  /// Example: {C, D, E, G, Bb} with D in the bass is normally understood as
+  /// C9/D (often written C7/D), not Em7#5#11/D. The E-rooted spelling is
+  /// pitch-class valid, but it respells C as B# and treats a plain C dominant
+  /// stack as a remote altered minor seventh chord.
+  static int? _preferNinthBassSeventhOverAlteredSlash(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsPreferred = fa.isCompleteNinthBassSeventhChord;
+    final bIsPreferred = fb.isCompleteNinthBassSeventhChord;
+    if (aIsPreferred == bIsPreferred) return null;
+
+    final fOther = aIsPreferred ? fb : fa;
+    final preferredCandidate = aIsPreferred ? a : b;
+    final otherCandidate = aIsPreferred ? b : a;
+
+    if (!fOther.isSlashBass) return null;
+    if (fOther.extensionTensionCount == 0) return null;
+    if (preferredCandidate.score + 0.55 < otherCandidate.score) return null;
+
+    return aIsPreferred ? -1 : 1;
+  }
+
   /// Prefers root-position altered-fifth dominants over close slash readings.
   ///
   /// Flat-five and sharp-five dominant sevenths are tritone-symmetric, so a
@@ -838,6 +872,7 @@ class _CandidateFeatures {
   final bool isCompleteMajorTriadInversion;
   final bool isMinorSharpFive;
   final bool isIncompleteInvertedSixth;
+  final bool isCompleteNinthBassSeventhChord;
   final bool isSecondInversion;
   final bool isAlteredMajor7Sus4;
   final bool isRootDominantSus;
@@ -872,6 +907,7 @@ class _CandidateFeatures {
     required this.isCompleteMajorTriadInversion,
     required this.isMinorSharpFive,
     required this.isIncompleteInvertedSixth,
+    required this.isCompleteNinthBassSeventhChord,
     required this.isSecondInversion,
     required this.isAlteredMajor7Sus4,
     required this.isRootDominantSus,
@@ -933,6 +969,7 @@ class _CandidateFeatures {
       ),
       isMinorSharpFive: q == ChordQualityToken.minorSharp5,
       isIncompleteInvertedSixth: _isIncompleteInvertedSixth(id, rootPos),
+      isCompleteNinthBassSeventhChord: _isCompleteNinthBassSeventhChord(id),
       isSecondInversion: _bassRoleRank(id) == 2,
       isAlteredMajor7Sus4: _isAlteredMajor7Sus4(id, rootPos),
       isRootDominantSus: _isRootDominantSus(id, rootPos),
@@ -1024,6 +1061,33 @@ class _CandidateFeatures {
 
     final roles = id.toneRolesByInterval.values;
     return !roles.contains(ChordToneRole.perfect5);
+  }
+
+  static bool _isCompleteNinthBassSeventhChord(ChordIdentity id) {
+    if (!id.quality.isSeventhFamily) return false;
+    if (id.rootPc == id.bassPc) return false;
+    if (id.extensions.length != 1 ||
+        !id.extensions.contains(ChordExtension.nine)) {
+      return false;
+    }
+
+    final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
+    if (bassInterval != majorSecondInterval) return false;
+
+    final roles = id.toneRolesByInterval.values;
+    final hasThird =
+        roles.contains(ChordToneRole.major3) ||
+        roles.contains(ChordToneRole.minor3) ||
+        roles.contains(ChordToneRole.sus2) ||
+        roles.contains(ChordToneRole.sus4);
+    final hasSeventh =
+        roles.contains(ChordToneRole.flat7) ||
+        roles.contains(ChordToneRole.major7);
+
+    return roles.contains(ChordToneRole.root) &&
+        hasThird &&
+        roles.contains(ChordToneRole.perfect5) &&
+        hasSeventh;
   }
 
   static bool _isAlteredMajor7Sus4(ChordIdentity id, bool rootPos) {

@@ -194,6 +194,32 @@ void main() {
     );
   });
 
+  test('ninth-bass seventh chord beats altered slash outside near-tie', () {
+    final ninthBassSeventh = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'C',
+      bass: 'D',
+      presentIntervals: const {0, 2, 4, 7, 10},
+      extensions: const {ChordExtension.nine},
+      score: 7.94,
+    );
+
+    final alteredSlash = _candidate(
+      quality: ChordQualityToken.minor7Sharp5,
+      root: 'E',
+      bass: 'D',
+      presentIntervals: const {0, 3, 6, 8, 10},
+      extensions: const {ChordExtension.sharp11},
+      score: 8.20,
+    );
+
+    _expectRule(
+      ninthBassSeventh,
+      alteredSlash,
+      'prefer ninth-bass seventh chord over altered slash',
+    );
+  });
+
   test('complete triad beats incomplete inverted 6th in a near-tie', () {
     final completeTriad = _candidate(
       quality: ChordQualityToken.minor,

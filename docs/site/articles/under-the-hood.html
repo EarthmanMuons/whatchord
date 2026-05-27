@@ -784,13 +784,12 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
           <h3>Hard rules</h3>
 
           <p>
-            Hard rules are intentionally narrow. They cover cases where remote
-            slash-chord interpretations can outscore conventional root-position
-            dominant, altered-dominant, altered-seventh, or diminished-seventh
-            names that musicians are more likely to use. They also cover a small
-            minor-triad color case where a complete minor sharp-eleventh
-            inversion is preferred over a root-position major-7-sus4 name that
-            depends on an altered thirteenth.
+            Hard rules are intentionally narrow guardrails for known failure
+            modes in the scoring model. They only fire when a pitch-class-valid
+            but misleading interpretation scores above the name musicians would
+            normally expect. Each rule is documented in code with the concrete
+            voicing that motivated it, and covered by focused ranking tests so
+            the exception stays bounded.
           </p>
 
           <h3>The near-tie window</h3>
