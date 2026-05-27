@@ -132,6 +132,10 @@ abstract final class ChordCandidateRanking {
       'prefer root-position altered-fifth dominant over slash',
       _preferRootAlteredFifthDom7,
     ),
+    _NamedRule(
+      'prefer root-position add-chord over sus slash',
+      _preferRootAddChordOverSusSlash,
+    ),
   ];
 
   static final List<_NamedRule> _tieBreakerRules = <_NamedRule>[
@@ -710,6 +714,40 @@ abstract final class ChordCandidateRanking {
     return aIsMinorSharp11 ? -1 : 1;
   }
 
+  /// Prefers a root-position major/minor add-chord over a sus-family slash
+  /// interpretation of the same notes.
+  ///
+  /// Example: {C, E, G, F} is naturally read as Cadd11, not Fmaj7sus2/C.
+  /// The F-rooted sus reading fits the template cleanly (no extra tones), so it
+  /// earns a higher raw score. But the score advantage is a structural artifact:
+  /// the major7sus2 template has three required tones, which accumulates more
+  /// reward than the two-required-tone major template, even though musicians
+  /// universally hear the simpler root-position reading.
+  ///
+  /// The 1.50-point guard lets the sus reading win when the score difference is
+  /// decisive rather than merely a template-complexity artifact.
+  static int? _preferRootAddChordOverSusSlash(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsPreferred = fa.isRootPositionNaturalAddChord;
+    final bIsPreferred = fb.isRootPositionNaturalAddChord;
+    if (aIsPreferred == bIsPreferred) return null;
+
+    final fSus = aIsPreferred ? fb : fa;
+    if (!fSus.isSus || !fSus.isSlashBass) return null;
+
+    final preferredCandidate = aIsPreferred ? a : b;
+    final susCandidate = aIsPreferred ? b : a;
+
+    if (preferredCandidate.score + 1.50 < susCandidate.score) return null;
+
+    return aIsPreferred ? -1 : 1;
+  }
+
   static int? _preferFewerAlterations(
     ChordCandidate a,
     ChordCandidate b,
@@ -912,6 +950,7 @@ class _CandidateFeatures {
   final bool isSecondInversion;
   final bool isAlteredMajor7Sus4;
   final bool isRootDominantSus;
+  final bool isRootPositionNaturalAddChord;
 
   final bool isDom7;
   final bool isAlteredFifthDom7;
@@ -948,6 +987,7 @@ class _CandidateFeatures {
     required this.isSecondInversion,
     required this.isAlteredMajor7Sus4,
     required this.isRootDominantSus,
+    required this.isRootPositionNaturalAddChord,
     required this.isDom7,
     required this.isAlteredFifthDom7,
     required this.isFlatFiveDom7,
@@ -1011,6 +1051,11 @@ class _CandidateFeatures {
       isSecondInversion: _bassRoleRank(id) == 2,
       isAlteredMajor7Sus4: _isAlteredMajor7Sus4(id, rootPos),
       isRootDominantSus: _isRootDominantSus(id, rootPos),
+      isRootPositionNaturalAddChord:
+          rootPos &&
+          (q == ChordQualityToken.major || q == ChordQualityToken.minor) &&
+          pref.alterationCount == 0 &&
+          pref.naturalCount == 0,
       isDom7: isDom7,
       isAlteredFifthDom7: isAlteredFifthDom7,
       isFlatFiveDom7: isFlatFiveDom7,
