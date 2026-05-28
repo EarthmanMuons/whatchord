@@ -12,48 +12,49 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
+- Added analysis and explore mode support for minor sharp-five and minor seventh
+  sharp-five chords.
+- Added split-third support, so voicings such as C-Eb-E-G can be named and
+  explored as C(add#9), with member spelling that shows the mixed-third
+  structure clearly.
 - Added "Spoken name" to the long-press copy menu in explore mode, giving the
   idiomatic way musicians say a chord aloud (e.g., "G seven flat nine sharp
   eleven" instead of "G dominant seventh with flat nine and sharp eleven").
-- Added split-third analysis and explore mode support, so voicings such as
-  C-Eb-E-G can be named and explored as C(add#9).
-- Added analysis and Explore Chords support for minor sharp-five and minor
-  seventh sharp-five chords.
+- Added research tooling for comparing WhatChord's analysis against external
+  chord oracles, helping surface edge cases that need future tuning.
 
 ### Changed
 
-- Kept Explore Chords member chips on one horizontally scrollable row to avoid
-  layout jumps while changing chord options.
-- Display slash-bass add-ninth conventions more naturally, including Gadd9/A as
-  G/A and C6/9/D as C6/D.
-- Display ninth-in-the-bass seventh slash chords more conventionally, such as
-  C9/D as C7/D and Cmaj9/D as Cmaj7/D.
-- Display complete minor seventh chords over an eleventh bass more
-  conventionally, such as Am7add11/D as Am7/D.
-- Prefer bass-rooted dominant sus names such as D9sus4 over remote altered slash
+- Improved chord identification and ranking for ambiguous slash chords,
+  add-chords, suspended chords, altered colors, and inversion cases, with an
+  emphasis on the names musicians are most likely to expect.
+- Prefer complete major-triad inversions such as F#11/A over competing
+  minor-sharp-five interpretations when the voicing strongly supports the
+  inversion.
+- Prefer bass-rooted dominant sus names such as D9sus4 over remote slash-chord
   reinterpretations.
-- Prefer ninth-in-the-bass seventh chord names such as C7/D over remote altered
-  slash reinterpretations.
-- Prefer complete minor seventh slash alternatives such as Am7/D over remote
-  minor seventh sharp-five slash spellings.
+- Prefer add-ninth, ninth-in-the-bass, and complete minor-seventh slash names
+  such as G/A, C7/D, and Am7/D over less natural altered or remote-root
+  alternatives.
 - Identify sparse root-major-third-tritone voicings (e.g. Ab-C-D) as flat-five
   chords (Ab(b5)) rather than sharp-eleven extensions (Ab#11), matching the
   reading most musicians would expect.
+- Display complete minor seventh chords over an eleventh bass more
+  conventionally, such as Am7add11/D as Am7/D.
+- Refined readable, spoken, and academic chord-name formatting so extended
+  chords, slash chords, natural extensions, and multiple modifiers use more
+  natural musician phrasing.
+- Redesigned "Why This Chord?" so the modal always shows the top ranked
+  candidates and explains the winning chord more directly.
+- Kept Explore Chords member chips on one horizontally scrollable row to avoid
+  layout jumps while changing chord options.
 
 ### Fixed
 
-- Fixed readable chord names so standard ninth, eleventh, and thirteenth chords
-  use more natural musician phrasing.
-- Fixed a couple of "Why This Chord?" ranking explanations so close alternatives
-  are described more clearly.
-- Fixed Explore Chords extension controls so minor eleventh chords are easier to
+- Fixed explore mode extension controls so minor eleventh chords are easier to
   build, altered extensions preserve the rest of the selected stack, and
   duplicate added-thirteenth choices and hidden plain-triad extension
   implications are avoided.
-- Fixed enharmonic chord ranking so complete major-triad inversions are
-  preferred over equivalent minor sharp-five interpretations.
-- Fixed slash-triad chord ranking so voicings such as C#/D# are preferred over
-  remote minor seventh sharp-five interpretations.
 - Fixed augmented chord spelling so readable roots such as Abaug are preferred
   over double-sharp member spellings.
 - Fixed explore mode member chip transitions so changes are easier to follow
