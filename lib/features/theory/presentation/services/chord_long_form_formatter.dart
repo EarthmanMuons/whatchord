@@ -93,9 +93,7 @@ String _extensionsLongPhrase(
   // - "with nine and thirteen"
   // - "with added nine"
   // - "with nine, sharp eleven, and added thirteen"
-  final parts = <String>[];
-  if (real.isNotEmpty) parts.add(_englishJoin(real));
-  if (adds.isNotEmpty) parts.add(_englishJoin(adds));
+  final parts = [...real, ...adds];
   if (parts.isEmpty) return '';
 
   return ' with ${_englishJoin(parts)}';
