@@ -357,21 +357,21 @@ void main() {
         identity: dominantNinth,
         tonality: const Tonality('C', TonalityMode.major),
       ),
-      'C dominant nine',
+      'C dominant ninth',
     );
     expect(
       ChordLongFormFormatter.format(
         identity: minorEleventh,
         tonality: const Tonality('C', TonalityMode.major),
       ),
-      'D minor eleven',
+      'D minor eleventh',
     );
     expect(
       ChordLongFormFormatter.format(
         identity: majorThirteenth,
         tonality: const Tonality('C', TonalityMode.major),
       ),
-      'F major thirteen',
+      'F major thirteenth',
     );
   });
 
@@ -405,7 +405,7 @@ void main() {
         identity: dominantSharpEleventh,
         tonality: const Tonality('C', TonalityMode.major),
       ),
-      'G dominant thirteen with sharp eleven',
+      'G dominant thirteenth with sharp eleven',
     );
   });
 

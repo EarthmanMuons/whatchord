@@ -111,7 +111,13 @@ String _qualityLongPhrase({
 
   if (headline == null) return base;
 
-  final promoted = _replaceSeventhWithHeadline(base, headline.longLabel);
+  final headlineLabel = switch (headline) {
+    ChordExtension.nine => 'ninth',
+    ChordExtension.eleven => 'eleventh',
+    ChordExtension.thirteen => 'thirteenth',
+    _ => headline.longLabel,
+  };
+  final promoted = _replaceSeventhWithHeadline(base, headlineLabel);
   return promoted == base ? base : promoted;
 }
 
