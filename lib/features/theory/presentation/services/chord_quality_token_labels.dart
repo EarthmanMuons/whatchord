@@ -239,3 +239,24 @@ extension ChordQualityTokenLabels on ChordQualityToken {
     }
   }
 }
+
+extension ChordQualityTokenAcademicStructure on ChordQualityToken {
+  /// The fifth-altering modifier embedded in this quality token's academic label,
+  /// if any. The formatter extracts this and folds it into the "with..." phrase
+  /// so it joins naturally with other extensions and alterations.
+  String? get embeddedAcademicFifthModifier {
+    switch (this) {
+      case ChordQualityToken.majorFlat5:
+      case ChordQualityToken.dominant7Flat5:
+      case ChordQualityToken.major7Flat5:
+        return 'flat five';
+      case ChordQualityToken.minorSharp5:
+      case ChordQualityToken.dominant7Sharp5:
+      case ChordQualityToken.major7Sharp5:
+      case ChordQualityToken.minor7Sharp5:
+        return 'sharp five';
+      default:
+        return null;
+    }
+  }
+}

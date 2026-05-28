@@ -28,6 +28,7 @@ class ChordLongFormFormatter {
         quality: identity.quality,
         extensions: extensions,
       ),
+      qualityFifthModifier: identity.quality.embeddedAcademicFifthModifier,
     );
 
     // Base: "C major seventh", "F♯ half-diminished seventh", etc.
@@ -66,15 +67,16 @@ String extensionsLongPhrase(Set<ChordExtension> exts) {
 String _extensionsLongPhrase(
   Set<ChordExtension> exts, {
   ChordExtension? absorbedHeadline,
+  String? qualityFifthModifier,
 }) {
-  if (exts.isEmpty) return '';
-
   final ordered = exts.toList()
     ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
   // Separate "add ..." from "real extensions/alterations" if you want a nicer read.
   final adds = <String>[];
-  final real = <String>[];
+  // Prepend the quality's embedded fifth modifier (e.g. "flat five") so it
+  // joins naturally with other alterations and add tones.
+  final real = <String>[?qualityFifthModifier];
 
   for (final e in ordered) {
     if (_isAbsorbedExtension(e, absorbedHeadline)) continue;
@@ -103,7 +105,11 @@ String _qualityLongPhrase({
   required ChordQualityToken quality,
   required Set<ChordExtension> extensions,
 }) {
-  final base = quality.label(ChordQualityLabelForm.academic);
+  final rawBase = quality.label(ChordQualityLabelForm.academic);
+  final fifthModifier = quality.embeddedAcademicFifthModifier;
+  final base = fifthModifier != null
+      ? rawBase.replaceFirst(' $fifthModifier', '')
+      : rawBase;
   final headline = _headlineExtensionForParts(
     quality: quality,
     extensions: extensions,
