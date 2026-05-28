@@ -75,6 +75,34 @@ extension ChordExtensionLabels on ChordExtension {
     }
   }
 
+  /// Idiomatic spoken form used in the spoken name formatter.
+  String get spokenLabel {
+    switch (this) {
+      case ChordExtension.flat9:
+        return 'flat nine';
+      case ChordExtension.nine:
+        return 'nine';
+      case ChordExtension.sharp9:
+        return 'sharp nine';
+      case ChordExtension.addSharp9:
+        return 'add sharp nine';
+      case ChordExtension.eleven:
+        return 'eleven';
+      case ChordExtension.sharp11:
+        return 'sharp eleven';
+      case ChordExtension.flat13:
+        return 'flat thirteen';
+      case ChordExtension.thirteen:
+        return 'thirteen';
+      case ChordExtension.add9:
+        return 'add nine';
+      case ChordExtension.add11:
+        return 'add eleven';
+      case ChordExtension.add13:
+        return 'add thirteen';
+    }
+  }
+
   /// Plain-English token used in the long-press explanation.
   String get longLabel {
     switch (this) {

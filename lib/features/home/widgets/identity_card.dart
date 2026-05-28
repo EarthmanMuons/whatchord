@@ -204,7 +204,7 @@ class IdentityCard extends ConsumerWidget {
                 child: Semantics(
                   container: true,
                   // Announce the meaning in plain English.
-                  label: display.semanticLongLabel,
+                  label: display.semanticLabel,
                   value: semanticsSecondaryValue(display),
 
                   // Prevent VoiceOver/TalkBack from reading the visual glyph

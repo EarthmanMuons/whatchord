@@ -115,7 +115,7 @@ void main() {
 
     expect(presentation.symbol.toString(), 'G / A');
     expect(presentation.longLabel, 'G major over A');
-    expect(presentation.semanticLongLabel, 'G major over A');
+    expect(presentation.semanticLabel, 'G major over A');
     expect(InversionFormatter.format(identity), 'upper-structure slash');
     expect(presentation.members, ['G', 'A', 'B', 'D']);
     expect(presentation.memberDegrees, ['1', '3', '5', '9']);

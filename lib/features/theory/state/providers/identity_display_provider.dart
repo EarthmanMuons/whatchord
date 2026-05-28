@@ -127,7 +127,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
             ? 'Chord'
             : 'Chord · $inversion';
 
-        final qualityLabel = id.quality.label(ChordQualityLabelForm.long);
+        final qualityLabel = id.quality.label(ChordQualityLabelForm.academic);
 
         final extensions = [...id.extensions]
           ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
@@ -161,7 +161,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         return ChordDisplay(
           symbol: presentation.symbol,
           longLabel: presentation.longLabel,
-          semanticLongLabel: presentation.semanticLongLabel,
+          semanticLabel: presentation.semanticLabel,
           secondaryLabel: secondaryLabel,
           debugText: debugText,
         );

@@ -6,6 +6,7 @@ export 'presentation/models/identity_display.dart';
 
 export 'presentation/services/chord_long_form_formatter.dart';
 export 'presentation/services/chord_presentation_builder.dart';
+export 'presentation/services/chord_spoken_name_formatter.dart';
 export 'presentation/services/chord_quality_token_labels.dart';
 export 'presentation/services/chord_symbol_builder.dart';
 export 'presentation/services/harte_chord_formatter.dart';

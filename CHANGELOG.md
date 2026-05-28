@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
+- Added "Spoken name" to the long-press copy menu in explore mode, giving the
+  idiomatic way musicians say a chord aloud (e.g., "G seven flat nine sharp
+  eleven" instead of "G dominant seventh with flat nine and sharp eleven").
 - Added split-third analysis and explore mode support, so voicings such as
   C-Eb-E-G can be named and explored as C(add#9).
 - Added analysis and Explore Chords support for minor sharp-five and minor

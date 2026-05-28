@@ -2,6 +2,7 @@ import '../../domain/theory_domain.dart';
 import '../models/chord_presentation.dart';
 import '../models/chord_symbol.dart';
 import 'chord_long_form_formatter.dart';
+import 'chord_spoken_name_formatter.dart';
 import 'chord_symbol_builder.dart';
 
 abstract final class ChordPresentationBuilder {
@@ -31,11 +32,17 @@ abstract final class ChordPresentationBuilder {
         noteNameSystem: noteNameSystem,
         rootNameOverride: rootName,
       ),
-      semanticLongLabel: ChordLongFormFormatter.format(
+      semanticLabel: ChordLongFormFormatter.format(
         identity: identity,
         tonality: tonality,
         noteNameSystem: noteNameSystem,
         accidentalStyle: ChordLongFormAccidentalStyle.plainText,
+        rootNameOverride: rootName,
+      ),
+      spokenLabel: ChordSpokenNameFormatter.format(
+        identity: identity,
+        tonality: tonality,
+        noteNameSystem: noteNameSystem,
         rootNameOverride: rootName,
       ),
       members: ChordMemberSpeller.spellMembers(
