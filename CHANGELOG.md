@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.5.28] - 2026-05-28
+
 ### Added
 
 - Added analysis and explore mode support for minor sharp-five and minor seventh
@@ -474,7 +476,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.23...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.28...HEAD
+[2026.5.28]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.5.23...v2026.5.28
 [2026.5.23]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.5.21...v2026.5.23
 [2026.5.21]:
