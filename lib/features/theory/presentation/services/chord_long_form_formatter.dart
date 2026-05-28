@@ -31,6 +31,15 @@ class ChordLongFormFormatter {
       qualityFifthModifier: identity.quality.embeddedAcademicFifthModifier,
     );
 
+    final modifierCount = _extensionModifierCount(
+      extensions,
+      absorbedHeadline: _absorbedLongFormExtensionForParts(
+        quality: identity.quality,
+        extensions: extensions,
+      ),
+      qualityFifthModifier: identity.quality.embeddedAcademicFifthModifier,
+    );
+
     // Base: "C major seventh", "F♯ half-diminished seventh", etc.
     var s = '$root $quality$extPhrase';
 
@@ -50,7 +59,8 @@ class ChordLongFormFormatter {
         final connector = ChordDisplayConventions.bassIsInversionTone(identity)
             ? 'slash'
             : 'over';
-        s = '$s $connector $bass';
+        final prefix = modifierCount >= 2 ? ',' : '';
+        s = '$s$prefix $connector $bass';
       }
     }
 
@@ -64,7 +74,7 @@ String extensionsLongPhrase(Set<ChordExtension> exts) {
   return _extensionsLongPhrase(exts);
 }
 
-String _extensionsLongPhrase(
+List<String> _buildExtensionParts(
   Set<ChordExtension> exts, {
   ChordExtension? absorbedHeadline,
   String? qualityFifthModifier,
@@ -72,28 +82,47 @@ String _extensionsLongPhrase(
   final ordered = exts.toList()
     ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
-  // Separate "add ..." from "real extensions/alterations" if you want a nicer read.
   final adds = <String>[];
-  // Prepend the quality's embedded fifth modifier (e.g. "flat five") so it
-  // joins naturally with other alterations and add tones.
   final real = <String>[?qualityFifthModifier];
 
   for (final e in ordered) {
     if (_isAbsorbedExtension(e, absorbedHeadline)) continue;
-
     if (e.isAddTone) {
-      adds.add(e.longLabel); // "add nine"
+      adds.add(e.longLabel);
     } else {
-      real.add(e.longLabel); // "flat nine", "sharp eleven", "thirteen"
+      real.add(e.longLabel);
     }
   }
+
+  return [...real, ...adds];
+}
+
+int _extensionModifierCount(
+  Set<ChordExtension> exts, {
+  ChordExtension? absorbedHeadline,
+  String? qualityFifthModifier,
+}) => _buildExtensionParts(
+  exts,
+  absorbedHeadline: absorbedHeadline,
+  qualityFifthModifier: qualityFifthModifier,
+).length;
+
+String _extensionsLongPhrase(
+  Set<ChordExtension> exts, {
+  ChordExtension? absorbedHeadline,
+  String? qualityFifthModifier,
+}) {
+  final parts = _buildExtensionParts(
+    exts,
+    absorbedHeadline: absorbedHeadline,
+    qualityFifthModifier: qualityFifthModifier,
+  );
 
   // Example outputs:
   // - "with flat nine and sharp eleven"
   // - "with nine and thirteen"
   // - "with added nine"
   // - "with nine, sharp eleven, and added thirteen"
-  final parts = [...real, ...adds];
   if (parts.isEmpty) return '';
 
   return ' with ${_englishJoin(parts)}';
