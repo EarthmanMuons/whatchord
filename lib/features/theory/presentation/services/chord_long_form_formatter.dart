@@ -104,11 +104,11 @@ String _qualityLongPhrase({
     return switch (quality) {
       ChordQualityToken.major6 => 'major six-nine',
       ChordQualityToken.minor6 => 'minor six-nine',
-      _ => quality.label(ChordQualityLabelForm.long),
+      _ => quality.label(ChordQualityLabelForm.academic),
     };
   }
 
-  final base = quality.label(ChordQualityLabelForm.long);
+  final base = quality.label(ChordQualityLabelForm.academic);
   final headline = _headlineExtensionForParts(
     quality: quality,
     extensions: extensions,

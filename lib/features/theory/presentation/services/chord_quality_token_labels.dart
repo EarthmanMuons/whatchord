@@ -1,6 +1,9 @@
 import '../../domain/theory_domain.dart' show ChordQualityToken;
 
-enum ChordQualityLabelForm { symbol, suffix, standalone, long }
+// Example for major seventh -- symbol: "Δ7", suffix: "maj7", standalone: "maj7",
+//   academic: "major seventh", idiomatic: "major seven"
+// (standalone differs from suffix only for plain major: "" vs "maj")
+enum ChordQualityLabelForm { symbol, suffix, standalone, academic, idiomatic }
 
 /// Formatting-only labels for chord quality tokens.
 extension ChordQualityTokenLabels on ChordQualityToken {
@@ -12,8 +15,10 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return _suffixLabel();
       case ChordQualityLabelForm.standalone:
         return _standaloneLabel();
-      case ChordQualityLabelForm.long:
+      case ChordQualityLabelForm.academic:
         return _longLabel();
+      case ChordQualityLabelForm.idiomatic:
+        return _spokenLabel();
     }
   }
 
@@ -234,6 +239,61 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'half-diminished seventh';
       case ChordQualityToken.diminished7:
         return 'diminished seventh';
+    }
+  }
+
+  String _spokenLabel() {
+    switch (this) {
+      case ChordQualityToken.major:
+        return 'major';
+      case ChordQualityToken.majorFlat5:
+        return 'major flat five';
+      case ChordQualityToken.minor:
+        return 'minor';
+      case ChordQualityToken.minorSharp5:
+        return 'minor sharp five';
+      case ChordQualityToken.diminished:
+        return 'diminished';
+      case ChordQualityToken.augmented:
+        return 'augmented';
+      case ChordQualityToken.sus2:
+        return 'sus two';
+      case ChordQualityToken.sus4:
+        return 'sus four';
+      case ChordQualityToken.major6:
+        return 'major six';
+      case ChordQualityToken.minor6:
+        return 'minor six';
+      case ChordQualityToken.dominant7:
+        return 'seven';
+      case ChordQualityToken.dominant7sus2:
+        return 'seven sus two';
+      case ChordQualityToken.dominant7sus4:
+        return 'seven sus four';
+      case ChordQualityToken.dominant7Flat5:
+        return 'seven flat five';
+      case ChordQualityToken.dominant7Sharp5:
+        return 'seven sharp five';
+      case ChordQualityToken.major7:
+        return 'major seven';
+      case ChordQualityToken.major7sus2:
+        return 'major seven sus two';
+      case ChordQualityToken.major7sus4:
+        return 'major seven sus four';
+      case ChordQualityToken.major7Flat5:
+        return 'major seven flat five';
+      case ChordQualityToken.major7Sharp5:
+        return 'major seven sharp five';
+      case ChordQualityToken.minor7:
+        return 'minor seven';
+      case ChordQualityToken.minor7Sharp5:
+        return 'minor seven sharp five';
+      case ChordQualityToken.minorMajor7:
+        return 'minor major seven';
+      case ChordQualityToken.halfDiminished7:
+        return 'half-diminished';
+      case ChordQualityToken.diminished7:
+        return 'diminished seven';
     }
   }
 }

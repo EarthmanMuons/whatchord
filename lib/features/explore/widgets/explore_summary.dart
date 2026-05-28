@@ -43,10 +43,16 @@ class ExploreSummary extends ConsumerWidget {
         copiedLabel: 'chord symbol',
       ),
       _ExploreCopyChoice(
-        title: 'Readable name',
+        title: 'Academic name',
         icon: Icons.notes,
         value: presentation.longLabel,
-        copiedLabel: 'readable name',
+        copiedLabel: 'academic name',
+      ),
+      _ExploreCopyChoice(
+        title: 'Spoken name',
+        icon: Icons.record_voice_over,
+        value: presentation.spokenLabel,
+        copiedLabel: 'spoken name',
       ),
       _ExploreCopyChoice(
         title: 'Harte notation',
@@ -113,7 +119,7 @@ class ExploreSummary extends ConsumerWidget {
     return Semantics(
       container: true,
       header: true,
-      label: presentation.semanticLongLabel,
+      label: presentation.semanticLabel,
       onLongPress: showCopyDialog,
       onLongPressHint: 'Choose chord text to copy',
       child: Material(
