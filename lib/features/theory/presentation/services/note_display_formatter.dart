@@ -64,9 +64,9 @@ String tonalityDisplayLabel(
 
   return switch (noteNameSystem) {
     NoteNameSystem.german =>
-      '${formatter.tonalityTonic(tonality.tonic, isMajor: tonality.isMajor)}-${tonality.isMajor ? 'Dur' : 'Moll'}',
+      '${formatter.tonalityTonic(tonality.tonic.label, isMajor: tonality.isMajor)}-${tonality.isMajor ? 'Dur' : 'Moll'}',
     _ =>
-      '${formatter.compact(tonality.tonic)} ${tonality.isMajor ? 'major' : 'minor'}',
+      '${formatter.compact(tonality.tonic.label)} ${tonality.isMajor ? 'major' : 'minor'}',
   };
 }
 
@@ -78,9 +78,9 @@ String tonalitySemanticLabel(
 
   return switch (noteNameSystem) {
     NoteNameSystem.german =>
-      '${formatter.tonalityTonic(tonality.tonic, isMajor: tonality.isMajor)}-${tonality.isMajor ? 'Dur' : 'Moll'}',
+      '${formatter.tonalityTonic(tonality.tonic.label, isMajor: tonality.isMajor)}-${tonality.isMajor ? 'Dur' : 'Moll'}',
     _ =>
-      '${formatter.spoken(tonality.tonic, includeNatural: false)} ${tonality.isMajor ? 'major' : 'minor'}',
+      '${formatter.spoken(tonality.tonic.label, includeNatural: false)} ${tonality.isMajor ? 'major' : 'minor'}',
   };
 }
 
@@ -90,7 +90,7 @@ String tonalityPickerTonicLabel(
 }) {
   return _NoteNameFormatter(
     noteNameSystem,
-  ).tonalityTonic(tonality.tonic, isMajor: tonality.isMajor);
+  ).tonalityTonic(tonality.tonic.label, isMajor: tonality.isMajor);
 }
 
 /// Converts a canonical ASCII token such as b9, #11, or m7(b5) to UI text.

@@ -77,7 +77,7 @@ String spellChordRoot(ChordIdentity identity, {required Tonality tonality}) {
 bool _isDiatonicName(String name, {required Tonality tonality}) {
   final diatonic = _buildDiatonicPcToName(
     fifths: tonality.keySignature.fifths,
-    tonicLetter: _tonicLetter(tonality.tonic),
+    tonicLetter: tonality.tonic.letter,
   );
   return diatonic.values.contains(normalizeNoteNameToAscii(name));
 }
@@ -89,7 +89,7 @@ String pcToName(int pc, {required Tonality tonality}) {
   final ks = tonality.keySignature;
   final diatonic = _buildDiatonicPcToName(
     fifths: ks.fifths,
-    tonicLetter: _tonicLetter(tonality.tonic),
+    tonicLetter: tonality.tonic.letter,
   );
 
   // Strict diatonic spelling if available.
@@ -100,7 +100,7 @@ String pcToName(int pc, {required Tonality tonality}) {
   return _spellChromaticPc(
     i,
     fifths: ks.fifths,
-    tonicLetter: _tonicLetter(tonality.tonic),
+    tonicLetter: tonality.tonic.letter,
     diatonicPcToName: diatonic,
   );
 }
@@ -121,12 +121,6 @@ const _naturalPcByLetter = <String, int>{
 
 const _sharpOrder = ['F', 'C', 'G', 'D', 'A', 'E', 'B'];
 const _flatOrder = ['B', 'E', 'A', 'D', 'G', 'C', 'F'];
-
-String _tonicLetter(String tonic) {
-  // Handles "F#", "Bb", "F♯", "B♭" by taking just the diatonic letter.
-  // Assumes tonic is normalized to start with A-G.
-  return tonic.isEmpty ? 'C' : tonic[0].toUpperCase();
-}
 
 Map<String, int> _accidentalsByLetterFromFifths(int fifths) {
   final accByLetter = <String, int>{for (final l in _letters) l: 0};

@@ -146,7 +146,7 @@ void runChordAnalyzerGoldenCases(Iterable<GoldenCase> cases) {
           [
             'Expected chord: ${c.expectedSymbol}',
             '  Actual chord: $actualSymbol',
-            '      Tonality: ${tonality.tonic} ${tonality.mode.name}',
+            '      Tonality: ${tonality.tonic.label} ${tonality.mode.name}',
             '         Notes: ${c.pcs.join(" ")}',
             '          Bass: ${c.bass ?? c.pcs.first}',
             '     NoteCount: $count',

@@ -13,7 +13,7 @@ void main() {
       description: 'sharp key preserves leading-tone diminished spelling',
       expectedSymbol: 'E#dim',
       pcs: ['E#', 'G#', 'B'],
-      tonality: const Tonality('F#', TonalityMode.major),
+      tonality: const Tonality(Tonic.fSharp, TonalityMode.major),
       expectedRoot: 'E#',
       expectedQuality: ChordQualityToken.diminished,
     ),
@@ -23,7 +23,7 @@ void main() {
       description: 'flat key preserves subdominant spelling',
       expectedSymbol: 'Fb',
       pcs: ['Fb', 'Ab', 'Cb'],
-      tonality: const Tonality('Cb', TonalityMode.major),
+      tonality: const Tonality(Tonic.cFlat, TonalityMode.major),
       expectedRoot: 'Fb',
       expectedQuality: ChordQualityToken.major,
     ),
@@ -37,7 +37,7 @@ void main() {
       description: 'diminished structure overrides sharp-leaning key spelling',
       expectedSymbol: 'Cdim / Gb',
       pcs: ['Gb', 'C', 'Eb'],
-      tonality: const Tonality('D', TonalityMode.major), // sharp-leaning
+      tonality: const Tonality(Tonic.d, TonalityMode.major), // sharp-leaning
       expectedRoot: 'C',
       expectedBass: 'Gb',
       expectedQuality: ChordQualityToken.diminished,
@@ -48,7 +48,7 @@ void main() {
       description: 'flat-leaning key spells complete flat-five dominant',
       expectedSymbol: 'Gb7b5',
       pcs: ['F#', 'C', 'E', 'Bb'],
-      tonality: const Tonality('Db', TonalityMode.major), // flat-leaning
+      tonality: const Tonality(Tonic.dFlat, TonalityMode.major), // flat-leaning
       expectedRoot: 'F#',
       expectedBass: 'F#',
       expectedQuality: ChordQualityToken.dominant7Flat5,

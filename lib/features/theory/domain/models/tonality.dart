@@ -1,15 +1,15 @@
 import 'package:meta/meta.dart';
 
-import '../services/pitch_class.dart';
 import '../services/scale_degree_classifier.dart';
 import 'chord_identity.dart';
 import 'scale_degree.dart';
+import 'tonic.dart';
 
 enum TonalityMode { major, minor }
 
 @immutable
 class Tonality {
-  final String tonic; // canonical ASCII: "C", "F#", "Bb"
+  final Tonic tonic;
   final TonalityMode mode;
 
   const Tonality(this.tonic, this.mode);
@@ -17,12 +17,13 @@ class Tonality {
   bool get isMajor => mode == TonalityMode.major;
   bool get isMinor => mode == TonalityMode.minor;
 
-  String get label => isMajor ? tonic : tonic.toLowerCase();
+  String get label => isMajor ? tonic.label : tonic.label.toLowerCase();
 
-  String get displayName => isMajor ? '$tonic major' : '$tonic minor';
+  String get displayName =>
+      isMajor ? '${tonic.label} major' : '${tonic.label} minor';
 
   /// Pitch class of the tonic (0..11).
-  int get tonicPitchClass => pitchClassFromNoteName(tonic);
+  int get tonicPitchClass => tonic.pitchClass;
 
   /// Returns whether the pitch class is diatonic to this tonality.
   ///

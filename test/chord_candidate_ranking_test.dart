@@ -330,7 +330,7 @@ void _expectRule(
   ChordCandidate other,
   String ruleName,
 ) {
-  const tonality = Tonality('C', TonalityMode.major);
+  const tonality = Tonality(Tonic.c, TonalityMode.major);
 
   final comparison = ChordCandidateRanking.compare(
     preferred,
@@ -357,7 +357,7 @@ void _expectTieRule(
   ChordCandidate other,
   String ruleName,
 ) {
-  const tonality = Tonality('C', TonalityMode.major);
+  const tonality = Tonality(Tonic.c, TonalityMode.major);
 
   final comparison = ChordCandidateRanking.compare(
     preferred,

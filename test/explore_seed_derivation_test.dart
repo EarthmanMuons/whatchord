@@ -8,7 +8,7 @@ void main() {
     test('uses the selected major-key tonic when idle', () {
       final seed = buildExploreSeedIdentity(
         input: null,
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
       );
 
       expect(seed.rootPc, 0);
@@ -19,7 +19,7 @@ void main() {
     test('uses the selected minor-key tonic when idle', () {
       final seed = buildExploreSeedIdentity(
         input: null,
-        tonality: const Tonality('A', TonalityMode.minor),
+        tonality: const Tonality(Tonic.a, TonalityMode.minor),
       );
 
       expect(seed.rootPc, 9);
@@ -30,7 +30,7 @@ void main() {
     test('uses a single note as root with the current key-mode quality', () {
       final seed = buildExploreSeedIdentity(
         input: _input([64]),
-        tonality: const Tonality('D', TonalityMode.major),
+        tonality: const Tonality(Tonic.d, TonalityMode.major),
       );
 
       expect(seed.rootPc, 4);
@@ -49,11 +49,11 @@ void main() {
     test('maps perfect fifths to the current key-mode quality', () {
       final majorSeed = buildExploreSeedIdentity(
         input: _input([60, 67]),
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
       );
       final minorSeed = buildExploreSeedIdentity(
         input: _input([60, 67]),
-        tonality: const Tonality('A', TonalityMode.minor),
+        tonality: const Tonality(Tonic.a, TonalityMode.minor),
       );
 
       expect(majorSeed.quality, ChordQualityToken.major);
@@ -63,11 +63,11 @@ void main() {
     test('falls back deterministically for ambiguous dyads', () {
       final majorSeed = buildExploreSeedIdentity(
         input: _input([60, 70]),
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
       );
       final minorSeed = buildExploreSeedIdentity(
         input: _input([60, 70]),
-        tonality: const Tonality('A', TonalityMode.minor),
+        tonality: const Tonality(Tonic.a, TonalityMode.minor),
       );
 
       expect(majorSeed.quality, ChordQualityToken.major);
@@ -90,7 +90,7 @@ void main() {
 
       final seed = buildExploreSeedIdentity(
         input: _input([62, 66, 69, 72, 75]),
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
         currentChordIdentity: current,
       );
 
@@ -102,7 +102,7 @@ void main() {
 ChordQualityToken _dyadQuality(int bassMidi, int upperMidi) {
   final seed = buildExploreSeedIdentity(
     input: _input([bassMidi, upperMidi]),
-    tonality: const Tonality('C', TonalityMode.major),
+    tonality: const Tonality(Tonic.c, TonalityMode.major),
   );
   return seed.quality;
 }

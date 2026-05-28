@@ -465,7 +465,7 @@ _parseNotes(List<String> tokens) {
 
 Tonality _parseTonalityFlag(String raw) {
   final s = raw.trim();
-  if (s.isEmpty) return const Tonality('C', TonalityMode.major);
+  if (s.isEmpty) return const Tonality(Tonic.c, TonalityMode.major);
 
   // Accept: "C", "C:maj", "C:major", "A:min", "A:minor"
   // Also accept "A minor" / "C major" (space separated).
@@ -518,7 +518,8 @@ Tonality _parseTonalityFlag(String raw) {
   // - uppercases the letter
   final tonicAscii = normalizeNoteNameToAscii(tonicPart);
 
-  return Tonality(tonicAscii, mode);
+  final tonic = Tonic.tryFromLabel(tonicAscii) ?? Tonic.c;
+  return Tonality(tonic, mode);
 }
 
 String _formatIdentityCompact(ChordIdentity id) {

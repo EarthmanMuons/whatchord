@@ -11,7 +11,7 @@ final selectedTonalityProvider =
     );
 
 class SelectedTonalityNotifier extends Notifier<Tonality> {
-  static const _defaultTonality = Tonality('C', TonalityMode.major);
+  static const _defaultTonality = Tonality(Tonic.c, TonalityMode.major);
 
   @override
   Tonality build() {
@@ -36,15 +36,15 @@ class SelectedTonalityNotifier extends Notifier<Tonality> {
       TonalityMode.major => TheoryPreferencesValues.tonalityModeMajor,
       TonalityMode.minor => TheoryPreferencesValues.tonalityModeMinor,
     };
-    return '${tonality.tonic}|$mode';
+    return '${tonality.tonic.label}|$mode';
   }
 
   Tonality? _deserializeTonality(String value) {
     final parts = value.split('|');
     if (parts.length != 2) return null;
 
-    final tonic = parts[0].trim();
-    if (tonic.isEmpty) return null;
+    final tonicLabel = parts[0].trim();
+    if (tonicLabel.isEmpty) return null;
 
     final mode = switch (parts[1]) {
       TheoryPreferencesValues.tonalityModeMajor => TonalityMode.major,
@@ -53,10 +53,9 @@ class SelectedTonalityNotifier extends Notifier<Tonality> {
     };
     if (mode == null) return null;
 
-    final parsed = Tonality(tonic, mode);
-    final matchesKnownKey = keySignatureRows.any(
-      (key) => key.relativeMajor == parsed || key.relativeMinor == parsed,
-    );
-    return matchesKnownKey ? parsed : null;
+    final tonic = Tonic.tryFromLabel(tonicLabel);
+    if (tonic == null) return null;
+
+    return Tonality(tonic, mode);
   }
 }

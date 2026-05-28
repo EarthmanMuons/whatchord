@@ -39,7 +39,7 @@ ScaleDegreeCase deg({
   required List<String> pcs,
   String? bass,
   int? noteCount,
-  Tonality tonality = const Tonality('C', TonalityMode.major),
+  Tonality tonality = const Tonality(Tonic.c, TonalityMode.major),
   required ScaleDegree? expected,
   ScaleDegreeSource? expectedSource,
   String? expectedRomanNumeral,
@@ -150,7 +150,7 @@ void main() {
     deg(
       description: 'minor tonic triad',
       pcs: ['A', 'C', 'E'],
-      tonality: const Tonality('A', TonalityMode.minor),
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expected: ScaleDegree.one,
       expectedSource: ScaleDegreeSource.naturalMinor,
       expectedRomanNumeral: 'i',
@@ -158,7 +158,7 @@ void main() {
     deg(
       description: 'natural-minor dominant minor triad',
       pcs: ['E', 'G', 'B'],
-      tonality: const Tonality('A', TonalityMode.minor),
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expected: ScaleDegree.five,
       expectedSource: ScaleDegreeSource.naturalMinor,
       expectedRomanNumeral: 'v',
@@ -166,7 +166,7 @@ void main() {
     deg(
       description: 'harmonic-minor dominant triad',
       pcs: ['E', 'G#', 'B'],
-      tonality: const Tonality('A', TonalityMode.minor),
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expected: ScaleDegree.five,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'V',
@@ -174,7 +174,7 @@ void main() {
     deg(
       description: 'harmonic-minor dominant seventh',
       pcs: ['E', 'G#', 'B', 'D'],
-      tonality: const Tonality('A', TonalityMode.minor),
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expected: ScaleDegree.five,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'V7',
@@ -183,7 +183,7 @@ void main() {
     deg(
       description: 'harmonic-minor dominant flat ninth',
       pcs: ['E', 'G#', 'B', 'D', 'F'],
-      tonality: const Tonality('A', TonalityMode.minor),
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expected: ScaleDegree.five,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'V7',
@@ -193,7 +193,7 @@ void main() {
     deg(
       description: 'harmonic-minor dominant sharp fifth',
       pcs: ['E', 'G#', 'C', 'D'],
-      tonality: const Tonality('A', TonalityMode.minor),
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expected: ScaleDegree.five,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'V7#5',
@@ -202,7 +202,7 @@ void main() {
     deg(
       description: 'natural-minor flat seventh dominant seventh',
       pcs: ['G', 'B', 'D', 'F'],
-      tonality: const Tonality('A', TonalityMode.minor),
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expected: ScaleDegree.seven,
       expectedSource: ScaleDegreeSource.naturalMinor,
       expectedRomanNumeral: '♭VII7',
@@ -210,7 +210,7 @@ void main() {
     deg(
       description: 'harmonic-minor leading-tone diminished triad',
       pcs: ['G#', 'B', 'D'],
-      tonality: const Tonality('A', TonalityMode.minor),
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expected: ScaleDegree.seven,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'vii°',
@@ -218,7 +218,7 @@ void main() {
     deg(
       description: 'harmonic-minor leading-tone diminished seventh',
       pcs: ['G#', 'B', 'D', 'F'],
-      tonality: const Tonality('A', TonalityMode.minor),
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expected: ScaleDegree.seven,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'vii°7',
@@ -227,7 +227,7 @@ void main() {
     deg(
       description: 'harmonic-minor augmented mediant',
       pcs: ['C', 'E', 'G#'],
-      tonality: const Tonality('A', TonalityMode.minor),
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expected: ScaleDegree.three,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: '♭III+',
@@ -236,7 +236,7 @@ void main() {
     deg(
       description: 'harmonic-minor augmented mediant seventh',
       pcs: ['C', 'E', 'G#', 'B'],
-      tonality: const Tonality('A', TonalityMode.minor),
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expected: ScaleDegree.three,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: '♭III+maj7#5',
@@ -245,7 +245,7 @@ void main() {
     deg(
       description: 'harmonic-minor tonic major seventh',
       pcs: ['A', 'C', 'E', 'G#'],
-      tonality: const Tonality('A', TonalityMode.minor),
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expected: ScaleDegree.one,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'i(maj7)',
