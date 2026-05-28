@@ -35,7 +35,7 @@ DEFAULT_MIN_NOTES = 3
 DEFAULT_MAX_NOTES = 7
 DEFAULT_BASSES = "all"
 DEFAULT_CASE_ORDER = "random"
-DEFAULT_MAX_CASES = 500
+DEFAULT_MAX_CASES = 200
 DEFAULT_TOP = 4
 DEFAULT_REPORT_LIMIT = 50
 REVIEW_FLAG_EXPLANATIONS = {
@@ -1083,8 +1083,6 @@ def attention_row_text(index: int, row: dict[str, object]) -> list[str]:
     if raw_labels:
         lines.append("   oracle labels:")
         lines.extend(f"     {line}" for line in raw_labels)
-    if row["normalized_labels"]:
-        lines.append(f"   normalized:  {row['normalized_labels']}")
     if row["semantic_labels"]:
         lines.append(f"   semantic:    {row['semantic_labels']}")
     return lines
@@ -1232,11 +1230,15 @@ def _bass_first(notes: tuple[str, ...], bass: str) -> tuple[str, ...]:
     )
 
 
-def _music21_voicing(notes: tuple[str, ...], bass: str) -> list[str]:
-    normalized_bass = oracle_note_name(bass)
+def _music21_voicing(notes: tuple[str, ...], bass: str) -> list[int]:
+    bass_pc = pitch_class_number(oracle_note_name(bass)) or 0
     return [
-        f"{normalized_bass}3",
-        *[f"{oracle_note_name(note)}4" for note in notes if note != bass],
+        bass_pc + 48,
+        *[
+            (pitch_class_number(oracle_note_name(note)) or 0) + 60
+            for note in notes
+            if note != bass
+        ],
     ]
 
 
