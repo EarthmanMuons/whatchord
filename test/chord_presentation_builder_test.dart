@@ -42,7 +42,7 @@ void main() {
     );
 
     expect(presentation.symbol.toString(), 'C / E');
-    expect(presentation.longLabel, 'C major over E');
+    expect(presentation.longLabel, 'C major slash E');
     expect(presentation.normalizedVoicing, [64, 67, 72]);
   });
 

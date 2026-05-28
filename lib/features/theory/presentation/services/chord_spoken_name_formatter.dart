@@ -40,7 +40,10 @@ class ChordSpokenNameFormatter {
       final bass = noteDisplayLabel(bassName, noteNameSystem: noteNameSystem);
 
       if (bass != root) {
-        s = '$s over $bass';
+        final connector = ChordDisplayConventions.bassIsInversionTone(identity)
+            ? 'slash'
+            : 'over';
+        s = '$s $connector $bass';
       }
     }
 
