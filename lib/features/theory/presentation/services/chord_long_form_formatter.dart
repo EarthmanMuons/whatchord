@@ -46,7 +46,10 @@ class ChordLongFormFormatter {
       final bass = _noteName(bassName, accidentalStyle, noteNameSystem);
 
       if (bass != root) {
-        s = '$s over $bass';
+        final connector = ChordDisplayConventions.bassIsInversionTone(identity)
+            ? 'slash'
+            : 'over';
+        s = '$s $connector $bass';
       }
     }
 

@@ -288,7 +288,7 @@ void main() {
     );
   });
 
-  test('slash chord appends "over <bass>"', () {
+  test('inversion slash chord appends "slash <bass>"', () {
     expect(
       spoken(
         _identity(
@@ -298,7 +298,7 @@ void main() {
           intervals: const [0, 4, 7, 11],
         ),
       ),
-      'C major seven over E',
+      'C major seven slash E',
     );
     expect(
       spoken(
@@ -310,7 +310,7 @@ void main() {
           intervals: const [0, 4, 6, 7, 10, 1],
         ),
       ),
-      'G seven flat nine sharp eleven over F',
+      'G seven flat nine sharp eleven slash F',
     );
   });
 }

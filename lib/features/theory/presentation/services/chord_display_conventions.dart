@@ -74,6 +74,29 @@ abstract final class ChordDisplayConventions {
         requiredMinor7Mask;
   }
 
+  /// Returns true when the bass note is a standard inversion tone of the chord
+  /// (third, fifth, seventh, sixth, or diminished seventh), as opposed to an
+  /// extension, suspension, or foreign note in the bass.
+  ///
+  /// Inversions and bass-note specifications are spoken as "slash" (e.g.,
+  /// "C major slash E"); foreign-bass upper-structure readings use "over"
+  /// (e.g., "A major over G").
+  static bool bassIsInversionTone(ChordIdentity identity) {
+    if (!identity.hasSlashBass) return false;
+    final interval = intervalAboveRoot(identity.bassPc, identity.rootPc);
+    final role = identity.toneRolesByInterval[interval];
+    if (role == null) return false;
+    return role == ChordToneRole.major3 ||
+        role == ChordToneRole.minor3 ||
+        role == ChordToneRole.perfect5 ||
+        role == ChordToneRole.flat5 ||
+        role == ChordToneRole.sharp5 ||
+        role == ChordToneRole.sixth ||
+        role == ChordToneRole.flat7 ||
+        role == ChordToneRole.major7 ||
+        role == ChordToneRole.dim7;
+  }
+
   static Set<ChordExtension> displayedExtensions(ChordIdentity identity) {
     if (usesUpperStructureSlashTriad(identity) ||
         usesSixNineSlashBassConvention(identity) ||
