@@ -89,8 +89,8 @@ class ChordQualityFormatter {
     ChordNotationStyle notation,
   ) {
     return notation == ChordNotationStyle.symbolic
-        ? ChordQualityLabelForm.symbol
-        : ChordQualityLabelForm.suffix;
+        ? ChordQualityLabelForm.symbolic
+        : ChordQualityLabelForm.textual;
   }
 
   /// Whether it is conventional to "promote" 9/11/13 into the headline
