@@ -435,13 +435,10 @@ abstract final class ScaleDegreeClassifier {
 
     return switch (quality) {
       ChordQualityToken.dominant7 => '${base}7',
-      ChordQualityToken.dominant7sus2 => '${base}7sus2',
       ChordQualityToken.dominant7Flat5 => '${base}7b5',
       ChordQualityToken.dominant7Sharp5 => '${base}7#5',
       ChordQualityToken.minorSharp5 => '$base#5',
       ChordQualityToken.major7 => '${base}maj7',
-      ChordQualityToken.major7sus2 => '${base}maj7sus2',
-      ChordQualityToken.major7sus4 => '${base}maj7sus4',
       ChordQualityToken.major7Flat5 => '${base}maj7b5',
       ChordQualityToken.major7Sharp5 => '${base}maj7#5',
       ChordQualityToken.minor7 => '${base}7',

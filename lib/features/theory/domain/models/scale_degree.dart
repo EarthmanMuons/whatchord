@@ -22,6 +22,9 @@ enum ScaleDegree {
       };
     }
 
+    // Degrees are labeled relative to the parallel major scale. In minor keys,
+    // this means the native III, VI, and VII degrees appear as ♭III, ♭VI, and
+    // ♭VII even though they are diatonic to the natural minor scale.
     return switch (this) {
       ScaleDegree.one => 'i',
       ScaleDegree.two => 'ii°',
