@@ -328,6 +328,28 @@ void main() {
     );
   });
 
+  test(
+    'inserts comma before bass connector when multiple modifiers present',
+    () {
+      final identity = _identity(
+        root: 'G',
+        bass: 'B',
+        quality: ChordQualityToken.dominant7,
+        extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
+        intervals: const [0, 4, 6, 7, 10, 1],
+      );
+
+      expect(
+        ChordLongFormFormatter.format(
+          identity: identity,
+          tonality: const Tonality(Tonic.c, TonalityMode.major),
+          accidentalStyle: ChordLongFormAccidentalStyle.plainText,
+        ),
+        'G dominant seventh with flat nine and sharp eleven, slash B',
+      );
+    },
+  );
+
   test('promotes seventh-family natural extensions in long labels', () {
     final dominantNinth = _identity(
       root: 'C',
