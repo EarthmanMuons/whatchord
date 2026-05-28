@@ -25,6 +25,7 @@ Examples:
   dart run tool/chord_name.dart C E G Bb D --bass=C
   dart run tool/chord_name.dart 60 64 67 70
   dart run tool/chord_name.dart C Eb G Bb --key=C:min
+  dart run tool/chord_name.dart C E G --symbolic
 
 Notes may be pitch names or MIDI note numbers.
 
@@ -33,6 +34,12 @@ Options:
   -b, --bass=PC     Override bass pitch class, for example C, Eb, F#.
   -k, --key=KEY     Tonality for tie-breaks/spelling. Default: C:maj.
                     Examples: C, C:maj, A:min, Eb:maj, F#:min.
+
+Output form (mutually exclusive; prints just the name, no label):
+  --symbolic        Symbol notation (e.g. Cmaj7).
+  --textual         Text notation (e.g. Cmaj7).
+  --idiomatic       Spoken/idiomatic name (e.g. C major seventh).
+  --academic        Long-form academic name.
 ''';
 
 void main(List<String> args) {
@@ -40,6 +47,20 @@ void main(List<String> args) {
     stdout.write(_usage);
     return;
   }
+
+  const outputForms = ['symbolic', 'textual', 'idiomatic', 'academic'];
+  final selectedForms = outputForms
+      .where((f) => _hasFlag(args, f, ''))
+      .toList();
+  if (selectedForms.length > 1) {
+    stderr.writeln(
+      'Only one output form flag may be used at a time: '
+      '--${selectedForms.join(', --')}',
+    );
+    exitCode = 2;
+    return;
+  }
+  final outputForm = selectedForms.isEmpty ? null : selectedForms.first;
 
   final unknownFlags = _unknownFlags(args);
   if (unknownFlags.isNotEmpty) {
@@ -138,6 +159,18 @@ void main(List<String> args) {
     tonality: context.tonality,
   );
 
+  if (outputForm != null) {
+    final value = switch (outputForm) {
+      'symbolic' => symbolic,
+      'textual' => textual,
+      'idiomatic' => idiomatic,
+      'academic' => academic,
+      _ => symbolic,
+    };
+    stdout.writeln(value);
+    return;
+  }
+
   stdout.writeln('symbolic:  $symbolic');
   stdout.writeln('textual:   $textual');
   stdout.writeln('idiomatic: $idiomatic');
@@ -227,7 +260,18 @@ bool _hasFlag(List<String> args, String name, String shortName) {
 }
 
 List<String> _unknownFlags(List<String> args) {
-  const knownFlags = {'--help', '--bass', '--key', '-h', '-b', '-k'};
+  const knownFlags = {
+    '--help',
+    '--bass',
+    '--key',
+    '--symbolic',
+    '--textual',
+    '--idiomatic',
+    '--academic',
+    '-h',
+    '-b',
+    '-k',
+  };
 
   final unknown = <String>[];
   for (final arg in args) {
