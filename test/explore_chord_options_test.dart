@@ -1377,7 +1377,7 @@ void main() {
         expect(analyzed, isNotEmpty, reason: entry.key);
         final symbol = ChordSymbolBuilder.fromIdentity(
           identity: analyzed.first.identity,
-          tonality: const Tonality('C', TonalityMode.major),
+          tonality: const Tonality(Tonic.c, TonalityMode.major),
           notation: ChordNotationStyle.textual,
         ).toString();
 
@@ -1400,13 +1400,13 @@ ExploreChordExample _example({
       quality: quality,
       extensions: extensions,
     ),
-    tonality: const Tonality('C', TonalityMode.major),
+    tonality: const Tonality(Tonic.c, TonalityMode.major),
     notation: ChordNotationStyle.textual,
   );
 }
 
 AnalysisContext _context() {
-  const tonality = Tonality('C', TonalityMode.major);
+  const tonality = Tonality(Tonic.c, TonalityMode.major);
   final keySignature = KeySignature.fromTonality(tonality);
   return AnalysisContext(
     tonality: tonality,

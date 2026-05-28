@@ -1,6 +1,6 @@
 import 'package:whatchord/features/theory/theory.dart';
 
-const defaultTestTonality = Tonality('C', TonalityMode.major);
+const defaultTestTonality = Tonality(Tonic.c, TonalityMode.major);
 
 /// Builds an [AnalysisContext] from a tonality, deriving key signature and
 /// default spelling policy the same way production analysis does.

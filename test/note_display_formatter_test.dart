@@ -93,14 +93,14 @@ void main() {
     test('uses German Dur and Moll key names', () {
       expect(
         tonalityDisplayLabel(
-          const Tonality('F#', TonalityMode.major),
+          const Tonality(Tonic.fSharp, TonalityMode.major),
           noteNameSystem: NoteNameSystem.german,
         ),
         'Fis-Dur',
       );
       expect(
         tonalityDisplayLabel(
-          const Tonality('Eb', TonalityMode.minor),
+          const Tonality(Tonic.eFlat, TonalityMode.minor),
           noteNameSystem: NoteNameSystem.german,
         ),
         'es-Moll',
@@ -111,11 +111,13 @@ void main() {
       'preserves English major and minor labels for International names',
       () {
         expect(
-          tonalityDisplayLabel(const Tonality('F#', TonalityMode.major)),
+          tonalityDisplayLabel(
+            const Tonality(Tonic.fSharp, TonalityMode.major),
+          ),
           'F♯ major',
         );
         expect(
-          tonalityDisplayLabel(const Tonality('Eb', TonalityMode.minor)),
+          tonalityDisplayLabel(const Tonality(Tonic.eFlat, TonalityMode.minor)),
           'E♭ minor',
         );
       },

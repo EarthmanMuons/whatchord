@@ -40,7 +40,7 @@ void main() {
 }
 
 AnalysisContext _context() {
-  const tonality = Tonality('C', TonalityMode.major);
+  const tonality = Tonality(Tonic.c, TonalityMode.major);
   final keySignature = KeySignature.fromTonality(tonality);
   return AnalysisContext(
     tonality: tonality,

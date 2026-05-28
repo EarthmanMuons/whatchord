@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import 'tonality.dart';
+import 'tonic.dart';
 
 @immutable
 class KeySignature {
@@ -53,77 +54,77 @@ extension TonalityKeySignatureX on Tonality {
 const keySignatureRows = <KeySignature>[
   KeySignature(
     accidentalCount: -7,
-    relativeMajor: Tonality('Cb', TonalityMode.major),
-    relativeMinor: Tonality('Ab', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.cFlat, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.aFlat, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: -6,
-    relativeMajor: Tonality('Gb', TonalityMode.major),
-    relativeMinor: Tonality('Eb', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.gFlat, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.eFlat, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: -5,
-    relativeMajor: Tonality('Db', TonalityMode.major),
-    relativeMinor: Tonality('Bb', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.dFlat, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.bFlat, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: -4,
-    relativeMajor: Tonality('Ab', TonalityMode.major),
-    relativeMinor: Tonality('F', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.aFlat, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.f, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: -3,
-    relativeMajor: Tonality('Eb', TonalityMode.major),
-    relativeMinor: Tonality('C', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.eFlat, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.c, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: -2,
-    relativeMajor: Tonality('Bb', TonalityMode.major),
-    relativeMinor: Tonality('G', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.bFlat, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.g, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: -1,
-    relativeMajor: Tonality('F', TonalityMode.major),
-    relativeMinor: Tonality('D', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.f, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.d, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: 0,
-    relativeMajor: Tonality('C', TonalityMode.major),
-    relativeMinor: Tonality('A', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.c, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.a, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: 1,
-    relativeMajor: Tonality('G', TonalityMode.major),
-    relativeMinor: Tonality('E', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.g, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.e, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: 2,
-    relativeMajor: Tonality('D', TonalityMode.major),
-    relativeMinor: Tonality('B', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.d, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.b, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: 3,
-    relativeMajor: Tonality('A', TonalityMode.major),
-    relativeMinor: Tonality('F#', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.a, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.fSharp, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: 4,
-    relativeMajor: Tonality('E', TonalityMode.major),
-    relativeMinor: Tonality('C#', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.e, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.cSharp, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: 5,
-    relativeMajor: Tonality('B', TonalityMode.major),
-    relativeMinor: Tonality('G#', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.b, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.gSharp, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: 6,
-    relativeMajor: Tonality('F#', TonalityMode.major),
-    relativeMinor: Tonality('D#', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.fSharp, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.dSharp, TonalityMode.minor),
   ),
   KeySignature(
     accidentalCount: 7,
-    relativeMajor: Tonality('C#', TonalityMode.major),
-    relativeMinor: Tonality('A#', TonalityMode.minor),
+    relativeMajor: Tonality(Tonic.cSharp, TonalityMode.major),
+    relativeMinor: Tonality(Tonic.aSharp, TonalityMode.minor),
   ),
 ];

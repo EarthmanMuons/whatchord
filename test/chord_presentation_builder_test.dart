@@ -15,7 +15,7 @@ void main() {
 
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 
@@ -37,7 +37,7 @@ void main() {
 
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 
@@ -56,7 +56,7 @@ void main() {
 
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 
@@ -73,7 +73,7 @@ void main() {
 
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 
@@ -91,7 +91,7 @@ void main() {
 
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 
@@ -109,7 +109,7 @@ void main() {
 
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 
@@ -131,7 +131,7 @@ void main() {
 
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 
@@ -151,7 +151,7 @@ void main() {
 
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 
@@ -182,12 +182,12 @@ void main() {
 
       final dominantPresentation = ChordPresentationBuilder.fromIdentity(
         identity: dominant,
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
         notation: notation,
       );
       final majorPresentation = ChordPresentationBuilder.fromIdentity(
         identity: major,
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
         notation: notation,
       );
 
@@ -216,7 +216,7 @@ void main() {
 
       final presentation = ChordPresentationBuilder.fromIdentity(
         identity: identity,
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
         notation: notation,
       );
 
@@ -243,12 +243,12 @@ void main() {
 
     final majorPresentation = ChordPresentationBuilder.fromIdentity(
       identity: major,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
     final minorPresentation = ChordPresentationBuilder.fromIdentity(
       identity: minor,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 
@@ -269,7 +269,7 @@ void main() {
 
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 
@@ -288,7 +288,7 @@ void main() {
 
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 
@@ -305,7 +305,7 @@ void main() {
 
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 
@@ -321,7 +321,7 @@ void main() {
     expect(
       ChordLongFormFormatter.format(
         identity: identity,
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
         accidentalStyle: ChordLongFormAccidentalStyle.plainText,
       ),
       'G dominant seventh with flat nine and sharp eleven',
@@ -355,21 +355,21 @@ void main() {
     expect(
       ChordLongFormFormatter.format(
         identity: dominantNinth,
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
       ),
       'C dominant ninth',
     );
     expect(
       ChordLongFormFormatter.format(
         identity: minorEleventh,
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
       ),
       'D minor eleventh',
     );
     expect(
       ChordLongFormFormatter.format(
         identity: majorThirteenth,
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
       ),
       'F major thirteenth',
     );
@@ -396,14 +396,14 @@ void main() {
     expect(
       ChordLongFormFormatter.format(
         identity: minorAddEleventh,
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
       ),
       'D minor seventh with added eleven',
     );
     expect(
       ChordLongFormFormatter.format(
         identity: dominantSharpEleventh,
-        tonality: const Tonality('C', TonalityMode.major),
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
       ),
       'G dominant thirteenth with sharp eleven',
     );
@@ -418,7 +418,7 @@ void main() {
 
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: identity,
-      tonality: const Tonality('C', TonalityMode.major),
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
       notation: notation,
     );
 

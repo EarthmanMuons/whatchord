@@ -338,7 +338,7 @@ void main() {
       expectedSymbol: 'Ab(b5)',
       pcs: ['Ab', 'C', 'D'],
       bass: 'Ab',
-      tonality: Tonality('Ab', TonalityMode.major),
+      tonality: Tonality(Tonic.aFlat, TonalityMode.major),
       expectedRoot: 'Ab',
       expectedQuality: ChordQualityToken.majorFlat5,
       expectNoExtensions: true,

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 void main() {
-  const tonality = Tonality('C', TonalityMode.major);
+  const tonality = Tonality(Tonic.c, TonalityMode.major);
 
   String spoken(ChordIdentity identity, {Tonality t = tonality}) =>
       ChordSpokenNameFormatter.format(identity: identity, tonality: t);

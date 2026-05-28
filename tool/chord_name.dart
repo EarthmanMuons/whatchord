@@ -179,7 +179,7 @@ _parseNotes(List<String> tokens) {
 
 Tonality _parseTonalityFlag(String raw) {
   final s = raw.trim();
-  if (s.isEmpty) return const Tonality('C', TonalityMode.major);
+  if (s.isEmpty) return const Tonality(Tonic.c, TonalityMode.major);
 
   final compact = s.replaceAll(RegExp(r'\s+'), '');
 
@@ -217,7 +217,9 @@ Tonality _parseTonalityFlag(String raw) {
     }
   }
 
-  return Tonality(normalizeNoteNameToAscii(tonicPart), mode);
+  final tonicAscii = normalizeNoteNameToAscii(tonicPart);
+  final tonic = Tonic.tryFromLabel(tonicAscii) ?? Tonic.c;
+  return Tonality(tonic, mode);
 }
 
 bool _hasFlag(List<String> args, String name, String shortName) {

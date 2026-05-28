@@ -12,6 +12,7 @@ export 'models/chord_tone_role.dart';
 export 'models/key_signature.dart';
 export 'models/note_spelling_policy.dart';
 export 'models/scale_degree.dart';
+export 'models/tonic.dart';
 export 'models/tonality.dart';
 
 // Domain services (pure)
