@@ -17,7 +17,7 @@ void main() {
           intervals: const [0, 4, 7],
         ),
       ),
-      'C major',
+      'C',
     );
     expect(
       spoken(
@@ -83,7 +83,7 @@ void main() {
           intervals: const [0, 4, 7, 9],
         ),
       ),
-      'C major six',
+      'C six',
     );
     expect(
       spoken(
@@ -248,7 +248,7 @@ void main() {
           intervals: const [0, 2, 4, 7],
         ),
       ),
-      'G major add nine',
+      'G add nine',
     );
     expect(
       spoken(
@@ -273,7 +273,7 @@ void main() {
           intervals: const [0, 2, 4, 7, 9],
         ),
       ),
-      'C major six-nine',
+      'C six-nine',
     );
     expect(
       spoken(
