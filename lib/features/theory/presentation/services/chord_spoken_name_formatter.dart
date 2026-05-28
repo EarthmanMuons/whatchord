@@ -25,7 +25,8 @@ class ChordSpokenNameFormatter {
       absorbedHeadline: absorbedHeadline,
     );
 
-    var s = '$root $qualityPhrase$extPhrase';
+    final qualityPart = qualityPhrase.isEmpty ? '' : ' $qualityPhrase';
+    var s = '$root$qualityPart$extPhrase';
 
     if (identity.hasSlashBass) {
       final interval = (identity.bassPc - identity.rootPc) % 12;
@@ -57,7 +58,7 @@ class ChordSpokenNameFormatter {
 }) {
   if (quality.isSixFamily && extensions.contains(ChordExtension.add9)) {
     final q = switch (quality) {
-      ChordQualityToken.major6 => 'major six-nine',
+      ChordQualityToken.major6 => 'six-nine',
       ChordQualityToken.minor6 => 'minor six-nine',
       _ => quality.label(ChordQualityLabelForm.idiomatic),
     };

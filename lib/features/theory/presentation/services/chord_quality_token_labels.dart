@@ -187,9 +187,9 @@ extension ChordQualityTokenLabels on ChordQualityToken {
   String _spokenLabel() {
     switch (this) {
       case ChordQualityToken.major:
-        return 'major';
+        return '';
       case ChordQualityToken.majorFlat5:
-        return 'major flat five';
+        return 'flat five';
       case ChordQualityToken.minor:
         return 'minor';
       case ChordQualityToken.minorSharp5:
@@ -203,7 +203,7 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.sus4:
         return 'sus four';
       case ChordQualityToken.major6:
-        return 'major six';
+        return 'six';
       case ChordQualityToken.minor6:
         return 'minor six';
       case ChordQualityToken.dominant7:

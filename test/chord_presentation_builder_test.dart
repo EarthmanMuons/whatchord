@@ -253,9 +253,9 @@ void main() {
     );
 
     expect(majorPresentation.symbol.toString(), 'C6/9');
-    expect(majorPresentation.longLabel, 'C major six-nine');
+    expect(majorPresentation.longLabel, 'C major sixth with added nine');
     expect(minorPresentation.symbol.toString(), 'Cm6/9');
-    expect(minorPresentation.longLabel, 'C minor six-nine');
+    expect(minorPresentation.longLabel, 'C minor sixth with added nine');
   });
 
   test('keeps incomplete add9 slash triads explicit', () {

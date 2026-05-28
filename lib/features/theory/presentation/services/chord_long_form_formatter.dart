@@ -103,14 +103,6 @@ String _qualityLongPhrase({
   required ChordQualityToken quality,
   required Set<ChordExtension> extensions,
 }) {
-  if (quality.isSixFamily && extensions.contains(ChordExtension.add9)) {
-    return switch (quality) {
-      ChordQualityToken.major6 => 'major six-nine',
-      ChordQualityToken.minor6 => 'minor six-nine',
-      _ => quality.label(ChordQualityLabelForm.academic),
-    };
-  }
-
   final base = quality.label(ChordQualityLabelForm.academic);
   final headline = _headlineExtensionForParts(
     quality: quality,
@@ -127,10 +119,6 @@ ChordExtension? _absorbedLongFormExtensionForParts({
   required ChordQualityToken quality,
   required Set<ChordExtension> extensions,
 }) {
-  if (quality.isSixFamily && extensions.contains(ChordExtension.add9)) {
-    return ChordExtension.add9;
-  }
-
   return _headlineExtensionForParts(quality: quality, extensions: extensions);
 }
 
