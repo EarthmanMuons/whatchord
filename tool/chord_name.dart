@@ -26,11 +26,13 @@ Examples:
   dart run tool/chord_name.dart 60 64 67 70
   dart run tool/chord_name.dart C Eb G Bb --key=C:min
   dart run tool/chord_name.dart C E G --symbolic
+  dart run tool/chord_name.dart C E G Bb --top=3
 
 Notes may be pitch names or MIDI note numbers.
 
 Options:
   -h, --help        Show this help text.
+  -t, --top=N       Number of ranked candidates to show. Default: 1.
   -b, --bass=PC     Override bass pitch class, for example C, Eb, F#.
   -k, --key=KEY     Tonality for tie-breaks/spelling. Default: C:maj.
                     Examples: C, C:maj, A:min, Eb:maj, F#:min.
@@ -98,6 +100,8 @@ void main(List<String> args) {
     return;
   }
 
+  final top = _readIntFlag(args, 'top', 't') ?? 1;
+
   final bassName = _readStringFlag(args, 'bass', 'b');
   final bassPc = bassName != null
       ? pitchClassFromNoteName(bassName)
@@ -129,52 +133,63 @@ void main(List<String> args) {
     return;
   }
 
-  final id = results.first.identity;
+  final take = results.length < top ? results.length : top;
+  final showRank = take > 1;
 
-  final symbolic = chordSymbolDisplayLabel(
-    ChordSymbolBuilder.fromIdentity(
+  for (var i = 0; i < take; i++) {
+    final id = results[i].identity;
+
+    final symbolic = chordSymbolDisplayLabel(
+      ChordSymbolBuilder.fromIdentity(
+        identity: id,
+        tonality: context.tonality,
+        notation: ChordNotationStyle.symbolic,
+      ),
+      spacing: ChordSymbolDisplaySpacing.plain,
+    );
+
+    final textual = chordSymbolDisplayLabel(
+      ChordSymbolBuilder.fromIdentity(
+        identity: id,
+        tonality: context.tonality,
+        notation: ChordNotationStyle.textual,
+      ),
+      spacing: ChordSymbolDisplaySpacing.plain,
+    );
+
+    final idiomatic = ChordSpokenNameFormatter.format(
       identity: id,
       tonality: context.tonality,
-      notation: ChordNotationStyle.symbolic,
-    ),
-    spacing: ChordSymbolDisplaySpacing.plain,
-  );
+    );
 
-  final textual = chordSymbolDisplayLabel(
-    ChordSymbolBuilder.fromIdentity(
+    final academic = ChordLongFormFormatter.format(
       identity: id,
       tonality: context.tonality,
-      notation: ChordNotationStyle.textual,
-    ),
-    spacing: ChordSymbolDisplaySpacing.plain,
-  );
+    );
 
-  final idiomatic = ChordSpokenNameFormatter.format(
-    identity: id,
-    tonality: context.tonality,
-  );
+    if (outputForm != null) {
+      final value = switch (outputForm) {
+        'symbolic' => symbolic,
+        'textual' => textual,
+        'idiomatic' => idiomatic,
+        'academic' => academic,
+        _ => symbolic,
+      };
+      if (showRank) {
+        stdout.writeln('${i + 1}) $value');
+      } else {
+        stdout.writeln(value);
+      }
+      continue;
+    }
 
-  final academic = ChordLongFormFormatter.format(
-    identity: id,
-    tonality: context.tonality,
-  );
-
-  if (outputForm != null) {
-    final value = switch (outputForm) {
-      'symbolic' => symbolic,
-      'textual' => textual,
-      'idiomatic' => idiomatic,
-      'academic' => academic,
-      _ => symbolic,
-    };
-    stdout.writeln(value);
-    return;
+    if (showRank) stdout.writeln('${i + 1})');
+    stdout.writeln('symbolic:  $symbolic');
+    stdout.writeln('textual:   $textual');
+    stdout.writeln('idiomatic: $idiomatic');
+    stdout.writeln('academic:  $academic');
+    if (showRank && i < take - 1) stdout.writeln('');
   }
-
-  stdout.writeln('symbolic:  $symbolic');
-  stdout.writeln('textual:   $textual');
-  stdout.writeln('idiomatic: $idiomatic');
-  stdout.writeln('academic:  $academic');
 }
 
 int _pcMaskFrom(Iterable<int> notes) {
@@ -262,6 +277,7 @@ bool _hasFlag(List<String> args, String name, String shortName) {
 List<String> _unknownFlags(List<String> args) {
   const knownFlags = {
     '--help',
+    '--top',
     '--bass',
     '--key',
     '--symbolic',
@@ -269,6 +285,7 @@ List<String> _unknownFlags(List<String> args) {
     '--idiomatic',
     '--academic',
     '-h',
+    '-t',
     '-b',
     '-k',
   };
@@ -282,6 +299,11 @@ List<String> _unknownFlags(List<String> args) {
     if (!knownFlags.contains(flag)) unknown.add(flag);
   }
   return unknown;
+}
+
+int? _readIntFlag(List<String> args, String name, String shortName) {
+  final value = _readStringFlag(args, name, shortName);
+  return value == null ? null : int.tryParse(value);
 }
 
 String? _readStringFlag(List<String> args, String name, String shortName) {
@@ -302,7 +324,7 @@ String? _readStringFlag(List<String> args, String name, String shortName) {
 }
 
 List<String> _readNoteTokens(List<String> args) {
-  const valueFlags = {'--bass', '--key', '-b', '-k'};
+  const valueFlags = {'--top', '--bass', '--key', '-t', '-b', '-k'};
 
   final out = <String>[];
   for (var i = 0; i < args.length; i++) {
