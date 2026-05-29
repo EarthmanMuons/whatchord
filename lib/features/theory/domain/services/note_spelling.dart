@@ -233,7 +233,9 @@ List<String> _candidateNamesForPc(int pc) {
     final naturalPc = _naturalPcByLetter[letter]!;
     var delta = (targetPc - naturalPc) % 12;
     if (delta > 6) delta -= 12;
-    if (delta < -2 || delta > 2) continue;
+    // Roots never need double accidentals; restricting to ±1 prevents
+    // spellings like B𝄪 or Cbb from appearing as chord root candidates.
+    if (delta < -1 || delta > 1) continue;
     out.add(letter + _accidentalToAscii(delta));
   }
 

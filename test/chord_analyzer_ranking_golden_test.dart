@@ -204,6 +204,24 @@ void main() {
       expectedQuality: ChordQualityToken.minorMajor7,
       expectedExtensions: {ChordExtension.sharp11},
     ),
+
+    // -------------------------------------------------------------------------
+    // Dominant7 shell slash beats non-dominant seventh-family slash
+    // -------------------------------------------------------------------------
+    // {C, Db, Eb, F, Ab, A} with Ab bass: the F altered dominant reading
+    // (F7#9b13 with Ab=G# as the sharp-9 bass) is what musicians expect.
+    // The competing C#maj9b13/Ab interpretation has a higher raw score, but
+    // the dom7 shell-slash rule correctly promotes F7.
+    golden(
+      description: 'dominant7 shell slash beats major7 family slash',
+      expectedSymbol: 'F7(#9,b13) / G#',
+      pcs: ['C', 'Db', 'Eb', 'F', 'Ab', 'A'],
+      bass: 'Ab',
+      expectedRoot: 'F',
+      expectedBass: 'G#',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.sharp9, ChordExtension.flat13},
+    ),
   ];
 
   runChordAnalyzerGoldenCases(cases);

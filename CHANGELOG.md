@@ -10,8 +10,15 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Prefer altered dominant seventh names such as F7(#9,b13)/Ab over competing
+  non-dominant seventh-family slash readings of the same voicing.
+
 ### Fixed
 
+- Fixed chord root spelling so double-sharp and double-flat roots such as B𝄪 are
+  never generated; enharmonic equivalents like C# are used instead.
 - Fixed explore mode note chips so they spell members relative to the explicitly
   selected root, matching the chord symbol (e.g., C# major now shows C# E# G#
   instead of Db F Ab).
