@@ -30,6 +30,7 @@ from typing import Iterable
 
 NOTE_NAMES = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
 DEFAULT_ORACLES = ("music21", "tonal", "pychord")
+DEFAULT_REVIEWED_PATH = Path(__file__).with_name("chord_oracle_reviewed.json")
 ORACLE_NAME_WIDTH = max(len(name) for name in DEFAULT_ORACLES)
 DEFAULT_MIN_NOTES = 3
 DEFAULT_MAX_NOTES = 7
@@ -303,6 +304,8 @@ def main() -> int:
     if not chord_debug.is_absolute():
         chord_debug = repo_root / chord_debug
 
+    reviewed = load_reviewed(DEFAULT_REVIEWED_PATH)
+
     oracles = _available_oracles(args.oracles)
     if not oracles:
         print("No optional oracles are available; install one of music21, tonal, or pychord.", file=sys.stderr)
@@ -374,6 +377,7 @@ def main() -> int:
         csv_path=csv_path,
         json_path=json_path,
         limit=args.report_limit,
+        reviewed=reviewed,
     )
     json_path.write_text(
         json.dumps(
@@ -403,6 +407,18 @@ def main() -> int:
     print(f"Wrote {json_path}")
     print(f"Wrote {report_path}")
     return 0
+
+
+def load_reviewed(path: Path) -> dict[str, str]:
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(data, dict):
+            return {str(k): str(v) for k, v in data.items()}
+    except (json.JSONDecodeError, OSError) as error:
+        print(f"Warning: could not load reviewed file {path}: {error}", file=sys.stderr)
+    return {}
 
 
 def _available_oracles(names: Iterable[str]) -> list[Oracle]:
@@ -986,10 +1002,20 @@ def write_report(
     csv_path: Path,
     json_path: Path,
     limit: int,
+    reviewed: dict[str, str] | None = None,
 ) -> None:
+    if reviewed is None:
+        reviewed = {}
     attention_rows = [
-        row for row in sorted(rows, key=attention_sort_key) if needs_attention(row)
+        row
+        for row in sorted(rows, key=attention_sort_key)
+        if needs_attention(row) and str(row["case_id"]) not in reviewed
     ]
+    suppressed = sum(
+        1
+        for row in rows
+        if needs_attention(row) and str(row["case_id"]) in reviewed
+    )
     if limit > 0:
         attention_rows = attention_rows[:limit]
 
@@ -1028,6 +1054,9 @@ def write_report(
             "",
         ]
     )
+    if suppressed:
+        lines.append(f"({suppressed} previously reviewed cases suppressed -- see tool/chord_oracle_reviewed.json)")
+        lines.append("")
 
     if not attention_rows:
         lines.append("No rows require attention under the current triage rules.")
