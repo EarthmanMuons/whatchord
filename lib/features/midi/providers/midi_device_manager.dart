@@ -113,6 +113,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   BluetoothState? _lastPublishedBtState;
   bool _backgrounded = false;
 
+  // Bumped whenever an in-flight connect should be abandoned (a newer connect,
+  // a disconnect, or Bluetooth becoming unavailable). connect() captures this
+  // at entry and re-checks it before publishing a connected device, so a
+  // disconnect that races a mid-flight connect cannot be silently undone.
+  int _connectGeneration = 0;
+
   // Lazy Bluetooth central prime.
   bool _centralStarted = false;
   Future<void>? _centralStartInFlight;
@@ -213,6 +219,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   }
 
   Future<void> connect(MidiDevice device) async {
+    // Capture the generation for this attempt. A newer connect supersedes older
+    // in-flight ones, and any disconnect invalidates them.
+    final generation = ++_connectGeneration;
     try {
       if (_debugLog) debugPrint('[MGR] connect id=${device.id}');
       if (device.transport == MidiTransportType.ble) {
@@ -225,6 +234,18 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       await _performConnection(device.id);
       await _verifyConnection(device.id);
 
+      // A disconnect (or newer connect) landed while we were connecting: tear
+      // down the link we just made and do not publish it.
+      if (generation != _connectGeneration) {
+        if (_debugLog) {
+          debugPrint('[MGR] connect superseded id=${device.id}; aborting');
+        }
+        try {
+          await _disconnectBestEffort(device.id, transport: device.transport);
+        } catch (_) {}
+        return;
+      }
+
       // Publish connected device in app state only after verification.
       _setConnectedDevice(device.copyWith(isConnected: true));
 
@@ -235,6 +256,10 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   }
 
   Future<void> disconnect() async {
+    // Invalidate any in-flight connect (synchronously, before any await) so it
+    // self-aborts instead of re-publishing a connection after we drop it.
+    _connectGeneration++;
+
     final current = state.connectedDevice;
     if (current == null) return;
 
@@ -799,6 +824,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         mapped == BluetoothState.unauthorized) {
       // If BT is off/unauthorized, any prior central prime is not trustworthy.
       _centralStarted = false;
+
+      // Abandon any in-flight BLE connect; the adapter is gone.
+      _connectGeneration++;
 
       _setConnectedDevice(null);
       unawaited(stopScanning());
