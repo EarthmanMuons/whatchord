@@ -811,10 +811,40 @@ def degrees_from_quality(
     elif compact.startswith("M"):
         compact = "maj" + compact[1:]
     compact = compact.replace("+", "aug")
-    compact = re.sub(r"M(?=7)", "maj", compact)
+    compact = re.sub(r"M(?=[79]|1[13])", "maj", compact)
     compact = compact.replace("major", "maj").replace("minor", "min")
     compact = compact.replace("dom", "")
     compact = compact.lower()
+    # Normalize music21's 'o' prefix: o=dim, o7=dim7, o9/ob9/o11/o13=dim7+extension
+    compact = re.sub(r"^o(?=[0-9b]|$)", "dim", compact)
+    # dim+extension implies dim7 is present; expand so existing patterns work
+    compact = re.sub(r"^(dim)(b?[9]|11|13)(?![0-9])", r"\g<1>7add\2", compact)
+    # '7+' (augmented seventh) normalizes to '7aug' after the '+' substitution above;
+    # swap to 'aug7' so the 'aug' prefix branch fires and the '#5' is included.
+    compact = re.sub(r"^7aug", "aug7", compact)
+    # 'dom7dim5': after 'dom' removal becomes '7dim5'; map 'dim5' to 'b5'.
+    compact = compact.replace("dim5", "b5")
+    # Leading-number sus ('7sus', '9sus4', …) → move number after sus so the
+    # sus branch in base_degrees applies, then 'b7' is added from the digit.
+    compact = re.sub(r"^(\d+)(sus4?)", r"\g<2>\g<1>", compact)
+    # Plain 'sus' (music21 canonical for sus4 triad) → 'sus4'.
+    if compact == "sus":
+        compact = "sus4"
+    # Expand headline-extension forms whose prefix blocks headline_extension().
+    # Converts e.g. 'aug11' → 'aug7add9add11' so token matching picks up every
+    # implied degree.  Prefixes that already work via headline_extension() (bare
+    # '9'/'11'/'13', 'm9', etc.) are intentionally excluded from this pattern.
+    def _expand_headline(m: re.Match) -> str:
+        prefix, ext = m.group(1), m.group(2)
+        seventh = "" if "7" in prefix else "7"
+        stacked = "add9" if ext == "9" else f"add9add{ext}"
+        return f"{prefix}{seventh}{stacked}"
+
+    compact = re.sub(
+        r"^(ø|aug(?:maj)?|mmaj|minmaj|maj)(9|11|13)(?![0-9])",
+        _expand_headline,
+        compact,
+    )
 
     degrees = set(absolute_adds)
     if base_only:
@@ -836,7 +866,7 @@ def base_degrees(compact: str) -> set[str]:
         out = {"3", "#5"}
     elif compact.startswith("sus2") or "sus2" in compact:
         out = {"2", "5"}
-    elif compact.startswith("sus4") or "sus4" in compact:
+    elif compact.startswith("sus") and not compact.startswith("sus2"):
         out = {"4", "5"}
     elif compact.startswith("minmaj") or compact.startswith("mmaj"):
         out = {"b3", "5", "7"}
@@ -853,7 +883,7 @@ def base_degrees(compact: str) -> set[str]:
         out.add("b5")
     if "maj7" in compact or "ma7" in compact:
         out.add("7")
-    elif ("7" in compact or headline is not None) and "bb7" not in out:
+    elif ("7" in compact or headline is not None) and "bb7" not in out and "7" not in out:
         out.add("b7")
     if "b6" in compact:
         out.add("b13")
@@ -1208,7 +1238,7 @@ def comparable_quality_token(raw: str) -> str:
     if compact.startswith("M"):
         compact = "maj" + compact[1:]
     compact = compact.replace("+", "aug")
-    compact = re.sub(r"M(?=7)", "maj", compact)
+    compact = re.sub(r"M(?=[79]|1[13])", "maj", compact)
     compact = compact.lower()
     compact = compact.replace("major", "maj").replace("minor", "min")
     compact = compact.replace("dom", "")
@@ -1219,6 +1249,15 @@ def comparable_quality_token(raw: str) -> str:
     compact = compact.replace("ø", "m7b5")
     compact = compact.replace("°", "dim")
     compact = compact.replace("(", "").replace(")", "")
+    # Normalize music21's 'o' prefix: o=dim, o7=dim7, o9/ob9/o11/o13=dim7+extension
+    compact = re.sub(r"^o(?=[0-9b]|$)", "dim", compact)
+    compact = re.sub(r"^(dim)(b?[9]|11|13)(?![0-9])", r"\g<1>7add\2", compact)
+    # '7+' → '7aug' → swap to 'aug7' so the aug prefix is recognized
+    compact = re.sub(r"^7aug", "aug7", compact)
+    compact = compact.replace("dim5", "b5")
+    compact = re.sub(r"^(\d+)(sus4?)", r"\g<2>\g<1>", compact)
+    if compact == "sus":
+        compact = "sus4"
     if compact in {"", "maj", "min", "m", "dim", "aug", "sus2", "sus4"}:
         return "min" if compact == "m" else (compact or "maj")
     if compact.startswith("maj"):
