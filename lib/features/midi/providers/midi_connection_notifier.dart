@@ -47,6 +47,10 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   BluetoothState? _lastBluetoothState;
   bool _cancelRequested = false;
 
+  // Suppresses automatic reconnect (startup/resume/bt-ready) after an explicit
+  // user disconnect, until the user explicitly connects or reconnects again.
+  bool _autoReconnectSuppressed = false;
+
   MidiDeviceManager get _midi => ref.read(midiDeviceManagerProvider.notifier);
 
   /// Explicit user/controller cancel:
@@ -269,6 +273,17 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     _cancelRequested = false;
 
     final isManual = reason == 'manual';
+
+    // Manual reconnect clears suppression; automatic triggers stay suppressed
+    // until then so an explicit disconnect is respected.
+    if (isManual) {
+      _autoReconnectSuppressed = false;
+    } else if (_autoReconnectSuppressed) {
+      if (_debugLog) {
+        debugPrint('[CONN] auto-reconnect suppressed reason=$reason');
+      }
+      return;
+    }
 
     // Only run the startup auto-reconnect sequence once per app run.
     if (reason == 'startup') {
@@ -656,6 +671,8 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   Future<void> connect(MidiDevice device) async {
     // Cancel any backoff/retry loop; this is an explicit user action.
     _cancelRetry();
+    // Explicit connect clears any prior disconnect suppression.
+    _autoReconnectSuppressed = false;
     if (_debugLog) debugPrint('[CONN] connect id=${device.id}');
 
     if (device.transport == MidiTransportType.ble) {
@@ -695,10 +712,21 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     }
   }
 
-  /// Disconnect from the current device.
+  /// Disconnect from the current device (explicit user action).
+  ///
+  /// Stops any in-flight reconnect, drops the connection, and suppresses
+  /// automatic reconnect until the user connects again.
   Future<void> disconnect() async {
     if (_debugLog) debugPrint('[CONN] disconnect');
+    _cancelRequested = true;
+    _autoReconnectSuppressed = true;
+    _cancelRetry();
+
     await _midi.disconnect();
+
+    // Own the state: the connected-device listener only resets to idle from the
+    // `connected` phase, so a mid-flight `connecting`/`retrying` would get stuck.
+    state = const MidiConnectionState.idle();
   }
 
   /// Manually trigger a reconnection attempt.
