@@ -41,7 +41,7 @@ DEFAULT_TOP = 4
 DEFAULT_REPORT_LIMIT = 50
 REVIEW_FLAG_EXPLANATIONS = {
     "disagreement": "Comparable oracle labels were available, but none matched WhatChord's top label.",
-    "oracle-split": "At least one oracle matched WhatChord and at least one comparable oracle disagreed.",
+    "oracle-split": "As many or more oracles disagreed with WhatChord as agreed.",
     "insufficient-oracle-labels": "Only one oracle returned a comparable primary label.",
     "unrecognized-by-oracles": "No oracle returned a comparable primary label.",
     "oracle-error": "At least one oracle failed while processing the row.",
@@ -619,9 +619,9 @@ def build_row(
         review_flag = "insufficient-oracle-labels"
     elif not whatchord_label and whatchord_key is None:
         review_flag = "insufficient-oracle-labels"
-    elif matching_oracles and disagreeing_oracles:
+    elif matching_oracles and disagreeing_oracles and len(disagreeing_oracles) >= len(matching_oracles):
         review_flag = "oracle-split"
-    elif disagreeing_oracles:
+    elif not matching_oracles and disagreeing_oracles:
         review_flag = "disagreement"
 
     normalized_parts = []
