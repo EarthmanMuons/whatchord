@@ -1,3 +1,4 @@
 {
+  "0-1-3-5-8-9_b8": "F7(#9,b13) / G# is correct; tonal agrees (G#=Ab, enharmonic); music21 fails on accidental parsing, pychord has no label",
   "0-4-8-11_b0": "Cmaj7#5 is correct; oracles use non-standard notation (C+M7, CM7b6)"
 }

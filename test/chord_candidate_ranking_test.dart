@@ -323,6 +323,41 @@ void main() {
       );
     }
   });
+
+  test(
+    'dominant7 shell slash with color bass beats major7 family slash in near-tie',
+    () {
+      // F7(#9,b13)/G# vs C#maj9b13/G#: same six notes, same bass.
+      // F7 has shell (A=major3 + Eb=flat7) and color bass (G#=sharp9 of F).
+      // C# has a higher raw score but the F dominant reading is what musicians
+      // expect for this voicing.
+      final dom7Slash = _candidate(
+        quality: ChordQualityToken.dominant7,
+        root: 'F',
+        bass: 'G#',
+        // intervals: root=0, sharp9=3, major3=4, perfect5=7, flat13=8, flat7=10
+        presentIntervals: const {0, 3, 4, 7, 8, 10},
+        extensions: const {ChordExtension.sharp9, ChordExtension.flat13},
+        score: 7.59,
+      );
+
+      final maj7Slash = _candidate(
+        quality: ChordQualityToken.major7,
+        root: 'C#',
+        bass: 'G#',
+        // intervals: root=0, nine=2, major3=4, perfect5=7, flat13=8, major7=11
+        presentIntervals: const {0, 2, 4, 7, 8, 11},
+        extensions: const {ChordExtension.nine, ChordExtension.flat13},
+        score: 7.74,
+      );
+
+      _expectTieRule(
+        dom7Slash,
+        maj7Slash,
+        'prefer dominant7 shell slash over non-dominant seventh-family slash',
+      );
+    },
+  );
 }
 
 void _expectRule(

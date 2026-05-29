@@ -166,6 +166,10 @@ abstract final class ChordCandidateRanking {
     ),
     _NamedRule('prefer root-position diminished7', _preferDim7InRoot),
     _NamedRule('prefer dominant7 over dim7 slash', _preferDom7Shell),
+    _NamedRule(
+      'prefer dominant7 shell slash over non-dominant seventh-family slash',
+      _preferDom7ShellSlashOverSeventhFamilySlash,
+    ),
     _NamedRule('prefer fewer altered/tension colors', _preferFewerAlterations),
     _NamedRule('prefer diatonic chords', _preferDiatonic),
     _NamedRule('prefer tonic chord', _preferTonicChord),
@@ -746,6 +750,42 @@ abstract final class ChordCandidateRanking {
     if (preferredCandidate.score + 1.50 < susCandidate.score) return null;
 
     return aIsPreferred ? -1 : 1;
+  }
+
+  /// Prefers a dominant7 slash with shell tones and a color-tone bass over a
+  /// non-dominant seventh-family slash of similar score.
+  ///
+  /// When the same notes can be read as either a strongly-voiced dominant7
+  /// (major 3rd + flat 7th present, bass is a color extension rather than a
+  /// core inversion tone) or as a non-dominant seventh-family slash, the
+  /// dominant reading is the one musicians expect.
+  ///
+  /// Example: {C, D♭, E♭, F, A♭, A} with A♭ bass reads as F7(♯9,♭13)/A♭,
+  /// not as C♯maj9♭13/A♭. The F dominant interpretation has shell tones (A +
+  /// E♭) and a color-tone bass (A♭ = ♯9 of F), while the C♯ reading requires
+  /// an unusual root and treats the same A♭ as a structural fifth inversion.
+  static int? _preferDom7ShellSlashOverSeventhFamilySlash(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsDom7Slash = fa.isDom7Slash;
+    final bIsDom7Slash = fb.isDom7Slash;
+    if (aIsDom7Slash == bIsDom7Slash) return null;
+
+    final domIsA = aIsDom7Slash;
+    final fDom = domIsA ? fa : fb;
+    final fOther = domIsA ? fb : fa;
+
+    if (!fDom.dom7HasShell) return null;
+    if (!fDom.bassIsColorTone) return null;
+    if (!fOther.isSeventhFamily) return null;
+    if (fOther.isDom7) return null;
+    if (!fOther.isSlashBass) return null;
+
+    return domIsA ? -1 : 1;
   }
 
   static int? _preferFewerAlterations(
