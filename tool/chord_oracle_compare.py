@@ -1093,6 +1093,7 @@ def needs_attention(row: dict[str, object]) -> bool:
         "oracle-split",
         "no-whatchord-candidate",
         "oracle-error",
+        "insufficient-oracle-labels",
     }
 
 
