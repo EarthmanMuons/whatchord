@@ -10,12 +10,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 from chord_oracle_compare import (
     DEFAULT_ORACLES,
+    NOTE_NAMES,
     ORACLE_NAME_WIDTH,
     Music21Oracle,
     PychordOracle,
@@ -46,6 +48,9 @@ def main() -> int:
     if args.help or not passthrough:
         print_usage()
         return 0 if args.help else 2
+
+    if len(passthrough) == 1 and (expanded := _expand_case_id(passthrough[0])):
+        passthrough = expanded
 
     repo_root = Path(__file__).resolve().parents[1]
     chord_debug = repo_root / "bin/chord-debug"
@@ -99,17 +104,35 @@ def print_usage() -> None:
     print(
         """Usage:
   bin/chord-oracle [notes...] [chord-debug options]
+  bin/chord-oracle <case-id>
 
 Examples:
   bin/chord-oracle C E G
   bin/chord-oracle C D E A --bass=E
   bin/chord-oracle 60 64 67 70 --top=2
+  bin/chord-oracle 0-1-4-7-10_b1
 
-Common chord-debug options such as --bass, --key, and --notation are forwarded.
-Use --top=N to show multiple ranked WhatChord and oracle labels where available.
-Use --oracles music21 tonal pychord to limit external oracle output.
+A case ID (e.g. from chord_oracle_compare reports) is expanded to note names
+automatically. Common chord-debug options such as --bass, --key, and --notation
+are forwarded. Use --top=N to show multiple ranked WhatChord and oracle labels
+where available. Use --oracles music21 tonal pychord to limit external oracle
+output.
 """
     )
+
+
+def _expand_case_id(arg: str) -> list[str] | None:
+    """Expand a compare-tool case ID like '0-1-4-7-10_b1' to note + bass args."""
+    m = re.match(r"^(\d+(?:-\d+)*)_b(\d+)$", arg)
+    if not m:
+        return None
+    pcs = [int(x) for x in m.group(1).split("-")]
+    bass_pc = int(m.group(2))
+    if not all(0 <= pc <= 11 for pc in pcs) or not (0 <= bass_pc <= 11):
+        return None
+    if bass_pc not in pcs:
+        return None
+    return [NOTE_NAMES[pc] for pc in pcs] + [f"--bass={NOTE_NAMES[bass_pc]}"]
 
 
 def run_chord_debug(chord_debug: Path, args: list[str]) -> dict:
