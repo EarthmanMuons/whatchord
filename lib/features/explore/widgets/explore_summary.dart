@@ -120,50 +120,65 @@ class ExploreSummary extends ConsumerWidget {
       container: true,
       header: true,
       label: presentation.semanticLabel,
-      onLongPress: showCopyDialog,
-      onLongPressHint: 'Choose chord text to copy',
+      onTap: showCopyDialog,
+      onTapHint: 'Choose chord text to copy',
       child: Material(
         type: MaterialType.transparency,
         child: InkWell(
           borderRadius: BorderRadius.circular(8),
           excludeFromSemantics: true,
-          onLongPress: showCopyDialog,
-          child: Column(
+          onTap: showCopyDialog,
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text.rich(
-                TextSpan(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextSpan(
-                      text: toSmufl(displaySymbol.root),
-                      style: rootStyle,
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                            text: toSmufl(displaySymbol.root),
+                            style: rootStyle,
+                          ),
+                          if (displaySymbol.quality.isNotEmpty) ...[
+                            TextSpan(
+                              text: displaySymbol.rootQualitySeparator,
+                              style: symbolDetailStyle,
+                            ),
+                            TextSpan(
+                              text: toSmufl(displaySymbol.quality),
+                              style: symbolDetailStyle,
+                            ),
+                          ],
+                          if (displaySymbol.hasBass) ...[
+                            TextSpan(text: ' / ', style: symbolDetailStyle),
+                            TextSpan(
+                              text: toSmufl(displaySymbol.bassRequired),
+                              style: symbolDetailStyle,
+                            ),
+                          ],
+                        ],
+                      ),
+                      style: symbolStyle,
                     ),
-                    if (displaySymbol.quality.isNotEmpty) ...[
-                      TextSpan(
-                        text: displaySymbol.rootQualitySeparator,
-                        style: symbolDetailStyle,
+                    const SizedBox(height: 6),
+                    Text(
+                      presentation.longLabel,
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
                       ),
-                      TextSpan(
-                        text: toSmufl(displaySymbol.quality),
-                        style: symbolDetailStyle,
-                      ),
-                    ],
-                    if (displaySymbol.hasBass) ...[
-                      TextSpan(text: ' / ', style: symbolDetailStyle),
-                      TextSpan(
-                        text: toSmufl(displaySymbol.bassRequired),
-                        style: symbolDetailStyle,
-                      ),
-                    ],
+                    ),
                   ],
                 ),
-                style: symbolStyle,
               ),
-              const SizedBox(height: 6),
-              Text(
-                presentation.longLabel,
-                style: textTheme.bodyLarge?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+              Padding(
+                padding: const EdgeInsets.all(9),
+                child: Icon(
+                  Icons.copy_outlined,
+                  size: 18,
+                  color: colorScheme.onSurface.withValues(alpha: 0.38),
                 ),
               ),
             ],
