@@ -810,6 +810,8 @@ def degrees_from_quality(
         compact = "maj"
     elif compact.startswith("M"):
         compact = "maj" + compact[1:]
+    compact = compact.replace("+", "aug")
+    compact = re.sub(r"M(?=7)", "maj", compact)
     compact = compact.replace("major", "maj").replace("minor", "min")
     compact = compact.replace("dom", "")
     compact = compact.lower()
@@ -831,8 +833,8 @@ def base_degrees(compact: str) -> set[str]:
     if compact.startswith("dim"):
         return {"b3", "b5", "bb7"} if "7" in compact else {"b3", "b5"}
     if compact.startswith("aug"):
-        return {"3", "#5"}
-    if compact.startswith("sus2") or "sus2" in compact:
+        out = {"3", "#5"}
+    elif compact.startswith("sus2") or "sus2" in compact:
         out = {"2", "5"}
     elif compact.startswith("sus4") or "sus4" in compact:
         out = {"4", "5"}
@@ -1204,6 +1206,8 @@ def comparable_quality_token(raw: str) -> str:
         return "min"
     if compact.startswith("M"):
         compact = "maj" + compact[1:]
+    compact = compact.replace("+", "aug")
+    compact = re.sub(r"M(?=7)", "maj", compact)
     compact = compact.lower()
     compact = compact.replace("major", "maj").replace("minor", "min")
     compact = compact.replace("dom", "")
