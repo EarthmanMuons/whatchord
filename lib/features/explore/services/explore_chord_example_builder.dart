@@ -48,6 +48,8 @@ abstract final class ExploreChordExampleBuilder {
         .map((interval) => (state.rootPc + interval) % 12)
         .toList(growable: false);
 
+    final explicitRootName = pcToName(state.rootPc, tonality: tonality);
+
     return ExploreChordExample(
       presentation: presentation,
       identity: canonicalExampleIdentity,
@@ -55,6 +57,7 @@ abstract final class ExploreChordExampleBuilder {
         identity: canonicalExampleIdentity,
         intervals: parts.intervals,
         tonality: tonality,
+        rootName: explicitRootName,
       ),
       memberDegrees: _formatDegreesInIntervalOrder(
         identity: canonicalExampleIdentity,
@@ -260,6 +263,7 @@ abstract final class ExploreChordExampleBuilder {
     required ChordIdentity identity,
     required List<int> intervals,
     required Tonality tonality,
+    String? rootName,
   }) {
     return [
       for (final interval in intervals)
@@ -267,6 +271,7 @@ abstract final class ExploreChordExampleBuilder {
           identity: identity,
           pitchClasses: {(identity.rootPc + interval) % 12},
           tonality: tonality,
+          rootName: rootName,
         ).single,
     ];
   }

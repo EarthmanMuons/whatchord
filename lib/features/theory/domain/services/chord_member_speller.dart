@@ -15,10 +15,12 @@ abstract final class ChordMemberSpeller {
     required ChordIdentity identity,
     required Set<int> pitchClasses, // unique 0..11
     required Tonality tonality,
+    String? rootName,
   }) {
     if (pitchClasses.isEmpty) return const <String>[];
 
-    final rootName = spellChordRoot(identity, tonality: tonality);
+    final effectiveRootName =
+        rootName ?? spellChordRoot(identity, tonality: tonality);
 
     // Build (interval -> spelled name) for all present tones we can classify.
     final entries = <_Member>[];
@@ -30,7 +32,7 @@ abstract final class ChordMemberSpeller {
       final name = spellPitchClass(
         pc,
         tonality: tonality,
-        chordRootName: rootName,
+        chordRootName: effectiveRootName,
         role: role,
       );
 
