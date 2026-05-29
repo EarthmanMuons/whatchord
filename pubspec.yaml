@@ -39,6 +39,14 @@ dev_dependencies:
   kiri_check: ^1.3.1
   riverpod_lint: ^3.1.3
 
+dependency_overrides:
+  # Stub out the Windows implementation to drop its universal_ble transitive
+  # dep, which Flutter flags as applying the deprecated Kotlin Gradle Plugin on
+  # every Android build. The app only targets iOS and Android, so the real
+  # Windows plugin is never needed.
+  flutter_midi_command_windows:
+    path: packages/flutter_midi_command_windows
+
 flutter:
   uses-material-design: true
 
