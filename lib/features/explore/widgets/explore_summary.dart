@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
+import 'explore_faded_scroll_view.dart';
+
 class ExploreSummary extends ConsumerWidget {
   const ExploreSummary({super.key, required this.presentation});
 
@@ -84,23 +86,30 @@ class ExploreSummary extends ConsumerWidget {
         builder: (dialogContext) {
           return AlertDialog(
             title: const Text('Copy'),
-            contentPadding: const EdgeInsets.fromLTRB(0, 12, 0, 12),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                for (final choice in copyChoices)
-                  ListTile(
-                    leading: Icon(choice.icon),
-                    title: Text(choice.title),
-                    subtitle: Text(
-                      choice.value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+            titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+            contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+            actionsPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+            content: ExploreFadedScrollView(
+              fadeColor: Theme.of(
+                dialogContext,
+              ).colorScheme.surfaceContainerHigh,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final choice in copyChoices)
+                    ListTile(
+                      leading: Icon(choice.icon),
+                      title: Text(choice.title),
+                      subtitle: Text(
+                        choice.value,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: const Icon(Icons.copy),
+                      onTap: () => Navigator.of(dialogContext).pop(choice),
                     ),
-                    trailing: const Icon(Icons.copy),
-                    onTap: () => Navigator.of(dialogContext).pop(choice),
-                  ),
-              ],
+                ],
+              ),
             ),
             actions: [
               TextButton(
