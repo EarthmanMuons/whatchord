@@ -75,6 +75,12 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       return;
     }
 
+    // Not connected: abort any in-flight connect and stop scanning.
+    // `disconnect()` bumps the manager's connect generation, so a connect that
+    // is parked mid-flight self-aborts instead of landing after we cancel.
+    try {
+      await _midi.disconnect();
+    } catch (_) {}
     try {
       await _midi.stopScanning();
     } catch (_) {}
