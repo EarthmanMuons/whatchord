@@ -5,11 +5,13 @@ class ExploreFadedScrollView extends StatefulWidget {
     super.key,
     required this.child,
     this.padding,
+    this.fadeColor,
     this.maintainVisualPositionOnResize = false,
   });
 
   final Widget child;
   final EdgeInsetsGeometry? padding;
+  final Color? fadeColor;
   final bool maintainVisualPositionOnResize;
 
   @override
@@ -70,7 +72,55 @@ class _ExploreFadedScrollViewState extends State<ExploreFadedScrollView> {
 
   @override
   Widget build(BuildContext context) {
-    final fadeColor = Theme.of(context).colorScheme.surface;
+    final fadeColor = widget.fadeColor ?? Theme.of(context).colorScheme.surface;
+
+    final stack = Stack(
+      children: [
+        SingleChildScrollView(
+          controller: _controller,
+          padding: widget.padding,
+          child: widget.child,
+        ),
+        if (_showTopFade)
+          Positioned(
+            left: 0,
+            top: 0,
+            right: 0,
+            height: _fadeHeight,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [fadeColor, fadeColor.withValues(alpha: 0)],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        if (_showBottomFade)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: _fadeHeight,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [fadeColor, fadeColor.withValues(alpha: 0)],
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+
+    if (!widget.maintainVisualPositionOnResize) return stack;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -78,52 +128,7 @@ class _ExploreFadedScrollViewState extends State<ExploreFadedScrollView> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) _updateFades();
         });
-
-        return Stack(
-          children: [
-            SingleChildScrollView(
-              controller: _controller,
-              padding: widget.padding,
-              child: widget.child,
-            ),
-            if (_showTopFade)
-              Positioned(
-                left: 0,
-                top: 0,
-                right: 0,
-                height: _fadeHeight,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [fadeColor, fadeColor.withValues(alpha: 0)],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            if (_showBottomFade)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                height: _fadeHeight,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [fadeColor, fadeColor.withValues(alpha: 0)],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        );
+        return stack;
       },
     );
   }

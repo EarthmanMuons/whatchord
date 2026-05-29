@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Fixed explore mode note chips so they spell members relative to the explicitly
   selected root, matching the chord symbol (e.g., C# major now shows C# E# G#
   instead of Db F Ab).
+- Fixed explore mode copy dialog overflowing in landscape orientation.
 
 ## [2026.5.28] - 2026-05-28
 
