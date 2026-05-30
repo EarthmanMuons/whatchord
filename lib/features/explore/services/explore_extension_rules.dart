@@ -109,10 +109,16 @@ Set<ChordExtension> normalizeExtensionsForQuality({
         addSeventhAlteration(extension);
         break;
       case ChordExtension.flat9:
+      case ChordExtension.addFlat9:
+        // The flat-ninth degree is a stacked alteration on seventh chords, a
+        // color on six chords (Cm6b9), and an added tone on plain triads
+        // (Cadd♭9).
         if (quality.isSeventhFamily) {
-          addSeventhAlteration(extension);
-        } else {
+          addSeventhAlteration(ChordExtension.flat9);
+        } else if (quality.isSixFamily) {
           addTriadLikeExtension(ChordExtension.flat9);
+        } else {
+          addTriadLikeExtension(ChordExtension.addFlat9);
         }
         break;
       case ChordExtension.sharp11:
@@ -178,6 +184,7 @@ bool hasAnyNinth(Set<ChordExtension> extensions) {
   return extensions.contains(ChordExtension.nine) ||
       extensions.contains(ChordExtension.add9) ||
       extensions.contains(ChordExtension.flat9) ||
+      extensions.contains(ChordExtension.addFlat9) ||
       extensions.contains(ChordExtension.sharp9);
 }
 
@@ -190,13 +197,16 @@ void removeTriadLikeConflicts(
   switch (selected) {
     case ChordExtension.add9:
       extensions.remove(ChordExtension.flat9);
+      extensions.remove(ChordExtension.addFlat9);
       extensions.remove(ChordExtension.addSharp9);
       break;
     case ChordExtension.addSharp9:
       extensions.remove(ChordExtension.flat9);
+      extensions.remove(ChordExtension.addFlat9);
       extensions.remove(ChordExtension.add9);
       break;
     case ChordExtension.flat9:
+    case ChordExtension.addFlat9:
       extensions.remove(ChordExtension.add9);
       extensions.remove(ChordExtension.addSharp9);
       break;
@@ -223,6 +233,7 @@ void removeSeventhConflicts(
       extensions.remove(ChordExtension.add9);
       extensions.remove(ChordExtension.addSharp9);
       extensions.remove(ChordExtension.flat9);
+      extensions.remove(ChordExtension.addFlat9);
       extensions.remove(ChordExtension.sharp9);
       break;
     case ChordExtension.eleven:
@@ -241,6 +252,7 @@ void removeSeventhConflicts(
       extensions.remove(ChordExtension.eleven);
       extensions.remove(ChordExtension.thirteen);
       extensions.remove(ChordExtension.flat9);
+      extensions.remove(ChordExtension.addFlat9);
       extensions.remove(ChordExtension.sharp9);
       extensions.remove(ChordExtension.addSharp9);
       break;
@@ -249,6 +261,7 @@ void removeSeventhConflicts(
       extensions.remove(ChordExtension.eleven);
       extensions.remove(ChordExtension.thirteen);
       extensions.remove(ChordExtension.flat9);
+      extensions.remove(ChordExtension.addFlat9);
       extensions.remove(ChordExtension.sharp9);
       extensions.remove(ChordExtension.add9);
       break;
@@ -262,6 +275,7 @@ void removeSeventhConflicts(
       extensions.remove(ChordExtension.flat13);
       break;
     case ChordExtension.flat9:
+    case ChordExtension.addFlat9:
       extensions.remove(ChordExtension.nine);
       extensions.remove(ChordExtension.add9);
       extensions.remove(ChordExtension.addSharp9);
@@ -269,6 +283,7 @@ void removeSeventhConflicts(
     case ChordExtension.sharp9:
       extensions.remove(ChordExtension.nine);
       extensions.remove(ChordExtension.add9);
+      extensions.remove(ChordExtension.addFlat9);
       extensions.remove(ChordExtension.addSharp9);
       break;
     case ChordExtension.sharp11:
@@ -317,6 +332,7 @@ Set<ChordExtension> triadLikeAlterations(ChordQualityToken quality) {
   final available = triadLikeExtensions(quality);
   return {
     if (available.contains(ChordExtension.flat9)) ChordExtension.flat9,
+    if (available.contains(ChordExtension.addFlat9)) ChordExtension.addFlat9,
     if (available.contains(ChordExtension.addSharp9)) ChordExtension.addSharp9,
     if (available.contains(ChordExtension.sharp11)) ChordExtension.sharp11,
   };
@@ -371,6 +387,7 @@ const _triadLikeExtensionsByQuality = <ChordQualityToken, Set<ChordExtension>>{
   ChordQualityToken.major: {
     ChordExtension.add9,
     ChordExtension.add11,
+    ChordExtension.addFlat9,
     ChordExtension.addSharp9,
     ChordExtension.sharp11,
   },

@@ -12,6 +12,7 @@ enum ChordExtension {
   add9,
   add11,
   add13,
+  addFlat9,
 }
 
 extension ChordExtensionOrdering on ChordExtension {
@@ -22,26 +23,28 @@ extension ChordExtensionOrdering on ChordExtension {
     switch (this) {
       case ChordExtension.flat9:
         return 1;
-      case ChordExtension.nine:
+      case ChordExtension.addFlat9:
         return 2;
-      case ChordExtension.sharp9:
+      case ChordExtension.nine:
         return 3;
-      case ChordExtension.addSharp9:
+      case ChordExtension.sharp9:
         return 4;
-      case ChordExtension.eleven:
+      case ChordExtension.addSharp9:
         return 5;
-      case ChordExtension.sharp11:
+      case ChordExtension.eleven:
         return 6;
-      case ChordExtension.flat13:
+      case ChordExtension.sharp11:
         return 7;
-      case ChordExtension.thirteen:
+      case ChordExtension.flat13:
         return 8;
-      case ChordExtension.add9:
+      case ChordExtension.thirteen:
         return 9;
-      case ChordExtension.add11:
+      case ChordExtension.add9:
         return 10;
-      case ChordExtension.add13:
+      case ChordExtension.add11:
         return 11;
+      case ChordExtension.add13:
+        return 12;
     }
   }
 }
@@ -52,6 +55,8 @@ extension ChordExtensionLabels on ChordExtension {
     switch (this) {
       case ChordExtension.flat9:
         return 'b9';
+      case ChordExtension.addFlat9:
+        return 'addb9';
       case ChordExtension.nine:
         return '9';
       case ChordExtension.sharp9:
@@ -80,6 +85,8 @@ extension ChordExtensionLabels on ChordExtension {
     switch (this) {
       case ChordExtension.flat9:
         return 'flat nine';
+      case ChordExtension.addFlat9:
+        return 'add flat nine';
       case ChordExtension.nine:
         return 'nine';
       case ChordExtension.sharp9:
@@ -108,6 +115,8 @@ extension ChordExtensionLabels on ChordExtension {
     switch (this) {
       case ChordExtension.flat9:
         return 'flat nine';
+      case ChordExtension.addFlat9:
+        return 'added flat nine';
       case ChordExtension.nine:
         return 'nine';
       case ChordExtension.sharp9:
@@ -136,6 +145,7 @@ extension ChordExtensionSemantics on ChordExtension {
   bool get isAddTone {
     switch (this) {
       case ChordExtension.add9:
+      case ChordExtension.addFlat9:
       case ChordExtension.addSharp9:
       case ChordExtension.add11:
       case ChordExtension.add13:
@@ -211,6 +221,7 @@ extension ChordExtensionInterval on ChordExtension {
   int get intervalAboveRoot {
     switch (this) {
       case ChordExtension.flat9:
+      case ChordExtension.addFlat9:
         return 1;
       case ChordExtension.nine:
       case ChordExtension.add9:

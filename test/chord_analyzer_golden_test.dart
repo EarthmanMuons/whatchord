@@ -26,7 +26,7 @@ void main() {
 
     golden(
       description: 'major triad with split third as added sharp ninth',
-      expectedSymbol: 'C(add#9)',
+      expectedSymbol: 'Cadd#9',
       pcs: ['C', 'Eb', 'E', 'G'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major,
@@ -36,7 +36,7 @@ void main() {
 
     golden(
       description: 'split third shell without fifth',
-      expectedSymbol: 'C(add#9)',
+      expectedSymbol: 'Cadd#9',
       pcs: ['C', 'Eb', 'E'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major,
@@ -46,7 +46,7 @@ void main() {
 
     golden(
       description: 'major sixth with split third as added sharp ninth',
-      expectedSymbol: 'C6(add#9)',
+      expectedSymbol: 'C6add#9',
       pcs: ['C', 'Eb', 'E', 'G', 'A'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major6,

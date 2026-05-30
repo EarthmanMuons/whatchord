@@ -181,6 +181,7 @@ abstract final class ChordToneRoles {
     for (final e in extensions) {
       switch (e) {
         case ChordExtension.flat9:
+        case ChordExtension.addFlat9:
           addExt(1, ChordToneRole.flat9);
           break;
         case ChordExtension.nine:

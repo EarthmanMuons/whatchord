@@ -212,15 +212,11 @@ class ChordQualityFormatter {
     if (mods.length == 1) {
       final ext = mods.first;
 
-      // Add-tones are formatted differently depending on harmonic "family".
-      // For seventh-family chords, parentheses improve readability (C7(add13)).
-      // For triad-like qualities, inline add-tones
-      // are currently preferred (Cadd9, Csus4add9).
-      //
-      // NOTE: Some notation styles prefer Csus4(add9). If we want to support that
-      // distinction later, this branch is the correct place to specialize sus handling.
+      // Added tones read cleanly inline on triad-like qualities, even when
+      // altered (Cadd9, Cadd#9, Cadd♭9): the "add" already marks them as
+      // non-stacked, so parentheses would be redundant. On seventh-family
+      // chords, parentheses still improve readability (C7(add13)).
       if (ext.isAddTone) {
-        if (ext == ChordExtension.addSharp9) return true;
         return quality.isSeventhFamily;
       }
       return false; // b9, #11, 9, 11, 13 inline when alone

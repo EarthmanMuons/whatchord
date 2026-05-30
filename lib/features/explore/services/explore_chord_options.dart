@@ -215,6 +215,14 @@ ExploreExtensionChoice _triadLikeAlterationChoice(ChordExtension extension) {
     );
   }
 
+  if (extension == ChordExtension.addFlat9) {
+    return ExploreExtensionChoice(
+      label: theoryTokenDisplayLabel('b9'),
+      semanticLabel: 'Flat ninth',
+      extension: ChordExtension.addFlat9,
+    );
+  }
+
   return _alterationChoice(extension);
 }
 
@@ -241,6 +249,7 @@ const _triadLikeAddToneChoiceOrder = [
 
 const _triadLikeAlterationChoiceOrder = [
   ChordExtension.flat9,
+  ChordExtension.addFlat9,
   ChordExtension.addSharp9,
   ChordExtension.sharp11,
 ];
