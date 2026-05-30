@@ -14,6 +14,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Prefer altered dominant seventh names such as F7(#9,b13)/Ab over competing
   non-dominant seventh-family slash readings of the same voicing.
+- Prefer a reading that names every sounding note is over one that silently
+  drops a note. For example, C D♭ E G over a G bass is now read as a C major
+  triad with a flat ninth rather than C#dim, which discarded the C.
 
 ### Fixed
 

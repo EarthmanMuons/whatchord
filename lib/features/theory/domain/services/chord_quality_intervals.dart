@@ -259,3 +259,13 @@ Set<int> _intervalsFromMask(int mask) {
       if ((mask & (1 << interval)) != 0) interval,
   };
 }
+
+/// Bitwise popcount for small interval masks (Kernighan algorithm).
+int popCount(int v) {
+  var c = 0;
+  while (v != 0) {
+    v &= v - 1; // clear lowest set bit
+    c++;
+  }
+  return c;
+}

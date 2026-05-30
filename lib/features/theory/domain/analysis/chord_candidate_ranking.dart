@@ -170,6 +170,10 @@ abstract final class ChordCandidateRanking {
       'prefer dominant7 shell slash over non-dominant seventh-family slash',
       _preferDom7ShellSlashOverSeventhFamilySlash,
     ),
+    _NamedRule(
+      'prefer voicing that names every tone',
+      _preferFullyExplainedVoicing,
+    ),
     _NamedRule('prefer fewer altered/tension colors', _preferFewerAlterations),
     _NamedRule('prefer diatonic chords', _preferDiatonic),
     _NamedRule('prefer tonic chord', _preferTonicChord),
@@ -788,6 +792,25 @@ abstract final class ChordCandidateRanking {
     return domIsA ? -1 : 1;
   }
 
+  /// Prefers a reading that names every sounding tone over one that drops a
+  /// tone as an unexplained extra.
+  ///
+  /// Example: {C, D♭, E, G} with G in the bass reads as Cadd♭9/G, not C♯dim/G
+  /// (which silently drops the C natural). Runs before [_preferFewerAlterations]
+  /// so the note-dropping reading is not rewarded for its apparent simplicity.
+  static int? _preferFullyExplainedVoicing(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aDropsTone = fa.unnamedToneCount > 0;
+    final bDropsTone = fb.unnamedToneCount > 0;
+    if (aDropsTone == bDropsTone) return null;
+    return aDropsTone ? 1 : -1;
+  }
+
   static int? _preferFewerAlterations(
     ChordCandidate a,
     ChordCandidate b,
@@ -1009,6 +1032,7 @@ class _CandidateFeatures {
   final bool isQuestionableAdd11Slash;
   final ExtensionPreference extPref;
   final bool hasRealExt;
+  final int unnamedToneCount;
 
   const _CandidateFeatures({
     required this.isRootPosition,
@@ -1043,6 +1067,7 @@ class _CandidateFeatures {
     required this.isQuestionableAdd11Slash,
     required this.extPref,
     required this.hasRealExt,
+    required this.unnamedToneCount,
   });
 
   factory _CandidateFeatures.from(ChordCandidate c) {
@@ -1115,6 +1140,8 @@ class _CandidateFeatures {
       ),
       extPref: pref,
       hasRealExt: realExt,
+      unnamedToneCount:
+          popCount(id.presentIntervalsMask) - id.toneRolesByInterval.length,
     );
   }
 
