@@ -27,7 +27,7 @@ from chord_oracle_compare import (
     semantic_keys,
 )
 
-DEFAULT_TOP = 1
+DEFAULT_TOP = 3
 
 
 def main() -> int:
