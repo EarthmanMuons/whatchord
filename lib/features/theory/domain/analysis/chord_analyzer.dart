@@ -290,16 +290,16 @@ abstract final class ChordAnalyzer {
     final presentPenaltyMask =
         (penalty & relMask) & ~functionalPenaltyExtensionsMask;
 
-    final missCount = _popCount(missingRequiredMask);
+    final missCount = popCount(missingRequiredMask);
 
     // Allow up to 1 missing required tone for sparse voicings.
     // Example: dominant7 without the 5th (shell voicing) is still valid.
     // More than 1 missing tone suggests wrong template entirely.
     if (missCount > 1) return null;
 
-    final reqCount = _popCount(presentRequiredMask);
-    final optCount = _popCount(presentOptionalMask);
-    final penCount = _popCount(presentPenaltyMask);
+    final reqCount = popCount(presentRequiredMask);
+    final optCount = popCount(presentOptionalMask);
+    final penCount = popCount(presentPenaltyMask);
 
     // Extras: tones that are neither base (required/optional) nor penalty.
     final base = required | optional;
@@ -324,7 +324,7 @@ abstract final class ChordAnalyzer {
     final hasAltExtras =
         _hasAlterations(extensions) &&
         (extrasMask & alterationIntervalBits) != 0;
-    final extraCount = _popCount(extrasMask) - (hasAltExtras ? 1 : 0);
+    final extraCount = popCount(extrasMask) - (hasAltExtras ? 1 : 0);
 
     if (_flatFiveConflictsWithNaturalThirteenth(
       quality: template.quality,
@@ -707,16 +707,6 @@ abstract final class ChordAnalyzer {
     }
 
     return out;
-  }
-
-  /// Bitwise popcount for small integer masks using the Kernighan algorithm.
-  static int _popCount(int v) {
-    var c = 0;
-    while (v != 0) {
-      v &= v - 1; // clear lowest set bit
-      c++;
-    }
-    return c;
   }
 }
 
