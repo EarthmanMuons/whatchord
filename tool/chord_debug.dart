@@ -29,7 +29,7 @@ Notes may be pitch names or MIDI note numbers.
 
 Options:
   -h, --help             Show this help text.
-  -t, --top=N            Number of ranked candidates to show. Default: 4.
+  -t, --top=N            Number of ranked candidates to show. Default: 5.
   -b, --bass=PC          Override bass pitch class, for example C, Eb, F#.
   -k, --key=KEY          Tonality for tie-breaks/spelling. Default: C:maj.
                          Examples: C, C:maj, A:min, Eb:maj, F#:min.
@@ -66,7 +66,7 @@ void main(List<String> args) {
     return;
   }
 
-  final top = _readIntFlag(args, 'top', 't') ?? 4;
+  final top = _readIntFlag(args, 'top', 't') ?? 5;
   final bassName = _readStringFlag(args, 'bass', 'b');
   final bassDisplayFromFlag = bassName == null
       ? null
