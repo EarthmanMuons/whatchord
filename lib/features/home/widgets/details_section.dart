@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,8 +21,20 @@ class DetailsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final identity = ref.watch(identityDisplayProvider);
 
+    // Reclaim the vertical room Android's persistent landscape status bar
+    // steals, so the third alternative isn't clipped.
+    final tightenForStatusBar =
+        config.isLandscape && defaultTargetPlatform == TargetPlatform.android;
+    final sectionPadding = tightenForStatusBar
+        ? config.detailsSectionPadding.copyWith(
+            top: config.analysisPadding.top,
+            bottom: config.analysisPadding.bottom,
+          )
+        : config.detailsSectionPadding;
+    final listBottomPad = tightenForStatusBar ? 8.0 : 12.0;
+
     return Padding(
-      padding: config.detailsSectionPadding,
+      padding: sectionPadding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -34,7 +47,7 @@ class DetailsSection extends ConsumerWidget {
                   alignment: Alignment.topLeft,
                   textAlign: TextAlign.left,
                   gap: 6,
-                  padding: EdgeInsets.only(bottom: 12),
+                  padding: EdgeInsets.only(bottom: listBottomPad),
                   textScaleMultiplier: config.nearTieTextScale,
                   showScrollbarWhenOverflow: true,
                   tappableWhenEmpty: identity is ChordDisplay,

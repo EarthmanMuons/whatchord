@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -94,7 +95,14 @@ class _HomePageState extends ConsumerState<HomePage> {
         final config = resolveHomeLayoutConfig(constraints);
         final isLandscape = config.isLandscape;
 
-        final toolbarHeight = kToolbarHeight;
+        // Android keeps the landscape status bar; a shorter app bar buys back a
+        // little of that vertical room.
+        final tightenForStatusBar =
+            isLandscape && defaultTargetPlatform == TargetPlatform.android;
+        // Keep the bar a touch taller than the 48px icons and bias the content
+        // up, so the icons sit near the status bar with a little room below.
+        final toolbarHeight = tightenForStatusBar ? 52.0 : kToolbarHeight;
+        final toolbarBottomInset = tightenForStatusBar ? 4.0 : 0.0;
 
         const barBaseInset = 16.0;
         final maxHorizontalCutout = isLandscape
@@ -120,6 +128,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           right: !isLandscape,
                           child: _HomeTopBar(
                             toolbarHeight: toolbarHeight,
+                            contentBottomInset: toolbarBottomInset,
                             horizontalInset: horizontalInset,
                             midiStatusIconKey: _midiStatusIconKey,
                             onOpenMidiSettings: _openMidiSettings,
@@ -163,12 +172,14 @@ class _HomePageState extends ConsumerState<HomePage> {
 class _HomeTopBar extends ConsumerWidget {
   const _HomeTopBar({
     required this.toolbarHeight,
+    required this.contentBottomInset,
     required this.horizontalInset,
     required this.midiStatusIconKey,
     required this.onOpenMidiSettings,
   });
 
   final double toolbarHeight;
+  final double contentBottomInset;
   final double horizontalInset;
   final GlobalKey midiStatusIconKey;
   final VoidCallback onOpenMidiSettings;
@@ -193,6 +204,7 @@ class _HomeTopBar extends ConsumerWidget {
           padding: EdgeInsets.only(
             left: horizontalInset,
             right: horizontalInset,
+            bottom: contentBottomInset,
           ),
           child: Row(
             children: [
