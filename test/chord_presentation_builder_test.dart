@@ -116,7 +116,7 @@ void main() {
     expect(presentation.symbol.toString(), 'G / A');
     expect(presentation.longLabel, 'G major over A');
     expect(presentation.semanticLabel, 'G major over A');
-    expect(InversionFormatter.format(identity), 'upper-structure slash');
+    expect(InversionFormatter.format(identity), 'non-root bass: add9');
     expect(presentation.members, ['G', 'A', 'B', 'D']);
     expect(presentation.memberDegrees, ['1', '3', '5', '9']);
   });
@@ -157,7 +157,7 @@ void main() {
 
     expect(presentation.symbol.toString(), 'C6 / D');
     expect(presentation.longLabel, 'C major sixth over D');
-    expect(InversionFormatter.format(identity), 'slash bass: 9');
+    expect(InversionFormatter.format(identity), 'non-root bass: add9');
     expect(presentation.members, ['C', 'D', 'E', 'G', 'A']);
     expect(presentation.memberDegrees, ['1', '3', '5', '6', '9']);
   });
@@ -222,7 +222,7 @@ void main() {
 
       expect(presentation.symbol.toString(), 'Am7 / D');
       expect(presentation.longLabel, 'A minor seventh over D');
-      expect(InversionFormatter.format(identity), 'slash bass: 11');
+      expect(InversionFormatter.format(identity), 'non-root bass: add11');
       expect(presentation.memberDegrees, ['1', 'b3', '5', 'b7', '11']);
     },
   );
@@ -258,7 +258,7 @@ void main() {
     expect(minorPresentation.longLabel, 'C minor sixth with added nine');
   });
 
-  test('keeps incomplete add9 slash triads explicit', () {
+  test('compresses add9 slash triads even when the fifth is absent', () {
     final identity = _identity(
       root: 'G',
       bass: 'A',
@@ -273,8 +273,11 @@ void main() {
       notation: notation,
     );
 
-    expect(presentation.symbol.toString(), 'Gadd9 / A');
-    expect(presentation.longLabel, 'G major with added nine over A');
+    // The add9 is redundant with the slash bass (A = 9th of G + bass note),
+    // so it is compressed: "G / A" is the conventional musician symbol.
+    // The 5th is implied as with any triad name.
+    expect(presentation.symbol.toString(), 'G / A');
+    expect(presentation.longLabel, 'G major over A');
     expect(InversionFormatter.format(identity), 'non-root bass: add9');
   });
 

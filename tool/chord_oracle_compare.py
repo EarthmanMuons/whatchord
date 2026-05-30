@@ -743,6 +743,20 @@ def semantic_key_from_label(label: str) -> SemanticChordKey | None:
     degrees = degrees_from_quality(quality, root_pc=root_pc)
     if slash_suffix:
         degrees.update(degrees_from_quality(slash_suffix, root_pc=root_pc, base_only=False))
+
+    # If the slash bass note is a chord tone not already captured by the
+    # quality description, add its degree. This catches cases like G#7/C#
+    # where C# is the 11th but the "7" quality only describes {3, 5, b7}.
+    if bass_pc is not None:
+        bass_interval = (bass_pc - root_pc) % 12
+        bass_degree = degree_from_interval(
+            bass_interval, prefer_extensions=has_third(degrees)
+        )
+        if bass_degree and not _interval_covered_by_degrees(
+            bass_interval, degrees
+        ):
+            degrees.add(bass_degree)
+
     if not degrees:
         return None
 
@@ -983,6 +997,37 @@ DEGREE_SORT_RANK = {
     "b13": 70,
     "13": 71,
 }
+
+
+DEGREE_TO_INTERVAL: dict[str, int] = {
+    "1": 0,
+    "b9": 1,
+    "9": 2,
+    "2": 2,
+    "#9": 3,
+    "b3": 3,
+    "3": 4,
+    "11": 5,
+    "4": 5,
+    "#11": 6,
+    "b5": 6,
+    "5": 7,
+    "b13": 8,
+    "#5": 8,
+    "13": 9,
+    "6": 9,
+    "bb7": 9,
+    "b7": 10,
+    "7": 11,
+}
+
+
+def _interval_covered_by_degrees(interval: int, degrees: set[str]) -> bool:
+    """True when any degree in the set maps to the given semitone interval."""
+    for degree in degrees:
+        if DEGREE_TO_INTERVAL.get(degree) == interval:
+            return True
+    return False
 
 
 DEGREE_BY_ROLE = {
