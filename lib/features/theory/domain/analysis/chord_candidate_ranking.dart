@@ -1162,7 +1162,10 @@ class _CandidateFeatures {
       isRootDominantSus: _isRootDominantSus(id, rootPos),
       isRootPositionNaturalAddChord:
           rootPos &&
-          (q == ChordQualityToken.major || q == ChordQualityToken.minor) &&
+          (q == ChordQualityToken.major ||
+              q == ChordQualityToken.minor ||
+              q == ChordQualityToken.major6 ||
+              q == ChordQualityToken.minor6) &&
           pref.alterationCount == 0 &&
           pref.naturalCount == 0,
       isStructurallyDeficient: _isStructurallyDeficient(id, rootPos),

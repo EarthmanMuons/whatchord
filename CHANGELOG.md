@@ -17,6 +17,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- Prefer root-position 6/9 names such as C6/9 over dominant-7-sus-slash readings
+  like D7sus2/C for the same voicing, matching the conventional musician name.
 - Prefer altered dominant seventh names such as F7(#9,b13)/Ab over competing
   non-dominant seventh-family slash readings of the same voicing.
 - Prefer a reading that names every sounding note over one that silently drops a
