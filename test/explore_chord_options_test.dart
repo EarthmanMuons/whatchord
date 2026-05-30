@@ -150,10 +150,15 @@ void main() {
           'add11',
         ]);
         expect(groups[1].choices.map((choice) => choice.extension), [
+          ChordExtension.addFlat9,
           ChordExtension.addSharp9,
           ChordExtension.sharp11,
         ]);
-        expect(groups[1].choices.map((choice) => choice.label), ['♯9', '♯11']);
+        expect(groups[1].choices.map((choice) => choice.label), [
+          '♭9',
+          '♯9',
+          '♯11',
+        ]);
       },
     );
 
@@ -340,6 +345,7 @@ void main() {
         ChordQualityToken.major: [
           ChordExtension.add9,
           ChordExtension.add11,
+          ChordExtension.addFlat9,
           ChordExtension.addSharp9,
           ChordExtension.sharp11,
         ],
@@ -719,7 +725,9 @@ void main() {
 
       expect(major6, {ChordExtension.flat9});
       expect(minor6, {ChordExtension.flat9});
-      expect(major, isEmpty);
+      // A plain major triad keeps the flat ninth as an added tone (Cadd♭9),
+      // since there is no seventh or sixth to anchor a stacked ♭9.
+      expect(major, {ChordExtension.addFlat9});
     });
 
     test('drops redundant thirteenth for sixth qualities', () {
@@ -810,6 +818,38 @@ void main() {
       );
 
       expect(withAdd11, {ChordExtension.add9, ChordExtension.add11});
+    });
+
+    test('selects flat ninth as an added tone for major qualities', () {
+      final groups = buildExploreExtensionControlGroups(
+        ChordQualityToken.major,
+      );
+      final addToneGroup = groups[0];
+      final colorGroup = groups[1];
+
+      final withAddFlat9 = selectExploreExtensionChoice(
+        quality: ChordQualityToken.major,
+        currentExtensions: const {ChordExtension.add9},
+        group: colorGroup,
+        choice: colorGroup.choices.firstWhere(
+          (choice) => choice.extension == ChordExtension.addFlat9,
+        ),
+      );
+
+      // The ♭9 color replaces the natural ninth: C major has no seventh to
+      // anchor a stacked ♭9, so it is an added tone (Cadd♭9).
+      expect(withAddFlat9, {ChordExtension.addFlat9});
+
+      final backToAdd9 = selectExploreExtensionChoice(
+        quality: ChordQualityToken.major,
+        currentExtensions: withAddFlat9,
+        group: addToneGroup,
+        choice: addToneGroup.choices.firstWhere(
+          (choice) => choice.extension == ChordExtension.add9,
+        ),
+      );
+
+      expect(backToAdd9, {ChordExtension.add9});
     });
 
     test('replaces natural and sharp ninth choices for major qualities', () {
@@ -1200,7 +1240,7 @@ void main() {
         extensions: const {ChordExtension.addSharp9},
       );
 
-      expect(example.presentation.symbol.toString(), 'C(add#9)');
+      expect(example.presentation.symbol.toString(), 'Cadd#9');
       expect(example.members, ['C', 'Eb', 'E', 'G']);
       expect(example.memberDegrees, ['1', 'b3', '3', '5']);
       expect(example.normalizedVoicing, [60, 63, 64, 67]);

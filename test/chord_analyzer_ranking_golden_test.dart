@@ -82,14 +82,14 @@ void main() {
       description:
           'complete major triad with flat ninth beats note-dropping '
           'diminished triad',
-      expectedSymbol: 'Cb9 / G',
+      expectedSymbol: 'Caddb9 / G',
       expectedAlternateSymbols: ['Em#5add13 / G', 'Em6b13 / G', 'C#dim / G'],
       pcs: ['C', 'Db', 'E', 'G'],
       bass: 'G',
       expectedRoot: 'C',
       expectedBass: 'G',
       expectedQuality: ChordQualityToken.major,
-      expectedExtensions: {ChordExtension.flat9},
+      expectedExtensions: {ChordExtension.addFlat9},
     ),
 
     golden(

@@ -10,13 +10,21 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added a flat-ninth color choice for major triads in explore mode, so chords
+  such as Cadd♭9 can be built directly.
+
 ### Changed
 
 - Prefer altered dominant seventh names such as F7(#9,b13)/Ab over competing
   non-dominant seventh-family slash readings of the same voicing.
-- Prefer a reading that names every sounding note is over one that silently
-  drops a note. For example, C D♭ E G over a G bass is now read as a C major
-  triad with a flat ninth rather than C#dim, which discarded the C.
+- Prefer a reading that names every sounding note over one that silently drops a
+  note. For example, C D♭ E G over a G bass is now read as a C major triad with
+  a flat ninth rather than C#dim, which discarded the C.
+- Name a flat ninth on a plain triad as an added tone, so C E G D♭ reads as
+  Cadd♭9 rather than the ambiguous C♭9, matching how add9 and add#9 are already
+  handled when no seventh is present.
 
 ### Fixed
 

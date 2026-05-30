@@ -682,7 +682,15 @@ abstract final class ChordAnalyzer {
     final out = <ChordExtension>{};
 
     // Alterations.
-    if ((extrasMask & (1 << 1)) != 0) out.add(ChordExtension.flat9);
+    if ((extrasMask & (1 << 1)) != 0) {
+      // Without a seventh (or sixth) to anchor a stacked ♭9, the flat ninth is
+      // an added tone: C-E-G-D♭ is Cadd♭9, not C♭9. Mirrors add9/add#9.
+      out.add(
+        has7 || quality.isSixFamily
+            ? ChordExtension.flat9
+            : ChordExtension.addFlat9,
+      );
+    }
     if ((extrasMask & (1 << 3)) != 0) {
       out.add(
         has7 || !_allowsAddSharpNine(quality)
