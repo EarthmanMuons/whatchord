@@ -136,6 +136,10 @@ abstract final class ChordCandidateRanking {
       'prefer root-position add-chord over sus slash',
       _preferRootAddChordOverSusSlash,
     ),
+    _NamedRule(
+      'prefer complete triad over structurally deficient reading',
+      _preferCompleteTriadOverDeficientReading,
+    ),
   ];
 
   static final List<_NamedRule> _tieBreakerRules = <_NamedRule>[
@@ -756,6 +760,44 @@ abstract final class ChordCandidateRanking {
     return aIsPreferred ? -1 : 1;
   }
 
+  /// Prefers a complete major/minor triad carrying only natural/add color over
+  /// a structurally deficient reading that omits a core tone.
+  ///
+  /// A complete triad (root + 3rd + 5th) with simple add color is a strong,
+  /// stable gestalt. The raw scorer can rank it below a larger template that
+  /// books more "required" tones, even when that larger reading omits a core
+  /// tone of its own. This prefers the complete triad over:
+  /// - a seventh-family slash that omits every fifth (e.g. D♭maj7(add13)/F), and
+  /// - a plain suspended triad with no seventh (e.g. Fsus4♭13).
+  ///
+  /// Example: {F, B♭, C, D♭} with F in the bass is B♭m(add9)/F, not
+  /// D♭maj7(add13)/F (fifthless) or Fsus4♭13 (no third, no seventh).
+  ///
+  /// The deficient side is deliberately narrow so that complete seventh chords,
+  /// altered-fifth chords (which keep a flat/sharp fifth), six chords, and
+  /// dominant/major suspended chords (which keep a seventh) are never demoted.
+  /// A score guard keeps a decisively higher-scoring reading in front.
+  static int? _preferCompleteTriadOverDeficientReading(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    final aIsTriad = fa.isCompleteMajorMinorTriad;
+    final bIsTriad = fb.isCompleteMajorMinorTriad;
+    if (aIsTriad == bIsTriad) return null;
+
+    final fOther = aIsTriad ? fb : fa;
+    if (!fOther.isStructurallyDeficient) return null;
+
+    final triadCandidate = aIsTriad ? a : b;
+    final otherCandidate = aIsTriad ? b : a;
+    if (triadCandidate.score + 0.55 < otherCandidate.score) return null;
+
+    return aIsTriad ? -1 : 1;
+  }
+
   /// Prefers a dominant7 slash with shell tones and a color-tone bass over a
   /// non-dominant seventh-family slash of similar score.
   ///
@@ -1014,6 +1056,7 @@ class _CandidateFeatures {
   final bool isAlteredMajor7Sus4;
   final bool isRootDominantSus;
   final bool isRootPositionNaturalAddChord;
+  final bool isStructurallyDeficient;
 
   final bool isDom7;
   final bool isAlteredFifthDom7;
@@ -1052,6 +1095,7 @@ class _CandidateFeatures {
     required this.isAlteredMajor7Sus4,
     required this.isRootDominantSus,
     required this.isRootPositionNaturalAddChord,
+    required this.isStructurallyDeficient,
     required this.isDom7,
     required this.isAlteredFifthDom7,
     required this.isFlatFiveDom7,
@@ -1121,6 +1165,7 @@ class _CandidateFeatures {
           (q == ChordQualityToken.major || q == ChordQualityToken.minor) &&
           pref.alterationCount == 0 &&
           pref.naturalCount == 0,
+      isStructurallyDeficient: _isStructurallyDeficient(id, rootPos),
       isDom7: isDom7,
       isAlteredFifthDom7: isAlteredFifthDom7,
       isFlatFiveDom7: isFlatFiveDom7,
@@ -1277,6 +1322,34 @@ class _CandidateFeatures {
         ? roles.contains(ChordToneRole.sus2)
         : roles.contains(ChordToneRole.sus4);
     return hasSuspension && roles.contains(ChordToneRole.flat7);
+  }
+
+  /// A reading that omits a core triad tone in a way that makes it weaker than
+  /// a competing complete major/minor triad: a plain suspended triad (no third
+  /// and no seventh) or a seventh-family slash that omits every fifth.
+  static bool _isStructurallyDeficient(ChordIdentity id, bool rootPos) {
+    final q = id.quality;
+
+    // Plain suspended triad: no third, and no seventh that would make it a real
+    // dominant/major sus. Dominant7sus/major7sus keep their seventh and are not
+    // deficient.
+    if (q == ChordQualityToken.sus2 || q == ChordQualityToken.sus4) {
+      return true;
+    }
+
+    // Seventh-family slash that omits every fifth (perfect, diminished, or
+    // augmented). Root-position fifthless sevenths are common and intentional,
+    // so only the inverted/slash form counts as deficient here.
+    if (q.isSeventhFamily && !rootPos) {
+      final roles = id.toneRolesByInterval.values;
+      final hasFifth =
+          roles.contains(ChordToneRole.perfect5) ||
+          roles.contains(ChordToneRole.flat5) ||
+          roles.contains(ChordToneRole.sharp5);
+      if (!hasFifth) return true;
+    }
+
+    return false;
   }
 
   static bool _isQuestionableAdd11Slash(
