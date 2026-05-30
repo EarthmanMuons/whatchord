@@ -1,44 +1,11 @@
 import '../../domain/theory_domain.dart';
 
 abstract final class ChordDisplayConventions {
-  static bool usesUpperStructureSlashTriad(ChordIdentity identity) {
-    if (!identity.hasSlashBass) return false;
-
-    final isPlainMajorMinor =
-        identity.quality == ChordQualityToken.major ||
-        identity.quality == ChordQualityToken.minor;
-    if (!isPlainMajorMinor) return false;
-
-    if (identity.extensions.length != 1 ||
-        !identity.extensions.contains(ChordExtension.add9)) {
-      return false;
-    }
-
-    final bassInterval = (identity.bassPc - identity.rootPc) % 12;
-    if (bassInterval != majorSecondInterval) return false;
-
-    final thirdInterval = identity.quality == ChordQualityToken.major
-        ? majorThirdInterval
-        : minorThirdInterval;
-    final requiredTriadMask =
-        (1 << 0) | (1 << thirdInterval) | (1 << perfectFifthInterval);
-
-    return (identity.presentIntervalsMask & requiredTriadMask) ==
-        requiredTriadMask;
-  }
-
-  static bool usesSixNineSlashBassConvention(ChordIdentity identity) {
-    if (!identity.hasSlashBass) return false;
-    if (!identity.quality.isSixFamily) return false;
-    if (identity.extensions.length != 1 ||
-        !identity.extensions.contains(ChordExtension.add9)) {
-      return false;
-    }
-
-    final bassInterval = (identity.bassPc - identity.rootPc) % 12;
-    return bassInterval == majorSecondInterval;
-  }
-
+  /// True when a seventh-family chord has a single natural 9 extension and the
+  /// slash bass is the 9th (M2). Produces symbols like "C9 / D" → "C7 / D"
+  /// since the 9 is implied by the bass. (The `nine` extension is not an
+  /// add-tone, so the universal compression in [displayedExtensions] doesn't
+  /// cover this case.)
   static bool usesSeventhNinthSlashBassConvention(ChordIdentity identity) {
     if (!identity.hasSlashBass) return false;
     if (!identity.quality.isSeventhFamily) return false;
@@ -49,29 +16,6 @@ abstract final class ChordDisplayConventions {
 
     final bassInterval = (identity.bassPc - identity.rootPc) % 12;
     return bassInterval == majorSecondInterval;
-  }
-
-  static bool usesMinorSeventhEleventhSlashBassConvention(
-    ChordIdentity identity,
-  ) {
-    if (!identity.hasSlashBass) return false;
-    if (identity.quality != ChordQualityToken.minor7) return false;
-    if (identity.extensions.length != 1 ||
-        !identity.extensions.contains(ChordExtension.add11)) {
-      return false;
-    }
-
-    final bassInterval = (identity.bassPc - identity.rootPc) % 12;
-    if (bassInterval != perfectFourthInterval) return false;
-
-    const requiredMinor7Mask =
-        (1 << 0) |
-        (1 << minorThirdInterval) |
-        (1 << perfectFifthInterval) |
-        (1 << minorSeventhInterval);
-
-    return (identity.presentIntervalsMask & requiredMinor7Mask) ==
-        requiredMinor7Mask;
   }
 
   /// Returns true when the bass note is a standard inversion tone of the chord
@@ -98,12 +42,19 @@ abstract final class ChordDisplayConventions {
   }
 
   static Set<ChordExtension> displayedExtensions(ChordIdentity identity) {
-    if (usesUpperStructureSlashTriad(identity) ||
-        usesSixNineSlashBassConvention(identity) ||
-        usesSeventhNinthSlashBassConvention(identity) ||
-        usesMinorSeventhEleventhSlashBassConvention(identity)) {
+    if (usesSeventhNinthSlashBassConvention(identity)) {
       return const {};
     }
-    return identity.extensions;
+
+    if (!identity.hasSlashBass) return identity.extensions;
+
+    final bassInterval = (identity.bassPc - identity.rootPc) % 12;
+    return identity.extensions.where((ext) {
+      // Drop add-tone extensions whose pitch class is already supplied by the
+      // slash bass, avoiding redundant chord symbols like "Ab7(add11)/Db".
+      if (!ext.isAddTone) return true;
+      if (ext.intervalAboveRoot != bassInterval) return true;
+      return false;
+    }).toSet();
   }
 }
