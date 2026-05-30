@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,6 +39,12 @@ class KeyboardSection extends ConsumerWidget {
         );
 
         var height = whiteKeyWidth * config.whiteKeyAspectRatio;
+
+        // Reclaim a few pixels for the chrome on Android's tighter landscape.
+        if (config.isLandscape &&
+            defaultTargetPlatform == TargetPlatform.android) {
+          height -= 4;
+        }
 
         // Guardrails to prevent extremes.
         height = height.clamp(90.0, 200.0);
