@@ -17,6 +17,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- Prefer root-position triad add-tone names such as Abadd9 over non-root
+  seventh-family readings like Bb9sus4/Ab for the same voicing.
 - Compress redundant add-tone extensions from slash chord symbols when the slash
   bass already supplies that pitch (e.g., `Ab7(add11)/Db` → `Ab7/Db`, `Gadd9/A`
   → `G/A`).

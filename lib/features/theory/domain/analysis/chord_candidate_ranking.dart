@@ -183,12 +183,12 @@ abstract final class ChordCandidateRanking {
     _NamedRule('prefer tonic chord', _preferTonicChord),
     _NamedRule('prefer I chord when bass is tonic', _preferTonicAsI),
     _NamedRule(
-      'prefer natural extensions over adds, then fewer total',
-      _preferNaturalExtensions,
-    ),
-    _NamedRule(
       'prefer complete triad add-tone over seventh-family add-tone',
       _preferCompleteTriadAddToneOverSeventhFamilyAddTone,
+    ),
+    _NamedRule(
+      'prefer natural extensions over adds, then fewer total',
+      _preferNaturalExtensions,
     ),
     _NamedRule('prefer root position', _preferRootPosition),
     _NamedRule(
