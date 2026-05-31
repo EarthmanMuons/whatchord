@@ -65,17 +65,19 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     // The active reconnect run clears the flag in tryAutoReconnect's `finally`
     // after all in-flight async work has unwound.
 
-    // If already connected, do not reset connection state.
     final connected = ref.read(midiDeviceManagerProvider).connectedDevice;
-    if (connected?.isConnected == true) {
-      // Still stop scanning if it is running (likely already stopped by MidiManager.connect).
+
+    // Backgrounding must not drop a live connection; just pause scanning. A
+    // network session's local endpoint always reads connected even when its
+    // peer is gone, so only trust the snapshot for the background case.
+    if (reason == 'background' && connected?.isConnected == true) {
       try {
         await _midi.stopScanning();
       } catch (_) {}
       return;
     }
 
-    // Not connected: abort any in-flight connect and stop scanning.
+    // User cancel: abort any in-flight connect and stop scanning.
     // `disconnect()` bumps the manager's connect generation, so a connect that
     // is parked mid-flight self-aborts instead of landing after we cancel.
     try {
