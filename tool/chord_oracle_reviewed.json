@@ -4,6 +4,7 @@
   "0-1-4-7-10_b1": "A♯dim7(add9) / C♯ is correct; music21 agrees; tonal drops the 9; pychord has no label",
   "0-1-4-7-10_b10": "A♯dim7(add9) is correct; symmetric dim7 near-tie cluster with Gdim7(add11)/Bb and Edim7(b13)/Bb; root-position tie-breaker resolves correctly; C7b9/Bb is a legitimate fourth choice placed appropriately lower",
   "0-1-4-7-8_b0": "A♭maj7♯5(add11) / C is defensible (conventional 3rd-in-bass; ♯5 absorbs E); music21's D♭m(maj7)♯11 isn't authoritative; tonal and pychord decline (non-idiomatic voicing)",
+  "0-1-4-8_b0": "C♯m(maj7)/B♯ is correct; clean structural win over Caugadd♭9 (all 4 notes as core template tones vs 1 extra); tonal agrees; music21's A♭+(add11)/C corresponds to our 4th choice; sound",
   "0-1-5-9_b1": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable",
   "0-2-4-9_b0": "C6/9 is correct in C major; matches music21's Am/CaddD in A:min where Amadd11/C is #1; tonal-context-dependent ambiguity, not a disagreement",
   "0-2-5-8_b8": "Fm6/Ab is correct; genuine Fm6↔Dø7/Ab ambiguity with all oracles listing both; tie-breaker prefers more conventional inversion (m3 in bass over b5 in bass)",
