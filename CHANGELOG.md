@@ -39,6 +39,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Fixed chord ranking so candidates are ordered consistently. The ranking rules
+  intentionally override raw score, which made the underlying comparison
+  non-transitive; sorting with it could occasionally bury a strong reading
+  several places below a weaker one or, in rare cases, name the wrong chord.
+  Rankings are now produced by a stable linearization that keeps every rule's
+  verdict while guaranteeing a single, well-defined order.
 - Fixed chord root spelling so double-sharp and double-flat roots such as B𝄪 are
   never generated; enharmonic equivalents like C# are used instead.
 - Fixed explore mode note chips so they spell members relative to the explicitly

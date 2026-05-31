@@ -12,10 +12,17 @@ class RankingDecision {
   final String? decidedByRule;
   final double scoreDelta;
 
+  /// Whether [decidedByRule] was one of the hard rules (a score-independent
+  /// override) rather than a near-tie tie-breaker. Used by [ChordCandidateRanking.rank]
+  /// to keep override winners ahead of the candidates they override when the
+  /// pairwise relation contains a cycle.
+  final bool decidedByHardRule;
+
   const RankingDecision({
     required this.result,
     required this.decidedByRule,
     required this.scoreDelta,
+    this.decidedByHardRule = false,
   });
 }
 
@@ -52,6 +59,122 @@ abstract final class ChordCandidateRanking {
     return _decide(a, b, tonality: tonality);
   }
 
+  /// Orders [items] into a deterministic total ranking.
+  ///
+  /// [compare] is intentionally not transitive: hard rules and the near-tie
+  /// window override raw score, so for some candidate sets the pairwise
+  /// relation contains cycles (a > b > c > a). A plain `List.sort` is undefined
+  /// on such a comparator and can bury a strong candidate below a weaker one.
+  ///
+  /// This linearizes the relation instead. Wherever [compare] is already a
+  /// consistent order it reproduces that order exactly. Where it cycles, the
+  /// cycle is broken deterministically: a candidate that loses a hard-rule edge
+  /// to another remaining candidate is held back (so an override winner is
+  /// never placed below the candidate it overrode), then the remaining tie is
+  /// resolved by pairwise win count, score, and finally root pitch class.
+  ///
+  /// [candidateOf] extracts the [ChordCandidate] from each item so callers can
+  /// rank wrappers (e.g. scored candidates carrying debug data) directly.
+  static List<T> rank<T>(
+    List<T> items,
+    ChordCandidate Function(T) candidateOf, {
+    required Tonality tonality,
+  }) {
+    final n = items.length;
+    if (n <= 1) return List<T>.of(items);
+
+    final cands = [for (final it in items) candidateOf(it)];
+
+    // Seed order: score desc, then root pitch class asc. This both resolves
+    // ties between mutually-equal candidates and seeds the cycle tie-break.
+    final seeded = List<int>.generate(n, (i) => i)
+      ..sort((a, b) {
+        final byScore = cands[b].score.compareTo(cands[a].score);
+        if (byScore != 0) return byScore;
+        return cands[a].identity.rootPc.compareTo(cands[b].identity.rootPc);
+      });
+
+    // Precompute the pairwise relation once (O(n^2) decisions) so the
+    // linearization itself is cheap integer/bool lookups.
+    final beats = List.generate(n, (_) => List<bool>.filled(n, false));
+    final hardBeats = List.generate(n, (_) => List<bool>.filled(n, false));
+    for (var i = 0; i < n; i++) {
+      for (var j = 0; j < n; j++) {
+        if (i == j) continue;
+        final d = _decide(cands[i], cands[j], tonality: tonality);
+        if (d.result < 0) {
+          beats[i][j] = true;
+          if (d.decidedByHardRule) hardBeats[i][j] = true;
+        }
+      }
+    }
+
+    final remaining = seeded.toList();
+    final result = <T>[];
+    while (remaining.isNotEmpty) {
+      final pos = _selectTopPosition(remaining, beats, hardBeats);
+      result.add(items[remaining[pos]]);
+      remaining.removeAt(pos);
+    }
+    return result;
+  }
+
+  /// Index within [remaining] (kept in seed order) of the next item to place.
+  static int _selectTopPosition(
+    List<int> remaining,
+    List<List<bool>> beats,
+    List<List<bool>> hardBeats,
+  ) {
+    final m = remaining.length;
+
+    // A maximal element is beaten by no other remaining candidate. The first
+    // one in seed order wins, which keeps the result stable.
+    for (var a = 0; a < m; a++) {
+      final i = remaining[a];
+      var isBeaten = false;
+      for (var b = 0; b < m; b++) {
+        if (a == b) continue;
+        if (beats[remaining[b]][i]) {
+          isBeaten = true;
+          break;
+        }
+      }
+      if (!isBeaten) return a;
+    }
+
+    // No maximal element: the remaining set contains a cycle. Hold back any
+    // candidate dominated by a hard-rule edge, then pick the one that beats the
+    // most others (Copeland), falling back to seed order.
+    var bestPos = -1;
+    var bestWins = -1;
+    for (var a = 0; a < m; a++) {
+      final i = remaining[a];
+      var heldBack = false;
+      for (var b = 0; b < m; b++) {
+        if (a == b) continue;
+        if (hardBeats[remaining[b]][i]) {
+          heldBack = true;
+          break;
+        }
+      }
+      if (heldBack) continue;
+
+      var wins = 0;
+      for (var b = 0; b < m; b++) {
+        if (a == b) continue;
+        if (beats[i][remaining[b]]) wins++;
+      }
+      if (wins > bestWins) {
+        bestWins = wins;
+        bestPos = a;
+      }
+    }
+
+    // Every remaining candidate held back implies a hard-rule cycle, which the
+    // rule set should never produce; fall back to seed order.
+    return bestPos == -1 ? 0 : bestPos;
+  }
+
   static RankingDecision _decide(
     ChordCandidate a,
     ChordCandidate b, {
@@ -68,6 +191,7 @@ abstract final class ChordCandidateRanking {
           result: r,
           decidedByRule: rule.name,
           scoreDelta: delta,
+          decidedByHardRule: true,
         );
       }
     }

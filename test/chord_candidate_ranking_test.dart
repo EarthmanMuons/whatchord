@@ -358,6 +358,74 @@ void main() {
       );
     },
   );
+
+  group('rank linearizes a non-transitive relation', () {
+    const tonality = Tonality(Tonic.c, TonalityMode.major);
+
+    // A beats B via a hard rule (altered dominant7 over dim7 slash) despite B
+    // scoring higher; B beats C and C beats A on score alone (gaps exceed the
+    // near-tie window). That is a cycle: A > B > C > A.
+    final a = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'C',
+      bass: 'C',
+      presentIntervals: const {0, 1, 4, 10},
+      extensions: const {ChordExtension.flat9},
+      score: 1,
+    );
+    final b = _candidate(
+      quality: ChordQualityToken.diminished7,
+      root: 'Bb',
+      bass: 'C',
+      presentIntervals: const {0, 2, 3, 6, 9},
+      extensions: const {ChordExtension.nine},
+      score: 10,
+    );
+    final c = _candidate(
+      quality: ChordQualityToken.major,
+      root: 'E',
+      bass: 'E',
+      presentIntervals: const {0, 4, 7},
+      score: 5,
+    );
+
+    int cmp(ChordCandidate x, ChordCandidate y) =>
+        ChordCandidateRanking.compare(x, y, tonality: tonality);
+
+    test('the candidate set really is a cycle (test precondition)', () {
+      expect(cmp(a, b), lessThan(0)); // A beats B (hard rule)
+      expect(cmp(b, c), lessThan(0)); // B beats C (score)
+      expect(cmp(c, a), lessThan(0)); // C beats A (score) -> cycle
+    });
+
+    test('rank is independent of input order', () {
+      List<String> ranked(List<ChordCandidate> input) =>
+          ChordCandidateRanking.rank(
+            input,
+            (x) => x,
+            tonality: tonality,
+          ).map((x) => x.identity.quality.name).toList();
+
+      final reference = ranked([a, b, c]);
+      expect(ranked([c, b, a]), reference);
+      expect(ranked([b, a, c]), reference);
+      expect(ranked([b, c, a]), reference);
+      expect(ranked([c, a, b]), reference);
+      expect(ranked([a, c, b]), reference);
+    });
+
+    test(
+      'the hard-rule winner is never placed below the candidate it overrode',
+      () {
+        final ranked = ChordCandidateRanking.rank(
+          [b, c, a],
+          (x) => x,
+          tonality: tonality,
+        );
+        expect(ranked.indexOf(a), lessThan(ranked.indexOf(b)));
+      },
+    );
+  });
 }
 
 void _expectRule(
