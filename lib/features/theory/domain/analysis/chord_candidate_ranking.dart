@@ -140,6 +140,10 @@ abstract final class ChordCandidateRanking {
       'prefer complete triad over structurally deficient reading',
       _preferCompleteTriadOverDeficientReading,
     ),
+    _NamedRule(
+      'prefer simple triad add-tone over seventh-family unusual quality',
+      _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality,
+    ),
   ];
 
   static final List<_NamedRule> _tieBreakerRules = <_NamedRule>[
@@ -831,6 +835,48 @@ abstract final class ChordCandidateRanking {
   /// altered-fifth chords (which keep a flat/sharp fifth), six chords, and
   /// dominant/major suspended chords (which keep a seventh) are never demoted.
   /// A score guard keeps a decisively higher-scoring reading in front.
+  /// Prefers a complete major/minor triad with natural add-tone color over a
+  /// seventh-family reading with an unusual quality and no extensions.
+  ///
+  /// When a plain triad with a simple add-tone (e.g., Cadd9/G) competes
+  /// against a seventh-family reading with an unusual quality (e.g.,
+  /// Em7#5/G), the seventh-family template's extra required tones create a
+  /// structural score advantage that doesn't reflect musician expectations.
+  /// Both oracles (music21, tonal) converge on the simpler triad reading.
+  static int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    // One candidate must be a complete major/minor triad with at least one
+    // add-tone extension (and no alterations or stacked natural extensions).
+    final aIsTriadAddTone =
+        fa.isCompleteMajorMinorTriad &&
+        fa.extPref.addCount > 0 &&
+        fa.extPref.alterationCount == 0 &&
+        fa.extPref.naturalCount == 0;
+    final bIsTriadAddTone =
+        fb.isCompleteMajorMinorTriad &&
+        fb.extPref.addCount > 0 &&
+        fb.extPref.alterationCount == 0 &&
+        fb.extPref.naturalCount == 0;
+    if (aIsTriadAddTone == bIsTriadAddTone) return null;
+
+    // The other must be a seventh-family chord in an inversion (not root
+    // position) with no extensions at all, indicating the pitch set is
+    // being explained by an inverted unusual quality whose extra required
+    // tones inflate the score. Root-position seventh-family chords like
+    // Cm7#5 or Bm7b5 are recognized standard qualities, not inflation.
+    final fOther = aIsTriadAddTone ? fb : fa;
+    if (!fOther.isSeventhFamily) return null;
+    if (fOther.extPref.totalCount > 0) return null;
+    if (fOther.isRootPosition) return null;
+
+    return aIsTriadAddTone ? -1 : 1;
+  }
+
   static int? _preferCompleteTriadOverDeficientReading(
     ChordCandidate a,
     ChordCandidate b,
