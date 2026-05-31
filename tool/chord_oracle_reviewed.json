@@ -7,5 +7,6 @@
   "0-1-5-9_b1": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable",
   "0-2-4-9_b0": "C6/9 is correct in C major; matches music21's Am/CaddD in A:min where Amadd11/C is #1; tonal-context-dependent ambiguity, not a disagreement",
   "0-2-5-8_b8": "Fm6/Ab is correct; genuine Fm6↔Dø7/Ab ambiguity with all oracles listing both; tie-breaker prefers more conventional inversion (m3 in bass over b5 in bass)",
+  "0-3-4-7_b7": "Em(maj7)b13/G is correct; perfect tie with Eb6b9/G resolved by seventh-family preference; three-way ambiguity confirmed by oracle split (tonal agrees Em, music21 offers Cmaj7#9/G); chromatic cluster {C, Eb, E} against G is inherently ambiguous; sound",
   "0-4-8-11_b0": "Cmaj7#5 is correct; oracles use non-standard notation (C+M7, CM7b6)"
 }
