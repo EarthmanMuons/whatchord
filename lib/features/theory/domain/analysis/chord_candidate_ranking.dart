@@ -864,17 +864,32 @@ abstract final class ChordCandidateRanking {
         fb.extPref.naturalCount == 0;
     if (aIsTriadAddTone == bIsTriadAddTone) return null;
 
-    // The other must be a seventh-family chord in an inversion (not root
-    // position) with no extensions at all, indicating the pitch set is
-    // being explained by an inverted unusual quality whose extra required
-    // tones inflate the score. Root-position seventh-family chords like
-    // Cm7#5 or Bm7b5 are recognized standard qualities, not inflation.
+    // The other must be a seventh-family chord with an unusual quality
+    // (altered-fifth, suspended, or flat-five seventh qualities) in an
+    // inversion with no extensions at all. Standard qualities like plain
+    // dominant7, minor7, or major7 should not be overridden by this rule.
     final fOther = aIsTriadAddTone ? fb : fa;
+    final otherQuality = aIsTriadAddTone
+        ? b.identity.quality
+        : a.identity.quality;
     if (!fOther.isSeventhFamily) return null;
+    if (!_isUnusualSeventhQuality(otherQuality)) return null;
     if (fOther.extPref.totalCount > 0) return null;
     if (fOther.isRootPosition) return null;
 
     return aIsTriadAddTone ? -1 : 1;
+  }
+
+  static bool _isUnusualSeventhQuality(ChordQualityToken quality) {
+    return quality == ChordQualityToken.minor7Sharp5 ||
+        quality == ChordQualityToken.dominant7sus2 ||
+        quality == ChordQualityToken.dominant7sus4 ||
+        quality == ChordQualityToken.dominant7Flat5 ||
+        quality == ChordQualityToken.dominant7Sharp5 ||
+        quality == ChordQualityToken.major7sus2 ||
+        quality == ChordQualityToken.major7sus4 ||
+        quality == ChordQualityToken.major7Flat5 ||
+        quality == ChordQualityToken.major7Sharp5;
   }
 
   static int? _preferCompleteTriadOverDeficientReading(
