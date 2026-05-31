@@ -392,6 +392,19 @@ abstract final class ChordCandidateRanking {
     final fOther = aIsPreferred ? fb : fa;
     if (!fOther.isSlashBass) return null;
 
+    // When the slash candidate is a conventional major/minor triad with
+    // only add-tone extensions (e.g., Abadd11/Eb), prefer it over the
+    // root-position dominant sus. The add-tone slash is a simpler and
+    // more expected reading — all downstream tie-breakers would also
+    // favor it, so resolve directly here.
+    final slashQuality = aIsPreferred ? b.identity.quality : a.identity.quality;
+    final isConventionalSlash =
+        (slashQuality == ChordQualityToken.major ||
+            slashQuality == ChordQualityToken.minor) &&
+        fOther.extPref.alterationCount == 0 &&
+        fOther.extPref.naturalCount == 0;
+    if (isConventionalSlash) return aIsPreferred ? 1 : -1;
+
     return aIsPreferred ? -1 : 1;
   }
 
