@@ -60,6 +60,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   reconnect attempts immediately and stays disconnected until you connect again.
 - Fixed a race where disconnecting or cancelling while a connection was still
   being established could leave the device connected anyway.
+- Fixed the Cancel button getting stuck on "Connecting..." when reconnecting to
+  a Network Session that is no longer reachable. Cancel now always stops the
+  attempt and returns to a disconnected state.
 
 ## [2026.5.28] - 2026-05-28
 
