@@ -59,6 +59,33 @@ abstract final class ChordCandidateRanking {
     return _decide(a, b, tonality: tonality);
   }
 
+  /// Whether a candidate scoring [candidateScore] is a near-tie with the
+  /// top-ranked candidate scoring [bestScore].
+  ///
+  /// The window is one-sided, anchored to the chosen #1: any candidate at or
+  /// above `bestScore - nearTieWindow` qualifies. Because a hard rule can
+  /// promote a lower-scoring reading to #1, a near-tie can legitimately score
+  /// *higher* than the chosen chord, so this must not clamp the difference to
+  /// its absolute value.
+  static bool isNearTie(double bestScore, double candidateScore) =>
+      bestScore - candidateScore <= nearTieWindow;
+
+  /// Returns the near-tie alternatives from a [ranked] candidate list: every
+  /// candidate after the top pick that [isNearTie] with it. Returns empty when
+  /// there are fewer than two candidates.
+  ///
+  /// The whole list is filtered rather than stopped at the first candidate
+  /// outside the window, because [rank] order is not strictly monotonic in
+  /// score (tie-breakers can reorder near-ties).
+  static List<ChordCandidate> nearTieAlternatives(List<ChordCandidate> ranked) {
+    if (ranked.length < 2) return const <ChordCandidate>[];
+    final bestScore = ranked.first.score;
+    return [
+      for (var i = 1; i < ranked.length; i++)
+        if (isNearTie(bestScore, ranked[i].score)) ranked[i],
+    ];
+  }
+
   /// Orders [items] into a deterministic total ranking.
   ///
   /// [compare] is intentionally not transitive: hard rules and the near-tie
@@ -198,9 +225,12 @@ abstract final class ChordCandidateRanking {
 
     if (delta.abs() > nearTieWindow) {
       final result = delta > 0 ? 1 : -1;
+      // Named for the pairwise gap to the adjacent candidate, distinct from the
+      // one-sided near-tie membership (see isNearTie). The score difference here
+      // exceeds nearTieWindow, so tie-breakers are not engaged.
       return RankingDecision(
         result: result,
-        decidedByRule: 'score outside near-tie window',
+        decidedByRule: 'score difference beyond tie-break range',
         scoreDelta: delta,
       );
     }

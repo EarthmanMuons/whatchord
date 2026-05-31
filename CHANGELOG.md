@@ -45,6 +45,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   several places below a weaker one or, in rare cases, name the wrong chord.
   Rankings are now produced by a stable linearization that keeps every rule's
   verdict while guaranteeing a single, well-defined order.
+- Fixed the near-tie alternatives list so a strong reading is no longer dropped
+  when a hard rule promotes a lower-scoring chord to the top. Alternatives are
+  now measured against the chosen chord's score, so readings that score at or
+  above it stay visible instead of being suppressed.
 - Fixed chord root spelling so double-sharp and double-flat roots such as B𝄪 are
   never generated; enharmonic equivalents like C# are used instead.
 - Fixed explore mode note chips so they spell members relative to the explicitly
