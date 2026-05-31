@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -95,14 +94,14 @@ class _HomePageState extends ConsumerState<HomePage> {
         final config = resolveHomeLayoutConfig(constraints);
         final isLandscape = config.isLandscape;
 
-        // Android keeps the landscape status bar; a shorter app bar buys back a
-        // little of that vertical room.
-        final tightenForStatusBar =
-            isLandscape && defaultTargetPlatform == TargetPlatform.android;
         // Keep the bar a touch taller than the 48px icons and bias the content
         // up, so the icons sit near the status bar with a little room below.
-        final toolbarHeight = tightenForStatusBar ? 52.0 : kToolbarHeight;
-        final toolbarBottomInset = tightenForStatusBar ? 4.0 : 0.0;
+        final toolbarHeight = config.tightenForStatusBar
+            ? kAndroidLandscapeToolbarHeight
+            : kToolbarHeight;
+        final toolbarBottomInset = config.tightenForStatusBar
+            ? kAndroidLandscapeToolbarBottomInset
+            : 0.0;
 
         const barBaseInset = 16.0;
         final maxHorizontalCutout = isLandscape

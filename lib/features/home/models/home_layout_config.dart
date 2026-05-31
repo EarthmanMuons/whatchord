@@ -1,6 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:whatchord/features/piano/piano.dart';
+
+// Android keeps the system status bar visible in landscape, leaving less
+// vertical room than iOS. These constants reclaim pixels from the chrome.
+const kAndroidLandscapeToolbarHeight = 52.0;
+const kAndroidLandscapeToolbarBottomInset = 4.0;
 
 enum HomeSizeClass { compact, medium, expanded }
 
@@ -47,6 +53,9 @@ class HomeSideSheetConfig {
 class HomeLayoutConfig {
   final HomeSizeClass sizeClass;
   final bool isLandscape;
+
+  bool get tightenForStatusBar =>
+      isLandscape && defaultTargetPlatform == TargetPlatform.android;
 
   // Analysis
   final EdgeInsets analysisPadding;

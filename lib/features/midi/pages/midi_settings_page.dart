@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:whatchord/core/core.dart';
+import 'package:whatchord/features/home/home.dart';
 import 'package:whatchord/features/onboarding/onboarding.dart';
 
 import '../models/midi_device.dart';
@@ -34,11 +36,19 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
     final cs = Theme.of(context).colorScheme;
     final status = ref.watch(midiConnectionStatusProvider);
 
+    final isLandscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+    final toolbarHeight =
+        isLandscape && defaultTargetPlatform == TargetPlatform.android
+        ? kAndroidLandscapeToolbarHeight
+        : kToolbarHeight;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('MIDI Settings'),
         backgroundColor: cs.surfaceContainerLow,
         foregroundColor: cs.onSurface,
+        toolbarHeight: toolbarHeight,
       ),
       body: SafeArea(
         top: false,
