@@ -25,22 +25,7 @@ final bestChordCandidateProvider = Provider<ChordCandidate?>((ref) {
 
 final nearTieChordCandidatesProvider = Provider<List<ChordCandidate>>((ref) {
   final candidates = ref.watch(chordCandidatesProvider);
-  if (candidates.length < 2) return const <ChordCandidate>[];
-
-  final best = candidates.first;
-  final out = <ChordCandidate>[];
-
-  for (var i = 1; i < candidates.length; i++) {
-    final c = candidates[i];
-    final scoreDelta = best.score - c.score;
-
-    // Once we exceed the window, later candidates will not qualify.
-    if (scoreDelta.abs() > ChordCandidateRanking.nearTieWindow) break;
-
-    out.add(c);
-  }
-
-  return out;
+  return ChordCandidateRanking.nearTieAlternatives(candidates);
 });
 
 final rankedChordCandidateDebugProvider = Provider<List<RankedCandidateDebug>>((

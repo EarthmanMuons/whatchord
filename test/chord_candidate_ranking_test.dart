@@ -426,6 +426,50 @@ void main() {
       },
     );
   });
+
+  group('near-tie selection', () {
+    test('isNearTie window is one-sided around the chosen #1 score', () {
+      const best = 7.0;
+      expect(ChordCandidateRanking.isNearTie(best, 6.85), isTrue); // within
+      expect(ChordCandidateRanking.isNearTie(best, 6.81), isTrue); // within
+      expect(ChordCandidateRanking.isNearTie(best, 6.79), isFalse); // outside
+      // A reading scoring higher than the chosen #1 is still a near-tie; the
+      // window must not clamp the difference to its absolute value.
+      expect(ChordCandidateRanking.isNearTie(best, 7.30), isTrue);
+    });
+
+    ChordCandidate plain(String root, double score) => _candidate(
+      quality: ChordQualityToken.major,
+      root: root,
+      bass: root,
+      presentIntervals: const {0, 4, 7},
+      score: score,
+    );
+
+    test('keeps a higher-scoring alternative and filters past a gap', () {
+      // #1 was promoted below a higher-scoring reading (D, 7.30). A later
+      // candidate (F, 6.90) is within the window even though the one before it
+      // (E, 6.50) is not, so a break-on-first-miss would wrongly drop it.
+      final ranked = [
+        plain('C', 7.00),
+        plain('D', 7.30),
+        plain('E', 6.50),
+        plain('F', 6.90),
+      ];
+
+      final alternatives = ChordCandidateRanking.nearTieAlternatives(ranked);
+
+      expect(alternatives.map((c) => c.identity.rootPc), [pc('D'), pc('F')]);
+    });
+
+    test('returns empty when there are fewer than two candidates', () {
+      expect(
+        ChordCandidateRanking.nearTieAlternatives([plain('C', 7.0)]),
+        isEmpty,
+      );
+      expect(ChordCandidateRanking.nearTieAlternatives(const []), isEmpty);
+    });
+  });
 }
 
 void _expectRule(

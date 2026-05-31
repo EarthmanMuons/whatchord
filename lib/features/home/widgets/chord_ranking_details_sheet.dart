@@ -347,8 +347,11 @@ class _CandidateRankCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final scoreDelta = bestScore - row.candidate.score;
-    final fitLabel = rank == 1 ? 'Chosen' : _fitLabel(scoreDelta);
+    final fitLabel = rank == 1
+        ? 'Chosen'
+        : (ChordCandidateRanking.isNearTie(bestScore, row.candidate.score)
+              ? 'Near tie'
+              : 'Unlikely');
     final evidence = _evidenceFor(row);
 
     return DecoratedBox(
@@ -452,13 +455,6 @@ class _EmptyRankingDetails extends StatelessWidget {
       child: Text('No chord ranking details are available right now.'),
     );
   }
-}
-
-String _fitLabel(double deltaFromBest) {
-  if (deltaFromBest.abs() <= ChordCandidateRanking.nearTieWindow) {
-    return 'Near tie';
-  }
-  return 'Unlikely';
 }
 
 String _evidenceFor(RankedCandidateDebug row) {
@@ -569,7 +565,8 @@ int? _reasonCount(RankedCandidateDebug row, String label) {
 
 String _plainDecision(String? rule, {ChordCandidate? winner}) {
   final sentence = switch (rule) {
-    'score outside near-tie window' => 'its fit score was clearly stronger.',
+    'score difference beyond tie-break range' =>
+      'its fit score was clearly stronger.',
     'prefer root-position 6th over inverted 7th' =>
       'the sixth-chord name is in root position, while the alternate reading puts another chord over a non-root bass.',
     'prefer complete triad over incomplete inverted 6th' =>

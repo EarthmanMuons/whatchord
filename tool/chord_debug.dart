@@ -206,8 +206,7 @@ void main(List<String> args) {
 
     final score = c.score;
     final deltaBest = score - bestScore;
-    final nearTie =
-        deltaBest.abs() <= ChordCandidateRanking.nearTieWindow && i != 0;
+    final nearTie = i != 0 && ChordCandidateRanking.isNearTie(bestScore, score);
 
     final rule = _formatRankingRule(r.vsPrevious?.decidedByRule);
 
@@ -402,9 +401,9 @@ Map<String, Object?> _candidateJson({
     'score': c.score,
     'deltaBest': deltaBest,
     'nearTie':
-        deltaBest != null &&
+        bestScore != null &&
         rank != 1 &&
-        deltaBest.abs() <= ChordCandidateRanking.nearTieWindow,
+        ChordCandidateRanking.isNearTie(bestScore, c.score),
     'rootPc': id.rootPc,
     'rootName': rootName,
     'bassPc': id.bassPc,
