@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Compress redundant add-tone extensions from slash chord symbols when the slash
   bass already supplies that pitch (e.g., `Ab7(add11)/Db` → `Ab7/Db`, `Gadd9/A`
   → `G/A`).
+- Prefer complete triad-add-tone names such as Bbmadd9/Db over unconventional
+  seventh-family readings like Dbmaj7(add13) for the same voicing.
 - Prefer root-position 6/9 names such as C6/9 over dominant-7-sus-slash readings
   like D7sus2/C for the same voicing, matching the conventional musician name.
 - Prefer altered dominant seventh names such as F7(#9,b13)/Ab over competing

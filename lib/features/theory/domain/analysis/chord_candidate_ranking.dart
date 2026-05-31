@@ -186,6 +186,10 @@ abstract final class ChordCandidateRanking {
       'prefer natural extensions over adds, then fewer total',
       _preferNaturalExtensions,
     ),
+    _NamedRule(
+      'prefer complete triad add-tone over seventh-family add-tone',
+      _preferCompleteTriadAddToneOverSeventhFamilyAddTone,
+    ),
     _NamedRule('prefer root position', _preferRootPosition),
     _NamedRule(
       'prefer more conventional inversion',
@@ -758,6 +762,43 @@ abstract final class ChordCandidateRanking {
     if (preferredCandidate.score + 1.50 < susCandidate.score) return null;
 
     return aIsPreferred ? -1 : 1;
+  }
+
+  /// Prefers a complete major/minor triad with add-tone extensions over a
+  /// seventh-family chord whose extensions are all add-tones in a near-tie.
+  ///
+  /// A complete triad with simple color tones (e.g., Bbmadd9/Db) is a more
+  /// conventional and stable structure than forcing the same pitches into a
+  /// seventh-family framework with unusual extension pairings (e.g.,
+  /// Dbmaj7(add13) where a maj7(add13) is rare in practice).
+  static int? _preferCompleteTriadAddToneOverSeventhFamilyAddTone(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    // One candidate must be a complete major/minor triad carrying only
+    // add-tone extensions (no alterations or stacked natural extensions).
+    final aIsTriadAddTone =
+        fa.isCompleteMajorMinorTriad &&
+        fa.extPref.alterationCount == 0 &&
+        fa.extPref.naturalCount == 0;
+    final bIsTriadAddTone =
+        fb.isCompleteMajorMinorTriad &&
+        fb.extPref.alterationCount == 0 &&
+        fb.extPref.naturalCount == 0;
+    if (aIsTriadAddTone == bIsTriadAddTone) return null;
+
+    // The other must be a seventh-family chord carrying only add-tone
+    // extensions, indicating the same pitch set is being forced into an
+    // unconventional seventh-family framework.
+    final fOther = aIsTriadAddTone ? fb : fa;
+    if (!fOther.isSeventhFamily) return null;
+    if (fOther.extPref.alterationCount > 0) return null;
+    if (fOther.extPref.naturalCount > 0) return null;
+
+    return aIsTriadAddTone ? -1 : 1;
   }
 
   /// Prefers a complete major/minor triad carrying only natural/add color over
