@@ -9,6 +9,7 @@
   "0-2-4-9_b0": "C6/9 is correct in C major; matches music21's Am/CaddD in A:min where Amadd11/C is #1; tonal-context-dependent ambiguity, not a disagreement",
   "0-2-5-8_b8": "Fm6/Ab is correct; genuine Fm6↔Dø7/Ab ambiguity with all oracles listing both; tie-breaker prefers more conventional inversion (m3 in bass over b5 in bass)",
   "0-3-4-7_b0": "Cadd#9 is correct; split-third analysis correctly identifies C-Eb-E-G with C bass; near tie with Em(maj7)b13/C is genuine chromatic ambiguity; music21 agrees; sound",
+  "0-3-4-7_b3": "Eb6b9 is correct; perfect tie with Em(maj7)b13/D# resolved by root position preference; same chromatic cluster {C, Eb, E, G} as 0-3-4-7_b0 with different bass; music21 reads as Cm/Eb add E (split third); sound",
   "0-3-4-7_b7": "Em(maj7)b13/G is correct; perfect tie with Eb6b9/G resolved by seventh-family preference; three-way ambiguity confirmed by oracle split (tonal agrees Em, music21 offers Cmaj7#9/G); chromatic cluster {C, Eb, E} against G is inherently ambiguous; sound",
   "0-3-6-9_b0": "Cdim7 is correct; symmetric dim7 4-way perfect tie; root-position tie-breaker resolves correctly; tonal agrees with Cdim7 and also lists two alternate roots; textbook dim7 symmetry",
   "0-3-7-10_b7": "Eb6/G or Cm7/G both valid; perfect tie; classic Cm7<->Eb6 ambiguity; oracles converge on Cm7/G; our inversion tie-breaker prefers Eb6/G; neither reading is wrong; no action needed",
