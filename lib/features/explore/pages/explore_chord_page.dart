@@ -107,6 +107,13 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
         final config = resolveHomeLayoutConfig(constraints);
         final isLandscape = config.isLandscape;
 
+        final toolbarHeight = config.tightenForStatusBar
+            ? kAndroidLandscapeToolbarHeight
+            : kToolbarHeight;
+        final toolbarBottomInset = config.tightenForStatusBar
+            ? kAndroidLandscapeToolbarBottomInset
+            : 0.0;
+
         const barBaseInset = 16.0;
         final maxHorizontalCutout = isLandscape
             ? math.max(mq.viewPadding.left, mq.viewPadding.right)
@@ -122,7 +129,11 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                   bottom: false,
                   left: !isLandscape,
                   right: !isLandscape,
-                  child: ExploreTopBar(horizontalInset: horizontalInset),
+                  child: ExploreTopBar(
+                    toolbarHeight: toolbarHeight,
+                    contentBottomInset: toolbarBottomInset,
+                    horizontalInset: horizontalInset,
+                  ),
                 ),
               ),
               Expanded(

@@ -25,6 +25,9 @@ class ExploreKeyboard extends StatelessWidget {
         );
 
         var height = whiteKeyWidth * config.whiteKeyAspectRatio;
+
+        if (config.tightenForStatusBar) height -= 4;
+
         height = height.clamp(90.0, 200.0);
 
         return ScrollablePianoKeyboard(

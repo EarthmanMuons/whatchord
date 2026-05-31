@@ -5,8 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:whatchord/features/settings/settings.dart';
 
 class ExploreTopBar extends StatelessWidget {
-  const ExploreTopBar({super.key, required this.horizontalInset});
+  const ExploreTopBar({
+    super.key,
+    required this.toolbarHeight,
+    required this.contentBottomInset,
+    required this.horizontalInset,
+  });
 
+  final double toolbarHeight;
+  final double contentBottomInset;
   final double horizontalInset;
 
   @override
@@ -20,11 +27,12 @@ class ExploreTopBar extends StatelessWidget {
     return Material(
       color: cs.surfaceContainerLow,
       child: SizedBox(
-        height: kToolbarHeight,
+        height: toolbarHeight,
         child: Padding(
           padding: EdgeInsets.only(
             left: horizontalInset,
             right: horizontalInset,
+            bottom: contentBottomInset,
           ),
           child: Row(
             children: [

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -8,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/demo/demo.dart';
+import 'package:whatchord/features/home/home.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
@@ -124,12 +126,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         ? cs.onSurfaceVariant
         : disabledIconColor;
 
+    final isLandscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+    final toolbarHeight =
+        isLandscape && defaultTargetPlatform == TargetPlatform.android
+        ? kAndroidLandscapeToolbarHeight
+        : kToolbarHeight;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
         backgroundColor: cs.surfaceContainerLow,
         foregroundColor: cs.onSurface,
         scrolledUnderElevation: 0,
+        toolbarHeight: toolbarHeight,
       ),
       body: SafeArea(
         top: false,
