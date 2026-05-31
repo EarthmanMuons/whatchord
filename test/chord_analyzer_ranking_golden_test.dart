@@ -236,6 +236,48 @@ void main() {
       expectedQuality: ChordQualityToken.dominant7,
       expectedExtensions: {ChordExtension.sharp9, ChordExtension.flat13},
     ),
+
+    // -------------------------------------------------------------------------
+    // Simple triad add-tone beats inverted unusual seventh-family quality
+    // -------------------------------------------------------------------------
+    golden(
+      description: 'simple triad add-tone beats inverted unusual seventh',
+      expectedSymbol: 'Cadd9 / G',
+      pcs: ['C', 'D', 'E', 'G'],
+      bass: 'G',
+      expectedRoot: 'C',
+      expectedBass: 'G',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.add9},
+    ),
+
+    // -------------------------------------------------------------------------
+    // Root-position add-chord beats dominant sus slash
+    // -------------------------------------------------------------------------
+    golden(
+      description: 'root-position add-chord beats dominant sus slash',
+      expectedSymbol: 'Abadd9',
+      pcs: ['C', 'Eb', 'Ab', 'Bb'],
+      bass: 'Ab',
+      expectedRoot: 'Ab',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.add9},
+    ),
+
+    // -------------------------------------------------------------------------
+    // Conventional add-tone slash beats root-position dominant sus
+    // -------------------------------------------------------------------------
+    golden(
+      description:
+          'conventional add-tone slash beats root-position dominant sus',
+      expectedSymbol: 'Abadd11 / Eb',
+      pcs: ['C', 'Db', 'Eb', 'Ab'],
+      bass: 'Eb',
+      expectedRoot: 'Ab',
+      expectedBass: 'Eb',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.add11},
+    ),
   ];
 
   runChordAnalyzerGoldenCases(cases);
