@@ -241,15 +241,14 @@ abstract final class ChordAnalyzer {
       }
     }
 
-    out.sort(
-      (a, b) => ChordCandidateRanking.compare(
-        a.candidate,
-        b.candidate,
-        tonality: context.tonality,
-      ),
+    // `compare` is intentionally non-transitive (hard rules and the near-tie
+    // window override raw score), so a plain sort would be undefined and could
+    // bury a strong candidate. `rank` linearizes the relation deterministically.
+    return ChordCandidateRanking.rank(
+      out,
+      (e) => e.candidate,
+      tonality: context.tonality,
     );
-
-    return out;
   }
 
   // ---- Template scoring: fit voicing to chord structure -----------------

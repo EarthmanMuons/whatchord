@@ -874,6 +874,24 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
             surrounding evidence supports them.
           </p>
 
+          <h3>Turning the comparison into a stable order</h3>
+
+          <p>
+            Because hard rules and the near-tie window deliberately override raw
+            score, comparing two candidates is not a transitive total order: A
+            can beat B, B can beat C, and yet C can beat A. A generic sort is
+            undefined on a comparison like that and can bury a strong reading
+            below a weaker one.
+          </p>
+
+          <p>
+            So the engine linearizes the candidates rather than sorting them
+            directly: it repeatedly takes the one that nothing else outranks,
+            breaking any cycle in a fixed, repeatable way. The result honors
+            every rule above and always produces the same order for a given
+            input.
+          </p>
+
           <h2>Caching for real-time performance</h2>
 
           <p>
