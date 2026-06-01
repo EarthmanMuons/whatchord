@@ -21,5 +21,6 @@
   "0-3-6-9_b0": "Cdim7 is correct; symmetric dim7 4-way perfect tie; root-position tie-breaker resolves correctly; tonal agrees with Cdim7 and also lists two alternate roots; textbook dim7 symmetry",
   "0-3-7-10_b7": "Eb6/G or Cm7/G both valid; perfect tie; classic Cm7<->Eb6 ambiguity; oracles converge on Cm7/G; our inversion tie-breaker prefers Eb6/G; neither reading is wrong; no action needed",
   "0-3-8_b0": "Ab/C is correct; near tie with Cm#5 resolved by existing complete-major-inversion-over-minor-sharp-five hard rule; both oracles list both readings; no action needed",
-  "0-4-8-11_b0": "Cmaj7#5 is correct; oracles use non-standard notation (C+M7, CM7b6)"
+  "0-4-8-11_b0": "Cmaj7#5 is correct; oracles use non-standard notation (C+M7, CM7b6)",
+  "0-4-8-11_b11": "Cmaj7#5/B is correct; clean structural win (all 4 notes as core template tones); both oracles converge on C-rooted maj7#5 reading; same chord as 0-4-8-11_b0 with different bass; no action needed"
 }
