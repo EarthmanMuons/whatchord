@@ -2,31 +2,45 @@
 
 This project includes code and assets originally developed by third-parties.
 
-## assets/fonts/BravuraText.otf
+## assets/fonts/InterVariable.ttf
 
-This project includes the **Bravura Text** font, which is distributed as font
-software and is used directly for rendering SMuFL-compliant musical glyphs
-(e.g., accidentals) in chord identification output.
+This project includes the **Inter** variable font, which is distributed as font
+software and is used for app typography.
 
-The font is included unmodified from the following upstream source:
+The font is included unmodified from the following upstream project:
 
-- [BravuraText.otf](https://github.com/steinbergmedia/bravura/blob/02e8ed29a29115df35007d1178cebaeee26c20e1/redist/otf/BravuraText.otf)
+- [Inter](https://github.com/rsms/inter)
 
-**Copyright (c) 2019, Steinberg Media Technologies GmbH  
-(<http://www.steinberg.net/>), with Reserved Font Name "Bravura".**
+Original font copyright:
 
-Bravura Text is distributed under the terms of the
+**Copyright 2016 The Inter Project Authors  
+(<https://github.com/rsms/inter>)**
+
+Inter is distributed under the terms of the
 [SIL Open Font License (OFL) version 1.1](https://openfontlicense.org/open-font-license-official-text/).
 
 A copy of the license text is included below.
 
-## assets/glyphs/keyboard_pedal_ped.svg
+## Leland Text Derivatives
 
-This SVG is a derivative artwork extracted from the **Leland** font, and is not
-itself distributed as font software. The glyph was derived from the following
-upstream source:
+Included assets:
 
-- [Leland.otf](https://github.com/MuseScoreFonts/Leland/blob/d91cf5d21045e2c294541676ad386b7ffb4ac881/Leland.otf)
+- `assets/fonts/WhatChordSymbols-Regular.otf`
+- `assets/fonts/WhatChordSymbols-Bold.otf`
+- `assets/glyphs/keyboard_pedal_ped.svg`
+
+This project includes the **WhatChord Symbols** fonts, which are modified
+derivative font software containing a small subset of musical symbol glyphs
+extracted from the **Leland Text** font. The derivative fonts are renamed and do
+not use the reserved Leland font name.
+
+This project also includes `assets/glyphs/keyboard_pedal_ped.svg`, a derivative
+SVG artwork extracted from the same upstream **Leland Text** font. The SVG is
+not itself distributed as font software.
+
+The derivative assets were derived from the following upstream project:
+
+- [Leland](https://github.com/MuseScoreFonts/Leland)
 
 Original font copyright:
 

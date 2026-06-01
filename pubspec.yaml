@@ -56,6 +56,12 @@ flutter:
     - assets/soundfonts/generaluser-gs-v2.0.2-grand-piano.sf2
 
   fonts:
-    - family: Bravura
+    - family: WhatChord Symbols
       fonts:
-        - asset: assets/fonts/BravuraText.otf
+        - asset: assets/fonts/WhatChordSymbols-Regular.otf
+        - asset: assets/fonts/WhatChordSymbols-Bold.otf
+          weight: 700
+
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/InterVariable.ttf

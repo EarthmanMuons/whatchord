@@ -117,7 +117,6 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
                   notation: notation,
                 ),
                 noteNameSystem: noteNameSystem,
-                spacing: ChordSymbolDisplaySpacing.plain,
               ),
             )
             .toList(growable: false);
@@ -141,7 +140,6 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           chosenSymbol: chordSymbolDisplayLabel(
             presentation.symbol,
             noteNameSystem: noteNameSystem,
-            spacing: ChordSymbolDisplaySpacing.plain,
           ),
           longLabel: presentation.longLabel,
           rootPc: id.rootPc,

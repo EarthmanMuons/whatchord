@@ -1,18 +1,14 @@
 import '../../domain/models/tonality.dart';
 import '../models/chord_symbol.dart';
 
-enum ChordSymbolDisplaySpacing { typographic, plain }
-
 class ChordSymbolDisplayParts {
   const ChordSymbolDisplayParts({
     required this.root,
-    required this.rootQualitySeparator,
     required this.quality,
     required this.bass,
   });
 
   final String root;
-  final String rootQualitySeparator;
   final String quality;
   final String? bass;
 
@@ -20,7 +16,7 @@ class ChordSymbolDisplayParts {
 
   String get bassRequired => bass!;
 
-  String get base => '$root$rootQualitySeparator$quality';
+  String get base => '$root$quality';
 
   @override
   String toString() {
@@ -100,27 +96,21 @@ String theoryTokenDisplayLabel(String token) => toGlyphAccidentals(token);
 String chordSymbolDisplayLabel(
   ChordSymbol symbol, {
   NoteNameSystem noteNameSystem = NoteNameSystem.international,
-  ChordSymbolDisplaySpacing spacing = ChordSymbolDisplaySpacing.typographic,
 }) {
   return chordSymbolDisplayParts(
     symbol,
     noteNameSystem: noteNameSystem,
-    spacing: spacing,
   ).toString();
 }
 
 ChordSymbolDisplayParts chordSymbolDisplayParts(
   ChordSymbol symbol, {
   NoteNameSystem noteNameSystem = NoteNameSystem.international,
-  ChordSymbolDisplaySpacing spacing = ChordSymbolDisplaySpacing.typographic,
 }) {
   final formatter = _NoteNameFormatter(noteNameSystem);
   final quality = theoryTokenDisplayLabel(symbol.quality);
   return ChordSymbolDisplayParts(
     root: formatter.compact(symbol.root),
-    rootQualitySeparator: quality.isEmpty
-        ? ''
-        : formatter.rootQualitySeparator(spacing: spacing),
     quality: quality,
     bass: symbol.hasBass ? formatter.compact(symbol.bassRequired) : null,
   );
@@ -130,14 +120,6 @@ class _NoteNameFormatter {
   const _NoteNameFormatter(this.system);
 
   final NoteNameSystem system;
-
-  String rootQualitySeparator({required ChordSymbolDisplaySpacing spacing}) {
-    return switch (system) {
-      NoteNameSystem.international || NoteNameSystem.german =>
-        spacing == ChordSymbolDisplaySpacing.typographic ? '\u2009' : '',
-      NoteNameSystem.fixedDo => ' ',
-    };
-  }
 
   String compact(String noteName) {
     final parsed = _ParsedNote.parse(noteName);
@@ -269,30 +251,4 @@ class _ParsedNote {
     final accidental = s.substring(1);
     return _ParsedNote(letter: letter, accidental: accidental);
   }
-}
-
-// Converts chord-symbol typography glyphs to SMuFL PUA codepoints.
-String toSmufl(String s) {
-  // Accidentals (PUA)
-  s = s
-      .replaceAll('bb', '\uE264') // accidentalDoubleFlat
-      .replaceAll('𝄫', '\uE264')
-      .replaceAll('x', '\uE263') // accidentalDoubleSharp
-      .replaceAll('𝄪', '\uE263')
-      .replaceAll('#', '\uE262') // accidentalSharp
-      .replaceAll('♯', '\uE262')
-      .replaceAll('b', '\uE260') // accidentalFlat
-      .replaceAll('♭', '\uE260');
-
-  // // Chord quality glyphs (PUA)
-  // s = s
-  // .replaceAll('°', '\uE870') // csymDiminished
-  // .replaceAll('ø', '\uE871') // csymHalfDiminished
-  // .replaceAll('+', '\uE872') // csymAugmented
-  // .replaceAll('−', '\uE874'); // csymMinor
-
-  // "Major seventh" indicator glyph (PUA)
-  // s = s.replaceAll('Δ', '\uE873'); // csymMajorSeventh
-
-  return s;
 }

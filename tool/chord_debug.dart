@@ -201,7 +201,6 @@ void main(List<String> args) {
         tonality: context.tonality,
         notation: notation,
       ),
-      spacing: ChordSymbolDisplaySpacing.plain,
     );
 
     final score = c.score;
@@ -386,7 +385,6 @@ Map<String, Object?> _candidateJson({
       tonality: context.tonality,
       notation: notation,
     ),
-    spacing: ChordSymbolDisplaySpacing.plain,
   );
   final sortedExtensions = id.extensions.toList()
     ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));

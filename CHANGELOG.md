@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Use bundled Inter and WhatChord Symbols fonts for more consistent typography
+  across iOS and Android.
+
 ## [2026.6.1] - 2026-06-01
 
 ### Added

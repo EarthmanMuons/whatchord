@@ -336,7 +336,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   children: [
                     _SettingsRadioOption<ChordNotationStyle>(
                       title: Text('Textual'),
-                      subtitle: Text('Cmaj7, F♯m7♭5, Bdim7'),
+                      subtitle: Text('Cmaj7, F♯m7(♭5), Bdim7'),
                       value: ChordNotationStyle.textual,
                     ),
                     _SettingsRadioOption<ChordNotationStyle>(

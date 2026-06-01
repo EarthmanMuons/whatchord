@@ -83,7 +83,7 @@ class _NearTieChordCandidatesListState
     final scale = widget.textScaleMultiplier.clamp(1.0, 1.5);
     final textStyle = base.copyWith(
       fontSize: ((base.fontSize ?? 14) + 4) * scale,
-      fontWeight: FontWeight.w800,
+      fontWeight: FontWeight.w700,
       color: cs.onSurface.withValues(alpha: 0.45),
       height: 1.18,
     );
