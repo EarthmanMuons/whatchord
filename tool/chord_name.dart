@@ -145,7 +145,6 @@ void main(List<String> args) {
         tonality: context.tonality,
         notation: ChordNotationStyle.symbolic,
       ),
-      spacing: ChordSymbolDisplaySpacing.plain,
     );
 
     final textual = chordSymbolDisplayLabel(
@@ -154,7 +153,6 @@ void main(List<String> args) {
         tonality: context.tonality,
         notation: ChordNotationStyle.textual,
       ),
-      spacing: ChordSymbolDisplaySpacing.plain,
     );
 
     final idiomatic = ChordSpokenNameFormatter.format(

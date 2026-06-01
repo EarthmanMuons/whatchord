@@ -23,6 +23,8 @@ ThemeData buildAppTheme({
 
   return ThemeData(
     useMaterial3: true,
+    fontFamily: 'WhatChord Symbols',
+    fontFamilyFallback: const ['Inter'],
     colorScheme: cs,
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,

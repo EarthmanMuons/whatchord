@@ -128,31 +128,15 @@ void main() {
     test('converts root, quality, and slash bass accidentals for UI', () {
       final symbol = ChordSymbol(root: 'Bb', quality: '7(#11)', bass: 'F#');
 
-      expect(chordSymbolDisplayLabel(symbol), 'B♭\u20097(♯11) / F♯');
+      expect(chordSymbolDisplayLabel(symbol), 'B♭7(♯11) / F♯');
     });
 
-    test('omits typographic root-quality spacing for plain diagnostics', () {
-      final symbol = ChordSymbol(root: 'Bb', quality: '7(#11)', bass: 'F#');
-
-      expect(
-        chordSymbolDisplayLabel(
-          symbol,
-          spacing: ChordSymbolDisplaySpacing.plain,
-        ),
-        'B♭7(♯11) / F♯',
-      );
-    });
-
-    test('adds root-quality spacing for fixed-Do chord names', () {
+    test('uses compact fixed-Do chord names', () {
       final symbol = ChordSymbol(root: 'F#', quality: 'm7(b5)', bass: 'C#');
 
       expect(
-        chordSymbolDisplayLabel(
-          symbol,
-          noteNameSystem: NoteNameSystem.fixedDo,
-          spacing: ChordSymbolDisplaySpacing.plain,
-        ),
-        'Fa♯ m7(♭5) / Do♯',
+        chordSymbolDisplayLabel(symbol, noteNameSystem: NoteNameSystem.fixedDo),
+        'Fa♯m7(♭5) / Do♯',
       );
     });
 
@@ -161,24 +145,8 @@ void main() {
 
       expect(
         chordSymbolDisplayLabel(symbol, noteNameSystem: NoteNameSystem.german),
-        'H\u20097 / B',
+        'H7 / B',
       );
     });
-
-    test(
-      'omits typographic root-quality spacing for plain German diagnostics',
-      () {
-        final symbol = ChordSymbol(root: 'B', quality: '7', bass: 'Bb');
-
-        expect(
-          chordSymbolDisplayLabel(
-            symbol,
-            noteNameSystem: NoteNameSystem.german,
-            spacing: ChordSymbolDisplaySpacing.plain,
-          ),
-          'H7 / B',
-        );
-      },
-    );
   });
 }

@@ -4,6 +4,8 @@ import '../../domain/theory_domain.dart' show ChordQualityToken;
 //   academic: "major seventh", idiomatic: "major seven"
 enum ChordQualityLabelForm { symbolic, textual, academic, idiomatic }
 
+const _symbolicMinorSign = '−';
+
 /// Formatting-only labels for chord quality tokens.
 extension ChordQualityTokenLabels on ChordQualityToken {
   String label(ChordQualityLabelForm form) {
@@ -26,9 +28,9 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.majorFlat5:
         return '(♭5)';
       case ChordQualityToken.minor:
-        return '−';
+        return _symbolicMinorSign;
       case ChordQualityToken.minorSharp5:
-        return '−♯5';
+        return '$_symbolicMinorSign♯5';
       case ChordQualityToken.diminished:
         return '°';
       case ChordQualityToken.augmented:
@@ -40,7 +42,7 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.major6:
         return '6';
       case ChordQualityToken.minor6:
-        return '−6';
+        return '${_symbolicMinorSign}6';
       case ChordQualityToken.dominant7:
         return '7';
       case ChordQualityToken.dominant7sus2:
@@ -62,11 +64,11 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.major7Sharp5:
         return 'Δ7♯5';
       case ChordQualityToken.minor7:
-        return '−7';
+        return '${_symbolicMinorSign}7';
       case ChordQualityToken.minor7Sharp5:
-        return '−7♯5';
+        return '${_symbolicMinorSign}7♯5';
       case ChordQualityToken.minorMajor7:
-        return '−Δ7';
+        return '$_symbolicMinorSignΔ7';
       case ChordQualityToken.halfDiminished7:
         return 'ø7';
       case ChordQualityToken.diminished7:

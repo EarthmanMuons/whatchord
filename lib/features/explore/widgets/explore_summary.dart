@@ -23,7 +23,6 @@ class ExploreSummary extends ConsumerWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final symbolStyle = textTheme.headlineMedium?.copyWith(
       color: colorScheme.onSurface,
-      fontFamilyFallback: const ['Bravura'],
       height: 1.0,
     );
     final symbolDetailStyle = symbolStyle?.copyWith(
@@ -40,7 +39,6 @@ class ExploreSummary extends ConsumerWidget {
         value: chordSymbolDisplayLabel(
           presentation.symbol,
           noteNameSystem: noteNameSystem,
-          spacing: ChordSymbolDisplaySpacing.plain,
         ),
         copiedLabel: 'chord symbol',
       ),
@@ -147,24 +145,17 @@ class ExploreSummary extends ConsumerWidget {
                     Text.rich(
                       TextSpan(
                         children: [
-                          TextSpan(
-                            text: toSmufl(displaySymbol.root),
-                            style: rootStyle,
-                          ),
+                          TextSpan(text: displaySymbol.root, style: rootStyle),
                           if (displaySymbol.quality.isNotEmpty) ...[
                             TextSpan(
-                              text: displaySymbol.rootQualitySeparator,
-                              style: symbolDetailStyle,
-                            ),
-                            TextSpan(
-                              text: toSmufl(displaySymbol.quality),
+                              text: displaySymbol.quality,
                               style: symbolDetailStyle,
                             ),
                           ],
                           if (displaySymbol.hasBass) ...[
                             TextSpan(text: ' / ', style: symbolDetailStyle),
                             TextSpan(
-                              text: toSmufl(displaySymbol.bassRequired),
+                              text: displaySymbol.bassRequired,
                               style: symbolDetailStyle,
                             ),
                           ],

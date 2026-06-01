@@ -58,12 +58,7 @@ class IdentityCard extends ConsumerWidget {
 
     final base = scaleStyle(theme.textTheme.displayMedium!);
 
-    final primaryStyle = base.copyWith(
-      color: cs.onPrimary,
-      fontFamilyFallback: const ['Bravura'],
-      // fontFeatures: const [FontFeature.enable('ss07')],
-      height: 1.0,
-    );
+    final primaryStyle = base.copyWith(color: cs.onPrimary, height: 1.0);
 
     final secondaryStyle = scaleStyle(theme.textTheme.titleMedium!).copyWith(
       color: cs.onPrimary.withValues(alpha: 0.85),
@@ -85,7 +80,7 @@ class IdentityCard extends ConsumerWidget {
     Widget identityBody(IdentityDisplay v) {
       return switch (v) {
         NoteDisplay(:final noteName) => AutoSizeText(
-          toSmufl(noteName),
+          noteName,
           textAlign: TextAlign.center,
           style: rootStyle,
           maxLines: 1,
@@ -379,45 +374,6 @@ class IdentityCard extends ConsumerWidget {
   }
 }
 
-List<InlineSpan> buildChordSpans({
-  required String text,
-  required TextStyle base,
-  required TextStyle parenStyle,
-}) {
-  // We expect `text` already has the correct chord string (root+quality+slash etc.).
-  // This helper only styles parentheses differently.
-  final spans = <InlineSpan>[];
-
-  // Simple single-pass scan.
-  final buf = StringBuffer();
-  TextStyle currentStyle = base;
-
-  void flush() {
-    if (buf.isEmpty) return;
-    spans.add(TextSpan(text: buf.toString(), style: currentStyle));
-    buf.clear();
-  }
-
-  for (var i = 0; i < text.length; i++) {
-    final ch = text[i];
-
-    // Parentheses special styling.
-    final isParen = ch == '(' || ch == ')';
-
-    final nextStyle = isParen ? parenStyle : base;
-
-    if (nextStyle != currentStyle) {
-      flush();
-      currentStyle = nextStyle;
-    }
-
-    buf.write(ch);
-  }
-
-  flush();
-  return spans;
-}
-
 TextSpan _chordDisplaySpan({
   required ChordSymbol symbol,
   required NoteNameSystem noteNameSystem,
@@ -433,21 +389,13 @@ TextSpan _chordDisplaySpan({
   return TextSpan(
     style: primaryStyle,
     children: <InlineSpan>[
-      TextSpan(text: toSmufl(display.root), style: rootStyle),
+      TextSpan(text: display.root, style: rootStyle),
       if (display.quality.isNotEmpty) ...[
-        TextSpan(text: display.rootQualitySeparator, style: chordDetailStyle),
-        ...buildChordSpans(
-          text: toSmufl(display.quality),
-          base: chordDetailStyle,
-          parenStyle: chordDetailStyle.copyWith(
-            fontSize: (primaryStyle.fontSize ?? 14) + 16.0,
-            fontWeight: FontWeight.w300,
-          ),
-        ),
+        TextSpan(text: display.quality, style: chordDetailStyle),
       ],
       if (display.hasBass) ...[
         TextSpan(text: ' / ', style: chordDetailStyle),
-        TextSpan(text: toSmufl(display.bassRequired), style: chordDetailStyle),
+        TextSpan(text: display.bassRequired, style: chordDetailStyle),
       ],
     ],
   );
