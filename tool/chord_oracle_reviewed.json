@@ -1,6 +1,7 @@
 {
   "0-1-2-5-8_b0": "Fm6b13/C is correct; structural fit beats Dm7(b5)/C (Db avoids -3 M7 penalty as b13 alteration); oracle split (music21->Dm7b5/C, tonal->DbM7b9/C) confirms genuine 3-way ambiguity; sound",
   "0-1-3-5-8-9_b8": "F7(#9,b13) / G# is correct; tonal agrees (G#=Ab, enharmonic); music21 fails on accidental parsing; pychord has no label",
+  "0-1-3-6-10_b10": "Ebm7(add13)/Bb is correct; tight near-tie cluster resolved by fewer-alterations and conventional-inversion tie-breakers; both oracles pick one of our top 3; sound",
   "0-1-3-7-10_b3": "Eb7(add13) is correct; near tie with Cm7b9/Eb; genuine Eb7↔Cm7b9 ambiguity confirmed by oracle split (tonal agrees Eb7, music21 agrees Cm7b9); tie-breaker prefers fewer alterations; sound",
   "0-1-3-8_b0": "D♭maj7sus2 / C is correct; clean structural fit (all 4 notes as core template tones) beats Abadd11/C (Db as add11 extra) and Cm#5addb9; 1.30 gap reflects real template difference, not inflation; oracle split (music21->Abadd11/C, tonal->Cm(b6,b9)) confirms genuine 3-way ambiguity; sound",
   "0-1-4-7_b1": "D♭m(maj7)#11 is correct; near-tie cluster resolved by root-position preference and fully-explained-voicing tie-breakers; both oracles produce related Db-rooted or diminished readings; sound",
