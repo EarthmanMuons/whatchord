@@ -1,0 +1,5 @@
+- More accurate chord ranking for slash chords, add-tones, 6/9 chords, altered dominants, and close ambiguities.
+- Why This Chord? now keeps strong near-tie alternatives visible.
+- MIDI disconnect, cancel, forget-device, and Network Session reconnect flows are more reliable.
+- Explore mode adds a visible copy button, major-triad flat ninths, and better root spelling.
+- Android landscape spacing is improved for chord alternatives, explore mode, and settings.
