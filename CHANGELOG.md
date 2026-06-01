@@ -14,26 +14,27 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Added a flat-ninth color choice for major triads in explore mode, so chords
   such as Cadd♭9 can be built directly.
+- Added a visible copy button to explore mode so chord copy actions no longer
+  depend on discovering a long-press gesture.
 
 ### Changed
 
-- Prefer simple triad add-tone names such as Caugadd9 over inverted unusual
-  seventh-family readings like E7#5/C for the same voicing, with a score guard
-  that keeps legitimate alternatives visible.
-- Compress redundant add-tone extensions from slash chord symbols when the slash
-  bass already supplies that pitch (e.g., `Ab7(add11)/Db` → `Ab7/Db`, `Gadd9/A`
-  → `G/A`).
-- Prefer complete triad-add-tone names such as Bbmadd9/Db over unconventional
-  seventh-family readings like Dbmaj7(add13) for the same voicing.
+- Improved chord identification and ranking for ambiguous slash chords, triad
+  add-tone voicings, 6/9 chords, altered dominants, and voicings where every
+  sounding note should be named.
+- Prefer musician-expected triad add-tone names such as Caugadd9, Bbmadd9/Db,
+  and B♭madd9/F over structurally weaker seventh-family, fifthless, or suspended
+  readings of the same voicing.
 - Prefer root-position 6/9 names such as C6/9 over dominant-7-sus-slash readings
   like D7sus2/C for the same voicing, matching the conventional musician name.
 - Prefer altered dominant seventh names such as F7(#9,b13)/Ab over competing
   non-dominant seventh-family slash readings of the same voicing.
-- Prefer a reading that names every sounding note over one that silently drops a
+- Prefer readings that name every sounding note over ones that silently drop a
   note. For example, C D♭ E G over a G bass is now read as a C major triad with
   a flat ninth rather than C#dim, which discarded the C.
-- Prefer complete triad slash names such as B♭madd9/F over structurally weaker
-  fifthless or suspended readings of the same voicing.
+- Compress redundant add-tone extensions from slash chord symbols when the slash
+  bass already supplies that pitch (e.g., `Ab7(add11)/Db` → `Ab7/Db`, `Gadd9/A`
+  → `G/A`).
 - Name a flat ninth on a plain triad as an added tone, so C E G D♭ reads as
   Cadd♭9 rather than the ambiguous C♭9, matching how add9 and add#9 are already
   handled when no seventh is present.
@@ -50,12 +51,6 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   when a hard rule promotes a lower-scoring chord to the top. Alternatives are
   now measured against the chosen chord's score, so readings that score at or
   above it stay visible instead of being suppressed.
-- Fixed chord root spelling so double-sharp and double-flat roots such as B𝄪 are
-  never generated; enharmonic equivalents like C# are used instead.
-- Fixed explore mode note chips so they spell members relative to the explicitly
-  selected root, matching the chord symbol (e.g., C# major now shows C# E# G#
-  instead of Db F Ab).
-- Fixed explore mode copy dialog overflowing in landscape orientation.
 - Fixed MIDI settings getting stuck on "Connecting..." with a disabled device
   list after disconnecting or forgetting a device. Disconnecting now stops
   reconnect attempts immediately and stays disconnected until you connect again.
@@ -64,6 +59,15 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Fixed the Cancel button getting stuck on "Connecting..." when reconnecting to
   a Network Session that is no longer reachable. Cancel now always stops the
   attempt and returns to a disconnected state.
+- Fixed chord root spelling so double-sharp and double-flat roots such as B𝄪 are
+  never generated; enharmonic equivalents like C# are used instead.
+- Fixed explore mode note chips so they spell members relative to the explicitly
+  selected root, matching the chord symbol (e.g., C# major now shows C# E# G#
+  instead of Db F Ab).
+- Fixed explore mode copy dialog overflowing in landscape orientation.
+- Fixed Android landscape spacing so the third chord alternative is no longer
+  clipped, and extended the status-bar spacing adjustment to explore mode and
+  settings pages.
 
 ## [2026.5.28] - 2026-05-28
 
