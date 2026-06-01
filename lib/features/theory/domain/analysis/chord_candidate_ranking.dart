@@ -1004,15 +1004,18 @@ abstract final class ChordCandidateRanking {
     _CandidateFeatures fb,
     Tonality _,
   ) {
-    // One candidate must be a complete major/minor triad with at least one
+    // One candidate must be a non-seventh, non-sus triad with at least one
     // add-tone extension (and no alterations or stacked natural extensions).
+    // Covers major, minor, augmented, and diminished triads.
     final aIsTriadAddTone =
-        fa.isCompleteMajorMinorTriad &&
+        !fa.isSeventhFamily &&
+        !fa.isSus &&
         fa.extPref.addCount > 0 &&
         fa.extPref.alterationCount == 0 &&
         fa.extPref.naturalCount == 0;
     final bIsTriadAddTone =
-        fb.isCompleteMajorMinorTriad &&
+        !fb.isSeventhFamily &&
+        !fb.isSus &&
         fb.extPref.addCount > 0 &&
         fb.extPref.alterationCount == 0 &&
         fb.extPref.naturalCount == 0;
@@ -1030,6 +1033,12 @@ abstract final class ChordCandidateRanking {
     if (!_isUnusualSeventhQuality(otherQuality)) return null;
     if (fOther.extPref.totalCount > 0) return null;
     if (fOther.isRootPosition) return null;
+
+    // Score guard: let decisively higher-scoring unusual-quality readings
+    // through when the gap exceeds what structural inflation explains.
+    final preferredCandidate = aIsTriadAddTone ? a : b;
+    final otherCandidate = aIsTriadAddTone ? b : a;
+    if (preferredCandidate.score + 1.50 < otherCandidate.score) return null;
 
     return aIsTriadAddTone ? -1 : 1;
   }
