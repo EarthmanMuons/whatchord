@@ -10,6 +10,7 @@
   "0-1-4-7-8_b0": "A♭maj7♯5(add11) / C is defensible (conventional 3rd-in-bass; ♯5 absorbs E); music21's D♭m(maj7)♯11 isn't authoritative; tonal and pychord decline (non-idiomatic voicing)",
   "0-1-4-8_b0": "C♯m(maj7)/B♯ is correct; clean structural win over Caugadd♭9 (all 4 notes as core template tones vs 1 extra); tonal agrees; music21's A♭+(add11)/C corresponds to our 4th choice; sound",
   "0-1-5-9_b1": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable",
+  "0-2-4-6_b0": "D9/C is correct; near tie with C(b5)add9 resolved by natural-extensions preference; both oracles converge; no action needed",
   "0-2-4-7-9_b9": "C6/9 / A or Am7(add11) both valid; perfect 3-way tie (C6/9/A, Am7, D9sus4/A) resolved by tonic preference in C major; all oracles list both C- and A-rooted readings; genuine C6<->Am7 ambiguity extended by a 9th; sound",
   "0-2-4-8_b0": "Caugadd9 is correct; broadened hard rule prefers simple augmented triad with add9 over E7#5/B#; E7#5/B# remains visible at #2 via 1.50 score guard; tonal lists Caugadd9 as #1; sound",
   "0-2-4-9_b0": "C6/9 is correct in C major; matches music21's Am/CaddD in A:min where Amadd11/C is #1; tonal-context-dependent ambiguity, not a disagreement",
