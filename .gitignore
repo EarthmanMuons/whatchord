@@ -12,6 +12,8 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+tool/whatchord_symbols/LelandText.otf
+tool/whatchord_symbols/specimen.svg
 
 # IntelliJ related
 *.iml
