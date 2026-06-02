@@ -6,6 +6,7 @@ import '../models/scale_degree.dart';
 import '../models/tonality.dart';
 import '../services/chord_quality_intervals.dart';
 import '../services/pitch_class.dart';
+import 'choco_common_name_prior.dart';
 
 class RankingDecision {
   final int result;
@@ -349,6 +350,7 @@ abstract final class ChordCandidateRanking {
       _preferNaturalExtensions,
     ),
     _NamedRule('prefer root position', _preferRootPosition),
+    _NamedRule('prefer common naming preference', _preferCommonNamePrior),
     _NamedRule(
       'prefer more conventional inversion',
       _preferConventionalInversion,
@@ -1248,6 +1250,55 @@ abstract final class ChordCandidateRanking {
   ) {
     if (fa.isRootPosition == fb.isRootPosition) return null;
     return fb.isRootPosition ? 1 : -1;
+  }
+
+  /// Uses ChoCo chord-label frequency as a weak common-name prior for otherwise
+  /// equivalent near-ties.
+  ///
+  /// This is intentionally late and narrow: it compares only semantic chord
+  /// signatures, not roots or keys, and it refuses to run unless the competing
+  /// names are similarly well explained. That makes it useful for ambiguities
+  /// such as Dm7/A vs F6/A without turning corpus frequency into a primary
+  /// scoring signal.
+  static int? _preferCommonNamePrior(
+    ChordCandidate a,
+    ChordCandidate b,
+    _CandidateFeatures fa,
+    _CandidateFeatures fb,
+    Tonality _,
+  ) {
+    if ((a.score - b.score).abs() > 0.05) return null;
+    if (fa.unnamedToneCount != fb.unnamedToneCount) return null;
+    if (fa.extensionCount != fb.extensionCount) return null;
+    if (fa.extensionTensionCount != fb.extensionTensionCount) return null;
+
+    final aCount = _commonNamePriorCount(a.identity);
+    final bCount = _commonNamePriorCount(b.identity);
+    if (aCount == bCount) return null;
+
+    const minObservations = 100;
+    const minRatio = 2.0;
+    final high = aCount > bCount ? aCount : bCount;
+    final low = aCount > bCount ? bCount : aCount;
+    if (high < minObservations) return null;
+    if (low > 0 && high / low < minRatio) return null;
+
+    return aCount > bCount ? -1 : 1;
+  }
+
+  static int _commonNamePriorCount(ChordIdentity identity) {
+    return chocoCommonNamePriorObservationCounts[_commonNamePriorKey(
+          identity,
+        )] ??
+        0;
+  }
+
+  static String _commonNamePriorKey(ChordIdentity identity) {
+    if (identity.extensions.isEmpty) return identity.quality.name;
+
+    final extensions = identity.extensions.toList()
+      ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+    return '${identity.quality.name}|${extensions.map((e) => e.name).join(',')}';
   }
 
   static int? _preferConventionalInversion(
