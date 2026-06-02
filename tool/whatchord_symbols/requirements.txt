@@ -1,0 +1,2 @@
+fonttools>=4.50
+skia-pathops>=0.8   # outline boolean ops + stroking, for the synthesized Bold
