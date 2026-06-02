@@ -1,10 +1,10 @@
 # WhatChord Symbols tooling
 
 This folder contains the scripts used to regenerate the bundled WhatChord
-Symbols fonts from a local copy of `LelandText.otf`.
+Symbols fonts from local copies of the Leland font files.
 
-The upstream source font is not committed. Download `LelandText.otf` from the
-Leland project and place it in this folder:
+The upstream source fonts are not committed. Download `LelandText.otf` and
+`Leland.otf` from the Leland project and place them in this folder:
 
 - <https://github.com/MuseScoreFonts/Leland>
 
@@ -26,4 +26,5 @@ Generated outputs:
 - `../../assets/fonts/WhatChordSymbols-Bold.otf`
 - `specimen.svg`
 
-`LelandText.otf` and `specimen.svg` are intentionally ignored by git.
+`LelandText.otf`, `Leland.otf`, and `specimen.svg` are intentionally ignored by
+git.

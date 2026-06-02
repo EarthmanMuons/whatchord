@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added a staff notation preview to the key signature picker, showing the
+  selected signature with a treble clef.
+
 ### Changed
 
 - Use bundled Inter and WhatChord Symbols fonts for more consistent typography

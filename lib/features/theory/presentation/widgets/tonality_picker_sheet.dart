@@ -11,6 +11,7 @@ import '../../state/providers/selected_tonality_notifier.dart';
 import '../../state/providers/theory_preferences_notifier.dart';
 import '../models/chord_symbol.dart';
 import '../services/note_display_formatter.dart';
+import 'key_signature_staff_preview.dart';
 
 enum TonalityPickerPresentation { bottomSheet, sideSheet }
 
@@ -29,8 +30,8 @@ class TonalityPickerSheet extends ConsumerStatefulWidget {
 
 class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
   static const double _rowHeight = 62.0;
-  static const double _headerHeight = 84.0;
-  static const double _sideSheetHeaderHeight = 96.0;
+  static const double _headerHeight = 184.0;
+  static const double _sideSheetHeaderHeight = 196.0;
   static const double _chipWidth = 64.0;
 
   late final ScrollController _controller;
@@ -61,6 +62,7 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
   Widget build(BuildContext context) {
     final selected = ref.watch(selectedTonalityProvider);
     final noteNameSystem = ref.watch(noteNameSystemProvider);
+    final selectedKeySignature = selected.keySignature;
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -106,7 +108,8 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
             _sideSheetHeaderHeight + (_rows.length * _rowHeight) + 12.0;
         final bottomSheetHeight = modalBottomSheetMaxHeight(
           context,
-          portraitFraction: 0.42,
+          portraitFraction: 0.56,
+          landscapeFraction: 0.92,
         );
         final sheetHeight = isSideSheet
             ? sideSheetContentHeight.clamp(0.0, constraints.maxHeight)
@@ -127,6 +130,7 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                     _TonalityPickerHeader(
                       height: headerHeight,
                       chipWidth: _chipWidth,
+                      keySignature: selectedKeySignature,
                       showCloseButton: isSideSheet,
                       backgroundColor: cs.surfaceContainerLow,
                     ),
@@ -134,7 +138,9 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                       child: ListView.builder(
                         controller: _controller,
                         itemExtent: _rowHeight,
-                        padding: EdgeInsets.only(bottom: isSideSheet ? 0 : 12),
+                        padding: EdgeInsets.only(
+                          bottom: isLandscape || isSideSheet ? 0 : 12,
+                        ),
                         itemCount: _rows.length,
                         itemBuilder: (context, index) {
                           final row = _rows[index];
@@ -329,12 +335,14 @@ String _tonalitySemanticsLabel(
 class _TonalityPickerHeader extends StatelessWidget {
   final double height;
   final double chipWidth;
+  final KeySignature keySignature;
   final bool showCloseButton;
   final Color backgroundColor;
 
   const _TonalityPickerHeader({
     required this.height,
     required this.chipWidth,
+    required this.keySignature,
     required this.showCloseButton,
     required this.backgroundColor,
   });
@@ -357,6 +365,12 @@ class _TonalityPickerHeader extends StatelessWidget {
             ModalPanelHeader(
               title: 'Key Signature',
               showCloseButton: showCloseButton,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+              child: Center(
+                child: KeySignatureStaffPreview(keySignature: keySignature),
+              ),
             ),
             Expanded(
               child: Padding(
