@@ -1,4 +1,4 @@
-import 'dart:io' show Platform;
+import 'dart:io';
 
 import 'package:meta/meta.dart';
 import 'package:permission_handler/permission_handler.dart';

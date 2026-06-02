@@ -1,7 +1,7 @@
 import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
 import '../models/tonality.dart';
-import 'note_spelling.dart' show spellChordRoot, spellPitchClass;
+import 'note_spelling.dart';
 import 'pitch_class.dart';
 
 /// Role-aware spelling for the *currently sounding* chord members.
