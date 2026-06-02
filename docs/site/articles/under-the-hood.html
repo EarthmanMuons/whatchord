@@ -757,14 +757,6 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
               inverted 6th-chord spelling whose fifth is absent)
             </li>
             <li>
-              C-E♭-A♭ with C or E♭ in the bass:
-              <span class="chord">A♭/C</span> or
-              <span class="chord">A♭/E♭</span> vs.
-              <span class="chord">Cm♯5</span> (a complete major-triad inversion
-              is the ordinary spelling; this holds even when color extensions
-              are added, e.g., A♭♯11/C is preferred over Cm♯5add9)
-            </li>
-            <li>
               B-D-F-A♭: <span class="chord">Bdim7</span> vs.
               <span class="chord">G♯dim7/B</span> vs.
               <span class="chord">Ddim7/C♭</span> vs.
@@ -834,10 +826,11 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
             <li>Prefer root-position diminished 7th</li>
             <li>Prefer dominant 7th shell over dim7 slash</li>
             <li>
-              Prefer dominant 7th slash over non-dominant seventh-family
-              slash
+              Prefer dominant 7th slash over non-dominant seventh-family slash
             </li>
-            <li>Prefer a reading that names every tone over one that drops a tone</li>
+            <li>
+              Prefer a reading that names every tone over one that drops a tone
+            </li>
             <li>Prefer fewer altered/tension colors</li>
             <li>Prefer diatonic chords</li>
             <li>Prefer the tonic chord</li>
@@ -878,8 +871,8 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
 
           <p>
             Because hard rules and the near-tie window deliberately override raw
-            score, comparing two candidates is not a transitive total order: A
-            can beat B, B can beat C, and yet C can beat A. A generic sort is
+            score, the candidate comparison is not guaranteed to be transitive:
+            A can beat B, B can beat C, and yet C can beat A. A generic sort is
             undefined on a comparison like that and can bury a strong reading
             below a weaker one.
           </p>
