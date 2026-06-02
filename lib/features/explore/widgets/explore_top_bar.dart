@@ -19,7 +19,9 @@ class ExploreTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final titleStyle = Theme.of(context).textTheme.titleLarge;
+    final titleStyle = Theme.of(
+      context,
+    ).textTheme.titleLarge?.copyWith(letterSpacing: -0.2);
 
     // Optical-only tweak.
     const arrowIconDx = -6.0;

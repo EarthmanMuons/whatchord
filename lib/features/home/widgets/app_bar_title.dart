@@ -19,6 +19,7 @@ class AppBarTitle extends ConsumerWidget {
     final baseStyle = DefaultTextStyle.of(context).style;
     final titleStyle = baseStyle.copyWith(
       fontSize: (baseStyle.fontSize ?? 20) + 2,
+      letterSpacing: -0.2,
     );
 
     final title = Text.rich(
