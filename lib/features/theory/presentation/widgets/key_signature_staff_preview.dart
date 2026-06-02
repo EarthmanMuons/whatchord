@@ -18,7 +18,13 @@ class KeySignatureStaffPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final borderColor = cs.outlineVariant.withValues(alpha: 0.75);
+    final staffBackground = _staffBackgroundColor(cs);
+    final borderColor = Color.alphaBlend(
+      Colors.black.withValues(
+        alpha: cs.brightness == Brightness.dark ? 0.30 : 0.22,
+      ),
+      staffBackground,
+    );
 
     // Notation is drawn as fixed geometry so system text scaling does not
     // distort staff spacing or accidental placement.
@@ -37,7 +43,7 @@ class KeySignatureStaffPreview extends StatelessWidget {
             return Center(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color: _staffPaperColor,
+                  color: staffBackground,
                   border: Border.all(color: borderColor),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -64,12 +70,17 @@ class KeySignatureStaffPreview extends StatelessWidget {
 }
 
 const _previewWidth = 360.0;
-const _staffPaperColor = Color(0xFFFFFEFA);
 const _staffInkColor = Color(0xFF101214);
 const _symbolFontFamily = 'WhatChord Symbols';
 const _gClef = '\u{1D11E}';
 const _sharp = '\u266F';
 const _flat = '\u266D';
+
+Color _staffBackgroundColor(ColorScheme cs) {
+  if (cs.brightness == Brightness.light) return Colors.white;
+
+  return Color.alphaBlend(cs.surface.withValues(alpha: 0.18), Colors.white);
+}
 
 class _KeySignatureStaffPainter extends CustomPainter {
   const _KeySignatureStaffPainter({
