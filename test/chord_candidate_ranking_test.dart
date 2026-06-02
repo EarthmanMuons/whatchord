@@ -324,6 +324,26 @@ void main() {
     }
   });
 
+  test('common naming preference breaks complete sixth and minor7 tie', () {
+    final minor7 = _candidate(
+      quality: ChordQualityToken.minor7,
+      root: 'D',
+      bass: 'A',
+      presentIntervals: const {0, 3, 7, 10},
+      score: 8.37,
+    );
+
+    final major6 = _candidate(
+      quality: ChordQualityToken.major6,
+      root: 'F',
+      bass: 'A',
+      presentIntervals: const {0, 4, 7, 9},
+      score: 8.37,
+    );
+
+    _expectTieRule(minor7, major6, 'prefer common naming preference');
+  });
+
   test(
     'dominant7 shell slash with color bass beats major7 family slash in near-tie',
     () {

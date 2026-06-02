@@ -590,6 +590,8 @@ String _plainDecision(String? rule, {ChordCandidate? winner}) {
     'prefer natural extensions over adds, then fewer total' =>
       'natural extensions give a cleaner chord name than added-tone spellings.',
     'prefer root position' => 'its bass is the chord root.',
+    'prefer common naming preference' =>
+      'common naming practice favors this chord name for the same kind of sonority.',
     'prefer 1st inversion over 2nd inversion' =>
       'its bass note is a more stable chord tone.',
     'prefer 7th chords over triads' =>

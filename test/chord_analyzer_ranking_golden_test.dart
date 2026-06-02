@@ -163,6 +163,18 @@ void main() {
       expectedExtensions: {ChordExtension.add11},
     ),
 
+    golden(
+      description: 'common-name prior breaks sixth versus minor seventh tie',
+      expectedSymbol: 'Dm7 / A',
+      expectedAlternateSymbols: ['F6 / A'],
+      pcs: ['C', 'D', 'F', 'A'],
+      bass: 'A',
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
+      expectedRoot: 'D',
+      expectedBass: 'A',
+      expectedQuality: ChordQualityToken.minor7,
+    ),
+
     // -------------------------------------------------------------------------
     // Sus-tone-in-bass penalty
     // -------------------------------------------------------------------------

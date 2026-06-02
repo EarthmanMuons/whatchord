@@ -14,6 +14,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Use bundled Inter and WhatChord Symbols fonts for more consistent typography
   across iOS and Android.
+- Use ChoCo corpus-derived common-name frequency as a narrow late tie-breaker
+  for otherwise equivalent chord names, so voicings such as C D F A over A now
+  prefer Dm7/A over F6/A.
 
 ## [2026.6.1] - 2026-06-01
 
