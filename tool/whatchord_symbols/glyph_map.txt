@@ -1,22 +1,22 @@
 # Glyph mapping for the "WhatChord Symbols" font.
 #
-# Each row:  SOURCE_CP  ->  TARGET_CP   # notes
+# Each row:  SOURCE_CP  ->  TARGET_CP   # source name -> target Unicode name
 #   SOURCE_CP  = codepoint of the glyph as it lives in LelandText.otf
 #   TARGET_CP  = codepoint you want it to live at in the output font
 #
-# The trailing "(name)" is the glyph's name inside Leland, shown only to help
-# you confirm you picked the right source. Edit the SOURCE_CP column to swap
+# The source name is the glyph's name inside Leland. The target Unicode name is
+# the official Unicode name for TARGET_CP. Edit the SOURCE_CP column to swap
 # which Leland glyph gets used; edit TARGET_CP to change where it lands.
 #
 # Blank lines and lines starting with '#' are ignored.
 
-U+ED64  ->  U+1D12B   # double flat        (csymAccidentalDoubleFlat)
-U+ED60  ->  U+266D    # flat               (csymAccidentalFlat)
-U+ED61  ->  U+266E    # natural            (csymAccidentalNatural)
-U+ED62  ->  U+266F    # sharp              (csymAccidentalSharp)
-U+ED63  ->  U+1D12A   # double sharp       (csymAccidentalDoubleSharp)
-U+E870  ->  U+00B0    # diminished         (csymDiminished)
-U+E871  ->  U+00F8    # half-diminished    (csymHalfDiminished)
-U+E873  ->  U+0394    # major seventh      (csymMajorSeventh)
-U+E874  ->  U+2212    # minor              (csymMinor)
-U+E872  ->  U+002B    # augmented          (csymAugmented)
+U+ED64  ->  U+1D12B   # csymAccidentalDoubleFlat -> MUSICAL SYMBOL DOUBLE FLAT
+U+ED60  ->  U+266D    # csymAccidentalFlat -> MUSIC FLAT SIGN
+U+ED61  ->  U+266E    # csymAccidentalNatural -> MUSIC NATURAL SIGN
+U+ED62  ->  U+266F    # csymAccidentalSharp -> MUSIC SHARP SIGN
+U+ED63  ->  U+1D12A   # csymAccidentalDoubleSharp -> MUSICAL SYMBOL DOUBLE SHARP
+U+E870  ->  U+00B0    # csymDiminished -> DEGREE SIGN
+U+E871  ->  U+00F8    # csymHalfDiminished -> LATIN SMALL LETTER O WITH STROKE
+U+E873  ->  U+0394    # csymMajorSeventh -> GREEK CAPITAL LETTER DELTA
+U+E874  ->  U+2212    # csymMinor -> MINUS SIGN
+U+E872  ->  U+002B    # csymAugmented -> PLUS SIGN
