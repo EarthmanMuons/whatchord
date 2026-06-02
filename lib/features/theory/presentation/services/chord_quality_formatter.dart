@@ -1,5 +1,5 @@
 import '../../domain/theory_domain.dart';
-import '../../presentation/models/chord_symbol.dart' show ChordNotationStyle;
+import '../../presentation/models/chord_symbol.dart';
 import 'chord_quality_token_labels.dart';
 
 /// Formats the "quality+extensions" portion of a chord symbol.

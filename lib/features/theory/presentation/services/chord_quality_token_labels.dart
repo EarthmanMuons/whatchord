@@ -1,4 +1,4 @@
-import '../../domain/theory_domain.dart' show ChordQualityToken;
+import '../../domain/theory_domain.dart';
 
 // Example for major seventh -- symbolic: "Δ7", textual: "maj7",
 //   academic: "major seventh", idiomatic: "major seven"

@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/demo/demo.dart';
-import 'package:whatchord/features/midi/midi.dart' show midiNoteStateProvider;
+import 'package:whatchord/features/midi/midi.dart';
 
 import '../adapters/demo_input_adapter.dart';
 import '../adapters/midi_input_adapter.dart';
