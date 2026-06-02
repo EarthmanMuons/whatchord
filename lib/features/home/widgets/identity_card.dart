@@ -60,11 +60,9 @@ class IdentityCard extends ConsumerWidget {
 
     final primaryStyle = base.copyWith(color: cs.onPrimary, height: 1.0);
 
-    final secondaryStyle = scaleStyle(theme.textTheme.titleMedium!).copyWith(
-      color: cs.onPrimary.withValues(alpha: 0.85),
-      height: 1.1,
-      letterSpacing: -0.2,
-    );
+    final secondaryStyle = scaleStyle(
+      theme.textTheme.titleMedium!,
+    ).copyWith(color: cs.onPrimary.withValues(alpha: 0.85), height: 1.1);
 
     final rootStyle = primaryStyle.copyWith(
       fontWeight: FontWeight.w500,
