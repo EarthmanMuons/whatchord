@@ -14,6 +14,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Use bundled Inter and WhatChord Symbols fonts for more consistent typography
   across iOS and Android.
+- Show harmonic-minor scale-degree context across the full degree strip when a
+  chord is interpreted through harmonic minor, so labels such as V7 sit in a
+  coherent minor-key context.
 - Use ChoCo corpus-derived common-name frequency as a narrow late tie-breaker
   for otherwise equivalent chord names, so voicings such as C D F A over A now
   prefer Dm7/A over F6/A.

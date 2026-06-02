@@ -216,7 +216,16 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
   String _labelForDegree(ScaleDegree degree) {
     final current = widget.current;
     if (current?.degree == degree) return current!.romanNumeral;
-    return degree.romanNumeralForMode(widget.mode);
+    return degree.romanNumeralForSource(_displaySource);
+  }
+
+  ScaleDegreeSource get _displaySource {
+    final currentSource = widget.current?.source;
+    if (currentSource == ScaleDegreeSource.harmonicMinor) {
+      return ScaleDegreeSource.harmonicMinor;
+    }
+    if (widget.mode == TonalityMode.major) return ScaleDegreeSource.major;
+    return ScaleDegreeSource.naturalMinor;
   }
 
   String _titleCase(String value) {
