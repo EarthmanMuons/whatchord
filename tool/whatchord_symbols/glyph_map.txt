@@ -1,15 +1,18 @@
 # Glyph mapping for the "WhatChord Symbols" font.
 #
-# Each row:  SOURCE_CP  ->  TARGET_CP   # source name -> target Unicode name
-#   SOURCE_CP  = codepoint of the glyph as it lives in LelandText.otf
+# Each row:  [SOURCE_FONT:]SOURCE_CP  ->  TARGET_CP   # source name -> target Unicode name
+#   SOURCE_FONT = optional font file in this folder; defaults to LelandText.otf
+#   SOURCE_CP  = codepoint of the glyph as it lives in SOURCE_FONT
 #   TARGET_CP  = codepoint you want it to live at in the output font
 #
 # The source name is the glyph's name inside Leland. The target Unicode name is
 # the official Unicode name for TARGET_CP. Edit the SOURCE_CP column to swap
-# which Leland glyph gets used; edit TARGET_CP to change where it lands.
+# which Leland glyph gets used; edit TARGET_CP to change where it lands. Prefix
+# SOURCE_CP with SOURCE_FONT: when the glyph lives outside LelandText.otf.
 #
 # Blank lines and lines starting with '#' are ignored.
 
+Leland.otf:U+E050  ->  U+1D11E   # gClef -> MUSICAL SYMBOL G CLEF
 U+ED64  ->  U+1D12B   # csymAccidentalDoubleFlat -> MUSICAL SYMBOL DOUBLE FLAT
 U+ED60  ->  U+266D    # csymAccidentalFlat -> MUSIC FLAT SIGN
 U+ED61  ->  U+266E    # csymAccidentalNatural -> MUSIC NATURAL SIGN

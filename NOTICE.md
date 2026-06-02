@@ -31,12 +31,12 @@ Included assets:
 
 This project includes the **WhatChord Symbols** fonts, which are modified
 derivative font software containing a small subset of musical symbol glyphs
-extracted from the **Leland Text** font. The derivative fonts are renamed and do
-not use the reserved Leland font name.
+extracted from the **Leland** and **Leland Text** fonts. The derivative fonts
+are renamed and do not use the reserved Leland font name.
 
 This project also includes `assets/glyphs/keyboard_pedal_ped.svg`, a derivative
-SVG artwork extracted from the same upstream **Leland Text** font. The SVG is
-not itself distributed as font software.
+SVG artwork extracted from the upstream **Leland Text** font. The SVG is not
+itself distributed as font software.
 
 The derivative assets were derived from the following upstream project:
 

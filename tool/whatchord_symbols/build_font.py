@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Build the "WhatChord Symbols" font family.
 
-Extracts a handful of source glyphs from LelandText.otf (a SMuFL/CFF font) and
-emits small dedicated fonts that contain only those glyphs, remapped to the
-target codepoints declared in glyph_map.txt.
+Extracts a handful of source glyphs from local Leland .otf files (SMuFL/CFF
+fonts) and emits small dedicated fonts that contain only those glyphs, remapped
+to the target codepoints declared in glyph_map.txt.
 
 Upstream Leland ships a single weight, so the Bold instance is *synthesized*:
 each outline is stroked and unioned back onto itself, thickening every stem
@@ -30,12 +30,12 @@ from fontTools.pens.transformPen import TransformPen
 
 TOOL_DIR = Path(__file__).resolve().parent
 REPO_ROOT = TOOL_DIR.parents[1]
-SOURCE_FONT = TOOL_DIR / "LelandText.otf"
+DEFAULT_SOURCE_FONT = TOOL_DIR / "LelandText.otf"
 MAPPING_FILE = TOOL_DIR / "glyph_map.txt"
 OUTPUT_DIR = REPO_ROOT / "assets/fonts"
 
 FAMILY_NAME = "WhatChord Symbols"
-VERSION = "1.000"
+VERSION = "1.001"
 VENDOR_ID = "    "  # blank (4 spaces); avoids inheriting FontForge's 'PfEd'
 
 # Extra horizontal breathing room added to EACH side of every glyph, in font
@@ -86,15 +86,27 @@ INSTANCES = [
     Instance("Bold", "WhatChordSymbols-Bold", 700, True),
 ]
 
+
+@dataclass(frozen=True)
+class MappingRow:
+    source_font: Path
+    source_cp: int
+    target_cp: int
+
+
 _ROW_RE = re.compile(
-    r"""^\s*U\+(?P<src>[0-9A-Fa-f]+)\s*->\s*U\+(?P<dst>[0-9A-Fa-f]+)""",
+    r"""^\s*
+        (?:(?P<font>[-A-Za-z0-9_.]+):)?
+        U\+(?P<src>[0-9A-Fa-f]+)
+        \s*->\s*
+        U\+(?P<dst>[0-9A-Fa-f]+)""",
     re.VERBOSE,
 )
 
 
-def parse_mapping(path: Path) -> list[tuple[int, int]]:
-    """Return a list of (source_codepoint, target_codepoint) tuples."""
-    rows: list[tuple[int, int]] = []
+def parse_mapping(path: Path) -> list[MappingRow]:
+    """Return mapping rows with their source font, source CP, and target CP."""
+    rows: list[MappingRow] = []
     for lineno, raw in enumerate(path.read_text().splitlines(), 1):
         line = raw.strip()
         if not line or line.startswith("#"):
@@ -102,28 +114,159 @@ def parse_mapping(path: Path) -> list[tuple[int, int]]:
         m = _ROW_RE.match(line)
         if not m:
             sys.exit(f"{path}:{lineno}: could not parse mapping row: {raw!r}")
-        rows.append((int(m["src"], 16), int(m["dst"], 16)))
+        source_name = m["font"] or DEFAULT_SOURCE_FONT.name
+        source_font = (TOOL_DIR / source_name).resolve()
+        if source_font.parent != TOOL_DIR.resolve():
+            sys.exit(f"{path}:{lineno}: source font must live in {TOOL_DIR}")
+        rows.append(
+            MappingRow(
+                source_font=source_font,
+                source_cp=int(m["src"], 16),
+                target_cp=int(m["dst"], 16),
+            )
+        )
     if not rows:
         sys.exit(f"{path}: no mapping rows found")
     return rows
 
 
-def resolve_glyphs(font: TTFont, rows) -> dict[int, str]:
-    """Map each target codepoint to the Leland glyph name at its source."""
-    src_cmap = font.getBestCmap()
+def _load_source_fonts(rows: list[MappingRow]) -> dict[Path, TTFont]:
+    fonts: dict[Path, TTFont] = {}
+    for path in {row.source_font for row in rows}:
+        if not path.exists():
+            sys.exit(f"Source font not found: {path}")
+        fonts[path] = TTFont(path)
+    return fonts
+
+
+def _reserve_placeholder_codepoints(
+    primary_font: TTFont,
+    used_primary_source_cps: set[int],
+    count: int,
+) -> list[int]:
+    """Find unused primary-font codepoints to hold copied-in foreign glyphs."""
+    if count == 0:
+        return []
+
+    cmap_codepoints = sorted(primary_font.getBestCmap())
+
+    placeholders: list[int] = []
+    for cp in [cp for cp in cmap_codepoints if cp >= 0xE000] + [
+        cp for cp in cmap_codepoints if 0x20 <= cp < 0xE000
+    ]:
+        if cp in used_primary_source_cps:
+            continue
+        placeholders.append(cp)
+        if len(placeholders) == count:
+            return placeholders
+
+    sys.exit(
+        f"{DEFAULT_SOURCE_FONT}: need {count} unused placeholder glyph(s), "
+        f"but found only {len(placeholders)}."
+    )
+
+
+def _draw_source_glyph(font: TTFont, gname: str) -> pathops.Path:
+    glyph_set = font.getGlyphSet()
+    path = pathops.Path()
+    glyph_set[gname].draw(path.getPen(glyphSet=glyph_set))
+    return path
+
+
+def resolve_glyphs(
+    primary_font: TTFont,
+    source_fonts: dict[Path, TTFont],
+    rows: list[MappingRow],
+) -> tuple[dict[int, str], dict[str, tuple[TTFont, str, int]]]:
+    """Map each target codepoint to an output glyph name.
+
+    The output font is subset from LelandText. Rows that source glyphs from
+    another font reserve a spare LelandText glyph slot; its outline is replaced
+    after subsetting.
+    """
+    primary_cmap = primary_font.getBestCmap()
     target_to_glyph: dict[int, str] = {}
-    for src_cp, dst_cp in rows:
-        gname = src_cmap.get(src_cp)
-        if gname is None:
+    replacement_by_output_glyph: dict[str, tuple[TTFont, str, int]] = {}
+
+    primary_source_cps = {
+        row.source_cp
+        for row in rows
+        if row.source_font == DEFAULT_SOURCE_FONT.resolve()
+    }
+    foreign_rows = [
+        row for row in rows if row.source_font != DEFAULT_SOURCE_FONT.resolve()
+    ]
+    placeholders = iter(
+        _reserve_placeholder_codepoints(
+            primary_font,
+            primary_source_cps,
+            len(foreign_rows),
+        )
+    )
+
+    for row in rows:
+        source_font = source_fonts[row.source_font]
+        source_cmap = source_font.getBestCmap()
+        source_gname = source_cmap.get(row.source_cp)
+        if source_gname is None:
             sys.exit(
-                f"Source U+{src_cp:04X} not found in {SOURCE_FONT.name}'s cmap. "
-                f"Fix the SOURCE_CP in {MAPPING_FILE}."
+                f"Source U+{row.source_cp:04X} not found in "
+                f"{row.source_font.name}'s cmap. Fix the SOURCE_CP in "
+                f"{MAPPING_FILE}."
             )
-        if dst_cp in target_to_glyph:
-            sys.exit(f"Target U+{dst_cp:04X} is mapped more than once.")
-        target_to_glyph[dst_cp] = gname
-        print(f"  U+{src_cp:04X} ({gname})  ->  U+{dst_cp:04X}")
-    return target_to_glyph
+        if row.target_cp in target_to_glyph:
+            sys.exit(f"Target U+{row.target_cp:04X} is mapped more than once.")
+
+        if row.source_font == DEFAULT_SOURCE_FONT.resolve():
+            output_gname = source_gname
+        else:
+            placeholder_cp = next(placeholders)
+            output_gname = primary_cmap[placeholder_cp]
+            replacement_by_output_glyph[output_gname] = (
+                source_font,
+                source_gname,
+                source_font["hmtx"][source_gname][0],
+            )
+
+        target_to_glyph[row.target_cp] = output_gname
+        print(
+            f"  {row.source_font.name}:U+{row.source_cp:04X} "
+            f"({source_gname})  ->  U+{row.target_cp:04X}"
+        )
+
+    return target_to_glyph, replacement_by_output_glyph
+
+
+def primary_subset_codepoints(
+    rows: list[MappingRow],
+    primary_font: TTFont,
+) -> list[int]:
+    """Return primary-font codepoints needed before cmap remapping."""
+    primary_cps = [
+        row.source_cp
+        for row in rows
+        if row.source_font == DEFAULT_SOURCE_FONT.resolve()
+    ]
+    foreign_count = sum(
+        1 for row in rows if row.source_font != DEFAULT_SOURCE_FONT.resolve()
+    )
+    return primary_cps + _reserve_placeholder_codepoints(
+        primary_font,
+        set(primary_cps),
+        foreign_count,
+    )
+
+
+def replace_foreign_glyphs(
+    font: TTFont,
+    replacements: dict[str, tuple[TTFont, str, int]],
+) -> None:
+    """Replace placeholder outlines with glyphs copied from non-primary fonts."""
+    hmtx = font["hmtx"]
+    for output_gname, (source_font, source_gname, advance) in replacements.items():
+        path = _draw_source_glyph(source_font, source_gname)
+        _set_charstring(font, output_gname, path, advance)
+        hmtx[output_gname] = (advance, hmtx[output_gname][1])
 
 
 def build_cmap(mapping: dict[int, str]) -> "newTable":
@@ -131,20 +274,39 @@ def build_cmap(mapping: dict[int, str]) -> "newTable":
     cmap = newTable("cmap")
     cmap.tableVersion = 0
 
-    sub4 = cmap_format_4(4)
-    sub4.platformID, sub4.platEncID, sub4.language = 3, 1, 0
-    sub4.cmap = {cp: gn for cp, gn in mapping.items() if cp <= 0xFFFF}
+    def make_format_4(platform_id: int, encoding_id: int) -> cmap_format_4:
+        subtable = cmap_format_4(4)
+        subtable.platformID = platform_id
+        subtable.platEncID = encoding_id
+        subtable.language = 0
+        subtable.cmap = {cp: gn for cp, gn in mapping.items() if cp <= 0xFFFF}
+        return subtable
 
-    subtables = [sub4]
+    def make_format_12(platform_id: int, encoding_id: int) -> cmap_format_12:
+        subtable = cmap_format_12(12)
+        subtable.platformID = platform_id
+        subtable.platEncID = encoding_id
+        subtable.reserved = 0
+        subtable.length = 0
+        subtable.language = 0
+        subtable.nGroups = 0
+        subtable.cmap = dict(mapping)
+        return subtable
+
+    subtables = [
+        make_format_4(0, 3),  # Unicode BMP, useful for macOS font inspection.
+        make_format_4(3, 1),  # Windows Unicode BMP.
+    ]
 
     # Only add a format-12 subtable if we actually have astral codepoints,
     # but include the full mapping when we do (format 12 supersedes 4).
     if any(cp > 0xFFFF for cp in mapping):
-        sub12 = cmap_format_12(12)
-        sub12.platformID, sub12.platEncID = 3, 10
-        sub12.reserved, sub12.length, sub12.language, sub12.nGroups = 0, 0, 0, 0
-        sub12.cmap = dict(mapping)
-        subtables.append(sub12)
+        subtables.extend(
+            [
+                make_format_12(0, 4),  # Unicode full repertoire.
+                make_format_12(3, 10),  # Windows Unicode full repertoire.
+            ]
+        )
 
     cmap.tables = subtables
     return cmap
@@ -298,10 +460,11 @@ def fix_metadata(font: TTFont, inst: Instance) -> None:
             del font[tag]
 
 
-def build_instance(rows, inst: Instance) -> None:
+def build_instance(rows: list[MappingRow], inst: Instance) -> None:
     """Build and save one weight."""
-    font = TTFont(SOURCE_FONT)
-    target_to_glyph = resolve_glyphs(font, rows)
+    source_fonts = _load_source_fonts(rows)
+    font = TTFont(DEFAULT_SOURCE_FONT)
+    target_to_glyph, replacements = resolve_glyphs(font, source_fonts, rows)
 
     # Subset down to just the glyphs we want (handles CFF, hmtx, layout tables).
     options = Options()
@@ -312,8 +475,10 @@ def build_instance(rows, inst: Instance) -> None:
     options.recalc_bounds = True
     options.drop_tables = ["DSIG"]
     subsetter = Subsetter(options=options)
-    subsetter.populate(unicodes=[src for src, _ in rows])
+    subsetter.populate(unicodes=primary_subset_codepoints(rows, font))
     subsetter.subset(font)
+
+    replace_foreign_glyphs(font, replacements)
 
     # Rebuild the cmap at the target codepoints.
     font["cmap"] = build_cmap(target_to_glyph)
