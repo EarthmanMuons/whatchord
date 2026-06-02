@@ -71,6 +71,10 @@ class IdentityCard extends ConsumerWidget {
     final chordDetailStyle = primaryStyle.copyWith(
       color: cs.onPrimary.withValues(alpha: 0.86),
     );
+    final intervalStyle = chordDetailStyle.copyWith(
+      color: rootStyle.color,
+      letterSpacing: -1.0,
+    );
 
     const minCardHeight = 132.0;
     const padding = EdgeInsets.symmetric(horizontal: 20);
@@ -88,7 +92,7 @@ class IdentityCard extends ConsumerWidget {
         IntervalDisplay(:final intervalLabel) => AutoSizeText(
           intervalLabel,
           textAlign: TextAlign.center,
-          style: rootStyle,
+          style: intervalStyle,
           maxLines: 1,
           minFontSize: snapToStep(22 * typographyScale),
           stepGranularity: autoSizeStep,
