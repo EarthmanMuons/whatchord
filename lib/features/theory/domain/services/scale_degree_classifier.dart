@@ -444,10 +444,16 @@ abstract final class ScaleDegreeClassifier {
       ChordQualityToken.minor7 => '${base}7',
       ChordQualityToken.minor7Sharp5 => '${base}7#5',
       ChordQualityToken.minorMajor7 => '$base(maj7)',
-      ChordQualityToken.halfDiminished7 => '${base}7',
+      ChordQualityToken.halfDiminished7 => '${_baseWithoutQuality(base)}ø7',
       ChordQualityToken.diminished7 => '${base}7',
       _ => base,
     };
+  }
+
+  static String _baseWithoutQuality(String romanNumeral) {
+    return romanNumeral.endsWith('°')
+        ? romanNumeral.substring(0, romanNumeral.length - 1)
+        : romanNumeral;
   }
 
   static String _spokenScaleDegreeFor(

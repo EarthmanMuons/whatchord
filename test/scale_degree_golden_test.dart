@@ -97,6 +97,7 @@ void main() {
       description: 'leading-tone half-diminished seventh',
       pcs: ['B', 'D', 'F', 'A'],
       expected: ScaleDegree.seven,
+      expectedRomanNumeral: 'viiø7',
       expectedQuality: ChordQualityToken.halfDiminished7,
     ),
 
