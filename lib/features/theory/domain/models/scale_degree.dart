@@ -36,6 +36,22 @@ enum ScaleDegree {
     };
   }
 
+  String romanNumeralForSource(ScaleDegreeSource source) {
+    return switch (source) {
+      ScaleDegreeSource.major => romanNumeralForMode(TonalityMode.major),
+      ScaleDegreeSource.naturalMinor => romanNumeralForMode(TonalityMode.minor),
+      ScaleDegreeSource.harmonicMinor => switch (this) {
+        ScaleDegree.one => 'i',
+        ScaleDegree.two => 'ii°',
+        ScaleDegree.three => '♭III+',
+        ScaleDegree.four => 'iv',
+        ScaleDegree.five => 'V',
+        ScaleDegree.six => '♭VI',
+        ScaleDegree.seven => 'vii°',
+      },
+    };
+  }
+
   String spokenScaleDegreeForMode(TonalityMode mode) {
     if (mode == TonalityMode.major) {
       return switch (this) {

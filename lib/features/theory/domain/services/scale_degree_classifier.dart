@@ -417,21 +417,7 @@ abstract final class ScaleDegreeClassifier {
     ScaleDegreeSource source,
     ChordQualityToken quality,
   ) {
-    final base = switch (source) {
-      ScaleDegreeSource.major => degree.romanNumeralForMode(TonalityMode.major),
-      ScaleDegreeSource.naturalMinor => degree.romanNumeralForMode(
-        TonalityMode.minor,
-      ),
-      ScaleDegreeSource.harmonicMinor => switch (degree) {
-        ScaleDegree.one => 'i',
-        ScaleDegree.two => 'ii°',
-        ScaleDegree.three => '♭III+',
-        ScaleDegree.four => 'iv',
-        ScaleDegree.five => 'V',
-        ScaleDegree.six => '♭VI',
-        ScaleDegree.seven => 'vii°',
-      },
-    };
+    final base = degree.romanNumeralForSource(source);
 
     return switch (quality) {
       ChordQualityToken.dominant7 => '${base}7',

@@ -61,6 +61,20 @@ ScaleDegreeCase deg({
 }
 
 void main() {
+  group('ScaleDegree source labels', () {
+    test('uses conventional harmonic-minor degree labels', () {
+      expect(
+        ScaleDegree.values
+            .map(
+              (degree) =>
+                  degree.romanNumeralForSource(ScaleDegreeSource.harmonicMinor),
+            )
+            .toList(),
+        ['i', 'ii°', '♭III+', 'iv', 'V', '♭VI', 'vii°'],
+      );
+    });
+  });
+
   final cases = <ScaleDegreeCase>[
     // -------------------------
     // C major: triads + 7ths
