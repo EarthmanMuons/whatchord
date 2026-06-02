@@ -27,6 +27,7 @@ class ScaleDegrees extends StatefulWidget {
 
 class _ScaleDegreesState extends State<ScaleDegrees> {
   static const double _fadeWidth = 24.0;
+  static const double _indicatorGap = 10.0;
   static const double _defaultIndicatorHeight = 56.0;
   static const Duration _tooltipShowDuration = Duration(seconds: 3);
 
@@ -81,6 +82,7 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
         widget.fadeColor ?? Theme.of(context).colorScheme.surfaceContainerLow;
     final maxHeight = widget.maxHeight ?? _defaultIndicatorHeight;
     final tooltipMessage = _tooltipMessageForCurrent(widget.current);
+    final tooltipRichMessage = _tooltipRichMessageForCurrent(widget.current);
 
     return Semantics(
       container: true,
@@ -88,7 +90,8 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
       value: _semanticsValueForCurrent(widget.current),
       child: ExcludeSemantics(
         child: Tooltip(
-          message: tooltipMessage,
+          message: tooltipRichMessage == null ? tooltipMessage : null,
+          richMessage: tooltipRichMessage,
           showDuration: _tooltipShowDuration,
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -109,7 +112,7 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
                         textScaleMultiplier: widget.textScaleMultiplier,
                       ),
                       if (i < widget.values.length - 1)
-                        const SizedBox(width: 10),
+                        const SizedBox(width: _indicatorGap),
                     ],
                   ],
                 ),
@@ -194,6 +197,22 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
     return 'Scale degree\n${analysis.romanNumeral} ($function$source)';
   }
 
+  InlineSpan? _tooltipRichMessageForCurrent(ScaleDegreeAnalysis? analysis) {
+    if (analysis == null) return null;
+
+    final function = _titleCase(analysis.functionName);
+    final source = analysis.source == ScaleDegreeSource.major
+        ? ''
+        : ' · ${analysis.source.displayLabel}';
+    return TextSpan(
+      children: [
+        const TextSpan(text: 'Scale degree\n'),
+        ..._scaleDegreeGlyphSpans(analysis.romanNumeral),
+        TextSpan(text: ' ($function$source)'),
+      ],
+    );
+  }
+
   String _labelForDegree(ScaleDegree degree) {
     final current = widget.current;
     if (current?.degree == degree) return current!.romanNumeral;
@@ -247,7 +266,7 @@ class _ScaleDegreeIndicator extends StatelessWidget {
     final maxScale = (availableHeight / baseLineHeight).clamp(1.0, 3.0);
     final clampedScale = scale.clamp(1.0, maxScale);
 
-    final textStyle = baseStyle?.copyWith(
+    final textStyle = (baseStyle ?? const TextStyle()).copyWith(
       fontSize: baseFontSize,
       color: isCurrent
           ? cs.primary
@@ -260,10 +279,10 @@ class _ScaleDegreeIndicator extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Text(
-            label,
+          _ScaleDegreeLabel(
+            text: label,
             style: textStyle,
-            textScaler: TextScaler.linear(clampedScale),
+            textScale: clampedScale,
           ),
           Align(
             alignment: Alignment.bottomCenter,
@@ -284,4 +303,44 @@ class _ScaleDegreeIndicator extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ScaleDegreeLabel extends StatelessWidget {
+  final String text;
+  final TextStyle style;
+  final double textScale;
+
+  const _ScaleDegreeLabel({
+    required this.text,
+    required this.style,
+    required this.textScale,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text.rich(
+      TextSpan(children: [..._scaleDegreeGlyphSpans(text)]),
+      style: style,
+      textScaler: TextScaler.linear(textScale),
+    );
+  }
+}
+
+List<TextSpan> _scaleDegreeGlyphSpans(String text) {
+  return [
+    for (final char in text.characters)
+      TextSpan(
+        text: char,
+        style: _usesTextFont(char) ? _scaleDegreeTextFontStyle : null,
+      ),
+  ];
+}
+
+const _scaleDegreeTextFontStyle = TextStyle(
+  fontFamily: 'Inter',
+  fontFamilyFallback: [],
+);
+
+bool _usesTextFont(String char) {
+  return char == '°' || char == 'ø';
 }
