@@ -20,7 +20,6 @@ import '../services/explore_chord_state_transitions.dart';
 import '../services/explore_preview_animation_controller.dart';
 import '../widgets/explore_chord_members_section.dart';
 import '../widgets/explore_controls.dart';
-import '../widgets/explore_faded_scroll_view.dart';
 import '../widgets/explore_keyboard.dart';
 import '../widgets/explore_summary.dart';
 import '../widgets/explore_top_bar.dart';
@@ -224,7 +223,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
           children: [
             Expanded(
               flex: 7,
-              child: ExploreFadedScrollView(
+              child: FadedScrollView(
                 padding: const EdgeInsets.only(top: 4, right: 12),
                 child: _buildSummaryAndMembers(
                   example: example,
@@ -237,7 +236,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
             ),
             Expanded(
               flex: 6,
-              child: ExploreFadedScrollView(
+              child: FadedScrollView(
                 padding: const EdgeInsets.only(top: 4, left: 12),
                 child: _buildControls(
                   example: example,
@@ -266,7 +265,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
           ),
           const SizedBox(height: 20),
           Expanded(
-            child: ExploreFadedScrollView(
+            child: FadedScrollView(
               padding: const EdgeInsets.only(top: 4),
               maintainVisualPositionOnResize: true,
               child: _buildControls(
