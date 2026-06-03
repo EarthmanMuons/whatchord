@@ -6,7 +6,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:whatchord/features/explore/explore.dart';
+import 'package:whatchord/features/explore_chords/explore_chords.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'analysis_details_sheet.dart';

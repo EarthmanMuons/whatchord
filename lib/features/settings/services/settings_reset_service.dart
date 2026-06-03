@@ -6,7 +6,7 @@ import 'package:whatchord/core/providers/app_theme_mode_notifier.dart';
 import 'package:whatchord/core/providers/shared_preferences_provider.dart';
 import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/demo/demo.dart';
-import 'package:whatchord/features/explore/explore.dart';
+import 'package:whatchord/features/explore_chords/explore_chords.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/onboarding/onboarding.dart';
 import 'package:whatchord/features/theory/theory.dart';
