@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/demo/demo.dart';
+import 'package:whatchord/features/explore_scales/explore_scales.dart';
 import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/onboarding/onboarding.dart';
@@ -289,6 +290,8 @@ class _HomeLandscape extends ConsumerWidget {
               horizontalInset: horizontalInset,
               keyTextScaleMultiplier: config.tonalityButtonTextScale,
               scaleDegreesTextScaleMultiplier: config.scaleDegreesTextScale,
+              onScaleDegreesTap: () =>
+                  Navigator.of(context).push(ScaleExplorerPage.route()),
             ),
             const Divider(height: 1),
             KeyboardSection(config: config),
@@ -331,6 +334,8 @@ class _HomePortrait extends ConsumerWidget {
               horizontalInset: horizontalInset,
               keyTextScaleMultiplier: config.tonalityButtonTextScale,
               scaleDegreesTextScaleMultiplier: config.scaleDegreesTextScale,
+              onScaleDegreesTap: () =>
+                  Navigator.of(context).push(ScaleExplorerPage.route()),
             ),
             const Divider(height: 1),
             KeyboardSection(config: config),

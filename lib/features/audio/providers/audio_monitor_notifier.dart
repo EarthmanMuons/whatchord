@@ -35,6 +35,10 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   static const Duration _rolledPreviewBlockDuration = Duration(
     milliseconds: 1400,
   );
+  static const Duration _sequencePreviewStep = Duration(milliseconds: 200);
+  static const Duration _sequencePreviewNoteDuration = Duration(
+    milliseconds: 200,
+  );
 
   AudioMonitorEngine? _engine;
   bool _disposed = false;
@@ -105,6 +109,15 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     }
 
     _enqueueAudioOperation(() => _playRolledPreviewNotes(notes));
+  }
+
+  /// Plays [midiNotes] one after another as a melodic run, preserving their
+  /// order and any repeats (unlike the chord previews, which sort and de-dupe).
+  void playSequencePreviewNotes(Iterable<int> midiNotes) {
+    final notes = [for (final note in midiNotes) note.clamp(0, 127)];
+    if (notes.isEmpty || _backgrounded) return;
+
+    _enqueueAudioOperation(() => _playSequencePreviewNotes(notes));
   }
 
   void onInputNoteEvent(InputNoteEvent event) {
@@ -352,6 +365,40 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       });
     }, generation: generation);
     _previewSequence.schedule(blockStart + _rolledPreviewBlockDuration, (_) {
+      _enqueuePreviewControl(generation, _finishPreview);
+    }, generation: generation);
+  }
+
+  Future<void> _playSequencePreviewNotes(List<int> midiNotes) async {
+    final generation = _previewSequence.restart();
+
+    if (_backgrounded) return;
+
+    final engine = await _ensureEngineStarted();
+    if (engine == null) return;
+
+    final settings = ref.read(audioMonitorSettingsNotifier);
+    await engine.setVolume(settings.volume);
+    await engine.allNotesOff();
+    _resetTrackingForSilentState();
+
+    for (var i = 0; i < midiNotes.length; i++) {
+      final midiNote = midiNotes[i];
+      final noteStart = _sequencePreviewStep * i;
+      _previewSequence.schedule(noteStart, (_) {
+        _enqueuePreviewControl(generation, () async {
+          await engine.noteOn(midiNote, velocity: audioMonitorFixedVelocity);
+        });
+      }, generation: generation);
+      _previewSequence.schedule(noteStart + _sequencePreviewNoteDuration, (_) {
+        _enqueuePreviewControl(generation, () async {
+          await engine.noteOff(midiNote);
+        });
+      }, generation: generation);
+    }
+
+    final endStart = _sequencePreviewStep * midiNotes.length;
+    _previewSequence.schedule(endStart + _sequencePreviewNoteDuration, (_) {
       _enqueuePreviewControl(generation, _finishPreview);
     }, generation: generation);
   }

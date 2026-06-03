@@ -15,12 +15,14 @@ class TonalityBar extends ConsumerWidget {
     this.horizontalInset = 16,
     this.keyTextScaleMultiplier = 1.0,
     this.scaleDegreesTextScaleMultiplier = 1.0,
+    this.onScaleDegreesTap,
   });
 
   final double height;
   final double horizontalInset;
   final double keyTextScaleMultiplier;
   final double scaleDegreesTextScaleMultiplier;
+  final VoidCallback? onScaleDegreesTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,6 +33,7 @@ class TonalityBar extends ConsumerWidget {
       scaleDegreesTextScaleMultiplier: scaleDegreesTextScaleMultiplier,
       tonality: ref.watch(selectedTonalityProvider),
       scaleDegreeAnalysis: ref.watch(detectedScaleDegreeAnalysisProvider),
+      onScaleDegreesTap: onScaleDegreesTap,
       onOpenPicker: () => openTonalityPicker(
         context,
         useSideSheet: useHomeSideSheet(context),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/theory_domain.dart';
+import 'scale_degree_roman_text.dart';
 
 class ScaleDegrees extends StatefulWidget {
   final ScaleDegreeAnalysis? current;
@@ -207,7 +208,7 @@ class _ScaleDegreesState extends State<ScaleDegrees> {
     return TextSpan(
       children: [
         const TextSpan(text: 'Scale degree\n'),
-        ..._scaleDegreeGlyphSpans(analysis.romanNumeral),
+        ...scaleDegreeRomanSpans(analysis.romanNumeral),
         TextSpan(text: ' ($function$source)'),
       ],
     );
@@ -328,28 +329,9 @@ class _ScaleDegreeLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text.rich(
-      TextSpan(children: [..._scaleDegreeGlyphSpans(text)]),
+      TextSpan(children: scaleDegreeRomanSpans(text)),
       style: style,
       textScaler: TextScaler.linear(textScale),
     );
   }
-}
-
-List<TextSpan> _scaleDegreeGlyphSpans(String text) {
-  return [
-    for (final char in text.characters)
-      TextSpan(
-        text: char,
-        style: _usesTextFont(char) ? _scaleDegreeTextFontStyle : null,
-      ),
-  ];
-}
-
-const _scaleDegreeTextFontStyle = TextStyle(
-  fontFamily: 'Inter',
-  fontFamilyFallback: [],
-);
-
-bool _usesTextFont(String char) {
-  return char == '°' || char == 'ø';
 }
