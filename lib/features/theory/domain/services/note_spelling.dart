@@ -105,6 +105,34 @@ String pcToName(int pc, {required Tonality tonality}) {
   );
 }
 
+/// Spells the tones of a heptatonic scale using consecutive letter names.
+///
+/// [pitchClasses] are the scale tones in ascending scale order starting on the
+/// tonic. One letter is assigned per scale degree, walking consecutively from
+/// [tonicLetter], and accidentals are chosen to match each pitch class. Returns
+/// ASCII note names such as "Eb" or "F#".
+List<String> spellHeptatonicScale({
+  required List<int> pitchClasses,
+  required String tonicLetter,
+}) {
+  final tonicIndex = _letters.indexOf(tonicLetter.toUpperCase());
+  final startIndex = tonicIndex == -1 ? 0 : tonicIndex;
+
+  final names = <String>[];
+  for (var d = 0; d < pitchClasses.length; d++) {
+    final letter = _letters[(startIndex + d) % 7];
+    final naturalPc = _naturalPcByLetter[letter]!;
+    final targetPc = pitchClasses[d] % 12;
+
+    var delta = (targetPc - naturalPc) % 12;
+    if (delta > 6) delta -= 12; // normalize to [-5..+6]
+
+    names.add(letter + _accidentalToAscii(delta));
+  }
+
+  return names;
+}
+
 /// ---------- Internals ----------
 
 const _letters = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
