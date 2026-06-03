@@ -25,6 +25,7 @@ class TonalityBarView extends ConsumerWidget {
     required this.tonality,
     required this.scaleDegreeAnalysis,
     required this.onOpenPicker,
+    this.onScaleDegreesTap,
     this.horizontalInset = 16,
     this.keyTextScaleMultiplier = 1.0,
     this.scaleDegreesTextScaleMultiplier = 1.0,
@@ -34,6 +35,7 @@ class TonalityBarView extends ConsumerWidget {
   final Tonality tonality;
   final ScaleDegreeAnalysis? scaleDegreeAnalysis;
   final VoidCallback onOpenPicker;
+  final VoidCallback? onScaleDegreesTap;
   final double horizontalInset;
   final double keyTextScaleMultiplier;
   final double scaleDegreesTextScaleMultiplier;
@@ -128,16 +130,34 @@ class TonalityBarView extends ConsumerWidget {
               Expanded(
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: ScaleDegrees(
-                    current: scaleDegreeAnalysis,
-                    mode: tonality.mode,
-                    tonalityDisplayName: tonalitySemanticLabel(
-                      tonality,
-                      noteNameSystem: noteNameSystem,
-                    ),
-                    maxHeight: height,
-                    fadeColor: cs.surfaceContainerLow,
-                    textScaleMultiplier: scaleDegreesTextScaleMultiplier,
+                  child: Builder(
+                    builder: (context) {
+                      final scaleDegrees = ScaleDegrees(
+                        current: scaleDegreeAnalysis,
+                        mode: tonality.mode,
+                        tonalityDisplayName: tonalitySemanticLabel(
+                          tonality,
+                          noteNameSystem: noteNameSystem,
+                        ),
+                        maxHeight: height,
+                        fadeColor: cs.surfaceContainerLow,
+                        textScaleMultiplier: scaleDegreesTextScaleMultiplier,
+                      );
+
+                      final onTap = onScaleDegreesTap;
+                      if (onTap == null) return scaleDegrees;
+
+                      return Semantics(
+                        button: true,
+                        onTap: onTap,
+                        hint: 'Open scale explorer',
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: onTap,
+                          child: scaleDegrees,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),

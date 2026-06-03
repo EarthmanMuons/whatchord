@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/features/explore_scales/explore_scales.dart';
 import 'package:whatchord/features/home/home.dart';
 import 'package:whatchord/features/piano/piano.dart';
 import 'package:whatchord/features/theory/theory.dart';
@@ -160,6 +161,9 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                         height: kToolbarHeight,
                         tonality: tonality,
                         scaleDegreeAnalysis: presentation.scaleDegreeAnalysis,
+                        onScaleDegreesTap: () => Navigator.of(
+                          context,
+                        ).push(ScaleExplorerPage.route()),
                         onOpenPicker: () => openTonalityPicker(
                           context,
                           useSideSheet: useHomeSideSheet(context),

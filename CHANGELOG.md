@@ -12,6 +12,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
+- Added a Scale Explorer, opened by tapping the scale-degree strip. It shows the
+  scale's tones and the roman numeral and chord symbol for each degree, and lets
+  you pick the tonic and switch between the major-scale modes and harmonic and
+  melodic minor. Play the whole scale up and down, or choose triads or seventh
+  chords and tap a chord's play button to hear it. The keyboard marks the scale
+  and highlights the selected chord.
 - Added a staff notation preview to the key signature picker, showing the
   selected signature with a treble clef.
 
