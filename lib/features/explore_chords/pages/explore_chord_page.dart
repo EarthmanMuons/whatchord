@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/core/core.dart';
+import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/explore_scales/explore_scales.dart';
 import 'package:whatchord/features/home/home.dart';
 import 'package:whatchord/features/piano/piano.dart';
@@ -290,7 +292,17 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ExploreSummary(presentation: presentation),
+        Row(
+          children: [
+            CircularPlayButton(
+              label: 'Play chord',
+              tapHint: 'Play the current Explore chord',
+              onPressed: () => _playChord(example.normalizedVoicing),
+            ),
+            const SizedBox(width: 12),
+            Expanded(child: ExploreSummary(presentation: presentation)),
+          ],
+        ),
         const SizedBox(height: 20),
         ExploreChordMembersSection(
           members: example.members,
@@ -302,10 +314,8 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                 .read(exploreChordMemberDegreesProvider.notifier)
                 .setShowDegrees(value),
           ),
-          previewNotes: example.normalizedVoicing,
           activePitchClasses: previewPitchClasses,
           memberPitchClasses: example.memberPitchClassesInOrder,
-          onPreviewStarted: _previewAnimationController.start,
         ),
       ],
     );
@@ -343,5 +353,10 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
     setState(() {
       _state = next;
     });
+  }
+
+  void _playChord(List<int> notes) {
+    _previewAnimationController.start(notes);
+    ref.read(audioMonitorNotifier.notifier).playRolledPreviewNotes(notes);
   }
 }

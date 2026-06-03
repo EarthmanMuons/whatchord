@@ -204,6 +204,40 @@ void main() {
       );
     });
 
+    test('degree labels spell the scale formula relative to major', () {
+      List<String> formula(Scale scale) => [
+        for (final d in ScaleHarmonizer.harmonize(scale).degrees) d.degreeLabel,
+      ];
+
+      expect(formula(const Scale(Tonic.c, ScaleKind.major)), [
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+      ]);
+      expect(formula(const Scale(Tonic.d, ScaleKind.dorian)), [
+        '1',
+        '2',
+        '♭3',
+        '4',
+        '5',
+        '6',
+        '♭7',
+      ]);
+      expect(formula(const Scale(Tonic.f, ScaleKind.lydian)), [
+        '1',
+        '2',
+        '3',
+        '♯4',
+        '5',
+        '6',
+        '7',
+      ]);
+    });
+
     test('lydian raises the fourth degree', () {
       final harmony = ScaleHarmonizer.harmonize(
         const Scale(Tonic.f, ScaleKind.lydian),

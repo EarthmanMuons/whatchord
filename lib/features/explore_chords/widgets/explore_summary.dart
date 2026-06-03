@@ -162,12 +162,24 @@ class ExploreSummary extends ConsumerWidget {
                         ],
                       ),
                       style: symbolStyle,
+                      // Forced strut keeps the line height constant whether or
+                      // not the root carries an accidental, so the play button
+                      // and chips don't shift while scrubbing the root.
+                      strutStyle: StrutStyle(
+                        fontSize: rootStyle?.fontSize,
+                        height: 1.0,
+                        forceStrutHeight: true,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       presentation.longLabel,
                       style: textTheme.bodyLarge?.copyWith(
                         color: colorScheme.onSurfaceVariant,
+                      ),
+                      strutStyle: StrutStyle(
+                        fontSize: textTheme.bodyLarge?.fontSize,
+                        forceStrutHeight: true,
                       ),
                     ),
                   ],

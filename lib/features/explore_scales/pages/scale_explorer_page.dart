@@ -5,18 +5,34 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/home/home.dart';
 import 'package:whatchord/features/piano/piano.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
+import '../providers/scale_preferences_notifier.dart';
 import '../services/scale_preview_animation_controller.dart';
 import '../services/scale_voicing.dart';
 import '../widgets/scale_degree_chord_list.dart';
 import '../widgets/scale_explorer_top_bar.dart';
 import '../widgets/scale_kind_picker_sheet.dart';
 import '../widgets/scale_tone_strip.dart';
-import '../widgets/scale_tonic_picker_sheet.dart';
+
+const _canonicalTonics = <Tonic>[
+  Tonic.c,
+  Tonic.dFlat,
+  Tonic.d,
+  Tonic.eFlat,
+  Tonic.e,
+  Tonic.f,
+  Tonic.gFlat,
+  Tonic.g,
+  Tonic.aFlat,
+  Tonic.a,
+  Tonic.bFlat,
+  Tonic.b,
+];
 
 class ScaleExplorerPage extends ConsumerStatefulWidget {
   const ScaleExplorerPage({super.key});
@@ -30,6 +46,7 @@ class ScaleExplorerPage extends ConsumerStatefulWidget {
 }
 
 class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
+  late final List<Tonic> _tonicChoices;
   late Tonic _tonic;
   late ScaleKind _kind;
   bool _showSevenths = false;
@@ -42,7 +59,14 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   void initState() {
     super.initState();
     final tonality = ref.read(selectedTonalityProvider);
-    _tonic = tonality.tonic;
+    // One spelling per pitch class, key-aware where it maps to a known tonic so
+    // the seeded tonic keeps its spelling (e.g. F# in a sharp key).
+    _tonicChoices = [
+      for (var pc = 0; pc < 12; pc++)
+        Tonic.tryFromLabel(pcToName(pc, tonality: tonality)) ??
+            _canonicalTonics[pc],
+    ];
+    _tonic = _tonicChoices[tonality.tonic.pitchClass];
     _kind = tonality.isMajor ? ScaleKind.major : ScaleKind.aeolian;
     _preview = ScalePreviewAnimationController(
       onChanged: (state) {
@@ -64,6 +88,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     final harmony = ScaleHarmonizer.harmonize(scale);
     final notation = ref.watch(chordNotationStyleProvider);
     final noteNameSystem = ref.watch(noteNameSystemProvider);
+    final showDegrees = ref.watch(showScaleDegreesProvider);
 
     final selectedChord = _selectedChordMidi(scale, harmony);
     final playing = _previewState.isRunning;
@@ -147,6 +172,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
                             harmony: harmony,
                             notation: notation,
                             noteNameSystem: noteNameSystem,
+                            showDegrees: showDegrees,
                             playingPitchClasses: playingPitchClasses,
                             memberPitchClasses: memberPitchClasses,
                             isLandscape: isLandscape,
@@ -175,30 +201,71 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     required ScaleHarmony harmony,
     required ChordNotationStyle notation,
     required NoteNameSystem noteNameSystem,
+    required bool showDegrees,
     required Set<int> playingPitchClasses,
     required Set<int> memberPitchClasses,
     required bool isLandscape,
   }) {
-    final header = _ScaleHeader(
-      scale: scale,
-      noteNameSystem: noteNameSystem,
-      onPickTonic: () => _openTonicPicker(noteNameSystem),
-      onPickScale: _openScalePicker,
+    final header = Row(
+      children: [
+        CircularPlayButton(
+          label: 'Play scale',
+          tapHint: 'Play the scale up and down',
+          onPressed: () => _onPlayScale(scale),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _ScaleHeader(scale: scale, noteNameSystem: noteNameSystem),
+        ),
+      ],
     );
 
     final toneRow = Row(
       children: [
-        _ScalePlayButton(onPressed: () => _onPlayScale(scale)),
-        const SizedBox(width: 12),
+        NameDegreeToggleButton(
+          showDegrees: showDegrees,
+          onPressed: () => unawaited(
+            ref
+                .read(showScaleDegreesProvider.notifier)
+                .setShowDegrees(!showDegrees),
+          ),
+        ),
+        const SizedBox(width: 8),
         Expanded(
           child: ScaleToneStrip(
             harmony: harmony,
             noteNameSystem: noteNameSystem,
+            showDegrees: showDegrees,
             playingPitchClasses: playingPitchClasses,
             memberPitchClasses: memberPitchClasses,
           ),
         ),
       ],
+    );
+
+    final tonicWheel = CyclicWheel<Tonic>(
+      label: 'Tonic',
+      value: _tonic,
+      choices: _tonicChoices,
+      displayLabelFor: (tonic) =>
+          noteDisplayLabel(tonic.label, noteNameSystem: noteNameSystem),
+      semanticLabelFor: (tonic) =>
+          noteSemanticLabel(tonic.label, noteNameSystem: noteNameSystem),
+      targetItemWidth: 72,
+      selectedMinWidth: 46,
+      unselectedMinWidth: 40,
+      selectedHorizontalPadding: 8,
+      unselectedHorizontalPadding: 4,
+      onChanged: _onTonicChanged,
+    );
+
+    final scaleButton = Align(
+      alignment: Alignment.centerLeft,
+      child: OutlinedButton.icon(
+        onPressed: _openScalePicker,
+        icon: const Icon(Icons.tune, size: 18),
+        label: Text(scale.kind.label),
+      ),
     );
 
     final chordsHeader = _ChordsHeader(
@@ -227,7 +294,15 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
               padding: const EdgeInsets.only(right: 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [header, const SizedBox(height: 16), toneRow],
+                children: [
+                  header,
+                  const SizedBox(height: 16),
+                  toneRow,
+                  const SizedBox(height: 16),
+                  tonicWheel,
+                  const SizedBox(height: 12),
+                  scaleButton,
+                ],
               ),
             ),
           ),
@@ -256,6 +331,10 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         header,
         const SizedBox(height: 16),
         toneRow,
+        const SizedBox(height: 16),
+        tonicWheel,
+        const SizedBox(height: 12),
+        scaleButton,
         const SizedBox(height: 20),
         chordsHeader,
         Expanded(child: SingleChildScrollView(child: chordList)),
@@ -294,52 +373,36 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     ref.read(audioMonitorNotifier.notifier).playSequencePreviewNotes(notes);
   }
 
-  void _openScalePicker() {
-    unawaited(
-      openScaleKindPicker(
-        context,
-        selected: _kind,
-        onSelected: (kind) {
-          _preview.cancel();
-          setState(() {
-            _kind = kind;
-            _selectedOrdinal = null;
-          });
-        },
-      ),
-    );
+  void _onTonicChanged(Tonic tonic) {
+    if (tonic == _tonic) return;
+    _preview.cancel();
+    setState(() {
+      _tonic = tonic;
+      _selectedOrdinal = null;
+    });
   }
 
-  void _openTonicPicker(NoteNameSystem noteNameSystem) {
+  void _onKindChanged(ScaleKind kind) {
+    if (kind == _kind) return;
+    _preview.cancel();
+    setState(() {
+      _kind = kind;
+      _selectedOrdinal = null;
+    });
+  }
+
+  void _openScalePicker() {
     unawaited(
-      openTonicPicker(
-        context,
-        selected: _tonic,
-        noteNameSystem: noteNameSystem,
-        onSelected: (tonic) {
-          _preview.cancel();
-          setState(() {
-            _tonic = tonic;
-            _selectedOrdinal = null;
-          });
-        },
-      ),
+      openScaleKindPicker(context, selected: _kind, onSelected: _onKindChanged),
     );
   }
 }
 
 class _ScaleHeader extends StatelessWidget {
-  const _ScaleHeader({
-    required this.scale,
-    required this.noteNameSystem,
-    required this.onPickTonic,
-    required this.onPickScale,
-  });
+  const _ScaleHeader({required this.scale, required this.noteNameSystem});
 
   final Scale scale;
   final NoteNameSystem noteNameSystem;
-  final VoidCallback onPickTonic;
-  final VoidCallback onPickScale;
 
   @override
   Widget build(BuildContext context) {
@@ -361,72 +424,24 @@ class _ScaleHeader extends StatelessWidget {
       noteNameSystem: noteNameSystem,
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text.rich(
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: tonicLabel, style: tonicStyle),
           TextSpan(
-            children: [
-              TextSpan(text: tonicLabel, style: tonicStyle),
-              TextSpan(
-                text: ' ${scale.kind.label.toLowerCase()}',
-                style: restStyle,
-              ),
-            ],
+            text: ' ${scale.kind.label.toLowerCase()}',
+            style: restStyle,
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            OutlinedButton.icon(
-              onPressed: onPickTonic,
-              icon: const Icon(Icons.music_note, size: 18),
-              label: Text(tonicLabel),
-            ),
-            const SizedBox(width: 8),
-            OutlinedButton.icon(
-              onPressed: onPickScale,
-              icon: const Icon(Icons.tune, size: 18),
-              label: Text(scale.kind.label),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _ScalePlayButton extends StatelessWidget {
-  const _ScalePlayButton({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Semantics(
-      button: true,
-      label: 'Play scale',
-      onTapHint: 'Play the scale up and down',
-      onTap: onPressed,
-      child: Tooltip(
-        message: 'Play scale',
-        child: ExcludeSemantics(
-          child: IconButton.filledTonal(
-            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-            style: IconButton.styleFrom(
-              fixedSize: const Size.square(48),
-              shape: const CircleBorder(),
-              backgroundColor: cs.secondaryContainer,
-              foregroundColor: cs.onSecondaryContainer,
-            ),
-            onPressed: onPressed,
-            icon: const Icon(Icons.play_arrow),
-          ),
-        ),
+        ],
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      // Forced strut keeps the line height constant whether or not the tonic
+      // carries an accidental, so the play button doesn't shift while scrubbing.
+      strutStyle: StrutStyle(
+        fontSize: tonicStyle?.fontSize,
+        height: 1.0,
+        forceStrutHeight: true,
       ),
     );
   }

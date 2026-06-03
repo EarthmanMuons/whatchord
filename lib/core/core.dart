@@ -17,7 +17,11 @@ export 'services/open_url.dart';
 export 'services/system_ui_overlay_styles.dart';
 
 export 'widgets/adaptive_side_sheet.dart';
+export 'widgets/animated_note_chip.dart';
+export 'widgets/circular_play_button.dart';
+export 'widgets/cyclic_wheel.dart';
 export 'widgets/idle_blackout_overlay.dart';
+export 'widgets/name_degree_toggle_button.dart';
 export 'widgets/palette_swatch.dart';
 export 'widgets/section_header.dart';
 export 'widgets/modal_panel_header.dart';
