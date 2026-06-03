@@ -122,40 +122,45 @@ class _ScaleDegreeChordTile extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 64,
-                    child: Text.rich(
-                      TextSpan(children: scaleDegreeRomanSpans(roman)),
-                      style: textTheme.titleMedium?.copyWith(
-                        color: romanColor,
-                        fontWeight: FontWeight.w600,
+            child: SizedBox(
+              height: 48,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 64,
+                      child: Text.rich(
+                        TextSpan(children: scaleDegreeRomanSpans(roman)),
+                        style: textTheme.titleMedium?.copyWith(
+                          color: romanColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      symbol,
-                      style: textTheme.titleLarge?.copyWith(color: symbolColor),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        symbol,
+                        style: textTheme.titleLarge?.copyWith(
+                          color: symbolColor,
+                        ),
+                      ),
                     ),
-                  ),
-                  IconButton(
-                    onPressed: onPlay,
-                    tooltip: 'Play chord',
-                    constraints: const BoxConstraints(
-                      minWidth: 48,
-                      minHeight: 48,
+                    IconButton(
+                      onPressed: onPlay,
+                      tooltip: 'Play chord',
+                      constraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
+                      icon: Icon(
+                        Icons.play_arrow,
+                        color: selected ? cs.onPrimaryContainer : cs.primary,
+                      ),
                     ),
-                    icon: Icon(
-                      Icons.play_arrow,
-                      color: selected ? cs.onPrimaryContainer : cs.primary,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

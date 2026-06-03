@@ -16,7 +16,6 @@ import '../services/scale_preview_animation_controller.dart';
 import '../services/scale_voicing.dart';
 import '../widgets/scale_degree_chord_list.dart';
 import '../widgets/scale_explorer_top_bar.dart';
-import '../widgets/scale_kind_picker_sheet.dart';
 import '../widgets/scale_tone_strip.dart';
 
 const _canonicalTonics = <Tonic>[
@@ -33,6 +32,8 @@ const _canonicalTonics = <Tonic>[
   Tonic.bFlat,
   Tonic.b,
 ];
+
+enum _ScaleView { chords, scales }
 
 class ScaleExplorerPage extends ConsumerStatefulWidget {
   const ScaleExplorerPage({super.key});
@@ -51,6 +52,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   late ScaleKind _kind;
   bool _showSevenths = false;
   int? _selectedOrdinal;
+  _ScaleView _view = _ScaleView.chords;
 
   late final ScalePreviewAnimationController _preview;
   ScalePreviewState _previewState = ScalePreviewState.idle;
@@ -259,37 +261,92 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       onChanged: _onTonicChanged,
     );
 
-    final scaleButton = Align(
-      alignment: Alignment.centerLeft,
-      child: OutlinedButton.icon(
-        onPressed: _openScalePicker,
-        icon: const Icon(Icons.tune, size: 18),
-        label: Text(scale.kind.label),
+    final viewControl = Row(
+      children: [
+        SegmentedButton<_ScaleView>(
+          showSelectedIcon: false,
+          style: ButtonStyle(
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+          ),
+          segments: const [
+            ButtonSegment(
+              value: _ScaleView.chords,
+              icon: Icon(Icons.music_note),
+              label: Text('Chords'),
+            ),
+            ButtonSegment(
+              value: _ScaleView.scales,
+              icon: Icon(Icons.stairs_outlined),
+              label: Text('Scales'),
+            ),
+          ],
+          selected: {_view},
+          onSelectionChanged: (selection) =>
+              setState(() => _view = selection.first),
+        ),
+        const Spacer(),
+        if (_view == _ScaleView.chords)
+          _SeventhsToggle(
+            showSevenths: _showSevenths,
+            onShowSeventhsChanged: (value) =>
+                setState(() => _showSevenths = value),
+          ),
+      ],
+    );
+
+    final chordsView = FadedScrollView(
+      child: ScaleDegreeChordList(
+        harmony: harmony,
+        tonality: Tonality(scale.tonic, TonalityMode.major),
+        notation: notation,
+        noteNameSystem: noteNameSystem,
+        showSevenths: _showSevenths,
+        selectedOrdinal: _selectedOrdinal,
+        onDegreeTap: _onDegreeSelect,
+        onDegreePlay: (degree) => _onDegreePlay(scale, degree),
       ),
     );
 
-    final chordsHeader = _ChordsHeader(
-      showSevenths: _showSevenths,
-      onShowSeventhsChanged: (value) => setState(() => _showSevenths = value),
+    final scalesView = PickerList<ScaleKind>(
+      entries: [
+        const PickerListHeader<ScaleKind>('Modes'),
+        for (final kind in ScaleKind.values) ...[
+          if (kind == ScaleKind.harmonicMinor)
+            const PickerListHeader<ScaleKind>('Minor scales'),
+          PickerListItem(kind),
+        ],
+      ],
+      selected: _kind,
+      itemExtent: 48,
+      onChanged: _onKindChanged,
+      itemBuilder: (context, kind, isSelected) =>
+          _ScaleKindRow(kind: kind, selected: isSelected),
+      headerBuilder: (context, title) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 2),
+        child: Align(
+          alignment: Alignment.bottomLeft,
+          child: Text(
+            title.toUpperCase(),
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
+            ),
+          ),
+        ),
+      ),
     );
 
-    final chordList = ScaleDegreeChordList(
-      harmony: harmony,
-      tonality: Tonality(scale.tonic, TonalityMode.major),
-      notation: notation,
-      noteNameSystem: noteNameSystem,
-      showSevenths: _showSevenths,
-      selectedOrdinal: _selectedOrdinal,
-      onDegreeTap: _onDegreeSelect,
-      onDegreePlay: (degree) => _onDegreePlay(scale, degree),
-    );
+    final viewContent = _view == _ScaleView.chords ? chordsView : scalesView;
 
     if (isLandscape) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            flex: 5,
+            flex: 6,
             child: SingleChildScrollView(
               padding: const EdgeInsets.only(right: 12),
               child: Column(
@@ -300,25 +357,22 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
                   toneRow,
                   const SizedBox(height: 16),
                   tonicWheel,
-                  const SizedBox(height: 12),
-                  scaleButton,
                 ],
               ),
             ),
           ),
           Expanded(
-            flex: 6,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                chordsHeader,
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.only(left: 12),
-                    child: chordList,
-                  ),
-                ),
-              ],
+            flex: 5,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  viewControl,
+                  const SizedBox(height: 8),
+                  Expanded(child: viewContent),
+                ],
+              ),
             ),
           ),
         ],
@@ -333,11 +387,10 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         toneRow,
         const SizedBox(height: 16),
         tonicWheel,
-        const SizedBox(height: 12),
-        scaleButton,
-        const SizedBox(height: 20),
-        chordsHeader,
-        Expanded(child: SingleChildScrollView(child: chordList)),
+        const SizedBox(height: 16),
+        viewControl,
+        const SizedBox(height: 8),
+        Expanded(child: viewContent),
       ],
     );
   }
@@ -390,12 +443,6 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       _selectedOrdinal = null;
     });
   }
-
-  void _openScalePicker() {
-    unawaited(
-      openScaleKindPicker(context, selected: _kind, onSelected: _onKindChanged),
-    );
-  }
 }
 
 class _ScaleHeader extends StatelessWidget {
@@ -447,8 +494,41 @@ class _ScaleHeader extends StatelessWidget {
   }
 }
 
-class _ChordsHeader extends StatelessWidget {
-  const _ChordsHeader({
+class _ScaleKindRow extends StatelessWidget {
+  const _ScaleKindRow({required this.kind, required this.selected});
+
+  final ScaleKind kind;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: selected
+            ? Color.alphaBlend(cs.primary.withValues(alpha: 0.10), cs.surface)
+            : null,
+        border: Border(
+          bottom: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.4)),
+        ),
+      ),
+      child: Center(
+        child: Text(
+          kind.displayLabel,
+          style: textTheme.titleMedium?.copyWith(
+            color: selected ? cs.primary : cs.onSurface,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SeventhsToggle extends StatelessWidget {
+  const _SeventhsToggle({
     required this.showSevenths,
     required this.onShowSeventhsChanged,
   });
@@ -460,17 +540,12 @@ class _ChordsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 12, bottom: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text('Diatonic chords', style: textTheme.titleMedium),
-          ),
-          Text('7ths', style: textTheme.labelLarge),
-          Switch(value: showSevenths, onChanged: onShowSeventhsChanged),
-        ],
-      ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('7ths', style: textTheme.labelLarge),
+        Switch(value: showSevenths, onChanged: onShowSeventhsChanged),
+      ],
     );
   }
 }

@@ -3,9 +3,8 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/theory/theory.dart';
-
-import 'explore_faded_scroll_view.dart';
 
 class ExploreSummary extends ConsumerWidget {
   const ExploreSummary({super.key, required this.presentation});
@@ -87,7 +86,7 @@ class ExploreSummary extends ConsumerWidget {
             titlePadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
             contentPadding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
             actionsPadding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-            content: ExploreFadedScrollView(
+            content: FadedScrollView(
               fadeColor: Theme.of(
                 dialogContext,
               ).colorScheme.surfaceContainerHigh,

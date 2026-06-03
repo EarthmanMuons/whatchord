@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ExploreFadedScrollView extends StatefulWidget {
-  const ExploreFadedScrollView({
+class FadedScrollView extends StatefulWidget {
+  const FadedScrollView({
     super.key,
     required this.child,
     this.padding,
@@ -15,10 +15,10 @@ class ExploreFadedScrollView extends StatefulWidget {
   final bool maintainVisualPositionOnResize;
 
   @override
-  State<ExploreFadedScrollView> createState() => _ExploreFadedScrollViewState();
+  State<FadedScrollView> createState() => _FadedScrollViewState();
 }
 
-class _ExploreFadedScrollViewState extends State<ExploreFadedScrollView> {
+class _FadedScrollViewState extends State<FadedScrollView> {
   static const _fadeHeight = 24.0;
 
   final ScrollController _controller = ScrollController();
@@ -36,7 +36,7 @@ class _ExploreFadedScrollViewState extends State<ExploreFadedScrollView> {
   }
 
   @override
-  void didUpdateWidget(covariant ExploreFadedScrollView oldWidget) {
+  void didUpdateWidget(covariant FadedScrollView oldWidget) {
     super.didUpdateWidget(oldWidget);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _updateFades();
