@@ -12,6 +12,7 @@ class ScaleDegreeHarmony {
     required this.ordinal,
     required this.rootPc,
     required this.rootName,
+    required this.degreeLabel,
     required this.triadQuality,
     required this.seventhQuality,
     required this.triadRoman,
@@ -23,6 +24,10 @@ class ScaleDegreeHarmony {
 
   final int rootPc;
   final String rootName;
+
+  /// Scale-degree formula relative to the major scale, e.g. "1", "♭3", "♯4".
+  final String degreeLabel;
+
   final ChordQualityToken triadQuality;
   final ChordQualityToken seventhQuality;
 
@@ -109,6 +114,7 @@ abstract final class ScaleHarmonizer {
           ordinal: i + 1,
           rootPc: pcs[i],
           rootName: names[i],
+          degreeLabel: '${_accidentalPrefix(i, rootInterval)}${i + 1}',
           triadQuality: triadQuality,
           seventhQuality: seventhQuality,
           triadRoman: triadRoman,
@@ -141,14 +147,10 @@ abstract final class ScaleHarmonizer {
     return quality;
   }
 
-  static String _triadRoman(
-    int index,
-    int rootInterval,
-    int thirdRel,
-    ChordQualityToken triad,
-  ) {
+  /// Accidental of a scale degree relative to the parallel major scale.
+  static String _accidentalPrefix(int index, int rootInterval) {
     final delta = rootInterval - _majorReference[index];
-    final prefix = delta <= -2
+    return delta <= -2
         ? '♭♭'
         : delta == -1
         ? '♭'
@@ -157,6 +159,15 @@ abstract final class ScaleHarmonizer {
         : delta == 1
         ? '♯'
         : '×';
+  }
+
+  static String _triadRoman(
+    int index,
+    int rootInterval,
+    int thirdRel,
+    ChordQualityToken triad,
+  ) {
+    final prefix = _accidentalPrefix(index, rootInterval);
 
     final upper = thirdRel == majorThirdInterval;
     final base = (upper ? _upperNumerals : _lowerNumerals)[index];
