@@ -49,6 +49,21 @@ void main() {
       expect(minorEntries, containsAll(['Natural minor', 'Aeolian']));
     });
 
+    test(
+      'header labels lowercase qualities but keep mode names capitalized',
+      () {
+        String headerFor(String label) =>
+            scaleMenuEntries.firstWhere((e) => e.label == label).headerLabel;
+
+        expect(headerFor('Major'), 'major');
+        expect(headerFor('Natural minor'), 'natural minor');
+        expect(headerFor('Harmonic minor'), 'harmonic minor');
+        expect(headerFor('Ionian'), 'Ionian');
+        expect(headerFor('Dorian'), 'Dorian');
+        expect(headerFor('Locrian'), 'Locrian');
+      },
+    );
+
     test('commonScaleEntry resolves the practical-name row', () {
       final major = commonScaleEntry(ScaleKind.major);
       expect(major.label, 'Major');

@@ -208,7 +208,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         Expanded(
           child: _ScaleHeader(
             scale: scale,
-            kindLabel: _scale.label,
+            kindLabel: _scale.headerLabel,
             noteNameSystem: noteNameSystem,
             functionLabel: _selectedFunctionLabel(scale),
           ),
@@ -458,10 +458,9 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   void _onTonicChanged(Tonic tonic) {
     if (tonic == _tonic) return;
     _preview.cancel();
-    setState(() {
-      _tonic = tonic;
-      _selectedOrdinal = null;
-    });
+    // The selected degree is mode-relative, so it stays valid as the tonic
+    // moves; keep it so scrubbing transposes the selected chord.
+    setState(() => _tonic = tonic);
   }
 
   void _onScaleChanged(ScaleMenuEntry entry) {
@@ -515,8 +514,9 @@ class _ScaleHeader extends StatelessWidget {
 
   final Scale scale;
 
-  /// The selected menu entry's name (e.g. "Major" or "Ionian"), so the header
-  /// matches the picked row rather than the kind's single conventional label.
+  /// The selected entry's name, already cased for a heading after the tonic
+  /// (e.g. "major" or "Ionian"), so the header matches the picked row rather
+  /// than the kind's single conventional label.
   final String kindLabel;
 
   final NoteNameSystem noteNameSystem;
@@ -552,7 +552,7 @@ class _ScaleHeader extends StatelessWidget {
           TextSpan(
             children: [
               TextSpan(text: tonicLabel, style: tonicStyle),
-              TextSpan(text: ' ${kindLabel.toLowerCase()}', style: restStyle),
+              TextSpan(text: ' $kindLabel', style: restStyle),
             ],
           ),
           maxLines: 1,

@@ -9,12 +9,18 @@ import 'package:whatchord/features/theory/theory.dart';
 /// sections (as Major/Natural minor and Ionian/Aeolian) since they answer
 /// different questions about the same sound.
 enum ScaleSection {
-  common('Common scales'),
-  diatonicModes('Diatonic modes');
+  common('Common scales', properNounNames: false),
+  diatonicModes('Diatonic modes', properNounNames: true);
 
-  const ScaleSection(this.title);
+  const ScaleSection(this.title, {required this.properNounNames});
 
   final String title;
+
+  /// Whether this section's scales are named after proper nouns. The modes are
+  /// (Dorian, Phrygian, ...), so they stay capitalized when written after a
+  /// tonic ("C Dorian"), unlike the descriptive major/minor qualities, which
+  /// are conventionally lowercased ("C major").
+  final bool properNounNames;
 }
 
 /// A selectable row in the Scale Explorer menu. The menu owns its own display
@@ -31,6 +37,12 @@ class ScaleMenuEntry {
   final String label;
   final ScaleSection section;
   final ScaleKind kind;
+
+  /// The label as it reads after a tonic in a heading: mode names keep their
+  /// capital ("Dorian"), while the major/minor qualities are lowercased
+  /// ("major", "natural minor").
+  String get headerLabel =>
+      section.properNounNames ? label : label.toLowerCase();
 
   @override
   bool operator ==(Object other) =>

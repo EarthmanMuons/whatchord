@@ -126,12 +126,20 @@ class _ScaleDegreeChordTile extends StatelessWidget {
               child: Row(
                 children: [
                   SizedBox(
-                    width: 64,
-                    child: Text.rich(
-                      TextSpan(children: scaleDegreeRomanSpans(roman)),
-                      style: textTheme.titleMedium?.copyWith(
-                        color: romanColor,
-                        fontWeight: FontWeight.w600,
+                    width: 84,
+                    // Left-aligned and scaled down only when a long roman (e.g.
+                    // the harmonic-minor bIII+maj7#5) would otherwise wrap, so
+                    // the symbol column still starts at a consistent x.
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text.rich(
+                        TextSpan(children: scaleDegreeRomanSpans(roman)),
+                        maxLines: 1,
+                        style: textTheme.titleMedium?.copyWith(
+                          color: romanColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
