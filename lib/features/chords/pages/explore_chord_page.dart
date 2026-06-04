@@ -147,9 +147,11 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                         height: kToolbarHeight,
                         tonality: tonality,
                         scaleDegreeAnalysis: presentation.scaleDegreeAnalysis,
-                        onScaleDegreesTap: () => Navigator.of(
-                          context,
-                        ).push(ScaleExplorerPage.route()),
+                        onScaleDegreesTap: () => Navigator.of(context).push(
+                          ScaleExplorerPage.route(
+                            seedPresentation: presentation,
+                          ),
+                        ),
                         onOpenPicker: () => openTonalityPicker(
                           context,
                           useSideSheet: useHomeSideSheet(context),
