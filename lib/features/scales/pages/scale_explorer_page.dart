@@ -300,17 +300,17 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       ],
     );
 
-    final chordsView = FadedScrollView(
-      child: ScaleDegreeChordList(
-        harmony: harmony,
-        tonality: Tonality(scale.tonic, TonalityMode.major),
-        notation: notation,
-        noteNameSystem: noteNameSystem,
-        showSevenths: _showSevenths,
-        selectedOrdinal: _selectedOrdinal,
-        onDegreeTap: _onDegreeSelect,
-        onDegreePlay: (degree) => _onDegreePlay(scale, degree),
-      ),
+    // Rendered bare (no inner scroll) so it folds into the unified lower-section
+    // scroll alongside the tonic wheel and view toggle.
+    final chordsList = ScaleDegreeChordList(
+      harmony: harmony,
+      tonality: Tonality(scale.tonic, TonalityMode.major),
+      notation: notation,
+      noteNameSystem: noteNameSystem,
+      showSevenths: _showSevenths,
+      selectedOrdinal: _selectedOrdinal,
+      onDegreeTap: _onDegreeSelect,
+      onDegreePlay: (degree) => _onDegreePlay(scale, degree),
     );
 
     // The last row of each section has no separator, so a section's list ends
@@ -320,57 +320,60 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         scaleMenuEntries.lastWhere((entry) => entry.section == section),
     };
 
-    final scalesView = PickerList<ScaleMenuEntry>(
-      entries: [
-        for (final section in ScaleSection.values) ...[
-          PickerListHeader<ScaleMenuEntry>(section.title),
-          for (final entry in scaleMenuEntries.where(
-            (entry) => entry.section == section,
-          ))
-            PickerListItem(entry),
+    PickerList<ScaleMenuEntry> buildScalePicker({required bool scrollable}) {
+      return PickerList<ScaleMenuEntry>(
+        entries: [
+          for (final section in ScaleSection.values) ...[
+            PickerListHeader<ScaleMenuEntry>(section.title),
+            for (final entry in scaleMenuEntries.where(
+              (entry) => entry.section == section,
+            ))
+              PickerListItem(entry),
+          ],
         ],
-      ],
-      selected: _scale,
-      itemExtent: 48,
-      headerExtent: 44,
-      onChanged: _onScaleChanged,
-      itemBuilder: (context, entry, isSelected) => _ScaleKindRow(
-        label: entry.label,
-        selected: isSelected,
-        showSeparator: !lastInSection.contains(entry),
-      ),
-      headerBuilder: (context, title) {
-        final cs = Theme.of(context).colorScheme;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
-              child: Text(
-                title.toUpperCase(),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: cs.onSurfaceVariant,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.8,
+        selected: _scale,
+        itemExtent: 48,
+        headerExtent: 44,
+        scrollable: scrollable,
+        onChanged: _onScaleChanged,
+        itemBuilder: (context, entry, isSelected) => _ScaleKindRow(
+          label: entry.label,
+          selected: isSelected,
+          showSeparator: !lastInSection.contains(entry),
+        ),
+        headerBuilder: (context, title) {
+          final cs = Theme.of(context).colorScheme;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
+                child: Text(
+                  title.toUpperCase(),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.8,
+                  ),
                 ),
               ),
-            ),
-            ScaleListStyle.headerRule(cs),
-          ],
-        );
-      },
-    );
-
-    final viewContent = _view == _ScaleView.chords ? chordsView : scalesView;
+              ScaleListStyle.headerRule(cs),
+            ],
+          );
+        },
+      );
+    }
 
     if (isLandscape) {
+      // Both columns scroll independently, matching Explore Chords: the left
+      // holds the static header and note chips, the right holds the controls.
       return Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
             flex: 6,
-            child: SingleChildScrollView(
+            child: FadedScrollView(
               padding: const EdgeInsets.only(right: 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -380,24 +383,23 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
           ),
           Expanded(
             flex: 5,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  tonicWheel,
-                  const SizedBox(height: 16),
-                  viewControl,
-                  const SizedBox(height: 8),
-                  Expanded(child: viewContent),
-                ],
-              ),
+            child: _buildLowerSection(
+              isLandscape: true,
+              tonicWheel: tonicWheel,
+              viewControl: viewControl,
+              chordsList: chordsList,
+              buildScalePicker: buildScalePicker,
+              // Top inset keeps the tonic wheel's floating label clear of the
+              // scroll view's clip edge.
+              padding: const EdgeInsets.only(left: 12, top: 8),
             ),
           ),
         ],
       );
     }
 
+    // Only the header and note chips stay pinned; everything below scrolls so
+    // the layout holds up on shorter screens.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -405,12 +407,68 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         const SizedBox(height: 16),
         toneRow,
         const SizedBox(height: 16),
-        tonicWheel,
-        const SizedBox(height: 16),
-        viewControl,
-        const SizedBox(height: 8),
-        Expanded(child: viewContent),
+        Expanded(
+          child: _buildLowerSection(
+            isLandscape: false,
+            tonicWheel: tonicWheel,
+            viewControl: viewControl,
+            chordsList: chordsList,
+            buildScalePicker: buildScalePicker,
+            padding: EdgeInsets.zero,
+          ),
+        ),
       ],
+    );
+  }
+
+  /// Builds the region beneath the note chips. In landscape, where vertical room
+  /// is scarce, the tonic wheel, view toggle, and list scroll together as one
+  /// unit. In portrait the tonic wheel and view toggle stay pinned and the list
+  /// takes its own scroll, so the controls always stay on screen.
+  Widget _buildLowerSection({
+    required bool isLandscape,
+    required Widget tonicWheel,
+    required Widget viewControl,
+    required Widget chordsList,
+    required PickerList<ScaleMenuEntry> Function({required bool scrollable})
+    buildScalePicker,
+    required EdgeInsetsGeometry padding,
+  }) {
+    final controls = <Widget>[
+      tonicWheel,
+      const SizedBox(height: 16),
+      viewControl,
+      const SizedBox(height: 8),
+    ];
+
+    if (isLandscape) {
+      final list = _view == _ScaleView.chords
+          ? chordsList
+          : buildScalePicker(scrollable: false);
+      return FadedScrollView(
+        padding: padding,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [...controls, list],
+        ),
+      );
+    }
+
+    final list = _view == _ScaleView.chords
+        ? FadedScrollView(
+            maintainVisualPositionOnResize: true,
+            child: chordsList,
+          )
+        : buildScalePicker(scrollable: true);
+    return Padding(
+      padding: padding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ...controls,
+          Expanded(child: list),
+        ],
+      ),
     );
   }
 

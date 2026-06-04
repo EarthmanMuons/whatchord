@@ -21,7 +21,12 @@ final class PickerListHeader<T> extends PickerListEntry<T> {
 /// A flat, freely scrolling list where one row is selected (highlighted).
 /// Tapping a row selects it, scrolling browses without snapping, and the
 /// selected row is centered when the selection changes. Section subheadings can
-/// be interspersed. The top and bottom edges fade to signal scrollability.
+/// be interspersed. Each edge fades only once there is more content to scroll to
+/// in that direction, so a list resting at its top stays flush with no padding.
+///
+/// When [scrollable] is false the list renders as a plain, full-height column
+/// with no internal scrolling, edge fades, or auto-centering, so it can be
+/// dropped into an outer scroll view that owns those behaviors.
 class PickerList<T> extends StatefulWidget {
   const PickerList({
     super.key,
@@ -32,7 +37,8 @@ class PickerList<T> extends StatefulWidget {
     required this.onChanged,
     this.headerExtent = 36,
     this.headerBuilder,
-    this.fadeExtent = 32,
+    this.fadeExtent = 24,
+    this.scrollable = true,
   });
 
   final List<PickerListEntry<T>> entries;
@@ -44,6 +50,7 @@ class PickerList<T> extends StatefulWidget {
   final Widget Function(BuildContext context, String title)? headerBuilder;
   final ValueChanged<T> onChanged;
   final double fadeExtent;
+  final bool scrollable;
 
   @override
   State<PickerList<T>> createState() => _PickerListState<T>();
@@ -53,27 +60,57 @@ class _PickerListState<T> extends State<PickerList<T>> {
   final ScrollController _controller = ScrollController();
   late List<double> _itemTopOffsets;
   late List<T> _itemValues;
+  bool _showTopFade = false;
+  bool _showBottomFade = false;
 
   @override
   void initState() {
     super.initState();
     _recompute();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _centerSelected());
+    _controller.addListener(_updateFades);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _centerSelected();
+      _updateFades();
+    });
   }
 
   @override
   void didUpdateWidget(covariant PickerList<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     _recompute();
-    if (oldWidget.selected != widget.selected) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _centerSelected());
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (oldWidget.selected != widget.selected) _centerSelected();
+      _updateFades();
+    });
   }
 
   @override
   void dispose() {
+    _controller.removeListener(_updateFades);
     _controller.dispose();
     super.dispose();
+  }
+
+  void _updateFades() {
+    if (!_controller.hasClients) return;
+
+    final position = _controller.position;
+    if (!position.hasContentDimensions) return;
+
+    const epsilon = 0.5;
+    final maxExtent = position.maxScrollExtent;
+    final pixels = position.pixels;
+    final nextTop = maxExtent > epsilon && pixels > epsilon;
+    final nextBottom = maxExtent > epsilon && pixels < maxExtent - epsilon;
+
+    if (nextTop == _showTopFade && nextBottom == _showBottomFade) return;
+
+    setState(() {
+      _showTopFade = nextTop;
+      _showBottomFade = nextBottom;
+    });
   }
 
   void _recompute() {
@@ -97,8 +134,7 @@ class _PickerListState<T> extends State<PickerList<T>> {
     if (index < 0) return;
 
     final position = _controller.position;
-    final itemCenter =
-        widget.fadeExtent + _itemTopOffsets[index] + widget.itemExtent / 2;
+    final itemCenter = _itemTopOffsets[index] + widget.itemExtent / 2;
     final target = (itemCenter - position.viewportDimension / 2).clamp(
       position.minScrollExtent,
       position.maxScrollExtent,
@@ -114,8 +150,34 @@ class _PickerListState<T> extends State<PickerList<T>> {
     );
   }
 
+  Widget _buildEntry(BuildContext context, PickerListEntry<T> entry) {
+    return switch (entry) {
+      PickerListItem<T>(:final value) => SizedBox(
+        height: widget.itemExtent,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => widget.onChanged(value),
+          child: widget.itemBuilder(context, value, value == widget.selected),
+        ),
+      ),
+      PickerListHeader<T>(:final title) => SizedBox(
+        height: widget.headerExtent,
+        child: (widget.headerBuilder ?? _defaultHeader)(context, title),
+      ),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!widget.scrollable) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final entry in widget.entries) _buildEntry(context, entry),
+        ],
+      );
+    }
+
     final surface = Theme.of(context).colorScheme.surface;
 
     return Stack(
@@ -123,56 +185,36 @@ class _PickerListState<T> extends State<PickerList<T>> {
         Positioned.fill(
           child: ListView.builder(
             controller: _controller,
-            padding: EdgeInsets.symmetric(vertical: widget.fadeExtent),
+            padding: EdgeInsets.zero,
             itemCount: widget.entries.length,
-            itemBuilder: (context, index) {
-              final entry = widget.entries[index];
-              return switch (entry) {
-                PickerListItem<T>(:final value) => SizedBox(
-                  height: widget.itemExtent,
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => widget.onChanged(value),
-                    child: widget.itemBuilder(
-                      context,
-                      value,
-                      value == widget.selected,
-                    ),
-                  ),
-                ),
-                PickerListHeader<T>(:final title) => SizedBox(
-                  height: widget.headerExtent,
-                  child: (widget.headerBuilder ?? _defaultHeader)(
-                    context,
-                    title,
-                  ),
-                ),
-              };
-            },
+            itemBuilder: (context, index) =>
+                _buildEntry(context, widget.entries[index]),
           ),
         ),
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          height: widget.fadeExtent,
-          child: _EdgeFade(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            surface: surface,
+        if (_showTopFade)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: widget.fadeExtent,
+            child: _EdgeFade(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              surface: surface,
+            ),
           ),
-        ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: widget.fadeExtent,
-          child: _EdgeFade(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            surface: surface,
+        if (_showBottomFade)
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: widget.fadeExtent,
+            child: _EdgeFade(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              surface: surface,
+            ),
           ),
-        ),
       ],
     );
   }
