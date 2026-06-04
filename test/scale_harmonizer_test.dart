@@ -39,9 +39,9 @@ void main() {
         const Scale(Tonic.a, ScaleKind.aeolian).displayName,
         'A natural minor',
       );
-      expect(ScaleKind.major.displayLabel, 'Major (Ionian)');
-      expect(ScaleKind.aeolian.displayLabel, 'Natural minor (Aeolian)');
-      expect(ScaleKind.dorian.displayLabel, 'Dorian');
+      expect(ScaleKind.major.label, 'Major');
+      expect(ScaleKind.aeolian.label, 'Natural minor');
+      expect(ScaleKind.dorian.label, 'Dorian');
     });
   });
 

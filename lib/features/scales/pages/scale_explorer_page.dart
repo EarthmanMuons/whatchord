@@ -11,6 +11,7 @@ import 'package:whatchord/features/home/home.dart';
 import 'package:whatchord/features/piano/piano.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
+import '../models/scale_menu.dart';
 import '../providers/scale_preferences_notifier.dart';
 import '../services/scale_preview_animation_controller.dart';
 import '../services/scale_voicing.dart';
@@ -34,7 +35,7 @@ class ScaleExplorerPage extends ConsumerStatefulWidget {
 class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   late List<Tonic> _tonicChoices;
   late Tonic _tonic;
-  late ScaleKind _kind;
+  late ScaleMenuEntry _scale;
   bool _showSevenths = false;
   int? _selectedOrdinal;
   _ScaleView _view = _ScaleView.chords;
@@ -42,11 +43,15 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   late final ScalePreviewAnimationController _preview;
   ScalePreviewState _previewState = ScalePreviewState.idle;
 
+  ScaleKind get _kind => _scale.kind;
+
   @override
   void initState() {
     super.initState();
     final tonality = ref.read(selectedTonalityProvider);
-    _kind = tonality.isMajor ? ScaleKind.major : ScaleKind.aeolian;
+    _scale = commonScaleEntry(
+      tonality.isMajor ? ScaleKind.major : ScaleKind.aeolian,
+    );
     _tonicChoices = tonicChoicesForKind(_kind);
     _tonic = _resolveTonic(
       tonality.tonic.pitchClass,
@@ -203,6 +208,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         Expanded(
           child: _ScaleHeader(
             scale: scale,
+            kindLabel: _scale.label,
             noteNameSystem: noteNameSystem,
             functionLabel: _selectedFunctionLabel(scale),
           ),
@@ -297,20 +303,21 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       ),
     );
 
-    final scalesView = PickerList<ScaleKind>(
+    final scalesView = PickerList<ScaleMenuEntry>(
       entries: [
-        const PickerListHeader<ScaleKind>('Modes'),
-        for (final kind in ScaleKind.values) ...[
-          if (kind == ScaleKind.harmonicMinor)
-            const PickerListHeader<ScaleKind>('Minor scales'),
-          PickerListItem(kind),
+        for (final section in ScaleSection.values) ...[
+          PickerListHeader<ScaleMenuEntry>(section.title),
+          for (final entry in scaleMenuEntries.where(
+            (entry) => entry.section == section,
+          ))
+            PickerListItem(entry),
         ],
       ],
-      selected: _kind,
+      selected: _scale,
       itemExtent: 48,
-      onChanged: _onKindChanged,
-      itemBuilder: (context, kind, isSelected) =>
-          _ScaleKindRow(kind: kind, selected: isSelected),
+      onChanged: _onScaleChanged,
+      itemBuilder: (context, entry, isSelected) =>
+          _ScaleKindRow(label: entry.label, selected: isSelected),
       headerBuilder: (context, title) => Padding(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 2),
         child: Align(
@@ -457,16 +464,16 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     });
   }
 
-  void _onKindChanged(ScaleKind kind) {
-    if (kind == _kind) return;
+  void _onScaleChanged(ScaleMenuEntry entry) {
+    if (entry == _scale) return;
     _preview.cancel();
     setState(() {
       final pitchClass = _tonic.pitchClass;
-      _kind = kind;
+      _scale = entry;
       // The valid spellings differ by mode (e.g. Cb major but not Cb lydian),
       // so rebuild the choices and keep the root pitch class, re-spelled to a
       // tonic this mode actually offers.
-      _tonicChoices = tonicChoicesForKind(kind);
+      _tonicChoices = tonicChoicesForKind(entry.kind);
       _tonic = _resolveTonic(
         pitchClass,
         exact: _tonic,
@@ -501,11 +508,17 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
 class _ScaleHeader extends StatelessWidget {
   const _ScaleHeader({
     required this.scale,
+    required this.kindLabel,
     required this.noteNameSystem,
     required this.functionLabel,
   });
 
   final Scale scale;
+
+  /// The selected menu entry's name (e.g. "Major" or "Ionian"), so the header
+  /// matches the picked row rather than the kind's single conventional label.
+  final String kindLabel;
+
   final NoteNameSystem noteNameSystem;
 
   /// Role and resolution tendency of the selected degree, or null when none is
@@ -539,10 +552,7 @@ class _ScaleHeader extends StatelessWidget {
           TextSpan(
             children: [
               TextSpan(text: tonicLabel, style: tonicStyle),
-              TextSpan(
-                text: ' ${scale.kind.label.toLowerCase()}',
-                style: restStyle,
-              ),
+              TextSpan(text: ' ${kindLabel.toLowerCase()}', style: restStyle),
             ],
           ),
           maxLines: 1,
@@ -575,9 +585,9 @@ class _ScaleHeader extends StatelessWidget {
 }
 
 class _ScaleKindRow extends StatelessWidget {
-  const _ScaleKindRow({required this.kind, required this.selected});
+  const _ScaleKindRow({required this.label, required this.selected});
 
-  final ScaleKind kind;
+  final String label;
   final bool selected;
 
   @override
@@ -596,7 +606,7 @@ class _ScaleKindRow extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          kind.displayLabel,
+          label,
           style: textTheme.titleMedium?.copyWith(
             color: selected ? cs.primary : cs.onSurface,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,

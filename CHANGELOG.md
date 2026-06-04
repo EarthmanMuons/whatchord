@@ -15,12 +15,13 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Added a Scale Explorer, opened by tapping the scale-degree strip. It shows the
   scale's tones (as note names or scale-degree numbers) and the roman numeral
   and chord symbol for each degree. Scrub the tonic wheel, and switch the panel
-  between the diatonic chords and a scrubbable list of scale kinds (the
-  major-scale modes and harmonic and melodic minor). Play the whole scale up and
-  down, or choose triads or seventh chords and tap a chord's play button to hear
-  it. The keyboard marks the scale and highlights the selected chord. Selecting
-  a chord names its role in the key (such as dominant or subdominant) and, in
-  major and minor keys, where it tends to resolve.
+  between the diatonic chords and a scrubbable list of scales grouped into
+  common scales (major, natural minor, harmonic minor, melodic minor) and the
+  diatonic modes (Ionian through Locrian). Play the whole scale up and down, or
+  choose triads or seventh chords and tap a chord's play button to hear it. The
+  keyboard marks the scale and highlights the selected chord. Selecting a chord
+  names its role in the key (such as dominant or subdominant) and, in major and
+  minor keys, where it tends to resolve.
 - Added a staff notation preview to the key signature picker, showing the
   selected signature with a treble clef.
 
