@@ -97,11 +97,7 @@ class ExploreSummary extends ConsumerWidget {
                     ListTile(
                       leading: Icon(choice.icon),
                       title: Text(choice.title),
-                      subtitle: Text(
-                        choice.value,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      subtitle: Text(choice.value),
                       trailing: const Icon(Icons.copy),
                       onTap: () => Navigator.of(dialogContext).pop(choice),
                     ),
