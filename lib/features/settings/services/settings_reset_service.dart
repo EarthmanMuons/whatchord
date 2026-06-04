@@ -36,7 +36,6 @@ class SettingsResetService {
     await prefs.remove(TheoryPreferencesKeys.chordNotationStyle);
     await prefs.remove(TheoryPreferencesKeys.noteNameSystem);
     await prefs.remove(TheoryPreferencesKeys.selectedTonality);
-    await prefs.remove(TheoryPreferencesKeys.showScaleNotes);
 
     // Explore preferences
     await prefs.remove(ExplorePreferencesKeys.showChordMemberDegrees);
@@ -56,7 +55,6 @@ class SettingsResetService {
     _ref.invalidate(appPaletteProvider);
     _ref.invalidate(chordNotationStyleProvider);
     _ref.invalidate(noteNameSystemProvider);
-    _ref.invalidate(showScaleNotesProvider);
     _ref.invalidate(selectedTonalityProvider);
     _ref.invalidate(exploreChordMemberDegreesProvider);
     _ref.invalidate(audioMonitorSettingsNotifier);

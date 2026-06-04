@@ -10,10 +10,6 @@ final chordNotationStyleProvider =
       ChordNotationStyleNotifier.new,
     );
 
-final showScaleNotesProvider = NotifierProvider<ShowScaleNotesNotifier, bool>(
-  ShowScaleNotesNotifier.new,
-);
-
 final noteNameSystemProvider =
     NotifierProvider<NoteNameSystemNotifier, NoteNameSystem>(
       NoteNameSystemNotifier.new,
@@ -76,19 +72,5 @@ class NoteNameSystemNotifier extends Notifier<NoteNameSystem> {
       NoteNameSystem.fixedDo => TheoryPreferencesValues.noteNameSystemFixedDo,
     };
     await prefs.setString(TheoryPreferencesKeys.noteNameSystem, serialized);
-  }
-}
-
-class ShowScaleNotesNotifier extends Notifier<bool> {
-  @override
-  bool build() {
-    final prefs = ref.watch(sharedPreferencesProvider);
-    return prefs.getBool(TheoryPreferencesKeys.showScaleNotes) ?? false;
-  }
-
-  Future<void> setEnabled(bool enabled) async {
-    state = enabled;
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setBool(TheoryPreferencesKeys.showScaleNotes, enabled);
   }
 }

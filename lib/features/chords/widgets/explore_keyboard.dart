@@ -8,12 +8,10 @@ class ExploreKeyboard extends StatelessWidget {
     super.key,
     required this.config,
     required this.highlightedNotes,
-    required this.markedNotes,
   });
 
   final HomeLayoutConfig config;
   final Set<int> highlightedNotes;
-  final Set<int> markedNotes;
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +35,6 @@ class ExploreKeyboard extends StatelessWidget {
           autoCenter: true,
           fullWhiteKeyCount: PianoGeometry.fullKeyboardWhiteKeyCount,
           lowestNoteNumber: PianoGeometry.fullKeyboardLowestMidi,
-          markedNoteNumbers: markedNotes,
           showMiddleCMarker: true,
           middleCLabel: 'C',
           middleCLabelTextScale: config.middleCLabelTextScale,

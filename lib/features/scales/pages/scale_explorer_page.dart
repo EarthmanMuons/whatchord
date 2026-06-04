@@ -97,7 +97,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     final memberPitchClasses = {for (final n in selectedChord) n % 12};
 
     final scalePitchClasses = scale.pitchClasses.toSet();
-    final markedNotes = <int>{
+    final scaleNotes = <int>{
       for (
         int midi = PianoGeometry.fullKeyboardLowestMidi;
         midi <= PianoGeometry.fullKeyboardHighestMidi;
@@ -175,7 +175,8 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
                       _ScaleKeyboard(
                         config: config,
                         highlightedNotes: keyboardNotes,
-                        markedNotes: markedNotes,
+                        scaleNotes: scaleNotes,
+                        tonicPitchClass: scale.tonic.pitchClass,
                       ),
                     ],
                   ),
@@ -667,12 +668,14 @@ class _ScaleKeyboard extends StatelessWidget {
   const _ScaleKeyboard({
     required this.config,
     required this.highlightedNotes,
-    required this.markedNotes,
+    required this.scaleNotes,
+    required this.tonicPitchClass,
   });
 
   final HomeLayoutConfig config;
   final Set<int> highlightedNotes;
-  final Set<int> markedNotes;
+  final Set<int> scaleNotes;
+  final int tonicPitchClass;
 
   @override
   Widget build(BuildContext context) {
@@ -694,7 +697,8 @@ class _ScaleKeyboard extends StatelessWidget {
           autoCenter: true,
           fullWhiteKeyCount: PianoGeometry.fullKeyboardWhiteKeyCount,
           lowestNoteNumber: PianoGeometry.fullKeyboardLowestMidi,
-          markedNoteNumbers: markedNotes,
+          scaleNoteNumbers: scaleNotes,
+          tonicPitchClass: tonicPitchClass,
           showMiddleCMarker: true,
           middleCLabel: 'C',
           middleCLabelTextScale: config.middleCLabelTextScale,

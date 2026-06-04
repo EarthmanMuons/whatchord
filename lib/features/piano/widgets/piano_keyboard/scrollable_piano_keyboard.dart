@@ -55,7 +55,8 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
     this.showMiddleCMarker = true,
     this.middleCLabel = 'C',
     this.middleCLabelTextScale = 1.0,
-    this.markedNoteNumbers = const <int>{},
+    this.scaleNoteNumbers = const <int>{},
+    this.tonicPitchClass,
   }) : assert(visibleWhiteKeyCount > 0);
 
   /// How many white keys should be visible in the viewport width.
@@ -83,8 +84,13 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
   final String middleCLabel;
   final double middleCLabelTextScale;
 
-  /// Note numbers rendered as top-edge marker caps (e.g., scale notes).
-  final Set<int> markedNoteNumbers;
+  /// Scale member note numbers. When non-empty, each member key is marked with
+  /// a dot so the in-scale notes read at a glance.
+  final Set<int> scaleNoteNumbers;
+
+  /// Pitch class (0-11) of the scale tonic, marked with a triangle instead of a
+  /// dot. Null marks every member with a dot.
+  final int? tonicPitchClass;
 
   @override
   ConsumerState<ScrollablePianoKeyboard> createState() =>
@@ -780,18 +786,17 @@ class _ScrollablePianoKeyboardState
         );
         final contentWidth = whiteKeyWidth * widget.fullWhiteKeyCount;
 
-        // Lift decorations enough to get above the nav indicator.
+        // Keep the middle-C label clear of the nav indicator, but only by a
+        // little: the indicator is hidden most of the time and the key has room
+        // below the label, so a light lift keeps it sitting low on the key.
         final systemBottomInset = MediaQuery.viewPaddingOf(context).bottom;
-        final base = (widget.height * 0.05).clamp(0.0, 5.0);
+        final base = (widget.height * 0.03).clamp(0.0, 3.0);
         final lift = systemBottomInset > 0
-            ? (systemBottomInset * 0.3).clamp(0.0, 9.0)
+            ? (systemBottomInset * 0.15).clamp(0.0, 5.0)
             : 0.0;
         final decorationLift = base + lift;
-        final sortedMarkedNotes = widget.markedNoteNumbers.toList()..sort();
 
         final decorations = <PianoKeyDecoration>[
-          for (final midi in sortedMarkedNotes)
-            PianoKeyDecoration.topCap(midiNote: midi),
           if (widget.showMiddleCMarker)
             PianoKeyDecoration(
               midiNote: 60,
@@ -840,6 +845,8 @@ class _ScrollablePianoKeyboardState
                           whiteKeyCount: widget.fullWhiteKeyCount,
                           firstMidiNote: widget.lowestNoteNumber,
                           highlightedNoteNumbers: widget.highlightedNoteNumbers,
+                          scaleNoteNumbers: widget.scaleNoteNumbers,
+                          tonicPitchClass: widget.tonicPitchClass,
                           height: widget.height,
                           decorations: decorations,
                           decorationTextScaleMultiplier:
