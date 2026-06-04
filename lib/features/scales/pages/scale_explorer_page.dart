@@ -365,13 +365,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
               padding: const EdgeInsets.only(right: 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  header,
-                  const SizedBox(height: 16),
-                  toneRow,
-                  const SizedBox(height: 16),
-                  tonicWheel,
-                ],
+                children: [header, const SizedBox(height: 16), toneRow],
               ),
             ),
           ),
@@ -382,6 +376,8 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  tonicWheel,
+                  const SizedBox(height: 16),
                   viewControl,
                   const SizedBox(height: 8),
                   Expanded(child: viewContent),
