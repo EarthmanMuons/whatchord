@@ -23,10 +23,18 @@ import '../widgets/scale_tone_strip.dart';
 enum _ScaleView { chords, scales }
 
 class ScaleExplorerPage extends ConsumerStatefulWidget {
-  const ScaleExplorerPage({super.key});
+  const ScaleExplorerPage({super.key, this.seedPresentation});
 
-  static Route<void> route() {
-    return MaterialPageRoute<void>(builder: (_) => const ScaleExplorerPage());
+  /// Chord to pre-select a degree from when the page opens. When null the page
+  /// falls back to the live sounding chord, so opening from the home page seeds
+  /// the current performance. Explore Chords passes its built chord here so it
+  /// seeds the same way rather than reaching back to stale live input.
+  final ChordPresentation? seedPresentation;
+
+  static Route<void> route({ChordPresentation? seedPresentation}) {
+    return MaterialPageRoute<void>(
+      builder: (_) => ScaleExplorerPage(seedPresentation: seedPresentation),
+    );
   }
 
   @override
@@ -406,13 +414,15 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     );
   }
 
-  /// Pre-selects the degree of any chord currently sounding so opening the
-  /// explorer mid-performance lands on that chord (e.g. a G7 in C major seeds
-  /// the V7). Only seeds when the detected chord is diatonic to the seeded
-  /// scale, i.e. its source matches the seeded mode; otherwise nothing is
-  /// selected and the page opens on the bare tonic/mode.
+  /// Pre-selects the degree of the seeding chord so opening the explorer lands
+  /// on that chord (e.g. a G7 in C major seeds the V7). The chord is the one
+  /// passed in via [ScaleExplorerPage.seedPresentation], or the live sounding
+  /// chord when none was given. Only seeds when the chord is diatonic to the
+  /// seeded scale, i.e. its source matches the seeded mode; otherwise nothing
+  /// is selected and the page opens on the bare tonic/mode.
   void _seedSelectionFromSoundingChord() {
-    final presentation = ref.read(chordPresentationProvider);
+    final presentation =
+        widget.seedPresentation ?? ref.read(chordPresentationProvider);
     final analysis = presentation?.scaleDegreeAnalysis;
     if (presentation == null || analysis == null) return;
 
