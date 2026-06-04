@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/explore_chords/services/explore_seed_derivation.dart';
+import 'package:whatchord/features/chords/services/explore_seed_derivation.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 void main() {

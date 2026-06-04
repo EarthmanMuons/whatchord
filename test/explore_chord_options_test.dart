@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/explore_chords/models/explore_chord_example.dart';
-import 'package:whatchord/features/explore_chords/models/explore_chord_spec.dart';
-import 'package:whatchord/features/explore_chords/models/explore_chord_state.dart';
-import 'package:whatchord/features/explore_chords/services/explore_chord_example_builder.dart';
-import 'package:whatchord/features/explore_chords/services/explore_chord_derivation.dart';
-import 'package:whatchord/features/explore_chords/services/explore_chord_options.dart';
-import 'package:whatchord/features/explore_chords/services/explore_chord_state_transitions.dart';
-import 'package:whatchord/features/explore_chords/services/explore_extension_rules.dart';
+import 'package:whatchord/features/chords/models/explore_chord_example.dart';
+import 'package:whatchord/features/chords/models/explore_chord_spec.dart';
+import 'package:whatchord/features/chords/models/explore_chord_state.dart';
+import 'package:whatchord/features/chords/services/explore_chord_example_builder.dart';
+import 'package:whatchord/features/chords/services/explore_chord_derivation.dart';
+import 'package:whatchord/features/chords/services/explore_chord_options.dart';
+import 'package:whatchord/features/chords/services/explore_chord_state_transitions.dart';
+import 'package:whatchord/features/chords/services/explore_extension_rules.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 void main() {

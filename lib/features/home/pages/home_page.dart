@@ -6,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/demo/demo.dart';
-import 'package:whatchord/features/explore_scales/explore_scales.dart';
 import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/onboarding/onboarding.dart';
+import 'package:whatchord/features/scales/scales.dart';
 import 'package:whatchord/features/settings/settings.dart';
 
 import '../models/home_layout_config.dart';
