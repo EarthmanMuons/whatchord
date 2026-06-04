@@ -113,54 +113,48 @@ class _ScaleDegreeChordTile extends StatelessWidget {
       hint: memberNotes,
       onTap: onTap,
       excludeSemantics: true,
-      child: Tooltip(
-        message: memberNotes,
-        showDuration: const Duration(seconds: 3),
-        child: Material(
-          color: selected ? cs.primaryContainer : Colors.transparent,
+      child: Material(
+        color: selected ? cs.primaryContainer : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: onTap,
-            child: SizedBox(
-              height: 48,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 64,
-                      child: Text.rich(
-                        TextSpan(children: scaleDegreeRomanSpans(roman)),
-                        style: textTheme.titleMedium?.copyWith(
-                          color: romanColor,
-                          fontWeight: FontWeight.w600,
-                        ),
+          onTap: onTap,
+          child: SizedBox(
+            height: 48,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 64,
+                    child: Text.rich(
+                      TextSpan(children: scaleDegreeRomanSpans(roman)),
+                      style: textTheme.titleMedium?.copyWith(
+                        color: romanColor,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        symbol,
-                        style: textTheme.titleLarge?.copyWith(
-                          color: symbolColor,
-                        ),
-                      ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      symbol,
+                      style: textTheme.titleLarge?.copyWith(color: symbolColor),
                     ),
-                    IconButton(
-                      onPressed: onPlay,
-                      tooltip: 'Play chord',
-                      constraints: const BoxConstraints(
-                        minWidth: 48,
-                        minHeight: 48,
-                      ),
-                      icon: Icon(
-                        Icons.play_arrow,
-                        color: selected ? cs.onPrimaryContainer : cs.primary,
-                      ),
+                  ),
+                  IconButton(
+                    onPressed: onPlay,
+                    tooltip: 'Play chord',
+                    constraints: const BoxConstraints(
+                      minWidth: 48,
+                      minHeight: 48,
                     ),
-                  ],
-                ),
+                    icon: Icon(
+                      Icons.play_arrow,
+                      color: selected ? cs.onPrimaryContainer : cs.primary,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

@@ -201,7 +201,11 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: _ScaleHeader(scale: scale, noteNameSystem: noteNameSystem),
+          child: _ScaleHeader(
+            scale: scale,
+            noteNameSystem: noteNameSystem,
+            functionLabel: _selectedFunctionLabel(scale),
+          ),
         ),
       ],
     );
@@ -398,6 +402,21 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     _showSevenths = presentation.identity.quality.isSeventhFamily;
   }
 
+  /// Sentence-case "role, tendency" line for the selected degree (e.g.
+  /// "Dominant, pulls toward I"), or null when nothing is selected. Outside the
+  /// major and minor families the tendency is dropped and only the role shows.
+  String? _selectedFunctionLabel(Scale scale) {
+    final ordinal = _selectedOrdinal;
+    if (ordinal == null) return null;
+
+    final function = scaleDegreeFunction(scale, ordinal);
+    final tendency = function.tendency;
+    final text = tendency == null
+        ? function.name
+        : '${function.name}, $tendency';
+    return '${text[0].toUpperCase()}${text.substring(1)}';
+  }
+
   Set<int> _selectedChordMidi(Scale scale, ScaleHarmony harmony) {
     final ordinal = _selectedOrdinal;
     if (ordinal == null) return const <int>{};
@@ -480,10 +499,18 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
 }
 
 class _ScaleHeader extends StatelessWidget {
-  const _ScaleHeader({required this.scale, required this.noteNameSystem});
+  const _ScaleHeader({
+    required this.scale,
+    required this.noteNameSystem,
+    required this.functionLabel,
+  });
 
   final Scale scale;
   final NoteNameSystem noteNameSystem;
+
+  /// Role and resolution tendency of the selected degree, or null when none is
+  /// selected (the line is still laid out so the header height stays fixed).
+  final String? functionLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -505,25 +532,44 @@ class _ScaleHeader extends StatelessWidget {
       noteNameSystem: noteNameSystem,
     );
 
-    return Text.rich(
-      TextSpan(
-        children: [
-          TextSpan(text: tonicLabel, style: tonicStyle),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text.rich(
           TextSpan(
-            text: ' ${scale.kind.label.toLowerCase()}',
-            style: restStyle,
+            children: [
+              TextSpan(text: tonicLabel, style: tonicStyle),
+              TextSpan(
+                text: ' ${scale.kind.label.toLowerCase()}',
+                style: restStyle,
+              ),
+            ],
           ),
-        ],
-      ),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      // Forced strut keeps the line height constant whether or not the tonic
-      // carries an accidental, so the play button doesn't shift while scrubbing.
-      strutStyle: StrutStyle(
-        fontSize: tonicStyle?.fontSize,
-        height: 1.0,
-        forceStrutHeight: true,
-      ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          // Forced strut keeps the line height constant whether or not the
+          // tonic carries an accidental, so the play button doesn't shift while
+          // scrubbing.
+          strutStyle: StrutStyle(
+            fontSize: tonicStyle?.fontSize,
+            height: 1.0,
+            forceStrutHeight: true,
+          ),
+        ),
+        const SizedBox(height: 6),
+        // Always rendered (a space when empty) so selecting or clearing a
+        // degree never changes the header height.
+        Text(
+          functionLabel ?? ' ',
+          style: textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          strutStyle: StrutStyle(
+            fontSize: textTheme.bodyLarge?.fontSize,
+            forceStrutHeight: true,
+          ),
+        ),
+      ],
     );
   }
 }
