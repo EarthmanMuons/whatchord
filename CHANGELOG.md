@@ -18,7 +18,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   between the diatonic chords and a scrubbable list of scale kinds (the
   major-scale modes and harmonic and melodic minor). Play the whole scale up and
   down, or choose triads or seventh chords and tap a chord's play button to hear
-  it. The keyboard marks the scale and highlights the selected chord.
+  it. The keyboard marks the scale and highlights the selected chord. Selecting
+  a chord names its role in the key (such as dominant or subdominant) and, in
+  major and minor keys, where it tends to resolve.
 - Added a staff notation preview to the key signature picker, showing the
   selected signature with a treble clef.
 
