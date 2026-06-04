@@ -70,6 +70,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     ];
     _tonic = _tonicChoices[tonality.tonic.pitchClass];
     _kind = tonality.isMajor ? ScaleKind.major : ScaleKind.aeolian;
+    _seedSelectionFromSoundingChord();
     _preview = ScalePreviewAnimationController(
       onChanged: (state) {
         if (!mounted) return;
@@ -393,6 +394,25 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         Expanded(child: viewContent),
       ],
     );
+  }
+
+  /// Pre-selects the degree of any chord currently sounding so opening the
+  /// explorer mid-performance lands on that chord (e.g. a G7 in C major seeds
+  /// the V7). Only seeds when the detected chord is diatonic to the seeded
+  /// scale, i.e. its source matches the seeded mode; otherwise nothing is
+  /// selected and the page opens on the bare tonic/mode.
+  void _seedSelectionFromSoundingChord() {
+    final presentation = ref.read(chordPresentationProvider);
+    final analysis = presentation?.scaleDegreeAnalysis;
+    if (presentation == null || analysis == null) return;
+
+    final seededSource = _kind == ScaleKind.major
+        ? ScaleDegreeSource.major
+        : ScaleDegreeSource.naturalMinor;
+    if (analysis.source != seededSource) return;
+
+    _selectedOrdinal = analysis.degree.index + 1;
+    _showSevenths = presentation.identity.quality.isSeventhFamily;
   }
 
   Set<int> _selectedChordMidi(Scale scale, ScaleHarmony harmony) {
