@@ -2,6 +2,52 @@ import 'package:flutter/material.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
+import 'scale_list_style.dart';
+
+// Shared column metrics so the pinned [ScaleDegreeColumnHeaders] line up with
+// the roman and chord columns of each row below.
+const double _rowLeftPadding = 12;
+const double _romanColumnWidth = 84;
+const double _columnGap = 12;
+
+/// "Degree / Chord" column headers for [ScaleDegreeChordList], styled to match
+/// the Scales view's section headers so the two panels feel consistent.
+class _ColumnHeaders extends StatelessWidget {
+  const _ColumnHeaders();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.labelSmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+      fontWeight: FontWeight.w700,
+      letterSpacing: 0.8,
+    );
+
+    Widget label(String text) => Semantics(
+      header: true,
+      child: Text(text.toUpperCase(), semanticsLabel: text, style: style),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(_rowLeftPadding, 4, 0, 8),
+          child: Row(
+            children: [
+              SizedBox(width: _romanColumnWidth, child: label('Degree')),
+              const SizedBox(width: _columnGap),
+              Expanded(child: label('Chord')),
+            ],
+          ),
+        ),
+        ScaleListStyle.headerRule(theme.colorScheme),
+      ],
+    );
+  }
+}
+
 class ScaleDegreeChordList extends StatelessWidget {
   const ScaleDegreeChordList({
     super.key,
@@ -26,10 +72,14 @@ class ScaleDegreeChordList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final degree in harmony.degrees)
+        const _ColumnHeaders(),
+        for (final (index, degree) in harmony.degrees.indexed) ...[
+          if (index > 0) ScaleListStyle.rowSeparator(cs),
           _ScaleDegreeChordTile(
             roman: showSevenths ? degree.seventhRoman : degree.triadRoman,
             symbol: _chordSymbol(degree),
@@ -38,6 +88,7 @@ class ScaleDegreeChordList extends StatelessWidget {
             onTap: () => onDegreeTap(degree),
             onPlay: () => onDegreePlay(degree),
           ),
+        ],
       ],
     );
   }
@@ -103,9 +154,6 @@ class _ScaleDegreeChordTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    final romanColor = selected ? cs.onPrimaryContainer : cs.primary;
-    final symbolColor = selected ? cs.onPrimaryContainer : cs.onSurface;
-
     return Semantics(
       button: true,
       selected: selected,
@@ -114,19 +162,17 @@ class _ScaleDegreeChordTile extends StatelessWidget {
       onTap: onTap,
       excludeSemantics: true,
       child: Material(
-        color: selected ? cs.primaryContainer : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
+        color: selected ? ScaleListStyle.selectedRow(cs) : Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(12),
           onTap: onTap,
           child: SizedBox(
             height: 48,
             child: Padding(
-              padding: const EdgeInsets.only(left: 12),
+              padding: const EdgeInsets.only(left: _rowLeftPadding),
               child: Row(
                 children: [
                   SizedBox(
-                    width: 84,
+                    width: _romanColumnWidth,
                     // Left-aligned and scaled down only when a long roman (e.g.
                     // the harmonic-minor bIII+maj7#5) would otherwise wrap, so
                     // the symbol column still starts at a consistent x.
@@ -137,17 +183,22 @@ class _ScaleDegreeChordTile extends StatelessWidget {
                         TextSpan(children: scaleDegreeRomanSpans(roman)),
                         maxLines: 1,
                         style: textTheme.titleMedium?.copyWith(
-                          color: romanColor,
-                          fontWeight: FontWeight.w600,
+                          color: ScaleListStyle.rowText(cs, selected: selected),
+                          fontWeight: selected
+                              ? FontWeight.w700
+                              : FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: _columnGap),
                   Expanded(
                     child: Text(
                       symbol,
-                      style: textTheme.titleLarge?.copyWith(color: symbolColor),
+                      style: textTheme.titleLarge?.copyWith(
+                        color: ScaleListStyle.rowText(cs, selected: selected),
+                        fontWeight: selected ? FontWeight.w600 : null,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -157,10 +208,7 @@ class _ScaleDegreeChordTile extends StatelessWidget {
                       minWidth: 48,
                       minHeight: 48,
                     ),
-                    icon: Icon(
-                      Icons.play_arrow,
-                      color: selected ? cs.onPrimaryContainer : cs.primary,
-                    ),
+                    icon: Icon(Icons.play_arrow, color: cs.primary),
                   ),
                 ],
               ),
