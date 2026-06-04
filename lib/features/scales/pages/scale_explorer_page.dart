@@ -18,21 +18,6 @@ import '../widgets/scale_degree_chord_list.dart';
 import '../widgets/scale_explorer_top_bar.dart';
 import '../widgets/scale_tone_strip.dart';
 
-const _canonicalTonics = <Tonic>[
-  Tonic.c,
-  Tonic.dFlat,
-  Tonic.d,
-  Tonic.eFlat,
-  Tonic.e,
-  Tonic.f,
-  Tonic.gFlat,
-  Tonic.g,
-  Tonic.aFlat,
-  Tonic.a,
-  Tonic.bFlat,
-  Tonic.b,
-];
-
 enum _ScaleView { chords, scales }
 
 class ScaleExplorerPage extends ConsumerStatefulWidget {
@@ -47,7 +32,7 @@ class ScaleExplorerPage extends ConsumerStatefulWidget {
 }
 
 class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
-  late final List<Tonic> _tonicChoices;
+  late List<Tonic> _tonicChoices;
   late Tonic _tonic;
   late ScaleKind _kind;
   bool _showSevenths = false;
@@ -61,15 +46,13 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   void initState() {
     super.initState();
     final tonality = ref.read(selectedTonalityProvider);
-    // One spelling per pitch class, key-aware where it maps to a known tonic so
-    // the seeded tonic keeps its spelling (e.g. F# in a sharp key).
-    _tonicChoices = [
-      for (var pc = 0; pc < 12; pc++)
-        Tonic.tryFromLabel(pcToName(pc, tonality: tonality)) ??
-            _canonicalTonics[pc],
-    ];
-    _tonic = _tonicChoices[tonality.tonic.pitchClass];
     _kind = tonality.isMajor ? ScaleKind.major : ScaleKind.aeolian;
+    _tonicChoices = tonicChoicesForKind(_kind);
+    _tonic = _resolveTonic(
+      tonality.tonic.pitchClass,
+      exact: tonality.tonic,
+      preferFlat: tonality.keySignature.prefersFlats,
+    );
     _seedSelectionFromSoundingChord();
     _preview = ScalePreviewAnimationController(
       onChanged: (state) {
@@ -459,9 +442,40 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     if (kind == _kind) return;
     _preview.cancel();
     setState(() {
+      final pitchClass = _tonic.pitchClass;
       _kind = kind;
+      // The valid spellings differ by mode (e.g. Cb major but not Cb lydian),
+      // so rebuild the choices and keep the root pitch class, re-spelled to a
+      // tonic this mode actually offers.
+      _tonicChoices = tonicChoicesForKind(kind);
+      _tonic = _resolveTonic(
+        pitchClass,
+        exact: _tonic,
+        preferFlat: _tonic.isFlat,
+      );
       _selectedOrdinal = null;
     });
+  }
+
+  /// Picks a tonic for [pitchClass] from the current [_tonicChoices], keeping
+  /// [exact] when it is still offered and otherwise honoring the [preferFlat]
+  /// spelling preference for enharmonic pairs.
+  Tonic _resolveTonic(
+    int pitchClass, {
+    Tonic? exact,
+    required bool preferFlat,
+  }) {
+    if (exact != null && _tonicChoices.contains(exact)) return exact;
+
+    final matches = _tonicChoices
+        .where((tonic) => tonic.pitchClass == pitchClass)
+        .toList();
+    if (matches.isEmpty) return _tonicChoices.first;
+
+    for (final tonic in matches) {
+      if (preferFlat ? tonic.isFlat : tonic.isSharp) return tonic;
+    }
+    return matches.first;
   }
 }
 
