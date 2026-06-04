@@ -468,6 +468,12 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     _preview.cancel();
     setState(() {
       final pitchClass = _tonic.pitchClass;
+      // The selected ordinal names a scale-degree position, so keep it only
+      // when the new scale has the same number of degrees; otherwise the
+      // position no longer maps (e.g. a future non-heptatonic scale).
+      if (entry.kind.intervals.length != _scale.kind.intervals.length) {
+        _selectedOrdinal = null;
+      }
       _scale = entry;
       // The valid spellings differ by mode (e.g. Cb major but not Cb lydian),
       // so rebuild the choices and keep the root pitch class, re-spelled to a
@@ -478,7 +484,6 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         exact: _tonic,
         preferFlat: _tonic.isFlat,
       );
-      _selectedOrdinal = null;
     });
   }
 
