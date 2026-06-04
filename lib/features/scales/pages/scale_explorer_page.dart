@@ -17,6 +17,7 @@ import '../services/scale_preview_animation_controller.dart';
 import '../services/scale_voicing.dart';
 import '../widgets/scale_degree_chord_list.dart';
 import '../widgets/scale_explorer_top_bar.dart';
+import '../widgets/scale_list_style.dart';
 import '../widgets/scale_tone_strip.dart';
 
 enum _ScaleView { chords, scales }
@@ -303,6 +304,13 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       ),
     );
 
+    // The last row of each section has no separator, so a section's list ends
+    // on a clean edge before the next header.
+    final lastInSection = {
+      for (final section in ScaleSection.values)
+        scaleMenuEntries.lastWhere((entry) => entry.section == section),
+    };
+
     final scalesView = PickerList<ScaleMenuEntry>(
       entries: [
         for (final section in ScaleSection.values) ...[
@@ -315,23 +323,34 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       ],
       selected: _scale,
       itemExtent: 48,
+      headerExtent: 44,
       onChanged: _onScaleChanged,
-      itemBuilder: (context, entry, isSelected) =>
-          _ScaleKindRow(label: entry.label, selected: isSelected),
-      headerBuilder: (context, title) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 2),
-        child: Align(
-          alignment: Alignment.bottomLeft,
-          child: Text(
-            title.toUpperCase(),
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.8,
-            ),
-          ),
-        ),
+      itemBuilder: (context, entry, isSelected) => _ScaleKindRow(
+        label: entry.label,
+        selected: isSelected,
+        showSeparator: !lastInSection.contains(entry),
       ),
+      headerBuilder: (context, title) {
+        final cs = Theme.of(context).colorScheme;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
+              child: Text(
+                title.toUpperCase(),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.8,
+                ),
+              ),
+            ),
+            ScaleListStyle.headerRule(cs),
+          ],
+        );
+      },
     );
 
     final viewContent = _view == _ScaleView.chords ? chordsView : scalesView;
@@ -590,10 +609,15 @@ class _ScaleHeader extends StatelessWidget {
 }
 
 class _ScaleKindRow extends StatelessWidget {
-  const _ScaleKindRow({required this.label, required this.selected});
+  const _ScaleKindRow({
+    required this.label,
+    required this.selected,
+    required this.showSeparator,
+  });
 
   final String label;
   final bool selected;
+  final bool showSeparator;
 
   @override
   Widget build(BuildContext context) {
@@ -602,18 +626,16 @@ class _ScaleKindRow extends StatelessWidget {
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: selected
-            ? Color.alphaBlend(cs.primary.withValues(alpha: 0.10), cs.surface)
+        color: selected ? ScaleListStyle.selectedRow(cs) : null,
+        border: showSeparator
+            ? Border(bottom: ScaleListStyle.separatorSide(cs))
             : null,
-        border: Border(
-          bottom: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.4)),
-        ),
       ),
       child: Center(
         child: Text(
           label,
           style: textTheme.titleMedium?.copyWith(
-            color: selected ? cs.primary : cs.onSurface,
+            color: ScaleListStyle.rowText(cs, selected: selected),
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
