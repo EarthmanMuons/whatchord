@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/explore_scales/services/scale_voicing.dart';
+import 'package:whatchord/features/scales/services/scale_voicing.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 void main() {

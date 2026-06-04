@@ -7,9 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/audio/audio.dart';
-import 'package:whatchord/features/explore_scales/explore_scales.dart';
 import 'package:whatchord/features/home/home.dart';
 import 'package:whatchord/features/piano/piano.dart';
+import 'package:whatchord/features/scales/scales.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/explore_chord_example.dart';
