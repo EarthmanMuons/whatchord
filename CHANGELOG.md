@@ -19,9 +19,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   common scales (major, natural minor, harmonic minor, melodic minor) and the
   diatonic modes (Ionian through Locrian). Play the whole scale up and down, or
   choose triads or seventh chords and tap a chord's play button to hear it. The
-  keyboard marks the scale and highlights the selected chord. Selecting a chord
-  names its role in the key (such as dominant or subdominant) and, in major and
-  minor keys, where it tends to resolve.
+  keyboard marks the in-scale notes with a dot (the tonic with a triangle) and
+  highlights the selected chord. Selecting a chord names its role in the key
+  (such as dominant or subdominant) and, in major and minor keys, where it tends
+  to resolve.
 - Added a staff notation preview to the key signature picker, showing the
   selected signature with a treble clef.
 
@@ -35,6 +36,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Use ChoCo corpus-derived common-name frequency as a narrow late tie-breaker
   for otherwise equivalent chord names, so voicings such as C D F A over A now
   prefer Dm7/A over F6/A.
+
+### Removed
+
+- Removed the "Show scale notes" setting and its key-top markers from the live
+  analysis and chord views. Scale membership is now shown in the Scale Explorer,
+  where in-scale notes are marked on the keyboard.
 
 ## [2026.6.1] - 2026-06-01
 

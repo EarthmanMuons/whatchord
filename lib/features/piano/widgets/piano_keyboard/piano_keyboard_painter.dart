@@ -59,6 +59,9 @@ class PianoKeyboardPainter extends CustomPainter {
     required this.whiteKeyCount,
     required this.firstMidiNote,
     required this.highlightedNoteNumbers,
+    this.scaleNoteNumbers = const <int>{},
+    this.scaleMarkerColor,
+    this.tonicPitchClass,
     required this.whiteKeyColor,
     required this.pressedWhiteKeyColor,
     required this.pressedBlackKeyColor,
@@ -91,6 +94,20 @@ class PianoKeyboardPainter extends CustomPainter {
 
   /// Highlighted *MIDI note numbers* (e.g., 60 for middle C).
   final Set<int> highlightedNoteNumbers;
+
+  /// Scale member *MIDI note numbers*. Each member key gets a dot marker in the
+  /// lower portion of the key so the in-scale notes are obvious at a glance.
+  /// Requires [scaleMarkerColor]; empty means no markers.
+  final Set<int> scaleNoteNumbers;
+
+  /// Fill color for the scale member dot markers. Black keys use a lightened
+  /// variant for contrast. Required when [scaleNoteNumbers] is non-empty.
+  final Color? scaleMarkerColor;
+
+  /// Pitch class (0-11) of the scale tonic. Member keys at this pitch class are
+  /// marked with a triangle instead of a dot to anchor the root. Null marks
+  /// every member with a dot.
+  final int? tonicPitchClass;
 
   final Color whiteKeyColor;
   final Color pressedWhiteKeyColor;
@@ -256,14 +273,124 @@ class PianoKeyboardPainter extends CustomPainter {
       canvas.drawRect(Rect.fromLTWH(0, 0, width, feltHeight), feltPaint);
     }
 
-    if (decorations.isNotEmpty) {
-      _paintDecorations(
+    if (scaleNoteNumbers.isNotEmpty && scaleMarkerColor != null) {
+      _paintScaleMarkers(
         canvas,
         size,
         whiteKeyWidth: whiteKeyWidth,
         blackKeyHeight: blackKeyHeight,
       );
     }
+
+    if (decorations.isNotEmpty) {
+      _paintDecorations(canvas, size, whiteKeyWidth: whiteKeyWidth);
+    }
+  }
+
+  /// Draws a dot in the lower portion of each scale member key (a triangle for
+  /// the tonic). The marker is kept on highlighted keys too, recolored for
+  /// contrast so it stays legible against the pressed fill.
+  void _paintScaleMarkers(
+    Canvas canvas,
+    Size size, {
+    required double whiteKeyWidth,
+    required double blackKeyHeight,
+  }) {
+    final markerColor = scaleMarkerColor!;
+    final blackMarkerColor = Color.lerp(markerColor, Colors.white, 0.4)!;
+    final blackKeyWidth = whiteKeyWidth * PianoGeometry.blackKeyWidthRatio;
+
+    final whiteRadius = (whiteKeyWidth * 0.20).clamp(4.0, 9.0).toDouble();
+    final blackRadius = (blackKeyWidth * 0.34).clamp(3.0, 6.5).toDouble();
+
+    // Reserve room for a bottom label (the middle-C marker) and record its
+    // on-key center. The reserve uses a fixed lift rather than the label's own
+    // bottomLift so nudging the label for the nav indicator does not move dots.
+    const labelClearanceLift = 14.0;
+    double bottomClearance = (whiteKeyWidth * 0.18).clamp(4.0, 8.0).toDouble();
+    double? labelCenterY;
+    for (final d in decorations) {
+      if (d.style != PianoKeyDecorationStyle.label) continue;
+      if (d.label == null || d.label!.isEmpty) continue;
+      final labelFontSize =
+          (whiteKeyWidth * 0.52 * decorationTextScaleMultiplier)
+              .clamp(9.0, 16.0)
+              .toDouble();
+      final labelPad = (whiteKeyWidth * 0.18).clamp(4.0, 8.0).toDouble();
+      final clearance = labelFontSize * 1.25 + labelPad + labelClearanceLift;
+      if (clearance > bottomClearance) bottomClearance = clearance;
+      final center =
+          size.height - (labelPad + d.bottomLift) - labelFontSize * 1.2 / 2.0;
+      if (labelCenterY == null || center > labelCenterY) labelCenterY = center;
+    }
+
+    final blackCy = blackKeyHeight - blackRadius - 8.0;
+    // Rest the white dots midway between the bottom label and the black-key
+    // dots so the three rows read as evenly spaced; fall back to just above the
+    // label band when there is no label.
+    final labelY = labelCenterY;
+    final whiteCy = labelY != null
+        ? (blackCy + labelY) / 2.0
+        : size.height - bottomClearance - whiteRadius;
+
+    final minMidi = _geometry.whiteMidis.first;
+    final maxMidi = _geometry.whiteMidis.last;
+    final fill = Paint()..style = PaintingStyle.fill;
+
+    for (final midi in scaleNoteNumbers) {
+      if (midi < minMidi || midi > maxMidi) continue;
+
+      final keyRect = _geometry.keyRectForMidi(
+        midi: midi,
+        whiteKeyWidth: whiteKeyWidth,
+        totalWidth: size.width,
+      );
+      final cx = (keyRect.left + keyRect.right) / 2.0;
+      if (cx < 0 || cx > size.width) continue;
+
+      final isBlack = PianoGeometry.isBlackMidi(midi);
+      final isTonic = tonicPitchClass != null && midi % 12 == tonicPitchClass;
+
+      // White keys: the saturated accent marker reads well even on the pressed
+      // fill (which is light in both themes), so it needs no special case.
+      // Black keys: the lightened accent reads on the resting black key, but on
+      // a pressed (accent-filled) black key it would blend, so switch to a black
+      // marker for a clean cutout.
+      if (isBlack) {
+        fill.color = _isHighlighted(midi) ? blackKeyColor : blackMarkerColor;
+      } else {
+        fill.color = markerColor;
+      }
+      final center = Offset(cx, isBlack ? blackCy : whiteCy);
+      final radius = isBlack ? blackRadius : whiteRadius;
+
+      if (isTonic) {
+        _drawTonicTriangle(canvas, fill, center, radius);
+      } else {
+        canvas.drawCircle(center, radius, fill);
+      }
+    }
+  }
+
+  /// Upward triangle centered (by area) on [center], sized to read at about the
+  /// same weight as a dot of [radius].
+  void _drawTonicTriangle(
+    Canvas canvas,
+    Paint fill,
+    Offset center,
+    double radius,
+  ) {
+    final halfW = radius * 1.3;
+    final halfH = radius * 1.2;
+    // Shift up so the triangle's centroid (a third of the way up from the base)
+    // lands on [center], keeping it aligned with the dots.
+    final cy = center.dy - halfH / 3.0;
+    final path = Path()
+      ..moveTo(center.dx, cy - halfH)
+      ..lineTo(center.dx - halfW, cy + halfH)
+      ..lineTo(center.dx + halfW, cy + halfH)
+      ..close();
+    canvas.drawPath(path, fill);
   }
 
   void _paintTopEdgeShadow(
@@ -411,67 +538,7 @@ class PianoKeyboardPainter extends CustomPainter {
     Canvas canvas,
     Size size, {
     required double whiteKeyWidth,
-    required double blackKeyHeight,
   }) {
-    final totalWidth = size.width;
-    final topCapPaint = Paint()..style = PaintingStyle.fill;
-    final topCapStrokePaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
-    final topInset = (drawFeltStrip ? feltHeight : 0.0).clamp(0.0, size.height);
-    final blackKeyWidth = whiteKeyWidth * PianoGeometry.blackKeyWidthRatio;
-    final minRenderableMidi = _geometry.whiteMidis.first;
-    final maxRenderableMidi = _geometry.whiteMidis.last;
-    final baseTopCapRadius = (blackKeyWidth * 0.35).clamp(3.0, 10.0).toDouble();
-
-    for (final d in decorations) {
-      if (d.style != PianoKeyDecorationStyle.topCap) continue;
-
-      final keyRect = _geometry.keyRectForMidi(
-        midi: d.midiNote,
-        whiteKeyWidth: whiteKeyWidth,
-        totalWidth: totalWidth,
-      );
-      final isBlackKey = PianoGeometry.isBlackMidi(d.midiNote);
-
-      final lane = isBlackKey
-          ? (left: keyRect.left, right: keyRect.right)
-          : _whiteTopLaneBounds(
-              midi: d.midiNote,
-              keyRect: keyRect,
-              whiteKeyWidth: whiteKeyWidth,
-              totalWidth: totalWidth,
-              minRenderableMidi: minRenderableMidi,
-              maxRenderableMidi: maxRenderableMidi,
-            );
-      if (lane.right <= lane.left) continue;
-
-      final cx = (lane.left + lane.right) / 2.0;
-      final cy = topInset;
-      final keyBottom = isBlackKey ? blackKeyHeight : size.height;
-      final topCapRadius = isBlackKey
-          ? baseTopCapRadius
-          : (baseTopCapRadius * 1.05).clamp(3.0, 10.5).toDouble();
-      if ((cy + topCapRadius) >= keyBottom) continue;
-
-      topCapPaint.color = _resolvedTopCapColor(isBlackKey: isBlackKey);
-      topCapStrokePaint.color = _resolvedTopCapStrokeColor(
-        isBlackKey: isBlackKey,
-      );
-
-      final clipRect = Rect.fromLTRB(
-        lane.left,
-        topInset,
-        lane.right,
-        keyBottom,
-      );
-      canvas.save();
-      canvas.clipRect(clipRect);
-      canvas.drawCircle(Offset(cx, cy), topCapRadius, topCapPaint);
-      canvas.drawCircle(Offset(cx, cy), topCapRadius, topCapStrokePaint);
-      canvas.restore();
-    }
-
     final color = decorationColor;
     if (color == null) return;
 
@@ -514,54 +581,6 @@ class PianoKeyboardPainter extends CustomPainter {
     }
   }
 
-  Color _resolvedTopCapColor({required bool isBlackKey}) {
-    return whiteKeyColor.withValues(alpha: isBlackKey ? 0.92 : 0.82);
-  }
-
-  Color _resolvedTopCapStrokeColor({required bool isBlackKey}) {
-    return (isBlackKey ? const Color(0xFFE0E0E0) : const Color(0xFF4A4A4A))
-        .withValues(alpha: isBlackKey ? 0.40 : 0.60);
-  }
-
-  ({double left, double right}) _whiteTopLaneBounds({
-    required int midi,
-    required PianoKeyRect keyRect,
-    required double whiteKeyWidth,
-    required double totalWidth,
-    required int minRenderableMidi,
-    required int maxRenderableMidi,
-  }) {
-    double left = keyRect.left;
-    double right = keyRect.right;
-
-    final leftBlackMidi = midi - 1;
-    if (leftBlackMidi >= minRenderableMidi &&
-        leftBlackMidi <= maxRenderableMidi &&
-        PianoGeometry.isBlackMidi(leftBlackMidi)) {
-      final leftBlackRect = _geometry.keyRectForMidi(
-        midi: leftBlackMidi,
-        whiteKeyWidth: whiteKeyWidth,
-        totalWidth: totalWidth,
-      );
-      left = leftBlackRect.right.clamp(keyRect.left, keyRect.right);
-    }
-
-    final rightBlackMidi = midi + 1;
-    if (rightBlackMidi >= minRenderableMidi &&
-        rightBlackMidi <= maxRenderableMidi &&
-        PianoGeometry.isBlackMidi(rightBlackMidi)) {
-      final rightBlackRect = _geometry.keyRectForMidi(
-        midi: rightBlackMidi,
-        whiteKeyWidth: whiteKeyWidth,
-        totalWidth: totalWidth,
-      );
-      right = rightBlackRect.left.clamp(keyRect.left, keyRect.right);
-    }
-
-    if (right <= left) return (left: keyRect.left, right: keyRect.right);
-    return (left: left, right: right);
-  }
-
   @override
   bool shouldRepaint(covariant PianoKeyboardPainter oldDelegate) {
     return oldDelegate.whiteKeyCount != whiteKeyCount ||
@@ -586,7 +605,13 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.decorationTextScaleMultiplier !=
             decorationTextScaleMultiplier ||
         !_listEquals(oldDelegate.decorations, decorations) ||
-        !_setEquals(oldDelegate.highlightedNoteNumbers, highlightedNoteNumbers);
+        !_setEquals(
+          oldDelegate.highlightedNoteNumbers,
+          highlightedNoteNumbers,
+        ) ||
+        oldDelegate.scaleMarkerColor != scaleMarkerColor ||
+        oldDelegate.tonicPitchClass != tonicPitchClass ||
+        !_setEquals(oldDelegate.scaleNoteNumbers, scaleNoteNumbers);
   }
 
   bool _setEquals(Set<int> a, Set<int> b) {

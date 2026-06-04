@@ -10,6 +10,8 @@ class PianoKeyboard extends StatelessWidget {
     required this.whiteKeyCount,
     this.firstMidiNote = 48, // C3 by default
     this.highlightedNoteNumbers = const <int>{},
+    this.scaleNoteNumbers = const <int>{},
+    this.tonicPitchClass,
     this.height,
     this.decorations = const <PianoKeyDecoration>[],
     this.decorationTextScaleMultiplier = 1.0,
@@ -24,6 +26,14 @@ class PianoKeyboard extends StatelessWidget {
   /// Highlighted *MIDI note numbers* (e.g., 60 for middle C).
   final Set<int> highlightedNoteNumbers;
 
+  /// Scale member *MIDI note numbers*. When non-empty, each member key is
+  /// marked with a dot so the in-scale notes read at a glance.
+  final Set<int> scaleNoteNumbers;
+
+  /// Pitch class (0-11) of the scale tonic, marked with a triangle instead of a
+  /// dot. Null marks every member with a dot.
+  final int? tonicPitchClass;
+
   /// If provided, forces a fixed height. Otherwise a default is used.
   final double? height;
 
@@ -35,7 +45,8 @@ class PianoKeyboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = buildPianoPalette(Theme.of(context).colorScheme);
+    final cs = Theme.of(context).colorScheme;
+    final palette = buildPianoPalette(cs);
     final resolvedHeight = height ?? _defaultHeight;
 
     final whiteLum = palette.whiteKey.computeLuminance();
@@ -53,6 +64,14 @@ class PianoKeyboard extends StatelessWidget {
           whiteKeyCount: whiteKeyCount,
           firstMidiNote: firstMidiNote,
           highlightedNoteNumbers: highlightedNoteNumbers,
+          scaleNoteNumbers: scaleNoteNumbers,
+          // Keep the marker accent the same tone in both themes. The light
+          // scheme's primary and the dark scheme's inversePrimary are the same
+          // tonal value, so swap the role by brightness rather than the color.
+          scaleMarkerColor: cs.brightness == Brightness.dark
+              ? cs.inversePrimary
+              : cs.primary,
+          tonicPitchClass: tonicPitchClass,
 
           whiteKeyColor: palette.whiteKey,
           pressedWhiteKeyColor: palette.pressedWhiteKey,

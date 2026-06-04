@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum PianoKeyDecorationStyle { label, topCap }
+enum PianoKeyDecorationStyle { label }
 
 @immutable
 class PianoKeyDecoration {
@@ -27,7 +27,4 @@ class PianoKeyDecoration {
              (label != null && label != ''),
          'label decorations require a non-empty label',
        );
-
-  const PianoKeyDecoration.topCap({required int midiNote})
-    : this(midiNote: midiNote, style: PianoKeyDecorationStyle.topCap);
 }

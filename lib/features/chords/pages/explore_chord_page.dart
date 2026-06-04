@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/home/home.dart';
-import 'package:whatchord/features/piano/piano.dart';
 import 'package:whatchord/features/scales/scales.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
@@ -80,20 +79,6 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
       noteNameSystem: noteNameSystem,
     );
     final presentation = example.presentation;
-
-    final showScaleNotes = ref.watch(showScaleNotesProvider);
-    final diatonicPitchClasses = ref.watch(diatonicPitchClassesProvider);
-
-    final markedNoteNumbers = showScaleNotes
-        ? <int>{
-            for (
-              int midi = PianoGeometry.fullKeyboardLowestMidi;
-              midi <= PianoGeometry.fullKeyboardHighestMidi;
-              midi++
-            )
-              if (diatonicPitchClasses.contains(midi % 12)) midi,
-          }
-        : const <int>{};
 
     final cs = Theme.of(context).colorScheme;
     final previewPitchClasses = {
@@ -192,7 +177,6 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                       ExploreKeyboard(
                         config: config,
                         highlightedNotes: displayedKeyboardNotes,
-                        markedNotes: markedNoteNumbers,
                       ),
                     ],
                   ),

@@ -26,7 +26,6 @@ export 'state/providers/chord_input_provider.dart';
 export 'state/providers/chord_member_spellings_providers.dart';
 export 'state/providers/chord_presentation_provider.dart';
 export 'state/providers/detected_scale_degree_provider.dart';
-export 'state/providers/diatonic_pitch_classes_provider.dart';
 export 'state/providers/identity_display_provider.dart';
 export 'state/providers/pitch_class_names_provider.dart';
 export 'state/providers/selected_tonality_notifier.dart';
