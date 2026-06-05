@@ -30,6 +30,7 @@ class NoteChip extends StatelessWidget {
     this.semanticValue,
     this.sizeScale = 1.0,
     this.verticalScale = 1.0,
+    this.horizontalPadding = 10.0,
   });
 
   static const Duration _resizeDuration = Duration(milliseconds: 90);
@@ -41,6 +42,7 @@ class NoteChip extends StatelessWidget {
   final String? semanticValue;
   final double sizeScale;
   final double verticalScale;
+  final double horizontalPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +91,7 @@ class NoteChip extends StatelessWidget {
     // the thinnest border so every state keeps a plain chip's footprint.
     const baseBorderWidth = 1.0;
     final borderInset = border.width - baseBorderWidth;
-    final horizontalPadding = 10 * sizeScale;
+    final scaledHorizontalPadding = horizontalPadding * sizeScale;
     final chipTextWidth = math.max(
       math.max(
         _measureLabelWidth(context, label, labelStyle),
@@ -136,7 +138,7 @@ class NoteChip extends StatelessWidget {
                 border: Border.fromBorderSide(border),
               ),
               padding: EdgeInsets.symmetric(
-                horizontal: horizontalPadding - borderInset,
+                horizontal: scaledHorizontalPadding - borderInset,
                 vertical: (6 * verticalScale) + extraVertical - borderInset,
               ),
               child: SizedBox(

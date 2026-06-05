@@ -247,7 +247,7 @@ class _ExploreChordMembersSectionState extends State<ExploreChordMembersSection>
                       for (var i = 0; i < _entries.length; i++)
                         Padding(
                           padding: EdgeInsets.only(
-                            right: i == _entries.length - 1 ? 0 : 8,
+                            right: i == _entries.length - 1 ? 0 : 5,
                           ),
                           child: _AnimatedExploreMemberChip(
                             key: ObjectKey(_entries[i]),
@@ -356,6 +356,7 @@ class _AnimatedExploreMemberChip extends StatelessWidget {
           state: entry.data.active ? NoteChipState.fill : NoteChipState.plain,
           sizeScale: InputDisplaySizing.noteScale(context),
           verticalScale: InputDisplaySizing.noteVerticalScale(context),
+          horizontalPadding: 8,
         ),
       ),
     );
