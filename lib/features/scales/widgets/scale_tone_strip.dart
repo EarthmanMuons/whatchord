@@ -6,14 +6,14 @@ import 'package:whatchord/features/theory/theory.dart';
 class ScaleToneStrip extends StatelessWidget {
   const ScaleToneStrip({
     super.key,
-    required this.harmony,
+    required this.tones,
     required this.noteNameSystem,
     required this.showDegrees,
     required this.playingPitchClasses,
     required this.memberPitchClasses,
   });
 
-  final ScaleHarmony harmony;
+  final ScaleToneSet tones;
   final NoteNameSystem noteNameSystem;
   final bool showDegrees;
   final Set<int> playingPitchClasses;
@@ -27,20 +27,19 @@ class ScaleToneStrip extends StatelessWidget {
       child: Wrap(
         spacing: 5,
         runSpacing: 8,
-        children: [
-          for (var i = 0; i < harmony.toneNames.length; i++) _buildChip(i),
-        ],
+        children: [for (var i = 0; i < tones.tones.length; i++) _buildChip(i)],
       ),
     );
   }
 
   Widget _buildChip(int index) {
+    final tone = tones.tones[index];
     final noteName = noteDisplayLabel(
-      harmony.toneNames[index],
+      tone.name,
       noteNameSystem: noteNameSystem,
     );
-    final degreeLabel = harmony.degrees[index].degreeLabel;
-    final pitchClass = harmony.pitchClasses[index];
+    final degreeLabel = tone.degreeLabel;
+    final pitchClass = tone.pitchClass;
 
     final state = playingPitchClasses.contains(pitchClass)
         ? NoteChipState.fill
@@ -49,7 +48,7 @@ class ScaleToneStrip extends StatelessWidget {
         : NoteChipState.plain;
 
     final noteSemantic = noteSemanticLabel(
-      harmony.toneNames[index],
+      tone.name,
       noteNameSystem: noteNameSystem,
     );
 

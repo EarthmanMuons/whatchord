@@ -85,7 +85,10 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   @override
   Widget build(BuildContext context) {
     final scale = Scale(_tonic, _kind);
-    final harmony = ScaleHarmonizer.harmonize(scale);
+    final tones = ScaleToneBuilder.build(scale);
+    final harmony = _supportsChordHarmony(scale)
+        ? ScaleHarmonizer.harmonize(scale)
+        : null;
     final notation = ref.watch(chordNotationStyleProvider);
     final noteNameSystem = ref.watch(noteNameSystemProvider);
     final showDegrees = ref.watch(showScaleDegreesProvider);
@@ -169,6 +172,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
                           ),
                           child: _buildContent(
                             scale: scale,
+                            tones: tones,
                             harmony: harmony,
                             notation: notation,
                             noteNameSystem: noteNameSystem,
@@ -199,7 +203,8 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
 
   Widget _buildContent({
     required Scale scale,
-    required ScaleHarmony harmony,
+    required ScaleToneSet tones,
+    required ScaleHarmony? harmony,
     required ChordNotationStyle notation,
     required NoteNameSystem noteNameSystem,
     required bool showDegrees,
@@ -239,7 +244,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         const SizedBox(width: 8),
         Expanded(
           child: ScaleToneStrip(
-            harmony: harmony,
+            tones: tones,
             noteNameSystem: noteNameSystem,
             showDegrees: showDegrees,
             playingPitchClasses: playingPitchClasses,
@@ -288,7 +293,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
               setState(() => _view = selection.first),
         ),
         const Spacer(),
-        if (_view == _ScaleView.chords)
+        if (_view == _ScaleView.chords && harmony != null)
           _SeventhsToggle(
             showSevenths: _showSevenths,
             onShowSeventhsChanged: (value) =>
@@ -299,16 +304,18 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
 
     // Rendered bare (no inner scroll) so it folds into the unified lower-section
     // scroll alongside the tonic wheel and view toggle.
-    final chordsList = ScaleDegreeChordList(
-      harmony: harmony,
-      tonality: Tonality(scale.tonic, TonalityMode.major),
-      notation: notation,
-      noteNameSystem: noteNameSystem,
-      showSevenths: _showSevenths,
-      selectedOrdinal: _selectedOrdinal,
-      onDegreeTap: _onDegreeSelect,
-      onDegreePlay: (degree) => _onDegreePlay(scale, degree),
-    );
+    final chordsList = harmony == null
+        ? const _UnsupportedChordHarmonyMessage()
+        : ScaleDegreeChordList(
+            harmony: harmony,
+            tonality: Tonality(scale.tonic, TonalityMode.major),
+            notation: notation,
+            noteNameSystem: noteNameSystem,
+            showSevenths: _showSevenths,
+            selectedOrdinal: _selectedOrdinal,
+            onDegreeTap: _onDegreeSelect,
+            onDegreePlay: (degree) => _onDegreePlay(scale, degree),
+          );
 
     // The last row of each section has no separator, so a section's list ends
     // on a clean edge before the next header.
@@ -503,6 +510,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   String? _selectedFunctionLabel(Scale scale) {
     final ordinal = _selectedOrdinal;
     if (ordinal == null) return null;
+    if (!_supportsChordHarmony(scale)) return null;
 
     final function = scaleDegreeFunction(scale, ordinal);
     final tendency = function.tendency;
@@ -512,9 +520,9 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     return '${text[0].toUpperCase()}${text.substring(1)}';
   }
 
-  Set<int> _selectedChordMidi(Scale scale, ScaleHarmony harmony) {
+  Set<int> _selectedChordMidi(Scale scale, ScaleHarmony? harmony) {
     final ordinal = _selectedOrdinal;
-    if (ordinal == null) return const <int>{};
+    if (ordinal == null || harmony == null) return const <int>{};
 
     final degree = harmony.degrees[ordinal - 1];
     return degreeChordMidi(scale, degree, seventh: _showSevenths).toSet();
@@ -562,6 +570,9 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       if (entry.kind.intervals.length != _scale.kind.intervals.length) {
         _selectedOrdinal = null;
       }
+      if (entry.kind.harmonization != ScaleHarmonization.heptatonicTertian) {
+        _selectedOrdinal = null;
+      }
       _scale = entry;
       // The valid spellings differ by mode (e.g. Cb major but not Cb lydian),
       // so rebuild the choices and keep the root pitch class, re-spelled to a
@@ -594,6 +605,30 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       if (preferFlat ? tonic.isFlat : tonic.isSharp) return tonic;
     }
     return matches.first;
+  }
+
+  bool _supportsChordHarmony(Scale scale) =>
+      scale.kind.harmonization == ScaleHarmonization.heptatonicTertian;
+}
+
+class _UnsupportedChordHarmonyMessage extends StatelessWidget {
+  const _UnsupportedChordHarmonyMessage();
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Semantics(
+      label: 'No diatonic chord stack for this scale',
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
+        child: Text(
+          'No diatonic chord stack for this scale',
+          style: textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
+        ),
+      ),
+    );
   }
 }
 

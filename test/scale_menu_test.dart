@@ -37,6 +37,21 @@ void main() {
       ]);
     });
 
+    test(
+      'pentatonic and blues section lists non-heptatonic scales in order',
+      () {
+        final entries = scaleMenuEntries
+            .where((entry) => entry.section == ScaleSection.pentatonicAndBlues)
+            .toList();
+        expect(entries.map((entry) => entry.label), [
+          'Major pentatonic',
+          'Minor pentatonic',
+          'Major blues',
+          'Minor blues',
+        ]);
+      },
+    );
+
     test('major and natural minor surface under both lenses', () {
       final majorEntries = scaleMenuEntries
           .where((entry) => entry.kind == ScaleKind.major)

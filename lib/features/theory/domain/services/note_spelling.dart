@@ -105,22 +105,25 @@ String pcToName(int pc, {required Tonality tonality}) {
   );
 }
 
-/// Spells the tones of a heptatonic scale using consecutive letter names.
+/// Spells the tones of a scale using explicit letter offsets from the tonic.
 ///
 /// [pitchClasses] are the scale tones in ascending scale order starting on the
-/// tonic. One letter is assigned per scale degree, walking consecutively from
-/// [tonicLetter], and accidentals are chosen to match each pitch class. Returns
-/// ASCII note names such as "Eb" or "F#".
-List<String> spellHeptatonicScale({
+/// tonic. [letterOffsets] chooses the letter for each tone relative to the
+/// tonic letter. Heptatonic scales usually use 0..6; pentatonic and blues
+/// scales skip or repeat letters so spellings stay musician-readable.
+List<String> spellScaleTones({
   required List<int> pitchClasses,
   required String tonicLetter,
+  required List<int> letterOffsets,
 }) {
+  assert(pitchClasses.length == letterOffsets.length);
+
   final tonicIndex = _letters.indexOf(tonicLetter.toUpperCase());
   final startIndex = tonicIndex == -1 ? 0 : tonicIndex;
 
   final names = <String>[];
   for (var d = 0; d < pitchClasses.length; d++) {
-    final letter = _letters[(startIndex + d) % 7];
+    final letter = _letters[(startIndex + letterOffsets[d]) % 7];
     final naturalPc = _naturalPcByLetter[letter]!;
     final targetPc = pitchClasses[d] % 12;
 
@@ -131,6 +134,23 @@ List<String> spellHeptatonicScale({
   }
 
   return names;
+}
+
+/// Spells the tones of a heptatonic scale using consecutive letter names.
+///
+/// [pitchClasses] are the scale tones in ascending scale order starting on the
+/// tonic. One letter is assigned per scale degree, walking consecutively from
+/// [tonicLetter], and accidentals are chosen to match each pitch class. Returns
+/// ASCII note names such as "Eb" or "F#".
+List<String> spellHeptatonicScale({
+  required List<int> pitchClasses,
+  required String tonicLetter,
+}) {
+  return spellScaleTones(
+    pitchClasses: pitchClasses,
+    tonicLetter: tonicLetter,
+    letterOffsets: const [0, 1, 2, 3, 4, 5, 6],
+  );
 }
 
 /// ---------- Internals ----------

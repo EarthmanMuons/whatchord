@@ -16,9 +16,11 @@ import 'note_spelling.dart';
 List<Tonic> tonicChoicesForKind(ScaleKind kind) {
   final choices = <Tonic>[];
   for (final tonic in Tonic.values) {
-    final names = spellHeptatonicScale(
-      pitchClasses: Scale(tonic, kind).pitchClasses,
+    final scale = Scale(tonic, kind);
+    final names = spellScaleTones(
+      pitchClasses: scale.pitchClasses,
       tonicLetter: tonic.letter,
+      letterOffsets: kind.spellingLetterOffsets,
     );
     if (names.any(_hasDoubleAccidental)) continue;
     choices.add(tonic);

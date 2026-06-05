@@ -10,7 +10,8 @@ import 'package:whatchord/features/theory/theory.dart';
 /// different questions about the same sound.
 enum ScaleSection {
   common('Common scales', properNounNames: false),
-  diatonicModes('Diatonic modes', properNounNames: true);
+  diatonicModes('Diatonic modes', properNounNames: true),
+  pentatonicAndBlues('Pentatonic and blues', properNounNames: false);
 
   const ScaleSection(this.title, {required this.properNounNames});
 
@@ -112,6 +113,26 @@ const List<ScaleMenuEntry> scaleMenuEntries = [
     label: 'Locrian',
     section: ScaleSection.diatonicModes,
     kind: ScaleKind.locrian,
+  ),
+  ScaleMenuEntry(
+    label: 'Major pentatonic',
+    section: ScaleSection.pentatonicAndBlues,
+    kind: ScaleKind.majorPentatonic,
+  ),
+  ScaleMenuEntry(
+    label: 'Minor pentatonic',
+    section: ScaleSection.pentatonicAndBlues,
+    kind: ScaleKind.minorPentatonic,
+  ),
+  ScaleMenuEntry(
+    label: 'Major blues',
+    section: ScaleSection.pentatonicAndBlues,
+    kind: ScaleKind.majorBlues,
+  ),
+  ScaleMenuEntry(
+    label: 'Minor blues',
+    section: ScaleSection.pentatonicAndBlues,
+    kind: ScaleKind.minorBlues,
   ),
 ];
 
