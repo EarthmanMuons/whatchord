@@ -2,7 +2,6 @@ import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/explore_chord_spec.dart';
 import '../models/explore_chord_state.dart';
-import '../models/explore_root.dart';
 import 'explore_chord_example_builder.dart';
 import 'explore_extension_rules.dart';
 
@@ -11,10 +10,7 @@ ExploreChordState normalizeExploreChordState(ExploreChordState state) {
   return _withSpec(state, spec);
 }
 
-ExploreChordState exploreStateWithRoot(
-  ExploreChordState state,
-  ExploreRoot root,
-) {
+ExploreChordState exploreStateWithRoot(ExploreChordState state, Tonic root) {
   return _withValidBass(state.copyWith(root: root));
 }
 

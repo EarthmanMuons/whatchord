@@ -5,7 +5,6 @@ import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/explore_chord_spec.dart';
 import '../models/explore_chord_state.dart';
-import '../models/explore_root.dart';
 import '../services/explore_chord_options.dart';
 
 class ExploreControls extends StatelessWidget {
@@ -29,7 +28,7 @@ class ExploreControls extends StatelessWidget {
   final Tonality tonality;
   final NoteNameSystem noteNameSystem;
   final bool isLandscape;
-  final ValueChanged<ExploreRoot> onRootChanged;
+  final ValueChanged<Tonic> onRootChanged;
   final ValueChanged<ExploreBaseQuality> onBaseQualityChanged;
   final ValueChanged<ExploreSeventhKind> onSeventhKindChanged;
   final ValueChanged<ExploreFifthAlteration> onFifthAlterationChanged;
@@ -491,16 +490,16 @@ class _RootWheel extends StatelessWidget {
     required this.onChanged,
   });
 
-  final ExploreRoot value;
+  final Tonic value;
   final NoteNameSystem noteNameSystem;
-  final ValueChanged<ExploreRoot> onChanged;
+  final ValueChanged<Tonic> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return CyclicWheel<ExploreRoot>(
+    return CyclicWheel<Tonic>(
       label: 'Root',
       value: value,
-      choices: exploreRootChoices,
+      choices: Tonic.values,
       displayLabelFor: (root) =>
           noteDisplayLabel(root.label, noteNameSystem: noteNameSystem),
       semanticLabelFor: (root) =>

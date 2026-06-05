@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:whatchord/features/chords/models/explore_chord_example.dart';
 import 'package:whatchord/features/chords/models/explore_chord_spec.dart';
 import 'package:whatchord/features/chords/models/explore_chord_state.dart';
-import 'package:whatchord/features/chords/models/explore_root.dart';
 import 'package:whatchord/features/chords/services/explore_chord_example_builder.dart';
 import 'package:whatchord/features/chords/services/explore_chord_derivation.dart';
 import 'package:whatchord/features/chords/services/explore_chord_options.dart';
@@ -1192,10 +1191,10 @@ void main() {
     );
   });
 
-  group('ExploreRoot spelling', () {
+  group('Tonic root spelling', () {
     test('offers every spelling grouped by letter in wheel order', () {
-      expect(exploreRootChoices.length, 21);
-      expect(exploreRootChoices.map((root) => root.label), [
+      expect(Tonic.values.length, 21);
+      expect(Tonic.values.map((root) => root.label), [
         'Cb', 'C', 'C#', //
         'Db', 'D', 'D#', //
         'Eb', 'E', 'E#', //
@@ -1206,33 +1205,25 @@ void main() {
       ]);
     });
 
-    test('prefers a matching label, else the leading spelling', () {
-      expect(
-        exploreRootForPitchClass(1, preferredLabel: 'Db'),
-        ExploreRoot.dFlat,
-      );
-      expect(
-        exploreRootForPitchClass(1, preferredLabel: 'C#'),
-        ExploreRoot.cSharp,
-      );
-      // No match (Cb is pc 11, not pc 1) falls back to the leading pc-1 spelling.
-      expect(
-        exploreRootForPitchClass(1, preferredLabel: 'Cb'),
-        ExploreRoot.cSharp,
-      );
-      expect(exploreRootForPitchClass(8), ExploreRoot.gSharp);
+    test('prefers a matching label, else the plainest spelling', () {
+      expect(Tonic.forPitchClass(1, preferredLabel: 'Db'), Tonic.dFlat);
+      expect(Tonic.forPitchClass(1, preferredLabel: 'C#'), Tonic.cSharp);
+      // No match (Cb is pc 11, not pc 1) falls back to the plainest pc-1
+      // spelling: no natural exists, so the sharp wins.
+      expect(Tonic.forPitchClass(1, preferredLabel: 'Cb'), Tonic.cSharp);
+      expect(Tonic.forPitchClass(8), Tonic.gSharp);
     });
 
     test('spells the chord from the chosen enharmonic root', () {
       final flat = _example(
-        root: ExploreRoot.dFlat,
+        root: Tonic.dFlat,
         quality: ChordQualityToken.major,
       );
       expect(flat.presentation.symbol.toString(), 'Db');
       expect(flat.members, ['Db', 'F', 'Ab']);
 
       final sharp = _example(
-        root: ExploreRoot.cSharp,
+        root: Tonic.cSharp,
         quality: ChordQualityToken.major,
       );
       expect(sharp.presentation.symbol.toString(), 'C#');
@@ -1243,7 +1234,7 @@ void main() {
       const gbMajor = Tonality(Tonic.gFlat, TonalityMode.major);
 
       final cb = _example(
-        root: ExploreRoot.cFlat,
+        root: Tonic.cFlat,
         tonality: gbMajor,
         quality: ChordQualityToken.major,
       );
@@ -1253,7 +1244,7 @@ void main() {
 
       // Same pitch class, off-key spelling: not the diatonic IV of Gb major.
       final b = _example(
-        root: ExploreRoot.b,
+        root: Tonic.b,
         tonality: gbMajor,
         quality: ChordQualityToken.major,
       );
@@ -1264,7 +1255,7 @@ void main() {
     test('degree analysis falls back to the symbol spelling', () {
       const gbMajor = Tonality(Tonic.gFlat, TonalityMode.major);
       final identity = _example(
-        root: ExploreRoot.cFlat,
+        root: Tonic.cFlat,
         tonality: gbMajor,
         quality: ChordQualityToken.major,
       ).presentation.identity;
@@ -1521,7 +1512,7 @@ void main() {
 ExploreChordExample _example({
   int rootPc = 0,
   int? bassPc,
-  ExploreRoot? root,
+  Tonic? root,
   Tonality tonality = const Tonality(Tonic.c, TonalityMode.major),
   required ChordQualityToken quality,
   Set<ChordExtension> extensions = const {},

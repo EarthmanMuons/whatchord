@@ -3,7 +3,6 @@ import 'package:meta/meta.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'explore_chord_spec.dart';
-import 'explore_root.dart';
 
 @immutable
 class ExploreChordState {
@@ -28,7 +27,7 @@ class ExploreChordState {
     required int bassPc,
   }) {
     return ExploreChordState._(
-      root: exploreRootForPitchClass(rootPc),
+      root: Tonic.forPitchClass(rootPc),
       spec: spec,
       extensions: Set<ChordExtension>.unmodifiable(extensions),
       bassPc: bassPc,
@@ -44,17 +43,17 @@ class ExploreChordState {
 
   factory ExploreChordState.fromIdentity(
     ChordIdentity identity, {
-    ExploreRoot? root,
+    Tonic? root,
   }) {
     return ExploreChordState._(
-      root: root ?? exploreRootForPitchClass(identity.rootPc),
+      root: root ?? Tonic.forPitchClass(identity.rootPc),
       spec: ExploreChordSpec.fromQuality(identity.quality),
       extensions: Set<ChordExtension>.unmodifiable(identity.extensions),
       bassPc: identity.bassPc,
     );
   }
 
-  final ExploreRoot root;
+  final Tonic root;
   final ExploreChordSpec spec;
   final Set<ChordExtension> extensions;
   final int bassPc;
@@ -70,7 +69,7 @@ class ExploreChordState {
   ExploreFifthAlteration get fifthAlteration => spec.fifthAlteration;
 
   ExploreChordState copyWith({
-    ExploreRoot? root,
+    Tonic? root,
     ExploreChordSpec? spec,
     Set<ChordExtension>? extensions,
     int? bassPc,
