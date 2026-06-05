@@ -23,7 +23,10 @@ import '../widgets/scale_explorer_top_bar.dart';
 import '../widgets/scale_picker.dart';
 import '../widgets/scale_tone_strip.dart';
 
-enum _ScaleView { chords, scales }
+enum _ScaleView { scales, chords }
+
+const _chordHarmonyUnavailableMessage =
+    'Diatonic chords are available for seven-note scales.';
 
 class ScaleExplorerPage extends ConsumerStatefulWidget {
   const ScaleExplorerPage({super.key, this.seedPresentation});
@@ -284,30 +287,44 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       onChanged: _onTonicChanged,
     );
 
+    final supportsChordHarmony = harmony != null;
+    final effectiveView = supportsChordHarmony || _view != _ScaleView.chords
+        ? _view
+        : _ScaleView.scales;
     final viewControl = Row(
       children: [
-        SegmentedButton<_ScaleView>(
-          // Styling comes from the app's segmentedButtonTheme so this toggle
-          // shares the selection accent used across the app.
-          showSelectedIcon: false,
-          segments: const [
-            ButtonSegment(
-              value: _ScaleView.chords,
-              icon: Icon(Icons.music_note),
-              label: Text('Chords'),
-            ),
-            ButtonSegment(
-              value: _ScaleView.scales,
-              icon: Icon(Icons.stairs_outlined),
-              label: Text('Scales'),
-            ),
-          ],
-          selected: {_view},
-          onSelectionChanged: (selection) =>
-              setState(() => _view = selection.first),
+        Semantics(
+          label: 'Scale explorer view',
+          hint: supportsChordHarmony
+              ? 'Choose scales or chords'
+              : 'Chords disabled. $_chordHarmonyUnavailableMessage',
+          child: SegmentedButton<_ScaleView>(
+            // Styling comes from the app's segmentedButtonTheme so this toggle
+            // shares the selection accent used across the app.
+            showSelectedIcon: false,
+            segments: [
+              const ButtonSegment(
+                value: _ScaleView.scales,
+                icon: Icon(Icons.stairs_outlined),
+                label: Text('Scales'),
+              ),
+              ButtonSegment(
+                value: _ScaleView.chords,
+                icon: const Icon(Icons.music_note),
+                label: const Text('Chords'),
+                enabled: supportsChordHarmony,
+                tooltip: supportsChordHarmony
+                    ? null
+                    : _chordHarmonyUnavailableMessage,
+              ),
+            ],
+            selected: {effectiveView},
+            onSelectionChanged: (selection) =>
+                setState(() => _view = selection.first),
+          ),
         ),
         const Spacer(),
-        if (_view == _ScaleView.chords && harmony != null)
+        if (effectiveView == _ScaleView.chords && harmony != null)
           _SeventhsToggle(
             showSevenths: _showSevenths,
             onShowSeventhsChanged: (value) =>
@@ -317,7 +334,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     );
 
     final chordsList = harmony == null
-        ? const _UnsupportedChordHarmonyMessage()
+        ? const SizedBox.shrink()
         : ScaleDegreeChordList(
             harmony: harmony,
             tonality: Tonality(scale.tonic, TonalityMode.major),
@@ -331,7 +348,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
 
     return ScaleExplorerContentLayout(
       isLandscape: isLandscape,
-      showScalePicker: _view == _ScaleView.scales,
+      showScalePicker: effectiveView == _ScaleView.scales,
       header: header,
       toneRow: toneRow,
       tonicWheel: tonicWheel,
@@ -381,6 +398,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
 
     _selectedOrdinal = analysis.degree.index + 1;
     _showSevenths = presentation.identity.quality.isSeventhFamily;
+    _view = _ScaleView.chords;
   }
 
   void _onDegreeSelect(ScaleDegreeHarmony degree) {
@@ -425,6 +443,9 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       )) {
         _selectedOrdinal = null;
       }
+      if (!entry.kind.supportsChordHarmony) {
+        _view = _ScaleView.scales;
+      }
       _scale = entry;
       // The valid spellings differ by mode (e.g. Cb major but not Cb lydian),
       // so rebuild the choices and keep the root pitch class, re-spelled to a
@@ -437,27 +458,6 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         preferFlat: _tonic.isFlat,
       );
     });
-  }
-}
-
-class _UnsupportedChordHarmonyMessage extends StatelessWidget {
-  const _UnsupportedChordHarmonyMessage();
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return Semantics(
-      label: 'No diatonic chord stack for this scale',
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
-        child: Text(
-          'No diatonic chord stack for this scale',
-          style: textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
-        ),
-      ),
-    );
   }
 }
 
