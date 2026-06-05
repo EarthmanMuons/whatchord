@@ -51,5 +51,5 @@ bool keepsSelectedOrdinalForScaleChange({
   required ScaleKind next,
 }) {
   if (next.intervals.length != current.intervals.length) return false;
-  return next.harmonization == ScaleHarmonization.heptatonicTertian;
+  return next.supportsChordHarmony;
 }

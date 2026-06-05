@@ -89,7 +89,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   Widget build(BuildContext context) {
     final scale = Scale(_tonic, _kind);
     final tones = ScaleToneBuilder.build(scale);
-    final harmony = _supportsChordHarmony(scale)
+    final harmony = scale.kind.supportsChordHarmony
         ? ScaleHarmonizer.harmonize(scale)
         : null;
     final notation = ref.watch(chordNotationStyleProvider);
@@ -236,7 +236,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
             functionLabel: selectedScaleDegreeFunctionLabel(
               scale: scale,
               selectedOrdinal: _selectedOrdinal,
-              supportsChordHarmony: _supportsChordHarmony(scale),
+              supportsChordHarmony: scale.kind.supportsChordHarmony,
             ),
           ),
         ),
@@ -419,9 +419,6 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       );
     });
   }
-
-  bool _supportsChordHarmony(Scale scale) =>
-      scale.kind.harmonization == ScaleHarmonization.heptatonicTertian;
 }
 
 class _UnsupportedChordHarmonyMessage extends StatelessWidget {
