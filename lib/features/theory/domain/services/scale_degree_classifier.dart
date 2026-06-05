@@ -5,6 +5,7 @@ import '../models/scale_degree.dart';
 import '../models/tonality.dart';
 import 'note_spelling.dart';
 import 'pitch_class.dart';
+import 'scale_degree_roman_numerals.dart';
 
 /// Pedantic source-aware scale-degree classification for analyzed chords.
 ///
@@ -471,28 +472,7 @@ abstract final class ScaleDegreeClassifier {
     ChordQualityToken quality,
   ) {
     final base = degree.romanNumeralForSource(source);
-
-    return switch (quality) {
-      ChordQualityToken.dominant7 => '${base}7',
-      ChordQualityToken.dominant7Flat5 => '${base}7b5',
-      ChordQualityToken.dominant7Sharp5 => '${base}7#5',
-      ChordQualityToken.minorSharp5 => '$base#5',
-      ChordQualityToken.major7 => '${base}maj7',
-      ChordQualityToken.major7Flat5 => '${base}maj7b5',
-      ChordQualityToken.major7Sharp5 => '${base}maj7#5',
-      ChordQualityToken.minor7 => '${base}7',
-      ChordQualityToken.minor7Sharp5 => '${base}7#5',
-      ChordQualityToken.minorMajor7 => '$base(maj7)',
-      ChordQualityToken.halfDiminished7 => '${_baseWithoutQuality(base)}ø7',
-      ChordQualityToken.diminished7 => '${base}7',
-      _ => base,
-    };
-  }
-
-  static String _baseWithoutQuality(String romanNumeral) {
-    return romanNumeral.endsWith('°')
-        ? romanNumeral.substring(0, romanNumeral.length - 1)
-        : romanNumeral;
+    return romanNumeralForQuality(base, quality);
   }
 
   static String _spokenScaleDegreeFor(
