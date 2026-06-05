@@ -570,12 +570,32 @@ class _SeventhsToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text('7ths', style: textTheme.labelLarge),
-        Switch(value: showSevenths, onChanged: onShowSeventhsChanged),
-      ],
+    return Semantics(
+      label: 'Show seventh chords',
+      toggled: showSevenths,
+      button: true,
+      onTap: () => onShowSeventhsChanged(!showSevenths),
+      child: ExcludeSemantics(
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () => onShowSeventhsChanged(!showSevenths),
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(start: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('7ths', style: textTheme.labelLarge),
+                IgnorePointer(
+                  child: Switch(
+                    value: showSevenths,
+                    onChanged: onShowSeventhsChanged,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
