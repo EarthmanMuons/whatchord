@@ -349,13 +349,11 @@ class _AnimatedExploreMemberChip extends StatelessWidget {
       axis: Axis.horizontal,
       child: FadeTransition(
         opacity: curved,
-        child: AnimatedNoteChip(
+        child: NoteChip(
           label: entry.data.label,
           alternateLabel: entry.data.alternateLabel,
           semanticLabel: entry.data.semanticLabel,
-          highlight: entry.data.active
-              ? NoteChipHighlight.fill
-              : NoteChipHighlight.none,
+          state: entry.data.active ? NoteChipState.fill : NoteChipState.plain,
           sizeScale: InputDisplaySizing.noteScale(context),
           verticalScale: InputDisplaySizing.noteVerticalScale(context),
         ),

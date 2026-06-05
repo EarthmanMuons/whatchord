@@ -14,7 +14,7 @@ import '../../providers/input_idle_notifier.dart';
 import '../../providers/pedal_state_provider.dart';
 import '../../providers/sounding_notes_provider.dart';
 import 'input_display_sizing.dart';
-import 'note_chip.dart';
+import 'input_note_chip.dart';
 import 'pedal_indicator.dart';
 
 class InputDisplay extends ConsumerStatefulWidget {
@@ -176,8 +176,7 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
 
         _notesKey.currentState?.removeItem(
           i,
-          (context, animation) =>
-              _buildPaddedAnimatedNoteChip(removed, animation),
+          (context, animation) => _buildPaddedNoteChip(removed, animation),
           duration: const Duration(milliseconds: 120),
         );
       }
@@ -379,10 +378,7 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
                               initialItemCount: _notes.length,
                               itemBuilder: (context, index, animation) {
                                 final note = _notes[index];
-                                return _buildPaddedAnimatedNoteChip(
-                                  note,
-                                  animation,
-                                );
+                                return _buildPaddedNoteChip(note, animation);
                               },
                             ),
                           ],
@@ -463,20 +459,14 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
     );
   }
 
-  Widget _buildPaddedAnimatedNoteChip(
-    SoundingNote note,
-    Animation<double> animation,
-  ) {
+  Widget _buildPaddedNoteChip(SoundingNote note, Animation<double> animation) {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
-      child: _buildAnimatedNoteChip(note, animation),
+      child: _buildNoteChip(note, animation),
     );
   }
 
-  Widget _buildAnimatedNoteChip(
-    SoundingNote note,
-    Animation<double> animation,
-  ) {
+  Widget _buildNoteChip(SoundingNote note, Animation<double> animation) {
     final curved = CurvedAnimation(
       parent: animation,
       curve: Curves.easeOutCubic,
@@ -487,7 +477,7 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
       axis: Axis.horizontal,
       child: FadeTransition(
         opacity: curved,
-        child: NoteChip(
+        child: InputNoteChip(
           key: ValueKey(note.id),
           note: note,
           visualScaleMultiplier: widget.visualScaleMultiplier,
