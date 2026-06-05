@@ -501,43 +501,53 @@ class _ScaleHeader extends StatelessWidget {
       scale.tonic.label,
       noteNameSystem: noteNameSystem,
     );
+    final tonicSemanticLabel = noteSemanticLabel(
+      scale.tonic.label,
+      noteNameSystem: noteNameSystem,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(
-              tonicLabel,
-              style: tonicStyle,
-              maxLines: 1,
-              // Forced strut keeps the line height constant whether or not the
-              // tonic carries an accidental, so the play button doesn't shift
-              // while scrubbing. Anchoring it to the fixed-size tonic lets the
-              // suffix shrink without disturbing the row height.
-              strutStyle: StrutStyle(
-                fontSize: tonicStyle?.fontSize,
-                height: 1.0,
-                forceStrutHeight: true,
-              ),
+        Semantics(
+          header: true,
+          label: '$tonicSemanticLabel $kindLabel scale',
+          child: ExcludeSemantics(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  tonicLabel,
+                  style: tonicStyle,
+                  maxLines: 1,
+                  // Forced strut keeps the line height constant whether or not
+                  // the tonic carries an accidental, so the play button doesn't
+                  // shift while scrubbing. Anchoring it to the fixed-size tonic
+                  // lets the suffix shrink without disturbing the row height.
+                  strutStyle: StrutStyle(
+                    fontSize: tonicStyle?.fontSize,
+                    height: 1.0,
+                    forceStrutHeight: true,
+                  ),
+                ),
+                // Naming the scale explicitly keeps a seeded heading like
+                // "C major" from reading as the chord of the same name on a
+                // page that otherwise mirrors Explore Chords. Only this suffix
+                // shrinks to fit, so the tonic stays at full size.
+                Expanded(
+                  child: AutoSizeText(
+                    ' $kindLabel scale',
+                    style: restStyle,
+                    maxLines: 1,
+                    minFontSize: 13,
+                    stepGranularity: 0.5,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
-            // Naming the scale explicitly keeps a seeded heading like "C major"
-            // from reading as the chord of the same name on a page that
-            // otherwise mirrors Explore Chords. Only this suffix shrinks to fit,
-            // so the tonic stays at full size.
-            Expanded(
-              child: AutoSizeText(
-                ' $kindLabel scale',
-                style: restStyle,
-                maxLines: 1,
-                minFontSize: 13,
-                stepGranularity: 0.5,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
+          ),
         ),
         const SizedBox(height: 6),
         // Always rendered (a space when empty) so selecting or clearing a
