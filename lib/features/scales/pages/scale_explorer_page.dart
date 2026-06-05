@@ -645,7 +645,10 @@ class _ScaleHeader extends StatelessWidget {
           TextSpan(
             children: [
               TextSpan(text: tonicLabel, style: tonicStyle),
-              TextSpan(text: ' $kindLabel', style: restStyle),
+              // Naming the scale explicitly keeps a seeded heading like
+              // "C major" from reading as the chord of the same name on a page
+              // that otherwise mirrors Explore Chords.
+              TextSpan(text: ' $kindLabel scale', style: restStyle),
             ],
           ),
           maxLines: 1,
