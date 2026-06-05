@@ -18,44 +18,53 @@ abstract final class ChordPresentationBuilder {
       presentIntervalsMask: identity.presentIntervalsMask,
     );
 
+    // Resolve the displayed root once so the symbol and the scale-degree label
+    // are always derived from the same spelling and cannot diverge.
+    final resolvedRootName =
+        rootName ?? spellChordRoot(identity, tonality: tonality);
+
     return ChordPresentation(
       identity: identity,
       symbol: ChordSymbolBuilder.fromIdentity(
         identity: identity,
         tonality: tonality,
         notation: notation,
-        rootName: rootName,
+        rootName: resolvedRootName,
       ),
       longLabel: ChordLongFormFormatter.format(
         identity: identity,
         tonality: tonality,
         noteNameSystem: noteNameSystem,
-        rootNameOverride: rootName,
+        rootNameOverride: resolvedRootName,
       ),
       semanticLabel: ChordLongFormFormatter.format(
         identity: identity,
         tonality: tonality,
         noteNameSystem: noteNameSystem,
         accidentalStyle: ChordLongFormAccidentalStyle.plainText,
-        rootNameOverride: rootName,
+        rootNameOverride: resolvedRootName,
       ),
       spokenLabel: ChordSpokenNameFormatter.format(
         identity: identity,
         tonality: tonality,
         noteNameSystem: noteNameSystem,
-        rootNameOverride: rootName,
+        rootNameOverride: resolvedRootName,
       ),
       members: ChordMemberSpeller.spellMembers(
         identity: identity,
         pitchClasses: memberPitchClasses,
         tonality: tonality,
+        rootName: resolvedRootName,
       ),
       memberDegrees: ChordMemberDegreeFormatter.formatDegrees(
         identity: identity,
         pitchClasses: memberPitchClasses,
       ),
       memberPitchClasses: memberPitchClasses,
-      scaleDegreeAnalysis: tonality.scaleDegreeAnalysisForChord(identity),
+      scaleDegreeAnalysis: tonality.scaleDegreeAnalysisForChord(
+        identity,
+        rootName: resolvedRootName,
+      ),
       normalizedVoicing: normalizedVoicingForIdentity(identity),
     );
   }

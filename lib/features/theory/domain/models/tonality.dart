@@ -63,6 +63,7 @@ class Tonality {
   ScaleDegreeAnalysis? scaleDegreeAnalysisForChord(
     ChordIdentity id, {
     bool rejectUnexplainedTones = true,
+    String? rootName,
   }) {
     return ScaleDegreeClassifier.analyzeChord(
       this,
@@ -70,6 +71,7 @@ class Tonality {
       presentIntervalsMask: id.presentIntervalsMask,
       strictVoicingValidation: true,
       rejectUnexplainedTones: rejectUnexplainedTones,
+      rootName: rootName,
     );
   }
 
@@ -78,10 +80,12 @@ class Tonality {
   ScaleDegree? scaleDegreeForChord(
     ChordIdentity id, {
     bool rejectUnexplainedTones = true,
+    String? rootName,
   }) {
     return scaleDegreeAnalysisForChord(
       id,
       rejectUnexplainedTones: rejectUnexplainedTones,
+      rootName: rootName,
     )?.degree;
   }
 

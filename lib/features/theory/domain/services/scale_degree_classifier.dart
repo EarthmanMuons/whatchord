@@ -3,6 +3,8 @@ import '../models/chord_extension.dart';
 import '../models/chord_identity.dart';
 import '../models/scale_degree.dart';
 import '../models/tonality.dart';
+import 'note_spelling.dart';
+import 'pitch_class.dart';
 
 /// Pedantic source-aware scale-degree classification for analyzed chords.
 ///
@@ -31,12 +33,18 @@ abstract final class ScaleDegreeClassifier {
   }
 
   /// Returns the functional degree for [chord] in [tonality], or null.
+  ///
+  /// [rootName] is the spelled root the chord is displayed with; when given, a
+  /// diatonic degree is only assigned if the root letter matches that degree's
+  /// diatonic letter, so an enharmonic respelling (e.g. B instead of Cb in Gb
+  /// major) is not labeled as the diatonic degree it shares a pitch class with.
   static ScaleDegree? degreeForChord(
     Tonality tonality,
     ChordIdentity chord, {
     int? presentIntervalsMask,
     bool strictVoicingValidation = true,
     bool rejectUnexplainedTones = false,
+    String? rootName,
   }) {
     return analyzeChord(
       tonality,
@@ -44,17 +52,27 @@ abstract final class ScaleDegreeClassifier {
       presentIntervalsMask: presentIntervalsMask,
       strictVoicingValidation: strictVoicingValidation,
       rejectUnexplainedTones: rejectUnexplainedTones,
+      rootName: rootName,
     )?.degree;
   }
 
   /// Returns source-aware functional analysis for [chord] in [tonality].
+  ///
+  /// See [degreeForChord] for how [rootName] gates the diatonic spelling. When
+  /// [rootName] is omitted it falls back to [spellChordRoot], the same resolver
+  /// the displayed chord symbol uses, so the label cannot diverge from the
+  /// spelling the user sees.
   static ScaleDegreeAnalysis? analyzeChord(
     Tonality tonality,
     ChordIdentity chord, {
     int? presentIntervalsMask,
     bool strictVoicingValidation = true,
     bool rejectUnexplainedTones = false,
+    String? rootName,
   }) {
+    final effectiveRootName =
+        rootName ?? spellChordRoot(chord, tonality: tonality);
+
     for (final source in _sourcesForTonality(tonality)) {
       final analysis = _analyzeChordInSource(
         tonality,
@@ -63,6 +81,7 @@ abstract final class ScaleDegreeClassifier {
         presentIntervalsMask: presentIntervalsMask,
         strictVoicingValidation: strictVoicingValidation,
         rejectUnexplainedTones: rejectUnexplainedTones,
+        rootName: effectiveRootName,
       );
       if (analysis != null) return analysis;
     }
@@ -74,12 +93,15 @@ abstract final class ScaleDegreeClassifier {
     Tonality tonality,
     ChordIdentity chord, {
     required ScaleDegreeSource source,
+    required String rootName,
     int? presentIntervalsMask,
     bool strictVoicingValidation = true,
     bool rejectUnexplainedTones = false,
   }) {
     final degree = _degreeForRootPcInSource(tonality, chord.rootPc, source);
     if (degree == null) return null;
+
+    if (!_rootSpellingMatchesDegree(tonality, rootName, degree)) return null;
 
     final q = chord.quality;
 
@@ -216,6 +238,37 @@ abstract final class ScaleDegreeClassifier {
   // ---------------------------------------------------------------------------
   // Helpers
   // ---------------------------------------------------------------------------
+
+  static const _degreeLetters = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+
+  /// Whether [rootName]'s letter occupies [degree]'s diatonic position in
+  /// [tonality]. An enharmonic respelling lands on a different letter (B vs Cb)
+  /// and is rejected; an unparsable name is allowed so we never over-reject.
+  static bool _rootSpellingMatchesDegree(
+    Tonality tonality,
+    String rootName,
+    ScaleDegree degree,
+  ) {
+    final letter = _letterOf(rootName);
+    if (letter == null) return true;
+    return letter == _expectedLetterForDegree(tonality, degree);
+  }
+
+  static String? _letterOf(String rootName) {
+    final ascii = normalizeNoteNameToAscii(rootName);
+    if (ascii.isEmpty) return null;
+    final letter = ascii[0].toUpperCase();
+    return _degreeLetters.contains(letter) ? letter : null;
+  }
+
+  static String _expectedLetterForDegree(
+    Tonality tonality,
+    ScaleDegree degree,
+  ) {
+    final tonicIndex = _degreeLetters.indexOf(tonality.tonic.letter);
+    final start = tonicIndex < 0 ? 0 : tonicIndex;
+    return _degreeLetters[(start + degree.index) % 7];
+  }
 
   static ChordQualityToken? _baseQualityForSix(ChordQualityToken q) {
     return switch (q) {

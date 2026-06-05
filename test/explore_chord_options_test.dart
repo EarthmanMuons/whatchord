@@ -1193,10 +1193,17 @@ void main() {
   });
 
   group('ExploreRoot spelling', () {
-    test('offers every spelling diatonic to a standard key', () {
+    test('offers every spelling grouped by letter in wheel order', () {
       expect(exploreRootChoices.length, 21);
-      final labels = exploreRootChoices.map((root) => root.label).toSet();
-      expect(labels.containsAll({'B#', 'Cb', 'E#', 'Fb', 'F#', 'Gb'}), isTrue);
+      expect(exploreRootChoices.map((root) => root.label), [
+        'Cb', 'C', 'C#', //
+        'Db', 'D', 'D#', //
+        'Eb', 'E', 'E#', //
+        'Fb', 'F', 'F#', //
+        'Gb', 'G', 'G#', //
+        'Ab', 'A', 'A#', //
+        'Bb', 'B', 'B#', //
+      ]);
     });
 
     test('prefers a matching label, else the leading spelling', () {
@@ -1230,6 +1237,48 @@ void main() {
       );
       expect(sharp.presentation.symbol.toString(), 'C#');
       expect(sharp.members, ['C#', 'E#', 'G#']);
+    });
+
+    test('labels the diatonic degree only for the in-key root spelling', () {
+      const gbMajor = Tonality(Tonic.gFlat, TonalityMode.major);
+
+      final cb = _example(
+        root: ExploreRoot.cFlat,
+        tonality: gbMajor,
+        quality: ChordQualityToken.major,
+      );
+      expect(cb.presentation.symbol.toString(), 'Cb');
+      expect(cb.presentation.scaleDegreeAnalysis?.degree, ScaleDegree.four);
+      expect(cb.presentation.scaleDegreeAnalysis?.romanNumeral, 'IV');
+
+      // Same pitch class, off-key spelling: not the diatonic IV of Gb major.
+      final b = _example(
+        root: ExploreRoot.b,
+        tonality: gbMajor,
+        quality: ChordQualityToken.major,
+      );
+      expect(b.presentation.symbol.toString(), 'B');
+      expect(b.presentation.scaleDegreeAnalysis, isNull);
+    });
+
+    test('degree analysis falls back to the symbol spelling', () {
+      const gbMajor = Tonality(Tonic.gFlat, TonalityMode.major);
+      final identity = _example(
+        root: ExploreRoot.cFlat,
+        tonality: gbMajor,
+        quality: ChordQualityToken.major,
+      ).presentation.identity;
+
+      // No root name: resolves to the diatonic spelling (Cb) and labels IV.
+      expect(
+        gbMajor.scaleDegreeAnalysisForChord(identity)?.degree,
+        ScaleDegree.four,
+      );
+      // Explicit off-key spelling is rejected.
+      expect(
+        gbMajor.scaleDegreeAnalysisForChord(identity, rootName: 'B'),
+        isNull,
+      );
     });
   });
 
@@ -1473,6 +1522,7 @@ ExploreChordExample _example({
   int rootPc = 0,
   int? bassPc,
   ExploreRoot? root,
+  Tonality tonality = const Tonality(Tonic.c, TonalityMode.major),
   required ChordQualityToken quality,
   Set<ChordExtension> extensions = const {},
 }) {
@@ -1485,7 +1535,7 @@ ExploreChordExample _example({
   if (root != null) state = state.copyWith(root: root);
   return ExploreChordExampleBuilder.build(
     state: state,
-    tonality: const Tonality(Tonic.c, TonalityMode.major),
+    tonality: tonality,
     notation: ChordNotationStyle.textual,
   );
 }
