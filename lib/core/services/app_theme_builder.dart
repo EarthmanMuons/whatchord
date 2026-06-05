@@ -48,16 +48,22 @@ ThemeData buildAppTheme({
     // same accent.
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
+        backgroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return cs.surfaceContainerLow.withValues(alpha: 0.48);
+          }
+          return states.contains(WidgetState.selected)
               ? cs.primaryContainer
-              : cs.surfaceContainerLow,
-        ),
-        foregroundColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
+              : cs.surfaceContainerLow;
+        }),
+        foregroundColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return cs.onSurface.withValues(alpha: 0.38);
+          }
+          return states.contains(WidgetState.selected)
               ? cs.onPrimaryContainer
-              : cs.onSurface,
-        ),
+              : cs.onSurface;
+        }),
         textStyle: WidgetStateProperty.resolveWith(
           (states) => base.textTheme.labelLarge?.copyWith(
             fontWeight: states.contains(WidgetState.selected)
@@ -65,8 +71,12 @@ ThemeData buildAppTheme({
                 : FontWeight.w500,
           ),
         ),
-        side: WidgetStatePropertyAll(
-          BorderSide(color: cs.outlineVariant.withValues(alpha: 0.70)),
+        side: WidgetStateProperty.resolveWith(
+          (states) => BorderSide(
+            color: cs.outlineVariant.withValues(
+              alpha: states.contains(WidgetState.disabled) ? 0.32 : 0.70,
+            ),
+          ),
         ),
         shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
