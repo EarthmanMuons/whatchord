@@ -53,6 +53,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Fixed the Settings color palette picker throwing an exception when opened, so
   the picker once again shows the selected palette highlight.
+- Fixed note chips shifting their neighbors by a hair when a note's outline
+  thickened (such as when a note becomes sustained); the chips now hold a steady
+  position.
 
 ### Removed
 

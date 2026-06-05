@@ -88,6 +88,13 @@ class NoteChip extends StatelessWidget {
       NoteChipState.plain => SelectionColors.restChipBorder(cs),
     };
 
+    // A BoxDecoration border adds its width to the chip's layout size, so a
+    // heavier border (e.g. when sustained) would otherwise grow the box and
+    // nudge neighboring chips. Trim the inner padding by the extra width past
+    // the thinnest border so every state keeps a plain chip's footprint.
+    const baseBorderWidth = 1.0;
+    final borderInset = border.width - baseBorderWidth;
+
     return Semantics(
       container: true,
       label: semanticLabel,
@@ -123,8 +130,8 @@ class NoteChip extends StatelessWidget {
                 border: Border.fromBorderSide(border),
               ),
               padding: EdgeInsets.symmetric(
-                horizontal: horizontalPadding,
-                vertical: (6 * verticalScale) + extraVertical,
+                horizontal: horizontalPadding - borderInset,
+                vertical: (6 * verticalScale) + extraVertical - borderInset,
               ),
               child: SizedBox(
                 width: chipTextWidth,
