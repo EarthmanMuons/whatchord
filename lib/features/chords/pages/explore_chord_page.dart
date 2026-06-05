@@ -13,6 +13,7 @@ import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/explore_chord_example.dart';
 import '../models/explore_chord_state.dart';
+import '../models/explore_root.dart';
 import '../providers/explore_preferences_notifier.dart';
 import '../services/explore_chord_example_builder.dart';
 import '../services/explore_chord_state_transitions.dart';
@@ -55,8 +56,13 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
         });
       },
     );
+    final tonality = ref.read(selectedTonalityProvider);
+    final seedRoot = exploreRootForPitchClass(
+      widget.seedIdentity.rootPc,
+      preferredLabel: pcToName(widget.seedIdentity.rootPc, tonality: tonality),
+    );
     _state = normalizeExploreChordState(
-      ExploreChordState.fromIdentity(widget.seedIdentity),
+      ExploreChordState.fromIdentity(widget.seedIdentity, root: seedRoot),
     );
   }
 

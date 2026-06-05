@@ -24,7 +24,7 @@ abstract final class ExploreChordExampleBuilder {
       tonality: tonality,
       notation: notation,
       noteNameSystem: noteNameSystem,
-      rootName: pcToName(state.rootPc, tonality: tonality),
+      rootName: state.root.label,
     );
 
     final parts = _canonicalExampleParts(state);
@@ -48,7 +48,7 @@ abstract final class ExploreChordExampleBuilder {
         .map((interval) => (state.rootPc + interval) % 12)
         .toList(growable: false);
 
-    final explicitRootName = pcToName(state.rootPc, tonality: tonality);
+    final explicitRootName = state.root.label;
 
     return ExploreChordExample(
       presentation: presentation,

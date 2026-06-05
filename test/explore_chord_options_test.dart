@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:whatchord/features/chords/models/explore_chord_example.dart';
 import 'package:whatchord/features/chords/models/explore_chord_spec.dart';
 import 'package:whatchord/features/chords/models/explore_chord_state.dart';
+import 'package:whatchord/features/chords/models/explore_root.dart';
 import 'package:whatchord/features/chords/services/explore_chord_example_builder.dart';
 import 'package:whatchord/features/chords/services/explore_chord_derivation.dart';
 import 'package:whatchord/features/chords/services/explore_chord_options.dart';
@@ -1191,6 +1192,47 @@ void main() {
     );
   });
 
+  group('ExploreRoot spelling', () {
+    test('offers every spelling diatonic to a standard key', () {
+      expect(exploreRootChoices.length, 21);
+      final labels = exploreRootChoices.map((root) => root.label).toSet();
+      expect(labels.containsAll({'B#', 'Cb', 'E#', 'Fb', 'F#', 'Gb'}), isTrue);
+    });
+
+    test('prefers a matching label, else the leading spelling', () {
+      expect(
+        exploreRootForPitchClass(1, preferredLabel: 'Db'),
+        ExploreRoot.dFlat,
+      );
+      expect(
+        exploreRootForPitchClass(1, preferredLabel: 'C#'),
+        ExploreRoot.cSharp,
+      );
+      // No match (Cb is pc 11, not pc 1) falls back to the leading pc-1 spelling.
+      expect(
+        exploreRootForPitchClass(1, preferredLabel: 'Cb'),
+        ExploreRoot.cSharp,
+      );
+      expect(exploreRootForPitchClass(8), ExploreRoot.gSharp);
+    });
+
+    test('spells the chord from the chosen enharmonic root', () {
+      final flat = _example(
+        root: ExploreRoot.dFlat,
+        quality: ChordQualityToken.major,
+      );
+      expect(flat.presentation.symbol.toString(), 'Db');
+      expect(flat.members, ['Db', 'F', 'Ab']);
+
+      final sharp = _example(
+        root: ExploreRoot.cSharp,
+        quality: ChordQualityToken.major,
+      );
+      expect(sharp.presentation.symbol.toString(), 'C#');
+      expect(sharp.members, ['C#', 'E#', 'G#']);
+    });
+  });
+
   group('ExploreChordExampleBuilder', () {
     test('keeps a simple seventh complete', () {
       final example = _example(quality: ChordQualityToken.dominant7);
@@ -1430,16 +1472,19 @@ void main() {
 ExploreChordExample _example({
   int rootPc = 0,
   int? bassPc,
+  ExploreRoot? root,
   required ChordQualityToken quality,
   Set<ChordExtension> extensions = const {},
 }) {
+  var state = ExploreChordState(
+    rootPc: rootPc,
+    bassPc: bassPc ?? rootPc,
+    quality: quality,
+    extensions: extensions,
+  );
+  if (root != null) state = state.copyWith(root: root);
   return ExploreChordExampleBuilder.build(
-    state: ExploreChordState(
-      rootPc: rootPc,
-      bassPc: bassPc ?? rootPc,
-      quality: quality,
-      extensions: extensions,
-    ),
+    state: state,
     tonality: const Tonality(Tonic.c, TonalityMode.major),
     notation: ChordNotationStyle.textual,
   );

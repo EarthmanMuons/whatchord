@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'explore_chord_spec.dart';
+import 'explore_root.dart';
 
 @immutable
 class ExploreChordState {
@@ -20,26 +21,45 @@ class ExploreChordState {
     );
   }
 
-  const ExploreChordState.fromSpec({
-    required this.rootPc,
+  factory ExploreChordState.fromSpec({
+    required int rootPc,
+    required ExploreChordSpec spec,
+    required Set<ChordExtension> extensions,
+    required int bassPc,
+  }) {
+    return ExploreChordState._(
+      root: exploreRootForPitchClass(rootPc),
+      spec: spec,
+      extensions: Set<ChordExtension>.unmodifiable(extensions),
+      bassPc: bassPc,
+    );
+  }
+
+  const ExploreChordState._({
+    required this.root,
     required this.spec,
     required this.extensions,
     required this.bassPc,
   });
 
-  factory ExploreChordState.fromIdentity(ChordIdentity identity) {
-    return ExploreChordState(
-      rootPc: identity.rootPc,
-      quality: identity.quality,
+  factory ExploreChordState.fromIdentity(
+    ChordIdentity identity, {
+    ExploreRoot? root,
+  }) {
+    return ExploreChordState._(
+      root: root ?? exploreRootForPitchClass(identity.rootPc),
+      spec: ExploreChordSpec.fromQuality(identity.quality),
       extensions: Set<ChordExtension>.unmodifiable(identity.extensions),
       bassPc: identity.bassPc,
     );
   }
 
-  final int rootPc;
+  final ExploreRoot root;
   final ExploreChordSpec spec;
   final Set<ChordExtension> extensions;
   final int bassPc;
+
+  int get rootPc => root.pitchClass;
 
   ChordQualityToken get quality => spec.quality;
 
@@ -50,13 +70,13 @@ class ExploreChordState {
   ExploreFifthAlteration get fifthAlteration => spec.fifthAlteration;
 
   ExploreChordState copyWith({
-    int? rootPc,
+    ExploreRoot? root,
     ExploreChordSpec? spec,
     Set<ChordExtension>? extensions,
     int? bassPc,
   }) {
-    return ExploreChordState.fromSpec(
-      rootPc: rootPc ?? this.rootPc,
+    return ExploreChordState._(
+      root: root ?? this.root,
       spec: spec ?? this.spec,
       extensions: Set<ChordExtension>.unmodifiable(
         extensions ?? this.extensions,
@@ -69,14 +89,14 @@ class ExploreChordState {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ExploreChordState &&
-          other.rootPc == rootPc &&
+          other.root == root &&
           other.spec == spec &&
           other.bassPc == bassPc &&
           _setEquals(other.extensions, extensions);
 
   @override
   int get hashCode =>
-      Object.hash(rootPc, spec, bassPc, Object.hashAllUnordered(extensions));
+      Object.hash(root, spec, bassPc, Object.hashAllUnordered(extensions));
 
   static bool _setEquals<T>(Set<T> a, Set<T> b) {
     if (identical(a, b)) return true;
