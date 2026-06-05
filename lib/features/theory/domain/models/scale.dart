@@ -3,123 +3,157 @@ import 'package:meta/meta.dart';
 import 'tonic.dart';
 
 enum ScaleKind {
-  major(
-    'Major',
-    [0, 2, 4, 5, 7, 9, 11],
-    degreeLabels: ['1', '2', '3', '4', '5', '6', '7'],
-    spellingLetterOffsets: [0, 1, 2, 3, 4, 5, 6],
-    harmonization: ScaleHarmonization.heptatonicTertian,
-  ),
-  dorian(
-    'Dorian',
-    [0, 2, 3, 5, 7, 9, 10],
-    degreeLabels: ['1', '2', '♭3', '4', '5', '6', '♭7'],
-    spellingLetterOffsets: [0, 1, 2, 3, 4, 5, 6],
-    harmonization: ScaleHarmonization.heptatonicTertian,
-  ),
-  phrygian(
-    'Phrygian',
-    [0, 1, 3, 5, 7, 8, 10],
-    degreeLabels: ['1', '♭2', '♭3', '4', '5', '♭6', '♭7'],
-    spellingLetterOffsets: [0, 1, 2, 3, 4, 5, 6],
-    harmonization: ScaleHarmonization.heptatonicTertian,
-  ),
-  lydian(
-    'Lydian',
-    [0, 2, 4, 6, 7, 9, 11],
-    degreeLabels: ['1', '2', '3', '♯4', '5', '6', '7'],
-    spellingLetterOffsets: [0, 1, 2, 3, 4, 5, 6],
-    harmonization: ScaleHarmonization.heptatonicTertian,
-  ),
-  mixolydian(
-    'Mixolydian',
-    [0, 2, 4, 5, 7, 9, 10],
-    degreeLabels: ['1', '2', '3', '4', '5', '6', '♭7'],
-    spellingLetterOffsets: [0, 1, 2, 3, 4, 5, 6],
-    harmonization: ScaleHarmonization.heptatonicTertian,
-  ),
-  aeolian(
-    'Natural minor',
-    [0, 2, 3, 5, 7, 8, 10],
-    degreeLabels: ['1', '2', '♭3', '4', '5', '♭6', '♭7'],
-    spellingLetterOffsets: [0, 1, 2, 3, 4, 5, 6],
-    harmonization: ScaleHarmonization.heptatonicTertian,
-  ),
-  locrian(
-    'Locrian',
-    [0, 1, 3, 5, 6, 8, 10],
-    degreeLabels: ['1', '♭2', '♭3', '4', '♭5', '♭6', '♭7'],
-    spellingLetterOffsets: [0, 1, 2, 3, 4, 5, 6],
-    harmonization: ScaleHarmonization.heptatonicTertian,
-  ),
-  harmonicMinor(
-    'Harmonic minor',
-    [0, 2, 3, 5, 7, 8, 11],
-    degreeLabels: ['1', '2', '♭3', '4', '5', '♭6', '7'],
-    spellingLetterOffsets: [0, 1, 2, 3, 4, 5, 6],
-    harmonization: ScaleHarmonization.heptatonicTertian,
-  ),
-  melodicMinor(
-    'Melodic minor',
-    [0, 2, 3, 5, 7, 9, 11],
-    degreeLabels: ['1', '2', '♭3', '4', '5', '6', '7'],
-    spellingLetterOffsets: [0, 1, 2, 3, 4, 5, 6],
-    harmonization: ScaleHarmonization.heptatonicTertian,
-  ),
-  majorPentatonic(
-    'Major pentatonic',
-    [0, 2, 4, 7, 9],
-    degreeLabels: ['1', '2', '3', '5', '6'],
-    spellingLetterOffsets: [0, 1, 2, 4, 5],
-  ),
-  minorPentatonic(
-    'Minor pentatonic',
-    [0, 3, 5, 7, 10],
-    degreeLabels: ['1', '♭3', '4', '5', '♭7'],
-    spellingLetterOffsets: [0, 2, 3, 4, 6],
-  ),
-  majorBlues(
-    'Major blues',
-    [0, 2, 3, 4, 7, 9],
-    degreeLabels: ['1', '2', '♭3', '3', '5', '6'],
-    spellingLetterOffsets: [0, 1, 2, 2, 4, 5],
-  ),
-  minorBlues(
-    'Minor blues',
-    [0, 3, 5, 6, 7, 10],
-    degreeLabels: ['1', '♭3', '4', '♭5', '5', '♭7'],
-    spellingLetterOffsets: [0, 2, 3, 4, 4, 6],
-  ),
-  wholeTone(
-    'Whole tone',
-    [0, 2, 4, 6, 8, 10],
-    degreeLabels: ['1', '2', '3', '♯4', '♯5', '♭7'],
-    spellingLetterOffsets: [0, 1, 2, 3, 4, 6],
-  ),
-  augmented(
-    'Augmented',
-    [0, 3, 4, 7, 8, 11],
-    degreeLabels: ['1', '♭3', '3', '5', '♯5', '7'],
-    spellingLetterOffsets: [0, 2, 2, 4, 4, 6],
-  ),
-  diminishedWholeHalf(
-    'Diminished whole-half',
-    [0, 2, 3, 5, 6, 8, 9, 11],
-    degreeLabels: ['1', '2', '♭3', '4', '♭5', '♯5', '6', '7'],
-    spellingLetterOffsets: [0, 1, 2, 3, 4, 4, 5, 6],
-  ),
-  diminishedHalfWhole(
-    'Diminished half-whole',
-    [0, 1, 3, 4, 6, 7, 9, 10],
-    degreeLabels: ['1', '♭2', '♯2', '3', '♯4', '5', '6', '♭7'],
-    spellingLetterOffsets: [0, 1, 1, 2, 3, 4, 5, 6],
-  );
+  major('Major', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(2, '2', 1),
+    ScaleToneSpec(4, '3', 2),
+    ScaleToneSpec(5, '4', 3),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(9, '6', 5),
+    ScaleToneSpec(11, '7', 6),
+  ], harmonization: ScaleHarmonization.heptatonicTertian),
+  dorian('Dorian', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(2, '2', 1),
+    ScaleToneSpec(3, '♭3', 2),
+    ScaleToneSpec(5, '4', 3),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(9, '6', 5),
+    ScaleToneSpec(10, '♭7', 6),
+  ], harmonization: ScaleHarmonization.heptatonicTertian),
+  phrygian('Phrygian', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(1, '♭2', 1),
+    ScaleToneSpec(3, '♭3', 2),
+    ScaleToneSpec(5, '4', 3),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(8, '♭6', 5),
+    ScaleToneSpec(10, '♭7', 6),
+  ], harmonization: ScaleHarmonization.heptatonicTertian),
+  lydian('Lydian', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(2, '2', 1),
+    ScaleToneSpec(4, '3', 2),
+    ScaleToneSpec(6, '♯4', 3),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(9, '6', 5),
+    ScaleToneSpec(11, '7', 6),
+  ], harmonization: ScaleHarmonization.heptatonicTertian),
+  mixolydian('Mixolydian', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(2, '2', 1),
+    ScaleToneSpec(4, '3', 2),
+    ScaleToneSpec(5, '4', 3),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(9, '6', 5),
+    ScaleToneSpec(10, '♭7', 6),
+  ], harmonization: ScaleHarmonization.heptatonicTertian),
+  aeolian('Natural minor', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(2, '2', 1),
+    ScaleToneSpec(3, '♭3', 2),
+    ScaleToneSpec(5, '4', 3),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(8, '♭6', 5),
+    ScaleToneSpec(10, '♭7', 6),
+  ], harmonization: ScaleHarmonization.heptatonicTertian),
+  locrian('Locrian', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(1, '♭2', 1),
+    ScaleToneSpec(3, '♭3', 2),
+    ScaleToneSpec(5, '4', 3),
+    ScaleToneSpec(6, '♭5', 4),
+    ScaleToneSpec(8, '♭6', 5),
+    ScaleToneSpec(10, '♭7', 6),
+  ], harmonization: ScaleHarmonization.heptatonicTertian),
+  harmonicMinor('Harmonic minor', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(2, '2', 1),
+    ScaleToneSpec(3, '♭3', 2),
+    ScaleToneSpec(5, '4', 3),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(8, '♭6', 5),
+    ScaleToneSpec(11, '7', 6),
+  ], harmonization: ScaleHarmonization.heptatonicTertian),
+  melodicMinor('Melodic minor', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(2, '2', 1),
+    ScaleToneSpec(3, '♭3', 2),
+    ScaleToneSpec(5, '4', 3),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(9, '6', 5),
+    ScaleToneSpec(11, '7', 6),
+  ], harmonization: ScaleHarmonization.heptatonicTertian),
+  majorPentatonic('Major pentatonic', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(2, '2', 1),
+    ScaleToneSpec(4, '3', 2),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(9, '6', 5),
+  ]),
+  minorPentatonic('Minor pentatonic', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(3, '♭3', 2),
+    ScaleToneSpec(5, '4', 3),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(10, '♭7', 6),
+  ]),
+  majorBlues('Major blues', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(2, '2', 1),
+    ScaleToneSpec(3, '♭3', 2),
+    ScaleToneSpec(4, '3', 2),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(9, '6', 5),
+  ]),
+  minorBlues('Minor blues', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(3, '♭3', 2),
+    ScaleToneSpec(5, '4', 3),
+    ScaleToneSpec(6, '♭5', 4),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(10, '♭7', 6),
+  ]),
+  wholeTone('Whole tone', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(2, '2', 1),
+    ScaleToneSpec(4, '3', 2),
+    ScaleToneSpec(6, '♯4', 3),
+    ScaleToneSpec(8, '♯5', 4),
+    ScaleToneSpec(10, '♭7', 6),
+  ]),
+  augmented('Augmented', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(3, '♭3', 2),
+    ScaleToneSpec(4, '3', 2),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(8, '♯5', 4),
+    ScaleToneSpec(11, '7', 6),
+  ]),
+  diminishedWholeHalf('Diminished whole-half', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(2, '2', 1),
+    ScaleToneSpec(3, '♭3', 2),
+    ScaleToneSpec(5, '4', 3),
+    ScaleToneSpec(6, '♭5', 4),
+    ScaleToneSpec(8, '♯5', 4),
+    ScaleToneSpec(9, '6', 5),
+    ScaleToneSpec(11, '7', 6),
+  ]),
+  diminishedHalfWhole('Diminished half-whole', [
+    ScaleToneSpec(0, '1', 0),
+    ScaleToneSpec(1, '♭2', 1),
+    ScaleToneSpec(3, '♯2', 1),
+    ScaleToneSpec(4, '3', 2),
+    ScaleToneSpec(6, '♯4', 3),
+    ScaleToneSpec(7, '5', 4),
+    ScaleToneSpec(9, '6', 5),
+    ScaleToneSpec(10, '♭7', 6),
+  ]);
 
   const ScaleKind(
     this.label,
-    this.intervals, {
-    required this.degreeLabels,
-    required this.spellingLetterOffsets,
+    this.toneSpecs, {
     this.harmonization = ScaleHarmonization.none,
   });
 
@@ -128,11 +162,18 @@ enum ScaleKind {
   /// kind can surface under more than one name (Major vs. Ionian).
   final String label;
 
+  /// Ordered scale tones from the root upward.
+  final List<ScaleToneSpec> toneSpecs;
+
   /// Ascending semitone offsets from the root (root = 0).
-  final List<int> intervals;
+  List<int> get intervals => [
+    for (final toneSpec in toneSpecs) toneSpec.interval,
+  ];
 
   /// Scale-tone formula labels relative to the parallel major scale.
-  final List<String> degreeLabels;
+  List<String> get degreeLabels => [
+    for (final toneSpec in toneSpecs) toneSpec.degreeLabel,
+  ];
 
   /// Letter positions above the tonic used to spell each tone.
   ///
@@ -140,7 +181,9 @@ enum ScaleKind {
   /// skip or repeat letter positions so the spelling matches musician
   /// expectations, e.g. C major pentatonic is C-D-E-G-A, C minor blues is
   /// C-Eb-F-Gb-G-Bb, and C half-whole diminished is C-Db-D#-E-F#-G-A-Bb.
-  final List<int> spellingLetterOffsets;
+  List<int> get spellingLetterOffsets => [
+    for (final toneSpec in toneSpecs) toneSpec.spellingLetterOffset,
+  ];
 
   /// The chord-stack strategy that is musically meaningful for this scale.
   final ScaleHarmonization harmonization;
@@ -150,6 +193,19 @@ enum ScaleKind {
 }
 
 enum ScaleHarmonization { none, heptatonicTertian }
+
+@immutable
+class ScaleToneSpec {
+  const ScaleToneSpec(
+    this.interval,
+    this.degreeLabel,
+    this.spellingLetterOffset,
+  );
+
+  final int interval;
+  final String degreeLabel;
+  final int spellingLetterOffset;
+}
 
 @immutable
 class Scale {
