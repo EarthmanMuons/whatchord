@@ -4,18 +4,30 @@ import 'package:flutter/material.dart';
 
 import '../models/selection_colors.dart';
 
-enum NoteChipHighlight { none, outline, fill }
+/// The visual state of a [NoteChip].
+///
+/// - [plain]: faint resting outline. Explore tones that are neither members nor
+///   playing; live notes held down with the sustain pedal up.
+/// - [outline]: a solid primary ring (no fill). Explore scale/chord members.
+/// - [fill]: filled with [ColorScheme.primaryContainer]. Explore tones that are
+///   currently playing.
+/// - [engaged]: darker resting outline. Live notes held down while the sustain
+///   pedal is engaged.
+/// - [sustained]: heaviest outline. Live notes held only by the sustain pedal.
+enum NoteChipState { plain, outline, fill, engaged, sustained }
 
 /// A note/degree chip that flips between [label] and [alternateLabel] when its
-/// primary label changes and animates its width to fit, with three highlight
-/// states. Shared by the Explore Chords and Explore Scales tone strips.
-class AnimatedNoteChip extends StatelessWidget {
-  const AnimatedNoteChip({
+/// primary label changes and animates its width to fit, with five visual
+/// [NoteChipState]s. Shared by the home live-input display and the Explore
+/// Chords/Scales tone strips.
+class NoteChip extends StatelessWidget {
+  const NoteChip({
     super.key,
     required this.label,
     required this.alternateLabel,
     required this.semanticLabel,
-    required this.highlight,
+    required this.state,
+    this.semanticValue,
     this.sizeScale = 1.0,
     this.verticalScale = 1.0,
   });
@@ -25,7 +37,8 @@ class AnimatedNoteChip extends StatelessWidget {
   final String label;
   final String alternateLabel;
   final String semanticLabel;
-  final NoteChipHighlight highlight;
+  final NoteChipState state;
+  final String? semanticValue;
   final double sizeScale;
   final double verticalScale;
 
@@ -34,8 +47,7 @@ class AnimatedNoteChip extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final fill = highlight == NoteChipHighlight.fill;
-    final outline = highlight == NoteChipHighlight.outline;
+    final fill = state == NoteChipState.fill;
 
     final labelStyle = theme.textTheme.titleMedium?.copyWith(
       color: fill ? cs.onPrimaryContainer : cs.onSurface,
@@ -58,18 +70,28 @@ class AnimatedNoteChip extends StatelessWidget {
       _measureLabelWidth(context, alternateLabel, labelStyle),
     );
 
-    // The fill and rest borders are the shared chip-selection treatment; the
-    // middle "outline" state (a solid primary ring, no fill) is unique to the
-    // note chip.
-    final border = fill
-        ? SelectionColors.selectedChipBorder(cs)
-        : outline
-        ? BorderSide(color: cs.primary, width: 1.5)
-        : SelectionColors.restChipBorder(cs);
+    // The fill and plain borders are the shared chip-selection treatment; the
+    // other three are note-chip specific: [outline] is Explore's primary ring,
+    // while [engaged] and [sustained] are progressively heavier resting
+    // outlines for the sustain pedal's hold states.
+    final border = switch (state) {
+      NoteChipState.fill => SelectionColors.selectedChipBorder(cs),
+      NoteChipState.outline => BorderSide(color: cs.primary, width: 1.5),
+      NoteChipState.engaged => BorderSide(
+        color: cs.outlineVariant.withValues(alpha: 0.78),
+        width: 1.0,
+      ),
+      NoteChipState.sustained => BorderSide(
+        color: cs.outlineVariant.withValues(alpha: 0.92),
+        width: 1.6,
+      ),
+      NoteChipState.plain => SelectionColors.restChipBorder(cs),
+    };
 
     return Semantics(
       container: true,
       label: semanticLabel,
+      value: semanticValue,
       child: ExcludeSemantics(
         child: AnimatedSize(
           duration: _resizeDuration,

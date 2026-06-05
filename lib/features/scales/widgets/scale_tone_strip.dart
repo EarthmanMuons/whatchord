@@ -42,22 +42,22 @@ class ScaleToneStrip extends StatelessWidget {
     final degreeLabel = harmony.degrees[index].degreeLabel;
     final pitchClass = harmony.pitchClasses[index];
 
-    final highlight = playingPitchClasses.contains(pitchClass)
-        ? NoteChipHighlight.fill
+    final state = playingPitchClasses.contains(pitchClass)
+        ? NoteChipState.fill
         : memberPitchClasses.contains(pitchClass)
-        ? NoteChipHighlight.outline
-        : NoteChipHighlight.none;
+        ? NoteChipState.outline
+        : NoteChipState.plain;
 
     final noteSemantic = noteSemanticLabel(
       harmony.toneNames[index],
       noteNameSystem: noteNameSystem,
     );
 
-    return AnimatedNoteChip(
+    return NoteChip(
       label: showDegrees ? degreeLabel : noteName,
       alternateLabel: showDegrees ? noteName : degreeLabel,
       semanticLabel: '$noteSemantic, scale degree $degreeLabel',
-      highlight: highlight,
+      state: state,
     );
   }
 }
