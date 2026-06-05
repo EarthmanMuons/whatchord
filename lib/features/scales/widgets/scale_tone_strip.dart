@@ -25,7 +25,7 @@ class ScaleToneStrip extends StatelessWidget {
       container: true,
       label: 'Scale tones',
       child: Wrap(
-        spacing: 8,
+        spacing: 5,
         runSpacing: 8,
         children: [
           for (var i = 0; i < harmony.toneNames.length; i++) _buildChip(i),
@@ -58,6 +58,7 @@ class ScaleToneStrip extends StatelessWidget {
       alternateLabel: showDegrees ? noteName : degreeLabel,
       semanticLabel: '$noteSemantic, scale degree $degreeLabel',
       state: state,
+      horizontalPadding: 8,
     );
   }
 }

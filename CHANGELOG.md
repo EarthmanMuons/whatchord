@@ -42,6 +42,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   key is no longer highlighted as that key's diatonic degree).
 - Use bundled Inter and WhatChord Symbols fonts for more consistent typography
   across iOS and Android.
+- Tighten Explore note chip spacing so scale and chord tones with accidentals
+  fit better on compact phones.
 - Show harmonic-minor scale-degree context across the full degree strip when a
   chord is interpreted through harmonic minor, so labels such as V7 sit in a
   coherent minor-key context.
