@@ -4,10 +4,18 @@ import 'package:whatchord/features/theory/theory.dart';
 
 void main() {
   group('Scale model', () {
-    test('scale metadata stays aligned by tone position', () {
+    test('scale metadata is derived from ordered tone specs', () {
       for (final kind in ScaleKind.values) {
-        expect(kind.degreeLabels, hasLength(kind.intervals.length));
-        expect(kind.spellingLetterOffsets, hasLength(kind.intervals.length));
+        expect(kind.toneSpecs.first.interval, 0);
+        expect(kind.intervals, [
+          for (final toneSpec in kind.toneSpecs) toneSpec.interval,
+        ]);
+        expect(kind.degreeLabels, [
+          for (final toneSpec in kind.toneSpecs) toneSpec.degreeLabel,
+        ]);
+        expect(kind.spellingLetterOffsets, [
+          for (final toneSpec in kind.toneSpecs) toneSpec.spellingLetterOffset,
+        ]);
       }
     });
 
