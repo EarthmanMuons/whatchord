@@ -172,6 +172,63 @@ void main() {
         'Bb',
       ]);
     });
+
+    test('symmetric scales use conventional altered spellings', () {
+      expectTones(Tonic.c, ScaleKind.wholeTone, [
+        'C',
+        'D',
+        'E',
+        'F#',
+        'G#',
+        'Bb',
+      ]);
+      expectTones(Tonic.c, ScaleKind.augmented, [
+        'C',
+        'Eb',
+        'E',
+        'G',
+        'G#',
+        'B',
+      ]);
+      expectTones(Tonic.a, ScaleKind.augmented, [
+        'A',
+        'C',
+        'C#',
+        'E',
+        'E#',
+        'G#',
+      ]);
+      expectTones(Tonic.c, ScaleKind.diminishedWholeHalf, [
+        'C',
+        'D',
+        'Eb',
+        'F',
+        'Gb',
+        'G#',
+        'A',
+        'B',
+      ]);
+      expectTones(Tonic.a, ScaleKind.diminishedWholeHalf, [
+        'A',
+        'B',
+        'C',
+        'D',
+        'Eb',
+        'E#',
+        'F#',
+        'G#',
+      ]);
+      expectTones(Tonic.c, ScaleKind.diminishedHalfWhole, [
+        'C',
+        'Db',
+        'D#',
+        'E',
+        'F#',
+        'G',
+        'A',
+        'Bb',
+      ]);
+    });
   });
 
   group('Diatonic chord qualities', () {
@@ -301,6 +358,42 @@ void main() {
         '5',
         '♭7',
       ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.wholeTone)), [
+        '1',
+        '2',
+        '3',
+        '♯4',
+        '♯5',
+        '♭7',
+      ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.augmented)), [
+        '1',
+        '♭3',
+        '3',
+        '5',
+        '♯5',
+        '7',
+      ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.diminishedWholeHalf)), [
+        '1',
+        '2',
+        '♭3',
+        '4',
+        '♭5',
+        '♯5',
+        '6',
+        '7',
+      ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.diminishedHalfWhole)), [
+        '1',
+        '♭2',
+        '♯2',
+        '3',
+        '♯4',
+        '5',
+        '6',
+        '♭7',
+      ]);
     });
 
     test('lydian raises the fourth degree', () {
@@ -372,6 +465,10 @@ void main() {
       ScaleKind.minorPentatonic,
       ScaleKind.majorBlues,
       ScaleKind.minorBlues,
+      ScaleKind.wholeTone,
+      ScaleKind.augmented,
+      ScaleKind.diminishedWholeHalf,
+      ScaleKind.diminishedHalfWhole,
     ]) {
       expect(
         () => ScaleHarmonizer.harmonize(Scale(Tonic.c, kind)),
