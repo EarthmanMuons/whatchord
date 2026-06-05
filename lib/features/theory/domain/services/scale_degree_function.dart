@@ -17,9 +17,21 @@ class ScaleDegreeFunction {
   final String? tendency;
 }
 
-/// Describes the [ordinal]th degree (1 = tonic) of [scale]: its role name for
-/// every mode, and a resolution tendency for the major and minor families.
+/// Describes the [ordinal]th degree (1 = tonic) of a heptatonic [scale]: its
+/// role name, and a resolution tendency for the major and minor families.
 ScaleDegreeFunction scaleDegreeFunction(Scale scale, int ordinal) {
+  if (scale.intervals.length != ScaleDegree.values.length) {
+    throw UnsupportedError(
+      '${scale.kind.label} does not define seven functional scale degrees.',
+    );
+  }
+  RangeError.checkValueInInterval(
+    ordinal,
+    1,
+    ScaleDegree.values.length,
+    'ordinal',
+  );
+
   final degree = ScaleDegree.values[ordinal - 1];
   // The leading-tone vs subtonic distinction follows the actual scale, not the
   // family, so harmonic and melodic minor are correctly named "leading tone".

@@ -83,5 +83,15 @@ void main() {
       expect(submediant.name, 'submediant');
       expect(submediant.tendency, isNull);
     });
+
+    test('rejects non-heptatonic scales explicitly', () {
+      expect(
+        () => scaleDegreeFunction(
+          const Scale(Tonic.c, ScaleKind.majorPentatonic),
+          5,
+        ),
+        throwsUnsupportedError,
+      );
+    });
   });
 }
