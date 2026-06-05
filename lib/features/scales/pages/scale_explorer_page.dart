@@ -60,9 +60,10 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   void initState() {
     super.initState();
     final tonality = ref.read(selectedTonalityProvider);
-    _scale = seedScaleEntry(
-      tonality.isMajor ? ScaleKind.major : ScaleKind.aeolian,
-    );
+    final presentation =
+        widget.seedPresentation ?? ref.read(chordPresentationProvider);
+    final analysis = presentation?.scaleDegreeAnalysis;
+    _scale = seedScaleEntry(_seedKindFor(tonality, analysis));
     _tonicChoices = tonicChoicesForKind(_kind);
     _tonic = resolveScaleExplorerTonic(
       choices: _tonicChoices,
@@ -70,7 +71,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       exact: tonality.tonic,
       preferFlat: tonality.keySignature.prefersFlats,
     );
-    _seedSelectionFromSoundingChord();
+    _seedSelectionFromChord(presentation, analysis);
     _preview = ScalePreviewAnimationController(
       onChanged: (state) {
         if (!mounted) return;
@@ -343,21 +344,38 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     );
   }
 
+  /// The scale to seed onto for [tonality]. Major keys seed the major scale and
+  /// minor keys seed natural minor, except when the seeding chord matched the
+  /// key's harmonic minor harmony: there we seed harmonic minor so the explorer
+  /// opens on the same scale the home page's scale-degree strip adjusted to.
+  static ScaleKind _seedKindFor(
+    Tonality tonality,
+    ScaleDegreeAnalysis? analysis,
+  ) {
+    if (tonality.isMajor) return ScaleKind.major;
+    if (analysis?.source == ScaleDegreeSource.harmonicMinor) {
+      return ScaleKind.harmonicMinor;
+    }
+    return ScaleKind.aeolian;
+  }
+
   /// Pre-selects the degree of the seeding chord so opening the explorer lands
   /// on that chord (e.g. a G7 in C major seeds the V7). The chord is the one
   /// passed in via [ScaleExplorerPage.seedPresentation], or the live sounding
   /// chord when none was given. Only seeds when the chord is diatonic to the
   /// seeded scale, i.e. its source matches the seeded mode; otherwise nothing
   /// is selected and the page opens on the bare tonic/mode.
-  void _seedSelectionFromSoundingChord() {
-    final presentation =
-        widget.seedPresentation ?? ref.read(chordPresentationProvider);
-    final analysis = presentation?.scaleDegreeAnalysis;
+  void _seedSelectionFromChord(
+    ChordPresentation? presentation,
+    ScaleDegreeAnalysis? analysis,
+  ) {
     if (presentation == null || analysis == null) return;
 
-    final seededSource = _kind == ScaleKind.major
-        ? ScaleDegreeSource.major
-        : ScaleDegreeSource.naturalMinor;
+    final seededSource = switch (_kind) {
+      ScaleKind.major => ScaleDegreeSource.major,
+      ScaleKind.harmonicMinor => ScaleDegreeSource.harmonicMinor,
+      _ => ScaleDegreeSource.naturalMinor,
+    };
     if (analysis.source != seededSource) return;
 
     _selectedOrdinal = analysis.degree.index + 1;
