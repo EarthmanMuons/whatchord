@@ -53,6 +53,7 @@ class NoteChip extends StatelessWidget {
       color: fill ? cs.onPrimaryContainer : cs.onSurface,
       fontWeight: fill ? FontWeight.w700 : null,
     );
+    final filledLabelStyle = labelStyle?.copyWith(fontWeight: FontWeight.w700);
     final fontSize = labelStyle?.fontSize ?? 16.0;
     final defaultHeight = labelStyle?.height ?? 1.2;
     final extraVertical = ((defaultHeight - 1.0) * fontSize / 2).clamp(
@@ -64,12 +65,6 @@ class NoteChip extends StatelessWidget {
       height: 1.0,
       forceStrutHeight: true,
     );
-    final horizontalPadding = 10 * sizeScale;
-    final chipTextWidth = math.max(
-      _measureLabelWidth(context, label, labelStyle),
-      _measureLabelWidth(context, alternateLabel, labelStyle),
-    );
-
     // The fill and plain borders are the shared chip-selection treatment; the
     // other three are note-chip specific: [outline] is Explore's primary ring,
     // while [engaged] and [sustained] are progressively heavier resting
@@ -94,6 +89,17 @@ class NoteChip extends StatelessWidget {
     // the thinnest border so every state keeps a plain chip's footprint.
     const baseBorderWidth = 1.0;
     final borderInset = border.width - baseBorderWidth;
+    final horizontalPadding = 10 * sizeScale;
+    final chipTextWidth = math.max(
+      math.max(
+        _measureLabelWidth(context, label, labelStyle),
+        _measureLabelWidth(context, label, filledLabelStyle),
+      ),
+      math.max(
+        _measureLabelWidth(context, alternateLabel, labelStyle),
+        _measureLabelWidth(context, alternateLabel, filledLabelStyle),
+      ),
+    );
 
     return Semantics(
       container: true,
