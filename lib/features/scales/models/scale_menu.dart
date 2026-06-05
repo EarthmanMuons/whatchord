@@ -157,8 +157,15 @@ const List<ScaleMenuEntry> scaleMenuEntries = [
   ),
 ];
 
-/// The [ScaleSection.common] entry for [kind]. The explorer seeds and reseeds
-/// onto these practical-name rows rather than their modal equivalents.
-ScaleMenuEntry commonScaleEntry(ScaleKind kind) => scaleMenuEntries.firstWhere(
+/// The [ScaleSection.common] entry the explorer seeds onto for [kind]. The
+/// explorer seeds and reseeds onto these practical-name rows rather than their
+/// modal equivalents, so [kind] must be one that has a [ScaleSection.common]
+/// row (the major/minor seed kinds), not an arbitrary [ScaleKind].
+ScaleMenuEntry seedScaleEntry(ScaleKind kind) => scaleMenuEntries.firstWhere(
   (entry) => entry.section == ScaleSection.common && entry.kind == kind,
+  orElse: () => throw ArgumentError.value(
+    kind,
+    'kind',
+    'has no ${ScaleSection.common.title} row to seed onto',
+  ),
 );

@@ -60,7 +60,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   void initState() {
     super.initState();
     final tonality = ref.read(selectedTonalityProvider);
-    _scale = commonScaleEntry(
+    _scale = seedScaleEntry(
       tonality.isMajor ? ScaleKind.major : ScaleKind.aeolian,
     );
     _tonicChoices = tonicChoicesForKind(_kind);

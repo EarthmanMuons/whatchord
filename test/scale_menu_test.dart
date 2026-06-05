@@ -64,14 +64,18 @@ void main() {
       },
     );
 
-    test('commonScaleEntry resolves the practical-name row', () {
-      final major = commonScaleEntry(ScaleKind.major);
+    test('seedScaleEntry resolves the practical-name row', () {
+      final major = seedScaleEntry(ScaleKind.major);
       expect(major.label, 'Major');
       expect(major.section, ScaleSection.common);
 
-      final minor = commonScaleEntry(ScaleKind.aeolian);
+      final minor = seedScaleEntry(ScaleKind.aeolian);
       expect(minor.label, 'Natural minor');
       expect(minor.section, ScaleSection.common);
+    });
+
+    test('seedScaleEntry rejects kinds without a common row', () {
+      expect(() => seedScaleEntry(ScaleKind.lydian), throwsArgumentError);
     });
   });
 }
