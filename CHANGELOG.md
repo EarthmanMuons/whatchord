@@ -49,6 +49,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   for otherwise equivalent chord names, so voicings such as C D F A over A now
   prefer Dm7/A over F6/A.
 
+### Fixed
+
+- Fixed the Settings color palette picker throwing an exception when opened, so
+  the picker once again shows the selected palette highlight.
+
 ### Removed
 
 - Removed the "Show scale notes" setting and its key-top markers from the live
