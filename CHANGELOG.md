@@ -31,8 +31,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - The Explore Chords root selector now lets you choose the exact enharmonic
   spelling of the root (such as C# versus Db) rather than inheriting one
   spelling from the selected key. Every spelling that is diatonic to a standard
-  major or natural-minor key is offered, and the chord symbol and note names
-  follow the root you pick.
+  major or natural-minor key is offered, and the chord symbol, note names, and
+  scale-degree label all follow the root you pick (so a root spelled outside the
+  key is no longer highlighted as that key's diatonic degree).
 - Use bundled Inter and WhatChord Symbols fonts for more consistent typography
   across iOS and Android.
 - Show harmonic-minor scale-degree context across the full degree strip when a
