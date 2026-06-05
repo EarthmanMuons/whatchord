@@ -90,14 +90,14 @@ enum ScaleKind {
     ScaleToneSpec(4, '3', 2),
     ScaleToneSpec(7, '5', 4),
     ScaleToneSpec(9, '6', 5),
-  ]),
+  ], tonicPolicy: TonicPolicy.parentMajorKeys),
   minorPentatonic('Minor pentatonic', [
     ScaleToneSpec(0, '1', 0),
     ScaleToneSpec(3, '♭3', 2),
     ScaleToneSpec(5, '4', 3),
     ScaleToneSpec(7, '5', 4),
     ScaleToneSpec(10, '♭7', 6),
-  ]),
+  ], tonicPolicy: TonicPolicy.parentMinorKeys),
   majorBlues('Major blues', [
     ScaleToneSpec(0, '1', 0),
     ScaleToneSpec(2, '2', 1),
@@ -105,7 +105,7 @@ enum ScaleKind {
     ScaleToneSpec(4, '3', 2),
     ScaleToneSpec(7, '5', 4),
     ScaleToneSpec(9, '6', 5),
-  ]),
+  ], tonicPolicy: TonicPolicy.parentMajorKeys),
   minorBlues('Minor blues', [
     ScaleToneSpec(0, '1', 0),
     ScaleToneSpec(3, '♭3', 2),
@@ -113,7 +113,7 @@ enum ScaleKind {
     ScaleToneSpec(6, '♭5', 4),
     ScaleToneSpec(7, '5', 4),
     ScaleToneSpec(10, '♭7', 6),
-  ]),
+  ], tonicPolicy: TonicPolicy.parentMinorKeys),
   wholeTone('Whole tone', [
     ScaleToneSpec(0, '1', 0),
     ScaleToneSpec(2, '2', 1),
@@ -121,7 +121,7 @@ enum ScaleKind {
     ScaleToneSpec(6, '♯4', 3),
     ScaleToneSpec(8, '♯5', 4),
     ScaleToneSpec(10, '♭7', 6),
-  ]),
+  ], tonicPolicy: TonicPolicy.allSpellings),
   augmented('Augmented', [
     ScaleToneSpec(0, '1', 0),
     ScaleToneSpec(3, '♭3', 2),
@@ -129,7 +129,7 @@ enum ScaleKind {
     ScaleToneSpec(7, '5', 4),
     ScaleToneSpec(8, '♯5', 4),
     ScaleToneSpec(11, '7', 6),
-  ]),
+  ], tonicPolicy: TonicPolicy.allSpellings),
   diminishedWholeHalf('Diminished whole-half', [
     ScaleToneSpec(0, '1', 0),
     ScaleToneSpec(2, '2', 1),
@@ -139,7 +139,7 @@ enum ScaleKind {
     ScaleToneSpec(8, '♯5', 4),
     ScaleToneSpec(9, '6', 5),
     ScaleToneSpec(11, '7', 6),
-  ]),
+  ], tonicPolicy: TonicPolicy.allSpellings),
   diminishedHalfWhole('Diminished half-whole', [
     ScaleToneSpec(0, '1', 0),
     ScaleToneSpec(1, '♭2', 1),
@@ -149,12 +149,13 @@ enum ScaleKind {
     ScaleToneSpec(7, '5', 4),
     ScaleToneSpec(9, '6', 5),
     ScaleToneSpec(10, '♭7', 6),
-  ]);
+  ], tonicPolicy: TonicPolicy.allSpellings);
 
   const ScaleKind(
     this.label,
     this.toneSpecs, {
     this.harmonization = ScaleHarmonization.none,
+    this.tonicPolicy = TonicPolicy.conventionalKeys,
   });
 
   /// Conventional name used when describing a built scale (e.g. "C major").
@@ -190,9 +191,34 @@ enum ScaleKind {
 
   bool get supportsChordHarmony =>
       harmonization == ScaleHarmonization.heptatonicTertian;
+
+  /// How the Scale Explorer decides which spelled roots to offer for this kind.
+  final TonicPolicy tonicPolicy;
 }
 
 enum ScaleHarmonization { none, heptatonicTertian }
+
+/// How a scale kind chooses the spelled tonics to offer as roots.
+enum TonicPolicy {
+  /// Offer only roots whose scale spells with single accidentals. For the
+  /// heptatonic modes this reproduces the conventional key-signature roots
+  /// (the spellings one would see on a circle of fifths).
+  conventionalKeys,
+
+  /// Borrow the major scale's conventional roots. Pentatonic and blues scales
+  /// are heard as the vernacular subset of a parent key, so they share its
+  /// practical root vocabulary rather than admitting the extra enharmonic
+  /// spellings their sparser interval set would otherwise allow.
+  parentMajorKeys,
+
+  /// Borrow the natural-minor scale's conventional roots.
+  parentMinorKeys,
+
+  /// Offer every spelled root. Transpositionally symmetric scales have no key
+  /// signature to constrain them, so the root is purely a spelling choice and
+  /// double accidentals are accepted as the honest consequence.
+  allSpellings,
+}
 
 @immutable
 class ScaleToneSpec {

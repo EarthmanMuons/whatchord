@@ -73,8 +73,13 @@ void main() {
       expect(_labels(ScaleKind.major), isNot(contains('D#')));
     });
 
-    test('every offered tonic spells with single accidentals in its mode', () {
+    test('conventional-key kinds offer only single-accidental spellings', () {
+      // Blues scales inherit the parent major/minor root list but carry a
+      // chromatic passing tone, so an extreme root like Cb major blues spells
+      // one tone with a double accidental (Ebb). That is accepted, so the clean
+      // guarantee only covers the conventional-key kinds themselves.
       for (final kind in ScaleKind.values) {
+        if (kind.tonicPolicy != TonicPolicy.conventionalKeys) continue;
         for (final tonic in tonicChoicesForKind(kind)) {
           final scale = Scale(tonic, kind);
           final names = spellScaleTones(
@@ -94,5 +99,37 @@ void main() {
         }
       }
     });
+
+    test('pentatonic and blues inherit their parent key roots', () {
+      expect(_labels(ScaleKind.majorPentatonic), _labels(ScaleKind.major));
+      expect(_labels(ScaleKind.majorBlues), _labels(ScaleKind.major));
+      expect(_labels(ScaleKind.minorPentatonic), _labels(ScaleKind.aeolian));
+      expect(_labels(ScaleKind.minorBlues), _labels(ScaleKind.aeolian));
+    });
+
+    test('inherited roots drop the extra enharmonic spellings', () {
+      // The sparser pentatonic set would spell G#/D#/Cb cleanly on its own, but
+      // inheriting the parent key keeps the conventional root vocabulary.
+      expect(_labels(ScaleKind.majorPentatonic), isNot(contains('G#')));
+      expect(_labels(ScaleKind.minorPentatonic), isNot(contains('Cb')));
+    });
+
+    test(
+      'symmetric scales offer every spelled root, chromatically ordered',
+      () {
+        final wholeTone = _labels(ScaleKind.wholeTone);
+        expect(wholeTone.length, 21);
+        expect(wholeTone.first, 'C'); // pitch class 0: natural before B#
+        expect(wholeTone, containsAll(['Cb', 'B#', 'E#', 'Fb']));
+        // No filtering: roots whose scale needs double accidentals are kept.
+        final scale = Scale(Tonic.bSharp, ScaleKind.wholeTone);
+        final names = spellScaleTones(
+          pitchClasses: scale.pitchClasses,
+          tonicLetter: Tonic.bSharp.letter,
+          letterOffsets: ScaleKind.wholeTone.spellingLetterOffsets,
+        );
+        expect(names.any((n) => n.contains('x')), isTrue);
+      },
+    );
   });
 }
