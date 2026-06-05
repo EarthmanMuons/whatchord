@@ -473,7 +473,10 @@ class _TonalityChoiceChip extends StatelessWidget {
       selected: selected,
       onSelected: (_) => onTap(),
       showCheckmark: false,
-      backgroundColor: cs.surfaceContainerLow,
+      // The rows are painted surfaceContainerLow, so fill the unselected chips a
+      // shade lighter than the row (rather than the shared note-chip fill, which
+      // assumes a darker parent) so each button reads as its own element.
+      backgroundColor: cs.surfaceContainerLowest,
       selectedColor: cs.primaryContainer,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
