@@ -140,7 +140,7 @@ abstract final class ScaleHarmonizer {
   ];
 
   static ScaleHarmony harmonize(Scale scale) {
-    if (scale.kind.harmonization != ScaleHarmonization.heptatonicTertian) {
+    if (!scale.kind.supportsChordHarmony) {
       throw UnsupportedError(
         '${scale.kind.label} does not define a diatonic tertian chord stack.',
       );

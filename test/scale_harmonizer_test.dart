@@ -11,6 +11,23 @@ void main() {
       }
     });
 
+    test('chord harmony support is exposed as a named capability', () {
+      final harmonized = ScaleKind.values
+          .where((kind) => kind.supportsChordHarmony)
+          .toList();
+      expect(harmonized, [
+        ScaleKind.major,
+        ScaleKind.dorian,
+        ScaleKind.phrygian,
+        ScaleKind.lydian,
+        ScaleKind.mixolydian,
+        ScaleKind.aeolian,
+        ScaleKind.locrian,
+        ScaleKind.harmonicMinor,
+        ScaleKind.melodicMinor,
+      ]);
+    });
+
     test('pitch classes follow the scale intervals from the tonic', () {
       expect(const Scale(Tonic.c, ScaleKind.major).pitchClasses, [
         0,
@@ -450,7 +467,7 @@ void main() {
 
   test('every harmonized degree resolves to a known chord quality', () {
     for (final kind in ScaleKind.values.where(
-      (kind) => kind.harmonization == ScaleHarmonization.heptatonicTertian,
+      (kind) => kind.supportsChordHarmony,
     )) {
       for (final tonic in Tonic.values) {
         final harmony = ScaleHarmonizer.harmonize(Scale(tonic, kind));

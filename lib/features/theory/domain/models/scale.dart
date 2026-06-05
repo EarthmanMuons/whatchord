@@ -144,6 +144,9 @@ enum ScaleKind {
 
   /// The chord-stack strategy that is musically meaningful for this scale.
   final ScaleHarmonization harmonization;
+
+  bool get supportsChordHarmony =>
+      harmonization == ScaleHarmonization.heptatonicTertian;
 }
 
 enum ScaleHarmonization { none, heptatonicTertian }
