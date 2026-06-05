@@ -159,10 +159,15 @@ class _PickerListState<T> extends State<PickerList<T>> {
     return switch (entry) {
       PickerListItem<T>(:final value) => SizedBox(
         height: widget.itemExtent,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
+        child: Semantics(
+          button: true,
+          selected: value == widget.selected,
           onTap: () => widget.onChanged(value),
-          child: widget.itemBuilder(context, value, value == widget.selected),
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => widget.onChanged(value),
+            child: widget.itemBuilder(context, value, value == widget.selected),
+          ),
         ),
       ),
       PickerListHeader<T>(:final title, :final extent) => SizedBox(
