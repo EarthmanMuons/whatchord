@@ -4,6 +4,7 @@ import '../models/chord_identity.dart';
 import '../models/scale.dart';
 import 'chord_quality_intervals.dart';
 import 'note_spelling.dart';
+import 'scale_degree_roman_numerals.dart';
 
 /// A scale tone with its pitch, spelling, and formula label.
 @immutable
@@ -174,7 +175,7 @@ abstract final class ScaleHarmonizer {
           triadQuality: triadQuality,
           seventhQuality: seventhQuality,
           triadRoman: triadRoman,
-          seventhRoman: _seventhRoman(triadRoman, seventhQuality),
+          seventhRoman: romanNumeralForQuality(triadRoman, seventhQuality),
         ),
       );
     }
@@ -230,27 +231,5 @@ abstract final class ScaleHarmonizer {
     };
 
     return '$prefix$base$decoration';
-  }
-
-  static String _seventhRoman(String triadRoman, ChordQualityToken seventh) {
-    return switch (seventh) {
-      ChordQualityToken.dominant7 => '${triadRoman}7',
-      ChordQualityToken.dominant7Flat5 => '${triadRoman}7b5',
-      ChordQualityToken.dominant7Sharp5 => '${triadRoman}7#5',
-      ChordQualityToken.major7 => '${triadRoman}maj7',
-      ChordQualityToken.major7Flat5 => '${triadRoman}maj7b5',
-      ChordQualityToken.major7Sharp5 => '${triadRoman}maj7#5',
-      ChordQualityToken.minor7 => '${triadRoman}7',
-      ChordQualityToken.minor7Sharp5 => '${triadRoman}7#5',
-      ChordQualityToken.minorMajor7 => '$triadRoman(maj7)',
-      ChordQualityToken.halfDiminished7 =>
-        '${_stripDegreeSymbol(triadRoman)}ø7',
-      ChordQualityToken.diminished7 => '${triadRoman}7',
-      _ => triadRoman,
-    };
-  }
-
-  static String _stripDegreeSymbol(String roman) {
-    return roman.endsWith('°') ? roman.substring(0, roman.length - 1) : roman;
   }
 }

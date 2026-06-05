@@ -25,5 +25,6 @@ export 'services/note_spelling.dart';
 export 'services/pitch_class.dart';
 export 'services/scale_degree_classifier.dart';
 export 'services/scale_degree_function.dart';
+export 'services/scale_degree_roman_numerals.dart';
 export 'services/scale_harmonizer.dart';
 export 'services/scale_tonic_choices.dart';
