@@ -154,66 +154,76 @@ class _ScaleDegreeChordTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    return Semantics(
-      button: true,
-      selected: selected,
-      label: 'Scale degree $roman, $symbol',
-      hint: memberNotes,
-      onTap: onTap,
-      excludeSemantics: true,
-      child: Material(
-        color: selected ? ScaleListStyle.selectedRow(cs) : Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          child: SizedBox(
-            height: 48,
-            child: Padding(
-              padding: const EdgeInsets.only(left: _rowLeftPadding),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: _romanColumnWidth,
-                    // Left-aligned and scaled down only when a long roman (e.g.
-                    // the harmonic-minor bIII+maj7#5) would otherwise wrap, so
-                    // the symbol column still starts at a consistent x.
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text.rich(
-                        TextSpan(children: scaleDegreeRomanSpans(roman)),
-                        maxLines: 1,
-                        style: textTheme.titleMedium?.copyWith(
-                          color: ScaleListStyle.rowText(cs, selected: selected),
-                          fontWeight: selected
-                              ? FontWeight.w700
-                              : FontWeight.w600,
+    return Material(
+      color: selected ? ScaleListStyle.selectedRow(cs) : Colors.transparent,
+      child: SizedBox(
+        height: 48,
+        child: Row(
+          children: [
+            Expanded(
+              child: Semantics(
+                button: true,
+                selected: selected,
+                label: 'Scale degree $roman, $symbol',
+                hint: memberNotes,
+                onTap: onTap,
+                excludeSemantics: true,
+                child: InkWell(
+                  onTap: onTap,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: _rowLeftPadding),
+                    child: Row(
+                      children: [
+                        SizedBox(
+                          width: _romanColumnWidth,
+                          // Left-aligned and scaled down only when a long roman
+                          // (e.g. the harmonic-minor bIII+maj7#5) would
+                          // otherwise wrap, so the symbol column still starts
+                          // at a consistent x.
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text.rich(
+                              TextSpan(children: scaleDegreeRomanSpans(roman)),
+                              maxLines: 1,
+                              style: textTheme.titleMedium?.copyWith(
+                                color: ScaleListStyle.rowText(
+                                  cs,
+                                  selected: selected,
+                                ),
+                                fontWeight: selected
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: _columnGap),
+                        Expanded(
+                          child: Text(
+                            symbol,
+                            style: textTheme.titleLarge?.copyWith(
+                              color: ScaleListStyle.rowText(
+                                cs,
+                                selected: selected,
+                              ),
+                              fontWeight: selected ? FontWeight.w600 : null,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: _columnGap),
-                  Expanded(
-                    child: Text(
-                      symbol,
-                      style: textTheme.titleLarge?.copyWith(
-                        color: ScaleListStyle.rowText(cs, selected: selected),
-                        fontWeight: selected ? FontWeight.w600 : null,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: onPlay,
-                    tooltip: 'Play chord',
-                    constraints: const BoxConstraints(
-                      minWidth: 48,
-                      minHeight: 48,
-                    ),
-                    icon: Icon(Icons.play_arrow, color: cs.primary),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
+            IconButton(
+              onPressed: onPlay,
+              tooltip: 'Play chord',
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+              icon: Icon(Icons.play_arrow, color: cs.primary),
+            ),
+          ],
         ),
       ),
     );
