@@ -11,7 +11,8 @@ import 'package:whatchord/features/theory/theory.dart';
 enum ScaleSection {
   common('Common scales', properNounNames: false),
   diatonicModes('Diatonic modes', properNounNames: true),
-  pentatonicAndBlues('Pentatonic and blues', properNounNames: false);
+  pentatonicAndBlues('Pentatonic and blues', properNounNames: false),
+  symmetric('Symmetric scales', properNounNames: false);
 
   const ScaleSection(this.title, {required this.properNounNames});
 
@@ -133,6 +134,26 @@ const List<ScaleMenuEntry> scaleMenuEntries = [
     label: 'Minor blues',
     section: ScaleSection.pentatonicAndBlues,
     kind: ScaleKind.minorBlues,
+  ),
+  ScaleMenuEntry(
+    label: 'Whole tone',
+    section: ScaleSection.symmetric,
+    kind: ScaleKind.wholeTone,
+  ),
+  ScaleMenuEntry(
+    label: 'Augmented',
+    section: ScaleSection.symmetric,
+    kind: ScaleKind.augmented,
+  ),
+  ScaleMenuEntry(
+    label: 'Diminished whole-half',
+    section: ScaleSection.symmetric,
+    kind: ScaleKind.diminishedWholeHalf,
+  ),
+  ScaleMenuEntry(
+    label: 'Diminished half-whole',
+    section: ScaleSection.symmetric,
+    kind: ScaleKind.diminishedHalfWhole,
   ),
 ];
 

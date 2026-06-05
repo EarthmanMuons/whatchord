@@ -89,6 +89,30 @@ enum ScaleKind {
     [0, 3, 5, 6, 7, 10],
     degreeLabels: ['1', '♭3', '4', '♭5', '5', '♭7'],
     spellingLetterOffsets: [0, 2, 3, 4, 4, 6],
+  ),
+  wholeTone(
+    'Whole tone',
+    [0, 2, 4, 6, 8, 10],
+    degreeLabels: ['1', '2', '3', '♯4', '♯5', '♭7'],
+    spellingLetterOffsets: [0, 1, 2, 3, 4, 6],
+  ),
+  augmented(
+    'Augmented',
+    [0, 3, 4, 7, 8, 11],
+    degreeLabels: ['1', '♭3', '3', '5', '♯5', '7'],
+    spellingLetterOffsets: [0, 2, 2, 4, 4, 6],
+  ),
+  diminishedWholeHalf(
+    'Diminished whole-half',
+    [0, 2, 3, 5, 6, 8, 9, 11],
+    degreeLabels: ['1', '2', '♭3', '4', '♭5', '♯5', '6', '7'],
+    spellingLetterOffsets: [0, 1, 2, 3, 4, 4, 5, 6],
+  ),
+  diminishedHalfWhole(
+    'Diminished half-whole',
+    [0, 1, 3, 4, 6, 7, 9, 10],
+    degreeLabels: ['1', '♭2', '♯2', '3', '♯4', '5', '6', '♭7'],
+    spellingLetterOffsets: [0, 1, 1, 2, 3, 4, 5, 6],
   );
 
   const ScaleKind(
@@ -112,10 +136,10 @@ enum ScaleKind {
 
   /// Letter positions above the tonic used to spell each tone.
   ///
-  /// Heptatonic scales walk one letter per tone. Pentatonic and blues scales
-  /// intentionally skip or repeat letter positions so the spelling matches
-  /// musician expectations, e.g. C major pentatonic is C-D-E-G-A and C minor
-  /// blues is C-Eb-F-Gb-G-Bb.
+  /// Heptatonic scales walk one letter per tone. Other scales intentionally
+  /// skip or repeat letter positions so the spelling matches musician
+  /// expectations, e.g. C major pentatonic is C-D-E-G-A, C minor blues is
+  /// C-Eb-F-Gb-G-Bb, and C half-whole diminished is C-Db-D#-E-F#-G-A-Bb.
   final List<int> spellingLetterOffsets;
 
   /// The chord-stack strategy that is musically meaningful for this scale.

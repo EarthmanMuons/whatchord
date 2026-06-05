@@ -27,6 +27,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   selected signature with a treble clef.
 - Added major pentatonic, minor pentatonic, major blues, and minor blues scales
   to the Scale Explorer, with accurate scale-tone spelling and formula labels.
+- Added whole-tone, augmented, diminished whole-half, and diminished half-whole
+  scales to the Scale Explorer's new symmetric scales section.
 
 ### Changed
 

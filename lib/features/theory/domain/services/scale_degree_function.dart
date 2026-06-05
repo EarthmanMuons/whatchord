@@ -86,6 +86,10 @@ _Family _family(ScaleKind kind) {
     ScaleKind.majorPentatonic ||
     ScaleKind.minorPentatonic ||
     ScaleKind.majorBlues ||
-    ScaleKind.minorBlues => _Family.modal,
+    ScaleKind.minorBlues ||
+    ScaleKind.wholeTone ||
+    ScaleKind.augmented ||
+    ScaleKind.diminishedWholeHalf ||
+    ScaleKind.diminishedHalfWhole => _Family.modal,
   };
 }
