@@ -4,6 +4,13 @@ import 'package:whatchord/features/theory/theory.dart';
 
 void main() {
   group('Scale model', () {
+    test('scale metadata stays aligned by tone position', () {
+      for (final kind in ScaleKind.values) {
+        expect(kind.degreeLabels, hasLength(kind.intervals.length));
+        expect(kind.spellingLetterOffsets, hasLength(kind.intervals.length));
+      }
+    });
+
     test('pitch classes follow the scale intervals from the tonic', () {
       expect(const Scale(Tonic.c, ScaleKind.major).pitchClasses, [
         0,
@@ -42,13 +49,14 @@ void main() {
       expect(ScaleKind.major.label, 'Major');
       expect(ScaleKind.aeolian.label, 'Natural minor');
       expect(ScaleKind.dorian.label, 'Dorian');
+      expect(ScaleKind.majorPentatonic.label, 'Major pentatonic');
     });
   });
 
   group('Scale tone spelling', () {
     void expectTones(Tonic tonic, ScaleKind kind, List<String> expected) {
       expect(
-        ScaleHarmonizer.harmonize(Scale(tonic, kind)).toneNames,
+        ScaleToneBuilder.build(Scale(tonic, kind)).toneNames,
         expected,
         reason: '${tonic.label} ${kind.name}',
       );
@@ -131,6 +139,39 @@ void main() {
         'G#',
       ]);
     });
+
+    test('pentatonic and blues scales use skipped or repeated letters', () {
+      expectTones(Tonic.c, ScaleKind.majorPentatonic, [
+        'C',
+        'D',
+        'E',
+        'G',
+        'A',
+      ]);
+      expectTones(Tonic.c, ScaleKind.minorPentatonic, [
+        'C',
+        'Eb',
+        'F',
+        'G',
+        'Bb',
+      ]);
+      expectTones(Tonic.c, ScaleKind.majorBlues, [
+        'C',
+        'D',
+        'Eb',
+        'E',
+        'G',
+        'A',
+      ]);
+      expectTones(Tonic.c, ScaleKind.minorBlues, [
+        'C',
+        'Eb',
+        'F',
+        'Gb',
+        'G',
+        'Bb',
+      ]);
+    });
   });
 
   group('Diatonic chord qualities', () {
@@ -206,7 +247,8 @@ void main() {
 
     test('degree labels spell the scale formula relative to major', () {
       List<String> formula(Scale scale) => [
-        for (final d in ScaleHarmonizer.harmonize(scale).degrees) d.degreeLabel,
+        for (final tone in ScaleToneBuilder.build(scale).tones)
+          tone.degreeLabel,
       ];
 
       expect(formula(const Scale(Tonic.c, ScaleKind.major)), [
@@ -235,6 +277,29 @@ void main() {
         '5',
         '6',
         '7',
+      ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.majorPentatonic)), [
+        '1',
+        '2',
+        '3',
+        '5',
+        '6',
+      ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.majorBlues)), [
+        '1',
+        '2',
+        '♭3',
+        '3',
+        '5',
+        '6',
+      ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.minorBlues)), [
+        '1',
+        '♭3',
+        '4',
+        '♭5',
+        '5',
+        '♭7',
       ]);
     });
 
@@ -281,13 +346,37 @@ void main() {
     });
   });
 
-  test('every degree of every kind resolves to a known chord quality', () {
+  test('scale tones build for every supported scale kind', () {
     for (final kind in ScaleKind.values) {
       for (final tonic in Tonic.values) {
-        // Harmonizing must not throw for any supported scale on any tonic.
+        final tones = ScaleToneBuilder.build(Scale(tonic, kind));
+        expect(tones.tones, hasLength(kind.intervals.length));
+      }
+    }
+  });
+
+  test('every harmonized degree resolves to a known chord quality', () {
+    for (final kind in ScaleKind.values.where(
+      (kind) => kind.harmonization == ScaleHarmonization.heptatonicTertian,
+    )) {
+      for (final tonic in Tonic.values) {
         final harmony = ScaleHarmonizer.harmonize(Scale(tonic, kind));
         expect(harmony.degrees, hasLength(kind.intervals.length));
       }
+    }
+  });
+
+  test('pentatonic and blues scales do not define tertian harmonization', () {
+    for (final kind in [
+      ScaleKind.majorPentatonic,
+      ScaleKind.minorPentatonic,
+      ScaleKind.majorBlues,
+      ScaleKind.minorBlues,
+    ]) {
+      expect(
+        () => ScaleHarmonizer.harmonize(Scale(Tonic.c, kind)),
+        throwsUnsupportedError,
+      );
     }
   });
 }

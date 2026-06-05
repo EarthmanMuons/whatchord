@@ -25,6 +25,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   to resolve.
 - Added a staff notation preview to the key signature picker, showing the
   selected signature with a treble clef.
+- Added major pentatonic, minor pentatonic, major blues, and minor blues scales
+  to the Scale Explorer, with accurate scale-tone spelling and formula labels.
 
 ### Changed
 

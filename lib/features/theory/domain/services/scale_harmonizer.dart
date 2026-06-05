@@ -5,6 +5,63 @@ import '../models/scale.dart';
 import 'chord_quality_intervals.dart';
 import 'note_spelling.dart';
 
+/// A scale tone with its pitch, spelling, and formula label.
+@immutable
+class ScaleTone {
+  const ScaleTone({
+    required this.ordinal,
+    required this.pitchClass,
+    required this.name,
+    required this.degreeLabel,
+  });
+
+  /// 1-based position in the scale's ordered tone list.
+  final int ordinal;
+  final int pitchClass;
+  final String name;
+  final String degreeLabel;
+}
+
+/// The ordered tones of a scale, independent of chord harmonization.
+@immutable
+class ScaleToneSet {
+  const ScaleToneSet({required this.scale, required this.tones});
+
+  final Scale scale;
+  final List<ScaleTone> tones;
+
+  List<int> get pitchClasses => [for (final tone in tones) tone.pitchClass];
+
+  List<String> get toneNames => [for (final tone in tones) tone.name];
+
+  List<String> get degreeLabels => [for (final tone in tones) tone.degreeLabel];
+}
+
+/// Builds scale-tone metadata for any supported scale cardinality.
+abstract final class ScaleToneBuilder {
+  static ScaleToneSet build(Scale scale) {
+    final pcs = scale.pitchClasses;
+    final names = spellScaleTones(
+      pitchClasses: pcs,
+      tonicLetter: scale.tonic.letter,
+      letterOffsets: scale.kind.spellingLetterOffsets,
+    );
+
+    return ScaleToneSet(
+      scale: scale,
+      tones: [
+        for (var i = 0; i < pcs.length; i++)
+          ScaleTone(
+            ordinal: i + 1,
+            pitchClass: pcs[i],
+            name: names[i],
+            degreeLabel: scale.kind.degreeLabels[i],
+          ),
+      ],
+    );
+  }
+}
+
 /// The diatonic triad and seventh chord built on one scale degree.
 @immutable
 class ScaleDegreeHarmony {
@@ -41,17 +98,14 @@ class ScaleDegreeHarmony {
 /// The fully harmonized scale: tones plus per-degree diatonic chords.
 @immutable
 class ScaleHarmony {
-  const ScaleHarmony({
-    required this.scale,
-    required this.pitchClasses,
-    required this.toneNames,
-    required this.degrees,
-  });
+  const ScaleHarmony({required this.tones, required this.degrees});
 
-  final Scale scale;
-  final List<int> pitchClasses;
-  final List<String> toneNames;
+  final ScaleToneSet tones;
   final List<ScaleDegreeHarmony> degrees;
+
+  Scale get scale => tones.scale;
+  List<int> get pitchClasses => tones.pitchClasses;
+  List<String> get toneNames => tones.toneNames;
 }
 
 /// Harmonizes a [Scale] by stacking thirds within the scale for each degree.
@@ -86,13 +140,15 @@ abstract final class ScaleHarmonizer {
   ];
 
   static ScaleHarmony harmonize(Scale scale) {
+    if (scale.kind.harmonization != ScaleHarmonization.heptatonicTertian) {
+      throw UnsupportedError(
+        '${scale.kind.label} does not define a diatonic tertian chord stack.',
+      );
+    }
+
     final intervals = scale.intervals;
     final n = intervals.length;
-    final pcs = scale.pitchClasses;
-    final names = spellHeptatonicScale(
-      pitchClasses: pcs,
-      tonicLetter: scale.tonic.letter,
-    );
+    final tones = ScaleToneBuilder.build(scale);
 
     final degrees = <ScaleDegreeHarmony>[];
     for (var i = 0; i < n; i++) {
@@ -112,9 +168,9 @@ abstract final class ScaleHarmonizer {
       degrees.add(
         ScaleDegreeHarmony(
           ordinal: i + 1,
-          rootPc: pcs[i],
-          rootName: names[i],
-          degreeLabel: '${_accidentalPrefix(i, rootInterval)}${i + 1}',
+          rootPc: tones.pitchClasses[i],
+          rootName: tones.toneNames[i],
+          degreeLabel: tones.degreeLabels[i],
           triadQuality: triadQuality,
           seventhQuality: seventhQuality,
           triadRoman: triadRoman,
@@ -123,12 +179,7 @@ abstract final class ScaleHarmonizer {
       );
     }
 
-    return ScaleHarmony(
-      scale: scale,
-      pitchClasses: pcs,
-      toneNames: names,
-      degrees: degrees,
-    );
+    return ScaleHarmony(tones: tones, degrees: degrees);
   }
 
   static int _relInterval(int interval, int rootInterval) {

@@ -82,6 +82,10 @@ _Family _family(ScaleKind kind) {
     ScaleKind.phrygian ||
     ScaleKind.lydian ||
     ScaleKind.mixolydian ||
-    ScaleKind.locrian => _Family.modal,
+    ScaleKind.locrian ||
+    ScaleKind.majorPentatonic ||
+    ScaleKind.minorPentatonic ||
+    ScaleKind.majorBlues ||
+    ScaleKind.minorBlues => _Family.modal,
   };
 }

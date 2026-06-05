@@ -76,9 +76,11 @@ void main() {
     test('every offered tonic spells with single accidentals in its mode', () {
       for (final kind in ScaleKind.values) {
         for (final tonic in tonicChoicesForKind(kind)) {
-          final names = spellHeptatonicScale(
-            pitchClasses: Scale(tonic, kind).pitchClasses,
+          final scale = Scale(tonic, kind);
+          final names = spellScaleTones(
+            pitchClasses: scale.pitchClasses,
             tonicLetter: tonic.letter,
+            letterOffsets: kind.spellingLetterOffsets,
           );
           for (final name in names) {
             expect(
