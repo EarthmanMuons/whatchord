@@ -67,9 +67,11 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final selectedRowBg = Color.alphaBlend(
-      cs.primary.withValues(alpha: 0.06),
-      cs.surfaceContainerLow,
+    // The rows sit on the sheet's surfaceContainerLow, so blend the shared
+    // selection wash over that shade to match the Scale Explorer's selected row.
+    final selectedRowBg = SelectionColors.selectedRow(
+      cs,
+      surface: cs.surfaceContainerLow,
     );
 
     return LayoutBuilder(
@@ -174,7 +176,14 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
                                             row.label,
                                             style: theme.textTheme.bodyMedium
                                                 ?.copyWith(
-                                                  color: cs.onSurfaceVariant,
+                                                  color: rowSelected
+                                                      ? SelectionColors.selectedRowText(
+                                                          cs,
+                                                        )
+                                                      : cs.onSurfaceVariant,
+                                                  fontWeight: rowSelected
+                                                      ? FontWeight.w600
+                                                      : null,
                                                 ),
                                           ),
                                         ),
@@ -439,10 +448,12 @@ class _TonalityChoiceChip extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
 
-    final side = BorderSide(
-      color: selected ? cs.primary : cs.outlineVariant,
-      width: selected ? 1.5 : 1.0,
-    );
+    // Highlight the active mode like a filled active note chip: a
+    // primaryContainer fill behind onPrimaryContainer bold text, ringed by the
+    // primary accent. Unselected chips fall back to the resting note-chip look.
+    final side = selected
+        ? SelectionColors.selectedChipBorder(cs)
+        : SelectionColors.restChipBorder(cs);
 
     return ChoiceChip(
       label: SizedBox(
@@ -454,13 +465,16 @@ class _TonalityChoiceChip extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.clip,
           style: theme.textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.w500,
+            color: selected ? cs.onPrimaryContainer : cs.onSurface,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
       ),
       selected: selected,
       onSelected: (_) => onTap(),
       showCheckmark: false,
+      backgroundColor: cs.surfaceContainerLow,
+      selectedColor: cs.primaryContainer,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: side,
