@@ -12,48 +12,45 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Added a Scale Explorer, opened by tapping the scale-degree strip. It shows the
-  scale's tones (as note names or scale-degree numbers) and the roman numeral
-  and chord symbol for each degree. Scrub the tonic wheel, and switch the panel
-  between the diatonic chords and a scrubbable list of scales grouped into
-  common scales (major, natural minor, harmonic minor, melodic minor) and the
-  diatonic modes (Ionian through Locrian). Play the whole scale up and down, or
-  choose triads or seventh chords and tap a chord's play button to hear it. The
-  keyboard marks the in-scale notes with a dot (the tonic with a triangle) and
-  highlights the selected chord. Selecting a chord names its role in the key
-  (such as dominant or subdominant) and, in major and minor keys, where it tends
-  to resolve.
+- Added Explore Scales, opened by tapping the scale-degree strip. It shows the
+  selected scale's tones, scale-degree numbers, keyboard pattern, and diatonic
+  chords, with playback for the full scale and individual chords.
+- Explore Scales now includes common major and minor scales, diatonic modes,
+  major and minor pentatonic scales, major and minor blues scales, whole-tone,
+  augmented, diminished whole-half, and diminished half-whole scales.
+- Explore Scales marks in-scale keyboard notes with dots, marks the tonic with a
+  triangle, and highlights the selected chord. When a chord is selected, it also
+  shows the chord's role in the key and, where appropriate, its expected
+  resolution.
 - Added a staff notation preview to the key signature picker, showing the
   selected signature with a treble clef.
-- Added major pentatonic, minor pentatonic, major blues, and minor blues scales
-  to the Scale Explorer, with accurate scale-tone spelling and formula labels.
-- Added whole-tone, augmented, diminished whole-half, and diminished half-whole
-  scales to the Scale Explorer's new symmetric scales section.
 
 ### Changed
 
-- Unified the selection highlight color across the app so toggles, chips, and
-  selected rows feel deliberate and cohesive. The Scale Explorer's Chords/Scales
-  toggle and the settings theme toggle now share the same accent as the scrubber
-  wheels, and the key signature picker's selected row, its highlighted text, and
-  its major/minor chip now match the row selection and active chips used
-  elsewhere.
-- The Explore Chords root selector now lets you choose the exact enharmonic
-  spelling of the root (such as C# versus Db) rather than inheriting one
-  spelling from the selected key. Every spelling that is diatonic to a standard
-  major or natural-minor key is offered, and the chord symbol, note names, and
-  scale-degree label all follow the root you pick (so a root spelled outside the
-  key is no longer highlighted as that key's diatonic degree).
-- Use bundled Inter and WhatChord Symbols fonts for more consistent typography
-  across iOS and Android.
-- Tighten Explore note chip spacing so scale and chord tones with accidentals
+- Improved accidental and chord-symbol rendering across the app with bundled
+  Inter and WhatChord Symbols fonts, giving note names, chord labels, and scale
+  degrees more consistent typography on iOS and Android.
+- Polished selection, list, chip, and segmented-control styling across Explore
+  Scales, Explore Chords, Settings, and the key signature picker so selected
+  rows and active controls feel more consistent.
+- The Explore Chords root selector now lets you choose the exact enharmonic root
+  spelling, such as C# versus Db. The chord symbol, note names, and scale-degree
+  label all follow the selected spelling.
+- Explore Scales now opens with smarter musical context from the current chord
+  or Explore Chords selection, including matching diatonic degrees and harmonic
+  minor when appropriate.
+- Explore Scales now keeps selections steadier while changing tonics, switching
+  between same-size scales, and moving among scale families.
+- Tightened Explore note chip spacing so scale and chord tones with accidentals
   fit better on compact phones.
-- Show harmonic-minor scale-degree context across the full degree strip when a
-  chord is interpreted through harmonic minor, so labels such as V7 sit in a
-  coherent minor-key context.
-- Use ChoCo corpus-derived common-name frequency as a narrow late tie-breaker
-  for otherwise equivalent chord names, so voicings such as C D F A over A now
-  prefer Dm7/A over F6/A.
+- Harmonic-minor scale-degree context now carries across the full degree strip
+  when a chord is interpreted through harmonic minor, so labels such as V7 sit
+  in a coherent minor-key context.
+- Chord ranking now uses ChoCo corpus-derived common-name frequency as a narrow
+  late tie-breaker for otherwise equivalent chord names, so voicings such as C D
+  F A over A now prefer Dm7/A over F6/A.
+- Marked main page titles, Explore Scales controls, and scale rows more clearly
+  for assistive technologies.
 
 ### Fixed
 
@@ -64,6 +61,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   position.
 - Fixed note chips shifting nearby chips when a note becomes filled and its text
   turns bold.
+- Fixed copy dialog values being shortened with an ellipsis, so long copied
+  values can wrap and remain readable.
+- Fixed Explore Scales wheel positioning when the selected tonic spelling
+  changes or the available tonic list gets shorter.
+- Fixed piano keyboard auto-centering so active notes are followed a little
+  sooner as they approach the edge of the visible keys.
 
 ### Removed
 
