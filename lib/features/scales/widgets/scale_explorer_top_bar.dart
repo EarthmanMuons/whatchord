@@ -52,11 +52,15 @@ class ScaleExplorerTopBar extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Expanded(
-                child: Text(
-                  'Explore Scales',
-                  style: titleStyle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                child: Semantics(
+                  header: true,
+                  namesRoute: true,
+                  child: Text(
+                    'Explore Scales',
+                    style: titleStyle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
               const SizedBox(width: 4),

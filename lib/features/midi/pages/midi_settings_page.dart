@@ -45,7 +45,11 @@ class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('MIDI Settings'),
+        title: Semantics(
+          header: true,
+          namesRoute: true,
+          child: const Text('MIDI Settings'),
+        ),
         backgroundColor: cs.surfaceContainerLow,
         foregroundColor: cs.onSurface,
         toolbarHeight: toolbarHeight,

@@ -134,7 +134,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Semantics(
+          header: true,
+          namesRoute: true,
+          child: const Text('Settings'),
+        ),
         backgroundColor: cs.surfaceContainerLow,
         foregroundColor: cs.onSurface,
         scrolledUnderElevation: 0,

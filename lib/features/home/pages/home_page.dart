@@ -209,9 +209,16 @@ class _HomeTopBar extends ConsumerWidget {
           child: Row(
             children: [
               Expanded(
-                child: DefaultTextStyle(
-                  style: titleStyle!,
-                  child: AppBarTitle(maxHeight: toolbarHeight),
+                child: Semantics(
+                  header: true,
+                  namesRoute: true,
+                  label: 'What Chord',
+                  child: ExcludeSemantics(
+                    child: DefaultTextStyle(
+                      style: titleStyle!,
+                      child: AppBarTitle(maxHeight: toolbarHeight),
+                    ),
+                  ),
                 ),
               ),
               if (showInteractiveDemoPill)
