@@ -323,8 +323,15 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     PickerList<ScaleMenuEntry> buildScalePicker({required bool scrollable}) {
       return PickerList<ScaleMenuEntry>(
         entries: [
-          for (final section in ScaleSection.values) ...[
-            PickerListHeader<ScaleMenuEntry>(section.title),
+          for (final (sectionIndex, section)
+              in ScaleSection.values.indexed) ...[
+            // The first header has no section above it, so it drops the tall
+            // separating extent and sits tight to the top, matching the chord
+            // list's column header.
+            PickerListHeader<ScaleMenuEntry>(
+              section.title,
+              extent: sectionIndex == 0 ? 30 : null,
+            ),
             for (final entry in scaleMenuEntries.where(
               (entry) => entry.section == section,
             ))
@@ -348,7 +355,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
+                padding: const EdgeInsets.fromLTRB(12, 0, 16, 8),
                 child: Text(
                   title.toUpperCase(),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(

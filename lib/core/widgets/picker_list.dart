@@ -14,8 +14,13 @@ final class PickerListItem<T> extends PickerListEntry<T> {
 }
 
 final class PickerListHeader<T> extends PickerListEntry<T> {
-  const PickerListHeader(this.title);
+  const PickerListHeader(this.title, {this.extent});
   final String title;
+
+  /// Optional override for this header's height. Falls back to the list's
+  /// [PickerList.headerExtent] when null. Lets a leading header sit tight to the
+  /// top while later headers keep the taller extent that separates sections.
+  final double? extent;
 }
 
 /// A flat, freely scrolling list where one row is selected (highlighted).
@@ -122,8 +127,8 @@ class _PickerListState<T> extends State<PickerList<T>> {
         _itemTopOffsets.add(offset);
         _itemValues.add(entry.value);
         offset += widget.itemExtent;
-      } else {
-        offset += widget.headerExtent;
+      } else if (entry is PickerListHeader<T>) {
+        offset += entry.extent ?? widget.headerExtent;
       }
     }
   }
@@ -160,8 +165,8 @@ class _PickerListState<T> extends State<PickerList<T>> {
           child: widget.itemBuilder(context, value, value == widget.selected),
         ),
       ),
-      PickerListHeader<T>(:final title) => SizedBox(
-        height: widget.headerExtent,
+      PickerListHeader<T>(:final title, :final extent) => SizedBox(
+        height: extent ?? widget.headerExtent,
         child: (widget.headerBuilder ?? _defaultHeader)(context, title),
       ),
     };
