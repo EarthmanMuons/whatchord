@@ -5,6 +5,7 @@ import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/explore_chord_spec.dart';
 import '../models/explore_chord_state.dart';
+import '../models/explore_root.dart';
 import '../services/explore_chord_options.dart';
 
 class ExploreControls extends StatelessWidget {
@@ -28,7 +29,7 @@ class ExploreControls extends StatelessWidget {
   final Tonality tonality;
   final NoteNameSystem noteNameSystem;
   final bool isLandscape;
-  final ValueChanged<int> onRootChanged;
+  final ValueChanged<ExploreRoot> onRootChanged;
   final ValueChanged<ExploreBaseQuality> onBaseQualityChanged;
   final ValueChanged<ExploreSeventhKind> onSeventhKindChanged;
   final ValueChanged<ExploreFifthAlteration> onFifthAlterationChanged;
@@ -67,8 +68,7 @@ class ExploreControls extends StatelessWidget {
               SizedBox(
                 width: controlWidth,
                 child: _RootWheel(
-                  value: state.rootPc,
-                  tonality: tonality,
+                  value: state.root,
                   noteNameSystem: noteNameSystem,
                   onChanged: onRootChanged,
                 ),
@@ -127,6 +127,7 @@ class ExploreControls extends StatelessWidget {
                           pc: pc,
                           identity: identity,
                           tonality: tonality,
+                          rootName: state.root.label,
                         ),
                         noteNameSystem: noteNameSystem,
                       ),
@@ -170,14 +171,14 @@ class ExploreControls extends StatelessWidget {
     required int pc,
     required ChordIdentity identity,
     required Tonality tonality,
+    required String rootName,
   }) {
-    final root = pcToName(identity.rootPc, tonality: tonality);
     final interval = _normalizedPitchClass(pc - identity.rootPc);
     final role = identity.toneRolesByInterval[interval];
     return spellPitchClass(
       pc,
       tonality: tonality,
-      chordRootName: root,
+      chordRootName: rootName,
       role: role,
     );
   }
@@ -486,37 +487,30 @@ String _fifthAlterationSemanticLabel(ExploreFifthAlteration alteration) {
 class _RootWheel extends StatelessWidget {
   const _RootWheel({
     required this.value,
-    required this.tonality,
     required this.noteNameSystem,
     required this.onChanged,
   });
 
-  final int value;
-  final Tonality tonality;
+  final ExploreRoot value;
   final NoteNameSystem noteNameSystem;
-  final ValueChanged<int> onChanged;
+  final ValueChanged<ExploreRoot> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return CyclicWheel<int>(
+    return CyclicWheel<ExploreRoot>(
       label: 'Root',
       value: value,
-      choices: const [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-      displayLabelFor: _labelForPc,
-      semanticLabelFor: _labelForPc,
+      choices: exploreRootChoices,
+      displayLabelFor: (root) =>
+          noteDisplayLabel(root.label, noteNameSystem: noteNameSystem),
+      semanticLabelFor: (root) =>
+          noteSemanticLabel(root.label, noteNameSystem: noteNameSystem),
       targetItemWidth: 72,
       selectedMinWidth: 46,
       unselectedMinWidth: 40,
       selectedHorizontalPadding: 8,
       unselectedHorizontalPadding: 4,
       onChanged: onChanged,
-    );
-  }
-
-  String _labelForPc(int pc) {
-    return noteDisplayLabel(
-      pcToName(pc, tonality: tonality),
-      noteNameSystem: noteNameSystem,
     );
   }
 }
