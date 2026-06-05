@@ -48,8 +48,7 @@ class _CyclicWheelState<T> extends State<CyclicWheel<T>> {
   @override
   void initState() {
     super.initState();
-    _currentPage =
-        (_initialLoop * widget.choices.length) + _indexOf(widget.value);
+    _currentPage = _basePageForValue(widget.value);
   }
 
   @override
@@ -57,7 +56,17 @@ class _CyclicWheelState<T> extends State<CyclicWheel<T>> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.choices != widget.choices) {
-      _resetControllerToValue();
+      // The cycle length changed, so old page positions no longer map to the
+      // same values. Rebase and recenter on the current value.
+      _currentPage = _basePageForValue(widget.value);
+      final controller = _controller;
+      if (controller?.hasClients == true) {
+        // Jump the live controller; recreating it could restore the stale
+        // offset over initialPage and leave the value off-center.
+        controller!.jumpToPage(_currentPage);
+      } else {
+        _resetController();
+      }
       return;
     }
 
@@ -221,12 +230,13 @@ class _CyclicWheelState<T> extends State<CyclicWheel<T>> {
     return index < 0 ? 0 : index;
   }
 
-  void _resetControllerToValue() {
+  int _basePageForValue(T value) =>
+      (_initialLoop * widget.choices.length) + _indexOf(value);
+
+  void _resetController() {
     _controller?.dispose();
     _controller = null;
     _viewportFraction = null;
-    _currentPage =
-        (_initialLoop * widget.choices.length) + _indexOf(widget.value);
   }
 }
 

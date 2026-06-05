@@ -200,23 +200,20 @@ enum ScaleHarmonization { none, heptatonicTertian }
 
 /// How a scale kind chooses the spelled tonics to offer as roots.
 enum TonicPolicy {
-  /// Offer only roots whose scale spells with single accidentals. For the
-  /// heptatonic modes this reproduces the conventional key-signature roots
-  /// (the spellings one would see on a circle of fifths).
+  /// Only roots whose scale spells with single accidentals; for the heptatonic
+  /// modes this is the conventional key-signature roots.
   conventionalKeys,
 
-  /// Borrow the major scale's conventional roots. Pentatonic and blues scales
-  /// are heard as the vernacular subset of a parent key, so they share its
-  /// practical root vocabulary rather than admitting the extra enharmonic
-  /// spellings their sparser interval set would otherwise allow.
+  /// The major scale's conventional roots. Pentatonic and blues scales share
+  /// their parent key's root vocabulary rather than the extra enharmonic
+  /// spellings their sparser interval set would admit.
   parentMajorKeys,
 
-  /// Borrow the natural-minor scale's conventional roots.
+  /// The natural-minor scale's conventional roots.
   parentMinorKeys,
 
-  /// Offer every spelled root. Transpositionally symmetric scales have no key
-  /// signature to constrain them, so the root is purely a spelling choice and
-  /// double accidentals are accepted as the honest consequence.
+  /// Every spelled root. Symmetric scales have no key signature to constrain
+  /// them, so the root is purely a spelling choice; double accidentals are kept.
   allSpellings,
 }
 
