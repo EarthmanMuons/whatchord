@@ -974,23 +974,6 @@ abstract final class ChordCandidateRanking {
     return aIsTriadAddTone ? -1 : 1;
   }
 
-  /// Prefers a complete major/minor triad carrying only natural/add color over
-  /// a structurally deficient reading that omits a core tone.
-  ///
-  /// A complete triad (root + 3rd + 5th) with simple add color is a strong,
-  /// stable gestalt. The raw scorer can rank it below a larger template that
-  /// books more "required" tones, even when that larger reading omits a core
-  /// tone of its own. This prefers the complete triad over:
-  /// - a seventh-family slash that omits every fifth (e.g. D♭maj7(add13)/F), and
-  /// - a plain suspended triad with no seventh (e.g. Fsus4♭13).
-  ///
-  /// Example: {F, B♭, C, D♭} with F in the bass is B♭m(add9)/F, not
-  /// D♭maj7(add13)/F (fifthless) or Fsus4♭13 (no third, no seventh).
-  ///
-  /// The deficient side is deliberately narrow so that complete seventh chords,
-  /// altered-fifth chords (which keep a flat/sharp fifth), six chords, and
-  /// dominant/major suspended chords (which keep a seventh) are never demoted.
-  /// A score guard keeps a decisively higher-scoring reading in front.
   /// Prefers a complete major/minor triad with natural add-tone color over a
   /// seventh-family reading with an unusual quality and no extensions.
   ///
@@ -1057,6 +1040,23 @@ abstract final class ChordCandidateRanking {
         quality == ChordQualityToken.major7Sharp5;
   }
 
+  /// Prefers a complete major/minor triad carrying only natural/add color over
+  /// a structurally deficient reading that omits a core tone.
+  ///
+  /// A complete triad (root + 3rd + 5th) with simple add color is a strong,
+  /// stable gestalt. The raw scorer can rank it below a larger template that
+  /// books more "required" tones, even when that larger reading omits a core
+  /// tone of its own. This prefers the complete triad over:
+  /// - a seventh-family slash that omits every fifth (e.g. D♭maj7(add13)/F), and
+  /// - a plain suspended triad with no seventh (e.g. Fsus4♭13).
+  ///
+  /// Example: {F, B♭, C, D♭} with F in the bass is B♭m(add9)/F, not
+  /// D♭maj7(add13)/F (fifthless) or Fsus4♭13 (no third, no seventh).
+  ///
+  /// The deficient side is deliberately narrow so that complete seventh chords,
+  /// altered-fifth chords (which keep a flat/sharp fifth), six chords, and
+  /// dominant/major suspended chords (which keep a seventh) are never demoted.
+  /// A score guard keeps a decisively higher-scoring reading in front.
   static int? _preferCompleteTriadOverDeficientReading(
     ChordCandidate a,
     ChordCandidate b,
