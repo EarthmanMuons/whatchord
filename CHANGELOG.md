@@ -56,6 +56,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Fixed note chips shifting their neighbors by a hair when a note's outline
   thickened (such as when a note becomes sustained); the chips now hold a steady
   position.
+- Fixed note chips shifting nearby chips when a note becomes filled and its text
+  turns bold.
 
 ### Removed
 
