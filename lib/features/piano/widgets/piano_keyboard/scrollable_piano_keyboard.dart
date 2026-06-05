@@ -120,6 +120,7 @@ class _ScrollablePianoKeyboardState
   static const double _indicatorHysteresis = 4.0;
   static double get _indicatorHideMargin =>
       _indicatorShowMargin - _indicatorHysteresis;
+  static const double _autoCenterEdgeMargin = 24.0;
   static const double _minMeaningfulDelta = 12.0;
 
   @override
@@ -533,13 +534,13 @@ class _ScrollablePianoKeyboardState
     final maxX = bounds.maxX;
     final spreadW = maxX - minX;
 
-    final offLeft = minX < (viewLeft + _indicatorShowMargin);
-    final offRight = maxX > (viewRight - _indicatorShowMargin);
+    final offLeft = minX < (viewLeft + _autoCenterEdgeMargin);
+    final offRight = maxX > (viewRight - _autoCenterEdgeMargin);
 
     if (!offLeft && !offRight && !force) return;
 
     // If the full range fits within the viewport (minus margins), center it.
-    if (spreadW <= (viewportWidth - 2 * _indicatorShowMargin)) {
+    if (spreadW <= (viewportWidth - 2 * _autoCenterEdgeMargin)) {
       final centerX = (minX + maxX) / 2.0;
       final target = (centerX - viewportWidth / 2.0).clamp(
         0.0,
