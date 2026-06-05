@@ -13,11 +13,13 @@ import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/scale_menu.dart';
 import '../providers/scale_preferences_notifier.dart';
+import '../services/scale_explorer_selection.dart';
 import '../services/scale_preview_animation_controller.dart';
 import '../services/scale_voicing.dart';
 import '../widgets/scale_degree_chord_list.dart';
+import '../widgets/scale_explorer_content_layout.dart';
 import '../widgets/scale_explorer_top_bar.dart';
-import '../widgets/scale_list_style.dart';
+import '../widgets/scale_picker.dart';
 import '../widgets/scale_tone_strip.dart';
 
 enum _ScaleView { chords, scales }
@@ -62,8 +64,9 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       tonality.isMajor ? ScaleKind.major : ScaleKind.aeolian,
     );
     _tonicChoices = tonicChoicesForKind(_kind);
-    _tonic = _resolveTonic(
-      tonality.tonic.pitchClass,
+    _tonic = resolveScaleExplorerTonic(
+      choices: _tonicChoices,
+      pitchClass: tonality.tonic.pitchClass,
       exact: tonality.tonic,
       preferFlat: tonality.keySignature.prefersFlats,
     );
@@ -93,7 +96,12 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     final noteNameSystem = ref.watch(noteNameSystemProvider);
     final showDegrees = ref.watch(showScaleDegreesProvider);
 
-    final selectedChord = _selectedChordMidi(scale, harmony);
+    final selectedChord = selectedDegreeChordMidi(
+      scale: scale,
+      harmony: harmony,
+      selectedOrdinal: _selectedOrdinal,
+      showSevenths: _showSevenths,
+    );
     final playing = _previewState.isRunning;
 
     // During playback the keyboard tracks the sounding notes; at rest it holds
@@ -225,7 +233,11 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
             scale: scale,
             kindLabel: _scale.headerLabel,
             noteNameSystem: noteNameSystem,
-            functionLabel: _selectedFunctionLabel(scale),
+            functionLabel: selectedScaleDegreeFunctionLabel(
+              scale: scale,
+              selectedOrdinal: _selectedOrdinal,
+              supportsChordHarmony: _supportsChordHarmony(scale),
+            ),
           ),
         ),
       ],
@@ -302,8 +314,6 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       ],
     );
 
-    // Rendered bare (no inner scroll) so it folds into the unified lower-section
-    // scroll alongside the tonic wheel and view toggle.
     final chordsList = harmony == null
         ? const _UnsupportedChordHarmonyMessage()
         : ScaleDegreeChordList(
@@ -317,168 +327,18 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
             onDegreePlay: (degree) => _onDegreePlay(scale, degree),
           );
 
-    // The last row of each section has no separator, so a section's list ends
-    // on a clean edge before the next header.
-    final lastInSection = {
-      for (final section in ScaleSection.values)
-        scaleMenuEntries.lastWhere((entry) => entry.section == section),
-    };
-
-    PickerList<ScaleMenuEntry> buildScalePicker({required bool scrollable}) {
-      return PickerList<ScaleMenuEntry>(
-        entries: [
-          for (final (sectionIndex, section)
-              in ScaleSection.values.indexed) ...[
-            // The first header has no section above it, so it drops the tall
-            // separating extent and sits tight to the top, matching the chord
-            // list's column header.
-            PickerListHeader<ScaleMenuEntry>(
-              section.title,
-              extent: sectionIndex == 0 ? 30 : null,
-            ),
-            for (final entry in scaleMenuEntries.where(
-              (entry) => entry.section == section,
-            ))
-              PickerListItem(entry),
-          ],
-        ],
+    return ScaleExplorerContentLayout(
+      isLandscape: isLandscape,
+      showScalePicker: _view == _ScaleView.scales,
+      header: header,
+      toneRow: toneRow,
+      tonicWheel: tonicWheel,
+      viewControl: viewControl,
+      chordsList: chordsList,
+      scalePicker: ({required scrollable}) => ScalePicker(
         selected: _scale,
-        itemExtent: 48,
-        headerExtent: 44,
         scrollable: scrollable,
         onChanged: _onScaleChanged,
-        itemBuilder: (context, entry, isSelected) => _ScaleKindRow(
-          label: entry.label,
-          selected: isSelected,
-          showSeparator: !lastInSection.contains(entry),
-        ),
-        headerBuilder: (context, title) {
-          final cs = Theme.of(context).colorScheme;
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 16, 8),
-                child: Text(
-                  title.toUpperCase(),
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-              ),
-              ScaleListStyle.headerRule(cs),
-            ],
-          );
-        },
-      );
-    }
-
-    if (isLandscape) {
-      // Both columns scroll independently, matching Explore Chords: the left
-      // holds the static header and note chips, the right holds the controls.
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            flex: 6,
-            child: FadedScrollView(
-              padding: const EdgeInsets.only(right: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [header, const SizedBox(height: 16), toneRow],
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 5,
-            child: _buildLowerSection(
-              isLandscape: true,
-              tonicWheel: tonicWheel,
-              viewControl: viewControl,
-              chordsList: chordsList,
-              buildScalePicker: buildScalePicker,
-              // Top inset keeps the tonic wheel's floating label clear of the
-              // scroll view's clip edge.
-              padding: const EdgeInsets.only(left: 12, top: 8),
-            ),
-          ),
-        ],
-      );
-    }
-
-    // Only the header and note chips stay pinned; everything below scrolls so
-    // the layout holds up on shorter screens.
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        header,
-        const SizedBox(height: 16),
-        toneRow,
-        const SizedBox(height: 16),
-        Expanded(
-          child: _buildLowerSection(
-            isLandscape: false,
-            tonicWheel: tonicWheel,
-            viewControl: viewControl,
-            chordsList: chordsList,
-            buildScalePicker: buildScalePicker,
-            padding: EdgeInsets.zero,
-          ),
-        ),
-      ],
-    );
-  }
-
-  /// Builds the region beneath the note chips. In landscape, where vertical room
-  /// is scarce, the tonic wheel, view toggle, and list scroll together as one
-  /// unit. In portrait the tonic wheel and view toggle stay pinned and the list
-  /// takes its own scroll, so the controls always stay on screen.
-  Widget _buildLowerSection({
-    required bool isLandscape,
-    required Widget tonicWheel,
-    required Widget viewControl,
-    required Widget chordsList,
-    required PickerList<ScaleMenuEntry> Function({required bool scrollable})
-    buildScalePicker,
-    required EdgeInsetsGeometry padding,
-  }) {
-    final controls = <Widget>[
-      tonicWheel,
-      const SizedBox(height: 16),
-      viewControl,
-      const SizedBox(height: 8),
-    ];
-
-    if (isLandscape) {
-      final list = _view == _ScaleView.chords
-          ? chordsList
-          : buildScalePicker(scrollable: false);
-      return FadedScrollView(
-        padding: padding,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [...controls, list],
-        ),
-      );
-    }
-
-    final list = _view == _ScaleView.chords
-        ? FadedScrollView(
-            maintainVisualPositionOnResize: true,
-            child: chordsList,
-          )
-        : buildScalePicker(scrollable: true);
-    return Padding(
-      padding: padding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ...controls,
-          Expanded(child: list),
-        ],
       ),
     );
   }
@@ -502,30 +362,6 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
 
     _selectedOrdinal = analysis.degree.index + 1;
     _showSevenths = presentation.identity.quality.isSeventhFamily;
-  }
-
-  /// Sentence-case "role, tendency" line for the selected degree (e.g.
-  /// "Dominant, pulls toward I"), or null when nothing is selected. Outside the
-  /// major and minor families the tendency is dropped and only the role shows.
-  String? _selectedFunctionLabel(Scale scale) {
-    final ordinal = _selectedOrdinal;
-    if (ordinal == null) return null;
-    if (!_supportsChordHarmony(scale)) return null;
-
-    final function = scaleDegreeFunction(scale, ordinal);
-    final tendency = function.tendency;
-    final text = tendency == null
-        ? function.name
-        : '${function.name}, $tendency';
-    return '${text[0].toUpperCase()}${text.substring(1)}';
-  }
-
-  Set<int> _selectedChordMidi(Scale scale, ScaleHarmony? harmony) {
-    final ordinal = _selectedOrdinal;
-    if (ordinal == null || harmony == null) return const <int>{};
-
-    final degree = harmony.degrees[ordinal - 1];
-    return degreeChordMidi(scale, degree, seventh: _showSevenths).toSet();
   }
 
   void _onDegreeSelect(ScaleDegreeHarmony degree) {
@@ -564,13 +400,10 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     _preview.cancel();
     setState(() {
       final pitchClass = _tonic.pitchClass;
-      // The selected ordinal names a scale-degree position, so keep it only
-      // when the new scale has the same number of degrees; otherwise the
-      // position no longer maps (e.g. a future non-heptatonic scale).
-      if (entry.kind.intervals.length != _scale.kind.intervals.length) {
-        _selectedOrdinal = null;
-      }
-      if (entry.kind.harmonization != ScaleHarmonization.heptatonicTertian) {
+      if (!keepsSelectedOrdinalForScaleChange(
+        current: _scale.kind,
+        next: entry.kind,
+      )) {
         _selectedOrdinal = null;
       }
       _scale = entry;
@@ -578,33 +411,13 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       // so rebuild the choices and keep the root pitch class, re-spelled to a
       // tonic this mode actually offers.
       _tonicChoices = tonicChoicesForKind(entry.kind);
-      _tonic = _resolveTonic(
-        pitchClass,
+      _tonic = resolveScaleExplorerTonic(
+        choices: _tonicChoices,
+        pitchClass: pitchClass,
         exact: _tonic,
         preferFlat: _tonic.isFlat,
       );
     });
-  }
-
-  /// Picks a tonic for [pitchClass] from the current [_tonicChoices], keeping
-  /// [exact] when it is still offered and otherwise honoring the [preferFlat]
-  /// spelling preference for enharmonic pairs.
-  Tonic _resolveTonic(
-    int pitchClass, {
-    Tonic? exact,
-    required bool preferFlat,
-  }) {
-    if (exact != null && _tonicChoices.contains(exact)) return exact;
-
-    final matches = _tonicChoices
-        .where((tonic) => tonic.pitchClass == pitchClass)
-        .toList();
-    if (matches.isEmpty) return _tonicChoices.first;
-
-    for (final tonic in matches) {
-      if (preferFlat ? tonic.isFlat : tonic.isSharp) return tonic;
-    }
-    return matches.first;
   }
 
   bool _supportsChordHarmony(Scale scale) =>
@@ -711,42 +524,6 @@ class _ScaleHeader extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ScaleKindRow extends StatelessWidget {
-  const _ScaleKindRow({
-    required this.label,
-    required this.selected,
-    required this.showSeparator,
-  });
-
-  final String label;
-  final bool selected;
-  final bool showSeparator;
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: selected ? ScaleListStyle.selectedRow(cs) : null,
-        border: showSeparator
-            ? Border(bottom: ScaleListStyle.separatorSide(cs))
-            : null,
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: textTheme.titleMedium?.copyWith(
-            color: ScaleListStyle.rowText(cs, selected: selected),
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-          ),
-        ),
-      ),
     );
   }
 }
