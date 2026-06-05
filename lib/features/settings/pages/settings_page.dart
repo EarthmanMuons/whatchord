@@ -652,13 +652,12 @@ class _PaletteSelectionList extends ConsumerWidget {
             label: '${p.label} palette',
             onTapHint: 'Apply color palette',
             child: ExcludeSemantics(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: p == current ? selectedRowColor : Colors.transparent,
-                ),
+              child: Material(
+                type: MaterialType.transparency,
                 child: ListTile(
                   selected: p == current,
                   selectedColor: cs.onSurface,
+                  selectedTileColor: selectedRowColor,
                   textColor: cs.onSurface,
                   iconColor: cs.onSurfaceVariant,
                   leading: PaletteSwatch(palette: p),
