@@ -159,6 +159,7 @@ class _ScaleDegreeChordTile extends StatelessWidget {
       child: SizedBox(
         height: 48,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
               child: Semantics(
@@ -168,7 +169,8 @@ class _ScaleDegreeChordTile extends StatelessWidget {
                 hint: memberNotes,
                 onTap: onTap,
                 excludeSemantics: true,
-                child: InkWell(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTap: onTap,
                   child: Padding(
                     padding: const EdgeInsets.only(left: _rowLeftPadding),
