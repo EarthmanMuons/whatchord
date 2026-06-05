@@ -21,7 +21,7 @@ ThemeData buildAppTheme({
 }) {
   final cs = colorSchemeFor(palette, brightness);
 
-  return ThemeData(
+  final base = ThemeData(
     useMaterial3: true,
     fontFamily: 'WhatChord Symbols',
     fontFamilyFallback: const ['Inter'],
@@ -37,6 +37,41 @@ ThemeData buildAppTheme({
       actionTextColor: cs.inversePrimary,
       disabledActionTextColor: cs.onInverseSurface.withValues(alpha: 0.38),
       closeIconColor: cs.onInverseSurface,
+    ),
+  );
+
+  return base.copyWith(
+    // Selection accent lives here so every SegmentedButton (the Scale Explorer's
+    // Chords/Scales toggle, the settings theme toggle) shares the app's
+    // primaryContainer selection accent rather than M3's default
+    // secondaryContainer. The custom scrubbers and note chips already use the
+    // same accent.
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: ButtonStyle(
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? cs.primaryContainer
+              : cs.surfaceContainerLow,
+        ),
+        foregroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? cs.onPrimaryContainer
+              : cs.onSurface,
+        ),
+        textStyle: WidgetStateProperty.resolveWith(
+          (states) => base.textTheme.labelLarge?.copyWith(
+            fontWeight: states.contains(WidgetState.selected)
+                ? FontWeight.w700
+                : FontWeight.w500,
+          ),
+        ),
+        side: WidgetStatePropertyAll(
+          BorderSide(color: cs.outlineVariant.withValues(alpha: 0.70)),
+        ),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
     ),
   );
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:whatchord/core/core.dart';
+
 /// Shared divider treatment for the Scale Explorer's chord and scale lists, so
 /// both panes look the same: a slightly thicker rule beneath a section header,
 /// thin separators between adjacent rows, and no trailing line at the foot of a
@@ -8,14 +10,13 @@ abstract final class ScaleListStyle {
   static const double headerRuleThickness = 2;
 
   /// The flat, full-width background tint marking the selected row in either
-  /// list.
-  static Color selectedRow(ColorScheme cs) =>
-      Color.alphaBlend(cs.primary.withValues(alpha: 0.10), cs.surface);
+  /// list. Shared with the key signature picker via [SelectionColors].
+  static Color selectedRow(ColorScheme cs) => SelectionColors.selectedRow(cs);
 
   /// Row text color: neutral at rest, [ColorScheme.primary] when selected
   /// (echoing the outlined note chips). Pair with a slight weight bump.
   static Color rowText(ColorScheme cs, {required bool selected}) =>
-      selected ? cs.primary : cs.onSurface;
+      selected ? SelectionColors.selectedRowText(cs) : cs.onSurface;
 
   static Color _ruleColor(ColorScheme cs) => cs.outlineVariant;
 

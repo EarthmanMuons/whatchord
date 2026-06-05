@@ -268,12 +268,9 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     final viewControl = Row(
       children: [
         SegmentedButton<_ScaleView>(
+          // Styling comes from the app's segmentedButtonTheme so this toggle
+          // shares the selection accent used across the app.
           showSelectedIcon: false,
-          style: ButtonStyle(
-            shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-          ),
           segments: const [
             ButtonSegment(
               value: _ScaleView.chords,

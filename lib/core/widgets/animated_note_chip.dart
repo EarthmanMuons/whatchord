@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../models/selection_colors.dart';
+
 enum NoteChipHighlight { none, outline, fill }
 
 /// A note/degree chip that flips between [label] and [alternateLabel] when its
@@ -56,16 +58,14 @@ class AnimatedNoteChip extends StatelessWidget {
       _measureLabelWidth(context, alternateLabel, labelStyle),
     );
 
-    final borderColor = fill
-        ? cs.primary.withValues(alpha: 0.82)
+    // The fill and rest borders are the shared chip-selection treatment; the
+    // middle "outline" state (a solid primary ring, no fill) is unique to the
+    // note chip.
+    final border = fill
+        ? SelectionColors.selectedChipBorder(cs)
         : outline
-        ? cs.primary
-        : cs.outlineVariant.withValues(alpha: 0.60);
-    final borderWidth = fill
-        ? 1.6
-        : outline
-        ? 1.5
-        : 1.0;
+        ? BorderSide(color: cs.primary, width: 1.5)
+        : SelectionColors.restChipBorder(cs);
 
     return Semantics(
       container: true,
@@ -98,7 +98,7 @@ class AnimatedNoteChip extends StatelessWidget {
               decoration: BoxDecoration(
                 color: fill ? cs.primaryContainer : cs.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(10 * sizeScale),
-                border: Border.all(color: borderColor, width: borderWidth),
+                border: Border.fromBorderSide(border),
               ),
               padding: EdgeInsets.symmetric(
                 horizontal: horizontalPadding,

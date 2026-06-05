@@ -805,11 +805,11 @@ class _ExploreMultiChoiceChip extends StatelessWidget {
     );
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8),
-      side: BorderSide(
-        color: selected
-            ? Colors.transparent
-            : cs.outlineVariant.withValues(alpha: 0.60),
-      ),
+      // Selected fills with a checkmark, so it keeps a transparent edge (at the
+      // same width) to hold its size; unselected takes the shared rest border.
+      side: selected
+          ? const BorderSide(color: Colors.transparent)
+          : SelectionColors.restChipBorder(cs),
     );
 
     return FilterChip(

@@ -28,6 +28,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- Unified the selection highlight color across the app so toggles, chips, and
+  selected rows feel deliberate and cohesive. The Scale Explorer's Chords/Scales
+  toggle and the settings theme toggle now share the same accent as the scrubber
+  wheels, and the key signature picker's selected row, its highlighted text, and
+  its major/minor chip now match the row selection and active chips used
+  elsewhere.
 - The Explore Chords root selector now lets you choose the exact enharmonic
   spelling of the root (such as C# versus Db) rather than inheriting one
   spelling from the selected key. Every spelling that is diatonic to a standard
