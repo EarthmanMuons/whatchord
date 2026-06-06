@@ -24,13 +24,30 @@ import '../widgets/explore_summary.dart';
 import '../widgets/explore_top_bar.dart';
 
 class ExploreChordPage extends ConsumerStatefulWidget {
-  const ExploreChordPage({super.key, required this.seedIdentity});
+  const ExploreChordPage({
+    super.key,
+    required this.seedIdentity,
+    this.seedRoot,
+    this.hasExploreParent = false,
+  });
 
   final ChordIdentity seedIdentity;
+  final Tonic? seedRoot;
 
-  static Route<void> route({required ChordIdentity seedIdentity}) {
+  /// Whether another Explore page is directly beneath this route.
+  final bool hasExploreParent;
+
+  static Route<void> route({
+    required ChordIdentity seedIdentity,
+    Tonic? seedRoot,
+    bool hasExploreParent = false,
+  }) {
     return MaterialPageRoute<void>(
-      builder: (_) => ExploreChordPage(seedIdentity: seedIdentity),
+      builder: (_) => ExploreChordPage(
+        seedIdentity: seedIdentity,
+        seedRoot: seedRoot,
+        hasExploreParent: hasExploreParent,
+      ),
     );
   }
 
@@ -43,10 +60,12 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
   late final ExplorePreviewAnimationController _previewAnimationController;
   ExplorePreviewAnimationState _previewAnimation =
       ExplorePreviewAnimationState.idle;
+  late bool _hasExploreParent;
 
   @override
   void initState() {
     super.initState();
+    _hasExploreParent = widget.hasExploreParent;
     _previewAnimationController = ExplorePreviewAnimationController(
       onChanged: (state) {
         if (!mounted) return;
@@ -56,10 +75,15 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
       },
     );
     final tonality = ref.read(selectedTonalityProvider);
-    final seedRoot = Tonic.forPitchClass(
-      widget.seedIdentity.rootPc,
-      preferredLabel: pcToName(widget.seedIdentity.rootPc, tonality: tonality),
-    );
+    final seedRoot =
+        widget.seedRoot ??
+        Tonic.forPitchClass(
+          widget.seedIdentity.rootPc,
+          preferredLabel: pcToName(
+            widget.seedIdentity.rootPc,
+            tonality: tonality,
+          ),
+        );
     _state = normalizeExploreChordState(
       ExploreChordState.fromIdentity(widget.seedIdentity, root: seedRoot),
     );
@@ -152,11 +176,8 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                         height: kToolbarHeight,
                         tonality: tonality,
                         scaleDegreeAnalysis: presentation.scaleDegreeAnalysis,
-                        onScaleDegreesTap: () => Navigator.of(context).push(
-                          ScaleExplorerPage.route(
-                            seedPresentation: presentation,
-                          ),
-                        ),
+                        onScaleDegreesTap: () =>
+                            _openScaleExplorer(presentation),
                         onOpenPicker: () => openTonalityPicker(
                           context,
                           useSideSheet: useHomeSideSheet(context),
@@ -193,6 +214,23 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
           ),
         );
       },
+    );
+  }
+
+  void _openScaleExplorer(ChordPresentation presentation) {
+    final navigator = Navigator.of(context);
+    if (_hasExploreParent) {
+      // Keep only the current Explore context before opening the next one.
+      navigator.removeRouteBelow(ModalRoute.of(context)!);
+      _hasExploreParent = false;
+    }
+    unawaited(
+      navigator.push(
+        ScaleExplorerPage.route(
+          seedPresentation: presentation,
+          hasExploreParent: true,
+        ),
+      ),
     );
   }
 

@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/audio/audio.dart';
+import 'package:whatchord/features/chords/chords.dart';
 import 'package:whatchord/features/home/home.dart';
 import 'package:whatchord/features/piano/piano.dart';
 import 'package:whatchord/features/theory/theory.dart';
@@ -29,7 +30,11 @@ const _chordHarmonyUnavailableMessage =
     'Diatonic chords are available for seven-note scales.';
 
 class ScaleExplorerPage extends ConsumerStatefulWidget {
-  const ScaleExplorerPage({super.key, this.seedPresentation});
+  const ScaleExplorerPage({
+    super.key,
+    this.seedPresentation,
+    this.hasExploreParent = false,
+  });
 
   /// Chord to pre-select a degree from when the page opens. When null the page
   /// falls back to the live sounding chord, so opening from the home page seeds
@@ -37,9 +42,18 @@ class ScaleExplorerPage extends ConsumerStatefulWidget {
   /// seeds the same way rather than reaching back to stale live input.
   final ChordPresentation? seedPresentation;
 
-  static Route<void> route({ChordPresentation? seedPresentation}) {
+  /// Whether another Explore page is directly beneath this route.
+  final bool hasExploreParent;
+
+  static Route<void> route({
+    ChordPresentation? seedPresentation,
+    bool hasExploreParent = false,
+  }) {
     return MaterialPageRoute<void>(
-      builder: (_) => ScaleExplorerPage(seedPresentation: seedPresentation),
+      builder: (_) => ScaleExplorerPage(
+        seedPresentation: seedPresentation,
+        hasExploreParent: hasExploreParent,
+      ),
     );
   }
 
@@ -54,6 +68,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   bool _showSevenths = false;
   int? _selectedOrdinal;
   _ScaleView _view = _ScaleView.chords;
+  late bool _hasExploreParent;
 
   late final ScalePreviewAnimationController _preview;
   ScalePreviewState _previewState = ScalePreviewState.idle;
@@ -63,6 +78,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   @override
   void initState() {
     super.initState();
+    _hasExploreParent = widget.hasExploreParent;
     final tonality = ref.read(selectedTonalityProvider);
     final presentation =
         widget.seedPresentation ?? ref.read(chordPresentationProvider);
@@ -225,23 +241,57 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     required Set<int> memberPitchClasses,
     required bool isLandscape,
   }) {
-    final header = Row(
+    final selectedDegree = _selectedOrdinal == null || harmony == null
+        ? null
+        : harmony.degrees[_selectedOrdinal! - 1];
+    final header = Stack(
+      clipBehavior: Clip.none,
       children: [
-        CircularPlayButton(
-          label: 'Play scale',
-          tapHint: 'Play the scale up and down',
-          onPressed: () => _onPlayScale(scale),
+        Row(
+          children: [
+            CircularPlayButton(
+              label: 'Play scale',
+              tapHint: 'Play the scale up and down',
+              onPressed: () => _onPlayScale(scale),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 48),
+                child: _ScaleHeader(
+                  scale: scale,
+                  kindLabel: _scale.headerLabel,
+                  noteNameSystem: noteNameSystem,
+                  functionLabel: selectedScaleDegreeFunctionLabel(
+                    scale: scale,
+                    selectedOrdinal: _selectedOrdinal,
+                    supportsChordHarmony: scale.kind.supportsChordHarmony,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _ScaleHeader(
-            scale: scale,
-            kindLabel: _scale.headerLabel,
-            noteNameSystem: noteNameSystem,
-            functionLabel: selectedScaleDegreeFunctionLabel(
-              scale: scale,
-              selectedOrdinal: _selectedOrdinal,
-              supportsChordHarmony: scale.kind.supportsChordHarmony,
+        Positioned(
+          right: -6,
+          bottom: -8,
+          child: Visibility(
+            visible: selectedDegree != null,
+            maintainAnimation: true,
+            maintainSize: true,
+            maintainState: true,
+            child: IconButton(
+              constraints: const BoxConstraints.tightFor(width: 48, height: 56),
+              tooltip: 'Explore selected chord',
+              onPressed: selectedDegree == null
+                  ? null
+                  : () => _openSelectedChord(selectedDegree),
+              icon: Icon(
+                Icons.explore_outlined,
+                color: SelectionColors.selectedRowText(
+                  Theme.of(context).colorScheme,
+                ),
+              ),
             ),
           ),
         ),
@@ -417,6 +467,31 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     ref.read(audioMonitorNotifier.notifier).playRolledPreviewNotes(notes);
   }
 
+  void _openSelectedChord(ScaleDegreeHarmony degree) {
+    _preview.cancel();
+    final quality = _showSevenths ? degree.seventhQuality : degree.triadQuality;
+    final navigator = Navigator.of(context);
+    if (_hasExploreParent) {
+      // Keep only the current Explore context before opening the next one.
+      navigator.removeRouteBelow(ModalRoute.of(context)!);
+      _hasExploreParent = false;
+    }
+    unawaited(
+      navigator.push(
+        ExploreChordPage.route(
+          seedIdentity: ChordIdentity(
+            rootPc: degree.rootPc,
+            bassPc: degree.rootPc,
+            quality: quality,
+            presentIntervalsMask: quality.canonicalMask,
+          ),
+          seedRoot: Tonic.tryFromLabel(degree.rootName),
+          hasExploreParent: true,
+        ),
+      ),
+    );
+  }
+
   void _onPlayScale(Scale scale) {
     setState(() => _selectedOrdinal = null);
     final notes = scaleRunMidi(scale);
@@ -552,10 +627,12 @@ class _ScaleHeader extends StatelessWidget {
         const SizedBox(height: 6),
         // Always rendered (a space when empty) so selecting or clearing a
         // degree never changes the header height.
-        Text(
+        AutoSizeText(
           functionLabel ?? ' ',
           style: textTheme.bodyLarge?.copyWith(color: cs.onSurfaceVariant),
           maxLines: 1,
+          minFontSize: 13,
+          stepGranularity: 0.5,
           overflow: TextOverflow.ellipsis,
           strutStyle: StrutStyle(
             fontSize: textTheme.bodyLarge?.fontSize,
