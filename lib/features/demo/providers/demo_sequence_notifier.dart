@@ -86,6 +86,7 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
     ),
 
     // 2) SCREENSHOT: portrait, dark mode, Key: C major -> G7/B, Explore Chords
+    // Also home screen for website real_time.webp
     const DemoStep(
       notes: {59, 62, 65, 67},
       themeMode: ThemeMode.dark,
@@ -120,11 +121,21 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
     ),
 
     // 7) SCREENSHOT: portrait, light mode, Key: C major -> C6/9, Explore Chords
+    // For website explore_chords.webp
     const DemoStep(
       notes: {60, 64, 67, 69, 74},
       themeMode: ThemeMode.light,
       tonality: Tonality(Tonic.c, TonalityMode.major),
       showChordMemberDegrees: true,
+    ),
+
+    // 8) SCREENSHOT: portrait, light mode, Key: C major -> Bm7(b5), Why This Chord?
+    // For website why_this_chord.webp
+    const DemoStep(
+      notes: {59, 62, 65, 69},
+      pedalDown: true,
+      themeMode: ThemeMode.light,
+      tonality: Tonality(Tonic.c, TonalityMode.major),
     ),
   ];
 
