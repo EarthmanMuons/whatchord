@@ -24,7 +24,7 @@
 </p>
 
 WhatChord identifies chords from live Bluetooth or USB MIDI input and includes
-an explore mode for building chords without a connected keyboard. It is
+Explore modes for building chords and scales without a connected keyboard. It is
 optimized for speed, accuracy, and musician-expected naming, favoring stable,
 conventional interpretations over simple note-matching.
 
@@ -41,6 +41,9 @@ conventional interpretations over simple note-matching.
 - **Explore chords**  
   Tap the chord card to open explore mode and try chord roots, qualities,
   extensions, and bass notes without a MIDI device.
+
+- **Explore scales** Tap the scale-degree strip to browse scale tones, keyboard
+  patterns, playback, and diatonic chords across a wide range of scales.
 
 - **Musically informed chord detection**  
   Goes beyond simple note-matching by ranking and resolving ambiguous
@@ -151,8 +154,10 @@ E8:21:56:94:BA:A2:E0:A3:48:E6:97:49:3E:8B:A9:92:94:93:5E:46:DD:17:03:2C:3C:67:F3
 WhatChord is particularly useful for:
 
 - Pianists and keyboardists exploring harmony at the instrument
-- Students learning chord construction, extensions, inversions, and voicings
-- Educators demonstrating harmonic concepts in real time
+- Students learning scales, scale degrees, chord construction, extensions,
+  inversions, and voicings
+- Educators demonstrating harmonic concepts, scale harmony, and chord function
+  in real time
 - Composers and improvisers checking or exploring complex harmony
 
 It provides immediate, intelligent feedback while you play. It is **not**

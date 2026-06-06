@@ -1,8 +1,8 @@
-Real-time chord recognition for Bluetooth and USB MIDI keyboards, plus an explore mode for learning chords even when your keyboard is not connected.
+Real-time chord recognition for Bluetooth and USB MIDI keyboards, plus Explore modes for learning chords and scales even when your keyboard is not connected.
 
 Stop guessing what chord you're playing.
 
-WhatChord listens to your MIDI keyboard and identifies chords instantly, helping you learn progressions, check voicings, understand harmony, and name what you're hearing. When you're away from your instrument, explore mode lets you build and hear chords by choosing roots, qualities, extensions, and bass notes directly in the app.
+WhatChord listens to your MIDI keyboard and identifies chords instantly, helping you learn progressions, check voicings, understand harmony, and name what you're hearing. When you're away from your instrument, Explore modes let you build and hear chords, browse a wide range of scales, inspect keyboard patterns, and see the diatonic chords that belong to a scale.
 
 Play. Learn. Explore.
 
@@ -15,6 +15,9 @@ FEATURES
 
 - Explore chords  
   Tap the chord card to open explore mode and build or hear chords without a keyboard by adjusting the root, quality, extensions, and bass note.
+
+- Explore scales
+  Tap the scale-degree strip to browse a wide range of scales with tones, keyboard patterns, playback, and diatonic chords.
 
 - Musically informed analysis  
   Recognizes inversions, extensions, slash chords, upper structures, altered tones, and complex harmony.
@@ -41,4 +44,4 @@ WhatChord is free, contains no ads, and collects no personal data. All analysis 
 
 GET STARTED
 
-Connect a Bluetooth or USB MIDI keyboard for live recognition, or open explore mode and start building chords right away.
+Connect a Bluetooth or USB MIDI keyboard for live recognition, or open an Explore mode and start building chords and scales right away.
