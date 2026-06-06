@@ -17,7 +17,7 @@ FEATURES
   Tap the chord card to open explore mode and build or hear chords without a keyboard by adjusting the root, quality, extensions, and bass note.
 
 - Explore scales
-  Tap the scale-degree strip to browse a wide range of scales with tones, keyboard patterns, playback, and diatonic chords.
+  Tap the scale-degree strip to browse a wide range of scales with tones, keyboard patterns, and diatonic chords.
 
 - Musically informed analysis  
   Recognizes inversions, extensions, slash chords, upper structures, altered tones, and complex harmony.

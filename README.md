@@ -43,7 +43,7 @@ conventional interpretations over simple note-matching.
   extensions, and bass notes without a MIDI device.
 
 - **Explore scales** Tap the scale-degree strip to browse scale tones, keyboard
-  patterns, playback, and diatonic chords across a wide range of scales.
+  patterns, and diatonic chords across a wide range of scales.
 
 - **Musically informed chord detection**  
   Goes beyond simple note-matching by ranking and resolving ambiguous
