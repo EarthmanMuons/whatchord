@@ -10,6 +10,13 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed complete altered dominant chords over a color-tone bass, such as
+  G7#5/A, being ranked below rarer enharmonic interpretations.
+- Updated chord research CLIs so a `--bass` pitch omitted from the note list is
+  automatically included among the sounding notes.
+
 ## [2026.6.6] - 2026-06-06
 
 ### Added

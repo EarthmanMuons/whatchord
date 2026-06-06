@@ -298,6 +298,32 @@ void main() {
     );
   });
 
+  test('common naming prior can resolve modest score gap before inversion', () {
+    final conventionalAlteredDominant = _candidate(
+      quality: ChordQualityToken.dominant7Sharp5,
+      root: 'G',
+      bass: 'A',
+      presentIntervals: const {0, 2, 4, 8, 10},
+      extensions: const {ChordExtension.nine},
+      score: 8.125,
+    );
+
+    final rarerInversion = _candidate(
+      quality: ChordQualityToken.dominant7Flat5,
+      root: 'F',
+      bass: 'A',
+      presentIntervals: const {0, 2, 4, 6, 10},
+      extensions: const {ChordExtension.nine},
+      score: 8.25,
+    );
+
+    _expectTieRule(
+      conventionalAlteredDominant,
+      rarerInversion,
+      'prefer common naming preference',
+    );
+  });
+
   test('complete major inversion beats minor sharp-five in a near-tie', () {
     for (final bass in ['C', 'Eb']) {
       final majorInversion = _candidate(

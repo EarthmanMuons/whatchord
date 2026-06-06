@@ -136,6 +136,9 @@ bin/chord-oracle C D E A --bass=E
 It accepts the same note and option style as `bin/chord-debug`, then prints
 WhatChord's top label plus available oracle labels.
 
+The `--bass` pitch selects the lowest sounding note. When it is omitted from the
+note list, the research CLI adds it automatically.
+
 Outputs are written to:
 
 ```text

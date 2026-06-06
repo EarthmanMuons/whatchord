@@ -20,7 +20,10 @@ int? preferCommonNamePrior(
   CandidateFeatures fb,
   Tonality _,
 ) {
-  if ((a.score - b.score).abs() > 0.05) return null;
+  // Allow the prior to resolve a modest scoring preference caused only by bass
+  // position. This remains below the general near-tie window and is guarded by
+  // equivalent explanation/extension complexity below.
+  if ((a.score - b.score).abs() > 0.15) return null;
   if (fa.unnamedToneCount != fb.unnamedToneCount) return null;
   if (fa.extensionCount != fb.extensionCount) return null;
   if (fa.extensionTensionCount != fb.extensionTensionCount) return null;

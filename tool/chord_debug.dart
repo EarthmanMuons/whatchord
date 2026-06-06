@@ -30,7 +30,8 @@ Notes may be pitch names or MIDI note numbers.
 Options:
   -h, --help             Show this help text.
   -t, --top=N            Number of ranked candidates to show. Default: 5.
-  -b, --bass=PC          Override bass pitch class, for example C, Eb, F#.
+  -b, --bass=PC          Set the bass pitch class, adding it to the sounding
+                         notes when needed.
   -k, --key=KEY          Tonality for tie-breaks/spelling. Default: C:maj.
                          Examples: C, C:maj, A:min, Eb:maj, F#:min.
   -n, --notation=STYLE   Chord symbol style. Valid: textual, symbolic.
@@ -111,20 +112,23 @@ void main(List<String> args) {
     return;
   }
 
-  final pcMask = _pcMaskFrom(pcs);
   final bassPc = bassName != null
       ? pitchClassFromNoteName(bassName)
       : (midi.isNotEmpty
             ? (midi.reduce((a, b) => a < b ? a : b) % 12)
             : pcs.first);
+  final parsedPcMask = _pcMaskFrom(pcs);
+  final bassWasMissing = (parsedPcMask & (1 << bassPc)) == 0;
+  final pcMask = parsedPcMask | (1 << bassPc);
 
   final input = ChordInput(
     pcMask: pcMask,
     bassPc: bassPc,
-    noteCount: midi.isNotEmpty ? midi.length : pcs.length,
+    noteCount:
+        (midi.isNotEmpty ? midi.length : pcs.length) + (bassWasMissing ? 1 : 0),
   );
 
-  final pcDisplays = pcs.toSet().map((pc) {
+  final pcDisplays = {...pcs, bassPc}.map((pc) {
     // If the user provided a name for this pc, prefer it.
     final preserved = inputPcLabels[pc];
     if (preserved != null) return (label: _displayNoteLabel(preserved), pc: pc);
