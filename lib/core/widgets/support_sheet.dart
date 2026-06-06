@@ -90,8 +90,6 @@ class _SupportSheetContent extends StatelessWidget {
                     'For chord identification reports, copy Analysis Details first when possible. It includes the exact notes, key context, and app version needed to reproduce the result.',
                   )
                 else ...[
-                  const _SupportSectionTitle('Chord Card Actions'),
-                  const SizedBox(height: 8),
                   const _SupportInstruction(
                     action: 'Tap the chord card',
                     description:
@@ -102,6 +100,12 @@ class _SupportSheetContent extends StatelessWidget {
                     action: 'Tap an alternative',
                     description:
                         'to see why WhatChord ranked the current chord first.',
+                  ),
+                  const SizedBox(height: 8),
+                  const _SupportInstruction(
+                    action: 'Tap the scale-degree strip',
+                    description:
+                        'to explore scale tones, keyboard patterns, and diatonic chords.',
                   ),
                   const SizedBox(height: 8),
                   const _SupportInstruction(
@@ -180,16 +184,30 @@ class _SupportInstruction extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).textTheme.bodyMedium;
 
-    return Text.rich(
-      TextSpan(
-        style: style,
-        children: [
-          TextSpan(
-            text: '$action ',
-            style: style?.copyWith(fontWeight: FontWeight.w700),
-          ),
-          TextSpan(text: description),
-        ],
+    return Semantics(
+      label: '$action $description',
+      child: ExcludeSemantics(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('•', style: style),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text.rich(
+                TextSpan(
+                  style: style,
+                  children: [
+                    TextSpan(
+                      text: '$action ',
+                      style: style?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    TextSpan(text: description),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
