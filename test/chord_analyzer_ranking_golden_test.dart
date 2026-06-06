@@ -263,6 +263,20 @@ void main() {
       expectedExtensions: {ChordExtension.add9},
     ),
 
+    golden(
+      description:
+          'common altered dominant beats rarer enharmonic ninth inversion',
+      expectedSymbol: 'G7#5 / A',
+      expectedAlternateSymbols: ['F9b5 / A'],
+      pcs: ['A', 'G', 'D#', 'F', 'B'],
+      bass: 'A',
+      tonality: const Tonality(Tonic.b, TonalityMode.minor),
+      expectedRoot: 'G',
+      expectedBass: 'A',
+      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedExtensions: {ChordExtension.nine},
+    ),
+
     // -------------------------------------------------------------------------
     // Root-position add-chord beats dominant sus slash
     // -------------------------------------------------------------------------
