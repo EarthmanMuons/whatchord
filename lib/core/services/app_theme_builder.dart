@@ -26,6 +26,7 @@ ThemeData buildAppTheme({
     fontFamily: 'WhatChord Symbols',
     fontFamilyFallback: const ['Inter'],
     colorScheme: cs,
+    appBarTheme: const AppBarTheme(centerTitle: false),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
       elevation: 2,
