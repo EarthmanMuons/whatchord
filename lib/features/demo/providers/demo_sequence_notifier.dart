@@ -74,28 +74,28 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
   ];
 
   static final List<DemoStep> screenshotSteps = <DemoStep>[
-    // 1) SCREENSHOT: portrait, light mode, Key: C major -> C major
+    // 1) SCREENSHOT: portrait, light mode, Key: C major -> Dm7, home
     const DemoStep(
-      notes: {60, 64, 67},
+      notes: {62, 65, 69, 72},
       themeMode: ThemeMode.light,
       tonality: Tonality(Tonic.c, TonalityMode.major),
     ),
 
-    // 2) SCREENSHOT: portrait, dark mode, Key: C major -> G7/B
+    // 2) SCREENSHOT: portrait, dark mode, Key: C major -> G7/B, Explore Chords
     const DemoStep(
       notes: {59, 62, 65, 67},
       themeMode: ThemeMode.dark,
       tonality: Tonality(Tonic.c, TonalityMode.major),
     ),
 
-    // 3) SCREENSHOT: portrait, light mode, Key: C major -> C6/9, explore mode
+    // 3) SCREENSHOT: portrait, light mode, Key: C major -> C major, Explore Scales
     const DemoStep(
-      notes: {60, 64, 67, 69, 74},
+      notes: {60, 64, 67},
       themeMode: ThemeMode.light,
       tonality: Tonality(Tonic.c, TonalityMode.major),
     ),
 
-    // 4) SCREENSHOT: landscape, dark mode, Key: C major -> Bm7(b5)
+    // 4) SCREENSHOT: portrait, dark mode, Key: C major -> Bm7(b5), home
     const DemoStep(
       notes: {59, 62, 65, 69},
       pedalDown: true,
@@ -103,16 +103,19 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       tonality: Tonality(Tonic.c, TonalityMode.major),
     ),
 
-    // 5) SCREENSHOT: landscape, light mode, Key: C major -> G7b9
+    // 5) SCREENSHOT: portrait, dark mode, Key: C major -> Bm7(b5),
+    // Why This Chord? Open the modal manually from screenshot 4.
+
+    // 6) SCREENSHOT: landscape, light mode, Key: C major -> G7b9, home
     const DemoStep(
       notes: {55, 59, 62, 65, 68},
       themeMode: ThemeMode.light,
       tonality: Tonality(Tonic.c, TonalityMode.major),
     ),
 
-    // 6) SCREENSHOT: portrait, light mode, Key: C major -> Bm7(b5), why this chord
+    // 7) SCREENSHOT: portrait, light mode, Key: C major -> C6/9, Explore Chords
     const DemoStep(
-      notes: {59, 62, 65, 69},
+      notes: {60, 64, 67, 69, 74},
       themeMode: ThemeMode.light,
       tonality: Tonality(Tonic.c, TonalityMode.major),
     ),
