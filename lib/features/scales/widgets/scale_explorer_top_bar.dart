@@ -23,8 +23,9 @@ class ScaleExplorerTopBar extends StatelessWidget {
       context,
     ).textTheme.titleLarge?.copyWith(letterSpacing: -0.2);
 
-    // Optical-only tweak.
-    const arrowIconDx = -6.0;
+    // Match the standard AppBar leading-control position while the title and
+    // content retain their shared horizontal inset.
+    const arrowIconDx = -12.0;
 
     return Material(
       color: cs.surfaceContainerLow,
@@ -47,10 +48,10 @@ class ScaleExplorerTopBar extends StatelessWidget {
                     minHeight: 48,
                   ),
                   onPressed: () => Navigator.of(context).maybePop(),
-                  icon: const Icon(Icons.arrow_back),
+                  icon: const BackButtonIcon(),
                 ),
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 8),
               Expanded(
                 child: Semantics(
                   header: true,
