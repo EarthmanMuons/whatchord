@@ -40,6 +40,8 @@ class DemoStep {
   final bool? pedalDown;
   final ThemeMode? themeMode;
   final Tonality? tonality;
+  final bool? showChordMemberDegrees;
+  final bool? showScaleDegrees;
   final String? promptText;
 
   const DemoStep({
@@ -47,6 +49,8 @@ class DemoStep {
     this.pedalDown,
     this.themeMode,
     this.tonality,
+    this.showChordMemberDegrees,
+    this.showScaleDegrees,
     this.promptText,
   });
 }
@@ -86,6 +90,7 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       notes: {59, 62, 65, 67},
       themeMode: ThemeMode.dark,
       tonality: Tonality(Tonic.c, TonalityMode.major),
+      showChordMemberDegrees: true,
     ),
 
     // 3) SCREENSHOT: portrait, light mode, Key: C major -> C major, Explore Scales
@@ -93,6 +98,7 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       notes: {60, 64, 67},
       themeMode: ThemeMode.light,
       tonality: Tonality(Tonic.c, TonalityMode.major),
+      showScaleDegrees: false,
     ),
 
     // 4) SCREENSHOT: portrait, dark mode, Key: C major -> Bm7(b5), home
@@ -118,6 +124,7 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       notes: {60, 64, 67, 69, 74},
       themeMode: ThemeMode.light,
       tonality: Tonality(Tonic.c, TonalityMode.major),
+      showChordMemberDegrees: true,
     ),
   ];
 

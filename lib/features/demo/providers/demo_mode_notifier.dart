@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/providers/app_theme_mode_notifier.dart';
+import 'package:whatchord/features/chords/chords.dart';
+import 'package:whatchord/features/scales/scales.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'demo_mode_variant_notifier.dart';
@@ -17,8 +19,15 @@ final demoModeProvider = NotifierProvider<DemoModeNotifier, bool>(
 class _DemoSnapshot {
   final ThemeMode themeMode;
   final Tonality tonality;
+  final bool showChordMemberDegrees;
+  final bool showScaleDegrees;
 
-  const _DemoSnapshot({required this.themeMode, required this.tonality});
+  const _DemoSnapshot({
+    required this.themeMode,
+    required this.tonality,
+    required this.showChordMemberDegrees,
+    required this.showScaleDegrees,
+  });
 }
 
 class DemoModeNotifier extends Notifier<bool> {
@@ -104,12 +113,28 @@ class DemoModeNotifier extends Notifier<bool> {
         ref.read(selectedTonalityProvider.notifier).setTonality(step.tonality!),
       );
     }
+    if (step.showChordMemberDegrees != null) {
+      unawaited(
+        ref
+            .read(exploreChordMemberDegreesProvider.notifier)
+            .setShowDegrees(step.showChordMemberDegrees!),
+      );
+    }
+    if (step.showScaleDegrees != null) {
+      unawaited(
+        ref
+            .read(showScaleDegreesProvider.notifier)
+            .setShowDegrees(step.showScaleDegrees!),
+      );
+    }
   }
 
   void _enterDemo() {
     _snapshot = _DemoSnapshot(
       themeMode: ref.read(appThemeModeProvider),
       tonality: ref.read(selectedTonalityProvider),
+      showChordMemberDegrees: ref.read(exploreChordMemberDegreesProvider),
+      showScaleDegrees: ref.read(showScaleDegreesProvider),
     );
 
     // Important: apply AFTER providers have finished building.
@@ -127,6 +152,16 @@ class DemoModeNotifier extends Notifier<bool> {
     );
     unawaited(
       ref.read(selectedTonalityProvider.notifier).setTonality(snap.tonality),
+    );
+    unawaited(
+      ref
+          .read(exploreChordMemberDegreesProvider.notifier)
+          .setShowDegrees(snap.showChordMemberDegrees),
+    );
+    unawaited(
+      ref
+          .read(showScaleDegreesProvider.notifier)
+          .setShowDegrees(snap.showScaleDegrees),
     );
 
     // Reset demo sequence so next session starts clean.
