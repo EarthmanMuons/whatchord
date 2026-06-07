@@ -260,6 +260,17 @@ void main() {
       expectedExtensions: {ChordExtension.sharp9, ChordExtension.flat13},
     ),
 
+    golden(
+      description: 'complete altered dominant inversion beats altered major7',
+      expectedSymbol: 'A7#5#9 / C#',
+      pcs: ['C', 'Db', 'F', 'G', 'A'],
+      bass: 'Db',
+      expectedRoot: 'A',
+      expectedBass: 'C#',
+      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedExtensions: {ChordExtension.sharp9},
+    ),
+
     // -------------------------------------------------------------------------
     // Simple triad add-tone beats inverted unusual seventh-family quality
     // -------------------------------------------------------------------------

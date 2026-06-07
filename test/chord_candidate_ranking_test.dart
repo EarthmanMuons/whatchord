@@ -5,6 +5,37 @@ import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import 'helpers/theory_test_helpers.dart';
 
 void main() {
+  test('complete altered dominant inversion beats altered major7', () {
+    final dominant = _candidate(
+      quality: ChordQualityToken.dominant7Sharp5,
+      root: 'A',
+      bass: 'C#',
+      presentIntervals: const {0, 3, 4, 8, 10},
+      extensions: const {ChordExtension.sharp9},
+      score: 8.2,
+    );
+
+    for (final quality in [
+      ChordQualityToken.major7Flat5,
+      ChordQualityToken.major7Sharp5,
+    ]) {
+      final alteredMajor7 = _candidate(
+        quality: quality,
+        root: 'C#',
+        bass: 'C#',
+        presentIntervals: const {0, 4, 6, 8, 11},
+        extensions: const {ChordExtension.flat13},
+        score: 8.2,
+      );
+
+      _expectTieRule(
+        dominant,
+        alteredMajor7,
+        'prefer complete altered dominant inversion over altered major7',
+      );
+    }
+  });
+
   test('complete dominant flat-nine beats colored diminished7', () {
     final dominant = _candidate(
       quality: ChordQualityToken.dominant7,
