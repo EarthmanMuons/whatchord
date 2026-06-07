@@ -14,6 +14,9 @@ extend-ignore-re = [
 
   # string interpolation followed by an ordinal suffix (e.g. `${n}nd`)
   "\\$\\{[^}]+\\}nd\\b",
+
+  # chord symbols with an added tone (e.g. "Aadd#9")
+  "\\b[A-G](?:[#b])?add[#b]?\\d+\\b",
 ]
 
 [type.html]
