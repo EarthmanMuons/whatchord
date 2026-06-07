@@ -5,6 +5,32 @@ import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import 'helpers/theory_test_helpers.dart';
 
 void main() {
+  test('complete dominant sharp-nine beats sixth flat-nine', () {
+    final dominant = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'C',
+      bass: 'Eb',
+      presentIntervals: const {0, 3, 4, 7, 10},
+      extensions: const {ChordExtension.sharp9},
+      score: 7.88,
+    );
+
+    final sixthFlat9 = _candidate(
+      quality: ChordQualityToken.major6,
+      root: 'Eb',
+      bass: 'Eb',
+      presentIntervals: const {0, 1, 4, 7, 9},
+      extensions: const {ChordExtension.flat9},
+      score: 8.03,
+    );
+
+    _expectTieRule(
+      dominant,
+      sixthFlat9,
+      'prefer complete dominant sharp-nine over sixth flat-nine',
+    );
+  });
+
   test('complete altered dominant inversion beats altered major7', () {
     final dominant = _candidate(
       quality: ChordQualityToken.dominant7Sharp5,

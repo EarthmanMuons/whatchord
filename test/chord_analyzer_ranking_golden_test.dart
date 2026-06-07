@@ -271,6 +271,17 @@ void main() {
       expectedExtensions: {ChordExtension.sharp9},
     ),
 
+    golden(
+      description: 'complete dominant sharp-nine beats sixth flat-nine',
+      expectedSymbol: 'C7#9 / D#',
+      pcs: ['C', 'Eb', 'E', 'G', 'Bb'],
+      bass: 'Eb',
+      expectedRoot: 'C',
+      expectedBass: 'D#',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.sharp9},
+    ),
+
     // -------------------------------------------------------------------------
     // Simple triad add-tone beats inverted unusual seventh-family quality
     // -------------------------------------------------------------------------
