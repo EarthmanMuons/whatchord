@@ -23,6 +23,10 @@
     "label": "genuine-ambiguity",
     "note": "D♭maj7sus2 / C is correct; clean structural fit (all 4 notes as core template tones) beats Abadd11/C (Db as add11 extra) and Cm#5addb9; 1.30 gap reflects real template difference, not inflation; oracle split (music21->Abadd11/C, tonal->Cm(b6,b9)) confirms genuine 3-way ambiguity; sound"
   },
+  "0-1-4-6-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "C7b5b9 is correct; it is a complete root-position altered dominant, while F#7#11/C is a complete tritone-related dominant with the #11 in the bass; both are conventional and similarly common in ChoCo, but the C bass favors the current root-position reading; key context respells the alternate without changing the ranking; no engine change needed"
+  },
   "0-1-4-7_b1": {
     "label": "genuine-ambiguity",
     "note": "D♭m(maj7)#11 is correct; near-tie cluster resolved by root-position preference and fully-explained-voicing tie-breakers; both oracles produce related Db-rooted or diminished readings; sound"
