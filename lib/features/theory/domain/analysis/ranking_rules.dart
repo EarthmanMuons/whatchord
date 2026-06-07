@@ -638,9 +638,10 @@ int? _preferDom7RootOverNonDomSlash(
 /// altered slash spelling.
 ///
 /// Example: {C, D, E, G, Bb} with D in the bass is normally understood as
-/// C9/D (often written C7/D), not Em7#5#11/D. The E-rooted spelling is
-/// pitch-class valid, but it respells C as B# and treats a plain C dominant
-/// stack as a remote altered minor seventh chord.
+/// C9/D (often written C7/D), not Em7#5#11/D. Likewise, a complete
+/// Dbm(maj9)/Eb is preferred over Emaj7#5(add13)/D#. The competing spellings
+/// are pitch-class valid, but reinterpret a complete natural ninth chord as a
+/// remote altered seventh chord.
 int? _preferNinthBassSeventhOverAlteredSlash(
   ChordCandidate a,
   ChordCandidate b,
@@ -657,7 +658,9 @@ int? _preferNinthBassSeventhOverAlteredSlash(
   final otherCandidate = aIsPreferred ? b : a;
 
   if (!fOther.isSlashBass) return null;
-  if (fOther.extensionTensionCount == 0) return null;
+  if (fOther.extensionTensionCount == 0 && !fOther.isUnusualSeventhQuality) {
+    return null;
+  }
   if (preferredCandidate.score + 0.55 < otherCandidate.score) return null;
 
   return aIsPreferred ? -1 : 1;

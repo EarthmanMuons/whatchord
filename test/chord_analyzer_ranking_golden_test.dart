@@ -142,6 +142,18 @@ void main() {
     ),
 
     golden(
+      description: 'minor-major ninth bass chord beats altered major7 slash',
+      expectedSymbol: 'C#m(maj7) / D#',
+      expectedAlternateSymbols: ['Emaj7#5(add13) / D#'],
+      pcs: ['C', 'Db', 'Eb', 'E', 'Ab'],
+      bass: 'Eb',
+      expectedRoot: 'C#',
+      expectedBass: 'D#',
+      expectedQuality: ChordQualityToken.minorMajor7,
+      expectedExtensions: {ChordExtension.nine},
+    ),
+
+    golden(
       description: 'complete dominant flat-nine beats colored diminished7',
       expectedSymbol: 'C7b9 / G',
       pcs: ['C', 'Db', 'E', 'G', 'Bb'],

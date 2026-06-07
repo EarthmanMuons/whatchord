@@ -362,6 +362,64 @@ void main() {
     );
   });
 
+  test('minor-major ninth bass chord beats altered major7 slash', () {
+    final ninthBassSeventh = _candidate(
+      quality: ChordQualityToken.minorMajor7,
+      root: 'C#',
+      bass: 'D#',
+      presentIntervals: const {0, 2, 3, 7, 11},
+      extensions: const {ChordExtension.nine},
+      score: 7.94,
+    );
+
+    final alteredSlash = _candidate(
+      quality: ChordQualityToken.major7Sharp5,
+      root: 'E',
+      bass: 'D#',
+      presentIntervals: const {0, 4, 8, 9, 11},
+      extensions: const {ChordExtension.add13},
+      score: 8.25,
+    );
+
+    _expectRule(
+      ninthBassSeventh,
+      alteredSlash,
+      'prefer ninth-bass seventh chord over altered slash',
+    );
+  });
+
+  test('ninth-bass seventh chord does not override conventional slash', () {
+    final ninthBassSeventh = _candidate(
+      quality: ChordQualityToken.minorMajor7,
+      root: 'C#',
+      bass: 'D#',
+      presentIntervals: const {0, 2, 3, 7, 11},
+      extensions: const {ChordExtension.nine},
+      score: 7.94,
+    );
+
+    final conventionalSlash = _candidate(
+      quality: ChordQualityToken.minor7,
+      root: 'E',
+      bass: 'D#',
+      presentIntervals: const {0, 3, 7, 10},
+      score: 8.25,
+    );
+
+    const tonality = Tonality(Tonic.c, TonalityMode.major);
+    final explanation = ChordCandidateRanking.explain(
+      ninthBassSeventh,
+      conventionalSlash,
+      tonality: tonality,
+    );
+
+    expect(explanation.result, 1);
+    expect(
+      explanation.decidedByRule,
+      'score difference beyond tie-break range',
+    );
+  });
+
   test('complete triad beats incomplete inverted 6th in a near-tie', () {
     final completeTriad = _candidate(
       quality: ChordQualityToken.minor,
