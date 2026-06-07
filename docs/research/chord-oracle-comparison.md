@@ -18,9 +18,10 @@ It compares WhatChord against optional third-party libraries:
 The harness treats every external library as an advisory oracle. A disagreement
 is a triage signal, not proof that WhatChord is wrong.
 
-For `music21`, the harness uses `harmony.chordSymbolFromChord()` so comparison
-uses chord-symbol figures such as `C7`, `Am7/C`, and `Cm9`, not prose set-class
-descriptions.
+For `music21`, the harness uses `harmony.chordSymbolFigureFromChord()` so
+comparison uses chord-symbol figures such as `C7`, `Am7/C`, and `Cm9`, not prose
+set-class descriptions. Using the generated figure directly also avoids music21
+failures when it cannot parse one of its own generated labels.
 
 For tools that return multiple labels, the harness compares and reports only the
 first label. Tonal's `Chord.detect()` returns weighted results sorted by
@@ -184,14 +185,42 @@ playing.
 
 ## Recommended Review Workflow
 
-1. Run a canonical pass with `music21` only.
-2. Review `disagreement` rows first, especially when WhatChord's second
-   candidate matches an oracle or looks musically plausible.
-3. Re-run the interesting rows with `tonal` and `pychord` installed.
-4. Promote only recurring, musically defensible issues into analyzer golden
-   tests.
-5. Keep generated CSV files out of source unless a snapshot is intentionally
-   being documented.
+1. Confirm the disagreement is semantic, not only spelling or parser behavior.
+2. Judge the candidates against WhatChord's goal: the musician-expected name of
+   the observed voicing. Treat oracles and ChoCo frequency as evidence, not
+   authority.
+3. Decide whether the case is clearly wrong, clearly correct, genuinely
+   ambiguous, context-dependent, voicing-dependent, or an oracle limitation.
+4. Change the engine only when a reusable musical principle explains the
+   preferred answer. Add positive and negative boundary tests; do not encode one
+   exact pitch set.
+5. After any scoring or ranking-rule change, run focused tests and the full
+   chord golden suite. Review every changed golden result rather than accepting
+   it mechanically.
+6. Add unresolved-but-reviewed cases to `tool/chord_oracle_reviewed.json`.
+   Remove entries after WhatChord naturally agrees with the oracles.
+
+Reviewed entries use this shape:
+
+```json
+{
+  "case-id": {
+    "label": "genuine-ambiguity",
+    "note": "Why the current result is acceptable and no engine change is needed."
+  }
+}
+```
+
+Allowed labels are:
+
+- `clearly-correct`: WhatChord's result is the expected isolated-voicing name.
+- `genuine-ambiguity`: multiple names are comparably defensible.
+- `context-dependent`: harmonic or tonal context could legitimately change the
+  answer.
+- `voicing-dependent`: octave placement, doubling, or register would be needed
+  to choose confidently.
+- `oracle-limitation`: the disagreement primarily comes from an oracle's
+  vocabulary, parsing, spelling, or missing-label limitation.
 
 The main engineering value is prioritization. The harness should help answer:
 

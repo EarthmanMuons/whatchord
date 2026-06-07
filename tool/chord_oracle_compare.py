@@ -57,6 +57,13 @@ REVIEW_PRIORITY = {
     "unrecognized-by-oracles": 5,
     "agree": 6,
 }
+REVIEW_LABELS = {
+    "clearly-correct",
+    "genuine-ambiguity",
+    "context-dependent",
+    "voicing-dependent",
+    "oracle-limitation",
+}
 PRACTICAL_INTERVAL_SETS = (
     (0, 4, 7),
     (0, 3, 7),
@@ -411,13 +418,25 @@ def main() -> int:
     return 0
 
 
-def load_reviewed(path: Path) -> dict[str, str]:
+def load_reviewed(path: Path) -> dict[str, dict[str, str]]:
     if not path.exists():
         return {}
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
         if isinstance(data, dict):
-            return {str(k): str(v) for k, v in data.items()}
+            reviewed = {}
+            for case_id, value in data.items():
+                if isinstance(value, str):
+                    reviewed[str(case_id)] = {
+                        "label": "clearly-correct",
+                        "note": value,
+                    }
+                elif isinstance(value, dict):
+                    label = value.get("label")
+                    note = value.get("note")
+                    if label in REVIEW_LABELS and isinstance(note, str):
+                        reviewed[str(case_id)] = {"label": label, "note": note}
+            return reviewed
     except (json.JSONDecodeError, OSError) as error:
         print(f"Warning: could not load reviewed file {path}: {error}", file=sys.stderr)
     return {}
@@ -1096,7 +1115,7 @@ def write_report(
     csv_path: Path,
     json_path: Path,
     limit: int,
-    reviewed: dict[str, str] | None = None,
+    reviewed: dict[str, dict[str, str]] | None = None,
 ) -> None:
     if reviewed is None:
         reviewed = {}
