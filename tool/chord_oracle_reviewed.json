@@ -63,6 +63,10 @@
     "label": "context-dependent",
     "note": "C6/9 is correct in C major; matches music21's Am/CaddD in A:min where Amadd11/C is #1; tonal-context-dependent ambiguity, not a disagreement"
   },
+  "0-2-4-9_b2": {
+    "label": "oracle-limitation",
+    "note": "D7sus2 is a complete root-position reading that explains every tone without alterations; D9(no3) is a more traditional name for the same voicing, but omission notation is outside the current vocabulary; music21's Am/D is a valid upper-structure description, while tonal's E-root altered sus reading is less direct; ChoCo has no dominant7sus2 observations"
+  },
   "0-2-5-8_b8": {
     "label": "genuine-ambiguity",
     "note": "Fm6/Ab is correct; genuine Fm6↔Dø7/Ab ambiguity with all oracles listing both; tie-breaker prefers more conventional inversion (m3 in bass over b5 in bass)"
