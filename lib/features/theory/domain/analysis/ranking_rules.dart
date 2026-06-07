@@ -46,6 +46,10 @@ final List<NamedRule> hardRules = <NamedRule>[
     'prefer complete altered dominant inversion over altered major7',
     _preferCompleteAlteredDom7InversionOverAlteredMajor7,
   ),
+  NamedRule(
+    'prefer complete dominant sharp-nine over sixth flat-nine',
+    _preferCompleteDom7Sharp9OverSixthFlat9,
+  ),
   NamedRule('prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
   NamedRule(
     'prefer conventional altered seventh over add11 slash',
@@ -207,6 +211,52 @@ int? _preferCompleteTriadOverIncompleteInvertedSixth(
 }
 
 // ---- Dominant and slash readings ---------------------------------------
+
+/// Prefers a complete dominant sharp-nine over a root-position sixth chord
+/// carrying the uncommon flat-nine color.
+///
+/// Example: {C, Eb, E, G, Bb} with Eb in the bass is C7#9/Eb, not Eb6b9.
+/// The seventh completes the conventional altered dominant; without it, the
+/// sixth-chord reading remains a genuine split-third ambiguity.
+int? _preferCompleteDom7Sharp9OverSixthFlat9(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isCompleteDom7Sharp9(a.identity, fa);
+  final bIsPreferred = _isCompleteDom7Sharp9(b.identity, fb);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  final fOther = aIsPreferred ? fb : fa;
+  if (!fOther.isRootPosition || !fOther.isSixFamily) return null;
+  if (other.identity.extensions.length != 1 ||
+      !other.identity.extensions.contains(ChordExtension.flat9)) {
+    return null;
+  }
+
+  final preferredCandidate = aIsPreferred ? a : b;
+  if (preferredCandidate.score + 0.55 < other.score) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isCompleteDom7Sharp9(ChordIdentity id, CandidateFeatures features) {
+  if (!features.isDom7) return false;
+  if (id.extensions.length != 1 ||
+      !id.extensions.contains(ChordExtension.sharp9)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.sharp9) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.flat7);
+}
 
 /// Prefers a complete altered dominant in a stable inversion over a rare
 /// root-position altered major7 reinterpretation.
