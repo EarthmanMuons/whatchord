@@ -3,15 +3,17 @@ import 'package:meta/meta.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 /// A grouping of scales in the Scale Explorer menu. Each section presents one
-/// lens on the catalog: [common] lists the practical names a musician reaches
-/// for, while [diatonicModes] lists the seven rotations of the major scale as a
-/// clean family. The major scale and natural minor therefore appear in both
-/// sections (as Major/Natural minor and Ionian/Aeolian) since they answer
-/// different questions about the same sound.
+/// lens on the catalog: [essential] lists the practical names a musician
+/// reaches for, while [diatonicModes] lists the seven rotations of the major
+/// scale as a clean family. The major scale and natural minor therefore appear
+/// in both sections (as Major/Natural minor and Ionian/Aeolian) since they
+/// answer different questions about the same sound.
 enum ScaleSection {
-  common('Common scales', properNounNames: false),
+  essential('Essential scales', properNounNames: false),
   diatonicModes('Diatonic modes', properNounNames: true),
   pentatonicAndBlues('Pentatonic and blues', properNounNames: false),
+  dominantAndAltered('Dominant and altered', properNounNames: false),
+  harmonicMajor('Harmonic major scales', properNounNames: false),
   symmetric('Symmetric scales', properNounNames: false);
 
   const ScaleSection(this.title, {required this.properNounNames});
@@ -62,22 +64,22 @@ class ScaleMenuEntry {
 const List<ScaleMenuEntry> scaleMenuEntries = [
   ScaleMenuEntry(
     label: 'Major',
-    section: ScaleSection.common,
+    section: ScaleSection.essential,
     kind: ScaleKind.major,
   ),
   ScaleMenuEntry(
     label: 'Natural minor',
-    section: ScaleSection.common,
+    section: ScaleSection.essential,
     kind: ScaleKind.aeolian,
   ),
   ScaleMenuEntry(
     label: 'Harmonic minor',
-    section: ScaleSection.common,
+    section: ScaleSection.essential,
     kind: ScaleKind.harmonicMinor,
   ),
   ScaleMenuEntry(
-    label: 'Melodic minor',
-    section: ScaleSection.common,
+    label: 'Jazz melodic minor',
+    section: ScaleSection.essential,
     kind: ScaleKind.melodicMinor,
   ),
   ScaleMenuEntry(
@@ -116,6 +118,31 @@ const List<ScaleMenuEntry> scaleMenuEntries = [
     kind: ScaleKind.locrian,
   ),
   ScaleMenuEntry(
+    label: 'Phrygian dominant',
+    section: ScaleSection.dominantAndAltered,
+    kind: ScaleKind.phrygianDominant,
+  ),
+  ScaleMenuEntry(
+    label: 'Lydian dominant',
+    section: ScaleSection.dominantAndAltered,
+    kind: ScaleKind.lydianDominant,
+  ),
+  ScaleMenuEntry(
+    label: 'Altered',
+    section: ScaleSection.dominantAndAltered,
+    kind: ScaleKind.altered,
+  ),
+  ScaleMenuEntry(
+    label: 'Harmonic major',
+    section: ScaleSection.harmonicMajor,
+    kind: ScaleKind.harmonicMajor,
+  ),
+  ScaleMenuEntry(
+    label: 'Double harmonic major',
+    section: ScaleSection.harmonicMajor,
+    kind: ScaleKind.doubleHarmonicMajor,
+  ),
+  ScaleMenuEntry(
     label: 'Major pentatonic',
     section: ScaleSection.pentatonicAndBlues,
     kind: ScaleKind.majorPentatonic,
@@ -146,6 +173,11 @@ const List<ScaleMenuEntry> scaleMenuEntries = [
     kind: ScaleKind.augmented,
   ),
   ScaleMenuEntry(
+    label: 'Augmented inverse',
+    section: ScaleSection.symmetric,
+    kind: ScaleKind.augmentedInverse,
+  ),
+  ScaleMenuEntry(
     label: 'Diminished whole-half',
     section: ScaleSection.symmetric,
     kind: ScaleKind.diminishedWholeHalf,
@@ -157,15 +189,15 @@ const List<ScaleMenuEntry> scaleMenuEntries = [
   ),
 ];
 
-/// The [ScaleSection.common] entry the explorer seeds onto for [kind]. The
+/// The [ScaleSection.essential] entry the explorer seeds onto for [kind]. The
 /// explorer seeds and reseeds onto these practical-name rows rather than their
-/// modal equivalents, so [kind] must be one that has a [ScaleSection.common]
+/// modal equivalents, so [kind] must be one that has a [ScaleSection.essential]
 /// row (the major/minor seed kinds), not an arbitrary [ScaleKind].
 ScaleMenuEntry seedScaleEntry(ScaleKind kind) => scaleMenuEntries.firstWhere(
-  (entry) => entry.section == ScaleSection.common && entry.kind == kind,
+  (entry) => entry.section == ScaleSection.essential && entry.kind == kind,
   orElse: () => throw ArgumentError.value(
     kind,
     'kind',
-    'has no ${ScaleSection.common.title} row to seed onto',
+    'has no ${ScaleSection.essential.title} row to seed onto',
   ),
 );

@@ -33,6 +33,9 @@ void main() {
         ScaleKind.locrian,
         ScaleKind.harmonicMinor,
         ScaleKind.melodicMinor,
+        ScaleKind.phrygianDominant,
+        ScaleKind.lydianDominant,
+        ScaleKind.harmonicMajor,
       ]);
     });
 
@@ -165,6 +168,57 @@ void main() {
       ]);
     });
 
+    test('dominant and altered scales use practical spellings', () {
+      expectTones(Tonic.c, ScaleKind.phrygianDominant, [
+        'C',
+        'Db',
+        'E',
+        'F',
+        'G',
+        'Ab',
+        'Bb',
+      ]);
+      expectTones(Tonic.c, ScaleKind.lydianDominant, [
+        'C',
+        'D',
+        'E',
+        'F#',
+        'G',
+        'A',
+        'Bb',
+      ]);
+      expectTones(Tonic.c, ScaleKind.altered, [
+        'C',
+        'Db',
+        'D#',
+        'E',
+        'Gb',
+        'G#',
+        'Bb',
+      ]);
+    });
+
+    test('harmonic major scales lower the sixth with clear spellings', () {
+      expectTones(Tonic.c, ScaleKind.harmonicMajor, [
+        'C',
+        'D',
+        'E',
+        'F',
+        'G',
+        'Ab',
+        'B',
+      ]);
+      expectTones(Tonic.c, ScaleKind.doubleHarmonicMajor, [
+        'C',
+        'Db',
+        'E',
+        'F',
+        'G',
+        'Ab',
+        'B',
+      ]);
+    });
+
     test('pentatonic and blues scales use skipped or repeated letters', () {
       expectTones(Tonic.c, ScaleKind.majorPentatonic, [
         'C',
@@ -222,6 +276,14 @@ void main() {
         'E',
         'E#',
         'G#',
+      ]);
+      expectTones(Tonic.c, ScaleKind.augmentedInverse, [
+        'C',
+        'Db',
+        'E',
+        'F',
+        'G#',
+        'A',
       ]);
       expectTones(Tonic.c, ScaleKind.diminishedWholeHalf, [
         'C',
@@ -308,6 +370,28 @@ void main() {
         ChordQualityToken.dominant7,
         ChordQualityToken.halfDiminished7,
         ChordQualityToken.halfDiminished7,
+      ]);
+    });
+
+    test('harmonic major triads and sevenths map cleanly', () {
+      const cHarmonicMajor = Scale(Tonic.c, ScaleKind.harmonicMajor);
+      expect(triads(cHarmonicMajor), const [
+        ChordQualityToken.major,
+        ChordQualityToken.diminished,
+        ChordQualityToken.minor,
+        ChordQualityToken.minor,
+        ChordQualityToken.major,
+        ChordQualityToken.augmented,
+        ChordQualityToken.diminished,
+      ]);
+      expect(sevenths(cHarmonicMajor), const [
+        ChordQualityToken.major7,
+        ChordQualityToken.halfDiminished7,
+        ChordQualityToken.minor7,
+        ChordQualityToken.minorMajor7,
+        ChordQualityToken.dominant7,
+        ChordQualityToken.major7Sharp5,
+        ChordQualityToken.diminished7,
       ]);
     });
   });
@@ -399,6 +483,14 @@ void main() {
         '♯5',
         '7',
       ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.augmentedInverse)), [
+        '1',
+        '♭2',
+        '3',
+        '4',
+        '♯5',
+        '6',
+      ]);
       expect(formula(const Scale(Tonic.c, ScaleKind.diminishedWholeHalf)), [
         '1',
         '2',
@@ -418,6 +510,51 @@ void main() {
         '5',
         '6',
         '♭7',
+      ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.phrygianDominant)), [
+        '1',
+        '♭2',
+        '3',
+        '4',
+        '5',
+        '♭6',
+        '♭7',
+      ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.lydianDominant)), [
+        '1',
+        '2',
+        '3',
+        '♯4',
+        '5',
+        '6',
+        '♭7',
+      ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.altered)), [
+        '1',
+        '♭2',
+        '♯2',
+        '3',
+        '♭5',
+        '♯5',
+        '♭7',
+      ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.harmonicMajor)), [
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '♭6',
+        '7',
+      ]);
+      expect(formula(const Scale(Tonic.c, ScaleKind.doubleHarmonicMajor)), [
+        '1',
+        '♭2',
+        '3',
+        '4',
+        '5',
+        '♭6',
+        '7',
       ]);
     });
 
@@ -484,14 +621,17 @@ void main() {
     }
   });
 
-  test('pentatonic and blues scales do not define tertian harmonization', () {
+  test('tone-only scales do not define tertian harmonization', () {
     for (final kind in [
+      ScaleKind.altered,
+      ScaleKind.doubleHarmonicMajor,
       ScaleKind.majorPentatonic,
       ScaleKind.minorPentatonic,
       ScaleKind.majorBlues,
       ScaleKind.minorBlues,
       ScaleKind.wholeTone,
       ScaleKind.augmented,
+      ScaleKind.augmentedInverse,
       ScaleKind.diminishedWholeHalf,
       ScaleKind.diminishedHalfWhole,
     ]) {

@@ -10,6 +10,16 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added Phrygian dominant, Lydian dominant, altered, harmonic major, double
+  harmonic major, and augmented inverse scales to Explore Scales.
+
+### Changed
+
+- Renamed melodic minor to jazz melodic minor and renamed the common scales
+  section to essential scales for clearer scale terminology.
+
 ### Fixed
 
 - Added direct double-suspension recognition so voicings such as G-A-C-D are
