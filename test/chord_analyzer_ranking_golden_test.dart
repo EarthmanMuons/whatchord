@@ -141,6 +141,17 @@ void main() {
       expectedExtensions: {ChordExtension.nine},
     ),
 
+    golden(
+      description: 'complete dominant flat-nine beats colored diminished7',
+      expectedSymbol: 'C7b9 / G',
+      pcs: ['C', 'Db', 'E', 'G', 'Bb'],
+      bass: 'G',
+      expectedRoot: 'C',
+      expectedBass: 'G',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9},
+    ),
+
     // -------------------------------------------------------------------------
     // Sixth-family ranking
     // -------------------------------------------------------------------------

@@ -5,6 +5,65 @@ import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import 'helpers/theory_test_helpers.dart';
 
 void main() {
+  test('complete dominant flat-nine beats colored diminished7', () {
+    final dominant = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'C',
+      bass: 'G',
+      presentIntervals: const {0, 1, 4, 7, 10},
+      extensions: const {ChordExtension.flat9},
+      score: 8.03,
+    );
+
+    final diminished = _candidate(
+      quality: ChordQualityToken.diminished7,
+      root: 'G',
+      bass: 'G',
+      presentIntervals: const {0, 3, 5, 6, 9},
+      extensions: const {ChordExtension.add11},
+      score: 8.25,
+    );
+
+    _expectRule(
+      dominant,
+      diminished,
+      'prefer complete dominant flat-nine over colored diminished7',
+    );
+  });
+
+  test('third-inversion dominant flat-nine does not override diminished7', () {
+    final dominant = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'C',
+      bass: 'Bb',
+      presentIntervals: const {0, 1, 4, 7, 10},
+      extensions: const {ChordExtension.flat9},
+      score: 8.03,
+    );
+
+    final diminished = _candidate(
+      quality: ChordQualityToken.diminished7,
+      root: 'Bb',
+      bass: 'Bb',
+      presentIntervals: const {0, 2, 3, 6, 9},
+      extensions: const {ChordExtension.nine},
+      score: 8.25,
+    );
+
+    const tonality = Tonality(Tonic.c, TonalityMode.major);
+    final explanation = ChordCandidateRanking.explain(
+      dominant,
+      diminished,
+      tonality: tonality,
+    );
+
+    expect(explanation.result, 1);
+    expect(
+      explanation.decidedByRule,
+      isNot('prefer complete dominant flat-nine over colored diminished7'),
+    );
+  });
+
   test('altered dominant7 beats dim7 slash outside the near-tie window', () {
     final dominant = _candidate(
       quality: ChordQualityToken.dominant7,
