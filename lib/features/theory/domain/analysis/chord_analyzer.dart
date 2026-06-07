@@ -278,6 +278,10 @@ abstract final class ChordAnalyzer {
     final optional = template.optionalMask;
     final penalty = template.penaltyMask;
 
+    if (template.requiresExactMatch && relMask != (required | optional)) {
+      return null;
+    }
+
     final missingRequiredMask = required & ~relMask;
     final presentRequiredMask = required & relMask;
     final presentOptionalMask = optional & relMask;

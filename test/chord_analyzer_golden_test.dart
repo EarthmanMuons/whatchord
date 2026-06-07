@@ -397,6 +397,18 @@ void main() {
       expectedQuality: ChordQualityToken.sus2,
     ),
 
+    golden(
+      description: 'double-suspended chord',
+      expectedSymbol: 'Csus2sus4',
+      pcs: ['C', 'D', 'F', 'G'],
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.sus2sus4,
+      expectedToneRolesByInterval: {
+        2: ChordToneRole.sus2,
+        5: ChordToneRole.sus4,
+      },
+    ),
+
     // -------------------------------------------------------------------------
     // 6th-family
     // -------------------------------------------------------------------------

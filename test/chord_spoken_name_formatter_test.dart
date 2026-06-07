@@ -72,6 +72,16 @@ void main() {
       ),
       'C sus four',
     );
+    expect(
+      spoken(
+        _identity(
+          root: 'C',
+          quality: ChordQualityToken.sus2sus4,
+          intervals: const [0, 2, 5, 7],
+        ),
+      ),
+      'C sus two sus four',
+    );
   });
 
   test('sixth chords', () {

@@ -2,7 +2,15 @@ import 'package:meta/meta.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
-enum ExploreBaseQuality { major, minor, diminished, augmented, sus2, sus4 }
+enum ExploreBaseQuality {
+  major,
+  minor,
+  diminished,
+  augmented,
+  sus2,
+  sus4,
+  sus2sus4,
+}
 
 enum ExploreSeventhKind {
   none,
@@ -64,6 +72,11 @@ class ExploreChordSpec {
       ),
       ChordQualityToken.sus4 => const ExploreChordSpec(
         baseQuality: ExploreBaseQuality.sus4,
+        seventhKind: ExploreSeventhKind.none,
+        fifthAlteration: ExploreFifthAlteration.natural,
+      ),
+      ChordQualityToken.sus2sus4 => const ExploreChordSpec(
+        baseQuality: ExploreBaseQuality.sus2sus4,
         seventhKind: ExploreSeventhKind.none,
         fifthAlteration: ExploreFifthAlteration.natural,
       ),
@@ -239,6 +252,7 @@ List<ExploreSeventhKind> availableSeventhKindsFor(
       ExploreSeventhKind.dominant7,
       ExploreSeventhKind.major7,
     ],
+    ExploreBaseQuality.sus2sus4 => const [ExploreSeventhKind.none],
   };
 }
 
@@ -266,7 +280,8 @@ List<ExploreFifthAlteration> availableFifthAlterationsFor({
     ExploreBaseQuality.diminished => const [ExploreFifthAlteration.flat],
     ExploreBaseQuality.augmented => const [ExploreFifthAlteration.sharp],
     ExploreBaseQuality.sus2 ||
-    ExploreBaseQuality.sus4 => const [ExploreFifthAlteration.natural],
+    ExploreBaseQuality.sus4 ||
+    ExploreBaseQuality.sus2sus4 => const [ExploreFifthAlteration.natural],
   };
 }
 
@@ -365,6 +380,8 @@ ChordQualityToken _qualityFromSpec({
       ChordQualityToken.dominant7sus4,
     (ExploreBaseQuality.sus4, ExploreSeventhKind.major7, _) =>
       ChordQualityToken.major7sus4,
+    (ExploreBaseQuality.sus2sus4, ExploreSeventhKind.none, _) =>
+      ChordQualityToken.sus2sus4,
     _ => ChordQualityToken.major,
   };
 }

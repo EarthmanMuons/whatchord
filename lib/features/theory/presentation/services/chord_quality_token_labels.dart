@@ -39,6 +39,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'sus2';
       case ChordQualityToken.sus4:
         return 'sus4';
+      case ChordQualityToken.sus2sus4:
+        return 'sus2sus4';
       case ChordQualityToken.major6:
         return '6';
       case ChordQualityToken.minor6:
@@ -94,6 +96,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'sus2';
       case ChordQualityToken.sus4:
         return 'sus4';
+      case ChordQualityToken.sus2sus4:
+        return 'sus2sus4';
       case ChordQualityToken.major6:
         return '6';
       case ChordQualityToken.minor6:
@@ -149,6 +153,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'suspended second';
       case ChordQualityToken.sus4:
         return 'suspended fourth';
+      case ChordQualityToken.sus2sus4:
+        return 'suspended second and fourth';
       case ChordQualityToken.major6:
         return 'major sixth';
       case ChordQualityToken.minor6:
@@ -204,6 +210,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'sus two';
       case ChordQualityToken.sus4:
         return 'sus four';
+      case ChordQualityToken.sus2sus4:
+        return 'sus two sus four';
       case ChordQualityToken.major6:
         return 'six';
       case ChordQualityToken.minor6:

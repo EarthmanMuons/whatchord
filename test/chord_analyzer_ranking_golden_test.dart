@@ -264,6 +264,21 @@ void main() {
     ),
 
     golden(
+      description: 'root-position double suspension beats dominant sus slash',
+      expectedSymbol: 'Gsus2sus4',
+      expectedAlternateSymbols: ['D7sus4 / G'],
+      pcs: ['G', 'D', 'A', 'C'],
+      bass: 'G',
+      tonality: const Tonality(Tonic.d, TonalityMode.major),
+      expectedRoot: 'G',
+      expectedQuality: ChordQualityToken.sus2sus4,
+      expectedToneRolesByInterval: {
+        2: ChordToneRole.sus2,
+        5: ChordToneRole.sus4,
+      },
+    ),
+
+    golden(
       description:
           'common altered dominant beats rarer enharmonic ninth inversion',
       expectedSymbol: 'G7#5 / A',

@@ -132,6 +132,7 @@ enum ChordQualityToken {
   augmented,
   sus2,
   sus4,
+  sus2sus4,
   major6,
   minor6,
   dominant7,
@@ -194,6 +195,7 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
     switch (this) {
       case ChordQualityToken.sus2:
       case ChordQualityToken.sus4:
+      case ChordQualityToken.sus2sus4:
       case ChordQualityToken.dominant7sus2:
       case ChordQualityToken.dominant7sus4:
       case ChordQualityToken.major7sus2:
