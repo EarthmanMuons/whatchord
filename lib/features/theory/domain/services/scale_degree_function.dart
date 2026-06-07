@@ -90,6 +90,11 @@ _Family _family(ScaleKind kind) {
     // harmonic vocabulary (its IV is major and vi is diminished), so its degrees
     // show the role name without a resolution tendency.
     ScaleKind.melodicMinor ||
+    ScaleKind.phrygianDominant ||
+    ScaleKind.lydianDominant ||
+    ScaleKind.altered ||
+    ScaleKind.harmonicMajor ||
+    ScaleKind.doubleHarmonicMajor ||
     ScaleKind.dorian ||
     ScaleKind.phrygian ||
     ScaleKind.lydian ||
@@ -101,6 +106,7 @@ _Family _family(ScaleKind kind) {
     ScaleKind.minorBlues ||
     ScaleKind.wholeTone ||
     ScaleKind.augmented ||
+    ScaleKind.augmentedInverse ||
     ScaleKind.diminishedWholeHalf ||
     ScaleKind.diminishedHalfWhole => _Family.modal,
   };

@@ -27,7 +27,7 @@ import '../widgets/scale_tone_strip.dart';
 enum _ScaleView { scales, chords }
 
 const _chordHarmonyUnavailableMessage =
-    'Diatonic chords are available for seven-note scales.';
+    'Chords are not available for this scale.';
 
 class ScaleExplorerPage extends ConsumerStatefulWidget {
   const ScaleExplorerPage({
