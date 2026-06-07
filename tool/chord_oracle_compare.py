@@ -162,8 +162,10 @@ class Music21Oracle(Oracle):
             # note. Keep the requested bass below the other pitch classes so
             # slash-chord comparisons use the same bass as WhatChord.
             c = chord.Chord(_music21_voicing(notes, bass))
-            symbol = harmony.chordSymbolFromChord(c)
-            figure = str(getattr(symbol, "figure", "") or "")
+            # Use the generated figure directly. chordSymbolFromChord reparses
+            # this figure and can reject music21's own output, such as
+            # "GsusaddF,omitD", by treating the suffix as a root accidental.
+            figure = str(harmony.chordSymbolFigureFromChord(c) or "")
             if figure == "Chord Symbol Cannot Be Identified":
                 return OracleResult("ok")
             return OracleResult("ok", (figure,))
@@ -806,6 +808,16 @@ def degrees_from_quality(
     if not value:
         return {"3", "5"} if base_only else set()
 
+    absolute_omit_intervals = {
+        (pc - root_pc) % 12
+        for pc in (
+            pitch_class_number(match.group(1))
+            for match in re.finditer(r"omit([A-Ga-g](?:#{1,2}|b{1,2})?)", value)
+        )
+        if pc is not None
+    }
+    value = re.sub(r"omit[A-Ga-g](?:#{1,2}|b{1,2})?", "", value)
+
     absolute_adds = {
         degree_from_interval((pc - root_pc) % 12, prefer_extensions=True)
         for pc in (
@@ -865,6 +877,11 @@ def degrees_from_quality(
         degrees.update(base_degrees(compact))
 
     degrees.update(extension_degrees(compact, has_third=has_third(degrees)))
+    degrees = {
+        degree
+        for degree in degrees
+        if DEGREE_TO_INTERVAL.get(degree) not in absolute_omit_intervals
+    }
     return {degree for degree in degrees if degree}
 
 
