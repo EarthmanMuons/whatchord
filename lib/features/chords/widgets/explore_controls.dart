@@ -93,23 +93,24 @@ class ExploreControls extends StatelessWidget {
                     onFifthAlterationChanged: onFifthAlterationChanged,
                   ),
                 ),
-              SizedBox(
-                width: controlWidth,
-                child: _ExtensionBuilder(
-                  groups: extensionGroups,
-                  selectedExtensions: state.extensions,
-                  onChoiceSelected: (group, choice) {
-                    onExtensionsChanged(
-                      selectExploreExtensionChoice(
-                        quality: state.quality,
-                        currentExtensions: state.extensions,
-                        group: group,
-                        choice: choice,
-                      ),
-                    );
-                  },
+              if (extensionGroups.isNotEmpty)
+                SizedBox(
+                  width: controlWidth,
+                  child: _ExtensionBuilder(
+                    groups: extensionGroups,
+                    selectedExtensions: state.extensions,
+                    onChoiceSelected: (group, choice) {
+                      onExtensionsChanged(
+                        selectExploreExtensionChoice(
+                          quality: state.quality,
+                          currentExtensions: state.extensions,
+                          group: group,
+                          choice: choice,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
               SizedBox(
                 width: controlWidth,
                 child: _BassSelector(
