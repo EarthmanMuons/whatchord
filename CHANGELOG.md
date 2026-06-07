@@ -22,6 +22,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Fixed complete dominant flat-nine inversions such as C7b9/G being ranked
+  below less conventional diminished-seventh add-tone interpretations.
 - Added direct double-suspension recognition so voicings such as G-A-C-D are
   identified as Gsus2sus4 instead of a remote dominant-sus slash chord.
 - Fixed complete altered dominant chords over a color-tone bass, such as G7#5/A,

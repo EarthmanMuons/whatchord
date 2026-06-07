@@ -1,6 +1,7 @@
 import '../models/chord_candidate.dart';
 import '../models/chord_extension.dart';
 import '../models/chord_identity.dart';
+import '../models/chord_tone_role.dart';
 import '../models/scale_degree.dart';
 import '../models/tonality.dart';
 import 'candidate_features.dart';
@@ -37,6 +38,10 @@ class NamedRule {
 /// A hard rule can promote a lower-scoring reading to the top, so each is
 /// deliberately narrow and guarded.
 final List<NamedRule> hardRules = <NamedRule>[
+  NamedRule(
+    'prefer complete dominant flat-nine over colored diminished7',
+    _preferCompleteDom7Flat9OverColoredDim7,
+  ),
   NamedRule('prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
   NamedRule(
     'prefer conventional altered seventh over add11 slash',
@@ -198,6 +203,53 @@ int? _preferCompleteTriadOverIncompleteInvertedSixth(
 }
 
 // ---- Dominant and slash readings ---------------------------------------
+
+/// Prefers a complete dominant flat-nine in a stable inversion over a
+/// diminished7 reading that needs an added or altered color tone.
+///
+/// Example: {C, Db, E, G, Bb} with G in the bass is normally C7b9/G, not
+/// Gdim7(add11). The dominant reading names a complete, conventional chord;
+/// the diminished reading respells E as Fb and treats C as added color.
+///
+/// Keep this bounded to root, first, and second inversion. With the dominant
+/// seventh or a color tone in the bass, the diminished interpretation can be
+/// the clearer reading.
+int? _preferCompleteDom7Flat9OverColoredDim7(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isCompleteDom7Flat9(a.identity, fa);
+  final bIsPreferred = _isCompleteDom7Flat9(b.identity, fb);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final fDim = aIsPreferred ? fb : fa;
+  if (!fDim.isDim7 || fDim.extensionCount == 0) return null;
+
+  final preferredCandidate = aIsPreferred ? a : b;
+  final otherCandidate = aIsPreferred ? b : a;
+  if (preferredCandidate.score + 0.55 < otherCandidate.score) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isCompleteDom7Flat9(ChordIdentity id, CandidateFeatures features) {
+  if (!features.isDom7) return false;
+  if (features.bassRoleRank > 2) return false;
+  if (id.extensions.length != 1 ||
+      !id.extensions.contains(ChordExtension.flat9)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.flat9) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.flat7);
+}
 
 /// Resolves C7#9 vs Eb°7 ambiguity by preferring the dominant reading when:
 /// - Dominant is in root position with shell tones (3rd + b7) present
