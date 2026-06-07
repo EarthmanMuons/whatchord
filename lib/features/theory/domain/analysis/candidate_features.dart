@@ -29,6 +29,7 @@ class CandidateFeatures {
   final bool isRootDominantSus;
   final bool isRootPositionNaturalAddChord;
   final bool isStructurallyDeficient;
+  final bool isUnusualSeventhQuality;
 
   final bool isDom7;
   final bool isAlteredFifthDom7;
@@ -37,16 +38,23 @@ class CandidateFeatures {
   final bool isDom7Slash;
   final bool dom7HasShell;
   final bool dom7SlashHasNonBassAlterations;
+  final bool isCompleteDominantFlat9;
+  final bool isCompleteDominantSharp9;
+  final bool isCompleteAlteredFifthDominant;
 
   final bool isSlashBass;
   final int bassRoleRank;
   final bool bassIsColorTone;
+  final bool hasStableBassRole;
 
   final int extensionCount;
   final int extensionTensionCount;
   final bool isQuestionableAdd11Slash;
   final ExtensionPreference extPref;
   final bool hasRealExt;
+  final bool hasAlteredColor;
+  final bool hasNaturalOrAlteredColor;
+  final bool hasOnlyAddColor;
   final int unnamedToneCount;
 
   const CandidateFeatures({
@@ -68,6 +76,7 @@ class CandidateFeatures {
     required this.isRootDominantSus,
     required this.isRootPositionNaturalAddChord,
     required this.isStructurallyDeficient,
+    required this.isUnusualSeventhQuality,
     required this.isDom7,
     required this.isAlteredFifthDom7,
     required this.isFlatFiveDom7,
@@ -75,14 +84,21 @@ class CandidateFeatures {
     required this.isDom7Slash,
     required this.dom7HasShell,
     required this.dom7SlashHasNonBassAlterations,
+    required this.isCompleteDominantFlat9,
+    required this.isCompleteDominantSharp9,
+    required this.isCompleteAlteredFifthDominant,
     required this.isSlashBass,
     required this.bassRoleRank,
     required this.bassIsColorTone,
+    required this.hasStableBassRole,
     required this.extensionCount,
     required this.extensionTensionCount,
     required this.isQuestionableAdd11Slash,
     required this.extPref,
     required this.hasRealExt,
+    required this.hasAlteredColor,
+    required this.hasNaturalOrAlteredColor,
+    required this.hasOnlyAddColor,
     required this.unnamedToneCount,
   });
 
@@ -93,6 +109,7 @@ class CandidateFeatures {
     final rootPos = id.rootPc == id.bassPc;
     final pref = extensionPreference(id.extensions);
     final realExt = (pref.naturalCount + pref.alterationCount) > 0;
+    final bassRoleRank = _bassRoleRank(id);
 
     final isDim7 = q == ChordQualityToken.diminished7;
     final isDimFamily = isDim7 || q == ChordQualityToken.halfDiminished7;
@@ -141,6 +158,7 @@ class CandidateFeatures {
           pref.alterationCount == 0 &&
           pref.naturalCount == 0,
       isStructurallyDeficient: _isStructurallyDeficient(id, rootPos),
+      isUnusualSeventhQuality: _isUnusualSeventhQuality(q),
       isDom7: isDom7,
       isAlteredFifthDom7: isAlteredFifthDom7,
       isFlatFiveDom7: isFlatFiveDom7,
@@ -148,9 +166,25 @@ class CandidateFeatures {
       isDom7Slash: isDom7Slash,
       dom7HasShell: dom7HasShell,
       dom7SlashHasNonBassAlterations: dom7SlashHasNonBassAlterations,
+      isCompleteDominantFlat9: _isCompleteDominantWithAlteration(
+        id,
+        quality: ChordQualityToken.dominant7,
+        alteration: ChordExtension.flat9,
+        alterationRole: ChordToneRole.flat9,
+        fifthRole: ChordToneRole.perfect5,
+      ),
+      isCompleteDominantSharp9: _isCompleteDominantWithAlteration(
+        id,
+        quality: ChordQualityToken.dominant7,
+        alteration: ChordExtension.sharp9,
+        alterationRole: ChordToneRole.sharp9,
+        fifthRole: ChordToneRole.perfect5,
+      ),
+      isCompleteAlteredFifthDominant: _isCompleteAlteredFifthDominant(id),
       isSlashBass: isSlashBass,
-      bassRoleRank: _bassRoleRank(id),
+      bassRoleRank: bassRoleRank,
       bassIsColorTone: bassIsColorTone,
+      hasStableBassRole: bassRoleRank <= 2,
       extensionCount: id.extensions.length,
       extensionTensionCount: _extensionTensionCount(pref, hasMaj3Nat11),
       isQuestionableAdd11Slash: _isQuestionableAdd11Slash(
@@ -160,9 +194,64 @@ class CandidateFeatures {
       ),
       extPref: pref,
       hasRealExt: realExt,
+      hasAlteredColor: pref.alterationCount > 0,
+      hasNaturalOrAlteredColor: (pref.naturalCount + pref.alterationCount) > 0,
+      hasOnlyAddColor:
+          pref.addCount > 0 &&
+          pref.alterationCount == 0 &&
+          pref.naturalCount == 0,
       unnamedToneCount:
           popCount(id.presentIntervalsMask) - id.toneRolesByInterval.length,
     );
+  }
+
+  static bool _isCompleteDominantWithAlteration(
+    ChordIdentity id, {
+    required ChordQualityToken quality,
+    required ChordExtension alteration,
+    required ChordToneRole alterationRole,
+    required ChordToneRole fifthRole,
+  }) {
+    if (id.quality != quality) return false;
+    if (id.extensions.length != 1 || !id.extensions.contains(alteration)) {
+      return false;
+    }
+
+    final roles = id.toneRolesByInterval.values;
+    return roles.contains(ChordToneRole.root) &&
+        roles.contains(alterationRole) &&
+        roles.contains(ChordToneRole.major3) &&
+        roles.contains(fifthRole) &&
+        roles.contains(ChordToneRole.flat7);
+  }
+
+  static bool _isCompleteAlteredFifthDominant(ChordIdentity id) {
+    final quality = id.quality;
+    if (quality != ChordQualityToken.dominant7Flat5 &&
+        quality != ChordQualityToken.dominant7Sharp5) {
+      return false;
+    }
+
+    final roles = id.toneRolesByInterval.values;
+    final hasAlteredFifth =
+        roles.contains(ChordToneRole.flat5) ||
+        roles.contains(ChordToneRole.sharp5);
+    return roles.contains(ChordToneRole.root) &&
+        roles.contains(ChordToneRole.major3) &&
+        hasAlteredFifth &&
+        roles.contains(ChordToneRole.flat7);
+  }
+
+  static bool _isUnusualSeventhQuality(ChordQualityToken quality) {
+    return quality == ChordQualityToken.minor7Sharp5 ||
+        quality == ChordQualityToken.dominant7sus2 ||
+        quality == ChordQualityToken.dominant7sus4 ||
+        quality == ChordQualityToken.dominant7Flat5 ||
+        quality == ChordQualityToken.dominant7Sharp5 ||
+        quality == ChordQualityToken.major7sus2 ||
+        quality == ChordQualityToken.major7sus4 ||
+        quality == ChordQualityToken.major7Flat5 ||
+        quality == ChordQualityToken.major7Sharp5;
   }
 
   static bool _isCompleteMinorSharp11(ChordIdentity id) {

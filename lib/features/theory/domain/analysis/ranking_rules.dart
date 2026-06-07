@@ -1,7 +1,6 @@
 import '../models/chord_candidate.dart';
 import '../models/chord_extension.dart';
 import '../models/chord_identity.dart';
-import '../models/chord_tone_role.dart';
 import '../models/scale_degree.dart';
 import '../models/tonality.dart';
 import 'candidate_features.dart';
@@ -225,8 +224,8 @@ int? _preferCompleteDom7Sharp9OverSixthFlat9(
   CandidateFeatures fb,
   Tonality _,
 ) {
-  final aIsPreferred = _isCompleteDom7Sharp9(a.identity, fa);
-  final bIsPreferred = _isCompleteDom7Sharp9(b.identity, fb);
+  final aIsPreferred = fa.isCompleteDominantSharp9;
+  final bIsPreferred = fb.isCompleteDominantSharp9;
   if (aIsPreferred == bIsPreferred) return null;
 
   final other = aIsPreferred ? b : a;
@@ -243,21 +242,6 @@ int? _preferCompleteDom7Sharp9OverSixthFlat9(
   return aIsPreferred ? -1 : 1;
 }
 
-bool _isCompleteDom7Sharp9(ChordIdentity id, CandidateFeatures features) {
-  if (!features.isDom7) return false;
-  if (id.extensions.length != 1 ||
-      !id.extensions.contains(ChordExtension.sharp9)) {
-    return false;
-  }
-
-  final roles = id.toneRolesByInterval.values;
-  return roles.contains(ChordToneRole.root) &&
-      roles.contains(ChordToneRole.sharp9) &&
-      roles.contains(ChordToneRole.major3) &&
-      roles.contains(ChordToneRole.perfect5) &&
-      roles.contains(ChordToneRole.flat7);
-}
-
 /// Prefers a complete altered dominant in a stable inversion over a rare
 /// root-position altered major7 reinterpretation.
 ///
@@ -272,8 +256,16 @@ int? _preferCompleteAlteredDom7InversionOverAlteredMajor7(
   CandidateFeatures fb,
   Tonality _,
 ) {
-  final aIsPreferred = _isCompleteAlteredDom7Inversion(a.identity, fa);
-  final bIsPreferred = _isCompleteAlteredDom7Inversion(b.identity, fb);
+  final aIsPreferred =
+      fa.isCompleteAlteredFifthDominant &&
+      fa.isSlashBass &&
+      fa.hasStableBassRole &&
+      fa.hasAlteredColor;
+  final bIsPreferred =
+      fb.isCompleteAlteredFifthDominant &&
+      fb.isSlashBass &&
+      fb.hasStableBassRole &&
+      fb.hasAlteredColor;
   if (aIsPreferred == bIsPreferred) return null;
 
   final other = aIsPreferred ? b : a;
@@ -289,24 +281,6 @@ int? _preferCompleteAlteredDom7InversionOverAlteredMajor7(
   if (preferredCandidate.score + 0.55 < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
-}
-
-bool _isCompleteAlteredDom7Inversion(
-  ChordIdentity id,
-  CandidateFeatures features,
-) {
-  if (!features.isAlteredFifthDom7 || !features.isSlashBass) return false;
-  if (features.bassRoleRank > 2) return false;
-  if (features.extPref.alterationCount == 0) return false;
-
-  final roles = id.toneRolesByInterval.values;
-  final hasAlteredFifth =
-      roles.contains(ChordToneRole.flat5) ||
-      roles.contains(ChordToneRole.sharp5);
-  return roles.contains(ChordToneRole.root) &&
-      roles.contains(ChordToneRole.major3) &&
-      hasAlteredFifth &&
-      roles.contains(ChordToneRole.flat7);
 }
 
 /// Prefers a complete dominant flat-nine in a stable inversion over a
@@ -326,8 +300,8 @@ int? _preferCompleteDom7Flat9OverColoredDim7(
   CandidateFeatures fb,
   Tonality _,
 ) {
-  final aIsPreferred = _isCompleteDom7Flat9(a.identity, fa);
-  final bIsPreferred = _isCompleteDom7Flat9(b.identity, fb);
+  final aIsPreferred = fa.isCompleteDominantFlat9 && fa.hasStableBassRole;
+  final bIsPreferred = fb.isCompleteDominantFlat9 && fb.hasStableBassRole;
   if (aIsPreferred == bIsPreferred) return null;
 
   final fDim = aIsPreferred ? fb : fa;
@@ -338,22 +312,6 @@ int? _preferCompleteDom7Flat9OverColoredDim7(
   if (preferredCandidate.score + 0.55 < otherCandidate.score) return null;
 
   return aIsPreferred ? -1 : 1;
-}
-
-bool _isCompleteDom7Flat9(ChordIdentity id, CandidateFeatures features) {
-  if (!features.isDom7) return false;
-  if (features.bassRoleRank > 2) return false;
-  if (id.extensions.length != 1 ||
-      !id.extensions.contains(ChordExtension.flat9)) {
-    return false;
-  }
-
-  final roles = id.toneRolesByInterval.values;
-  return roles.contains(ChordToneRole.root) &&
-      roles.contains(ChordToneRole.flat9) &&
-      roles.contains(ChordToneRole.major3) &&
-      roles.contains(ChordToneRole.perfect5) &&
-      roles.contains(ChordToneRole.flat7);
 }
 
 /// Resolves C7#9 vs Eb°7 ambiguity by preferring the dominant reading when:
@@ -390,9 +348,7 @@ int? _preferAlteredDom7(
   // Require that the dominant is actually "doing something dominant-ish",
   // i.e. it has at least one real extension/alteration.
   // This is what keeps plain C7 from always beating (say) Cdim7 contexts.
-  final domHasColor =
-      (fDom.extPref.naturalCount + fDom.extPref.alterationCount) > 0;
-  if (!domHasColor) return null;
+  if (!fDom.hasNaturalOrAlteredColor) return null;
 
   // If all of the above holds: prefer dominant7 interpretation.
   return domIsA ? -1 : 1;
@@ -671,9 +627,7 @@ int? _preferDom7RootOverNonDomSlash(
   if (fOther.isAlteredFifthDom7) return null;
 
   // Ensure the dominant reading is not "plain"; it should have some color.
-  final domHasColor =
-      (fDom.extPref.naturalCount + fDom.extPref.alterationCount) > 0;
-  if (!domHasColor) return null;
+  if (!fDom.hasNaturalOrAlteredColor) return null;
 
   if (domCandidate.score + 0.25 < otherCandidate.score) return null;
 
@@ -764,9 +718,7 @@ int? _preferRootAlteredFifthDom7(
 
   if (!fRoot.dom7HasShell || !fSlash.dom7HasShell) return null;
 
-  final rootHasAlteration = fRoot.extPref.alterationCount > 0;
-  final slashHasOnlyAddOrNaturalColor = fSlash.extPref.alterationCount == 0;
-  if (!rootHasAlteration || !slashHasOnlyAddOrNaturalColor) return null;
+  if (!fRoot.hasAlteredColor || fSlash.hasAlteredColor) return null;
 
   if (rootCandidate.score + 0.50 < slashCandidate.score) return null;
 
@@ -931,17 +883,9 @@ int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
   // add-tone extension (and no alterations or stacked natural extensions).
   // Covers major, minor, augmented, and diminished triads.
   final aIsTriadAddTone =
-      !fa.isSeventhFamily &&
-      !fa.isSus &&
-      fa.extPref.addCount > 0 &&
-      fa.extPref.alterationCount == 0 &&
-      fa.extPref.naturalCount == 0;
+      !fa.isSeventhFamily && !fa.isSus && fa.hasOnlyAddColor;
   final bIsTriadAddTone =
-      !fb.isSeventhFamily &&
-      !fb.isSus &&
-      fb.extPref.addCount > 0 &&
-      fb.extPref.alterationCount == 0 &&
-      fb.extPref.naturalCount == 0;
+      !fb.isSeventhFamily && !fb.isSus && fb.hasOnlyAddColor;
   if (aIsTriadAddTone == bIsTriadAddTone) return null;
 
   // The other must be a seventh-family chord with an unusual quality
@@ -949,11 +893,8 @@ int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
   // inversion with no extensions at all. Standard qualities like plain
   // dominant7, minor7, or major7 should not be overridden by this rule.
   final fOther = aIsTriadAddTone ? fb : fa;
-  final otherQuality = aIsTriadAddTone
-      ? b.identity.quality
-      : a.identity.quality;
   if (!fOther.isSeventhFamily) return null;
-  if (!_isUnusualSeventhQuality(otherQuality)) return null;
+  if (!fOther.isUnusualSeventhQuality) return null;
   if (fOther.extPref.totalCount > 0) return null;
   if (fOther.isRootPosition) return null;
 
@@ -964,18 +905,6 @@ int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
   if (preferredCandidate.score + 1.50 < otherCandidate.score) return null;
 
   return aIsTriadAddTone ? -1 : 1;
-}
-
-bool _isUnusualSeventhQuality(ChordQualityToken quality) {
-  return quality == ChordQualityToken.minor7Sharp5 ||
-      quality == ChordQualityToken.dominant7sus2 ||
-      quality == ChordQualityToken.dominant7sus4 ||
-      quality == ChordQualityToken.dominant7Flat5 ||
-      quality == ChordQualityToken.dominant7Sharp5 ||
-      quality == ChordQualityToken.major7sus2 ||
-      quality == ChordQualityToken.major7sus4 ||
-      quality == ChordQualityToken.major7Flat5 ||
-      quality == ChordQualityToken.major7Sharp5;
 }
 
 /// Prefers a complete major/minor triad carrying only natural/add color over
