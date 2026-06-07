@@ -511,7 +511,8 @@ abstract final class ChordAnalyzer {
     required int bassInterval,
   }) {
     final quality = template.quality;
-    if (bassInterval == 0 && _isSplitThirdMajorQuality(quality, relMask)) {
+    if (_supportsSplitThirdMajorFamilyVoicing(bassInterval, relMask) &&
+        _isSplitThirdMajorQuality(quality, relMask)) {
       return 1 << minorThirdInterval;
     }
 
@@ -532,6 +533,19 @@ abstract final class ChordAnalyzer {
         1 << minorThirdInterval; // same interval, dominant function
     if ((relMask & sharpNineBit) == 0) return 0;
     return sharpNineBit;
+  }
+
+  static bool _supportsSplitThirdMajorFamilyVoicing(
+    int bassInterval,
+    int relMask,
+  ) {
+    if (bassInterval == 0) return true;
+
+    final isConventionalInversion =
+        bassInterval == majorThirdInterval ||
+        bassInterval == perfectFifthInterval;
+    final hasPerfectFifth = (relMask & (1 << perfectFifthInterval)) != 0;
+    return isConventionalInversion && hasPerfectFifth;
   }
 
   static bool _allowsAddSharpNine(ChordQualityToken quality) {

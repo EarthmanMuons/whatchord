@@ -55,6 +55,29 @@ void main() {
     ),
 
     golden(
+      description: 'split-third major triad in second inversion',
+      expectedSymbol: 'Aadd#9 / E',
+      expectedAlternateSymbols: ['C#m(maj7)b13 / E', 'C6b9 / E'],
+      pcs: ['C', 'Db', 'E', 'A'],
+      bass: 'E',
+      expectedRoot: 'A',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.addSharp9},
+      expectedToneRolesByInterval: {3: ChordToneRole.splitMinor3},
+    ),
+
+    golden(
+      description: 'split-third color bass does not become major inversion',
+      expectedSymbol: 'C6b9',
+      pcs: ['C', 'Db', 'E', 'A'],
+      bass: 'C',
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major6,
+      expectedExtensions: {ChordExtension.flat9},
+    ),
+
+    golden(
       description: 'straight dominant seventh',
       expectedSymbol: 'C7',
       pcs: ['C', 'E', 'G', 'Bb'],
