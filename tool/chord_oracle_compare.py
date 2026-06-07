@@ -23,6 +23,7 @@ import shutil
 import subprocess
 import sys
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -39,6 +40,7 @@ DEFAULT_CASE_ORDER = "random"
 DEFAULT_MAX_CASES = 200
 DEFAULT_TOP = 4
 DEFAULT_REPORT_LIMIT = 50
+DEFAULT_JOBS = 8
 REVIEW_FLAG_EXPLANATIONS = {
     "disagreement": "Comparable oracle labels were available, but none matched WhatChord's top label.",
     "oracle-split": "As many or more oracles disagreed with WhatChord as agreed.",
@@ -304,9 +306,17 @@ def main() -> int:
         choices=DEFAULT_ORACLES,
         default=list(DEFAULT_ORACLES),
     )
+    parser.add_argument(
+        "--jobs",
+        type=int,
+        default=DEFAULT_JOBS,
+        help="Number of cases to analyze concurrently.",
+    )
     parser.add_argument("--out-dir", type=Path, default=Path("build/oracle-compare"))
     parser.add_argument("--chord-debug", type=Path, default=Path("bin/chord-debug"))
     args = parser.parse_args()
+    if args.jobs < 1:
+        parser.error("--jobs must be at least 1")
 
     repo_root = Path(__file__).resolve().parents[1]
     chord_debug = args.chord_debug
@@ -353,6 +363,7 @@ def main() -> int:
         "generated_cases": len(generated_cases),
         "selected_cases": len(cases),
         "max_cases": args.max_cases,
+        "jobs": args.jobs,
     }
     reproduce_command = reproduction_command(
         case_generation=case_generation,
@@ -360,16 +371,46 @@ def main() -> int:
         top=args.top,
         report_limit=args.report_limit,
         oracles=[oracle.name for oracle in oracles],
+        jobs=args.jobs,
     )
 
-    for case in cases:
-        what = run_whatchord(chord_debug, case, top=args.top)
-        oracle_notes, oracle_bass = oracle_input_from_whatchord(what, fallback=case)
-        oracle_results = {
-            oracle.name: oracle.detect(oracle_notes, oracle_bass) for oracle in oracles
-        }
-        row = build_row(case, what, oracle_results)
-        rows.append(row)
+    with ThreadPoolExecutor(max_workers=args.jobs) as executor:
+        whats = list(
+            executor.map(
+                lambda case: run_whatchord(chord_debug, case, top=args.top),
+                cases,
+            )
+        )
+        oracle_inputs = [
+            oracle_input_from_whatchord(what, fallback=case)
+            for case, what in zip(cases, whats)
+        ]
+        oracle_results_by_case: list[dict[str, OracleResult]] = [
+            {} for _ in cases
+        ]
+        for oracle in oracles:
+            # music21 mutates shared module state while identifying symbols, so
+            # preserve input order for deterministic results.
+            if oracle.name == Music21Oracle.name:
+                results = [
+                    oracle.detect(notes, bass) for notes, bass in oracle_inputs
+                ]
+            else:
+                results = list(
+                    executor.map(
+                        lambda input_data: oracle.detect(*input_data),
+                        oracle_inputs,
+                    )
+                )
+            for case_results, result in zip(oracle_results_by_case, results):
+                case_results[oracle.name] = result
+
+    rows = [
+        build_row(case, what, oracle_results)
+        for case, what, oracle_results in zip(cases, whats, oracle_results_by_case)
+    ]
+
+    for row in rows:
         summary[row["review_flag"]] += 1
 
     csv_path = args.out_dir / "chord_oracle_comparison.csv"
@@ -466,6 +507,7 @@ def reproduction_command(
     top: int,
     report_limit: int,
     oracles: list[str],
+    jobs: int,
 ) -> str:
     args = [
         "mise",
@@ -489,6 +531,8 @@ def reproduction_command(
         args.append(f"--top={top}")
     if report_limit != DEFAULT_REPORT_LIMIT:
         args.append(f"--report-limit={report_limit}")
+    if jobs != DEFAULT_JOBS:
+        args.append(f"--jobs={jobs}")
     if case_generation["all_transpositions"]:
         args.append("--all-transpositions")
     if not case_generation["include_practical_seeds"]:
