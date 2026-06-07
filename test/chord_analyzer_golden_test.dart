@@ -469,7 +469,9 @@ void main() {
       expectedExtensions: {ChordExtension.nine},
     ),
 
-    // Diminished seventh with color tones: verify extension mapping stays stable.
+    // Diminished seventh with color tones: verify extension mapping stays stable
+    // unless the same pitch set forms a complete dominant flat-nine in a stable
+    // inversion.
     golden(
       description: 'diminished seventh with added ninth',
       expectedSymbol: 'Cdim7(add9)',
@@ -479,20 +481,22 @@ void main() {
       expectedExtensions: {ChordExtension.nine},
     ),
     golden(
-      description: 'diminished seventh with added eleventh',
-      expectedSymbol: 'Cdim7(add11)',
+      description: 'complete dominant flat-nine beats diminished add-eleventh',
+      expectedSymbol: 'F7b9 / C',
       pcs: ['C', 'Eb', 'Gb', 'A', 'F'],
-      expectedRoot: 'C',
-      expectedQuality: ChordQualityToken.diminished7,
-      expectedExtensions: {ChordExtension.add11},
+      expectedRoot: 'F',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9},
     ),
     golden(
-      description: 'diminished seventh with flat thirteenth',
-      expectedSymbol: 'Cdim7(b13)',
+      description: 'complete dominant flat-nine beats diminished flat-thirteen',
+      expectedSymbol: 'G#7b9 / B#',
       pcs: ['C', 'Eb', 'Gb', 'A', 'Ab'],
-      expectedRoot: 'C',
-      expectedQuality: ChordQualityToken.diminished7,
-      expectedExtensions: {ChordExtension.flat13},
+      expectedRoot: 'G#',
+      expectedBass: 'B#',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9},
     ),
     golden(
       description: 'diminished seventh with flat ninth',
