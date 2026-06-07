@@ -42,6 +42,10 @@ final List<NamedRule> hardRules = <NamedRule>[
     'prefer complete dominant flat-nine over colored diminished7',
     _preferCompleteDom7Flat9OverColoredDim7,
   ),
+  NamedRule(
+    'prefer complete altered dominant inversion over altered major7',
+    _preferCompleteAlteredDom7InversionOverAlteredMajor7,
+  ),
   NamedRule('prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
   NamedRule(
     'prefer conventional altered seventh over add11 slash',
@@ -203,6 +207,57 @@ int? _preferCompleteTriadOverIncompleteInvertedSixth(
 }
 
 // ---- Dominant and slash readings ---------------------------------------
+
+/// Prefers a complete altered dominant in a stable inversion over a rare
+/// root-position altered major7 reinterpretation.
+///
+/// Example: {A, C, C#, F, G} with C# in the bass is A7#5#9/C#, not
+/// C#maj7b5b13 or Dbmaj7#5#11. The dominant reading is a conventional altered
+/// chord in first inversion; the major7 readings each combine an altered fifth
+/// quality with an additional alteration.
+int? _preferCompleteAlteredDom7InversionOverAlteredMajor7(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isCompleteAlteredDom7Inversion(a.identity, fa);
+  final bIsPreferred = _isCompleteAlteredDom7Inversion(b.identity, fb);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  final fOther = aIsPreferred ? fb : fa;
+  if (!fOther.isRootPosition) return null;
+  if (other.identity.quality != ChordQualityToken.major7Flat5 &&
+      other.identity.quality != ChordQualityToken.major7Sharp5) {
+    return null;
+  }
+  if (fOther.extensionTensionCount == 0) return null;
+
+  final preferredCandidate = aIsPreferred ? a : b;
+  if (preferredCandidate.score + 0.55 < other.score) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isCompleteAlteredDom7Inversion(
+  ChordIdentity id,
+  CandidateFeatures features,
+) {
+  if (!features.isAlteredFifthDom7 || !features.isSlashBass) return false;
+  if (features.bassRoleRank > 2) return false;
+  if (features.extPref.alterationCount == 0) return false;
+
+  final roles = id.toneRolesByInterval.values;
+  final hasAlteredFifth =
+      roles.contains(ChordToneRole.flat5) ||
+      roles.contains(ChordToneRole.sharp5);
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      hasAlteredFifth &&
+      roles.contains(ChordToneRole.flat7);
+}
 
 /// Prefers a complete dominant flat-nine in a stable inversion over a
 /// diminished7 reading that needs an added or altered color tone.
