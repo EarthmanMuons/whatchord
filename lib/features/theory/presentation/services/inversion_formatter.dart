@@ -60,6 +60,9 @@ abstract final class InversionFormatter {
       case ChordQualityToken.sus4:
         return const {0, 5, 7}; // 1, 4, 5
 
+      case ChordQualityToken.sus2sus4:
+        return const {0, 2, 5, 7}; // 1, 2, 4, 5
+
       // Seventh-family (include the seventh as core)
       case ChordQualityToken.dominant7:
         return const {0, 4, 7, 10}; // 1, 3, 5, b7

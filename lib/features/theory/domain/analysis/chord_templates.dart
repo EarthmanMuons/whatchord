@@ -32,16 +32,21 @@ class ChordTemplate {
   /// Intervals that strongly contradict this quality (penalty, not hard forbid).
   final int penaltyMask;
 
+  /// Whether the observed pitch classes must exactly match the base template.
+  final bool requiresExactMatch;
+
   const ChordTemplate({
     required this.quality,
     required this.requiredMask,
     this.optionalMask = 0,
     this.penaltyMask = 0,
+    this.requiresExactMatch = false,
   });
 
   ChordTemplate.fromIntervals(
     ChordQualityIntervals intervals, {
     required this.penaltyMask,
+    this.requiresExactMatch = false,
   }) : quality = intervals.quality,
        requiredMask = intervals.templateRequiredMask,
        optionalMask = intervals.omittableMask;
@@ -167,6 +172,15 @@ final chordTemplates = <ChordTemplate>[
         (1 << majorThirdInterval) |
         (1 << minorSeventhInterval) |
         (1 << majorSeventhInterval),
+  ),
+
+  // Sus2sus4: R + M2 + P4 + P5
+  // - Both suspended tones replace the third
+  // - Exact match prevents incomplete or extended double-sus readings
+  ChordTemplate.fromIntervals(
+    ChordQualityToken.sus2sus4.intervals,
+    penaltyMask: 0,
+    requiresExactMatch: true,
   ),
 
   // Major 6th: R + M3 + (P5) + 6

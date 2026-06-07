@@ -421,6 +421,7 @@ String _baseQualityLabel(ExploreBaseQuality quality) {
     ExploreBaseQuality.augmented => 'aug',
     ExploreBaseQuality.sus2 => 'sus2',
     ExploreBaseQuality.sus4 => 'sus4',
+    ExploreBaseQuality.sus2sus4 => 'sus2/4',
   };
 }
 
@@ -432,6 +433,7 @@ String _baseQualitySemanticLabel(ExploreBaseQuality quality) {
     ExploreBaseQuality.augmented => 'Augmented',
     ExploreBaseQuality.sus2 => 'Suspended second',
     ExploreBaseQuality.sus4 => 'Suspended fourth',
+    ExploreBaseQuality.sus2sus4 => 'Suspended second and fourth',
   };
 }
 

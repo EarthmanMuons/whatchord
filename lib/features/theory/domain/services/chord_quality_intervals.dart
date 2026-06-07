@@ -90,6 +90,14 @@ const chordQualityIntervalSets = <ChordQualityIntervals>[
         (1 << perfectFifthInterval),
   ),
   ChordQualityIntervals(
+    quality: ChordQualityToken.sus2sus4,
+    canonicalMask:
+        chordRootBit |
+        (1 << majorSecondInterval) |
+        (1 << perfectFourthInterval) |
+        (1 << perfectFifthInterval),
+  ),
+  ChordQualityIntervals(
     quality: ChordQualityToken.major6,
     canonicalMask:
         chordRootBit |
