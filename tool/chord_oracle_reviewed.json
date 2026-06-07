@@ -1,30 +1,114 @@
 {
-  "0-1-2-5-8_b0": "Fm6b13/C is correct; structural fit beats Dm7(b5)/C (Db avoids -3 M7 penalty as b13 alteration); oracle split (music21->Dm7b5/C, tonal->DbM7b9/C) confirms genuine 3-way ambiguity; sound",
-  "0-1-2-5-8_b5": "Fm6b13 is correct; F-Ab-C-D is a complete root-position Fm6 (enharmonically Dm7b5/F), while Db is a dissonant b13/lower-neighbor color; Dbmaj7b9/F is equally complete but inverted and requires Ebb for its b9; oracle split confirms genuine ambiguity; no engine change needed",
-  "0-1-3-5-8-9_b8": "F7(#9,b13) / G# is correct; tonal agrees (G#=Ab, enharmonic); music21 fails on accidental parsing; pychord has no label",
-  "0-1-3-6-10_b10": "Ebm7(add13)/Bb is correct; tight near-tie cluster resolved by fewer-alterations and conventional-inversion tie-breakers; both oracles pick one of our top 3; sound",
-  "0-1-3-7-10_b3": "Eb7(add13) is correct; near tie with Cm7b9/Eb; genuine Eb7↔Cm7b9 ambiguity confirmed by oracle split (tonal agrees Eb7, music21 agrees Cm7b9); tie-breaker prefers fewer alterations; sound",
-  "0-1-3-8_b0": "D♭maj7sus2 / C is correct; clean structural fit (all 4 notes as core template tones) beats Abadd11/C (Db as add11 extra) and Cm#5addb9; 1.30 gap reflects real template difference, not inflation; oracle split (music21->Abadd11/C, tonal->Cm(b6,b9)) confirms genuine 3-way ambiguity; sound",
-  "0-1-4-7_b1": "D♭m(maj7)#11 is correct; near-tie cluster resolved by root-position preference and fully-explained-voicing tie-breakers; both oracles produce related Db-rooted or diminished readings; sound",
-  "0-1-4-7-10_b1": "A♯dim7(add9) / C♯ is correct; music21 agrees; tonal drops the 9; pychord has no label",
-  "0-1-4-7-10_b10": "A♯dim7(add9) is correct; symmetric dim7 near-tie cluster with Gdim7(add11)/Bb and Edim7(b13)/Bb; root-position tie-breaker resolves correctly; C7b9/Bb is a legitimate fourth choice placed appropriately lower",
-  "0-1-4-7-8_b0": "A♭maj7♯5(add11) / C is defensible (conventional 3rd-in-bass; ♯5 absorbs E); music21's D♭m(maj7)♯11 isn't authoritative; tonal and pychord decline (non-idiomatic voicing)",
-  "0-1-4-8_b0": "C♯m(maj7)/B♯ is correct; clean structural win over Caugadd♭9 (all 4 notes as core template tones vs 1 extra); tonal agrees; music21's A♭+(add11)/C corresponds to our 4th choice; sound",
-  "0-1-5-9_b1": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable",
-  "0-2-4-6_b0": "D9/C is correct; near tie with C(b5)add9 resolved by natural-extensions preference; both oracles converge; no action needed",
-  "0-2-4-7-9_b9": "C6/9 / A or Am7(add11) both valid; perfect 3-way tie (C6/9/A, Am7, D9sus4/A) resolved by tonic preference in C major; all oracles list both C- and A-rooted readings; genuine C6<->Am7 ambiguity extended by a 9th; sound",
-  "0-2-4-8_b0": "Caugadd9 is correct; broadened hard rule prefers simple augmented triad with add9 over E7#5/B#; E7#5/B# remains visible at #2 via 1.50 score guard; tonal lists Caugadd9 as #1; sound",
-  "0-2-4-9_b0": "C6/9 is correct in C major; matches music21's Am/CaddD in A:min where Amadd11/C is #1; tonal-context-dependent ambiguity, not a disagreement",
-  "0-2-5-8_b8": "Fm6/Ab is correct; genuine Fm6↔Dø7/Ab ambiguity with all oracles listing both; tie-breaker prefers more conventional inversion (m3 in bass over b5 in bass)",
-  "0-2-5-9_b9": "F6/A or Dm7/A both valid; perfect tie; classic F6↔Dm7 ambiguity; oracles converge on Dm7/A; our inversion tie-breaker prefers F6/A (1st inversion over 2nd); neither is wrong; no action needed",
-  "0-2-6-8_b2": "D7b5 is correct; perfect tie with G#7b5/D resolved by root-position preference; classic tritone symmetry; both oracles list both readings; no action needed",
-  "0-3-4-7_b0": "Cadd#9 is correct; split-third analysis correctly identifies C-Eb-E-G with C bass; near tie with Em(maj7)b13/C is genuine chromatic ambiguity; music21 agrees; sound",
-  "0-3-4-7_b3": "Eb6b9 is correct; perfect tie with Em(maj7)b13/D# resolved by root position preference; same chromatic cluster {C, Eb, E, G} as 0-3-4-7_b0 with different bass; music21 reads as Cm/Eb add E (split third); sound",
-  "0-3-4-7_b7": "Em(maj7)b13/G is correct; perfect tie with Eb6b9/G resolved by seventh-family preference; three-way ambiguity confirmed by oracle split (tonal agrees Em, music21 offers Cmaj7#9/G); chromatic cluster {C, Eb, E} against G is inherently ambiguous; sound",
-  "0-3-6-9_b0": "Cdim7 is correct; symmetric dim7 4-way perfect tie; root-position tie-breaker resolves correctly; tonal agrees with Cdim7 and also lists two alternate roots; textbook dim7 symmetry",
-  "0-3-7-10_b7": "Eb6/G or Cm7/G both valid; perfect tie; classic Cm7<->Eb6 ambiguity; oracles converge on Cm7/G; our inversion tie-breaker prefers Eb6/G; neither reading is wrong; no action needed",
-  "0-3-8_b0": "Ab/C is correct; near tie with Cm#5 resolved by existing complete-major-inversion-over-minor-sharp-five hard rule; both oracles list both readings; no action needed",
-  "0-4-8-11_b0": "Cmaj7#5 is correct; oracles use non-standard notation (C+M7, CM7b6)",
-  "0-4-8-11_b11": "Cmaj7#5/B is correct; clean structural win (all 4 notes as core template tones); both oracles converge on C-rooted maj7#5 reading; same chord as 0-4-8-11_b0 with different bass; no action needed",
-  "0-5-7_b7": "G7sus4 is correct; G bass supports the root-position dominant suspension and the omitted fifth is routine; Csus4/G is a valid alternate but less expected; music21 generates the nonstandard figure GsusaddF,omitD; no engine change needed"
+  "0-1-2-5-8_b0": {
+    "label": "genuine-ambiguity",
+    "note": "Fm6b13/C is correct; structural fit beats Dm7(b5)/C (Db avoids -3 M7 penalty as b13 alteration); oracle split (music21->Dm7b5/C, tonal->DbM7b9/C) confirms genuine 3-way ambiguity; sound"
+  },
+  "0-1-2-5-8_b5": {
+    "label": "genuine-ambiguity",
+    "note": "Fm6b13 is correct; F-Ab-C-D is a complete root-position Fm6 (enharmonically Dm7b5/F), while Db is a dissonant b13/lower-neighbor color; Dbmaj7b9/F is equally complete but inverted and requires Ebb for its b9; oracle split confirms genuine ambiguity; no engine change needed"
+  },
+  "0-1-3-5-8-9_b8": {
+    "label": "oracle-limitation",
+    "note": "F7(#9,b13) / G# is correct; tonal agrees (G#=Ab, enharmonic); music21 fails on accidental parsing; pychord has no label"
+  },
+  "0-1-3-6-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "Ebm7(add13)/Bb is correct; tight near-tie cluster resolved by fewer-alterations and conventional-inversion tie-breakers; both oracles pick one of our top 3; sound"
+  },
+  "0-1-3-7-10_b3": {
+    "label": "genuine-ambiguity",
+    "note": "Eb7(add13) is correct; near tie with Cm7b9/Eb; genuine Eb7↔Cm7b9 ambiguity confirmed by oracle split (tonal agrees Eb7, music21 agrees Cm7b9); tie-breaker prefers fewer alterations; sound"
+  },
+  "0-1-3-8_b0": {
+    "label": "genuine-ambiguity",
+    "note": "D♭maj7sus2 / C is correct; clean structural fit (all 4 notes as core template tones) beats Abadd11/C (Db as add11 extra) and Cm#5addb9; 1.30 gap reflects real template difference, not inflation; oracle split (music21->Abadd11/C, tonal->Cm(b6,b9)) confirms genuine 3-way ambiguity; sound"
+  },
+  "0-1-4-7_b1": {
+    "label": "genuine-ambiguity",
+    "note": "D♭m(maj7)#11 is correct; near-tie cluster resolved by root-position preference and fully-explained-voicing tie-breakers; both oracles produce related Db-rooted or diminished readings; sound"
+  },
+  "0-1-4-7-10_b1": {
+    "label": "clearly-correct",
+    "note": "A♯dim7(add9) / C♯ is correct; music21 agrees; tonal drops the 9; pychord has no label"
+  },
+  "0-1-4-7-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "A♯dim7(add9) is correct; symmetric dim7 near-tie cluster with Gdim7(add11)/Bb and Edim7(b13)/Bb; root-position tie-breaker resolves correctly; C7b9/Bb is a legitimate fourth choice placed appropriately lower"
+  },
+  "0-1-4-7-8_b0": {
+    "label": "oracle-limitation",
+    "note": "A♭maj7♯5(add11) / C is defensible (conventional 3rd-in-bass; ♯5 absorbs E); music21's D♭m(maj7)♯11 isn't authoritative; tonal and pychord decline (non-idiomatic voicing)"
+  },
+  "0-1-4-8_b0": {
+    "label": "clearly-correct",
+    "note": "C♯m(maj7)/B♯ is correct; clean structural win over Caugadd♭9 (all 4 notes as core template tones vs 1 extra); tonal agrees; music21's A♭+(add11)/C corresponds to our 4th choice; sound"
+  },
+  "0-1-5-9_b1": {
+    "label": "clearly-correct",
+    "note": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable"
+  },
+  "0-2-4-6_b0": {
+    "label": "clearly-correct",
+    "note": "D9/C is correct; near tie with C(b5)add9 resolved by natural-extensions preference; both oracles converge; no action needed"
+  },
+  "0-2-4-7-9_b9": {
+    "label": "context-dependent",
+    "note": "C6/9 / A or Am7(add11) both valid; perfect 3-way tie (C6/9/A, Am7, D9sus4/A) resolved by tonic preference in C major; all oracles list both C- and A-rooted readings; genuine C6<->Am7 ambiguity extended by a 9th; sound"
+  },
+  "0-2-4-8_b0": {
+    "label": "clearly-correct",
+    "note": "Caugadd9 is correct; broadened hard rule prefers simple augmented triad with add9 over E7#5/B#; E7#5/B# remains visible at #2 via 1.50 score guard; tonal lists Caugadd9 as #1; sound"
+  },
+  "0-2-4-9_b0": {
+    "label": "context-dependent",
+    "note": "C6/9 is correct in C major; matches music21's Am/CaddD in A:min where Amadd11/C is #1; tonal-context-dependent ambiguity, not a disagreement"
+  },
+  "0-2-5-8_b8": {
+    "label": "genuine-ambiguity",
+    "note": "Fm6/Ab is correct; genuine Fm6↔Dø7/Ab ambiguity with all oracles listing both; tie-breaker prefers more conventional inversion (m3 in bass over b5 in bass)"
+  },
+  "0-2-5-9_b9": {
+    "label": "genuine-ambiguity",
+    "note": "F6/A or Dm7/A both valid; perfect tie; classic F6↔Dm7 ambiguity; oracles converge on Dm7/A; our inversion tie-breaker prefers F6/A (1st inversion over 2nd); neither is wrong; no action needed"
+  },
+  "0-2-6-8_b2": {
+    "label": "genuine-ambiguity",
+    "note": "D7b5 is correct; perfect tie with G#7b5/D resolved by root-position preference; classic tritone symmetry; both oracles list both readings; no action needed"
+  },
+  "0-3-4-7_b0": {
+    "label": "genuine-ambiguity",
+    "note": "Cadd#9 is correct; split-third analysis correctly identifies C-Eb-E-G with C bass; near tie with Em(maj7)b13/C is genuine chromatic ambiguity; music21 agrees; sound"
+  },
+  "0-3-4-7_b3": {
+    "label": "genuine-ambiguity",
+    "note": "Eb6b9 is correct; perfect tie with Em(maj7)b13/D# resolved by root position preference; same chromatic cluster {C, Eb, E, G} as 0-3-4-7_b0 with different bass; music21 reads as Cm/Eb add E (split third); sound"
+  },
+  "0-3-4-7_b7": {
+    "label": "genuine-ambiguity",
+    "note": "Em(maj7)b13/G is correct; perfect tie with Eb6b9/G resolved by seventh-family preference; three-way ambiguity confirmed by oracle split (tonal agrees Em, music21 offers Cmaj7#9/G); chromatic cluster {C, Eb, E} against G is inherently ambiguous; sound"
+  },
+  "0-3-6-9_b0": {
+    "label": "genuine-ambiguity",
+    "note": "Cdim7 is correct; symmetric dim7 4-way perfect tie; root-position tie-breaker resolves correctly; tonal agrees with Cdim7 and also lists two alternate roots; textbook dim7 symmetry"
+  },
+  "0-3-7-10_b7": {
+    "label": "genuine-ambiguity",
+    "note": "Eb6/G or Cm7/G both valid; perfect tie; classic Cm7<->Eb6 ambiguity; oracles converge on Cm7/G; our inversion tie-breaker prefers Eb6/G; neither reading is wrong; no action needed"
+  },
+  "0-3-8_b0": {
+    "label": "genuine-ambiguity",
+    "note": "Ab/C is correct; near tie with Cm#5 resolved by existing complete-major-inversion-over-minor-sharp-five hard rule; both oracles list both readings; no action needed"
+  },
+  "0-4-8-11_b0": {
+    "label": "oracle-limitation",
+    "note": "Cmaj7#5 is correct; oracles use non-standard notation (C+M7, CM7b6)"
+  },
+  "0-4-8-11_b11": {
+    "label": "clearly-correct",
+    "note": "Cmaj7#5/B is correct; clean structural win (all 4 notes as core template tones); both oracles converge on C-rooted maj7#5 reading; same chord as 0-4-8-11_b0 with different bass; no action needed"
+  },
+  "0-5-7_b7": {
+    "label": "clearly-correct",
+    "note": "G7sus4 is correct; G bass supports the root-position dominant suspension and the omitted fifth is routine; Csus4/G is a valid alternate but less expected; music21 generates the nonstandard figure GsusaddF,omitD; no engine change needed"
+  }
 }
