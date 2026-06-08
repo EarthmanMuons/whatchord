@@ -22,6 +22,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Improved relative-major and relative-minor ambiguity handling so root-position
+  minor seventh chords such as Am7 are preferred over equivalent major-sixth
+  slash readings such as C6/A.
 - Improved minor-key chord identification so harmonic-minor tonic colors such
   as C#m(maj7)b13 are preferred over remote split-third inversions when context
   supports them.

@@ -140,6 +140,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
   ),
   NamedRule('prefer fewer altered/tension colors', _preferFewerAlterations),
   NamedRule('prefer diatonic chords', _preferDiatonic),
+  NamedRule(
+    'prefer root-position relative minor7 over major6 slash',
+    _preferRootMinor7OverMajor6Slash,
+  ),
   NamedRule('prefer tonic chord', _preferTonicChord),
   NamedRule('prefer I chord when bass is tonic', _preferTonicAsI),
   NamedRule(
@@ -1132,6 +1136,49 @@ int? _preferDiatonic(
 
   if (aOk == bOk) return null;
   return bOk ? 1 : -1;
+}
+
+/// Prefers a root-position relative-minor seventh over the equivalent
+/// major-sixth slash reading.
+///
+/// Example: {A, C, E, G} with A in the bass is Am7, not C6/A. The two names
+/// describe the same pitch set, but the sounding bass supplies the complete
+/// minor-seventh root. The same relationship extends to matching add11/add9
+/// color: Am7(add11) is clearer than C6/9/A.
+int? _preferRootMinor7OverMajor6Slash(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsMinor7 = a.identity.quality == ChordQualityToken.minor7;
+  final bIsMinor7 = b.identity.quality == ChordQualityToken.minor7;
+  if (aIsMinor7 == bIsMinor7) return null;
+
+  final minor7 = aIsMinor7 ? a : b;
+  final fMinor7 = aIsMinor7 ? fa : fb;
+  final major6 = aIsMinor7 ? b : a;
+  final fMajor6 = aIsMinor7 ? fb : fa;
+
+  if (!fMinor7.isRootPosition ||
+      major6.identity.quality != ChordQualityToken.major6 ||
+      !fMajor6.isSlashBass ||
+      major6.identity.bassPc != minor7.identity.rootPc) {
+    return null;
+  }
+
+  final minor7Extensions = minor7.identity.extensions;
+  final major6Extensions = major6.identity.extensions;
+  final plainPair = minor7Extensions.isEmpty && major6Extensions.isEmpty;
+  final matchingColorPair =
+      minor7Extensions.length == 1 &&
+      minor7Extensions.contains(ChordExtension.add11) &&
+      major6Extensions.length == 1 &&
+      major6Extensions.contains(ChordExtension.add9);
+  if (!plainPair && !matchingColorPair) return null;
+
+  return aIsMinor7 ? -1 : 1;
 }
 
 /// Prefers the selected key's tonic chord in otherwise ambiguous near-ties.

@@ -198,6 +198,32 @@ void main() {
       expectedQuality: ChordQualityToken.minor7,
     ),
 
+    golden(
+      description: 'root-position minor7 beats relative-major sixth slash',
+      expectedSymbol: 'Am7',
+      expectedAlternateSymbols: ['C6 / A'],
+      pcs: ['C', 'E', 'G', 'A'],
+      bass: 'A',
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
+      expectedRoot: 'A',
+      expectedBass: 'A',
+      expectedQuality: ChordQualityToken.minor7,
+    ),
+
+    golden(
+      description:
+          'root-position minor7 add11 beats relative-major six-nine slash',
+      expectedSymbol: 'Am7(add11)',
+      expectedAlternateSymbols: ['C6/9 / A', 'D9sus4 / A'],
+      pcs: ['C', 'D', 'E', 'G', 'A'],
+      bass: 'A',
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
+      expectedRoot: 'A',
+      expectedBass: 'A',
+      expectedQuality: ChordQualityToken.minor7,
+      expectedExtensions: {ChordExtension.add11},
+    ),
+
     // -------------------------------------------------------------------------
     // Sus-tone-in-bass penalty
     // -------------------------------------------------------------------------
