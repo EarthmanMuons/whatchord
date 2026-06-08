@@ -320,6 +320,18 @@ void main() {
       expectedExtensions: {ChordExtension.sharp9},
     ),
 
+    golden(
+      description: 'split-nine tritone dominant follows conventional inversion',
+      expectedSymbol: 'F#7(#11,b13) / A#',
+      expectedAlternateSymbols: ['C9b5b9 / Bb'],
+      pcs: ['C', 'Db', 'D', 'E', 'F#', 'Bb'],
+      bass: 'Bb',
+      expectedRoot: 'F#',
+      expectedBass: 'A#',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.sharp11, ChordExtension.flat13},
+    ),
+
     // -------------------------------------------------------------------------
     // Simple triad add-tone beats inverted unusual seventh-family quality
     // -------------------------------------------------------------------------

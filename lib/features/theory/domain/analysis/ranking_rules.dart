@@ -53,6 +53,10 @@ final List<NamedRule> hardRules = <NamedRule>[
     'prefer complete dominant sharp-nine over sixth flat-nine',
     _preferCompleteDom7Sharp9OverSixthFlat9,
   ),
+  NamedRule(
+    'prefer conventional inversion in split-nine tritone dominant ambiguity',
+    _preferConventionalSplitNineTritoneDominant,
+  ),
   NamedRule('prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
   NamedRule(
     'prefer conventional altered seventh over add11 slash',
@@ -99,6 +103,48 @@ final List<NamedRule> hardRules = <NamedRule>[
     _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality,
   ),
 ];
+
+/// Resolves an exact tritone-dominant ambiguity by bass role.
+///
+/// {C, Db, D, E, F#, Bb} can be read as C9b5b9 or F#7(#11,b13). Both are
+/// complete dominant structures, but the altered-fifth template's extra
+/// required tone creates a modest score advantage that can hide a much more
+/// conventional inversion of the tritone-related dominant.
+int? _preferConventionalSplitNineTritoneDominant(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsSplitNine = _isSplitNineFlatFiveDominant(a.identity);
+  final bIsSplitNine = _isSplitNineFlatFiveDominant(b.identity);
+  final aIsTritoneColor = _isSharp11Flat13Dominant(a.identity);
+  final bIsTritoneColor = _isSharp11Flat13Dominant(b.identity);
+  if (!(aIsSplitNine && bIsTritoneColor) &&
+      !(bIsSplitNine && aIsTritoneColor)) {
+    return null;
+  }
+  if ((a.identity.rootPc - b.identity.rootPc).abs() != 6) return null;
+  if (fa.bassRoleRank == fb.bassRoleRank) return null;
+  if ((a.score - b.score).abs() > 0.30) return null;
+
+  return fa.bassRoleRank < fb.bassRoleRank ? -1 : 1;
+}
+
+bool _isSplitNineFlatFiveDominant(ChordIdentity id) {
+  return id.quality == ChordQualityToken.dominant7Flat5 &&
+      id.extensions.length == 2 &&
+      id.extensions.contains(ChordExtension.flat9) &&
+      id.extensions.contains(ChordExtension.nine);
+}
+
+bool _isSharp11Flat13Dominant(ChordIdentity id) {
+  return id.quality == ChordQualityToken.dominant7 &&
+      id.extensions.length == 2 &&
+      id.extensions.contains(ChordExtension.sharp11) &&
+      id.extensions.contains(ChordExtension.flat13);
+}
 
 /// Prefers a root-position minor-eleventh shell over inverted sus readings.
 ///
