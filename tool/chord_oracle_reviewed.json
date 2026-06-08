@@ -111,6 +111,10 @@
     "label": "clearly-correct",
     "note": "Csus2sus4 is correct; it is the complete root-position double-suspension template and scores clearly above the incomplete or slash alternatives. Tonal's Csus24 and pychord's Csus4add2 are semantically equivalent names for the same C-rooted structure."
   },
+  "0-2-5-7_b2": {
+    "label": "genuine-ambiguity",
+    "note": "Dm7(add11) is preferred with D in the bass because D, F, C, and G supply the root, minor third, flat seventh, and eleventh of a conventional root-position minor-eleventh shell with an omitted fifth. Tonal's D-rooted first choice supports only the root hearing, not the full minor-eleventh label. G7sus4/D and Csus2sus4/D are complete and valid slash-chord alternatives, so the ambiguity is genuine, but their roots do not align with the bass."
+  },
   "0-2-6-8_b2": {
     "label": "genuine-ambiguity",
     "note": "D7b5 is correct; perfect tie with G#7b5/D resolved by root-position preference; classic tritone symmetry; both oracles list both readings; no action needed"

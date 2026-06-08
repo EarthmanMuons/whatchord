@@ -87,10 +87,47 @@ final List<NamedRule> hardRules = <NamedRule>[
     _preferCompleteTriadOverDeficientReading,
   ),
   NamedRule(
+    'prefer root-position minor-eleventh shell over sus slash',
+    _preferRootMinor7Add11ShellOverSusSlash,
+  ),
+  NamedRule(
     'prefer simple triad add-tone over seventh-family unusual quality',
     _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality,
   ),
 ];
+
+/// Prefers a root-position minor-eleventh shell over inverted sus readings.
+///
+/// Example: {D, F, G, C} with D in the bass is most naturally Dm7(add11), a
+/// standard minor-eleventh shell with an omitted fifth, rather than G7sus4/D
+/// or Csus2sus4/D. The competing sus readings remain appropriate when their
+/// own roots are in the bass.
+int? _preferRootMinor7Add11ShellOverSusSlash(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = fa.isRootPositionMinor7Add11Shell;
+  final bIsPreferred = fb.isRootPositionMinor7Add11Shell;
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  final fOther = aIsPreferred ? fb : fa;
+  final otherIsInvertedDominantSus =
+      !fOther.isRootPosition &&
+      other.identity.quality == ChordQualityToken.dominant7sus4;
+  final otherIsInvertedDoubleSus =
+      !fOther.isRootPosition &&
+      other.identity.quality == ChordQualityToken.sus2sus4;
+  if (!otherIsInvertedDominantSus && !otherIsInvertedDoubleSus) return null;
+
+  final preferred = aIsPreferred ? a : b;
+  if (preferred.score + 1.30 < other.score) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
 
 /// Near-tie tie-breakers, applied in priority order only when two candidates
 /// score within the near-tie window of each other. These encode musical

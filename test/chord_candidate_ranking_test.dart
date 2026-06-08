@@ -403,6 +403,40 @@ void main() {
     );
   });
 
+  test('root-position minor-eleventh shell beats inverted sus readings', () {
+    final minor11Shell = _candidate(
+      quality: ChordQualityToken.minor7,
+      root: 'D',
+      bass: 'D',
+      presentIntervals: const {0, 3, 5, 10},
+      extensions: const {ChordExtension.add11},
+      score: 7.22,
+    );
+
+    final dominantSusSlash = _candidate(
+      quality: ChordQualityToken.dominant7sus4,
+      root: 'G',
+      bass: 'D',
+      presentIntervals: const {0, 5, 7, 10},
+      score: 8.37,
+    );
+    final doubleSusSlash = _candidate(
+      quality: ChordQualityToken.sus2sus4,
+      root: 'C',
+      bass: 'D',
+      presentIntervals: const {0, 2, 5, 7},
+      score: 8.50,
+    );
+
+    for (final susSlash in [dominantSusSlash, doubleSusSlash]) {
+      _expectRule(
+        minor11Shell,
+        susSlash,
+        'prefer root-position minor-eleventh shell over sus slash',
+      );
+    }
+  });
+
   test('minor7 eleventh-bass slash beats minor7 sharp-five slash', () {
     final minor7Slash = _candidate(
       quality: ChordQualityToken.minor7,
