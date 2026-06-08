@@ -537,6 +537,66 @@ void main() {
     );
   });
 
+  group('harmonic-minor tonic versus split-third inversion', () {
+    final tonicMinorMajor7 = _candidate(
+      quality: ChordQualityToken.minorMajor7,
+      root: 'C#',
+      bass: 'C#',
+      presentIntervals: const {0, 3, 8, 11},
+      extensions: const {ChordExtension.flat13},
+      score: 7.16,
+    );
+    final splitThirdInversion = _candidate(
+      quality: ChordQualityToken.major,
+      root: 'A',
+      bass: 'C#',
+      presentIntervals: const {0, 3, 4, 7},
+      extensions: const {ChordExtension.addSharp9},
+      score: 7.07,
+    );
+
+    test('minor-key context prefers the harmonic-minor tonic', () {
+      const tonality = Tonality(Tonic.cSharp, TonalityMode.minor);
+      final explanation = ChordCandidateRanking.explain(
+        tonicMinorMajor7,
+        splitThirdInversion,
+        tonality: tonality,
+      );
+
+      expect(explanation.result, -1);
+      expect(
+        explanation.decidedByRule,
+        'prefer harmonic-minor tonic over split-third inversion',
+      );
+    });
+
+    test('neutral major context preserves the split-third inversion', () {
+      final explanation = ChordCandidateRanking.explain(
+        splitThirdInversion,
+        tonicMinorMajor7,
+        tonality: defaultTestTonality,
+      );
+
+      expect(explanation.result, -1);
+      expect(explanation.decidedByRule, 'prefer fewer altered/tension colors');
+    });
+
+    test('does not prefer a non-tonic minor-major7', () {
+      const tonality = Tonality(Tonic.fSharp, TonalityMode.minor);
+      final explanation = ChordCandidateRanking.explain(
+        splitThirdInversion,
+        tonicMinorMajor7,
+        tonality: tonality,
+      );
+
+      expect(explanation.result, -1);
+      expect(
+        explanation.decidedByRule,
+        isNot('prefer harmonic-minor tonic over split-third inversion'),
+      );
+    });
+  });
+
   test('root-position add-chord beats sus-family slash outside near-tie', () {
     // {C, E, G, F}: musicians hear Cadd11, not Fmaj7sus2/C.
     // The sus reading earns a higher raw score (clean template fit with 3

@@ -68,6 +68,46 @@ void main() {
     ),
 
     golden(
+      description: 'split-third major triad in first inversion',
+      expectedSymbol: 'Aadd#9 / C#',
+      expectedAlternateSymbols: ['C#m(maj7)b13', 'C6b9 / Db'],
+      pcs: ['C', 'Db', 'E', 'A'],
+      bass: 'Db',
+      expectedRoot: 'A',
+      expectedBass: 'C#',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.addSharp9},
+      expectedToneRolesByInterval: {3: ChordToneRole.splitMinor3},
+    ),
+
+    golden(
+      description: 'harmonic-minor tonic beats split-third major inversion',
+      expectedSymbol: 'C#m(maj7)b13',
+      expectedAlternateSymbols: ['Aadd#9 / C#', 'C6b9 / Db'],
+      pcs: ['C', 'Db', 'E', 'A'],
+      bass: 'Db',
+      tonality: const Tonality(Tonic.cSharp, TonalityMode.minor),
+      expectedRoot: 'C#',
+      expectedBass: 'C#',
+      expectedQuality: ChordQualityToken.minorMajor7,
+      expectedExtensions: {ChordExtension.flat13},
+    ),
+
+    golden(
+      description:
+          'transposed harmonic-minor tonic beats split-third major inversion',
+      expectedSymbol: 'Fm(maj7)b13',
+      expectedAlternateSymbols: ['Dbadd#9 / F', 'E6b9 / F'],
+      pcs: ['E', 'F', 'Ab', 'Db'],
+      bass: 'F',
+      tonality: const Tonality(Tonic.f, TonalityMode.minor),
+      expectedRoot: 'F',
+      expectedBass: 'F',
+      expectedQuality: ChordQualityToken.minorMajor7,
+      expectedExtensions: {ChordExtension.flat13},
+    ),
+
+    golden(
       description: 'split-third color bass does not become major inversion',
       expectedSymbol: 'C6b9',
       pcs: ['C', 'Db', 'E', 'A'],

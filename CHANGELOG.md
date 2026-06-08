@@ -22,6 +22,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Improved minor-key chord identification so harmonic-minor tonic colors such
+  as C#m(maj7)b13 are preferred over remote split-third inversions when context
+  supports them.
 - Improved recognition of fifthless flat-nine-bass dominant shells such as
   C7b9/Db while preserving tonic-minor context for plausible bass-rooted
   interpretations.

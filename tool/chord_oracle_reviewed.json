@@ -47,6 +47,10 @@
     "label": "clearly-correct",
     "note": "C♯m(maj7)/B♯ is correct; clean structural win over Caugadd♭9 (all 4 notes as core template tones vs 1 extra); tonal agrees; music21's A♭+(add11)/C corresponds to our 4th choice; sound"
   },
+  "0-1-4-9_b1": {
+    "label": "context-dependent",
+    "note": "Aadd#9/C# is the clearer neutral-context reading because it preserves a complete major triad in first inversion, and music21 agrees on the A-rooted structure. In C# minor, C#m(maj7)b13 is preferred as a root-position harmonic-minor tonic containing the minor third, flat sixth, and raised seventh; tonal agrees on that bass-rooted structure."
+  },
   "0-1-5-9_b1": {
     "label": "clearly-correct",
     "note": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable"
