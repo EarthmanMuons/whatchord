@@ -396,6 +396,17 @@ void main() {
     ),
 
     golden(
+      description: 'root-position major-sixth sharp-eleven beats minor slash',
+      expectedSymbol: 'Eb6#11',
+      expectedAlternateSymbols: ['Cm7(add13) / Eb', 'Am7(b5)b9 / Eb'],
+      pcs: ['C', 'Eb', 'G', 'A', 'Bb'],
+      bass: 'Eb',
+      expectedRoot: 'Eb',
+      expectedQuality: ChordQualityToken.major6,
+      expectedExtensions: {ChordExtension.sharp11},
+    ),
+
+    golden(
       description:
           'common altered dominant beats rarer enharmonic ninth inversion',
       expectedSymbol: 'G7#5 / A',

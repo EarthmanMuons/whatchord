@@ -175,6 +175,10 @@
     "label": "genuine-ambiguity",
     "note": "E♭6/9/B♭ is preferred because it is a complete and highly conventional major-six-nine chord with its fifth in the bass. Cm7(add11)/B♭ is a valid complete alternate chosen by music21 and tonal, while Gm7♯5(add11)/B♭ is a less conventional enharmonic reinterpretation that had been inflated by its altered-minor template. The bass and common-name evidence favor E♭6/9/B♭ without denying the genuine C-minor-eleventh ambiguity."
   },
+  "0-3-7-9-10_b3": {
+    "label": "genuine-ambiguity",
+    "note": "E♭6♯11 is preferred because it is a complete root-position major-sixth chord with a single Lydian color, and tonal agrees. Cm7(add13)/E♭ is the exact inverted relative-minor color equivalent but uses the less conventional minor-seven-add-thirteen name. Music21's complete Am7♭5♭9/E♭ reading confirms a genuine three-way ambiguity, while the E♭ bass gives the root-position sixth chord the clearest neutral name."
+  },
   "0-4-8-11_b0": {
     "label": "oracle-limitation",
     "note": "Cmaj7#5 is correct; oracles use non-standard notation (C+M7, CM7b6)"
