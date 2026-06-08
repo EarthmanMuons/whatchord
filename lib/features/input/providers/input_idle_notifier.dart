@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/demo/demo.dart';
+import 'package:whatchord/features/lookup/lookup.dart';
 
 import 'sounding_note_numbers_providers.dart';
 
@@ -100,6 +101,20 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
         markIdleNow();
       }
     });
+
+    // Reset idle immediately when lookup mode toggles, and whenever the lookup
+    // selection empties (clear or the last undo), so the input line and toggle
+    // reappear without waiting out the cooldown.
+    ref.listen<({bool active, int noteCount})>(
+      lookupModeProvider.select(
+        (s) => (active: s.active, noteCount: s.pitchClasses.length),
+      ),
+      (prev, next) {
+        final activeChanged = prev?.active != next.active;
+        final clearedWhileActive = next.active && next.noteCount == 0;
+        if (activeChanged || clearedWhileActive) markIdleNow();
+      },
+    );
 
     // Keep idle visuals deterministic whenever a new demo step is loaded,
     // including empty intro/outro steps that should show the idle glyph

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/demo/demo.dart';
 import 'package:whatchord/features/input/input.dart';
+import 'package:whatchord/features/lookup/lookup.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/onboarding/onboarding.dart';
 import 'package:whatchord/features/scales/scales.dart';
@@ -301,7 +302,7 @@ class _HomeLandscape extends ConsumerWidget {
                   Navigator.of(context).push(ScaleExplorerPage.route()),
             ),
             const Divider(height: 1),
-            KeyboardSection(config: config),
+            _BottomInputSection(config: config),
           ],
         ),
       ],
@@ -345,10 +346,54 @@ class _HomePortrait extends ConsumerWidget {
                   Navigator.of(context).push(ScaleExplorerPage.route()),
             ),
             const Divider(height: 1),
-            KeyboardSection(config: config),
+            _BottomInputSection(config: config),
           ],
         ),
       ],
+    );
+  }
+}
+
+/// Bottom input section. The keyboard stays mounted underneath; the lookup pad
+/// slides down from above to cover it (and back up to reveal it). Keeping the
+/// keyboard mounted means it never re-centers on the toggle.
+class _BottomInputSection extends ConsumerWidget {
+  const _BottomInputSection({required this.config});
+  final HomeLayoutConfig config;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lookupActive = ref.watch(lookupActiveProvider);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = KeyboardSection.heightForWidth(
+          constraints.maxWidth,
+          config,
+        );
+
+        return SizedBox(
+          height: height,
+          child: ClipRect(
+            child: Stack(
+              children: [
+                KeyboardSection(config: config),
+                Positioned.fill(
+                  child: IgnorePointer(
+                    ignoring: !lookupActive,
+                    child: AnimatedSlide(
+                      offset: lookupActive ? Offset.zero : const Offset(0, -1),
+                      duration: const Duration(milliseconds: 260),
+                      curve: Curves.easeOutCubic,
+                      child: const LookupPad(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

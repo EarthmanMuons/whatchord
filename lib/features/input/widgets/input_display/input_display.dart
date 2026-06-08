@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/demo/demo.dart';
+import 'package:whatchord/features/lookup/lookup.dart';
 import 'package:whatchord/features/midi/midi.dart';
 
 import '../../models/sounding_note.dart';
@@ -226,18 +227,24 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
     final demoVariant = ref.watch(demoModeVariantProvider);
     final interactiveDemoEnabled =
         demoEnabled && demoVariant == DemoModeVariant.interactive;
+    final lookupActive = ref.watch(lookupActiveProvider);
     final showPrompt =
         _notes.isEmpty &&
-        ref.watch(inputIdleEligibleProvider) &&
-        !interactiveDemoEnabled;
+        (lookupActive ||
+            (ref.watch(inputIdleEligibleProvider) && !interactiveDemoEnabled));
     final isMidiConnected = ref.watch(
       midiConnectionStatusProvider.select((s) => s.isConnected),
     );
-    final showInlineMidiGuidance = !isMidiConnected;
-    final promptText = showInlineMidiGuidance
+    // Inline MIDI guidance only applies to live mode, not manual lookup.
+    final showInlineMidiGuidance = !lookupActive && !isMidiConnected;
+    final promptText = lookupActive
+        ? 'Tap some notes…'
+        : showInlineMidiGuidance
         ? 'Connect a MIDI device to begin…'
         : 'Play some notes…';
-    final promptSemantics = showInlineMidiGuidance
+    final promptSemantics = lookupActive
+        ? 'Tap some notes'
+        : showInlineMidiGuidance
         ? 'Connect a MIDI device to begin'
         : 'Play some notes';
     final VoidCallback? onPromptTap = showInlineMidiGuidance
@@ -258,49 +265,142 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
         constraints: BoxConstraints(minHeight: minHeight),
         child: SizedBox(
           height: minHeight,
-          child: showPrompt
-              ? Row(
-                  children: [
-                    SizedBox(
-                      width: pedalSlotWidth,
-                      child: _buildAnimatedPedal(),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Builder(
-                        builder: (context) {
+          child: Row(
+            children: [
+              Expanded(
+                child: showPrompt
+                    ? Row(
+                        children: [
+                          SizedBox(
+                            width: pedalSlotWidth,
+                            child: _buildAnimatedPedal(),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Builder(
+                              builder: (context) {
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
+                                  if (mounted) _updateScrollFade();
+                                });
+
+                                return Stack(
+                                  children: [
+                                    SingleChildScrollView(
+                                      controller: _scrollController,
+                                      scrollDirection: Axis.horizontal,
+                                      physics: const BouncingScrollPhysics(),
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Semantics(
+                                          button: showInlineMidiGuidance,
+                                          onTapHint: showInlineMidiGuidance
+                                              ? 'Open MIDI settings'
+                                              : null,
+                                          child: GestureDetector(
+                                            behavior: HitTestBehavior.opaque,
+                                            onTap: onPromptTap,
+                                            child: Text(
+                                              promptText,
+                                              semanticsLabel: promptSemantics,
+                                              style: theme.textTheme.bodyLarge
+                                                  ?.copyWith(
+                                                    color: cs.onSurfaceVariant,
+                                                    letterSpacing: -0.1,
+                                                  ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    if (_showLeadingFade)
+                                      Positioned(
+                                        left: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        width: _fadeWidth,
+                                        child: IgnorePointer(
+                                          child: DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                begin: Alignment.centerLeft,
+                                                end: Alignment.centerRight,
+                                                colors: [
+                                                  cs.surface,
+                                                  cs.surface.withValues(
+                                                    alpha: 0,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    if (_showTrailingFade)
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        width: _fadeWidth,
+                                        child: IgnorePointer(
+                                          child: DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                begin: Alignment.centerRight,
+                                                end: Alignment.centerLeft,
+                                                colors: [
+                                                  cs.surface,
+                                                  cs.surface.withValues(
+                                                    alpha: 0,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      )
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             if (mounted) _updateScrollFade();
                           });
 
                           return Stack(
                             children: [
-                              SingleChildScrollView(
+                              CustomScrollView(
                                 controller: _scrollController,
                                 scrollDirection: Axis.horizontal,
                                 physics: const BouncingScrollPhysics(),
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Semantics(
-                                    button: showInlineMidiGuidance,
-                                    onTapHint: showInlineMidiGuidance
-                                        ? 'Open MIDI settings'
-                                        : null,
-                                    child: GestureDetector(
-                                      behavior: HitTestBehavior.opaque,
-                                      onTap: onPromptTap,
-                                      child: Text(
-                                        promptText,
-                                        semanticsLabel: promptSemantics,
-                                        style: theme.textTheme.bodyLarge
-                                            ?.copyWith(
-                                              color: cs.onSurfaceVariant,
-                                              letterSpacing: -0.1,
-                                            ),
+                                slivers: [
+                                  SliverToBoxAdapter(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(right: 8),
+                                      child: SizedBox(
+                                        width: pedalSlotWidth,
+                                        child: _buildAnimatedPedal(),
                                       ),
                                     ),
                                   ),
-                                ),
+                                  SliverAnimatedList(
+                                    key: _notesKey,
+                                    initialItemCount: _notes.length,
+                                    itemBuilder: (context, index, animation) {
+                                      final note = _notes[index];
+                                      return _buildPaddedNoteChip(
+                                        note,
+                                        animation,
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
                               if (_showLeadingFade)
                                 Positioned(
@@ -348,88 +448,35 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
                           );
                         },
                       ),
-                    ),
-                  ],
-                )
-              : LayoutBuilder(
-                  builder: (context, constraints) {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) _updateScrollFade();
-                    });
-
-                    return Stack(
-                      children: [
-                        CustomScrollView(
-                          controller: _scrollController,
-                          scrollDirection: Axis.horizontal,
-                          physics: const BouncingScrollPhysics(),
-                          slivers: [
-                            SliverToBoxAdapter(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: SizedBox(
-                                  width: pedalSlotWidth,
-                                  child: _buildAnimatedPedal(),
-                                ),
-                              ),
-                            ),
-                            SliverAnimatedList(
-                              key: _notesKey,
-                              initialItemCount: _notes.length,
-                              itemBuilder: (context, index, animation) {
-                                final note = _notes[index];
-                                return _buildPaddedNoteChip(note, animation);
-                              },
-                            ),
-                          ],
-                        ),
-                        if (_showLeadingFade)
-                          Positioned(
-                            left: 0,
-                            top: 0,
-                            bottom: 0,
-                            width: _fadeWidth,
-                            child: IgnorePointer(
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                    colors: [
-                                      cs.surface,
-                                      cs.surface.withValues(alpha: 0),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        if (_showTrailingFade)
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            bottom: 0,
-                            width: _fadeWidth,
-                            child: IgnorePointer(
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.centerRight,
-                                    end: Alignment.centerLeft,
-                                    colors: [
-                                      cs.surface,
-                                      cs.surface.withValues(alpha: 0),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    );
-                  },
-                ),
+              ),
+              _buildModeToggle(context, lookupActive: lookupActive),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildModeToggle(BuildContext context, {required bool lookupActive}) {
+    final cs = Theme.of(context).colorScheme;
+    // No outline, so nudge it toward the screen edge to reclaim a little width.
+    return Transform.translate(
+      offset: const Offset(8, 4),
+      child: IconButton(
+        icon: Icon(lookupActive ? Icons.piano : Icons.search),
+        tooltip: lookupActive ? 'Back to keyboard' : 'Look up a chord',
+        style: IconButton.styleFrom(
+          foregroundColor: cs.primary,
+          shape: const CircleBorder(),
+        ),
+        onPressed: () {
+          final notifier = ref.read(lookupModeProvider.notifier);
+          if (lookupActive) {
+            notifier.exit();
+          } else {
+            notifier.enter();
+          }
+        },
       ),
     );
   }

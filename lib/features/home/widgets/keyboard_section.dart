@@ -11,24 +11,30 @@ class KeyboardSection extends ConsumerWidget {
   const KeyboardSection({super.key, required this.config});
   final HomeLayoutConfig config;
 
+  /// Resolved keyboard height for a given viewport width. Shared so the lookup
+  /// pad can occupy the exact same footprint when it swaps in.
+  static double heightForWidth(double width, HomeLayoutConfig config) {
+    final whiteKeyWidth = PianoGeometry.whiteKeyWidthForViewport(
+      viewportWidth: width,
+      visibleWhiteKeyCount: config.whiteKeyCount,
+    );
+
+    var height = whiteKeyWidth * config.whiteKeyAspectRatio;
+    if (config.tightenForStatusBar) height -= 4;
+
+    // Guardrails to prevent extremes.
+    return height.clamp(90.0, 200.0);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final soundingNoteNumbers = ref.watch(soundingNoteNumbersProvider);
+    // Live notes only: the pad covers the keyboard in lookup mode, so it must
+    // not react to (and re-center on) the lookup voicing.
+    final soundingNoteNumbers = ref.watch(liveSoundingNoteNumbersProvider);
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        final whiteKeyWidth = PianoGeometry.whiteKeyWidthForViewport(
-          viewportWidth: width,
-          visibleWhiteKeyCount: config.whiteKeyCount,
-        );
-
-        var height = whiteKeyWidth * config.whiteKeyAspectRatio;
-
-        if (config.tightenForStatusBar) height -= 4;
-
-        // Guardrails to prevent extremes.
-        height = height.clamp(90.0, 200.0);
+        final height = heightForWidth(constraints.maxWidth, config);
 
         return ScrollablePianoKeyboard(
           visibleWhiteKeyCount: config.whiteKeyCount,
