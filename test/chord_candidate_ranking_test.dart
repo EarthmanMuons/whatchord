@@ -62,6 +62,44 @@ void main() {
     }
   });
 
+  test('split-nine tritone dominants follow the conventional bass role', () {
+    ChordCandidate splitNine({required String bass, required double score}) =>
+        _candidate(
+          quality: ChordQualityToken.dominant7Flat5,
+          root: 'C',
+          bass: bass,
+          presentIntervals: const {0, 1, 2, 4, 6, 10},
+          extensions: const {ChordExtension.flat9, ChordExtension.nine},
+          score: score,
+        );
+    ChordCandidate tritoneColor({
+      required String bass,
+      required double score,
+    }) => _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'F#',
+      bass: bass,
+      presentIntervals: const {0, 4, 6, 7, 8, 10},
+      extensions: const {ChordExtension.sharp11, ChordExtension.flat13},
+      score: score,
+    );
+
+    for (final bass in ['Bb', 'F#', 'Db']) {
+      _expectRule(
+        tritoneColor(bass: bass, score: 7.74),
+        splitNine(bass: bass, score: 7.95),
+        'prefer conventional inversion in split-nine tritone dominant ambiguity',
+      );
+    }
+    for (final bass in ['C', 'E']) {
+      _expectRule(
+        splitNine(bass: bass, score: 7.95),
+        tritoneColor(bass: bass, score: 7.74),
+        'prefer conventional inversion in split-nine tritone dominant ambiguity',
+      );
+    }
+  });
+
   test('complete dominant flat-nine beats colored diminished7', () {
     final dominant = _candidate(
       quality: ChordQualityToken.dominant7,

@@ -3,6 +3,10 @@
     "label": "genuine-ambiguity",
     "note": "Fm6b13/C is correct; structural fit beats Dm7(b5)/C (Db avoids -3 M7 penalty as b13 alteration); oracle split (music21->Dm7b5/C, tonal->DbM7b9/C) confirms genuine 3-way ambiguity; sound"
   },
+  "0-1-2-4-6-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "F♯7(♯11,♭13)/A♯ is preferred because it is a complete tritone-related dominant with its major third in the bass, while C9♭5♭9/B♭ is a complete altered dominant in third inversion with simultaneous flat and natural ninths. Tonal supports the F♯ reading and music21 supports the C reading, confirming genuine ambiguity. Related bass cases consistently favor whichever dominant receives the more conventional bass role."
+  },
   "0-1-2-5-8_b5": {
     "label": "genuine-ambiguity",
     "note": "Fm6b13 is correct; F-Ab-C-D is a complete root-position Fm6 (enharmonically Dm7b5/F), while Db is a dissonant b13/lower-neighbor color; Dbmaj7b9/F is equally complete but inverted and requires Ebb for its b9; oracle split confirms genuine ambiguity; no engine change needed"
