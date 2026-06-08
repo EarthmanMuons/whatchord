@@ -756,6 +756,31 @@ void main() {
     _expectTieRule(minor7, major6, 'prefer common naming preference');
   });
 
+  test('root-position major6 sharp11 beats inverted minor7 add13', () {
+    final major6Sharp11 = _candidate(
+      quality: ChordQualityToken.major6,
+      root: 'Eb',
+      bass: 'Eb',
+      presentIntervals: const {0, 4, 6, 7, 9},
+      extensions: const {ChordExtension.sharp11},
+      score: 8.03,
+    );
+    final minor7Add13 = _candidate(
+      quality: ChordQualityToken.minor7,
+      root: 'C',
+      bass: 'Eb',
+      presentIntervals: const {0, 3, 7, 9, 10},
+      extensions: const {ChordExtension.add13},
+      score: 8.08,
+    );
+
+    _expectTieRule(
+      major6Sharp11,
+      minor7Add13,
+      'prefer root-position 6th over inverted 7th',
+    );
+  });
+
   group('root-position relative minor7 versus major6 slash', () {
     final minor7 = _candidate(
       quality: ChordQualityToken.minor7,

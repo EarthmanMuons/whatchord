@@ -31,6 +31,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   suspended-chord readings of the same voicing.
 - Prefer complete major 6/9 chords over less conventional inverted
   minor-seven-sharp-five reinterpretations.
+- Prefer root-position major-sixth sharp-eleventh chords over equivalent
+  inverted minor-seven add-thirteen readings.
 - Improved minor-key chord identification so harmonic-minor tonic colors such as
   C#m(maj7)b13 are preferred over remote split-third inversions when context
   supports them.
