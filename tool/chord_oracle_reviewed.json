@@ -59,6 +59,10 @@
     "label": "clearly-correct",
     "note": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable"
   },
+  "0-1-6-9_b6": {
+    "label": "clearly-correct",
+    "note": "F♯m♯11 is the clearest isolated-voicing name because F♯ is the bass and root of a complete minor triad, with C/B♯ supplying a single sharp-eleventh color. Music21's F♯dimaddC♯ requires contradictory flat-five and perfect-fifth roles, while tonal's D♭maj7♯5sus4/F♯ is a highly altered suspended slash interpretation. Key context does not displace the structurally direct F♯-rooted reading."
+  },
   "0-1-6-9_b9": {
     "label": "genuine-ambiguity",
     "note": "A6add#9 is correct; the A bass supports a root-position split-third sixth chord with an optional omitted fifth, while F#m#11/A is a strong alternate that preserves a complete minor triad but spells C as B#; music21 and tonal choose less conventional variants of those competing structures; key context does not resolve the chromatic-color ambiguity; no engine change needed"
