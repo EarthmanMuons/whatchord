@@ -121,6 +121,99 @@ void main() {
     );
   });
 
+  group('fifthless flat-nine-bass dominant ambiguity', () {
+    final dominant = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'C',
+      bass: 'Db',
+      presentIntervals: const {0, 1, 4, 10},
+      extensions: const {ChordExtension.flat9},
+      score: 7.01,
+    );
+
+    final minorMajor7 = _candidate(
+      quality: ChordQualityToken.minorMajor7,
+      root: 'Db',
+      bass: 'Db',
+      presentIntervals: const {0, 3, 9, 11},
+      extensions: const {ChordExtension.add13},
+      score: 7.22,
+    );
+
+    final diminishedTriad = _candidate(
+      quality: ChordQualityToken.diminished,
+      root: 'Bb',
+      bass: 'Db',
+      presentIntervals: const {0, 2, 3, 6},
+      extensions: const {ChordExtension.add9},
+      score: 7.22,
+    );
+
+    test('prefers familiar dominant shell in neutral context', () {
+      _expectRule(
+        dominant,
+        minorMajor7,
+        'prefer flat-nine-bass dominant over remote reinterpretation',
+      );
+      _expectRule(
+        dominant,
+        diminishedTriad,
+        'prefer flat-nine-bass dominant over remote reinterpretation',
+      );
+    });
+
+    test('preserves bass-rooted minor-major7 on the selected tonic', () {
+      const tonality = Tonality(Tonic.cSharp, TonalityMode.minor);
+      final explanation = ChordCandidateRanking.explain(
+        dominant,
+        minorMajor7,
+        tonality: tonality,
+      );
+
+      expect(explanation.result, 1);
+      expect(
+        explanation.decidedByRule,
+        isNot('prefer flat-nine-bass dominant over remote reinterpretation'),
+      );
+    });
+
+    test('does not treat the bass-rooted minor-major7 as tonic in major', () {
+      const tonality = Tonality(Tonic.cSharp, TonalityMode.major);
+      final explanation = ChordCandidateRanking.explain(
+        dominant,
+        minorMajor7,
+        tonality: tonality,
+      );
+
+      expect(explanation.result, -1);
+      expect(
+        explanation.decidedByRule,
+        'prefer flat-nine-bass dominant over remote reinterpretation',
+      );
+    });
+
+    test('does not apply when the dominant fifth is present', () {
+      final completeDominant = _candidate(
+        quality: ChordQualityToken.dominant7,
+        root: 'C',
+        bass: 'Db',
+        presentIntervals: const {0, 1, 4, 7, 10},
+        extensions: const {ChordExtension.flat9},
+        score: 7.01,
+      );
+      final explanation = ChordCandidateRanking.explain(
+        completeDominant,
+        minorMajor7,
+        tonality: defaultTestTonality,
+      );
+
+      expect(
+        explanation.decidedByRule,
+        isNot('prefer flat-nine-bass dominant over remote reinterpretation'),
+      );
+    });
+  });
+
   test('altered dominant7 beats dim7 slash outside the near-tie window', () {
     final dominant = _candidate(
       quality: ChordQualityToken.dominant7,

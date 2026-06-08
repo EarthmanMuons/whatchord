@@ -42,6 +42,10 @@ final List<NamedRule> hardRules = <NamedRule>[
     _preferCompleteDom7Flat9OverColoredDim7,
   ),
   NamedRule(
+    'prefer flat-nine-bass dominant over remote reinterpretation',
+    _preferFlatNineBassDominantOverRemoteReinterpretation,
+  ),
+  NamedRule(
     'prefer complete altered dominant inversion over altered major7',
     _preferCompleteAlteredDom7InversionOverAlteredMajor7,
   ),
@@ -310,6 +314,48 @@ int? _preferCompleteDom7Flat9OverColoredDim7(
   final preferredCandidate = aIsPreferred ? a : b;
   final otherCandidate = aIsPreferred ? b : a;
   if (preferredCandidate.score + 0.55 < otherCandidate.score) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+/// Prefers a fifthless flat-nine-bass dominant shell over the two remote
+/// reinterpretations produced by the same four pitch classes.
+///
+/// Example: {C, Db, E, Bb} with Db in the bass is C7b9/Db, not C#m(maj7)(add13)
+/// or A#dim(add9)/C#. The dominant names the familiar E-Bb tritone shell; the
+/// competitors require less common added-tone structures.
+///
+/// This remains an ambiguity preference, not an absolute analysis: when the
+/// bass-rooted minor-major7 reading is rooted on the selected tonic, context
+/// provides enough evidence to leave that higher-scoring reading ahead.
+int? _preferFlatNineBassDominantOverRemoteReinterpretation(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality tonality,
+) {
+  final aIsPreferred = fa.isFifthlessFlatNineBassDominant;
+  final bIsPreferred = fb.isFifthlessFlatNineBassDominant;
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  final fOther = aIsPreferred ? fb : fa;
+  final otherIsBassRootedMinorMajor7 =
+      fOther.isRootPosition &&
+      other.identity.quality == ChordQualityToken.minorMajor7;
+  final otherIsDiminishedTriad =
+      other.identity.quality == ChordQualityToken.diminished;
+  if (!otherIsBassRootedMinorMajor7 && !otherIsDiminishedTriad) return null;
+
+  if (tonality.isMinor &&
+      otherIsBassRootedMinorMajor7 &&
+      other.identity.rootPc == tonality.tonicPitchClass) {
+    return null;
+  }
+
+  final preferredCandidate = aIsPreferred ? a : b;
+  if (preferredCandidate.score + 0.55 < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }

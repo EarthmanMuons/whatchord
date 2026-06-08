@@ -41,6 +41,7 @@ class CandidateFeatures {
   final bool isCompleteDominantFlat9;
   final bool isCompleteDominantSharp9;
   final bool isCompleteAlteredFifthDominant;
+  final bool isFifthlessFlatNineBassDominant;
 
   final bool isSlashBass;
   final int bassRoleRank;
@@ -87,6 +88,7 @@ class CandidateFeatures {
     required this.isCompleteDominantFlat9,
     required this.isCompleteDominantSharp9,
     required this.isCompleteAlteredFifthDominant,
+    required this.isFifthlessFlatNineBassDominant,
     required this.isSlashBass,
     required this.bassRoleRank,
     required this.bassIsColorTone,
@@ -181,6 +183,7 @@ class CandidateFeatures {
         fifthRole: ChordToneRole.perfect5,
       ),
       isCompleteAlteredFifthDominant: _isCompleteAlteredFifthDominant(id),
+      isFifthlessFlatNineBassDominant: _isFifthlessFlatNineBassDominant(id),
       isSlashBass: isSlashBass,
       bassRoleRank: bassRoleRank,
       bassIsColorTone: bassIsColorTone,
@@ -223,6 +226,31 @@ class CandidateFeatures {
         roles.contains(ChordToneRole.major3) &&
         roles.contains(fifthRole) &&
         roles.contains(ChordToneRole.flat7);
+  }
+
+  /// Returns true for a fifthless dominant7 flat-nine shell whose flat-ninth is
+  /// the bass note.
+  ///
+  /// This identifies the narrow ambiguous shape that can be heard as a familiar
+  /// altered-dominant shell or as a more remote chord rooted on the bass.
+  static bool _isFifthlessFlatNineBassDominant(ChordIdentity id) {
+    if (id.quality != ChordQualityToken.dominant7) return false;
+    if (id.extensions.length != 1 ||
+        !id.extensions.contains(ChordExtension.flat9)) {
+      return false;
+    }
+
+    final roles = id.toneRolesByInterval.values;
+    if (!roles.contains(ChordToneRole.root) ||
+        !roles.contains(ChordToneRole.major3) ||
+        !roles.contains(ChordToneRole.flat7) ||
+        roles.contains(ChordToneRole.perfect5)) {
+      return false;
+    }
+
+    final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
+    if (bassInterval != 1) return false;
+    return id.toneRolesByInterval[bassInterval] == ChordToneRole.flat9;
   }
 
   static bool _isCompleteAlteredFifthDominant(ChordIdentity id) {
