@@ -12,6 +12,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
+- Added a manual chord lookup mode for identifying chords without a MIDI device.
+  Tap the search icon on the input line to slide in a note pad, then tap notes
+  by name to build a chord. Notes are spelled to the current key, the first note
+  tapped is the bass, and repeated taps stack up the octaves. Tapped notes play
+  through the audio monitor when it is enabled.
 - Added Phrygian dominant, Lydian dominant, altered, harmonic major, double
   harmonic major, and augmented inverse scales to Explore Scales.
 

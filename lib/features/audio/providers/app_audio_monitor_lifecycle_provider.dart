@@ -4,8 +4,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/input/input.dart';
+import 'package:whatchord/features/lookup/lookup.dart';
 
 import 'audio_monitor_notifier.dart';
+import 'audio_monitor_settings_notifier.dart';
 
 final appAudioMonitorLifecycleProvider = Provider<void>((ref) {
   ref.listen<AsyncValue<InputNoteEvent>>(inputNoteEventsProvider, (
@@ -15,6 +17,18 @@ final appAudioMonitorLifecycleProvider = Provider<void>((ref) {
     final event = next.asData?.value;
     if (event == null) return;
     ref.read(audioMonitorNotifier.notifier).onInputNoteEvent(event);
+  });
+
+  // Lookup notes are a held selection (for analysis), not a live event stream,
+  // so strike each newly tapped note as a transient preview instead of letting
+  // it ring indefinitely. Strike the actual stacked octave so repeats are
+  // audibly higher.
+  ref.listen<List<int>>(lookupVoicingProvider, (previous, next) {
+    final prev = previous ?? const <int>[];
+    if (next.length <= prev.length) return;
+    if (!ref.read(audioMonitorEnabledProvider)) return;
+
+    ref.read(audioMonitorNotifier.notifier).playPreviewNotes([next.last]);
   });
 
   final controller = _AudioMonitorLifecycleController(ref);
