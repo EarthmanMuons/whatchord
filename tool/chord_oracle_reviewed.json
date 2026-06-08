@@ -65,7 +65,11 @@
   },
   "0-2-4-7-9_b9": {
     "label": "context-dependent",
-    "note": "C6/9 / A or Am7(add11) both valid; perfect 3-way tie (C6/9/A, Am7, D9sus4/A) resolved by tonic preference in C major; all oracles list both C- and A-rooted readings; genuine C6<->Am7 ambiguity extended by a 9th; sound"
+    "note": "Am7(add11) is preferred with A in the bass because it is a complete root-position relative-minor seventh; C6/9/A remains a valid tonic-prolongation reading in C major, and D9sus4/A is another genuine alternate. The bass-rooted structural reading wins without progression context."
+  },
+  "0-4-7-9_b9": {
+    "label": "clearly-correct",
+    "note": "Am7 is the clearest isolated-voicing name: A is the sounding bass and root of a complete minor seventh chord. C6/A is theoretically equivalent and remains a valid alternate for explicit tonic prolongation, but all three oracles prefer Am7 and ChoCo strongly favors minor7 over major6."
   },
   "0-2-4-8_b0": {
     "label": "clearly-correct",

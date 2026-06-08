@@ -697,6 +697,96 @@ void main() {
     _expectTieRule(minor7, major6, 'prefer common naming preference');
   });
 
+  group('root-position relative minor7 versus major6 slash', () {
+    final minor7 = _candidate(
+      quality: ChordQualityToken.minor7,
+      root: 'A',
+      bass: 'A',
+      presentIntervals: const {0, 3, 7, 10},
+      score: 8.37,
+    );
+    final major6Slash = _candidate(
+      quality: ChordQualityToken.major6,
+      root: 'C',
+      bass: 'A',
+      presentIntervals: const {0, 4, 7, 9},
+      score: 8.37,
+    );
+
+    test('prefers the bass-rooted minor7 despite major-key tonic context', () {
+      final explanation = ChordCandidateRanking.explain(
+        minor7,
+        major6Slash,
+        tonality: defaultTestTonality,
+      );
+
+      expect(explanation.result, -1);
+      expect(
+        explanation.decidedByRule,
+        'prefer root-position relative minor7 over major6 slash',
+      );
+    });
+
+    test('extends to matching add11 and add9 color', () {
+      final coloredMinor7 = _candidate(
+        quality: ChordQualityToken.minor7,
+        root: 'A',
+        bass: 'A',
+        presentIntervals: const {0, 3, 5, 7, 10},
+        extensions: const {ChordExtension.add11},
+        score: 8.08,
+      );
+      final coloredMajor6Slash = _candidate(
+        quality: ChordQualityToken.major6,
+        root: 'C',
+        bass: 'A',
+        presentIntervals: const {0, 2, 4, 7, 9},
+        extensions: const {ChordExtension.add9},
+        score: 8.08,
+      );
+
+      final explanation = ChordCandidateRanking.explain(
+        coloredMinor7,
+        coloredMajor6Slash,
+        tonality: defaultTestTonality,
+      );
+
+      expect(explanation.result, -1);
+      expect(
+        explanation.decidedByRule,
+        'prefer root-position relative minor7 over major6 slash',
+      );
+    });
+
+    test('does not override a root-position major6', () {
+      final rootMajor6 = _candidate(
+        quality: ChordQualityToken.major6,
+        root: 'C',
+        bass: 'C',
+        presentIntervals: const {0, 4, 7, 9},
+        score: 8.37,
+      );
+      final minor7Slash = _candidate(
+        quality: ChordQualityToken.minor7,
+        root: 'A',
+        bass: 'C',
+        presentIntervals: const {0, 3, 7, 10},
+        score: 8.37,
+      );
+      final explanation = ChordCandidateRanking.explain(
+        rootMajor6,
+        minor7Slash,
+        tonality: defaultTestTonality,
+      );
+
+      expect(explanation.result, -1);
+      expect(
+        explanation.decidedByRule,
+        'prefer root-position 6th over inverted 7th',
+      );
+    });
+  });
+
   test(
     'dominant7 shell slash with color bass beats major7 family slash in near-tie',
     () {
