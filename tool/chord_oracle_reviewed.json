@@ -59,6 +59,10 @@
     "label": "clearly-correct",
     "note": "Cadd♭9/G is the clearest interpretation because it preserves a complete C-major triad in conventional second inversion and names D♭ as the single chromatic flat ninth. Music21 and tonal both agree on the C-rooted add-flat-nine structure. The E-rooted alternatives require less conventional mixed color tones, while C♯dim/G drops the sounding C."
   },
+  "0-1-5-9_b0": {
+    "label": "clearly-correct",
+    "note": "D♭maj7♯5/C is clearly correct because all four sounding pitches are core chord tones and C is the conventional major-seventh bass. Music21 returns the same semantic reading, and tonal includes it alongside a less direct flat-thirteen spelling. The competing F-rooted and D♭aug alternatives treat D♭ or C as added color rather than accounting for the complete major-seventh-sharp-five structure."
+  },
   "0-1-5-9_b1": {
     "label": "clearly-correct",
     "note": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable"
