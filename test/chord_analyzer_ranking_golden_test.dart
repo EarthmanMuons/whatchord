@@ -335,6 +335,29 @@ void main() {
     ),
 
     golden(
+      description: 'root-position augmented add-tone beats altered dominant',
+      expectedSymbol: 'Abaugadd9',
+      expectedAlternateSymbols: ['C7#5 / G#'],
+      pcs: ['C', 'E', 'Ab', 'Bb'],
+      bass: 'Ab',
+      expectedRoot: 'Ab',
+      expectedQuality: ChordQualityToken.augmented,
+      expectedExtensions: {ChordExtension.add9},
+    ),
+
+    golden(
+      description:
+          'complete altered dominant inversion beats augmented add-tone slash',
+      expectedSymbol: 'C7#5 / E',
+      expectedAlternateSymbols: ['Abaugadd9 / E'],
+      pcs: ['C', 'E', 'Ab', 'Bb'],
+      bass: 'E',
+      expectedRoot: 'C',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.dominant7Sharp5,
+    ),
+
+    golden(
       description: 'root-position double suspension beats dominant sus slash',
       expectedSymbol: 'Gsus2sus4',
       expectedAlternateSymbols: ['D7sus4 / G'],
