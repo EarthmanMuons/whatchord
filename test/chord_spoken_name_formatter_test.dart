@@ -70,7 +70,7 @@ void main() {
           intervals: const [0, 5, 7],
         ),
       ),
-      'C sus four',
+      'C sus',
     );
     expect(
       spoken(
