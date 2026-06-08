@@ -95,6 +95,10 @@
     "label": "genuine-ambiguity",
     "note": "F6/A or Dm7/A both valid; perfect tie; classic F6↔Dm7 ambiguity; oracles converge on Dm7/A; our inversion tie-breaker prefers F6/A (1st inversion over 2nd); neither is wrong; no action needed"
   },
+  "0-2-5-7_b0": {
+    "label": "clearly-correct",
+    "note": "Csus2sus4 is correct; it is the complete root-position double-suspension template and scores clearly above the incomplete or slash alternatives. Tonal's Csus24 and pychord's Csus4add2 are semantically equivalent names for the same C-rooted structure."
+  },
   "0-2-6-8_b2": {
     "label": "genuine-ambiguity",
     "note": "D7b5 is correct; perfect tie with G#7b5/D resolved by root-position preference; classic tritone symmetry; both oracles list both readings; no action needed"
