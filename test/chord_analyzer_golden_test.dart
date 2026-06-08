@@ -295,6 +295,22 @@ void main() {
       },
     ),
 
+    // A natural thirteenth over a full stack still headlines as 13 even when the
+    // intervening ninth/eleventh are altered: C7(#9,#11,add13) collapses to
+    // C13(#9,#11).
+    golden(
+      description: 'thirteenth headline with altered ninth and eleventh',
+      expectedSymbol: 'C13(#9,#11)',
+      pcs: ['C', 'E', 'G', 'Bb', 'D#', 'F#', 'A'],
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.sharp9,
+        ChordExtension.sharp11,
+        ChordExtension.thirteen,
+      },
+    ),
+
     // Dominant 7 suspended 4 with 9 should promote to the combined headline.
     golden(
       description: 'dominant ninth suspended fourth',

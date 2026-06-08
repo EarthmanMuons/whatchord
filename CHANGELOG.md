@@ -22,6 +22,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Collapsed stacked extensions into a thirteenth or eleventh headline even when
+  the ninth or eleventh is altered, so voicings such as B13(#9,#11) no longer
+  display as B7(#9,#11,add13).
 - Improved relative-major and relative-minor ambiguity handling so root-position
   minor seventh chords such as Am7 are preferred over equivalent major-sixth
   slash readings such as C6/A.
