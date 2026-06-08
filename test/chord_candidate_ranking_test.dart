@@ -437,6 +437,31 @@ void main() {
     }
   });
 
+  test('complete major six-nine beats inverted minor7 sharp-five', () {
+    final majorSixNine = _candidate(
+      quality: ChordQualityToken.major6,
+      root: 'Eb',
+      bass: 'Bb',
+      presentIntervals: const {0, 2, 4, 7, 9},
+      extensions: const {ChordExtension.add9},
+      score: 8.08,
+    );
+    final alteredMinorSlash = _candidate(
+      quality: ChordQualityToken.minor7Sharp5,
+      root: 'G',
+      bass: 'Bb',
+      presentIntervals: const {0, 3, 5, 8, 10},
+      extensions: const {ChordExtension.add11},
+      score: 8.25,
+    );
+
+    _expectTieRule(
+      majorSixNine,
+      alteredMinorSlash,
+      'prefer complete major six-nine over inverted minor-seven sharp-five',
+    );
+  });
+
   test('minor7 eleventh-bass slash beats minor7 sharp-five slash', () {
     final minor7Slash = _candidate(
       quality: ChordQualityToken.minor7,
