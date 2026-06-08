@@ -25,6 +25,12 @@ extend-ignore-re = [
   "\\b\\d+ths\\b",
 ]
 
+[type.json]
+extend-ignore-re = [
+  # chord symbols with an added tone (e.g. "Aadd#9")
+  "\\b[A-G](?:[#b])?add[#b]?\\d+\\b",
+]
+
 [type.readme]
 # oddly, the built-in `readme` type isn't matching this properly
 extend-glob = ["README.md"]
