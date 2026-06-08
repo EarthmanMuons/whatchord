@@ -3,6 +3,7 @@ import '../models/chord_extension.dart';
 import '../models/chord_identity.dart';
 import '../models/scale_degree.dart';
 import '../models/tonality.dart';
+import '../services/pitch_class.dart';
 import 'candidate_features.dart';
 import 'common_name_prior_rule.dart';
 
@@ -125,7 +126,7 @@ int? _preferConventionalSplitNineTritoneDominant(
       !(bIsSplitNine && aIsTritoneColor)) {
     return null;
   }
-  if ((a.identity.rootPc - b.identity.rootPc).abs() != 6) return null;
+  if (intervalAboveRoot(a.identity.rootPc, b.identity.rootPc) != 6) return null;
   if (fa.bassRoleRank == fb.bassRoleRank) return null;
   if ((a.score - b.score).abs() > 0.30) return null;
 
