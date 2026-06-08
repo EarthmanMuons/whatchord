@@ -384,6 +384,18 @@ void main() {
     ),
 
     golden(
+      description: 'complete major six-nine beats altered minor slash',
+      expectedSymbol: 'Eb6/9 / Bb',
+      expectedAlternateSymbols: ['Gm7#5(add11) / Bb', 'Cm7(add11) / Bb'],
+      pcs: ['C', 'Eb', 'F', 'G', 'Bb'],
+      bass: 'Bb',
+      expectedRoot: 'Eb',
+      expectedBass: 'Bb',
+      expectedQuality: ChordQualityToken.major6,
+      expectedExtensions: {ChordExtension.add9},
+    ),
+
+    golden(
       description:
           'common altered dominant beats rarer enharmonic ninth inversion',
       expectedSymbol: 'G7#5 / A',

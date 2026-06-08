@@ -171,6 +171,10 @@
     "label": "genuine-ambiguity",
     "note": "Ab/C is correct; near tie with Cm#5 resolved by existing complete-major-inversion-over-minor-sharp-five hard rule; both oracles list both readings; no action needed"
   },
+  "0-3-5-7-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "E♭6/9/B♭ is preferred because it is a complete and highly conventional major-six-nine chord with its fifth in the bass. Cm7(add11)/B♭ is a valid complete alternate chosen by music21 and tonal, while Gm7♯5(add11)/B♭ is a less conventional enharmonic reinterpretation that had been inflated by its altered-minor template. The bass and common-name evidence favor E♭6/9/B♭ without denying the genuine C-minor-eleventh ambiguity."
+  },
   "0-4-8-11_b0": {
     "label": "oracle-limitation",
     "note": "Cmaj7#5 is correct; oracles use non-standard notation (C+M7, CM7b6)"

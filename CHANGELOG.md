@@ -29,6 +29,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   inverted augmented add-tone readings.
 - Prefer root-position minor-eleventh shells such as Dm7(add11) over inverted
   suspended-chord readings of the same voicing.
+- Prefer complete major 6/9 chords over less conventional inverted
+  minor-seven-sharp-five reinterpretations.
 - Improved minor-key chord identification so harmonic-minor tonic colors such as
   C#m(maj7)b13 are preferred over remote split-third inversions when context
   supports them.

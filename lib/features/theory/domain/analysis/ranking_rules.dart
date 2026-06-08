@@ -91,6 +91,10 @@ final List<NamedRule> hardRules = <NamedRule>[
     _preferRootMinor7Add11ShellOverSusSlash,
   ),
   NamedRule(
+    'prefer complete major six-nine over inverted minor-seven sharp-five',
+    _preferCompleteMajorSixNineOverInvertedMinor7Sharp5,
+  ),
+  NamedRule(
     'prefer simple triad add-tone over seventh-family unusual quality',
     _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality,
   ),
@@ -125,6 +129,38 @@ int? _preferRootMinor7Add11ShellOverSusSlash(
 
   final preferred = aIsPreferred ? a : b;
   if (preferred.score + 1.30 < other.score) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+/// Prefers a complete major 6/9 over an inverted minor7 sharp-five add11.
+///
+/// Example: {Eb, G, Bb, C, F} with Bb in the bass is most naturally Eb6/9/Bb,
+/// not Gm7#5(add11)/Bb. The altered-minor template's extra required tone can
+/// create a modest score advantage despite the conventional complete 6/9
+/// reading. A root-position altered-minor reading is left untouched.
+int? _preferCompleteMajorSixNineOverInvertedMinor7Sharp5(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = fa.isCompleteMajorSixNine;
+  final bIsPreferred = fb.isCompleteMajorSixNine;
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  final fOther = aIsPreferred ? fb : fa;
+  if (fOther.isRootPosition ||
+      other.identity.quality != ChordQualityToken.minor7Sharp5 ||
+      other.identity.extensions.length != 1 ||
+      !other.identity.extensions.contains(ChordExtension.add11)) {
+    return null;
+  }
+
+  final preferred = aIsPreferred ? a : b;
+  if (preferred.score + 0.30 < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }
