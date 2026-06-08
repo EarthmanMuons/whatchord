@@ -134,6 +134,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     'prefer voicing that names every tone',
     _preferFullyExplainedVoicing,
   ),
+  NamedRule(
+    'prefer harmonic-minor tonic over split-third inversion',
+    _preferHarmonicMinorTonicOverSplitThirdInversion,
+  ),
   NamedRule('prefer fewer altered/tension colors', _preferFewerAlterations),
   NamedRule('prefer diatonic chords', _preferDiatonic),
   NamedRule('prefer tonic chord', _preferTonicChord),
@@ -1049,6 +1053,56 @@ int? _preferFullyExplainedVoicing(
   final bDropsTone = fb.unnamedToneCount > 0;
   if (aDropsTone == bDropsTone) return null;
   return aDropsTone ? 1 : -1;
+}
+
+/// Lets strong minor-key context resolve a split-third inversion ambiguity.
+///
+/// Example: {C, Db, E, A} with Db in the bass is Aadd#9/C# in neutral context,
+/// but C#m(maj7)b13 in C# minor. The latter is a root-position harmonic-minor
+/// tonic containing the tonic, minor third, flat sixth, and raised seventh.
+///
+/// Keep this pair-specific so harmonic-minor context does not broadly override
+/// complete triad inversions or the generic preference for fewer tensions.
+int? _preferHarmonicMinorTonicOverSplitThirdInversion(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality tonality,
+) {
+  if (!tonality.isMinor) return null;
+
+  bool isHarmonicMinorTonic(ChordCandidate candidate, CandidateFeatures f) {
+    if (!f.isRootPosition ||
+        candidate.identity.quality != ChordQualityToken.minorMajor7 ||
+        candidate.identity.extensions.length != 1 ||
+        !candidate.identity.extensions.contains(ChordExtension.flat13)) {
+      return false;
+    }
+
+    final analysis = tonality.scaleDegreeAnalysisForChord(candidate.identity);
+    return analysis?.degree == ScaleDegree.one &&
+        analysis?.source == ScaleDegreeSource.harmonicMinor;
+  }
+
+  bool isSplitThirdMajorInversion(
+    ChordCandidate candidate,
+    CandidateFeatures f,
+  ) {
+    return f.isCompleteMajorTriadInversion &&
+        candidate.identity.extensions.length == 1 &&
+        candidate.identity.extensions.contains(ChordExtension.addSharp9);
+  }
+
+  final aIsTonic = isHarmonicMinorTonic(a, fa);
+  final bIsTonic = isHarmonicMinorTonic(b, fb);
+  if (aIsTonic == bIsTonic) return null;
+
+  final other = aIsTonic ? b : a;
+  final fOther = aIsTonic ? fb : fa;
+  if (!isSplitThirdMajorInversion(other, fOther)) return null;
+
+  return aIsTonic ? -1 : 1;
 }
 
 int? _preferFewerAlterations(
