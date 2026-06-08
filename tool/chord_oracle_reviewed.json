@@ -51,6 +51,10 @@
     "label": "context-dependent",
     "note": "Aadd#9/C# is the clearer neutral-context reading because it preserves a complete major triad in first inversion, and music21 agrees on the A-rooted structure. In C# minor, C#m(maj7)b13 is preferred as a root-position harmonic-minor tonic containing the minor third, flat sixth, and raised seventh; tonal agrees on that bass-rooted structure."
   },
+  "0-1-4-10_b1": {
+    "label": "context-dependent",
+    "note": "C7♭9/D♭ is the clearest neutral-context reading because C, E, and B♭ form the familiar dominant tritone shell and D♭ is the characteristic flat ninth; omitting the fifth is routine, and tonal agrees on the C altered-dominant structure. Music21's A♯dimadd9/C♯ and the root-position C♯m(maj7)(add13) are valid but less conventional reinterpretations. In C♯ minor, tonic context correctly promotes C♯m(maj7)(add13)."
+  },
   "0-1-5-9_b1": {
     "label": "clearly-correct",
     "note": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable"
