@@ -209,7 +209,7 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.sus2:
         return 'sus two';
       case ChordQualityToken.sus4:
-        return 'sus four';
+        return 'sus';
       case ChordQualityToken.sus2sus4:
         return 'sus two sus four';
       case ChordQualityToken.major6:
@@ -221,7 +221,7 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.dominant7sus2:
         return 'seven sus two';
       case ChordQualityToken.dominant7sus4:
-        return 'seven sus four';
+        return 'seven sus';
       case ChordQualityToken.dominant7Flat5:
         return 'seven flat five';
       case ChordQualityToken.dominant7Sharp5:
@@ -231,7 +231,7 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.major7sus2:
         return 'major seven sus two';
       case ChordQualityToken.major7sus4:
-        return 'major seven sus four';
+        return 'major seven sus';
       case ChordQualityToken.major7Flat5:
         return 'major seven flat five';
       case ChordQualityToken.major7Sharp5:
