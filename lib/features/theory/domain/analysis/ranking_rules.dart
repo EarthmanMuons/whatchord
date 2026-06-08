@@ -955,6 +955,15 @@ int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
   if (fOther.extPref.totalCount > 0) return null;
   if (fOther.isRootPosition) return null;
 
+  // A complete altered dominant in a conventional inversion is a stronger
+  // structural reading than an inverted augmented add-tone chord. Preserve
+  // the triad preference when it aligns with the bass, but do not use it to
+  // demote readings such as C7#5/E in favor of Abaugadd9/E.
+  final fTriad = aIsTriadAddTone ? fa : fb;
+  if (fOther.isCompleteAlteredFifthDominant && !fTriad.isRootPosition) {
+    return null;
+  }
+
   // Score guard: let decisively higher-scoring unusual-quality readings
   // through when the gap exceeds what structural inflation explains.
   final preferredCandidate = aIsTriadAddTone ? a : b;

@@ -71,6 +71,10 @@
     "label": "clearly-correct",
     "note": "Am7 is the clearest isolated-voicing name: A is the sounding bass and root of a complete minor seventh chord. C6/A is theoretically equivalent and remains a valid alternate for explicit tonic prolongation, but all three oracles prefer Am7 and ChoCo strongly favors minor7 over major6."
   },
+  "0-4-8-10_b8": {
+    "label": "genuine-ambiguity",
+    "note": "A♭augadd9 is preferred because the bass supports a complete root-position augmented triad with a natural add9, and tonal agrees. C7♯5/A♭ is a strong complete altered-dominant alternate supported by pychord, so the ambiguity is genuine. The triad preference remains appropriate in root position but should not demote a complete altered dominant when the augmented add-tone reading is itself inverted."
+  },
   "0-4-8_b0": {
     "label": "clearly-correct",
     "note": "Caug is correct; augmented triads are symmetric, so Eaug/C and Abaug/C are valid alternate roots, but C in the bass makes the root-position Caug reading the clearest context-free name. Tonal agrees, while music21 chooses the valid Ab-rooted alternate."
