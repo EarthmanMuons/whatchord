@@ -373,6 +373,17 @@ void main() {
     ),
 
     golden(
+      description: 'root-position minor-eleventh shell beats sus slash',
+      expectedSymbol: 'Dm7(add11)',
+      expectedAlternateSymbols: ['G7sus4 / D', 'Csus2sus4 / D'],
+      pcs: ['C', 'D', 'F', 'G'],
+      bass: 'D',
+      expectedRoot: 'D',
+      expectedQuality: ChordQualityToken.minor7,
+      expectedExtensions: {ChordExtension.add11},
+    ),
+
+    golden(
       description:
           'common altered dominant beats rarer enharmonic ninth inversion',
       expectedSymbol: 'G7#5 / A',

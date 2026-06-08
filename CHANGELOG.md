@@ -27,8 +27,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   slash readings such as C6/A.
 - Fixed complete altered-dominant inversions being ranked below competing
   inverted augmented add-tone readings.
-- Improved minor-key chord identification so harmonic-minor tonic colors such
-  as C#m(maj7)b13 are preferred over remote split-third inversions when context
+- Prefer root-position minor-eleventh shells such as Dm7(add11) over inverted
+  suspended-chord readings of the same voicing.
+- Improved minor-key chord identification so harmonic-minor tonic colors such as
+  C#m(maj7)b13 are preferred over remote split-third inversions when context
   supports them.
 - Improved recognition of fifthless flat-nine-bass dominant shells such as
   C7b9/Db while preserving tonic-minor context for plausible bass-rooted

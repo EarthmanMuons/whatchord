@@ -18,6 +18,7 @@ class CandidateFeatures {
   final bool isDimFamily;
   final bool isSus;
   final bool isCompleteMinorSharp11;
+  final bool isRootPositionMinor7Add11Shell;
   final bool isCompleteMajorMinorTriad;
   final bool isCompleteMajorTriadInversion;
   final bool isMinorSharpFive;
@@ -66,6 +67,7 @@ class CandidateFeatures {
     required this.isDimFamily,
     required this.isSus,
     required this.isCompleteMinorSharp11,
+    required this.isRootPositionMinor7Add11Shell,
     required this.isCompleteMajorMinorTriad,
     required this.isCompleteMajorTriadInversion,
     required this.isMinorSharpFive,
@@ -139,6 +141,10 @@ class CandidateFeatures {
       isDimFamily: isDimFamily,
       isSus: q.isSus,
       isCompleteMinorSharp11: _isCompleteMinorSharp11(id),
+      isRootPositionMinor7Add11Shell: _isRootPositionMinor7Add11Shell(
+        id,
+        rootPos,
+      ),
       isCompleteMajorMinorTriad: _isCompleteMajorMinorTriadCore(id),
       isCompleteMajorTriadInversion: _isCompleteMajorTriadInversion(
         id,
@@ -292,6 +298,24 @@ class CandidateFeatures {
         roles.contains(ChordToneRole.minor3) &&
         roles.contains(ChordToneRole.perfect5) &&
         roles.contains(ChordToneRole.sharp11);
+  }
+
+  static bool _isRootPositionMinor7Add11Shell(
+    ChordIdentity id,
+    bool rootPosition,
+  ) {
+    if (!rootPosition ||
+        id.quality != ChordQualityToken.minor7 ||
+        id.extensions.length != 1 ||
+        !id.extensions.contains(ChordExtension.add11)) {
+      return false;
+    }
+
+    final roles = id.toneRolesByInterval.values;
+    return roles.contains(ChordToneRole.root) &&
+        roles.contains(ChordToneRole.minor3) &&
+        roles.contains(ChordToneRole.flat7) &&
+        roles.contains(ChordToneRole.add11);
   }
 
   static bool _isCompleteMajorMinorTriadCore(ChordIdentity id) {
