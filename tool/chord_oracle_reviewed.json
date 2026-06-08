@@ -67,6 +67,10 @@
     "label": "clearly-correct",
     "note": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable"
   },
+  "0-1-5-9_b5": {
+    "label": "clearly-correct",
+    "note": "D♭maj7♯5/F is clearly correct because all four sounding pitches are core chord tones and F is the conventional major-third bass. Music21, tonal, and pychord all return D♭-rooted major-seventh readings, with music21 and tonal explicitly including the sharp-fifth interpretation. The F-rooted flat-thirteen reading is less direct because it treats D♭ as altered color rather than recognizing the complete major-seventh-sharp-five structure."
+  },
   "0-1-6-9_b6": {
     "label": "clearly-correct",
     "note": "F♯m♯11 is the clearest isolated-voicing name because F♯ is the bass and root of a complete minor triad, with C/B♯ supplying a single sharp-eleventh color. Music21's F♯dimaddC♯ requires contradictory flat-five and perfect-fifth roles, while tonal's D♭maj7♯5sus4/F♯ is a highly altered suspended slash interpretation. Key context does not displace the structurally direct F♯-rooted reading."
