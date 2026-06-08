@@ -75,6 +75,10 @@
     "label": "clearly-correct",
     "note": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable"
   },
+  "0-1-5-7-10_b5": {
+    "label": "genuine-ambiguity",
+    "note": "B♭m6/9/F is preferred because it is a complete minor-six-nine chord with its fifth in the bass, a more conventional inversion than the complete Gm7♭5(add11)/F reading with its flat seventh in the bass. Music21 chooses the valid G-rooted half-diminished interpretation, while tonal includes B♭m6/9/F. Related root-bass cases favor their respective structures, and key context does not resolve this F-bass ambiguity."
+  },
   "0-1-5-9_b5": {
     "label": "clearly-correct",
     "note": "D♭maj7♯5/F is clearly correct because all four sounding pitches are core chord tones and F is the conventional major-third bass. Music21, tonal, and pychord all return D♭-rooted major-seventh readings, with music21 and tonal explicitly including the sharp-fifth interpretation. The F-rooted flat-thirteen reading is less direct because it treats D♭ as altered color rather than recognizing the complete major-seventh-sharp-five structure."
