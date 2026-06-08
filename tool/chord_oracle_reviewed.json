@@ -55,6 +55,10 @@
     "label": "context-dependent",
     "note": "C7♭9/D♭ is the clearest neutral-context reading because C, E, and B♭ form the familiar dominant tritone shell and D♭ is the characteristic flat ninth; omitting the fifth is routine, and tonal agrees on the C altered-dominant structure. Music21's A♯dimadd9/C♯ and the root-position C♯m(maj7)(add13) are valid but less conventional reinterpretations. In C♯ minor, tonic context correctly promotes C♯m(maj7)(add13)."
   },
+  "0-1-4-7_b7": {
+    "label": "clearly-correct",
+    "note": "Cadd♭9/G is the clearest interpretation because it preserves a complete C-major triad in conventional second inversion and names D♭ as the single chromatic flat ninth. Music21 and tonal both agree on the C-rooted add-flat-nine structure. The E-rooted alternatives require less conventional mixed color tones, while C♯dim/G drops the sounding C."
+  },
   "0-1-5-9_b1": {
     "label": "clearly-correct",
     "note": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable"
