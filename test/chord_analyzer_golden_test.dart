@@ -197,6 +197,32 @@ void main() {
       expectedExtensions: {ChordExtension.flat9},
     ),
 
+    // In neutral context, prefer the familiar fifthless altered-dominant shell
+    // while retaining the bass-rooted reinterpretations as near-tie alternates.
+    golden(
+      description: 'flat-nine-bass dominant without fifth',
+      expectedSymbol: 'C7b9 / Db',
+      expectedAlternateSymbols: ['C#m(maj7)(add13)', 'A#dimadd9 / C#'],
+      pcs: ['C', 'Db', 'E', 'Bb'],
+      bass: 'Db',
+      expectedRoot: 'C',
+      expectedBass: 'Db',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9},
+    ),
+
+    golden(
+      description: 'tonic minor-major7 context beats flat-nine-bass dominant',
+      expectedSymbol: 'C#m(maj7)(add13)',
+      pcs: ['C', 'Db', 'E', 'Bb'],
+      bass: 'Db',
+      tonality: const Tonality(Tonic.cSharp, TonalityMode.minor),
+      expectedRoot: 'Db',
+      expectedBass: 'Db',
+      expectedQuality: ChordQualityToken.minorMajor7,
+      expectedExtensions: {ChordExtension.add13},
+    ),
+
     // Hendrix chord: dominant shell plus #9 should not be treated as a minor-third penalty.
     golden(
       description: 'dominant seventh sharp ninth',

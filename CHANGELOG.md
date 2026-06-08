@@ -22,6 +22,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Improved recognition of fifthless flat-nine-bass dominant shells such as
+  C7b9/Db while preserving tonic-minor context for plausible bass-rooted
+  interpretations.
 - Fixed complete dominant flat-nine inversions such as C7b9/G being ranked below
   less conventional diminished-seventh add-tone interpretations.
 - Fixed complete altered-dominant inversions such as A7#5#9/C# being ranked
