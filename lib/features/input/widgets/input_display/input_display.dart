@@ -285,6 +285,13 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final mediaQuery = MediaQuery.of(context);
+    final safeTrailingInset = mediaQuery.orientation == Orientation.landscape
+        ? mediaQuery.viewPadding.right
+        : 0.0;
+    final padding = widget.padding.copyWith(
+      right: widget.padding.right + safeTrailingInset,
+    );
     final pedalSlotWidth = PedalIndicator.slotWidthFor(
       context,
       visualScaleMultiplier: widget.visualScaleMultiplier,
@@ -333,7 +340,7 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
         : null;
 
     return Padding(
-      padding: widget.padding,
+      padding: padding,
       child: ConstrainedBox(
         constraints: BoxConstraints(minHeight: minHeight),
         child: SizedBox(

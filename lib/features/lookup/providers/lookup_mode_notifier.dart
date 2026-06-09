@@ -83,14 +83,17 @@ class LookupModeNotifier extends Notifier<LookupState> {
   /// is the bass.
   void addNote(int pitchClass) {
     if (!state.active) return;
-    // Tapping a note is real input: it ends a running tour (demo), which would
-    // otherwise keep driving the card while the empty pad sits open.
-    if (ref.read(demoModeProvider)) {
-      ref.read(demoModeProvider.notifier).setEnabled(false);
-    }
     state = state.copyWith(
       pitchClasses: [...state.pitchClasses, pitchClass % 12],
     );
+
+    // Tapping a note is real input: it ends a running tour (demo), which would
+    // otherwise keep driving the card while the empty pad sits open. Commit the
+    // lookup note first so soundingNoteNumbersProvider switches directly from
+    // demo to lookup instead of rebuilding through an empty intermediate state.
+    if (ref.read(demoModeProvider)) {
+      ref.read(demoModeProvider.notifier).setEnabled(false);
+    }
   }
 
   void clear() {

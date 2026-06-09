@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 class AudioMonitorSettings {
   const AudioMonitorSettings({required this.enabled, required this.volume});
 
-  const AudioMonitorSettings.defaults() : enabled = false, volume = 0.7;
+  const AudioMonitorSettings.defaults() : enabled = true, volume = 0.7;
 
   final bool enabled;
   final double volume;

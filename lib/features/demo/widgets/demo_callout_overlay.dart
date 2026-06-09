@@ -132,7 +132,12 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
       isDark ? 0.82 : 0.2,
     )!.withValues(alpha: isDark ? 0.94 : 0.84);
 
-    final geometry = _geometryFor(target, promptRect, targetRect);
+    final geometry = _geometryFor(
+      target,
+      promptRect,
+      targetRect,
+      isLandscape: MediaQuery.orientationOf(context) == Orientation.landscape,
+    );
     return Positioned.fill(
       child: IgnorePointer(
         child: CustomPaint(
@@ -155,8 +160,14 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
   ({Offset start, Offset control, Offset end}) _geometryFor(
     DemoTarget target,
     Rect prompt,
-    Rect t,
-  ) {
+    Rect targetRect, {
+    required bool isLandscape,
+  }) {
+    if (isLandscape) {
+      return _landscapeGeometryFor(target, prompt, targetRect);
+    }
+
+    final t = targetRect;
     switch (target) {
       case DemoTarget.chordCard:
         // Keep a gap above the prompt text that mirrors the head's gap below
@@ -186,6 +197,59 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
     }
   }
 
+  /// Landscape places the prompt in the right analysis panel, so arrows route
+  /// from that panel toward their targets instead of using the portrait hooks.
+  ({Offset start, Offset control, Offset end}) _landscapeGeometryFor(
+    DemoTarget target,
+    Rect prompt,
+    Rect t,
+  ) {
+    switch (target) {
+      case DemoTarget.chordCard:
+        final geometry = _curved(prompt, t, mirror: true, bowLimit: 64);
+        return (
+          start: Offset.lerp(geometry.start, geometry.control, 0.14)!,
+          control: geometry.control,
+          end: geometry.end,
+        );
+      case DemoTarget.alternatives:
+        // The alternatives widget fills the otherwise-empty upper-right panel.
+        // Aim at the visible alternative label near its top-left instead of the
+        // edge of that large layout box.
+        final end = Offset(t.left + 46, t.top + 34);
+        final control = Offset(end.dx + 34, end.dy + 18);
+        final start = Offset(prompt.left + 72, prompt.top - 14);
+        return (start: start, control: control, end: end);
+      case DemoTarget.tonalityBar:
+        // The scale degrees occupy the right side of the combined tonality bar.
+        // Use that narrower region so the arrow does not point at the obvious
+        // key-selection button on the left.
+        final scaleStrip = Rect.fromLTRB(
+          t.left + (t.width * 0.62),
+          t.top,
+          t.right - 20,
+          t.bottom,
+        );
+        return _curved(
+          prompt,
+          scaleStrip,
+          mirror: true,
+          endInset: 2,
+          endNudge: const Offset(0, -4),
+          bowLimit: 32,
+        );
+      case DemoTarget.lookupButton:
+        // Approach from below with a horizontal head toward the search icon.
+        final end = Offset(t.left - 2, t.center.dy + 2);
+        final control = Offset(end.dx - 40, end.dy);
+        final start = Offset(
+          math.min(prompt.right - 24, control.dx - 34),
+          prompt.bottom + 8,
+        );
+        return (start: start, control: control, end: end);
+    }
+  }
+
   /// Generic curved arrow from the prompt edge to the target edge, with optional
   /// horizontal [shiftX], a [mirror]ed bow direction, and end-point tuning.
   ({Offset start, Offset control, Offset end}) _curved(
@@ -195,6 +259,7 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
     bool mirror = false,
     double endInset = 10,
     Offset endNudge = Offset.zero,
+    double bowLimit = 48,
   }) {
     final from = _edgePoint(prompt, t.center).translate(shiftX, 0);
     final to = _edgePoint(
@@ -206,7 +271,7 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
     final dist = delta.distance;
     final unit = dist < 1 ? const Offset(0, -1) : delta / dist;
     final perp = mirror ? Offset(unit.dy, -unit.dx) : Offset(-unit.dy, unit.dx);
-    final bow = math.min(48.0, dist * 0.22);
+    final bow = math.min(bowLimit, dist * 0.22);
     final control = Offset.lerp(from, to, 0.5)! + (perp * bow);
     return (start: from, control: control, end: to);
   }
