@@ -110,10 +110,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
     final midiStatus = ref.watch(midiConnectionStatusProvider);
-    final demoEnabled = ref.watch(demoModeProvider);
-    final demoVariant = ref.watch(demoModeVariantProvider);
-    final userDemoEnabled =
-        demoEnabled && demoVariant == DemoModeVariant.interactive;
     final audioSettings = ref.watch(audioMonitorSettingsNotifier);
     final audioVolumePercent = (audioSettings.volume * 100).round();
     final disabledTextColor = cs.onSurface.withValues(alpha: 0.38);
@@ -168,23 +164,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     );
                   },
                 ),
-              ),
-
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Demo Mode'),
-                subtitle: const Text(
-                  'Take a guided tour without a MIDI device',
-                ),
-                value: userDemoEnabled,
-                onChanged: (enabled) {
-                  ref
-                      .read(demoModeProvider.notifier)
-                      .setEnabledFor(
-                        enabled: enabled,
-                        variant: DemoModeVariant.interactive,
-                      );
-                },
               ),
 
               SwitchListTile(
@@ -479,7 +458,18 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   title: const Text('Help & Support'),
                   subtitle: const Text('Instructions, reporting, and contact'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => showSupportSheet(context),
+                  onTap: () => showSupportSheet(
+                    context,
+                    onReplayTour: () {
+                      ref
+                          .read(demoModeProvider.notifier)
+                          .setEnabledFor(
+                            enabled: true,
+                            variant: DemoModeVariant.interactive,
+                          );
+                      Navigator.of(context).pop();
+                    },
+                  ),
                 ),
               ),
 

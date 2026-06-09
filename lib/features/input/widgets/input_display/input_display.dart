@@ -24,9 +24,13 @@ class InputDisplay extends ConsumerStatefulWidget {
     super.key,
     required this.padding,
     this.visualScaleMultiplier = 1.0,
+    this.lookupButtonKey,
   });
   final EdgeInsets padding;
   final double visualScaleMultiplier;
+
+  /// Optional key on the lookup (search) button, used as a tour callout target.
+  final Key? lookupButtonKey;
 
   @override
   ConsumerState<InputDisplay> createState() => _InputDisplayState();
@@ -547,6 +551,7 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
     return Transform.translate(
       offset: const Offset(8, 4),
       child: IconButton(
+        key: widget.lookupButtonKey,
         icon: Icon(lookupActive ? Icons.piano : Icons.search),
         tooltip: lookupActive ? 'Back to keyboard' : 'Look up a chord',
         style: IconButton.styleFrom(

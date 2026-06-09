@@ -33,11 +33,12 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   late final ProviderSubscription<MidiConnectionState> _midiSub;
-  final GlobalKey _midiStatusIconKey = GlobalKey(debugLabel: 'midiStatusIcon');
 
   @override
   void initState() {
     super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeStartTour());
 
     _midiSub = ref.listenManual(midiConnectionStateProvider, (prev, next) {
       if (!mounted) return;
@@ -61,7 +62,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             ? 'MIDI connected: $name'
             : 'MIDI connected';
         final text = disableInteractiveDemo
-            ? '$baseText\nDemo Mode disabled'
+            ? '$baseText\nTour ended'
             : baseText;
 
         ScaffoldMessenger.of(
@@ -77,8 +78,25 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.dispose();
   }
 
+  /// On first launch only, auto-start the guided tour so its walkthrough is
+  /// visible right here on the home screen. Skipped if a MIDI device is already
+  /// connected, since live input would immediately end it.
+  void _maybeStartTour() {
+    if (!mounted) return;
+    if (!ref.read(onboardingTourProvider).shouldStartTour) return;
+
+    final connected =
+        ref.read(midiConnectionStateProvider).phase ==
+        MidiConnectionPhase.connected;
+    unawaited(ref.read(onboardingTourProvider.notifier).markSeen());
+    if (connected) return;
+
+    ref
+        .read(demoModeProvider.notifier)
+        .setEnabledFor(enabled: true, variant: DemoModeVariant.interactive);
+  }
+
   void _openMidiSettings() {
-    unawaited(ref.read(midiSettingsOnboardingProvider.notifier).markSeen());
     unawaited(
       Navigator.of(
         context,
@@ -131,7 +149,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                             toolbarHeight: toolbarHeight,
                             contentBottomInset: toolbarBottomInset,
                             horizontalInset: horizontalInset,
-                            midiStatusIconKey: _midiStatusIconKey,
                             onOpenMidiSettings: _openMidiSettings,
                           ),
                         ),
@@ -156,10 +173,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                     ],
                   ),
-                  MidiIconOnboardingOverlay(
-                    targetKey: _midiStatusIconKey,
-                    onTargetTap: _openMidiSettings,
-                  ),
+                  const DemoCalloutOverlay(),
                 ],
               ),
             ),
@@ -175,14 +189,12 @@ class _HomeTopBar extends ConsumerWidget {
     required this.toolbarHeight,
     required this.contentBottomInset,
     required this.horizontalInset,
-    required this.midiStatusIconKey,
     required this.onOpenMidiSettings,
   });
 
   final double toolbarHeight;
   final double contentBottomInset;
   final double horizontalInset;
-  final GlobalKey midiStatusIconKey;
   final VoidCallback onOpenMidiSettings;
 
   @override
@@ -234,10 +246,7 @@ class _HomeTopBar extends ConsumerWidget {
                   ),
                 ),
               const SizedBox(width: 4),
-              MidiStatusIcon(
-                iconButtonKey: midiStatusIconKey,
-                onPressed: onOpenMidiSettings,
-              ),
+              MidiStatusIcon(onPressed: onOpenMidiSettings),
               Transform.translate(
                 offset: const Offset(settingsIconDx, 0),
                 child: IconButton(
@@ -278,6 +287,7 @@ class _HomeLandscape extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tourKeys = ref.watch(demoTourKeysProvider);
     return Column(
       children: [
         Flexible(
@@ -293,13 +303,16 @@ class _HomeLandscape extends ConsumerWidget {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TonalityBar(
-              height: _tonalityBarHeight,
-              horizontalInset: horizontalInset,
-              keyTextScaleMultiplier: config.tonalityButtonTextScale,
-              scaleDegreesTextScaleMultiplier: config.scaleDegreesTextScale,
-              onScaleDegreesTap: () =>
-                  Navigator.of(context).push(ScaleExplorerPage.route()),
+            KeyedSubtree(
+              key: tourKeys.tonalityBar,
+              child: TonalityBar(
+                height: _tonalityBarHeight,
+                horizontalInset: horizontalInset,
+                keyTextScaleMultiplier: config.tonalityButtonTextScale,
+                scaleDegreesTextScaleMultiplier: config.scaleDegreesTextScale,
+                onScaleDegreesTap: () =>
+                    Navigator.of(context).push(ScaleExplorerPage.route()),
+              ),
             ),
             const Divider(height: 1),
             _BottomInputSection(config: config),
@@ -322,6 +335,7 @@ class _HomePortrait extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final tourKeys = ref.watch(demoTourKeysProvider);
     return Column(
       children: [
         Flexible(
@@ -332,18 +346,25 @@ class _HomePortrait extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const DemoModeExplanation(),
+            KeyedSubtree(
+              key: tourKeys.prompt,
+              child: const DemoModeExplanation(),
+            ),
             InputDisplay(
               padding: config.inputDisplayPadding,
               visualScaleMultiplier: config.inputDisplayVisualScale,
+              lookupButtonKey: tourKeys.lookupButton,
             ),
-            TonalityBar(
-              height: _tonalityBarHeight,
-              horizontalInset: horizontalInset,
-              keyTextScaleMultiplier: config.tonalityButtonTextScale,
-              scaleDegreesTextScaleMultiplier: config.scaleDegreesTextScale,
-              onScaleDegreesTap: () =>
-                  Navigator.of(context).push(ScaleExplorerPage.route()),
+            KeyedSubtree(
+              key: tourKeys.tonalityBar,
+              child: TonalityBar(
+                height: _tonalityBarHeight,
+                horizontalInset: horizontalInset,
+                keyTextScaleMultiplier: config.tonalityButtonTextScale,
+                scaleDegreesTextScaleMultiplier: config.scaleDegreesTextScale,
+                onScaleDegreesTap: () =>
+                    Navigator.of(context).push(ScaleExplorerPage.route()),
+              ),
             ),
             const Divider(height: 1),
             _BottomInputSection(config: config),
@@ -417,7 +438,7 @@ class _DemoModePill extends StatelessWidget {
     );
 
     return Tooltip(
-      message: 'Turn off demo mode',
+      message: 'Exit tour',
       child: ActionChip(
         onPressed: onPressed,
         visualDensity: VisualDensity.compact,
@@ -425,8 +446,9 @@ class _DemoModePill extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         backgroundColor: cs.surface,
         side: BorderSide(color: cs.outlineVariant),
-        labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-        label: Text('DEMO', textScaler: scaler, style: textStyle),
+        avatar: Icon(Icons.close, size: 16, color: cs.onSurface),
+        labelPadding: const EdgeInsets.only(right: 8),
+        label: Text('Exit tour', textScaler: scaler, style: textStyle),
       ),
     );
   }

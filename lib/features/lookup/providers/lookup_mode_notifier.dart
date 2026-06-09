@@ -8,9 +8,9 @@ import 'package:whatchord/features/midi/midi_input_source.dart';
 import '../lookup_voicing.dart';
 
 /// Manual chord-lookup mode: the user taps note names to identify a chord
-/// without a MIDI device. Lookup, demo, and live MIDI are mutually exclusive
-/// input sources; entering lookup turns demo off, and demo or live MIDI input
-/// turns lookup off.
+/// without a MIDI device. Opening the pad leaves a running tour (demo) in place
+/// so it keeps driving the card; tapping the first note is real input and ends
+/// the tour. Live MIDI input also turns lookup off.
 @immutable
 class LookupState {
   const LookupState({required this.active, required this.pitchClasses});
@@ -70,7 +70,6 @@ class LookupModeNotifier extends Notifier<LookupState> {
 
   void enter() {
     if (state.active) return;
-    ref.read(demoModeProvider.notifier).setEnabled(false);
     state = const LookupState(active: true, pitchClasses: <int>[]);
   }
 
@@ -84,6 +83,11 @@ class LookupModeNotifier extends Notifier<LookupState> {
   /// is the bass.
   void addNote(int pitchClass) {
     if (!state.active) return;
+    // Tapping a note is real input: it ends a running tour (demo), which would
+    // otherwise keep driving the card while the empty pad sits open.
+    if (ref.read(demoModeProvider)) {
+      ref.read(demoModeProvider.notifier).setEnabled(false);
+    }
     state = state.copyWith(
       pitchClasses: [...state.pitchClasses, pitchClass % 12],
     );

@@ -8,7 +8,6 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/home/home.dart';
-import 'package:whatchord/features/onboarding/onboarding.dart';
 
 import '../models/midi_device.dart';
 import '../providers/midi_connection_notifier.dart';
@@ -25,12 +24,6 @@ class MidiSettingsPage extends ConsumerStatefulWidget {
 }
 
 class _MidiSettingsPageState extends ConsumerState<MidiSettingsPage> {
-  @override
-  void initState() {
-    super.initState();
-    unawaited(ref.read(midiSettingsOnboardingProvider.notifier).markSeen());
-  }
-
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;

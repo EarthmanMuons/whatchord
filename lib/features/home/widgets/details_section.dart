@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/features/demo/demo.dart';
 import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
@@ -19,6 +20,7 @@ class DetailsSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final identity = ref.watch(identityDisplayProvider);
+    final tourKeys = ref.watch(demoTourKeysProvider);
 
     final sectionPadding = config.tightenForStatusBar
         ? config.detailsSectionPadding.copyWith(
@@ -37,19 +39,22 @@ class DetailsSection extends ConsumerWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(top: 8),
-                child: NearTieChordCandidatesList(
-                  enabled: true,
-                  alignment: Alignment.topLeft,
-                  textAlign: TextAlign.left,
-                  gap: 6,
-                  padding: EdgeInsets.only(bottom: listBottomPad),
-                  textScaleMultiplier: config.nearTieTextScale,
-                  showScrollbarWhenOverflow: true,
-                  tappableWhenEmpty: identity is ChordDisplay,
-                  onTap: () => unawaited(
-                    showChordRankingDetailsSheet(
-                      context,
-                      snapshot: ChordRankingDetailsSnapshot.capture(ref),
+                child: KeyedSubtree(
+                  key: tourKeys.alternatives,
+                  child: NearTieChordCandidatesList(
+                    enabled: true,
+                    alignment: Alignment.topLeft,
+                    textAlign: TextAlign.left,
+                    gap: 6,
+                    padding: EdgeInsets.only(bottom: listBottomPad),
+                    textScaleMultiplier: config.nearTieTextScale,
+                    showScrollbarWhenOverflow: true,
+                    tappableWhenEmpty: identity is ChordDisplay,
+                    onTap: () => unawaited(
+                      showChordRankingDetailsSheet(
+                        context,
+                        snapshot: ChordRankingDetailsSnapshot.capture(ref),
+                      ),
                     ),
                   ),
                 ),
@@ -64,13 +69,17 @@ class DetailsSection extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const DemoModeExplanation(
-                  textAlign: TextAlign.left,
-                  padding: EdgeInsets.fromLTRB(0, 0, 12, 8),
+                KeyedSubtree(
+                  key: tourKeys.prompt,
+                  child: const DemoModeExplanation(
+                    textAlign: TextAlign.left,
+                    padding: EdgeInsets.fromLTRB(0, 0, 12, 8),
+                  ),
                 ),
                 InputDisplay(
                   padding: config.inputDisplayPadding,
                   visualScaleMultiplier: config.inputDisplayVisualScale,
+                  lookupButtonKey: tourKeys.lookupButton,
                 ),
               ],
             ),

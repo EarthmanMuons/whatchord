@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'demo_mode_variant_notifier.dart';
+import 'demo_tour_targets.dart';
 
 final demoSequenceProvider =
     NotifierProvider<DemoSequenceNotifier, DemoSequenceState>(
@@ -44,6 +45,9 @@ class DemoStep {
   final bool? showScaleDegrees;
   final String? promptText;
 
+  /// Home-screen element this step points at with a callout arrow, if any.
+  final DemoTarget? target;
+
   const DemoStep({
     this.notes,
     this.pedalDown,
@@ -52,6 +56,7 @@ class DemoStep {
     this.showChordMemberDegrees,
     this.showScaleDegrees,
     this.promptText,
+    this.target,
   });
 }
 
@@ -140,47 +145,53 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
   ];
 
   static final List<DemoStep> interactiveSteps = <DemoStep>[
+    // 1) Welcome / orientation.
     const DemoStep(
       notes: {},
       tonality: Tonality(Tonic.c, TonalityMode.major),
-      promptText: 'Use the arrows to explore chord examples.',
+      promptText:
+          'Take a quick tour by tapping the arrows above.\nConnect a MIDI device anytime to start playing.',
     ),
-    // C, note
-    const DemoStep(
-      notes: {60},
-      tonality: Tonality(Tonic.c, TonalityMode.major),
-      promptText: 'Each note is analyzed in its musical context.',
-    ),
-    // Perfect 5th, interval
-    const DemoStep(
-      notes: {60, 67},
-      tonality: Tonality(Tonic.c, TonalityMode.major),
-      promptText: 'Two notes create an interval.',
-    ),
-    // C major, chord
+    // 2) C major -- a chord is named instantly.
     const DemoStep(
       notes: {60, 64, 67},
       tonality: Tonality(Tonic.c, TonalityMode.major),
-      promptText: 'Three notes create a chord.',
+      // Trailing newline keeps this at two lines so the prompt height matches
+      // the other steps and the layout does not shift when it appears.
+      promptText: 'Play notes and WhatChord names the chord instantly.\n',
     ),
-    // C/E, inversion
-    const DemoStep(
-      notes: {64, 67, 72},
-      tonality: Tonality(Tonic.c, TonalityMode.major),
-      promptText: 'Chord inversions are detected automatically.',
-    ),
-    // C6/9, extended
+    // 3) C6/9 -- inversions and extensions; tap the card to explore.
     const DemoStep(
       notes: {60, 64, 67, 69, 74},
       tonality: Tonality(Tonic.c, TonalityMode.major),
-      promptText: 'Extended and altered chords are recognized.',
+      promptText:
+          'Inversions and extensions are recognized automatically.\nTap the chord card to explore variations.',
+      target: DemoTarget.chordCard,
     ),
-    // Bm7(b5)
+    // 4) Bm7(b5) -- alternative readings.
     const DemoStep(
       notes: {59, 62, 65, 69},
       tonality: Tonality(Tonic.c, TonalityMode.major),
       promptText:
-          'Complex chords are analyzed accurately.\nAlternative interpretations may also be shown.',
+          'Some voicings have more than one reading.\nTap any alternative to see how they were ranked.',
+      target: DemoTarget.alternatives,
+    ),
+    // 5) Key context and scales. Dm is the ii of C major, so the scale-degree
+    // strip highlights ii -- the key context drives what the display shows.
+    const DemoStep(
+      notes: {62, 65, 69},
+      tonality: Tonality(Tonic.c, TonalityMode.major),
+      promptText:
+          'Set your key so chords are named in context.\nTap the scale strip to explore scales.',
+      target: DemoTarget.tonalityBar,
+    ),
+    // 6) No MIDI -- manual lookup.
+    const DemoStep(
+      notes: {},
+      tonality: Tonality(Tonic.c, TonalityMode.major),
+      promptText:
+          'No MIDI device? Tap search to pick notes by name.\nConnect a device anytime to play.',
+      target: DemoTarget.lookupButton,
     ),
   ];
 
@@ -204,7 +215,13 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
     final len = ref.read(demoStepsProvider).length;
     if (len == 0) return;
 
-    final nextIndex = ((index % len) + len) % len;
+    // The user-facing tour has a clear start and end (chevrons hide at the
+    // bounds); only the dev-only screenshot/animation variants wrap around.
+    final interactive =
+        ref.read(demoModeVariantProvider) == DemoModeVariant.interactive;
+    final nextIndex = interactive
+        ? index.clamp(0, len - 1)
+        : ((index % len) + len) % len;
     state = DemoSequenceState(index: nextIndex);
   }
 }

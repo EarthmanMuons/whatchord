@@ -27,6 +27,9 @@ class AnalysisSection extends ConsumerWidget {
     final demoVariant = ref.watch(demoModeVariantProvider);
     final showDemoControls =
         demoEnabled && demoVariant == DemoModeVariant.interactive;
+    final stepIndex = ref.watch(demoSequenceProvider.select((s) => s.index));
+    final stepCount = ref.watch(demoStepsProvider).length;
+    final tourKeys = ref.watch(demoTourKeysProvider);
 
     Future<void> stepDemo(
       void Function(DemoSequenceNotifier notifier) step,
@@ -37,16 +40,21 @@ class AnalysisSection extends ConsumerWidget {
       await HapticFeedback.selectionClick();
     }
 
-    Widget identityCard({required bool fillCard}) => _IdentityCardWithChevrons(
-      showControls: showDemoControls,
-      onPrevious: () => stepDemo((notifier) => notifier.prev()),
-      onNext: () => stepDemo((notifier) => notifier.next()),
-      child: IdentityCard(
-        identity: identity,
-        showIdle: showIdle,
-        idleAsset: 'assets/logos/whatchord_logo_circle.svg',
-        textScaleMultiplier: config.identityCardTextScale,
-        fill: fillCard,
+    Widget identityCard({required bool fillCard}) => KeyedSubtree(
+      key: tourKeys.chordCard,
+      child: _IdentityCardWithChevrons(
+        showControls: showDemoControls,
+        canGoPrevious: stepIndex > 0,
+        canGoNext: stepIndex < stepCount - 1,
+        onPrevious: () => stepDemo((notifier) => notifier.prev()),
+        onNext: () => stepDemo((notifier) => notifier.next()),
+        child: IdentityCard(
+          identity: identity,
+          showIdle: showIdle,
+          idleAsset: 'assets/logos/whatchord_logo_circle.svg',
+          textScaleMultiplier: config.identityCardTextScale,
+          fill: fillCard,
+        ),
       ),
     );
 
@@ -117,20 +125,24 @@ class AnalysisSection extends ConsumerWidget {
                                 constraints: BoxConstraints(
                                   maxHeight: listMaxH,
                                 ),
-                                child: NearTieChordCandidatesList(
-                                  enabled: true,
-                                  alignment: Alignment.topCenter,
-                                  textAlign: TextAlign.center,
-                                  gap: 8,
-                                  textScaleMultiplier: config.nearTieTextScale,
-                                  tappableWhenEmpty: identity is ChordDisplay,
-                                  onTap: () => unawaited(
-                                    showChordRankingDetailsSheet(
-                                      context,
-                                      snapshot:
-                                          ChordRankingDetailsSnapshot.capture(
-                                            ref,
-                                          ),
+                                child: KeyedSubtree(
+                                  key: tourKeys.alternatives,
+                                  child: NearTieChordCandidatesList(
+                                    enabled: true,
+                                    alignment: Alignment.topCenter,
+                                    textAlign: TextAlign.center,
+                                    gap: 8,
+                                    textScaleMultiplier:
+                                        config.nearTieTextScale,
+                                    tappableWhenEmpty: identity is ChordDisplay,
+                                    onTap: () => unawaited(
+                                      showChordRankingDetailsSheet(
+                                        context,
+                                        snapshot:
+                                            ChordRankingDetailsSnapshot.capture(
+                                              ref,
+                                            ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -152,12 +164,16 @@ class _IdentityCardWithChevrons extends StatelessWidget {
   const _IdentityCardWithChevrons({
     required this.child,
     required this.showControls,
+    required this.canGoPrevious,
+    required this.canGoNext,
     required this.onPrevious,
     required this.onNext,
   });
 
   final Widget child;
   final bool showControls;
+  final bool canGoPrevious;
+  final bool canGoNext;
   final VoidCallback onPrevious;
   final VoidCallback onNext;
 
@@ -169,22 +185,24 @@ class _IdentityCardWithChevrons extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         child,
-        Align(
-          alignment: Alignment.centerLeft,
-          child: _DemoStepChevronButton(
-            icon: Icons.chevron_left,
-            tooltip: 'Previous demo step',
-            onTap: onPrevious,
+        if (canGoPrevious)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _DemoStepChevronButton(
+              icon: Icons.chevron_left,
+              tooltip: 'Previous tour step',
+              onTap: onPrevious,
+            ),
           ),
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: _DemoStepChevronButton(
-            icon: Icons.chevron_right,
-            tooltip: 'Next demo step',
-            onTap: onNext,
+        if (canGoNext)
+          Align(
+            alignment: Alignment.centerRight,
+            child: _DemoStepChevronButton(
+              icon: Icons.chevron_right,
+              tooltip: 'Next tour step',
+              onTap: onNext,
+            ),
           ),
-        ),
       ],
     );
   }
