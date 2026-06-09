@@ -26,6 +26,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- The audio monitor is now enabled by default so the guided tour, manual lookup,
+  and connected MIDI controllers are audible without initial setup.
 - The input note line now scrolls automatically to keep newly played notes in
   view when the notes overflow. Because notes are ordered by pitch, it follows
   the note you just played wherever it lands rather than always jumping to the
@@ -40,6 +42,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Fixed the first manual lookup note crashing when it was used to exit the
+  guided tour.
+- Kept the manual lookup toggle clear of landscape camera cutouts and adjusted
+  guided-tour callout arrows for the landscape layout.
 - Collapsed stacked extensions into a thirteenth or eleventh headline even when
   the ninth or eleventh is altered, so voicings such as B13(#9,#11) no longer
   display as B7(#9,#11,add13).
