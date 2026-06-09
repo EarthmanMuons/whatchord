@@ -714,11 +714,11 @@ String _evidenceFor(RankedCandidateDebug row) {
 
   if (degrees.isNotEmpty && requiredCount != null && requiredCount > 0) {
     final matchParts = <String>[
-      '$requiredCount matching structural ${requiredCount == 1 ? 'tone' : 'tones'}',
+      '${_quantityWord(requiredCount)} matching structural ${requiredCount == 1 ? 'tone' : 'tones'}',
     ];
     if (optionalCount != null && optionalCount > 0) {
       matchParts.add(
-        '$optionalCount matching color ${optionalCount == 1 ? 'tone' : 'tones'}',
+        '${_quantityWord(optionalCount)} matching color ${optionalCount == 1 ? 'tone' : 'tones'}',
       );
     }
 
@@ -727,27 +727,46 @@ String _evidenceFor(RankedCandidateDebug row) {
     parts.add('Uses ${degrees.join(', ')}');
   } else if (requiredCount != null && requiredCount > 0) {
     parts.add(
-      'Matches $requiredCount structural ${requiredCount == 1 ? 'tone' : 'tones'}',
+      'Matches ${_quantityWord(requiredCount)} structural ${requiredCount == 1 ? 'tone' : 'tones'}',
     );
   }
   if (missingCount != null && missingCount > 0) {
     parts.add(
-      '$missingCount expected ${missingCount == 1 ? 'tone is' : 'tones are'} missing',
+      '${_quantityWord(missingCount)} expected ${missingCount == 1 ? 'tone is' : 'tones are'} missing',
     );
   }
   if (penaltyCount != null && penaltyCount > 0) {
     parts.add(
-      '$penaltyCount conflicting ${penaltyCount == 1 ? 'tone' : 'tones'}',
+      '${_quantityWord(penaltyCount)} conflicting ${penaltyCount == 1 ? 'tone' : 'tones'}',
     );
   }
   if (extrasCount != null && extrasCount > 0) {
     parts.add(
-      '$extrasCount extra ${extrasCount == 1 ? 'tone needs' : 'tones need'} explanation',
+      '${_quantityWord(extrasCount)} extra ${extrasCount == 1 ? 'tone needs' : 'tones need'} explanation',
     );
   }
   parts.add('bass is $bassRole');
 
   return '${parts.join('; ')}.';
+}
+
+String _quantityWord(int quantity) {
+  return switch (quantity) {
+    0 => 'zero',
+    1 => 'one',
+    2 => 'two',
+    3 => 'three',
+    4 => 'four',
+    5 => 'five',
+    6 => 'six',
+    7 => 'seven',
+    8 => 'eight',
+    9 => 'nine',
+    10 => 'ten',
+    11 => 'eleven',
+    12 => 'twelve',
+    _ => '$quantity',
+  };
 }
 
 String _bassRoleLabel(ChordIdentity id) {
