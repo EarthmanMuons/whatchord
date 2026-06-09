@@ -9,11 +9,11 @@ import '../providers/lookup_mode_notifier.dart';
 
 /// Manual chord-lookup pad. Replaces the keyboard while lookup mode is active.
 ///
-/// Two rows of buttons: the seven naturals in one row and the five accidentals
-/// in the other, offset by half a button so each accidental sits between its
-/// neighboring naturals. Sharps sit above the naturals; in flat keys the
-/// accidentals drop below. Tapping adds a note (repeats allowed); the first
-/// note added is the bass. Note names follow the current key.
+/// Two rows of buttons: the five accidentals on top and the seven naturals
+/// below, offset by half a button so each accidental sits between its
+/// neighboring naturals (like a keyboard). Tapping adds a note (repeats
+/// allowed); the first note added is the bass. Note names follow the current
+/// key.
 class LookupPad extends ConsumerWidget {
   const LookupPad({super.key});
 
@@ -58,9 +58,6 @@ class LookupPad extends ConsumerWidget {
     final cs = Theme.of(context).colorScheme;
     final pcs = ref.watch(lookupModeProvider.select((s) => s.pitchClasses));
     final names = ref.watch(pitchClassNamesProvider);
-    final prefersFlats = ref.watch(
-      selectedTonalityProvider.select((t) => t.keySignature.prefersFlats),
-    );
     final notifier = ref.read(lookupModeProvider.notifier);
 
     final counts = <int, int>{};
@@ -145,9 +142,7 @@ class LookupPad extends ConsumerWidget {
                         Expanded(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            children: prefersFlats
-                                ? [naturals, accidentals]
-                                : [accidentals, naturals],
+                            children: [accidentals, naturals],
                           ),
                         ),
                         const SizedBox(width: 8),
