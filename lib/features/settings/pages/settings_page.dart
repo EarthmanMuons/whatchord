@@ -528,12 +528,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   await ref.read(settingsResetProvider).resetAllToDefaults();
 
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Settings reset to defaults'),
-                      ),
-                    );
                     await HapticFeedback.lightImpact();
+                    if (!context.mounted) return;
+
+                    ref
+                        .read(demoModeProvider.notifier)
+                        .setEnabledFor(
+                          enabled: true,
+                          variant: DemoModeVariant.interactive,
+                        );
+                    Navigator.of(context).popUntil((route) => route.isFirst);
                   }
                 },
               ),
