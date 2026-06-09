@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
+- Added tap-to-flip scoring details to the Why This Chord? cards, including
+  context-aware note spellings, score contributions, and ranking decisions.
 - Added a manual chord lookup mode for identifying chords without a MIDI device.
   Tap the search icon on the input line to slide in a note pad, then tap notes
   by name to build a chord. Notes are spelled to the current key, the first note

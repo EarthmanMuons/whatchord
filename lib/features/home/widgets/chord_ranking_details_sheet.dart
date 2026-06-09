@@ -152,6 +152,8 @@ class _RankingDetailsBody extends StatelessWidget {
             nextDecision: visible.length > 1 ? visible[1].vsPrevious : null,
             bestScore: chosen.candidate.score,
             symbol: _symbolFor(visible[0].candidate.identity),
+            tonality: tonality,
+            noteNameSystem: noteNameSystem,
             longLabel: ChordLongFormFormatter.format(
               identity: visible[0].candidate.identity,
               tonality: tonality,
@@ -174,6 +176,8 @@ class _RankingDetailsBody extends StatelessWidget {
                     : null,
                 bestScore: chosen.candidate.score,
                 symbol: _symbolFor(visible[i].candidate.identity),
+                tonality: tonality,
+                noteNameSystem: noteNameSystem,
                 longLabel: ChordLongFormFormatter.format(
                   identity: visible[i].candidate.identity,
                   tonality: tonality,
@@ -324,7 +328,7 @@ List<RankedCandidateDebug> _visibleCandidates(
   return candidates.take(5).toList(growable: false);
 }
 
-class _CandidateRankCard extends StatelessWidget {
+class _CandidateRankCard extends StatefulWidget {
   const _CandidateRankCard({
     required this.rank,
     required this.row,
@@ -332,6 +336,8 @@ class _CandidateRankCard extends StatelessWidget {
     required this.nextDecision,
     required this.bestScore,
     required this.symbol,
+    required this.tonality,
+    required this.noteNameSystem,
     required this.longLabel,
   });
 
@@ -341,76 +347,308 @@ class _CandidateRankCard extends StatelessWidget {
   final RankingDecision? nextDecision;
   final double bestScore;
   final String symbol;
+  final Tonality tonality;
+  final NoteNameSystem noteNameSystem;
   final String longLabel;
+
+  @override
+  State<_CandidateRankCard> createState() => _CandidateRankCardState();
+}
+
+class _CandidateRankCardState extends State<_CandidateRankCard> {
+  bool _showScoring = false;
+
+  void _toggleFace() {
+    setState(() => _showScoring = !_showScoring);
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final fitLabel = rank == 1
+    final fitLabel = widget.rank == 1
         ? 'Chosen'
-        : (ChordCandidateRanking.isNearTie(bestScore, row.candidate.score)
+        : (ChordCandidateRanking.isNearTie(
+                widget.bestScore,
+                widget.row.candidate.score,
+              )
               ? 'Near tie'
               : 'Unlikely');
-    final evidence = _evidenceFor(row);
+    final disableAnimations =
+        MediaQuery.maybeOf(context)?.disableAnimations ??
+        WidgetsBinding
+            .instance
+            .platformDispatcher
+            .accessibilityFeatures
+            .disableAnimations;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
+    return Semantics(
+      button: true,
+      toggled: _showScoring,
+      label: '${widget.symbol}, rank ${widget.rank}',
+      hint: _showScoring
+          ? 'Tap to show the plain-language explanation'
+          : 'Tap to show scoring details',
+      child: Material(
         color: cs.surface,
-        borderRadius: BorderRadius.circular(8),
-        border: rank == 1 ? Border.all(color: cs.outlineVariant) : null,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _RankBadge(rank: rank),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(symbol, style: theme.textTheme.titleMedium),
-                      const SizedBox(height: 2),
-                      Text(
-                        longLabel,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: cs.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  fitLabel,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: rank == 1 ? cs.primary : cs.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(evidence, style: theme.textTheme.bodyMedium),
-            if (nextDecision?.decidedByRule != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                _plainDecision(
-                  nextDecision!.decidedByRule,
-                  winner: thisCandidate,
-                ),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: cs.onSurfaceVariant,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: widget.rank == 1
+              ? BorderSide(color: cs.outlineVariant)
+              : BorderSide.none,
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: _toggleFace,
+          child: AnimatedSize(
+            duration: disableAnimations
+                ? Duration.zero
+                : const Duration(milliseconds: 300),
+            curve: Curves.easeInOutCubic,
+            alignment: Alignment.topCenter,
+            child: AnimatedSwitcher(
+              duration: disableAnimations
+                  ? Duration.zero
+                  : const Duration(milliseconds: 220),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              layoutBuilder: (currentChild, previousChildren) => Stack(
+                alignment: Alignment.topCenter,
+                children: [...previousChildren, ?currentChild],
+              ),
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 0.025),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
                 ),
               ),
-            ],
+              child: Padding(
+                key: ValueKey(_showScoring),
+                padding: const EdgeInsets.all(12),
+                child: _showScoring
+                    ? _CandidateScoreBack(
+                        rank: widget.rank,
+                        row: widget.row,
+                        symbol: widget.symbol,
+                        tonality: widget.tonality,
+                        noteNameSystem: widget.noteNameSystem,
+                        decision: widget.nextDecision,
+                        winner: widget.thisCandidate,
+                      )
+                    : _CandidateExplanationFront(
+                        rank: widget.rank,
+                        row: widget.row,
+                        symbol: widget.symbol,
+                        longLabel: widget.longLabel,
+                        fitLabel: fitLabel,
+                        nextDecision: widget.nextDecision,
+                        winner: widget.thisCandidate,
+                      ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CandidateExplanationFront extends StatelessWidget {
+  const _CandidateExplanationFront({
+    required this.rank,
+    required this.row,
+    required this.symbol,
+    required this.longLabel,
+    required this.fitLabel,
+    required this.nextDecision,
+    required this.winner,
+  });
+
+  final int rank;
+  final RankedCandidateDebug row;
+  final String symbol;
+  final String longLabel;
+  final String fitLabel;
+  final RankingDecision? nextDecision;
+  final ChordCandidate winner;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _RankBadge(rank: rank),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(symbol, style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 2),
+                  Text(
+                    longLabel,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              fitLabel,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: rank == 1 ? cs.primary : cs.onSurfaceVariant,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ],
         ),
+        const SizedBox(height: 10),
+        Text(_evidenceFor(row), style: theme.textTheme.bodyMedium),
+        if (nextDecision?.decidedByRule != null) ...[
+          const SizedBox(height: 6),
+          Text(
+            _plainDecision(nextDecision!.decidedByRule, winner: winner),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _CandidateScoreBack extends StatelessWidget {
+  const _CandidateScoreBack({
+    required this.rank,
+    required this.row,
+    required this.symbol,
+    required this.tonality,
+    required this.noteNameSystem,
+    required this.decision,
+    required this.winner,
+  });
+
+  final int rank;
+  final RankedCandidateDebug row;
+  final String symbol;
+  final Tonality tonality;
+  final NoteNameSystem noteNameSystem;
+  final RankingDecision? decision;
+  final ChordCandidate winner;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final members = ChordMemberSpeller.spellMembers(
+      identity: row.candidate.identity,
+      pitchClasses: ChordPresentationBuilder.chordMemberPitchClassesFromMask(
+        rootPc: row.candidate.identity.rootPc,
+        presentIntervalsMask: row.candidate.identity.presentIntervalsMask,
+      ).toSet(),
+      tonality: tonality,
+    ).map((name) => noteDisplayLabel(name, noteNameSystem: noteNameSystem));
+    final scoringReasons = row.scoreReasons.where(
+      (reason) => reason.label != 'normalize' && reason.delta != 0,
+    );
+    final rawScore = _rawScore(row);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _RankBadge(rank: rank),
+            const SizedBox(width: 10),
+            Expanded(child: Text(symbol, style: theme.textTheme.titleMedium)),
+            const SizedBox(width: 8),
+            Text(
+              row.candidate.score.toStringAsFixed(2),
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: cs.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text('Members', style: theme.textTheme.labelMedium),
+        const SizedBox(height: 2),
+        Text(members.join('  '), style: theme.textTheme.bodyMedium),
+        const SizedBox(height: 10),
+        for (final reason in scoringReasons)
+          _ScoreRow(
+            label: _scoreReasonLabel(reason.label),
+            value: reason.delta,
+          ),
+        if (rawScore != null) ...[
+          const Divider(height: 16),
+          _ScoreRow(label: 'Raw score', value: rawScore, signed: false),
+        ],
+        _ScoreRow(
+          label: 'Final score',
+          value: row.candidate.score,
+          signed: false,
+          emphasized: true,
+        ),
+        if (decision?.decidedByRule != null) ...[
+          const SizedBox(height: 10),
+          Text(
+            _plainDecision(decision!.decidedByRule, winner: winner),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _ScoreRow extends StatelessWidget {
+  const _ScoreRow({
+    required this.label,
+    required this.value,
+    this.signed = true,
+    this.emphasized = false,
+  });
+
+  final String label;
+  final double value;
+  final bool signed;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = emphasized
+        ? Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)
+        : Theme.of(context).textTheme.bodyMedium;
+    final valueLabel =
+        '${signed && value > 0 ? '+' : ''}${value.toStringAsFixed(2)}';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: style)),
+          Text(valueLabel, style: style),
+        ],
       ),
     );
   }
@@ -561,6 +799,34 @@ int? _reasonCount(RankedCandidateDebug row, String label) {
     return int.tryParse(match.group(1)!);
   }
   return null;
+}
+
+double? _rawScore(RankedCandidateDebug row) {
+  final normalize = row.scoreReasons
+      .where((reason) => reason.label == 'normalize')
+      .firstOrNull;
+  final match = RegExp(
+    r'raw=(-?\d+(?:\.\d+)?)',
+  ).firstMatch(normalize?.detail ?? '');
+  return match == null ? null : double.tryParse(match.group(1)!);
+}
+
+String _scoreReasonLabel(String label) {
+  return switch (label) {
+    'required tones' => 'Required notes present',
+    'missing required' => 'Required notes missing',
+    'optional tones' => 'Optional color tones',
+    'penalty tones' => 'Conflicting tones',
+    'extras' => 'Unexplained extra tones',
+    'bass fit' => 'Bass fit',
+    'm#5 bass' => 'Sharp-five bass',
+    'sus-tone bass' => 'Suspended-tone bass',
+    'alterations penalty' => 'Altered spelling',
+    'dominant stack' => 'Dominant-stack fit',
+    'add9 bass triad' => 'Upper-triad fit',
+    'sixNo5' => 'Missing fifth in sixth chord',
+    _ => label,
+  };
 }
 
 String _plainDecision(String? rule, {ChordCandidate? winner}) {
