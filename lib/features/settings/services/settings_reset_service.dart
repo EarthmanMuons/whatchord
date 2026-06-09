@@ -48,7 +48,7 @@ class SettingsResetService {
     // MIDI preferences (delegate to MIDI's own reset)
     await _ref.read(midiPreferencesProvider.notifier).clearAllMidiData();
     await _ref.read(audioMonitorSettingsNotifier.notifier).clearAllAudioData();
-    await _ref.read(midiSettingsOnboardingProvider.notifier).reset();
+    await _ref.read(onboardingTourProvider.notifier).reset();
 
     // Force rebuilds
     _ref.invalidate(appThemeModeProvider);
@@ -58,7 +58,7 @@ class SettingsResetService {
     _ref.invalidate(selectedTonalityProvider);
     _ref.invalidate(exploreChordMemberDegreesProvider);
     _ref.invalidate(audioMonitorSettingsNotifier);
-    _ref.invalidate(midiSettingsOnboardingProvider);
+    _ref.invalidate(onboardingTourProvider);
 
     // Ensure transport is disconnected after reset.
     await connectionState.disconnect();

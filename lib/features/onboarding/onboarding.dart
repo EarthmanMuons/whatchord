@@ -1,2 +1,1 @@
-export 'providers/midi_settings_onboarding_notifier.dart';
-export 'widgets/midi_icon_onboarding_overlay.dart';
+export 'providers/onboarding_tour_notifier.dart';

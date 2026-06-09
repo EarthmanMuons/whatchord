@@ -9,6 +9,7 @@ enum SupportSheetContext { general, analysisDetails }
 Future<void> showSupportSheet(
   BuildContext context, {
   SupportSheetContext supportContext = SupportSheetContext.general,
+  VoidCallback? onReplayTour,
 }) async {
   final shortestSide = MediaQuery.sizeOf(context).shortestSide;
   final isCompact = shortestSide < 600;
@@ -24,7 +25,10 @@ Future<void> showSupportSheet(
           constraints: BoxConstraints(
             maxHeight: modalBottomSheetMaxHeight(context),
           ),
-          child: _SupportSheetContent(supportContext: supportContext),
+          child: _SupportSheetContent(
+            supportContext: supportContext,
+            onReplayTour: onReplayTour,
+          ),
         );
       },
     );
@@ -45,6 +49,7 @@ Future<void> showSupportSheet(
           ),
           child: _SupportSheetContent(
             supportContext: supportContext,
+            onReplayTour: onReplayTour,
             showCloseButton: true,
           ),
         ),
@@ -56,10 +61,12 @@ Future<void> showSupportSheet(
 class _SupportSheetContent extends StatelessWidget {
   const _SupportSheetContent({
     required this.supportContext,
+    this.onReplayTour,
     this.showCloseButton = false,
   });
 
   final SupportSheetContext supportContext;
+  final VoidCallback? onReplayTour;
   final bool showCloseButton;
 
   @override
@@ -90,6 +97,25 @@ class _SupportSheetContent extends StatelessWidget {
                     'For chord identification reports, copy Analysis Details first when possible. It includes the exact notes, key context, and app version needed to reproduce the result.',
                   )
                 else ...[
+                  if (onReplayTour != null) ...[
+                    Semantics(
+                      onTapHint: 'Start the guided tour',
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.play_circle_outline),
+                        title: const Text('Take a Tour'),
+                        subtitle: const Text('Replay the guided walkthrough'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          onReplayTour!();
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    const Divider(height: 1),
+                    const SizedBox(height: 12),
+                  ],
                   const _SupportInstruction(
                     action: 'Tap the chord card',
                     description:

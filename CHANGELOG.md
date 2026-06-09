@@ -19,6 +19,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   through the audio monitor when it is enabled.
 - Added Phrygian dominant, Lydian dominant, altered, harmonic major, double
   harmonic major, and augmented inverse scales to Explore Scales.
+- Added a guided tour that starts automatically on first launch. Page through
+  the examples with the arrows on the chord card; later steps point out the
+  alternative readings, key and scale controls, and manual lookup. Tap Exit tour
+  to leave, and replay it anytime from Settings > Help & Support > Take a Tour.
 
 ### Changed
 
@@ -28,6 +32,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   end.
 - Renamed melodic minor to jazz melodic minor and renamed the common scales
   section to essential scales for clearer scale terminology.
+
+### Removed
+
+- Removed the Demo Mode toggle and the first-launch MIDI coach mark, replaced by
+  the guided tour above.
 
 ### Fixed
 

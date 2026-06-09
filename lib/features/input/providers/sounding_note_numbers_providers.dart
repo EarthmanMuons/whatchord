@@ -22,11 +22,16 @@ final liveSoundingNoteNumbersProvider = Provider<Set<int>>((ref) {
 });
 
 /// The unified source of truth for "what note numbers are currently down,"
-/// regardless of input source. Lookup, demo, and live MIDI are mutually
-/// exclusive; lookup and demo override live MIDI when active.
+/// regardless of input source. Lookup and demo override live MIDI when active.
+/// A lookup pad with notes always wins; an empty pad opened during a tour does
+/// not blank the card, so the demo keeps driving it until the first note is
+/// tapped (which ends the tour).
 final soundingNoteNumbersProvider = Provider<Set<int>>((ref) {
   if (ref.watch(lookupActiveProvider)) {
-    return UnmodifiableSetView(ref.watch(lookupNoteNumbersProvider));
+    final lookupNotes = ref.watch(lookupNoteNumbersProvider);
+    if (lookupNotes.isNotEmpty || !ref.watch(demoModeProvider)) {
+      return UnmodifiableSetView(lookupNotes);
+    }
   }
 
   return ref.watch(liveSoundingNoteNumbersProvider);
