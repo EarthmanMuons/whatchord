@@ -25,9 +25,17 @@ class SettingsPage extends ConsumerStatefulWidget {
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _isAdjustingAudioVolume = false;
   Timer? _audioVolumeLabelDismissTimer;
+  Timer? _volumePreviewDebounceTimer;
   Timer? _volumeRepeatTimer;
   DateTime? _volumeRepeatStartedAt;
 
+  static const int _volumePreviewMidiNote = 60;
+  static const Duration _sliderVolumePreviewDebounce = Duration(
+    milliseconds: 125,
+  );
+  static const Duration _nudgeVolumePreviewDebounce = Duration(
+    milliseconds: 300,
+  );
   static const int _volumeNudgeStepPercent = 5;
   static const int _volumeFastNudgeStepPercent = 10;
   static const Duration _volumeRepeatInterval = Duration(milliseconds: 100);
@@ -39,8 +47,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   void dispose() {
     _audioVolumeLabelDismissTimer?.cancel();
     _audioVolumeLabelDismissTimer = null;
+    _volumePreviewDebounceTimer?.cancel();
+    _volumePreviewDebounceTimer = null;
+    ref.read(audioMonitorNotifier.notifier).cancelPreviewNotes();
     _stopVolumeRepeat();
     super.dispose();
+  }
+
+  void _scheduleVolumePreview(Duration debounce) {
+    _volumePreviewDebounceTimer?.cancel();
+    final monitor = ref.read(audioMonitorNotifier.notifier);
+    monitor.cancelPreviewNotes();
+    _volumePreviewDebounceTimer = Timer(debounce, () {
+      _volumePreviewDebounceTimer = null;
+      if (!mounted) return;
+      monitor.playVolumePreviewNote(_volumePreviewMidiNote);
+    });
+  }
+
+  void _showCurrentVolume() {
+    _showAudioVolumePercentLabel();
+    _scheduleVolumeLabelDismiss();
   }
 
   void _showAudioVolumePercentLabel() {
@@ -73,6 +100,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
     unawaited(notifier.setVolume(nextPercent / 100));
     unawaited(HapticFeedback.selectionClick());
+    _scheduleVolumePreview(_nudgeVolumePreviewDebounce);
   }
 
   void _startVolumeRepeat(int direction) {
@@ -163,7 +191,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 title: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('Playback Volume'),
+                    Semantics(
+                      button: true,
+                      label: 'Playback Volume',
+                      hint: 'Show current playback volume',
+                      onTapHint: 'Show current playback volume',
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: _showCurrentVolume,
+                        child: const Text('Playback Volume'),
+                      ),
+                    ),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 180),
                       switchInCurve: Curves.easeOut,
@@ -194,10 +232,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 min: 0,
                                 max: 1,
                                 divisions: 100,
-                                onChangeStart: (_) =>
-                                    _showAudioVolumePercentLabel(),
-                                onChangeEnd: (_) =>
-                                    _scheduleVolumeLabelDismiss(),
+                                onChangeStart: (_) {
+                                  _showAudioVolumePercentLabel();
+                                },
+                                onChangeEnd: (_) {
+                                  _scheduleVolumeLabelDismiss();
+                                },
                                 onChanged: (value) {
                                   _showAudioVolumePercentLabel();
                                   unawaited(
@@ -206,6 +246,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                           audioMonitorSettingsNotifier.notifier,
                                         )
                                         .setVolume(value),
+                                  );
+                                  _scheduleVolumePreview(
+                                    _sliderVolumePreviewDebounce,
                                   );
                                 },
                               ),
