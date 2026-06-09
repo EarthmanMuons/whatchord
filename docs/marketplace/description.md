@@ -1,10 +1,10 @@
-Real-time chord recognition for Bluetooth and USB MIDI keyboards, plus Explore modes for learning chords and scales even when your keyboard is not connected.
+Identify chords from live MIDI or manual note entry, then explore the harmony behind them.
 
 Stop guessing what chord you're playing.
 
-WhatChord listens to your MIDI keyboard and identifies chords instantly, helping you learn progressions, check voicings, understand harmony, and name what you're hearing. When you're away from your instrument, Explore modes let you build and hear chords, browse a wide range of scales, inspect keyboard patterns, and see the diatonic chords that belong to a scale.
+WhatChord gives musicians fast, musically informed chord names. Connect a Bluetooth or USB MIDI keyboard for instant feedback, or use the lookup pad to enter notes from any instrument, sheet music, or recording. Explore Chords and Explore Scales let you build and hear chords, browse a wide range of scales, inspect keyboard patterns, and understand diatonic harmony.
 
-Play. Learn. Explore.
+Play it. Explore it. Learn it.
 
 WhatChord goes beyond simple note matching. Its musically informed analysis considers inversions, extensions, slash chords, altered tones, harmonic context, and conventional naming practices so chord names appear the way musicians expect to see them.
 
@@ -12,6 +12,9 @@ FEATURES
 
 - Real-time chord recognition  
   Chord names update immediately as you play.
+
+- Manual chord lookup
+  Enter notes directly to identify a chord, choose its bass note, and inspect alternative interpretations without connecting a MIDI device.
 
 - Explore chords  
   Tap the chord card to open explore mode and build or hear chords without a keyboard by adjusting the root, quality, extensions, and bass note.
@@ -44,4 +47,4 @@ WhatChord is free, contains no ads, and collects no personal data. All analysis 
 
 GET STARTED
 
-Connect a Bluetooth or USB MIDI keyboard for live recognition, or open an Explore mode and start building chords and scales right away.
+Play through MIDI, enter notes manually, or start exploring chords and scales right away.

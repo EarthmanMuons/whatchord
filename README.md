@@ -23,8 +23,9 @@
   /></a>
 </p>
 
-WhatChord identifies chords from live Bluetooth or USB MIDI input and includes
-Explore modes for building chords and scales without a connected keyboard. It is
+WhatChord is an interactive chord identification and harmony exploration app.
+Identify voicings from live Bluetooth or USB MIDI input or manual note entry,
+then explore chords, scales, keyboard patterns, and harmonic context. It is
 optimized for speed, accuracy, and musician-expected naming, favoring stable,
 conventional interpretations over simple note-matching.
 
@@ -34,13 +35,15 @@ conventional interpretations over simple note-matching.
 
 ## Features
 
-- **Real-time MIDI analysis**  
-  Connect a Bluetooth or USB MIDI keyboard and see chords update instantly as
-  you play.
+- **Live chord identification** Connect a Bluetooth or USB MIDI keyboard and see
+  chords update instantly as you play.
+
+- **Manual chord lookup** Enter notes directly to identify a chord from any
+  instrument, sheet music, or recording. The first note entered sets the bass.
 
 - **Explore chords**  
   Tap the chord card to open explore mode and try chord roots, qualities,
-  extensions, and bass notes without a MIDI device.
+  extensions, bass notes, and example voicings.
 
 - **Explore scales** Tap the scale-degree strip to browse scale tones, keyboard
   patterns, and diatonic chords across a wide range of scales.
@@ -153,16 +156,17 @@ E8:21:56:94:BA:A2:E0:A3:48:E6:97:49:3E:8B:A9:92:94:93:5E:46:DD:17:03:2C:3C:67:F3
 
 WhatChord is particularly useful for:
 
-- Pianists and keyboardists exploring harmony at the instrument
+- Pianists and keyboardists seeking immediate feedback while they play
 - Students learning scales, scale degrees, chord construction, extensions,
   inversions, and voicings
 - Educators demonstrating harmonic concepts, scale harmony, and chord function
   in real time
 - Composers and improvisers checking or exploring complex harmony
 
-It provides immediate, intelligent feedback while you play. It is **not**
-intended to replace formal analysis tools or notation software, but to
-complement your practice and exploration.
+It provides immediate, intelligent feedback whether you play through MIDI, enter
+notes manually, or explore harmony in the app. It is **not** intended to replace
+formal analysis tools or notation software, but to complement your practice and
+exploration.
 
 ## Status
 

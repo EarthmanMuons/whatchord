@@ -107,7 +107,8 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       showScaleDegrees: false,
     ),
 
-    // 4) SCREENSHOT: portrait, dark mode, Key: C major -> Bm7(b5), home
+    // 4) SCREENSHOT: portrait, dark mode, Key: C major -> Bm7(b5), manual
+    // lookup. Exit screenshot demo, open lookup, then enter B, D, F, A.
     const DemoStep(
       notes: {59, 62, 65, 69},
       pedalDown: true,
