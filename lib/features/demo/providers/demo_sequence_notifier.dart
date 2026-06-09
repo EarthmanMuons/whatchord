@@ -150,7 +150,7 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       notes: {},
       tonality: Tonality(Tonic.c, TonalityMode.major),
       promptText:
-          'Take a quick tour by tapping the arrows above.\nConnect a MIDI device anytime to start playing.',
+          'Take a quick tour by tapping the card arrows.\nConnect a MIDI device anytime to start playing.',
     ),
     // 2) C major -- a chord is named instantly.
     const DemoStep(
