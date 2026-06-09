@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -36,11 +37,22 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
   final _notesKey = GlobalKey<SliverAnimatedListState>();
   final _scrollController = ScrollController();
   static const double _fadeWidth = 24.0;
+  // Keep the followed chip this far inside the edge so it clears the fade.
+  static const double _followMargin = _fadeWidth;
+  // Trailing gap between chips; the chip box carries it on its right side only.
+  static const double _chipTrailingGap = 8.0;
+  // Wait for the insert animation to settle so the chip is full-size before we
+  // measure it; also coalesces rapid note-ons to a single follow.
+  static const Duration _followSettleDelay = Duration(milliseconds: 160);
 
   late List<SoundingNote> _notes;
   late bool _pedal;
   bool _showLeadingFade = false;
   bool _showTrailingFade = false;
+
+  final Map<String, GlobalKey> _chipKeys = {};
+  String? _followNoteId;
+  Timer? _followTimer;
 
   ProviderSubscription<List<SoundingNote>>? _notesSubscription;
   ProviderSubscription<bool>? _pedalSubscription;
@@ -131,6 +143,7 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
 
   @override
   void dispose() {
+    _followTimer?.cancel();
     _scrollController.removeListener(_updateScrollFade);
     _scrollController.dispose();
     _pedalCtl.dispose();
@@ -160,6 +173,48 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
     });
   }
 
+  // Nudge the most-recently inserted chip into view, scrolling whichever way is
+  // needed (the newest note may sit anywhere in the pitch-sorted row) and
+  // leaving a margin so it clears the edge fade.
+  void _followNewNote() {
+    final id = _followNoteId;
+    _followNoteId = null;
+    if (id == null || !_scrollController.hasClients) return;
+
+    final box = _chipKeys[id]?.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null || !box.attached) return;
+
+    final viewport = RenderAbstractViewport.of(box);
+    final leadingOffset = viewport.getOffsetToReveal(box, 0.0).offset;
+    final trailingOffset = viewport.getOffsetToReveal(box, 1.0).offset;
+
+    final position = _scrollController.position;
+    final current = position.pixels;
+
+    double target;
+    if (current > leadingOffset) {
+      // Off the leading edge. The chip box has no leading padding (the gap sits
+      // on its trailing side), so add it here to clear the fade by the same
+      // amount the trailing edge gets for free.
+      target = leadingOffset - _followMargin - _chipTrailingGap;
+    } else if (current < trailingOffset) {
+      target = trailingOffset + _followMargin; // chip is off the trailing edge
+    } else {
+      return; // already fully visible
+    }
+
+    target = target.clamp(position.minScrollExtent, position.maxScrollExtent);
+    if ((target - current).abs() < 0.5) return;
+
+    unawaited(
+      _scrollController.animateTo(
+        target,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+      ),
+    );
+  }
+
   void _applyNotesDiff(Iterable<SoundingNote> next) {
     final nextList = next is List<SoundingNote>
         ? next
@@ -174,6 +229,7 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
       if (!nextIdSet.contains(id)) {
         final removed = _notes.removeAt(i);
         currentIdSet.remove(id);
+        _chipKeys.remove(id);
 
         _notesKey.currentState?.removeItem(
           i,
@@ -183,11 +239,13 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
       }
     }
 
+    final insertedIds = <String>[];
     for (int i = 0; i < nextList.length; i++) {
       final id = nextList[i].id;
       if (!currentIdSet.contains(id)) {
         _notes.insert(i, nextList[i]);
         currentIdSet.add(id);
+        insertedIds.add(id);
 
         _notesKey.currentState?.insertItem(
           i,
@@ -202,6 +260,17 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
         if (updated != null) _notes[i] = updated;
       }
     });
+
+    // Notes are sorted by pitch, so the newest can land anywhere. Follow the
+    // rightmost (highest) note inserted this frame; that's the last one the
+    // forward loop placed.
+    if (insertedIds.isNotEmpty) {
+      _followNoteId = insertedIds.last;
+      _followTimer?.cancel();
+      _followTimer = Timer(_followSettleDelay, () {
+        if (mounted) _followNewNote();
+      });
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _updateScrollFade();
@@ -367,86 +436,101 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
                           ),
                         ],
                       )
-                    : LayoutBuilder(
-                        builder: (context, constraints) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (mounted) _updateScrollFade();
-                          });
+                    : Row(
+                        children: [
+                          SizedBox(
+                            width: pedalSlotWidth,
+                            child: _buildAnimatedPedal(),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
+                                  if (mounted) _updateScrollFade();
+                                });
 
-                          return Stack(
-                            children: [
-                              CustomScrollView(
-                                controller: _scrollController,
-                                scrollDirection: Axis.horizontal,
-                                physics: const BouncingScrollPhysics(),
-                                slivers: [
-                                  SliverToBoxAdapter(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(right: 8),
-                                      child: SizedBox(
-                                        width: pedalSlotWidth,
-                                        child: _buildAnimatedPedal(),
-                                      ),
+                                return Stack(
+                                  children: [
+                                    CustomScrollView(
+                                      controller: _scrollController,
+                                      scrollDirection: Axis.horizontal,
+                                      physics: const BouncingScrollPhysics(),
+                                      slivers: [
+                                        SliverAnimatedList(
+                                          key: _notesKey,
+                                          initialItemCount: _notes.length,
+                                          itemBuilder:
+                                              (context, index, animation) {
+                                                final note = _notes[index];
+                                                final key = _chipKeys
+                                                    .putIfAbsent(
+                                                      note.id,
+                                                      GlobalKey.new,
+                                                    );
+                                                return _buildPaddedNoteChip(
+                                                  note,
+                                                  animation,
+                                                  key: key,
+                                                );
+                                              },
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  SliverAnimatedList(
-                                    key: _notesKey,
-                                    initialItemCount: _notes.length,
-                                    itemBuilder: (context, index, animation) {
-                                      final note = _notes[index];
-                                      return _buildPaddedNoteChip(
-                                        note,
-                                        animation,
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                              if (_showLeadingFade)
-                                Positioned(
-                                  left: 0,
-                                  top: 0,
-                                  bottom: 0,
-                                  width: _fadeWidth,
-                                  child: IgnorePointer(
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          begin: Alignment.centerLeft,
-                                          end: Alignment.centerRight,
-                                          colors: [
-                                            cs.surface,
-                                            cs.surface.withValues(alpha: 0),
-                                          ],
+                                    if (_showLeadingFade)
+                                      Positioned(
+                                        left: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        width: _fadeWidth,
+                                        child: IgnorePointer(
+                                          child: DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                begin: Alignment.centerLeft,
+                                                end: Alignment.centerRight,
+                                                colors: [
+                                                  cs.surface,
+                                                  cs.surface.withValues(
+                                                    alpha: 0,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                              if (_showTrailingFade)
-                                Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  bottom: 0,
-                                  width: _fadeWidth,
-                                  child: IgnorePointer(
-                                    child: DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          begin: Alignment.centerRight,
-                                          end: Alignment.centerLeft,
-                                          colors: [
-                                            cs.surface,
-                                            cs.surface.withValues(alpha: 0),
-                                          ],
+                                    if (_showTrailingFade)
+                                      Positioned(
+                                        right: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        width: _fadeWidth,
+                                        child: IgnorePointer(
+                                          child: DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                begin: Alignment.centerRight,
+                                                end: Alignment.centerLeft,
+                                                colors: [
+                                                  cs.surface,
+                                                  cs.surface.withValues(
+                                                    alpha: 0,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          );
-                        },
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
               ),
               _buildModeToggle(context, lookupActive: lookupActive),
@@ -506,9 +590,14 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
     );
   }
 
-  Widget _buildPaddedNoteChip(SoundingNote note, Animation<double> animation) {
+  Widget _buildPaddedNoteChip(
+    SoundingNote note,
+    Animation<double> animation, {
+    Key? key,
+  }) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      key: key,
+      padding: const EdgeInsets.only(right: _chipTrailingGap),
       child: _buildNoteChip(note, animation),
     );
   }

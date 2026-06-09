@@ -22,6 +22,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- The input note line now scrolls automatically to keep newly played notes in
+  view when the notes overflow. Because notes are ordered by pitch, it follows
+  the note you just played wherever it lands rather than always jumping to the
+  end.
 - Renamed melodic minor to jazz melodic minor and renamed the common scales
   section to essential scales for clearer scale terminology.
 
