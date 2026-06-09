@@ -27,6 +27,7 @@ final audioMonitorStatusProvider = Provider<AudioMonitorStatus>((ref) {
 class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   static const bool _debugLog = audioDebug;
   static const Duration _previewDuration = Duration(milliseconds: 1400);
+  static const Duration _volumePreviewDuration = Duration(milliseconds: 350);
   static const Duration _rolledPreviewStep = Duration(milliseconds: 180);
   static const Duration _rolledPreviewNoteDuration = Duration(
     milliseconds: 220,
@@ -96,6 +97,23 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     if (notes.isEmpty || _backgrounded) return;
 
     _enqueueAudioOperation(() => _playPreviewNotes(notes));
+  }
+
+  void playVolumePreviewNote(int midiNote) {
+    if (_backgrounded || !ref.read(audioMonitorSettingsNotifier).enabled) {
+      return;
+    }
+
+    _enqueueAudioOperation(
+      () => _playPreviewNotes([
+        midiNote.clamp(0, 127),
+      ], duration: _volumePreviewDuration),
+    );
+  }
+
+  void cancelPreviewNotes() {
+    _cancelPreviewTimers();
+    _enqueueAudioOperation(_finishPreview);
   }
 
   void playRolledPreviewNotes(Iterable<int> midiNotes) {
@@ -304,7 +322,10 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     await engine.stop();
   }
 
-  Future<void> _playPreviewNotes(List<int> midiNotes) async {
+  Future<void> _playPreviewNotes(
+    List<int> midiNotes, {
+    Duration duration = _previewDuration,
+  }) async {
     final generation = _previewSequence.restart();
 
     if (_backgrounded) return;
@@ -321,7 +342,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       await engine.noteOn(midiNote, velocity: audioMonitorFixedVelocity);
     }
 
-    _previewSequence.schedule(_previewDuration, (_) {
+    _previewSequence.schedule(duration, (_) {
       _enqueuePreviewControl(generation, _finishPreview);
     }, generation: generation);
   }

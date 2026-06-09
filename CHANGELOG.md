@@ -29,7 +29,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Resetting Settings to defaults now returns to the home page and starts the
   guided tour.
 - Renamed the Settings volume control to Playback Volume, moved it above Audio
-  Monitor, and made it available even when Audio Monitor is off.
+  Monitor, made it available even when Audio Monitor is off, and added a short
+  note preview while adjusting it.
 - The audio monitor is now enabled by default so the guided tour, manual lookup,
   and connected MIDI controllers are audible without initial setup.
 - The input note line now scrolls automatically to keep newly played notes in
