@@ -214,11 +214,11 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
         );
       case DemoTarget.alternatives:
         // The alternatives widget fills the otherwise-empty upper-right panel.
-        // Aim at the visible alternative label near its top-left instead of the
-        // edge of that large layout box.
-        final end = Offset(t.left + 46, t.top + 34);
-        final control = Offset(end.dx + 34, end.dy + 18);
-        final start = Offset(prompt.left + 72, prompt.top - 14);
+        // Keep the arrow in the gap to its left, with a horizontal head aimed
+        // at the visible alternative label instead of crossing the prompt text.
+        final end = Offset(t.left - 12, t.top + 10);
+        final control = Offset(end.dx - 40, end.dy);
+        final start = Offset(t.left - 64, end.dy + 50);
         return (start: start, control: control, end: end);
       case DemoTarget.tonalityBar:
         // The scale degrees occupy the right side of the combined tonality bar.
