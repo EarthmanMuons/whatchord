@@ -112,14 +112,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final midiStatus = ref.watch(midiConnectionStatusProvider);
     final audioSettings = ref.watch(audioMonitorSettingsNotifier);
     final audioVolumePercent = (audioSettings.volume * 100).round();
-    final disabledTextColor = cs.onSurface.withValues(alpha: 0.38);
-    final disabledIconColor = cs.onSurfaceVariant.withValues(alpha: 0.38);
-    final volumeLabelColor = audioSettings.enabled
-        ? cs.onSurface
-        : disabledTextColor;
-    final volumeIconColor = audioSettings.enabled
-        ? cs.onSurfaceVariant
-        : disabledIconColor;
 
     final isLandscape =
         MediaQuery.orientationOf(context) == Orientation.landscape;
@@ -166,26 +158,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
               ),
 
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Audio Monitor'),
-                subtitle: const Text('Hear piano sounds as you play'),
-                value: audioSettings.enabled,
-                onChanged: (enabled) {
-                  unawaited(
-                    ref
-                        .read(audioMonitorSettingsNotifier.notifier)
-                        .setEnabled(enabled),
-                  );
-                },
-              ),
-
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Volume', style: TextStyle(color: volumeLabelColor)),
+                    const Text('Playback Volume'),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 180),
                       switchInCurve: Curves.easeOut,
@@ -195,7 +173,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       child: _isAdjustingAudioVolume
                           ? Text(
                               ' $audioVolumePercent%',
-                              style: TextStyle(color: volumeLabelColor),
                               key: ValueKey<int>(audioVolumePercent),
                             )
                           : const SizedBox.shrink(key: ValueKey<String>('off')),
@@ -204,48 +181,36 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
                 subtitle: Semantics(
                   container: true,
-                  enabled: audioSettings.enabled,
                   child: SizedBox(
                     height: 48,
                     child: Stack(
                       children: [
                         Row(
                           children: [
-                            Icon(
-                              Icons.volume_mute_outlined,
-                              color: volumeIconColor,
-                            ),
+                            const Icon(Icons.volume_mute_outlined),
                             Expanded(
                               child: Slider(
                                 value: audioSettings.volume,
                                 min: 0,
                                 max: 1,
                                 divisions: 100,
-                                onChangeStart: audioSettings.enabled
-                                    ? (_) => _showAudioVolumePercentLabel()
-                                    : null,
-                                onChangeEnd: audioSettings.enabled
-                                    ? (_) => _scheduleVolumeLabelDismiss()
-                                    : null,
-                                onChanged: audioSettings.enabled
-                                    ? (value) {
-                                        _showAudioVolumePercentLabel();
-                                        unawaited(
-                                          ref
-                                              .read(
-                                                audioMonitorSettingsNotifier
-                                                    .notifier,
-                                              )
-                                              .setVolume(value),
-                                        );
-                                      }
-                                    : null,
+                                onChangeStart: (_) =>
+                                    _showAudioVolumePercentLabel(),
+                                onChangeEnd: (_) =>
+                                    _scheduleVolumeLabelDismiss(),
+                                onChanged: (value) {
+                                  _showAudioVolumePercentLabel();
+                                  unawaited(
+                                    ref
+                                        .read(
+                                          audioMonitorSettingsNotifier.notifier,
+                                        )
+                                        .setVolume(value),
+                                  );
+                                },
                               ),
                             ),
-                            Icon(
-                              Icons.volume_up_outlined,
-                              color: volumeIconColor,
-                            ),
+                            const Icon(Icons.volume_up_outlined),
                           ],
                         ),
                         Positioned.fill(
@@ -253,7 +218,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             children: [
                               _VolumeNudgeHitTarget(
                                 semanticsLabel: 'Decrease volume',
-                                enabled: audioSettings.enabled,
                                 onTap: () {
                                   _adjustAudioVolumeByPercent(
                                     -_volumeNudgeStepPercent,
@@ -272,7 +236,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               const Expanded(child: SizedBox()),
                               _VolumeNudgeHitTarget(
                                 semanticsLabel: 'Increase volume',
-                                enabled: audioSettings.enabled,
                                 onTap: () {
                                   _adjustAudioVolumeByPercent(
                                     _volumeNudgeStepPercent,
@@ -295,6 +258,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   ),
                 ),
+              ),
+
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Audio Monitor'),
+                subtitle: const Text('Hear piano sounds as you play'),
+                value: audioSettings.enabled,
+                onChanged: (enabled) {
+                  unawaited(
+                    ref
+                        .read(audioMonitorSettingsNotifier.notifier)
+                        .setEnabled(enabled),
+                  );
+                },
               ),
 
               const SizedBox(height: 16),
@@ -571,14 +548,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 class _VolumeNudgeHitTarget extends StatelessWidget {
   const _VolumeNudgeHitTarget({
     required this.semanticsLabel,
-    required this.enabled,
     required this.onTap,
     required this.onLongPressStart,
     required this.onLongPressEnd,
   });
 
   final String semanticsLabel;
-  final bool enabled;
   final VoidCallback onTap;
   final VoidCallback onLongPressStart;
   final VoidCallback onLongPressEnd;
@@ -587,14 +562,14 @@ class _VolumeNudgeHitTarget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       label: semanticsLabel,
-      enabled: enabled,
-      onTap: enabled ? onTap : null,
+      enabled: true,
+      onTap: onTap,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
-        onTap: enabled ? onTap : null,
-        onLongPressStart: enabled ? (_) => onLongPressStart() : null,
-        onLongPressEnd: enabled ? (_) => onLongPressEnd() : null,
-        onLongPressCancel: enabled ? onLongPressEnd : null,
+        onTap: onTap,
+        onLongPressStart: (_) => onLongPressStart(),
+        onLongPressEnd: (_) => onLongPressEnd(),
+        onLongPressCancel: onLongPressEnd,
         child: const SizedBox(width: 48, height: 48),
       ),
     );
