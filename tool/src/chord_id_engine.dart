@@ -14,6 +14,9 @@ import 'package:whatchord/features/theory/presentation/models/chord_symbol.dart'
 import 'package:whatchord/features/theory/presentation/services/chord_symbol_builder.dart';
 import 'package:whatchord/features/theory/presentation/services/note_display_formatter.dart';
 
+/// Maximum number of note tokens accepted by a single identification request.
+const maxChordIdNoteTokens = 128;
+
 /// How a candidate relates to the top pick.
 enum CandidateClass {
   /// The engine's chosen interpretation (rank 1).
@@ -127,6 +130,19 @@ ChordIdResult identifyChord(
       candidates: const [],
       warnings: const [],
       errors: const ['Type some notes, e.g. C E G or 60 64 67.'],
+    );
+  }
+  if (tokens.length > maxChordIdNoteTokens) {
+    return ChordIdResult(
+      ok: false,
+      notes: const [],
+      bass: '',
+      key: keyLabel,
+      candidates: const [],
+      warnings: const [],
+      errors: const [
+        'Too many notes. Enter no more than 128 note names or MIDI numbers.',
+      ],
     );
   }
 
