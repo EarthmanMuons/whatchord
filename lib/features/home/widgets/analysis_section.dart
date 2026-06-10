@@ -185,24 +185,24 @@ class _IdentityCardWithChevrons extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         child,
-        if (canGoPrevious)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: _DemoStepChevronButton(
-              icon: Icons.chevron_left,
-              tooltip: 'Previous tour step',
-              onTap: onPrevious,
-            ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: _DemoStepChevronButton(
+            icon: Icons.chevron_left,
+            tooltip: 'Previous tour step',
+            enabled: canGoPrevious,
+            onTap: onPrevious,
           ),
-        if (canGoNext)
-          Align(
-            alignment: Alignment.centerRight,
-            child: _DemoStepChevronButton(
-              icon: Icons.chevron_right,
-              tooltip: 'Next tour step',
-              onTap: onNext,
-            ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: _DemoStepChevronButton(
+            icon: Icons.chevron_right,
+            tooltip: 'Next tour step',
+            enabled: canGoNext,
+            onTap: onNext,
           ),
+        ),
       ],
     );
   }
@@ -212,11 +212,13 @@ class _DemoStepChevronButton extends StatefulWidget {
   const _DemoStepChevronButton({
     required this.icon,
     required this.tooltip,
+    required this.enabled,
     required this.onTap,
   });
 
   final IconData icon;
   final String tooltip;
+  final bool enabled;
   final VoidCallback onTap;
 
   @override
@@ -230,29 +232,48 @@ class _DemoStepChevronButtonState extends State<_DemoStepChevronButton> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final active = _hovered || _pressed;
-    final iconColor = cs.onPrimary.withValues(alpha: active ? 0.96 : 0.68);
+    final active = widget.enabled && (_hovered || _pressed);
+    final iconColor = cs.onPrimary.withValues(
+      alpha: !widget.enabled
+          ? 0.32
+          : active
+          ? 0.96
+          : 0.68,
+    );
 
     return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
+      onEnter: widget.enabled ? (_) => setState(() => _hovered = true) : null,
+      onExit: widget.enabled ? (_) => setState(() => _hovered = false) : null,
       child: Semantics(
         button: true,
+        enabled: widget.enabled,
         label: widget.tooltip,
-        onTapHint: widget.tooltip,
-        onTap: widget.onTap,
+        onTapHint: widget.enabled ? widget.tooltip : null,
+        onTap: widget.enabled ? widget.onTap : null,
         child: Tooltip(
-          message: widget.tooltip,
+          message: widget.enabled ? widget.tooltip : '',
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTapDown: (_) => setState(() => _pressed = true),
-            onTapUp: (_) => setState(() => _pressed = false),
-            onTapCancel: () => setState(() => _pressed = false),
-            onTap: widget.onTap,
+            onTapDown: widget.enabled
+                ? (_) => setState(() => _pressed = true)
+                : null,
+            onTapUp: widget.enabled
+                ? (_) => setState(() => _pressed = false)
+                : null,
+            onTapCancel: widget.enabled
+                ? () => setState(() => _pressed = false)
+                : null,
+            // Keep the boundary hit target opaque so taps cannot reach the
+            // identity card and unexpectedly open Explore.
+            onTap: widget.enabled ? widget.onTap : () {},
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 180),
               curve: Curves.easeOutCubic,
-              opacity: active ? 1.0 : 0.76,
+              opacity: !widget.enabled
+                  ? 0.72
+                  : active
+                  ? 1.0
+                  : 0.76,
               child: SizedBox(
                 width: 56,
                 height: 56,

@@ -216,8 +216,8 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
     final len = ref.read(demoStepsProvider).length;
     if (len == 0) return;
 
-    // The user-facing tour has a clear start and end (chevrons hide at the
-    // bounds); only the dev-only screenshot/animation variants wrap around.
+    // The user-facing tour has a clear start and end; only the dev-only
+    // screenshot/animation variants wrap around.
     final interactive =
         ref.read(demoModeVariantProvider) == DemoModeVariant.interactive;
     final nextIndex = interactive
