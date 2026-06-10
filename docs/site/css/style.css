@@ -547,6 +547,49 @@ section {
   color: var(--text);
 }
 
+/* ─── Try it teaser ──────────────────────────────────────────── */
+
+.try-teaser {
+  background: var(--bg);
+  text-align: center;
+}
+
+.try-teaser .section-sub {
+  margin: 0 auto 26px;
+}
+
+.try-teaser-card {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 32px;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--r-xl);
+  background:
+    radial-gradient(
+      120% 140% at 50% 0%,
+      rgba(64 128 255 / 0.1),
+      transparent 70%
+    ),
+    var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.try-teaser-card .section-label {
+  text-align: center;
+}
+
+.try-teaser-card h2 {
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  margin-bottom: 14px;
+}
+
+.try-teaser-card .btn {
+  padding: 11px 22px;
+  font-size: 0.95rem;
+}
+
 /* ─── Audience ───────────────────────────────────────────────── */
 
 .audience {
@@ -1022,6 +1065,17 @@ footer {
 .article-cta p {
   color: var(--text-2);
   margin-bottom: 24px;
+}
+
+.article-cta .cta-secondary {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+}
+
+/* When a button sits directly above (no badges to provide spacing), give the
+   secondary line a bit more room. */
+.article-cta .btn + .cta-secondary {
+  margin-top: 16px;
 }
 
 .article-related {
