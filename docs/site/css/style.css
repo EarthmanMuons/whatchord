@@ -241,6 +241,10 @@ img {
   margin-bottom: 0;
 }
 
+.store-badges-spaced {
+  margin-bottom: 16px;
+}
+
 .store-badge {
   height: 60px;
   width: auto;
@@ -1091,6 +1095,14 @@ footer {
   text-transform: uppercase;
   color: var(--text-2);
   margin-bottom: 20px;
+}
+
+.article-related .article-card-first {
+  margin-top: 0;
+}
+
+.article-related .article-card-following {
+  margin-top: 20px;
 }
 
 /* ─── Pipeline diagram ───────────────────────────────────────── */

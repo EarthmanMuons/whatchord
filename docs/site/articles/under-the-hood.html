@@ -1026,7 +1026,7 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
               Free for iOS and Android. No subscription, no ads, all analysis
               on-device.
             </p>
-            <div class="store-badges" style="margin-bottom: 16px">
+            <div class="store-badges store-badges-spaced">
               <a
                 href="https://apps.apple.com/us/app/whatchord-midi/id6758409779"
               >
@@ -1061,11 +1061,7 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
 
           <div class="article-related">
             <h4>Also on this site</h4>
-            <a
-              class="article-card"
-              href="chord-naming.html"
-              style="margin-top: 0"
-            >
+            <a class="article-card article-card-first" href="chord-naming.html">
               <div class="article-tag">For musicians</div>
               <h3>Why Chord Naming Is Harder Than It Looks</h3>
               <p>
@@ -1076,9 +1072,8 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
               <span class="read-more">Read the article →</span>
             </a>
             <a
-              class="article-card"
+              class="article-card article-card-following"
               href="choco-chord-coverage.html"
-              style="margin-top: 20px"
             >
               <div class="article-tag">Chord data</div>
               <h3>What We Learned From 1 Million Chord Annotations</h3>
@@ -1140,30 +1135,11 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
           >
           with your Gmail address and we'll add you to the tester pool.
         </p>
-        <button
-          class="btn btn-primary"
-          onclick="document.getElementById('android-dialog').close()"
-        >
+        <button class="btn btn-primary" data-close-android-dialog>
           Got it
         </button>
       </div>
     </dialog>
-    <script>
-      (function () {
-        function openAndroidDialog(e) {
-          e.preventDefault();
-          document.getElementById("android-dialog").showModal();
-        }
-        document.querySelectorAll("[data-android-beta]").forEach(function (el) {
-          el.addEventListener("click", openAndroidDialog);
-        });
-        if (/android/i.test(navigator.userAgent)) {
-          document.querySelectorAll(".btn-get-app").forEach(function (el) {
-            el.href = "#";
-            el.addEventListener("click", openAndroidDialog);
-          });
-        }
-      })();
-    </script>
+    <script src="../js/site.js"></script>
   </body>
 </html>
