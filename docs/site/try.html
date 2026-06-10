@@ -15,10 +15,7 @@
     />
     <meta property="og:image" content="images/theme_modes.webp" />
     <meta property="og:type" content="website" />
-    <meta
-      property="og:url"
-      content="https://whatchord.earthmanmuons.com/try"
-    />
+    <meta property="og:url" content="https://whatchord.earthmanmuons.com/try" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Try WhatChord - Identify a Chord" />
     <meta
@@ -195,7 +192,7 @@
               for iOS and Android. No subscription, no ads, no internet
               required.
             </p>
-            <div class="store-badges" style="margin-bottom: 16px">
+            <div class="store-badges store-badges-spaced">
               <a
                 href="https://apps.apple.com/us/app/whatchord-midi/id6758409779"
               >
@@ -263,22 +260,14 @@
           >
           with your Gmail address and we'll add you to the tester pool.
         </p>
-        <button
-          class="btn btn-primary"
-          onclick="document.getElementById('android-dialog').close()"
-        >
+        <button class="btn btn-primary" data-close-android-dialog>
           Got it
         </button>
       </div>
     </dialog>
 
-    <script>
-      window.whatchordOnReady = function () {
-        window.whatchordReady = true;
-        window.dispatchEvent(new Event("whatchord-ready"));
-      };
-    </script>
-    <script src="js/chord-id.js" onload="whatchordOnReady()"></script>
+    <script src="js/chord-id.js"></script>
     <script src="js/try.js"></script>
+    <script src="js/site.js"></script>
   </body>
 </html>

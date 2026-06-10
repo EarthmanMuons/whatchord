@@ -407,11 +407,7 @@
 
           <div class="article-related">
             <h4>Also on this site</h4>
-            <a
-              class="article-card"
-              href="chord-naming.html"
-              style="margin-top: 0"
-            >
+            <a class="article-card article-card-first" href="chord-naming.html">
               <div class="article-tag">For musicians</div>
               <h3>Why Chord Naming Is Harder Than It Looks</h3>
               <p>
@@ -422,9 +418,8 @@
               <span class="read-more">Read the article →</span>
             </a>
             <a
-              class="article-card"
+              class="article-card article-card-following"
               href="under-the-hood.html"
-              style="margin-top: 20px"
             >
               <div class="article-tag">Technical deep-dive</div>
               <h3>Under the Hood: Building a Real-Time Chord Recognizer</h3>
@@ -486,30 +481,11 @@
           >
           with your Gmail address and we'll add you to the tester pool.
         </p>
-        <button
-          class="btn btn-primary"
-          onclick="document.getElementById('android-dialog').close()"
-        >
+        <button class="btn btn-primary" data-close-android-dialog>
           Got it
         </button>
       </div>
     </dialog>
-    <script>
-      (function () {
-        function openAndroidDialog(e) {
-          e.preventDefault();
-          document.getElementById("android-dialog").showModal();
-        }
-        document.querySelectorAll("[data-android-beta]").forEach(function (el) {
-          el.addEventListener("click", openAndroidDialog);
-        });
-        if (/android/i.test(navigator.userAgent)) {
-          document.querySelectorAll(".btn-get-app").forEach(function (el) {
-            el.href = "#";
-            el.addEventListener("click", openAndroidDialog);
-          });
-        }
-      })();
-    </script>
+    <script src="../js/site.js"></script>
   </body>
 </html>
