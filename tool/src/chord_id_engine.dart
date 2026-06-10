@@ -81,7 +81,9 @@ class ChordIdResult {
 
   final bool ok;
 
-  /// Display labels of the parsed pitch classes, e.g. ["C", "E", "G"].
+  /// Display labels of the input notes in entry order, with the player's
+  /// spelling preserved and duplicate MIDI numbers collapsed, e.g. for input
+  /// "E G C" -> ["E", "G", "C"].
   final List<String> notes;
   final String bass;
   final String key;
@@ -167,14 +169,7 @@ ChordIdResult identifyChord(
         (midi.isNotEmpty ? midi.length : pcs.length) + (bassWasMissing ? 1 : 0),
   );
 
-  // Echo the parsed input using the player's spelling where given.
-  final pcDisplays = {...pcs, bassPc}.map((pc) {
-    final preserved = parsed.pcLabels[pc];
-    final ascii = preserved != null
-        ? normalizeNoteNameToAscii(preserved)
-        : pcToName(pc, tonality: tonality);
-    return (label: noteDisplayLabel(ascii), pc: pc);
-  }).toList()..sort((a, b) => a.label.compareTo(b.label));
+  final noteLabels = inputNoteLabels(parsed, tonality: tonality);
 
   final bassPreserved = parsed.pcLabels[bassPc];
   final bassLabel = noteDisplayLabel(
@@ -187,7 +182,7 @@ ChordIdResult identifyChord(
   if (ranked.isEmpty) {
     return ChordIdResult(
       ok: true,
-      notes: [for (final d in pcDisplays) d.label],
+      notes: noteLabels,
       bass: bassLabel,
       key: keyLabel,
       candidates: const [],
@@ -226,7 +221,7 @@ ChordIdResult identifyChord(
 
   return ChordIdResult(
     ok: true,
-    notes: [for (final d in pcDisplays) d.label],
+    notes: noteLabels,
     bass: bassLabel,
     key: keyLabel,
     candidates: candidates,
@@ -288,19 +283,27 @@ Tonality parseTonality(String raw) {
   return Tonality(tonic, mode);
 }
 
+/// One successfully parsed note, kept in input order. [name] holds the raw
+/// pitch-name spelling for name tokens (null for MIDI tokens); [midi] holds the
+/// absolute MIDI number for numeric tokens (null for name tokens).
+typedef ParsedNote = ({int pc, String? name, int? midi});
+
 /// Result of parsing note tokens: MIDI numbers, pitch classes, the player's
-/// preferred spelling per pitch class (first seen wins), and any tokens that
-/// were neither a valid pitch name nor an in-range MIDI number.
+/// preferred spelling per pitch class (first seen wins), the notes in input
+/// order, and any tokens that were neither a valid pitch name nor an in-range
+/// MIDI number.
 class NoteParse {
   NoteParse(
     this.midiNotes,
     this.pitchClasses,
     this.pcLabels,
+    this.ordered,
     this.unrecognized,
   );
   final List<int> midiNotes;
   final List<int> pitchClasses;
   final Map<int, String> pcLabels;
+  final List<ParsedNote> ordered;
   final List<String> unrecognized;
 }
 
@@ -309,6 +312,7 @@ NoteParse parseNotes(List<String> tokens) {
   final midi = <int>[];
   final pcs = <int>[];
   final pcLabels = <int, String>{};
+  final ordered = <ParsedNote>[];
   final unrecognized = <String>[];
 
   for (final token in tokens) {
@@ -323,6 +327,7 @@ NoteParse parseNotes(List<String> tokens) {
       }
       midi.add(asInt);
       pcs.add(asInt % 12);
+      ordered.add((pc: asInt % 12, name: null, midi: asInt));
       continue;
     }
 
@@ -330,12 +335,31 @@ NoteParse parseNotes(List<String> tokens) {
       final pc = pitchClassFromNoteName(raw);
       pcs.add(pc);
       pcLabels.putIfAbsent(pc, () => raw);
+      ordered.add((pc: pc, name: raw, midi: null));
     } on ArgumentError {
       unrecognized.add(raw);
     }
   }
 
-  return NoteParse(midi, pcs, pcLabels, unrecognized);
+  return NoteParse(midi, pcs, pcLabels, ordered, unrecognized);
+}
+
+/// Echoes the parsed input notes in entry order, preserving the player's
+/// spelling. Identical MIDI numbers collapse (the same key cannot sound twice);
+/// repeated note names are kept, so the echo mirrors the actual voicing for
+/// later spread/density context. This is the "Notes" line shared by the website
+/// demo and the CLI harness.
+List<String> inputNoteLabels(NoteParse parsed, {required Tonality tonality}) {
+  final seenMidi = <int>{};
+  return <String>[
+    for (final n in parsed.ordered)
+      if (n.midi == null || seenMidi.add(n.midi!))
+        noteDisplayLabel(
+          n.name != null
+              ? normalizeNoteNameToAscii(n.name!)
+              : pcToName(n.pc, tonality: tonality),
+        ),
+  ];
 }
 
 String _spellChordTones(ChordIdentity id, {required Tonality tonality}) {
