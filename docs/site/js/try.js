@@ -1,0 +1,362 @@
+// Drives the browser chord-identification demo (try.html). Reads input, calls
+// the compiled Dart engine (window.whatchordIdentify), and renders results.
+// Seeds from and writes to the URL query string so links are shareable.
+(function () {
+  "use strict";
+
+  // All 15 conventional key signatures per mode, chromatic ascending with
+  // enharmonic spellings listed together (e.g. C# and Db major, D# and Eb
+  // minor).
+  var ROOTS = {
+    maj: [
+      "C",
+      "C#",
+      "Db",
+      "D",
+      "Eb",
+      "E",
+      "F",
+      "F#",
+      "Gb",
+      "G",
+      "Ab",
+      "A",
+      "Bb",
+      "B",
+      "Cb",
+    ],
+    min: [
+      "C",
+      "C#",
+      "D",
+      "D#",
+      "Eb",
+      "E",
+      "F",
+      "F#",
+      "G",
+      "G#",
+      "Ab",
+      "A",
+      "A#",
+      "Bb",
+      "B",
+    ],
+  };
+  var PC = {
+    C: 0,
+    "C#": 1,
+    Db: 1,
+    D: 2,
+    "D#": 3,
+    Eb: 3,
+    E: 4,
+    F: 5,
+    "F#": 6,
+    Gb: 6,
+    G: 7,
+    "G#": 8,
+    Ab: 8,
+    A: 9,
+    "A#": 10,
+    Bb: 10,
+    B: 11,
+    Cb: 11,
+  };
+  var DEFAULT_MODE = "maj";
+  var DEFAULT_NOTATION = "textual";
+
+  var els = {
+    notes: document.getElementById("notes-input"),
+    clear: document.getElementById("clear-notes"),
+    keyRoot: document.getElementById("key-root"),
+    keyMode: document.getElementById("key-mode"),
+    notation: document.getElementById("notation"),
+    status: document.getElementById("status"),
+    resultsHead: document.getElementById("results-head"),
+    echo: document.getElementById("echo"),
+    candidates: document.getElementById("candidates"),
+    copyLink: document.getElementById("copy-link"),
+    copyLabel: document.querySelector("#copy-link .copy-label"),
+  };
+
+  var state = {
+    mode: DEFAULT_MODE,
+    notation: DEFAULT_NOTATION,
+  };
+
+  // ─── Key dropdown (mode-aware) ─────────────────────────────────
+
+  function glyph(label) {
+    return label.replace("#", "♯").replace("b", "♭");
+  }
+
+  // Rebuilds the root options for the current mode, keeping the same pitch
+  // class selected (so switching major<->minor respells, e.g. Db <-> C#).
+  function rebuildKeyRoot(pc) {
+    var list = ROOTS[state.mode];
+    var selected = list[0];
+    els.keyRoot.innerHTML = "";
+    list.forEach(function (label) {
+      var opt = document.createElement("option");
+      opt.value = label;
+      opt.textContent = glyph(label);
+      els.keyRoot.appendChild(opt);
+      if (PC[label] === pc) selected = label;
+    });
+    els.keyRoot.value = selected;
+  }
+
+  // ─── Controls ──────────────────────────────────────────────────
+
+  function setSegmented(group, attr, value) {
+    Array.prototype.forEach.call(
+      group.querySelectorAll("button"),
+      function (b) {
+        b.setAttribute("aria-pressed", String(b.getAttribute(attr) === value));
+      },
+    );
+  }
+
+  els.keyMode.addEventListener("click", function (e) {
+    var btn = e.target.closest("button");
+    if (!btn) return;
+    state.mode = btn.getAttribute("data-mode");
+    setSegmented(els.keyMode, "data-mode", state.mode);
+    rebuildKeyRoot(PC[els.keyRoot.value]);
+    scheduleRun();
+  });
+
+  els.notation.addEventListener("click", function (e) {
+    var btn = e.target.closest("button");
+    if (!btn) return;
+    state.notation = btn.getAttribute("data-notation");
+    setSegmented(els.notation, "data-notation", state.notation);
+    scheduleRun();
+  });
+
+  els.keyRoot.addEventListener("change", scheduleRun);
+  els.notes.addEventListener("input", function () {
+    syncClear();
+    scheduleRun();
+  });
+
+  els.clear.addEventListener("click", function () {
+    els.notes.value = "";
+    syncClear();
+    els.notes.focus();
+    scheduleRun();
+  });
+
+  // Shows the clear button only when the input has text.
+  function syncClear() {
+    els.clear.hidden = els.notes.value.length === 0;
+  }
+
+  els.copyLink.addEventListener("click", function () {
+    var url = location.origin + location.pathname + buildQuery();
+    var done = function () {
+      els.copyLabel.textContent = "Copied!";
+      setTimeout(function () {
+        els.copyLabel.textContent = "Copy link";
+      }, 1500);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done, done);
+    } else {
+      done();
+    }
+  });
+
+  // ─── State <-> URL ─────────────────────────────────────────────
+
+  function currentKey() {
+    return els.keyRoot.value + ":" + state.mode;
+  }
+
+  function buildQuery() {
+    var params = new URLSearchParams();
+    var notes = els.notes.value.trim();
+    if (notes) params.set("notes", notes);
+    if (currentKey() !== "C:" + DEFAULT_MODE) params.set("key", currentKey());
+    if (state.notation !== DEFAULT_NOTATION)
+      params.set("notation", state.notation);
+    var q = params.toString();
+    return q ? "?" + q : location.pathname;
+  }
+
+  function syncUrl() {
+    history.replaceState(null, "", buildQuery());
+  }
+
+  // Applies URL params and returns the pitch class to preselect in the key
+  // dropdown (defaults to C).
+  function seedFromUrl() {
+    var params = new URLSearchParams(location.search);
+    var rootPc = 0;
+
+    var key = params.get("key");
+    if (key) {
+      var parts = key.split(":");
+      var mode = (parts[1] || "").toLowerCase().slice(0, 3);
+      if (mode === "min" || mode === "maj") state.mode = mode;
+      if (parts[0] in PC) rootPc = PC[parts[0]];
+    }
+    setSegmented(els.keyMode, "data-mode", state.mode);
+
+    var notation = params.get("notation");
+    if (notation === "symbolic" || notation === "textual") {
+      state.notation = notation;
+    }
+    setSegmented(els.notation, "data-notation", state.notation);
+
+    var notes = params.get("notes");
+    if (notes !== null) els.notes.value = notes;
+
+    return rootPc;
+  }
+
+  // ─── Rendering ─────────────────────────────────────────────────
+
+  function setStatus(text, kind) {
+    els.status.textContent = text || "";
+    els.status.className = "try-status" + (kind ? " is-" + kind : "");
+  }
+
+  function render(result) {
+    els.candidates.innerHTML = "";
+
+    if (!result.ok) {
+      setStatus(result.errors.join(" "), "error");
+      els.resultsHead.hidden = true;
+      return;
+    }
+
+    if (result.warnings && result.warnings.length) {
+      setStatus(result.warnings.join(" "), "warning");
+    } else {
+      setStatus("");
+    }
+
+    els.resultsHead.hidden = false;
+    els.echo.innerHTML = "";
+    addEcho("Notes", result.input.notes.join(" "));
+    addEcho("Bass", result.input.bass);
+    addEcho("Key", result.input.key);
+
+    if (!result.candidates.length) {
+      var none = document.createElement("div");
+      none.className = "try-notes";
+      none.textContent = "No chord candidates for these notes.";
+      els.candidates.appendChild(none);
+      return;
+    }
+
+    result.candidates.forEach(function (c) {
+      els.candidates.appendChild(renderCandidate(c));
+    });
+  }
+
+  function addEcho(label, value) {
+    if (!value) return;
+    var span = document.createElement("span");
+    span.appendChild(document.createTextNode(label + " "));
+    var b = document.createElement("b");
+    b.textContent = value;
+    span.appendChild(b);
+    els.echo.appendChild(span);
+  }
+
+  var TAG_LABEL = {
+    chosen: "Chosen",
+    "near-tie": "Near tie",
+    unlikely: "Unlikely",
+  };
+
+  function renderCandidate(c) {
+    var row = document.createElement("div");
+    row.className =
+      "try-candidate" + (c.class === "chosen" ? " is-chosen" : "");
+
+    var rank = document.createElement("div");
+    rank.className = "try-rank";
+    rank.textContent = c.rank;
+
+    var main = document.createElement("div");
+    main.className = "try-cand-main";
+    var symbol = document.createElement("div");
+    symbol.className = "try-symbol";
+    symbol.textContent = c.symbol;
+    var notes = document.createElement("div");
+    notes.className = "try-notes";
+    notes.textContent = c.notes;
+    main.appendChild(symbol);
+    main.appendChild(notes);
+
+    var tag = document.createElement("span");
+    tag.className = "try-tag tag-" + c.class;
+    tag.textContent = TAG_LABEL[c.class] || c.class;
+
+    var score = document.createElement("div");
+    score.className = "try-score";
+    score.textContent = c.score.toFixed(2);
+
+    row.appendChild(rank);
+    row.appendChild(main);
+    row.appendChild(tag);
+    row.appendChild(score);
+    return row;
+  }
+
+  // ─── Run loop ──────────────────────────────────────────────────
+
+  var timer = null;
+  function scheduleRun() {
+    clearTimeout(timer);
+    timer = setTimeout(run, 120);
+  }
+
+  function run() {
+    syncUrl();
+    var notes = els.notes.value;
+    if (!notes.trim()) {
+      els.candidates.innerHTML = "";
+      els.resultsHead.hidden = true;
+      setStatus("");
+      return;
+    }
+    var json = window.whatchordIdentify(notes, currentKey(), state.notation);
+    render(JSON.parse(json));
+  }
+
+  // ─── Boot ──────────────────────────────────────────────────────
+
+  function start() {
+    var rootPc = seedFromUrl();
+    rebuildKeyRoot(rootPc);
+    syncClear();
+    run();
+    els.notes.focus();
+  }
+
+  if (window.whatchordReady) {
+    start();
+  } else {
+    window.addEventListener("whatchord-ready", start, { once: true });
+  }
+
+  // Android beta dialog (mirrors index.html behavior on this standalone page).
+  function openAndroidDialog(e) {
+    e.preventDefault();
+    document.getElementById("android-dialog").showModal();
+  }
+  document.querySelectorAll("[data-android-beta]").forEach(function (el) {
+    el.addEventListener("click", openAndroidDialog);
+  });
+  if (/android/i.test(navigator.userAgent)) {
+    document.querySelectorAll(".btn-get-app").forEach(function (el) {
+      el.href = "#";
+      el.addEventListener("click", openAndroidDialog);
+    });
+  }
+})();
