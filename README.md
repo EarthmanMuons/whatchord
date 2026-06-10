@@ -12,9 +12,7 @@
       style="height: 60px"
       hspace="15"
   /></a>
-  <a
-    href="https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord"
-  >
+  <a href="#android-google-play">
     <img
       src="docs/site/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
       alt="Get it on Google Play"
@@ -35,18 +33,21 @@ conventional interpretations over simple note-matching.
 
 ## Features
 
-- **Live chord identification** Connect a Bluetooth or USB MIDI keyboard and see
-  chords update instantly as you play.
+- **Live chord identification**  
+  Connect a Bluetooth or USB MIDI keyboard and see chords update instantly as
+  you play.
 
-- **Manual chord lookup** Enter notes directly to identify a chord from any
-  instrument, sheet music, or recording. The first note entered sets the bass.
+- **Manual chord lookup**  
+  Enter notes directly to identify a chord from any instrument, sheet music, or
+  recording. The first note entered sets the bass.
 
 - **Explore chords**  
   Tap the chord card to open explore mode and try chord roots, qualities,
   extensions, bass notes, and example voicings.
 
-- **Explore scales** Tap the scale-degree strip to browse scale tones, keyboard
-  patterns, and diatonic chords across a wide range of scales.
+- **Explore scales**  
+  Tap the scale-degree strip to browse scale tones, keyboard patterns, and
+  diatonic chords across a wide range of scales.
 
 - **Musically informed chord detection**  
   Goes beyond simple note-matching by ranking and resolving ambiguous
@@ -102,7 +103,7 @@ WhatChord is available on the App Store for iPhone and iPad.
 WhatChord is available on the Google Play Store for supported Android devices.
 
 <p>
-  <a href="https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord">
+  <a href="https://play.google.com/apps/testing/com.earthmanmuons.whatchord">
     <img
       src="docs/site/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
       alt="Get it on Google Play"
@@ -111,7 +112,9 @@ WhatChord is available on the Google Play Store for supported Android devices.
   </a>
 </p>
 
-> Google Play availability may vary by region during staged rollouts.
+> WhatChord is currently in closed testing. To join the beta, email
+> [support@earthmanmuons.com](mailto:support@earthmanmuons.com) with your Gmail
+> address, and we'll add you to the testing pool.
 
 ### Android (GitHub APK)
 
