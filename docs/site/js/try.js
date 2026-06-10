@@ -375,6 +375,17 @@
     window.addEventListener("whatchord-ready", start, { once: true });
   }
 
+  // Browsers may restore rendered results from the back-forward cache without
+  // restoring an autocomplete-off input. Reapply the URL-backed state so the
+  // form and results cannot disagree.
+  window.addEventListener("pageshow", function (event) {
+    if (!event.persisted) return;
+    var params = new URLSearchParams(location.search);
+    els.notes.value = params.get("notes") || "";
+    syncClear();
+    run();
+  });
+
   // Android beta dialog (mirrors index.html behavior on this standalone page).
   function openAndroidDialog(e) {
     e.preventDefault();
