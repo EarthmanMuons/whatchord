@@ -12,81 +12,38 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Added tap-to-flip scoring details to the Why This Chord? cards, including
-  context-aware note spellings, score contributions, and ranking decisions.
 - Added a manual chord lookup mode for identifying chords without a MIDI device.
-  Tap the search icon on the input line to slide in a note pad, then tap notes
-  by name to build a chord. Notes are spelled to the current key, the first note
-  tapped is the bass, and repeated taps stack up the octaves. Tapped notes play
-  through the audio monitor when it is enabled.
-- Added Phrygian dominant, Lydian dominant, altered, harmonic major, double
-  harmonic major, and augmented inverse scales to Explore Scales.
-- Added a guided tour that starts automatically on first launch. Page through
-  the examples with the arrows on the chord card; later steps point out the
-  alternative readings, key and scale controls, and manual lookup. Tap Exit tour
-  to leave, and replay it anytime from Settings > Help & Support > Take a Tour.
+  Tap notes by name to build a voicing, with the first note as the bass and
+  repeated notes stacked into higher octaves.
+- Added a guided first-launch tour of chord analysis, alternative readings, key
+  context, and manual lookup. It can be replayed from Settings > Help & Support.
+- Why This Chord? ranking cards can now reveal chord members, score
+  contributions, and the decisions that determined their order.
+- Expanded Explore Scales with practical dominant, harmonic-major, altered, and
+  symmetric scales.
 
 ### Changed
 
-- Resetting Settings to defaults now returns to the home page and starts the
-  guided tour.
-- Renamed the Settings volume control to Playback Volume, moved it above Audio
-  Monitor, made it available even when Audio Monitor is off, and added a short
-  note preview while adjusting it.
-- The audio monitor is now enabled by default so the guided tour, manual lookup,
-  and connected MIDI controllers are audible without initial setup.
-- The input note line now scrolls automatically to keep newly played notes in
-  view when the notes overflow. Because notes are ordered by pitch, it follows
-  the note you just played wherever it lands rather than always jumping to the
-  end.
-- Renamed melodic minor to jazz melodic minor and renamed the common scales
-  section to essential scales for clearer scale terminology.
+- Playback Volume is now available when Audio Monitor is off and plays a short
+  preview note while it is adjusted.
+- Audio Monitor is now enabled by default for an audible first-run experience.
+- The input note line now scrolls to keep newly played notes visible.
+- Refined scale names and organization for clearer musical terminology.
+- Resetting Settings to defaults now returns home and starts the guided tour.
 
 ### Removed
 
-- Removed the Demo Mode toggle and the first-launch MIDI coach mark, replaced by
-  the guided tour above.
+- Replaced Demo Mode and the first-launch MIDI prompt with the guided tour.
 
 ### Fixed
 
-- Fixed the first manual lookup note crashing when it was used to exit the
-  guided tour.
-- Kept the manual lookup toggle clear of landscape camera cutouts and adjusted
-  guided-tour callout arrows for the landscape layout.
-- Collapsed stacked extensions into a thirteenth or eleventh headline even when
-  the ninth or eleventh is altered, so voicings such as B13(#9,#11) no longer
-  display as B7(#9,#11,add13).
-- Improved relative-major and relative-minor ambiguity handling so root-position
-  minor seventh chords such as Am7 are preferred over equivalent major-sixth
-  slash readings such as C6/A.
-- Fixed complete altered-dominant inversions being ranked below competing
-  inverted augmented add-tone readings.
-- Prefer root-position minor-eleventh shells such as Dm7(add11) over inverted
-  suspended-chord readings of the same voicing.
-- Prefer complete major 6/9 chords over less conventional inverted
-  minor-seven-sharp-five reinterpretations.
-- Prefer root-position major-sixth sharp-eleventh chords over equivalent
-  inverted minor-seven add-thirteen readings.
-- Prefer the more conventional inversion when split-nine altered dominants
-  compete with complete tritone-related dominant readings.
-- Improved minor-key chord identification so harmonic-minor tonic colors such as
-  C#m(maj7)b13 are preferred over remote split-third inversions when context
-  supports them.
-- Improved recognition of fifthless flat-nine-bass dominant shells such as
-  C7b9/Db while preserving tonic-minor context for plausible bass-rooted
-  interpretations.
-- Fixed complete dominant flat-nine inversions such as C7b9/G being ranked below
-  less conventional diminished-seventh add-tone interpretations.
-- Fixed complete altered-dominant inversions such as A7#5#9/C# being ranked
-  below rare altered major-seventh interpretations.
-- Fixed complete dominant sharp-nine chords such as C7#9/Eb being ranked below
-  uncommon sixth-chord flat-nine interpretations.
-- Added direct double-suspension recognition so voicings such as G-A-C-D are
-  identified as Gsus2sus4 instead of a remote dominant-sus slash chord.
-- Fixed complete altered dominant chords over a color-tone bass, such as G7#5/A,
-  being ranked below rarer enharmonic interpretations.
-- Updated chord research CLIs so a `--bass` pitch omitted from the note list is
-  automatically included among the sounding notes.
+- Improved chord identification across ambiguous sixth, 6/9, minor seventh,
+  minor eleventh, altered dominant, split-third, and inversion voicings,
+  favoring familiar complete readings and using minor-key context where helpful.
+- Recognized double-suspended voicings such as Gsus2sus4 directly.
+- Presented stacked eleventh and thirteenth chords more conventionally when
+  lower extensions are altered, such as B13(#9,#11).
+- Improved guided-tour and manual-lookup behavior and positioning in landscape.
 
 ## [2026.6.6] - 2026-06-06
 
