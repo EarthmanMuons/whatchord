@@ -76,6 +76,7 @@
     resultsHead: document.getElementById("results-head"),
     echo: document.getElementById("echo"),
     candidates: document.getElementById("candidates"),
+    rankingFeedback: document.getElementById("ranking-feedback"),
     copyLink: document.getElementById("copy-link"),
     copyLabel: document.querySelector("#copy-link .copy-label"),
   };
@@ -231,6 +232,7 @@
 
   function render(result) {
     els.candidates.innerHTML = "";
+    els.rankingFeedback.hidden = true;
 
     if (!result.ok) {
       setStatus(result.errors.join(" "), "error");
@@ -261,6 +263,7 @@
     result.candidates.forEach(function (c) {
       els.candidates.appendChild(renderCandidate(c));
     });
+    els.rankingFeedback.hidden = false;
   }
 
   function addEcho(label, value) {
@@ -333,6 +336,7 @@
     if (!notes.trim()) {
       els.candidates.innerHTML = "";
       els.resultsHead.hidden = true;
+      els.rankingFeedback.hidden = true;
       setStatus("");
       return;
     }

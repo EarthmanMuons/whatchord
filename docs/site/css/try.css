@@ -314,6 +314,13 @@ select.try-select:focus {
   text-align: right;
 }
 
+.try-feedback {
+  margin-top: 14px;
+  color: var(--text-2);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
 /* ─── Results head (echo + share) ─────────────────────────────── */
 
 .try-results-head {
