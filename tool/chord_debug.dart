@@ -144,7 +144,8 @@ void main(List<String> args) {
     );
   }).toList()..sort((a, b) => a.label.compareTo(b.label));
 
-  final pcNames = [for (final display in pcDisplays) display.label];
+  // Input notes in entry order, matching the website demo's "Notes" line.
+  final noteLabels = inputNoteLabels(parsed, tonality: tonality);
 
   final bassLabel =
       bassDisplayFromFlag ??
@@ -183,8 +184,8 @@ void main(List<String> args) {
   }
   if (!compact) {
     stdout.writeln(
-      'pcs: ${pcNames.join(' ')}  |  bass: $bassLabel (pc $bassPc)  |  key: '
-      '${tonalityDisplayLabel(context.tonality)}',
+      'notes: ${noteLabels.join(' ')}  |  bass: $bassLabel (pc $bassPc)  |  '
+      'key: ${tonalityDisplayLabel(context.tonality)}',
     );
     stdout.writeln('');
   }
