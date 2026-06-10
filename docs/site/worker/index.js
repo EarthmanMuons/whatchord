@@ -40,24 +40,12 @@ export default {
     }
     if (!meta) return asset;
 
-    const out = new HTMLRewriter()
-      .on("title", new Content(meta.titleTag))
-      .on('meta[name="description"]', new Attr("content", meta.description))
-      .on('meta[property="og:title"]', new Attr("content", meta.title))
-      .on(
-        'meta[property="og:description"]',
-        new Attr("content", meta.description),
-      )
-      .on('meta[property="og:url"]', new Attr("content", meta.shareUrl))
-      .on('meta[name="twitter:title"]', new Attr("content", meta.title))
-      .on(
-        'meta[name="twitter:description"]',
-        new Attr("content", meta.description),
-      )
-      .transform(asset);
+    const html = await asset.text();
+    const rewritten = rewriteMeta(html, meta);
 
     // Per-URL response: let edge and crawler caches keep it for a while.
-    const res = new Response(out.body, out);
+    const res = new Response(rewritten, asset);
+    res.headers.delete("Content-Length");
     res.headers.set("Cache-Control", "public, max-age=3600");
     return res;
   },
@@ -100,23 +88,38 @@ function buildMeta(result, url) {
   };
 }
 
-// HTMLRewriter handler: overwrite an element's text content.
-class Content {
-  constructor(text) {
-    this.text = text;
-  }
-  element(el) {
-    el.setInnerContent(this.text);
-  }
+function rewriteMeta(html, meta) {
+  let out = html.replace(
+    /<title>.*?<\/title>/s,
+    `<title>${escapeHtml(meta.titleTag)}</title>`,
+  );
+  out = replaceMeta(out, "name", "description", meta.description);
+  out = replaceMeta(out, "property", "og:title", meta.title);
+  out = replaceMeta(out, "property", "og:description", meta.description);
+  out = replaceMeta(out, "property", "og:url", meta.shareUrl);
+  out = replaceMeta(out, "name", "twitter:title", meta.title);
+  return replaceMeta(out, "name", "twitter:description", meta.description);
 }
 
-// HTMLRewriter handler: set an attribute's value.
-class Attr {
-  constructor(name, value) {
-    this.name = name;
-    this.value = value;
-  }
-  element(el) {
-    el.setAttribute(this.name, this.value);
-  }
+function replaceMeta(html, attribute, key, content) {
+  const tag = new RegExp(
+    `<meta\\s+${attribute}="${escapeRegExp(key)}"\\s+content="[^"]*"\\s*/?>`,
+    "s",
+  );
+  return html.replace(
+    tag,
+    `<meta ${attribute}="${key}" content="${escapeHtml(content)}" />`,
+  );
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
