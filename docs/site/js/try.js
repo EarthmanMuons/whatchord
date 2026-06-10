@@ -84,6 +84,7 @@
   var state = {
     mode: DEFAULT_MODE,
     notation: DEFAULT_NOTATION,
+    canonicalNotes: null,
   };
 
   // ─── Key dropdown (mode-aware) ─────────────────────────────────
@@ -138,6 +139,7 @@
 
   els.keyRoot.addEventListener("change", scheduleRun);
   els.notes.addEventListener("input", function () {
+    state.canonicalNotes = null;
     syncClear();
     scheduleRun();
   });
@@ -182,7 +184,7 @@
 
   function buildQuery() {
     var params = new URLSearchParams();
-    var notes = els.notes.value.trim();
+    var notes = state.canonicalNotes || els.notes.value.trim();
     if (notes) params.set("notes", notes);
     if (currentKey() !== "C:" + DEFAULT_MODE) params.set("key", currentKey());
     if (state.notation !== DEFAULT_NOTATION)
@@ -192,8 +194,8 @@
   }
 
   function syncUrl() {
-    if (location.protocol === "file:") return;
-    history.replaceState(null, "", "/try" + buildQuery());
+    var path = location.protocol === "file:" ? location.pathname : "/try";
+    history.replaceState(null, "", path + buildQuery());
   }
 
   // Applies URL params and returns the pitch class to preselect in the key
@@ -331,9 +333,10 @@
   }
 
   function run() {
-    syncUrl();
     var notes = els.notes.value;
     if (!notes.trim()) {
+      state.canonicalNotes = null;
+      syncUrl();
       els.candidates.innerHTML = "";
       els.resultsHead.hidden = true;
       els.rankingFeedback.hidden = true;
@@ -341,7 +344,20 @@
       return;
     }
     var json = window.whatchordIdentify(notes, currentKey(), state.notation);
-    render(JSON.parse(json));
+    var result = JSON.parse(json);
+    state.canonicalNotes = result.ok
+      ? result.input.notes.map(toAsciiNote).join(" ")
+      : null;
+    syncUrl();
+    render(result);
+  }
+
+  function toAsciiNote(note) {
+    return note
+      .replaceAll("𝄪", "x")
+      .replaceAll("𝄫", "bb")
+      .replaceAll("♯", "#")
+      .replaceAll("♭", "b");
   }
 
   // ─── Boot ──────────────────────────────────────────────────────
