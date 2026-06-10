@@ -6,8 +6,8 @@ main = "worker/index.js"
 directory = "."
 binding = "ASSETS"
 # Keep .html asset paths available for the Worker and for the rest of the site.
-# The public extensionless /try route is handled explicitly below.
+# The public root and extensionless /try routes are handled explicitly below.
 html_handling = "none"
-# Only the Try page needs server-side logic (dynamic social-preview metadata);
-# every other path is served straight from static assets.
-run_worker_first = ["/try"]
+# The root needs explicit index.html routing; the Try page needs server-side
+# logic for dynamic social-preview metadata.
+run_worker_first = ["/", "/try"]
