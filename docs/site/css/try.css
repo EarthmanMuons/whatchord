@@ -288,9 +288,9 @@ select.try-select:focus {
 }
 
 .try-tag.tag-chosen {
-  color: var(--accent-light);
-  background: var(--accent-bg);
-  border: 1px solid var(--accent-border);
+  color: #7ee2a8;
+  background: rgba(58 190 112 / 0.1);
+  border: 1px solid rgba(58 190 112 / 0.3);
 }
 
 .try-tag.tag-near-tie {
