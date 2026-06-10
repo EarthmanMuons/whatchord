@@ -66,19 +66,9 @@ function buildMeta(result, url) {
   const top = result.candidates[0].symbol;
   const bass = result.input.bass;
   const key = result.input.key;
-  const n = result.candidates.length;
 
   const title = notes + " → " + top;
-  const description =
-    "Identified with WhatChord's analysis engine. Bass " +
-    bass +
-    ", key " +
-    key +
-    ", top of " +
-    n +
-    " ranked candidate" +
-    (n === 1 ? "" : "s") +
-    ".";
+  const description = "Identified by WhatChord. Bass " + bass + ", key " + key + ".";
 
   return {
     title,
