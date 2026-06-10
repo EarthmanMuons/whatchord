@@ -15,6 +15,12 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    if (url.pathname === "/") {
+      return env.ASSETS.fetch(
+        new Request(new URL("/index.html", url.origin), request),
+      );
+    }
+
     // Always start from the real static asset so non-meta content is untouched.
     const asset = await env.ASSETS.fetch(
       new Request(new URL("/try.html", url.origin), request),
