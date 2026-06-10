@@ -15,6 +15,8 @@ import 'package:whatchord/features/theory/presentation/services/chord_symbol_bui
 import 'package:whatchord/features/theory/presentation/services/harte_chord_formatter.dart';
 import 'package:whatchord/features/theory/presentation/services/note_display_formatter.dart';
 
+import 'src/chord_id_engine.dart';
+
 const _usage = '''
 Usage:
   dart run tool/chord_debug.dart [notes...] [options]
@@ -74,7 +76,7 @@ void main(List<String> args) {
       : _displayNoteLabel(bassName);
 
   final keyFlag = _readStringFlag(args, 'key', 'k') ?? 'C:maj';
-  final tonality = _parseTonalityFlag(keyFlag);
+  final tonality = parseTonality(keyFlag);
 
   final ks = KeySignature.fromTonality(tonality);
 
@@ -94,14 +96,14 @@ void main(List<String> args) {
   final outputFormat = _parseOutputFormatFlag(args);
 
   // Extract positional args (notes), ignoring flags.
-  final noteTokens = _readNoteTokens(args).expand(_splitNoteToken).toList();
+  final noteTokens = splitNoteTokens(_readNoteTokens(args).join(' '));
   if (noteTokens.isEmpty) {
     stderr.writeln('No notes provided.');
     exitCode = 2;
     return;
   }
 
-  final parsed = _parseNotes(noteTokens);
+  final parsed = parseNotes(noteTokens);
   final midi = parsed.midiNotes;
   final pcs = parsed.pitchClasses;
   final inputPcLabels = parsed.pcLabels;
@@ -429,100 +431,6 @@ Map<String, Object?> _candidateJson({
   };
 }
 
-({List<int> midiNotes, List<int> pitchClasses, Map<int, String> pcLabels})
-_parseNotes(List<String> tokens) {
-  final midi = <int>[];
-  final pcs = <int>[];
-
-  // First-seen label wins per pitch class.
-  final pcLabels = <int, String>{};
-
-  for (final t in tokens) {
-    final raw = t.trim();
-    if (raw.isEmpty) continue;
-
-    final asInt = int.tryParse(raw);
-    if (asInt != null) {
-      midi.add(asInt);
-      final pc = asInt % 12;
-      pcs.add(pc);
-      // For MIDI inputs, we *don't* have a user spelling; leave label unset.
-      continue;
-    }
-
-    // Preserve the user's accidental choice (including glyph accidentals),
-    // but normalize whitespace and casing in a lightweight way.
-    // If you'd prefer to canonicalize glyphs to ASCII, use normalizeNoteNameToAscii.
-    final preserved = raw;
-
-    final pc = pitchClassFromNoteName(raw);
-    pcs.add(pc);
-
-    pcLabels.putIfAbsent(pc, () => preserved);
-  }
-
-  return (midiNotes: midi, pitchClasses: pcs, pcLabels: pcLabels);
-}
-
-Tonality _parseTonalityFlag(String raw) {
-  final s = raw.trim();
-  if (s.isEmpty) return const Tonality(Tonic.c, TonalityMode.major);
-
-  // Accept: "C", "C:maj", "C:major", "A:min", "A:minor"
-  // Also accept "A minor" / "C major" (space separated).
-  //
-  // IMPORTANT: don't destroy glyph accidentals. We'll normalize accidentals
-  // to ASCII after we isolate the tonic token.
-  final compact = s.replaceAll(RegExp(r'\s+'), '');
-
-  // Split on ":" if present (preferred syntax).
-  String tonicPart;
-  String? modePart;
-  final colon = compact.indexOf(':');
-  if (colon >= 0) {
-    tonicPart = compact.substring(0, colon);
-    modePart = compact.substring(colon + 1);
-  } else {
-    tonicPart = compact;
-    modePart = null;
-  }
-
-  // Mode parsing is case-insensitive.
-  final modeToken = (modePart ?? '').toLowerCase();
-  var mode = TonalityMode.major;
-
-  if (modePart != null) {
-    if (modeToken == 'min' || modeToken == 'minor') mode = TonalityMode.minor;
-    if (modeToken == 'maj' || modeToken == 'major') mode = TonalityMode.major;
-  } else {
-    // If user typed "...minor" or "...major" without colon, handle it.
-    final lower = tonicPart.toLowerCase();
-
-    if (lower.endsWith('minor')) {
-      mode = TonalityMode.minor;
-      tonicPart = tonicPart.substring(0, tonicPart.length - 'minor'.length);
-    } else if (lower.endsWith('major')) {
-      mode = TonalityMode.major;
-      tonicPart = tonicPart.substring(0, tonicPart.length - 'major'.length);
-    } else if (lower.endsWith('min')) {
-      mode = TonalityMode.minor;
-      tonicPart = tonicPart.substring(0, tonicPart.length - 'min'.length);
-    } else if (lower.endsWith('maj')) {
-      mode = TonalityMode.major;
-      tonicPart = tonicPart.substring(0, tonicPart.length - 'maj'.length);
-    }
-  }
-
-  // Canonicalize tonic:
-  // - trims again (defensive)
-  // - converts ♯/♭/𝄪/𝄫 to ASCII #/b/x/bb
-  // - uppercases the letter
-  final tonicAscii = normalizeNoteNameToAscii(tonicPart);
-
-  final tonic = Tonic.tryFromLabel(tonicAscii) ?? Tonic.c;
-  return Tonality(tonic, mode);
-}
-
 String _formatIdentityCompact(ChordIdentity id) {
   // Start from the model's canonical toString().
   var s = id.toString();
@@ -677,13 +585,6 @@ List<String> _readNoteTokens(List<String> args) {
     out.add(arg);
   }
   return out;
-}
-
-Iterable<String> _splitNoteToken(String token) sync* {
-  for (final part in token.split(',')) {
-    final trimmed = part.trim();
-    if (trimmed.isNotEmpty) yield trimmed;
-  }
 }
 
 String _padRight(String s, int width) {
