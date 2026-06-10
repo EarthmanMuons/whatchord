@@ -154,7 +154,7 @@
   }
 
   els.copyLink.addEventListener("click", function () {
-    var url = location.origin + location.pathname + buildQuery();
+    var url = location.origin + "/try" + buildQuery();
     var done = function () {
       els.copyLabel.textContent = "Copied!";
       setTimeout(function () {
@@ -182,11 +182,11 @@
     if (state.notation !== DEFAULT_NOTATION)
       params.set("notation", state.notation);
     var q = params.toString();
-    return q ? "?" + q : location.pathname;
+    return q ? "?" + q : "";
   }
 
   function syncUrl() {
-    history.replaceState(null, "", buildQuery());
+    history.replaceState(null, "", "/try" + buildQuery());
   }
 
   // Applies URL params and returns the pitch class to preselect in the key
