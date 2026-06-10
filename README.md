@@ -29,6 +29,8 @@ conventional interpretations over simple note-matching.
 
 **Website:** <https://whatchord.earthmanmuons.com>
 
+**Try chord identification online:** <https://whatchord.earthmanmuons.com/try>
+
 ---
 
 ## Features
