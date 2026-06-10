@@ -217,12 +217,14 @@ select.try-select:focus {
 }
 
 .try-echo {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 18px;
   font-size: 0.85rem;
   color: var(--text-2);
   margin-bottom: 14px;
+  line-height: 1.7;
+}
+
+.try-echo-item {
+  margin-right: 14px;
 }
 
 .try-echo b {
