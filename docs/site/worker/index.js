@@ -21,6 +21,10 @@ export default {
       );
     }
 
+    if (url.pathname !== "/try") {
+      return new Response("Not Found", { status: 404 });
+    }
+
     // Always start from the real static asset so non-meta content is untouched.
     const asset = await env.ASSETS.fetch(
       new Request(new URL("/try.html", url.origin), request),
@@ -74,7 +78,8 @@ function buildMeta(result, url) {
   const key = result.input.key;
 
   const title = notes + " → " + top;
-  const description = "Identified by WhatChord. Bass " + bass + ", key " + key + ".";
+  const description =
+    "Identified by WhatChord. Bass " + bass + ", key " + key + ".";
 
   return {
     title,
