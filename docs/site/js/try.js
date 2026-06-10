@@ -191,6 +191,7 @@
   }
 
   function syncUrl() {
+    if (location.protocol === "file:") return;
     history.replaceState(null, "", "/try" + buildQuery());
   }
 
