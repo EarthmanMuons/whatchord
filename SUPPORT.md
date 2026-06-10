@@ -25,7 +25,13 @@ Please include:
 
 ## 🔍 Incorrect chord identification?
 
-If you think WhatChord has identified a chord incorrectly, long-press the chord
-card to open _Analysis Details_. Please include the copied diagnostics
-information from the app if possible, as this helps us reproduce the exact
-analysis context.
+If you think WhatChord has identified or ranked a chord incorrectly, please
+include:
+
+- The notes you entered or played, in order, with the bass note first
+- The selected key signature
+- The chord WhatChord reported and the chord you expected
+
+If you're using the app, you can also long-press the chord card to open
+_Analysis Details_ and include the copied diagnostics. These details help us
+reproduce the exact analysis context.
