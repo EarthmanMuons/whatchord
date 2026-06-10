@@ -140,6 +140,11 @@
     syncClear();
     scheduleRun();
   });
+  els.notes.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    els.notes.blur();
+  });
 
   els.clear.addEventListener("click", function () {
     els.notes.value = "";
