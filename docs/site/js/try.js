@@ -259,8 +259,13 @@
 
   function addEcho(label, value) {
     if (!value) return;
+    // Real space between items (not a flex gap) so copy/paste keeps them apart.
+    if (els.echo.childNodes.length) {
+      els.echo.appendChild(document.createTextNode(" "));
+    }
     var span = document.createElement("span");
-    span.appendChild(document.createTextNode(label + " "));
+    span.className = "try-echo-item";
+    span.appendChild(document.createTextNode(label + ": "));
     var b = document.createElement("b");
     b.textContent = value;
     span.appendChild(b);
