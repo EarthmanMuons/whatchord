@@ -184,8 +184,7 @@
 
   function buildQuery() {
     var params = new URLSearchParams();
-    var notes = state.canonicalNotes || els.notes.value.trim();
-    if (notes) params.set("notes", notes);
+    if (state.canonicalNotes) params.set("notes", state.canonicalNotes);
     if (currentKey() !== "C:" + DEFAULT_MODE) params.set("key", currentKey());
     if (state.notation !== DEFAULT_NOTATION)
       params.set("notation", state.notation);
