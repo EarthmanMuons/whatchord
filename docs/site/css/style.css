@@ -60,6 +60,66 @@ img {
   display: block;
 }
 
+/* ─── Not found ──────────────────────────────────────────────── */
+
+.not-found-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.not-found-main {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 64px 0;
+}
+
+.not-found-content {
+  max-width: 640px;
+  text-align: center;
+}
+
+.not-found-code {
+  color: var(--accent-light);
+  font-family: var(--mono);
+  font-size: clamp(4rem, 15vw, 8rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  margin-bottom: 24px;
+}
+
+.not-found-content h1 {
+  font-size: clamp(2.25rem, 7vw, 4.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.not-found-content p {
+  max-width: 520px;
+  margin: 24px auto 0;
+  color: var(--text-2);
+  font-size: 1.075rem;
+}
+
+.not-found-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.not-found-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 24px;
+  font-size: 0.875rem;
+}
+
 /* ─── Layout wrappers ─────────────────────────────────────────── */
 
 .wrap {
