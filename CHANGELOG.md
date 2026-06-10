@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.6.10] - 2026-06-10
+
 ### Added
 
 - Added a manual chord lookup mode for identifying chords without a MIDI device.
@@ -638,7 +640,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.6.6...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.6.10...HEAD
+[2026.6.10]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.6.6...v2026.6.10
 [2026.6.6]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.6.1...v2026.6.6
 [2026.6.1]:
