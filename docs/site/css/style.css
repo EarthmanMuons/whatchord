@@ -46,6 +46,20 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Grow the main content so the footer sits at the window bottom on short pages. */
+body > main,
+body > article {
+  flex: 1 0 auto;
+}
+
+body > footer {
+  flex-shrink: 0;
 }
 
 a {
@@ -62,22 +76,23 @@ img {
 
 /* ─── Not found ──────────────────────────────────────────────── */
 
-.not-found-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
 .not-found-main {
   flex: 1;
   display: grid;
   place-items: center;
-  padding: 64px 0;
+  /* Center against the full viewport by pulling up under the 56px sticky nav.
+     Symmetric padding keeps the optical center at 50dvh; the short content
+     clears the translucent nav on its own. */
+  min-height: 100dvh;
+  margin-top: -56px;
+  padding: 64px 24px;
 }
 
 .not-found-content {
   max-width: 640px;
   text-align: center;
+  /* Sit ~10% of the viewport above the optical center. */
+  transform: translateY(-10dvh);
 }
 
 .not-found-code {
@@ -850,7 +865,7 @@ dialog::backdrop {
 footer {
   border-top: 1px solid var(--border-mid);
   background: var(--bg-raised);
-  padding: 36px 0;
+  padding: 36px 0 calc(36px + env(safe-area-inset-bottom));
 }
 
 .footer-inner {
