@@ -23,23 +23,25 @@ String normalizeNoteNameToAscii(String name) {
     throw ArgumentError.value(name, 'name', 'Empty note name');
   }
 
-  // 1) Normalize glyph accidentals to ASCII tokens.
-  // Do double-accidentals first to avoid partial replacement issues.
-  final t = s
-      .replaceAll('𝄪', 'x') // double sharp
-      .replaceAll('𝄫', 'bb') // double flat
-      .replaceAll('♯', '#')
-      .replaceAll('♭', 'b');
-
-  // 2) Uppercase the note letter.
-  final letter = t[0].toUpperCase();
+  // 1) The note letter must come first, before any accidental. Validate it
+  // against the raw input: the flat glyphs (♭, 𝄫) normalize to an ASCII "b",
+  // which would otherwise be mistaken for the note letter B.
+  final letter = s[0].toUpperCase();
   const validLetters = {'A', 'B', 'C', 'D', 'E', 'F', 'G'};
   if (!validLetters.contains(letter)) {
     throw ArgumentError.value(name, 'name', 'Invalid note letter');
   }
 
-  // 3) Pull accidental region and canonicalize "##" -> "x".
-  var rest = t.substring(1);
+  // 2) Normalize glyph accidentals in the remainder to ASCII tokens.
+  // Do double-accidentals first to avoid partial replacement issues.
+  var rest = s
+      .substring(1)
+      .replaceAll('𝄪', 'x') // double sharp
+      .replaceAll('𝄫', 'bb') // double flat
+      .replaceAll('♯', '#')
+      .replaceAll('♭', 'b');
+
+  // 3) Canonicalize "##" -> "x".
 
   if (rest.isEmpty) return letter;
 

@@ -3009,30 +3009,30 @@ if(e>=3)return a.$3(b,c,d)
 if(e===2)return a.$2(b,c)
 if(e===1)return a.$1(b)
 return a.$0()},
-ax(a){var t,s,r,q,p,o,n="name",m=B.b.H(a)
-if(m.length===0)throw A.c(A.bC(a,n,"Empty note name"))
-t=A.P(m,"\ud834\udd2a","x")
-t=A.P(t,"\ud834\udd2b","bb")
-t=A.P(t,"\u266f","#")
-s=A.P(t,"\u266d","b")
-if(0>=s.length)return A.a(s,0)
-r=s[0].toUpperCase()
-if(!B.c3.h(0,r))throw A.c(A.bC(a,n,"Invalid note letter"))
-q=B.b.E(s,1)
-if(q.length===0)return r
-if(q==="##")q="x"
-for(t=new A.aM(q);t.k();){p=A.z(t.d)
-if(p!=="b"&&p!=="#"&&p!=="x")throw A.c(A.bC(a,n,'Invalid accidental character: "'+p+'"'))}if(B.b.h(q,"x")){if(q!=="x")throw A.c(A.bC(a,n,'Invalid accidental sequence: "'+q+'"'))
-return r+"x"}for(t=new A.aM(q),o=0;t.k();){p=A.z(t.d)
-if(p==="#")++o
-if(p==="b")--o}if(o<-2||o>2)throw A.c(A.bC(a,n,'Accidentals beyond double-flat/double-sharp not supported: "'+q+'"'))
-A:{t=""
-if(-2===o){t="bb"
-break A}if(-1===o){t="b"
-break A}if(0===o)break A
-if(1===o){t="#"
-break A}if(2===o){t="x"
-break A}break A}return r+t},
+ax(a){var t,s,r,q,p="name",o=B.b.H(a),n=o.length
+if(n===0)throw A.c(A.bC(a,p,"Empty note name"))
+if(0>=n)return A.a(o,0)
+t=o[0].toUpperCase()
+if(!B.c3.h(0,t))throw A.c(A.bC(a,p,"Invalid note letter"))
+n=B.b.E(o,1)
+n=A.P(n,"\ud834\udd2a","x")
+n=A.P(n,"\ud834\udd2b","bb")
+n=A.P(n,"\u266f","#")
+s=A.P(n,"\u266d","b")
+if(s.length===0)return t
+if(s==="##")s="x"
+for(n=new A.aM(s);n.k();){r=A.z(n.d)
+if(r!=="b"&&r!=="#"&&r!=="x")throw A.c(A.bC(a,p,'Invalid accidental character: "'+r+'"'))}if(B.b.h(s,"x")){if(s!=="x")throw A.c(A.bC(a,p,'Invalid accidental sequence: "'+s+'"'))
+return t+"x"}for(n=new A.aM(s),q=0;n.k();){r=A.z(n.d)
+if(r==="#")++q
+if(r==="b")--q}if(q<-2||q>2)throw A.c(A.bC(a,p,'Accidentals beyond double-flat/double-sharp not supported: "'+s+'"'))
+A:{n=""
+if(-2===q){n="bb"
+break A}if(-1===q){n="b"
+break A}if(0===q)break A
+if(1===q){n="#"
+break A}if(2===q){n="x"
+break A}break A}return t+n},
 aU(a,b){var t=B.a.m(a-b,12)
 return t},
 jC(a){var t,s,r,q,p,o,n,m=A.ax(a)
