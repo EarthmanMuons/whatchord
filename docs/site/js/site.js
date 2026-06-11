@@ -40,6 +40,8 @@
     var toggle = element.querySelector("[data-motion-toggle]");
     if (!video) return;
 
+    var userPaused = false;
+
     function setPaused(isPaused) {
       element.classList.toggle("is-video-paused", isPaused);
       if (toggle) {
@@ -71,16 +73,33 @@
     if (toggle) {
       toggle.addEventListener("click", function () {
         if (video.paused) {
+          userPaused = false;
           activateVideo();
           return;
         }
 
+        userPaused = true;
         video.pause();
         setPaused(true);
       });
     }
 
-    if (video.readyState >= 3) {
+    // Only run the video while it is on screen, and respect a manual pause
+    // when scrolling back into view.
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              if (!userPaused) activateVideo();
+            } else {
+              video.pause();
+            }
+          });
+        },
+        { threshold: 0.25 },
+      ).observe(element);
+    } else if (video.readyState >= 3) {
       activateVideo();
     } else {
       video.addEventListener("canplay", activateVideo, { once: true });
