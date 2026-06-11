@@ -6,6 +6,20 @@ uv = "latest"
 [env]
 _.python.venv = { path = ".venv", create = true }
 
+[tasks."css:lint:install"]
+description = "Install stylelint and shared config for site CSS"
+run = "npm install --no-save --no-package-lock stylelint stylelint-config-standard stylelint-config-recess-order"
+
+[tasks."css:lint"]
+description = "Lint site CSS with stylelint"
+depends = ["css:lint:install"]
+run = "npx stylelint 'docs/site/css/*.css'"
+
+[tasks."css:lint:fix"]
+description = "Lint and auto-fix site CSS with stylelint"
+depends = ["css:lint:install"]
+run = "npx stylelint --fix 'docs/site/css/*.css'"
+
 [tasks."oracle:install"]
 description = "Install optional chord oracle dependencies for local comparison runs"
 run = [

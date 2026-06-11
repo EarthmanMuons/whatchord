@@ -13,19 +13,19 @@
 }
 
 .try-hero h1 {
+  max-width: 720px;
+  margin: 14px auto 0;
   font-size: clamp(1.9rem, 4.5vw, 3rem);
   font-weight: 700;
-  letter-spacing: -0.032em;
   line-height: 1.12;
-  margin: 14px auto 0;
-  max-width: 720px;
+  letter-spacing: -0.032em;
 }
 
 .try-hero p {
-  font-size: clamp(1rem, 2vw, 1.125rem);
-  color: var(--text-2);
   max-width: 560px;
   margin: 14px auto 0;
+  font-size: clamp(1rem, 2vw, 1.125rem);
+  color: var(--text-2);
 }
 
 .try-section {
@@ -34,37 +34,37 @@
 
 .try-card {
   max-width: 720px;
+  padding: 24px;
   margin: 0 auto;
   background: var(--bg-card);
   border: 1px solid var(--border-mid);
   border-radius: var(--r-xl);
   box-shadow: var(--shadow);
-  padding: 24px;
 }
 
 /* ─── Input ───────────────────────────────────────────────────── */
 
 .try-input-label {
   display: block;
+  margin-bottom: 8px;
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: var(--text-2);
-  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 #notes-input {
-  width: 100%;
   box-sizing: border-box;
+  width: 100%;
+  padding: 14px 44px 14px 16px;
+  font-family: var(--mono);
+  font-size: 1.15rem;
+  color: var(--text);
+  letter-spacing: 0.02em;
   background: var(--bg-code);
   border: 1px solid var(--border-strong);
   border-radius: var(--r);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 1.15rem;
-  letter-spacing: 0.02em;
-  padding: 14px 44px 14px 16px;
   transition: border-color 0.15s;
 }
 
@@ -76,18 +76,18 @@
   position: absolute;
   top: 50%;
   right: 10px;
-  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
   padding: 0;
-  border: none;
-  border-radius: 50%;
-  background: transparent;
   color: var(--text-2);
   cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  transform: translateY(-50%);
   transition:
     color 0.12s,
     background 0.12s;
@@ -95,13 +95,13 @@
 
 .try-clear:hover {
   color: var(--text);
-  background: rgba(255 255 255 / 0.08);
+  background: rgb(255 255 255 / 8%);
 }
 
 .try-clear svg {
   width: 16px;
   height: 16px;
-  fill: currentColor;
+  fill: currentcolor;
 }
 
 #notes-input:focus {
@@ -124,8 +124,8 @@
 .try-controls {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
   gap: 18px;
+  align-items: flex-end;
   margin-top: 18px;
 }
 
@@ -138,9 +138,9 @@
 .try-control > span {
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
   color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .try-key {
@@ -149,17 +149,17 @@
 }
 
 select.try-select {
+  padding: 9px 30px 9px 12px;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  color: var(--text);
   appearance: none;
+  cursor: pointer;
   background: var(--bg-raised)
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%239494ae' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E")
     no-repeat right 12px center;
   border: 1px solid var(--border-mid);
   border-radius: var(--r);
-  color: var(--text);
-  font-family: var(--font);
-  font-size: 0.9rem;
-  padding: 9px 30px 9px 12px;
-  cursor: pointer;
 }
 
 select.try-select:focus {
@@ -169,28 +169,28 @@ select.try-select:focus {
 
 .try-segmented {
   display: inline-flex;
+  padding: 2px;
   background: var(--bg-raised);
   border: 1px solid var(--border-mid);
   border-radius: var(--r);
-  padding: 2px;
 }
 
 .try-segmented button {
-  border: none;
-  background: transparent;
-  color: var(--text-2);
+  padding: 6px 13px;
   font-family: var(--font);
   font-size: 0.85rem;
   font-weight: 500;
-  padding: 6px 13px;
-  border-radius: 7px;
+  color: var(--text-2);
   cursor: pointer;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
   transition: all 0.12s;
 }
 
 .try-segmented button[aria-pressed="true"] {
-  background: var(--accent);
   color: #fff;
+  background: var(--accent);
 }
 
 /* ─── Results ─────────────────────────────────────────────────── */
@@ -217,10 +217,10 @@ select.try-select:focus {
 }
 
 .try-echo {
-  font-size: 0.85rem;
-  color: var(--text-2);
   margin-bottom: 14px;
+  font-size: 0.85rem;
   line-height: 1.7;
+  color: var(--text-2);
 }
 
 .try-echo-item {
@@ -228,34 +228,34 @@ select.try-select:focus {
 }
 
 .try-echo b {
-  color: var(--text);
-  font-weight: 600;
   font-family: var(--mono);
+  font-weight: 600;
+  color: var(--text);
 }
 
 .try-candidate {
   display: flex;
-  align-items: center;
   gap: 14px;
+  align-items: center;
   padding: 13px 16px;
-  border: 1px solid var(--border);
-  border-radius: var(--r);
   margin-bottom: 8px;
   background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
 }
 
 .try-candidate.is-chosen {
-  border-color: var(--accent-border);
   background: var(--accent-bg);
+  border-color: var(--accent-border);
 }
 
 .try-rank {
+  flex-shrink: 0;
+  width: 1.3em;
   font-family: var(--mono);
   font-size: 0.8rem;
   color: var(--text-2);
-  width: 1.3em;
   text-align: right;
-  flex-shrink: 0;
 }
 
 .try-cand-main {
@@ -266,58 +266,58 @@ select.try-select:focus {
 .try-symbol {
   font-size: 1.3rem;
   font-weight: 600;
-  letter-spacing: -0.01em;
   color: var(--text);
+  letter-spacing: -0.01em;
 }
 
 .try-notes {
+  margin-top: 2px;
   font-family: var(--mono);
   font-size: 0.82rem;
   color: var(--text-2);
-  margin-top: 2px;
 }
 
 .try-tag {
+  flex-shrink: 0;
+  padding: 3px 9px;
   font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 3px 9px;
+  letter-spacing: 0.06em;
   border-radius: 100px;
-  flex-shrink: 0;
 }
 
 .try-tag.tag-chosen {
   color: #7ee2a8;
-  background: rgba(58 190 112 / 0.1);
-  border: 1px solid rgba(58 190 112 / 0.3);
+  background: rgb(58 190 112 / 10%);
+  border: 1px solid rgb(58 190 112 / 30%);
 }
 
 .try-tag.tag-near-tie {
   color: #e0b873;
-  background: rgba(224 184 115 / 0.1);
-  border: 1px solid rgba(224 184 115 / 0.28);
+  background: rgb(224 184 115 / 10%);
+  border: 1px solid rgb(224 184 115 / 28%);
 }
 
 .try-tag.tag-unlikely {
   color: var(--text-2);
-  background: rgba(255 255 255 / 0.04);
+  background: rgb(255 255 255 / 4%);
   border: 1px solid var(--border-mid);
 }
 
 .try-score {
+  flex-shrink: 0;
+  width: 3.2em;
   font-family: var(--mono);
   font-size: 0.78rem;
   color: var(--text-2);
-  flex-shrink: 0;
-  width: 3.2em;
   text-align: right;
 }
 
 .try-feedback {
   margin-top: 14px;
-  color: var(--text-2);
   font-size: 0.82rem;
+  color: var(--text-2);
   text-align: center;
 }
 
@@ -325,10 +325,10 @@ select.try-select:focus {
 
 .try-results-head {
   display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
   align-items: center;
   justify-content: space-between;
-  gap: 12px 16px;
-  flex-wrap: wrap;
   margin-bottom: 14px;
 }
 
@@ -339,14 +339,14 @@ select.try-select:focus {
 
 #copy-link {
   flex-shrink: 0;
-  font-size: 0.82rem;
   gap: 7px;
+  font-size: 0.82rem;
 }
 
 #copy-link svg {
   width: 14px;
   height: 14px;
-  fill: currentColor;
+  fill: currentcolor;
 }
 
 /* ─── CTA ─────────────────────────────────────────────────────── */
@@ -354,22 +354,24 @@ select.try-select:focus {
 /* Reuse the article CTA styling, constrained to the demo card width. */
 .try-section .article-cta {
   max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
   margin-top: 28px;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .try-section .article-cta .store-badge {
   height: 48px;
 }
 
-@media (max-width: 520px) {
+@media (width <= 520px) {
   .try-card {
     padding: 18px;
   }
+
   .try-candidate {
     flex-wrap: wrap;
   }
+
   .try-score {
     text-align: left;
   }
