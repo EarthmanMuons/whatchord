@@ -375,25 +375,6 @@
     window.addEventListener("whatchord-ready", start, { once: true });
   }
 
-  // Safety net for back-forward cache restores that bring back rendered results
-  // but not the input value. (The input avoids autocomplete="off", which WebKit
-  // clears on page-cache restore, so the value normally survives on its own.)
-  // We cannot gate on event.persisted, which Safari reports unreliably here, so
-  // on every pageshow reconcile the input against the URL when they disagree,
-  // syncing now and on the next tick. The guard keeps it a no-op when the value
-  // is already correct, which is the common case.
-  window.addEventListener("pageshow", function () {
-    var notes = new URLSearchParams(location.search).get("notes") || "";
-    var reseed = function () {
-      if (els.notes.value === notes) return;
-      els.notes.value = notes;
-      syncClear();
-      if (window.whatchordReady) run();
-    };
-    reseed();
-    setTimeout(reseed, 0);
-  });
-
   // Android beta dialog (mirrors index.html behavior on this standalone page).
   function openAndroidDialog(e) {
     e.preventDefault();
