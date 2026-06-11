@@ -376,14 +376,22 @@
   }
 
   // Browsers may restore rendered results from the back-forward cache without
-  // restoring an autocomplete-off input. Reapply the URL-backed state so the
-  // form and results cannot disagree.
+  // restoring an autocomplete-off input. WebKit additionally re-blanks such an
+  // input during its own form-restoration pass, which runs *after* pageshow, so
+  // a synchronous reseed alone gets clobbered. Reapply the URL-backed value both
+  // now and on the next tick; the guard makes whichever pass is redundant a
+  // no-op, so the form and results cannot disagree.
   window.addEventListener("pageshow", function (event) {
     if (!event.persisted) return;
-    var params = new URLSearchParams(location.search);
-    els.notes.value = params.get("notes") || "";
-    syncClear();
-    run();
+    var notes = new URLSearchParams(location.search).get("notes") || "";
+    var reseed = function () {
+      if (els.notes.value === notes) return;
+      els.notes.value = notes;
+      syncClear();
+      run();
+    };
+    reseed();
+    setTimeout(reseed, 0);
   });
 
   // Android beta dialog (mirrors index.html behavior on this standalone page).
