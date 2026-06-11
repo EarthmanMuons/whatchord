@@ -65,6 +65,10 @@
   };
   var DEFAULT_MODE = "maj";
   var DEFAULT_NOTATION = "textual";
+  // Matches the static <title> in try.html; restored when there is no result
+  // to show. The Worker overrides the served title for seeded links, so we
+  // cannot read this back from document.title at boot.
+  var DEFAULT_TITLE = "Try It - Identify a Chord | WhatChord";
 
   var els = {
     notes: document.getElementById("notes-input"),
@@ -195,6 +199,21 @@
   function syncUrl() {
     var path = location.protocol === "file:" ? location.pathname : "/try";
     history.replaceState(null, "", path + buildQuery());
+  }
+
+  // Keeps the tab title in step with the current result, same format the
+  // Worker uses for shared links, so it no longer reflects a stale seeded
+  // chord once the user starts typing their own notes.
+  function syncTitle(result) {
+    if (result && result.ok && result.candidates.length) {
+      document.title =
+        result.input.notes.join(" ") +
+        " → " +
+        result.candidates[0].symbol +
+        " | WhatChord";
+    } else {
+      document.title = DEFAULT_TITLE;
+    }
   }
 
   // Applies URL params and returns the pitch class to preselect in the key
@@ -336,6 +355,7 @@
     if (!notes.trim()) {
       state.canonicalNotes = null;
       syncUrl();
+      syncTitle(null);
       els.candidates.innerHTML = "";
       els.resultsHead.hidden = true;
       els.rankingFeedback.hidden = true;
@@ -348,6 +368,7 @@
       ? result.input.notes.map(toAsciiNote).join(" ")
       : null;
     syncUrl();
+    syncTitle(result);
     render(result);
   }
 
