@@ -863,7 +863,7 @@ dialog::backdrop {
 footer {
   border-top: 1px solid var(--border-mid);
   background: var(--bg-raised);
-  padding: 36px 0 calc(36px + env(safe-area-inset-bottom));
+  padding: 36px 0;
 }
 
 .footer-inner {
