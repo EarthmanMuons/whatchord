@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/core.dart';
+import 'package:whatchord/features/chords/chords.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'adaptive_side_sheet.dart';
@@ -549,18 +552,61 @@ class _CandidateScoreBack extends StatelessWidget {
   final RankingDecision? decision;
   final ChordCandidate winner;
 
+  void _openExplore(BuildContext context) {
+    // Push over the open sheet without dismissing it, so returning from Explore
+    // reveals the same "Why This Chord?" view (flipped cards and scroll intact).
+    unawaited(
+      Navigator.of(
+        context,
+      ).push(ExploreChordPage.route(seedIdentity: row.candidate.identity)),
+    );
+  }
+
+  int _maskFor(String label) {
+    for (final reason in row.scoreReasons) {
+      if (reason.label == label) return reason.intervals ?? 0;
+    }
+    return 0;
+  }
+
+  /// Builds (degree, note) pairs for the tones in [mask], ascending by interval.
+  /// Each tone is labeled individually so the degree and note name stay paired.
+  List<_ToneEntry> _tonesFor(int mask) {
+    final identity = row.candidate.identity;
+    final entries = <_ToneEntry>[];
+    for (var interval = 0; interval < 12; interval++) {
+      if ((mask & (1 << interval)) == 0) continue;
+      final pitchClass = (identity.rootPc + interval) % 12;
+      final pc = {pitchClass};
+      final degree = theoryTokenDisplayLabel(
+        ChordMemberDegreeFormatter.formatDegrees(
+          identity: identity,
+          pitchClasses: pc,
+        ).first,
+      );
+      final note = noteDisplayLabel(
+        ChordMemberSpeller.spellMembers(
+          identity: identity,
+          pitchClasses: pc,
+          tonality: tonality,
+        ).first,
+        noteNameSystem: noteNameSystem,
+      );
+      entries.add(
+        _ToneEntry(
+          degree: degree,
+          note: note,
+          isBass: pitchClass == identity.bassPc,
+        ),
+      );
+    }
+    return entries;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final members = ChordMemberSpeller.spellMembers(
-      identity: row.candidate.identity,
-      pitchClasses: ChordPresentationBuilder.chordMemberPitchClassesFromMask(
-        rootPc: row.candidate.identity.rootPc,
-        presentIntervalsMask: row.candidate.identity.presentIntervalsMask,
-      ).toSet(),
-      tonality: tonality,
-    ).map((name) => noteDisplayLabel(name, noteNameSystem: noteNameSystem));
     final scoringReasons = row.scoreReasons.where(
       (reason) => reason.label != 'normalize' && reason.delta != 0,
     );
@@ -585,11 +631,15 @@ class _CandidateScoreBack extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        Text('Members', style: theme.textTheme.labelMedium),
-        const SizedBox(height: 2),
-        Text(members.join('  '), style: theme.textTheme.bodyMedium),
         const SizedBox(height: 10),
+        _TemplateLedger(
+          chordTones: _tonesFor(
+            _maskFor('required tones') | _maskFor('optional tones'),
+          ),
+          missing: _tonesFor(_maskFor('missing required')),
+          alsoPlayed: _tonesFor(_maskFor('penalty tones') | _maskFor('extras')),
+        ),
+        const Divider(height: 16),
         for (final reason in scoringReasons)
           _ScoreRow(
             label: _scoreReasonLabel(reason.label),
@@ -614,7 +664,168 @@ class _CandidateScoreBack extends StatelessWidget {
             ),
           ),
         ],
+        const SizedBox(height: 4),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton.icon(
+            onPressed: () => _openExplore(context),
+            icon: const Icon(Icons.explore_outlined, size: 18),
+            label: const Text('Explore'),
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              foregroundColor: cs.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            ),
+          ),
+        ),
       ],
+    );
+  }
+}
+
+class _ToneEntry {
+  const _ToneEntry({
+    required this.degree,
+    required this.note,
+    this.isBass = false,
+  });
+
+  final String degree;
+  final String note;
+  final bool isBass;
+}
+
+/// Shows the candidate's template tones grouped as played chord tones, missing
+/// required tones, and any extra/conflicting tones that were played anyway.
+class _TemplateLedger extends StatelessWidget {
+  const _TemplateLedger({
+    required this.chordTones,
+    required this.missing,
+    required this.alsoPlayed,
+  });
+
+  final List<_ToneEntry> chordTones;
+  final List<_ToneEntry> missing;
+  final List<_ToneEntry> alsoPlayed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ToneGroup(label: 'Chord tones', tones: chordTones),
+        if (missing.isNotEmpty)
+          _ToneGroup(label: 'Missing', tones: missing, muted: true),
+        if (alsoPlayed.isNotEmpty)
+          _ToneGroup(label: 'Also played', tones: alsoPlayed),
+      ],
+    );
+  }
+}
+
+class _ToneGroup extends StatelessWidget {
+  const _ToneGroup({
+    required this.label,
+    required this.tones,
+    this.muted = false,
+  });
+
+  final String label;
+  final List<_ToneEntry> tones;
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                for (final tone in tones) _ToneChip(tone: tone, muted: muted),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ToneChip extends StatelessWidget {
+  const _ToneChip({required this.tone, this.muted = false});
+
+  final _ToneEntry tone;
+  final bool muted;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final isBass = tone.isBass;
+    final foreground = isBass
+        ? cs.onPrimaryContainer
+        : muted
+        ? cs.onSurfaceVariant
+        : cs.onSurface;
+    final fill = isBass
+        ? cs.primaryContainer
+        : muted
+        ? cs.surface
+        : cs.surfaceContainer;
+
+    final chip = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: fill,
+        borderRadius: BorderRadius.circular(7),
+        border: Border.all(
+          color: isBass ? cs.primary : cs.outlineVariant.withValues(alpha: 0.6),
+          width: 1.5,
+        ),
+      ),
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text: tone.degree,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: foreground.withValues(alpha: 0.7),
+              ),
+            ),
+            const TextSpan(text: '  '),
+            TextSpan(
+              text: tone.note,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: foreground,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!isBass) return chip;
+
+    return Semantics(
+      label: '${tone.note}, ${tone.degree}, bass note',
+      child: ExcludeSemantics(child: chip),
     );
   }
 }
@@ -634,11 +845,10 @@ class _ScoreRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final style = emphasized
-        ? Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)
-        : Theme.of(context).textTheme.bodyMedium;
+        ? theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)
+        : theme.textTheme.bodyMedium;
     final valueLabel =
         '${signed && value > 0 ? '+' : ''}${value.toStringAsFixed(2)}';
 
@@ -647,6 +857,7 @@ class _ScoreRow extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: Text(label, style: style)),
+          const SizedBox(width: 8),
           Text(valueLabel, style: style),
         ],
       ),

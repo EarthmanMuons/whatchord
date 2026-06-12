@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - The guided tour's final step now points its callout arrows at both the search
   button and the MIDI status icon, so you can see where to look up notes by name
   or connect a device.
+- The "Why This Chord?" scoring view now opens with a tone ledger that lays out
+  the chord's template notes by degree and shows which you played, which were
+  missing, and any extra or conflicting tones, so the score that follows is
+  easier to read. Each ranked chord also has an Explore button that opens it in
+  the chord builder and returns you to the same view.
 
 ### Added
 
