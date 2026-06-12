@@ -205,6 +205,7 @@ class _HomeTopBar extends ConsumerWidget {
     final demoVariant = ref.watch(demoModeVariantProvider);
     final showInteractiveDemoPill =
         demoEnabled && demoVariant == DemoModeVariant.interactive;
+    final tourKeys = ref.watch(demoTourKeysProvider);
 
     // Optical-only tweak.
     const settingsIconDx = 6.0;
@@ -246,7 +247,10 @@ class _HomeTopBar extends ConsumerWidget {
                   ),
                 ),
               const SizedBox(width: 4),
-              MidiStatusIcon(onPressed: onOpenMidiSettings),
+              MidiStatusIcon(
+                onPressed: onOpenMidiSettings,
+                iconButtonKey: tourKeys.midiIcon,
+              ),
               Transform.translate(
                 offset: const Offset(settingsIconDx, 0),
                 child: IconButton(
