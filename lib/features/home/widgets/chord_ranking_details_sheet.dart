@@ -126,7 +126,7 @@ class _ChordRankingDetailsContent extends StatelessWidget {
   }
 }
 
-class _RankingDetailsBody extends StatelessWidget {
+class _RankingDetailsBody extends StatefulWidget {
   const _RankingDetailsBody({
     required this.candidates,
     required this.tonality,
@@ -140,28 +140,46 @@ class _RankingDetailsBody extends StatelessWidget {
   final NoteNameSystem noteNameSystem;
 
   @override
+  State<_RankingDetailsBody> createState() => _RankingDetailsBodyState();
+}
+
+class _RankingDetailsBodyState extends State<_RankingDetailsBody> {
+  final _cardKeys = List.generate(
+    5,
+    (_) => GlobalKey<_CandidateRankCardState>(),
+  );
+
+  void _toggleAllCards() {
+    for (final key in _cardKeys) {
+      key.currentState?._toggleFace();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final chosen = candidates.first;
-    final visible = _visibleCandidates(candidates);
+    final chosen = widget.candidates.first;
+    final visible = _visibleCandidates(widget.candidates);
 
     return _FadedVerticalScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _CandidateRankCard(
+            key: _cardKeys[0],
             rank: 1,
             row: visible[0],
             thisCandidate: visible[0].candidate,
             nextDecision: visible.length > 1 ? visible[1].vsPrevious : null,
             bestScore: chosen.candidate.score,
             symbol: _symbolFor(visible[0].candidate.identity),
-            tonality: tonality,
-            noteNameSystem: noteNameSystem,
+            tonality: widget.tonality,
+            noteNameSystem: widget.noteNameSystem,
             longLabel: ChordLongFormFormatter.format(
               identity: visible[0].candidate.identity,
-              tonality: tonality,
-              noteNameSystem: noteNameSystem,
+              tonality: widget.tonality,
+              noteNameSystem: widget.noteNameSystem,
             ),
+            onLongPress: _toggleAllCards,
           ),
           if (visible.length > 1) ...[
             const SizedBox(height: 14),
@@ -171,6 +189,7 @@ class _RankingDetailsBody extends StatelessWidget {
             ),
             for (var i = 1; i < visible.length; i++) ...[
               _CandidateRankCard(
+                key: _cardKeys[i],
                 rank: i + 1,
                 row: visible[i],
                 thisCandidate: visible[i].candidate,
@@ -179,13 +198,14 @@ class _RankingDetailsBody extends StatelessWidget {
                     : null,
                 bestScore: chosen.candidate.score,
                 symbol: _symbolFor(visible[i].candidate.identity),
-                tonality: tonality,
-                noteNameSystem: noteNameSystem,
+                tonality: widget.tonality,
+                noteNameSystem: widget.noteNameSystem,
                 longLabel: ChordLongFormFormatter.format(
                   identity: visible[i].candidate.identity,
-                  tonality: tonality,
-                  noteNameSystem: noteNameSystem,
+                  tonality: widget.tonality,
+                  noteNameSystem: widget.noteNameSystem,
                 ),
+                onLongPress: _toggleAllCards,
               ),
               if (i != visible.length - 1) const SizedBox(height: 8),
             ],
@@ -199,10 +219,10 @@ class _RankingDetailsBody extends StatelessWidget {
     return chordSymbolDisplayLabel(
       ChordSymbolBuilder.fromIdentity(
         identity: identity,
-        tonality: tonality,
-        notation: notation,
+        tonality: widget.tonality,
+        notation: widget.notation,
       ),
-      noteNameSystem: noteNameSystem,
+      noteNameSystem: widget.noteNameSystem,
     );
   }
 }
@@ -333,6 +353,7 @@ List<RankedCandidateDebug> _visibleCandidates(
 
 class _CandidateRankCard extends StatefulWidget {
   const _CandidateRankCard({
+    super.key,
     required this.rank,
     required this.row,
     required this.thisCandidate,
@@ -342,6 +363,7 @@ class _CandidateRankCard extends StatefulWidget {
     required this.tonality,
     required this.noteNameSystem,
     required this.longLabel,
+    required this.onLongPress,
   });
 
   final int rank;
@@ -353,6 +375,7 @@ class _CandidateRankCard extends StatefulWidget {
   final Tonality tonality;
   final NoteNameSystem noteNameSystem;
   final String longLabel;
+  final VoidCallback onLongPress;
 
   @override
   State<_CandidateRankCard> createState() => _CandidateRankCardState();
@@ -390,8 +413,9 @@ class _CandidateRankCardState extends State<_CandidateRankCard> {
       toggled: _showScoring,
       label: '${widget.symbol}, rank ${widget.rank}',
       hint: _showScoring
-          ? 'Tap to show the plain-language explanation'
-          : 'Tap to show scoring details',
+          ? 'Tap to show the plain-language explanation. '
+                'Long press to flip all ranked chords'
+          : 'Tap to show scoring details. Long press to flip all ranked chords',
       child: Material(
         color: cs.surface,
         shape: RoundedRectangleBorder(
@@ -403,6 +427,7 @@ class _CandidateRankCardState extends State<_CandidateRankCard> {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: _toggleFace,
+          onLongPress: widget.onLongPress,
           child: AnimatedSize(
             duration: disableAnimations
                 ? Duration.zero
