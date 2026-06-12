@@ -250,12 +250,18 @@ select.try-select:focus {
 }
 
 .try-rank {
+  display: inline-grid;
   flex-shrink: 0;
-  width: 1.3em;
+  width: 2em;
+  height: 2em;
+  place-items: center;
   font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
+  font-weight: 600;
   color: var(--text-2);
-  text-align: right;
+  background: rgb(255 255 255 / 3%);
+  border: 1px solid var(--border-mid);
+  border-radius: 50%;
 }
 
 .try-cand-main {
@@ -381,15 +387,104 @@ select.try-select:focus {
 }
 
 @media (width <= 520px) {
+  .try-hero {
+    padding-top: 36px;
+  }
+
+  .try-section {
+    padding-top: 24px;
+  }
+
+  .try-section .wrap {
+    padding: 0 12px;
+  }
+
   .try-card {
-    padding: 18px;
+    padding: 16px;
+    border-radius: var(--r-lg);
+  }
+
+  .try-controls,
+  .try-control,
+  .try-key {
+    width: 100%;
+  }
+
+  .try-key > *,
+  .try-control > .try-segmented {
+    flex: 1;
+  }
+
+  .try-segmented button {
+    flex: 1;
+  }
+
+  .try-results-head {
+    align-items: flex-start;
+  }
+
+  .try-results-head .try-echo {
+    flex-basis: 100%;
   }
 
   .try-candidate {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px 12px;
+    align-items: center;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+
+  .try-rank {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .try-cand-main {
+    display: contents;
+  }
+
+  .try-symbol {
+    grid-row: 1;
+    grid-column: 2;
+    overflow-wrap: anywhere;
+  }
+
+  .try-academic-name {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    margin-top: 0;
+  }
+
+  .try-notes {
+    grid-row: 3;
+    grid-column: 1 / -1;
+    margin-top: 0;
+    line-height: 1.65;
+  }
+
+  .try-tag {
+    grid-row: 1;
+    grid-column: 3;
   }
 
   .try-score {
-    text-align: left;
+    grid-row: 4;
+    grid-column: 1 / -1;
+    width: auto;
+    padding-top: 8px;
+    font-size: 0.72rem;
+    text-align: right;
+    border-top: 1px solid var(--border);
+  }
+
+  .try-score::before {
+    color: var(--text-3);
+    content: "Score ";
+  }
+
+  .try-section .article-cta {
+    border-radius: var(--r-lg);
   }
 }
