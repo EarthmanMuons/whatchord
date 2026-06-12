@@ -20,7 +20,12 @@ class ScoreReason {
   final double delta;
   final String? detail;
 
-  const ScoreReason(this.label, this.delta, {this.detail});
+  /// Root-relative interval mask for the notes in this category, when the
+  /// reason describes a tone set (required, optional, penalty, extras,
+  /// missing). Null for contextual modifiers that have no note set.
+  final int? intervals;
+
+  const ScoreReason(this.label, this.delta, {this.detail, this.intervals});
 
   @override
   String toString() {
@@ -267,8 +272,10 @@ abstract final class ChordAnalyzer {
     required AnalysisContext context,
     List<ScoreReason>? reasons,
   }) {
-    void add(String label, double delta, {String? detail}) {
-      reasons?.add(ScoreReason(label, delta, detail: detail));
+    void add(String label, double delta, {String? detail, int? intervals}) {
+      reasons?.add(
+        ScoreReason(label, delta, detail: detail, intervals: intervals),
+      );
     }
 
     if ((relMask & 0x1) == 0) return null;
@@ -341,23 +348,48 @@ abstract final class ChordAnalyzer {
 
     final reqDelta = reqCount * _reqWeight;
     raw += reqDelta;
-    add('required tones', reqDelta, detail: 'count=$reqCount');
+    add(
+      'required tones',
+      reqDelta,
+      detail: 'count=$reqCount',
+      intervals: presentRequiredMask,
+    );
 
     final missDelta = -missCount * _missWeight;
     raw += missDelta;
-    add('missing required', missDelta, detail: 'count=$missCount');
+    add(
+      'missing required',
+      missDelta,
+      detail: 'count=$missCount',
+      intervals: missingRequiredMask,
+    );
 
     final optDelta = optCount * _optWeight;
     raw += optDelta;
-    add('optional tones', optDelta, detail: 'count=$optCount');
+    add(
+      'optional tones',
+      optDelta,
+      detail: 'count=$optCount',
+      intervals: presentOptionalMask,
+    );
 
     final penDelta = -penCount * _penWeight;
     raw += penDelta;
-    add('penalty tones', penDelta, detail: 'count=$penCount');
+    add(
+      'penalty tones',
+      penDelta,
+      detail: 'count=$penCount',
+      intervals: presentPenaltyMask,
+    );
 
     final extraDelta = -extraCount * _extraWeight;
     raw += extraDelta;
-    add('extras', extraDelta, detail: 'count=$extraCount');
+    add(
+      'extras',
+      extraDelta,
+      detail: 'count=$extraCount',
+      intervals: extrasMask,
+    );
 
     // Bass scoring priority (reflects common voicing practices):
     // base tone > color/extension tone on 7th chord > add tone on triad > not in template
