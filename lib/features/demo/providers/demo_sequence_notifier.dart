@@ -126,12 +126,12 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       tonality: Tonality(Tonic.c, TonalityMode.major),
     ),
 
-    // 7) SCREENSHOT: portrait, light mode, Key: C major -> C6/9, Explore Chords
-    // For website explore_chords.webp
+    // 7) SCREENSHOT: portrait, light mode, Key: A minor -> Am7, Explore Chords
+    // For website explore_modes.mp4 (chord/scale mode switch)
     const DemoStep(
-      notes: {60, 64, 67, 69, 74},
+      notes: {57, 60, 64, 67},
       themeMode: ThemeMode.light,
-      tonality: Tonality(Tonic.c, TonalityMode.major),
+      tonality: Tonality(Tonic.a, TonalityMode.minor),
       showChordMemberDegrees: true,
     ),
 
