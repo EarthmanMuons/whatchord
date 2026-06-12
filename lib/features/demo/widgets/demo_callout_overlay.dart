@@ -267,17 +267,22 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
         );
         return (start: start, control: control, end: end);
       case DemoTarget.midiIcon:
-        return _midiIconGeometry(t);
+        return _midiIconGeometry(t, compact: true);
     }
   }
 
   /// Short local hook up to the app bar MIDI icon. The control point sits
-  /// directly below the tip so the head points straight up, with the tail
-  /// curving in from the lower left.
-  _ArrowGeometry _midiIconGeometry(Rect t) {
-    final end = Offset(t.center.dx, t.bottom + 14);
-    final control = Offset(end.dx, end.dy + 38);
-    final start = Offset(end.dx - 42, end.dy + 60);
+  /// below the tip, with the tail curving in from the lower left.
+  _ArrowGeometry _midiIconGeometry(Rect t, {bool compact = false}) {
+    final end = Offset(t.center.dx - (compact ? 8 : 0), t.bottom + 14);
+    final control = Offset(
+      end.dx - (compact ? 12 : 0),
+      end.dy + (compact ? 26 : 38),
+    );
+    final start = Offset(
+      end.dx - (compact ? 44 : 42),
+      end.dy + (compact ? 44 : 60),
+    );
     return (start: start, control: control, end: end);
   }
 
