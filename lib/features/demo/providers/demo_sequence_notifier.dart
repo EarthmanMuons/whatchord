@@ -45,8 +45,8 @@ class DemoStep {
   final bool? showScaleDegrees;
   final String? promptText;
 
-  /// Home-screen element this step points at with a callout arrow, if any.
-  final DemoTarget? target;
+  /// Home-screen elements this step points at with callout arrows.
+  final List<DemoTarget> targets;
 
   const DemoStep({
     this.notes,
@@ -56,7 +56,7 @@ class DemoStep {
     this.showChordMemberDegrees,
     this.showScaleDegrees,
     this.promptText,
-    this.target,
+    this.targets = const [],
   });
 }
 
@@ -167,7 +167,7 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       tonality: Tonality(Tonic.c, TonalityMode.major),
       promptText:
           'Inversions and extensions are recognized automatically.\nTap the chord card to explore variations.',
-      target: DemoTarget.chordCard,
+      targets: [DemoTarget.chordCard],
     ),
     // 4) Bm7(b5) -- alternative readings.
     const DemoStep(
@@ -175,7 +175,7 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       tonality: Tonality(Tonic.c, TonalityMode.major),
       promptText:
           'Some voicings have more than one reading.\nTap any alternative to see how they were ranked.',
-      target: DemoTarget.alternatives,
+      targets: [DemoTarget.alternatives],
     ),
     // 5) Key context and scales. Dm is the ii of C major, so the scale-degree
     // strip highlights ii -- the key context drives what the display shows.
@@ -184,7 +184,7 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       tonality: Tonality(Tonic.c, TonalityMode.major),
       promptText:
           'Set your key so chords are named in context.\nTap the scale strip to explore scales.',
-      target: DemoTarget.tonalityBar,
+      targets: [DemoTarget.tonalityBar],
     ),
     // 6) No MIDI -- manual lookup.
     const DemoStep(
@@ -192,7 +192,7 @@ class DemoSequenceNotifier extends Notifier<DemoSequenceState> {
       tonality: Tonality(Tonic.c, TonalityMode.major),
       promptText:
           'No MIDI device? Tap search to pick notes by name.\nConnect a device anytime to play.',
-      target: DemoTarget.lookupButton,
+      targets: [DemoTarget.lookupButton, DemoTarget.midiIcon],
     ),
   ];
 

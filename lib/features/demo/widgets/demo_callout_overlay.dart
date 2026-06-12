@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,10 @@ import '../providers/demo_mode_notifier.dart';
 import '../providers/demo_mode_variant_notifier.dart';
 import '../providers/demo_sequence_notifier.dart';
 import '../providers/demo_tour_targets.dart';
+
+/// A single callout arrow as a quadratic bezier: tail [start], [control] point,
+/// and [end] tip where the arrow head lands.
+typedef _ArrowGeometry = ({Offset start, Offset control, Offset end});
 
 /// Draws a curved arrow from the tour prompt to the element the current step
 /// points at. It never dims or blocks the screen: the painter is wrapped in an
@@ -22,9 +27,9 @@ class DemoCalloutOverlay extends ConsumerStatefulWidget {
 
 class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
     with WidgetsBindingObserver {
-  Rect? _startRect;
-  Rect? _targetRect;
-  DemoTarget? _measuredTarget;
+  Rect? _promptRect;
+  Map<DemoTarget, Rect> _targetRects = const {};
+  List<DemoTarget> _measuredTargets = const [];
   Timer? _settleTimer;
 
   @override
@@ -60,26 +65,39 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
     if (!mounted) return;
 
     final keys = ref.read(demoTourKeysProvider);
-    final target = ref.read(demoCurrentStepProvider).target;
+    final targets = ref.read(demoCurrentStepProvider).targets;
 
     final overlayBox = context.findRenderObject();
-    Rect? startRect;
-    Rect? targetRect;
-    if (target != null && overlayBox is RenderBox) {
-      startRect = _rectOf(keys.prompt, overlayBox);
-      targetRect = _rectOf(keys.forTarget(target), overlayBox);
+    Rect? promptRect;
+    final targetRects = <DemoTarget, Rect>{};
+    if (targets.isNotEmpty && overlayBox is RenderBox) {
+      promptRect = _rectOf(keys.prompt, overlayBox);
+      for (final target in targets) {
+        final rect = _rectOf(keys.forTarget(target), overlayBox);
+        if (rect != null) targetRects[target] = rect;
+      }
     }
 
-    if (target == _measuredTarget &&
-        _rectsClose(startRect, _startRect) &&
-        _rectsClose(targetRect, _targetRect)) {
-      return;
-    }
+    if (_sameMeasurement(targets, promptRect, targetRects)) return;
     setState(() {
-      _measuredTarget = target;
-      _startRect = startRect;
-      _targetRect = targetRect;
+      _measuredTargets = targets;
+      _promptRect = promptRect;
+      _targetRects = targetRects;
     });
+  }
+
+  bool _sameMeasurement(
+    List<DemoTarget> targets,
+    Rect? promptRect,
+    Map<DemoTarget, Rect> targetRects,
+  ) {
+    if (!listEquals(targets, _measuredTargets)) return false;
+    if (!_rectsClose(promptRect, _promptRect)) return false;
+    if (targetRects.length != _targetRects.length) return false;
+    for (final entry in targetRects.entries) {
+      if (!_rectsClose(entry.value, _targetRects[entry.key])) return false;
+    }
+    return true;
   }
 
   Rect? _rectOf(GlobalKey key, RenderBox ancestor) {
@@ -104,11 +122,11 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
     final isInteractiveDemo =
         ref.watch(demoModeProvider) &&
         ref.watch(demoModeVariantProvider) == DemoModeVariant.interactive;
-    final target = ref.watch(
-      demoCurrentStepProvider.select((step) => step.target),
+    final targets = ref.watch(
+      demoCurrentStepProvider.select((step) => step.targets),
     );
 
-    if (!isInteractiveDemo || target == null) {
+    if (!isInteractiveDemo || targets.isEmpty) {
       _settleTimer?.cancel();
       return const SizedBox.shrink();
     }
@@ -116,11 +134,22 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
     // Schedule a measurement for this step; cheap and idempotent.
     _scheduleMeasure();
 
-    final promptRect = _startRect;
-    final targetRect = _targetRect;
-    if (promptRect == null || targetRect == null) {
+    final promptRect = _promptRect;
+    if (promptRect == null) {
       return const SizedBox.shrink();
     }
+
+    final isLandscape =
+        MediaQuery.orientationOf(context) == Orientation.landscape;
+    final arrows = <_ArrowGeometry>[];
+    for (final target in targets) {
+      final targetRect = _targetRects[target];
+      if (targetRect == null) continue;
+      arrows.add(
+        _geometryFor(target, promptRect, targetRect, isLandscape: isLandscape),
+      );
+    }
+    if (arrows.isEmpty) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
@@ -132,19 +161,11 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
       isDark ? 0.82 : 0.2,
     )!.withValues(alpha: isDark ? 0.94 : 0.84);
 
-    final geometry = _geometryFor(
-      target,
-      promptRect,
-      targetRect,
-      isLandscape: MediaQuery.orientationOf(context) == Orientation.landscape,
-    );
     return Positioned.fill(
       child: IgnorePointer(
         child: CustomPaint(
           painter: _CalloutArrowPainter(
-            start: geometry.start,
-            control: geometry.control,
-            end: geometry.end,
+            arrows: arrows,
             color: arrowColor,
             haloColor: cs.surface.withValues(alpha: isDark ? 0.5 : 0.85),
           ),
@@ -157,7 +178,7 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
   /// the centered alternatives; the alternatives use a short horizontal head;
   /// the tonality bar mirrors the generic curve and nudges right; the lookup
   /// button aims a touch lower so the head lands on the icon.
-  ({Offset start, Offset control, Offset end}) _geometryFor(
+  _ArrowGeometry _geometryFor(
     DemoTarget target,
     Rect prompt,
     Rect targetRect, {
@@ -194,16 +215,14 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
       case DemoTarget.lookupButton:
         // Aim a little past the icon edge so the head sits on the icon itself.
         return _curved(prompt, t, endInset: 2, endNudge: const Offset(0, 8));
+      case DemoTarget.midiIcon:
+        return _midiIconGeometry(t);
     }
   }
 
   /// Landscape places the prompt in the right analysis panel, so arrows route
   /// from that panel toward their targets instead of using the portrait hooks.
-  ({Offset start, Offset control, Offset end}) _landscapeGeometryFor(
-    DemoTarget target,
-    Rect prompt,
-    Rect t,
-  ) {
+  _ArrowGeometry _landscapeGeometryFor(DemoTarget target, Rect prompt, Rect t) {
     switch (target) {
       case DemoTarget.chordCard:
         final geometry = _curved(prompt, t, mirror: true, bowLimit: 64);
@@ -247,7 +266,19 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
           prompt.bottom + 8,
         );
         return (start: start, control: control, end: end);
+      case DemoTarget.midiIcon:
+        return _midiIconGeometry(t);
     }
+  }
+
+  /// Short local hook up to the app bar MIDI icon. The control point sits
+  /// directly below the tip so the head points straight up, with the tail
+  /// curving in from the lower left.
+  _ArrowGeometry _midiIconGeometry(Rect t) {
+    final end = Offset(t.center.dx, t.bottom + 14);
+    final control = Offset(end.dx, end.dy + 38);
+    final start = Offset(end.dx - 42, end.dy + 60);
+    return (start: start, control: control, end: end);
   }
 
   /// Generic curved arrow from the prompt edge to the target edge, with optional
@@ -295,27 +326,17 @@ class _DemoCalloutOverlayState extends ConsumerState<DemoCalloutOverlay>
 
 class _CalloutArrowPainter extends CustomPainter {
   const _CalloutArrowPainter({
-    required this.start,
-    required this.control,
-    required this.end,
+    required this.arrows,
     required this.color,
     required this.haloColor,
   });
 
-  final Offset start;
-  final Offset control;
-  final Offset end;
+  final List<_ArrowGeometry> arrows;
   final Color color;
   final Color haloColor;
 
   @override
   void paint(Canvas canvas, Size size) {
-    if ((end - start).distance < 1) return;
-
-    final path = Path()
-      ..moveTo(start.dx, start.dy)
-      ..quadraticBezierTo(control.dx, control.dy, end.dx, end.dy);
-
     final halo = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 6
@@ -327,9 +348,28 @@ class _CalloutArrowPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..color = color;
 
-    canvas.drawPath(path, halo);
-    canvas.drawPath(path, stroke);
-    _drawArrowHead(canvas, end, end - control, color, haloColor);
+    for (final arrow in arrows) {
+      if ((arrow.end - arrow.start).distance < 1) continue;
+
+      final path = Path()
+        ..moveTo(arrow.start.dx, arrow.start.dy)
+        ..quadraticBezierTo(
+          arrow.control.dx,
+          arrow.control.dy,
+          arrow.end.dx,
+          arrow.end.dy,
+        );
+
+      canvas.drawPath(path, halo);
+      canvas.drawPath(path, stroke);
+      _drawArrowHead(
+        canvas,
+        arrow.end,
+        arrow.end - arrow.control,
+        color,
+        haloColor,
+      );
+    }
   }
 
   void _drawArrowHead(
@@ -375,9 +415,7 @@ class _CalloutArrowPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _CalloutArrowPainter oldDelegate) {
-    return oldDelegate.start != start ||
-        oldDelegate.control != control ||
-        oldDelegate.end != end ||
+    return !listEquals(oldDelegate.arrows, arrows) ||
         oldDelegate.color != color ||
         oldDelegate.haloColor != haloColor;
   }

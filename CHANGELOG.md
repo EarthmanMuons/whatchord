@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- The guided tour's final step now points its callout arrows at both the search
+  button and the MIDI status icon, so you can see where to look up notes by name
+  or connect a device.
+
 ### Added
 
 - Added a mute toggle to the Playback Volume control. Muting silences playback
