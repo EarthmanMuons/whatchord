@@ -270,8 +270,15 @@ select.try-select:focus {
   letter-spacing: -0.01em;
 }
 
+.try-academic-name {
+  margin-top: 3px;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: var(--text-2);
+}
+
 .try-notes {
-  margin-top: 2px;
+  margin-top: 3px;
   font-family: var(--mono);
   font-size: 0.82rem;
   color: var(--text-2);
