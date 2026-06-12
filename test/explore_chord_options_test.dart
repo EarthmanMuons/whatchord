@@ -229,7 +229,6 @@ void main() {
         ChordExtension.flat9,
         ChordExtension.addSharp9,
         ChordExtension.sharp11,
-        ChordExtension.flat13,
       ]);
     });
 
@@ -401,14 +400,12 @@ void main() {
           ChordExtension.flat9,
           ChordExtension.addSharp9,
           ChordExtension.sharp11,
-          ChordExtension.flat13,
         ],
         ChordQualityToken.minor6: [
           ChordExtension.add9,
           ChordExtension.add11,
           ChordExtension.flat9,
           ChordExtension.sharp11,
-          ChordExtension.flat13,
         ],
       };
 
@@ -960,6 +957,34 @@ void main() {
       );
 
       expect(withAdd11, {ChordExtension.add11});
+    });
+
+    test('replaces natural and flat thirteenth choices for sus qualities', () {
+      final groups = buildExploreExtensionControlGroups(ChordQualityToken.sus4);
+      final addToneGroup = groups[0];
+      final colorGroup = groups[1];
+
+      final withFlat13 = selectExploreExtensionChoice(
+        quality: ChordQualityToken.sus4,
+        currentExtensions: const {ChordExtension.add13},
+        group: colorGroup,
+        choice: colorGroup.choices.firstWhere(
+          (choice) => choice.extension == ChordExtension.flat13,
+        ),
+      );
+
+      expect(withFlat13, {ChordExtension.flat13});
+
+      final withAdd13 = selectExploreExtensionChoice(
+        quality: ChordQualityToken.sus4,
+        currentExtensions: withFlat13,
+        group: addToneGroup,
+        choice: addToneGroup.choices.firstWhere(
+          (choice) => choice.extension == ChordExtension.add13,
+        ),
+      );
+
+      expect(withAdd13, {ChordExtension.add13});
     });
 
     test('toggles triad-like extension choices within their groups', () {

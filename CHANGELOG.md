@@ -16,6 +16,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   and preserved them when opening analyzed chords.
 - Added flat-ninth color choices for minor and suspended-fourth chords in
   Explore Chords.
+- Prevented contradictory natural- and flat-thirteenth selections in Explore
+  Chords.
 
 ### Changed
 
