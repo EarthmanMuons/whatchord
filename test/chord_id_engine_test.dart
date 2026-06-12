@@ -10,6 +10,18 @@ void main() {
     expect(result.candidates.first.toJson()['academicName'], 'C major');
   });
 
+  test('separates recognized and unexplained input tones', () {
+    final result = identifyChord('C E G Bb D');
+    final suspended = result.candidates.firstWhere(
+      (candidate) => candidate.symbol == 'C7sus2',
+    );
+
+    expect(suspended.recognizedNotes, 'C D G B♭');
+    expect(suspended.unexplainedNotes, 'E');
+    expect(suspended.toJson()['recognizedNotes'], 'C D G B♭');
+    expect(suspended.toJson()['unexplainedNotes'], 'E');
+  });
+
   group('identifyChord input limits', () {
     test('accepts up to 128 note tokens', () {
       final notes = List<String>.filled(maxChordIdNoteTokens, 'C').join(' ');

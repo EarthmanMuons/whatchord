@@ -45,7 +45,8 @@ class ChordIdCandidate {
     required this.rank,
     required this.symbol,
     required this.academicName,
-    required this.notes,
+    required this.recognizedNotes,
+    required this.unexplainedNotes,
     required this.score,
     required this.deltaBest,
     required this.classification,
@@ -55,8 +56,11 @@ class ChordIdCandidate {
   final String symbol;
   final String academicName;
 
-  /// Spelled chord tones in interval order, e.g. "C E G B".
-  final String notes;
+  /// Input pitch classes assigned a role in this chord interpretation.
+  final String recognizedNotes;
+
+  /// Input pitch classes not assigned a role in this chord interpretation.
+  final String unexplainedNotes;
   final double score;
   final double deltaBest;
   final CandidateClass classification;
@@ -65,7 +69,8 @@ class ChordIdCandidate {
     'rank': rank,
     'symbol': symbol,
     'academicName': academicName,
-    'notes': notes,
+    'recognizedNotes': recognizedNotes,
+    'unexplainedNotes': unexplainedNotes,
     'score': double.parse(score.toStringAsFixed(2)),
     'deltaBest': double.parse(deltaBest.toStringAsFixed(2)),
     'class': classification.wireName,
@@ -235,7 +240,12 @@ ChordIdResult identifyChord(
           identity: c.identity,
           tonality: tonality,
         ),
-        notes: _spellChordTones(c.identity, tonality: tonality),
+        recognizedNotes: _spellRecognizedTones(c.identity, tonality: tonality),
+        unexplainedNotes: _spellUnexplainedTones(
+          c.identity,
+          parsed,
+          tonality: tonality,
+        ),
         score: c.score,
         deltaBest: c.score - bestScore,
         classification: classification,
@@ -386,7 +396,7 @@ List<String> inputNoteLabels(NoteParse parsed, {required Tonality tonality}) {
   ];
 }
 
-String _spellChordTones(ChordIdentity id, {required Tonality tonality}) {
+String _spellRecognizedTones(ChordIdentity id, {required Tonality tonality}) {
   final rootName = spellChordRoot(id, tonality: tonality);
   final byInterval = <int, ChordToneRole>{
     0: ChordToneRole.root,
@@ -403,6 +413,27 @@ String _spellChordTones(ChordIdentity id, {required Tonality tonality}) {
           role: byInterval[interval],
         ),
       ),
+  ].join(' ');
+}
+
+String _spellUnexplainedTones(
+  ChordIdentity id,
+  NoteParse parsed, {
+  required Tonality tonality,
+}) {
+  final recognizedMask = id.toneRolesByInterval.keys.fold<int>(
+    1 << id.rootPc,
+    (mask, interval) => mask | (1 << ((id.rootPc + interval) % 12)),
+  );
+  final seen = <int>{};
+  return [
+    for (final note in parsed.ordered)
+      if (seen.add(note.pc) && recognizedMask & (1 << note.pc) == 0)
+        noteDisplayLabel(
+          note.name != null
+              ? normalizeNoteNameToAscii(note.name!)
+              : pcToName(note.pc, tonality: tonality),
+        ),
   ].join(' ');
 }
 
