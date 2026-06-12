@@ -40,7 +40,8 @@ Options:
                          Default: textual.
   -f, --format=FORMAT    Output format. Valid: text, json. Default: text.
       --json             Alias for --format=json.
-  -v, --verbose          Include input and ChordIdentity diagnostics.
+  -v, --verbose          Include input, ChordIdentity, and played/missing/extra
+                         tone-bucket diagnostics.
   -c, --compact          Use a condensed, single-line-per-candidate output.
 ''';
 
@@ -246,6 +247,13 @@ void main(List<String> args) {
       stdout.writeln('     members: $members');
     }
 
+    // Played/missing/extra tone buckets, mirroring the app's tone ledger.
+    if (verbose) {
+      stdout.writeln(
+        '     tones: ${_formatToneBuckets(id, r.scoreReasons, context: context)}',
+      );
+    }
+
     // Reasons: tokenized & compact.
     final tokens = _reasonTokens(
       r.scoreReasons,
@@ -337,6 +345,79 @@ String _formatChordMembersByRole(
   }
 
   return parts.join('  ');
+}
+
+/// Formats the played, missing, and extra tone buckets for a candidate,
+/// mirroring the app's "Why This Chord?" tone ledger.
+///
+/// Output example:
+///   chord=[1:C 3:E 5:G*]  missing=[7:B]  also=[#9:D#]
+///
+/// Buckets reuse the per-category interval masks the analyzer records on each
+/// ScoreReason. The bass tone is marked with a trailing `*`.
+String _formatToneBuckets(
+  ChordIdentity id,
+  List<ScoreReason> reasons, {
+  required AnalysisContext context,
+}) {
+  final chordMask =
+      _maskForReason(reasons, 'required tones') |
+      _maskForReason(reasons, 'optional tones');
+  final missingMask = _maskForReason(reasons, 'missing required');
+  final alsoMask =
+      _maskForReason(reasons, 'penalty tones') |
+      _maskForReason(reasons, 'extras');
+
+  final segments = <String>[
+    'chord=[${_formatTones(id, chordMask, context: context)}]',
+  ];
+
+  final missing = _formatTones(id, missingMask, context: context);
+  if (missing.isNotEmpty) segments.add('missing=[$missing]');
+
+  final also = _formatTones(id, alsoMask, context: context);
+  if (also.isNotEmpty) segments.add('also=[$also]');
+
+  return segments.join('  ');
+}
+
+/// Returns the root-relative interval mask the analyzer recorded for [label],
+/// or 0 when that reason carries no tone set.
+int _maskForReason(List<ScoreReason> reasons, String label) {
+  for (final reason in reasons) {
+    if (reason.label == label) return reason.intervals ?? 0;
+  }
+  return 0;
+}
+
+/// Formats the tones in [mask] as `degree:note` tokens, ascending by interval,
+/// marking the bass tone with a trailing `*`.
+String _formatTones(
+  ChordIdentity id,
+  int mask, {
+  required AnalysisContext context,
+}) {
+  final parts = <String>[];
+  for (var interval = 0; interval < 12; interval++) {
+    if ((mask & (1 << interval)) == 0) continue;
+    final pc = {(id.rootPc + interval) % 12};
+    final degree = theoryTokenDisplayLabel(
+      ChordMemberDegreeFormatter.formatDegrees(
+        identity: id,
+        pitchClasses: pc,
+      ).first,
+    );
+    final note = _displayNoteLabel(
+      ChordMemberSpeller.spellMembers(
+        identity: id,
+        pitchClasses: pc,
+        tonality: context.tonality,
+      ).first,
+    );
+    final bassMark = pc.first == id.bassPc ? '*' : '';
+    parts.add('$degree:$note$bassMark');
+  }
+  return parts.join(' ');
 }
 
 void _writeJsonOutput({
