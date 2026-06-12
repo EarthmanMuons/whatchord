@@ -43,13 +43,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     milliseconds: 800,
   );
 
+  // Cached so dispose() can cancel preview notes without touching ref, which is
+  // unsafe once the widget is being unmounted.
+  late final AudioMonitorNotifier _audioMonitor;
+
+  @override
+  void initState() {
+    super.initState();
+    _audioMonitor = ref.read(audioMonitorNotifier.notifier);
+  }
+
   @override
   void dispose() {
     _audioVolumeLabelDismissTimer?.cancel();
     _audioVolumeLabelDismissTimer = null;
     _volumePreviewDebounceTimer?.cancel();
     _volumePreviewDebounceTimer = null;
-    ref.read(audioMonitorNotifier.notifier).cancelPreviewNotes();
+    _audioMonitor.cancelPreviewNotes();
     _stopVolumeRepeat();
     super.dispose();
   }

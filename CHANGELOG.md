@@ -22,6 +22,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   and remembers your level, restoring it when you unmute, and the setting
   persists across launches.
 
+### Fixed
+
+- Fixed an internal error that fired every time the Settings screen was closed,
+  introduced alongside the Playback Volume preview tones.
+
 ## [2026.6.10] - 2026-06-10
 
 ### Added
