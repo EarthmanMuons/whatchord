@@ -189,7 +189,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Semantics(
                       button: true,
@@ -215,89 +214,109 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             )
                           : const SizedBox.shrink(key: ValueKey<String>('off')),
                     ),
+                    const Spacer(),
+                    _AudioMuteButton(
+                      muted: audioSettings.muted,
+                      onPressed: () {
+                        unawaited(
+                          ref
+                              .read(audioMonitorSettingsNotifier.notifier)
+                              .setMuted(!audioSettings.muted),
+                        );
+                        unawaited(HapticFeedback.selectionClick());
+                      },
+                    ),
                   ],
                 ),
                 subtitle: Semantics(
                   container: true,
-                  child: SizedBox(
-                    height: 48,
-                    child: Stack(
-                      children: [
-                        Row(
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 150),
+                    opacity: audioSettings.muted ? 0.38 : 1,
+                    child: IgnorePointer(
+                      ignoring: audioSettings.muted,
+                      child: SizedBox(
+                        height: 48,
+                        child: Stack(
                           children: [
-                            const Icon(Icons.volume_mute_outlined),
-                            Expanded(
-                              child: Slider(
-                                value: audioSettings.volume,
-                                min: 0,
-                                max: 1,
-                                divisions: 100,
-                                onChangeStart: (_) {
-                                  _showAudioVolumePercentLabel();
-                                },
-                                onChangeEnd: (_) {
-                                  _scheduleVolumeLabelDismiss();
-                                },
-                                onChanged: (value) {
-                                  _showAudioVolumePercentLabel();
-                                  unawaited(
-                                    ref
-                                        .read(
-                                          audioMonitorSettingsNotifier.notifier,
-                                        )
-                                        .setVolume(value),
-                                  );
-                                  _scheduleVolumePreview(
-                                    _sliderVolumePreviewDebounce,
-                                  );
-                                },
+                            Row(
+                              children: [
+                                const Icon(Icons.volume_mute_outlined),
+                                Expanded(
+                                  child: Slider(
+                                    value: audioSettings.volume,
+                                    min: 0,
+                                    max: 1,
+                                    divisions: 100,
+                                    onChangeStart: (_) {
+                                      _showAudioVolumePercentLabel();
+                                    },
+                                    onChangeEnd: (_) {
+                                      _scheduleVolumeLabelDismiss();
+                                    },
+                                    onChanged: (value) {
+                                      _showAudioVolumePercentLabel();
+                                      unawaited(
+                                        ref
+                                            .read(
+                                              audioMonitorSettingsNotifier
+                                                  .notifier,
+                                            )
+                                            .setVolume(value),
+                                      );
+                                      _scheduleVolumePreview(
+                                        _sliderVolumePreviewDebounce,
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const Icon(Icons.volume_up_outlined),
+                              ],
+                            ),
+                            Positioned.fill(
+                              child: Row(
+                                children: [
+                                  _VolumeNudgeHitTarget(
+                                    semanticsLabel: 'Decrease volume',
+                                    onTap: () {
+                                      _adjustAudioVolumeByPercent(
+                                        -_volumeNudgeStepPercent,
+                                      );
+                                      _scheduleVolumeLabelDismiss();
+                                    },
+                                    onLongPressStart: () {
+                                      _showAudioVolumePercentLabel();
+                                      _startVolumeRepeat(-1);
+                                    },
+                                    onLongPressEnd: () {
+                                      _stopVolumeRepeat();
+                                      _scheduleVolumeLabelDismiss();
+                                    },
+                                  ),
+                                  const Expanded(child: SizedBox()),
+                                  _VolumeNudgeHitTarget(
+                                    semanticsLabel: 'Increase volume',
+                                    onTap: () {
+                                      _adjustAudioVolumeByPercent(
+                                        _volumeNudgeStepPercent,
+                                      );
+                                      _scheduleVolumeLabelDismiss();
+                                    },
+                                    onLongPressStart: () {
+                                      _showAudioVolumePercentLabel();
+                                      _startVolumeRepeat(1);
+                                    },
+                                    onLongPressEnd: () {
+                                      _stopVolumeRepeat();
+                                      _scheduleVolumeLabelDismiss();
+                                    },
+                                  ),
+                                ],
                               ),
                             ),
-                            const Icon(Icons.volume_up_outlined),
                           ],
                         ),
-                        Positioned.fill(
-                          child: Row(
-                            children: [
-                              _VolumeNudgeHitTarget(
-                                semanticsLabel: 'Decrease volume',
-                                onTap: () {
-                                  _adjustAudioVolumeByPercent(
-                                    -_volumeNudgeStepPercent,
-                                  );
-                                  _scheduleVolumeLabelDismiss();
-                                },
-                                onLongPressStart: () {
-                                  _showAudioVolumePercentLabel();
-                                  _startVolumeRepeat(-1);
-                                },
-                                onLongPressEnd: () {
-                                  _stopVolumeRepeat();
-                                  _scheduleVolumeLabelDismiss();
-                                },
-                              ),
-                              const Expanded(child: SizedBox()),
-                              _VolumeNudgeHitTarget(
-                                semanticsLabel: 'Increase volume',
-                                onTap: () {
-                                  _adjustAudioVolumeByPercent(
-                                    _volumeNudgeStepPercent,
-                                  );
-                                  _scheduleVolumeLabelDismiss();
-                                },
-                                onLongPressStart: () {
-                                  _showAudioVolumePercentLabel();
-                                  _startVolumeRepeat(1);
-                                },
-                                onLongPressEnd: () {
-                                  _stopVolumeRepeat();
-                                  _scheduleVolumeLabelDismiss();
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -587,6 +606,33 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _AudioMuteButton extends StatelessWidget {
+  const _AudioMuteButton({required this.muted, required this.onPressed});
+
+  final bool muted;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return IconButton(
+      onPressed: onPressed,
+      tooltip: muted ? 'Unmute playback' : 'Mute playback',
+      isSelected: muted,
+      icon: const Icon(Icons.volume_off_outlined),
+      style: IconButton.styleFrom(
+        foregroundColor: muted ? cs.onPrimaryContainer : cs.outline,
+        backgroundColor: muted ? cs.primaryContainer : cs.surfaceContainerLow,
+        side: BorderSide(
+          color: muted ? cs.primary : cs.outlineVariant.withValues(alpha: 0.70),
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        tapTargetSize: MaterialTapTargetSize.padded,
       ),
     );
   }

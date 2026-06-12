@@ -2,4 +2,5 @@
 abstract final class AudioPreferencesKeys {
   static const String monitorEnabled = 'audio.monitor.enabled';
   static const String monitorVolume = 'audio.monitor.volume';
+  static const String monitorMuted = 'audio.monitor.muted';
 }

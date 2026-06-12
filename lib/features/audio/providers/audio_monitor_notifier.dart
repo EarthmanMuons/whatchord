@@ -233,7 +233,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
         _needsBootstrapNoteOnSync = _allowBootstrapOnNextStart;
         _allowBootstrapOnNextStart = true;
       }
-      await engine.setVolume(settings.volume);
+      await engine.setVolume(settings.effectiveVolume);
       state = state.copyWith(
         status: AudioMonitorStatus.running,
         clearError: true,
@@ -334,7 +334,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     if (engine == null) return;
 
     final settings = ref.read(audioMonitorSettingsNotifier);
-    await engine.setVolume(settings.volume);
+    await engine.setVolume(settings.effectiveVolume);
     await engine.allNotesOff();
     _resetTrackingForSilentState();
 
@@ -356,7 +356,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     if (engine == null) return;
 
     final settings = ref.read(audioMonitorSettingsNotifier);
-    await engine.setVolume(settings.volume);
+    await engine.setVolume(settings.effectiveVolume);
     await engine.allNotesOff();
     _resetTrackingForSilentState();
 
@@ -399,7 +399,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     if (engine == null) return;
 
     final settings = ref.read(audioMonitorSettingsNotifier);
-    await engine.setVolume(settings.volume);
+    await engine.setVolume(settings.effectiveVolume);
     await engine.allNotesOff();
     _resetTrackingForSilentState();
 
