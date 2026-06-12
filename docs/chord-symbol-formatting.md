@@ -49,7 +49,7 @@ is `C13(♭9,♯11)`.
 Fully diminished seventh chords are an exception. Natural upper tones are shown
 as added tones, such as `Cdim7(add9)`, rather than promoted headlines.
 
-## Extensions Versus Added Tones
+## Extensions vs. Added Tones
 
 WhatChord distinguishes a stacked extension from a tone added outside that
 stack:
@@ -129,7 +129,7 @@ that same tone. For example, it prefers `A♭7 / D♭` over the redundant
 `A♭7(add11) / D♭`. Similarly, a seventh chord whose only 9th is supplied by the
 slash bass is shown as `C7 / D`, not `C9 / D`.
 
-## Analysis vs Explore
+## Analysis vs. Explore
 
 Analysis names the observed voicing and ranks plausible identities. Explore
 builds clear, canonical examples of a selected symbol. They share the same
