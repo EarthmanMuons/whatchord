@@ -284,6 +284,16 @@ select.try-select:focus {
   color: var(--text-2);
 }
 
+.try-notes-label {
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: var(--text-2);
+}
+
+.try-notes-unexplained-marker {
+  color: #d5a469;
+}
+
 .try-tag {
   flex-shrink: 0;
   padding: 3px 9px;

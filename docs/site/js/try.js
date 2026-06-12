@@ -326,7 +326,14 @@
     academicName.textContent = c.academicName;
     var notes = document.createElement("div");
     notes.className = "try-notes";
-    notes.textContent = c.notes;
+    appendNoteGroup(notes, "Recognized as", c.recognizedNotes);
+    if (c.unexplainedNotes) {
+      var separator = document.createElement("span");
+      separator.className = "try-notes-unexplained-marker";
+      separator.textContent = " + ";
+      notes.appendChild(separator);
+      appendNoteGroup(notes, "Unexplained", c.unexplainedNotes);
+    }
     main.appendChild(symbol);
     main.appendChild(academicName);
     main.appendChild(notes);
@@ -344,6 +351,16 @@
     row.appendChild(tag);
     row.appendChild(score);
     return row;
+  }
+
+  function appendNoteGroup(container, label, value) {
+    var group = document.createElement("span");
+    var labelSpan = document.createElement("span");
+    labelSpan.className = "try-notes-label";
+    labelSpan.textContent = label + ": ";
+    group.appendChild(labelSpan);
+    group.appendChild(document.createTextNode(value));
+    container.appendChild(group);
   }
 
   // ─── Run loop ──────────────────────────────────────────────────
