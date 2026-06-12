@@ -402,7 +402,13 @@ String _spellRecognizedTones(ChordIdentity id, {required Tonality tonality}) {
     0: ChordToneRole.root,
     ...id.toneRolesByInterval,
   };
-  final intervals = byInterval.keys.toList()..sort();
+  final intervals = byInterval.keys.toList()
+    ..sort((a, b) {
+      final degreeComparison = _degreeOrder(
+        byInterval[a]!,
+      ).compareTo(_degreeOrder(byInterval[b]!));
+      return degreeComparison != 0 ? degreeComparison : a.compareTo(b);
+    });
   return [
     for (final interval in intervals)
       noteDisplayLabel(
@@ -415,6 +421,25 @@ String _spellRecognizedTones(ChordIdentity id, {required Tonality tonality}) {
       ),
   ].join(' ');
 }
+
+int _degreeOrder(ChordToneRole role) => switch (role) {
+  ChordToneRole.root => 1,
+  ChordToneRole.sus2 => 2,
+  ChordToneRole.minor3 ||
+  ChordToneRole.splitMinor3 ||
+  ChordToneRole.major3 => 3,
+  ChordToneRole.sus4 => 4,
+  ChordToneRole.flat5 || ChordToneRole.perfect5 || ChordToneRole.sharp5 => 5,
+  ChordToneRole.sixth => 6,
+  ChordToneRole.dim7 || ChordToneRole.flat7 || ChordToneRole.major7 => 7,
+  ChordToneRole.flat9 ||
+  ChordToneRole.nine ||
+  ChordToneRole.sharp9 ||
+  ChordToneRole.add9 ||
+  ChordToneRole.addSharp9 => 9,
+  ChordToneRole.eleven || ChordToneRole.sharp11 || ChordToneRole.add11 => 11,
+  ChordToneRole.flat13 || ChordToneRole.thirteenth || ChordToneRole.add13 => 13,
+};
 
 String _spellUnexplainedTones(
   ChordIdentity id,

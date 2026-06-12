@@ -22,6 +22,15 @@ void main() {
     expect(suspended.toJson()['unexplainedNotes'], 'E');
   });
 
+  test('orders recognized tones by chord degree', () {
+    final result = identifyChord('C E G Bb D');
+    final suspended = result.candidates.firstWhere(
+      (candidate) => candidate.symbol == 'D9sus4(♭13) / C',
+    );
+
+    expect(suspended.recognizedNotes, 'D G C E B♭');
+  });
+
   group('identifyChord input limits', () {
     test('accepts up to 128 note tokens', () {
       final notes = List<String>.filled(maxChordIdNoteTokens, 'C').join(' ');
