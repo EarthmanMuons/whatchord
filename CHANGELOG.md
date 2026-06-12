@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Made flat-thirteenth colors available on triad-like chords in Explore Chords
+  and preserved them when opening analyzed chords.
+
 ### Changed
 
 - The guided tour's final step now points its callout arrows at both the search

@@ -252,4 +252,5 @@ const _triadLikeAlterationChoiceOrder = [
   ChordExtension.addFlat9,
   ChordExtension.addSharp9,
   ChordExtension.sharp11,
+  ChordExtension.flat13,
 ];
