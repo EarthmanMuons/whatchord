@@ -106,7 +106,11 @@ Set<ChordExtension> normalizeExtensionsForQuality({
         }
         break;
       case ChordExtension.flat13:
-        addSeventhAlteration(extension);
+        if (quality.isSeventhFamily) {
+          addSeventhAlteration(extension);
+        } else {
+          addTriadLikeExtension(extension);
+        }
         break;
       case ChordExtension.flat9:
       case ChordExtension.addFlat9:
@@ -335,6 +339,7 @@ Set<ChordExtension> triadLikeAlterations(ChordQualityToken quality) {
     if (available.contains(ChordExtension.addFlat9)) ChordExtension.addFlat9,
     if (available.contains(ChordExtension.addSharp9)) ChordExtension.addSharp9,
     if (available.contains(ChordExtension.sharp11)) ChordExtension.sharp11,
+    if (available.contains(ChordExtension.flat13)) ChordExtension.flat13,
   };
 }
 
@@ -390,11 +395,13 @@ const _triadLikeExtensionsByQuality = <ChordQualityToken, Set<ChordExtension>>{
     ChordExtension.addFlat9,
     ChordExtension.addSharp9,
     ChordExtension.sharp11,
+    ChordExtension.flat13,
   },
   ChordQualityToken.minor: {
     ChordExtension.add9,
     ChordExtension.add11,
     ChordExtension.sharp11,
+    ChordExtension.flat13,
   },
   ChordQualityToken.minorSharp5: {
     ChordExtension.add9,
@@ -402,7 +409,11 @@ const _triadLikeExtensionsByQuality = <ChordQualityToken, Set<ChordExtension>>{
     ChordExtension.add13,
     ChordExtension.sharp11,
   },
-  ChordQualityToken.diminished: {ChordExtension.add9, ChordExtension.add11},
+  ChordQualityToken.diminished: {
+    ChordExtension.add9,
+    ChordExtension.add11,
+    ChordExtension.flat13,
+  },
   ChordQualityToken.augmented: {
     ChordExtension.add9,
     ChordExtension.add11,
@@ -410,20 +421,31 @@ const _triadLikeExtensionsByQuality = <ChordQualityToken, Set<ChordExtension>>{
     ChordExtension.addSharp9,
     ChordExtension.sharp11,
   },
-  ChordQualityToken.sus2: {ChordExtension.add11, ChordExtension.add13},
-  ChordQualityToken.sus4: {ChordExtension.add9, ChordExtension.add13},
+  ChordQualityToken.sus2: {
+    ChordExtension.add11,
+    ChordExtension.add13,
+    ChordExtension.flat13,
+  },
+  ChordQualityToken.sus4: {
+    ChordExtension.add9,
+    ChordExtension.add13,
+    ChordExtension.flat13,
+  },
+  ChordQualityToken.sus2sus4: {ChordExtension.add13, ChordExtension.flat13},
   ChordQualityToken.major6: {
     ChordExtension.add9,
     ChordExtension.add11,
     ChordExtension.flat9,
     ChordExtension.addSharp9,
     ChordExtension.sharp11,
+    ChordExtension.flat13,
   },
   ChordQualityToken.minor6: {
     ChordExtension.add9,
     ChordExtension.add11,
     ChordExtension.flat9,
     ChordExtension.sharp11,
+    ChordExtension.flat13,
   },
 };
 

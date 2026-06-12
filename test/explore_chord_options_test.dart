@@ -153,11 +153,13 @@ void main() {
           ChordExtension.addFlat9,
           ChordExtension.addSharp9,
           ChordExtension.sharp11,
+          ChordExtension.flat13,
         ]);
         expect(groups[1].choices.map((choice) => choice.label), [
           '♭9',
           '♯9',
           '♯11',
+          '♭13',
         ]);
       },
     );
@@ -184,6 +186,7 @@ void main() {
         ]);
         expect(groups[1].choices.map((choice) => choice.extension), [
           ChordExtension.sharp11,
+          ChordExtension.flat13,
         ]);
       },
     );
@@ -225,6 +228,7 @@ void main() {
         ChordExtension.flat9,
         ChordExtension.addSharp9,
         ChordExtension.sharp11,
+        ChordExtension.flat13,
       ]);
     });
 
@@ -348,11 +352,13 @@ void main() {
           ChordExtension.addFlat9,
           ChordExtension.addSharp9,
           ChordExtension.sharp11,
+          ChordExtension.flat13,
         ],
         ChordQualityToken.minor: [
           ChordExtension.add9,
           ChordExtension.add11,
           ChordExtension.sharp11,
+          ChordExtension.flat13,
         ],
         ChordQualityToken.minorSharp5: [
           ChordExtension.add9,
@@ -363,6 +369,7 @@ void main() {
         ChordQualityToken.diminished: [
           ChordExtension.add9,
           ChordExtension.add11,
+          ChordExtension.flat13,
         ],
         ChordQualityToken.augmented: [
           ChordExtension.add9,
@@ -371,20 +378,34 @@ void main() {
           ChordExtension.addSharp9,
           ChordExtension.sharp11,
         ],
-        ChordQualityToken.sus2: [ChordExtension.add11, ChordExtension.add13],
-        ChordQualityToken.sus4: [ChordExtension.add9, ChordExtension.add13],
+        ChordQualityToken.sus2: [
+          ChordExtension.add11,
+          ChordExtension.add13,
+          ChordExtension.flat13,
+        ],
+        ChordQualityToken.sus4: [
+          ChordExtension.add9,
+          ChordExtension.add13,
+          ChordExtension.flat13,
+        ],
+        ChordQualityToken.sus2sus4: [
+          ChordExtension.add13,
+          ChordExtension.flat13,
+        ],
         ChordQualityToken.major6: [
           ChordExtension.add9,
           ChordExtension.add11,
           ChordExtension.flat9,
           ChordExtension.addSharp9,
           ChordExtension.sharp11,
+          ChordExtension.flat13,
         ],
         ChordQualityToken.minor6: [
           ChordExtension.add9,
           ChordExtension.add11,
           ChordExtension.flat9,
           ChordExtension.sharp11,
+          ChordExtension.flat13,
         ],
       };
 
@@ -599,6 +620,28 @@ void main() {
       expect(identity.extensions, {ChordExtension.sharp11});
     });
 
+    test('keeps a minor flat thirteenth when normalizing a page seed', () {
+      final normalized = normalizeExtensionsForQuality(
+        quality: ChordQualityToken.minor,
+        extensions: const {ChordExtension.flat13},
+      );
+      final identity = buildExploreChordIdentity(
+        ExploreChordState(
+          rootPc: 9,
+          bassPc: 2,
+          quality: ChordQualityToken.minor,
+          extensions: normalized,
+        ),
+      );
+
+      expect(identity.rootPc, 9);
+      // Explore currently limits bass choices to chord members, so the foreign
+      // D bass from Amb13/D normalizes to the A root independently of flat13.
+      expect(identity.bassPc, 9);
+      expect(identity.quality, ChordQualityToken.minor);
+      expect(identity.extensions, {ChordExtension.flat13});
+    });
+
     test(
       'promotes seventh-family add ninth while preserving skipped add tones',
       () {
@@ -776,7 +819,7 @@ void main() {
         },
       );
 
-      expect(normalized, {ChordExtension.sharp11});
+      expect(normalized, {ChordExtension.sharp11, ChordExtension.flat13});
     });
 
     test('drops seventh-family extensions that duplicate core chord tones', () {
