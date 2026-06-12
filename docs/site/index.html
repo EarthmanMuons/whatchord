@@ -168,11 +168,49 @@
                   theory into something you can see and hear.
                 </p>
               </div>
-              <div class="feature-img-wrap">
+              <div class="feature-img-wrap motion-media" data-motion-media>
+                <video
+                  class="motion-video"
+                  autoplay
+                  muted
+                  loop
+                  playsinline
+                  preload="metadata"
+                  aria-hidden="true"
+                  data-motion-video
+                >
+                  <source src="images/explore_modes.mp4" type="video/mp4" />
+                </video>
                 <img
-                  src="images/explore_chords.webp"
-                  alt="WhatChord Explore Chords mode showing chord builder controls and piano keyboard"
+                  class="motion-fallback"
+                  src="images/explore_modes.webp"
+                  alt="WhatChord switching between Explore Chords and Explore Scales modes on the piano keyboard"
                 />
+                <button
+                  class="motion-toggle"
+                  type="button"
+                  aria-label="Pause animation"
+                  data-motion-toggle
+                  hidden
+                >
+                  <svg
+                    class="motion-toggle-pause"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path d="M8 5h3v14H8z" />
+                    <path d="M13 5h3v14h-3z" />
+                  </svg>
+                  <svg
+                    class="motion-toggle-play"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </button>
               </div>
             </div>
 
