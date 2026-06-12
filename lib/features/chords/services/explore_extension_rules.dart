@@ -220,6 +220,12 @@ void removeTriadLikeConflicts(
     case ChordExtension.sharp11:
       extensions.remove(ChordExtension.add11);
       break;
+    case ChordExtension.add13:
+      extensions.remove(ChordExtension.flat13);
+      break;
+    case ChordExtension.flat13:
+      extensions.remove(ChordExtension.add13);
+      break;
     default:
       break;
   }
@@ -440,14 +446,12 @@ const _triadLikeExtensionsByQuality = <ChordQualityToken, Set<ChordExtension>>{
     ChordExtension.flat9,
     ChordExtension.addSharp9,
     ChordExtension.sharp11,
-    ChordExtension.flat13,
   },
   ChordQualityToken.minor6: {
     ChordExtension.add9,
     ChordExtension.add11,
     ChordExtension.flat9,
     ChordExtension.sharp11,
-    ChordExtension.flat13,
   },
 };
 
