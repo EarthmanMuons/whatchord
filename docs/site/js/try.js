@@ -321,10 +321,14 @@
     var symbol = document.createElement("div");
     symbol.className = "try-symbol";
     symbol.textContent = c.symbol;
+    var academicName = document.createElement("div");
+    academicName.className = "try-academic-name";
+    academicName.textContent = c.academicName;
     var notes = document.createElement("div");
     notes.className = "try-notes";
     notes.textContent = c.notes;
     main.appendChild(symbol);
+    main.appendChild(academicName);
     main.appendChild(notes);
 
     var tag = document.createElement("span");

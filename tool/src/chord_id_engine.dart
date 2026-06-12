@@ -11,6 +11,7 @@
 
 import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import 'package:whatchord/features/theory/presentation/models/chord_symbol.dart';
+import 'package:whatchord/features/theory/presentation/services/chord_long_form_formatter.dart';
 import 'package:whatchord/features/theory/presentation/services/chord_symbol_builder.dart';
 import 'package:whatchord/features/theory/presentation/services/note_display_formatter.dart';
 
@@ -43,6 +44,7 @@ class ChordIdCandidate {
   ChordIdCandidate({
     required this.rank,
     required this.symbol,
+    required this.academicName,
     required this.notes,
     required this.score,
     required this.deltaBest,
@@ -51,6 +53,7 @@ class ChordIdCandidate {
 
   final int rank;
   final String symbol;
+  final String academicName;
 
   /// Spelled chord tones in interval order, e.g. "C E G B".
   final String notes;
@@ -61,6 +64,7 @@ class ChordIdCandidate {
   Map<String, Object?> toJson() => <String, Object?>{
     'rank': rank,
     'symbol': symbol,
+    'academicName': academicName,
     'notes': notes,
     'score': double.parse(score.toStringAsFixed(2)),
     'deltaBest': double.parse(deltaBest.toStringAsFixed(2)),
@@ -226,6 +230,10 @@ ChordIdResult identifyChord(
             tonality: tonality,
             notation: notation,
           ),
+        ),
+        academicName: ChordLongFormFormatter.format(
+          identity: c.identity,
+          tonality: tonality,
         ),
         notes: _spellChordTones(c.identity, tonality: tonality),
         score: c.score,
