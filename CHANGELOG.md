@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added a mute toggle to the Playback Volume control. Muting silences playback
+  and remembers your level, restoring it when you unmute, and the setting
+  persists across launches.
+
 ## [2026.6.10] - 2026-06-10
 
 ### Added

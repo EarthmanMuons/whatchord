@@ -32,6 +32,7 @@ class AudioMonitorSettingsNotifier extends Notifier<AudioMonitorSettings> {
           (prefs.getDouble(AudioPreferencesKeys.monitorVolume) ??
                   defaults.volume)
               .clamp(0.0, 1.0),
+      muted: prefs.getBool(AudioPreferencesKeys.monitorMuted) ?? defaults.muted,
     );
   }
 
@@ -50,11 +51,19 @@ class AudioMonitorSettingsNotifier extends Notifier<AudioMonitorSettings> {
     await prefs.setDouble(AudioPreferencesKeys.monitorVolume, clamped);
   }
 
+  Future<void> setMuted(bool muted) async {
+    final prefs = ref.read(sharedPreferencesProvider);
+
+    state = state.copyWith(muted: muted);
+    await prefs.setBool(AudioPreferencesKeys.monitorMuted, muted);
+  }
+
   Future<void> clearAllAudioData() async {
     final prefs = ref.read(sharedPreferencesProvider);
 
     state = const AudioMonitorSettings.defaults();
     await prefs.remove(AudioPreferencesKeys.monitorEnabled);
     await prefs.remove(AudioPreferencesKeys.monitorVolume);
+    await prefs.remove(AudioPreferencesKeys.monitorMuted);
   }
 }
