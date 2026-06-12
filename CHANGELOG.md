@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Made flat-thirteenth colors available on triad-like chords in Explore Chords
   and preserved them when opening analyzed chords.
+- Added flat-ninth color choices for minor and suspended-fourth chords in
+  Explore Chords.
 
 ### Changed
 

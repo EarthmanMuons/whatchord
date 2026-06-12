@@ -185,6 +185,7 @@ void main() {
           ChordExtension.add11,
         ]);
         expect(groups[1].choices.map((choice) => choice.extension), [
+          ChordExtension.addFlat9,
           ChordExtension.sharp11,
           ChordExtension.flat13,
         ]);
@@ -357,6 +358,7 @@ void main() {
         ChordQualityToken.minor: [
           ChordExtension.add9,
           ChordExtension.add11,
+          ChordExtension.addFlat9,
           ChordExtension.sharp11,
           ChordExtension.flat13,
         ],
@@ -386,6 +388,7 @@ void main() {
         ChordQualityToken.sus4: [
           ChordExtension.add9,
           ChordExtension.add13,
+          ChordExtension.addFlat9,
           ChordExtension.flat13,
         ],
         ChordQualityToken.sus2sus4: [
@@ -808,7 +811,7 @@ void main() {
       expect(sus4, {ChordExtension.add9, ChordExtension.add13});
     });
 
-    test('drops unsupported alterations for non-seventh qualities', () {
+    test('preserves supported alterations for non-seventh qualities', () {
       final normalized = normalizeExtensionsForQuality(
         quality: ChordQualityToken.minor,
         extensions: const {
@@ -819,7 +822,11 @@ void main() {
         },
       );
 
-      expect(normalized, {ChordExtension.sharp11, ChordExtension.flat13});
+      expect(normalized, {
+        ChordExtension.addFlat9,
+        ChordExtension.sharp11,
+        ChordExtension.flat13,
+      });
     });
 
     test('drops seventh-family extensions that duplicate core chord tones', () {

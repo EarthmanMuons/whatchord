@@ -400,6 +400,7 @@ const _triadLikeExtensionsByQuality = <ChordQualityToken, Set<ChordExtension>>{
   ChordQualityToken.minor: {
     ChordExtension.add9,
     ChordExtension.add11,
+    ChordExtension.addFlat9,
     ChordExtension.sharp11,
     ChordExtension.flat13,
   },
@@ -429,6 +430,7 @@ const _triadLikeExtensionsByQuality = <ChordQualityToken, Set<ChordExtension>>{
   ChordQualityToken.sus4: {
     ChordExtension.add9,
     ChordExtension.add13,
+    ChordExtension.addFlat9,
     ChordExtension.flat13,
   },
   ChordQualityToken.sus2sus4: {ChordExtension.add13, ChordExtension.flat13},
