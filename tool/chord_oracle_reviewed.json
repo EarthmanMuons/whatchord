@@ -115,6 +115,10 @@
     "label": "clearly-correct",
     "note": "Caugadd9 is correct; broadened hard rule prefers simple augmented triad with add9 over E7#5/B#; E7#5/B# remains visible at #2 via 1.50 score guard; tonal lists Caugadd9 as #1; sound"
   },
+  "0-2-4-8_b2": {
+    "label": "genuine-ambiguity",
+    "note": "E7#5/D is correct; the notes are the augmented triad C-E-G# plus D, and E is the only augmented-equivalent root whose b7 (D) is present, making E7#5 the unique complete four-note reading with the bass as a chord tone (third inversion). Caug(add9)/D (music21, tonal #1) is the salient triad-first reading but strands the bass D as the added 9th. tonal corroborates E7#5/D at #2. Mirrors the b0 sibling, where C-in-bass correctly prefers root-position Caugadd9: an aug-member bass favors the augmented reading, a non-member bass favors the complete dominant whose bass is a core tone. Sound; no engine change needed."
+  },
   "0-2-4-9_b0": {
     "label": "context-dependent",
     "note": "C6/9 is correct in C major; matches music21's Am/CaddD in A:min where Amadd11/C is #1; tonal-context-dependent ambiguity, not a disagreement"
