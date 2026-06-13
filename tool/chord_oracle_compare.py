@@ -100,9 +100,6 @@ class SemanticChordKey:
     degrees: tuple[str, ...]
     bass_pc: int | None = None
 
-    def without_bass(self) -> "SemanticChordKey":
-        return SemanticChordKey(root_pc=self.root_pc, degrees=self.degrees)
-
     def display(self) -> str:
         bass = "" if self.bass_pc is None else f"/bass{self.bass_pc}"
         degrees = ",".join(self.degrees) if self.degrees else "1"
@@ -603,7 +600,7 @@ def build_row(
     semantic_matching_oracles = [
         name
         for name, keys in primary_semantic_oracles.items()
-        if semantic_key_matches(whatchord_key, keys)
+        if semantic_key_matches(whatchord_key, keys, case.pcs)
     ]
     for name in semantic_matching_oracles:
         if name not in matching_oracles:
@@ -617,7 +614,8 @@ def build_row(
     alternate_matching_oracles = [
         name
         for name, keys in all_semantic_oracles.items()
-        if name not in matching_oracles and semantic_key_matches(whatchord_key, keys)
+        if name not in matching_oracles
+        and semantic_key_matches(whatchord_key, keys, case.pcs)
     ]
     review_flag = "agree"
     if not best:
@@ -698,16 +696,48 @@ def semantic_keys(labels: Iterable[str]) -> tuple[SemanticChordKey, ...]:
     return tuple(out)
 
 
+def _key_intervals(
+    key: SemanticChordKey, sounding_intervals: frozenset[int] | None
+) -> frozenset[int]:
+    """Chord-tone intervals (relative to root) for a key.
+
+    Degrees are reduced to semitone intervals so enharmonically equal spellings
+    (for example #11 and b5, or 9 and 2) compare as the same tone even when two
+    sources render the symbol differently. When [sounding_intervals] is given,
+    the result is restricted to tones actually present in the voicing, dropping
+    symbol-implied-but-absent tones such as the omittable perfect fifth in "D9".
+    """
+    intervals = {
+        DEGREE_TO_INTERVAL[degree]
+        for degree in key.degrees
+        if degree in DEGREE_TO_INTERVAL
+    }
+    if sounding_intervals is not None:
+        intervals &= sounding_intervals
+    return frozenset(intervals)
+
+
 def semantic_key_matches(
     whatchord_key: SemanticChordKey | None,
     oracle_keys: Iterable[SemanticChordKey],
+    sounding_pcs: Iterable[int] | None = None,
 ) -> bool:
     if whatchord_key is None:
         return False
 
-    whatchord_loose = whatchord_key.without_bass()
+    # Intervals are framed against whatchord's root; only same-root oracle keys
+    # can match, so the same frame applies to both sides.
+    sounding_intervals: frozenset[int] | None = None
+    if sounding_pcs is not None:
+        sounding_intervals = frozenset(
+            (pc - whatchord_key.root_pc) % 12 for pc in sounding_pcs
+        )
+
+    whatchord_intervals = _key_intervals(whatchord_key, sounding_intervals)
     for oracle_key in oracle_keys:
-        if oracle_key.without_bass() != whatchord_loose:
+        if oracle_key.root_pc != whatchord_key.root_pc:
+            continue
+        if _key_intervals(oracle_key, sounding_intervals) != whatchord_intervals:
             continue
         if oracle_key.bass_pc is None or whatchord_key.bass_pc is None:
             return True
