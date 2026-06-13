@@ -763,11 +763,7 @@ class _TemplateLedger extends StatelessWidget {
         if (missing.isNotEmpty)
           _ToneGroup(label: 'Missing', tones: missing, muted: true),
         if (alsoPlayed.isNotEmpty)
-          _ToneGroup(
-            label: 'Also played',
-            tones: alsoPlayed,
-            showDegree: false,
-          ),
+          _ToneGroup(label: 'Also played', tones: alsoPlayed),
       ],
     );
   }
@@ -778,13 +774,11 @@ class _ToneGroup extends StatelessWidget {
     required this.label,
     required this.tones,
     this.muted = false,
-    this.showDegree = true,
   });
 
   final String label;
   final List<_ToneEntry> tones;
   final bool muted;
-  final bool showDegree;
 
   @override
   Widget build(BuildContext context) {
@@ -809,8 +803,7 @@ class _ToneGroup extends StatelessWidget {
               spacing: 8,
               runSpacing: 6,
               children: [
-                for (final tone in tones)
-                  _ToneChip(tone: tone, muted: muted, showDegree: showDegree),
+                for (final tone in tones) _ToneChip(tone: tone, muted: muted),
               ],
             ),
           ),
@@ -821,15 +814,10 @@ class _ToneGroup extends StatelessWidget {
 }
 
 class _ToneChip extends StatelessWidget {
-  const _ToneChip({
-    required this.tone,
-    this.muted = false,
-    this.showDegree = true,
-  });
+  const _ToneChip({required this.tone, this.muted = false});
 
   final _ToneEntry tone;
   final bool muted;
-  final bool showDegree;
 
   @override
   Widget build(BuildContext context) {
@@ -860,15 +848,13 @@ class _ToneChip extends StatelessWidget {
       child: Text.rich(
         TextSpan(
           children: [
-            if (showDegree) ...[
-              TextSpan(
-                text: tone.degree,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: foreground.withValues(alpha: 0.7),
-                ),
+            TextSpan(
+              text: tone.degree,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: foreground.withValues(alpha: 0.7),
               ),
-              const TextSpan(text: '  '),
-            ],
+            ),
+            const TextSpan(text: '  '),
             TextSpan(
               text: tone.note,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -884,9 +870,7 @@ class _ToneChip extends StatelessWidget {
     if (!isBass) return chip;
 
     return Semantics(
-      label: showDegree
-          ? '${tone.note}, ${tone.degree}, bass note'
-          : '${tone.note}, bass note',
+      label: '${tone.note}, ${tone.degree}, bass note',
       child: ExcludeSemantics(child: chip),
     );
   }

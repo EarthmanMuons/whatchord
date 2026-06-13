@@ -522,7 +522,7 @@
                 <td>Contradicts the chord quality</td>
               </tr>
               <tr>
-                <td>Each unexplained “extra” tone</td>
+                <td>Each added-complexity tone</td>
                 <td class="neg mono">-0.5</td>
                 <td>
                   Before extension extraction; small because extensions are real
@@ -627,11 +627,12 @@
           <h2>Extension extraction</h2>
 
           <p>
-            After template scoring, any tone not accounted for by the base
-            template (required + optional + penalty) lands in the “extras” mask.
-            A few context-specific penalty tones can be moved into that extras
-            mask first when they function as chord color instead of true
-            contradictions. These get converted to named extensions:
+            During template scoring, any tone not accounted for by the base
+            template (required + optional + penalty) lands in the “extras” mask
+            and adds a small complexity cost. A few context-specific penalty
+            tones can be moved into that extras mask first when they function as
+            chord color instead of true contradictions. These get converted to
+            named extensions in the final chord identity:
           </p>
 
           <ul>

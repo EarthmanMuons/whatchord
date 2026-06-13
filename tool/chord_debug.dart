@@ -247,7 +247,7 @@ void main(List<String> args) {
       stdout.writeln('     members: $members');
     }
 
-    // Played/missing/extra tone buckets, mirroring the app's tone ledger.
+    // Played/missing/also-played tone buckets, mirroring the app's tone ledger.
     if (verbose) {
       stdout.writeln(
         '     tones: ${_formatToneBuckets(id, r.scoreReasons, context: context)}',
@@ -347,26 +347,25 @@ String _formatChordMembersByRole(
   return parts.join('  ');
 }
 
-/// Formats the played, missing, and extra tone buckets for a candidate,
+/// Formats the played, missing, and also-played tone buckets for a candidate,
 /// mirroring the app's "Why This Chord?" tone ledger.
 ///
 /// Output example:
 ///   chord=[1:C 3:E 5:G*]  missing=[7:B]  also=[#9:D#]
 ///
-/// Buckets reuse the per-category interval masks the analyzer records on each
-/// ScoreReason. The bass tone is marked with a trailing `*`.
+/// Played chord tones come from the final identity, while missing tones remain
+/// template-based. The bass tone is marked with a trailing `*`.
 String _formatToneBuckets(
   ChordIdentity id,
   List<ScoreReason> reasons, {
   required AnalysisContext context,
 }) {
-  final chordMask =
-      _maskForReason(reasons, 'required tones') |
-      _maskForReason(reasons, 'optional tones');
+  final chordMask = id.toneRolesByInterval.keys.fold<int>(
+    0,
+    (mask, interval) => mask | (1 << interval),
+  );
   final missingMask = _maskForReason(reasons, 'missing required');
-  final alsoMask =
-      _maskForReason(reasons, 'penalty tones') |
-      _maskForReason(reasons, 'extras');
+  final alsoMask = id.presentIntervalsMask & ~chordMask;
 
   final segments = <String>[
     'chord=[${_formatTones(id, chordMask, context: context)}]',
@@ -390,16 +389,26 @@ int _maskForReason(List<ScoreReason> reasons, String label) {
   return 0;
 }
 
-/// Formats the tones in [mask] as `degree:note` tokens, ascending by interval,
-/// marking the bass tone with a trailing `*`.
+/// Formats the tones in [mask] as `degree:note` tokens, ordered by chord degree
+/// when roles are available and marking the bass tone with a trailing `*`.
 String _formatTones(
   ChordIdentity id,
   int mask, {
   required AnalysisContext context,
 }) {
   final parts = <String>[];
-  for (var interval = 0; interval < 12; interval++) {
-    if ((mask & (1 << interval)) == 0) continue;
+  final intervals =
+      [
+        for (var interval = 0; interval < 12; interval++)
+          if ((mask & (1 << interval)) != 0) interval,
+      ]..sort((a, b) {
+        final roleA = id.toneRolesByInterval[a];
+        final roleB = id.toneRolesByInterval[b];
+        if (roleA == null || roleB == null) return a.compareTo(b);
+        final degreeComparison = roleA.degreeOrder.compareTo(roleB.degreeOrder);
+        return degreeComparison != 0 ? degreeComparison : a.compareTo(b);
+      });
+  for (final interval in intervals) {
     final pc = {(id.rootPc + interval) % 12};
     final degree = theoryTokenDisplayLabel(
       ChordMemberDegreeFormatter.formatDegrees(

@@ -68,7 +68,7 @@ class RankedCandidateDebug {
 ///
 /// Scoring philosophy:
 /// - Reward structural completeness (required tones present)
-/// - Penalize missing tones, penalty tones, and unexplained extras
+/// - Penalize missing tones, contradictory tones, and added complexity
 /// - Normalize by chord complexity to allow fair comparison
 ///
 /// NOTE: docs/site/articles/under-the-hood.html documents this pipeline in
@@ -88,7 +88,7 @@ abstract final class ChordAnalyzer {
   static const _missWeight = 6.0; // required tone missing
   static const _optWeight = 1.5; // optional tone present
   static const _penWeight = 3.0; // penalty (contradicting) tone present
-  static const _extraWeight = 0.5; // unexplained extra tone
+  static const _extraWeight = 0.5; // complexity cost per extra-template tone
 
   // Bass fit scores.
   static const _bassBase = 1.00; // bass is a required/optional tone
@@ -260,7 +260,7 @@ abstract final class ChordAnalyzer {
   //
   // Weights are tuned empirically to balance:
   // - Structural integrity (required > optional)
-  // - Penalty for ambiguity (missing tones, extras)
+  // - Penalty for ambiguity and complexity (missing tones, extras)
   // - Bass role appropriateness
 
   static _ScoredTemplate? _scoreTemplate({
@@ -311,7 +311,8 @@ abstract final class ChordAnalyzer {
     final optCount = popCount(presentOptionalMask);
     final penCount = popCount(presentPenaltyMask);
 
-    // Extras: tones that are neither base (required/optional) nor penalty.
+    // Extras: tones outside the base template. These may become named
+    // extensions in the final chord identity.
     final base = required | optional;
     final extrasMask =
         (relMask & ~(base | penalty)) | functionalPenaltyExtensionsMask;
@@ -327,9 +328,9 @@ abstract final class ChordAnalyzer {
 
     // The flat alt penalty below covers the cost of having any alteration
     // extension outside the base template — so the first such extra should not
-    // also be counted as an unexplained tone. Additional alteration extras
-    // beyond the first still incur the per-tone extra penalty because the flat
-    // penalty doesn't scale with count.
+    // also incur the per-tone complexity cost. Additional alteration extras
+    // beyond the first still incur that cost because the flat penalty doesn't
+    // scale with count.
     const alterationIntervalBits = (1 << 1) | (1 << 3) | (1 << 6) | (1 << 8);
     final hasAltExtras =
         _hasAlterations(extensions) &&
