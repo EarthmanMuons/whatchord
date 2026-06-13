@@ -31,6 +31,13 @@ void main() {
     expect(suspended.chordTones, 'D G C E B♭');
   });
 
+  test('accepts hyphen-delimited note lists', () {
+    final result = identifyChord('B-F#-D#-E#-G#-C#');
+
+    expect(result.ok, isTrue);
+    expect(result.notes, ['B', 'F♯', 'D♯', 'E♯', 'G♯', 'C♯']);
+  });
+
   group('identifyChord input limits', () {
     test('accepts up to 128 note tokens', () {
       final notes = List<String>.filled(maxChordIdNoteTokens, 'C').join(' ');
