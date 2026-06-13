@@ -18,6 +18,12 @@ import 'package:whatchord/features/theory/presentation/services/note_display_for
 /// Maximum number of note tokens accepted by a single identification request.
 const maxChordIdNoteTokens = 128;
 
+/// Maximum number of characters accepted by a single identification request.
+const maxChordIdInputCharacters = 512;
+
+const _maxReportedUnrecognizedTokens = 5;
+const _maxReportedTokenCharacters = 32;
+
 /// How a candidate relates to the top pick.
 enum CandidateClass {
   /// The engine's chosen interpretation (rank 1).
@@ -120,6 +126,18 @@ ChordIdResult identifyChord(
   ChordNotationStyle notation = ChordNotationStyle.textual,
   int top = 5,
 }) {
+  if (notes.length > maxChordIdInputCharacters) {
+    return ChordIdResult(
+      ok: false,
+      notes: const [],
+      bass: '',
+      key: tonalityDisplayLabel(parseTonality(key)),
+      candidates: const [],
+      warnings: const [],
+      errors: const ['Input is too long. Enter no more than 512 characters.'],
+    );
+  }
+
   final tonality = parseTonality(key);
   final ks = KeySignature.fromTonality(tonality);
   final context = AnalysisContext(
@@ -168,7 +186,7 @@ ChordIdResult identifyChord(
         if (parsed.unrecognized.isEmpty)
           'Could not parse any notes.'
         else
-          'Not a note: ${parsed.unrecognized.map(_quote).join(', ')}. '
+          'Not a note: ${_formatUnrecognized(parsed.unrecognized)}. '
               'Use note names like C, F#, Bb, or MIDI numbers 0-127.',
       ],
     );
@@ -176,7 +194,7 @@ ChordIdResult identifyChord(
 
   final warnings = <String>[
     if (parsed.unrecognized.isNotEmpty)
-      'Ignored: ${parsed.unrecognized.map(_quote).join(', ')}.',
+      'Ignored: ${_formatUnrecognized(parsed.unrecognized)}.',
   ];
 
   final midi = parsed.midiNotes;
@@ -454,3 +472,17 @@ int _pcMaskFrom(Iterable<int> notes) {
 }
 
 String _quote(String s) => '"$s"';
+
+String _formatUnrecognized(List<String> tokens) {
+  final shown = tokens
+      .take(_maxReportedUnrecognizedTokens)
+      .map((token) {
+        final value = token.length <= _maxReportedTokenCharacters
+            ? token
+            : '${token.substring(0, _maxReportedTokenCharacters)}...';
+        return _quote(value);
+      })
+      .join(', ');
+  final remaining = tokens.length - _maxReportedUnrecognizedTokens;
+  return remaining > 0 ? '$shown, and $remaining more' : shown;
+}

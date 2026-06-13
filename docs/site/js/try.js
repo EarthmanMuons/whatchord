@@ -65,6 +65,7 @@
   };
   var DEFAULT_MODE = "maj";
   var DEFAULT_NOTATION = "textual";
+  var MAX_NOTES_CHARACTERS = 512;
   // Matches the static <title> in try.html; restored when there is no result
   // to show. The Worker overrides the served title for seeded links, so we
   // cannot read this back from document.title at boot.
@@ -238,7 +239,12 @@
     setSegmented(els.notation, "data-notation", state.notation);
 
     var notes = params.get("notes");
-    if (notes !== null) els.notes.value = notes;
+    if (notes !== null) {
+      els.notes.value =
+        notes.length <= MAX_NOTES_CHARACTERS
+          ? notes
+          : notes.slice(0, MAX_NOTES_CHARACTERS + 1);
+    }
 
     return rootPc;
   }

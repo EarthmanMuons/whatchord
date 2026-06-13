@@ -39,6 +39,30 @@ void main() {
   });
 
   group('identifyChord input limits', () {
+    test('accepts up to 512 characters', () {
+      final notes =
+          '${List<String>.filled(maxChordIdInputCharacters - 1, ' ').join()}C';
+
+      final result = identifyChord(notes);
+
+      expect(result.ok, isTrue);
+    });
+
+    test('rejects more than 512 characters before parsing', () {
+      final notes = List<String>.filled(
+        maxChordIdInputCharacters + 1,
+        'C',
+      ).join();
+
+      final result = identifyChord(notes);
+
+      expect(result.ok, isFalse);
+      expect(
+        result.errors,
+        contains('Input is too long. Enter no more than 512 characters.'),
+      );
+    });
+
     test('accepts up to 128 note tokens', () {
       final notes = List<String>.filled(maxChordIdNoteTokens, 'C').join(' ');
 
@@ -61,6 +85,21 @@ void main() {
         contains(
           'Too many notes. Enter no more than 128 note names or MIDI numbers.',
         ),
+      );
+    });
+
+    test('bounds unrecognized-token diagnostics', () {
+      final result = identifyChord(
+        'C invalid_token_that_is_far_too_long_to_echo_in_full '
+        'invalid2 invalid3 invalid4 invalid5 invalid6',
+      );
+
+      expect(result.ok, isTrue);
+      expect(result.warnings.single, contains('...'));
+      expect(result.warnings.single, contains('and 1 more'));
+      expect(
+        result.warnings.single,
+        isNot(contains('invalid_token_that_is_far_too_long_to_echo_in_full')),
       );
     });
   });

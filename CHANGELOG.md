@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Bounded and validated browser chord-lookup inputs to prevent oversized shared
+  links from consuming excessive processing resources.
 - Classify named extensions as chord tones instead of also-played tones in the
   Why This Chord details. Describe extension scoring as added complexity instead
   of unexplained extra tones.

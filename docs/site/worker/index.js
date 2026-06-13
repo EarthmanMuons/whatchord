@@ -10,6 +10,39 @@ import "../js/chord-id.js";
 
 const DEFAULT_MODE = "maj";
 const DEFAULT_NOTATION = "textual";
+const MAX_NOTES_CHARACTERS = 512;
+const VALID_KEYS = new Set([
+  "C:maj",
+  "C#:maj",
+  "Db:maj",
+  "D:maj",
+  "Eb:maj",
+  "E:maj",
+  "F:maj",
+  "F#:maj",
+  "Gb:maj",
+  "G:maj",
+  "Ab:maj",
+  "A:maj",
+  "Bb:maj",
+  "B:maj",
+  "Cb:maj",
+  "C:min",
+  "C#:min",
+  "D:min",
+  "D#:min",
+  "Eb:min",
+  "E:min",
+  "F:min",
+  "F#:min",
+  "G:min",
+  "G#:min",
+  "Ab:min",
+  "A:min",
+  "A#:min",
+  "Bb:min",
+  "B:min",
+]);
 
 export default {
   async fetch(request, env) {
@@ -31,9 +64,12 @@ export default {
     );
 
     const notes = (url.searchParams.get("notes") || "").trim();
-    if (!notes) return asset;
+    if (!notes || notes.length > MAX_NOTES_CHARACTERS) return asset;
 
-    const key = url.searchParams.get("key") || "C:" + DEFAULT_MODE;
+    const requestedKey = url.searchParams.get("key");
+    const key = VALID_KEYS.has(requestedKey)
+      ? requestedKey
+      : "C:" + DEFAULT_MODE;
     const notation =
       url.searchParams.get("notation") === "symbolic"
         ? "symbolic"
