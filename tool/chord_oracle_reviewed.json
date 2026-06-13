@@ -103,18 +103,6 @@
     "label": "context-dependent",
     "note": "Am7(add11) is preferred with A in the bass because it is a complete root-position relative-minor seventh; C6/9/A remains a valid tonic-prolongation reading in C major, and D9sus4/A is another genuine alternate. The bass-rooted structural reading wins without progression context."
   },
-  "0-4-7-9_b0": {
-    "label": "genuine-ambiguity",
-    "note": "C6 is preferred because C is the sounding bass and root of a complete major-sixth chord, while Am7/C is the exactly equivalent pitch collection in first inversion. Tonal lists C6 first and music21 chooses the valid Am7/C alternate. Progression context could establish either function, but root position gives C6 the clearest isolated-voicing name."
-  },
-  "0-4-7-9_b9": {
-    "label": "clearly-correct",
-    "note": "Am7 is the clearest isolated-voicing name: A is the sounding bass and root of a complete minor seventh chord. C6/A is theoretically equivalent and remains a valid alternate for explicit tonic prolongation, but all three oracles prefer Am7 and ChoCo strongly favors minor7 over major6."
-  },
-  "0-4-8-10_b8": {
-    "label": "genuine-ambiguity",
-    "note": "A♭augadd9 is preferred because the bass supports a complete root-position augmented triad with a natural add9, and tonal agrees. C7♯5/A♭ is a strong complete altered-dominant alternate supported by pychord, so the ambiguity is genuine. The triad preference remains appropriate in root position but should not demote a complete altered dominant when the augmented add-tone reading is itself inverted."
-  },
   "0-4-8_b0": {
     "label": "clearly-correct",
     "note": "Caug is correct; augmented triads are symmetric, so Eaug/C and Abaug/C are valid alternate roots, but C in the bass makes the root-position Caug reading the clearest context-free name. Tonal agrees, while music21 chooses the valid Ab-rooted alternate."
@@ -151,49 +139,13 @@
     "label": "genuine-ambiguity",
     "note": "D7b5 is correct; perfect tie with G#7b5/D resolved by root-position preference; classic tritone symmetry; both oracles list both readings; no action needed"
   },
-  "0-3-4-7_b0": {
-    "label": "genuine-ambiguity",
-    "note": "Cadd#9 is correct; split-third analysis correctly identifies C-Eb-E-G with C bass; near tie with Em(maj7)b13/C is genuine chromatic ambiguity; music21 agrees; sound"
-  },
-  "0-3-4-7_b3": {
-    "label": "genuine-ambiguity",
-    "note": "Eb6b9 is correct; perfect tie with Em(maj7)b13/D# resolved by root position preference; same chromatic cluster {C, Eb, E, G} as 0-3-4-7_b0 with different bass; music21 reads as Cm/Eb add E (split third); sound"
-  },
-  "0-3-4-7_b7": {
-    "label": "genuine-ambiguity",
-    "note": "Em(maj7)b13/G is correct; perfect tie with Eb6b9/G resolved by seventh-family preference; three-way ambiguity confirmed by oracle split (tonal agrees Em, music21 offers Cmaj7#9/G); chromatic cluster {C, Eb, E} against G is inherently ambiguous; sound"
-  },
   "0-3-6-9_b0": {
     "label": "genuine-ambiguity",
     "note": "Cdim7 is correct; symmetric dim7 4-way perfect tie; root-position tie-breaker resolves correctly; tonal agrees with Cdim7 and also lists two alternate roots; textbook dim7 symmetry"
   },
-  "0-3-7-10_b7": {
-    "label": "genuine-ambiguity",
-    "note": "Eb6/G or Cm7/G both valid; perfect tie; classic Cm7<->Eb6 ambiguity; oracles converge on Cm7/G; our inversion tie-breaker prefers Eb6/G; neither reading is wrong; no action needed"
-  },
   "0-3-8_b0": {
     "label": "genuine-ambiguity",
     "note": "Ab/C is correct; near tie with Cm#5 resolved by existing complete-major-inversion-over-minor-sharp-five hard rule; both oracles list both readings; no action needed"
-  },
-  "0-3-5-7-10_b10": {
-    "label": "genuine-ambiguity",
-    "note": "E♭6/9/B♭ is preferred because it is a complete and highly conventional major-six-nine chord with its fifth in the bass. Cm7(add11)/B♭ is a valid complete alternate chosen by music21 and tonal, while Gm7♯5(add11)/B♭ is a less conventional enharmonic reinterpretation that had been inflated by its altered-minor template. The bass and common-name evidence favor E♭6/9/B♭ without denying the genuine C-minor-eleventh ambiguity."
-  },
-  "0-3-7-9-10_b3": {
-    "label": "genuine-ambiguity",
-    "note": "E♭6♯11 is preferred because it is a complete root-position major-sixth chord with a single Lydian color, and tonal agrees. Cm7(add13)/E♭ is the exact inverted relative-minor color equivalent but uses the less conventional minor-seven-add-thirteen name. Music21's complete Am7♭5♭9/E♭ reading confirms a genuine three-way ambiguity, while the E♭ bass gives the root-position sixth chord the clearest neutral name."
-  },
-  "0-4-8-11_b0": {
-    "label": "oracle-limitation",
-    "note": "Cmaj7#5 is correct; oracles use non-standard notation (C+M7, CM7b6)"
-  },
-  "0-4-8-11_b11": {
-    "label": "clearly-correct",
-    "note": "Cmaj7#5/B is correct; clean structural win (all 4 notes as core template tones); both oracles converge on C-rooted maj7#5 reading; same chord as 0-4-8-11_b0 with different bass; no action needed"
-  },
-  "0-5-7_b7": {
-    "label": "clearly-correct",
-    "note": "G7sus4 is correct; G bass supports the root-position dominant suspension and the omitted fifth is routine; Csus4/G is a valid alternate but less expected; music21 generates the nonstandard figure GsusaddF,omitD; no engine change needed"
   },
   "0-1-3-6-8-10_b6": {
     "label": "oracle-limitation",

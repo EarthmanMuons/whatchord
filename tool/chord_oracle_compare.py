@@ -66,40 +66,6 @@ REVIEW_LABELS = {
     "voicing-dependent",
     "oracle-limitation",
 }
-PRACTICAL_INTERVAL_SETS = (
-    (0, 4, 7),
-    (0, 3, 7),
-    (0, 3, 8),
-    (0, 3, 6),
-    (0, 4, 8),
-    (0, 2, 7),
-    (0, 5, 7),
-    (0, 4, 7, 9),
-    (0, 3, 7, 9),
-    (0, 4, 7, 10),
-    (0, 4, 7, 11),
-    (0, 3, 7, 10),
-    (0, 3, 8, 10),
-    (0, 3, 6, 10),
-    (0, 3, 6, 9),
-    (0, 3, 7, 11),
-    (0, 4, 8, 10),
-    (0, 4, 8, 11),
-    (0, 3, 4, 7),
-    (0, 3, 4, 10),
-    (0, 3, 4, 7, 10),
-    (0, 3, 4, 7, 9),
-    (0, 4, 7, 10, 1),
-    (0, 4, 7, 10, 2),
-    (0, 4, 7, 10, 3),
-    (0, 4, 7, 10, 6),
-    (0, 4, 7, 10, 8),
-    (0, 4, 7, 10, 9),
-    (0, 4, 7, 11, 2),
-    (0, 3, 7, 10, 2),
-    (0, 3, 7, 10, 5),
-    (0, 3, 7, 10, 9),
-)
 
 
 @dataclass(frozen=True)
@@ -267,12 +233,6 @@ def main() -> int:
         help="Generate every transposition instead of one canonical form.",
     )
     parser.add_argument(
-        "--include-practical-seeds",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Include common chord shapes in the generated case pool.",
-    )
-    parser.add_argument(
         "--max-cases",
         type=int,
         default=DEFAULT_MAX_CASES,
@@ -340,7 +300,6 @@ def main() -> int:
             max_notes=args.max_notes,
             basses=args.basses,
             canonical_transpositions=not args.all_transpositions,
-            include_practical_seeds=args.include_practical_seeds,
         )
     )
     seed = args.seed
@@ -357,7 +316,6 @@ def main() -> int:
         "max_notes": args.max_notes,
         "basses": args.basses,
         "all_transpositions": args.all_transpositions,
-        "include_practical_seeds": args.include_practical_seeds,
         "case_order": args.case_order,
         "seed": seed,
         "generated_cases": len(generated_cases),
@@ -535,8 +493,6 @@ def reproduction_command(
         args.append(f"--jobs={jobs}")
     if case_generation["all_transpositions"]:
         args.append("--all-transpositions")
-    if not case_generation["include_practical_seeds"]:
-        args.append("--no-include-practical-seeds")
     if tuple(oracles) != DEFAULT_ORACLES:
         args.extend(["--oracles", *oracles])
     return " ".join(str(arg) for arg in args)
@@ -548,18 +504,8 @@ def generate_cases(
     max_notes: int,
     basses: str,
     canonical_transpositions: bool,
-    include_practical_seeds: bool,
 ) -> Iterable[Case]:
     seen = set()
-    if include_practical_seeds:
-        for intervals in PRACTICAL_INTERVAL_SETS:
-            pcs = tuple(sorted(pc % 12 for pc in intervals))
-            for case in cases_for_pc_set(pcs, basses=basses):
-                if case.case_id in seen:
-                    continue
-                seen.add(case.case_id)
-                yield case
-
     for size in range(min_notes, max_notes + 1):
         for pcs in itertools.combinations(range(12), size):
             canonical = canonical_pc_set(pcs) if canonical_transpositions else pcs
