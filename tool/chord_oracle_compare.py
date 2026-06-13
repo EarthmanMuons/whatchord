@@ -44,6 +44,7 @@ DEFAULT_JOBS = 8
 REVIEW_FLAG_EXPLANATIONS = {
     "disagreement": "Comparable oracle labels were available, but none matched WhatChord's top label.",
     "oracle-split": "As many or more oracles disagreed with WhatChord as agreed.",
+    "ranking-divergence": "No oracle matched WhatChord's top label, but an oracle's top label matches a near-tie alternative the app surfaces. Identity agrees; ranking differs.",
     "insufficient-oracle-labels": "Only one oracle returned a comparable primary label.",
     "unrecognized-by-oracles": "No oracle returned a comparable primary label.",
     "oracle-error": "At least one oracle failed while processing the row.",
@@ -53,11 +54,12 @@ REVIEW_FLAG_EXPLANATIONS = {
 REVIEW_PRIORITY = {
     "disagreement": 0,
     "oracle-split": 1,
-    "no-whatchord-candidate": 2,
-    "oracle-error": 3,
-    "insufficient-oracle-labels": 4,
-    "unrecognized-by-oracles": 5,
-    "agree": 6,
+    "ranking-divergence": 2,
+    "no-whatchord-candidate": 3,
+    "oracle-error": 4,
+    "insufficient-oracle-labels": 5,
+    "unrecognized-by-oracles": 6,
+    "agree": 7,
 }
 REVIEW_LABELS = {
     "clearly-correct",
@@ -617,6 +619,31 @@ def build_row(
         if name not in matching_oracles
         and semantic_key_matches(whatchord_key, keys, case.pcs)
     ]
+    # Near-tie alternatives are the non-headline candidates the app still
+    # surfaces (within ChordCandidateRanking.nearTieWindow of the top pick). An
+    # oracle that leads with one of these agrees on identity but not on ranking
+    # -- a softer, separately actionable signal than a true disagreement on a
+    # reading we never show. Scoped to near-ties on purpose: matching an
+    # unsurfaced lower candidate would never reach the user.
+    near_tie_alt_keys = [
+        key
+        for candidate in candidates
+        if candidate.get("nearTie")
+        for key in (semantic_key_from_whatchord(candidate),)
+        if key is not None
+    ]
+    ranking_divergence_oracles = [
+        name
+        for name in disagreeing_oracles
+        if name in primary_semantic_oracles
+        and any(
+            semantic_key_matches(alt_key, primary_semantic_oracles[name], case.pcs)
+            for alt_key in near_tie_alt_keys
+        )
+    ]
+    disagreeing_oracles = [
+        name for name in disagreeing_oracles if name not in ranking_divergence_oracles
+    ]
     review_flag = "agree"
     if not best:
         review_flag = "no-whatchord-candidate"
@@ -632,6 +659,8 @@ def build_row(
         review_flag = "oracle-split"
     elif not matching_oracles and disagreeing_oracles:
         review_flag = "disagreement"
+    elif not matching_oracles and ranking_divergence_oracles:
+        review_flag = "ranking-divergence"
 
     normalized_parts = []
     if whatchord_label:
@@ -661,6 +690,7 @@ def build_row(
         "review_flag": review_flag,
         "matching_oracles": " ".join(matching_oracles),
         "disagreeing_oracles": " ".join(disagreeing_oracles),
+        "ranking_divergence_oracles": " ".join(ranking_divergence_oracles),
         "alternate_matching_oracles": " ".join(alternate_matching_oracles),
         "normalized_labels": " || ".join(normalized_parts),
         "semantic_labels": " || ".join(semantic_parts),
@@ -1222,6 +1252,7 @@ def needs_attention(row: dict[str, object]) -> bool:
     return str(row["review_flag"]) in {
         "disagreement",
         "oracle-split",
+        "ranking-divergence",
         "no-whatchord-candidate",
         "oracle-error",
         "insufficient-oracle-labels",
@@ -1240,6 +1271,8 @@ def attention_row_text(index: int, row: dict[str, object]) -> list[str]:
         lines.append(f"   matches:     {row['matching_oracles']}")
     if row["disagreeing_oracles"]:
         lines.append(f"   differs:     {row['disagreeing_oracles']}")
+    if row.get("ranking_divergence_oracles"):
+        lines.append(f"   ranks below: {row['ranking_divergence_oracles']}")
     if row["alternate_matching_oracles"]:
         lines.append(f"   alt matches: {row['alternate_matching_oracles']}")
     raw_labels = oracle_label_lines(row)
