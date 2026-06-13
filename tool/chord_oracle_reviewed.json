@@ -31,6 +31,10 @@
     "label": "genuine-ambiguity",
     "note": "D♭maj7sus2 / C is correct; clean structural fit (all 4 notes as core template tones) beats Abadd11/C (Db as add11 extra) and Cm#5addb9; 1.30 gap reflects real template difference, not inflation; oracle split (music21->Abadd11/C, tonal->Cm(b6,b9)) confirms genuine 3-way ambiguity; sound"
   },
+  "0-1-3-8_b1": {
+    "label": "genuine-ambiguity",
+    "note": "D♭maj7sus2 is correct, and stronger than the b0 sibling: with D♭ in the bass it is a complete root-position reading (all 4 notes as core template tones, bass = root, every interval consonant), so it wins on structural fit beyond the tie-break window. Ab/Db (music21, pychord) roots on the complete Ab triad but strands D♭ as a natural 11, the avoid-note minor 9th against the major third (C); that C/D♭ minor-9th pair is better read as root+maj7 (our D♭) than as two non-root color tones. tonal also re-roots away from Ab (Cm(b6,b9)/Db), so the split is triad-first matchers vs harmonic reasoners, not a true Ab consensus; ours and tonal agree on rejecting Ab as root. Genuine ambiguity; sound; no engine change needed."
+  },
   "0-1-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C7b5b9 is correct; it is a complete root-position altered dominant, while F#7#11/C is a complete tritone-related dominant with the #11 in the bass; both are conventional and similarly common in ChoCo, but the C bass favors the current root-position reading; key context respells the alternate without changing the ranking; no engine change needed"
