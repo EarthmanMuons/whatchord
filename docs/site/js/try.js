@@ -338,7 +338,7 @@
       separator.className = "try-notes-also-played-marker";
       separator.textContent = " + ";
       notes.appendChild(separator);
-      appendNoteGroup(notes, "Also played", c.alsoPlayedNotes);
+      appendNoteGroup(notes, "also", c.alsoPlayedNotes);
     }
     main.appendChild(symbol);
     main.appendChild(academicName);
