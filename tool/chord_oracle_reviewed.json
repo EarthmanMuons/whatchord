@@ -19,6 +19,10 @@
     "label": "genuine-ambiguity",
     "note": "Ebm7(add13)/Bb is correct; tight near-tie cluster resolved by fewer-alterations and conventional-inversion tie-breakers; both oracles pick one of our top 3; sound"
   },
+  "0-1-3-6-9_b9": {
+    "label": "genuine-ambiguity",
+    "note": "D#m7b5(add13)/A is defensible; the set is the symmetric dim7 {C,Eb,Gb,A} plus the chromatic Db, so root assignment is inherently ambiguous and every source picks a different root (whatchord D#, music21 F#, tonal Db). It is not a functional dominant: the notes are a subset of the C half-whole octatonic but lack any 3rd and b7, so no tritone. Our #1 is a complete m7b5 with a natural 13 and the bass (b5) as a core tone, and wins a 0.10 near-tie over Cdim7(b9) via natural-extension-over-altered-color. music21's F#o7/AaddC# is enharmonically identical to our F#m6#11/A reading (same root, intervals {0,3,6,7,9}, bass A), but we rank that #3 at delta 0.22, below the near-tie cutoff, so it does not surface; among the readings the app actually shows (#1 and the #2 Cdim7(b9) near-tie) no oracle agrees. tonal roots on Db, matching nothing of ours. The intuitive bass-rooted Adim7+chromatic description ranks low because Db will not sit cleanly on Adim7. Genuine ambiguity; no engine change warranted."
+  },
   "0-1-3-7-10_b3": {
     "label": "genuine-ambiguity",
     "note": "Eb7(add13) is correct; near tie with Cm7b9/Eb; genuine Eb7↔Cm7b9 ambiguity confirmed by oracle split (tonal agrees Eb7, music21 agrees Cm7b9); tie-breaker prefers fewer alterations; sound"
