@@ -1184,7 +1184,7 @@ int? _preferDom7ShellSlashOverSeventhFamilySlash(
 // ---- Note coverage, key, and simplicity --------------------------------
 
 /// Prefers a reading that names every sounding tone over one that drops a
-/// tone as an unexplained extra.
+/// tone as added complexity outside the base template.
 ///
 /// Example: {C, D♭, E, G} with G in the bass reads as Cadd♭9/G, not C♯dim/G
 /// (which silently drops the C natural). Runs before [_preferFewerAlterations]
