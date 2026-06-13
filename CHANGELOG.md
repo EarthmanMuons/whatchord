@@ -13,7 +13,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 ### Fixed
 
 - Classify named extensions as chord tones instead of also-played tones in the
-  Why This Chord details.
+  Why This Chord details, and omit misleading degree labels from also-played
+  tones.
 - Made flat-thirteenth colors available on triad-like chords in Explore Chords
   and preserved them when opening analyzed chords.
 - Added flat-ninth color choices for minor and suspended-fourth chords in

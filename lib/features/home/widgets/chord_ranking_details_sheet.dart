@@ -605,13 +605,25 @@ class _CandidateScoreBack extends StatelessWidget {
       row.candidate.identity.presentIntervalsMask &
       ~_representedPlayedTonesMask;
 
-  /// Builds (degree, note) pairs for the tones in [mask], ascending by interval.
+  /// Builds (degree, note) pairs for the tones in [mask], ordered by degree.
   /// Each tone is labeled individually so the degree and note name stay paired.
   List<_ToneEntry> _tonesFor(int mask) {
     final identity = row.candidate.identity;
     final entries = <_ToneEntry>[];
-    for (var interval = 0; interval < 12; interval++) {
-      if ((mask & (1 << interval)) == 0) continue;
+    final intervals =
+        [
+          for (var interval = 0; interval < 12; interval++)
+            if ((mask & (1 << interval)) != 0) interval,
+        ]..sort((a, b) {
+          final roleA = identity.toneRolesByInterval[a];
+          final roleB = identity.toneRolesByInterval[b];
+          if (roleA == null || roleB == null) return a.compareTo(b);
+          final degreeComparison = roleA.degreeOrder.compareTo(
+            roleB.degreeOrder,
+          );
+          return degreeComparison != 0 ? degreeComparison : a.compareTo(b);
+        });
+    for (final interval in intervals) {
       final pitchClass = (identity.rootPc + interval) % 12;
       final pc = {pitchClass};
       final degree = theoryTokenDisplayLabel(
@@ -751,7 +763,11 @@ class _TemplateLedger extends StatelessWidget {
         if (missing.isNotEmpty)
           _ToneGroup(label: 'Missing', tones: missing, muted: true),
         if (alsoPlayed.isNotEmpty)
-          _ToneGroup(label: 'Also played', tones: alsoPlayed),
+          _ToneGroup(
+            label: 'Also played',
+            tones: alsoPlayed,
+            showDegree: false,
+          ),
       ],
     );
   }
@@ -762,11 +778,13 @@ class _ToneGroup extends StatelessWidget {
     required this.label,
     required this.tones,
     this.muted = false,
+    this.showDegree = true,
   });
 
   final String label;
   final List<_ToneEntry> tones;
   final bool muted;
+  final bool showDegree;
 
   @override
   Widget build(BuildContext context) {
@@ -791,7 +809,8 @@ class _ToneGroup extends StatelessWidget {
               spacing: 8,
               runSpacing: 6,
               children: [
-                for (final tone in tones) _ToneChip(tone: tone, muted: muted),
+                for (final tone in tones)
+                  _ToneChip(tone: tone, muted: muted, showDegree: showDegree),
               ],
             ),
           ),
@@ -802,10 +821,15 @@ class _ToneGroup extends StatelessWidget {
 }
 
 class _ToneChip extends StatelessWidget {
-  const _ToneChip({required this.tone, this.muted = false});
+  const _ToneChip({
+    required this.tone,
+    this.muted = false,
+    this.showDegree = true,
+  });
 
   final _ToneEntry tone;
   final bool muted;
+  final bool showDegree;
 
   @override
   Widget build(BuildContext context) {
@@ -836,13 +860,15 @@ class _ToneChip extends StatelessWidget {
       child: Text.rich(
         TextSpan(
           children: [
-            TextSpan(
-              text: tone.degree,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: foreground.withValues(alpha: 0.7),
+            if (showDegree) ...[
+              TextSpan(
+                text: tone.degree,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: foreground.withValues(alpha: 0.7),
+                ),
               ),
-            ),
-            const TextSpan(text: '  '),
+              const TextSpan(text: '  '),
+            ],
             TextSpan(
               text: tone.note,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -858,7 +884,9 @@ class _ToneChip extends StatelessWidget {
     if (!isBass) return chip;
 
     return Semantics(
-      label: '${tone.note}, ${tone.degree}, bass note',
+      label: showDegree
+          ? '${tone.note}, ${tone.degree}, bass note'
+          : '${tone.note}, bass note',
       child: ExcludeSemantics(child: chip),
     );
   }

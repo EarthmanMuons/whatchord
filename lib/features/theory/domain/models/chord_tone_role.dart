@@ -40,6 +40,29 @@ enum ChordToneRole {
   major7,
 }
 
+extension ChordToneRoleDegreeOrder on ChordToneRole {
+  int get degreeOrder => switch (this) {
+    ChordToneRole.root => 1,
+    ChordToneRole.sus2 => 2,
+    ChordToneRole.minor3 ||
+    ChordToneRole.splitMinor3 ||
+    ChordToneRole.major3 => 3,
+    ChordToneRole.sus4 => 4,
+    ChordToneRole.flat5 || ChordToneRole.perfect5 || ChordToneRole.sharp5 => 5,
+    ChordToneRole.sixth => 6,
+    ChordToneRole.dim7 || ChordToneRole.flat7 || ChordToneRole.major7 => 7,
+    ChordToneRole.flat9 ||
+    ChordToneRole.nine ||
+    ChordToneRole.sharp9 ||
+    ChordToneRole.add9 ||
+    ChordToneRole.addSharp9 => 9,
+    ChordToneRole.eleven || ChordToneRole.sharp11 || ChordToneRole.add11 => 11,
+    ChordToneRole.flat13 ||
+    ChordToneRole.thirteenth ||
+    ChordToneRole.add13 => 13,
+  };
+}
+
 extension ChordToneRoleDegree on ChordToneRole {
   /// Diatonic scale degree above the chord root (1..7) used to select the letter.
   int get degreeFromRoot {
