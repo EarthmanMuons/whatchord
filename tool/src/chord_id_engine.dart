@@ -264,11 +264,11 @@ ChordIdResult identifyChord(
   );
 }
 
-/// Splits free-text input into individual note tokens on commas and
+/// Splits free-text input into individual note tokens on commas, hyphens, and
 /// whitespace, dropping empties.
 List<String> splitNoteTokens(String raw) {
   return raw
-      .split(RegExp(r'[\s,]+'))
+      .split(RegExp(r'[\s,-]+'))
       .map((t) => t.trim())
       .where((t) => t.isNotEmpty)
       .toList();
