@@ -45,8 +45,8 @@ class ChordIdCandidate {
     required this.rank,
     required this.symbol,
     required this.academicName,
-    required this.recognizedNotes,
-    required this.unexplainedNotes,
+    required this.chordTones,
+    required this.alsoPlayedNotes,
     required this.score,
     required this.deltaBest,
     required this.classification,
@@ -56,11 +56,11 @@ class ChordIdCandidate {
   final String symbol;
   final String academicName;
 
-  /// Input pitch classes assigned a role in this chord interpretation.
-  final String recognizedNotes;
+  /// Input pitch classes represented by this chord interpretation.
+  final String chordTones;
 
-  /// Input pitch classes not assigned a role in this chord interpretation.
-  final String unexplainedNotes;
+  /// Input pitch classes not represented by this chord interpretation.
+  final String alsoPlayedNotes;
   final double score;
   final double deltaBest;
   final CandidateClass classification;
@@ -69,8 +69,8 @@ class ChordIdCandidate {
     'rank': rank,
     'symbol': symbol,
     'academicName': academicName,
-    'recognizedNotes': recognizedNotes,
-    'unexplainedNotes': unexplainedNotes,
+    'chordTones': chordTones,
+    'alsoPlayedNotes': alsoPlayedNotes,
     'score': double.parse(score.toStringAsFixed(2)),
     'deltaBest': double.parse(deltaBest.toStringAsFixed(2)),
     'class': classification.wireName,
@@ -240,8 +240,8 @@ ChordIdResult identifyChord(
           identity: c.identity,
           tonality: tonality,
         ),
-        recognizedNotes: _spellRecognizedTones(c.identity, tonality: tonality),
-        unexplainedNotes: _spellUnexplainedTones(
+        chordTones: _spellChordTones(c.identity, tonality: tonality),
+        alsoPlayedNotes: _spellAlsoPlayedTones(
           c.identity,
           parsed,
           tonality: tonality,
@@ -396,7 +396,7 @@ List<String> inputNoteLabels(NoteParse parsed, {required Tonality tonality}) {
   ];
 }
 
-String _spellRecognizedTones(ChordIdentity id, {required Tonality tonality}) {
+String _spellChordTones(ChordIdentity id, {required Tonality tonality}) {
   final rootName = spellChordRoot(id, tonality: tonality);
   final byInterval = <int, ChordToneRole>{
     0: ChordToneRole.root,
@@ -441,7 +441,7 @@ int _degreeOrder(ChordToneRole role) => switch (role) {
   ChordToneRole.flat13 || ChordToneRole.thirteenth || ChordToneRole.add13 => 13,
 };
 
-String _spellUnexplainedTones(
+String _spellAlsoPlayedTones(
   ChordIdentity id,
   NoteParse parsed, {
   required Tonality tonality,

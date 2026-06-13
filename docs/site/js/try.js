@@ -326,13 +326,13 @@
     academicName.textContent = c.academicName;
     var notes = document.createElement("div");
     notes.className = "try-notes";
-    appendNoteGroup(notes, "Recognized as", c.recognizedNotes);
-    if (c.unexplainedNotes) {
+    appendNoteGroup(notes, "Chord tones", c.chordTones);
+    if (c.alsoPlayedNotes) {
       var separator = document.createElement("span");
-      separator.className = "try-notes-unexplained-marker";
+      separator.className = "try-notes-also-played-marker";
       separator.textContent = " + ";
       notes.appendChild(separator);
-      appendNoteGroup(notes, "Unexplained", c.unexplainedNotes);
+      appendNoteGroup(notes, "Also played", c.alsoPlayedNotes);
     }
     main.appendChild(symbol);
     main.appendChild(academicName);

@@ -296,7 +296,7 @@ select.try-select:focus {
   color: var(--text-2);
 }
 
-.try-notes-unexplained-marker {
+.try-notes-also-played-marker {
   color: #d5a469;
 }
 

@@ -10,16 +10,16 @@ void main() {
     expect(result.candidates.first.toJson()['academicName'], 'C major');
   });
 
-  test('separates recognized and unexplained input tones', () {
+  test('separates chord tones and also-played input tones', () {
     final result = identifyChord('C E G Bb D');
     final suspended = result.candidates.firstWhere(
       (candidate) => candidate.symbol == 'C7sus2',
     );
 
-    expect(suspended.recognizedNotes, 'C D G B♭');
-    expect(suspended.unexplainedNotes, 'E');
-    expect(suspended.toJson()['recognizedNotes'], 'C D G B♭');
-    expect(suspended.toJson()['unexplainedNotes'], 'E');
+    expect(suspended.chordTones, 'C D G B♭');
+    expect(suspended.alsoPlayedNotes, 'E');
+    expect(suspended.toJson()['chordTones'], 'C D G B♭');
+    expect(suspended.toJson()['alsoPlayedNotes'], 'E');
   });
 
   test('orders recognized tones by chord degree', () {
@@ -28,7 +28,7 @@ void main() {
       (candidate) => candidate.symbol == 'D9sus4(♭13) / C',
     );
 
-    expect(suspended.recognizedNotes, 'D G C E B♭');
+    expect(suspended.chordTones, 'D G C E B♭');
   });
 
   group('identifyChord input limits', () {
