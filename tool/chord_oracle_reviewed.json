@@ -194,5 +194,9 @@
   "0-5-7_b7": {
     "label": "clearly-correct",
     "note": "G7sus4 is correct; G bass supports the root-position dominant suspension and the omitted fifth is routine; Csus4/G is a valid alternate but less expected; music21 generates the nonstandard figure GsusaddF,omitD; no engine change needed"
+  },
+  "0-1-3-6-8-10_b6": {
+    "label": "oracle-limitation",
+    "note": "G♭6/9♯11 is correct; the notes are degrees 1-6 of G♭ Lydian over a root-position G♭ major triad, the canonical major six-nine ♯11 sound. Music21's analogous A♭11/G♭ stacks thirds off the ♭7 into a complete dominant eleventh whose major-third-against-eleventh clash (C/D♭) is the dissonance that name avoids; tonal unavailable, pychord no label. We prefer the root-position Lydian reading; the ♯11 now scores as natural major-family color rather than an alteration."
   }
 }

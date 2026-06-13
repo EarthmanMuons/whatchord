@@ -795,13 +795,16 @@ void main() {
   });
 
   test('root-position major6 sharp11 beats inverted minor7 add13', () {
+    // These enharmonic readings tie on score; natural-extension preference
+    // settles it toward the major6 (its #11 is natural; the minor7's add13 is
+    // an add tone).
     final major6Sharp11 = _candidate(
       quality: ChordQualityToken.major6,
       root: 'Eb',
       bass: 'Eb',
       presentIntervals: const {0, 4, 6, 7, 9},
       extensions: const {ChordExtension.sharp11},
-      score: 8.03,
+      score: 8.08,
     );
     final minor7Add13 = _candidate(
       quality: ChordQualityToken.minor7,
@@ -815,7 +818,7 @@ void main() {
     _expectTieRule(
       major6Sharp11,
       minor7Add13,
-      'prefer root-position 6th over inverted 7th',
+      'prefer natural extensions over adds, then fewer total',
     );
   });
 

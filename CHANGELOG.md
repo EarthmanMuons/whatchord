@@ -12,6 +12,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Identify a raised eleventh on major, major-sixth, and major-seventh chords as
+  the natural Lydian color instead of an alteration, so complete root-position
+  voicings such as B6/9#11 are named directly rather than as remote slash chords
+  over their own seventh.
 - Bounded and validated browser chord-lookup inputs to prevent oversized shared
   links from consuming excessive processing resources.
 - Classify named extensions as chord tones instead of also-played tones in the

@@ -418,6 +418,22 @@ void main() {
       expectedExtensions: {ChordExtension.sharp11},
     ),
 
+    // The complete root-position Lydian chord (1-6 of B Lydian) is the
+    // expected reading, not a remote slash over its own b7. The #11 is the
+    // natural Lydian color on a major-family quality, so it must not draw the
+    // alteration penalty that would otherwise sink this below C#11/B (a
+    // dissonant complete dominant eleventh) or G#m7(add11,add13)/B.
+    golden(
+      description: 'root-position lydian six-nine sharp-eleven beats b7 slash',
+      expectedSymbol: 'B6/9#11',
+      expectedAlternateSymbols: ['G#m7(add11,add13) / B', 'C#11 / B'],
+      pcs: ['B', 'C#', 'D#', 'E#', 'F#', 'G#'],
+      bass: 'B',
+      expectedRoot: 'B',
+      expectedQuality: ChordQualityToken.major6,
+      expectedExtensions: {ChordExtension.add9, ChordExtension.sharp11},
+    ),
+
     golden(
       description:
           'common altered dominant beats rarer enharmonic ninth inversion',

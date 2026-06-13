@@ -288,10 +288,6 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
 ///
 /// Example: {C, E, G, A} could be C6 or Am7/C. Prefer C6 in root position
 /// when the 7th chord interpretation would be inverted with no extensions.
-///
-/// The same preference applies to the exact colored equivalence between a
-/// root-position major6 sharp11 and an inverted minor7 add13. For example,
-/// {Eb, G, Bb, C, A} with Eb in the bass is Eb6#11, not Cm7(add13)/Eb.
 int? _prefer6thInRoot(
   ChordCandidate a,
   ChordCandidate b,
@@ -304,20 +300,10 @@ int? _prefer6thInRoot(
   final aIs6 = fa.isSixFamily;
   final fsix = aIs6 ? fa : fb;
   final fother = aIs6 ? fb : fa;
-  final six = aIs6 ? a : b;
-  final other = aIs6 ? b : a;
-
-  final isColoredEquivalent =
-      six.identity.quality == ChordQualityToken.major6 &&
-      six.identity.extensions.length == 1 &&
-      six.identity.extensions.contains(ChordExtension.sharp11) &&
-      other.identity.quality == ChordQualityToken.minor7 &&
-      other.identity.extensions.length == 1 &&
-      other.identity.extensions.contains(ChordExtension.add13);
 
   if (fsix.isRootPosition &&
       !fother.isRootPosition &&
-      (fother.extensionCount == 0 || isColoredEquivalent)) {
+      fother.extensionCount == 0) {
     return aIs6 ? -1 : 1;
   }
 

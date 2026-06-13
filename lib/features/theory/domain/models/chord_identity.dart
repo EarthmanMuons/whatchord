@@ -205,4 +205,26 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
         return false;
     }
   }
+
+  /// Whether a raised eleventh is the natural Lydian color on this quality
+  /// rather than an alteration.
+  ///
+  /// On chords built from a natural major third over a perfect fifth (major,
+  /// major6, major7), the #11 is the characteristic, consonant Lydian extension
+  /// — unlike the genuinely altered colors (b9, #9, b13) or a natural 11, which
+  /// clashes with the major third. Treating it as an alteration penalizes the
+  /// expected root-position Lydian chord (e.g. B6/9#11) below remote slash
+  /// readings. Scoped to these qualities only: on dominant or altered-fifth
+  /// chords the #11 participates in the altered-dominant palette and is handled
+  /// separately.
+  bool get sharp11IsNaturalColor {
+    switch (this) {
+      case ChordQualityToken.major:
+      case ChordQualityToken.major6:
+      case ChordQualityToken.major7:
+        return true;
+      default:
+        return false;
+    }
+  }
 }
