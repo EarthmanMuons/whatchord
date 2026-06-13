@@ -1015,7 +1015,7 @@ String _evidenceFor(RankedCandidateDebug row) {
   }
   if (extrasCount != null && extrasCount > 0) {
     parts.add(
-      '${_quantityWord(extrasCount)} extra ${extrasCount == 1 ? 'tone needs' : 'tones need'} explanation',
+      '${_quantityWord(extrasCount)} additional ${extrasCount == 1 ? 'color increases' : 'colors increase'} complexity',
     );
   }
   parts.add('bass is $bassRole');
@@ -1109,7 +1109,7 @@ String _scoreReasonLabel(String label) {
     'missing required' => 'Required notes missing',
     'optional tones' => 'Optional color tones',
     'penalty tones' => 'Conflicting tones',
-    'extras' => 'Unexplained extra tones',
+    'extras' => 'Added complexity',
     'bass fit' => 'Bass fit',
     'm#5 bass' => 'Sharp-five bass',
     'sus-tone bass' => 'Suspended-tone bass',
