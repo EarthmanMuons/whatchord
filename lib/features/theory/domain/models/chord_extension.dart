@@ -189,7 +189,14 @@ typedef ExtensionPreference = ({
   int totalCount,
 });
 
-ExtensionPreference extensionPreference(Set<ChordExtension> exts) {
+/// [sharp11AsNaturalColor] reclassifies a raised eleventh as a natural
+/// (stacked) extension instead of an alteration. Callers set it for qualities
+/// where the #11 is the Lydian color rather than a tension (see
+/// `ChordQualityToken.sharp11IsNaturalColor`).
+ExtensionPreference extensionPreference(
+  Set<ChordExtension> exts, {
+  bool sharp11AsNaturalColor = false,
+}) {
   var alterationCount = 0;
   var naturalCount = 0;
   var addCount = 0;
@@ -197,10 +204,11 @@ ExtensionPreference extensionPreference(Set<ChordExtension> exts) {
   for (final e in exts) {
     if (e.isAddTone) {
       addCount++;
-    } else if (e.isAlteration) {
+    } else if (e.isAlteration &&
+        !(sharp11AsNaturalColor && e == ChordExtension.sharp11)) {
       alterationCount++;
     } else {
-      // Natural 9/11/13
+      // Natural 9/11/13, plus a Lydian #11 when the caller opts in.
       naturalCount++;
     }
   }

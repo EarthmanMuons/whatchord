@@ -333,7 +333,7 @@ abstract final class ChordAnalyzer {
     // scale with count.
     const alterationIntervalBits = (1 << 1) | (1 << 3) | (1 << 6) | (1 << 8);
     final hasAltExtras =
-        _hasAlterations(extensions) &&
+        _hasAlterations(extensions, template.quality) &&
         (extrasMask & alterationIntervalBits) != 0;
     final extraCount = popCount(extrasMask) - (hasAltExtras ? 1 : 0);
 
@@ -460,7 +460,7 @@ abstract final class ChordAnalyzer {
       _ => _altPenalty,
     };
 
-    if (_hasAlterations(extensions)) {
+    if (_hasAlterations(extensions, template.quality)) {
       raw -= altPenalty;
       add(
         'alterations penalty',
@@ -531,10 +531,14 @@ abstract final class ChordAnalyzer {
     return _ScoredTemplate(score: normalized, extensions: extensions);
   }
 
-  static bool _hasAlterations(Set<ChordExtension> extensions) {
+  static bool _hasAlterations(
+    Set<ChordExtension> extensions,
+    ChordQualityToken quality,
+  ) {
     return extensions.contains(ChordExtension.flat9) ||
         extensions.contains(ChordExtension.sharp9) ||
-        extensions.contains(ChordExtension.sharp11) ||
+        (extensions.contains(ChordExtension.sharp11) &&
+            !quality.sharp11IsNaturalColor) ||
         extensions.contains(ChordExtension.flat13);
   }
 

@@ -113,7 +113,10 @@ class CandidateFeatures {
     final q = id.quality;
 
     final rootPos = id.rootPc == id.bassPc;
-    final pref = extensionPreference(id.extensions);
+    final pref = extensionPreference(
+      id.extensions,
+      sharp11AsNaturalColor: q.sharp11IsNaturalColor,
+    );
     final realExt = (pref.naturalCount + pref.alterationCount) > 0;
     final bassRoleRank = _bassRoleRank(id);
 
