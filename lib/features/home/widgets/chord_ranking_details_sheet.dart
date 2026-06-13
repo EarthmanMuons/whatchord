@@ -594,6 +594,17 @@ class _CandidateScoreBack extends StatelessWidget {
     return 0;
   }
 
+  int get _representedPlayedTonesMask => row
+      .candidate
+      .identity
+      .toneRolesByInterval
+      .keys
+      .fold<int>(0, (mask, interval) => mask | (1 << interval));
+
+  int get _alsoPlayedTonesMask =>
+      row.candidate.identity.presentIntervalsMask &
+      ~_representedPlayedTonesMask;
+
   /// Builds (degree, note) pairs for the tones in [mask], ascending by interval.
   /// Each tone is labeled individually so the degree and note name stay paired.
   List<_ToneEntry> _tonesFor(int mask) {
@@ -658,11 +669,9 @@ class _CandidateScoreBack extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _TemplateLedger(
-          chordTones: _tonesFor(
-            _maskFor('required tones') | _maskFor('optional tones'),
-          ),
+          chordTones: _tonesFor(_representedPlayedTonesMask),
           missing: _tonesFor(_maskFor('missing required')),
-          alsoPlayed: _tonesFor(_maskFor('penalty tones') | _maskFor('extras')),
+          alsoPlayed: _tonesFor(_alsoPlayedTonesMask),
         ),
         const Divider(height: 16),
         for (final reason in scoringReasons)
