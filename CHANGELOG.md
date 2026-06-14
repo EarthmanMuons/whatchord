@@ -10,6 +10,15 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added a Share button on the home screen that creates a link to the current
+  chord. Recipients who have WhatChord open it directly in the app, seeded into
+  the manual lookup pad with the same key; everyone else lands on the matching
+  page of the website.
+- Added support for opening whatchord.earthmanmuons.com/try links in the app,
+  including shared links and links from the Try page on the website.
+
 ### Fixed
 
 - Identify a raised eleventh on major, major-sixth, and major-seventh chords as

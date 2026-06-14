@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/demo/demo.dart';
 import 'package:whatchord/features/input/input.dart';
+import 'package:whatchord/features/links/links.dart';
 import 'package:whatchord/features/lookup/lookup.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/onboarding/onboarding.dart';
@@ -246,6 +247,7 @@ class _HomeTopBar extends ConsumerWidget {
                     },
                   ),
                 ),
+              const _ShareButton(),
               const SizedBox(width: 4),
               MidiStatusIcon(
                 onPressed: onOpenMidiSettings,
@@ -276,6 +278,39 @@ class _HomeTopBar extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+/// Shares a website link to the current voicing via the native share sheet.
+/// Disabled when nothing is sounding, so there is nothing to link to.
+class _ShareButton extends ConsumerWidget {
+  const _ShareButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final link = ref.watch(shareLinkProvider);
+
+    return IconButton(
+      constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+      icon: const Icon(Icons.ios_share),
+      tooltip: 'Share chord',
+      onPressed: link == null ? null : () => _share(context, link),
+    );
+  }
+
+  void _share(BuildContext context, Uri link) {
+    // Anchor the iPad popover to the button.
+    final box = context.findRenderObject() as RenderBox?;
+    final overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox?;
+    Rect? origin;
+    if (box != null && overlay != null) {
+      origin = Rect.fromPoints(
+        box.localToGlobal(Offset.zero, ancestor: overlay),
+        box.localToGlobal(box.size.bottomRight(Offset.zero), ancestor: overlay),
+      );
+    }
+    unawaited(shareChordLink(link, sharePositionOrigin: origin));
   }
 }
 

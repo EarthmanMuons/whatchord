@@ -11,6 +11,7 @@ import "../js/chord-id.js";
 const DEFAULT_MODE = "maj";
 const DEFAULT_NOTATION = "textual";
 const MAX_NOTES_CHARACTERS = 512;
+const IOS_APP_ID = "6758409779";
 const VALID_KEYS = new Set([
   "C:maj",
   "C#:maj",
@@ -135,7 +136,15 @@ function rewriteMeta(html, meta) {
   out = replaceMeta(out, "property", "og:description", meta.description);
   out = replaceMeta(out, "property", "og:url", meta.shareUrl);
   out = replaceMeta(out, "name", "twitter:title", meta.title);
-  return replaceMeta(out, "name", "twitter:description", meta.description);
+  out = replaceMeta(out, "name", "twitter:description", meta.description);
+  // Point the Smart App Banner's OPEN button at this exact chord, so tapping it
+  // deep-links into the app instead of cold-launching to the home screen.
+  return replaceMeta(
+    out,
+    "name",
+    "apple-itunes-app",
+    "app-id=" + IOS_APP_ID + ", app-argument=" + meta.shareUrl,
+  );
 }
 
 function replaceMeta(html, attribute, key, content) {
