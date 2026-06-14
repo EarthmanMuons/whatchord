@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.6.14] - 2026-06-14
+
 ### Added
 
 - Added home-screen chord sharing. A shared link opens the exact voicing and key
@@ -672,7 +674,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.6.10...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.6.14...HEAD
+[2026.6.14]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.6.10...v2026.6.14
 [2026.6.10]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.6.6...v2026.6.10
 [2026.6.6]:
