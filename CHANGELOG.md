@@ -21,6 +21,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Fixed note chip spelling and the Explore Chords seed root for chords whose
+  root is not in the current key, such as Bbmaj9 in C major. The chips and
+  Explore now follow the chord-aware root spelling shown on the identity card
+  (Bb D F A) instead of an unrelated sharp spelling (A# Cx E# Gx B#).
 - Identify a raised eleventh on major, major-sixth, and major-seventh chords as
   the natural Lydian color instead of an alteration, so complete root-position
   voicings such as B6/9#11 are named directly rather than as remote slash chords
