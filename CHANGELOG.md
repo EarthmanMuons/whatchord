@@ -12,61 +12,35 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Added an option to copy chord tones from Explore Chords.
-- Added a Share button on the home screen that creates a link to the current
-  chord. Recipients who have WhatChord open it directly in the app, seeded into
-  the manual lookup pad with the same key; everyone else lands on the matching
-  page of the website.
-- Added support for opening whatchord.earthmanmuons.com/try links in the app,
-  including shared links and links from the Try page on the website.
-
-### Fixed
-
-- Fixed note chip spelling and the Explore Chords seed root for chords whose
-  root is not in the current key, such as Bbmaj9 in C major. The chips and
-  Explore now follow the chord-aware root spelling shown on the identity card
-  (Bb D F A) instead of an unrelated sharp spelling (A# Cx E# Gx B#).
-- Identify a raised eleventh on major, major-sixth, and major-seventh chords as
-  the natural Lydian color instead of an alteration, so complete root-position
-  voicings such as B6/9#11 are named directly rather than as remote slash chords
-  over their own seventh.
-- Bounded and validated browser chord-lookup inputs to prevent oversized shared
-  links from consuming excessive processing resources.
-- Classify named extensions as chord tones instead of also-played tones in the
-  Why This Chord details. Describe extension scoring as added complexity instead
-  of unexplained extra tones.
-- Made flat-thirteenth colors available on triad-like chords in Explore Chords
-  and preserved them when opening analyzed chords.
-- Added flat-ninth color choices for minor and suspended-fourth chords in
-  Explore Chords.
-- Prevented contradictory natural- and flat-thirteenth selections in Explore
-  Chords.
+- Added home-screen chord sharing. A shared link opens the exact voicing and key
+  in WhatChord when installed, or in the website's chord identifier otherwise.
+- Added a browser-based chord identifier to the website, powered by the same
+  analysis engine as the app. Results can be shared, opened in the app, and
+  previewed directly in supported messaging and social apps.
+- Added a mute button to Playback Volume that remembers and restores the
+  previous volume.
+- Added more Explore Chords colors, including flat ninths for minor and
+  suspended-fourth chords and flat thirteenths for applicable chords.
+- Added chord tones to the Explore Chords copy menu.
 
 ### Changed
 
-- The website chord identifier now remembers your notation preference while
-  keeping shared links notation-neutral.
-- Shared links to the browser chord identifier now use a dedicated social
-  preview designed for the tool.
-- The guided tour's final step now points its callout arrows at both the search
-  button and the MIDI status icon, so you can see where to look up notes by name
-  or connect a device.
-- The "Why This Chord?" scoring view now opens with a tone ledger that lays out
-  the chord's template notes by degree and shows which you played, which were
-  missing, and any extra or conflicting tones, so the score that follows is
-  easier to read. Each ranked chord also has an Explore button that opens it in
-  the chord builder and returns you to the same view.
-
-### Added
-
-- Added a mute toggle to the Playback Volume control. Muting silences playback
-  and remembers your level, restoring it when you unmute, and the setting
-  persists across launches.
+- Why This Chord? now begins with a clearer tone ledger showing played, missing,
+  and additional notes by degree, and can open any ranked chord in Explore.
+- Improved the guided tour's final step by pointing to both manual lookup and
+  MIDI connection.
 
 ### Fixed
 
-- Fixed an internal error that fired every time the Settings screen was closed,
-  introduced alongside the Playback Volume preview tones.
+- Improved identification of major-family sharp-eleventh voicings, favoring
+  direct Lydian chord names over remote slash-chord interpretations.
+- Fixed note and root spellings disagreeing with the identified chord, including
+  flat-rooted chords such as Bbmaj9 in C major.
+- Fixed named extensions appearing as additional notes in chord details.
+- Prevented contradictory natural- and flat-thirteenth selections in Explore
+  Chords.
+- Fixed an internal error when closing Settings after previewing Playback
+  Volume.
 
 ## [2026.6.10] - 2026-06-10
 
