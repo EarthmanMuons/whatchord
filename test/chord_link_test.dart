@@ -5,22 +5,31 @@ import 'package:whatchord/features/theory/theory.dart';
 
 void main() {
   group('ChordLink.build', () {
-    test('emits MIDI notes and key in the canonical grammar', () {
+    test('emits note names and key in the canonical grammar', () {
       final uri = ChordLink.build(
-        orderedNotes: const [48, 52, 55],
+        orderedNoteNames: const ['C', 'E', 'G'],
         tonality: const Tonality(Tonic.c, TonalityMode.major),
       );
 
       expect(uri, isNotNull);
       expect(uri!.host, ChordLink.host);
       expect(uri.path, ChordLink.path);
-      expect(uri.queryParameters['notes'], '48 52 55');
+      expect(uri.queryParameters['notes'], 'C E G');
       expect(uri.queryParameters['key'], 'C:maj');
+    });
+
+    test('normalizes notation glyphs to ASCII', () {
+      final uri = ChordLink.build(
+        orderedNoteNames: const ['B♭', 'F♯', 'D𝄪', 'E𝄫'],
+        tonality: const Tonality(Tonic.c, TonalityMode.major),
+      );
+
+      expect(uri!.queryParameters['notes'], 'Bb F# Dx Ebb');
     });
 
     test('formats a minor key with flat tonic', () {
       final uri = ChordLink.build(
-        orderedNotes: const [60],
+        orderedNoteNames: const ['C'],
         tonality: const Tonality(Tonic.bFlat, TonalityMode.minor),
       );
 
@@ -30,7 +39,7 @@ void main() {
     test('returns null with no notes', () {
       expect(
         ChordLink.build(
-          orderedNotes: const [],
+          orderedNoteNames: const [],
           tonality: const Tonality(Tonic.c, TonalityMode.major),
         ),
         isNull,
@@ -43,7 +52,7 @@ void main() {
 
     test('round-trips a link built by build', () {
       final uri = ChordLink.build(
-        orderedNotes: const [48, 52, 55],
+        orderedNoteNames: const ['C', 'E', 'G'],
         tonality: const Tonality(Tonic.d, TonalityMode.minor),
       )!;
 
@@ -64,6 +73,20 @@ void main() {
         'https://${ChordLink.host}/try?notes=c,e-g%20b%E2%99%AD',
       )!;
       expect(seed.pitchClasses, [0, 4, 7, 10]);
+    });
+
+    test('parses single and double accidentals', () {
+      // Fx=G(7), Bbb=A(9), C##=D(2), Cb=B(11); # is encoded as %23 as in a real
+      // link, since a raw # would start the URL fragment.
+      final seed = parse(
+        'https://${ChordLink.host}/try?notes=Fx+Bbb+C%23%23+Cb',
+      )!;
+      expect(seed.pitchClasses, [7, 9, 2, 11]);
+    });
+
+    test('still accepts MIDI numbers', () {
+      final seed = parse('https://${ChordLink.host}/try?notes=48+52+55')!;
+      expect(seed.pitchClasses, [0, 4, 7]);
     });
 
     test('skips unrecognized tokens but keeps the rest', () {
