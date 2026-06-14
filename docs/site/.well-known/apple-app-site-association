@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["6ZR326Y3XC.com.earthmanmuons.whatchord"],
+        "components": [
+          {
+            "/": "/try",
+            "comment": "Open shared chord links in the app"
+          }
+        ]
+      }
+    ]
+  }
+}

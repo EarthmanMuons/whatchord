@@ -360,13 +360,23 @@ select.try-select:focus {
   margin-bottom: 0;
 }
 
-#copy-link {
+.try-results-actions {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+#copy-link,
+#open-app {
   flex-shrink: 0;
   gap: 7px;
   font-size: 0.82rem;
 }
 
-#copy-link svg {
+#copy-link svg,
+#open-app svg {
   width: 14px;
   height: 14px;
   fill: currentcolor;

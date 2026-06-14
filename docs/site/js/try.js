@@ -66,6 +66,9 @@
   var DEFAULT_MODE = "maj";
   var DEFAULT_NOTATION = "textual";
   var MAX_NOTES_CHARACTERS = 512;
+  var SITE_HOST = "whatchord.earthmanmuons.com";
+  var ANDROID_PACKAGE = "com.earthmanmuons.whatchord";
+  var IS_ANDROID = /android/i.test(navigator.userAgent);
   // Matches the static <title> in try.html; restored when there is no result
   // to show. The Worker overrides the served title for seeded links, so we
   // cannot read this back from document.title at boot.
@@ -84,6 +87,7 @@
     rankingFeedback: document.getElementById("ranking-feedback"),
     copyLink: document.getElementById("copy-link"),
     copyLabel: document.querySelector("#copy-link .copy-label"),
+    openApp: document.getElementById("open-app"),
   };
 
   var state = {
@@ -200,6 +204,29 @@
   function syncUrl() {
     var path = location.protocol === "file:" ? location.pathname : "/try";
     history.replaceState(null, "", path + buildQuery());
+  }
+
+  // Android has no native smart banner, so offer an explicit deep link. The
+  // intent URL opens the app when installed and falls back to this page when
+  // not. Shown only on Android, and only when there is a chord to open.
+  function updateOpenAppLink() {
+    if (!IS_ANDROID || !state.canonicalNotes) {
+      els.openApp.hidden = true;
+      return;
+    }
+    var query = buildQuery();
+    var httpsUrl = "https://" + SITE_HOST + "/try" + query;
+    els.openApp.href =
+      "intent://" +
+      SITE_HOST +
+      "/try" +
+      query +
+      "#Intent;scheme=https;package=" +
+      ANDROID_PACKAGE +
+      ";S.browser_fallback_url=" +
+      encodeURIComponent(httpsUrl) +
+      ";end";
+    els.openApp.hidden = false;
   }
 
   // Keeps the tab title in step with the current result, same format the
@@ -386,6 +413,7 @@
       els.candidates.innerHTML = "";
       els.resultsHead.hidden = true;
       els.rankingFeedback.hidden = true;
+      updateOpenAppLink();
       setStatus("");
       return;
     }
@@ -397,6 +425,7 @@
     syncUrl();
     syncTitle(result);
     render(result);
+    updateOpenAppLink();
   }
 
   function toAsciiNote(note) {

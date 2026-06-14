@@ -2,7 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <!-- Native iOS banner offering to open a shared chord in the app. The
+         Worker injects app-argument on seeded links so OPEN deep-links to the
+         exact chord; see worker/index.js. -->
+    <meta name="apple-itunes-app" content="app-id=6758409779" />
     <title>Try It - Identify a Chord | WhatChord</title>
     <meta
       name="description"
@@ -117,9 +124,8 @@
               </button>
             </div>
             <div class="try-hint" id="notes-hint">
-              Separate with spaces, commas, or hyphens. Names like C, F#, Bb,
-              or MIDI numbers like 60.<br />The first note is treated as the
-              bass.
+              Separate with spaces, commas, or hyphens. Names like C, F#, Bb, or
+              MIDI numbers like 60.<br />The first note is treated as the bass.
             </div>
 
             <div class="try-controls">
@@ -184,14 +190,32 @@
               </div>
               <div class="try-results-head" id="results-head" hidden>
                 <div class="try-echo" id="echo"></div>
-                <button class="btn btn-primary" id="copy-link" type="button">
-                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path
-                      d="M3.9 12a3.1 3.1 0 0 1 3.1-3.1h4V7H7a5 5 0 0 0 0 10h4v-1.9H7A3.1 3.1 0 0 1 3.9 12zm4.1 1h8v-2H8v2zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10z"
-                    />
-                  </svg>
-                  <span class="copy-label">Copy link</span>
-                </button>
+                <div class="try-results-actions">
+                  <a class="btn btn-ghost" id="open-app" hidden>
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M14 3v2h3.6l-9.8 9.8 1.4 1.4L19 6.4V10h2V3h-7zM5 5h6V3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-6h-2v6H5V5z"
+                      />
+                    </svg>
+                    <span>Open in app</span>
+                  </a>
+                  <button class="btn btn-primary" id="copy-link" type="button">
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path
+                        d="M3.9 12a3.1 3.1 0 0 1 3.1-3.1h4V7H7a5 5 0 0 0 0 10h4v-1.9H7A3.1 3.1 0 0 1 3.9 12zm4.1 1h8v-2H8v2zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10z"
+                      />
+                    </svg>
+                    <span class="copy-label">Copy link</span>
+                  </button>
+                </div>
               </div>
               <div id="candidates"></div>
               <p class="try-feedback" id="ranking-feedback" hidden>

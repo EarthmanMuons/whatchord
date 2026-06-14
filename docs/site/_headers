@@ -1,3 +1,7 @@
+# Apple requires this association file served as JSON, with no extension.
+/.well-known/apple-app-site-association
+  Content-Type: application/json
+
 /*
   Content-Security-Policy: default-src 'self'; base-uri 'self'; connect-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' data:; media-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; upgrade-insecure-requests
   Cross-Origin-Opener-Policy: same-origin
