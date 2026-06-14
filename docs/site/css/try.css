@@ -7,6 +7,25 @@
   display: none !important;
 }
 
+/* ─── iOS header (Smart App Banner present) ───────────────────────
+   The native banner already shows the app icon and a get/open action, so on
+   iOS this page trims its header to a breadcrumb plus Source, dropping the
+   duplicate logo image and "Get the app" button that otherwise clash with the
+   banner. The is-ios class is set by try.js and scoped to this page. */
+.is-ios .nav-logo img {
+  display: none;
+}
+
+.is-ios .nav-logo::before {
+  content: "←";
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.is-ios .btn-get-app {
+  display: none;
+}
+
 .try-hero {
   padding: 56px 0 8px;
   text-align: center;

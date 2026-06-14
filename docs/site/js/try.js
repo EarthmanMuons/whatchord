@@ -69,6 +69,14 @@
   var SITE_HOST = "whatchord.earthmanmuons.com";
   var ANDROID_PACKAGE = "com.earthmanmuons.whatchord";
   var IS_ANDROID = /android/i.test(navigator.userAgent);
+  // iPadOS reports as "MacIntel"; the touch-point check catches iPad Safari.
+  var IS_IOS =
+    /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  // On iOS the native Smart App Banner already offers the app, so trim the
+  // header to a breadcrumb plus Source (see try.css) to avoid a clashing
+  // second app prompt.
+  if (IS_IOS) document.documentElement.classList.add("is-ios");
   // Matches the static <title> in try.html; restored when there is no result
   // to show. The Worker overrides the served title for seeded links, so we
   // cannot read this back from document.title at boot.
