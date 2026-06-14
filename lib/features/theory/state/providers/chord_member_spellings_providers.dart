@@ -26,7 +26,11 @@ final chordMemberSpellingsByPcProvider = Provider<Map<int, String>>((ref) {
 
   final id = presentation.identity;
   final tonality = ref.watch(analysisContextProvider.select((c) => c.tonality));
-  final rootName = pcToName(id.rootPc, tonality: tonality);
+  // Use the chord-aware root spelling (matching the identity card/symbol), not
+  // the plain chromatic pcToName. Otherwise a non-diatonic root such as Bb in C
+  // major resolves to A#, and every member is spelled relative to A# (Cx, E#,
+  // Gx, B#) even though the card reads Bbmaj9.
+  final rootName = spellChordRoot(id, tonality: tonality);
 
   // Map every pitch class -> role-aware spelling for this identity.
   // (Even if a given pc isn't currently sounding, this is still cheap.)

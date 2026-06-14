@@ -79,8 +79,8 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
         widget.seedRoot ??
         Tonic.forPitchClass(
           widget.seedIdentity.rootPc,
-          preferredLabel: pcToName(
-            widget.seedIdentity.rootPc,
+          preferredLabel: spellChordRoot(
+            widget.seedIdentity,
             tonality: tonality,
           ),
         );
