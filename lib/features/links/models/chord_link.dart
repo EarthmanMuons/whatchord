@@ -18,6 +18,9 @@ class ChordLink {
   /// Mirrors the web page cap; oversized links are ignored rather than parsed.
   static const _maxNotesCharacters = 512;
 
+  /// The key assumed when a link omits one, matching the web page default.
+  static const _defaultTonality = Tonality(Tonic.c, TonalityMode.major);
+
   static final _separator = RegExp(r'[\s,\-]+');
 
   /// Builds a shareable link for [orderedNoteNames] (spelled note names, first
@@ -31,10 +34,14 @@ class ChordLink {
     required Tonality tonality,
   }) {
     if (orderedNoteNames.isEmpty) return null;
-    return Uri.https(host, path, {
+    final params = <String, String>{
       'notes': orderedNoteNames.map(normalizeNoteNameToAscii).join(' '),
-      'key': _formatKey(tonality),
-    });
+    };
+    // Omit the default key (C major) for cleaner links, as the web page does.
+    if (tonality != _defaultTonality) {
+      params['key'] = _formatKey(tonality);
+    }
+    return Uri.https(host, path, params);
   }
 
   /// Parses an incoming link, or returns null when [uri] is not a recognized
@@ -87,34 +94,36 @@ class ChordLink {
     }
   }
 
-  static Tonality? _parseKey(String? key) {
-    if (key == null) return null;
+  /// Resolves the link's key, defaulting to C major when it is absent or
+  /// unparsable, so a keyless link reproduces the sharer's default context
+  /// rather than adopting the recipient's current key.
+  static Tonality _parseKey(String? key) {
+    if (key == null) return _defaultTonality;
     final parts = key.split(':');
-    if (parts.length != 2) return null;
+    if (parts.length != 2) return _defaultTonality;
 
     final tonic = Tonic.tryFromLabel(parts[0].trim());
-    if (tonic == null) return null;
+    if (tonic == null) return _defaultTonality;
 
     final mode = switch (parts[1].toLowerCase()) {
       'maj' => TonalityMode.major,
       'min' => TonalityMode.minor,
-      _ => null,
+      _ => _defaultTonality.mode,
     };
-    if (mode == null) return null;
 
     return Tonality(tonic, mode);
   }
 }
 
-/// The app state a [ChordLink] seeds: an ordered lookup selection and, when the
-/// link names one, the tonality to apply.
+/// The app state a [ChordLink] seeds: an ordered lookup selection and the
+/// tonality to apply (C major when the link omits a key).
 @immutable
 class ChordLinkSeed {
-  const ChordLinkSeed({required this.pitchClasses, this.tonality});
+  const ChordLinkSeed({required this.pitchClasses, required this.tonality});
 
   /// Entered pitch classes in order; the first entry is the bass.
   final List<int> pitchClasses;
 
-  /// Tonality to apply, or null to leave the current selection unchanged.
-  final Tonality? tonality;
+  /// Tonality to apply.
+  final Tonality tonality;
 }
