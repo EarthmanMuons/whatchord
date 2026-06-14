@@ -328,7 +328,12 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
               onPressed: () => _playChord(example.normalizedVoicing),
             ),
             const SizedBox(width: 12),
-            Expanded(child: ExploreSummary(presentation: presentation)),
+            Expanded(
+              child: ExploreSummary(
+                presentation: presentation,
+                chordTones: example.members,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 20),
