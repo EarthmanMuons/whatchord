@@ -20,15 +20,19 @@ class ChordLink {
 
   static final _separator = RegExp(r'[\s,\-]+');
 
-  /// Builds a shareable link for [orderedNotes] (ascending MIDI numbers, first
+  /// Builds a shareable link for [orderedNoteNames] (spelled note names, first
   /// entry is the bass) in [tonality]. Returns null when there are no notes.
+  ///
+  /// Names are emitted as ASCII (e.g. F#, Bb) since they are human-facing on the
+  /// web page, preserving the enharmonic spelling the user already sees. The URL
+  /// encoding of "#" is handled by [Uri.https].
   static Uri? build({
-    required List<int> orderedNotes,
+    required List<String> orderedNoteNames,
     required Tonality tonality,
   }) {
-    if (orderedNotes.isEmpty) return null;
+    if (orderedNoteNames.isEmpty) return null;
     return Uri.https(host, path, {
-      'notes': orderedNotes.join(' '),
+      'notes': orderedNoteNames.map(normalizeNoteNameToAscii).join(' '),
       'key': _formatKey(tonality),
     });
   }
@@ -72,16 +76,15 @@ class ChordLink {
 
   static int? _parseToken(String token) {
     final midi = int.tryParse(token);
-    if (midi != null) return midi % 12 + (midi < 0 ? 12 : 0);
+    if (midi != null) return midi % 12;
 
-    final label =
-        token[0].toUpperCase() +
-        token
-            .substring(1)
-            .toLowerCase()
-            .replaceAll('♯', '#') // sharp glyph
-            .replaceAll('♭', 'b'); // flat glyph
-    return Tonic.tryFromLabel(label)?.pitchClass;
+    // Delegate note-name spelling to the theory layer; it accepts ASCII and
+    // glyph accidentals and throws on anything that is not a note name.
+    try {
+      return pitchClassFromNoteName(token);
+    } on ArgumentError {
+      return null;
+    }
   }
 
   static Tonality? _parseKey(String? key) {

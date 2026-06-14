@@ -7,12 +7,15 @@ import '../models/chord_link.dart';
 
 /// A shareable website link for the current voicing and tonality, or null when
 /// nothing is sounding (so the share affordance can disable itself).
+///
+/// Notes use the spelled names shown in the note chips (bass first), so a
+/// recipient opening the link sees readable note names rather than MIDI numbers.
 final shareLinkProvider = Provider<Uri?>((ref) {
-  final notes = ref.watch(soundingNoteNumbersSortedProvider);
+  final notes = ref.watch(soundingNotesProvider);
   if (notes.isEmpty) return null;
 
   return ChordLink.build(
-    orderedNotes: notes.toList(),
+    orderedNoteNames: [for (final note in notes) note.label],
     tonality: ref.watch(selectedTonalityProvider),
   );
 });
