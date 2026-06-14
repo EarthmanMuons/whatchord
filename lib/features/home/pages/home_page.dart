@@ -247,7 +247,9 @@ class _HomeTopBar extends ConsumerWidget {
                     },
                   ),
                 ),
-              const _ShareButton(),
+              // Hidden during the tour: its "Exit tour" pill needs the room,
+              // and demo chords are not the user's to share.
+              if (!showInteractiveDemoPill) const _ShareButton(),
               const SizedBox(width: 4),
               MidiStatusIcon(
                 onPressed: onOpenMidiSettings,
