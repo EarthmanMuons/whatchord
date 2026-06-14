@@ -1,6 +1,7 @@
 // Drives the browser chord-identification demo (try.html). Reads input, calls
 // the compiled Dart engine (window.whatchordIdentify), and renders results.
-// Seeds from and writes to the URL query string so links are shareable.
+// Seeds musical state from and writes it to the URL query string so links are
+// shareable. Presentation preferences remain local to the viewer.
 (function () {
   "use strict";
 
@@ -65,6 +66,7 @@
   };
   var DEFAULT_MODE = "maj";
   var DEFAULT_NOTATION = "textual";
+  var NOTATION_STORAGE_KEY = "whatchord.notation";
   var MAX_NOTES_CHARACTERS = 512;
   var SITE_HOST = "whatchord.earthmanmuons.com";
   var ANDROID_PACKAGE = "com.earthmanmuons.whatchord";
@@ -100,9 +102,28 @@
 
   var state = {
     mode: DEFAULT_MODE,
-    notation: DEFAULT_NOTATION,
+    notation: loadNotation(),
     canonicalNotes: null,
   };
+
+  function loadNotation() {
+    try {
+      var notation = localStorage.getItem(NOTATION_STORAGE_KEY);
+      return notation === "symbolic" || notation === "textual"
+        ? notation
+        : DEFAULT_NOTATION;
+    } catch {
+      return DEFAULT_NOTATION;
+    }
+  }
+
+  function saveNotation(notation) {
+    try {
+      localStorage.setItem(NOTATION_STORAGE_KEY, notation);
+    } catch {
+      // Storage can be unavailable in private browsing or restricted contexts.
+    }
+  }
 
   // ─── Key dropdown (mode-aware) ─────────────────────────────────
 
@@ -150,6 +171,7 @@
     var btn = e.target.closest("button");
     if (!btn) return;
     state.notation = btn.getAttribute("data-notation");
+    saveNotation(state.notation);
     setSegmented(els.notation, "data-notation", state.notation);
     scheduleRun();
   });
@@ -203,8 +225,6 @@
     var params = new URLSearchParams();
     if (state.canonicalNotes) params.set("notes", state.canonicalNotes);
     if (currentKey() !== "C:" + DEFAULT_MODE) params.set("key", currentKey());
-    if (state.notation !== DEFAULT_NOTATION)
-      params.set("notation", state.notation);
     var q = params.toString();
     return q ? "?" + q : "";
   }
@@ -267,10 +287,6 @@
     }
     setSegmented(els.keyMode, "data-mode", state.mode);
 
-    var notation = params.get("notation");
-    if (notation === "symbolic" || notation === "textual") {
-      state.notation = notation;
-    }
     setSegmented(els.notation, "data-notation", state.notation);
 
     var notes = params.get("notes");
