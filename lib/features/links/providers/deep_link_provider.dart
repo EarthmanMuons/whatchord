@@ -22,11 +22,9 @@ final appDeepLinkProvider = Provider<void>((ref) {
     final seed = ChordLink.parse(uri);
     if (seed == null) return;
 
-    if (seed.tonality != null) {
-      unawaited(
-        ref.read(selectedTonalityProvider.notifier).setTonality(seed.tonality!),
-      );
-    }
+    unawaited(
+      ref.read(selectedTonalityProvider.notifier).setTonality(seed.tonality),
+    );
 
     // Open the pad and replace any prior selection with the linked notes.
     final lookup = ref.read(lookupModeProvider.notifier);

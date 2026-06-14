@@ -5,7 +5,7 @@ import 'package:whatchord/features/theory/theory.dart';
 
 void main() {
   group('ChordLink.build', () {
-    test('emits note names and key in the canonical grammar', () {
+    test('emits note names and omits the default C major key', () {
       final uri = ChordLink.build(
         orderedNoteNames: const ['C', 'E', 'G'],
         tonality: const Tonality(Tonic.c, TonalityMode.major),
@@ -15,7 +15,16 @@ void main() {
       expect(uri!.host, ChordLink.host);
       expect(uri.path, ChordLink.path);
       expect(uri.queryParameters['notes'], 'C E G');
-      expect(uri.queryParameters['key'], 'C:maj');
+      expect(uri.queryParameters.containsKey('key'), isFalse);
+    });
+
+    test('includes a non-default key', () {
+      final uri = ChordLink.build(
+        orderedNoteNames: const ['C', 'E', 'G'],
+        tonality: const Tonality(Tonic.a, TonalityMode.minor),
+      );
+
+      expect(uri!.queryParameters['key'], 'A:min');
     });
 
     test('normalizes notation glyphs to ASCII', () {
@@ -94,11 +103,12 @@ void main() {
       expect(seed.pitchClasses, [0, 7]);
     });
 
-    test('leaves tonality null when key is absent or invalid', () {
-      expect(parse('https://${ChordLink.host}/try?notes=C')!.tonality, isNull);
+    test('defaults to C major when key is absent or invalid', () {
+      const cMajor = Tonality(Tonic.c, TonalityMode.major);
+      expect(parse('https://${ChordLink.host}/try?notes=C')!.tonality, cMajor);
       expect(
         parse('https://${ChordLink.host}/try?notes=C&key=H:maj')!.tonality,
-        isNull,
+        cMajor,
       );
     });
 
