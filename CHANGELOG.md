@@ -43,6 +43,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- The website chord identifier now remembers your notation preference while
+  keeping shared links notation-neutral.
 - Shared links to the browser chord identifier now use a dedicated social
   preview designed for the tool.
 - The guided tour's final step now points its callout arrows at both the search

@@ -71,15 +71,10 @@ export default {
     const key = VALID_KEYS.has(requestedKey)
       ? requestedKey
       : "C:" + DEFAULT_MODE;
-    const notation =
-      url.searchParams.get("notation") === "symbolic"
-        ? "symbolic"
-        : DEFAULT_NOTATION;
-
     let meta;
     try {
       const result = JSON.parse(
-        globalThis.whatchordIdentify(notes, key, notation),
+        globalThis.whatchordIdentify(notes, key, DEFAULT_NOTATION),
       );
       meta = buildMeta(result, url);
     } catch {
