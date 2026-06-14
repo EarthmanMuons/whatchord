@@ -7,9 +7,14 @@ import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 class ExploreSummary extends ConsumerWidget {
-  const ExploreSummary({super.key, required this.presentation});
+  const ExploreSummary({
+    super.key,
+    required this.presentation,
+    required this.chordTones,
+  });
 
   final ChordPresentation presentation;
+  final List<String> chordTones;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,6 +45,16 @@ class ExploreSummary extends ConsumerWidget {
           noteNameSystem: noteNameSystem,
         ),
         copiedLabel: 'chord symbol',
+      ),
+      _ExploreCopyChoice(
+        title: 'Chord tones',
+        icon: Icons.piano,
+        value: chordTones
+            .map(
+              (tone) => noteDisplayLabel(tone, noteNameSystem: noteNameSystem),
+            )
+            .join(', '),
+        copiedLabel: 'chord tones',
       ),
       _ExploreCopyChoice(
         title: 'Academic name',
