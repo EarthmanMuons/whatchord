@@ -135,15 +135,18 @@ void main() {
       expectedExtensions: {ChordExtension.nine},
     ),
 
-    // A lone 11 on a dominant seventh is an added tone, not a true 11th chord.
+    // The same pitch set can be read as a dominant add11 chord, but the
+    // complete major-nine-sus4 structure is the clearer primary label.
     golden(
-      description: 'dominant seventh with lone added eleventh',
-      expectedSymbol: 'C7(add11)',
+      description: 'major ninth suspended fourth over fifth bass',
+      expectedSymbol: 'Fmaj9sus4 / C',
+      expectedAlternateSymbols: ['C7(add11)'],
       pcs: ['C', 'E', 'G', 'Bb', 'F'],
-      expectedRoot: 'C',
-      expectedQuality: ChordQualityToken.dominant7,
-      expectedExtensions: {ChordExtension.add11},
-      unexpectedExtensions: {ChordExtension.eleven},
+      bass: 'C',
+      expectedRoot: 'F',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.major7sus4,
+      expectedExtensions: {ChordExtension.nine},
     ),
 
     // A true dominant 11 includes the implied ninth.
@@ -344,6 +347,17 @@ void main() {
       pcs: ['C', 'F', 'G', 'B'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.major7sus4,
+    ),
+
+    golden(
+      description: 'major ninth suspended fourth',
+      expectedSymbol: 'Dbmaj9sus4',
+      expectedAlternateSymbols: ['Ab7 / Db'],
+      pcs: ['C', 'Db', 'Eb', 'F#', 'Ab'],
+      bass: 'Db',
+      expectedRoot: 'Db',
+      expectedQuality: ChordQualityToken.major7sus4,
+      expectedExtensions: {ChordExtension.nine},
     ),
 
     // Dominant 7 sharp 5 should treat the augmented fifth as a core tone.

@@ -290,13 +290,13 @@ final chordTemplates = <ChordTemplate>[
   // Major 7 suspended 4: R + P4 + (P5) + M7
   // - Suspended fourth replaces the third in a major seventh context
   // - P5 optional
-  // - Penalty: any third (would resolve suspension), M2 (sus2), b7
+  // - Penalty: any third (would resolve suspension), b7
+  // - M2 is allowed as natural ninth color, e.g. maj9sus4
   ChordTemplate.fromIntervals(
     ChordQualityToken.major7sus4.intervals,
     penaltyMask:
         (1 << minorThirdInterval) |
         (1 << majorThirdInterval) |
-        (1 << majorSecondInterval) |
         (1 << minorSeventhInterval),
   ),
 
