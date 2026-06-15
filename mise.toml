@@ -32,6 +32,27 @@ description = "Run the full chord oracle comparison pass with reviewed audit"
 depends = ["oracle:install"]
 run = "python tool/chord_oracle_compare.py"
 
+[tasks."benchmark:install"]
+description = "Install optional dependencies for the When-in-Rome benchmark"
+run = "uv pip install music21"
+
+[tasks."benchmark:when-in-rome"]
+description = "Run the expanded When-in-Rome chord benchmark"
+depends = ["benchmark:install"]
+run = """
+bench_root="${CONTRAPUNCTUS_BENCH_ROOT:-/private/tmp/contrapunctus-bench}"
+if [ ! -f "$bench_root/corpus/manifest.json" ]; then
+  echo "Contrapunctus benchmark checkout not found at $bench_root" >&2
+  echo "Set CONTRAPUNCTUS_BENCH_ROOT or follow docs/research/contrapunctus-benchmark-comparison.md" >&2
+  exit 1
+fi
+python tool/when_in_rome_chord_benchmark.py \
+  "$bench_root" \
+  --groups bach-wtc mozart-sonatas-dcml brahms-lieder schubert-lieder \
+    chorales tavern \
+  --out-dir build/when-in-rome-chord-benchmark-expanded
+"""
+
 [tasks."symbols:install"]
 description = "Install Python dependencies for regenerating WhatChord Symbols fonts"
 run = "uv pip install -r tool/whatchord_symbols/requirements.txt"

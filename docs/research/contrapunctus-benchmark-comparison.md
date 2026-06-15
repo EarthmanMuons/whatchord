@@ -333,7 +333,16 @@ python3 corpus/prep/fetch_tavern_scores.py
 Run the expanded six-genre validation from the WhatChord checkout:
 
 ```sh
-./.venv/bin/python tool/when_in_rome_chord_benchmark.py \
+mise run benchmark:when-in-rome
+```
+
+The task installs `music21`, uses `/private/tmp/contrapunctus-bench` by default,
+and writes the expanded report to `build/when-in-rome-chord-benchmark-expanded`.
+Set `CONTRAPUNCTUS_BENCH_ROOT=/another/path` to use a different checkout. The
+equivalent direct command is:
+
+```sh
+python tool/when_in_rome_chord_benchmark.py \
   /private/tmp/contrapunctus-bench \
   --groups bach-wtc mozart-sonatas-dcml brahms-lieder schubert-lieder \
     chorales tavern \
