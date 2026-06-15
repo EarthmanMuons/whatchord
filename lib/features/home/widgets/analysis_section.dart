@@ -72,16 +72,25 @@ class AnalysisSection extends ConsumerWidget {
 
           // Tunables
           final textScale = MediaQuery.textScalerOf(context).scale(1.0);
-          final topPad = isLandscape
-              ? 0.0
-              : clampDouble(
-                  config.analysisTopPadMax - (textScale - 1.0) * 28.0,
-                  config.analysisTopPadMin,
-                  config.analysisTopPadMax,
-                );
           final cardH = config.analysisCardHeight;
           final listGap = config.analysisListGap;
           final laneH = constraints.maxHeight;
+          final baseTopPad = clampDouble(
+            config.analysisTopPadMax - (textScale - 1.0) * 28.0,
+            config.analysisTopPadMin,
+            config.analysisTopPadMax,
+          );
+          // As the keyboard grows the lane shrinks; spend the top padding first
+          // (raising the card) so the near-tie list keeps its reserved room,
+          // rather than covering the list while the card sits at its default
+          // position. Once the padding bottoms out, the list yields.
+          final topPad = isLandscape
+              ? 0.0
+              : clampDouble(
+                  laneH - cardH - listGap - kPortraitNearTieListReserve,
+                  config.analysisTopPadMin,
+                  baseTopPad,
+                );
           final cardMaxH = clampDouble(
             config.analysisCardMaxHeight,
             0.0,

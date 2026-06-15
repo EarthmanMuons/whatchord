@@ -189,37 +189,45 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
                   bottom: false,
                   left: !isLandscape,
                   right: !isLandscape,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            horizontalInset,
-                            16,
-                            horizontalInset,
-                            12,
+                  child: LayoutBuilder(
+                    builder: (context, bodyConstraints) {
+                      return Column(
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                horizontalInset,
+                                16,
+                                horizontalInset,
+                                12,
+                              ),
+                              child: _buildContent(
+                                scale: scale,
+                                tones: tones,
+                                harmony: harmony,
+                                notation: notation,
+                                noteNameSystem: noteNameSystem,
+                                showDegrees: showDegrees,
+                                playingPitchClasses: playingPitchClasses,
+                                memberPitchClasses: memberPitchClasses,
+                                isLandscape: isLandscape,
+                              ),
+                            ),
                           ),
-                          child: _buildContent(
-                            scale: scale,
-                            tones: tones,
-                            harmony: harmony,
-                            notation: notation,
-                            noteNameSystem: noteNameSystem,
-                            showDegrees: showDegrees,
-                            playingPitchClasses: playingPitchClasses,
-                            memberPitchClasses: memberPitchClasses,
-                            isLandscape: isLandscape,
+                          ResizableKeyboardArea(
+                            config: config,
+                            maxKeyboardHeight: maxKeyboardHeightForLayout(
+                              availableHeight: bodyConstraints.maxHeight,
+                              isLandscape: isLandscape,
+                              reservedChrome: kPianoSeparatorLineHeight + 1,
+                            ),
+                            highlightedNotes: keyboardNotes,
+                            scaleNotes: scaleNotes,
+                            tonicPitchClass: scale.tonic.pitchClass,
                           ),
-                        ),
-                      ),
-                      const Divider(height: 1),
-                      _ScaleKeyboard(
-                        config: config,
-                        highlightedNotes: keyboardNotes,
-                        scaleNotes: scaleNotes,
-                        tonicPitchClass: scale.tonic.pitchClass,
-                      ),
-                    ],
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
@@ -683,50 +691,6 @@ class _SeventhsToggle extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _ScaleKeyboard extends StatelessWidget {
-  const _ScaleKeyboard({
-    required this.config,
-    required this.highlightedNotes,
-    required this.scaleNotes,
-    required this.tonicPitchClass,
-  });
-
-  final HomeLayoutConfig config;
-  final Set<int> highlightedNotes;
-  final Set<int> scaleNotes;
-  final int tonicPitchClass;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final whiteKeyWidth = PianoGeometry.whiteKeyWidthForViewport(
-          viewportWidth: constraints.maxWidth,
-          visibleWhiteKeyCount: config.whiteKeyCount,
-        );
-
-        var height = whiteKeyWidth * config.whiteKeyAspectRatio;
-        if (config.tightenForStatusBar) height -= 4;
-        height = height.clamp(90.0, 200.0);
-
-        return ScrollablePianoKeyboard(
-          visibleWhiteKeyCount: config.whiteKeyCount,
-          height: height,
-          highlightedNoteNumbers: highlightedNotes,
-          autoCenter: true,
-          fullWhiteKeyCount: PianoGeometry.fullKeyboardWhiteKeyCount,
-          lowestNoteNumber: PianoGeometry.fullKeyboardLowestMidi,
-          scaleNoteNumbers: scaleNotes,
-          tonicPitchClass: tonicPitchClass,
-          showMiddleCMarker: true,
-          middleCLabel: 'C',
-          middleCLabelTextScale: config.middleCLabelTextScale,
-        );
-      },
     );
   }
 }

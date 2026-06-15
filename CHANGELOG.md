@@ -10,6 +10,14 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added a resizable on-screen keyboard. Pinch to widen the keys and drag the
+  handle above the bottom bar to make the keyboard taller. The size is
+  remembered and applies across Home, Explore Chords, and Explore Scales.
+  Long-press the keyboard for quick actions, or double-tap the handle, to
+  recenter on the active notes or restore the default size.
+
 ### Fixed
 
 - Improved identification of fifthless extended major and dominant chords,

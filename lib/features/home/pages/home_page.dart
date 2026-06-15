@@ -20,10 +20,14 @@ import '../widgets/app_bar_title.dart';
 import '../widgets/demo_mode_explanation.dart';
 import '../widgets/details_section.dart';
 import '../widgets/edge_to_edge_controller.dart';
-import '../widgets/keyboard_section.dart';
+import '../widgets/resizable_keyboard_area.dart';
 import '../widgets/tonality_bar.dart';
 
 const _tonalityBarHeight = kToolbarHeight;
+
+/// Conservative reserve (px) for the portrait demo prompt + input display that
+/// sit above the keyboard, so growing the keyboard keeps room for them.
+const _portraitInputReserve = 96.0;
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -329,37 +333,48 @@ class _HomeLandscape extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tourKeys = ref.watch(demoTourKeysProvider);
-    return Column(
-      children: [
-        Flexible(
-          fit: FlexFit.loose,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(flex: 7, child: AnalysisSection(config: config)),
-              Expanded(flex: 6, child: DetailsSection(config: config)),
-            ],
-          ),
-        ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
+    final highlightedNotes = ref.watch(liveSoundingNoteNumbersProvider);
+    final lookupActive = ref.watch(lookupActiveProvider);
+
+    return LayoutBuilder(
+      builder: (context, bodyConstraints) {
+        return Column(
           children: [
-            KeyedSubtree(
-              key: tourKeys.tonalityBar,
-              child: TonalityBar(
-                height: _tonalityBarHeight,
-                horizontalInset: horizontalInset,
-                keyTextScaleMultiplier: config.tonalityButtonTextScale,
-                scaleDegreesTextScaleMultiplier: config.scaleDegreesTextScale,
-                onScaleDegreesTap: () =>
-                    Navigator.of(context).push(ScaleExplorerPage.route()),
+            Flexible(
+              fit: FlexFit.loose,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(flex: 7, child: AnalysisSection(config: config)),
+                  Expanded(flex: 6, child: DetailsSection(config: config)),
+                ],
               ),
             ),
-            const Divider(height: 1),
-            _BottomInputSection(config: config),
+            ResizableKeyboardArea(
+              config: config,
+              maxKeyboardHeight: maxKeyboardHeightForLayout(
+                availableHeight: bodyConstraints.maxHeight,
+                isLandscape: true,
+                reservedChrome: _tonalityBarHeight + 1, // bar + divider
+              ),
+              highlightedNotes: highlightedNotes,
+              overlay: _LookupOverlay(active: lookupActive),
+              hasTonalityBar: true,
+              topBar: KeyedSubtree(
+                key: tourKeys.tonalityBar,
+                child: TonalityBar(
+                  height: _tonalityBarHeight,
+                  horizontalInset: horizontalInset,
+                  keyTextScaleMultiplier: config.tonalityButtonTextScale,
+                  scaleDegreesTextScaleMultiplier: config.scaleDegreesTextScale,
+                  onScaleDegreesTap: () =>
+                      Navigator.of(context).push(ScaleExplorerPage.route()),
+                ),
+              ),
+            ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -377,85 +392,89 @@ class _HomePortrait extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tourKeys = ref.watch(demoTourKeysProvider);
-    return Column(
-      children: [
-        Flexible(
-          fit: FlexFit.loose,
-          child: AnalysisSection(config: config),
-        ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            KeyedSubtree(
-              key: tourKeys.prompt,
-              child: const DemoModeExplanation(),
-            ),
-            InputDisplay(
-              padding: config.inputDisplayPadding,
-              visualScaleMultiplier: config.inputDisplayVisualScale,
-              lookupButtonKey: tourKeys.lookupButton,
-            ),
-            KeyedSubtree(
-              key: tourKeys.tonalityBar,
-              child: TonalityBar(
-                height: _tonalityBarHeight,
-                horizontalInset: horizontalInset,
-                keyTextScaleMultiplier: config.tonalityButtonTextScale,
-                scaleDegreesTextScaleMultiplier: config.scaleDegreesTextScale,
-                onScaleDegreesTap: () =>
-                    Navigator.of(context).push(ScaleExplorerPage.route()),
-              ),
-            ),
-            const Divider(height: 1),
-            _BottomInputSection(config: config),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-/// Bottom input section. The keyboard stays mounted underneath; the lookup pad
-/// slides down from above to cover it (and back up to reveal it). Keeping the
-/// keyboard mounted means it never re-centers on the toggle.
-class _BottomInputSection extends ConsumerWidget {
-  const _BottomInputSection({required this.config});
-  final HomeLayoutConfig config;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
+    final highlightedNotes = ref.watch(liveSoundingNoteNumbersProvider);
     final lookupActive = ref.watch(lookupActiveProvider);
 
     return LayoutBuilder(
-      builder: (context, constraints) {
-        final height = KeyboardSection.heightForWidth(
-          constraints.maxWidth,
-          config,
-        );
-
-        return SizedBox(
-          height: height,
-          child: ClipRect(
-            child: Stack(
+      builder: (context, bodyConstraints) {
+        return Column(
+          children: [
+            Flexible(
+              fit: FlexFit.loose,
+              child: AnalysisSection(config: config),
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                KeyboardSection(config: config),
-                Positioned.fill(
-                  child: IgnorePointer(
-                    ignoring: !lookupActive,
-                    child: AnimatedSlide(
-                      offset: lookupActive ? Offset.zero : const Offset(0, -1),
-                      duration: const Duration(milliseconds: 260),
-                      curve: Curves.easeOutCubic,
-                      child: const LookupPad(),
+                KeyedSubtree(
+                  key: tourKeys.prompt,
+                  child: const DemoModeExplanation(),
+                ),
+                InputDisplay(
+                  padding: config.inputDisplayPadding,
+                  visualScaleMultiplier: config.inputDisplayVisualScale,
+                  lookupButtonKey: tourKeys.lookupButton,
+                ),
+                ResizableKeyboardArea(
+                  config: config,
+                  maxKeyboardHeight: maxKeyboardHeightForLayout(
+                    availableHeight: bodyConstraints.maxHeight,
+                    isLandscape: false,
+                    // tonality bar + separator band + 1px felt line, plus the
+                    // input display / demo prompt above.
+                    reservedChrome:
+                        _tonalityBarHeight +
+                        kPianoSeparatorLineHeight +
+                        1 +
+                        _portraitInputReserve,
+                    // Keep the identity card fully visible above the keyboard.
+                    minContent: portraitAnalysisMinContent(config),
+                  ),
+                  highlightedNotes: highlightedNotes,
+                  overlay: _LookupOverlay(active: lookupActive),
+                  hasTonalityBar: true,
+                  topBar: KeyedSubtree(
+                    key: tourKeys.tonalityBar,
+                    child: TonalityBar(
+                      height: _tonalityBarHeight,
+                      horizontalInset: horizontalInset,
+                      keyTextScaleMultiplier: config.tonalityButtonTextScale,
+                      scaleDegreesTextScaleMultiplier:
+                          config.scaleDegreesTextScale,
+                      onScaleDegreesTap: () =>
+                          Navigator.of(context).push(ScaleExplorerPage.route()),
                     ),
                   ),
                 ),
               ],
             ),
-          ),
+          ],
         );
       },
+    );
+  }
+}
+
+/// Lookup pad overlay. The keyboard stays mounted underneath; the pad slides
+/// down from above to cover it (and back up to reveal it). Keeping the keyboard
+/// mounted means it never re-centers on the toggle. Sized by the keyboard area
+/// it fills.
+class _LookupOverlay extends StatelessWidget {
+  const _LookupOverlay({required this.active});
+
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      ignoring: !active,
+      child: AnimatedSlide(
+        offset: active ? Offset.zero : const Offset(0, -1),
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
+        child: const LookupPad(),
+      ),
     );
   }
 }

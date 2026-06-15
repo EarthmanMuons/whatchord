@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../models/piano_key_decoration.dart';
@@ -299,9 +301,21 @@ class PianoKeyboardPainter extends CustomPainter {
     final markerColor = scaleMarkerColor!;
     final blackMarkerColor = Color.lerp(markerColor, Colors.white, 0.4)!;
     final blackKeyWidth = whiteKeyWidth * PianoGeometry.blackKeyWidthRatio;
+    final whiteKeyHeight = size.height;
 
-    final whiteRadius = (whiteKeyWidth * 0.20).clamp(4.0, 9.0).toDouble();
-    final blackRadius = (blackKeyWidth * 0.34).clamp(3.0, 6.5).toDouble();
+    // Markers grow with both key width and height (so an enlarged keyboard gets
+    // proportionally larger dots), but stay bounded by key width and a hard
+    // ceiling so they never overflow horizontally or balloon on a tall keyboard.
+    final whiteMaxRadius = math.max(math.min(whiteKeyWidth * 0.30, 11.0), 4.0);
+    final blackMaxRadius = math.max(math.min(blackKeyWidth * 0.44, 7.5), 3.0);
+    final whiteRadius = math
+        .max(whiteKeyWidth * 0.20, whiteKeyHeight * 0.026)
+        .clamp(4.0, whiteMaxRadius)
+        .toDouble();
+    final blackRadius = math
+        .max(blackKeyWidth * 0.34, whiteKeyHeight * 0.020)
+        .clamp(3.0, blackMaxRadius)
+        .toDouble();
 
     // Reserve room for a bottom label (the middle-C marker) and record its
     // on-key center. The reserve uses a fixed lift rather than the label's own
