@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Improved identification of doubled-note voicings, preventing incomplete
+  fifthless sixth chords from outranking complete inverted minor or diminished
+  chords.
+
 ## [2026.6.14] - 2026-06-14
 
 ### Added
