@@ -106,12 +106,12 @@ The first measured pass selected four contrasting common-subset genres:
 Two pieces produced no qualifying three-pitch-class events, leaving 94 pieces
 represented in event-level results.
 
-| Slice                                    | Events | Root exact | Root in top 3 | Root + inversion |
-| ---------------------------------------- | -----: | ---------: | ------------: | ---------------: |
-| All aligned three-pitch-class events     |  6,360 |     60.20% |        71.18% |           55.41% |
-| Clean pitch-set events                   |  3,026 |     93.72% |        97.62% |           88.90% |
-| Clean events with analyst-matching bass  |  2,872 |     93.66% |        97.56% |           93.66% |
-| Clean, non-symmetric mainstream families |  2,812 |     97.90% |       100.00% |           92.78% |
+| Slice                                    | Events | Root exact | Root visible | Root + inversion |
+| ---------------------------------------- | -----: | ---------: | -----------: | ---------------: |
+| All aligned three-pitch-class events     |  6,360 |     60.20% |       64.72% |           55.41% |
+| Clean pitch-set events                   |  3,026 |     93.72% |       98.45% |           88.90% |
+| Clean events with analyst-matching bass  |  2,872 |     93.66% |       98.36% |           93.66% |
+| Clean, non-symmetric mainstream families |  2,812 |     97.90% |      100.00% |           92.78% |
 
 The low all-event number is expected and confirms that the full Roman-numeral
 benchmark is the wrong product target. The clean-event results are the useful
@@ -119,27 +119,27 @@ signal.
 
 ### Results By Common Family
 
-| Analyst chord family    | Events | Root exact | Root in top 3 |
-| ----------------------- | -----: | ---------: | ------------: |
-| Major triad             |  1,531 |    100.00% |       100.00% |
-| Minor triad             |    764 |    100.00% |       100.00% |
-| Dominant seventh        |    337 |    100.00% |       100.00% |
-| Major seventh           |     14 |    100.00% |       100.00% |
-| Minor seventh           |     35 |     40.00% |       100.00% |
-| Half-diminished seventh |     47 |     19.15% |       100.00% |
-| Diminished triad        |     84 |    100.00% |       100.00% |
-| Diminished seventh      |     89 |     33.71% |        66.29% |
-| Augmented triad         |     18 |     22.22% |       100.00% |
+| Analyst chord family    | Events | Root exact | Root visible |
+| ----------------------- | -----: | ---------: | -----------: |
+| Major triad             |  1,531 |    100.00% |      100.00% |
+| Minor triad             |    764 |    100.00% |      100.00% |
+| Dominant seventh        |    337 |    100.00% |      100.00% |
+| Major seventh           |     14 |    100.00% |      100.00% |
+| Minor seventh           |     35 |     40.00% |      100.00% |
+| Half-diminished seventh |     47 |     19.15% |      100.00% |
+| Diminished triad        |     84 |    100.00% |      100.00% |
+| Diminished seventh      |     89 |     33.71% |       66.29% |
+| Augmented triad         |     18 |     22.22% |      100.00% |
 
 These numbers need musical interpretation:
 
 - Augmented triads and diminished sevenths are root-symmetric, so exact analyst
   root agreement is not a fair correctness measure.
 - Inverted minor, minor-seventh, half-diminished, and diminished structures have
-  common competing readings such as major-sixth or minor-sixth chords. The
-  remaining 100% top-three result for minor-seventh and half-diminished families
-  shows that candidate generation is strong; their disagreement is primarily
-  ranking and use-case convention.
+  common competing readings such as major-sixth or minor-sixth chords. The 100%
+  visible result for minor-seventh and half-diminished families shows that
+  WhatChord surfaces the analyst's reading as a near-tie alternative; their
+  disagreement is primarily naming convention rather than missing coverage.
 - Italian and German augmented-sixth labels do not map to a distinct WhatChord
   chord family. They are functional, key-dependent readings rather than isolated
   chord-symbol identities.
@@ -181,8 +181,8 @@ Contrapunctus's strongest contribution to WhatChord is methodological:
    agreement. Their meaning depends on tonal function and voice leading.
 6. Do not add a learned reranker yet. WhatChord's existing deterministic rules
    remain explainable, cross-platform, and strong on its directly comparable
-   task. The clean non-symmetric top-three result shows that targeted ranking
-   review is the higher-value next step.
+   task. The clean visible-alternative result shows that targeted ranking review
+   is the higher-value next step.
 
 ## Reviewing Cases
 
@@ -192,18 +192,20 @@ pieces, and emits a `bin/chord-debug` command for every review case.
 
 Review the report in this order:
 
-1. **Candidate gaps**: the analyst root is absent from WhatChord's top three.
-   These are the highest-value cases because candidate generation or template
-   coverage may be incomplete. First decide whether the analyst's contextual
-   root is also a defensible isolated-voicing root.
-2. **Ranking divergences**: WhatChord generates the analyst root but selects a
-   different reading. Review the most frequent deduplicated cases by family.
-   Compare structural fit, bass role, normal musician naming, and the existing
-   chord-oracle tools.
-3. **Annotation inversion differences**: WhatChord agrees on root, but the
+1. **Candidate gaps**: the analyst root is absent from WhatChord's candidate
+   list. These are the highest-value cases because candidate generation or
+   template coverage may be incomplete. First decide whether the analyst's
+   contextual root is also a defensible isolated-voicing root.
+2. **Hidden ranking divergences**: WhatChord generates the analyst root but does
+   not surface it within the near-tie window. These are product-visible misses
+   even when the root happens to rank second or third.
+3. **Visible ranking divergences**: WhatChord selects a different reading but
+   surfaces the analyst root as a near-tie alternative. Review these as naming
+   policy questions rather than coverage failures.
+4. **Annotation inversion differences**: WhatChord agrees on root, but the
    sounding score bass differs from the analyst's inversion. These are usually
    score/annotation or event-alignment questions rather than analyzer issues.
-4. **Symmetric roots and functional labels**: classify and retain for research,
+5. **Symmetric roots and functional labels**: classify and retain for research,
    but do not optimize exact-root ranking against them without a product-level
    reason.
 
@@ -231,7 +233,8 @@ The initial four-genre report produced this review backlog:
 | Flag                            | Events | Deduplicated cases |
 | ------------------------------- | -----: | -----------------: |
 | Candidate gap                   |      0 |                  0 |
-| Ranking divergence              |     59 |                 34 |
+| Hidden ranking divergence       |      0 |                  0 |
+| Visible ranking divergence      |     59 |                 34 |
 | Annotation inversion difference |    144 |                 93 |
 | Symmetric root                  |    107 |                 69 |
 | Functional label                |     23 |                 16 |
@@ -268,15 +271,15 @@ After the first review and analyzer correction, the benchmark was expanded with
 the separately fetched Riemenschneider chorales and TAVERN scores. The expanded
 run covers 473 pieces across six genres:
 
-| Genre                        |  Pieces | Aligned events | Clean events | Clean root exact | Clean root in top 3 |
-| ---------------------------- | ------: | -------------: | -----------: | ---------------: | ------------------: |
-| Bach WTC                     |      24 |            935 |          376 |           93.62% |              99.47% |
-| Brahms lieder                |       9 |            567 |          200 |           94.00% |              96.50% |
-| Bach chorales                |     370 |         20,939 |       17,001 |           95.06% |              99.96% |
-| Mozart sonatas               |      24 |          2,160 |          984 |           94.11% |              97.36% |
-| Schubert lieder              |      39 |          2,698 |        1,466 |           93.45% |              97.48% |
-| TAVERN variations            |       7 |          1,007 |          410 |           99.27% |             100.00% |
-| **Event-weighted aggregate** | **473** |     **28,306** |   **20,437** |       **94.95%** |          **99.62%** |
+| Genre                        |  Pieces | Aligned events | Clean events | Clean root exact | Clean root visible |
+| ---------------------------- | ------: | -------------: | -----------: | ---------------: | -----------------: |
+| Bach WTC                     |      24 |            935 |          376 |           93.62% |            100.00% |
+| Brahms lieder                |       9 |            567 |          200 |           94.00% |            100.00% |
+| Bach chorales                |     370 |         20,939 |       17,001 |           95.06% |             99.99% |
+| Mozart sonatas               |      24 |          2,160 |          984 |           94.11% |             97.66% |
+| Schubert lieder              |      39 |          2,698 |        1,466 |           93.45% |             98.36% |
+| TAVERN variations            |       7 |          1,007 |          410 |           99.27% |            100.00% |
+| **Event-weighted aggregate** | **473** |     **28,306** |   **20,437** |       **94.95%** |         **99.76%** |
 
 The aggregate is dominated by chorales, so the per-genre rows are more
 informative than the event-weighted aggregate. They show that the corrected
@@ -285,41 +288,78 @@ initial four-genre sample. TAVERN's low all-event agreement and high clean-event
 agreement also confirm that the clean-event filter is separating literal
 voicings from contextual or figural annotations as intended.
 
-Giving each genre equal weight produces 94.92% clean root agreement and 98.46%
-clean top-three coverage. This is the more appropriate headline when comparing
-future runs because it prevents the large chorale corpus from masking changes in
-the smaller genres.
+Giving each genre equal weight produces 94.92% clean root agreement and 99.33%
+clean visible-root agreement. This is the more appropriate headline when
+comparing future runs because it prevents the large chorale corpus from masking
+changes in the smaller genres.
+
+Top-three presence remains in `summary.json` only for continuity with the first
+run. It is not treated as a product match or a coverage boundary. A non-primary
+reading counts as visible only when it falls within WhatChord's near-tie window
+and would therefore be surfaced to the user. Candidate generation is checked
+against the full ranked result. In this run, visible agreement is higher than
+top-three presence because some near-tie alternatives rank below third but are
+still surfaced by the app.
 
 The expanded review report contains:
 
 | Flag                            | Events |
 | ------------------------------- | -----: |
 | Candidate gap                   |      0 |
-| Ranking divergence              |    804 |
+| Hidden ranking divergence       |      0 |
+| Visible ranking divergence      |    804 |
 | Annotation inversion difference |    317 |
 | Symmetric root                  |    376 |
 | Functional label                |     26 |
 | Explicit or incomplete label    |     74 |
 
-All 804 ranking divergences are one coherent ambiguity family:
+All 804 visible ranking divergences are one coherent ambiguity family:
 
 - 400 analyst-labeled minor-seventh chords ranked second behind root-position
   major-sixth chords;
 - 404 analyst-labeled half-diminished seventh chords ranked second behind
   root-position minor-sixth chords.
 
-The analyst root is WhatChord's second candidate in every case. Chorales
-contribute 743 of the 804 events, mostly first-inversion `ii6/5` and `iiø6/5`
-annotations. This is expected contextual Roman-numeral behavior, while
-WhatChord's selected sixth-chord label is a conventional isolated-voicing
+The analyst root is WhatChord's second, visible near-tie candidate in every
+case. Chorales contribute 743 of the 804 events, mostly first-inversion `ii6/5`
+and `iiø6/5` annotations. This is expected contextual Roman-numeral behavior,
+while WhatChord's selected sixth-chord label is a conventional isolated-voicing
 reading of the same pitch set and bass.
 
-The expanded run therefore does not justify another analyzer change by itself.
-The next logical research question is whether key context should ever promote
-the seventh-chord reading for these complete, inherently ambiguous voicings.
-That should be reviewed as an explicit product policy with focused examples,
-oracle comparisons, transpositions, and negative cases before changing the
-current isolated-voicing preference.
+### Sixth Versus Inverted Seventh Policy Review
+
+Focused examples, external oracles, transpositions, and negative cases support
+retaining the current preference:
+
+| Pitch set | Bass | WhatChord | music21 | Tonal        | pychord   |
+| --------- | ---- | --------- | ------- | ------------ | --------- |
+| C E G A   | C    | C6        | Am7/C   | C6, Am7/C    | no label  |
+| C E G A   | A    | Am7       | Am7     | Am7, C6/A    | Am7, C6/A |
+| D F A B   | D    | Dm6       | Bm7b5/D | Dm6, Bm7b5/D | no label  |
+| D F A B   | B    | Bm7b5     | Bm7b5   | Bm7b5, Dm6/B | no label  |
+
+The same structural results hold under transposition. They also hold when the
+selected key changes: `C6` versus `Am7/C` and `Dm6` versus `Bm7b5/D` remain
+ambiguous because both readings are normally diatonic together. Key alone does
+not reveal whether the sonority is functioning as an added-sixth chord or an
+inverted seventh chord; that requires progression or voice-leading context
+outside WhatChord's current observed-voicing input.
+
+The negative cases are decisive:
+
+- When the seventh-chord root is in the bass, WhatChord and the available
+  oracles converge on the root-position seventh chord.
+- When the sixth-chord root is in the bass, Tonal and WhatChord prefer the
+  root-position sixth while music21 applies its analysis-oriented inverted
+  seventh convention.
+- When neither competing root is in the bass, the oracle split persists rather
+  than revealing a stable key-context rule.
+
+The recommended policy is therefore to keep the bass-rooted isolated-voicing
+preference and continue surfacing the inverted seventh as a near-tie
+alternative. Do not promote the Roman-numeral root from key context alone. A
+future progression-aware analysis mode could revisit the choice because it would
+have the functional evidence that the corpus annotations use.
 
 ## Corpus Expansion Priority
 
