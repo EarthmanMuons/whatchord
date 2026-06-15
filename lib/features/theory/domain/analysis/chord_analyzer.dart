@@ -111,6 +111,8 @@ abstract final class ChordAnalyzer {
   // Dominant-stack coherence bonuses.
   static const _domStackPartial = 0.8; // root-position dom7 + 9 + #11
   static const _domStackFull = 2.1; // root-position dom7 + 9 + #11 + 13
+  static const _fifthlessExtensionStackBonus =
+      2.4; // root-position fifthless 9 + #11/13 stacks
 
   // Upper-structure slash-triad bonus.
   static const _add9BassUpperTriadBonus = 3.2; // e.g. D/E, C#/D#
@@ -484,6 +486,17 @@ abstract final class ChordAnalyzer {
       add('dominant stack', dominantStackDelta);
     }
 
+    final fifthlessExtensionStackDelta = _fifthlessExtensionStackBonusFor(
+      quality: template.quality,
+      extensions: extensions,
+      relMask: relMask,
+      bassInterval: bassInterval,
+    );
+    if (fifthlessExtensionStackDelta != 0) {
+      raw += fifthlessExtensionStackDelta;
+      add('fifthless extension stack', fifthlessExtensionStackDelta);
+    }
+
     final add9BassUpperTriadDelta = _add9BassUpperTriadBonusFor(
       quality: template.quality,
       extensions: extensions,
@@ -676,6 +689,31 @@ abstract final class ChordAnalyzer {
     if (!extensions.contains(ChordExtension.sharp11)) return 0;
     if (!extensions.contains(ChordExtension.thirteen)) return _domStackPartial;
     return _domStackFull;
+  }
+
+  static double _fifthlessExtensionStackBonusFor({
+    required ChordQualityToken quality,
+    required Set<ChordExtension> extensions,
+    required int relMask,
+    required int bassInterval,
+  }) {
+    // Root-position fifthless extended chords are conventional even when the
+    // omitted fifth lets another template reinterpret an upper color as a
+    // required altered fifth. Reward the coherent 9 + #11/13 stack directly,
+    // rather than relying on a later hard ranking override.
+    if (bassInterval != 0) return 0;
+    if (quality != ChordQualityToken.major7 &&
+        quality != ChordQualityToken.dominant7) {
+      return 0;
+    }
+    if (!extensions.contains(ChordExtension.nine)) return 0;
+    final hasUpperColor =
+        extensions.contains(ChordExtension.sharp11) ||
+        extensions.contains(ChordExtension.thirteen);
+    if (!hasUpperColor) return 0;
+    if ((relMask & (1 << perfectFifthInterval)) != 0) return 0;
+
+    return _fifthlessExtensionStackBonus;
   }
 
   static double _add9BassUpperTriadBonusFor({

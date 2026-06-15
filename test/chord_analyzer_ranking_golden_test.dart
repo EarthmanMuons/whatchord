@@ -436,6 +436,30 @@ void main() {
 
     golden(
       description:
+          'fifthless major-nine sharp-eleven beats major-nine flat-five',
+      expectedSymbol: 'Dbmaj9#11',
+      expectedAlternateSymbols: ['C#maj9b5', 'F7sus2(b13) / Db'],
+      pcs: ['C', 'Db', 'Eb', 'F', 'G'],
+      bass: 'Db',
+      expectedRoot: 'Db',
+      expectedQuality: ChordQualityToken.major7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
+      expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
+    ),
+
+    golden(
+      description: 'fifthless thirteenth beats altered sus slash',
+      expectedSymbol: 'Eb13',
+      expectedAlternateSymbols: ['C#maj7b5 / D#', 'F7sus2(b13) / Eb'],
+      pcs: ['C', 'Db', 'Eb', 'F', 'G'],
+      bass: 'Eb',
+      expectedRoot: 'Eb',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
+    ),
+
+    golden(
+      description:
           'common altered dominant beats rarer enharmonic ninth inversion',
       expectedSymbol: 'G7#5 / A',
       expectedAlternateSymbols: ['F9b5 / A'],
