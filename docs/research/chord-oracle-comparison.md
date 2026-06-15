@@ -18,6 +18,19 @@ It compares WhatChord against optional third-party libraries:
 The harness treats every external library as an advisory oracle. A disagreement
 is a triage signal, not proof that WhatChord is wrong.
 
+The advisory oracles, with the versions used during review:
+
+| Project            | Version | License      |
+| ------------------ | ------- | ------------ |
+| [music21][music21] | 10.1.0  | BSD-3-Clause |
+| [Tonal][tonal]     | 4.10.0  | MIT          |
+| [pychord][pychord] | 1.4.0   | MIT          |
+
+These libraries are comparison evidence, not runtime dependencies of WhatChord's
+analysis engine. `mise run research:oracle-install` installs them into local
+git-ignored directories: music21 and pychord into the project `.venv` via
+`uv pip install`, and Tonal into `node_modules` via `npm install --no-save`.
+
 For `music21`, the harness uses `harmony.chordSymbolFigureFromChord()` so
 comparison uses chord-symbol figures such as `C7`, `Am7/C`, and `Cm9`, not prose
 set-class descriptions. Using the generated figure directly also avoids music21
@@ -103,12 +116,13 @@ text. Each WhatChord row includes:
 Install whichever advisory oracles you want to compare:
 
 ```sh
-python3 -m pip install music21 pychord
-npm install @tonaljs/tonal
+uv pip install music21 pychord
+npm install --no-save --no-package-lock @tonaljs/tonal
 ```
 
 If you use `mise`, `mise run research:oracle-install` handles this into local
-ignored directories.
+ignored directories: the project `.venv` for the Python oracles and
+`node_modules` for Tonal.
 
 Then run the full comparison pass:
 
@@ -272,3 +286,7 @@ Finally, generated pitch-class sets are not weighted by musical frequency. Use
 the ChoCo coverage work alongside this harness: ChoCo helps identify which chord
 vocabulary appears in real annotations, while oracle comparison helps identify
 where naming and ranking are debatable.
+
+[music21]: https://github.com/cuthbertLab/music21
+[tonal]: https://github.com/tonaljs/tonal
+[pychord]: https://github.com/yuma-m/pychord
