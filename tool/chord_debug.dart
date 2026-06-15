@@ -72,9 +72,6 @@ void main(List<String> args) {
 
   final top = _readIntFlag(args, 'top', 't') ?? 5;
   final bassName = _readStringFlag(args, 'bass', 'b');
-  final bassDisplayFromFlag = bassName == null
-      ? null
-      : _displayNoteLabel(bassName);
 
   final keyFlag = _readStringFlag(args, 'key', 'k') ?? 'C:maj';
   final tonality = parseTonality(keyFlag);
@@ -104,56 +101,22 @@ void main(List<String> args) {
     return;
   }
 
-  final parsed = parseNotes(noteTokens);
-  final midi = parsed.midiNotes;
-  final pcs = parsed.pitchClasses;
-  final inputPcLabels = parsed.pcLabels;
-
-  if (pcs.isEmpty) {
+  final prepared = prepareChordDebugInput(
+    noteTokens: noteTokens,
+    bassName: bassName,
+    context: context,
+  );
+  if (prepared == null) {
     stderr.writeln('Could not parse any notes.');
     exitCode = 2;
     return;
   }
-
-  final bassPc = bassName != null
-      ? pitchClassFromNoteName(bassName)
-      : (midi.isNotEmpty
-            ? (midi.reduce((a, b) => a < b ? a : b) % 12)
-            : pcs.first);
-  final parsedPcMask = _pcMaskFrom(pcs);
-  final bassWasMissing = (parsedPcMask & (1 << bassPc)) == 0;
-  final pcMask = parsedPcMask | (1 << bassPc);
-
-  final input = ChordInput(
-    pcMask: pcMask,
-    bassPc: bassPc,
-    noteCount:
-        (midi.isNotEmpty ? midi.length : pcs.length) + (bassWasMissing ? 1 : 0),
-  );
-
-  final pcDisplays = {...pcs, bassPc}.map((pc) {
-    // If the user provided a name for this pc, prefer it.
-    final preserved = inputPcLabels[pc];
-    if (preserved != null) return (label: _displayNoteLabel(preserved), pc: pc);
-
-    // Otherwise (e.g., MIDI-only input), fall back to spelling.
-    return (
-      label: _displayNoteLabel(
-        _pcLabel(pc, context: context, chordRootName: null, role: null),
-      ),
-      pc: pc,
-    );
-  }).toList()..sort((a, b) => a.label.compareTo(b.label));
+  final input = prepared.input;
+  final pcDisplays = prepared.pcDisplays;
+  final bassLabel = prepared.bassLabel;
 
   // Input notes in entry order, matching the website demo's "Notes" line.
-  final noteLabels = inputNoteLabels(parsed, tonality: tonality);
-
-  final bassLabel =
-      bassDisplayFromFlag ??
-      _displayOptionalNoteLabel(inputPcLabels[bassPc]) ??
-      _displayNoteLabel(
-        _pcLabel(bassPc, context: context, chordRootName: null, role: null),
-      );
+  final noteLabels = inputNoteLabels(prepared.parsed, tonality: tonality);
 
   final verbose = _hasFlag(args, 'verbose', 'v');
   final compact = _hasFlag(args, 'compact', 'c');
@@ -185,7 +148,7 @@ void main(List<String> args) {
   }
   if (!compact) {
     stdout.writeln(
-      'notes: ${noteLabels.join(' ')}  |  bass: $bassLabel (pc $bassPc)  |  '
+      'notes: ${noteLabels.join(' ')}  |  bass: $bassLabel (pc ${input.bassPc})  |  '
       'key: ${tonalityDisplayLabel(context.tonality)}',
     );
     stdout.writeln('');
@@ -429,7 +392,81 @@ String _formatTones(
   return parts.join(' ');
 }
 
-void _writeJsonOutput({
+/// Parsed analysis input shared by the text, JSON, and batch output paths.
+typedef ChordDebugPrepared = ({
+  ChordInput input,
+  List<({String label, int pc})> pcDisplays,
+  String bassLabel,
+  NoteParse parsed,
+});
+
+/// Parses [noteTokens] (with an optional explicit [bassName]) into the
+/// [ChordInput], per-pitch display labels, and bass label used by every output
+/// path. Returns null when no notes could be parsed. Shared with the batch
+/// entry point (tool/chord_oracle_batch.dart) so its results match the CLI.
+ChordDebugPrepared? prepareChordDebugInput({
+  required List<String> noteTokens,
+  String? bassName,
+  required AnalysisContext context,
+}) {
+  final parsed = parseNotes(noteTokens);
+  final midi = parsed.midiNotes;
+  final pcs = parsed.pitchClasses;
+  final inputPcLabels = parsed.pcLabels;
+
+  if (pcs.isEmpty) return null;
+
+  final bassPc = bassName != null
+      ? pitchClassFromNoteName(bassName)
+      : (midi.isNotEmpty
+            ? (midi.reduce((a, b) => a < b ? a : b) % 12)
+            : pcs.first);
+  final parsedPcMask = _pcMaskFrom(pcs);
+  final bassWasMissing = (parsedPcMask & (1 << bassPc)) == 0;
+  final pcMask = parsedPcMask | (1 << bassPc);
+
+  final input = ChordInput(
+    pcMask: pcMask,
+    bassPc: bassPc,
+    noteCount:
+        (midi.isNotEmpty ? midi.length : pcs.length) + (bassWasMissing ? 1 : 0),
+  );
+
+  final pcDisplays = {...pcs, bassPc}.map((pc) {
+    // If the user provided a name for this pc, prefer it.
+    final preserved = inputPcLabels[pc];
+    if (preserved != null) return (label: _displayNoteLabel(preserved), pc: pc);
+
+    // Otherwise (e.g., MIDI-only input), fall back to spelling.
+    return (
+      label: _displayNoteLabel(
+        _pcLabel(pc, context: context, chordRootName: null, role: null),
+      ),
+      pc: pc,
+    );
+  }).toList()..sort((a, b) => a.label.compareTo(b.label));
+
+  final bassDisplayFromFlag = bassName == null
+      ? null
+      : _displayNoteLabel(bassName);
+  final bassLabel =
+      bassDisplayFromFlag ??
+      _displayOptionalNoteLabel(inputPcLabels[bassPc]) ??
+      _displayNoteLabel(
+        _pcLabel(bassPc, context: context, chordRootName: null, role: null),
+      );
+
+  return (
+    input: input,
+    pcDisplays: pcDisplays,
+    bassLabel: bassLabel,
+    parsed: parsed,
+  );
+}
+
+/// Builds the JSON payload emitted by `--format=json`. Shared with the batch
+/// entry point (tool/chord_oracle_batch.dart) so both produce identical output.
+Map<String, Object?> chordDebugJsonPayload({
   required ChordInput input,
   required AnalysisContext context,
   required ChordNotationStyle notation,
@@ -438,7 +475,7 @@ void _writeJsonOutput({
   required List<RankedCandidateDebug> results,
 }) {
   final bestScore = results.isEmpty ? null : results.first.candidate.score;
-  final payload = <String, Object?>{
+  return <String, Object?>{
     'input': <String, Object?>{
       'noteCount': input.noteCount,
       'pcMask': input.pcMask,
@@ -462,8 +499,28 @@ void _writeJsonOutput({
         ),
     ],
   };
+}
 
-  stdout.writeln(const JsonEncoder.withIndent('  ').convert(payload));
+void _writeJsonOutput({
+  required ChordInput input,
+  required AnalysisContext context,
+  required ChordNotationStyle notation,
+  required List<({String label, int pc})> pcDisplays,
+  required String bassLabel,
+  required List<RankedCandidateDebug> results,
+}) {
+  stdout.writeln(
+    const JsonEncoder.withIndent('  ').convert(
+      chordDebugJsonPayload(
+        input: input,
+        context: context,
+        notation: notation,
+        pcDisplays: pcDisplays,
+        bassLabel: bassLabel,
+        results: results,
+      ),
+    ),
+  );
 }
 
 Map<String, Object?> _candidateJson({

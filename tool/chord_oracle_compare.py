@@ -5,7 +5,7 @@ This is a discovery harness, not a test oracle. Disagreement rows are prompts
 for musical review, especially when mature tools disagree with each other.
 
 Examples:
-  python3 tool/chord_oracle_compare.py --max-cases 200
+  python3 tool/chord_oracle_compare.py
   python3 tool/chord_oracle_compare.py --min-notes 3 --max-notes 5 --basses all
   python3 tool/chord_oracle_compare.py --oracles music21 tonal pychord
 """
@@ -16,9 +16,7 @@ import argparse
 import csv
 import itertools
 import json
-import random
 import re
-import secrets
 import shutil
 import subprocess
 import sys
@@ -36,8 +34,6 @@ ORACLE_NAME_WIDTH = max(len(name) for name in DEFAULT_ORACLES)
 DEFAULT_MIN_NOTES = 3
 DEFAULT_MAX_NOTES = 7
 DEFAULT_BASSES = "all"
-DEFAULT_CASE_ORDER = "random"
-DEFAULT_MAX_CASES = 200
 DEFAULT_TOP = 4
 DEFAULT_REPORT_LIMIT = 50
 DEFAULT_JOBS = 8
@@ -232,22 +228,6 @@ def main() -> int:
         help="Generate every transposition instead of one canonical form.",
     )
     parser.add_argument(
-        "--max-cases",
-        type=int,
-        default=DEFAULT_MAX_CASES,
-        help="Stop after this many generated cases. Use 0 for no limit.",
-    )
-    parser.add_argument(
-        "--case-order",
-        choices=["ordered", "random"],
-        default=DEFAULT_CASE_ORDER,
-        help="Use deterministic generation order or seeded random order.",
-    )
-    parser.add_argument(
-        "--seed",
-        help="Seed for --case-order=random. If omitted, a seed is generated and reported.",
-    )
-    parser.add_argument(
         "--top",
         type=int,
         default=DEFAULT_TOP,
@@ -273,6 +253,22 @@ def main() -> int:
     )
     parser.add_argument("--out-dir", type=Path, default=Path("build/oracle-compare"))
     parser.add_argument("--chord-debug", type=Path, default=Path("bin/chord-debug"))
+    parser.add_argument(
+        "--chord-batch",
+        type=Path,
+        default=Path("tool/chord_oracle_batch.dart"),
+        help="Dart batch entry point used by --whatchord-mode=batch.",
+    )
+    parser.add_argument(
+        "--whatchord-mode",
+        choices=["batch", "cli"],
+        default="batch",
+        help=(
+            "How to run WhatChord. 'batch' streams all cases through one warm "
+            "Dart VM (fast, recommended for full passes); 'cli' shells out to "
+            "bin/chord-debug per case (slower, for single-case parity)."
+        ),
+    )
     args = parser.parse_args()
     if args.jobs < 1:
         parser.error("--jobs must be at least 1")
@@ -281,6 +277,9 @@ def main() -> int:
     chord_debug = args.chord_debug
     if not chord_debug.is_absolute():
         chord_debug = repo_root / chord_debug
+    chord_batch = args.chord_batch
+    if chord_batch.is_absolute():
+        chord_batch = chord_batch.relative_to(repo_root)
 
     reviewed = load_reviewed(DEFAULT_REVIEWED_PATH)
 
@@ -293,7 +292,7 @@ def main() -> int:
     rows = []
     summary = Counter()
 
-    generated_cases = list(
+    cases = list(
         generate_cases(
             min_notes=args.min_notes,
             max_notes=args.max_notes,
@@ -301,43 +300,29 @@ def main() -> int:
             canonical_transpositions=not args.all_transpositions,
         )
     )
-    seed = args.seed
-    if args.case_order == "random":
-        if seed is None:
-            seed = str(secrets.randbits(64))
-        rng = random.Random(seed)
-        rng.shuffle(generated_cases)
-
-    cases = generated_cases[: args.max_cases] if args.max_cases else generated_cases
 
     case_generation = {
         "min_notes": args.min_notes,
         "max_notes": args.max_notes,
         "basses": args.basses,
         "all_transpositions": args.all_transpositions,
-        "case_order": args.case_order,
-        "seed": seed,
-        "generated_cases": len(generated_cases),
-        "selected_cases": len(cases),
-        "max_cases": args.max_cases,
+        "generated_cases": len(cases),
         "jobs": args.jobs,
     }
-    reproduce_command = reproduction_command(
-        case_generation=case_generation,
-        max_cases=args.max_cases,
-        top=args.top,
-        report_limit=args.report_limit,
-        oracles=[oracle.name for oracle in oracles],
-        jobs=args.jobs,
-    )
 
     with ThreadPoolExecutor(max_workers=args.jobs) as executor:
-        whats = list(
-            executor.map(
-                lambda case: run_whatchord(chord_debug, case, top=args.top),
-                cases,
+        if args.whatchord_mode == "batch":
+            whats = run_whatchord_batch(
+                chord_batch, cases, top=args.top, repo_root=repo_root
             )
-        )
+        else:
+            # Per-case CLI runs must stay serial: concurrent `dart run`
+            # invocations clash on the shared native-assets build cache. This
+            # mode is a single-case/debug escape hatch, so --jobs only affects
+            # oracle detection below.
+            whats = [
+                run_whatchord(chord_debug, case, top=args.top) for case in cases
+            ]
         oracle_inputs = [
             oracle_input_from_whatchord(what, fallback=case)
             for case, what in zip(cases, whats)
@@ -370,6 +355,10 @@ def main() -> int:
     for row in rows:
         summary[row["review_flag"]] += 1
 
+    generated_ids = {case.case_id for case in cases}
+    reviewed_audit = audit_reviewed(reviewed, rows, generated_ids)
+    patterns = disagreement_patterns(rows, reviewed=reviewed)
+
     csv_path = args.out_dir / "chord_oracle_comparison.csv"
     json_path = args.out_dir / "chord_oracle_summary.json"
     report_path = args.out_dir / "chord_oracle_report.txt"
@@ -380,22 +369,22 @@ def main() -> int:
         summary=summary,
         oracles=[oracle.name for oracle in oracles],
         case_generation=case_generation,
-        reproduce_command=reproduce_command,
         csv_path=csv_path,
         json_path=json_path,
         limit=args.report_limit,
         reviewed=reviewed,
+        reviewed_audit=reviewed_audit,
+        patterns=patterns,
     )
     json_path.write_text(
         json.dumps(
             {
                 "cases": len(rows),
                 "oracles": [oracle.name for oracle in oracles],
-                "case_order": args.case_order,
-                "seed": seed,
                 "case_generation": case_generation,
-                "reproduce_command": reproduce_command,
                 "review_flags": dict(summary),
+                "reviewed_audit": reviewed_audit,
+                "patterns": patterns,
                 "csv": str(csv_path),
                 "report": str(report_path),
             },
@@ -406,14 +395,200 @@ def main() -> int:
     )
 
     print(f"Compared {len(rows)} cases with: {', '.join(oracle.name for oracle in oracles)}")
-    if seed is not None:
-        print(f"Seed: {seed}")
     for flag, count in summary.most_common():
         print(f"{flag}: {count}")
+    audit_buckets = reviewed_audit["buckets"]
+    prunable = (
+        len(audit_buckets["resolved"])
+        + len(audit_buckets["no-longer-comparable"])
+        + len(audit_buckets["orphaned"])
+    )
+    if reviewed:
+        print(
+            f"Reviewed audit: {prunable} prunable, "
+            f"{len(audit_buckets['drifted'])} drifted, "
+            f"{len(audit_buckets['still-valid'])} still valid"
+        )
     print(f"Wrote {csv_path}")
     print(f"Wrote {json_path}")
     print(f"Wrote {report_path}")
     return 0
+
+
+PATTERN_FLAGS = {"disagreement", "oracle-split", "ranking-divergence"}
+
+
+def disagreement_patterns(
+    rows: list[dict[str, object]],
+    *,
+    reviewed: dict[str, dict[str, str]],
+) -> list[dict[str, object]]:
+    """Groups open disagreements by a whatchord-vs-oracle quality signature.
+
+    A signature like 'min6 vs m7b5' clusters every row where WhatChord and a
+    disagreeing oracle name the same chord family differently, so one ranking
+    change can resolve many rows at once. Reviewed case_ids are excluded so
+    patterns reflect open work.
+    """
+    clusters: dict[str, dict[str, object]] = {}
+    for row in rows:
+        case_id = str(row["case_id"])
+        if str(row["review_flag"]) not in PATTERN_FLAGS or case_id in reviewed:
+            continue
+        whatchord_quality = _whatchord_quality_token(row)
+        oracle_quality = _row_disagreeing_quality(row)
+        signature = f"{whatchord_quality} vs {oracle_quality}"
+        cluster = clusters.setdefault(
+            signature,
+            {"signature": signature, "count": 0, "flags": Counter(), "examples": []},
+        )
+        cluster["count"] = int(cluster["count"]) + 1
+        cluster["flags"][str(row["review_flag"])] += 1  # type: ignore[index]
+        examples = cluster["examples"]
+        if isinstance(examples, list) and len(examples) < 5:
+            examples.append(
+                {
+                    "case_id": case_id,
+                    "notes": str(row["notes"]),
+                    "bass": str(row["bass"]),
+                    "whatchord": str(row["whatchord_symbol"]),
+                    "command": chord_debug_command(row),
+                }
+            )
+    return [
+        {
+            "signature": cluster["signature"],
+            "count": cluster["count"],
+            "flags": dict(cluster["flags"]),  # type: ignore[arg-type]
+            "examples": cluster["examples"],
+        }
+        for cluster in sorted(
+            clusters.values(),
+            key=lambda c: (-int(c["count"]), str(c["signature"])),
+        )
+    ]
+
+
+# WhatChord base-quality enum names mapped to the compact token vocabulary the
+# oracle side uses, so a signature reads symmetrically (e.g. "7 vs min7" rather
+# than "dominant7 vs min7"). Only used as a fallback when the display symbol
+# itself cannot be parsed into a comparable token (mostly 11th/13th headlines).
+_QUALITY_ENUM_TOKENS = {
+    "major": "maj",
+    "majorFlat5": "majb5",
+    "minor": "min",
+    "minorSharp5": "min#5",
+    "diminished": "dim",
+    "augmented": "aug",
+    "sus2": "sus2",
+    "sus4": "sus4",
+    "sus2sus4": "sus2sus4",
+    "major6": "6",
+    "minor6": "min6",
+    "dominant7": "7",
+    "dominant7sus2": "7sus2",
+    "dominant7sus4": "7sus4",
+    "dominant7Flat5": "7b5",
+    "dominant7Sharp5": "7#5",
+    "major7": "maj7",
+    "major7sus2": "maj7sus2",
+    "major7sus4": "maj7sus4",
+    "major7Flat5": "maj7b5",
+    "major7Sharp5": "maj7#5",
+    "minor7": "min7",
+    "minor7Sharp5": "min7#5",
+    "minorMajor7": "minmaj7",
+    "halfDiminished7": "m7b5",
+    "diminished7": "dim7",
+}
+
+
+def _whatchord_quality_token(row: dict[str, object]) -> str:
+    token = _label_quality_token(str(row["whatchord_symbol"]))
+    if token:
+        return token
+    quality = str(row["whatchord_quality"])
+    return _QUALITY_ENUM_TOKENS.get(quality, quality or "?")
+
+
+def _row_disagreeing_quality(row: dict[str, object]) -> str:
+    names = str(row["disagreeing_oracles"]).split()
+    names += str(row.get("ranking_divergence_oracles", "")).split()
+    for name in names:
+        labels = str(row.get(f"{name}_labels", ""))
+        primary = labels.split(" | ")[0] if labels else ""
+        token = _label_quality_token(primary)
+        if token:
+            return token
+    return "?"
+
+
+def _label_quality_token(label: str) -> str:
+    comparable = comparable_label(label)
+    if not comparable or ":" not in comparable:
+        return ""
+    return comparable.split(":", 1)[1]
+
+
+def audit_reviewed(
+    reviewed: dict[str, dict[str, str]],
+    rows: list[dict[str, object]],
+    generated_ids: set[str],
+) -> dict[str, object]:
+    """Re-evaluates each reviewed entry against the current run.
+
+    Buckets:
+      resolved             now agrees with the oracles -> remove from JSON.
+      no-longer-comparable no longer flagged but not 'agree' (oracles stopped
+                           returning a comparable label) -> likely removable.
+      drifted              still flagged, but the current top symbol is no
+                           longer mentioned in the stored note -> re-review.
+      still-valid          still flagged and consistent with the note -> keep.
+      orphaned             case_id is not in the generated pool at all -> remove.
+    """
+    rows_by_id = {str(row["case_id"]): row for row in rows}
+    buckets: dict[str, list[str]] = {
+        "resolved": [],
+        "no-longer-comparable": [],
+        "drifted": [],
+        "still-valid": [],
+        "orphaned": [],
+    }
+    for case_id, entry in sorted(reviewed.items()):
+        if case_id not in generated_ids:
+            buckets["orphaned"].append(case_id)
+            continue
+        row = rows_by_id[case_id]
+        flag = str(row["review_flag"])
+        if flag == "agree":
+            buckets["resolved"].append(case_id)
+        elif not needs_attention(row):
+            buckets["no-longer-comparable"].append(case_id)
+        elif _note_mentions_symbol(
+            str(entry.get("note", "")), str(row["whatchord_symbol"])
+        ):
+            buckets["still-valid"].append(case_id)
+        else:
+            buckets["drifted"].append(case_id)
+
+    return {"buckets": buckets, "total": len(reviewed)}
+
+
+def _note_mentions_symbol(note: str, symbol: str) -> bool:
+    def norm(value: str) -> str:
+        value = value.replace("♯", "#").replace("♭", "b")
+        for drop in (" ", "(", ")"):
+            value = value.replace(drop, "")
+        return value.lower()
+
+    normalized_note = norm(note)
+    normalized_symbol = norm(symbol)
+    if not normalized_symbol:
+        return True
+    if normalized_symbol in normalized_note:
+        return True
+    base = normalized_symbol.split("/", 1)[0]
+    return bool(base) and base in normalized_note
 
 
 def load_reviewed(path: Path) -> dict[str, dict[str, str]]:
@@ -455,46 +630,6 @@ def _available_oracles(names: Iterable[str]) -> list[Oracle]:
         else:
             print(f"Skipping {name}: {reason}", file=sys.stderr)
     return out
-
-
-def reproduction_command(
-    *,
-    case_generation: dict[str, object],
-    max_cases: int,
-    top: int,
-    report_limit: int,
-    oracles: list[str],
-    jobs: int,
-) -> str:
-    args = [
-        "mise",
-        "exec",
-        "--",
-        "python",
-        "tool/chord_oracle_compare.py",
-        f"--seed={case_generation['seed']}",
-    ]
-    if case_generation["min_notes"] != DEFAULT_MIN_NOTES:
-        args.append(f"--min-notes={case_generation['min_notes']}")
-    if case_generation["max_notes"] != DEFAULT_MAX_NOTES:
-        args.append(f"--max-notes={case_generation['max_notes']}")
-    if case_generation["basses"] != DEFAULT_BASSES:
-        args.append(f"--basses={case_generation['basses']}")
-    if case_generation["case_order"] != DEFAULT_CASE_ORDER:
-        args.append(f"--case-order={case_generation['case_order']}")
-    if max_cases != DEFAULT_MAX_CASES:
-        args.append(f"--max-cases={max_cases}")
-    if top != DEFAULT_TOP:
-        args.append(f"--top={top}")
-    if report_limit != DEFAULT_REPORT_LIMIT:
-        args.append(f"--report-limit={report_limit}")
-    if jobs != DEFAULT_JOBS:
-        args.append(f"--jobs={jobs}")
-    if case_generation["all_transpositions"]:
-        args.append("--all-transpositions")
-    if tuple(oracles) != DEFAULT_ORACLES:
-        args.extend(["--oracles", *oracles])
-    return " ".join(str(arg) for arg in args)
 
 
 def generate_cases(
@@ -545,6 +680,59 @@ def run_whatchord(chord_debug: Path, case: Case, *, top: int) -> dict:
     if result.returncode != 0:
         raise RuntimeError(f"WhatChord failed for {case.case_id}: {result.stderr}")
     return json.loads(result.stdout)
+
+
+def run_whatchord_batch(
+    chord_batch: Path,
+    cases: list[Case],
+    *,
+    top: int,
+    repo_root: Path,
+) -> list[dict]:
+    """Analyze every case in a single warm Dart VM.
+
+    Streams one JSON request per line into tool/chord_oracle_batch.dart, which
+    emits one chord-debug-shaped payload per line. Output is matched back to
+    cases by id, so results are identical to the per-case CLI path but without
+    paying `dart run` startup for each case.
+    """
+    payload = "".join(
+        json.dumps(
+            {
+                "id": case.case_id,
+                "notes": list(case.notes),
+                "bass": case.bass,
+                "top": top,
+                "key": "C:maj",
+            }
+        )
+        + "\n"
+        for case in cases
+    )
+    result = subprocess.run(
+        ["dart", "run", str(chord_batch)],
+        input=payload,
+        text=True,
+        capture_output=True,
+        cwd=str(repo_root),
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"WhatChord batch failed: {result.stderr}")
+    by_id: dict[str, dict] = {}
+    for line in result.stdout.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        obj = json.loads(line)
+        by_id[obj["id"]] = obj
+    missing = [case.case_id for case in cases if case.case_id not in by_id]
+    if missing:
+        raise RuntimeError(
+            f"WhatChord batch returned no result for {len(missing)} case(s): "
+            f"{', '.join(missing[:5])}"
+        )
+    return [by_id[case.case_id] for case in cases]
 
 
 def oracle_input_from_whatchord(
@@ -1161,14 +1349,17 @@ def write_report(
     summary: Counter,
     oracles: list[str],
     case_generation: dict[str, object],
-    reproduce_command: str,
     csv_path: Path,
     json_path: Path,
     limit: int,
     reviewed: dict[str, dict[str, str]] | None = None,
+    reviewed_audit: dict[str, object] | None = None,
+    patterns: list[dict[str, object]] | None = None,
 ) -> None:
     if reviewed is None:
         reviewed = {}
+    if patterns is None:
+        patterns = []
     attention_rows = [
         row
         for row in sorted(rows, key=attention_sort_key)
@@ -1192,13 +1383,9 @@ def write_report(
         "---",
         f"Cases reviewed:      {len(rows)}",
         f"Oracles:             {', '.join(oracles)}",
-        f"Case order:          {case_generation['case_order']}",
-        f"Seed:                {case_generation['seed'] or 'none'}",
         f"Generated case pool: {case_generation['generated_cases']}",
-        f"Selected cases:      {case_generation['selected_cases']}",
         f"CSV:                 {csv_path}",
         f"Summary JSON:        {json_path}",
-        f"Reproduce:           {reproduce_command}",
         "",
         "Review Flags",
         "------------",
@@ -1208,6 +1395,11 @@ def write_report(
     for flag in sorted(REVIEW_FLAG_EXPLANATIONS, key=flag_sort_key):
         lines.append(f"{flag} ({summary.get(flag, 0)})")
         lines.append(f"  {REVIEW_FLAG_EXPLANATIONS[flag]}")
+
+    if reviewed_audit is not None and reviewed_audit.get("total"):
+        lines.extend(reviewed_audit_lines(reviewed_audit))
+
+    lines.extend(disagreement_pattern_lines(patterns))
 
     lines.extend(
         [
@@ -1236,6 +1428,66 @@ def write_report(
     )
 
     path.write_text("\n".join(lines), encoding="utf-8")
+
+
+REVIEWED_AUDIT_ACTIONS = {
+    "resolved": "now agrees -- remove from chord_oracle_reviewed.json",
+    "no-longer-comparable": "no comparable oracle label -- likely removable",
+    "drifted": "still flagged but top symbol changed -- re-review the note",
+    "orphaned": "case_id not in the generated pool -- remove",
+    "still-valid": "still flagged and consistent with the note -- keep",
+}
+
+
+def reviewed_audit_lines(audit: dict[str, object]) -> list[str]:
+    buckets = audit["buckets"]
+    assert isinstance(buckets, dict)
+    lines = [
+        "",
+        "Reviewed Audit",
+        "--------------",
+        "",
+        f"Re-evaluated {audit['total']} reviewed entries against this run.",
+        "",
+    ]
+    for bucket, action in REVIEWED_AUDIT_ACTIONS.items():
+        ids = buckets.get(bucket, [])
+        if not ids:
+            continue
+        lines.append(f"{bucket} ({len(ids)}) -- {action}")
+        lines.append(f"  {' '.join(str(case_id) for case_id in ids)}")
+    return lines
+
+
+def disagreement_pattern_lines(patterns: list[dict[str, object]]) -> list[str]:
+    lines = [
+        "",
+        "Disagreement Patterns",
+        "---------------------",
+        "",
+        "Open disagreements grouped by whatchord-vs-oracle quality signature.",
+        "Large clusters are candidates for one broad ranking change.",
+        "",
+    ]
+    if not patterns:
+        lines.append("No open disagreement patterns.")
+        return lines
+    for pattern in patterns:
+        flags = pattern["flags"]
+        assert isinstance(flags, dict)
+        flag_summary = ", ".join(
+            f"{flag}:{count}" for flag, count in sorted(flags.items())
+        )
+        lines.append(f"{pattern['signature']}  ({pattern['count']}; {flag_summary})")
+        examples = pattern["examples"]
+        assert isinstance(examples, list)
+        for example in examples:
+            lines.append(
+                f"  {example['case_id']}: {example['whatchord']}    "
+                f"{example['command']}"
+            )
+        lines.append("")
+    return lines
 
 
 def attention_sort_key(row: dict[str, object]) -> tuple[int, int, str]:
