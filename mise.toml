@@ -28,14 +28,9 @@ run = [
 ]
 
 [tasks."oracle:compare"]
-description = "Run the chord oracle comparison harness"
+description = "Run the full chord oracle comparison pass with reviewed audit"
 depends = ["oracle:install"]
 run = "python tool/chord_oracle_compare.py"
-
-[tasks."oracle:compare:sample"]
-description = "Run a small chord oracle comparison sample"
-depends = ["oracle:install"]
-run = "python tool/chord_oracle_compare.py --max-cases 20"
 
 [tasks."symbols:install"]
 description = "Install Python dependencies for regenerating WhatChord Symbols fonts"

@@ -44,37 +44,20 @@ where mature tools disagree with WhatChord's primary label.
 ## What Gets Generated
 
 The harness generates pitch-class sets rather than scraping named chord lists.
-It first builds a deterministic candidate pool:
+It builds a deterministic candidate pool:
 
-1. Adds a small set of practical seed shapes so common chord families are
-   represented in the generated pool.
-2. Then enumerates chromatic pitch-class sets of size 3 through 7.
-3. Canonicalizes transpositions so equivalent shapes are tested once.
-4. Tests every pitch class in the set as the bass.
+1. Enumerates chromatic pitch-class sets of size 3 through 7.
+2. Canonicalizes transpositions so equivalent shapes are tested once.
+3. Tests every pitch class in the set as the bass.
 
-By default, it shuffles that candidate pool and stops after 500 cases unless a
-different limit is requested. This makes routine sample runs more useful for
-discovery while still avoiding over-weighting all 12 transpositions of the same
-structure.
+The harness always runs this entire pool in stable enumeration order. With the
+default 3- to 7-note range, canonical transposition handling, and all bass
+choices, that is currently around sixteen hundred cases. The pool is much
+smaller than every raw note-name combination because transposition-equivalent
+pitch-class sets are collapsed before bass choices are expanded.
 
-With the default 3- to 7-note range, canonical transposition handling, practical
-seeds, and all bass choices, the generated pool is currently around sixteen
-hundred cases. That is much smaller than every raw note-name combination because
-transposition-equivalent pitch-class sets are collapsed before bass choices are
-expanded. The seed list is only a supplement; the main discovery surface is the
-randomized canonical pitch-class pool. In random mode, practical seeds are
-shuffled with the rest of the pool rather than being forced to the front of a
-limited sample.
-
-Random order is the default. Without `--seed`, the harness generates a seed,
-prints it, and stores it in `chord_oracle_summary.json`. To reproduce the same
-selected cases and order later:
-
-```sh
-python3 tool/chord_oracle_compare.py --seed 12345 --max-cases 20
-```
-
-Use `--case-order ordered` when you want stable enumeration without shuffling.
+Every run covers this same complete pool, so results are deterministic and the
+reviewed-entry audit always reflects every reviewed case.
 
 Use `--all-transpositions` when spelling or key-specific behavior is the thing
 being investigated. The default canonical mode is better for finding structural
@@ -82,11 +65,28 @@ naming disagreements.
 
 ## WhatChord Entry Point
 
-The harness calls WhatChord through:
+By default the harness analyzes every case in a single warm Dart VM through a
+persistent batch process:
+
+```sh
+dart run tool/chord_oracle_batch.dart
+```
+
+It reads one JSON request per line and emits one chord-debug-shaped payload per
+line, so a full ~1600-case pass completes in a few tens of seconds. The batch
+entry point shares its input parsing and JSON payload with `bin/chord-debug`
+(via `prepareChordDebugInput` and `chordDebugJsonPayload`), so its output is
+byte-identical to the per-case CLI.
+
+For single-case parity checks or debugging, the harness can also analyze one
+case at a time through the CLI:
 
 ```sh
 bin/chord-debug C E G --bass=C --format=json
 ```
+
+Use `--whatchord-mode=cli` to force the per-case path; the default is
+`--whatchord-mode=batch`.
 
 The JSON output keeps the comparison script from scraping human-readable debug
 text. Each WhatChord row includes:
@@ -110,22 +110,21 @@ npm install @tonaljs/tonal
 If you use `mise`, `mise run oracle:install` handles this into local ignored
 directories.
 
-Then run a 500-case sample:
+Then run the full comparison pass:
 
 ```sh
-python3 tool/chord_oracle_compare.py --max-cases 500
+mise run oracle:compare
+# equivalent to:
+python3 tool/chord_oracle_compare.py
 ```
 
-For an exhaustive canonical pass over all 3- to 7-note pitch-class sets:
-
-```sh
-python3 tool/chord_oracle_compare.py --max-cases 0
-```
+This runs the entire canonical pool (around sixteen hundred cases) in a few tens
+of seconds and produces the complete reviewed-entry audit.
 
 To include every transposition instead of canonical representatives:
 
 ```sh
-python3 tool/chord_oracle_compare.py --all-transpositions --max-cases 0
+python3 tool/chord_oracle_compare.py --all-transpositions
 ```
 
 For quick manual exploration of a single voicing:
@@ -148,9 +147,35 @@ build/oracle-compare/chord_oracle_summary.json
 build/oracle-compare/chord_oracle_report.txt
 ```
 
-Start with `chord_oracle_report.txt`. The report focuses on rows most likely to
-need attention, includes a review-flag legend, and gives copy/pasteable
-`bin/chord-debug` commands for each case.
+Start with `chord_oracle_report.txt`. It has four parts: a review-flag legend, a
+Reviewed Audit, Disagreement Patterns, and the per-row Attention Queue. The
+queue gives copy/pasteable `bin/chord-debug` commands for each case, while the
+two sections above it are the better entry points for broad work.
+
+### Reviewed Audit
+
+The audit re-evaluates every `tool/chord_oracle_reviewed.json` entry against the
+current engine and sorts them into buckets:
+
+- `resolved` -- the case now agrees with the oracles; remove it from the JSON.
+- `no-longer-comparable` -- no longer flagged, but not a clean agree (oracles
+  stopped returning a comparable label); usually removable.
+- `drifted` -- still flagged, but WhatChord's current top symbol is no longer
+  mentioned in the stored note; re-read the note before trusting it.
+- `still-valid` -- still flagged and consistent with the note; keep.
+- `orphaned` -- the `case_id` is not in the generated pool at all; remove.
+
+The audit tells you which entries to prune; it is report-only and never edits
+the JSON.
+
+### Disagreement Patterns
+
+This section groups open (non-reviewed) disagreements by a
+`whatchord-quality vs oracle-quality` signature, largest cluster first. A large
+cluster means many cases share one naming-rule disagreement, so a single ranking
+change can resolve them together. Each cluster lists a few example cases with
+ready-to-run `bin/chord-debug` commands. The same clusters appear as a
+machine-readable `patterns` array in `chord_oracle_summary.json`.
 
 ## Reading The CSV
 
@@ -197,8 +222,9 @@ playing.
 5. After any scoring or ranking-rule change, run focused tests and the full
    chord golden suite. Review every changed golden result rather than accepting
    it mechanically.
-6. Add unresolved-but-reviewed cases to `tool/chord_oracle_reviewed.json`.
-   Remove entries after WhatChord naturally agrees with the oracles.
+6. Add unresolved-but-reviewed cases to `tool/chord_oracle_reviewed.json`. Prune
+   entries the Reviewed Audit lists as `resolved`, `no-longer-comparable`, or
+   `orphaned`, and re-check anything it lists as `drifted`.
 
 Reviewed entries use this shape:
 
