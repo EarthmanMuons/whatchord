@@ -262,26 +262,81 @@ The change also reopened and corrected the older doubled-root golden. This is a
 useful example of why golden expectations should record current decisions
 without being treated as permanent musical authority.
 
+## Expanded Corpus Validation
+
+After the first review and analyzer correction, the benchmark was expanded with
+the separately fetched Riemenschneider chorales and TAVERN scores. The expanded
+run covers 473 pieces across six genres:
+
+| Genre                        |  Pieces | Aligned events | Clean events | Clean root exact | Clean root in top 3 |
+| ---------------------------- | ------: | -------------: | -----------: | ---------------: | ------------------: |
+| Bach WTC                     |      24 |            935 |          376 |           93.62% |              99.47% |
+| Brahms lieder                |       9 |            567 |          200 |           94.00% |              96.50% |
+| Bach chorales                |     370 |         20,939 |       17,001 |           95.06% |              99.96% |
+| Mozart sonatas               |      24 |          2,160 |          984 |           94.11% |              97.36% |
+| Schubert lieder              |      39 |          2,698 |        1,466 |           93.45% |              97.48% |
+| TAVERN variations            |       7 |          1,007 |          410 |           99.27% |             100.00% |
+| **Event-weighted aggregate** | **473** |     **28,306** |   **20,437** |       **94.95%** |          **99.62%** |
+
+The aggregate is dominated by chorales, so the per-genre rows are more
+informative than the event-weighted aggregate. They show that the corrected
+analyzer holds across every included genre rather than merely fitting the
+initial four-genre sample. TAVERN's low all-event agreement and high clean-event
+agreement also confirm that the clean-event filter is separating literal
+voicings from contextual or figural annotations as intended.
+
+Giving each genre equal weight produces 94.92% clean root agreement and 98.46%
+clean top-three coverage. This is the more appropriate headline when comparing
+future runs because it prevents the large chorale corpus from masking changes in
+the smaller genres.
+
+The expanded review report contains:
+
+| Flag                            | Events |
+| ------------------------------- | -----: |
+| Candidate gap                   |      0 |
+| Ranking divergence              |    804 |
+| Annotation inversion difference |    317 |
+| Symmetric root                  |    376 |
+| Functional label                |     26 |
+| Explicit or incomplete label    |     74 |
+
+All 804 ranking divergences are one coherent ambiguity family:
+
+- 400 analyst-labeled minor-seventh chords ranked second behind root-position
+  major-sixth chords;
+- 404 analyst-labeled half-diminished seventh chords ranked second behind
+  root-position minor-sixth chords.
+
+The analyst root is WhatChord's second candidate in every case. Chorales
+contribute 743 of the 804 events, mostly first-inversion `ii6/5` and `iiø6/5`
+annotations. This is expected contextual Roman-numeral behavior, while
+WhatChord's selected sixth-chord label is a conventional isolated-voicing
+reading of the same pitch set and bass.
+
+The expanded run therefore does not justify another analyzer change by itself.
+The next logical research question is whether key context should ever promote
+the seventh-chord reading for these complete, inherently ambiguous voicings.
+That should be reviewed as an explicit product policy with focused examples,
+oracle comparisons, transpositions, and negative cases before changing the
+current isolated-voicing preference.
+
 ## Corpus Expansion Priority
 
 The separately fetched sources are not equally valuable to WhatChord:
 
-1. **Riemenschneider chorales: high priority.** They add 370 common-subset
-   pieces and roughly 21,628 annotated events. Their homophonic SATB texture is
-   close to simultaneous live chord input and should provide the strongest
-   validation of common triad, seventh, inversion, and voice-leading cases.
-2. **TAVERN: medium priority.** Its seven common-subset variation sets add
-   roughly 2,882 events. The figural and arpeggiated texture is less directly
-   comparable, but it is useful for measuring how often the clean-event filter
-   separates literal voicings from contextual annotations.
+1. **Riemenschneider chorales: completed.** Their homophonic SATB texture
+   provided the strongest validation of common triad, seventh, inversion, and
+   voice-leading cases.
+2. **TAVERN: completed.** Its figural and arpeggiated texture confirmed that the
+   clean-event filter separates literal voicings from contextual annotations.
 3. **Monteverdi: optional, separate report.** Its 48 madrigals are deliberately
    pre-tonal and excluded from Contrapunctus's tonal aggregate. They are useful
    for robustness and modal-edge-case research, not as a WhatChord accuracy
    target.
 
-Fetch chorales and TAVERN after the first candidate-gap and ranking-family
-review. That sequence lets the expanded corpus validate a review policy instead
-of merely producing a larger unclassified queue.
+Do not mix Monteverdi into the tonal accuracy aggregate. Fetch and run it only
+when there is a specific modal or pre-tonal robustness question to investigate.
 
 ## Reproducing
 
@@ -300,12 +355,24 @@ Run the comparable WhatChord slice:
   --groups bach-wtc mozart-sonatas-dcml brahms-lieder schubert-lieder
 ```
 
-Outputs are written to:
+Run the expanded six-genre validation:
+
+```sh
+./.venv/bin/python tool/when_in_rome_chord_benchmark.py \
+  /private/tmp/contrapunctus-bench \
+  --groups bach-wtc mozart-sonatas-dcml brahms-lieder schubert-lieder \
+    chorales tavern \
+  --out-dir build/when-in-rome-chord-benchmark-expanded
+```
+
+Outputs are written under the selected output directory. The default run uses
+`build/when-in-rome-chord-benchmark`; the expanded command above uses
+`build/when-in-rome-chord-benchmark-expanded`. Each contains:
 
 ```text
-build/when-in-rome-chord-benchmark/summary.json
-build/when-in-rome-chord-benchmark/events.csv
-build/when-in-rome-chord-benchmark/report.txt
+summary.json
+events.csv
+report.txt
 ```
 
 Contrapunctus's separate corpus preparation scripts fetch the Riemenschneider
@@ -313,9 +380,11 @@ chorales, TAVERN scores, and Monteverdi material when a broader run is needed.
 
 ## Limitations
 
-This first run is not the full 505-piece Contrapunctus common subset. It covers
-the public scores available immediately from the When-in-Rome submodule and does
-not include the separately fetched chorale, TAVERN, or Monteverdi score sources.
+The expanded run is not the full 505-piece Contrapunctus common subset. It
+covers the six tonal genres most directly useful to WhatChord and intentionally
+excludes the pre-tonal Monteverdi scores. It also excludes Contrapunctus genres
+that were not part of the initial comparable slice or separately prepared
+expansion.
 
 The analyst annotation remains contextual even on a clean pitch-set event. Exact
 pitch-set equality removes non-chord tones, but it does not remove functional
