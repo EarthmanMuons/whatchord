@@ -27,7 +27,33 @@ void main() {
     _expectTieRule(
       dominant,
       sixthFlat9,
-      'prefer complete dominant sharp-nine over sixth flat-nine',
+      'prefer complete dominant sharp-nine over split-third sixth',
+    );
+  });
+
+  test('complete sharp-nine sharp-eleven dominant beats split-third sixth', () {
+    final dominant = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'A',
+      bass: 'C',
+      presentIntervals: const {0, 3, 4, 6, 7, 10},
+      extensions: const {ChordExtension.sharp9, ChordExtension.sharp11},
+      score: 7.59,
+    );
+
+    final splitThirdSixth = _candidate(
+      quality: ChordQualityToken.major6,
+      root: 'C',
+      bass: 'C',
+      presentIntervals: const {0, 1, 3, 4, 7, 9},
+      extensions: const {ChordExtension.flat9, ChordExtension.addSharp9},
+      score: 7.74,
+    );
+
+    _expectTieRule(
+      dominant,
+      splitThirdSixth,
+      'prefer complete dominant sharp-nine over split-third sixth',
     );
   });
 
