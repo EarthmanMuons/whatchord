@@ -4,27 +4,34 @@ In June 2026, we reviewed the [Contrapunctus engine benchmark][engine-page] and
 its [public evaluation repository][bench-repo] to determine whether its corpus
 or methodology could improve WhatChord's chord analyzer.
 
-The short conclusion is:
+The research produced one analyzer correction, a reusable benchmark harness, and
+clearer boundaries around what the corpus can and cannot measure for WhatChord.
 
-- Contrapunctus's headline result is not directly comparable to WhatChord.
-- Its public corpus and evaluation discipline are valuable.
-- A chord-identification-only slice of the same corpus is useful as a research
-  benchmark for WhatChord.
-- The first run supports the current engine's broad approach and identifies a
-  focused set of ambiguous inversion families for review.
+## Conclusions
 
-## What Contrapunctus Measures
+- Contrapunctus's headline Roman-numeral accuracy is not directly comparable to
+  WhatChord's isolated chord-identification task.
+- A clean-event slice of the same corpus is valuable for testing WhatChord's
+  root identification and surfaced alternatives.
+- The expanded benchmark covers 473 pieces and 20,437 clean events. WhatChord
+  selects the analyst root on 94.95% of clean events and either selects or
+  visibly surfaces it on 99.76%.
+- The review found one legitimate analyzer issue: octave doubling could make an
+  incomplete fifthless sixth chord outrank a complete inverted minor or
+  diminished triad. Correcting it produced 124 clean-event gains and no clean
+  losses in the initial benchmark.
+- No mainstream analyst root is currently absent from WhatChord's candidates or
+  hidden outside the near-tie alternatives shown to users.
+- The remaining primary-label disagreements are contextual or inherently
+  ambiguous. They do not justify another isolated-voicing ranking change.
+
+## Scope Difference
 
 Contrapunctus performs autonomous Roman-numeral analysis over complete MusicXML
 scores. Given a score, it detects local keys and emits one functional Roman
-numeral for every annotated event.
-
-Its production engine combines:
-
-- rule-based key detection;
-- rule-based chord-candidate generation;
-- a learned chord-label reranker using tonic-rotated, windowed pitch-class
-  features.
+numeral for every annotated event. Its production engine combines rule-based key
+detection, rule-based chord-candidate generation, and a learned chord-label
+reranker using tonic-rotated, windowed pitch-class features.
 
 The public benchmark compares Contrapunctus with AugmentedNet, AnalysisGNN, and
 music21 on the [When-in-Rome][when-in-rome] Roman-numeral corpus. Its June 13,
@@ -41,37 +48,25 @@ detector, so its result is explicitly an easier-conditions upper bound. The
 other engines receive raw MusicXML. Contrapunctus evaluates its learned reranker
 out of sample by piece.
 
-The public repository's latest committed result at the time of review is dated
-June 11, 2026 and trails the website's June 13 snapshot slightly. The website
-and repository both disclose their result dates and provenance.
+WhatChord and Contrapunctus answer different questions:
 
-## Why The Headline Is Not Our Benchmark
+> WhatChord: Given the notes sounding now, what chord symbol would a musician
+> expect for this observed voicing?
 
-WhatChord and Contrapunctus answer different questions.
+> Contrapunctus: Given this complete score and its surrounding harmonic
+> sequence, what functional Roman numeral did the analyst intend at this event?
 
-WhatChord asks:
-
-> Given the notes sounding now, what chord symbol would a musician expect for
-> this observed voicing?
-
-Contrapunctus asks:
-
-> Given this complete score and its surrounding harmonic sequence, what
-> functional Roman numeral did the analyst intend at this event?
-
-The difference matters. A score event may contain passing tones, suspensions,
-pedal tones, arpeggiation, or incomplete chord tones. A contextual analyzer can
-correctly retain the underlying Roman numeral while WhatChord should correctly
-name the literal sonority currently sounding.
+A score event may contain passing tones, suspensions, pedal tones, arpeggiation,
+or incomplete chord tones. A contextual analyzer can correctly retain the
+underlying Roman numeral while WhatChord should correctly name the literal
+sonority currently sounding.
 
 Contrapunctus's all-event exact percentage therefore must not be used as a
-WhatChord accuracy target. Optimizing for it would push music-theory logic and
-temporal assumptions into an engine intentionally designed for isolated live
-MIDI input.
+WhatChord accuracy target.
 
-## The Comparable Slice
+## Benchmark Method
 
-The research harnesses added for this review are:
+The research harnesses are:
 
 - [`tool/when_in_rome_chord_benchmark.py`](../../tool/when_in_rome_chord_benchmark.py)
 - [`tool/when_in_rome_chord_batch.dart`](../../tool/when_in_rome_chord_batch.dart)
@@ -82,198 +77,41 @@ The Python harness reuses Contrapunctus's public alignment helpers to:
 2. Find the notes sounding at each annotated score position.
 3. Send the pitch-class set, actual bass, note count, and analyst key to
    WhatChord.
-4. Compare WhatChord's selected root with the analyst-annotated chord root.
+4. Compare WhatChord's selected and generated roots with the analyst root.
 5. Report a separate clean slice where the sounding pitch-class set exactly
    equals the analyst chord's pitch-class set.
 
-Root agreement on a clean event is the most useful comparable identity metric.
-The harness also reports whether the analyst root appears in WhatChord's top
-three candidates and whether the score's actual bass agrees with the annotated
-inversion.
+The clean slice removes events where the literal sounding pitch set differs from
+the annotation. It does not remove functional ambiguity, symmetric roots,
+explicitly incomplete annotations, or annotation-house-style differences.
 
-## Initial Results
+### Metrics
 
-The first measured pass selected four contrasting common-subset genres:
+The benchmark uses these distinctions:
 
-| Genre           | Pieces |
-| --------------- | -----: |
-| Bach WTC I      |     24 |
-| Mozart sonatas  |     24 |
-| Brahms lieder   |      9 |
-| Schubert lieder |     39 |
-| **Total**       | **96** |
+| Metric                       | Meaning                                                                                                  |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Root exact                   | WhatChord selects the analyst root.                                                                      |
+| Root visible                 | WhatChord selects the analyst root or surfaces it within the app's near-tie window.                      |
+| Candidate gap                | The analyst root is present in the sounding voicing but absent from WhatChord's full generated ranking.  |
+| Hidden ranking divergence    | WhatChord generates the analyst root but does not surface it within the near-tie window.                 |
+| Visible ranking divergence   | WhatChord selects a different root but surfaces the analyst root as a near-tie alternative.              |
+| Rootless annotation          | The analyst root is absent from the sounding pitch set and excluded by WhatChord's no-ghost-root policy. |
+| Root + annotation bass exact | WhatChord selects the analyst root and the score's sounding bass matches the annotation inversion.       |
 
-Two pieces produced no qualifying three-pitch-class events, leaving 94 pieces
-represented in event-level results.
+Root-visible agreement is the product-relevant alternative-reading metric.
+Top-three presence remains in `summary.json` only for continuity with the first
+run; it is neither a product match nor a candidate-coverage boundary. Some
+near-tie alternatives rank below third but are still surfaced by the app.
 
-| Slice                                    | Events | Root exact | Root visible | Root + annotation bass |
-| ---------------------------------------- | -----: | ---------: | -----------: | ---------------------: |
-| All aligned three-pitch-class events     |  6,360 |     60.20% |       64.72% |                 55.41% |
-| Clean pitch-set events                   |  3,026 |     93.72% |       98.45% |                 88.90% |
-| Clean events with analyst-matching bass  |  2,872 |     93.66% |       98.36% |                 93.66% |
-| Clean, non-symmetric mainstream families |  2,812 |     97.90% |      100.00% |                 92.78% |
+Root + annotation bass is a corpus-alignment metric, not WhatChord inversion
+accuracy. WhatChord receives the score's actual lowest sounding note and
+necessarily uses it as the slash bass.
 
-The low all-event number is expected and confirms that the full Roman-numeral
-benchmark is the wrong product target. The clean-event results are the useful
-signal.
+## Expanded Results
 
-### Results By Common Family
-
-| Analyst chord family    | Events | Root exact | Root visible |
-| ----------------------- | -----: | ---------: | -----------: |
-| Major triad             |  1,531 |    100.00% |      100.00% |
-| Minor triad             |    764 |    100.00% |      100.00% |
-| Dominant seventh        |    337 |    100.00% |      100.00% |
-| Major seventh           |     14 |    100.00% |      100.00% |
-| Minor seventh           |     35 |     40.00% |      100.00% |
-| Half-diminished seventh |     47 |     19.15% |      100.00% |
-| Diminished triad        |     84 |    100.00% |      100.00% |
-| Diminished seventh      |     89 |     33.71% |       66.29% |
-| Augmented triad         |     18 |     22.22% |      100.00% |
-
-These numbers need musical interpretation:
-
-- Augmented triads and diminished sevenths are root-symmetric, so exact analyst
-  root agreement is not a fair correctness measure.
-- Inverted minor, minor-seventh, half-diminished, and diminished structures have
-  common competing readings such as major-sixth or minor-sixth chords. The 100%
-  visible result for minor-seventh and half-diminished families shows that
-  WhatChord surfaces the analyst's reading as a near-tie alternative; their
-  disagreement is primarily naming convention rather than missing coverage.
-- Italian and German augmented-sixth labels do not map to a distinct WhatChord
-  chord family. They are functional, key-dependent readings rather than isolated
-  chord-symbol identities.
-
-## Useful Lessons From Their Evaluation
-
-Contrapunctus's strongest contribution to WhatChord is methodological:
-
-1. Keep exact and defensible-alternate metrics separate. Their tiered scoring
-   makes ambiguity visible without quietly inflating the headline.
-2. Preserve every event in the denominator. Missing predictions must not
-   disappear from a benchmark.
-3. Report both event-weighted and genre-balanced results. Large homogeneous
-   corpora such as chorales can otherwise dominate conclusions.
-4. Pin the evaluated piece intersection and record provenance. Corpus drift can
-   change aggregate results without an engine change.
-5. Track negative experiments. Contrapunctus found that learned key detectors,
-   larger rerankers, Viterbi selection, and several temporal support features
-   did not improve its target metric.
-6. Evaluate learned behavior out of sample by piece. If WhatChord ever
-   experiments with a learned ranking prior, corpus pieces must be grouped
-   across folds to prevent leakage.
-
-## Recommendations
-
-1. Keep the new harness as a research benchmark, not a golden test or product
-   oracle. Analyst Roman numerals remain advisory evidence.
-2. Review the remaining clean minor-seventh and half-diminished cases where the
-   analyst root is not WhatChord's top choice. Only change the engine when a
-   reusable isolated-voicing principle supports the change.
-3. Keep using the report view to separate symmetric-root, functional,
-   explicit-degree, and incomplete-label cases before evaluating ranking
-   changes.
-4. Expand the run to the separately fetched Riemenschneider chorales and TAVERN
-   scores. Report genre-balanced results once those sources are present. Keep
-   Monteverdi as a separate pre-tonal robustness study rather than mixing it
-   into the tonal accuracy aggregate.
-5. Do not add augmented-sixth chord families solely to improve corpus root
-   agreement. Their meaning depends on tonal function and voice leading.
-6. Do not add a learned reranker yet. WhatChord's existing deterministic rules
-   remain explainable, cross-platform, and strong on its directly comparable
-   task. The clean visible-alternative result shows that targeted ranking review
-   is the higher-value next step.
-
-## Reviewing Cases
-
-Each benchmark run writes `report.txt` alongside the CSV and JSON outputs. The
-report deduplicates equivalent events, records occurrence counts and sample
-pieces, and emits a `bin/chord-debug` command for every review case.
-
-Review the report in this order:
-
-1. **Candidate gaps**: the analyst root is absent from WhatChord's candidate
-   list. These are the highest-value cases because candidate generation or
-   template coverage may be incomplete. First decide whether the analyst's
-   contextual root is also a defensible isolated-voicing root.
-2. **Rootless annotations**: the analyst root is absent from the sounding pitch
-   set. These test WhatChord's deliberate solo-keyboard no-ghost-root policy,
-   not ordinary candidate generation.
-3. **Hidden ranking divergences**: WhatChord generates the analyst root but does
-   not surface it within the near-tie window. These are product-visible misses
-   even when the root happens to rank second or third.
-4. **Visible ranking divergences**: WhatChord selects a different reading but
-   surfaces the analyst root as a near-tie alternative. Review these as naming
-   policy questions rather than coverage failures.
-5. **Annotation bass differences**: WhatChord agrees on root, but the sounding
-   score bass differs from the analyst's inversion. These are score/annotation
-   or event-alignment questions rather than analyzer issues.
-6. **Symmetric roots and functional labels**: classify and retain for research,
-   but do not optimize exact-root ranking against them without a product-level
-   reason.
-
-For candidate gaps and ranking divergences:
-
-1. Run the report's `bin/chord-debug` command.
-2. Run the same notes through `bin/chord-oracle` when the external oracles are
-   available.
-3. Judge the case as an isolated live voicing, not as a Roman-numeral exercise.
-4. Check transpositions and neighboring inversions before proposing a rule.
-5. Change the engine only when one reusable musical principle explains a
-   meaningful family of cases.
-6. Add focused positive and negative golden cases before changing a ranking
-   rule, then rerun the corpus report to inspect gains and regressions.
-
-The next likely review family is the recurring ambiguity between inverted
-minor-seventh or half-diminished chords and root-position sixth chords. These
-remain more ambiguous than the resolved triad case because both readings are
-complete seventh/sixth structures. The review question is which label best
-serves an isolated voicing in each bass, key, and conventional-use
-configuration.
-
-The initial four-genre report produced this review backlog:
-
-| Flag                         | Events | Deduplicated cases |
-| ---------------------------- | -----: | -----------------: |
-| Candidate gap                |      0 |                  0 |
-| Rootless annotation          |     11 |                 10 |
-| Hidden ranking divergence    |      0 |                  0 |
-| Visible ranking divergence   |     59 |                 35 |
-| Annotation bass difference   |    144 |                100 |
-| Symmetric root               |    107 |                 69 |
-| Functional label             |     23 |                 16 |
-| Explicit or incomplete label |     60 |                 40 |
-
-After separating unusual explicit-degree, incomplete, symmetric, and functional
-annotations, the report found no actionable candidate-generation gaps in this
-four-genre pass. The next review target is therefore the remaining minor-seventh
-and half-diminished inversions competing with root-position sixth chords. Treat
-them as coherent policy questions rather than 34 unrelated cases.
-
-The first reviewed example was a complete `Dm/F` voicing with a doubled F.
-WhatChord selected fifthless root-position `F6`; music21, Tonal, pychord, and
-the When-in-Rome analyst selected `Dm/F`. This behavior was deliberate rather
-than an accidental scoring bug: an older golden case explicitly treated a
-root-position fifthless sixth chord with a doubled root as legitimate.
-
-Re-evaluating that policy produced a reusable correction: sixth-chord
-completeness now depends on distinct pitch classes, not total struck notes.
-Doubling a tone does not supply the missing fifth. On this benchmark the change:
-
-- raised clean root agreement from 89.62% to 93.72%;
-- produced 124 clean-event gains and zero clean-event losses;
-- resolved 101 minor-triad and 23 diminished-triad events;
-- reduced ranking-divergence events from 183 to 59.
-
-The change also reopened and corrected the older doubled-root golden. This is a
-useful example of why golden expectations should record current decisions
-without being treated as permanent musical authority.
-
-## Expanded Corpus Validation
-
-After the first review and analyzer correction, the benchmark was expanded with
-the separately fetched Riemenschneider chorales and TAVERN scores. The expanded
-run covers 473 pieces across six genres:
+The final run, completed June 15, 2026, covers six tonal genres selected for
+their relevance to simultaneous chord identification:
 
 | Genre                        |  Pieces | Aligned events | Clean events | Clean root exact | Clean root visible |
 | ---------------------------- | ------: | -------------: | -----------: | ---------------: | -----------------: |
@@ -285,56 +123,78 @@ run covers 473 pieces across six genres:
 | TAVERN variations            |       7 |          1,007 |          410 |           99.27% |            100.00% |
 | **Event-weighted aggregate** | **473** |     **28,306** |   **20,437** |       **94.95%** |         **99.76%** |
 
-The aggregate is dominated by chorales, so the per-genre rows are more
-informative than the event-weighted aggregate. They show that the corrected
-analyzer holds across every included genre rather than merely fitting the
-initial four-genre sample. TAVERN's low all-event agreement and high clean-event
-agreement also confirm that the clean-event filter is separating literal
-voicings from contextual or figural annotations as intended.
-
 Giving each genre equal weight produces 94.92% clean root agreement and 99.33%
-clean visible-root agreement. This is the more appropriate headline when
-comparing future runs because it prevents the large chorale corpus from masking
-changes in the smaller genres.
+clean visible-root agreement. This is the more appropriate headline for future
+comparisons because it prevents the large chorale corpus from masking changes in
+the smaller genres.
 
-Top-three presence remains in `summary.json` only for continuity with the first
-run. It is not treated as a product match or a coverage boundary. A non-primary
-reading counts as visible only when it falls within WhatChord's near-tie window
-and would therefore be surfaced to the user. Candidate generation is checked
-against the full ranked result. In this run, visible agreement is higher than
-top-three presence because some near-tie alternatives rank below third but are
-still surfaced by the app.
+The low all-event root agreement of 79.95% is expected. TAVERN in particular
+shows the intended distinction: all-event root agreement is 59.19%, while clean
+root agreement is 99.27%. The clean filter is successfully separating literal
+voicings from contextual or figural annotations.
 
-The expanded review report contains:
+### Review Classification
+
+The final clean-event review classification is:
 
 | Flag                         | Events |
 | ---------------------------- | -----: |
+| Agree                        | 18,840 |
 | Candidate gap                |      0 |
-| Rootless annotation          |     11 |
 | Hidden ranking divergence    |      0 |
 | Visible ranking divergence   |    804 |
+| Rootless annotation          |     11 |
 | Annotation bass difference   |    317 |
 | Symmetric root               |    376 |
 | Functional label             |     26 |
 | Explicit or incomplete label |     63 |
 
-All 804 visible ranking divergences are one coherent ambiguity family:
+There are no mainstream candidate-generation gaps and no hidden analyst roots.
+
+## Analyzer Improvement
+
+The first focused review found a complete `Dm/F` voicing with a doubled F for
+which WhatChord selected fifthless root-position `F6`. Music21, Tonal, pychord,
+and the When-in-Rome analyst selected `Dm/F`.
+
+The previous behavior was deliberate rather than an accidental scoring bug: an
+older golden case explicitly treated a root-position fifthless sixth chord with
+a doubled root as legitimate. Re-evaluating that policy produced a reusable
+correction:
+
+> Sixth-chord completeness depends on distinct pitch classes, not total struck
+> notes. Doubling a tone does not supply the missing fifth.
+
+On the initial four-genre benchmark, the correction:
+
+- raised clean root agreement from 89.62% to 93.72%;
+- produced 124 clean-event gains and zero clean-event losses;
+- resolved 101 minor-triad and 23 diminished-triad events;
+- reduced visible ranking-divergence events from 183 to 59.
+
+The change also corrected the older doubled-root golden. This demonstrates why
+golden expectations should record current decisions without being treated as
+permanent musical authority.
+
+## Resolved Policy Questions
+
+### Sixth Chords Versus Inverted Sevenths
+
+All 804 visible ranking divergences in the expanded run belong to one coherent
+ambiguity family:
 
 - 400 analyst-labeled minor-seventh chords ranked second behind root-position
   major-sixth chords;
 - 404 analyst-labeled half-diminished seventh chords ranked second behind
   root-position minor-sixth chords.
 
-The analyst root is WhatChord's second, visible near-tie candidate in every
-case. Chorales contribute 743 of the 804 events, mostly first-inversion `ii6/5`
-and `iiø6/5` annotations. This is expected contextual Roman-numeral behavior,
-while WhatChord's selected sixth-chord label is a conventional isolated-voicing
-reading of the same pitch set and bass.
+The analyst root is a visible near-tie candidate in every case. Chorales
+contribute 743 events, mostly first-inversion `ii6/5` and `iiø6/5` annotations.
+This is expected contextual Roman-numeral behavior, while WhatChord's selected
+sixth-chord label is a conventional isolated-voicing reading of the same pitch
+set and bass.
 
-### Sixth Versus Inverted Seventh Policy Review
-
-Focused examples, external oracles, transpositions, and negative cases support
-retaining the current preference:
+Focused oracle comparisons support retaining the current preference:
 
 | Pitch set | Bass | WhatChord | music21 | Tonal        | pychord   |
 | --------- | ---- | --------- | ------- | ------------ | --------- |
@@ -343,102 +203,124 @@ retaining the current preference:
 | D F A B   | D    | Dm6       | Bm7b5/D | Dm6, Bm7b5/D | no label  |
 | D F A B   | B    | Bm7b5     | Bm7b5   | Bm7b5, Dm6/B | no label  |
 
-The same structural results hold under transposition. They also hold when the
-selected key changes: `C6` versus `Am7/C` and `Dm6` versus `Bm7b5/D` remain
-ambiguous because both readings are normally diatonic together. Key alone does
-not reveal whether the sonority is functioning as an added-sixth chord or an
-inverted seventh chord; that requires progression or voice-leading context
-outside WhatChord's current observed-voicing input.
+The structural results hold under transposition and selected-key changes.
+Because both readings are normally diatonic together, key alone does not reveal
+whether the sonority functions as an added-sixth chord or an inverted seventh
+chord. That requires progression or voice-leading context outside WhatChord's
+current observed-voicing input.
 
-The negative cases are decisive:
+**Decision:** Keep the bass-rooted isolated-voicing preference, continue
+surfacing the inverted seventh as a near-tie alternative, and do not promote the
+Roman-numeral root from key context alone.
 
-- When the seventh-chord root is in the bass, WhatChord and the available
-  oracles converge on the root-position seventh chord.
-- When the sixth-chord root is in the bass, Tonal and WhatChord prefer the
-  root-position sixth while music21 applies its analysis-oriented inverted
-  seventh convention.
-- When neither competing root is in the bass, the oracle split persists rather
-  than revealing a stable key-context rule.
+### Rootless Annotations
 
-The recommended policy is therefore to keep the bass-rooted isolated-voicing
-preference and continue surfacing the inverted seventh as a near-tie
-alternative. Do not promote the Roman-numeral root from key context alone. A
-future progression-aware analysis mode could revisit the choice because it would
-have the functional evidence that the corpus annotations use.
+Eleven clean events use an analyst root absent from the sounding pitch set. All
+are unusual incomplete or set-class annotations. Representative focused checks
+produced no label from music21, Tonal, or pychord.
 
-### Remaining Non-Visible Cases
+**Decision:** Retain WhatChord's no-ghost-root policy for solo-keyboard chord
+identification. Rootless jazz or ensemble voicings would require a targeted
+corpus and an explicit product mode before relaxing that policy.
 
-Only 49 clean events in the expanded run do not match the analyst root exactly
-or within WhatChord's visible near-tie window. None are ordinary chord-symbol
-families:
+### Functional And Symmetric Labels
 
-- 23 use functional augmented-sixth labels;
-- 15 use explicit-degree, incomplete, enharmonic-equivalent, or set-class labels
-  with generated analyst roots;
-- 11 are rootless annotations whose expected root is absent from the sounding
-  pitch set.
+The remaining non-visible clean events are:
 
-These cases remain useful research material, but they do not identify a missing
-mainstream isolated-voicing interpretation.
+- 23 functional augmented-sixth labels;
+- 15 explicit-degree, incomplete, enharmonic-equivalent, or set-class labels
+  whose analyst root is generated but not visible;
+- 11 rootless annotations.
 
-The rootless cases support retaining the current no-ghost-root policy. All 11
-are unusual incomplete or set-class annotations, and none provides evidence that
-a solo-keyboard chord identifier should infer an unplayed root. Rootless jazz or
-ensemble voicings would need a separate targeted corpus and an explicit product
-mode before relaxing that policy. Focused checks of representative cases
-produced no label from music21, Tonal, or pychord, further weakening the case
-for inferring the contextual annotation root from the isolated voicing.
+Augmented-sixth labels depend on tonal function and voice leading. Augmented
+triads and diminished sevenths are root-symmetric, so exact analyst-root
+agreement is not a fair correctness measure.
 
-The 317 annotation-bass differences also do not identify an analyzer error.
-WhatChord receives the score's actual lowest sounding note and necessarily uses
-that as the slash bass. In these events, the score bass and Roman-numeral
-annotation inversion disagree despite matching pitch-class sets. The benchmark
-therefore reports `root_and_annotation_bass_exact` as a corpus-alignment metric,
-not as WhatChord inversion accuracy. Reports include measure and beat locations
-so these source differences can be audited directly.
+**Decision:** Do not add augmented-sixth chord families or optimize symmetric
+root ordering solely to improve corpus agreement.
 
-Spot checks confirmed that the locations are aligned to the intended analysis
-events. For example, Bach Chorale 331 explicitly annotates `m9 b2 I` while the
-clean D-major score voicing has A in the bass. Mozart examples likewise include
-`I` over a fifth bass and `I6` over a root bass. These are literal
-score-versus-annotation differences, not evidence that WhatChord selected the
-wrong inversion.
+### Annotation Bass Differences
 
-## Corpus Expansion Priority
+There are 317 clean events where WhatChord agrees on the root but the score's
+actual lowest sounding note differs from the Roman-numeral inversion. Spot
+checks confirmed that the events are correctly aligned. For example, Bach
+Chorale 331 explicitly annotates `m9 b2 I`, while the clean D-major score
+voicing has A in the bass. Mozart examples likewise include `I` over a fifth
+bass and `I6` over a root bass.
 
-The separately fetched sources are not equally valuable to WhatChord:
+**Decision:** Treat `root_and_annotation_bass_exact` as a source-alignment
+metric, not as WhatChord inversion accuracy.
 
-1. **Riemenschneider chorales: completed.** Their homophonic SATB texture
-   provided the strongest validation of common triad, seventh, inversion, and
-   voice-leading cases.
-2. **TAVERN: completed.** Its figural and arpeggiated texture confirmed that the
-   clean-event filter separates literal voicings from contextual annotations.
-3. **Monteverdi: optional, separate report.** Its 48 madrigals are deliberately
-   pre-tonal and excluded from Contrapunctus's tonal aggregate. They are useful
-   for robustness and modal-edge-case research, not as a WhatChord accuracy
-   target.
+## Research Workflow
 
-Do not mix Monteverdi into the tonal accuracy aggregate. Fetch and run it only
-when there is a specific modal or pre-tonal robustness question to investigate.
+Each benchmark run writes `report.txt`, `events.csv`, and `summary.json`. The
+report deduplicates equivalent cases, records occurrence counts and score
+locations, shows score and annotation basses, and emits a reproducible
+`bin/chord-debug` command.
+
+Review report categories in this order:
+
+1. **Candidate gaps**: determine whether a mainstream isolated-voicing root is
+   missing from candidate generation.
+2. **Hidden ranking divergences**: determine why a defensible generated root is
+   not visible to the user.
+3. **Visible ranking divergences**: review as naming-policy questions rather
+   than coverage failures.
+4. **Rootless, symmetric, functional, and explicit labels**: classify against
+   product scope before considering engine changes.
+5. **Annotation bass differences**: audit score and analysis sources rather than
+   changing chord identification.
+
+For a potentially actionable family:
+
+1. Run the report's `bin/chord-debug` command.
+2. Compare the same notes with `bin/chord-oracle`.
+3. Judge the case as an isolated live voicing, not as a Roman-numeral exercise.
+4. Check transpositions, neighboring inversions, key contexts, and negative
+   cases.
+5. Change the engine only when one reusable musical principle explains a
+   meaningful family.
+6. Add focused positive and negative goldens, then rerun the corpus report to
+   inspect gains and regressions.
+
+## Methodological Lessons
+
+Contrapunctus's strongest contribution to WhatChord is evaluation discipline:
+
+1. Keep exact and defensible-visible-alternative metrics separate.
+2. Preserve every event in the denominator.
+3. Report both event-weighted and genre-balanced results.
+4. Pin the evaluated piece intersection and record provenance.
+5. Track negative experiments and resolved policy questions.
+6. Treat external annotations and oracles as advisory evidence, not truth.
+7. If WhatChord ever adds a learned ranking model, train and evaluate it on
+   different complete pieces. Never split events from the same piece across
+   training and evaluation, because repeated progressions and voicings would
+   make the reported accuracy artificially optimistic.
+
+The current evidence does not justify a learned reranker. WhatChord's
+deterministic rules remain explainable, cross-platform, and strong on the
+directly comparable task.
 
 ## Reproducing
 
 Clone the public benchmark and initialize its corpus:
 
 ```sh
-git clone --depth 1 https://github.com/Tomczik76/contrapunctus-bench.git /private/tmp/contrapunctus-bench
-git -C /private/tmp/contrapunctus-bench submodule update --init --depth 1 corpus/When-in-Rome
+git clone https://github.com/Tomczik76/contrapunctus-bench.git /private/tmp/contrapunctus-bench
+git -C /private/tmp/contrapunctus-bench checkout b9e011c8cf34c5e76691dcf2c835b8c99ebd9d59
+git -C /private/tmp/contrapunctus-bench submodule update --init corpus/When-in-Rome
 ```
 
-Run the comparable WhatChord slice:
+Prepare the separately fetched chorale and TAVERN scores:
 
 ```sh
-./.venv/bin/python tool/when_in_rome_chord_benchmark.py \
-  /private/tmp/contrapunctus-bench \
-  --groups bach-wtc mozart-sonatas-dcml brahms-lieder schubert-lieder
+cd /private/tmp/contrapunctus-bench
+python3 corpus/prep/fetch_kern_chorales.py
+python3 corpus/prep/fetch_tavern_scores.py
 ```
 
-Run the expanded six-genre validation:
+Run the expanded six-genre validation from the WhatChord checkout:
 
 ```sh
 ./.venv/bin/python tool/when_in_rome_chord_benchmark.py \
@@ -448,9 +330,7 @@ Run the expanded six-genre validation:
   --out-dir build/when-in-rome-chord-benchmark-expanded
 ```
 
-Outputs are written under the selected output directory. The default run uses
-`build/when-in-rome-chord-benchmark`; the expanded command above uses
-`build/when-in-rome-chord-benchmark-expanded`. Each contains:
+The output directory contains:
 
 ```text
 summary.json
@@ -458,26 +338,88 @@ events.csv
 report.txt
 ```
 
-Contrapunctus's separate corpus preparation scripts fetch the Riemenschneider
-chorales, TAVERN scores, and Monteverdi material when a broader run is needed.
+Contrapunctus's corpus preparation scripts fetch the Riemenschneider chorales,
+TAVERN scores, and Monteverdi material. Monteverdi should remain a separate
+pre-tonal robustness study rather than being mixed into the tonal accuracy
+aggregate.
 
-## Limitations
+## References And Provenance
+
+The benchmark was completed on June 15, 2026 using these upstream snapshots:
+
+| Project                               | Role                                               | Snapshot                            | License                                                                                                                    |
+| ------------------------------------- | -------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| [Contrapunctus benchmark][bench-repo] | Manifest, methodology, and score-alignment helpers | [`b9e011c8`][bench-snapshot]        | [Apache-2.0][bench-license] for harness, scoring, and methodology                                                          |
+| [When-in-Rome][when-in-rome]          | Analyst Roman numerals and most scores             | [`aa7539f1`][when-in-rome-snapshot] | New repository content is [CC BY-SA 4.0][when-in-rome-license]; converted analyses retain varying original-source licenses |
+
+Contrapunctus also distributes a compiled analysis engine under an
+[evaluation-only license][engine-license]. This research did not use or
+redistribute that engine; it reused the Apache-2.0 benchmark harness and public
+corpus metadata.
+
+The six evaluated corpus groups have these upstream score and analysis sources,
+as recorded in Contrapunctus's manifest:
+
+| Group                      | Score source and license                                                    | Analysis source and license                                                       |
+| -------------------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Bach WTC                   | When-in-Rome, CC BY-SA 4.0                                                  | When-in-Rome, CC BY-SA 4.0                                                        |
+| Bach chorales              | [Craig Sapp bach-370-chorales][bach-chorales], license documented by source | When-in-Rome, CC BY-SA 4.0                                                        |
+| Mozart sonatas             | [DCMLab Mozart piano sonatas][dcml-mozart], license documented by source    | When-in-Rome conversion under CC BY-SA 4.0; original license documented by source |
+| Brahms and Schubert lieder | [OpenScore Lieder Corpus][openscore-lieder], CC0                            | When-in-Rome, CC BY-SA 4.0                                                        |
+| TAVERN variations          | [TAVERN][tavern], license documented by source                              | When-in-Rome conversion under CC BY-SA 4.0; original license documented by source |
+
+The chorale and TAVERN scores were fetched through the preparation scripts at
+the pinned Contrapunctus benchmark commit. Those scripts download upstream
+machine state rather than pinned upstream Git commits. The local preparation
+produced 370 of 371 chorale scores and all 11 TAVERN scores; the benchmark's
+common subset used 370 chorales and 7 TAVERN variation sets. A future
+reproduction should record hashes or upstream commits for those fetched files if
+bit-for-bit corpus provenance is required.
+
+Focused case reviews used these advisory chord-identification libraries:
+
+| Project            | Version used | License      |
+| ------------------ | ------------ | ------------ |
+| [music21][music21] | 10.1.0       | BSD-3-Clause |
+| [Tonal][tonal]     | 4.10.0       | MIT          |
+| [pychord][pychord] | 1.4.0        | MIT          |
+
+These libraries were used as comparison evidence, not as benchmark truth or
+runtime dependencies of WhatChord's analysis engine.
+
+## Limitations And Future Boundaries
 
 The expanded run is not the full 505-piece Contrapunctus common subset. It
 covers the six tonal genres most directly useful to WhatChord and intentionally
-excludes the pre-tonal Monteverdi scores. It also excludes Contrapunctus genres
-that were not part of the initial comparable slice or separately prepared
-expansion.
+excludes pre-tonal Monteverdi scores and other unprepared genres.
 
-The analyst annotation remains contextual even on a clean pitch-set event. Exact
-pitch-set equality removes non-chord tones, but it does not remove functional
-ambiguity, root symmetry, or annotation-house-style differences.
+The harness scores root and bass agreement rather than full surface chord-symbol
+spelling. WhatChord's ChoCo and chord-oracle research remain better tools for
+vocabulary coverage, extensions, spelling, and display-label review.
 
-Finally, the harness currently scores root and bass agreement rather than full
-surface chord-symbol spelling. WhatChord's existing ChoCo and chord-oracle
-research remain better tools for vocabulary coverage, extensions, spelling, and
-display-label review.
+Further work requires a new product question rather than additional tuning
+against this corpus:
+
+- a progression-aware mode could revisit functional Roman-numeral preferences;
+- a rootless ensemble or jazz mode could revisit the no-ghost-root policy;
+- a separate Monteverdi study could investigate modal and pre-tonal robustness.
 
 [bench-repo]: https://github.com/Tomczik76/contrapunctus-bench
+[bench-license]:
+  https://github.com/Tomczik76/contrapunctus-bench/blob/b9e011c8cf34c5e76691dcf2c835b8c99ebd9d59/LICENSE
+[bench-snapshot]:
+  https://github.com/Tomczik76/contrapunctus-bench/commit/b9e011c8cf34c5e76691dcf2c835b8c99ebd9d59
+[bach-chorales]: https://github.com/craigsapp/bach-370-chorales
+[dcml-mozart]: https://github.com/DCMLab/mozart_piano_sonatas
+[engine-license]:
+  https://github.com/Tomczik76/contrapunctus-bench/blob/b9e011c8cf34c5e76691dcf2c835b8c99ebd9d59/LICENSE-ENGINE.md
 [engine-page]: https://www.contrapunctus.app/engine
+[music21]: https://github.com/cuthbertLab/music21
+[openscore-lieder]: https://github.com/OpenScore/Lieder
+[pychord]: https://github.com/yuma-m/pychord
+[tavern]: https://github.com/jcdevaney/TAVERN
+[tonal]: https://github.com/tonaljs/tonal
 [when-in-rome]: https://github.com/MarkGotham/When-in-Rome
+[when-in-rome-license]: https://creativecommons.org/licenses/by-sa/4.0/
+[when-in-rome-snapshot]:
+  https://github.com/MarkGotham/When-in-Rome/commit/aa7539f1cf480997a68998405c0783ebf6339c16
