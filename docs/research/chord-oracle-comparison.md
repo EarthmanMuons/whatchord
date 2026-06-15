@@ -107,13 +107,13 @@ python3 -m pip install music21 pychord
 npm install @tonaljs/tonal
 ```
 
-If you use `mise`, `mise run oracle:install` handles this into local ignored
-directories.
+If you use `mise`, `mise run research:oracle-install` handles this into local
+ignored directories.
 
 Then run the full comparison pass:
 
 ```sh
-mise run oracle:compare
+mise run research:oracle-compare
 # equivalent to:
 python3 tool/chord_oracle_compare.py
 ```

@@ -333,7 +333,7 @@ python3 corpus/prep/fetch_tavern_scores.py
 Run the expanded six-genre validation from the WhatChord checkout:
 
 ```sh
-mise run benchmark:when-in-rome
+mise run research:when-in-rome
 ```
 
 The task installs `music21`, uses `/private/tmp/contrapunctus-bench` by default,

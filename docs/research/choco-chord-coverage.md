@@ -217,6 +217,9 @@ Run the report:
 python3 tool/choco/chord_label_stats.py /private/tmp/choco --jams-version converted --top 50
 ```
 
+If you use `mise`, `mise run research:choco-coverage` runs the same pass and
+reads `/private/tmp/choco` by default (override with `CHOCO_ROOT`).
+
 Inspect:
 
 ```text
