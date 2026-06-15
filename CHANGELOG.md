@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Improved identification of fifthless extended major and dominant chords,
+  favoring labels such as Dbmaj9#11 and Eb13 over less direct altered sus or
+  major-flat-five readings.
 - Improved identification of doubled-note voicings, preventing incomplete
   fifthless sixth chords from outranking complete inverted minor or diminished
   chords.
