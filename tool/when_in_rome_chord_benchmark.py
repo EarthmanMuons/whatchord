@@ -24,6 +24,11 @@ from urllib.parse import unquote, urlparse
 from music21 import chord, converter, roman
 
 CONTRAPUNCTUS_BENCH_URL = "https://github.com/Tomczik76/contrapunctus-bench"
+SYMMETRIC_FAMILIES = {
+    "augmented triad",
+    "diminished seventh chord",
+}
+PC_NAMES = ("C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B")
 
 
 def parse_args() -> argparse.Namespace:
@@ -94,6 +99,7 @@ def main() -> int:
         + "\n"
     )
     write_csv(args.out_dir / "events.csv", rows)
+    write_report(args.out_dir / "report.txt", rows, piece_counts)
     print_report(rows, piece_counts)
     return 0
 
@@ -163,6 +169,7 @@ def load_piece(bench_root: Path, piece: dict, cbench) -> list[dict] | None:
                 "pcMask": mask(sounding_pcs),
                 "bassPc": bass_pc,
                 "noteCount": len(pitches),
+                "midiNotes": " ".join(str(pitch.midi) for pitch in sorted(pitches)),
                 "expectedRootPc": expected_root.pitchClass,
                 "expectedBassPc": expected.bass().pitchClass,
                 "clean": sounding_pcs == expected_pcs,
@@ -230,6 +237,7 @@ def score(events: list[dict], predictions: dict[str, dict]) -> list[dict]:
         candidates = predictions[event["id"]]["candidates"]
         top = candidates[0] if candidates else {}
         top_three_roots = {candidate["rootPc"] for candidate in candidates}
+        candidate_roots = [candidate["rootPc"] for candidate in candidates]
         near_tie_roots = {
             candidate["rootPc"]
             for candidate in candidates
@@ -239,6 +247,15 @@ def score(events: list[dict], predictions: dict[str, dict]) -> list[dict]:
             {
                 **event,
                 "predictedRootPc": top.get("rootPc"),
+                "predictedQuality": top.get("quality"),
+                "candidateRoots": " ".join(str(root) for root in candidate_roots),
+                "candidateSummaries": " | ".join(
+                    f"{candidate['rootPc']}:{candidate['quality']}"
+                    for candidate in candidates
+                ),
+                "expectedRootRank": expected_root_rank(
+                    candidates, event["expectedRootPc"]
+                ),
                 "rootExact": top.get("rootPc") == event["expectedRootPc"],
                 "rootTop3": event["expectedRootPc"] in top_three_roots,
                 "rootNearTie": event["expectedRootPc"] in near_tie_roots,
@@ -247,9 +264,48 @@ def score(events: list[dict], predictions: dict[str, dict]) -> list[dict]:
                     top.get("rootPc") == event["expectedRootPc"]
                     and event["bassPc"] == event["expectedBassPc"]
                 ),
+                "reviewFlag": review_flag(event, candidates),
             }
         )
     return rows
+
+
+def expected_root_rank(candidates: list[dict], expected_root: int) -> int | None:
+    for index, candidate in enumerate(candidates, start=1):
+        if candidate["rootPc"] == expected_root:
+            return index
+    return None
+
+
+def review_flag(event: dict, candidates: list[dict]) -> str:
+    if not event["clean"]:
+        return "contextual-or-noisy"
+    if "augmented sixth chord" in event["expectedCommonName"]:
+        return "functional-label"
+    if is_explicit_or_incomplete_annotation(event):
+        return "explicit-or-incomplete-label"
+    if event["expectedCommonName"] in SYMMETRIC_FAMILIES:
+        return "symmetric-root"
+    if candidates and candidates[0]["rootPc"] == event["expectedRootPc"]:
+        if event["bassPc"] != event["expectedBassPc"]:
+            return "annotation-inversion-difference"
+        return "agree"
+    if any(candidate["rootPc"] == event["expectedRootPc"] for candidate in candidates):
+        return "ranking-divergence"
+    return "candidate-gap"
+
+
+def is_explicit_or_incomplete_annotation(event: dict) -> bool:
+    common_name = event["expectedCommonName"]
+    return (
+        "[" in event["figure"]
+        or common_name.startswith("incomplete ")
+        or common_name.startswith("enharmonic equivalent ")
+        or any(
+            token in common_name
+            for token in ("tetrachord", "pentachord", "tetramirror")
+        )
+    )
 
 
 def build_summary(rows: list[dict], piece_counts: Counter, bench_root: Path) -> dict:
@@ -335,6 +391,131 @@ def write_csv(path: Path, rows: list[dict]) -> None:
         writer = csv.DictWriter(handle, fieldnames=rows[0].keys())
         writer.writeheader()
         writer.writerows(rows)
+
+
+def write_report(path: Path, rows: list[dict], piece_counts: Counter) -> None:
+    clean = [row for row in rows if row["clean"]]
+    counts = Counter(row["reviewFlag"] for row in rows)
+    lines = [
+        "WhatChord When-in-Rome Chord Benchmark",
+        "=======================================",
+        "",
+        f"Pieces: {sum(piece_counts.values())} {dict(piece_counts)}",
+        f"Events: {len(rows)} aligned, {len(clean)} clean pitch-set",
+        "",
+        "Review flags",
+        "------------",
+    ]
+    for flag in (
+        "candidate-gap",
+        "ranking-divergence",
+        "annotation-inversion-difference",
+        "symmetric-root",
+        "functional-label",
+        "explicit-or-incomplete-label",
+        "agree",
+        "contextual-or-noisy",
+    ):
+        lines.append(f"{flag.ljust(32)} {counts[flag]}")
+
+    lines.extend(
+        [
+            "",
+            "Review order",
+            "------------",
+            "1. Candidate gaps: analyst root is absent from WhatChord's top three.",
+            "2. Ranking divergences: analyst root exists but is not selected.",
+            "3. Annotation inversion differences: root agrees, score bass does not.",
+            "4. Symmetric, functional, and explicit-label cases: classify, but do not optimize against blindly.",
+            "",
+        ]
+    )
+    for flag, title in (
+        ("candidate-gap", "Candidate Gaps"),
+        ("ranking-divergence", "Ranking Divergences"),
+        ("annotation-inversion-difference", "Annotation Inversion Differences"),
+        ("symmetric-root", "Symmetric Root Cases"),
+        ("functional-label", "Functional Labels"),
+        ("explicit-or-incomplete-label", "Explicit Or Incomplete Labels"),
+    ):
+        lines.extend(report_section(rows, flag, title))
+
+    path.write_text("\n".join(lines).rstrip() + "\n")
+
+
+def report_section(rows: list[dict], flag: str, title: str) -> list[str]:
+    selected = [row for row in rows if row["reviewFlag"] == flag]
+    grouped_cases: dict[tuple, list[dict]] = defaultdict(list)
+    for row in selected:
+        grouped_cases[
+            (
+                row["key"],
+                row["pcMask"],
+                row["bassPc"],
+                row["noteCount"],
+                row["expectedRootPc"],
+                row["expectedCommonName"],
+                row["predictedRootPc"],
+                row["predictedQuality"],
+                row["candidateRoots"],
+                row["candidateSummaries"],
+            )
+        ].append(row)
+
+    out = [title, "-" * len(title)]
+    if not grouped_cases:
+        return [*out, "<none>", ""]
+
+    ordered = sorted(
+        grouped_cases.values(),
+        key=lambda case_rows: (-len(case_rows), case_rows[0]["id"]),
+    )
+    for case_rows in ordered:
+        row = case_rows[0]
+        figures = ", ".join(
+            figure
+            for figure, _ in Counter(item["figure"] for item in case_rows).most_common(3)
+        )
+        pieces = ", ".join(
+            piece
+            for piece, _ in Counter(item["piece"] for item in case_rows).most_common(3)
+        )
+        predicted = (
+            f"{pc_name(row['predictedRootPc'])} {row['predictedQuality']}"
+            if row["predictedRootPc"] is not None
+            else "<none>"
+        )
+        candidates = ", ".join(
+            f"{pc_name(root)} {quality}"
+            for root, quality in (
+                summary.split(":", 1)
+                for summary in row["candidateSummaries"].split(" | ")
+            )
+        )
+        out.extend(
+            [
+                f"[{len(case_rows)} occurrence{'s' if len(case_rows) != 1 else ''}] "
+                f"{row['expectedCommonName']} / figures: {figures}",
+                f"  expected root: {pc_name(row['expectedRootPc'])}  chosen: {predicted}",
+                f"  top candidates: {candidates}",
+                f"  samples: {pieces}",
+                f"  command: {debug_command(row)}",
+                "",
+            ]
+        )
+    return out
+
+
+def debug_command(row: dict) -> str:
+    return (
+        f"bin/chord-debug {row['midiNotes']} --key={row['key']} --top=8 --verbose"
+    )
+
+
+def pc_name(pc: int | str | None) -> str:
+    if pc is None:
+        return "?"
+    return PC_NAMES[int(pc) % 12]
 
 
 def key_to_wire(key: tuple[str, str, str]) -> str:

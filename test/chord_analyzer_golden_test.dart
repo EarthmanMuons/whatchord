@@ -214,15 +214,16 @@ void main() {
       expectedQuality: ChordQualityToken.major6,
     ),
 
-    // Root-position 6(no5) with a doubled root remains a legitimate 6th chord.
+    // Doubling the bass does not make a fifthless sixth chord more complete.
+    // Prefer the complete inverted minor triad.
     golden(
-      description: 'major sixth without fifth and doubled root',
-      expectedSymbol: 'C6',
+      description: 'complete minor inversion beats doubled fifthless sixth',
+      expectedSymbol: 'Am / C',
       pcs: ['C', 'E', 'A'],
       noteCount: 4,
-      expectedRoot: 'C',
+      expectedRoot: 'A',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.major6,
+      expectedQuality: ChordQualityToken.minor,
     ),
 
     // -------------------------------------------------------------------------

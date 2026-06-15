@@ -216,7 +216,6 @@ abstract final class ChordAnalyzer {
           bassInterval: bassInterval,
           template: tmpl,
           rootPc: rootPc,
-          inputNoteCount: input.noteCount,
           context: context,
           reasons: reasons,
         );
@@ -268,7 +267,6 @@ abstract final class ChordAnalyzer {
     required int bassInterval,
     required ChordTemplate template,
     required int rootPc,
-    required int inputNoteCount,
     required AnalysisContext context,
     List<ScoreReason>? reasons,
   }) {
@@ -497,17 +495,18 @@ abstract final class ChordAnalyzer {
       add('add9 bass triad', add9BassUpperTriadDelta);
     }
 
-    // Penalize 6-chord interpretations for 3-note voicings that omit the 5th.
+    // Penalize sparse 6-chord interpretations that omit the 5th. Doubling a
+    // tone does not make the pitch-class structure more complete.
     // Helps avoid "root-3-6" ambiguity by disfavoring incomplete 6th chords.
     //
     // Example: {C, E, A} could be C6(no5) or Am7/C → prefer Am7/C
-    if (_has6ChordWithout5(
-      quality: template.quality,
-      relMask: relMask,
-      inputNoteCount: inputNoteCount,
-    )) {
+    if (_has6ChordWithout5(quality: template.quality, relMask: relMask)) {
       raw -= _sixChordNo5Penalty;
-      add('sixNo5', -_sixChordNo5Penalty, detail: 'n=$inputNoteCount');
+      add(
+        'sixNo5',
+        -_sixChordNo5Penalty,
+        detail: 'pitchClasses=${popCount(relMask)}',
+      );
     }
 
     // Normalize by sqrt(required_tone_count) to allow fair comparison across
@@ -604,9 +603,8 @@ abstract final class ChordAnalyzer {
   static bool _has6ChordWithout5({
     required ChordQualityToken quality,
     required int relMask,
-    required int inputNoteCount,
   }) {
-    if (inputNoteCount != 3) return false;
+    if (popCount(relMask) != 3) return false;
 
     final isSixChord =
         quality == ChordQualityToken.major6 ||

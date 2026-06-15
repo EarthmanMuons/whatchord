@@ -36,6 +36,8 @@ void main() {
             <String, Object?>{
               'rootPc': candidate.identity.rootPc,
               'bassPc': candidate.identity.bassPc,
+              'quality': candidate.identity.quality.name,
+              'score': candidate.score,
               'presentIntervalsMask': candidate.identity.presentIntervalsMask,
               'nearTie':
                   candidate != candidates.first &&
