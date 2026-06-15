@@ -123,15 +123,25 @@ their relevance to simultaneous chord identification:
 | TAVERN variations            |       7 |          1,007 |          410 |           99.27% |            100.00% |
 | **Event-weighted aggregate** | **473** |     **28,306** |   **20,437** |       **94.95%** |         **99.76%** |
 
-Giving each genre equal weight produces 94.92% clean root agreement and 99.33%
-clean visible-root agreement. This is the more appropriate headline for future
-comparisons because it prevents the large chorale corpus from masking changes in
-the smaller genres.
+The aggregate views answer different research questions and are calculated as
+follows:
 
-The low all-event root agreement of 79.95% is expected. TAVERN in particular
-shows the intended distinction: all-event root agreement is 59.19%, while clean
-root agreement is 99.27%. The clean filter is successfully separating literal
-voicings from contextual or figural annotations.
+| Aggregate view                        | Calculation                                                                                          | Root exact | Root visible |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------- | ---------: | -----------: |
+| Clean events, event-weighted          | Matching clean events divided by all 20,437 clean events                                             |     94.95% |       99.76% |
+| Clean events, genres weighted equally | Arithmetic mean of the six per-genre clean percentages, giving each genre one-sixth of the aggregate |     94.92% |       99.33% |
+| All aligned events, event-weighted    | Matching aligned events divided by all 28,306 aligned events                                         |     79.95% |       84.94% |
+
+The genre-balanced clean result of 94.92% exact and 99.33% visible is the
+preferred headline for comparisons between future runs. It measures the
+comparable clean-event task without allowing the 17,001 chorale events to mask
+changes in smaller genres.
+
+The event-weighted clean result describes overall agreement across every clean
+event, but is dominated by chorales. The lower all-event result is expected
+because those events include non-chord tones and contextual annotations. TAVERN
+demonstrates the distinction particularly clearly: its all-event root agreement
+is 59.19%, while its clean-event root agreement is 99.27%.
 
 ### Review Classification
 
