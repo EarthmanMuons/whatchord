@@ -9,6 +9,7 @@ import 'package:whatchord/features/chords/chords.dart';
 import 'package:whatchord/features/demo/demo.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/onboarding/onboarding.dart';
+import 'package:whatchord/features/piano/piano.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 final settingsResetProvider = Provider<SettingsResetService>((ref) {
@@ -48,6 +49,7 @@ class SettingsResetService {
     // MIDI preferences (delegate to MIDI's own reset)
     await _ref.read(midiPreferencesProvider.notifier).clearAllMidiData();
     await _ref.read(audioMonitorSettingsNotifier.notifier).clearAllAudioData();
+    await _ref.read(pianoViewSettingsProvider.notifier).clearAllPianoData();
     await _ref.read(onboardingTourProvider.notifier).reset();
 
     // Force rebuilds
@@ -58,6 +60,7 @@ class SettingsResetService {
     _ref.invalidate(selectedTonalityProvider);
     _ref.invalidate(exploreChordMemberDegreesProvider);
     _ref.invalidate(audioMonitorSettingsNotifier);
+    _ref.invalidate(pianoViewSettingsProvider);
     _ref.invalidate(onboardingTourProvider);
 
     // Ensure transport is disconnected after reset.

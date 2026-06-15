@@ -105,6 +105,55 @@ class HomeLayoutConfig {
   });
 }
 
+/// Largest height the resizable keyboard may occupy on a page right now.
+///
+/// [availableHeight] is the body region shared by the page content and the
+/// keyboard. [reservedChrome] is the height of everything the keyboard region
+/// stacks above the keys (e.g. a tonality bar + divider) plus any sibling chrome
+/// outside the region that must keep its space (e.g. the portrait input display).
+/// The resize handle and a per-orientation content minimum are reserved here so
+/// growing the keyboard can never starve the content above it.
+///
+/// [minContent] is the floor reserved for the page content above the keyboard;
+/// when null it defaults per orientation. Pages with a fixed-size hero element
+/// (the home identity card) should pass a value large enough to keep it intact,
+/// e.g. via [portraitAnalysisMinContent].
+///
+/// The resize handle is overlaid on the keyboard's top edge, so it is not
+/// reserved here. The result may be small or negative on short screens; callers
+/// feed it to [resolvePianoViewMetrics], which floors the ceiling at the base
+/// height so the keyboard simply stops growing rather than overflowing.
+double maxKeyboardHeightForLayout({
+  required double availableHeight,
+  required bool isLandscape,
+  required double reservedChrome,
+  double? minContent,
+}) {
+  final resolvedMinContent = minContent ?? (isLandscape ? 96.0 : 150.0);
+  return availableHeight - reservedChrome - resolvedMinContent;
+}
+
+/// Room reserved below the identity card (portrait) for the near-tie
+/// alternatives list. The card rises into its top padding as the keyboard grows
+/// so this stays visible; once the top padding bottoms out, the list yields.
+const double kPortraitNearTieListReserve = 60.0;
+
+/// Height of the separator band drawn above the keyboard (the resize splitter
+/// sits on it just above the 1px felt line, reading as one splitter line). Layout
+/// space, so the keyboard's felt stays visible below it.
+const double kPianoSeparatorLineHeight = 7.0;
+
+/// Minimum portrait analysis-lane height that keeps the identity card fully
+/// visible with its smallest top padding and room for the near-tie list, so an
+/// enlarged keyboard can never squeeze the card into the input chips below it.
+double portraitAnalysisMinContent(HomeLayoutConfig config) {
+  return config.analysisPadding.vertical +
+      config.analysisCardHeight +
+      config.analysisTopPadMin +
+      config.analysisListGap +
+      kPortraitNearTieListReserve;
+}
+
 HomeSizeClass homeSizeClassForSize(Size size) {
   final shortestSide = size.shortestSide;
   if (shortestSide >= 900) return HomeSizeClass.expanded;

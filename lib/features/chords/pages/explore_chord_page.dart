@@ -19,7 +19,6 @@ import '../services/explore_chord_state_transitions.dart';
 import '../services/explore_preview_animation_controller.dart';
 import '../widgets/explore_chord_members_section.dart';
 import '../widgets/explore_controls.dart';
-import '../widgets/explore_keyboard.dart';
 import '../widgets/explore_summary.dart';
 import '../widgets/explore_top_bar.dart';
 
@@ -158,55 +157,70 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                   bottom: false,
                   left: !isLandscape,
                   right: !isLandscape,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: _buildMainContent(
-                          example: example,
-                          presentation: presentation,
-                          tonality: tonality,
-                          noteNameSystem: noteNameSystem,
-                          showChordMemberDegrees: showChordMemberDegrees,
-                          previewPitchClasses: previewPitchClasses,
-                          isLandscape: isLandscape,
-                          horizontalInset: horizontalInset,
-                        ),
-                      ),
-                      TonalityBarView(
-                        height: kToolbarHeight,
-                        tonality: tonality,
-                        scaleDegreeAnalysis: presentation.scaleDegreeAnalysis,
-                        onScaleDegreesTap: () =>
-                            _openScaleExplorer(presentation),
-                        onOpenPicker: () => openTonalityPicker(
-                          context,
-                          useSideSheet: useHomeSideSheet(context),
-                          showSideSheet:
-                              ({
-                                required context,
-                                required barrierLabel,
-                                required builder,
-                              }) {
-                                unawaited(
-                                  showHomeSideSheet<void>(
-                                    context: context,
-                                    barrierLabel: barrierLabel,
-                                    builder: builder,
-                                  ),
-                                );
-                              },
-                        ),
-                        horizontalInset: horizontalInset,
-                        keyTextScaleMultiplier: config.tonalityButtonTextScale,
-                        scaleDegreesTextScaleMultiplier:
-                            config.scaleDegreesTextScale,
-                      ),
-                      const Divider(height: 1),
-                      ExploreKeyboard(
-                        config: config,
-                        highlightedNotes: displayedKeyboardNotes,
-                      ),
-                    ],
+                  child: LayoutBuilder(
+                    builder: (context, bodyConstraints) {
+                      return Column(
+                        children: [
+                          Expanded(
+                            child: _buildMainContent(
+                              example: example,
+                              presentation: presentation,
+                              tonality: tonality,
+                              noteNameSystem: noteNameSystem,
+                              showChordMemberDegrees: showChordMemberDegrees,
+                              previewPitchClasses: previewPitchClasses,
+                              isLandscape: isLandscape,
+                              horizontalInset: horizontalInset,
+                            ),
+                          ),
+                          ResizableKeyboardArea(
+                            config: config,
+                            maxKeyboardHeight: maxKeyboardHeightForLayout(
+                              availableHeight: bodyConstraints.maxHeight,
+                              isLandscape: isLandscape,
+                              reservedChrome:
+                                  kToolbarHeight +
+                                  (isLandscape
+                                      ? 1
+                                      : kPianoSeparatorLineHeight + 1),
+                            ),
+                            highlightedNotes: displayedKeyboardNotes,
+                            hasTonalityBar: true,
+                            topBar: TonalityBarView(
+                              height: kToolbarHeight,
+                              tonality: tonality,
+                              scaleDegreeAnalysis:
+                                  presentation.scaleDegreeAnalysis,
+                              onScaleDegreesTap: () =>
+                                  _openScaleExplorer(presentation),
+                              onOpenPicker: () => openTonalityPicker(
+                                context,
+                                useSideSheet: useHomeSideSheet(context),
+                                showSideSheet:
+                                    ({
+                                      required context,
+                                      required barrierLabel,
+                                      required builder,
+                                    }) {
+                                      unawaited(
+                                        showHomeSideSheet<void>(
+                                          context: context,
+                                          barrierLabel: barrierLabel,
+                                          builder: builder,
+                                        ),
+                                      );
+                                    },
+                              ),
+                              horizontalInset: horizontalInset,
+                              keyTextScaleMultiplier:
+                                  config.tonalityButtonTextScale,
+                              scaleDegreesTextScaleMultiplier:
+                                  config.scaleDegreesTextScale,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               ),
