@@ -1,6 +1,7 @@
 import '../models/chord_candidate.dart';
 import '../models/chord_extension.dart';
 import '../models/chord_identity.dart';
+import '../models/chord_tone_role.dart';
 import '../models/scale_degree.dart';
 import '../models/tonality.dart';
 import '../services/pitch_class.dart';
@@ -51,7 +52,7 @@ final List<NamedRule> hardRules = <NamedRule>[
     _preferCompleteAlteredDom7InversionOverAlteredMajor7,
   ),
   NamedRule(
-    'prefer complete dominant sharp-nine over sixth flat-nine',
+    'prefer complete dominant sharp-nine over split-third sixth',
     _preferCompleteDom7Sharp9OverSixthFlat9,
   ),
   NamedRule(
@@ -348,11 +349,15 @@ int? _preferCompleteTriadOverIncompleteInvertedSixth(
 // ---- Dominant and slash readings ---------------------------------------
 
 /// Prefers a complete dominant sharp-nine over a root-position sixth chord
-/// carrying the uncommon flat-nine color.
+/// carrying split-third altered color.
 ///
 /// Example: {C, Eb, E, G, Bb} with Eb in the bass is C7#9/Eb, not Eb6b9.
 /// The seventh completes the conventional altered dominant; without it, the
 /// sixth-chord reading remains a genuine split-third ambiguity.
+///
+/// The same principle covers {A, C, Db, Eb, E, G}: A7#9#11/C is a complete
+/// altered dominant, while C6(b9,add#9) is a major-sixth chord with both sides
+/// of the ninth altered around a split third.
 int? _preferCompleteDom7Sharp9OverSixthFlat9(
   ChordCandidate a,
   ChordCandidate b,
@@ -360,15 +365,13 @@ int? _preferCompleteDom7Sharp9OverSixthFlat9(
   CandidateFeatures fb,
   Tonality _,
 ) {
-  final aIsPreferred = fa.isCompleteDominantSharp9;
-  final bIsPreferred = fb.isCompleteDominantSharp9;
+  final aIsPreferred = _isCompleteDominantSharpNineReading(a.identity);
+  final bIsPreferred = _isCompleteDominantSharpNineReading(b.identity);
   if (aIsPreferred == bIsPreferred) return null;
 
   final other = aIsPreferred ? b : a;
   final fOther = aIsPreferred ? fb : fa;
-  if (!fOther.isRootPosition || !fOther.isSixFamily) return null;
-  if (other.identity.extensions.length != 1 ||
-      !other.identity.extensions.contains(ChordExtension.flat9)) {
+  if (!_isStableSplitThirdSixth(other.identity, fOther)) {
     return null;
   }
 
@@ -376,6 +379,33 @@ int? _preferCompleteDom7Sharp9OverSixthFlat9(
   if (preferredCandidate.score + 0.55 < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
+}
+
+bool _isCompleteDominantSharpNineReading(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.dominant7) return false;
+  if (!id.extensions.contains(ChordExtension.sharp9)) return false;
+  if (id.extensions.any(
+    (extension) =>
+        extension != ChordExtension.sharp9 &&
+        extension != ChordExtension.sharp11,
+  )) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.sharp9) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.flat7);
+}
+
+bool _isStableSplitThirdSixth(ChordIdentity id, CandidateFeatures features) {
+  if (!features.isSixFamily || !features.hasStableBassRole) return false;
+  final extensions = id.extensions;
+  if (!extensions.contains(ChordExtension.flat9)) return false;
+  return extensions.length == 1 ||
+      (extensions.length == 2 && extensions.contains(ChordExtension.addSharp9));
 }
 
 /// Prefers a complete altered dominant in a stable inversion over a rare
