@@ -237,6 +237,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferRootExtendedDom7OverAlteredFifthSlash,
   ),
   NamedRule(
+    'prefer sharp-five sharp-eleven dominant spelling over flat-five flat-thirteen',
+    _preferSharpFiveSharpElevenDominantSpelling,
+  ),
+  NamedRule(
     'prefer complete major inversion over minor sharp-five',
     _preferCompleteMajorInversionOverMinorSharpFive,
   ),
@@ -596,6 +600,61 @@ int? _preferRootExtendedDom7OverAlteredFifthSlash(
   if (!fOther.dom7HasShell) return null;
 
   return aIsPreferred ? -1 : 1;
+}
+
+/// Prefers the conventional altered-fifth spelling for a fully symmetric
+/// root-position dominant ambiguity.
+///
+/// Example: {C, D, E, F#, Ab, Bb} in root position can be spelled as either
+/// C9#5#11 or C9b5b13 with the same score. In that narrow tie, #5 plus #11 is
+/// the clearer altered-dominant reading: the augmented fifth is a chord tone,
+/// while F# remains an upper color.
+int? _preferSharpFiveSharpElevenDominantSpelling(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isRootNineSharpFiveSharpEleven(a.identity, fa);
+  final bIsPreferred = _isRootNineSharpFiveSharpEleven(b.identity, fb);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  final fOther = aIsPreferred ? fb : fa;
+  if (!_isRootNineFlatFiveFlatThirteen(other.identity, fOther)) {
+    return null;
+  }
+
+  final preferred = aIsPreferred ? a : b;
+  if (preferred.identity.rootPc != other.identity.rootPc) return null;
+  if ((preferred.identity.presentIntervalsMask & (1 << 7)) != 0) {
+    return null;
+  }
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isRootNineSharpFiveSharpEleven(
+  ChordIdentity id,
+  CandidateFeatures features,
+) {
+  return features.isRootPosition &&
+      id.quality == ChordQualityToken.dominant7Sharp5 &&
+      id.extensions.length == 2 &&
+      id.extensions.contains(ChordExtension.nine) &&
+      id.extensions.contains(ChordExtension.sharp11);
+}
+
+bool _isRootNineFlatFiveFlatThirteen(
+  ChordIdentity id,
+  CandidateFeatures features,
+) {
+  return features.isRootPosition &&
+      id.quality == ChordQualityToken.dominant7Flat5 &&
+      id.extensions.length == 2 &&
+      id.extensions.contains(ChordExtension.nine) &&
+      id.extensions.contains(ChordExtension.flat13);
 }
 
 /// Prefers a bass-rooted suspended dominant over remote slash spellings.

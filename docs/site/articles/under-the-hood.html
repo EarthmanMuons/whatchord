@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <title>
       Under the Hood: Building a Real-Time Chord Recognizer | WhatChord
     </title>
@@ -564,8 +567,8 @@
                 <td class="neg mono">-0.60</td>
                 <td>
                   <code>-0.30</code> for plain triads and fully dim7 (see
-                  Diminished 7th section below); a ♯11 as natural Lydian color is
-                  exempt
+                  Diminished 7th section below); a ♯11 as natural Lydian color
+                  is exempt
                 </td>
               </tr>
               <tr>
@@ -581,6 +584,14 @@
                 <td>
                   Applied when root-position dominant has 9, ♯11, and 13 all
                   present
+                </td>
+              </tr>
+              <tr>
+                <td>Fifthless natural extension stack bonus</td>
+                <td class="pos mono">+2.4</td>
+                <td>
+                  Applied to root-position major 7th or dominant 7th chords with
+                  9 plus ♯11 or 13, no 5th, and no flat 13th
                 </td>
               </tr>
               <tr>
@@ -833,6 +844,10 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
             <li>
               Prefer root-position extended dominant over altered-fifth dominant
               slash
+            </li>
+            <li>
+              Prefer root-position 9♯5♯11 dominant spelling over an equivalent
+              9♭5♭13 spelling
             </li>
             <li>
               Prefer a complete major-triad inversion over a minor sharp-five

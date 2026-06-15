@@ -459,6 +459,18 @@ void main() {
     ),
 
     golden(
+      description: 'altered fifth dominant beats flat-thirteen stack',
+      expectedSymbol: 'C9#5#11',
+      expectedAlternateSymbols: ['C9b5b13', 'Ab9#5#11 / C'],
+      pcs: ['C', 'D', 'E', 'F#', 'Ab', 'Bb'],
+      bass: 'C',
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
+      expectedToneRolesByInterval: {8: ChordToneRole.sharp5},
+    ),
+
+    golden(
       description:
           'common altered dominant beats rarer enharmonic ninth inversion',
       expectedSymbol: 'G7#5 / A',

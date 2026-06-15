@@ -112,7 +112,7 @@ abstract final class ChordAnalyzer {
   static const _domStackPartial = 0.8; // root-position dom7 + 9 + #11
   static const _domStackFull = 2.1; // root-position dom7 + 9 + #11 + 13
   static const _fifthlessExtensionStackBonus =
-      2.4; // root-position fifthless 9 + #11/13 stacks
+      2.4; // root-position fifthless natural 9 + #11/13 stacks
 
   // Upper-structure slash-triad bonus.
   static const _add9BassUpperTriadBonus = 3.2; // e.g. D/E, C#/D#
@@ -697,16 +697,18 @@ abstract final class ChordAnalyzer {
     required int relMask,
     required int bassInterval,
   }) {
-    // Root-position fifthless extended chords are conventional even when the
-    // omitted fifth lets another template reinterpret an upper color as a
-    // required altered fifth. Reward the coherent 9 + #11/13 stack directly,
-    // rather than relying on a later hard ranking override.
+    // Root-position fifthless extended chords are conventional when their upper
+    // colors form a natural extension stack. Reward that coherence directly,
+    // rather than relying on a later hard ranking override. Do not apply this
+    // to flat-thirteenth dominants: when interval 8 is present without a
+    // perfect fifth, #5 is usually the clearer altered-fifth spelling.
     if (bassInterval != 0) return 0;
     if (quality != ChordQualityToken.major7 &&
         quality != ChordQualityToken.dominant7) {
       return 0;
     }
     if (!extensions.contains(ChordExtension.nine)) return 0;
+    if (extensions.contains(ChordExtension.flat13)) return 0;
     final hasUpperColor =
         extensions.contains(ChordExtension.sharp11) ||
         extensions.contains(ChordExtension.thirteen);
