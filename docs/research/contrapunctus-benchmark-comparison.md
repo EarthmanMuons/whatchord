@@ -106,12 +106,12 @@ The first measured pass selected four contrasting common-subset genres:
 Two pieces produced no qualifying three-pitch-class events, leaving 94 pieces
 represented in event-level results.
 
-| Slice                                    | Events | Root exact | Root visible | Root + inversion |
-| ---------------------------------------- | -----: | ---------: | -----------: | ---------------: |
-| All aligned three-pitch-class events     |  6,360 |     60.20% |       64.72% |           55.41% |
-| Clean pitch-set events                   |  3,026 |     93.72% |       98.45% |           88.90% |
-| Clean events with analyst-matching bass  |  2,872 |     93.66% |       98.36% |           93.66% |
-| Clean, non-symmetric mainstream families |  2,812 |     97.90% |      100.00% |           92.78% |
+| Slice                                    | Events | Root exact | Root visible | Root + annotation bass |
+| ---------------------------------------- | -----: | ---------: | -----------: | ---------------------: |
+| All aligned three-pitch-class events     |  6,360 |     60.20% |       64.72% |                 55.41% |
+| Clean pitch-set events                   |  3,026 |     93.72% |       98.45% |                 88.90% |
+| Clean events with analyst-matching bass  |  2,872 |     93.66% |       98.36% |                 93.66% |
+| Clean, non-symmetric mainstream families |  2,812 |     97.90% |      100.00% |                 92.78% |
 
 The low all-event number is expected and confirms that the full Roman-numeral
 benchmark is the wrong product target. The clean-event results are the useful
@@ -196,16 +196,19 @@ Review the report in this order:
    list. These are the highest-value cases because candidate generation or
    template coverage may be incomplete. First decide whether the analyst's
    contextual root is also a defensible isolated-voicing root.
-2. **Hidden ranking divergences**: WhatChord generates the analyst root but does
+2. **Rootless annotations**: the analyst root is absent from the sounding pitch
+   set. These test WhatChord's deliberate solo-keyboard no-ghost-root policy,
+   not ordinary candidate generation.
+3. **Hidden ranking divergences**: WhatChord generates the analyst root but does
    not surface it within the near-tie window. These are product-visible misses
    even when the root happens to rank second or third.
-3. **Visible ranking divergences**: WhatChord selects a different reading but
+4. **Visible ranking divergences**: WhatChord selects a different reading but
    surfaces the analyst root as a near-tie alternative. Review these as naming
    policy questions rather than coverage failures.
-4. **Annotation inversion differences**: WhatChord agrees on root, but the
-   sounding score bass differs from the analyst's inversion. These are usually
-   score/annotation or event-alignment questions rather than analyzer issues.
-5. **Symmetric roots and functional labels**: classify and retain for research,
+5. **Annotation bass differences**: WhatChord agrees on root, but the sounding
+   score bass differs from the analyst's inversion. These are score/annotation
+   or event-alignment questions rather than analyzer issues.
+6. **Symmetric roots and functional labels**: classify and retain for research,
    but do not optimize exact-root ranking against them without a product-level
    reason.
 
@@ -230,15 +233,16 @@ configuration.
 
 The initial four-genre report produced this review backlog:
 
-| Flag                            | Events | Deduplicated cases |
-| ------------------------------- | -----: | -----------------: |
-| Candidate gap                   |      0 |                  0 |
-| Hidden ranking divergence       |      0 |                  0 |
-| Visible ranking divergence      |     59 |                 34 |
-| Annotation inversion difference |    144 |                 93 |
-| Symmetric root                  |    107 |                 69 |
-| Functional label                |     23 |                 16 |
-| Explicit or incomplete label    |     71 |                 50 |
+| Flag                         | Events | Deduplicated cases |
+| ---------------------------- | -----: | -----------------: |
+| Candidate gap                |      0 |                  0 |
+| Rootless annotation          |     11 |                 10 |
+| Hidden ranking divergence    |      0 |                  0 |
+| Visible ranking divergence   |     59 |                 35 |
+| Annotation bass difference   |    144 |                100 |
+| Symmetric root               |    107 |                 69 |
+| Functional label             |     23 |                 16 |
+| Explicit or incomplete label |     60 |                 40 |
 
 After separating unusual explicit-degree, incomplete, symmetric, and functional
 annotations, the report found no actionable candidate-generation gaps in this
@@ -303,15 +307,16 @@ still surfaced by the app.
 
 The expanded review report contains:
 
-| Flag                            | Events |
-| ------------------------------- | -----: |
-| Candidate gap                   |      0 |
-| Hidden ranking divergence       |      0 |
-| Visible ranking divergence      |    804 |
-| Annotation inversion difference |    317 |
-| Symmetric root                  |    376 |
-| Functional label                |     26 |
-| Explicit or incomplete label    |     74 |
+| Flag                         | Events |
+| ---------------------------- | -----: |
+| Candidate gap                |      0 |
+| Rootless annotation          |     11 |
+| Hidden ranking divergence    |      0 |
+| Visible ranking divergence   |    804 |
+| Annotation bass difference   |    317 |
+| Symmetric root               |    376 |
+| Functional label             |     26 |
+| Explicit or incomplete label |     63 |
 
 All 804 visible ranking divergences are one coherent ambiguity family:
 
@@ -360,6 +365,44 @@ preference and continue surfacing the inverted seventh as a near-tie
 alternative. Do not promote the Roman-numeral root from key context alone. A
 future progression-aware analysis mode could revisit the choice because it would
 have the functional evidence that the corpus annotations use.
+
+### Remaining Non-Visible Cases
+
+Only 49 clean events in the expanded run do not match the analyst root exactly
+or within WhatChord's visible near-tie window. None are ordinary chord-symbol
+families:
+
+- 23 use functional augmented-sixth labels;
+- 15 use explicit-degree, incomplete, enharmonic-equivalent, or set-class labels
+  with generated analyst roots;
+- 11 are rootless annotations whose expected root is absent from the sounding
+  pitch set.
+
+These cases remain useful research material, but they do not identify a missing
+mainstream isolated-voicing interpretation.
+
+The rootless cases support retaining the current no-ghost-root policy. All 11
+are unusual incomplete or set-class annotations, and none provides evidence that
+a solo-keyboard chord identifier should infer an unplayed root. Rootless jazz or
+ensemble voicings would need a separate targeted corpus and an explicit product
+mode before relaxing that policy. Focused checks of representative cases
+produced no label from music21, Tonal, or pychord, further weakening the case
+for inferring the contextual annotation root from the isolated voicing.
+
+The 317 annotation-bass differences also do not identify an analyzer error.
+WhatChord receives the score's actual lowest sounding note and necessarily uses
+that as the slash bass. In these events, the score bass and Roman-numeral
+annotation inversion disagree despite matching pitch-class sets. The benchmark
+therefore reports `root_and_annotation_bass_exact` as a corpus-alignment metric,
+not as WhatChord inversion accuracy. Reports include measure and beat locations
+so these source differences can be audited directly.
+
+Spot checks confirmed that the locations are aligned to the intended analysis
+events. For example, Bach Chorale 331 explicitly annotates `m9 b2 I` while the
+clean D-major score voicing has A in the bass. Mozart examples likewise include
+`I` over a fifth bass and `I6` over a root bass. These are literal
+score-versus-annotation differences, not evidence that WhatChord selected the
+wrong inversion.
 
 ## Corpus Expansion Priority
 

@@ -164,6 +164,9 @@ def load_piece(bench_root: Path, piece: dict, cbench) -> list[dict] | None:
                 "id": f"{piece['id']}:{index}",
                 "piece": piece["id"],
                 "group": piece["genre"],
+                "measure": measure,
+                "beat": beat,
+                "offset": float(offset),
                 "figure": figure,
                 "key": key_to_wire(key),
                 "pcMask": mask(sounding_pcs),
@@ -267,7 +270,7 @@ def score(events: list[dict], predictions: dict[str, dict]) -> list[dict]:
                     or expected_root_near_tie
                 ),
                 "bassMatchesAnnotation": event["bassPc"] == event["expectedBassPc"],
-                "rootAndInversionExact": (
+                "rootAndAnnotationBassExact": (
                     top.get("rootPc") == event["expectedRootPc"]
                     and event["bassPc"] == event["expectedBassPc"]
                 ),
@@ -280,6 +283,10 @@ def score(events: list[dict], predictions: dict[str, dict]) -> list[dict]:
 def review_flag(event: dict, candidates: list[dict], prediction: dict) -> str:
     if not event["clean"]:
         return "contextual-or-noisy"
+    if not prediction["expectedRootGenerated"] and not (
+        event["pcMask"] & (1 << event["expectedRootPc"])
+    ):
+        return "rootless-annotation"
     if "augmented sixth chord" in event["expectedCommonName"]:
         return "functional-label"
     if is_explicit_or_incomplete_annotation(event):
@@ -288,7 +295,7 @@ def review_flag(event: dict, candidates: list[dict], prediction: dict) -> str:
         return "symmetric-root"
     if candidates and candidates[0]["rootPc"] == event["expectedRootPc"]:
         if event["bassPc"] != event["expectedBassPc"]:
-            return "annotation-inversion-difference"
+            return "annotation-bass-difference"
         return "agree"
     if prediction["expectedRootNearTie"]:
         return "visible-ranking-divergence"
@@ -344,7 +351,9 @@ def metrics(rows: list[dict]) -> dict:
         "root_visible": ratio(rows, "rootVisible"),
         "root_top3": ratio(rows, "rootTop3"),
         "root_near_tie": ratio(rows, "rootNearTie"),
-        "root_and_inversion_exact": ratio(rows, "rootAndInversionExact"),
+        "root_and_annotation_bass_exact": ratio(
+            rows, "rootAndAnnotationBassExact"
+        ),
     }
 
 
@@ -379,7 +388,7 @@ def print_report(rows: list[dict], piece_counts: Counter) -> None:
         print(
             f"{label}: n={result['events']} "
             f"root exact={result['root_exact']}% "
-            f"root+inversion={result['root_and_inversion_exact']}% "
+            f"root+annotation bass={result['root_and_annotation_bass_exact']}% "
             f"visible={result['root_visible']}% "
             f"near-tie alternative={result['root_near_tie']}% "
             f"top3 legacy={result['root_top3']}%"
@@ -412,9 +421,10 @@ def write_report(path: Path, rows: list[dict], piece_counts: Counter) -> None:
     ]
     for flag in (
         "candidate-gap",
+        "rootless-annotation",
         "hidden-ranking-divergence",
         "visible-ranking-divergence",
-        "annotation-inversion-difference",
+        "annotation-bass-difference",
         "symmetric-root",
         "functional-label",
         "explicit-or-incomplete-label",
@@ -429,18 +439,20 @@ def write_report(path: Path, rows: list[dict], piece_counts: Counter) -> None:
             "Review order",
             "------------",
             "1. Candidate gaps: analyst root is absent from WhatChord's candidate list.",
-            "2. Hidden ranking divergences: analyst root exists but the app does not surface it.",
-            "3. Visible ranking divergences: analyst root is a near-tie alternative.",
-            "4. Annotation inversion differences: root agrees, score bass does not.",
-            "5. Symmetric, functional, and explicit-label cases: classify, but do not optimize against blindly.",
+            "2. Rootless annotations: analyst root is absent from the sounding voicing by design.",
+            "3. Hidden ranking divergences: analyst root exists but the app does not surface it.",
+            "4. Visible ranking divergences: analyst root is a near-tie alternative.",
+            "5. Annotation bass differences: root agrees, score bass and annotation inversion do not.",
+            "6. Symmetric, functional, and explicit-label cases: classify, but do not optimize against blindly.",
             "",
         ]
     )
     for flag, title in (
         ("candidate-gap", "Candidate Gaps"),
+        ("rootless-annotation", "Rootless Annotations"),
         ("hidden-ranking-divergence", "Hidden Ranking Divergences"),
         ("visible-ranking-divergence", "Visible Ranking Divergences"),
-        ("annotation-inversion-difference", "Annotation Inversion Differences"),
+        ("annotation-bass-difference", "Annotation Bass Differences"),
         ("symmetric-root", "Symmetric Root Cases"),
         ("functional-label", "Functional Labels"),
         ("explicit-or-incomplete-label", "Explicit Or Incomplete Labels"),
@@ -461,6 +473,7 @@ def report_section(rows: list[dict], flag: str, title: str) -> list[str]:
                 row["bassPc"],
                 row["noteCount"],
                 row["expectedRootPc"],
+                row["expectedBassPc"],
                 row["expectedCommonName"],
                 row["predictedRootPc"],
                 row["predictedQuality"],
@@ -483,9 +496,9 @@ def report_section(rows: list[dict], flag: str, title: str) -> list[str]:
             figure
             for figure, _ in Counter(item["figure"] for item in case_rows).most_common(3)
         )
-        pieces = ", ".join(
-            piece
-            for piece, _ in Counter(item["piece"] for item in case_rows).most_common(3)
+        locations = ", ".join(
+            f"{item['piece']} m{item['measure']} b{item['beat']:g}"
+            for item in case_rows[:3]
         )
         predicted = (
             f"{pc_name(row['predictedRootPc'])} {row['predictedQuality']}"
@@ -504,8 +517,9 @@ def report_section(rows: list[dict], flag: str, title: str) -> list[str]:
                 f"[{len(case_rows)} occurrence{'s' if len(case_rows) != 1 else ''}] "
                 f"{row['expectedCommonName']} / figures: {figures}",
                 f"  expected root: {pc_name(row['expectedRootPc'])}  chosen: {predicted}",
+                f"  score bass: {pc_name(row['bassPc'])}  annotation bass: {pc_name(row['expectedBassPc'])}",
                 f"  top candidates: {candidates}",
-                f"  samples: {pieces}",
+                f"  samples: {locations}",
                 f"  command: {debug_command(row)}",
                 "",
             ]
