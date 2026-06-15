@@ -44,6 +44,18 @@ fi
 python tool/choco/chord_label_stats.py "$choco_root" --jams-version converted --top 50
 """
 
+[tasks."research:choco-prior"]
+description = "Regenerate the ChoCo common-name prior Dart source from the corpus"
+run = """
+choco_root="${CHOCO_ROOT:-/private/tmp/choco}"
+if [ ! -d "$choco_root/partitions" ]; then
+  echo "ChoCo corpus checkout not found at $choco_root" >&2
+  echo "Set CHOCO_ROOT or follow docs/research/choco-chord-coverage.md" >&2
+  exit 1
+fi
+python tool/choco/common_name_prior.py "$choco_root" --jams-version converted
+"""
+
 [tasks."research:when-in-rome-install"]
 description = "Install optional dependencies for the When-in-Rome benchmark"
 run = "uv pip install music21"
