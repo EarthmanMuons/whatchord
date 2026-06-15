@@ -209,7 +209,14 @@ def analyze(events: list[dict]) -> dict[str, dict]:
         json.dumps(
             {
                 key: event[key]
-                for key in ("id", "key", "pcMask", "bassPc", "noteCount")
+                for key in (
+                    "id",
+                    "key",
+                    "pcMask",
+                    "bassPc",
+                    "noteCount",
+                    "expectedRootPc",
+                )
             }
         )
         + "\n"
@@ -234,15 +241,12 @@ def analyze(events: list[dict]) -> dict[str, dict]:
 def score(events: list[dict], predictions: dict[str, dict]) -> list[dict]:
     rows = []
     for event in events:
-        candidates = predictions[event["id"]]["candidates"]
+        prediction = predictions[event["id"]]
+        candidates = prediction["candidates"]
         top = candidates[0] if candidates else {}
         top_three_roots = {candidate["rootPc"] for candidate in candidates}
         candidate_roots = [candidate["rootPc"] for candidate in candidates]
-        near_tie_roots = {
-            candidate["rootPc"]
-            for candidate in candidates
-            if candidate["nearTie"]
-        }
+        expected_root_near_tie = prediction["expectedRootNearTie"]
         rows.append(
             {
                 **event,
@@ -253,31 +257,27 @@ def score(events: list[dict], predictions: dict[str, dict]) -> list[dict]:
                     f"{candidate['rootPc']}:{candidate['quality']}"
                     for candidate in candidates
                 ),
-                "expectedRootRank": expected_root_rank(
-                    candidates, event["expectedRootPc"]
-                ),
+                "expectedRootGenerated": prediction["expectedRootGenerated"],
+                "expectedRootRank": prediction["expectedRootRank"],
                 "rootExact": top.get("rootPc") == event["expectedRootPc"],
                 "rootTop3": event["expectedRootPc"] in top_three_roots,
-                "rootNearTie": event["expectedRootPc"] in near_tie_roots,
+                "rootNearTie": expected_root_near_tie,
+                "rootVisible": (
+                    top.get("rootPc") == event["expectedRootPc"]
+                    or expected_root_near_tie
+                ),
                 "bassMatchesAnnotation": event["bassPc"] == event["expectedBassPc"],
                 "rootAndInversionExact": (
                     top.get("rootPc") == event["expectedRootPc"]
                     and event["bassPc"] == event["expectedBassPc"]
                 ),
-                "reviewFlag": review_flag(event, candidates),
+                "reviewFlag": review_flag(event, candidates, prediction),
             }
         )
     return rows
 
 
-def expected_root_rank(candidates: list[dict], expected_root: int) -> int | None:
-    for index, candidate in enumerate(candidates, start=1):
-        if candidate["rootPc"] == expected_root:
-            return index
-    return None
-
-
-def review_flag(event: dict, candidates: list[dict]) -> str:
+def review_flag(event: dict, candidates: list[dict], prediction: dict) -> str:
     if not event["clean"]:
         return "contextual-or-noisy"
     if "augmented sixth chord" in event["expectedCommonName"]:
@@ -290,8 +290,10 @@ def review_flag(event: dict, candidates: list[dict]) -> str:
         if event["bassPc"] != event["expectedBassPc"]:
             return "annotation-inversion-difference"
         return "agree"
-    if any(candidate["rootPc"] == event["expectedRootPc"] for candidate in candidates):
-        return "ranking-divergence"
+    if prediction["expectedRootNearTie"]:
+        return "visible-ranking-divergence"
+    if prediction["expectedRootGenerated"]:
+        return "hidden-ranking-divergence"
     return "candidate-gap"
 
 
@@ -339,6 +341,7 @@ def metrics(rows: list[dict]) -> dict:
     return {
         "events": total,
         "root_exact": ratio(rows, "rootExact"),
+        "root_visible": ratio(rows, "rootVisible"),
         "root_top3": ratio(rows, "rootTop3"),
         "root_near_tie": ratio(rows, "rootNearTie"),
         "root_and_inversion_exact": ratio(rows, "rootAndInversionExact"),
@@ -377,8 +380,9 @@ def print_report(rows: list[dict], piece_counts: Counter) -> None:
             f"{label}: n={result['events']} "
             f"root exact={result['root_exact']}% "
             f"root+inversion={result['root_and_inversion_exact']}% "
-            f"top3={result['root_top3']}% "
-            f"near-tie={result['root_near_tie']}%"
+            f"visible={result['root_visible']}% "
+            f"near-tie alternative={result['root_near_tie']}% "
+            f"top3 legacy={result['root_top3']}%"
         )
 
 
@@ -408,7 +412,8 @@ def write_report(path: Path, rows: list[dict], piece_counts: Counter) -> None:
     ]
     for flag in (
         "candidate-gap",
-        "ranking-divergence",
+        "hidden-ranking-divergence",
+        "visible-ranking-divergence",
         "annotation-inversion-difference",
         "symmetric-root",
         "functional-label",
@@ -423,16 +428,18 @@ def write_report(path: Path, rows: list[dict], piece_counts: Counter) -> None:
             "",
             "Review order",
             "------------",
-            "1. Candidate gaps: analyst root is absent from WhatChord's top three.",
-            "2. Ranking divergences: analyst root exists but is not selected.",
-            "3. Annotation inversion differences: root agrees, score bass does not.",
-            "4. Symmetric, functional, and explicit-label cases: classify, but do not optimize against blindly.",
+            "1. Candidate gaps: analyst root is absent from WhatChord's candidate list.",
+            "2. Hidden ranking divergences: analyst root exists but the app does not surface it.",
+            "3. Visible ranking divergences: analyst root is a near-tie alternative.",
+            "4. Annotation inversion differences: root agrees, score bass does not.",
+            "5. Symmetric, functional, and explicit-label cases: classify, but do not optimize against blindly.",
             "",
         ]
     )
     for flag, title in (
         ("candidate-gap", "Candidate Gaps"),
-        ("ranking-divergence", "Ranking Divergences"),
+        ("hidden-ranking-divergence", "Hidden Ranking Divergences"),
+        ("visible-ranking-divergence", "Visible Ranking Divergences"),
         ("annotation-inversion-difference", "Annotation Inversion Differences"),
         ("symmetric-root", "Symmetric Root Cases"),
         ("functional-label", "Functional Labels"),
