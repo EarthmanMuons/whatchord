@@ -7,6 +7,34 @@
     "label": "genuine-ambiguity",
     "note": "F♯7(♯11,♭13)/A♯ is preferred because it is a complete tritone-related dominant with its major third in the bass, while C9♭5♭9/B♭ is a complete altered dominant in third inversion with simultaneous flat and natural ninths. Tonal supports the F♯ reading and music21 supports the C reading, confirming genuine ambiguity. Related bass cases consistently favor whichever dominant receives the more conventional bass role."
   },
+  "0-1-2-4-6-8-10_b0": {
+    "label": "oracle-limitation",
+    "note": "F♯9(♯11,♭13)/B♯ is preferred because the voicing contains the complete F♯ dominant stack F♯-A♯-C♯-E plus G♯, B♯, and D. Tonal agrees with F#9#11b13/C. Music21's B♭9♯5/C add E,D♭ is a related altered-fifth bookkeeping label, but it omits the direct Lydian-dominant-flat-thirteen identity."
+  },
+  "0-1-2-4-6-8-10_b1": {
+    "label": "oracle-limitation",
+    "note": "F♯9(♯11,♭13)/C♯ is preferred because C♯ is the fifth of the complete F♯9♯11♭13 stack. Tonal agrees. Music21's C♯m(maj7) add F♯,D,A♯ re-roots the same pitch material away from the complete dominant shell."
+  },
+  "0-1-2-4-6-8-10_b2": {
+    "label": "oracle-limitation",
+    "note": "F♯9(♯11,♭13)/D is preferred because D is the flat thirteenth of a complete F♯ Lydian-dominant-flat-thirteen sonority. Tonal agrees. Music21's C9♯5/D add C♯,F♯ preserves some altered-dominant color but misses the complete F♯ dominant organization."
+  },
+  "0-1-2-4-6-8-10_b4": {
+    "label": "oracle-limitation",
+    "note": "F♯9(♯11,♭13)/E is preferred because E is the dominant seventh of the complete F♯9♯11♭13 stack. Tonal agrees. Music21's E9♯5 add C♯,A♯ is a related altered-fifth add-tone spelling, but it treats F♯ as the ninth of E rather than the clearer dominant root."
+  },
+  "0-1-2-4-6-8-10_b6": {
+    "label": "oracle-limitation",
+    "note": "F♯9(♯11,♭13) is preferred because it is root position and names every tone as part of a complete dominant stack. Tonal agrees. Music21's F♯9 add B♯,D keeps the root but drops the sharp-eleventh and flat-thirteenth identity into add tones."
+  },
+  "0-1-2-4-6-8-10_b8": {
+    "label": "oracle-limitation",
+    "note": "F♯9(♯11,♭13)/G♯ is preferred because G♯ is the ninth of the complete F♯9♯11♭13 stack. Tonal agrees. Music21's G♯7♭5 add E,A♯,C♯ describes related pitch classes but loses the complete F♯ dominant shell."
+  },
+  "0-1-2-4-6-8-10_b10": {
+    "label": "oracle-limitation",
+    "note": "F♯9(♯11,♭13)/A♯ is preferred because A♯ is the major third of the complete F♯9♯11♭13 stack. Tonal agrees. Music21's A♭9♯5/B♭ add D,D♭ is an enharmonic altered-fifth bookkeeping label rather than the direct Lydian-dominant-flat-thirteen reading."
+  },
   "0-1-2-5-8_b5": {
     "label": "genuine-ambiguity",
     "note": "Fm6b13 is correct; F-Ab-C-D is a complete root-position Fm6 (enharmonically Dm7b5/F), while Db is a dissonant b13/lower-neighbor color; Dbmaj7b9/F is equally complete but inverted and requires Ebb for its b9; oracle split confirms genuine ambiguity; no engine change needed"

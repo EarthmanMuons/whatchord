@@ -33,6 +33,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   spellings.
 - Improved altered sharp-five dominant identification, preferring labels such as
   C7#5(b9,#11) over natural-eleventh sharp-five spellings.
+- Improved Lydian-dominant flat-thirteen identification, favoring complete
+  9#11b13 dominant stacks such as F#9(#11,b13) over remote altered-fifth
+  spellings.
 - Improved identification of doubled-note voicings, preventing incomplete
   fifthless sixth chords from outranking complete inverted minor or diminished
   chords.

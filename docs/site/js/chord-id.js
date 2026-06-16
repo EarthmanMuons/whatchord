@@ -1533,7 +1533,7 @@ fB(a){var t,s,r,q=a.c
 if(q!==B.A&&q!==B.v)return!1
 t=a.e
 s=new A.d(t,A.a(t).i("d<2>"))
-r=s.h(0,B.x)||s.h(0,B.w)
+r=s.h(0,B.y)||s.h(0,B.w)
 return s.h(0,B.l)&&s.h(0,B.h)&&r&&s.h(0,B.i)},
 fG(a){var t,s
 if(a.c!==B.B)return!1
@@ -1571,7 +1571,7 @@ t=a.e
 s=new A.d(t,A.a(t).i("d<2>"))
 return s.h(0,B.l)&&s.h(0,B.h)&&s.h(0,B.d)},
 fO(a,b){if(b===B.r&&a===B.I)return!0
-return a===B.t||a===B.H||a===B.O||a===B.o||a===B.y},
+return a===B.t||a===B.H||a===B.O||a===B.o||a===B.x},
 fJ(a,b){var t
 if(!A.aC(a.c))return!1
 if(b)return!1
@@ -1603,7 +1603,7 @@ q=new A.d(t,A.a(t).i("d<2>"))
 return q.h(0,B.l)&&q.h(0,B.n)&&q.h(0,B.d)&&q.h(0,B.i)},
 fA(a,b){if(!b)return!1
 if(a.c!==B.aa)return!1
-return a.d.h(0,B.y)},
+return a.d.h(0,B.x)},
 fL(a,b){var t,s,r,q
 if(!b)return!1
 t=a.c
@@ -1616,7 +1616,7 @@ fN(a,b){var t,s,r=a.c
 if(r===B.aj||r===B.ak)return!0
 if(A.S(r)===B.u&&!b){t=a.e
 s=new A.d(t,A.a(t).i("d<2>"))
-if(!(s.h(0,B.d)||s.h(0,B.x)||s.h(0,B.w)))return!0}return!1},
+if(!(s.h(0,B.d)||s.h(0,B.y)||s.h(0,B.w)))return!0}return!1},
 fK(a,b,c){var t
 if(b)return!1
 t=a.c
@@ -1631,12 +1631,12 @@ r=A.fz(a.e.p(0,A.aw(s,t)))
 for(t=a.d,t=A.aP(t,t.r,A.a(t).c),s=t.$ti.c;t.k();){q=t.d
 if(q==null)q=s.a(q)
 if(q===r)continue
-if(q===B.t||q===B.H||q===B.o||q===B.y)return!0}return!1},
+if(q===B.t||q===B.H||q===B.o||q===B.x)return!0}return!1},
 fz(a){var t
 A:{if(B.T===a){t=B.t
 break A}if(B.Z===a){t=B.H
 break A}if(B.Y===a){t=B.o
-break A}if(B.am===a){t=B.y
+break A}if(B.am===a){t=B.x
 break A}if(B.ao===a){t=B.k
 break A}if(B.ab===a){t=B.q
 break A}if(B.ad===a){t=B.p
@@ -1649,7 +1649,7 @@ break A}t=null
 break A}return t},
 fx(a){var t=a.e.p(0,A.aw(a.b,a.a))
 if(t==null)return!1
-return!(t===B.l||t===B.h||t===B.n||t===B.d||t===B.x||t===B.w||t===B.S||t===B.i||t===B.D||t===B.ae)},
+return!(t===B.l||t===B.h||t===B.n||t===B.d||t===B.y||t===B.w||t===B.S||t===B.i||t===B.D||t===B.ae)},
 dl(a){var t=A.aw(a.b,a.a)
 if(t===0)return 0
 if(t===3||t===4)return 1
@@ -1750,7 +1750,7 @@ if((g&2)!==0)d.l(0,e||A.aC(f)?B.t:B.b3)
 if((g&8)!==0){if(!e)c=!(f===B.r||f===B.C||f===B.a4)
 else c=!0
 d.l(0,c?B.H:B.O)}if((g&64)!==0)d.l(0,B.o)
-if((g&256)!==0)d.l(0,B.y)
+if((g&256)!==0)d.l(0,B.x)
 b=(g&14)!==0
 if((g&4)!==0)d.l(0,e?B.k:B.z)
 if((g&32)!==0)d.l(0,e&&b?B.q:B.I)
@@ -1786,7 +1786,7 @@ break A}if(A.dZ(d,f)){a8-=a9
 B:{if(c){c="dim7 softened"
 break B}if(A.S(f)!==B.u&&!A.aC(f)){c="triad softened"
 break B}c=b5
-break B}b6.$3$detail("alterations penalty",-a9,c)}b0=A.fQ(b7,d,f)
+break B}b6.$3$detail("alterations penalty",-a9,c)}b0=A.fQ(b7,d,f,c0)
 if(b0!==0){a8+=b0
 b6.$2("dominant stack",b0)}b1=A.fS(b7,d,f,c0)
 if(b1!==0){a8+=b1
@@ -1798,7 +1798,7 @@ b4=a8/b3
 if(b9!=null)b6.$3$detail("normalize",0,"raw="+B.E.N(a8,2)+" denom="+B.E.N(b3,2)+" => "+B.E.N(b4,2))
 return new A.cY(b4,d)},
 dZ(a,b){var t=!0
-if(!a.h(0,B.t))if(!a.h(0,B.H))t=a.h(0,B.o)&&!A.e2(b)||a.h(0,B.y)
+if(!a.h(0,B.t))if(!a.h(0,B.H))t=a.h(0,B.o)&&!A.e2(b)||a.h(0,B.x)
 return t},
 fU(a,b,c){var t=c.a
 if(A.h_(a,b)&&A.fX(t,b))return 8
@@ -1821,16 +1821,20 @@ case 7:case 13:case 18:return a===5
 default:return!1}},
 fT(a,b){if(!(b===B.A||b===B.V))return!1
 return a.h(0,B.p)||a.h(0,B.a8)},
-fQ(a,b,c){if(c!==B.m)return 0
-if(a!==0)return 0
+fQ(a,b,c,d){var t,s
+if(c!==B.m)return 0
 if(!b.h(0,B.k))return 0
 if(!b.h(0,B.o))return 0
-if(!b.h(0,B.p))return 0.8
+t=b.h(0,B.p)
+s=b.h(0,B.x)
+if(!t&&!s)return a===0?0.8:0
+if(t&&!s)return a===0?2.1:0
+if(s&&(d&128)===0)return 0
 return 2.1},
 fS(a,b,c,d){if(a!==0)return 0
 if(c!==B.a1&&c!==B.m)return 0
 if(!b.h(0,B.k))return 0
-if(b.h(0,B.y))return 0
+if(b.h(0,B.x))return 0
 if(!(b.h(0,B.o)||b.h(0,B.p)))return 0
 if((d&128)!==0)return 0
 return 2.4},
@@ -1970,7 +1974,7 @@ t=t.a===2&&t.h(0,B.t)&&t.h(0,B.k)}else t=!1
 return t},
 eU(a){var t
 if(a.c===B.m){t=a.d
-t=t.a===2&&t.h(0,B.o)&&t.h(0,B.y)}else t=!1
+t=t.a===2&&t.h(0,B.o)&&t.h(0,B.x)}else t=!1
 return t},
 jq(a,b,c,d,e){var t,s,r,q,p=c.w
 if(p===d.w)return null
@@ -2089,7 +2093,7 @@ if(p===A.eS(b.a))return q
 t=(p?b:a).a
 s=!1
 if(t.c===B.A){r=t.d
-if(r.a===2)s=(r.h(0,B.k)||r.h(0,B.t))&&r.h(0,B.y)}if(!s)return q
+if(r.a===2)s=(r.h(0,B.k)||r.h(0,B.t))&&r.h(0,B.x)}if(!s)return q
 s=(p?a:b).a
 if(s.a!==t.a)return q
 if((s.f&128)!==0)return q
@@ -2478,7 +2482,7 @@ A:{if(B.l===a){t=1
 break A}if(B.Q===a){t=2
 break A}if(B.n===a||B.ap===a||B.h===a){t=3
 break A}if(B.R===a){t=4
-break A}if(B.x===a||B.d===a||B.w===a){t=5
+break A}if(B.y===a||B.d===a||B.w===a){t=5
 break A}if(B.S===a){t=6
 break A}if(B.ae===a||B.i===a||B.D===a){t=7
 break A}if(B.T===a||B.ao===a||B.Z===a||B.af===a||B.aM===a){t=9
@@ -2536,7 +2540,7 @@ switch(b.a){case 0:t.$2(4,B.h)
 t.$2(7,B.d)
 break
 case 1:t.$2(4,B.h)
-t.$2(6,B.x)
+t.$2(6,B.y)
 break
 case 2:t.$2(3,B.n)
 t.$2(7,B.d)
@@ -2545,7 +2549,7 @@ case 3:t.$2(3,B.n)
 t.$2(8,B.w)
 break
 case 4:t.$2(3,B.n)
-t.$2(6,B.x)
+t.$2(6,B.y)
 break
 case 5:t.$2(4,B.h)
 t.$2(8,B.w)
@@ -2581,7 +2585,7 @@ t.$2(7,B.d)
 t.$2(10,B.i)
 break
 case 14:t.$2(4,B.h)
-t.$2(6,B.x)
+t.$2(6,B.y)
 t.$2(10,B.i)
 break
 case 15:t.$2(4,B.h)
@@ -2601,7 +2605,7 @@ t.$2(7,B.d)
 t.$2(11,B.D)
 break
 case 19:t.$2(4,B.h)
-t.$2(6,B.x)
+t.$2(6,B.y)
 t.$2(11,B.D)
 break
 case 20:t.$2(4,B.h)
@@ -2621,11 +2625,11 @@ t.$2(7,B.d)
 t.$2(11,B.D)
 break
 case 24:t.$2(3,B.n)
-t.$2(6,B.x)
+t.$2(6,B.y)
 t.$2(10,B.i)
 break
 case 25:t.$2(3,B.n)
-t.$2(6,B.x)
+t.$2(6,B.y)
 t.$2(9,B.ae)
 break}s=new A.ct(n,o)
 for(r=A.aP(a,a.r,A.a(a).c),q=r.$ti.c;r.k();){p=r.d
@@ -2767,7 +2771,7 @@ h4(a){var t,s=a.b,r=a.a
 if(s===r)return!1
 t=a.e.p(0,A.aw(s,r))
 if(t==null)return!1
-return t===B.h||t===B.n||t===B.d||t===B.x||t===B.w||t===B.S||t===B.i||t===B.D||t===B.ae},
+return t===B.h||t===B.n||t===B.d||t===B.y||t===B.w||t===B.S||t===B.i||t===B.D||t===B.ae},
 e_(a){var t,s,r,q,p
 if(A.h5(a))return B.ca
 t=a.b
@@ -4514,7 +4518,7 @@ A.d6.prototype={
 $2(a,b){var t,s,r=!0
 if(b.a){t=a.a
 if(t.c===B.P){r=t.d
-r=r.a!==1||!r.h(0,B.y)}}if(r)return!1
+r=r.a!==1||!r.h(0,B.x)}}if(r)return!1
 r=a.a
 s=A.ej(this.a,r,r.f,!0,null,!0)
 r=s==null
@@ -4958,7 +4962,7 @@ B.H=new A.o(2,"sharp9")
 B.O=new A.o(3,"addSharp9")
 B.q=new A.o(4,"eleven")
 B.o=new A.o(5,"sharp11")
-B.y=new A.o(6,"flat13")
+B.x=new A.o(6,"flat13")
 B.p=new A.o(7,"thirteen")
 B.z=new A.o(8,"add9")
 B.I=new A.o(9,"add11")
@@ -5002,7 +5006,7 @@ B.R=new A.n(10,"sus4")
 B.ab=new A.n(11,"eleven")
 B.Y=new A.n(12,"sharp11")
 B.ac=new A.n(13,"add11")
-B.x=new A.n(14,"flat5")
+B.y=new A.n(14,"flat5")
 B.d=new A.n(15,"perfect5")
 B.w=new A.n(16,"sharp5")
 B.S=new A.n(17,"sixth")
