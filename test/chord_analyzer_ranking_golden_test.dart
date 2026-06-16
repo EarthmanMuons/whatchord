@@ -411,6 +411,45 @@ void main() {
     ),
 
     golden(
+      description:
+          'complete sharp-nine thirteenth dominant beats colored sixth',
+      expectedSymbol: 'Eb13#9 / Db',
+      expectedAlternateSymbols: ['F#6(b9,#11) / C#'],
+      pcs: ['C', 'Db', 'Eb', 'F#', 'G', 'Bb'],
+      bass: 'Db',
+      expectedRoot: 'Eb',
+      expectedBass: 'Db',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.sharp9, ChordExtension.thirteen},
+    ),
+
+    golden(
+      description:
+          'complete sharp-nine thirteenth dominant beats root-position colored sixth',
+      expectedSymbol: 'Eb13#9 / F#',
+      expectedAlternateSymbols: ['F#6(b9,#11)'],
+      pcs: ['C', 'Db', 'Eb', 'F#', 'G', 'Bb'],
+      bass: 'F#',
+      expectedRoot: 'Eb',
+      expectedBass: 'F#',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.sharp9, ChordExtension.thirteen},
+    ),
+
+    golden(
+      description:
+          'complete sharp-nine thirteenth dominant beats third-bass colored sixth',
+      expectedSymbol: 'Eb13#9 / Bb',
+      expectedAlternateSymbols: ['F#6(b9,#11) / A#'],
+      pcs: ['C', 'Db', 'Eb', 'F#', 'G', 'Bb'],
+      bass: 'Bb',
+      expectedRoot: 'Eb',
+      expectedBass: 'Bb',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.sharp9, ChordExtension.thirteen},
+    ),
+
+    golden(
       description: 'split-nine tritone dominant follows conventional inversion',
       expectedSymbol: 'F#7(#11,b13) / A#',
       expectedAlternateSymbols: ['C9b5b9 / Bb'],

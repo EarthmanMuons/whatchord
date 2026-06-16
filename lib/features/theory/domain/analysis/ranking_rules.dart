@@ -238,6 +238,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferRootExtendedDom7OverAlteredFifthSlash,
   ),
   NamedRule(
+    'prefer complete sharp-nine thirteenth dominant over colored sixth',
+    _preferCompleteSharpNineThirteenthDominantOverColoredSixth,
+  ),
+  NamedRule(
     'prefer sharp-five sharp-eleven dominant spelling over flat-five flat-thirteen',
     _preferSharpFiveSharpElevenDominantSpelling,
   ),
@@ -787,6 +791,72 @@ bool _isRootExtendedDom7(ChordIdentity id, CandidateFeatures features) {
   if (!features.dom7HasShell) return false;
   if (!id.extensions.contains(ChordExtension.nine)) return false;
   return id.extensions.contains(ChordExtension.sharp11);
+}
+
+/// Prefers a complete sharp-nine dominant thirteenth over a heavily colored
+/// major-sixth spelling of the same pitch classes.
+///
+/// Example: {C, Db, Eb, F#, G, Bb} can be read as Eb13#9 or F#6(b9,#11).
+/// The dominant reading has a complete shell and familiar altered-dominant
+/// color; the sixth reading is structurally complete but asks a major-sixth
+/// chord to carry both b9 and #11 alterations.
+int? _preferCompleteSharpNineThirteenthDominantOverColoredSixth(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isCompleteSharpNineThirteenthDominant(a.identity);
+  final bIsPreferred = _isCompleteSharpNineThirteenthDominant(b.identity);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  final fOther = aIsPreferred ? fb : fa;
+  if (!_isColoredSixthFlatNineSharpEleven(other.identity, fOther)) {
+    return null;
+  }
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isCompleteSharpNineThirteenthDominant(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.dominant7) return false;
+  if (id.extensions.length != 2 ||
+      !id.extensions.contains(ChordExtension.sharp9) ||
+      !id.extensions.contains(ChordExtension.thirteen)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.sharp9) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.thirteenth) &&
+      roles.contains(ChordToneRole.flat7);
+}
+
+bool _isColoredSixthFlatNineSharpEleven(
+  ChordIdentity id,
+  CandidateFeatures features,
+) {
+  if (id.quality != ChordQualityToken.major6 || !features.hasStableBassRole) {
+    return false;
+  }
+  if (id.extensions.length != 2 ||
+      !id.extensions.contains(ChordExtension.flat9) ||
+      !id.extensions.contains(ChordExtension.sharp11)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.flat9) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.sharp11) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.sixth);
 }
 
 /// Prefers root-position diminished7 even though they're symmetrical.
