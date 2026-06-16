@@ -507,6 +507,35 @@ void main() {
     },
   );
 
+  test(
+    'altered sharp-five dominant beats natural-eleventh sharp-five near-tie',
+    () {
+      final alteredDominant = _candidate(
+        quality: ChordQualityToken.dominant7Sharp5,
+        root: 'C',
+        bass: 'Ab',
+        presentIntervals: const {0, 1, 4, 6, 8, 10},
+        extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
+        score: 7.95,
+      );
+
+      final naturalEleventhSharpFive = _candidate(
+        quality: ChordQualityToken.dominant7Sharp5,
+        root: 'Ab',
+        bass: 'Ab',
+        presentIntervals: const {0, 2, 4, 5, 8, 10},
+        extensions: const {ChordExtension.nine, ChordExtension.eleven},
+        score: 8,
+      );
+
+      _expectTieRule(
+        alteredDominant,
+        naturalEleventhSharpFive,
+        'prefer complete altered sharp-five dominant over remote spellings',
+      );
+    },
+  );
+
   test('root-position dominant sus beats slash reinterpretation near-tie', () {
     final rootPositionSus = _candidate(
       quality: ChordQualityToken.dominant7sus4,
