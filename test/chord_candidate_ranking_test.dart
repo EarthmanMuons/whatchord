@@ -478,6 +478,35 @@ void main() {
     },
   );
 
+  test(
+    'complete sharp-nine thirteenth dominant beats colored sixth near-tie',
+    () {
+      final dominant = _candidate(
+        quality: ChordQualityToken.dominant7,
+        root: 'Eb',
+        bass: 'Db',
+        presentIntervals: const {0, 3, 4, 7, 9, 10},
+        extensions: const {ChordExtension.sharp9, ChordExtension.thirteen},
+        score: 7.74,
+      );
+
+      final coloredSixth = _candidate(
+        quality: ChordQualityToken.major6,
+        root: 'F#',
+        bass: 'C#',
+        presentIntervals: const {0, 1, 4, 6, 7, 9},
+        extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
+        score: 7.74,
+      );
+
+      _expectTieRule(
+        dominant,
+        coloredSixth,
+        'prefer complete sharp-nine thirteenth dominant over colored sixth',
+      );
+    },
+  );
+
   test('root-position dominant sus beats slash reinterpretation near-tie', () {
     final rootPositionSus = _candidate(
       quality: ChordQualityToken.dominant7sus4,
