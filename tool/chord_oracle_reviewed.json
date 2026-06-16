@@ -59,6 +59,26 @@
     "label": "oracle-limitation",
     "note": "A13(♯9,♯11) is preferred because it is root position and contains the complete altered dominant thirteenth: A, C♯, E, G, F♯, B♯, and D♯. Tonal agrees. Music21's F♯øb9/A add C♯,E♭ prioritizes a half-diminished structure over the clearer root-position dominant."
   },
+  "0-1-3-4-7-10_b3": {
+    "label": "oracle-limitation",
+    "note": "E♭13♭9 is preferred because E♭, G, B♭, and D♭ form a complete root-position dominant seventh, with C as the thirteenth and F♭ as flat-nine color. Tonal agrees with E♭13♭9. Music21's Cm7/E♭ add D♭,F♭ preserves a C-minor shell but demotes the root-position dominant structure to added chromatic tones; ChoCo common-name counts strongly favor dominant-seventh and flat-nine families over minor7 flat-nine/add-tone variants."
+  },
+  "0-1-3-5-7-10_b3": {
+    "label": "oracle-limitation",
+    "note": "E♭13 is preferred because E♭, G, B♭, and D♭ form a complete root-position dominant seventh with F and C as the upper extension stack. Tonal agrees with E♭13. Music21's Cm7/E♭ add F,D♭ is an upper-structure minor-seventh bookkeeping label; ChoCo common-name counts include thousands of dominant-thirteenth-stack observations but only sparse minor7 add-eleven variants."
+  },
+  "0-1-3-5-7-10_b7": {
+    "label": "oracle-limitation",
+    "note": "E♭13/G is preferred because the bass is the dominant third and the voicing contains the complete E♭ dominant thirteenth stack. Tonal agrees. Music21's Cm7/G add D♭,F re-roots the same pitch material into a C-minor shell and treats the dominant seventh and ninth as additions, which is less idiomatic for this complete dominant inversion."
+  },
+  "0-1-3-5-7-10_b10": {
+    "label": "oracle-limitation",
+    "note": "E♭13/B♭ is preferred because the bass is the dominant fifth and the voicing contains the complete E♭ dominant thirteenth stack. Tonal agrees. Music21's Cm7/B♭ add F,D♭ describes related upper-structure material but misses the more direct dominant-root organization."
+  },
+  "0-1-3-6-7-10_b7": {
+    "label": "oracle-limitation",
+    "note": "E♭13♯9/G is preferred because the bass is the dominant third and the voicing contains E♭, G, B♭, D♭, C, and G♭/F♯ as a complete sharp-nine dominant thirteenth. Tonal agrees with E♭13♯9/G. Music21's Cm7/G add D♭,G♭ keeps a C-minor shell and treats the dominant colors as additions, which is less useful as the primary chord symbol."
+  },
   "0-1-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C7b5b9 is correct; it is a complete root-position altered dominant, while F#7#11/C is a complete tritone-related dominant with the #11 in the bass; both are conventional and similarly common in ChoCo, but the C bass favors the current root-position reading; key context respells the alternate without changing the ranking; no engine change needed"
