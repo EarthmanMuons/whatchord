@@ -110,7 +110,7 @@ abstract final class ChordAnalyzer {
 
   // Dominant-stack coherence bonuses.
   static const _domStackPartial = 0.8; // root-position dom7 + 9 + #11
-  static const _domStackFull = 2.1; // root-position dom7 + 9 + #11 + 13
+  static const _domStackFull = 2.1; // dom7 + 9 + #11 + 13/b13 coherent stack
   static const _fifthlessExtensionStackBonus =
       2.4; // root-position fifthless natural 9 + #11/13 stacks
 
@@ -479,6 +479,7 @@ abstract final class ChordAnalyzer {
     final dominantStackDelta = _dominantStackCoherenceBonus(
       quality: template.quality,
       extensions: extensions,
+      relMask: relMask,
       bassInterval: bassInterval,
     );
     if (dominantStackDelta != 0) {
@@ -677,17 +678,31 @@ abstract final class ChordAnalyzer {
   static double _dominantStackCoherenceBonus({
     required ChordQualityToken quality,
     required Set<ChordExtension> extensions,
+    required int relMask,
     required int bassInterval,
   }) {
-    // Lydian-dominant stacks are commonly voiced as root-position dominant
-    // chords with 9/#11 color. Without this small structural bonus, the scorer
-    // overvalues remote altered-fifth slash readings that happen to reinterpret
-    // one color tone as a required chord tone.
+    // Lydian-dominant stacks are commonly voiced as dominant chords with 9/#11
+    // color. Without this small structural bonus, the scorer overvalues remote
+    // altered-fifth slash readings that happen to reinterpret one color tone as
+    // a required chord tone.
     if (quality != ChordQualityToken.dominant7) return 0;
-    if (bassInterval != 0) return 0;
     if (!extensions.contains(ChordExtension.nine)) return 0;
     if (!extensions.contains(ChordExtension.sharp11)) return 0;
-    if (!extensions.contains(ChordExtension.thirteen)) return _domStackPartial;
+
+    final hasNaturalThirteenth = extensions.contains(ChordExtension.thirteen);
+    final hasFlatThirteenth = extensions.contains(ChordExtension.flat13);
+    if (!hasNaturalThirteenth && !hasFlatThirteenth) {
+      return bassInterval == 0 ? _domStackPartial : 0;
+    }
+
+    if (hasNaturalThirteenth && !hasFlatThirteenth) {
+      return bassInterval == 0 ? _domStackFull : 0;
+    }
+
+    if (hasFlatThirteenth && (relMask & (1 << perfectFifthInterval)) == 0) {
+      return 0;
+    }
+
     return _domStackFull;
   }
 
