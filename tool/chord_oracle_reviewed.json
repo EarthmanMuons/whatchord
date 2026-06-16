@@ -87,6 +87,26 @@
     "label": "genuine-ambiguity",
     "note": "C7♭5♭9/E is preferred because it is a complete altered dominant with its major third in the bass, while F♯7♯11/E is the complete tritone-related dominant in third inversion. Music21 and tonal choose the valid F♯ reading, but the two chord signatures are similarly common in ChoCo and the E bass gives the C-rooted interpretation the more conventional inversion. Related bass cases consistently favor whichever dominant receives the stronger bass role."
   },
+  "0-1-4-6-8-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "C7#5(b9,#11) is preferred because it names the complete C altered dominant C-E-Bb plus Db, F#, and G#/Ab. Tonal agrees and also lists the valid tritone-related F#9#11/C alternate; music21 prefers that F# reading. The split is a real altered-dominant vs tritone-sub ambiguity, but the C bass and complete altered stack justify WhatChord's primary label."
+  },
+  "0-1-4-6-8-10_b1": {
+    "label": "genuine-ambiguity",
+    "note": "C7#5(b9,#11)/Db is preferred because the pitch set is the complete C altered dominant with Db as flat-nine in the bass. Tonal agrees and also lists F#9#11/Db; music21 prefers the same valid tritone-related F# structure. This is a genuine dominant-function ambiguity, with WhatChord choosing the direct altered-dominant spelling."
+  },
+  "0-1-4-6-8-10_b4": {
+    "label": "genuine-ambiguity",
+    "note": "C7#5(b9,#11)/E is preferred because E is the major third of the complete C altered dominant, while F#9#11/E is the valid tritone-related dominant with its flat seventh in the bass. Tonal agrees with the C reading and lists F#9#11/E as the alternate; music21 prefers the F# label, confirming a genuine split rather than a clear oracle winner."
+  },
+  "0-1-4-6-8-10_b8": {
+    "label": "genuine-ambiguity",
+    "note": "C7#5(b9,#11)/G# is preferred because G#/Ab is the sharp fifth of the complete C altered dominant and avoids the less idiomatic Ab11#5 primary label. Tonal agrees with the C reading and lists F#9#11/Ab as the alternate; music21 prefers F#9/G# add B#. The remaining disagreement is a valid tritone-sub ambiguity."
+  },
+  "0-1-4-6-8-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "C7#5(b9,#11)/Bb is preferred because Bb is the dominant seventh of the complete C altered dominant. Tonal agrees and lists the valid F#9#11/Bb alternate; music21's Gm9/Bb add C is semantically the same F#9#11 pitch-class structure. This is a genuine altered-dominant vs tritone-related split, not a reason to re-rank away from C."
+  },
   "0-1-4-7_b1": {
     "label": "genuine-ambiguity",
     "note": "D♭m(maj7)#11 is correct; near-tie cluster resolved by root-position preference and fully-explained-voicing tie-breakers; both oracles produce related Db-rooted or diminished readings; sound"

@@ -56,6 +56,10 @@ final List<NamedRule> hardRules = <NamedRule>[
     _preferCompleteDom7Sharp9OverSixthFlat9,
   ),
   NamedRule(
+    'prefer complete altered sharp-five dominant over remote spellings',
+    _preferCompleteAlteredSharpFiveDominantOverRemoteSpellings,
+  ),
+  NamedRule(
     'prefer conventional inversion in split-nine tritone dominant ambiguity',
     _preferConventionalSplitNineTritoneDominant,
   ),
@@ -643,13 +647,13 @@ int? _preferRootExtendedDom7OverAlteredFifthSlash(
   return aIsPreferred ? -1 : 1;
 }
 
-/// Prefers the conventional altered-fifth spelling for a fully symmetric
-/// root-position dominant ambiguity.
+/// Prefers the conventional altered-fifth spelling for fully symmetric
+/// same-root dominant ambiguities.
 ///
-/// Example: {C, D, E, F#, Ab, Bb} in root position can be spelled as either
-/// C9#5#11 or C9b5b13 with the same score. In that narrow tie, #5 plus #11 is
-/// the clearer altered-dominant reading: the augmented fifth is a chord tone,
-/// while F# remains an upper color.
+/// Example: {C, D, E, F#, Ab, Bb} can be spelled as either C9#5#11 or
+/// C9b5b13 with the same score. In that narrow tie, #5 plus #11 is the clearer
+/// altered-dominant reading: the augmented fifth is a chord tone, while F#
+/// remains an upper color.
 int? _preferSharpFiveSharpElevenDominantSpelling(
   ChordCandidate a,
   ChordCandidate b,
@@ -657,13 +661,12 @@ int? _preferSharpFiveSharpElevenDominantSpelling(
   CandidateFeatures fb,
   Tonality _,
 ) {
-  final aIsPreferred = _isRootNineSharpFiveSharpEleven(a.identity, fa);
-  final bIsPreferred = _isRootNineSharpFiveSharpEleven(b.identity, fb);
+  final aIsPreferred = _isNineSharpFiveSharpEleven(a.identity);
+  final bIsPreferred = _isNineSharpFiveSharpEleven(b.identity);
   if (aIsPreferred == bIsPreferred) return null;
 
   final other = aIsPreferred ? b : a;
-  final fOther = aIsPreferred ? fb : fa;
-  if (!_isRootNineFlatFiveFlatThirteen(other.identity, fOther)) {
+  if (!_isNineFlatFiveFlatThirteen(other.identity)) {
     return null;
   }
 
@@ -676,25 +679,19 @@ int? _preferSharpFiveSharpElevenDominantSpelling(
   return aIsPreferred ? -1 : 1;
 }
 
-bool _isRootNineSharpFiveSharpEleven(
-  ChordIdentity id,
-  CandidateFeatures features,
-) {
-  return features.isRootPosition &&
-      id.quality == ChordQualityToken.dominant7Sharp5 &&
+bool _isNineSharpFiveSharpEleven(ChordIdentity id) {
+  return id.quality == ChordQualityToken.dominant7Sharp5 &&
       id.extensions.length == 2 &&
-      id.extensions.contains(ChordExtension.nine) &&
+      (id.extensions.contains(ChordExtension.nine) ||
+          id.extensions.contains(ChordExtension.flat9)) &&
       id.extensions.contains(ChordExtension.sharp11);
 }
 
-bool _isRootNineFlatFiveFlatThirteen(
-  ChordIdentity id,
-  CandidateFeatures features,
-) {
-  return features.isRootPosition &&
-      id.quality == ChordQualityToken.dominant7Flat5 &&
+bool _isNineFlatFiveFlatThirteen(ChordIdentity id) {
+  return id.quality == ChordQualityToken.dominant7Flat5 &&
       id.extensions.length == 2 &&
-      id.extensions.contains(ChordExtension.nine) &&
+      (id.extensions.contains(ChordExtension.nine) ||
+          id.extensions.contains(ChordExtension.flat9)) &&
       id.extensions.contains(ChordExtension.flat13);
 }
 
@@ -857,6 +854,73 @@ bool _isColoredSixthFlatNineSharpEleven(
       roles.contains(ChordToneRole.sharp11) &&
       roles.contains(ChordToneRole.perfect5) &&
       roles.contains(ChordToneRole.sixth);
+}
+
+/// Prefers complete altered-dominant notation with #11 over remote spellings.
+///
+/// Example: {C, Db, E, F#, Ab, Bb} is better read as C7#5(b9,#11)/Ab than
+/// Ab11#5 or Bbm9#5#11. The competing spellings are pitch-class valid, but the
+/// C-rooted spelling names the same material with conventional altered-dominant
+/// vocabulary.
+int? _preferCompleteAlteredSharpFiveDominantOverRemoteSpellings(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isAlteredSharpFiveDominant(a.identity);
+  final bIsPreferred = _isAlteredSharpFiveDominant(b.identity);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  if (!_isNaturalEleventhSharpFiveDominant(other.identity) &&
+      !_isRemoteAlteredNonDominantReading(other.identity)) {
+    return null;
+  }
+
+  final preferred = aIsPreferred ? a : b;
+  if (preferred.score + 0.20 < other.score) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isAlteredSharpFiveDominant(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.dominant7Sharp5) return false;
+  if (!id.extensions.contains(ChordExtension.flat9) ||
+      !id.extensions.contains(ChordExtension.sharp11)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.flat9) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.sharp11) &&
+      roles.contains(ChordToneRole.sharp5) &&
+      roles.contains(ChordToneRole.flat7);
+}
+
+bool _isRemoteAlteredNonDominantReading(ChordIdentity id) {
+  final isRemoteQuality = switch (id.quality) {
+    ChordQualityToken.minorMajor7 ||
+    ChordQualityToken.minor7Sharp5 ||
+    ChordQualityToken.halfDiminished7 => true,
+    _ => false,
+  };
+  return isRemoteQuality && id.extensions.isNotEmpty;
+}
+
+bool _isNaturalEleventhSharpFiveDominant(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.dominant7Sharp5) return false;
+  if (!id.extensions.contains(ChordExtension.eleven)) return false;
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.eleven) &&
+      roles.contains(ChordToneRole.sharp5) &&
+      roles.contains(ChordToneRole.flat7);
 }
 
 /// Prefers root-position diminished7 even though they're symmetrical.
