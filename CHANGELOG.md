@@ -26,7 +26,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved identification of major-nine-suspended-fourth chords, treating the
   ninth as a natural color instead of a conflicting suspended tone.
 - Improved altered dominant identification in split-third sixth ambiguities,
-  favoring complete sharp-nine dominant readings such as A7(#9,#11).
+  favoring complete sharp-nine dominant readings such as A7(#9,#11) and
+  A13(#9,#11).
 - Improved identification of doubled-note voicings, preventing incomplete
   fifthless sixth chords from outranking complete inverted minor or diminished
   chords.
