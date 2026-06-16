@@ -38,6 +38,8 @@ Options:
                          Examples: C, C:maj, A:min, Eb:maj, F#:min.
   -n, --notation=STYLE   Chord symbol style. Valid: textual, symbolic.
                          Default: textual.
+      --spelling=MODE    How typed note spellings affect ranking.
+                         Valid: pc, auto, strict. Default: pc.
   -f, --format=FORMAT    Output format. Valid: text, json. Default: text.
       --json             Alias for --format=json.
   -v, --verbose          Include input, ChordIdentity, and played/missing/extra
@@ -91,6 +93,9 @@ void main(List<String> args) {
 
   final notationFlag = _readStringFlag(args, 'notation', 'n');
   final notation = _parseNotationFlag(notationFlag);
+  final spellingMode = _parseSpellingModeFlag(
+    _readStringFlag(args, 'spelling', ''),
+  );
   final outputFormat = _parseOutputFormatFlag(args);
 
   // Extract positional args (notes), ignoring flags.
@@ -121,9 +126,18 @@ void main(List<String> args) {
   final verbose = _hasFlag(args, 'verbose', 'v');
   final compact = _hasFlag(args, 'compact', 'c');
 
-  final results = ChordAnalyzer.analyzeDebug(
+  final baseResults = ChordAnalyzer.analyzeDebug(
     input,
     context: context,
+    take: spellingMode == ChordDebugSpellingMode.pc
+        ? top
+        : (top < 24 ? 24 : top),
+  );
+  final results = _applySpellingMode(
+    baseResults,
+    parsed: prepared.parsed,
+    context: context,
+    spellingMode: spellingMode,
     take: top,
   );
 
@@ -134,6 +148,8 @@ void main(List<String> args) {
       notation: notation,
       pcDisplays: pcDisplays,
       bassLabel: bassLabel,
+      spellingMode: spellingMode,
+      parsed: prepared.parsed,
       results: results,
     );
     return;
@@ -145,6 +161,7 @@ void main(List<String> args) {
       'mask=${_formatPcMask(input.pcMask)} (bits 11..0)',
     );
     stdout.writeln('pc numbers: ${_formatPcNumbers(pcDisplays)}');
+    stdout.writeln('spelling: ${spellingMode.wireName}');
   }
   if (!compact) {
     stdout.writeln(
@@ -202,6 +219,16 @@ void main(List<String> args) {
 
     if (verbose) {
       stdout.writeln('     ${_formatIdentityCompact(id)}');
+      final spelling = _spellingEvidenceFor(
+        id,
+        parsed: prepared.parsed,
+        context: context,
+        spellingMode: spellingMode,
+      );
+      final spellingText = _formatSpellingEvidence(spelling);
+      if (spellingText.isNotEmpty) {
+        stdout.writeln('     spelling: $spellingText');
+      }
     }
 
     // Role-aware chord-member spellings.
@@ -464,6 +491,192 @@ ChordDebugPrepared? prepareChordDebugInput({
   );
 }
 
+List<RankedCandidateDebug> _applySpellingMode(
+  List<RankedCandidateDebug> baseResults, {
+  required NoteParse parsed,
+  required AnalysisContext context,
+  required ChordDebugSpellingMode spellingMode,
+  required int take,
+}) {
+  if (spellingMode == ChordDebugSpellingMode.pc || !_hasNamedInput(parsed)) {
+    return baseResults.take(take).toList(growable: false);
+  }
+
+  final adjusted = [
+    for (final result in baseResults)
+      _adjustCandidateForSpelling(
+        result,
+        parsed: parsed,
+        context: context,
+        spellingMode: spellingMode,
+      ),
+  ];
+
+  final ranked = ChordCandidateRanking.rank(
+    adjusted,
+    (r) => r.candidate,
+    tonality: context.tonality,
+  ).take(take).toList(growable: false);
+
+  return [
+    for (var i = 0; i < ranked.length; i++)
+      RankedCandidateDebug(
+        candidate: ranked[i].candidate,
+        scoreReasons: ranked[i].scoreReasons,
+        template: ranked[i].template,
+        vsPrevious: i == 0
+            ? null
+            : ChordCandidateRanking.explain(
+                ranked[i - 1].candidate,
+                ranked[i].candidate,
+                tonality: context.tonality,
+              ),
+      ),
+  ];
+}
+
+RankedCandidateDebug _adjustCandidateForSpelling(
+  RankedCandidateDebug result, {
+  required NoteParse parsed,
+  required AnalysisContext context,
+  required ChordDebugSpellingMode spellingMode,
+}) {
+  final evidence = _spellingEvidenceFor(
+    result.candidate.identity,
+    parsed: parsed,
+    context: context,
+    spellingMode: spellingMode,
+  );
+  if (evidence.delta == 0) return result;
+
+  return RankedCandidateDebug(
+    candidate: ChordCandidate(
+      identity: result.candidate.identity,
+      score: result.candidate.score + evidence.delta,
+    ),
+    scoreReasons: result.scoreReasons,
+    vsPrevious: result.vsPrevious,
+    template: result.template,
+  );
+}
+
+bool _hasNamedInput(NoteParse parsed) => parsed.pcLabels.isNotEmpty;
+
+_SpellingEvidence _spellingEvidenceFor(
+  ChordIdentity id, {
+  required NoteParse parsed,
+  required AnalysisContext context,
+  required ChordDebugSpellingMode spellingMode,
+}) {
+  if (spellingMode == ChordDebugSpellingMode.pc || !_hasNamedInput(parsed)) {
+    return _SpellingEvidence.empty(spellingMode);
+  }
+
+  final rootName = spellChordRoot(id, tonality: context.tonality);
+  final preserved = <String>[];
+  final respelled = <String>[];
+
+  for (final entry in parsed.pcLabels.entries) {
+    final pc = entry.key;
+    final typed = normalizeNoteNameToAscii(entry.value);
+    final interval = intervalAboveRoot(pc, id.rootPc);
+    final role = interval == 0
+        ? ChordToneRole.root
+        : id.toneRolesByInterval[interval];
+    if (role == null) continue;
+
+    final candidate = normalizeNoteNameToAscii(
+      spellPitchClass(
+        pc,
+        tonality: context.tonality,
+        chordRootName: rootName,
+        role: role,
+      ),
+    );
+    if (candidate == typed) {
+      preserved.add(_displayNoteLabel(typed));
+    } else {
+      respelled.add(
+        '${_displayNoteLabel(typed)} as ${_displayNoteLabel(candidate)}',
+      );
+    }
+  }
+
+  final matchDelta = spellingMode == ChordDebugSpellingMode.strict
+      ? 0.10
+      : 0.05;
+  final respellDelta = spellingMode == ChordDebugSpellingMode.strict
+      ? -3.00
+      : -0.45;
+  final delta = preserved.length * matchDelta + respelled.length * respellDelta;
+
+  return _SpellingEvidence(
+    mode: spellingMode,
+    hasNamedInput: true,
+    matches: preserved.length,
+    respellings: respelled.length,
+    delta: delta,
+    preserved: preserved,
+    respelled: respelled,
+  );
+}
+
+String _formatSpellingEvidence(_SpellingEvidence evidence) {
+  if (evidence.mode == ChordDebugSpellingMode.pc || !evidence.hasNamedInput) {
+    return '';
+  }
+
+  final parts = <String>[];
+  if (evidence.preserved.isNotEmpty) {
+    parts.add('preserves ${evidence.preserved.join(', ')}');
+  }
+  if (evidence.respelled.isNotEmpty) {
+    parts.add('respells ${evidence.respelled.join(', ')}');
+  }
+  parts.add(_fmtSigned(evidence.delta, width: 0, decimals: 2));
+  return parts.join('; ');
+}
+
+class _SpellingEvidence {
+  final ChordDebugSpellingMode mode;
+  final bool hasNamedInput;
+  final int matches;
+  final int respellings;
+  final double delta;
+  final List<String> preserved;
+  final List<String> respelled;
+
+  const _SpellingEvidence({
+    required this.mode,
+    required this.hasNamedInput,
+    required this.matches,
+    required this.respellings,
+    required this.delta,
+    required this.preserved,
+    required this.respelled,
+  });
+
+  factory _SpellingEvidence.empty(ChordDebugSpellingMode mode) =>
+      _SpellingEvidence(
+        mode: mode,
+        hasNamedInput: false,
+        matches: 0,
+        respellings: 0,
+        delta: 0,
+        preserved: const [],
+        respelled: const [],
+      );
+
+  Map<String, Object?> toJson() => <String, Object?>{
+    'mode': mode.wireName,
+    'matches': matches,
+    'respellings': respellings,
+    'delta': double.parse(delta.toStringAsFixed(2)),
+    'preserved': preserved,
+    'respelled': respelled,
+  };
+}
+
 /// Builds the JSON payload emitted by `--format=json`. Shared with the batch
 /// entry point (tool/chord_oracle_batch.dart) so both produce identical output.
 Map<String, Object?> chordDebugJsonPayload({
@@ -473,6 +686,8 @@ Map<String, Object?> chordDebugJsonPayload({
   required List<({String label, int pc})> pcDisplays,
   required String bassLabel,
   required List<RankedCandidateDebug> results,
+  ChordDebugSpellingMode spellingMode = ChordDebugSpellingMode.pc,
+  NoteParse? parsed,
 }) {
   final bestScore = results.isEmpty ? null : results.first.candidate.score;
   return <String, Object?>{
@@ -487,6 +702,7 @@ Map<String, Object?> chordDebugJsonPayload({
       'bassPc': input.bassPc,
       'bassLabel': bassLabel,
       'key': tonalityDisplayLabel(context.tonality),
+      'spellingMode': spellingMode.wireName,
     },
     'candidates': [
       for (var i = 0; i < results.length; i++)
@@ -496,6 +712,8 @@ Map<String, Object?> chordDebugJsonPayload({
           bestScore: bestScore,
           context: context,
           notation: notation,
+          spellingMode: spellingMode,
+          parsed: parsed,
         ),
     ],
   };
@@ -507,6 +725,8 @@ void _writeJsonOutput({
   required ChordNotationStyle notation,
   required List<({String label, int pc})> pcDisplays,
   required String bassLabel,
+  required ChordDebugSpellingMode spellingMode,
+  required NoteParse parsed,
   required List<RankedCandidateDebug> results,
 }) {
   stdout.writeln(
@@ -517,6 +737,8 @@ void _writeJsonOutput({
         notation: notation,
         pcDisplays: pcDisplays,
         bassLabel: bassLabel,
+        spellingMode: spellingMode,
+        parsed: parsed,
         results: results,
       ),
     ),
@@ -529,6 +751,8 @@ Map<String, Object?> _candidateJson({
   required double? bestScore,
   required AnalysisContext context,
   required ChordNotationStyle notation,
+  required ChordDebugSpellingMode spellingMode,
+  required NoteParse? parsed,
 }) {
   final c = result.candidate;
   final id = c.identity;
@@ -545,6 +769,14 @@ Map<String, Object?> _candidateJson({
   final sortedRoles = id.toneRolesByInterval.entries.toList()
     ..sort((a, b) => a.key.compareTo(b.key));
   final deltaBest = bestScore == null ? null : c.score - bestScore;
+  final spelling = parsed == null
+      ? null
+      : _spellingEvidenceFor(
+          id,
+          parsed: parsed,
+          context: context,
+          spellingMode: spellingMode,
+        );
 
   return <String, Object?>{
     'rank': rank,
@@ -566,6 +798,10 @@ Map<String, Object?> _candidateJson({
       for (final entry in sortedRoles) entry.key.toString(): entry.value.name,
     },
     'template': result.template.quality.name,
+    if (spelling != null &&
+        spelling.mode != ChordDebugSpellingMode.pc &&
+        spelling.hasNamedInput)
+      'spellingEvidence': spelling.toJson(),
     'scoreReasons': [
       for (final reason in result.scoreReasons)
         <String, Object?>{
@@ -629,6 +865,33 @@ Never _failUnknownNotation(String raw) {
   exit(2);
 }
 
+ChordDebugSpellingMode _parseSpellingModeFlag(String? raw) {
+  if (raw == null || raw.trim().isEmpty) return ChordDebugSpellingMode.pc;
+
+  return switch (raw.trim().toLowerCase()) {
+    'pc' || 'pitch-class' || 'pitch-classes' => ChordDebugSpellingMode.pc,
+    'auto' => ChordDebugSpellingMode.auto,
+    'strict' || 'exact' => ChordDebugSpellingMode.strict,
+    _ => _failUnknownSpellingMode(raw),
+  };
+}
+
+Never _failUnknownSpellingMode(String raw) {
+  stderr.writeln('Unknown --spelling value: "$raw"');
+  stderr.writeln('Valid: pc, auto, strict');
+  exit(2);
+}
+
+enum ChordDebugSpellingMode {
+  pc('pc'),
+  auto('auto'),
+  strict('strict');
+
+  const ChordDebugSpellingMode(this.wireName);
+
+  final String wireName;
+}
+
 enum _OutputFormat { text, json }
 
 bool _hasFlag(List<String> args, String name, String shortName) {
@@ -646,6 +909,7 @@ List<String> _unknownFlags(List<String> args) {
     '--bass',
     '--key',
     '--notation',
+    '--spelling',
     '--format',
     '--json',
     '--verbose',
@@ -682,8 +946,9 @@ int? _readIntFlag(List<String> args, String name, String shortName) {
 String? _readStringFlag(List<String> args, String name, String shortName) {
   final long = '--$name';
   final longPrefix = '$long=';
-  final short = '-$shortName';
-  final shortPrefix = '$short=';
+  final hasShort = shortName.isNotEmpty;
+  final short = hasShort ? '-$shortName' : '';
+  final shortPrefix = hasShort ? '$short=' : '';
 
   for (var i = 0; i < args.length; i++) {
     final arg = args[i];
@@ -693,10 +958,10 @@ String? _readStringFlag(List<String> args, String name, String shortName) {
     if (arg == long && i + 1 < args.length) {
       return args[i + 1];
     }
-    if (arg.startsWith(shortPrefix)) {
+    if (hasShort && arg.startsWith(shortPrefix)) {
       return arg.substring(shortPrefix.length);
     }
-    if (arg == short && i + 1 < args.length) {
+    if (hasShort && arg == short && i + 1 < args.length) {
       return args[i + 1];
     }
   }
@@ -710,6 +975,7 @@ List<String> _readNoteTokens(List<String> args) {
     '--bass',
     '--key',
     '--notation',
+    '--spelling',
     '--format',
     '-t',
     '-b',
