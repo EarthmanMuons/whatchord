@@ -115,6 +115,26 @@
     "label": "clearly-correct",
     "note": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable"
   },
+  "0-1-5-6-10_b0": {
+    "label": "oracle-limitation",
+    "note": "G♭maj7♯11/C is preferred because the voicing contains the complete G♭ major-seventh shell G♭-B♭-D♭-F with C as ♯11. Music21 agrees semantically. Tonal's F♯maj♯4/C keeps the Lydian color but drops the major seventh from its normalized structure, so the split reflects oracle vocabulary rather than an engine issue."
+  },
+  "0-1-5-6-10_b1": {
+    "label": "oracle-limitation",
+    "note": "G♭maj7♯11/D♭ is preferred because D♭ is the fifth of a complete G♭maj7♯11 voicing. Music21 agrees semantically as F♯maj7/C♯ add B♯. Tonal's F♯maj♯4/D♭ omits the major seventh in normalization, making it a less complete primary label."
+  },
+  "0-1-5-6-10_b5": {
+    "label": "oracle-limitation",
+    "note": "G♭maj7♯11/F is preferred because F is the major seventh in the bass and the voicing contains root, third, fifth, major seventh, and ♯11. Music21 agrees semantically. Tonal's F♯maj♯4/F captures the root and Lydian color but does not preserve the full maj7♯11 identity."
+  },
+  "0-1-5-6-10_b6": {
+    "label": "oracle-limitation",
+    "note": "G♭maj7♯11 is preferred because it is the complete root-position Lydian major-seventh sonority. Music21 agrees semantically. Tonal's F♯maj♯4 is an enharmonic Lydian-major label, but its normalized structure omits the major seventh; ChoCo also contains maj7♯11 observations, so retaining the seventh is musically justified."
+  },
+  "0-1-5-6-10_b10": {
+    "label": "oracle-limitation",
+    "note": "G♭maj7♯11/B♭ is preferred because B♭ is the third of a complete G♭maj7♯11 voicing. Music21 agrees semantically. Tonal's F♯maj♯4/B♭ gives the Lydian color but drops the major seventh from the comparable structure, so it is not a better musician-facing answer."
+  },
   "0-1-5-7-10_b5": {
     "label": "genuine-ambiguity",
     "note": "B♭m6/9/F is preferred because it is a complete minor-six-nine chord with its fifth in the bass, a more conventional inversion than the complete Gm7♭5(add11)/F reading with its flat seventh in the bass. Music21 chooses the valid G-rooted half-diminished interpretation, while tonal includes B♭m6/9/F. Related root-bass cases favor their respective structures, and key context does not resolve this F-bass ambiguity."
