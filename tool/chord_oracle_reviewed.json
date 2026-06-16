@@ -35,6 +35,30 @@
     "label": "oracle-limitation",
     "note": "A7(♯9,♯11)/G is preferred because A, C♯, E, and G form a complete third-inversion dominant seventh, with C and E♭ reading as standard ♯9/♯11 altered colors. Tonal agrees. Music21's Am7/G add E♭,C♯ is a valid alternate spelling of the same pitch classes, but it demotes the dominant third to an added tone and is less useful as the primary chord symbol."
   },
+  "0-1-3-4-6-7-9_b0": {
+    "label": "oracle-limitation",
+    "note": "A13(♯9,♯11)/B♯ is preferred because A, C♯, E, G, and F♯ form a complete dominant thirteenth with conventional ♯9/♯11 altered color. Tonal agrees with A13♯9♯11. Music21's F♯øb9/C add E♭,C♯ is valid pitch-class bookkeeping, but it re-roots away from the complete altered dominant and is less idiomatic as the primary chord symbol."
+  },
+  "0-1-3-4-6-7-9_b1": {
+    "label": "oracle-limitation",
+    "note": "A13(♯9,♯11)/C♯ is preferred because the bass is the dominant third and the voicing contains the complete A13 altered-dominant stack A-C♯-E-G-F♯ plus ♯9/♯11 color. Tonal agrees. Music21's F♯m7/C♯ add E♭,G,C describes related pitch material but demotes the dominant function."
+  },
+  "0-1-3-4-6-7-9_b3": {
+    "label": "oracle-limitation",
+    "note": "A13(♯9,♯11)/D♯ is preferred because D♯ is the ♯11 of a complete A13 altered dominant. Tonal agrees. Music21's A diminished-seventh add-tone spelling keeps the A root but treats the major third, fifth, and thirteenth as chromatic additions, making it less useful as a musician-facing chord symbol."
+  },
+  "0-1-3-4-6-7-9_b4": {
+    "label": "oracle-limitation",
+    "note": "A13(♯9,♯11)/E is preferred because the bass is the dominant fifth and the voicing contains root, third, fifth, seventh, thirteenth, ♯9, and ♯11. Tonal agrees. Music21's F♯øb9/E add E♭,C♯ re-roots the same pitch classes into a half-diminished add-tone label rather than the complete altered dominant."
+  },
+  "0-1-3-4-6-7-9_b7": {
+    "label": "oracle-limitation",
+    "note": "A13(♯9,♯11)/G is preferred because the bass is the dominant seventh and the voicing contains the complete A13 altered-dominant stack. Tonal agrees. Music21's F♯øb9/G add E♭,C♯ is a valid alternate pitch-class organization but less idiomatic as the primary symbol."
+  },
+  "0-1-3-4-6-7-9_b9": {
+    "label": "oracle-limitation",
+    "note": "A13(♯9,♯11) is preferred because it is root position and contains the complete altered dominant thirteenth: A, C♯, E, G, F♯, B♯, and D♯. Tonal agrees. Music21's F♯øb9/A add C♯,E♭ prioritizes a half-diminished structure over the clearer root-position dominant."
+  },
   "0-1-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C7b5b9 is correct; it is a complete root-position altered dominant, while F#7#11/C is a complete tritone-related dominant with the #11 in the bass; both are conventional and similarly common in ChoCo, but the C bass favors the current root-position reading; key context respells the alternate without changing the ranking; no engine change needed"

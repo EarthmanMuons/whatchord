@@ -357,7 +357,9 @@ int? _preferCompleteTriadOverIncompleteInvertedSixth(
 ///
 /// The same principle covers {A, C, Db, Eb, E, G}: A7#9#11/C is a complete
 /// altered dominant, while C6(b9,add#9) is a major-sixth chord with both sides
-/// of the ninth altered around a split third.
+/// of the ninth altered around a split third. Adding the natural thirteenth
+/// keeps the dominant reading complete rather than making the sixth-chord
+/// spelling more idiomatic.
 int? _preferCompleteDom7Sharp9OverSixthFlat9(
   ChordCandidate a,
   ChordCandidate b,
@@ -387,7 +389,8 @@ bool _isCompleteDominantSharpNineReading(ChordIdentity id) {
   if (id.extensions.any(
     (extension) =>
         extension != ChordExtension.sharp9 &&
-        extension != ChordExtension.sharp11,
+        extension != ChordExtension.sharp11 &&
+        extension != ChordExtension.thirteen,
   )) {
     return false;
   }
@@ -405,7 +408,11 @@ bool _isStableSplitThirdSixth(ChordIdentity id, CandidateFeatures features) {
   final extensions = id.extensions;
   if (!extensions.contains(ChordExtension.flat9)) return false;
   return extensions.length == 1 ||
-      (extensions.length == 2 && extensions.contains(ChordExtension.addSharp9));
+      (extensions.length == 2 &&
+          extensions.contains(ChordExtension.addSharp9)) ||
+      (extensions.length == 3 &&
+          extensions.contains(ChordExtension.addSharp9) &&
+          extensions.contains(ChordExtension.sharp11));
 }
 
 /// Prefers a complete altered dominant in a stable inversion over a rare
