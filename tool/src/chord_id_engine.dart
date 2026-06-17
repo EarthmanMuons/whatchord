@@ -221,11 +221,9 @@ ChordIdResult identifyChord(
         : pcToName(bassPc, tonality: tonality),
   );
 
-  // MIDI numbers give exact octaves; bare pitch names give bass-first order
-  // only. Either way the note order is treated as voicing context.
-  final voicing = midi.length >= 2
-      ? ObservedVoicing.fromMidi(midi)
-      : ObservedVoicing.fromOrder(pcs);
+  // Register evidence applies only when actual MIDI numbers were given; bare
+  // pitch names carry no octaves, so there is no voicing to reason about.
+  final voicing = midi.length >= 2 ? ObservedVoicing.fromMidi(midi) : null;
   final ranked = ChordAnalyzer.analyze(
     input,
     context: context,
