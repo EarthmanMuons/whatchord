@@ -199,6 +199,18 @@
     "label": "genuine-ambiguity",
     "note": "E7#5/D is correct; the notes are the augmented triad C-E-G# plus D, and E is the only augmented-equivalent root whose b7 (D) is present, making E7#5 the unique complete four-note reading with the bass as a chord tone (third inversion). Caug(add9)/D (music21, tonal #1) is the salient triad-first reading but strands the bass D as the added 9th. tonal corroborates E7#5/D at #2. Mirrors the b0 sibling, where C-in-bass correctly prefers root-position Caugadd9: an aug-member bass favors the augmented reading, a non-member bass favors the complete dominant whose bass is a core tone. Sound; no engine change needed."
   },
+  "0-2-4-6-8-10_b0": {
+    "label": "oracle-limitation",
+    "note": "C9#5#11 is preferred because this is the complete whole-tone collection and C is the bass/root, so C-D-E-F#-G#/Ab-Bb reads directly as a root-position dominant 9#5#11. Tonal agrees and lists the other whole-tone re-roots as alternates. Music21's Bb9#5/C add E keeps the same symmetric material but chooses a non-bass root and demotes the #11 to an added tone."
+  },
+  "0-2-4-6-8-10_b2": {
+    "label": "oracle-limitation",
+    "note": "D9#5#11 is preferred because the whole-tone collection is symmetric and D is the bass/root, yielding a complete root-position dominant 9#5#11. Tonal agrees and lists the other whole-tone re-roots as alternates. Music21's C9#5/D add F# chooses a different symmetric root and treats the bass-rooted #11 as an add tone."
+  },
+  "0-2-4-6-8-10_b6": {
+    "label": "oracle-limitation",
+    "note": "Gb9#5#11 is preferred because Gb/F# is the bass/root of a complete whole-tone dominant 9#5#11 spelling. Tonal agrees semantically as F#9#5#11 and lists the other symmetric re-roots as alternates. Music21's E9#5/F# add A# is a related whole-tone re-rooting but less direct for a context-free bass-rooted chord label."
+  },
   "0-2-4-9_b0": {
     "label": "context-dependent",
     "note": "C6/9 is correct in C major; matches music21's Am/CaddD in A:min where Amadd11/C is #1; tonal-context-dependent ambiguity, not a disagreement"
