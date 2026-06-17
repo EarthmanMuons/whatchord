@@ -113,6 +113,8 @@ abstract final class ChordAnalyzer {
   static const _domStackFull = 2.1; // dom7 + 9 + #11 + 13/b13 coherent stack
   static const _fifthlessExtensionStackBonus =
       2.4; // root-position fifthless natural 9 + #11/13 stacks
+  static const _completeDominantFlatThirteenthBonus =
+      0.15; // complete dom7 shell + b13 should compete with enharmonic maj7#5
 
   // Upper-structure slash-triad bonus.
   static const _add9BassUpperTriadBonus = 3.2; // e.g. D/E, C#/D#
@@ -498,6 +500,17 @@ abstract final class ChordAnalyzer {
       add('fifthless extension stack', fifthlessExtensionStackDelta);
     }
 
+    final completeDominantFlatThirteenthDelta =
+        _completeDominantFlatThirteenthBonusFor(
+          quality: template.quality,
+          extensions: extensions,
+          relMask: relMask,
+        );
+    if (completeDominantFlatThirteenthDelta != 0) {
+      raw += completeDominantFlatThirteenthDelta;
+      add('complete b13 dominant', completeDominantFlatThirteenthDelta);
+    }
+
     final add9BassUpperTriadDelta = _add9BassUpperTriadBonusFor(
       quality: template.quality,
       extensions: extensions,
@@ -731,6 +744,24 @@ abstract final class ChordAnalyzer {
     if ((relMask & (1 << perfectFifthInterval)) != 0) return 0;
 
     return _fifthlessExtensionStackBonus;
+  }
+
+  static double _completeDominantFlatThirteenthBonusFor({
+    required ChordQualityToken quality,
+    required Set<ChordExtension> extensions,
+    required int relMask,
+  }) {
+    if (quality != ChordQualityToken.dominant7) return 0;
+    if (extensions.length != 1 || !extensions.contains(ChordExtension.flat13)) {
+      return 0;
+    }
+
+    final hasCompleteShell =
+        (relMask & 1) != 0 &&
+        (relMask & (1 << majorThirdInterval)) != 0 &&
+        (relMask & (1 << perfectFifthInterval)) != 0 &&
+        (relMask & (1 << minorSeventhInterval)) != 0;
+    return hasCompleteShell ? _completeDominantFlatThirteenthBonus : 0;
   }
 
   static double _add9BassUpperTriadBonusFor({
