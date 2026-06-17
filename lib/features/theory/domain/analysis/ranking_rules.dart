@@ -25,7 +25,12 @@ class NamedRule {
   final String name;
   final RuleFn apply;
 
-  const NamedRule(this.name, this.apply);
+  /// Whether the rule decides from voicing/register evidence rather than the
+  /// pitch-class theory. Surfaced as [RankingDecision.decidedByVoicing] so the
+  /// UI can mark these picks distinctly.
+  final bool voicingDriven;
+
+  const NamedRule(this.name, this.apply, {this.voicingDriven = false});
 }
 
 // The two ordered lists below ARE the ranking policy: rules are tried top to
@@ -224,6 +229,14 @@ int? _preferCompleteMajorSixNineOverInvertedMinor7Sharp5(
 /// - Functional harmony (diatonic, dominant alterations)
 /// - Simplicity (fewer extensions/alterations, avoid suspensions)
 final List<NamedRule> tieBreakerRules = <NamedRule>[
+  // Voicing evidence is consulted first: when the register clearly presents one
+  // reading as an upper-structure slash and the other not, that observation
+  // outranks the naming conventions below.
+  NamedRule(
+    'prefer voicing-supported upper-structure slash',
+    _preferVoicingUpperStructureSlash,
+    voicingDriven: true,
+  ),
   NamedRule('prefer root-position 6th over inverted 7th', _prefer6thInRoot),
   NamedRule(
     'prefer complete triad over incomplete inverted 6th',
@@ -296,6 +309,23 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
 ];
 
 // ---- Six chords vs inverted sevenths -----------------------------------
+
+/// Prefers the reading the voicing presents as an upper-structure slash: a
+/// complete chord stacked above an isolated color-tone bass (e.g. an Am7 over a
+/// low, gapped D reads as Am7/D rather than a root-position D9sus4). Applies
+/// only when exactly one candidate carries that register evidence.
+int? _preferVoicingUpperStructureSlash(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  if (fa.isVoicingUpperStructureSlash == fb.isVoicingUpperStructureSlash) {
+    return null;
+  }
+  return fa.isVoicingUpperStructureSlash ? -1 : 1;
+}
 
 /// Resolves ambiguity between 6th chords and inverted 7th chords.
 ///
