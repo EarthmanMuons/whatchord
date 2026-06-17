@@ -94,9 +94,11 @@ class ChordLink {
     }
   }
 
-  /// Resolves the link's key, defaulting to C major when it is absent or
-  /// unparsable, so a keyless link reproduces the sharer's default context
-  /// rather than adopting the recipient's current key.
+  /// Resolves the link's key. Falls back to C major when the key is absent or
+  /// its tonic is unrecognized, so a keyless link reproduces the sharer's
+  /// default context rather than adopting the recipient's current key. A valid
+  /// tonic with an unrecognized mode keeps the tonic and defaults the mode to
+  /// major.
   static Tonality _parseKey(String? key) {
     if (key == null) return _defaultTonality;
     final parts = key.split(':');
