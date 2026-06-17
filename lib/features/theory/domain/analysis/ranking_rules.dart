@@ -363,11 +363,10 @@ int? _preferCompleteTriadOverIncompleteInvertedSixth(
 /// The seventh completes the conventional altered dominant; without it, the
 /// sixth-chord reading remains a genuine split-third ambiguity.
 ///
-/// The same principle covers {A, C, Db, Eb, E, G}: A7#9#11/C is a complete
-/// altered dominant, while C6(b9,add#9) is a major-sixth chord with both sides
-/// of the ninth altered around a split third. Adding the natural thirteenth
-/// keeps the dominant reading complete rather than making the sixth-chord
-/// spelling more idiomatic.
+/// The same principle covers dense altered dominants with #11 plus either a
+/// natural or flat thirteenth: the complete dominant shell is more idiomatic
+/// than a major-sixth chord carrying split-third, flat-nine, and eleventh
+/// add-tone color.
 int? _preferCompleteDom7Sharp9OverSixthFlat9(
   ChordCandidate a,
   ChordCandidate b,
@@ -398,7 +397,8 @@ bool _isCompleteDominantSharpNineReading(ChordIdentity id) {
     (extension) =>
         extension != ChordExtension.sharp9 &&
         extension != ChordExtension.sharp11 &&
-        extension != ChordExtension.thirteen,
+        extension != ChordExtension.thirteen &&
+        extension != ChordExtension.flat13,
   )) {
     return false;
   }
@@ -420,7 +420,8 @@ bool _isStableSplitThirdSixth(ChordIdentity id, CandidateFeatures features) {
           extensions.contains(ChordExtension.addSharp9)) ||
       (extensions.length == 3 &&
           extensions.contains(ChordExtension.addSharp9) &&
-          extensions.contains(ChordExtension.sharp11));
+          (extensions.contains(ChordExtension.sharp11) ||
+              extensions.contains(ChordExtension.add11)));
 }
 
 /// Prefers a complete altered dominant in a stable inversion over a rare
