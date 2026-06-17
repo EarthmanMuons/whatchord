@@ -31,6 +31,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved altered dominant thirteenth identification, favoring complete
   sharp-nine dominant readings such as Eb13#9 over heavily colored sixth-chord
   spellings.
+- Improved altered dominant flat-nine sharp-eleven identification, favoring
+  complete dominant readings over heavily colored diminished-seventh spellings.
 - Improved altered sharp-five dominant identification, preferring labels such as
   C7#5(b9,#11) over natural-eleventh sharp-five spellings.
 - Improved Lydian-dominant flat-thirteen identification, favoring complete

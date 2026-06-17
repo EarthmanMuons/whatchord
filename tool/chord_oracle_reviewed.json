@@ -115,6 +115,18 @@
     "label": "genuine-ambiguity",
     "note": "C7♭5♭9/E is preferred because it is a complete altered dominant with its major third in the bass, while F♯7♯11/E is the complete tritone-related dominant in third inversion. Music21 and tonal choose the valid F♯ reading, but the two chord signatures are similarly common in ChoCo and the E bass gives the C-rooted interpretation the more conventional inversion. Related bass cases consistently favor whichever dominant receives the stronger bass role."
   },
+  "0-1-4-6-7-10_b1": {
+    "label": "genuine-ambiguity",
+    "note": "F♯7(♭9,♯11)/C♯ is preferred because C♯ is the fifth of a complete F♯ altered dominant, while C7♭9♯11/D♭ is the tritone-related dominant with its flat ninth in the bass. Music21 supports the F♯ root while tonal lists both and ranks the C reading first, so this is a genuine tritone-dominant ambiguity; the stable fifth bass favors WhatChord's F♯ label."
+  },
+  "0-1-4-6-7-10_b7": {
+    "label": "oracle-limitation",
+    "note": "C7(♭9,♯11)/G is preferred because G is the fifth of a complete C altered dominant and tonal agrees. Music21's C7/G add D♭,G♭ keeps the C dominant shell but treats the flat ninth and sharp eleventh as add tones, so the split reflects oracle vocabulary rather than an engine issue."
+  },
+  "0-1-4-6-7-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "F♯7(♭9,♯11)/A♯ is preferred because A♯/B♭ is the major third of the complete F♯ altered dominant, while C7♭9♯11/B♭ is the tritone-related dominant in third inversion. Tonal lists both and ranks C first; music21 supports the F♯/G♭ root. The bass role makes the current F♯ label defensible in this context-free analysis."
+  },
   "0-1-4-6-8-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C7#5(b9,#11) is preferred because it names the complete C altered dominant C-E-Bb plus Db, F#, and G#/Ab. Tonal agrees and also lists the valid tritone-related F#9#11/C alternate; music21 prefers that F# reading. The split is a real altered-dominant vs tritone-sub ambiguity, but the C bass and complete altered stack justify WhatChord's primary label."
