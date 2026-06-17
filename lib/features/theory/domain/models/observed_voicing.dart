@@ -1,57 +1,86 @@
 import 'package:meta/meta.dart';
 
-/// Optional register/spread evidence for chord analysis.
+/// How literally the octaves in an [ObservedVoicing] should be read.
+enum VoicingRegisters {
+  /// A real performance (live MIDI, typed MIDI numbers): octaves and spacing
+  /// carry intent, so register-magnitude evidence is meaningful.
+  exact,
+
+  /// Octaves were synthesized for the player (typed note names, the lookup
+  /// pad). The note order is still meaningful — the first note is the bass and
+  /// the rest stack upward — but the spacing is not, so magnitude-based
+  /// evidence must be skipped.
+  synthesized,
+}
+
+/// Optional voicing evidence for chord analysis.
 ///
-/// `ChordInput` carries only the pitch-class core (mask + bass + count). Real
-/// MIDI input also has octaves and spacing, which musicians use to choose
-/// between equally-valid names (e.g. an Am7 stacked above an isolated D bass
-/// reads as Am7/D, not D9sus4). This model preserves that register evidence so
-/// the analyzer can apply a bounded ranking nudge.
-///
-/// It is always optional: when absent or [isInert] the analyzer behaves exactly
-/// as it does for pitch-class-only input. Voicing influences ranking; it is
-/// never ground truth.
+/// `ChordInput` carries only the pitch-class core (mask + bass + count). The
+/// interfaces that feed analysis also know the note order, and live MIDI knows
+/// the octaves too. Musicians use both to choose between equally-valid names
+/// (an Am7 stacked above an isolated D bass reads as Am7/D, not D9sus4). This
+/// model preserves that evidence so the analyzer can apply a bounded ranking
+/// nudge. Voicing influences ranking; it is never ground truth.
 @immutable
 class ObservedVoicing {
-  /// Sounding MIDI note numbers, sorted ascending. Register doublings (C3 + C4)
-  /// are distinct entries and meaningful.
+  /// Notes from bass upward. For [VoicingRegisters.exact] these are the sounding
+  /// MIDI numbers sorted ascending; for [VoicingRegisters.synthesized] they are
+  /// ascending positions that preserve the input order, with real pitch classes
+  /// but placeholder octaves.
   final List<int> midiNotes;
 
-  /// Whether the octaves/spacing reflect a real performance.
-  ///
-  /// True for live MIDI and demo playback, where the player placed each note in
-  /// a register. False when octaves were synthesized for the player (the lookup
-  /// pad spreads chosen pitch classes algorithmically), so register-magnitude
-  /// evidence must not be read as harmonic intent.
-  final bool intentionalRegisters;
+  /// Whether [midiNotes] are real octaves or synthesized placeholders.
+  final VoicingRegisters registers;
 
-  const ObservedVoicing._(this.midiNotes, {this.intentionalRegisters = true});
+  const ObservedVoicing._(this.midiNotes, this.registers);
 
-  /// An inert voicing that carries no usable register evidence.
-  static const ObservedVoicing inert = ObservedVoicing._(<int>[]);
+  /// An inert voicing that carries no evidence to act on.
+  static const ObservedVoicing inert = ObservedVoicing._(
+    <int>[],
+    VoicingRegisters.exact,
+  );
 
-  /// Builds a voicing from sounding MIDI note numbers. Returns [inert] when
-  /// fewer than two notes are present (no spacing to reason about), so callers
-  /// that only have pitch classes (typed note names) get zero evidence.
-  factory ObservedVoicing.fromMidi(
-    Iterable<int> notes, {
-    bool intentionalRegisters = true,
-  }) {
+  /// Builds an exact voicing from sounding MIDI note numbers (sorted ascending).
+  /// Returns [inert] when fewer than two notes are present.
+  factory ObservedVoicing.fromMidi(Iterable<int> notes) {
     final sorted = notes.toList()..sort();
     if (sorted.length < 2) return inert;
+    return ObservedVoicing._(List.unmodifiable(sorted), VoicingRegisters.exact);
+  }
+
+  /// Builds a synthesized voicing from pitch classes in bass-first order. The
+  /// order is preserved and the octaves are placeholders, so order-based
+  /// evidence applies but magnitude-based evidence does not. Returns [inert]
+  /// when fewer than two notes are present.
+  factory ObservedVoicing.fromOrder(Iterable<int> pitchClasses) {
+    final pcs = pitchClasses.toList(growable: false);
+    if (pcs.length < 2) return inert;
+
+    final notes = <int>[];
+    var floor = 48; // arbitrary low octave; magnitude is ignored here
+    for (final raw in pcs) {
+      final pc = ((raw % 12) + 12) % 12;
+      var midi = floor - (floor % 12) + pc;
+      if (midi < floor) midi += 12;
+      notes.add(midi);
+      floor = midi + 1;
+    }
     return ObservedVoicing._(
-      List.unmodifiable(sorted),
-      intentionalRegisters: intentionalRegisters,
+      List.unmodifiable(notes),
+      VoicingRegisters.synthesized,
     );
   }
 
-  /// Whether this voicing carries no register evidence to act on.
+  /// Whether this voicing carries no evidence to act on.
   bool get isInert => midiNotes.length < 2;
 
-  /// Lowest sounding MIDI note.
+  /// Whether the octaves are real and register-magnitude evidence may be read.
+  bool get hasExactRegisters => registers == VoicingRegisters.exact;
+
+  /// Lowest sounding note.
   int get bassMidi => midiNotes.first;
 
-  /// Highest sounding MIDI note.
+  /// Highest sounding note.
   int get topMidi => midiNotes.last;
 
   /// Total span in semitones from bass to top.
@@ -61,7 +90,7 @@ class ObservedVoicing {
   /// the signature of a bass isolated below an upper structure.
   int get bassGap => midiNotes.length >= 2 ? midiNotes[1] - midiNotes[0] : 0;
 
-  /// Lowest MIDI note sounding the given pitch class, or null if absent.
+  /// Lowest note sounding the given pitch class, or null if absent.
   int? lowestMidiOf(int pc) {
     for (final m in midiNotes) {
       if (m % 12 == pc) return m;
@@ -70,19 +99,17 @@ class ObservedVoicing {
   }
 
   /// Stable signature for cache keying. Two voicings with the same pitch
-  /// classes but different registers must not alias to the same cache entry.
-  int get signature =>
-      Object.hash(Object.hashAll(midiNotes), intentionalRegisters);
+  /// classes but different registers or provenance must not alias.
+  int get signature => Object.hash(Object.hashAll(midiNotes), registers);
 
   @override
-  String toString() =>
-      'ObservedVoicing($midiNotes, intentional=$intentionalRegisters)';
+  String toString() => 'ObservedVoicing($midiNotes, ${registers.name})';
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ObservedVoicing &&
-          other.intentionalRegisters == intentionalRegisters &&
+          other.registers == registers &&
           _listEquals(other.midiNotes, midiNotes);
 
   @override

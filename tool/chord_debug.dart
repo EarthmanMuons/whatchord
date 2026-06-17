@@ -40,6 +40,9 @@ Options:
                          Default: textual.
       --spelling=MODE    How typed note spellings affect ranking.
                          Valid: pc, auto, strict. Default: pc.
+      --registers=MODE   How the voicing octaves are read for ranking.
+                         Valid: exact, synthesized, none. Default: exact for
+                         MIDI input, synthesized (order only) for note names.
   -f, --format=FORMAT    Output format. Valid: text, json. Default: text.
       --json             Alias for --format=json.
   -v, --verbose          Include input, ChordIdentity, and played/missing/extra
@@ -96,6 +99,9 @@ void main(List<String> args) {
   final spellingMode = _parseSpellingModeFlag(
     _readStringFlag(args, 'spelling', ''),
   );
+  final registersMode = _parseRegistersFlag(
+    _readStringFlag(args, 'registers', ''),
+  );
   final outputFormat = _parseOutputFormatFlag(args);
 
   // Extract positional args (notes), ignoring flags.
@@ -126,11 +132,15 @@ void main(List<String> args) {
   final verbose = _hasFlag(args, 'verbose', 'v');
   final compact = _hasFlag(args, 'compact', 'c');
 
-  // MIDI numbers carry explicit registers; bare pitch names do not.
+  // MIDI numbers carry exact octaves; note names give order only. The
+  // --registers flag overrides this to exercise either path from the CLI.
   final debugMidi = prepared.parsed.midiNotes;
-  final voicing = debugMidi.length >= 2
-      ? ObservedVoicing.fromMidi(debugMidi)
-      : null;
+  final orderedPcs = [for (final note in prepared.parsed.ordered) note.pc];
+  final voicing = _buildDebugVoicing(
+    mode: registersMode,
+    midi: debugMidi,
+    orderedPitchClasses: orderedPcs,
+  );
 
   final baseResults = ChordAnalyzer.analyzeDebug(
     input,
@@ -893,6 +903,47 @@ Never _failUnknownSpellingMode(String raw) {
   exit(2);
 }
 
+/// How to build the [ObservedVoicing] passed to analysis.
+enum _RegistersMode { auto, exact, synthesized, none }
+
+_RegistersMode _parseRegistersFlag(String? raw) {
+  if (raw == null || raw.trim().isEmpty) return _RegistersMode.auto;
+
+  return switch (raw.trim().toLowerCase()) {
+    'exact' || 'midi' => _RegistersMode.exact,
+    'synthesized' || 'ordered' || 'order' => _RegistersMode.synthesized,
+    'none' || 'off' || 'pc' => _RegistersMode.none,
+    _ => _failUnknownRegistersMode(raw),
+  };
+}
+
+Never _failUnknownRegistersMode(String raw) {
+  stderr.writeln('Unknown --registers value: "$raw"');
+  stderr.writeln('Valid: exact, synthesized, none');
+  exit(2);
+}
+
+/// Builds the voicing for the given mode. [auto] mirrors the real interfaces:
+/// exact octaves when MIDI numbers were given, otherwise order-only.
+ObservedVoicing? _buildDebugVoicing({
+  required _RegistersMode mode,
+  required List<int> midi,
+  required List<int> orderedPitchClasses,
+}) {
+  final hasMidi = midi.length >= 2;
+  return switch (mode) {
+    _RegistersMode.none => null,
+    _RegistersMode.exact => hasMidi ? ObservedVoicing.fromMidi(midi) : null,
+    _RegistersMode.synthesized => ObservedVoicing.fromOrder(
+      orderedPitchClasses,
+    ),
+    _RegistersMode.auto =>
+      hasMidi
+          ? ObservedVoicing.fromMidi(midi)
+          : ObservedVoicing.fromOrder(orderedPitchClasses),
+  };
+}
+
 enum ChordDebugSpellingMode {
   pc('pc'),
   auto('auto'),
@@ -921,6 +972,7 @@ List<String> _unknownFlags(List<String> args) {
     '--key',
     '--notation',
     '--spelling',
+    '--registers',
     '--format',
     '--json',
     '--verbose',
@@ -987,6 +1039,7 @@ List<String> _readNoteTokens(List<String> args) {
     '--key',
     '--notation',
     '--spelling',
+    '--registers',
     '--format',
     '-t',
     '-b',
