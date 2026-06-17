@@ -22,8 +22,7 @@ class ChordInput {
   /// Layout:
   /// - bits 0..11: pcMask
   /// - bits 12..15: bassPc (0..11)
-  /// - bits 16..23: noteCount (0..255; plenty for MIDI note sets)
-  int get cacheKey => pcMask | (bassPc << 12) | (noteCount << 16);
+  int get cacheKey => pcMask | (bassPc << 12);
 
   @override
   String toString() =>

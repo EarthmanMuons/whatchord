@@ -126,9 +126,16 @@ void main(List<String> args) {
   final verbose = _hasFlag(args, 'verbose', 'v');
   final compact = _hasFlag(args, 'compact', 'c');
 
+  // MIDI numbers carry explicit registers; bare pitch names do not.
+  final debugMidi = prepared.parsed.midiNotes;
+  final voicing = debugMidi.length >= 2
+      ? ObservedVoicing.fromMidi(debugMidi)
+      : null;
+
   final baseResults = ChordAnalyzer.analyzeDebug(
     input,
     context: context,
+    voicing: voicing,
     take: spellingMode == ChordDebugSpellingMode.pc
         ? top
         : (top < 24 ? 24 : top),
@@ -139,6 +146,7 @@ void main(List<String> args) {
     context: context,
     spellingMode: spellingMode,
     take: top,
+    voicing: voicing,
   );
 
   if (outputFormat == _OutputFormat.json) {
@@ -497,6 +505,7 @@ List<RankedCandidateDebug> _applySpellingMode(
   required AnalysisContext context,
   required ChordDebugSpellingMode spellingMode,
   required int take,
+  ObservedVoicing? voicing,
 }) {
   if (spellingMode == ChordDebugSpellingMode.pc || !_hasNamedInput(parsed)) {
     return baseResults.take(take).toList(growable: false);
@@ -516,6 +525,7 @@ List<RankedCandidateDebug> _applySpellingMode(
     adjusted,
     (r) => r.candidate,
     tonality: context.tonality,
+    voicing: voicing,
   ).take(take).toList(growable: false);
 
   return [
@@ -530,6 +540,7 @@ List<RankedCandidateDebug> _applySpellingMode(
                 ranked[i - 1].candidate,
                 ranked[i].candidate,
                 tonality: context.tonality,
+                voicing: voicing,
               ),
       ),
   ];

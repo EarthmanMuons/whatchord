@@ -15,7 +15,8 @@ final chordCandidatesProvider = Provider<List<ChordCandidate>>((ref) {
   if (mode != AnalysisMode.chord) return const <ChordCandidate>[];
 
   final context = ref.watch(analysisContextProvider);
-  return ChordAnalyzer.analyze(input, context: context);
+  final voicing = ref.watch(observedVoicingProvider);
+  return ChordAnalyzer.analyze(input, context: context, voicing: voicing);
 });
 
 final bestChordCandidateProvider = Provider<ChordCandidate?>((ref) {
@@ -38,9 +39,11 @@ final rankedChordCandidateDebugProvider = Provider<List<RankedCandidateDebug>>((
   if (mode != AnalysisMode.chord) return const <RankedCandidateDebug>[];
 
   final context = ref.watch(analysisContextProvider);
+  final voicing = ref.watch(observedVoicingProvider);
   return ChordAnalyzer.analyzeDebug(
     input,
     context: context,
+    voicing: voicing,
     take: _rankingDetailsCandidateLimit,
   );
 });

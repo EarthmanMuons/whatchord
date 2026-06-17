@@ -9,6 +9,7 @@ export 'models/chord_extension.dart';
 export 'models/chord_identity.dart';
 export 'models/chord_input.dart';
 export 'models/chord_tone_role.dart';
+export 'models/observed_voicing.dart';
 export 'models/key_signature.dart';
 export 'models/note_spelling_policy.dart';
 export 'models/scale.dart';

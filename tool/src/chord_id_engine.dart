@@ -221,7 +221,15 @@ ChordIdResult identifyChord(
         : pcToName(bassPc, tonality: tonality),
   );
 
-  final ranked = ChordAnalyzer.analyze(input, context: context, take: top);
+  // Register evidence only applies when actual MIDI numbers were given; bare
+  // pitch names carry no octave, so there is no voicing to reason about.
+  final voicing = midi.length >= 2 ? ObservedVoicing.fromMidi(midi) : null;
+  final ranked = ChordAnalyzer.analyze(
+    input,
+    context: context,
+    voicing: voicing,
+    take: top,
+  );
   if (ranked.isEmpty) {
     return ChordIdResult(
       ok: true,

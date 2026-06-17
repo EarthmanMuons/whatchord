@@ -8,6 +8,7 @@ import '../models/chord_candidate.dart';
 import '../models/chord_extension.dart';
 import '../models/chord_identity.dart';
 import '../models/chord_input.dart';
+import '../models/observed_voicing.dart';
 import '../services/chord_quality_intervals.dart';
 import '../services/chord_tone_roles.dart';
 import '../services/pitch_class.dart';
@@ -122,11 +123,18 @@ abstract final class ChordAnalyzer {
   static List<ChordCandidate> analyze(
     ChordInput input, {
     required AnalysisContext context,
+    ObservedVoicing? voicing,
     int take = 8,
   }) {
     // Cache includes context because tonality affects ranking tie-breakers
-    // (e.g., diatonic preference, tonic-as-I rule).
-    final key = Object.hash(input.cacheKey, context, take);
+    // (e.g., diatonic preference, tonic-as-I rule), and the voicing signature
+    // because register evidence nudges the ranking.
+    final key = Object.hash(
+      input.cacheKey,
+      voicing?.signature ?? 0,
+      context,
+      take,
+    );
     final cached = _cache[key];
     if (cached != null) {
       // Promote cache hits so eviction removes the least recently used entry,
@@ -137,7 +145,12 @@ abstract final class ChordAnalyzer {
       return cached;
     }
 
-    final eval = _evaluateAll(input, context: context, debug: false);
+    final eval = _evaluateAll(
+      input,
+      context: context,
+      voicing: voicing,
+      debug: false,
+    );
 
     final result = eval
         .take(take)
@@ -163,11 +176,13 @@ abstract final class ChordAnalyzer {
   static List<RankedCandidateDebug> analyzeDebug(
     ChordInput input, {
     required AnalysisContext context,
+    ObservedVoicing? voicing,
     int take = 8,
   }) {
     final eval = _evaluateAll(
       input,
       context: context,
+      voicing: voicing,
       debug: true,
     ).take(take).toList(growable: false);
 
@@ -187,6 +202,7 @@ abstract final class ChordAnalyzer {
                   prev.candidate,
                   current.candidate,
                   tonality: context.tonality,
+                  voicing: voicing,
                 ),
         ),
       );
@@ -197,6 +213,7 @@ abstract final class ChordAnalyzer {
   static List<_Evaluated> _evaluateAll(
     ChordInput input, {
     required AnalysisContext context,
+    required ObservedVoicing? voicing,
     required bool debug,
   }) {
     final pcMask = input.pcMask;
@@ -256,6 +273,7 @@ abstract final class ChordAnalyzer {
       out,
       (e) => e.candidate,
       tonality: context.tonality,
+      voicing: voicing,
     );
   }
 
