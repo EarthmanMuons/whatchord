@@ -199,6 +199,18 @@
     "label": "genuine-ambiguity",
     "note": "B♭m6/9/F is preferred because it is a complete minor-six-nine chord with its fifth in the bass, a more conventional inversion than the complete Gm7♭5(add11)/F reading with its flat seventh in the bass. Music21 chooses the valid G-rooted half-diminished interpretation, while tonal includes B♭m6/9/F. Related root-bass cases favor their respective structures, and key context does not resolve this F-bass ambiguity."
   },
+  "0-1-6-8-10_b1": {
+    "label": "oracle-limitation",
+    "note": "B♭m9♯5/D♭ is preferred because the voicing contains the complete B♭ minor-seventh-sharp-five shell B♭-D♭-F♯-A♭ with C as the ninth, and D♭ is the minor third in the bass. Tonal agrees. Music21's F♯/C♯ add G♯,B♯ captures an upper-structure major shell but drops the defining minor seventh and sharp-fifth quality."
+  },
+  "0-1-6-8-10_b8": {
+    "label": "oracle-limitation",
+    "note": "B♭m9♯5/A♭ is preferred because A♭ is the flat seventh of a complete B♭m9♯5 sonority. Tonal agrees. Music21's F♯/G♯ add B♯ is a partial major/add-tone reading of the same pitch classes, but it omits the B♭-D♭-F♯-A♭ minor-seventh-sharp-five structure."
+  },
+  "0-1-6-8-10_b10": {
+    "label": "oracle-limitation",
+    "note": "B♭m9♯5 is preferred because it is root position and names every tone as part of a complete minor-seventh-sharp-five ninth chord. Tonal agrees. Music21's G♭/B♭ add A♭,C is a related major-shell bookkeeping label, but it does not preserve the complete B♭ minor seventh quality."
+  },
   "0-1-6-9_b6": {
     "label": "clearly-correct",
     "note": "F♯m♯11 is the clearest isolated-voicing name because F♯ is the bass and root of a complete minor triad, with C/B♯ supplying a single sharp-eleventh color. Music21's F♯dimaddC♯ requires contradictory flat-five and perfect-fifth roles, while tonal's D♭maj7♯5sus4/F♯ is a highly altered suspended slash interpretation. Key context does not displace the structurally direct F♯-rooted reading."
