@@ -112,6 +112,16 @@ void main() {
       );
     });
 
+    test(
+      'keeps a valid tonic and defaults the mode when the mode is invalid',
+      () {
+        expect(
+          parse('https://${ChordLink.host}/try?notes=C&key=Eb:blah')!.tonality,
+          const Tonality(Tonic.eFlat, TonalityMode.major),
+        );
+      },
+    );
+
     test('rejects non-try links and other hosts', () {
       expect(parse('https://${ChordLink.host}/chords?notes=C'), isNull);
       expect(parse('https://example.com/try?notes=C'), isNull);
