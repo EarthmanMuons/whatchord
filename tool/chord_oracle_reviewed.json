@@ -183,6 +183,14 @@
     "label": "genuine-ambiguity",
     "note": "D♭m(maj7)#11 is correct; near-tie cluster resolved by root-position preference and fully-explained-voicing tie-breakers; both oracles produce related Db-rooted or diminished readings; sound"
   },
+  "0-1-4-7_b0": {
+    "label": "oracle-limitation",
+    "note": "Cadd♭9 is preferred because C-E-G is a complete root-position C major triad and D♭ is the single chromatic flat-nine color. This is the musician-facing name for the observed voicing, not plain C major. Music21's surface label CaddC# is semantically equivalent, while tonal's CMaddb9 normalization reports a major-add-flat-nine vocabulary mismatch rather than a stronger alternate root."
+  },
+  "0-1-4-7_b4": {
+    "label": "oracle-limitation",
+    "note": "Cadd♭9/E is preferred because E is the third of a complete C major triad and D♭ remains the only added chromatic color. Music21's C/E add C# is semantically the same voicing, and tonal's CMaddb9/E agrees on the C-rooted add-flat-nine structure despite normalization differences. The E-rooted alternatives are less idiomatic because they recast the complete C triad as altered minor or diminished material."
+  },
   "0-1-4-7-10_b1": {
     "label": "clearly-correct",
     "note": "A♯dim7(add9) / C♯ is correct; music21 agrees; tonal drops the 9; pychord has no label"
