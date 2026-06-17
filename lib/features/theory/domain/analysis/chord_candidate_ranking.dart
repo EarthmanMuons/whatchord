@@ -1,7 +1,9 @@
 import '../models/chord_candidate.dart';
+import '../models/observed_voicing.dart';
 import '../models/tonality.dart';
 import 'candidate_features.dart';
 import 'ranking_rules.dart';
+import 'voicing_evidence.dart';
 
 class RankingDecision {
   final int result;
@@ -44,8 +46,9 @@ abstract final class ChordCandidateRanking {
     ChordCandidate a,
     ChordCandidate b, {
     required Tonality tonality,
+    ObservedVoicing? voicing,
   }) {
-    return _decide(a, b, tonality: tonality).result;
+    return _decide(a, b, tonality: tonality, voicing: voicing).result;
   }
 
   /// Same as [compare], but returns detailed information about which rule decided.
@@ -54,8 +57,9 @@ abstract final class ChordCandidateRanking {
     ChordCandidate a,
     ChordCandidate b, {
     required Tonality tonality,
+    ObservedVoicing? voicing,
   }) {
-    return _decide(a, b, tonality: tonality);
+    return _decide(a, b, tonality: tonality, voicing: voicing);
   }
 
   /// Whether a candidate scoring [candidateScore] is a near-tie with the
@@ -105,6 +109,7 @@ abstract final class ChordCandidateRanking {
     List<T> items,
     ChordCandidate Function(T) candidateOf, {
     required Tonality tonality,
+    ObservedVoicing? voicing,
   }) {
     final n = items.length;
     if (n <= 1) return List<T>.of(items);
@@ -127,7 +132,12 @@ abstract final class ChordCandidateRanking {
     for (var i = 0; i < n; i++) {
       for (var j = 0; j < n; j++) {
         if (i == j) continue;
-        final d = _decide(cands[i], cands[j], tonality: tonality);
+        final d = _decide(
+          cands[i],
+          cands[j],
+          tonality: tonality,
+          voicing: voicing,
+        );
         if (d.result < 0) {
           beats[i][j] = true;
           if (d.decidedByHardRule) hardBeats[i][j] = true;
@@ -205,6 +215,7 @@ abstract final class ChordCandidateRanking {
     ChordCandidate a,
     ChordCandidate b, {
     required Tonality tonality,
+    ObservedVoicing? voicing,
   }) {
     final delta = b.score - a.score;
     final fa = CandidateFeatures.from(a);
@@ -234,6 +245,20 @@ abstract final class ChordCandidateRanking {
       );
     }
 
+    // Voicing evidence is consulted first among near-tie tie-breakers: when the
+    // register clearly presents one reading as an upper-structure slash and the
+    // other not, that observation outranks the naming conventions below. It
+    // never moves scores, so the displaced candidate stays a near-tie
+    // alternative (isNearTie is one-sided).
+    final voicingResult = _voicingTieBreak(a, b, voicing);
+    if (voicingResult != 0) {
+      return RankingDecision(
+        result: voicingResult,
+        decidedByRule: 'prefer voicing-supported upper-structure slash',
+        scoreDelta: delta,
+      );
+    }
+
     for (final rule in tieBreakerRules) {
       final r = rule.apply(a, b, fa, fb, tonality);
       if (r != null && r != 0) {
@@ -251,5 +276,25 @@ abstract final class ChordCandidateRanking {
       decidedByRule: 'deterministic fallback: rootPc',
       scoreDelta: delta,
     );
+  }
+
+  /// Returns -1 if [a] is the voicing-supported upper-structure slash, 1 if [b]
+  /// is, and 0 when the register does not distinguish them.
+  static int _voicingTieBreak(
+    ChordCandidate a,
+    ChordCandidate b,
+    ObservedVoicing? voicing,
+  ) {
+    if (voicing == null) return 0;
+    final aSupported = VoicingEvidence.supportsUpperStructureSlash(
+      a.identity,
+      voicing,
+    );
+    final bSupported = VoicingEvidence.supportsUpperStructureSlash(
+      b.identity,
+      voicing,
+    );
+    if (aSupported == bSupported) return 0;
+    return aSupported ? -1 : 1;
   }
 }

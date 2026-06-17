@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
+- Live MIDI identification now reads register. When a complete chord is played
+  above an isolated bass note, the upper-structure slash name (such as Am7/D) is
+  surfaced as the primary reading, with the close alternatives still listed.
 - Added a resizable on-screen keyboard. Pinch to widen the keys and drag the
   handle above the bottom bar to make the keyboard taller. The size is
   remembered and applies across Home, Explore Chords, and Explore Scales.

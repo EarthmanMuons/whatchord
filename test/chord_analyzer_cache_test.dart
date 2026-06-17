@@ -50,26 +50,10 @@ AnalysisContext _context() {
 }
 
 ChordInput _inputFor(int index) {
-  final templates = [
-    [0, 4, 7],
-    [0, 3, 7],
-    [0, 4, 7, 10],
-    [0, 3, 7, 10],
-    [0, 4, 7, 11],
-    [0, 3, 6, 10],
-    [0, 3, 6, 9],
-    [0, 5, 7],
-  ];
-  final transposition = index % 12;
-  final template = templates[(index ~/ 12) % templates.length];
-  final noteCount = 3 + ((index ~/ (12 * templates.length)) % 8);
-  final pcs = template.map((pc) => (pc + transposition) % 12).toList();
-  final bassPc = pcs[(index ~/ (12 * templates.length * 8)) % pcs.length];
-
-  var pcMask = 0;
-  for (final pc in pcs) {
-    pcMask |= 1 << pc;
-  }
-
-  return ChordInput(pcMask: pcMask, bassPc: bassPc, noteCount: noteCount);
+  // Each index maps to a distinct (pcMask, bassPc) and therefore a distinct
+  // cache key, so the eviction assertions exercise capacity directly. pcMask
+  // keeps bit 0 set (a valid root) and otherwise encodes the index.
+  final pcMask = ((index << 1) | 0x1) & 0xFFF;
+  final bassPc = index % 12;
+  return ChordInput(pcMask: pcMask, bassPc: bassPc, noteCount: 4);
 }
