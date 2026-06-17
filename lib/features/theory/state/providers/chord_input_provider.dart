@@ -21,17 +21,14 @@ final chordInputProvider = Provider<ChordInput?>((ref) {
 /// Voicing evidence for the current notes, or null when there is none to act
 /// on.
 ///
-/// Live MIDI gives exact octaves. During manual lookup the octaves are
-/// synthesized for the user, so the voicing keeps its bass-first order but
-/// drops register magnitude: order-based evidence still applies, spacing-based
-/// evidence does not.
+/// Only real octaves carry usable evidence. Manual lookup synthesizes octaves
+/// for the user, so it supplies no voicing.
 final observedVoicingProvider = Provider<ObservedVoicing?>((ref) {
+  if (ref.watch(lookupActiveProvider)) return null;
+
   final midis = ref.watch(soundingNoteNumbersSortedProvider);
   if (midis.length < 2) return null;
 
-  if (ref.watch(lookupActiveProvider)) {
-    return ObservedVoicing.fromOrder([for (final m in midis) m % 12]);
-  }
   return ObservedVoicing.fromMidi(midis);
 });
 

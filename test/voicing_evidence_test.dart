@@ -84,27 +84,6 @@ void main() {
       expect(results.first.identity.rootPc, pc('D'));
       expect(results.first.identity.quality, ChordQualityToken.dominant7sus4);
     });
-
-    test('synthesized registers do not promote the slash reading', () {
-      // Bass-first order is known, but the octaves were synthesized, so the
-      // isolation that distinguishes Am7/D is not available.
-      final voicing = ObservedVoicing.fromOrder([
-        pc('D'),
-        pc('A'),
-        pc('C'),
-        pc('E'),
-        pc('G'),
-      ]);
-
-      final results = ChordAnalyzer.analyze(
-        input,
-        context: context,
-        voicing: voicing,
-      );
-
-      expect(results.first.identity.rootPc, pc('D'));
-      expect(results.first.identity.quality, ChordQualityToken.dominant7sus4);
-    });
   });
 
   group('ObservedVoicing', () {
@@ -122,23 +101,10 @@ void main() {
       expect(voicing.span, 14);
     });
 
-    test('fromOrder keeps bass-first order and pitch classes', () {
-      final voicing = ObservedVoicing.fromOrder([2, 9, 0, 4, 7]); // D A C E G
-      expect(voicing.hasExactRegisters, isFalse);
-      expect([for (final m in voicing.midiNotes) m % 12], [2, 9, 0, 4, 7]);
-      for (var i = 1; i < voicing.midiNotes.length; i++) {
-        expect(voicing.midiNotes[i] > voicing.midiNotes[i - 1], isTrue);
-      }
-    });
-
-    test('register and provenance change the signature', () {
+    test('different registers change the signature', () {
       final a = ObservedVoicing.fromMidi([38, 45, 48]);
       final b = ObservedVoicing.fromMidi([50, 57, 60]);
-      final c = ObservedVoicing.fromOrder([2, 9, 0]);
-      expect(a.hasExactRegisters, isTrue);
-      expect(c.hasExactRegisters, isFalse);
       expect(a.signature == b.signature, isFalse);
-      expect(a.signature == c.signature, isFalse);
     });
   });
 
@@ -156,14 +122,6 @@ void main() {
           identity,
           ObservedVoicing.inert,
         ),
-        isFalse,
-      );
-    });
-
-    test('synthesized registers are never an upper structure', () {
-      final voicing = ObservedVoicing.fromOrder([2, 9, 0, 4, 7]);
-      expect(
-        VoicingEvidence.supportsUpperStructureSlash(identity, voicing),
         isFalse,
       );
     });
