@@ -19,12 +19,12 @@ abstract final class VoicingEvidence {
   ///
   /// This is the signature of voicings like an Am7 sitting above a low, gapped
   /// D bass, which musicians read as Am7/D rather than a root-position D9sus4.
-  /// Requires intentional registers (it reasons about octave placement).
+  /// Requires exact registers (it reasons about octave placement).
   static bool supportsUpperStructureSlash(
     ChordIdentity id,
     ObservedVoicing voicing,
   ) {
-    if (voicing.isInert || !voicing.intentionalRegisters) return false;
+    if (voicing.isInert || !voicing.hasExactRegisters) return false;
     if (!id.hasSlashBass) return false;
 
     final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);

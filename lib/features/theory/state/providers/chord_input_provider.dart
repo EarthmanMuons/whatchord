@@ -18,18 +18,21 @@ final chordInputProvider = Provider<ChordInput?>((ref) {
   return ChordInput(pcMask: pcMask, bassPc: bassPc, noteCount: midis.length);
 });
 
-/// Register/spread evidence for the current voicing, or null when there is none
-/// to act on.
+/// Voicing evidence for the current notes, or null when there is none to act
+/// on.
 ///
-/// During manual lookup the octaves are synthesized for the user, so the
-/// voicing is flagged as not intentional: it still flows through (its ordering
-/// may feed future signals) but register-magnitude evidence is skipped.
+/// Live MIDI gives exact octaves. During manual lookup the octaves are
+/// synthesized for the user, so the voicing keeps its bass-first order but
+/// drops register magnitude: order-based evidence still applies, spacing-based
+/// evidence does not.
 final observedVoicingProvider = Provider<ObservedVoicing?>((ref) {
   final midis = ref.watch(soundingNoteNumbersSortedProvider);
   if (midis.length < 2) return null;
 
-  final intentional = !ref.watch(lookupActiveProvider);
-  return ObservedVoicing.fromMidi(midis, intentionalRegisters: intentional);
+  if (ref.watch(lookupActiveProvider)) {
+    return ObservedVoicing.fromOrder([for (final m in midis) m % 12]);
+  }
+  return ObservedVoicing.fromMidi(midis);
 });
 
 // Converts a collection of notes into a pitch-class bitmask (bits 0..11).
