@@ -147,6 +147,18 @@
     "label": "genuine-ambiguity",
     "note": "C7#5(b9,#11)/Bb is preferred because Bb is the dominant seventh of the complete C altered dominant. Tonal agrees and lists the valid F#9#11/Bb alternate; music21's Gm9/Bb add C is semantically the same F#9#11 pitch-class structure. This is a genuine altered-dominant vs tritone-related split, not a reason to re-rank away from C."
   },
+  "0-1-4-5-8_b0": {
+    "label": "oracle-limitation",
+    "note": "Fm(maj7)♭13/C is preferred because the voicing cleanly contains F-A♭-C-E as a complete F minor-major seventh with D♭ as flat-thirteen color and C as the fifth in the bass. Tonal agrees as FmMaj7b6/C. Music21's D♭m(maj7)/C add F respells the same pitch set with both minor and major thirds, which is less useful as the primary musician-facing label."
+  },
+  "0-1-4-5-8_b4": {
+    "label": "oracle-limitation",
+    "note": "Fm(maj7)♭13/E is preferred because E is the major seventh of the complete F-A♭-C-E shell and D♭ is conventional flat-thirteen color. Tonal agrees. Music21's C♯m(maj7)/E add E♯ treats F as an added major third above C♯ while also keeping E as the minor third, so the split reflects oracle spelling limits rather than a stronger C♯-rooted analysis."
+  },
+  "0-1-4-5-8_b8": {
+    "label": "oracle-limitation",
+    "note": "Fm(maj7)♭13/A♭ is preferred because A♭ is the minor third of a complete F minor-major seventh sonority with D♭ as flat thirteenth. Tonal agrees. Music21's C♯m(maj7)/G♯ add E♯ preserves related pitch classes but requires simultaneous minor and major thirds, making it less idiomatic than the direct Fm(maj7)♭13 reading."
+  },
   "0-1-4-7_b1": {
     "label": "genuine-ambiguity",
     "note": "D♭m(maj7)#11 is correct; near-tie cluster resolved by root-position preference and fully-explained-voicing tie-breakers; both oracles produce related Db-rooted or diminished readings; sound"
