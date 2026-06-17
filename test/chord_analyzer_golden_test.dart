@@ -1,6 +1,9 @@
+import 'package:flutter_test/flutter_test.dart';
+
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'helpers/chord_analyzer_golden_helpers.dart';
+import 'helpers/theory_test_helpers.dart';
 
 void main() {
   final cases = <GoldenCase>[
@@ -640,4 +643,43 @@ void main() {
   ];
 
   runChordAnalyzerGoldenCases(cases);
+
+  test(
+    'dominant flat-thirteen alternate surfaces near major-nine sharp-five',
+    () {
+      for (final bass in ['C', 'A']) {
+        final input = chordInputFromNames(
+          names: ['C', 'Db', 'Eb', 'F', 'A'],
+          bass: bass,
+        );
+        final results = ChordAnalyzer.analyze(
+          input,
+          context: makeAnalysisContext(),
+        );
+
+        expect(results.first.identity.rootPc, pc('Db'));
+        expect(results.first.identity.quality, ChordQualityToken.major7Sharp5);
+
+        final nearTies = ChordCandidateRanking.nearTieAlternatives(results);
+        expect(
+          nearTies,
+          contains(
+            isA<ChordCandidate>()
+                .having((c) => c.identity.rootPc, 'root', pc('F'))
+                .having(
+                  (c) => c.identity.quality,
+                  'quality',
+                  ChordQualityToken.dominant7,
+                )
+                .having(
+                  (c) => c.identity.extensions,
+                  'extensions',
+                  contains(ChordExtension.flat13),
+                ),
+          ),
+          reason: 'F7b13 should surface as a near-tie for bass $bass',
+        );
+      }
+    },
+  );
 }

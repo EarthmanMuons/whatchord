@@ -33,6 +33,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   spellings.
 - Improved altered dominant flat-thirteen identification, favoring complete
   F#7(#9,#11,b13)-style readings over split-third sixth-chord spellings.
+- Improved dominant flat-thirteen ambiguity handling, surfacing complete
+  F7b13-style readings alongside closely related major-nine sharp-five labels.
 - Improved altered dominant flat-nine sharp-eleven identification, favoring
   complete dominant readings over heavily colored diminished-seventh spellings.
 - Improved altered sharp-five dominant identification, preferring labels such as
