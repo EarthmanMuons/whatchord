@@ -58,7 +58,7 @@ void main() {
       );
     });
 
-    test('the promotion is tagged as a voicing-driven decision', () {
+    test('the promotion is decided by the voicing rule', () {
       final voicing = ObservedVoicing.fromMidi([38, 45, 48, 52, 55]);
 
       final debug = ChordAnalyzer.analyzeDebug(
@@ -68,7 +68,10 @@ void main() {
       );
 
       expect(debug.first.candidate.identity.rootPc, pc('A'));
-      expect(debug[1].vsPrevious?.decidedByVoicing, isTrue);
+      expect(
+        debug[1].vsPrevious?.decidedByRule,
+        'prefer voicing-supported upper-structure slash',
+      );
     });
 
     test('a compact voicing without an isolated bass does not promote', () {

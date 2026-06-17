@@ -25,12 +25,7 @@ class NamedRule {
   final String name;
   final RuleFn apply;
 
-  /// Whether the rule decides from voicing/register evidence rather than the
-  /// pitch-class theory. Surfaced as [RankingDecision.decidedByVoicing] so the
-  /// UI can mark these picks distinctly.
-  final bool voicingDriven;
-
-  const NamedRule(this.name, this.apply, {this.voicingDriven = false});
+  const NamedRule(this.name, this.apply);
 }
 
 // The two ordered lists below ARE the ranking policy: rules are tried top to
@@ -235,7 +230,6 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
   NamedRule(
     'prefer voicing-supported upper-structure slash',
     _preferVoicingUpperStructureSlash,
-    voicingDriven: true,
   ),
   NamedRule('prefer root-position 6th over inverted 7th', _prefer6thInRoot),
   NamedRule(
