@@ -203,6 +203,14 @@
     "label": "clearly-correct",
     "note": "Cadd♭9/G is the clearest interpretation because it preserves a complete C-major triad in conventional second inversion and names D♭ as the single chromatic flat ninth. Music21 and tonal both agree on the C-rooted add-flat-nine structure. The E-rooted alternatives require less conventional mixed color tones, while C♯dim/G drops the sounding C."
   },
+  "0-1-5-7-9_b7": {
+    "label": "oracle-limitation",
+    "note": "A7♯5♯9/G is preferred because A-C♯-E♯-G is a complete altered dominant seventh in third inversion, with C/B♯ as conventional sharp-nine color. Tonal agrees. Music21's F/G add C♯ keeps an F major shell but treats G as an added ninth and C♯ as chromatic color, so it misses the chord-defining dominant seventh."
+  },
+  "0-1-5-7-9_b9": {
+    "label": "oracle-limitation",
+    "note": "A7♯5♯9 is preferred because A is the bass/root and the voicing names every tone as root, major third, sharp fifth, flat seventh, and sharp ninth of a standard altered dominant. Tonal agrees, and ChoCo common-name counts strongly favor dominant7-sharp5 sharp-nine signatures over sparse major add-tone variants. Music21's F/A add G,C♯ is an upper-structure major-triad label that drops the primary dominant identity."
+  },
   "0-1-5-9_b1": {
     "label": "clearly-correct",
     "note": "D♭maj7♯5 is correct; clean structural win over C♯maj7♭13 (baked-in #5 vs b13 alteration); tonal lists both; music21's A+/C# addB# corresponds to our distant 5th choice; not actionable"
