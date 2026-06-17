@@ -107,6 +107,10 @@
     "label": "oracle-limitation",
     "note": "E♭13 is preferred because E♭, G, B♭, and D♭ form a complete root-position dominant seventh with F and C as the upper extension stack. Tonal agrees with E♭13. Music21's Cm7/E♭ add F,D♭ is an upper-structure minor-seventh bookkeeping label; ChoCo common-name counts include thousands of dominant-thirteenth-stack observations but only sparse minor7 add-eleven variants."
   },
+  "0-1-3-5-7-9_b3": {
+    "label": "oracle-limitation",
+    "note": "E♭13♯11 is preferred because E♭, G, D♭, F, A, and C form a root-position Lydian-dominant thirteenth stack. Tonal agrees on the E♭ dominant root but normalizes the tritone as flat five rather than sharp eleven; WhatChord's sharp-eleven spelling is clearer with the ninth and thirteenth present. Music21's D♭aug(maj9)/E♭ add G is an upper-structure add-tone spelling that misses the complete dominant organization."
+  },
   "0-1-3-5-7-10_b7": {
     "label": "oracle-limitation",
     "note": "E♭13/G is preferred because the bass is the dominant third and the voicing contains the complete E♭ dominant thirteenth stack. Tonal agrees. Music21's Cm7/G add D♭,F re-roots the same pitch material into a C-minor shell and treats the dominant seventh and ninth as additions, which is less idiomatic for this complete dominant inversion."
@@ -122,6 +126,10 @@
   "0-1-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C7b5b9 is correct; it is a complete root-position altered dominant, while F#7#11/C is a complete tritone-related dominant with the #11 in the bass; both are conventional and similarly common in ChoCo, but the C bass favors the current root-position reading; key context respells the alternate without changing the ranking; no engine change needed"
+  },
+  "0-1-2-4-6-9-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "C13(♭9,♯11) is preferred because C is the bass/root and the voicing contains the complete C dominant shell C-E-B♭ with D♭, D, F♯, and A as altered and extended dominant color. Tonal's F♯7♯9♯11♭13/C is also a complete tritone-related dominant, and ChoCo has comparable support for the broad C Lydian-dominant-thirteenth family and the F♯ sharp-nine sharp-eleven flat-thirteen family. The C bass makes the root-position label defensible, but this is a genuine tritone-dominant ambiguity."
   },
   "0-1-4-6-10_b4": {
     "label": "genuine-ambiguity",
