@@ -16,11 +16,17 @@ class RankingDecision {
   /// pairwise relation contains a cycle.
   final bool decidedByHardRule;
 
+  /// Whether the decision came from voicing/register evidence rather than the
+  /// pitch-class theory rules. Lets the UI mark voicing-driven picks distinctly,
+  /// since those depend on how the chord was played, not just which notes.
+  final bool decidedByVoicing;
+
   const RankingDecision({
     required this.result,
     required this.decidedByRule,
     required this.scoreDelta,
     this.decidedByHardRule = false,
+    this.decidedByVoicing = false,
   });
 }
 
@@ -256,6 +262,7 @@ abstract final class ChordCandidateRanking {
         result: voicingResult,
         decidedByRule: 'prefer voicing-supported upper-structure slash',
         scoreDelta: delta,
+        decidedByVoicing: true,
       );
     }
 

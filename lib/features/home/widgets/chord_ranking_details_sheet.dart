@@ -546,12 +546,7 @@ class _CandidateExplanationFront extends StatelessWidget {
         Text(_evidenceFor(row), style: theme.textTheme.bodyMedium),
         if (nextDecision?.decidedByRule != null) ...[
           const SizedBox(height: 6),
-          Text(
-            _plainDecision(nextDecision!.decidedByRule, winner: winner),
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: cs.onSurfaceVariant,
-            ),
-          ),
+          _DecisionExplanation(decision: nextDecision!, winner: winner),
         ],
       ],
     );
@@ -703,12 +698,7 @@ class _CandidateScoreBack extends StatelessWidget {
         ),
         if (decision?.decidedByRule != null) ...[
           const SizedBox(height: 10),
-          Text(
-            _plainDecision(decision!.decidedByRule, winner: winner),
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: cs.onSurfaceVariant,
-            ),
-          ),
+          _DecisionExplanation(decision: decision!, winner: winner),
         ],
         const SizedBox(height: 4),
         Align(
@@ -952,6 +942,63 @@ class _EmptyRankingDetails extends StatelessWidget {
   }
 }
 
+/// The plain-language reason a candidate ranked where it did, tagged when the
+/// decision came from voicing/register evidence rather than the theory rules.
+class _DecisionExplanation extends StatelessWidget {
+  const _DecisionExplanation({required this.decision, required this.winner});
+
+  final RankingDecision decision;
+  final ChordCandidate winner;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+    final sentence = _plainDecision(decision.decidedByRule, winner: winner);
+
+    if (!decision.decidedByVoicing) {
+      return Text(sentence, style: style);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _VoicingTag(),
+        const SizedBox(height: 4),
+        Text(sentence, style: style),
+      ],
+    );
+  }
+}
+
+/// A small pill marking a decision driven by how the chord was voiced.
+class _VoicingTag extends StatelessWidget {
+  const _VoicingTag();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: cs.tertiaryContainer,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        'Based on voicing',
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: cs.onTertiaryContainer,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
 String _evidenceFor(RankedCandidateDebug row) {
   final id = row.candidate.identity;
   final degrees = ChordMemberDegreeFormatter.formatDegrees(
@@ -1116,6 +1163,8 @@ String _plainDecision(String? rule, {ChordCandidate? winner}) {
     'prefer upper-structure dominant7 slash' => _upperStructureDominantReason(
       winner,
     ),
+    'prefer voicing-supported upper-structure slash' =>
+      'the way it was played stacks a complete chord above an isolated bass note, so this slash name reads more naturally than a root-position reading.',
     'prefer root-position extended dominant over altered-fifth slash' =>
       'the root-position dominant name aligns the bass, seventh shell, and upper extensions more naturally than an inverted altered-fifth reading.',
     'prefer root-position diminished7' =>
