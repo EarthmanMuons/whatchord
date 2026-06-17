@@ -189,6 +189,35 @@ void main() {
     );
   });
 
+  test(
+    'complete dominant flat-nine sharp-eleven beats colored diminished7',
+    () {
+      final dominant = _candidate(
+        quality: ChordQualityToken.dominant7,
+        root: 'F#',
+        bass: 'Db',
+        presentIntervals: const {0, 1, 4, 6, 7, 10},
+        extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
+        score: 7.74,
+      );
+
+      final diminished = _candidate(
+        quality: ChordQualityToken.diminished7,
+        root: 'A#',
+        bass: 'Db',
+        presentIntervals: const {0, 2, 3, 6, 8},
+        extensions: const {ChordExtension.nine, ChordExtension.flat13},
+        score: 8.10,
+      );
+
+      _expectRule(
+        dominant,
+        diminished,
+        'prefer complete dominant flat-nine over colored diminished7',
+      );
+    },
+  );
+
   test('third-inversion dominant flat-nine does not override diminished7', () {
     final dominant = _candidate(
       quality: ChordQualityToken.dominant7,

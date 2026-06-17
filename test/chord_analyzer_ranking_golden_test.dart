@@ -164,6 +164,45 @@ void main() {
       expectedExtensions: {ChordExtension.flat9},
     ),
 
+    golden(
+      description:
+          'complete dominant flat-nine sharp-eleven beats colored diminished7',
+      expectedSymbol: 'F#7(b9,#11) / C#',
+      expectedAlternateSymbols: ['A#dim7(add9,b13) / C#'],
+      pcs: ['C', 'Db', 'E', 'F#', 'G', 'Bb'],
+      bass: 'Db',
+      expectedRoot: 'F#',
+      expectedBass: 'C#',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9, ChordExtension.sharp11},
+    ),
+
+    golden(
+      description:
+          'complete dominant flat-nine sharp-eleven handles fifth bass',
+      expectedSymbol: 'C7(b9,#11) / G',
+      expectedAlternateSymbols: ['Edim7(add9,b13) / G'],
+      pcs: ['C', 'Db', 'E', 'F#', 'G', 'Bb'],
+      bass: 'G',
+      expectedRoot: 'C',
+      expectedBass: 'G',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9, ChordExtension.sharp11},
+    ),
+
+    golden(
+      description:
+          'complete dominant flat-nine sharp-eleven handles major-third bass',
+      expectedSymbol: 'F#7(b9,#11) / A#',
+      expectedAlternateSymbols: ['A#dim7(add9,b13)', 'Edim7(add9,b13) / Bb'],
+      pcs: ['C', 'Db', 'E', 'F#', 'G', 'Bb'],
+      bass: 'Bb',
+      expectedRoot: 'F#',
+      expectedBass: 'A#',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9, ChordExtension.sharp11},
+    ),
+
     // -------------------------------------------------------------------------
     // Sixth-family ranking
     // -------------------------------------------------------------------------

@@ -186,6 +186,7 @@ class CandidateFeatures {
         alteration: ChordExtension.flat9,
         alterationRole: ChordToneRole.flat9,
         fifthRole: ChordToneRole.perfect5,
+        allowedAdditionalExtensions: const {ChordExtension.sharp11},
       ),
       isCompleteDominantSharp9: _isCompleteDominantWithAlteration(
         id,
@@ -226,10 +227,17 @@ class CandidateFeatures {
     required ChordExtension alteration,
     required ChordToneRole alterationRole,
     required ChordToneRole fifthRole,
+    Set<ChordExtension> allowedAdditionalExtensions = const {},
   }) {
     if (id.quality != quality) return false;
-    if (id.extensions.length != 1 || !id.extensions.contains(alteration)) {
+    if (!id.extensions.contains(alteration)) {
       return false;
+    }
+    for (final extension in id.extensions) {
+      if (extension != alteration &&
+          !allowedAdditionalExtensions.contains(extension)) {
+        return false;
+      }
     }
 
     final roles = id.toneRolesByInterval.values;
