@@ -7,6 +7,18 @@
     "label": "genuine-ambiguity",
     "note": "F♯7(♯11,♭13)/A♯ is preferred because it is a complete tritone-related dominant with its major third in the bass, while C9♭5♭9/B♭ is a complete altered dominant in third inversion with simultaneous flat and natural ninths. Tonal supports the F♯ reading and music21 supports the C reading, confirming genuine ambiguity. Related bass cases consistently favor whichever dominant receives the more conventional bass role."
   },
+  "0-1-2-4-6-9-10_b2": {
+    "label": "oracle-limitation",
+    "note": "F♯7(♯9,♯11,♭13)/D is preferred because the voicing contains the complete F♯ altered-dominant shell F♯-A♯-C♯-E with D as flat thirteenth and A/G𝄪 as sharp-nine color. Tonal agrees as F#7#9#11b13/D, and ChoCo common-name counts favor dominant7 sharp-nine sharp-eleven flat-thirteen signatures over augmented-major-nine variants. Music21's B♭aug(maj9)/D add D♭,E is a related add-tone spelling, but it misses the complete dominant organization."
+  },
+  "0-1-2-4-6-9-10_b4": {
+    "label": "oracle-limitation",
+    "note": "F♯7(♯9,♯11,♭13)/E is preferred because E is the flat seventh of a complete F♯ altered dominant with sharp-nine, sharp-eleven, and flat-thirteen color. Tonal agrees. Music21's B♭aug(maj9)/E add C♯ preserves an augmented-major upper structure, but it demotes the dominant seventh and altered-dominant function to added tones."
+  },
+  "0-1-2-4-6-9-10_b9": {
+    "label": "oracle-limitation",
+    "note": "F♯7(♯9,♯11,♭13)/G𝄪 is preferred because A/G𝄪 is the sharp ninth of the complete F♯ altered-dominant stack. Tonal agrees semantically as F#7#9#11b13/A. Music21's B♭aug(maj9)/A add C♯,E names a related augmented-major shell, but it is less idiomatic than the complete altered-dominant reading and ChoCo strongly favors the dominant signature."
+  },
   "0-1-2-4-6-8-10_b0": {
     "label": "oracle-limitation",
     "note": "F♯9(♯11,♭13)/B♯ is preferred because the voicing contains the complete F♯ dominant stack F♯-A♯-C♯-E plus G♯, B♯, and D. Tonal agrees with F#9#11b13/C. Music21's B♭9♯5/C add E,D♭ is a related altered-fifth bookkeeping label, but it omits the direct Lydian-dominant-flat-thirteen identity."
