@@ -451,6 +451,40 @@ void main() {
 
     golden(
       description:
+          'complete flat-thirteenth altered dominant beats add-eleven split-third sixth',
+      expectedSymbol: 'F#7(#9,#11,b13) / E',
+      expectedAlternateSymbols: ['A6(b9,add#9,add11) / E'],
+      pcs: ['C', 'Db', 'D', 'E', 'F#', 'A', 'Bb'],
+      bass: 'E',
+      expectedRoot: 'F#',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.sharp9,
+        ChordExtension.sharp11,
+        ChordExtension.flat13,
+      },
+    ),
+
+    golden(
+      description:
+          'complete flat-thirteenth altered dominant beats root-position add-eleven split-third sixth',
+      expectedSymbol: 'F#7(#9,#11,b13) / Gx',
+      expectedAlternateSymbols: ['A6(b9,add#9,add11)'],
+      pcs: ['C', 'Db', 'D', 'E', 'F#', 'A', 'Bb'],
+      bass: 'A',
+      expectedRoot: 'F#',
+      expectedBass: 'Gx',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.sharp9,
+        ChordExtension.sharp11,
+        ChordExtension.flat13,
+      },
+    ),
+
+    golden(
+      description:
           'complete sharp-nine thirteenth dominant beats colored sixth',
       expectedSymbol: 'Eb13#9 / Db',
       expectedAlternateSymbols: ['F#6(b9,#11) / C#'],

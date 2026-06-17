@@ -94,6 +94,43 @@ void main() {
     },
   );
 
+  test(
+    'complete flat-thirteenth sharp-nine dominant beats add-eleven split-third sixth',
+    () {
+      final dominant = _candidate(
+        quality: ChordQualityToken.dominant7,
+        root: 'F#',
+        bass: 'E',
+        presentIntervals: const {0, 3, 4, 6, 7, 8, 10},
+        extensions: const {
+          ChordExtension.sharp9,
+          ChordExtension.sharp11,
+          ChordExtension.flat13,
+        },
+        score: 7.45,
+      );
+
+      final splitThirdSixth = _candidate(
+        quality: ChordQualityToken.major6,
+        root: 'A',
+        bass: 'E',
+        presentIntervals: const {0, 1, 3, 4, 5, 7, 9},
+        extensions: const {
+          ChordExtension.flat9,
+          ChordExtension.addSharp9,
+          ChordExtension.add11,
+        },
+        score: 7.45,
+      );
+
+      _expectTieRule(
+        dominant,
+        splitThirdSixth,
+        'prefer complete dominant sharp-nine over split-third sixth',
+      );
+    },
+  );
+
   test('complete altered dominant inversion beats altered major7', () {
     final dominant = _candidate(
       quality: ChordQualityToken.dominant7Sharp5,
