@@ -58,6 +58,19 @@ void main() {
       );
     });
 
+    test('the promotion is tagged as a voicing-driven decision', () {
+      final voicing = ObservedVoicing.fromMidi([38, 45, 48, 52, 55]);
+
+      final debug = ChordAnalyzer.analyzeDebug(
+        input,
+        context: context,
+        voicing: voicing,
+      );
+
+      expect(debug.first.candidate.identity.rootPc, pc('A'));
+      expect(debug[1].vsPrevious?.decidedByVoicing, isTrue);
+    });
+
     test('a compact voicing without an isolated bass does not promote', () {
       // D4 E4 G4 A4 C5: the bass is one step below its neighbor, no isolation.
       final voicing = ObservedVoicing.fromMidi([62, 64, 67, 69, 72]);

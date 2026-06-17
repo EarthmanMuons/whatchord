@@ -2,14 +2,16 @@ import '../models/chord_candidate.dart';
 import '../models/chord_extension.dart';
 import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
+import '../models/observed_voicing.dart';
 import '../services/chord_quality_intervals.dart';
 import '../services/pitch_class.dart';
+import 'voicing_evidence.dart';
 
 /// Cached features extracted from a ChordCandidate for efficient rule evaluation.
 ///
 /// Pre-computes properties like position, quality family, extension types,
-/// and dominant7-specific characteristics to avoid repeated calculations
-/// during rule application.
+/// dominant7-specific characteristics, and (when a voicing is supplied)
+/// register evidence, to avoid repeated calculations during rule application.
 class CandidateFeatures {
   final bool isRootPosition;
   final bool isSixFamily;
@@ -60,6 +62,9 @@ class CandidateFeatures {
   final bool hasOnlyAddColor;
   final int unnamedToneCount;
 
+  // Voicing evidence (false when no voicing was supplied).
+  final bool isVoicingUpperStructureSlash;
+
   const CandidateFeatures({
     required this.isRootPosition,
     required this.isSixFamily,
@@ -106,9 +111,10 @@ class CandidateFeatures {
     required this.hasNaturalOrAlteredColor,
     required this.hasOnlyAddColor,
     required this.unnamedToneCount,
+    this.isVoicingUpperStructureSlash = false,
   });
 
-  factory CandidateFeatures.from(ChordCandidate c) {
+  factory CandidateFeatures.from(ChordCandidate c, {ObservedVoicing? voicing}) {
     final id = c.identity;
     final q = id.quality;
 
@@ -218,6 +224,9 @@ class CandidateFeatures {
           pref.naturalCount == 0,
       unnamedToneCount:
           popCount(id.presentIntervalsMask) - id.toneRolesByInterval.length,
+      isVoicingUpperStructureSlash:
+          voicing != null &&
+          VoicingEvidence.supportsUpperStructureSlash(id, voicing),
     );
   }
 

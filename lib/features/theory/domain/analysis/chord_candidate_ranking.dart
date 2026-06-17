@@ -3,7 +3,6 @@ import '../models/observed_voicing.dart';
 import '../models/tonality.dart';
 import 'candidate_features.dart';
 import 'ranking_rules.dart';
-import 'voicing_evidence.dart';
 
 class RankingDecision {
   final int result;
@@ -54,7 +53,13 @@ abstract final class ChordCandidateRanking {
     required Tonality tonality,
     ObservedVoicing? voicing,
   }) {
-    return _decide(a, b, tonality: tonality, voicing: voicing).result;
+    return _decide(
+      a,
+      b,
+      CandidateFeatures.from(a, voicing: voicing),
+      CandidateFeatures.from(b, voicing: voicing),
+      tonality: tonality,
+    ).result;
   }
 
   /// Same as [compare], but returns detailed information about which rule decided.
@@ -65,7 +70,13 @@ abstract final class ChordCandidateRanking {
     required Tonality tonality,
     ObservedVoicing? voicing,
   }) {
-    return _decide(a, b, tonality: tonality, voicing: voicing);
+    return _decide(
+      a,
+      b,
+      CandidateFeatures.from(a, voicing: voicing),
+      CandidateFeatures.from(b, voicing: voicing),
+      tonality: tonality,
+    );
   }
 
   /// Whether a candidate scoring [candidateScore] is a near-tie with the
@@ -122,6 +133,12 @@ abstract final class ChordCandidateRanking {
 
     final cands = [for (final it in items) candidateOf(it)];
 
+    // Features (including any voicing evidence) are computed once per candidate
+    // here, rather than rebuilt for each of the O(n^2) pairwise decisions below.
+    final feats = [
+      for (final c in cands) CandidateFeatures.from(c, voicing: voicing),
+    ];
+
     // Seed order: score desc, then root pitch class asc. This both resolves
     // ties between mutually-equal candidates and seeds the cycle tie-break.
     final seeded = List<int>.generate(n, (i) => i)
@@ -141,8 +158,9 @@ abstract final class ChordCandidateRanking {
         final d = _decide(
           cands[i],
           cands[j],
+          feats[i],
+          feats[j],
           tonality: tonality,
-          voicing: voicing,
         );
         if (d.result < 0) {
           beats[i][j] = true;
@@ -219,13 +237,12 @@ abstract final class ChordCandidateRanking {
 
   static RankingDecision _decide(
     ChordCandidate a,
-    ChordCandidate b, {
+    ChordCandidate b,
+    CandidateFeatures fa,
+    CandidateFeatures fb, {
     required Tonality tonality,
-    ObservedVoicing? voicing,
   }) {
     final delta = b.score - a.score;
-    final fa = CandidateFeatures.from(a);
-    final fb = CandidateFeatures.from(b);
 
     for (final rule in hardRules) {
       final r = rule.apply(a, b, fa, fb, tonality);
@@ -235,6 +252,7 @@ abstract final class ChordCandidateRanking {
           decidedByRule: rule.name,
           scoreDelta: delta,
           decidedByHardRule: true,
+          decidedByVoicing: rule.voicingDriven,
         );
       }
     }
@@ -251,21 +269,6 @@ abstract final class ChordCandidateRanking {
       );
     }
 
-    // Voicing evidence is consulted first among near-tie tie-breakers: when the
-    // register clearly presents one reading as an upper-structure slash and the
-    // other not, that observation outranks the naming conventions below. It
-    // never moves scores, so the displaced candidate stays a near-tie
-    // alternative (isNearTie is one-sided).
-    final voicingResult = _voicingTieBreak(a, b, voicing);
-    if (voicingResult != 0) {
-      return RankingDecision(
-        result: voicingResult,
-        decidedByRule: 'prefer voicing-supported upper-structure slash',
-        scoreDelta: delta,
-        decidedByVoicing: true,
-      );
-    }
-
     for (final rule in tieBreakerRules) {
       final r = rule.apply(a, b, fa, fb, tonality);
       if (r != null && r != 0) {
@@ -273,6 +276,7 @@ abstract final class ChordCandidateRanking {
           result: r,
           decidedByRule: rule.name,
           scoreDelta: delta,
+          decidedByVoicing: rule.voicingDriven,
         );
       }
     }
@@ -283,25 +287,5 @@ abstract final class ChordCandidateRanking {
       decidedByRule: 'deterministic fallback: rootPc',
       scoreDelta: delta,
     );
-  }
-
-  /// Returns -1 if [a] is the voicing-supported upper-structure slash, 1 if [b]
-  /// is, and 0 when the register does not distinguish them.
-  static int _voicingTieBreak(
-    ChordCandidate a,
-    ChordCandidate b,
-    ObservedVoicing? voicing,
-  ) {
-    if (voicing == null) return 0;
-    final aSupported = VoicingEvidence.supportsUpperStructureSlash(
-      a.identity,
-      voicing,
-    );
-    final bSupported = VoicingEvidence.supportsUpperStructureSlash(
-      b.identity,
-      voicing,
-    );
-    if (aSupported == bSupported) return 0;
-    return aSupported ? -1 : 1;
   }
 }
