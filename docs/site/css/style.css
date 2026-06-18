@@ -1,5 +1,25 @@
 /* WhatChord site — shared styles */
 
+/* Self-hosted chord-symbol glyphs (accidentals, Delta, degree, half-diminished,
+   minus/plus quality marks). Only these ~11 codepoints live in the font; every
+   other character falls through to the next family in --font. The mono stack
+   intentionally omits this font so code blocks keep their literal +, -, and
+   Delta. */
+@font-face {
+  font-family: "WhatChord Symbols";
+  src: url("../fonts/WhatChordSymbols-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "WhatChord Symbols";
+  src: url("../fonts/WhatChordSymbols-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 *,
 *::before,
 *::after {
@@ -28,7 +48,8 @@
   --r-xl: 24px;
   --max-w: 1120px;
   --article-w: 760px;
-  --font: -apple-system, blinkmacsystemfont, "Segoe UI", system-ui, sans-serif;
+  --font: "WhatChord Symbols", -apple-system, blinkmacsystemfont, "Segoe UI",
+    system-ui, sans-serif;
   --mono: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace, monospace;
   --shadow: 0 2px 8px rgb(0 0 0 / 45%), 0 12px 40px rgb(0 0 0 / 22%);
   --shadow-sm: 0 1px 4px rgb(0 0 0 / 40%), 0 4px 16px rgb(0 0 0 / 18%);
