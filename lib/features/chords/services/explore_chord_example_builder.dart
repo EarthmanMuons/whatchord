@@ -211,7 +211,7 @@ abstract final class ExploreChordExampleBuilder {
       ChordToneRole.sharp11 ||
       ChordToneRole.add11 ||
       ChordToneRole.flat13 ||
-      ChordToneRole.thirteenth ||
+      ChordToneRole.thirteen ||
       ChordToneRole.add13 => interval + 12,
       _ => interval,
     };
@@ -240,7 +240,7 @@ abstract final class ExploreChordExampleBuilder {
         ChordToneRole.sharp11 ||
         ChordToneRole.add11 => 90,
         ChordToneRole.flat13 ||
-        ChordToneRole.thirteenth ||
+        ChordToneRole.thirteen ||
         ChordToneRole.add13 => 100,
       };
     }

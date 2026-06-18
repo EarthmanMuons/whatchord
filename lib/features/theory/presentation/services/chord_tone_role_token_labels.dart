@@ -47,7 +47,7 @@ extension ChordToneRoleTokenLabels on ChordToneRole {
         return '6';
       case ChordToneRole.flat13:
         return 'b13';
-      case ChordToneRole.thirteenth:
+      case ChordToneRole.thirteen:
         return '13';
       case ChordToneRole.add13:
         return 'add13';

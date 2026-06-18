@@ -886,7 +886,7 @@ bool _isMajorThirteenSusFour(ChordIdentity id) {
       roles.contains(ChordToneRole.perfect5) &&
       roles.contains(ChordToneRole.major7) &&
       roles.contains(ChordToneRole.nine) &&
-      roles.contains(ChordToneRole.thirteenth);
+      roles.contains(ChordToneRole.thirteen);
 }
 
 /// Prefers a complete major triad inversion over a seventh-family slash chord
@@ -967,7 +967,7 @@ bool _isCompleteSharpNineThirteenthDominant(ChordIdentity id) {
       roles.contains(ChordToneRole.sharp9) &&
       roles.contains(ChordToneRole.major3) &&
       roles.contains(ChordToneRole.perfect5) &&
-      roles.contains(ChordToneRole.thirteenth) &&
+      roles.contains(ChordToneRole.thirteen) &&
       roles.contains(ChordToneRole.flat7);
 }
 

@@ -72,7 +72,7 @@ abstract final class HarteChordFormatter {
         ChordToneRole.sharp5 => '#5',
         ChordToneRole.sixth => '6',
         ChordToneRole.flat13 => 'b13',
-        ChordToneRole.thirteenth || ChordToneRole.add13 => '13',
+        ChordToneRole.thirteen || ChordToneRole.add13 => '13',
         ChordToneRole.dim7 => 'bb7',
         ChordToneRole.flat7 => 'b7',
         ChordToneRole.major7 => '7',
