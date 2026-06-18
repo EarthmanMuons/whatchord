@@ -31,6 +31,39 @@
     }
   }
 
+  // Give article section headings GitHub-style anchor links, generating ids
+  // from the heading text so no article has to hand-author them.
+  var articleBody = document.querySelector(".article-body");
+  if (articleBody) {
+    var usedIds = {};
+    articleBody.querySelectorAll("h2").forEach(function (heading) {
+      // Leave the call-to-action and related-articles headings alone.
+      if (heading.closest(".article-cta, .article-related")) return;
+
+      var slug = heading.textContent
+        .trim()
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-");
+      if (!slug) return;
+
+      usedIds[slug] = (usedIds[slug] || 0) + 1;
+      if (usedIds[slug] > 1) slug = slug + "-" + usedIds[slug];
+      if (!heading.id) heading.id = slug;
+
+      var anchor = document.createElement("a");
+      anchor.className = "heading-anchor";
+      anchor.href = "#" + heading.id;
+      anchor.setAttribute("aria-label", "Link to this section");
+      anchor.innerHTML =
+        '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+        '<path d="M3.9 12a3.1 3.1 0 0 1 3.1-3.1h4V7H7a5 5 0 0 0 0 10h4v-1.9H7A3.1 3.1 0 0 1 3.9 12zm4.1 1h8v-2H8v2zm9-6h-4v1.9h4a3.1 3.1 0 0 1 0 6.2h-4V17h4a5 5 0 0 0 0-10z"/>' +
+        "</svg>";
+      heading.appendChild(anchor);
+    });
+  }
+
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     return;
   }
