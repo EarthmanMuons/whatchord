@@ -1057,7 +1057,7 @@ String _roleLabel(ChordToneRole role) {
     ChordToneRole.sharp5 => 'the sharp five',
     ChordToneRole.sixth => 'the sixth',
     ChordToneRole.flat13 => 'the flat thirteen',
-    ChordToneRole.thirteenth => 'the thirteen',
+    ChordToneRole.thirteen => 'the thirteen',
     ChordToneRole.add13 => 'the added thirteen',
     ChordToneRole.dim7 => 'the diminished seventh',
     ChordToneRole.flat7 => 'the flat seven',

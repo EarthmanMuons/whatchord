@@ -590,7 +590,7 @@ class CandidateFeatures {
       ChordToneRole.flat13 => ChordExtension.flat13,
       ChordToneRole.nine => ChordExtension.nine,
       ChordToneRole.eleven => ChordExtension.eleven,
-      ChordToneRole.thirteenth => ChordExtension.thirteen,
+      ChordToneRole.thirteen => ChordExtension.thirteen,
       ChordToneRole.add9 => ChordExtension.add9,
       ChordToneRole.addSharp9 => ChordExtension.addSharp9,
       ChordToneRole.splitMinor3 => ChordExtension.addSharp9,

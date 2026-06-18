@@ -31,7 +31,7 @@ enum ChordToneRole {
   // 6th-degree family
   sixth,
   flat13,
-  thirteenth,
+  thirteen,
   add13,
 
   // 7th-degree family
@@ -57,9 +57,7 @@ extension ChordToneRoleDegreeOrder on ChordToneRole {
     ChordToneRole.add9 ||
     ChordToneRole.addSharp9 => 9,
     ChordToneRole.eleven || ChordToneRole.sharp11 || ChordToneRole.add11 => 11,
-    ChordToneRole.flat13 ||
-    ChordToneRole.thirteenth ||
-    ChordToneRole.add13 => 13,
+    ChordToneRole.flat13 || ChordToneRole.thirteen || ChordToneRole.add13 => 13,
   };
 }
 
@@ -96,7 +94,7 @@ extension ChordToneRoleDegree on ChordToneRole {
 
       case ChordToneRole.sixth:
       case ChordToneRole.flat13:
-      case ChordToneRole.thirteenth:
+      case ChordToneRole.thirteen:
       case ChordToneRole.add13:
         return 6;
 

@@ -209,7 +209,7 @@ abstract final class ChordToneRoles {
           addExt(8, ChordToneRole.flat13);
           break;
         case ChordExtension.thirteen:
-          addExt(9, ChordToneRole.thirteenth);
+          addExt(9, ChordToneRole.thirteen);
           break;
 
         case ChordExtension.add9:

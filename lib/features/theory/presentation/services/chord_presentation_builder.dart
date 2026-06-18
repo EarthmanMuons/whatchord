@@ -182,7 +182,7 @@ abstract final class ChordPresentationBuilder {
       ChordToneRole.sharp11 ||
       ChordToneRole.add11 ||
       ChordToneRole.flat13 ||
-      ChordToneRole.thirteenth ||
+      ChordToneRole.thirteen ||
       ChordToneRole.add13 => interval + 12,
       _ => interval,
     };
