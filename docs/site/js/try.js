@@ -95,6 +95,7 @@
     echo: document.getElementById("echo"),
     candidates: document.getElementById("candidates"),
     rankingFeedback: document.getElementById("ranking-feedback"),
+    symbolLegend: document.getElementById("symbol-legend"),
     copyLink: document.getElementById("copy-link"),
     copyLabel: document.querySelector("#copy-link .copy-label"),
     openApp: document.getElementById("open-app"),
@@ -310,6 +311,7 @@
   function render(result) {
     els.candidates.innerHTML = "";
     els.rankingFeedback.hidden = true;
+    els.symbolLegend.hidden = true;
 
     if (!result.ok) {
       setStatus(result.errors.join(" "), "error");
@@ -341,6 +343,7 @@
       els.candidates.appendChild(renderCandidate(c));
     });
     els.rankingFeedback.hidden = false;
+    els.symbolLegend.hidden = false;
   }
 
   function addEcho(label, value) {
@@ -457,6 +460,7 @@
       els.candidates.innerHTML = "";
       els.resultsHead.hidden = true;
       els.rankingFeedback.hidden = true;
+      els.symbolLegend.hidden = true;
       updateOpenAppLink();
       setStatus("");
       return;
