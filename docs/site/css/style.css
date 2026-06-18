@@ -2,9 +2,10 @@
 
 /* Self-hosted chord-symbol glyphs (accidentals, Delta, degree, half-diminished,
    minus/plus quality marks). Only these ~11 codepoints live in the font; every
-   other character falls through to the next family in --font. The mono stack
-   intentionally omits this font so code blocks keep their literal +, -, and
-   Delta. */
+   other character falls through to the next family. Prepended to both --font and
+   --mono so the glyphs render everywhere. They carry their own proportional
+   width, so within monospace code grids the few affected columns are not strictly
+   cell-aligned. */
 @font-face {
   font-family: "WhatChord Symbols";
   src: url("../fonts/WhatChordSymbols-Regular.woff2") format("woff2");
@@ -51,7 +52,9 @@
   --font:
     "WhatChord Symbols", -apple-system, blinkmacsystemfont, "Segoe UI",
     system-ui, sans-serif;
-  --mono: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+  --mono:
+    "WhatChord Symbols", "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace,
+    monospace;
   --shadow: 0 2px 8px rgb(0 0 0 / 45%), 0 12px 40px rgb(0 0 0 / 22%);
   --shadow-sm: 0 1px 4px rgb(0 0 0 / 40%), 0 4px 16px rgb(0 0 0 / 18%);
 }
@@ -1048,7 +1051,7 @@ footer {
 .article-body code {
   padding: 2px 6px;
   font-family: var(--mono);
-  font-size: 0.865em;
+  font-size: 0.9em;
   color: var(--accent-light);
   background: rgb(255 255 255 / 7%);
   border: 1px solid var(--border-mid);
@@ -1067,7 +1070,7 @@ footer {
 
 .article-body pre code {
   padding: 0;
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   line-height: 1.75;
   color: var(--text);
   background: none;
@@ -1147,7 +1150,7 @@ footer {
 
 .score-table .mono {
   font-family: var(--mono);
-  font-size: 0.82em;
+  font-size: 0.86em;
 }
 
 .article-cta {
