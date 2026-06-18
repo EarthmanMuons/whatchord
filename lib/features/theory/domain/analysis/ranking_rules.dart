@@ -185,12 +185,12 @@ int? _preferRootMinor7Add11ShellOverSusSlash(
   return aIsPreferred ? -1 : 1;
 }
 
-/// Prefers a complete major 6/9 over an inverted minor7 sharp-five add11.
+/// Prefers a complete major 6/9 over a minor7 sharp-five extension spelling.
 ///
 /// Example: {Eb, G, Bb, C, F} with Bb in the bass is most naturally Eb6/9/Bb,
 /// not Gm7#5(add11)/Bb. The altered-minor template's extra required tone can
 /// create a modest score advantage despite the conventional complete 6/9
-/// reading. A root-position altered-minor reading is left untouched.
+/// reading.
 int? _preferCompleteMajorSixNineOverInvertedMinor7Sharp5(
   ChordCandidate a,
   ChordCandidate b,
@@ -203,11 +203,8 @@ int? _preferCompleteMajorSixNineOverInvertedMinor7Sharp5(
   if (aIsPreferred == bIsPreferred) return null;
 
   final other = aIsPreferred ? b : a;
-  final fOther = aIsPreferred ? fb : fa;
-  if (fOther.isRootPosition ||
-      other.identity.quality != ChordQualityToken.minor7Sharp5 ||
-      other.identity.extensions.length != 1 ||
-      !other.identity.extensions.contains(ChordExtension.add11)) {
+  if (other.identity.quality != ChordQualityToken.minor7Sharp5 ||
+      !_minor7SharpFiveExtensionStackIsRemote(other.identity)) {
     return null;
   }
 
@@ -215,6 +212,22 @@ int? _preferCompleteMajorSixNineOverInvertedMinor7Sharp5(
   if (preferred.score + 0.30 < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
+}
+
+bool _minor7SharpFiveExtensionStackIsRemote(ChordIdentity id) {
+  final extensions = id.extensions;
+  if (extensions.isEmpty) return false;
+  if (!extensions.contains(ChordExtension.add11) &&
+      !extensions.contains(ChordExtension.eleven)) {
+    return false;
+  }
+  return extensions.every(
+    (extension) =>
+        extension == ChordExtension.nine ||
+        extension == ChordExtension.add9 ||
+        extension == ChordExtension.eleven ||
+        extension == ChordExtension.add11,
+  );
 }
 
 /// Near-tie tie-breakers, applied in priority order only when two candidates
@@ -259,6 +272,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
   NamedRule(
     'prefer complete major inversion over minor sharp-five',
     _preferCompleteMajorInversionOverMinorSharpFive,
+  ),
+  NamedRule(
+    'prefer complete lydian six-nine over major13sus4',
+    _preferCompleteLydianSixNineOverMajor13Sus4,
   ),
   NamedRule(
     'prefer complete major inversion over seventh-family color-bass slash',
@@ -781,6 +798,61 @@ int? _preferCompleteMajorInversionOverMinorSharpFive(
   if (!fOther.isMinorSharpFive) return null;
 
   return aIsMajorInversion ? -1 : 1;
+}
+
+/// Prefers a complete Lydian major 6/9 over a suspended major-thirteenth
+/// spelling of the same collection.
+///
+/// Example: {C, Db, Eb, F#, Ab, Bb} is more directly G♭6/9#11 than
+/// D♭maj13sus4: the G♭ reading preserves a major triad with 6/9/#11 color,
+/// while the D♭ reading turns the same G♭ into a suspension.
+int? _preferCompleteLydianSixNineOverMajor13Sus4(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isCompleteLydianSixNine(a.identity);
+  final bIsPreferred = _isCompleteLydianSixNine(b.identity);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  if (!_isMajorThirteenSusFour(other.identity)) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isCompleteLydianSixNine(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.major6) return false;
+  if (!id.extensions.contains(ChordExtension.add9) ||
+      !id.extensions.contains(ChordExtension.sharp11)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.sixth) &&
+      roles.contains(ChordToneRole.add9) &&
+      roles.contains(ChordToneRole.sharp11);
+}
+
+bool _isMajorThirteenSusFour(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.major7sus4) return false;
+  if (!id.extensions.contains(ChordExtension.nine) ||
+      !id.extensions.contains(ChordExtension.thirteen)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.sus4) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.major7) &&
+      roles.contains(ChordToneRole.nine) &&
+      roles.contains(ChordToneRole.thirteenth);
 }
 
 /// Prefers a complete major triad inversion over a seventh-family slash chord

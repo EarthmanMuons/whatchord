@@ -48,6 +48,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved dominant nine flat-thirteen identification, favoring complete
   F9b13-style readings over more exotic major-nine flat-five flat-thirteen
   spellings.
+- Improved Lydian major six-nine identification, favoring complete 6/9#11
+  readings over remote minor-eleventh sharp-five spellings.
 - Improved altered dominant flat-nine sharp-eleven identification, favoring
   complete dominant readings over heavily colored diminished-seventh spellings.
 - Improved altered sharp-five dominant identification, preferring labels such as

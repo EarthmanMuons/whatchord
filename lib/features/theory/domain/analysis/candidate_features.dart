@@ -343,8 +343,12 @@ class CandidateFeatures {
 
   static bool _isCompleteMajorSixNine(ChordIdentity id) {
     if (id.quality != ChordQualityToken.major6 ||
-        id.extensions.length != 1 ||
-        !id.extensions.contains(ChordExtension.add9)) {
+        !id.extensions.contains(ChordExtension.add9) ||
+        id.extensions.any(
+          (extension) =>
+              extension != ChordExtension.add9 &&
+              extension != ChordExtension.sharp11,
+        )) {
       return false;
     }
 
