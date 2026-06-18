@@ -1254,6 +1254,85 @@ footer {
   margin-top: 20px;
 }
 
+/* ─── Symbol-parts diagram ───────────────────────────────────── */
+
+.symbol-parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: stretch;
+  margin: 28px 0;
+}
+
+.symbol-part {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  min-width: 150px;
+  padding: 20px 18px;
+  text-align: center;
+  background: #14141d;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--r-lg);
+  transition:
+    border-color 0.18s,
+    background 0.18s,
+    transform 0.18s;
+}
+
+.symbol-part:hover {
+  background: rgb(255 255 255 / 4%);
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.symbol-part-optional {
+  border-style: dashed;
+}
+
+.symbol-part-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #b8b8c8;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.symbol-part-opt {
+  padding: 1px 7px;
+  margin-left: 4px;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: var(--text-2);
+  border: 1px solid var(--border-mid);
+  border-radius: 100px;
+}
+
+.symbol-part-example {
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent-light);
+  letter-spacing: -0.02em;
+}
+
+.symbol-part-join {
+  align-self: center;
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--text-2);
+}
+
+@media (width <= 520px) {
+  .symbol-parts {
+    flex-direction: column;
+  }
+}
+
 /* ─── Pipeline diagram ───────────────────────────────────────── */
 
 .pipeline-flow {
