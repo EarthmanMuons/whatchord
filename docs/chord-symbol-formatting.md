@@ -2,8 +2,8 @@
 
 WhatChord formats chord symbols as concise names for the detected harmonic
 identity, not as exhaustive inventories of the notes being played. The defaults
-favor common lead-sheet usage, readable symbols, and consistent meaning across
-Analysis and Explore.
+favor common lead-sheet usage, readable symbols, and consistent meaning wherever
+a symbol appears.
 
 ## Symbol Structure
 
@@ -136,9 +136,10 @@ slash bass is shown as `C7 / D`, not `C9 / D`.
 
 ## Analysis vs. Explore
 
-Analysis names the observed voicing and ranks plausible identities. Explore
-builds clear, canonical examples of a selected symbol. They share the same
-symbol formatter, but their note-selection goals differ:
+Analysis and Explore are the two modes in the WhatChord app, and the online try
+page mirrors Analysis. Analysis names the observed voicing and ranks plausible
+identities. Explore builds clear, canonical examples of a selected symbol. They
+share the same symbol formatter, but their note-selection goals differ:
 
 - Analysis may recognize a conventional chord even when an omittable tone is
   absent.
