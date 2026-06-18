@@ -55,6 +55,14 @@
     "label": "oracle-limitation",
     "note": "F7(#9,b13) / G# is correct; tonal agrees (G#=Ab, enharmonic); music21 fails on accidental parsing; pychord has no label"
   },
+  "0-1-3-5-7_b5": {
+    "label": "oracle-limitation",
+    "note": "C♯maj9♭5/E♯ is preferred because C♯-E♯-G-B♯-D♯ forms a complete major-seventh-flat-five ninth sonority, with E♯ as the major third in the bass and every sounding pitch named directly. Tonal agrees as D♭M9♭5/F. Music21's Cm/F add D♭ keeps a C-minor shell but treats F and D♭ as additions, missing the complete C♯/D♭ major-seventh-flat-five organization."
+  },
+  "0-1-3-5-7_b7": {
+    "label": "oracle-limitation",
+    "note": "C♯maj9♭5/G is preferred because G is the flat fifth of the complete C♯maj9♭5 structure, while C, E♯/F, and D♯/E♭ supply the major seventh, third, and ninth. Tonal agrees as D♭M9♭5/G. Music21's Cm/G add F,D♭ describes a related C-minor shell but demotes the major-third role and is less complete as a musician-facing chord symbol."
+  },
   "0-1-3-6-9_b9": {
     "label": "genuine-ambiguity",
     "note": "D#m7b5(add13)/A is defensible; the set is the symmetric dim7 {C,Eb,Gb,A} plus the chromatic Db, so root assignment is inherently ambiguous and every source picks a different root (whatchord D#, music21 F#, tonal Db). It is not a functional dominant: the notes are a subset of the C half-whole octatonic but lack any 3rd and b7, so no tritone. Our #1 is a complete m7b5 with a natural 13 and the bass (b5) as a core tone, and wins a 0.10 near-tie over Cdim7(b9) via natural-extension-over-altered-color. music21's F#o7/AaddC# is enharmonically identical to our F#m6#11/A reading (same root, intervals {0,3,6,7,9}, bass A), but we rank that #3 at delta 0.22, below the near-tie cutoff, so it does not surface; among the readings the app actually shows (#1 and the #2 Cdim7(b9) near-tie) no oracle agrees. tonal roots on Db, matching nothing of ours. The intuitive bass-rooted Adim7+chromatic description ranks low because Db will not sit cleanly on Adim7. Genuine ambiguity; no engine change warranted."
