@@ -21,6 +21,13 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   Long-press the keyboard for quick actions, or double-tap the handle, to
   recenter on the active notes or restore the default size.
 
+### Changed
+
+- Refined the symbolic diminished and half-diminished chord symbols so they read
+  as raised quality marks instead of full letter-height circles, with their
+  stroke weight matched to the major-seventh symbol and the two rings aligned so
+  only the slash distinguishes them.
+
 ### Fixed
 
 - Improved identification of fifthless extended major and dominant chords,
