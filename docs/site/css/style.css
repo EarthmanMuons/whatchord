@@ -950,7 +950,7 @@ footer {
 /* ─── Article page layout ────────────────────────────────────── */
 
 .article-header {
-  padding: 60px 0 52px;
+  padding: 60px 0 44px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -989,12 +989,12 @@ footer {
 }
 
 .article-body {
-  padding: 56px 0 96px;
+  padding: 48px 0 96px;
 }
 
 .article-body h2 {
-  padding-top: 60px;
-  margin: 60px 0 14px;
+  padding-top: 32px;
+  margin: 32px 0 14px;
   font-size: 1.55rem;
   font-weight: 700;
   line-height: 1.2;
@@ -1062,6 +1062,35 @@ footer {
    the body link color, which would blend into the filled background. */
 .article-body a.btn-primary {
   color: #fff;
+}
+
+/* GitHub-style section anchors, injected by site.js and revealed on hover or
+   keyboard focus so readers can link to a specific heading. */
+.article-body a.heading-anchor {
+  margin-left: 0.4em;
+  font-weight: 400;
+  color: var(--text-3);
+  text-decoration: none;
+  opacity: 0;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
+}
+
+.article-body h2:hover a.heading-anchor,
+.article-body a.heading-anchor:focus {
+  opacity: 1;
+}
+
+.article-body a.heading-anchor:hover {
+  color: var(--accent-light);
+}
+
+.article-body a.heading-anchor svg {
+  width: 0.8em;
+  height: 0.8em;
+  vertical-align: middle;
+  fill: currentColor;
 }
 
 .article-body code {
