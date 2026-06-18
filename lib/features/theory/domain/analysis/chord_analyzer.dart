@@ -116,6 +116,8 @@ abstract final class ChordAnalyzer {
       2.4; // root-position fifthless natural 9 + #11/13 stacks
   static const _completeDominantFlatThirteenthBonus =
       0.15; // complete dom7 shell + b13 should compete with enharmonic maj7#5
+  static const _completeDominantNineFlatThirteenthBonus =
+      0.40; // complete dom7 shell + 9 + b13 should compete as a natural stack
 
   // Upper-structure slash-triad bonus.
   static const _add9BassUpperTriadBonus = 3.2; // e.g. D/E, C#/D#
@@ -770,7 +772,12 @@ abstract final class ChordAnalyzer {
     required int relMask,
   }) {
     if (quality != ChordQualityToken.dominant7) return 0;
-    if (extensions.length != 1 || !extensions.contains(ChordExtension.flat13)) {
+    if (!extensions.contains(ChordExtension.flat13)) return 0;
+    if (extensions.any(
+      (extension) =>
+          extension != ChordExtension.flat13 &&
+          extension != ChordExtension.nine,
+    )) {
       return 0;
     }
 
@@ -779,7 +786,11 @@ abstract final class ChordAnalyzer {
         (relMask & (1 << majorThirdInterval)) != 0 &&
         (relMask & (1 << perfectFifthInterval)) != 0 &&
         (relMask & (1 << minorSeventhInterval)) != 0;
-    return hasCompleteShell ? _completeDominantFlatThirteenthBonus : 0;
+    if (!hasCompleteShell) return 0;
+
+    return extensions.contains(ChordExtension.nine)
+        ? _completeDominantNineFlatThirteenthBonus
+        : _completeDominantFlatThirteenthBonus;
   }
 
   static double _add9BassUpperTriadBonusFor({

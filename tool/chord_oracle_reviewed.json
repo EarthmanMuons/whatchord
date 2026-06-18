@@ -63,6 +63,22 @@
     "label": "oracle-limitation",
     "note": "C♯maj9♭5/G is preferred because G is the flat fifth of the complete C♯maj9♭5 structure, while C, E♯/F, and D♯/E♭ supply the major seventh, third, and ninth. Tonal agrees as D♭M9♭5/G. Music21's Cm/G add F,D♭ describes a related C-minor shell but demotes the major-third role and is less complete as a musician-facing chord symbol."
   },
+  "0-1-3-5-7-9_b0": {
+    "label": "genuine-ambiguity",
+    "note": "F9♭13/C is preferred because F-A-C-E♭-G-D♭ forms a complete dominant nine flat-thirteen stack with C as the fifth in the bass. Music21 supports the F root but treats D♭ as added sharp-five color, while tonal's E♭13♭5/C is also a complete Lydian-dominant organization. The stronger F dominant shell and stable fifth bass make WhatChord's label defensible, but the E♭ reading is a real competing analysis."
+  },
+  "0-1-3-5-7-9_b5": {
+    "label": "genuine-ambiguity",
+    "note": "F9♭13 is preferred because the voicing is a complete root-position F dominant with ninth and flat-thirteenth color. Music21 re-roots the same pitch classes as a D♭ augmented-major ninth add-tone spelling, and tonal chooses the complete E♭13♭5/F Lydian-dominant reading. The F bass makes the F9♭13 label the clearest primary symbol, while the other complete structures keep this as genuine ambiguity."
+  },
+  "0-1-3-5-7-9_b7": {
+    "label": "genuine-ambiguity",
+    "note": "F9♭13/G is preferred because it preserves the complete F-A-C-E♭ dominant shell with G as the ninth in the bass and D♭ as flat thirteenth. Music21 also keeps the F root, though it spells D♭ as added sharp-five color. Tonal's E♭13♭5/G gives the bass a stronger third role and is a conventional alternate, so the row is genuinely ambiguous rather than an oracle error."
+  },
+  "0-1-3-5-7-9_b9": {
+    "label": "genuine-ambiguity",
+    "note": "F9♭13/A is preferred because A is the major third of the complete F9♭13 stack, giving the F-rooted dominant a conventional first-inversion bass role. Music21 supports the F root with an added-sharp-five spelling, while tonal's E♭13♭5/A is a complete alternate with A as the flat fifth. The stable F-dominant inversion is the clearer primary label, but both dominant organizations are defensible."
+  },
   "0-1-3-6-9_b9": {
     "label": "genuine-ambiguity",
     "note": "D#m7b5(add13)/A is defensible; the set is the symmetric dim7 {C,Eb,Gb,A} plus the chromatic Db, so root assignment is inherently ambiguous and every source picks a different root (whatchord D#, music21 F#, tonal Db). It is not a functional dominant: the notes are a subset of the C half-whole octatonic but lack any 3rd and b7, so no tritone. Our #1 is a complete m7b5 with a natural 13 and the bass (b5) as a core tone, and wins a 0.10 near-tie over Cdim7(b9) via natural-extension-over-altered-color. music21's F#o7/AaddC# is enharmonically identical to our F#m6#11/A reading (same root, intervals {0,3,6,7,9}, bass A), but we rank that #3 at delta 0.22, below the near-tie cutoff, so it does not surface; among the readings the app actually shows (#1 and the #2 Cdim7(b9) near-tie) no oracle agrees. tonal roots on Db, matching nothing of ours. The intuitive bass-rooted Adim7+chromatic description ranks low because Db will not sit cleanly on Adim7. Genuine ambiguity; no engine change warranted."
