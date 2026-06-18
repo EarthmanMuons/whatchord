@@ -17,11 +17,14 @@ from pathlib import Path
 
 from chord_oracle_compare import (
     DEFAULT_ORACLES,
+    DEFAULT_REVIEWED_PATH,
     NOTE_NAMES,
     ORACLE_NAME_WIDTH,
     Music21Oracle,
     PychordOracle,
     TonalOracle,
+    canonical_pc_set,
+    load_reviewed,
     oracle_note_name,
     semantic_key_from_whatchord,
     semantic_keys,
@@ -97,7 +100,56 @@ def main() -> int:
     else:
         print("  whatchord: <no candidate>")
 
+    pcs = tuple(item["pc"] for item in input_data["pitchClasses"])
+    matches = reviewed_matches(pcs, input_data["bassPc"], load_reviewed(DEFAULT_REVIEWED_PATH))
+    if matches:
+        print("---------")
+        print_reviewed_matches(matches)
+
     return 0
+
+
+def reviewed_matches(
+    pcs: tuple[int, ...],
+    bass_pc: int,
+    reviewed: dict[str, dict[str, str]],
+) -> list[tuple[str, int, dict[str, str], str]]:
+    """Find reviewed entries whose canonical pattern this voicing matches.
+
+    The reviewed file is keyed by canonical (transposition-collapsed) case IDs,
+    so any transposition of a reviewed shape resolves to the same entry. For
+    each root that maps the input onto its canonical set, the offset is the
+    interval between this run and the canonical example. Symmetric sets can map
+    onto more than one reviewed case, so every distinct match is returned. Each
+    match carries a chord-debug command for the canonical example's notes.
+    """
+    canonical = canonical_pc_set(pcs)
+    matches: dict[str, tuple[str, int, dict[str, str], str]] = {}
+    for root in sorted(set(pcs)):
+        if tuple(sorted((pc - root) % 12 for pc in pcs)) != canonical:
+            continue
+        canonical_bass = (bass_pc - root) % 12
+        case_id = f"{'-'.join(str(pc) for pc in canonical)}_b{canonical_bass}"
+        entry = reviewed.get(case_id)
+        if entry and case_id not in matches:
+            notes = " ".join(NOTE_NAMES[pc] for pc in canonical)
+            debug_cmd = f"bin/chord-debug {notes} --bass={NOTE_NAMES[canonical_bass]}"
+            matches[case_id] = (case_id, root % 12, entry, debug_cmd)
+    return [matches[key] for key in sorted(matches)]
+
+
+def print_reviewed_matches(
+    matches: list[tuple[str, int, dict[str, str], str]],
+) -> None:
+    for case_id, offset, entry, debug_cmd in matches:
+        if offset == 0:
+            shift = "same pitch level as the reviewed example"
+        else:
+            shift = f"+{offset} semitones from the reviewed example"
+        print(f"  reviewed: {case_id}  [{entry['label']}]  ({shift})")
+        print(f"            {entry['note']}")
+        print(f"            replay: bin/chord-oracle {case_id}")
+        print(f"                    {debug_cmd}")
 
 
 def print_usage() -> None:
