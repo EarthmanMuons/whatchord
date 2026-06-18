@@ -102,6 +102,11 @@ A single ordinary modifier is normally inline: `C7♭9`, `C13♯11`, or `Cadd♯
 Added tones on triad-like chords also remain inline because `add` already makes
 their role clear: `Cadd9`, `Cmadd11`, or `Caugadd13`.
 
+Some house styles, including Berklee-derived teaching materials, parenthesize
+every tension and alteration, such as `C7(♯11)`. WhatChord parenthesizes only
+when grouping or disambiguation aids reading, so a lone alteration stays inline
+as `C7♯11`.
+
 Textual notation separates grouped modifiers with commas. Symbolic notation uses
 compact accidental symbols and no commas.
 
@@ -139,3 +144,19 @@ symbol formatter, but their note-selection goals differ:
   absent.
 - Explore supplies the implied members of a headline extension so its example
   clearly demonstrates the selected symbol.
+
+## References
+
+WhatChord's formatting decisions draw on both historical and modern practice:
+
+- Carl Brandt and Clinton Roemer, _Standardized Chord Symbol Notation_ (1976),
+  an early effort to standardize symbols and remove ambiguity for sight-reading
+  studio musicians.
+- Chuck Sher and others, _The New Real Book_ (Sher Music Co.), representative of
+  the modern jazz lead-sheet consensus.
+- Mark Levine, _The Jazz Theory Book_ (Sher Music Co., 1995), a modern
+  pedagogical reference for the reasoning behind chord naming, extensions, and
+  alterations.
+
+Where these references differ, WhatChord favors the modern consensus and its own
+readability priorities while keeping the clarity principles that both share.
