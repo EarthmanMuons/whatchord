@@ -48,7 +48,8 @@
   --r-xl: 24px;
   --max-w: 1120px;
   --article-w: 760px;
-  --font: "WhatChord Symbols", -apple-system, blinkmacsystemfont, "Segoe UI",
+  --font:
+    "WhatChord Symbols", -apple-system, blinkmacsystemfont, "Segoe UI",
     system-ui, sans-serif;
   --mono: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace, monospace;
   --shadow: 0 2px 8px rgb(0 0 0 / 45%), 0 12px 40px rgb(0 0 0 / 22%);
