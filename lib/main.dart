@@ -39,6 +39,7 @@ class MyApp extends ConsumerWidget {
     return MaterialApp(
       title: 'WhatChord',
       debugShowCheckedModeBanner: false,
+      navigatorKey: ref.watch(appNavigatorKeyProvider),
 
       themeMode: themeMode,
       theme: buildAppTheme(palette: palette, brightness: Brightness.light),

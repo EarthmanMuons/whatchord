@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/lookup/lookup.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
@@ -33,6 +34,13 @@ final appDeepLinkProvider = Provider<void>((ref) {
     for (final pc in seed.pitchClasses) {
       lookup.addNote(pc);
     }
+
+    // A link may arrive while an Explore or Scale page sits atop the home
+    // page; pop back to it so the seeded chord is actually visible.
+    ref
+        .read(appNavigatorKeyProvider)
+        .currentState
+        ?.popUntil((route) => route.isFirst);
   }
 
   unawaited(

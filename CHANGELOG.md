@@ -33,6 +33,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Opening a shared chord link now returns to the home screen, so the linked
+  chord is shown even when the app was last left on an Explore page.
 - Improved identification of fifthless extended major and dominant chords,
   favoring labels such as Dbmaj9#11, Eb13, and C9#5#11 over less direct altered
   sus, major-flat-five, or flat-five flat-thirteen readings.
