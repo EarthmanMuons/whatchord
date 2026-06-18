@@ -799,6 +799,74 @@ void main() {
 
     golden(
       description:
+          'complete altered flat-nine dominant beats remote minor thirteenth',
+      expectedSymbol: 'F#7(b9,#11,b13) / B#',
+      expectedAlternateSymbols: ['C9(b9,#11)', 'Em13(b5)b13 / C'],
+      pcs: ['C', 'Db', 'D', 'E', 'F#', 'G', 'Bb'],
+      bass: 'C',
+      expectedRoot: 'F#',
+      expectedBass: 'B#',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.flat9,
+        ChordExtension.sharp11,
+        ChordExtension.flat13,
+      },
+    ),
+
+    golden(
+      description:
+          'complete altered flat-nine dominant handles flat-thirteen bass',
+      expectedSymbol: 'F#7(b9,#11,b13) / D',
+      expectedAlternateSymbols: ['Em13#5#11 / D', 'Em13(b5)b13 / D'],
+      pcs: ['C', 'Db', 'D', 'E', 'F#', 'G', 'Bb'],
+      bass: 'D',
+      expectedRoot: 'F#',
+      expectedBass: 'D',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.flat9,
+        ChordExtension.sharp11,
+        ChordExtension.flat13,
+      },
+    ),
+
+    golden(
+      description:
+          'complete altered flat-nine dominant handles flat-seventh bass',
+      expectedSymbol: 'F#7(b9,#11,b13) / E',
+      expectedAlternateSymbols: ['Em13#5#11', 'Em13(b5)b13'],
+      pcs: ['C', 'Db', 'D', 'E', 'F#', 'G', 'Bb'],
+      bass: 'E',
+      expectedRoot: 'F#',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.flat9,
+        ChordExtension.sharp11,
+        ChordExtension.flat13,
+      },
+    ),
+
+    golden(
+      description:
+          'complete altered flat-nine dominant handles major-third bass',
+      expectedSymbol: 'F#7(b9,#11,b13) / A#',
+      expectedAlternateSymbols: ['Em13(b5)b13 / Bb', 'Em13#5#11 / A#'],
+      pcs: ['C', 'Db', 'D', 'E', 'F#', 'G', 'Bb'],
+      bass: 'Bb',
+      expectedRoot: 'F#',
+      expectedBass: 'A#',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.flat9,
+        ChordExtension.sharp11,
+        ChordExtension.flat13,
+      },
+    ),
+
+    golden(
+      description:
           'altered sharp-five dominant beats natural-eleventh sharp-five dominant',
       expectedSymbol: 'C7#5(b9,#11) / E',
       expectedAlternateSymbols: ['Ab11#5 / E'],

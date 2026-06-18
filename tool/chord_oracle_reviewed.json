@@ -19,6 +19,34 @@
     "label": "oracle-limitation",
     "note": "F♯7(♯9,♯11,♭13)/G𝄪 is preferred because A/G𝄪 is the sharp ninth of the complete F♯ altered-dominant stack. Tonal agrees semantically as F#7#9#11b13/A. Music21's B♭aug(maj9)/A add C♯,E names a related augmented-major shell, but it is less idiomatic than the complete altered-dominant reading and ChoCo strongly favors the dominant signature."
   },
+  "0-1-2-4-6-7-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "F♯7(♭9,♯11,♭13)/B♯ is preferred because the voicing contains the complete F♯ altered-dominant shell F♯-A♯-C♯-E with G as flat ninth, C/B♯ as sharp eleventh, and D as flat thirteenth. Tonal agrees. Music21's C9(♭9,♯11) has a plausible root-position C bass, so this remains a genuine tritone-dominant ambiguity, but it requires simultaneous flat and natural ninths against C while the F♯ reading names the full altered stack directly."
+  },
+  "0-1-2-4-6-7-10_b1": {
+    "label": "oracle-limitation",
+    "note": "F♯7(♭9,♯11,♭13)/C♯ is preferred because C♯ is the fifth of a complete F♯ altered dominant, and every sounding pitch is explained as shell tone or standard altered-dominant color. Tonal agrees. Music21's C♯ diminished add-tone spelling captures a related subset but misses the complete F♯ dominant organization."
+  },
+  "0-1-2-4-6-7-10_b2": {
+    "label": "oracle-limitation",
+    "note": "F♯7(♭9,♯11,♭13)/D is preferred because D is the flat thirteenth of the complete F♯ altered-dominant stack. Tonal agrees. Music21's C9/D add-tone spelling keeps a C dominant shell but treats the altered colors as additions and loses the direct F♯ dominant function."
+  },
+  "0-1-2-4-6-7-10_b4": {
+    "label": "oracle-limitation",
+    "note": "F♯7(♭9,♯11,♭13)/E is preferred because E is the flat seventh of a complete F♯ altered dominant with flat-nine, sharp-eleven, and flat-thirteen color. Tonal agrees. Music21's D augmented-eleventh slash spelling is a related upper-structure label, but it obscures the complete dominant shell."
+  },
+  "0-1-2-4-6-7-10_b6": {
+    "label": "oracle-limitation",
+    "note": "F♯7(♭9,♯11,♭13) is preferred because it is root position and names F♯, A♯, C♯, and E as the complete dominant shell, with G, C/B♯, and D as conventional altered-dominant color. Tonal agrees. Music21 keeps the F♯ root but drops the alterations into add tones, so the split reflects oracle vocabulary rather than a weaker musical reading."
+  },
+  "0-1-2-4-6-7-10_b7": {
+    "label": "oracle-limitation",
+    "note": "F♯7(♭9,♯11,♭13)/G is preferred because G is the flat ninth of the complete F♯ altered-dominant stack. Tonal agrees. Music21's C9/G add-tone spelling names a related C dominant sonority, but it treats the altered colors as additions and misses the more idiomatic complete altered-dominant organization."
+  },
+  "0-1-2-4-6-7-10_b10": {
+    "label": "oracle-limitation",
+    "note": "F♯7(♭9,♯11,♭13)/A♯ is preferred because A♯/B♭ is the major third of the complete F♯ altered dominant. Tonal agrees. Music21's C7♭5/B♭ add-tone spelling describes a tritone-related dominant color, but it needs extra add tones while the F♯ label names the complete altered stack directly."
+  },
   "0-1-2-4-6-8-10_b0": {
     "label": "oracle-limitation",
     "note": "F♯9(♯11,♭13)/B♯ is preferred because the voicing contains the complete F♯ dominant stack F♯-A♯-C♯-E plus G♯, B♯, and D. Tonal agrees with F#9#11b13/C. Music21's B♭9♯5/C add E,D♭ is a related altered-fifth bookkeeping label, but it omits the direct Lydian-dominant-flat-thirteen identity."
