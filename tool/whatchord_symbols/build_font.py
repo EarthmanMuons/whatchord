@@ -33,6 +33,10 @@ REPO_ROOT = TOOL_DIR.parents[1]
 DEFAULT_SOURCE_FONT = TOOL_DIR / "LelandText.otf"
 MAPPING_FILE = TOOL_DIR / "glyph_map.txt"
 OUTPUT_DIR = REPO_ROOT / "assets/fonts"
+# The website self-hosts a woff2 copy of the same fonts. woff2 is
+# brotli-compressed and universally supported, so the web build ships only that
+# flavor.
+WEB_OUTPUT_DIR = REPO_ROOT / "docs/site/fonts"
 
 FAMILY_NAME = "WhatChord Symbols"
 VERSION = "1.001"
@@ -108,6 +112,11 @@ class Instance:
     @property
     def output_path(self) -> Path:
         return OUTPUT_DIR / self.output
+
+    @property
+    def web_output_path(self) -> Path:
+        # woff2 for the website; mirrors the PostScript name like the .otf.
+        return WEB_OUTPUT_DIR / f"{self.ps_name}.woff2"
 
 
 INSTANCES = [
@@ -612,9 +621,16 @@ def build_instance(rows: list[MappingRow], inst: Instance) -> None:
     recompute_bounds(font)
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    font.flavor = None
     font.save(inst.output_path)
     print(f"Wrote {inst.output_path} ({inst.subfamily}, "
-          f"{len(target_to_glyph)} glyph(s)).\n")
+          f"{len(target_to_glyph)} glyph(s)).")
+
+    # Same font, re-saved as brotli-compressed woff2 for the website.
+    WEB_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    font.flavor = "woff2"
+    font.save(inst.web_output_path)
+    print(f"Wrote {inst.web_output_path} (web woff2).\n")
 
 
 def main() -> None:
