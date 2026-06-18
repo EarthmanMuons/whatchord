@@ -338,6 +338,42 @@ void main() {
     ),
 
     golden(
+      description: 'complete dominant nine flat-thirteen handles fifth bass',
+      expectedSymbol: 'F9b13 / C',
+      expectedAlternateSymbols: ['C#maj9b5b13 / B#', 'Dbmaj9#5#11 / C'],
+      pcs: ['C', 'Db', 'Eb', 'F', 'G', 'A'],
+      bass: 'C',
+      expectedRoot: 'F',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.flat13},
+    ),
+
+    golden(
+      description: 'complete dominant nine flat-thirteen handles ninth bass',
+      expectedSymbol: 'F9b13 / G',
+      expectedAlternateSymbols: ['C#maj9b5b13 / G', 'Dbmaj9#5#11 / G'],
+      pcs: ['C', 'Db', 'Eb', 'F', 'G', 'A'],
+      bass: 'G',
+      expectedRoot: 'F',
+      expectedBass: 'G',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.flat13},
+    ),
+
+    golden(
+      description: 'complete dominant nine flat-thirteen handles third bass',
+      expectedSymbol: 'F9b13 / A',
+      expectedAlternateSymbols: ['Dbmaj9#5#11 / A', 'C#maj9b5b13 / A'],
+      pcs: ['C', 'Db', 'Eb', 'F', 'G', 'A'],
+      bass: 'A',
+      expectedRoot: 'F',
+      expectedBass: 'A',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.flat13},
+    ),
+
+    golden(
       description: 'complete altered dominant inversion beats altered major7',
       expectedSymbol: 'A7#5#9 / C#',
       pcs: ['C', 'Db', 'F', 'G', 'A'],
