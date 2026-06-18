@@ -19,7 +19,6 @@ from chord_oracle_compare import (
     DEFAULT_ORACLES,
     DEFAULT_REVIEWED_PATH,
     NOTE_NAMES,
-    ORACLE_NAME_WIDTH,
     Music21Oracle,
     PychordOracle,
     TonalOracle,
@@ -71,39 +70,54 @@ def main() -> int:
     oracles = available_oracles(args.oracles or list(DEFAULT_ORACLES))
     oracle_results = {oracle.name: oracle.detect(notes, bass) for oracle in oracles}
 
+    oracle_rows: list[tuple[str, str, str]] = []
     for name, result in oracle_results.items():
         if result.status != "ok":
-            print(f"  {name}: ERROR {result.detail}")
+            oracle_rows.append((name, f"ERROR {result.detail}", ""))
             continue
         if not result.labels:
             detail = f" ({result.detail})" if result.detail else ""
-            print(f"  {name.ljust(ORACLE_NAME_WIDTH)}: <no label>{detail}")
+            oracle_rows.append((name, f"<no label>{detail}", ""))
             continue
-        labels = result.labels[: args.top]
-        for index, label in enumerate(labels):
+        for index, label in enumerate(result.labels[: args.top]):
             semantic = semantic_keys([label])
-            semantic_label = (
-                f"  [semantic: {semantic[0].display()}]" if semantic else ""
-            )
-            prefix = name.ljust(ORACLE_NAME_WIDTH) if index == 0 else " " * ORACLE_NAME_WIDTH
-            print(f"  {prefix}: {index + 1}. {label}  {semantic_label}")
+            semantic_label = f"[semantic: {semantic[0].display()}]" if semantic else ""
+            display_name = name if index == 0 else ""
+            oracle_rows.append((display_name, f"{index + 1}. {label}", semantic_label))
 
-    if not oracle_results:
-        print("  <no oracles available>")
-
-    print("---------")
+    whatchord_rows: list[tuple[str, str, str]] = []
     if candidates:
         for index, candidate in enumerate(candidates, start=1):
             semantic = semantic_key_from_whatchord(candidate)
-            semantic_label = f"  [semantic: {semantic.display()}]" if semantic else ""
-            print(f"  whatchord: {index}. {candidate.get('symbol', '')}{semantic_label}")
+            semantic_label = f"[semantic: {semantic.display()}]" if semantic else ""
+            whatchord_rows.append(("whatchord", f"{index}. {candidate.get('symbol', '')}", semantic_label))
     else:
-        print("  whatchord: <no candidate>")
+        whatchord_rows.append(("whatchord", "<no candidate>", ""))
+
+    all_rows = oracle_rows + whatchord_rows
+    name_width = max(len(name) for name, _, _ in all_rows)
+    body_width = max((len(body) for _, body, semantic in all_rows if semantic), default=0)
+
+    def format_row(row: tuple[str, str, str]) -> str:
+        name, body, semantic = row
+        prefix = f"  {name.rjust(name_width)}: "
+        if not semantic:
+            return f"{prefix}{body}"
+        return f"{prefix}{body.ljust(body_width)}  {semantic}"
+
+    for row in oracle_rows:
+        print(format_row(row))
+    if not oracle_results:
+        print("  <no oracles available>")
+
+    print("------------")
+    for row in whatchord_rows:
+        print(format_row(row))
 
     pcs = tuple(item["pc"] for item in input_data["pitchClasses"])
     matches = reviewed_matches(pcs, input_data["bassPc"], load_reviewed(DEFAULT_REVIEWED_PATH))
     if matches:
-        print("---------")
+        print("------------")
         print_reviewed_matches(matches)
 
     return 0
@@ -146,10 +160,10 @@ def print_reviewed_matches(
             shift = "same pitch level as the reviewed example"
         else:
             shift = f"+{offset} semitones from the reviewed example"
-        print(f"  reviewed: {case_id}  [{entry['label']}]  ({shift})")
-        print(f"            {entry['note']}")
-        print(f"            replay: bin/chord-oracle {case_id}")
-        print(f"                    {debug_cmd}")
+        print(f"   reviewed: {case_id}  [{entry['label']}]  ({shift})")
+        print(f"             {entry['note']}")
+        print(f"             replay: bin/chord-oracle {case_id}")
+        print(f"                     {debug_cmd}")
 
 
 def print_usage() -> None:
