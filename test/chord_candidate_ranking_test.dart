@@ -539,10 +539,36 @@ void main() {
       _expectTieRule(
         rootPosition,
         slash,
-        'prefer root-position extended dominant over altered-fifth slash',
+        'prefer stable extended dominant over altered-fifth slash',
       );
     },
   );
+
+  test('inverted extended dominant beats double-sharp altered-fifth slash', () {
+    final inversion = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'C',
+      bass: 'Bb',
+      presentIntervals: const {0, 2, 4, 6, 7, 10},
+      extensions: const {ChordExtension.nine, ChordExtension.sharp11},
+      score: 7.74,
+    );
+
+    final slash = _candidate(
+      quality: ChordQualityToken.dominant7Sharp5,
+      root: 'F#',
+      bass: 'Bb',
+      presentIntervals: const {0, 1, 4, 6, 8, 10},
+      extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
+      score: 7.95,
+    );
+
+    _expectRule(
+      inversion,
+      slash,
+      'prefer stable extended dominant over double-accidental altered-fifth slash',
+    );
+  });
 
   test(
     'complete sharp-nine thirteenth dominant beats colored sixth near-tie',

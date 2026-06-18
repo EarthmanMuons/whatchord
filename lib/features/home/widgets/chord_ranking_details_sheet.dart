@@ -1118,8 +1118,10 @@ String _plainDecision(String? rule, {ChordCandidate? winner}) {
     ),
     'prefer voicing-supported upper-structure slash' =>
       'the way it was played stacks a complete chord above an isolated bass note, so this slash name reads more naturally than a root-position reading.',
-    'prefer root-position extended dominant over altered-fifth slash' =>
-      'the root-position dominant name aligns the bass, seventh shell, and upper extensions more naturally than an inverted altered-fifth reading.',
+    'prefer stable extended dominant over double-accidental altered-fifth slash' =>
+      'the extended dominant inversion avoids the double-accidental spelling required by the altered-fifth slash reading.',
+    'prefer stable extended dominant over altered-fifth slash' =>
+      'the extended dominant name keeps the bass, seventh shell, and upper extensions in a stable inversion more naturally than an altered-fifth slash reading.',
     'prefer root-position diminished7' =>
       'the diminished seventh is clearest when the bass is named as the root.',
     'prefer dominant7 over dim7 slash' ||

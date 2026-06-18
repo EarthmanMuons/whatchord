@@ -17,6 +17,18 @@ void main() {
     ),
 
     golden(
+      description: 'third-inversion lydian dominant beats altered-fifth slash',
+      expectedSymbol: 'C9#11 / Bb',
+      expectedAlternateSymbols: ['F#7#5(b9,#11) / A#', 'D11#5 / A#'],
+      pcs: ['C', 'D', 'E', 'F#', 'G', 'Bb'],
+      bass: 'Bb',
+      expectedRoot: 'C',
+      expectedBass: 'Bb',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
+    ),
+
+    golden(
       description: 'root-position thirteenth sharp eleventh beats remote slash',
       expectedSymbol: 'C13#11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F#', 'A'],

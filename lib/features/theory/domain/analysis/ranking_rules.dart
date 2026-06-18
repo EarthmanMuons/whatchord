@@ -4,6 +4,7 @@ import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
 import '../models/scale_degree.dart';
 import '../models/tonality.dart';
+import '../services/note_spelling.dart';
 import '../services/pitch_class.dart';
 import 'candidate_features.dart';
 import 'common_name_prior_rule.dart';
@@ -54,6 +55,10 @@ final List<NamedRule> hardRules = <NamedRule>[
   NamedRule(
     'prefer complete dominant sharp-nine over split-third sixth',
     _preferCompleteDom7Sharp9OverSixthFlat9,
+  ),
+  NamedRule(
+    'prefer stable extended dominant over double-accidental altered-fifth slash',
+    _preferStableExtendedDom7OverDoubleAccidentalAlteredFifthSlash,
   ),
   NamedRule(
     'prefer complete altered sharp-five dominant over remote spellings',
@@ -258,7 +263,7 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferRootDominantSusOverSlash,
   ),
   NamedRule(
-    'prefer root-position extended dominant over altered-fifth slash',
+    'prefer stable extended dominant over altered-fifth slash',
     _preferRootExtendedDom7OverAlteredFifthSlash,
   ),
   NamedRule(
@@ -465,6 +470,35 @@ bool _isStableSplitThirdSixth(ChordIdentity id, CandidateFeatures features) {
               extensions.contains(ChordExtension.add11)));
 }
 
+/// Prefers a complete 9#11 dominant in a stable inversion over an altered
+/// sharp-five slash reading that would require double-accidental spelling.
+///
+/// Example: {C, D, E, F#, G, Bb} with Bb in the bass is C9#11/Bb, not
+/// F#7#5(b9,#11)/A#. The latter is pitch-class valid, but it spells the
+/// sounding D as Cx, while the C-rooted dominant names every tone directly.
+int? _preferStableExtendedDom7OverDoubleAccidentalAlteredFifthSlash(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality tonality,
+) {
+  final aIsPreferred = _isStableExtendedDom7(a.identity, fa);
+  final bIsPreferred = _isStableExtendedDom7(b.identity, fb);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  if (!_isAlteredSharpFiveDominant(other.identity)) return null;
+  if (!_alteredSharpFiveHasDoubleAccidental(other.identity, tonality)) {
+    return null;
+  }
+
+  final preferred = aIsPreferred ? a : b;
+  if (preferred.score + 0.30 < other.score) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
 /// Prefers a complete altered dominant in a stable inversion over a rare
 /// root-position altered major7 reinterpretation.
 ///
@@ -663,13 +697,13 @@ int? _preferUpperStructureDom7(
   }
 }
 
-/// Prefers a conventional root-position extended dominant over a remote
-/// altered-fifth dominant slash spelling in close calls.
+/// Prefers a conventional extended dominant, in root position or a stable
+/// shell-tone inversion, over a remote altered-fifth dominant slash spelling in
+/// close calls.
 ///
 /// Example: {C, E, G, Bb, D, F#} is better read as C9#11 than D11#5/C.
-/// The D-rooted spelling is possible, but it treats the bass as a seventh and
-/// respells Bb as A#; the C-rooted reading has the bass, shell, and extensions
-/// aligned with the observed voicing.
+/// The same applies to C9#11/Bb: the altered-fifth spelling is possible, but it
+/// respells the stable dominant seventh as A# and loses the direct inversion.
 int? _preferRootExtendedDom7OverAlteredFifthSlash(
   ChordCandidate a,
   ChordCandidate b,
@@ -677,8 +711,8 @@ int? _preferRootExtendedDom7OverAlteredFifthSlash(
   CandidateFeatures fb,
   Tonality _,
 ) {
-  final aIsPreferred = _isRootExtendedDom7(a.identity, fa);
-  final bIsPreferred = _isRootExtendedDom7(b.identity, fb);
+  final aIsPreferred = _isStableExtendedDom7(a.identity, fa);
+  final bIsPreferred = _isStableExtendedDom7(b.identity, fb);
   if (aIsPreferred == bIsPreferred) return null;
 
   final fOther = aIsPreferred ? fb : fa;
@@ -880,11 +914,17 @@ int? _preferCompleteMajorInversionOverSeventhColorBassSlash(
   return aIsMajorInversion ? -1 : 1;
 }
 
-bool _isRootExtendedDom7(ChordIdentity id, CandidateFeatures features) {
-  if (!features.isDom7RootPosition) return false;
+bool _isStableExtendedDom7(ChordIdentity id, CandidateFeatures features) {
+  if (!features.isDom7RootPosition && !features.isDom7Slash) return false;
   if (!features.dom7HasShell) return false;
   if (!id.extensions.contains(ChordExtension.nine)) return false;
-  return id.extensions.contains(ChordExtension.sharp11);
+  if (!id.extensions.contains(ChordExtension.sharp11)) return false;
+
+  final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
+  return bassInterval == 0 ||
+      bassInterval == 4 ||
+      bassInterval == 7 ||
+      bassInterval == 10;
 }
 
 /// Prefers a complete sharp-nine dominant thirteenth over a heavily colored
@@ -964,19 +1004,25 @@ int? _preferCompleteAlteredSharpFiveDominantOverRemoteSpellings(
   ChordCandidate b,
   CandidateFeatures fa,
   CandidateFeatures fb,
-  Tonality _,
+  Tonality tonality,
 ) {
   final aIsPreferred = _isAlteredSharpFiveDominant(a.identity);
   final bIsPreferred = _isAlteredSharpFiveDominant(b.identity);
   if (aIsPreferred == bIsPreferred) return null;
 
   final other = aIsPreferred ? b : a;
+  final preferred = aIsPreferred ? a : b;
+  final fOther = aIsPreferred ? fb : fa;
+  if (_isStableExtendedDom7(other.identity, fOther) &&
+      _alteredSharpFiveHasDoubleAccidental(preferred.identity, tonality)) {
+    return null;
+  }
+
   if (!_isNaturalEleventhSharpFiveDominant(other.identity) &&
       !_isRemoteAlteredNonDominantReading(other.identity)) {
     return null;
   }
 
-  final preferred = aIsPreferred ? a : b;
   if (preferred.score + 0.20 < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
@@ -996,6 +1042,20 @@ bool _isAlteredSharpFiveDominant(ChordIdentity id) {
       roles.contains(ChordToneRole.sharp11) &&
       roles.contains(ChordToneRole.sharp5) &&
       roles.contains(ChordToneRole.flat7);
+}
+
+bool _alteredSharpFiveHasDoubleAccidental(ChordIdentity id, Tonality tonality) {
+  final sharpFivePc = (id.rootPc + 8) % 12;
+  if ((id.presentIntervalsMask & (1 << 8)) == 0) return false;
+
+  final rootName = spellChordRoot(id, tonality: tonality);
+  final sharpFiveName = spellPitchClass(
+    sharpFivePc,
+    tonality: tonality,
+    chordRootName: rootName,
+    role: ChordToneRole.sharp5,
+  );
+  return sharpFiveName.contains('x') || sharpFiveName.contains('bb');
 }
 
 bool _isRemoteAlteredNonDominantReading(ChordIdentity id) {
