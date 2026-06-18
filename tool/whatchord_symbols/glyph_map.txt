@@ -18,8 +18,8 @@ U+ED60  ->  U+266D    # csymAccidentalFlat -> MUSIC FLAT SIGN
 U+ED61  ->  U+266E    # csymAccidentalNatural -> MUSIC NATURAL SIGN
 U+ED62  ->  U+266F    # csymAccidentalSharp -> MUSIC SHARP SIGN
 U+ED63  ->  U+1D12A   # csymAccidentalDoubleSharp -> MUSICAL SYMBOL DOUBLE SHARP
-U+E870  ->  U+00B0    # csymDiminished -> DEGREE SIGN
-U+E871  ->  U+00F8    # csymHalfDiminished -> LATIN SMALL LETTER O WITH STROKE
+U+F4D7  ->  U+00B0    # csymDiminishedSmall -> DEGREE SIGN
+U+F4D8  ->  U+00F8    # csymHalfDiminishedSmall -> LATIN SMALL LETTER O WITH STROKE
 U+E873  ->  U+0394    # csymMajorSeventh -> GREEK CAPITAL LETTER DELTA
 U+E874  ->  U+2212    # csymMinor -> MINUS SIGN
 U+E872  ->  U+002B    # csymAugmented -> PLUS SIGN

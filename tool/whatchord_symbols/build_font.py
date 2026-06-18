@@ -49,6 +49,35 @@ SIDE_PAD = 80
 # Larger = heavier (counters in the sharp/flat stay open up to ~40 or so).
 BOLD_STRENGTH = 20
 
+# Vertical raise (font units) applied to specific TARGET codepoints, keyed by
+# the codepoint they land at in the output font. Leland's "small" chord-symbol
+# alternates are drawn small but baseline-anchored; lifting them seats the
+# diminished/half-diminished rings in the upper "degree" register so they read
+# as quality marks rather than a full-height letter O. ~275 puts a ~440-unit
+# ring's top near cap height (this font is 1000 units/em).
+RAISE = {
+    0x00B0: 275,  # diminished ring
+    0x00F8: 275,  # half-diminished ring (matched to the dim ring)
+}
+
+# Per-glyph base emboldening (font units pushed outward per edge), keyed by
+# target codepoint, applied to BOTH weights before the global bold pass. The
+# small-alternate rings ship with a ~48-unit stroke for tiny superscript use;
+# +15 (a ~30-unit thicker annulus) lifts them to the full-size delta's ~78-unit
+# wall so the symbols look like one set. Bold then stacks BOLD_STRENGTH on top.
+RING_WEIGHT = {
+    0x00B0: 15,  # diminished ring
+    0x00F8: 15,  # half-diminished ring
+}
+
+# Target codepoints whose glyphs are CENTERED on a shared advance and a shared
+# ink center, instead of being left-aligned like every other glyph. The diff
+# between the diminished and half-diminished glyphs is only the slash, which
+# overshoots the ring diagonally; left-aligning to the ink edge would shift the
+# circle when the slash appears. Each ink box is symmetric about the ring
+# center, so matching centers makes the rings coincide exactly.
+CENTERED_PAIR = (0x00B0, 0x00F8)
+
 # Identity/licensing metadata is intentionally NOT carried inside the font:
 # attribution and the SIL OFL text for the upstream Leland font live in the
 # consuming repo's NOTICE.md, which travels with the .otf and satisfies OFL 1.1
@@ -361,45 +390,91 @@ def _set_charstring(font: TTFont, gname: str, path, advance: int) -> None:
     cs.bytecode = None  # force recompile from the new program
 
 
-def embolden_glyphs(font: TTFont, strength: int) -> None:
-    """Synthesize bold by stroking each outline and unioning it onto the fill.
+def _embolden_glyph(font: TTFont, glyph_set, hmtx, gname: str, strength: int) -> None:
+    """Push one glyph's edges outward by `strength` units (stems gain 2x).
 
-    Pushes every edge outward by `strength` units (stems gain 2*strength), using
-    a miter join so the geometric corners of the accidentals stay crisp.
+    Strokes the outline and unions it onto the fill, using a miter join so the
+    geometric corners of the accidentals stay crisp.
     """
+    fill = pathops.Path()
+    glyph_set[gname].draw(fill.getPen(glyphSet=glyph_set))
+    stroked = pathops.Path()
+    glyph_set[gname].draw(stroked.getPen(glyphSet=glyph_set))
+    stroked.stroke(
+        2 * strength,
+        pathops.LineCap.BUTT_CAP,
+        pathops.LineJoin.MITER_JOIN,
+        4.0,
+    )
+    builder = pathops.OpBuilder(fix_winding=True, keep_starting_points=False)
+    builder.add(fill, pathops.PathOp.UNION)
+    builder.add(stroked, pathops.PathOp.UNION)
+    result = builder.resolve()
+    # Advance is normalized afterwards by set_sidebearings; keep current.
+    _set_charstring(font, gname, result, hmtx[gname][0])
+
+
+def embolden_glyphs(font: TTFont, strength: int) -> None:
+    """Synthesize bold by emboldening every glyph uniformly."""
     if strength == 0:
         return
     glyph_set = font.getGlyphSet()
     hmtx = font["hmtx"]
     for gname in font.getGlyphOrder():
-        fill = pathops.Path()
-        glyph_set[gname].draw(fill.getPen(glyphSet=glyph_set))
-        stroked = pathops.Path()
-        glyph_set[gname].draw(stroked.getPen(glyphSet=glyph_set))
-        stroked.stroke(
-            2 * strength,
-            pathops.LineCap.BUTT_CAP,
-            pathops.LineJoin.MITER_JOIN,
-            4.0,
-        )
-        builder = pathops.OpBuilder(fix_winding=True, keep_starting_points=False)
-        builder.add(fill, pathops.PathOp.UNION)
-        builder.add(stroked, pathops.PathOp.UNION)
-        result = builder.resolve()
-        # Advance is normalized afterwards by set_sidebearings; keep current.
-        _set_charstring(font, gname, result, hmtx[gname][0])
+        _embolden_glyph(font, glyph_set, hmtx, gname, strength)
 
 
-def set_sidebearings(font: TTFont, pad: int) -> None:
+def embolden_targets(
+    font: TTFont,
+    target_to_glyph: dict[int, str],
+    weights: dict[int, int],
+) -> None:
+    """Embolden specific glyphs by target codepoint (applied to both weights).
+
+    Used to bring Leland's thin small-alternate rings up to the stroke weight of
+    the full-size csymMajorSeventh delta so the symbol set reads cohesively. The
+    Bold instance stacks the global BOLD_STRENGTH on top of this.
+    """
+    glyph_set = font.getGlyphSet()
+    hmtx = font["hmtx"]
+    for target_cp, strength in weights.items():
+        gname = target_to_glyph.get(target_cp)
+        if gname is None or strength == 0:
+            continue
+        _embolden_glyph(font, glyph_set, hmtx, gname, strength)
+
+
+def raise_glyphs(
+    font: TTFont,
+    target_to_glyph: dict[int, str],
+    raises: dict[int, int],
+) -> None:
+    """Shift selected glyphs upward by `dy` font units, keyed by target CP."""
+    glyph_set = font.getGlyphSet()
+    hmtx = font["hmtx"]
+    for target_cp, dy in raises.items():
+        gname = target_to_glyph.get(target_cp)
+        if gname is None or dy == 0:
+            continue
+        path = pathops.Path()
+        glyph_set[gname].draw(TransformPen(path.getPen(glyphSet=glyph_set),
+                                           (1, 0, 0, 1, 0, dy)))
+        _set_charstring(font, gname, path, hmtx[gname][0])
+
+
+def set_sidebearings(font: TTFont, pad: int, skip: set[str] = frozenset()) -> None:
     """Give every glyph exactly `pad` units of space on each side.
 
     Absolute (not additive): the outline is shifted so its left edge sits at
     `pad`, and the advance is set to ink-width + 2*pad. Works the same whether or
-    not the glyph was just emboldened.
+    not the glyph was just emboldened. Glyphs in `skip` are left untouched
+    (handled by center_glyphs instead).
     """
     glyph_set = font.getGlyphSet()
     hmtx = font["hmtx"]
     for gname in font.getGlyphOrder():
+        if gname in skip:
+            continue
         bp = BoundsPen(glyph_set)
         glyph_set[gname].draw(bp)
         if bp.bounds is None:  # empty glyph (no contours): just set advance
@@ -413,6 +488,42 @@ def set_sidebearings(font: TTFont, pad: int) -> None:
                                            (1, 0, 0, 1, shift, 0)))
         _set_charstring(font, gname, path, new_adv)
         hmtx[gname] = (new_adv, round(pad))
+
+
+def center_glyphs(
+    font: TTFont,
+    glyph_names: list[str],
+    pad: int,
+) -> None:
+    """Center the given glyphs on a shared advance and a shared ink center.
+
+    Each glyph is placed so its ink box is centered both horizontally (within a
+    common advance = widest ink + 2*pad) and vertically (on the pair's mean ink
+    center). For glyphs whose ink box is symmetric about a shared feature (the
+    diminished/half-diminished rings), this makes that feature coincide exactly.
+    """
+    glyph_set = font.getGlyphSet()
+    hmtx = font["hmtx"]
+    bounds = {}
+    for gname in glyph_names:
+        bp = BoundsPen(glyph_set)
+        glyph_set[gname].draw(bp)
+        if bp.bounds is not None:
+            bounds[gname] = bp.bounds
+    if not bounds:
+        return
+    ink_width = max(x1 - x0 for x0, _, x1, _ in bounds.values())
+    ink_cy = sum((y0 + y1) / 2 for _, y0, _, y1 in bounds.values()) / len(bounds)
+    advance = round(ink_width + 2 * pad)
+    for gname, (x0, y0, x1, y1) in bounds.items():
+        left = pad + (ink_width - (x1 - x0)) / 2
+        dx = left - x0
+        dy = ink_cy - (y0 + y1) / 2
+        path = pathops.Path()
+        glyph_set[gname].draw(TransformPen(path.getPen(glyphSet=glyph_set),
+                                           (1, 0, 0, 1, dx, dy)))
+        _set_charstring(font, gname, path, advance)
+        hmtx[gname] = (advance, round(left))
 
 
 def recompute_bounds(font: TTFont) -> None:
@@ -488,10 +599,16 @@ def build_instance(rows: list[MappingRow], inst: Instance) -> None:
     rename_cff(font, inst)
     fix_metadata(font, inst)
 
-    # Geometry: embolden (bold only), normalize sidebearings, refresh bounds.
+    # Geometry: raise selected rings, weight the rings up to the delta (both
+    # weights), embolden globally (bold only), normalize sidebearings (centering
+    # the ring pair so only the slash differs), refresh bounds.
+    raise_glyphs(font, target_to_glyph, RAISE)
+    embolden_targets(font, target_to_glyph, RING_WEIGHT)
     if inst.bold:
         embolden_glyphs(font, BOLD_STRENGTH)
-    set_sidebearings(font, SIDE_PAD)
+    centered = [target_to_glyph[cp] for cp in CENTERED_PAIR if cp in target_to_glyph]
+    set_sidebearings(font, SIDE_PAD, skip=set(centered))
+    center_glyphs(font, centered, SIDE_PAD)
     recompute_bounds(font)
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
