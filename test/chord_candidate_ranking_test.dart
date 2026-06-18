@@ -687,6 +687,56 @@ void main() {
     );
   });
 
+  test('complete lydian major six-nine beats minor11 sharp-five', () {
+    final lydianMajorSixNine = _candidate(
+      quality: ChordQualityToken.major6,
+      root: 'Gb',
+      bass: 'Eb',
+      presentIntervals: const {0, 2, 4, 6, 7, 9},
+      extensions: const {ChordExtension.add9, ChordExtension.sharp11},
+      score: 7.79,
+    );
+    final alteredMinorSlash = _candidate(
+      quality: ChordQualityToken.minor7Sharp5,
+      root: 'Bb',
+      bass: 'Eb',
+      presentIntervals: const {0, 2, 3, 5, 8, 10},
+      extensions: const {ChordExtension.nine, ChordExtension.eleven},
+      score: 7.88,
+    );
+
+    _expectTieRule(
+      lydianMajorSixNine,
+      alteredMinorSlash,
+      'prefer complete major six-nine over inverted minor-seven sharp-five',
+    );
+  });
+
+  test('complete lydian major six-nine beats major13sus4', () {
+    final lydianMajorSixNine = _candidate(
+      quality: ChordQualityToken.major6,
+      root: 'Gb',
+      bass: 'Db',
+      presentIntervals: const {0, 2, 4, 6, 7, 9},
+      extensions: const {ChordExtension.add9, ChordExtension.sharp11},
+      score: 7.79,
+    );
+    final majorThirteenSus = _candidate(
+      quality: ChordQualityToken.major7sus4,
+      root: 'Db',
+      bass: 'Db',
+      presentIntervals: const {0, 2, 5, 7, 9, 11},
+      extensions: const {ChordExtension.nine, ChordExtension.thirteen},
+      score: 7.79,
+    );
+
+    _expectTieRule(
+      lydianMajorSixNine,
+      majorThirteenSus,
+      'prefer complete lydian six-nine over major13sus4',
+    );
+  });
+
   test('minor7 eleventh-bass slash beats minor7 sharp-five slash', () {
     final minor7Slash = _candidate(
       quality: ChordQualityToken.minor7,

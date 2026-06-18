@@ -646,6 +646,44 @@ void main() {
     ),
 
     golden(
+      description:
+          'lydian major six-nine beats minor-eleventh sharp-five slash',
+      expectedSymbol: 'Gb6/9#11 / Eb',
+      expectedAlternateSymbols: ['Bbm11#5 / Eb', 'Ebm7(add11,add13)'],
+      pcs: ['C', 'Db', 'Eb', 'F#', 'Ab', 'Bb'],
+      bass: 'Eb',
+      expectedRoot: 'Gb',
+      expectedBass: 'Eb',
+      expectedQuality: ChordQualityToken.major6,
+      expectedExtensions: {ChordExtension.add9, ChordExtension.sharp11},
+    ),
+
+    golden(
+      description: 'lydian major six-nine beats major-thirteenth sus4',
+      expectedSymbol: 'Gb6/9#11 / Db',
+      expectedAlternateSymbols: ['Bbm11#5 / Db', 'Dbmaj13sus4'],
+      pcs: ['C', 'Db', 'Eb', 'F#', 'Ab', 'Bb'],
+      bass: 'Db',
+      expectedRoot: 'Gb',
+      expectedBass: 'Db',
+      expectedQuality: ChordQualityToken.major6,
+      expectedExtensions: {ChordExtension.add9, ChordExtension.sharp11},
+    ),
+
+    golden(
+      description:
+          'lydian major six-nine handles third bass over minor-eleventh sharp-five',
+      expectedSymbol: 'Gb6/9#11 / Bb',
+      expectedAlternateSymbols: ['Bbm11#5', 'Cm7#5(b9,#11) / Bb'],
+      pcs: ['C', 'Db', 'Eb', 'F#', 'Ab', 'Bb'],
+      bass: 'Bb',
+      expectedRoot: 'Gb',
+      expectedBass: 'Bb',
+      expectedQuality: ChordQualityToken.major6,
+      expectedExtensions: {ChordExtension.add9, ChordExtension.sharp11},
+    ),
+
+    golden(
       description: 'root-position major-sixth sharp-eleven beats minor slash',
       expectedSymbol: 'Eb6#11',
       expectedAlternateSymbols: ['Cm7(add13) / Eb', 'Am7(b5)b9 / Eb'],
