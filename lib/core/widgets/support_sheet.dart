@@ -139,6 +139,21 @@ class _SupportSheetContent extends StatelessWidget {
                     description:
                         'to show diagnostic details for reporting a chord result.',
                   ),
+                  const SizedBox(height: 16),
+                  const _SupportSectionTitle('Reference'),
+                  const SizedBox(height: 8),
+                  _SupportActionTile(
+                    icon: Icons.menu_book_outlined,
+                    title: 'Chord Symbol Guide',
+                    subtitle: 'Notation and formatting conventions',
+                    onTapHint: 'Open the chord symbol guide in browser',
+                    onTap: () => openUrl(
+                      context,
+                      Uri.parse(
+                        'https://github.com/EarthmanMuons/whatchord/blob/main/docs/chord-symbol-formatting.md',
+                      ),
+                    ),
+                  ),
                 ],
                 const SizedBox(height: 16),
                 const _SupportSectionTitle('Get Support'),

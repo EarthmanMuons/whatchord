@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
+- Added a Chord Symbol Guide link under a new Reference section in Help &
+  Support, opening the documentation that explains WhatChord's notation and
+  formatting conventions.
 - Live MIDI identification now reads register. When a complete chord is played
   above an isolated bass note, the upper-structure slash name (such as Am7/D) is
   surfaced as the primary reading, with the close alternatives still listed.
