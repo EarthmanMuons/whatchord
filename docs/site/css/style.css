@@ -1058,6 +1058,12 @@ footer {
   color: var(--accent-light);
 }
 
+/* A link rendered as a button keeps the button's own text color rather than
+   the body link color, which would blend into the filled background. */
+.article-body a.btn-primary {
+  color: #fff;
+}
+
 .article-body code {
   padding: 2px 6px;
   font-family: var(--mono);

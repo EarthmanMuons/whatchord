@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>How to Format Chord Symbols | WhatChord</title>
+    <meta
+      name="description"
+      content="A reference for how WhatChord formats chord symbols: headline extensions, added tones, alterations, parentheses, omissions, and slash bass, with the reasoning behind each choice."
+    />
+    <meta property="og:title" content="How to Format Chord Symbols" />
+    <meta
+      property="og:description"
+      content="The conventions behind WhatChord's chord symbols: headline extensions, added tones, alterations, parentheses, and slash bass, explained for musicians."
+    />
+    <meta
+      property="og:image"
+      content="https://whatchord.earthmanmuons.com/images/homepage_social.jpg"
+    />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="WhatChord: Identify chords. Understand harmony."
+    />
+    <meta property="og:type" content="article" />
+    <meta
+      property="og:url"
+      content="https://whatchord.earthmanmuons.com/articles/chord-symbols.html"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="How to Format Chord Symbols" />
+    <meta
+      name="twitter:description"
+      content="The conventions behind WhatChord's chord symbols: headline extensions, added tones, alterations, parentheses, and slash bass, explained for musicians."
+    />
+    <meta
+      name="twitter:image"
+      content="https://whatchord.earthmanmuons.com/images/homepage_social.jpg"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="WhatChord: Identify chords. Understand harmony."
+    />
+    <link rel="icon" type="image/webp" href="../images/whatchord_logo.webp" />
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <nav class="site-nav">
+      <div class="nav-inner">
+        <a class="nav-logo" href="../">
+          <img src="../images/whatchord_logo.webp" alt="WhatChord logo" />
+          <span>What<span class="logo-bold">Chord</span></span>
+        </a>
+        <div class="nav-spacer"></div>
+        <ul class="nav-links">
+          <li><a href="chord-naming.html">For Musicians</a></li>
+          <li><a href="under-the-hood.html">Under the Hood</a></li>
+          <li><a href="choco-chord-coverage.html">Chord Data</a></li>
+        </ul>
+        <a
+          class="btn btn-ghost"
+          href="https://github.com/EarthmanMuons/whatchord"
+          ><img
+            class="github-icon"
+            src="../images/GitHub_Invertocat_White.png"
+            alt=""
+          /><span class="source-label">Source</span></a
+        >
+        <a
+          class="btn btn-primary btn-get-app"
+          href="https://apps.apple.com/us/app/whatchord-midi/id6758409779"
+          >Get the app</a
+        >
+      </div>
+    </nav>
+
+    <article>
+      <div class="article-wrap">
+        <header class="article-header">
+          <a class="article-back" href="../">← WhatChord</a>
+          <div class="article-tag">Reference</div>
+          <h1>Chord Symbol Guide</h1>
+        </header>
+
+        <div class="article-body">
+          <p>
+            A chord symbol is a concise name for a harmonic identity, not an
+            exhaustive inventory of the notes being played. It describes a
+            chord's quality and function, independent of the register, spacing,
+            and doublings of any particular voicing. The following conventions
+            favor common lead-sheet usage, readable symbols, and consistent
+            meaning wherever a symbol appears, and they are the defaults
+            WhatChord uses.
+          </p>
+
+          <h2>Symbol structure</h2>
+
+          <p>A symbol has three parts:</p>
+
+          <pre><code>root + quality and extensions + optional slash bass</code></pre>
+
+          <p>
+            Examples include <span class="chord">C</span>,
+            <span class="chord">Cm7</span>, <span class="chord">C13♭9</span>,
+            and <span class="chord">Cmaj7 / E</span>.
+          </p>
+
+          <p>
+            The root and bass are spelled in the current tonal context. The
+            middle portion is formatted from the identified chord quality and
+            extensions, so notation and spelling preferences change its
+            presentation without changing the underlying analysis.
+          </p>
+
+          <p>Two compact notation styles are available:</p>
+
+          <ul>
+            <li>
+              Textual notation uses labels such as <code>m</code>,
+              <code>maj7</code>, <code>dim</code>, <code>m7(♭5)</code>, and
+              <code>aug</code>.
+            </li>
+            <li>
+              Symbolic notation uses labels such as <code>−</code>,
+              <code>Δ7</code>, <code>°</code>, <code>ø7</code>, and
+              <code>+</code>.
+            </li>
+          </ul>
+
+          <p>The examples below use textual notation.</p>
+
+          <h2>Headline extensions</h2>
+
+          <p>
+            The highest eligible natural extension becomes the symbol's headline
+            on seventh-family chords:
+          </p>
+
+          <ul>
+            <li>
+              <span class="chord">C7</span> with a ninth becomes
+              <span class="chord">C9</span>.
+            </li>
+            <li>
+              <span class="chord">Cm7</span> with a supported eleventh becomes
+              <span class="chord">Cm11</span>.
+            </li>
+            <li>
+              <span class="chord">Cmaj7</span> with a supported thirteenth
+              becomes <span class="chord">Cmaj13</span>.
+            </li>
+            <li>
+              <span class="chord">C7sus4</span> with a supported ninth becomes
+              <span class="chord">C9sus4</span>.
+            </li>
+          </ul>
+
+          <p>
+            A headline communicates a stacked extension. It absorbs lower
+            natural extensions that the headline conventionally implies:
+          </p>
+
+          <ul>
+            <li>An <strong>11</strong> implies a ninth.</li>
+            <li>
+              A <strong>13</strong> implies a ninth, but does not require or
+              imply a sounding natural eleventh.
+            </li>
+          </ul>
+
+          <p>
+            Alterations remain explicit, so a dominant thirteenth with a flat
+            ninth and sharp eleventh is <span class="chord">C13(♭9,♯11)</span>.
+          </p>
+
+          <p>
+            Fully diminished seventh chords are an exception. Natural upper
+            tones are shown as added tones, such as
+            <span class="chord">Cdim7(add9)</span>, rather than promoted
+            headlines.
+          </p>
+
+          <h2>Extensions vs. added tones</h2>
+
+          <p>
+            A stacked extension is distinguished from a tone added outside that
+            stack:
+          </p>
+
+          <ul>
+            <li>
+              A natural ninth is <code>9</code> when supported by a seventh;
+              otherwise it is <code>add9</code>.
+            </li>
+            <li>
+              A natural eleventh is <code>11</code> when supported by a seventh
+              and some form of ninth; otherwise it is <code>add11</code>.
+            </li>
+            <li>
+              A natural thirteenth is <code>13</code> when supported by a
+              seventh and some form of ninth; otherwise it is
+              <code>add13</code>.
+            </li>
+          </ul>
+
+          <p>
+            A thirteenth requires a ninth but not a sounding eleventh, matching
+            common practice where the eleventh is usually omitted from a
+            thirteenth chord.
+          </p>
+
+          <p>
+            The supporting ninth may be natural or altered. For example, a
+            dominant chord with a sharp ninth, sharp eleventh, and natural
+            thirteenth can headline as <span class="chord">C13(♯9,♯11)</span>.
+          </p>
+
+          <p>
+            Sixth chords use the conventional <span class="chord">6/9</span>
+            spelling when an added ninth is present.
+          </p>
+
+          <h3>Why not add2 or add4?</h3>
+
+          <p>
+            Chord symbols describe harmonic function more than register. A D
+            added to a C triad serves as the ninth whether it is voiced next to
+            the root or an octave above it; the same principle makes F an added
+            eleventh. The labels <code>add9</code> and <code>add11</code> are
+            therefore used consistently instead of changing to
+            <code>add2</code> or <code>add4</code> based on voicing.
+          </p>
+
+          <p>
+            <code>sus2</code> and <code>sus4</code> remain distinct because they
+            describe replacement of the third, not merely an added tone.
+          </p>
+
+          <h2>Alterations</h2>
+
+          <p>
+            Altered upper extensions are written explicitly:
+            <code>♭9</code>, <code>♯9</code>, <code>♯11</code>, and
+            <code>♭13</code>. When a triad has an altered ninth without the
+            harmonic support for a stacked extension, the symbol can use
+            <code>add♭9</code> or <code>add♯9</code>.
+          </p>
+
+          <p>
+            Altered fifths that define the base quality stay in its conventional
+            quality label, including any parentheses, such as
+            <span class="chord">C7♭5</span>, <span class="chord">Cmaj7♯5</span>,
+            or <span class="chord">Cm7(♭5)</span>.
+          </p>
+
+          <p>
+            Modifiers are ordered consistently by musical degree: ninths,
+            elevenths, then thirteenths, with alterations placed alongside their
+            degree.
+          </p>
+
+          <h2>Parentheses</h2>
+
+          <p>Parentheses group modifiers when grouping improves readability:</p>
+
+          <ul>
+            <li>
+              Multiple modifiers are grouped:
+              <span class="chord">C7(♭9,♯11)</span>.
+            </li>
+            <li>
+              Added tones on seventh-family chords are grouped:
+              <span class="chord">C7(add13)</span>.
+            </li>
+            <li>
+              Modifiers on suspended seventh-family chords are grouped to avoid
+              ambiguous strings such as <code>7sus49</code>.
+            </li>
+            <li>
+              Diminished seventh additions are grouped:
+              <span class="chord">Cdim7(add9)</span>.
+            </li>
+          </ul>
+
+          <p>
+            A single ordinary modifier is normally inline:
+            <span class="chord">C7♭9</span>, <span class="chord">C13♯11</span>,
+            or <span class="chord">Cadd♯9</span>. Added tones on triad-like
+            chords also remain inline because <code>add</code> already makes
+            their role clear: <span class="chord">Cadd9</span>,
+            <span class="chord">Cmadd11</span>, or
+            <span class="chord">Caugadd13</span>.
+          </p>
+
+          <p>
+            Some house styles, including Berklee-derived teaching materials,
+            parenthesize every tension and alteration, such as
+            <span class="chord">C7(♯11)</span>. Here, parentheses appear only
+            when grouping or disambiguation aids reading, so a lone alteration
+            stays inline as <span class="chord">C7♯11</span>.
+          </p>
+
+          <p>
+            Textual notation separates grouped modifiers with commas. Symbolic
+            notation uses compact accidental symbols and no commas.
+          </p>
+
+          <h2>Omissions</h2>
+
+          <p>
+            Omission markers such as <code>no5</code> and <code>omit3</code> are
+            not printed.
+          </p>
+
+          <p>
+            Omissions are properties of a particular voicing, while the
+            displayed symbol names the best-supported harmonic identity.
+            Commonly omitted tones, especially perfect fifths in extended
+            chords, are accounted for during analysis without turning the result
+            into a performance instruction. Structurally weak readings that omit
+            important tones are penalized or rejected when candidates are
+            ranked.
+          </p>
+
+          <p>
+            This keeps symbols concise and avoids implying that a player should
+            omit a tone merely because it was absent from the observed voicing.
+            Note membership and analysis details provide the literal information
+            when it is needed.
+          </p>
+
+          <h2>Slash bass</h2>
+
+          <p>
+            A non-root bass is appended after a slash, as in
+            <span class="chord">Cmaj7 / E</span>. The spaces around the slash
+            distinguish bass notation from the compact
+            <span class="chord">6/9</span> quality.
+          </p>
+
+          <p>
+            The formatter removes an added-tone label when the slash bass
+            already supplies that same tone. For example, it prefers
+            <span class="chord">A♭7 / D♭</span> over the redundant
+            <span class="chord">A♭7(add11) / D♭</span>. Similarly, a seventh
+            chord whose only ninth is supplied by the slash bass is shown as
+            <span class="chord">C7 / D</span>, not
+            <span class="chord">C9 / D</span>.
+          </p>
+
+          <h2>Analysis vs. Explore</h2>
+
+          <p>
+            Analysis and Explore are WhatChord's two modes, and the online
+            <a href="/try">try page</a> mirrors Analysis. Analysis names the
+            observed notes and ranks plausible identities. Explore builds clear,
+            canonical examples of a selected symbol. They share the same symbol
+            formatter, but their note-selection goals differ:
+          </p>
+
+          <ul>
+            <li>
+              Analysis may recognize a conventional chord even when an omittable
+              tone is absent.
+            </li>
+            <li>
+              Explore supplies the implied members of a headline extension so
+              its example clearly demonstrates the selected symbol.
+            </li>
+          </ul>
+
+          <h2>References</h2>
+
+          <p>
+            These formatting decisions draw on both historical and modern
+            practice:
+          </p>
+
+          <ul>
+            <li>
+              Carl Brandt and Clinton Roemer,
+              <a href="https://openlibrary.org/isbn/9780961268428"
+                ><em>Standardized Chord Symbol Notation</em></a
+              >
+              (1976), an early effort to standardize symbols and remove
+              ambiguity for sight-reading studio musicians.
+            </li>
+            <li>
+              Chuck Sher and others,
+              <a href="https://www.shermusic.com/new/0961470143.shtml"
+                ><em>The New Real Book</em></a
+              >
+              (Sher Music Co., 1988), representative of the modern jazz
+              lead-sheet consensus.
+            </li>
+            <li>
+              Mark Levine,
+              <a href="https://www.shermusic.com/1883217040.php"
+                ><em>The Jazz Theory Book</em></a
+              >
+              (Sher Music Co., 1995), a modern pedagogical reference for the
+              reasoning behind chord naming, extensions, and alterations.
+            </li>
+          </ul>
+
+          <p>
+            Where these references differ, WhatChord favors the modern consensus
+            and its own readability priorities while keeping the clarity
+            principles that both share.
+          </p>
+
+          <div class="article-cta">
+            <h3>See these symbols on real chords.</h3>
+            <p>
+              Enter any notes and WhatChord identifies the chord and formats its
+              symbol using these conventions, right in your browser.
+            </p>
+            <a class="btn btn-primary" href="/try">Try it in your browser →</a>
+          </div>
+        </div>
+        <!-- /article-body -->
+      </div>
+      <!-- /article-wrap -->
+    </article>
+
+    <footer>
+      <div class="footer-inner">
+        <div class="footer-left">
+          <span class="footer-copy">
+            © 2025–2026
+            <a href="mailto:support@earthmanmuons.com">Aaron Bull Schaefer</a>
+            and contributors <span class="footer-separator">·</span>
+            <a
+              class="footer-license"
+              href="https://github.com/EarthmanMuons/whatchord/blob/main/LICENSE"
+              >0BSD License</a
+            >
+          </span>
+        </div>
+        <ul class="footer-links">
+          <li>
+            <a href="https://github.com/EarthmanMuons/whatchord">GitHub</a>
+          </li>
+          <li>
+            <a
+              href="https://github.com/EarthmanMuons/whatchord/blob/main/PRIVACY.md"
+              >Privacy</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://github.com/EarthmanMuons/whatchord/blob/main/SUPPORT.md"
+              >Support</a
+            >
+          </li>
+        </ul>
+      </div>
+    </footer>
+
+    <dialog id="android-dialog">
+      <div class="dialog-content">
+        <h3>Join the Android beta</h3>
+        <p>
+          WhatChord for Android is currently in closed testing. Email
+          <a
+            href="mailto:support@earthmanmuons.com?subject=WhatChord%20Android%20Beta"
+            >support@earthmanmuons.com</a
+          >
+          with your Gmail address and we'll add you to the tester pool.
+        </p>
+        <button class="btn btn-primary" data-close-android-dialog>
+          Got it
+        </button>
+      </div>
+    </dialog>
+    <script src="../js/site.js"></script>
+  </body>
+</html>

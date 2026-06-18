@@ -150,7 +150,7 @@ class _SupportSheetContent extends StatelessWidget {
                     onTap: () => openUrl(
                       context,
                       Uri.parse(
-                        'https://github.com/EarthmanMuons/whatchord/blob/main/docs/chord-symbol-formatting.md',
+                        'https://whatchord.earthmanmuons.com/articles/chord-symbols.html',
                       ),
                     ),
                   ),
