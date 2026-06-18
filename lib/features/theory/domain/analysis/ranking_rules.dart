@@ -4,6 +4,7 @@ import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
 import '../models/scale_degree.dart';
 import '../models/tonality.dart';
+import '../services/chord_quality_intervals.dart';
 import '../services/note_spelling.dart';
 import '../services/pitch_class.dart';
 import 'candidate_features.dart';
@@ -136,7 +137,10 @@ int? _preferConventionalSplitNineTritoneDominant(
       !(bIsSplitNine && aIsTritoneColor)) {
     return null;
   }
-  if (intervalAboveRoot(a.identity.rootPc, b.identity.rootPc) != 6) return null;
+  if (intervalAboveRoot(a.identity.rootPc, b.identity.rootPc) !=
+      tritoneInterval) {
+    return null;
+  }
   if (fa.bassRoleRank == fb.bassRoleRank) return null;
   if ((a.score - b.score).abs() > 0.30) return null;
 
@@ -748,7 +752,8 @@ int? _preferSharpFiveSharpElevenDominantSpelling(
 
   final preferred = aIsPreferred ? a : b;
   if (preferred.identity.rootPc != other.identity.rootPc) return null;
-  if ((preferred.identity.presentIntervalsMask & (1 << 7)) != 0) {
+  if ((preferred.identity.presentIntervalsMask & (1 << perfectFifthInterval)) !=
+      0) {
     return null;
   }
 
@@ -921,10 +926,10 @@ bool _isStableExtendedDom7(ChordIdentity id, CandidateFeatures features) {
   if (!id.extensions.contains(ChordExtension.sharp11)) return false;
 
   final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
-  return bassInterval == 0 ||
-      bassInterval == 4 ||
-      bassInterval == 7 ||
-      bassInterval == 10;
+  return bassInterval == chordRootInterval ||
+      bassInterval == majorThirdInterval ||
+      bassInterval == perfectFifthInterval ||
+      bassInterval == minorSeventhInterval;
 }
 
 /// Prefers a complete sharp-nine dominant thirteenth over a heavily colored
@@ -1045,8 +1050,10 @@ bool _isAlteredSharpFiveDominant(ChordIdentity id) {
 }
 
 bool _alteredSharpFiveHasDoubleAccidental(ChordIdentity id, Tonality tonality) {
-  final sharpFivePc = (id.rootPc + 8) % 12;
-  if ((id.presentIntervalsMask & (1 << 8)) == 0) return false;
+  final sharpFivePc = (id.rootPc + augmentedFifthInterval) % 12;
+  if ((id.presentIntervalsMask & (1 << augmentedFifthInterval)) == 0) {
+    return false;
+  }
 
   final rootName = spellChordRoot(id, tonality: tonality);
   final sharpFiveName = spellPitchClass(
