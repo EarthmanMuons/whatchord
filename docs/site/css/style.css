@@ -49,6 +49,7 @@
   --r-xl: 24px;
   --max-w: 1120px;
   --article-w: 760px;
+  --sticky-anchor-offset: 56px;
   --font:
     "WhatChord Symbols", -apple-system, blinkmacsystemfont, "Segoe UI",
     system-ui, sans-serif;
@@ -993,6 +994,7 @@ footer {
 }
 
 .article-body h2 {
+  scroll-margin-top: var(--sticky-anchor-offset);
   padding-top: 32px;
   margin: 32px 0 14px;
   font-size: 1.55rem;
