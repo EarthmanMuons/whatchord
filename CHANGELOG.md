@@ -57,6 +57,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved Lydian-dominant flat-thirteen identification, favoring complete
   9#11b13 dominant stacks such as F#9(#11,b13) over remote altered-fifth
   spellings.
+- Improved altered flat-nine dominant flat-thirteen identification, favoring
+  complete F#7(b9,#11,b13)-style stacks over remote minor-thirteenth altered
+  fifth spellings.
 - Improved identification of doubled-note voicings, preventing incomplete
   fifthless sixth chords from outranking complete inverted minor or diminished
   chords.

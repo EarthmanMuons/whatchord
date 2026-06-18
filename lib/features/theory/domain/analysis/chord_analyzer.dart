@@ -714,16 +714,23 @@ abstract final class ChordAnalyzer {
     required int relMask,
     required int bassInterval,
   }) {
-    // Lydian-dominant stacks are commonly voiced as dominant chords with 9/#11
-    // color. Without this small structural bonus, the scorer overvalues remote
-    // altered-fifth slash readings that happen to reinterpret one color tone as
-    // a required chord tone.
+    // Lydian and altered dominant stacks are commonly voiced as dominant chords
+    // with 9/#11 or b9/#11/b13 color. Without this structural bonus, the scorer
+    // overvalues remote altered-fifth slash readings that happen to reinterpret
+    // one color tone as a required chord tone.
     if (quality != ChordQualityToken.dominant7) return 0;
-    if (!extensions.contains(ChordExtension.nine)) return 0;
     if (!extensions.contains(ChordExtension.sharp11)) return 0;
 
+    final hasNaturalNinth = extensions.contains(ChordExtension.nine);
+    final hasFlatNinth = extensions.contains(ChordExtension.flat9);
     final hasNaturalThirteenth = extensions.contains(ChordExtension.thirteen);
     final hasFlatThirteenth = extensions.contains(ChordExtension.flat13);
+    if (hasFlatNinth && hasFlatThirteenth) {
+      final hasRealFifth = (relMask & (1 << perfectFifthInterval)) != 0;
+      return hasRealFifth ? _domStackFull : 0;
+    }
+
+    if (!hasNaturalNinth) return 0;
     if (!hasNaturalThirteenth && !hasFlatThirteenth) {
       return bassInterval == 0 ? _domStackPartial : 0;
     }
