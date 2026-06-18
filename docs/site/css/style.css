@@ -1040,6 +1040,16 @@ footer {
   line-height: 1.75;
 }
 
+/* Give list markers some presence so long, dense lists (e.g. the near-tie
+   tie-breaker rules) read as scannable items rather than a wall of text. A
+   lighter gray than the muted body text, avoiding the blues used for chords and
+   keyboard. Falls back to the default marker where ::marker is unsupported. */
+.article-body li::marker {
+  font-weight: 600;
+  /* Between --text-2 (muted body) and --text (near-white): present but soft. */
+  color: #bfbfd0;
+}
+
 .article-body li strong {
   color: var(--text);
 }
