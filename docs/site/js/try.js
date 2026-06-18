@@ -377,7 +377,7 @@
     main.className = "try-cand-main";
     var symbol = document.createElement("div");
     symbol.className = "try-symbol";
-    symbol.textContent = c.symbol;
+    appendSymbol(symbol, c.symbol);
     var academicName = document.createElement("div");
     academicName.className = "try-academic-name";
     academicName.textContent = c.academicName;
@@ -408,6 +408,26 @@
     row.appendChild(tag);
     row.appendChild(score);
     return row;
+  }
+
+  // Matches the app's identity card: the root note is emphasized (bold, larger)
+  // while the quality/extensions and any slash bass stay lighter and smaller.
+  // The root is always a letter A-G plus glyph accidentals; no quality token
+  // begins with one of those accidentals right after the root, so this split is
+  // unambiguous for the international note names the engine emits here.
+  var ROOT_RE = /^[A-G][♯♭\u{1D12A}\u{1D12B}]*/u;
+  function appendSymbol(container, text) {
+    var m = ROOT_RE.exec(text);
+    if (!m || !m[0]) {
+      container.textContent = text;
+      return;
+    }
+    var root = document.createElement("span");
+    root.className = "try-symbol-root";
+    root.textContent = m[0];
+    container.appendChild(root);
+    var rest = text.slice(m[0].length);
+    if (rest) container.appendChild(document.createTextNode(rest));
   }
 
   function appendNoteGroup(container, label, value) {

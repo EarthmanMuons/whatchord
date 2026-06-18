@@ -288,11 +288,18 @@ select.try-select:focus {
   min-width: 0;
 }
 
+/* Mirrors the app's identity card: a prominent root with lighter, smaller
+   quality/extensions (and slash bass) trailing it. */
 .try-symbol {
-  font-size: 1.3rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 400;
   color: var(--text);
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
+}
+
+.try-symbol-root {
+  font-size: 1.45rem;
+  font-weight: 700;
 }
 
 .try-academic-name {
