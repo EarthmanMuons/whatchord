@@ -6,6 +6,7 @@ export 'models/app_palette.dart';
 export 'models/selection_colors.dart';
 
 export 'providers/app_activity_notifier.dart';
+export 'providers/app_navigator_key_provider.dart';
 export 'providers/app_palette_notifier.dart';
 export 'providers/app_resume_wakeup_provider.dart';
 export 'providers/app_theme_mode_notifier.dart';
