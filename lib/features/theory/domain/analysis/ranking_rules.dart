@@ -254,7 +254,7 @@ int? _preferCompleteAddNineInversionOverMinor7Sharp5(
   ChordCandidate b,
   CandidateFeatures fa,
   CandidateFeatures fb,
-  Tonality _,
+  Tonality tonality,
 ) {
   final aIsPreferred = _isCompleteAddNineTriadInversion(a.identity, fa);
   final bIsPreferred = _isCompleteAddNineTriadInversion(b.identity, fb);
@@ -265,6 +265,9 @@ int? _preferCompleteAddNineInversionOverMinor7Sharp5(
   if (other.identity.quality != ChordQualityToken.minor7Sharp5) return null;
   if (!fOther.isRootPosition) return null;
   if (other.identity.extensions.isNotEmpty) return null;
+  if (!_hasAwkwardMinor7SharpFiveSpelling(other.identity, tonality)) {
+    return null;
+  }
 
   return aIsPreferred ? -1 : 1;
 }
@@ -284,6 +287,27 @@ bool _isCompleteAddNineTriadInversion(
   final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
   final expectedThird = id.quality == ChordQualityToken.major ? 4 : 3;
   return bassInterval == expectedThird || bassInterval == 7;
+}
+
+bool _hasAwkwardMinor7SharpFiveSpelling(ChordIdentity id, Tonality tonality) {
+  if (id.quality != ChordQualityToken.minor7Sharp5) return false;
+  final role = id.toneRolesByInterval[augmentedFifthInterval];
+  if (role == null) return false;
+
+  final rootName = spellChordRoot(id, tonality: tonality);
+  final sharpFiveName = spellPitchClass(
+    id.rootPc + augmentedFifthInterval,
+    tonality: tonality,
+    chordRootName: rootName,
+    role: role,
+  );
+  final ascii = normalizeNoteNameToAscii(sharpFiveName);
+  return ascii == 'B#' ||
+      ascii == 'Cb' ||
+      ascii == 'E#' ||
+      ascii == 'Fb' ||
+      ascii.contains('x') ||
+      ascii.contains('bb');
 }
 
 /// Near-tie tie-breakers, applied in priority order only when two candidates

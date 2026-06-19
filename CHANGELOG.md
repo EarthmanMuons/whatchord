@@ -232,6 +232,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   readings of the same voicing.
 - Prefer complete add9 inversions such as Cadd9/E over rarer minor-7-sharp-5
   respellings such as Em7#5 when the ordinary triad accounts for every pitch.
+- Demote plain minor-7-sharp-5 readings whose defining sharp fifth requires
+  awkward wrap or double-accidental spelling.
 - Prefer root-position 6/9 names such as C6/9 over dominant-7-sus-slash readings
   like D7sus2/C for the same voicing, matching the conventional musician name.
 - Prefer altered dominant seventh names such as F7(#9,b13)/Ab over competing
