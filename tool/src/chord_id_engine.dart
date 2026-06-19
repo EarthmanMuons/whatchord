@@ -29,9 +29,8 @@ enum CandidateClass {
   /// The engine's chosen interpretation (rank 1).
   chosen,
 
-  /// Within [ChordCandidateRanking.nearTieWindow] of the chosen score; a
-  /// musically plausible alternative the app would surface.
-  nearTie,
+  /// Musically plausible alternative the app would surface.
+  possible,
 
   /// Ranked but well below the chosen score; shown for transparency.
   unlikely,
@@ -40,7 +39,7 @@ enum CandidateClass {
 extension CandidateClassLabel on CandidateClass {
   String get wireName => switch (this) {
     CandidateClass.chosen => 'chosen',
-    CandidateClass.nearTie => 'near-tie',
+    CandidateClass.possible => 'possible',
     CandidateClass.unlikely => 'unlikely',
   };
 }
@@ -242,14 +241,16 @@ ChordIdResult identifyChord(
     );
   }
 
-  final bestScore = ranked.first.score;
+  final chosenScore = ranked.first.score;
+  final possibleAlternativeCount =
+      ChordCandidateRanking.nearTieAlternativeCount(ranked);
   final candidates = <ChordIdCandidate>[];
   for (var i = 0; i < ranked.length; i++) {
     final c = ranked[i];
     final classification = i == 0
         ? CandidateClass.chosen
-        : (ChordCandidateRanking.isNearTie(bestScore, c.score)
-              ? CandidateClass.nearTie
+        : (i <= possibleAlternativeCount
+              ? CandidateClass.possible
               : CandidateClass.unlikely);
 
     candidates.add(
@@ -273,7 +274,7 @@ ChordIdResult identifyChord(
           tonality: tonality,
         ),
         score: c.score,
-        deltaBest: c.score - bestScore,
+        deltaBest: c.score - chosenScore,
         classification: classification,
       ),
     );

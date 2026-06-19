@@ -363,7 +363,7 @@
 
   var TAG_LABEL = {
     chosen: "Chosen",
-    "near-tie": "Possible",
+    possible: "Possible",
     unlikely: "Unlikely",
   };
 

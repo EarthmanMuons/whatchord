@@ -13,7 +13,7 @@ export 'presentation/services/harte_chord_formatter.dart';
 export 'presentation/services/note_display_formatter.dart';
 export 'presentation/services/note_long_form_formatter.dart';
 
-export 'presentation/widgets/near_tie_chord_candidates_list.dart';
+export 'presentation/widgets/alternative_chord_candidates_list.dart';
 export 'presentation/widgets/scale_degree_roman_text.dart';
 export 'presentation/widgets/scale_degrees.dart';
 export 'presentation/widgets/tonality_bar_view.dart';

@@ -24,7 +24,9 @@ final bestChordCandidateProvider = Provider<ChordCandidate?>((ref) {
   return candidates.isNotEmpty ? candidates.first : null;
 });
 
-final nearTieChordCandidatesProvider = Provider<List<ChordCandidate>>((ref) {
+final alternativeChordCandidatesProvider = Provider<List<ChordCandidate>>((
+  ref,
+) {
   final candidates = ref.watch(chordCandidatesProvider);
   return ChordCandidateRanking.nearTieAlternatives(candidates);
 });
