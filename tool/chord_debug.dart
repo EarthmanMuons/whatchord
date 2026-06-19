@@ -191,6 +191,9 @@ void main(List<String> args) {
   }
 
   final bestScore = results.first.candidate.score;
+  final nearTieAlternativeCount = ChordCandidateRanking.nearTieAlternativeCount(
+    [for (final result in results) result.candidate],
+  );
 
   for (var i = 0; i < results.length; i++) {
     final r = results[i];
@@ -207,7 +210,7 @@ void main(List<String> args) {
 
     final score = c.score;
     final deltaBest = score - bestScore;
-    final nearTie = i != 0 && ChordCandidateRanking.isNearTie(bestScore, score);
+    final nearTie = i != 0 && i <= nearTieAlternativeCount;
 
     final rule = _formatRankingRule(r.vsPrevious?.decidedByRule);
 
@@ -218,7 +221,7 @@ void main(List<String> args) {
     final deltaStr = i == 0
         ? ''
         : '  Δ${_fmtSigned(deltaBest, width: 6, decimals: 2)}';
-    final tieStr = nearTie ? ' ~tie with #1' : '';
+    final tieStr = nearTie ? ' ~tie' : '';
     final ruleStr = compact && i != 0 && rule.isNotEmpty
         ? '  (vs prev: $rule)'
         : '';
@@ -707,6 +710,9 @@ Map<String, Object?> chordDebugJsonPayload({
   NoteParse? parsed,
 }) {
   final bestScore = results.isEmpty ? null : results.first.candidate.score;
+  final nearTieAlternativeCount = ChordCandidateRanking.nearTieAlternativeCount(
+    [for (final result in results) result.candidate],
+  );
   return <String, Object?>{
     'input': <String, Object?>{
       'noteCount': input.noteCount,
@@ -727,6 +733,7 @@ Map<String, Object?> chordDebugJsonPayload({
           rank: i + 1,
           result: results[i],
           bestScore: bestScore,
+          isNearTieAlternative: i != 0 && i <= nearTieAlternativeCount,
           context: context,
           notation: notation,
           spellingMode: spellingMode,
@@ -766,6 +773,7 @@ Map<String, Object?> _candidateJson({
   required int rank,
   required RankedCandidateDebug result,
   required double? bestScore,
+  required bool isNearTieAlternative,
   required AnalysisContext context,
   required ChordNotationStyle notation,
   required ChordDebugSpellingMode spellingMode,
@@ -801,10 +809,7 @@ Map<String, Object?> _candidateJson({
     'harte': HarteChordFormatter.format(id, rootName: rootName),
     'score': c.score,
     'deltaBest': deltaBest,
-    'nearTie':
-        bestScore != null &&
-        rank != 1 &&
-        ChordCandidateRanking.isNearTie(bestScore, c.score),
+    'nearTie': isNearTieAlternative,
     'rootPc': id.rootPc,
     'rootName': rootName,
     'bassPc': id.bassPc,
