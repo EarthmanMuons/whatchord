@@ -431,6 +431,10 @@
     "label": "oracle-limitation",
     "note": "G♭6/9♯11 is preferred because the notes are degrees 1-6 of G♭ Lydian over a root-position G♭ major triad, the canonical major six-nine sharp-eleven sound. Tonal agrees on the F♯/G♭ 6/9♯11 identity. Music21's A♭11/G♭ stacks thirds off the flat seventh into a complete dominant eleventh whose major-third-against-eleventh clash is exactly the dissonance the G♭ Lydian label avoids."
   },
+  "0-1-3-6-8-10_b8": {
+    "label": "oracle-limitation",
+    "note": "A♭11 is preferred because A♭ is the bass/root and the voicing supplies a complete dominant-eleventh stack A♭-C-E♭-G♭-B♭-D♭. Music21 agrees. Tonal's G♭6/9♯11/A♭ re-roots the same collection as Lydian major-six-nine color, but it turns the bass into the ninth; ChoCo also favors the dominant-eleventh vocabulary here, with 388 dominant7|nine,eleven observations versus 5 exact major6|sharp11,add9 observations."
+  },
   "0-1-3-6-8-10_b10": {
     "label": "genuine-ambiguity",
     "note": "G♭6/9♯11/B♭ is preferred because B♭ is the major third of the complete G♭ Lydian major-six-nine sonority. Tonal lists both B♭m11(no5) and F♯6/9♯11/B♭, while music21 chooses an A♭11/B♭ re-rooting. The B♭ bass makes the minor-eleventh view tempting, but the G♭ label names all six tones as a coherent major-family color without treating G♭/F♯ as an altered minor fifth."
