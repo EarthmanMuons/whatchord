@@ -48,6 +48,14 @@ class PianoKeyboard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final palette = buildPianoPalette(cs);
     final resolvedHeight = height ?? _defaultHeight;
+    final outOfScaleAccent = cs.outline;
+    final outOfScalePressedWhiteKey = Color.alphaBlend(
+      outOfScaleAccent.withValues(
+        alpha: cs.brightness == Brightness.dark ? 0.30 : 0.16,
+      ),
+      palette.whiteKey,
+    );
+    final outOfScalePressedBlackKey = outOfScalePressedWhiteKey;
 
     final whiteLum = palette.whiteKey.computeLuminance();
 
@@ -76,6 +84,8 @@ class PianoKeyboard extends StatelessWidget {
           whiteKeyColor: palette.whiteKey,
           pressedWhiteKeyColor: palette.pressedWhiteKey,
           pressedBlackKeyColor: palette.pressedBlackKey,
+          outOfScalePressedWhiteKeyColor: outOfScalePressedWhiteKey,
+          outOfScalePressedBlackKeyColor: outOfScalePressedBlackKey,
           whiteKeyBorderColor: palette.border,
           pressedWhiteKeyBorderColor: palette.pressedWhiteKeyBorder,
           pressedWhiteKeySeparatorColor: palette.pressedWhiteKeySeparator,
