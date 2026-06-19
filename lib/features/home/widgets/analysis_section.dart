@@ -81,13 +81,14 @@ class AnalysisSection extends ConsumerWidget {
             config.analysisTopPadMax,
           );
           // As the keyboard grows the lane shrinks; spend the top padding first
-          // (raising the card) so the near-tie list keeps its reserved room,
+          // (raising the card) so the alternative list keeps its
+          // reserved room,
           // rather than covering the list while the card sits at its default
           // position. Once the padding bottoms out, the list yields.
           final topPad = isLandscape
               ? 0.0
               : clampDouble(
-                  laneH - cardH - listGap - kPortraitNearTieListReserve,
+                  laneH - cardH - listGap - kPortraitAlternativeListReserve,
                   config.analysisTopPadMin,
                   baseTopPad,
                 );
@@ -136,13 +137,13 @@ class AnalysisSection extends ConsumerWidget {
                                 ),
                                 child: KeyedSubtree(
                                   key: tourKeys.alternatives,
-                                  child: NearTieChordCandidatesList(
+                                  child: AlternativeChordCandidatesList(
                                     enabled: true,
                                     alignment: Alignment.topCenter,
                                     textAlign: TextAlign.center,
                                     gap: 8,
                                     textScaleMultiplier:
-                                        config.nearTieTextScale,
+                                        config.alternativeTextScale,
                                     tappableWhenEmpty: identity is ChordDisplay,
                                     onTap: () => unawaited(
                                       showChordRankingDetailsSheet(

@@ -342,7 +342,7 @@ select.try-select:focus {
   border: 1px solid rgb(58 190 112 / 30%);
 }
 
-.try-tag.tag-near-tie {
+.try-tag.tag-possible {
   color: #e0b873;
   background: rgb(224 184 115 / 10%);
   border: 1px solid rgb(224 184 115 / 28%);

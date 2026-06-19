@@ -9,8 +9,8 @@ import '../services/chord_long_form_formatter.dart';
 import '../services/chord_symbol_builder.dart';
 import '../services/note_display_formatter.dart';
 
-class NearTieChordCandidatesList extends ConsumerStatefulWidget {
-  const NearTieChordCandidatesList({
+class AlternativeChordCandidatesList extends ConsumerStatefulWidget {
+  const AlternativeChordCandidatesList({
     super.key,
     this.enabled = true,
     this.axis = Axis.vertical,
@@ -38,17 +38,17 @@ class NearTieChordCandidatesList extends ConsumerStatefulWidget {
   final bool showScrollbarWhenOverflow;
 
   /// When true, the tap gesture and a minimum-height hit area remain active
-  /// even when there are no near-tie candidates to display.
+  /// even when there are no alternatives to display.
   final bool tappableWhenEmpty;
   final VoidCallback? onTap;
 
   @override
-  ConsumerState<NearTieChordCandidatesList> createState() =>
-      _NearTieChordCandidatesListState();
+  ConsumerState<AlternativeChordCandidatesList> createState() =>
+      _AlternativeChordCandidatesListState();
 }
 
-class _NearTieChordCandidatesListState
-    extends ConsumerState<NearTieChordCandidatesList> {
+class _AlternativeChordCandidatesListState
+    extends ConsumerState<AlternativeChordCandidatesList> {
   late final ScrollController _scrollController = ScrollController();
 
   @override
@@ -67,7 +67,7 @@ class _NearTieChordCandidatesListState
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final alternatives = widget.enabled
-        ? ref.watch(nearTieChordCandidatesProvider)
+        ? ref.watch(alternativeChordCandidatesProvider)
         : const [];
 
     final tonality = ref.watch(

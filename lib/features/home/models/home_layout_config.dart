@@ -17,8 +17,8 @@ const _adaptiveMinWhiteKeyWidth = 18.0;
 
 const _mediumIdentityCardTextScale = 1.2;
 const _expandedIdentityTextScale = 1.6;
-const _mediumNearTieTextScale = 1.15;
-const _expandedNearTieTextScale = 1.3;
+const _mediumAlternativeTextScale = 1.15;
+const _expandedAlternativeTextScale = 1.3;
 const _mediumInputDisplayVisualScale = 1.15;
 const _expandedInputDisplayVisualScale = 1.28;
 const _mediumTonalityButtonTextScale = 1.08;
@@ -69,7 +69,7 @@ class HomeLayoutConfig {
   final double analysisTopPadMax;
   final double analysisListGap;
   final double identityCardTextScale;
-  final double nearTieTextScale;
+  final double alternativeTextScale;
   final double inputDisplayVisualScale;
   final double tonalityButtonTextScale;
   final double scaleDegreesTextScale;
@@ -94,7 +94,7 @@ class HomeLayoutConfig {
     required this.analysisTopPadMax,
     required this.analysisListGap,
     required this.identityCardTextScale,
-    required this.nearTieTextScale,
+    required this.alternativeTextScale,
     required this.inputDisplayVisualScale,
     required this.tonalityButtonTextScale,
     required this.scaleDegreesTextScale,
@@ -133,10 +133,10 @@ double maxKeyboardHeightForLayout({
   return availableHeight - reservedChrome - resolvedMinContent;
 }
 
-/// Room reserved below the identity card (portrait) for the near-tie
-/// alternatives list. The card rises into its top padding as the keyboard grows
+/// Room reserved below the identity card (portrait) for the alternative list.
+/// The card rises into its top padding as the keyboard grows
 /// so this stays visible; once the top padding bottoms out, the list yields.
-const double kPortraitNearTieListReserve = 60.0;
+const double kPortraitAlternativeListReserve = 60.0;
 
 /// Height of the separator band drawn above the keyboard (the resize splitter
 /// sits on it just above the 1px felt line, reading as one splitter line). Layout
@@ -144,14 +144,15 @@ const double kPortraitNearTieListReserve = 60.0;
 const double kPianoSeparatorLineHeight = 7.0;
 
 /// Minimum portrait analysis-lane height that keeps the identity card fully
-/// visible with its smallest top padding and room for the near-tie list, so an
-/// enlarged keyboard can never squeeze the card into the input chips below it.
+/// visible with its smallest top padding and room for the alternatives
+/// list, so an enlarged keyboard can never squeeze the card into the input
+/// chips below it.
 double portraitAnalysisMinContent(HomeLayoutConfig config) {
   return config.analysisPadding.vertical +
       config.analysisCardHeight +
       config.analysisTopPadMin +
       config.analysisListGap +
-      kPortraitNearTieListReserve;
+      kPortraitAlternativeListReserve;
 }
 
 HomeSizeClass homeSizeClassForSize(Size size) {
@@ -231,7 +232,7 @@ HomeLayoutConfig resolveHomeLayoutConfig(BoxConstraints constraints) {
     analysisTopPadMax: base.analysisTopPadMax,
     analysisListGap: base.analysisListGap,
     identityCardTextScale: base.identityCardTextScale,
-    nearTieTextScale: base.nearTieTextScale,
+    alternativeTextScale: base.alternativeTextScale,
     inputDisplayVisualScale: base.inputDisplayVisualScale,
     tonalityButtonTextScale: base.tonalityButtonTextScale,
     scaleDegreesTextScale: base.scaleDegreesTextScale,
@@ -272,7 +273,7 @@ const portraitCompactLayoutConfig = HomeLayoutConfig(
   analysisTopPadMax: 82,
   analysisListGap: 18,
   identityCardTextScale: 1.0,
-  nearTieTextScale: 1.0,
+  alternativeTextScale: 1.0,
   inputDisplayVisualScale: 1.0,
   tonalityButtonTextScale: 1.0,
   scaleDegreesTextScale: 1.0,
@@ -296,7 +297,7 @@ const portraitMediumLayoutConfig = HomeLayoutConfig(
   analysisTopPadMax: 92,
   analysisListGap: 20,
   identityCardTextScale: _mediumIdentityCardTextScale,
-  nearTieTextScale: _mediumNearTieTextScale,
+  alternativeTextScale: _mediumAlternativeTextScale,
   inputDisplayVisualScale: _mediumInputDisplayVisualScale,
   tonalityButtonTextScale: _mediumTonalityButtonTextScale,
   scaleDegreesTextScale: _mediumScaleDegreesTextScale,
@@ -320,7 +321,7 @@ const portraitExpandedLayoutConfig = HomeLayoutConfig(
   analysisTopPadMax: 108,
   analysisListGap: 24,
   identityCardTextScale: 1.55,
-  nearTieTextScale: _expandedNearTieTextScale,
+  alternativeTextScale: _expandedAlternativeTextScale,
   inputDisplayVisualScale: _expandedInputDisplayVisualScale,
   tonalityButtonTextScale: _expandedTonalityButtonTextScale,
   scaleDegreesTextScale: _expandedScaleDegreesTextScale,
@@ -344,7 +345,7 @@ const landscapeCompactLayoutConfig = HomeLayoutConfig(
   analysisTopPadMax: 0,
   analysisListGap: 18,
   identityCardTextScale: 1.0,
-  nearTieTextScale: 1.0,
+  alternativeTextScale: 1.0,
   inputDisplayVisualScale: 1.0,
   tonalityButtonTextScale: 1.0,
   scaleDegreesTextScale: 1.0,
@@ -369,7 +370,7 @@ const landscapeMediumLayoutConfig = HomeLayoutConfig(
   analysisTopPadMax: 0,
   analysisListGap: 20,
   identityCardTextScale: _mediumIdentityCardTextScale,
-  nearTieTextScale: _mediumNearTieTextScale,
+  alternativeTextScale: _mediumAlternativeTextScale,
   inputDisplayVisualScale: _mediumInputDisplayVisualScale,
   tonalityButtonTextScale: _mediumTonalityButtonTextScale,
   scaleDegreesTextScale: _mediumScaleDegreesTextScale,
@@ -393,7 +394,7 @@ const landscapeExpandedLayoutConfig = HomeLayoutConfig(
   analysisTopPadMax: 0,
   analysisListGap: 24,
   identityCardTextScale: _expandedIdentityTextScale,
-  nearTieTextScale: _expandedNearTieTextScale,
+  alternativeTextScale: _expandedAlternativeTextScale,
   inputDisplayVisualScale: _expandedInputDisplayVisualScale,
   tonalityButtonTextScale: _expandedTonalityButtonTextScale,
   scaleDegreesTextScale: _expandedScaleDegreesTextScale,

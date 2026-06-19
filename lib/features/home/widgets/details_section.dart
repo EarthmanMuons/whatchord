@@ -41,13 +41,13 @@ class DetailsSection extends ConsumerWidget {
                 padding: const EdgeInsets.only(top: 8),
                 child: KeyedSubtree(
                   key: tourKeys.alternatives,
-                  child: NearTieChordCandidatesList(
+                  child: AlternativeChordCandidatesList(
                     enabled: true,
                     alignment: Alignment.topLeft,
                     textAlign: TextAlign.left,
                     gap: 6,
                     padding: EdgeInsets.only(bottom: listBottomPad),
-                    textScaleMultiplier: config.nearTieTextScale,
+                    textScaleMultiplier: config.alternativeTextScale,
                     showScrollbarWhenOverflow: true,
                     tappableWhenEmpty: identity is ChordDisplay,
                     onTap: () => unawaited(

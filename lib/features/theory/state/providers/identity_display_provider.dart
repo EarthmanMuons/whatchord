@@ -108,7 +108,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         final id = presentation.identity;
         final notation = ref.watch(chordNotationStyleProvider);
         final alternatives = ref
-            .watch(nearTieChordCandidatesProvider)
+            .watch(alternativeChordCandidatesProvider)
             .map(
               (c) => chordSymbolDisplayLabel(
                 ChordSymbolBuilder.fromIdentity(
