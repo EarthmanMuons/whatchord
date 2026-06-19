@@ -133,20 +133,105 @@
             presentation without changing the underlying analysis.
           </p>
 
-          <p>Two compact notation styles are available:</p>
+          <p>
+            Two compact notation styles are available. Before extensions and
+            alterations are added, chord symbols start from these base quality
+            labels:
+          </p>
 
-          <ul>
-            <li>
-              Textual notation uses labels such as <code>m</code>,
-              <code>maj7</code>, <code>dim</code>, <code>m7(♭5)</code>, and
-              <code>aug</code>.
-            </li>
-            <li>
-              Symbolic notation uses labels such as <code>−</code>,
-              <code>Δ7</code>, <code>°</code>, <code>ø7</code>, and
-              <code>+</code>.
-            </li>
-          </ul>
+          <table class="score-table">
+            <thead>
+              <tr>
+                <th scope="col">Quality</th>
+                <th scope="col">Textual</th>
+                <th scope="col">Symbolic</th>
+                <th scope="col">Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Major triad</td>
+                <td>no suffix</td>
+                <td>no suffix</td>
+                <td><span class="chord">C</span></td>
+              </tr>
+              <tr>
+                <td>Minor triad</td>
+                <td><code>m</code></td>
+                <td><code>−</code></td>
+                <td>
+                  <span class="chord">Cm</span> or
+                  <span class="chord">C−</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Diminished triad</td>
+                <td><code>dim</code></td>
+                <td><code>°</code></td>
+                <td>
+                  <span class="chord">Cdim</span> or
+                  <span class="chord">C°</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Augmented triad</td>
+                <td><code>aug</code></td>
+                <td><code>+</code></td>
+                <td>
+                  <span class="chord">Caug</span> or
+                  <span class="chord">C+</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Suspended triads</td>
+                <td><code>sus2</code>, <code>sus4</code></td>
+                <td><code>sus2</code>, <code>sus4</code></td>
+                <td><span class="chord">Csus4</span></td>
+              </tr>
+              <tr>
+                <td>Dominant seventh</td>
+                <td><code>7</code></td>
+                <td><code>7</code></td>
+                <td><span class="chord">C7</span></td>
+              </tr>
+              <tr>
+                <td>Major seventh</td>
+                <td><code>maj7</code></td>
+                <td><code>Δ7</code></td>
+                <td>
+                  <span class="chord">Cmaj7</span> or
+                  <span class="chord">CΔ7</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Minor seventh</td>
+                <td><code>m7</code></td>
+                <td><code>−7</code></td>
+                <td>
+                  <span class="chord">Cm7</span> or
+                  <span class="chord">C−7</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Half-diminished seventh</td>
+                <td><code>m7(♭5)</code></td>
+                <td><code>ø7</code></td>
+                <td>
+                  <span class="chord">Cm7(♭5)</span> or
+                  <span class="chord">Cø7</span>
+                </td>
+              </tr>
+              <tr>
+                <td>Fully diminished seventh</td>
+                <td><code>dim7</code></td>
+                <td><code>°7</code></td>
+                <td>
+                  <span class="chord">Cdim7</span> or
+                  <span class="chord">C°7</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
           <p>The examples below use textual notation.</p>
 
