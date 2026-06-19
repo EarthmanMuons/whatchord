@@ -45,8 +45,8 @@ void main() {
       expect(results.first.identity.hasSlashBass, isTrue);
       expect(results.first.identity.bassPc, pc('D'));
 
-      // The displaced conventional reading stays a visible near-tie alternative.
-      final alternatives = ChordCandidateRanking.nearTieAlternatives(results);
+      // The displaced conventional reading stays a visible alternative.
+      final alternatives = ChordCandidateRanking.alternatives(results);
       expect(
         firstWhere(
           alternatives,

@@ -158,10 +158,9 @@ class _RankingDetailsBodyState extends State<_RankingDetailsBody> {
   @override
   Widget build(BuildContext context) {
     final visible = _visibleCandidates(widget.candidates);
-    final possibleAlternativeCount =
-        ChordCandidateRanking.nearTieAlternativeCount([
-          for (final row in widget.candidates) row.candidate,
-        ]);
+    final alternativeCount = ChordCandidateRanking.alternativeCount([
+      for (final row in widget.candidates) row.candidate,
+    ]);
 
     return _FadedVerticalScrollView(
       child: Column(
@@ -173,7 +172,7 @@ class _RankingDetailsBodyState extends State<_RankingDetailsBody> {
             row: visible[0],
             thisCandidate: visible[0].candidate,
             nextDecision: visible.length > 1 ? visible[1].vsPrevious : null,
-            isPossibleAlternative: false,
+            isAlternative: false,
             symbol: _symbolFor(visible[0].candidate.identity),
             tonality: widget.tonality,
             noteNameSystem: widget.noteNameSystem,
@@ -199,7 +198,7 @@ class _RankingDetailsBodyState extends State<_RankingDetailsBody> {
                 nextDecision: i + 1 < visible.length
                     ? visible[i + 1].vsPrevious
                     : null,
-                isPossibleAlternative: i <= possibleAlternativeCount,
+                isAlternative: i <= alternativeCount,
                 symbol: _symbolFor(visible[i].candidate.identity),
                 tonality: widget.tonality,
                 noteNameSystem: widget.noteNameSystem,
@@ -361,7 +360,7 @@ class _CandidateRankCard extends StatefulWidget {
     required this.row,
     required this.thisCandidate,
     required this.nextDecision,
-    required this.isPossibleAlternative,
+    required this.isAlternative,
     required this.symbol,
     required this.tonality,
     required this.noteNameSystem,
@@ -373,7 +372,7 @@ class _CandidateRankCard extends StatefulWidget {
   final RankedCandidateDebug row;
   final ChordCandidate thisCandidate;
   final RankingDecision? nextDecision;
-  final bool isPossibleAlternative;
+  final bool isAlternative;
   final String symbol;
   final Tonality tonality;
   final NoteNameSystem noteNameSystem;
@@ -397,7 +396,7 @@ class _CandidateRankCardState extends State<_CandidateRankCard> {
     final cs = theme.colorScheme;
     final fitLabel = widget.rank == 1
         ? 'Chosen'
-        : (widget.isPossibleAlternative ? 'Possible' : 'Unlikely');
+        : (widget.isAlternative ? 'Possible' : 'Unlikely');
     final disableAnimations =
         MediaQuery.maybeOf(context)?.disableAnimations ??
         WidgetsBinding

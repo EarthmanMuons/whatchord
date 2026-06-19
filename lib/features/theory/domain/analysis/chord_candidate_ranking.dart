@@ -84,22 +84,23 @@ abstract final class ChordCandidateRanking {
   static bool isNearTie(double bestScore, double candidateScore) =>
       bestScore - candidateScore <= nearTieWindow;
 
-  /// Returns the near-tie alternatives from a [ranked] candidate list.
+  /// Returns the alternatives from a [ranked] candidate list: the non-chosen
+  /// readings close enough in score to surface alongside the top pick.
   ///
-  /// The raw score window is anchored to the top pick, but [rank] order is not
-  /// strictly monotonic in score: tie-breakers can place a candidate outside
-  /// the window above one that is inside it. To keep the visible alternatives
-  /// coherent, include every ranked candidate through the last candidate that
-  /// qualifies by score.
-  static List<ChordCandidate> nearTieAlternatives(List<ChordCandidate> ranked) {
-    final count = nearTieAlternativeCount(ranked);
+  /// The near-tie score window is anchored to the top pick, but [rank] order is
+  /// not strictly monotonic in score: tie-breakers can place a candidate
+  /// outside the window above one that is inside it. To keep the surfaced
+  /// alternatives coherent, include every ranked candidate through the last
+  /// candidate that qualifies by score.
+  static List<ChordCandidate> alternatives(List<ChordCandidate> ranked) {
+    final count = alternativeCount(ranked);
     if (count == 0) return const <ChordCandidate>[];
     return ranked.sublist(1, count + 1);
   }
 
-  /// Number of ranked candidates after #1 that belong to the displayed near-tie
-  /// alternatives group.
-  static int nearTieAlternativeCount(List<ChordCandidate> ranked) {
+  /// Number of ranked candidates after #1 that belong to the alternatives
+  /// group.
+  static int alternativeCount(List<ChordCandidate> ranked) {
     if (ranked.length < 2) return 0;
     final bestScore = ranked.first.score;
     var lastNearTieIndex = -1;

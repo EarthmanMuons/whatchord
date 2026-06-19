@@ -28,7 +28,7 @@ final alternativeChordCandidatesProvider = Provider<List<ChordCandidate>>((
   ref,
 ) {
   final candidates = ref.watch(chordCandidatesProvider);
-  return ChordCandidateRanking.nearTieAlternatives(candidates);
+  return ChordCandidateRanking.alternatives(candidates);
 });
 
 final rankedChordCandidateDebugProvider = Provider<List<RankedCandidateDebug>>((

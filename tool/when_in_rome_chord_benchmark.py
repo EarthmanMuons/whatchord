@@ -249,7 +249,7 @@ def score(events: list[dict], predictions: dict[str, dict]) -> list[dict]:
         top = candidates[0] if candidates else {}
         top_three_roots = {candidate["rootPc"] for candidate in candidates}
         candidate_roots = [candidate["rootPc"] for candidate in candidates]
-        expected_root_possible = prediction["expectedRootPossible"]
+        expected_root_alternative = prediction["expectedRootAlternative"]
         rows.append(
             {
                 **event,
@@ -264,10 +264,10 @@ def score(events: list[dict], predictions: dict[str, dict]) -> list[dict]:
                 "expectedRootRank": prediction["expectedRootRank"],
                 "rootExact": top.get("rootPc") == event["expectedRootPc"],
                 "rootTop3": event["expectedRootPc"] in top_three_roots,
-                "rootPossible": expected_root_possible,
+                "rootAlternative": expected_root_alternative,
                 "rootVisible": (
                     top.get("rootPc") == event["expectedRootPc"]
-                    or expected_root_possible
+                    or expected_root_alternative
                 ),
                 "bassMatchesAnnotation": event["bassPc"] == event["expectedBassPc"],
                 "rootAndAnnotationBassExact": (
@@ -297,7 +297,7 @@ def review_flag(event: dict, candidates: list[dict], prediction: dict) -> str:
         if event["bassPc"] != event["expectedBassPc"]:
             return "annotation-bass-difference"
         return "agree"
-    if prediction["expectedRootPossible"]:
+    if prediction["expectedRootAlternative"]:
         return "visible-ranking-divergence"
     if prediction["expectedRootGenerated"]:
         return "hidden-ranking-divergence"
@@ -350,7 +350,7 @@ def metrics(rows: list[dict]) -> dict:
         "root_exact": ratio(rows, "rootExact"),
         "root_visible": ratio(rows, "rootVisible"),
         "root_top3": ratio(rows, "rootTop3"),
-        "root_possible": ratio(rows, "rootPossible"),
+        "root_alternative": ratio(rows, "rootAlternative"),
         "root_and_annotation_bass_exact": ratio(
             rows, "rootAndAnnotationBassExact"
         ),
@@ -390,7 +390,7 @@ def print_report(rows: list[dict], piece_counts: Counter) -> None:
             f"root exact={result['root_exact']}% "
             f"root+annotation bass={result['root_and_annotation_bass_exact']}% "
             f"visible={result['root_visible']}% "
-            f"possible alternative={result['root_possible']}% "
+            f"alternative={result['root_alternative']}% "
             f"top3 legacy={result['root_top3']}%"
         )
 
@@ -441,7 +441,7 @@ def write_report(path: Path, rows: list[dict], piece_counts: Counter) -> None:
             "1. Candidate gaps: analyst root is absent from WhatChord's candidate list.",
             "2. Rootless annotations: analyst root is absent from the sounding voicing by design.",
             "3. Hidden ranking divergences: analyst root exists but the app does not surface it.",
-            "4. Visible ranking divergences: analyst root is a possible alternative.",
+            "4. Visible ranking divergences: analyst root is an alternative.",
             "5. Annotation bass differences: root agrees, score bass and annotation inversion do not.",
             "6. Symmetric, functional, and explicit-label cases: classify, but do not optimize against blindly.",
             "",
