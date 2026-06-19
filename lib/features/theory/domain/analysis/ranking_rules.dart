@@ -275,6 +275,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferCompleteSharpNineThirteenthDominantOverColoredSixth,
   ),
   NamedRule(
+    'prefer complete flat-nine flat-thirteen dominant over remote spelling',
+    _preferCompleteFlatNineFlatThirteenthDominantOverRemoteSpelling,
+  ),
+  NamedRule(
     'prefer sharp-five sharp-eleven dominant spelling over flat-five flat-thirteen',
     _preferSharpFiveSharpElevenDominantSpelling,
   ),
@@ -458,6 +462,46 @@ bool _isCompleteDominantSharpNineReading(ChordIdentity id) {
       roles.contains(ChordToneRole.sharp9) &&
       roles.contains(ChordToneRole.major3) &&
       roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.flat7);
+}
+
+int? _preferCompleteFlatNineFlatThirteenthDominantOverRemoteSpelling(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isCompleteFlatNineFlatThirteenthDominant(a.identity);
+  final bIsPreferred = _isCompleteFlatNineFlatThirteenthDominant(b.identity);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final fOther = aIsPreferred ? fb : fa;
+  if (fOther.isDom7) return null;
+  if (!fOther.isDimFamily && !fOther.isSeventhFamily) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isCompleteFlatNineFlatThirteenthDominant(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.dominant7) return false;
+  if (!id.extensions.contains(ChordExtension.flat9) ||
+      !id.extensions.contains(ChordExtension.flat13)) {
+    return false;
+  }
+  if (id.extensions.any(
+    (extension) =>
+        extension != ChordExtension.flat9 && extension != ChordExtension.flat13,
+  )) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.flat9) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.flat13) &&
       roles.contains(ChordToneRole.flat7);
 }
 

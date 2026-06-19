@@ -53,6 +53,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved dominant nine flat-thirteen identification, favoring complete
   F9b13-style readings over more exotic major-nine flat-five flat-thirteen
   spellings.
+- Improved altered dominant flat-nine flat-thirteen identification, favoring
+  complete F7(b9,b13)-style readings over remote minor-thirteenth flat-five
+  spellings.
 - Improved Lydian major six-nine identification, favoring complete 6/9#11
   readings over remote minor-eleventh sharp-five spellings.
 - Improved inverted Lydian-dominant nine sharp-eleven identification, favoring

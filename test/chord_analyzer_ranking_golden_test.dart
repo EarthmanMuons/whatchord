@@ -386,6 +386,32 @@ void main() {
     ),
 
     golden(
+      description:
+          'complete altered flat-nine flat-thirteen dominant handles seventh bass',
+      expectedSymbol: 'F7(b9,b13) / Eb',
+      expectedAlternateSymbols: ['D#m13(b5)', 'Cdim7(b9,add11) / Eb'],
+      pcs: ['C', 'Db', 'Eb', 'F', 'F#', 'A'],
+      bass: 'Eb',
+      expectedRoot: 'F',
+      expectedBass: 'Eb',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9, ChordExtension.flat13},
+    ),
+
+    golden(
+      description:
+          'complete altered flat-nine flat-thirteen dominant handles flat-nine bass',
+      expectedSymbol: 'F7(b9,b13) / Gb',
+      expectedAlternateSymbols: ['D#m13(b5) / F#', 'Cdim7(b9,add11) / Gb'],
+      pcs: ['C', 'Db', 'Eb', 'F', 'F#', 'A'],
+      bass: 'F#',
+      expectedRoot: 'F',
+      expectedBass: 'Gb',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9, ChordExtension.flat13},
+    ),
+
+    golden(
       description: 'complete altered dominant inversion beats altered major7',
       expectedSymbol: 'A7#5#9 / C#',
       pcs: ['C', 'Db', 'F', 'G', 'A'],
