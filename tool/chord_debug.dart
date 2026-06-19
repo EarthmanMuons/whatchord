@@ -73,7 +73,7 @@ void main(List<String> args) {
   }
 
   final top = _readIntFlag(args, 'top', 't') ?? 5;
-  final bassName = _readStringFlag(args, 'bass', 'b');
+  final bassNameFlag = _readStringFlag(args, 'bass', 'b');
 
   final keyFlag = _readStringFlag(args, 'key', 'k') ?? 'C:maj';
   final tonality = parseTonality(keyFlag);
@@ -98,8 +98,13 @@ void main(List<String> args) {
   );
   final outputFormat = _parseOutputFormatFlag(args);
 
-  // Extract positional args (notes), ignoring flags.
-  final noteTokens = splitNoteTokens(_readNoteTokens(args).join(' '));
+  // Extract positional args (notes), ignoring flags. A single oracle-compare
+  // case id is expanded before the generic splitter sees its hyphens.
+  final rawNoteTokens = _readNoteTokens(args);
+  final expandedCase = _expandOracleCaseId(rawNoteTokens);
+  final bassName = bassNameFlag ?? expandedCase?.bassName;
+  final noteTokens =
+      expandedCase?.noteTokens ?? splitNoteTokens(rawNoteTokens.join(' '));
   if (noteTokens.isEmpty) {
     stderr.writeln('No notes provided.');
     exitCode = 2;
@@ -213,7 +218,7 @@ void main(List<String> args) {
     final deltaStr = i == 0
         ? ''
         : '  Δ${_fmtSigned(deltaBest, width: 6, decimals: 2)}';
-    final tieStr = nearTie ? ' ~tie' : '';
+    final tieStr = nearTie ? ' ~tie with #1' : '';
     final ruleStr = compact && i != 0 && rule.isNotEmpty
         ? '  (vs prev: $rule)'
         : '';
@@ -1012,6 +1017,47 @@ List<String> _readNoteTokens(List<String> args) {
   }
   return out;
 }
+
+({List<String> noteTokens, String bassName})? _expandOracleCaseId(
+  List<String> rawNoteTokens,
+) {
+  if (rawNoteTokens.length != 1) return null;
+
+  final match = RegExp(
+    r'^(\d+(?:-\d+)*)_b(\d+)$',
+  ).firstMatch(rawNoteTokens.single);
+  if (match == null) return null;
+
+  final pcs = match
+      .group(1)!
+      .split('-')
+      .map(int.tryParse)
+      .toList(growable: false);
+  final bassPc = int.tryParse(match.group(2)!);
+
+  if (bassPc == null || bassPc < 0 || bassPc > 11) return null;
+  if (pcs.any((pc) => pc == null || pc < 0 || pc > 11)) return null;
+  if (!pcs.contains(bassPc)) return null;
+
+  final noteTokens = [for (final pc in pcs) _oracleCasePitchClassName(pc!)];
+  return (noteTokens: noteTokens, bassName: _oracleCasePitchClassName(bassPc));
+}
+
+String _oracleCasePitchClassName(int pc) => switch (pc) {
+  0 => 'C',
+  1 => 'Db',
+  2 => 'D',
+  3 => 'Eb',
+  4 => 'E',
+  5 => 'F',
+  6 => 'F#',
+  7 => 'G',
+  8 => 'Ab',
+  9 => 'A',
+  10 => 'Bb',
+  11 => 'B',
+  _ => throw ArgumentError.value(pc, 'pc', 'Expected pitch class 0..11'),
+};
 
 String _padRight(String s, int width) {
   if (s.length >= width) return s;
