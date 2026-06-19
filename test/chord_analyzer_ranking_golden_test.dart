@@ -93,7 +93,7 @@ void main() {
     golden(
       description: 'complete add-nine inversion beats minor seven sharp five',
       expectedSymbol: 'Cadd9 / E',
-      expectedAlternateSymbols: ['D7sus4 / E'],
+      expectedAlternateSymbols: ['Em7#5'],
       pcs: ['C', 'D', 'E', 'G'],
       bass: 'E',
       expectedRoot: 'C',
@@ -119,7 +119,7 @@ void main() {
     golden(
       description: 'upper-structure major triad over ninth bass',
       expectedSymbol: 'C# / D#',
-      expectedAlternateSymbols: ['D#9sus4'],
+      expectedAlternateSymbols: ['E#m7#5 / D#'],
       pcs: ['D#', 'C#', 'E#', 'G#'],
       bass: 'D#',
       tonality: const Tonality(Tonic.cSharp, TonalityMode.major),
