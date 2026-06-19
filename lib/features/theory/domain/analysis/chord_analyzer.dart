@@ -117,7 +117,9 @@ abstract final class ChordAnalyzer {
   static const _completeDominantFlatThirteenthBonus =
       0.15; // complete dom7 shell + b13 should compete with enharmonic maj7#5
   static const _completeDominantNineFlatThirteenthBonus =
-      0.40; // complete dom7 shell + 9 + b13 should compete as a natural stack
+      0.40; // complete dom7 shell + natural 9 + b13 stack
+  static const _completeDominantFlatNineFlatThirteenthBonus =
+      0.70; // complete dom7 shell + b9 + b13 altered stack
 
   // Upper-structure slash-triad bonus.
   static const _add9BassUpperTriadBonus = 3.2; // e.g. D/E, C#/D#
@@ -783,6 +785,7 @@ abstract final class ChordAnalyzer {
     if (extensions.any(
       (extension) =>
           extension != ChordExtension.flat13 &&
+          extension != ChordExtension.flat9 &&
           extension != ChordExtension.nine,
     )) {
       return 0;
@@ -795,9 +798,14 @@ abstract final class ChordAnalyzer {
         (relMask & (1 << minorSeventhInterval)) != 0;
     if (!hasCompleteShell) return 0;
 
-    return extensions.contains(ChordExtension.nine)
-        ? _completeDominantNineFlatThirteenthBonus
-        : _completeDominantFlatThirteenthBonus;
+    final hasNinthColor =
+        extensions.contains(ChordExtension.nine) ||
+        extensions.contains(ChordExtension.flat9);
+    if (extensions.contains(ChordExtension.flat9)) {
+      return _completeDominantFlatNineFlatThirteenthBonus;
+    }
+    if (hasNinthColor) return _completeDominantNineFlatThirteenthBonus;
+    return _completeDominantFlatThirteenthBonus;
   }
 
   static double _add9BassUpperTriadBonusFor({

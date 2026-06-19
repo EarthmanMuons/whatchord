@@ -131,6 +131,35 @@ void main() {
     },
   );
 
+  test(
+    'complete flat-nine flat-thirteen dominant beats remote seventh spelling',
+    () {
+      final dominant = _candidate(
+        quality: ChordQualityToken.dominant7,
+        root: 'F',
+        bass: 'Eb',
+        presentIntervals: const {0, 1, 4, 7, 8, 10},
+        extensions: const {ChordExtension.flat9, ChordExtension.flat13},
+        score: 8.14,
+      );
+
+      final remoteMinor = _candidate(
+        quality: ChordQualityToken.halfDiminished7,
+        root: 'D#',
+        bass: 'D#',
+        presentIntervals: const {0, 2, 3, 6, 9, 10},
+        extensions: const {ChordExtension.nine, ChordExtension.thirteen},
+        score: 8.0,
+      );
+
+      _expectTieRule(
+        dominant,
+        remoteMinor,
+        'prefer complete flat-nine flat-thirteen dominant over remote spelling',
+      );
+    },
+  );
+
   test('complete altered dominant inversion beats altered major7', () {
     final dominant = _candidate(
       quality: ChordQualityToken.dominant7Sharp5,
