@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/settings/settings.dart';
 
 class ScaleExplorerTopBar extends StatelessWidget {
@@ -64,6 +65,8 @@ class ScaleExplorerTopBar extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(width: 4),
+              const MidiStatusIcon(),
               const SizedBox(width: 4),
               Transform.translate(
                 offset: const Offset(6, 0),

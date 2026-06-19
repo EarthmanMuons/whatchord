@@ -10,6 +10,7 @@ import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/chords/chords.dart';
 import 'package:whatchord/features/home/home.dart';
+import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/piano/piano.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
@@ -124,11 +125,16 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       showSevenths: _showSevenths,
     );
     final playing = _previewState.isRunning;
+    final liveNotes = ref.watch(liveSoundingNoteNumbersProvider);
 
     // During playback the keyboard tracks the sounding notes; at rest it holds
-    // the selected chord (and is blank after a scale run, which clears the
-    // selection).
-    final keyboardNotes = playing ? _previewState.activeNotes : selectedChord;
+    // live input when present, otherwise the selected chord (and is blank after
+    // a scale run, which clears the selection).
+    final keyboardNotes = playing
+        ? _previewState.activeNotes
+        : liveNotes.isNotEmpty
+        ? liveNotes
+        : selectedChord;
     final playingPitchClasses = playing
         ? {for (final n in _previewState.activeNotes) n % 12}
         : const <int>{};

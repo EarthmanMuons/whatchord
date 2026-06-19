@@ -67,6 +67,8 @@ class PianoKeyboardPainter extends CustomPainter {
     required this.whiteKeyColor,
     required this.pressedWhiteKeyColor,
     required this.pressedBlackKeyColor,
+    this.outOfScalePressedWhiteKeyColor,
+    this.outOfScalePressedBlackKeyColor,
     required this.whiteKeyBorderColor,
     required this.pressedWhiteKeyBorderColor,
     required this.pressedWhiteKeySeparatorColor,
@@ -114,6 +116,12 @@ class PianoKeyboardPainter extends CustomPainter {
   final Color whiteKeyColor;
   final Color pressedWhiteKeyColor;
   final Color pressedBlackKeyColor;
+
+  /// Optional muted pressed colors for highlighted notes outside
+  /// [scaleNoteNumbers]. Ignored when [scaleNoteNumbers] is empty.
+  final Color? outOfScalePressedWhiteKeyColor;
+  final Color? outOfScalePressedBlackKeyColor;
+
   final Color whiteKeyBorderColor;
   final Color pressedWhiteKeyBorderColor;
   final Color pressedWhiteKeySeparatorColor;
@@ -173,12 +181,8 @@ class PianoKeyboardPainter extends CustomPainter {
       ..style = PaintingStyle.fill
       ..color = pressedBlackKeySeparatorColor;
     final blackFillPaint = Paint()..style = PaintingStyle.fill;
-    final pressedWhiteAccentPaint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = Color.lerp(pressedWhiteKeyColor, Colors.white, 0.28)!;
-    final pressedBlackAccentPaint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = Color.lerp(pressedBlackKeyColor, Colors.white, 0.20)!;
+    final pressedWhiteAccentPaint = Paint()..style = PaintingStyle.fill;
+    final pressedBlackAccentPaint = Paint()..style = PaintingStyle.fill;
     final pressedWhiteEdgePaint = Paint()
       ..style = PaintingStyle.fill
       ..color = Colors.black.withValues(alpha: _pressedWhiteEdgeAlpha);
@@ -189,13 +193,17 @@ class PianoKeyboardPainter extends CustomPainter {
 
       final midi = _whiteMidiForIndex(i);
       final isHighlighted = _isHighlighted(midi);
+      final highlightedFill = _pressedWhiteFillFor(midi);
 
-      whiteFillPaint.color = isHighlighted
-          ? pressedWhiteKeyColor
-          : whiteKeyColor;
+      whiteFillPaint.color = isHighlighted ? highlightedFill : whiteKeyColor;
 
       canvas.drawRect(rect, whiteFillPaint);
       if (isHighlighted) {
+        pressedWhiteAccentPaint.color = Color.lerp(
+          highlightedFill,
+          Colors.white,
+          0.28,
+        )!;
         _paintPressedKeyAccents(
           canvas,
           rect,
@@ -206,6 +214,14 @@ class PianoKeyboardPainter extends CustomPainter {
       }
       canvas.drawRect(rect, whiteBorderPaint);
       if (isHighlighted && topInset < rect.bottom) {
+        pressedWhiteBorderPaint.color = _pressedWhiteBorderFor(
+          midi,
+          highlightedFill,
+        );
+        pressedWhiteSeparatorPaint.color = _pressedWhiteSeparatorFor(
+          midi,
+          highlightedFill,
+        );
         canvas.drawRect(
           rect.deflate(_pressedWhiteBorderWidth / 2.0),
           pressedWhiteBorderPaint,
@@ -249,11 +265,21 @@ class PianoKeyboardPainter extends CustomPainter {
       blackKeyRects.add(rect);
 
       final isHighlightedBlack = _isHighlighted(blackMidi);
+      final highlightedBlackFill = _pressedBlackFillFor(blackMidi);
       blackFillPaint.color = isHighlightedBlack
-          ? pressedBlackKeyColor
+          ? highlightedBlackFill
           : blackKeyColor;
       canvas.drawRect(rect, blackFillPaint);
       if (isHighlightedBlack) {
+        pressedBlackAccentPaint.color = Color.lerp(
+          highlightedBlackFill,
+          Colors.white,
+          0.20,
+        )!;
+        pressedBlackSeparatorPaint.color = _pressedBlackSeparatorFor(
+          blackMidi,
+          highlightedBlackFill,
+        );
         _paintPressedKeyAccents(
           canvas,
           rect,
@@ -287,6 +313,35 @@ class PianoKeyboardPainter extends CustomPainter {
     if (decorations.isNotEmpty) {
       _paintDecorations(canvas, size, whiteKeyWidth: whiteKeyWidth);
     }
+  }
+
+  bool _isInScaleOrUnscoped(int midi) {
+    return scaleNoteNumbers.isEmpty || scaleNoteNumbers.contains(midi);
+  }
+
+  Color _pressedWhiteFillFor(int midi) {
+    if (_isInScaleOrUnscoped(midi)) return pressedWhiteKeyColor;
+    return outOfScalePressedWhiteKeyColor ?? pressedWhiteKeyColor;
+  }
+
+  Color _pressedBlackFillFor(int midi) {
+    if (_isInScaleOrUnscoped(midi)) return pressedBlackKeyColor;
+    return outOfScalePressedBlackKeyColor ?? pressedBlackKeyColor;
+  }
+
+  Color _pressedWhiteBorderFor(int midi, Color fill) {
+    if (_isInScaleOrUnscoped(midi)) return pressedWhiteKeyBorderColor;
+    return Color.alphaBlend(Colors.black.withValues(alpha: 0.24), fill);
+  }
+
+  Color _pressedWhiteSeparatorFor(int midi, Color fill) {
+    if (_isInScaleOrUnscoped(midi)) return pressedWhiteKeySeparatorColor;
+    return Color.alphaBlend(Colors.black.withValues(alpha: 0.22), fill);
+  }
+
+  Color _pressedBlackSeparatorFor(int midi, Color fill) {
+    if (_isInScaleOrUnscoped(midi)) return pressedBlackKeySeparatorColor;
+    return Color.alphaBlend(Colors.black.withValues(alpha: 0.20), fill);
   }
 
   /// Draws a dot in the lower portion of each scale member key (a triangle for
@@ -608,6 +663,10 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.whiteKeyColor != whiteKeyColor ||
         oldDelegate.pressedWhiteKeyColor != pressedWhiteKeyColor ||
         oldDelegate.pressedBlackKeyColor != pressedBlackKeyColor ||
+        oldDelegate.outOfScalePressedWhiteKeyColor !=
+            outOfScalePressedWhiteKeyColor ||
+        oldDelegate.outOfScalePressedBlackKeyColor !=
+            outOfScalePressedBlackKeyColor ||
         oldDelegate.whiteKeyBorderColor != whiteKeyBorderColor ||
         oldDelegate.pressedWhiteKeyBorderColor != pressedWhiteKeyBorderColor ||
         oldDelegate.pressedWhiteKeySeparatorColor !=
