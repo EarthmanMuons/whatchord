@@ -62,6 +62,7 @@ class PianoKeyboardPainter extends CustomPainter {
     required this.firstMidiNote,
     required this.highlightedNoteNumbers,
     this.scaleNoteNumbers = const <int>{},
+    this.normalHighlightPitchClasses,
     this.scaleMarkerColor,
     this.tonicPitchClass,
     required this.whiteKeyColor,
@@ -103,6 +104,11 @@ class PianoKeyboardPainter extends CustomPainter {
   /// lower portion of the key so the in-scale notes are obvious at a glance.
   /// Requires [scaleMarkerColor]; empty means no markers.
   final Set<int> scaleNoteNumbers;
+
+  /// Pitch classes that keep the normal active highlight when highlighted.
+  /// Highlighted notes outside this set use the muted active fill. Null falls
+  /// back to [scaleNoteNumbers] membership, preserving scale-marker behavior.
+  final Set<int>? normalHighlightPitchClasses;
 
   /// Fill color for the scale member dot markers. Black keys use a lightened
   /// variant for contrast. Required when [scaleNoteNumbers] is non-empty.
@@ -315,32 +321,34 @@ class PianoKeyboardPainter extends CustomPainter {
     }
   }
 
-  bool _isInScaleOrUnscoped(int midi) {
+  bool _usesNormalHighlight(int midi) {
+    final highlightPcs = normalHighlightPitchClasses;
+    if (highlightPcs != null) return highlightPcs.contains(midi % 12);
     return scaleNoteNumbers.isEmpty || scaleNoteNumbers.contains(midi);
   }
 
   Color _pressedWhiteFillFor(int midi) {
-    if (_isInScaleOrUnscoped(midi)) return pressedWhiteKeyColor;
+    if (_usesNormalHighlight(midi)) return pressedWhiteKeyColor;
     return outOfScalePressedWhiteKeyColor ?? pressedWhiteKeyColor;
   }
 
   Color _pressedBlackFillFor(int midi) {
-    if (_isInScaleOrUnscoped(midi)) return pressedBlackKeyColor;
+    if (_usesNormalHighlight(midi)) return pressedBlackKeyColor;
     return outOfScalePressedBlackKeyColor ?? pressedBlackKeyColor;
   }
 
   Color _pressedWhiteBorderFor(int midi, Color fill) {
-    if (_isInScaleOrUnscoped(midi)) return pressedWhiteKeyBorderColor;
+    if (_usesNormalHighlight(midi)) return pressedWhiteKeyBorderColor;
     return Color.alphaBlend(Colors.black.withValues(alpha: 0.24), fill);
   }
 
   Color _pressedWhiteSeparatorFor(int midi, Color fill) {
-    if (_isInScaleOrUnscoped(midi)) return pressedWhiteKeySeparatorColor;
+    if (_usesNormalHighlight(midi)) return pressedWhiteKeySeparatorColor;
     return Color.alphaBlend(Colors.black.withValues(alpha: 0.22), fill);
   }
 
   Color _pressedBlackSeparatorFor(int midi, Color fill) {
-    if (_isInScaleOrUnscoped(midi)) return pressedBlackKeySeparatorColor;
+    if (_usesNormalHighlight(midi)) return pressedBlackKeySeparatorColor;
     return Color.alphaBlend(Colors.black.withValues(alpha: 0.20), fill);
   }
 
@@ -684,7 +692,17 @@ class PianoKeyboardPainter extends CustomPainter {
         ) ||
         oldDelegate.scaleMarkerColor != scaleMarkerColor ||
         oldDelegate.tonicPitchClass != tonicPitchClass ||
+        !_nullableSetEquals(
+          oldDelegate.normalHighlightPitchClasses,
+          normalHighlightPitchClasses,
+        ) ||
         !_setEquals(oldDelegate.scaleNoteNumbers, scaleNoteNumbers);
+  }
+
+  bool _nullableSetEquals(Set<int>? a, Set<int>? b) {
+    if (identical(a, b)) return true;
+    if (a == null || b == null) return false;
+    return _setEquals(a, b);
   }
 
   bool _setEquals(Set<int> a, Set<int> b) {

@@ -11,6 +11,7 @@ class PianoKeyboard extends StatelessWidget {
     this.firstMidiNote = 48, // C3 by default
     this.highlightedNoteNumbers = const <int>{},
     this.scaleNoteNumbers = const <int>{},
+    this.normalHighlightPitchClasses,
     this.tonicPitchClass,
     this.height,
     this.decorations = const <PianoKeyDecoration>[],
@@ -29,6 +30,11 @@ class PianoKeyboard extends StatelessWidget {
   /// Scale member *MIDI note numbers*. When non-empty, each member key is
   /// marked with a dot so the in-scale notes read at a glance.
   final Set<int> scaleNoteNumbers;
+
+  /// Pitch classes that keep the normal active highlight when highlighted.
+  /// Highlighted notes outside this set use the muted active fill. Null means
+  /// no pitch-class filter.
+  final Set<int>? normalHighlightPitchClasses;
 
   /// Pitch class (0-11) of the scale tonic, marked with a triangle instead of a
   /// dot. Null marks every member with a dot.
@@ -73,6 +79,7 @@ class PianoKeyboard extends StatelessWidget {
           firstMidiNote: firstMidiNote,
           highlightedNoteNumbers: highlightedNoteNumbers,
           scaleNoteNumbers: scaleNoteNumbers,
+          normalHighlightPitchClasses: normalHighlightPitchClasses,
           // Keep the marker accent the same tone in both themes. The light
           // scheme's primary and the dark scheme's inversePrimary are the same
           // tonal value, so swap the role by brightness rather than the color.

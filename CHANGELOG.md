@@ -12,9 +12,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
-- Explore Scales now shows live input on the keyboard when playback is idle,
-  adds the MIDI status button to the top bar, and shows out-of-scale notes with
-  a muted gray highlight against the selected scale markers.
+- Explore pages now show live input on the keyboard when playback is idle and
+  include the MIDI status button in the top bar. Explore Chords shows non-chord
+  live notes with a muted gray highlight, and Explore Scales does the same for
+  out-of-scale notes against the selected scale markers.
 
 ## [2026.6.19] - 2026-06-19
 
