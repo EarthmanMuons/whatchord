@@ -171,6 +171,10 @@
     "label": "oracle-limitation",
     "note": "A13(♯9,♯11) is preferred because it is root position and contains the complete altered dominant thirteenth: A, C♯, E, G, F♯, B♯, and D♯. Tonal agrees. Music21's F♯øb9/A add C♯,E♭ prioritizes a half-diminished structure over the clearer root-position dominant."
   },
+  "0-1-3-4-6-7-10_b3": {
+    "label": "genuine-ambiguity",
+    "note": "E♭13(♭9,♯9) is preferred because E♭ is the bass/root and the voicing contains the complete E♭ dominant shell E♭-G-B♭-D♭, with C as the thirteenth and F♭/E plus F♯/G♭ as split flat-nine/sharp-nine color. Tonal's F♯13♭9♯11/E♭ is also a complete altered dominant organization of the same pitch classes, so the alternate is real; the root-position E♭ bass makes WhatChord's label the more direct context-free name."
+  },
   "0-1-3-4-7-10_b3": {
     "label": "oracle-limitation",
     "note": "E♭13♭9 is preferred because E♭, G, B♭, and D♭ form a complete root-position dominant seventh, with C as the thirteenth and F♭ as flat-nine color. Tonal agrees with E♭13♭9. Music21's Cm7/E♭ add D♭,F♭ preserves a C-minor shell but demotes the root-position dominant structure to added chromatic tones; ChoCo common-name counts strongly favor dominant-seventh and flat-nine families over minor7 flat-nine/add-tone variants."
@@ -191,9 +195,29 @@
     "label": "oracle-limitation",
     "note": "E♭13/B♭ is preferred because the bass is the dominant fifth and the voicing contains the complete E♭ dominant thirteenth stack. Tonal agrees. Music21's Cm7/B♭ add F,D♭ describes related upper-structure material but misses the more direct dominant-root organization."
   },
+  "0-1-3-6-7-10_b0": {
+    "label": "oracle-limitation",
+    "note": "E♭13♯9/C is preferred because the bass is the thirteenth of a complete E♭ sharp-nine dominant thirteenth stack: E♭, G, B♭, D♭, C, and G♭/F♯. Tonal agrees with E♭13♯9/C. Music21's Cøb9 add G re-roots the same pitch classes into a half-diminished label with both diminished and natural fifth behavior, which is less direct than the complete dominant organization."
+  },
+  "0-1-3-6-7-10_b1": {
+    "label": "oracle-limitation",
+    "note": "E♭13♯9/D♭ is preferred because the bass is the dominant seventh and the voicing contains the complete E♭-rooted dominant shell with C as thirteenth and G♭/F♯ as sharp-nine color. Tonal agrees with E♭13♯9/D♭. Music21's B♯øb9/C♯ add F𝄪 is an enharmonic half-diminished bookkeeping label that obscures the complete dominant structure."
+  },
+  "0-1-3-6-7-10_b3": {
+    "label": "oracle-limitation",
+    "note": "E♭13♯9 is preferred because it is root position and contains the complete E♭ dominant thirteenth stack: E♭, G, B♭, D♭, C, and G♭/F♯. Tonal agrees. Music21's Cøb9/E♭ add G keeps a C half-diminished frame and treats the natural fifth color as an addition, making it less idiomatic as the primary chord symbol."
+  },
+  "0-1-3-6-7-10_b6": {
+    "label": "oracle-limitation",
+    "note": "E♭13♯9/F♯ is preferred because F♯/G♭ is the sharp ninth of a complete E♭ dominant thirteenth stack. Tonal agrees with E♭13♯9/F♯. Music21's B♯øb9/F♯ add F𝄪 reinterprets the voicing as a half-diminished structure with added natural-fifth color, which is less clear for musicians than the complete altered dominant."
+  },
   "0-1-3-6-7-10_b7": {
     "label": "oracle-limitation",
     "note": "E♭13♯9/G is preferred because the bass is the dominant third and the voicing contains E♭, G, B♭, D♭, C, and G♭/F♯ as a complete sharp-nine dominant thirteenth. Tonal agrees with E♭13♯9/G. Music21's Cm7/G add D♭,G♭ keeps a C-minor shell and treats the dominant colors as additions, which is less useful as the primary chord symbol."
+  },
+  "0-1-3-6-7-10_b10": {
+    "label": "oracle-limitation",
+    "note": "E♭13♯9/B♭ is preferred because the bass is the dominant fifth and the voicing contains the complete E♭ dominant thirteenth stack with G♭/F♯ as sharp-nine color. Tonal agrees with E♭13♯9/B♭. Music21's Cøb9/B♭ add G names a related half-diminished collection but buries the complete dominant shell."
   },
   "0-1-4-6-10_b0": {
     "label": "genuine-ambiguity",
