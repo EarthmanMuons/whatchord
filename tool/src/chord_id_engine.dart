@@ -29,7 +29,7 @@ enum CandidateClass {
   /// The engine's chosen interpretation (rank 1).
   chosen,
 
-  /// Musically plausible alternative the app would surface.
+  /// Alternative the app surfaces alongside the chosen chord.
   possible,
 
   /// Ranked but well below the chosen score; shown for transparency.
@@ -242,14 +242,13 @@ ChordIdResult identifyChord(
   }
 
   final chosenScore = ranked.first.score;
-  final possibleAlternativeCount =
-      ChordCandidateRanking.nearTieAlternativeCount(ranked);
+  final alternativeCount = ChordCandidateRanking.alternativeCount(ranked);
   final candidates = <ChordIdCandidate>[];
   for (var i = 0; i < ranked.length; i++) {
     final c = ranked[i];
     final classification = i == 0
         ? CandidateClass.chosen
-        : (i <= possibleAlternativeCount
+        : (i <= alternativeCount
               ? CandidateClass.possible
               : CandidateClass.unlikely);
 

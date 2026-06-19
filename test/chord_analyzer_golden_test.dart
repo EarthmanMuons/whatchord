@@ -245,7 +245,7 @@ void main() {
     ),
 
     // In neutral context, prefer the familiar fifthless altered-dominant shell
-    // while retaining the bass-rooted reinterpretations as near-tie alternates.
+    // while retaining the bass-rooted reinterpretations as alternates.
     golden(
       description: 'flat-nine-bass dominant without fifth',
       expectedSymbol: 'C7b9 / Db',
@@ -660,9 +660,9 @@ void main() {
         expect(results.first.identity.rootPc, pc('Db'));
         expect(results.first.identity.quality, ChordQualityToken.major7Sharp5);
 
-        final nearTies = ChordCandidateRanking.nearTieAlternatives(results);
+        final alternatives = ChordCandidateRanking.alternatives(results);
         expect(
-          nearTies,
+          alternatives,
           contains(
             isA<ChordCandidate>()
                 .having((c) => c.identity.rootPc, 'root', pc('F'))
@@ -677,7 +677,7 @@ void main() {
                   contains(ChordExtension.flat13),
                 ),
           ),
-          reason: 'F7b13 should surface as a near-tie for bass $bass',
+          reason: 'F7b13 should surface as an alternative for bass $bass',
         );
       }
     },

@@ -21,7 +21,7 @@ clearer boundaries around what the corpus can and cannot measure for WhatChord.
   diminished triad. Correcting it produced 124 clean-event gains and no clean
   losses in the initial benchmark.
 - No mainstream analyst root is currently absent from WhatChord's candidates or
-  hidden outside the near-tie alternatives shown to users.
+  hidden outside the alternatives shown to users.
 - The remaining primary-label disagreements are contextual or inherently
   ambiguous. They do not justify another isolated-voicing ranking change.
 
@@ -92,17 +92,17 @@ The benchmark uses these distinctions:
 | Metric                       | Meaning                                                                                                  |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------- |
 | Root exact                   | WhatChord selects the analyst root.                                                                      |
-| Root visible                 | WhatChord selects the analyst root or surfaces it within the app's near-tie window.                      |
+| Root visible                 | WhatChord selects the analyst root or surfaces it as an alternative.                                     |
 | Candidate gap                | The analyst root is present in the sounding voicing but absent from WhatChord's full generated ranking.  |
-| Hidden ranking divergence    | WhatChord generates the analyst root but does not surface it within the near-tie window.                 |
-| Visible ranking divergence   | WhatChord selects a different root but surfaces the analyst root as a near-tie alternative.              |
+| Hidden ranking divergence    | WhatChord generates the analyst root but does not surface it as an alternative.                          |
+| Visible ranking divergence   | WhatChord selects a different root but surfaces the analyst root as an alternative.                      |
 | Rootless annotation          | The analyst root is absent from the sounding pitch set and excluded by WhatChord's no-ghost-root policy. |
 | Root + annotation bass exact | WhatChord selects the analyst root and the score's sounding bass matches the annotation inversion.       |
 
 Root-visible agreement is the product-relevant alternative-reading metric.
 Top-three presence remains in `summary.json` only for continuity with the first
 run; it is neither a product match nor a candidate-coverage boundary. Some
-near-tie alternatives rank below third but are still surfaced by the app.
+alternatives rank below third but are still surfaced by the app.
 
 Root + annotation bass is a corpus-alignment metric, not WhatChord inversion
 accuracy. WhatChord receives the score's actual lowest sounding note and
@@ -198,9 +198,9 @@ ambiguity family:
 - 404 analyst-labeled half-diminished seventh chords ranked second behind
   root-position minor-sixth chords.
 
-The analyst root is a visible near-tie candidate in every case. Chorales
-contribute 743 events, mostly first-inversion `ii6/5` and `iiø6/5` annotations.
-This is expected contextual Roman-numeral behavior, while WhatChord's selected
+The analyst root is a visible alternative in every case. Chorales contribute 743
+events, mostly first-inversion `ii6/5` and `iiø6/5` annotations. This is
+expected contextual Roman-numeral behavior, while WhatChord's selected
 sixth-chord label is a conventional isolated-voicing reading of the same pitch
 set and bass.
 
@@ -220,7 +220,7 @@ chord. That requires progression or voice-leading context outside WhatChord's
 current observed-voicing input.
 
 **Decision:** Keep the bass-rooted isolated-voicing preference, continue
-surfacing the inverted seventh as a near-tie alternative, and do not promote the
+surfacing the inverted seventh as an alternative, and do not promote the
 Roman-numeral root from key context alone.
 
 ### Rootless Annotations

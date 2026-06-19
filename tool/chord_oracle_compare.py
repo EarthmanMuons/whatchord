@@ -40,7 +40,7 @@ DEFAULT_JOBS = 8
 REVIEW_FLAG_EXPLANATIONS = {
     "disagreement": "Comparable oracle labels were available, but none matched WhatChord's top label.",
     "oracle-split": "As many or more oracles disagreed with WhatChord as agreed.",
-    "ranking-divergence": "No oracle matched WhatChord's top label, but an oracle's top label matches a possible alternative the app surfaces. Identity agrees; ranking differs.",
+    "ranking-divergence": "No oracle matched WhatChord's top label, but an oracle's top label matches an alternative the app surfaces. Identity agrees; ranking differs.",
     "insufficient-oracle-labels": "Only one oracle returned a comparable primary label.",
     "unrecognized-by-oracles": "No oracle returned a comparable primary label.",
     "oracle-error": "At least one oracle failed while processing the row.",
@@ -807,15 +807,15 @@ def build_row(
         if name not in matching_oracles
         and semantic_key_matches(whatchord_key, keys, case.pcs)
     ]
-    # Possible alternatives are the non-headline candidates the app still
-    # surfaces. An oracle that leads with one of these agrees on identity but
-    # not on ranking -- a softer, separately actionable signal than a true
-    # disagreement on a reading we never show. Matching an unsurfaced lower
-    # candidate would never reach the user.
-    possible_alt_keys = [
+    # Alternatives are the non-headline candidates the app still surfaces. An
+    # oracle that leads with one of these agrees on identity but not on ranking
+    # -- a softer, separately actionable signal than a true disagreement on a
+    # reading we never show. Matching an unsurfaced lower candidate would never
+    # reach the user.
+    alt_keys = [
         key
         for candidate in candidates
-        if candidate.get("possible")
+        if candidate.get("alternative")
         for key in (semantic_key_from_whatchord(candidate),)
         if key is not None
     ]
@@ -825,7 +825,7 @@ def build_row(
         if name in primary_semantic_oracles
         and any(
             semantic_key_matches(alt_key, primary_semantic_oracles[name], case.pcs)
-            for alt_key in possible_alt_keys
+            for alt_key in alt_keys
         )
     ]
     disagreeing_oracles = [

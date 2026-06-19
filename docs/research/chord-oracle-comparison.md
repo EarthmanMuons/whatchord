@@ -109,7 +109,7 @@ text. Each WhatChord row includes:
 - quality token;
 - score;
 - second-ranked candidate;
-- near-tie signal for diagnostics.
+- alternative flag for diagnostics.
 
 ## Running
 

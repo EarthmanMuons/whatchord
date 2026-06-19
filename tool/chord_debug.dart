@@ -191,10 +191,9 @@ void main(List<String> args) {
   }
 
   final bestScore = results.first.candidate.score;
-  final possibleAlternativeCount =
-      ChordCandidateRanking.nearTieAlternativeCount([
-        for (final result in results) result.candidate,
-      ]);
+  final alternativeCount = ChordCandidateRanking.alternativeCount([
+    for (final result in results) result.candidate,
+  ]);
 
   for (var i = 0; i < results.length; i++) {
     final r = results[i];
@@ -211,7 +210,7 @@ void main(List<String> args) {
 
     final score = c.score;
     final deltaBest = score - bestScore;
-    final possible = i != 0 && i <= possibleAlternativeCount;
+    final alternative = i != 0 && i <= alternativeCount;
 
     final rule = _formatRankingRule(r.vsPrevious?.decidedByRule);
 
@@ -222,12 +221,12 @@ void main(List<String> args) {
     final deltaStr = i == 0
         ? ''
         : '  Δ${_fmtSigned(deltaBest, width: 6, decimals: 2)}';
-    final possibleStr = possible ? ' ~possible' : '';
+    final alternativeStr = alternative ? ' ~alt' : '';
     final ruleStr = compact && i != 0 && rule.isNotEmpty
         ? '  (vs prev: $rule)'
         : '';
 
-    stdout.writeln('$rank) $sym $scoreStr$deltaStr$possibleStr$ruleStr');
+    stdout.writeln('$rank) $sym $scoreStr$deltaStr$alternativeStr$ruleStr');
 
     if (compact) continue;
 
@@ -711,10 +710,9 @@ Map<String, Object?> chordDebugJsonPayload({
   NoteParse? parsed,
 }) {
   final bestScore = results.isEmpty ? null : results.first.candidate.score;
-  final possibleAlternativeCount =
-      ChordCandidateRanking.nearTieAlternativeCount([
-        for (final result in results) result.candidate,
-      ]);
+  final alternativeCount = ChordCandidateRanking.alternativeCount([
+    for (final result in results) result.candidate,
+  ]);
   return <String, Object?>{
     'input': <String, Object?>{
       'noteCount': input.noteCount,
@@ -735,7 +733,7 @@ Map<String, Object?> chordDebugJsonPayload({
           rank: i + 1,
           result: results[i],
           bestScore: bestScore,
-          isPossibleAlternative: i != 0 && i <= possibleAlternativeCount,
+          isAlternative: i != 0 && i <= alternativeCount,
           context: context,
           notation: notation,
           spellingMode: spellingMode,
@@ -775,7 +773,7 @@ Map<String, Object?> _candidateJson({
   required int rank,
   required RankedCandidateDebug result,
   required double? bestScore,
-  required bool isPossibleAlternative,
+  required bool isAlternative,
   required AnalysisContext context,
   required ChordNotationStyle notation,
   required ChordDebugSpellingMode spellingMode,
@@ -811,7 +809,7 @@ Map<String, Object?> _candidateJson({
     'harte': HarteChordFormatter.format(id, rootName: rootName),
     'score': c.score,
     'deltaBest': deltaBest,
-    'possible': isPossibleAlternative,
+    'alternative': isAlternative,
     'rootPc': id.rootPc,
     'rootName': rootName,
     'bassPc': id.bassPc,

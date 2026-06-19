@@ -32,8 +32,9 @@ void main() {
     final expectedRootIndex = allCandidates.indexWhere(
       (candidate) => candidate.identity.rootPc == expectedRootPc,
     );
-    final possibleAlternativeCount =
-        ChordCandidateRanking.nearTieAlternativeCount(allCandidates);
+    final alternativeCount = ChordCandidateRanking.alternativeCount(
+      allCandidates,
+    );
 
     stdout.writeln(
       jsonEncode(<String, Object?>{
@@ -42,9 +43,8 @@ void main() {
         'expectedRootRank': expectedRootIndex < 0
             ? null
             : expectedRootIndex + 1,
-        'expectedRootPossible':
-            expectedRootIndex > 0 &&
-            expectedRootIndex <= possibleAlternativeCount,
+        'expectedRootAlternative':
+            expectedRootIndex > 0 && expectedRootIndex <= alternativeCount,
         'candidates': [
           for (var i = 0; i < candidates.length; i++)
             <String, Object?>{
@@ -54,7 +54,7 @@ void main() {
               'score': candidates[i].score,
               'presentIntervalsMask':
                   candidates[i].identity.presentIntervalsMask,
-              'possible': i > 0 && i <= possibleAlternativeCount,
+              'alternative': i > 0 && i <= alternativeCount,
             },
         ],
       }),

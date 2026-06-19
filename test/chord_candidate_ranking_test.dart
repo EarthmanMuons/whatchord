@@ -1338,9 +1338,9 @@ void main() {
         plain('F', 6.90),
       ];
 
-      final alternatives = ChordCandidateRanking.nearTieAlternatives(ranked);
+      final alternatives = ChordCandidateRanking.alternatives(ranked);
 
-      expect(ChordCandidateRanking.nearTieAlternativeCount(ranked), 3);
+      expect(ChordCandidateRanking.alternativeCount(ranked), 3);
       expect(alternatives.map((c) => c.identity.rootPc), [
         pc('D'),
         pc('E'),
@@ -1349,16 +1349,10 @@ void main() {
     });
 
     test('returns empty when there are fewer than two candidates', () {
-      expect(
-        ChordCandidateRanking.nearTieAlternativeCount([plain('C', 7.0)]),
-        0,
-      );
-      expect(ChordCandidateRanking.nearTieAlternativeCount(const []), 0);
-      expect(
-        ChordCandidateRanking.nearTieAlternatives([plain('C', 7.0)]),
-        isEmpty,
-      );
-      expect(ChordCandidateRanking.nearTieAlternatives(const []), isEmpty);
+      expect(ChordCandidateRanking.alternativeCount([plain('C', 7.0)]), 0);
+      expect(ChordCandidateRanking.alternativeCount(const []), 0);
+      expect(ChordCandidateRanking.alternatives([plain('C', 7.0)]), isEmpty);
+      expect(ChordCandidateRanking.alternatives(const []), isEmpty);
     });
   });
 }
