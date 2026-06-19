@@ -351,6 +351,10 @@
     "label": "genuine-ambiguity",
     "note": "B♭m6/9/F is preferred because it is a complete minor-six-nine chord with its fifth in the bass, a more conventional inversion than the complete Gm7♭5(add11)/F reading with its flat seventh in the bass. Music21 chooses the valid G-rooted half-diminished interpretation, while tonal includes B♭m6/9/F. Related root-bass cases favor their respective structures, and key context does not resolve this F-bass ambiguity."
   },
+  "0-1-6-8-10_b0": {
+    "label": "oracle-limitation",
+    "note": "B♭m7♯5/C is preferred because the voicing contains the complete B♭ minor-seventh-sharp-five shell B♭-D♭-F♯-A♭, with the slash-bass C supplying the ninth color. Tonal agrees semantically as B♭m9♯5/C. Music21's G♭/C add A♭,B♯ captures a related major-shell subset, but it drops the defining B♭ minor seventh and sharp-fifth organization."
+  },
   "0-1-6-8-10_b1": {
     "label": "oracle-limitation",
     "note": "B♭m9♯5/D♭ is preferred because the voicing contains the complete B♭ minor-seventh-sharp-five shell B♭-D♭-F♯-A♭ with C as the ninth, and D♭ is the minor third in the bass. Tonal agrees. Music21's F♯/C♯ add G♯,B♯ captures an upper-structure major shell but drops the defining minor seventh and sharp-fifth quality."
