@@ -30,6 +30,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   as raised quality marks instead of full letter-height circles, with their
   stroke weight matched to the major-seventh symbol and the two rings aligned so
   only the slash distinguishes them.
+- Possible alternatives now stay rank-contiguous when hard rules reorder close
+  chord candidates, so higher-ranked interpretations are not skipped.
 
 ### Fixed
 

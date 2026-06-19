@@ -1326,10 +1326,11 @@ void main() {
       score: score,
     );
 
-    test('keeps a higher-scoring alternative and filters past a gap', () {
+    test('keeps ranked candidates above the last score-window alternative', () {
       // #1 was promoted below a higher-scoring reading (D, 7.30). A later
       // candidate (F, 6.90) is within the window even though the one before it
-      // (E, 6.50) is not, so a break-on-first-miss would wrongly drop it.
+      // (E, 6.50) is not, so the visible alternative list should include the
+      // whole ranked prefix through F rather than skipping E.
       final ranked = [
         plain('C', 7.00),
         plain('D', 7.30),
@@ -1339,10 +1340,20 @@ void main() {
 
       final alternatives = ChordCandidateRanking.nearTieAlternatives(ranked);
 
-      expect(alternatives.map((c) => c.identity.rootPc), [pc('D'), pc('F')]);
+      expect(ChordCandidateRanking.nearTieAlternativeCount(ranked), 3);
+      expect(alternatives.map((c) => c.identity.rootPc), [
+        pc('D'),
+        pc('E'),
+        pc('F'),
+      ]);
     });
 
     test('returns empty when there are fewer than two candidates', () {
+      expect(
+        ChordCandidateRanking.nearTieAlternativeCount([plain('C', 7.0)]),
+        0,
+      );
+      expect(ChordCandidateRanking.nearTieAlternativeCount(const []), 0);
       expect(
         ChordCandidateRanking.nearTieAlternatives([plain('C', 7.0)]),
         isEmpty,
