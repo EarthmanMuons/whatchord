@@ -311,6 +311,10 @@
     "label": "clearly-correct",
     "note": "C♯m(maj7)/B♯ is preferred because C♯-E-G♯-B♯ forms a complete minor-major-seventh chord and the bass is the major seventh. Tonal agrees semantically as D♭m(maj7)/C. Music21's A♭ augmented add-eleven spelling and the nearby C augmented add-flat-nine alternative both describe related color, but they do not explain all four notes as core chord tones as directly."
   },
+  "0-1-4-9_b0": {
+    "label": "context-dependent",
+    "note": "C6♭9 is preferred in neutral/C context because C is the bass/root and the voicing directly supplies the major third, sixth, and flat-ninth color. Music21's Am/C add C♯ is the split-third relative-minor view, while tonal's D♭m♭6M7/C matches the C♯m(maj7)♭13/B♯ alternate that becomes preferred in C♯ minor. The row is context-dependent rather than an engine issue: C-bass root-position evidence favors C6♭9 here, but C♯ minor context legitimately favors the minor-major-seventh reading."
+  },
   "0-1-4-7_b7": {
     "label": "clearly-correct",
     "note": "Cadd♭9/G is the clearest interpretation because it preserves a complete C-major triad in conventional second inversion and names D♭ as the single chromatic flat ninth. Music21 and tonal both agree on the C-rooted add-flat-nine structure. The E-rooted alternatives require less conventional mixed color tones, while C♯dim/G drops the sounding C."

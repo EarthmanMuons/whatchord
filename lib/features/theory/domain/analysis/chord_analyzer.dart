@@ -11,7 +11,6 @@ import '../models/chord_input.dart';
 import '../models/observed_voicing.dart';
 import '../services/chord_quality_intervals.dart';
 import '../services/chord_tone_roles.dart';
-import '../services/note_spelling.dart';
 import '../services/pitch_class.dart';
 import 'chord_candidate_ranking.dart';
 import 'chord_templates.dart';
@@ -109,8 +108,6 @@ abstract final class ChordAnalyzer {
   static const _altPenaltyDim7 = 0.30; // softened for symmetric dim7
   static const _altPenaltyTriad =
       0.30; // softened for non-seventh-family chords
-  static const _awkwardMinor7Sharp5SpellingPenalty =
-      3.0; // e.g. Em7#5 requires B# for the sharp fifth
 
   // Dominant-stack coherence bonuses.
   static const _domStackPartial = 0.8; // root-position dom7 + 9 + #11
@@ -503,19 +500,6 @@ abstract final class ChordAnalyzer {
       );
     }
 
-    final awkwardMinor7Sharp5SpellingDelta =
-        _awkwardMinor7Sharp5SpellingPenaltyFor(
-          quality: template.quality,
-          extensions: extensions,
-          relMask: relMask,
-          rootPc: rootPc,
-          context: context,
-        );
-    if (awkwardMinor7Sharp5SpellingDelta != 0) {
-      raw += awkwardMinor7Sharp5SpellingDelta;
-      add('awkward m7#5 spelling', awkwardMinor7Sharp5SpellingDelta);
-    }
-
     final dominantStackDelta = _dominantStackCoherenceBonus(
       quality: template.quality,
       extensions: extensions,
@@ -850,53 +834,6 @@ abstract final class ChordAnalyzer {
     if (!hasThird || !hasFifth) return 0;
 
     return _add9BassUpperTriadBonus;
-  }
-
-  static double _awkwardMinor7Sharp5SpellingPenaltyFor({
-    required ChordQualityToken quality,
-    required Set<ChordExtension> extensions,
-    required int relMask,
-    required int rootPc,
-    required AnalysisContext context,
-  }) {
-    if (quality != ChordQualityToken.minor7Sharp5) return 0;
-    if (extensions.isNotEmpty) return 0;
-    if ((relMask & (1 << augmentedFifthInterval)) == 0) return 0;
-
-    final roles = ChordToneRoles.build(
-      quality: quality,
-      extensions: extensions,
-      relMask: relMask,
-    );
-    final identity = ChordIdentity(
-      rootPc: rootPc,
-      bassPc: rootPc,
-      quality: quality,
-      extensions: extensions,
-      toneRolesByInterval: roles,
-      presentIntervalsMask: relMask,
-    );
-    final rootName = spellChordRoot(identity, tonality: context.tonality);
-    final sharpFiveName = spellPitchClass(
-      rootPc + augmentedFifthInterval,
-      tonality: context.tonality,
-      chordRootName: rootName,
-      role: roles[augmentedFifthInterval],
-    );
-
-    return _isAwkwardMemberSpelling(sharpFiveName)
-        ? -_awkwardMinor7Sharp5SpellingPenalty
-        : 0;
-  }
-
-  static bool _isAwkwardMemberSpelling(String name) {
-    final ascii = normalizeNoteNameToAscii(name);
-    return ascii == 'B#' ||
-        ascii == 'Cb' ||
-        ascii == 'E#' ||
-        ascii == 'Fb' ||
-        ascii.contains('x') ||
-        ascii.contains('bb');
   }
 
   /// Rotates a 12-bit pitch-class mask to be relative to the given root.
