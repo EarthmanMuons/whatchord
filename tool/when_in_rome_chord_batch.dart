@@ -32,37 +32,29 @@ void main() {
     final expectedRootIndex = allCandidates.indexWhere(
       (candidate) => candidate.identity.rootPc == expectedRootPc,
     );
-    final expectedRootCandidate = expectedRootIndex < 0
-        ? null
-        : allCandidates[expectedRootIndex];
+    final possibleAlternativeCount =
+        ChordCandidateRanking.nearTieAlternativeCount(allCandidates);
 
     stdout.writeln(
       jsonEncode(<String, Object?>{
         'id': request['id'],
-        'expectedRootGenerated': expectedRootCandidate != null,
+        'expectedRootGenerated': expectedRootIndex >= 0,
         'expectedRootRank': expectedRootIndex < 0
             ? null
             : expectedRootIndex + 1,
-        'expectedRootNearTie':
+        'expectedRootPossible':
             expectedRootIndex > 0 &&
-            ChordCandidateRanking.isNearTie(
-              allCandidates.first.score,
-              expectedRootCandidate!.score,
-            ),
+            expectedRootIndex <= possibleAlternativeCount,
         'candidates': [
-          for (final candidate in candidates)
+          for (var i = 0; i < candidates.length; i++)
             <String, Object?>{
-              'rootPc': candidate.identity.rootPc,
-              'bassPc': candidate.identity.bassPc,
-              'quality': candidate.identity.quality.name,
-              'score': candidate.score,
-              'presentIntervalsMask': candidate.identity.presentIntervalsMask,
-              'nearTie':
-                  candidate != candidates.first &&
-                  ChordCandidateRanking.isNearTie(
-                    candidates.first.score,
-                    candidate.score,
-                  ),
+              'rootPc': candidates[i].identity.rootPc,
+              'bassPc': candidates[i].identity.bassPc,
+              'quality': candidates[i].identity.quality.name,
+              'score': candidates[i].score,
+              'presentIntervalsMask':
+                  candidates[i].identity.presentIntervalsMask,
+              'possible': i > 0 && i <= possibleAlternativeCount,
             },
         ],
       }),
