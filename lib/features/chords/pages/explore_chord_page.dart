@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/home/home.dart';
+import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/scales/scales.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
@@ -112,8 +113,11 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
     final previewPitchClasses = {
       for (final midiNote in _previewAnimation.activeNotes) midiNote % 12,
     };
+    final liveNotes = ref.watch(liveSoundingNoteNumbersProvider);
     final displayedKeyboardNotes = _previewAnimation.isRunning
         ? _previewAnimation.activeNotes
+        : liveNotes.isNotEmpty
+        ? liveNotes
         : example.normalizedVoicing.toSet();
 
     return LayoutBuilder(
@@ -185,6 +189,8 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                       : kPianoSeparatorLineHeight + 1),
                             ),
                             highlightedNotes: displayedKeyboardNotes,
+                            normalHighlightPitchClasses:
+                                example.memberPitchClasses,
                             hasTonalityBar: true,
                             topBar: TonalityBarView(
                               height: kToolbarHeight,

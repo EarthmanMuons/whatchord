@@ -79,6 +79,7 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
     this.middleCLabel = 'C',
     this.middleCLabelTextScale = 1.0,
     this.scaleNoteNumbers = const <int>{},
+    this.normalHighlightPitchClasses,
     this.tonicPitchClass,
     this.enableZoom = false,
     this.widthScale = 1.0,
@@ -113,6 +114,11 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
   /// Scale member note numbers. When non-empty, each member key is marked with
   /// a dot so the in-scale notes read at a glance.
   final Set<int> scaleNoteNumbers;
+
+  /// Pitch classes that keep the normal active highlight when highlighted.
+  /// Highlighted notes outside this set use the muted active fill. Null means
+  /// no pitch-class filter.
+  final Set<int>? normalHighlightPitchClasses;
 
   /// Pitch class (0-11) of the scale tonic, marked with a triangle instead of a
   /// dot. Null marks every member with a dot.
@@ -982,6 +988,8 @@ class _ScrollablePianoKeyboardState
                             highlightedNoteNumbers:
                                 widget.highlightedNoteNumbers,
                             scaleNoteNumbers: widget.scaleNoteNumbers,
+                            normalHighlightPitchClasses:
+                                widget.normalHighlightPitchClasses,
                             tonicPitchClass: widget.tonicPitchClass,
                             height: widget.height,
                             decorations: decorations,

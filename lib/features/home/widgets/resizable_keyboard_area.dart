@@ -25,6 +25,7 @@ class ResizableKeyboardArea extends ConsumerWidget {
     required this.maxKeyboardHeight,
     required this.highlightedNotes,
     this.scaleNotes = const <int>{},
+    this.normalHighlightPitchClasses,
     this.tonicPitchClass,
     this.topBar,
     this.hasTonalityBar = false,
@@ -38,6 +39,7 @@ class ResizableKeyboardArea extends ConsumerWidget {
 
   final Set<int> highlightedNotes;
   final Set<int> scaleNotes;
+  final Set<int>? normalHighlightPitchClasses;
   final int? tonicPitchClass;
 
   /// Chrome above the keys (the tonality bar). Null for pages without it.
@@ -73,6 +75,7 @@ class ResizableKeyboardArea extends ConsumerWidget {
           fullWhiteKeyCount: PianoGeometry.fullKeyboardWhiteKeyCount,
           lowestNoteNumber: PianoGeometry.fullKeyboardLowestMidi,
           scaleNoteNumbers: scaleNotes,
+          normalHighlightPitchClasses: normalHighlightPitchClasses,
           tonicPitchClass: tonicPitchClass,
           showMiddleCMarker: true,
           middleCLabel: 'C',
