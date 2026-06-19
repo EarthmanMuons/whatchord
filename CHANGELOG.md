@@ -12,69 +12,45 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Added a Chord Symbol Guide link under a new Reference section in Help &
-  Support, opening the documentation that explains WhatChord's notation and
-  formatting conventions.
+- Added a resizable on-screen keyboard. Pinch to widen the keys, drag the handle
+  above the bottom bar to make the keyboard taller, and keep the same size
+  across Home, Explore Chords, and Explore Scales. Long-press the keyboard for
+  quick recenter and reset actions, or double-tap the handle to reset.
 - Live MIDI identification now reads register. When a complete chord is played
   above an isolated bass note, the upper-structure slash name (such as Am7/D) is
   surfaced as the primary reading, with the close alternatives still listed.
-- Added a resizable on-screen keyboard. Pinch to widen the keys and drag the
-  handle above the bottom bar to make the keyboard taller. The size is
-  remembered and applies across Home, Explore Chords, and Explore Scales.
-  Long-press the keyboard for quick actions, or double-tap the handle, to
-  recenter on the active notes or restore the default size.
+- Added a Chord Symbol Guide, linked from Help & Support and the website's chord
+  identifier, explaining WhatChord's notation and formatting conventions.
 
 ### Changed
 
-- Refined the symbolic diminished and half-diminished chord symbols so they read
-  as raised quality marks instead of full letter-height circles, with their
-  stroke weight matched to the major-seventh symbol and the two rings aligned so
-  only the slash distinguishes them.
+- Refined chord-symbol typography in the app and on the website, including
+  clearer diminished and half-diminished marks and engraved chord glyphs in more
+  places.
+- Improved the website chord symbol guide with a hosted reference page, section
+  links, tighter article spacing, clearer examples, and wording focused on how
+  musicians read the symbols.
 - Possible alternatives now stay rank-contiguous when hard rules reorder close
-  chord candidates, so higher-ranked interpretations are not skipped.
+  chord candidates, so the visible alternatives list does not skip higher-ranked
+  interpretations.
+- The website chord identifier now states that typed notes are identified by
+  pitch, not spelling.
 
 ### Fixed
 
 - Opening a shared chord link now returns to the home screen, so the linked
   chord is shown even when the app was last left on an Explore page.
-- Improved identification of fifthless extended major and dominant chords,
-  favoring labels such as Dbmaj9#11, Eb13, and C9#5#11 over less direct altered
-  sus, major-flat-five, or flat-five flat-thirteen readings.
-- Improved identification of major-nine-suspended-fourth chords, treating the
-  ninth as a natural color instead of a conflicting suspended tone.
-- Improved altered dominant identification in split-third sixth ambiguities,
-  favoring complete sharp-nine dominant readings such as A7(#9,#11) and
-  A13(#9,#11).
-- Improved altered dominant thirteenth identification, favoring complete
-  sharp-nine dominant readings such as Eb13#9 over heavily colored sixth-chord
-  spellings.
-- Improved altered dominant flat-thirteen identification, favoring complete
-  F#7(#9,#11,b13)-style readings over split-third sixth-chord spellings.
-- Improved dominant flat-thirteen ambiguity handling, surfacing complete
-  F7b13-style readings alongside closely related major-nine sharp-five labels.
-- Improved dominant nine flat-thirteen identification, favoring complete
-  F9b13-style readings over more exotic major-nine flat-five flat-thirteen
-  spellings.
-- Improved altered dominant flat-nine flat-thirteen identification, favoring
-  complete F7(b9,b13)-style readings over remote minor-thirteenth flat-five
-  spellings.
-- Improved Lydian major six-nine identification, favoring complete 6/9#11
-  readings over remote minor-eleventh sharp-five spellings.
-- Improved inverted Lydian-dominant nine sharp-eleven identification, favoring
-  complete C9#11/Bb-style readings over altered-fifth tritone spellings.
-- Improved altered dominant flat-nine sharp-eleven identification, favoring
-  complete dominant readings over heavily colored diminished-seventh spellings.
-- Improved altered sharp-five dominant identification, preferring labels such as
-  C7#5(b9,#11) over natural-eleventh sharp-five spellings.
-- Improved Lydian-dominant flat-thirteen identification, favoring complete
-  9#11b13 dominant stacks such as F#9(#11,b13) over remote altered-fifth
-  spellings.
-- Improved altered flat-nine dominant flat-thirteen identification, favoring
-  complete F#7(b9,#11,b13)-style stacks over remote minor-thirteenth altered
-  fifth spellings.
-- Improved identification of doubled-note voicings, preventing incomplete
-  fifthless sixth chords from outranking complete inverted minor or diminished
-  chords.
+- Improved extended-chord identification, including fifthless major and dominant
+  stacks, major-nine-suspended-fourth chords, Lydian major 6/9#11 sonorities,
+  and Lydian-dominant slash chords.
+- Improved altered-dominant identification, favoring complete dominant
+  structures such as A13(#9,#11), Eb13#9, F9b13, C9#11/Bb, and F#7(b9,#11,b13)
+  over less direct split-third, diminished, or remote slash spellings.
+- Improved ambiguity handling for close dominant and major-family readings, so
+  plausible alternatives such as F7b13 remain visible when they are musically
+  useful.
+- Improved identification of doubled-note voicings, so incomplete fifthless
+  sixth chords no longer outrank clearer inverted minor or diminished chords.
 
 ## [2026.6.14] - 2026-06-14
 
