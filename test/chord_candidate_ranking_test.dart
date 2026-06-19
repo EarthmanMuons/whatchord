@@ -792,6 +792,30 @@ void main() {
     );
   });
 
+  test('complete add-nine inversion beats minor7 sharp-five', () {
+    final addNineInversion = _candidate(
+      quality: ChordQualityToken.major,
+      root: 'C',
+      bass: 'E',
+      presentIntervals: const {0, 2, 4, 7},
+      extensions: const {ChordExtension.add9},
+      score: 7.07,
+    );
+    final minorSevenSharpFive = _candidate(
+      quality: ChordQualityToken.minor7Sharp5,
+      root: 'E',
+      bass: 'E',
+      presentIntervals: const {0, 3, 8, 10},
+      score: 8.50,
+    );
+
+    _expectRule(
+      addNineInversion,
+      minorSevenSharpFive,
+      'prefer complete add-nine inversion over minor-seven sharp-five',
+    );
+  });
+
   test('minor7 eleventh-bass slash beats minor7 sharp-five slash', () {
     final minor7Slash = _candidate(
       quality: ChordQualityToken.minor7,

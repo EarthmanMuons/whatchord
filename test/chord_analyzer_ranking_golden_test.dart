@@ -91,6 +91,18 @@ void main() {
     ),
 
     golden(
+      description: 'complete add-nine inversion beats minor seven sharp five',
+      expectedSymbol: 'Cadd9 / E',
+      expectedAlternateSymbols: ['Em7#5'],
+      pcs: ['C', 'D', 'E', 'G'],
+      bass: 'E',
+      expectedRoot: 'C',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.add9},
+    ),
+
+    golden(
       description:
           'complete major triad with flat ninth beats note-dropping '
           'diminished triad',

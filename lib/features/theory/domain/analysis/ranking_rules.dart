@@ -111,6 +111,10 @@ final List<NamedRule> hardRules = <NamedRule>[
     _preferCompleteMajorSixNineOverInvertedMinor7Sharp5,
   ),
   NamedRule(
+    'prefer complete add-nine inversion over minor-seven sharp-five',
+    _preferCompleteAddNineInversionOverMinor7Sharp5,
+  ),
+  NamedRule(
     'prefer simple triad add-tone over seventh-family unusual quality',
     _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality,
   ),
@@ -237,6 +241,49 @@ bool _minor7SharpFiveExtensionStackIsRemote(ChordIdentity id) {
         extension == ChordExtension.eleven ||
         extension == ChordExtension.add11,
   );
+}
+
+/// Prefers a complete major/minor add9 inversion over root-position minor7#5.
+///
+/// Example: {C, D, E, G} with E in the bass is normally Cadd9/E, not Em7#5.
+/// The minor7#5 template names all four pitch classes as required tones, but
+/// it respells the C as B# and turns a complete add9 triad inversion into a
+/// rarer altered-fifth seventh chord.
+int? _preferCompleteAddNineInversionOverMinor7Sharp5(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isCompleteAddNineTriadInversion(a.identity, fa);
+  final bIsPreferred = _isCompleteAddNineTriadInversion(b.identity, fb);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  final fOther = aIsPreferred ? fb : fa;
+  if (other.identity.quality != ChordQualityToken.minor7Sharp5) return null;
+  if (!fOther.isRootPosition) return null;
+  if (other.identity.extensions.isNotEmpty) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isCompleteAddNineTriadInversion(
+  ChordIdentity id,
+  CandidateFeatures features,
+) {
+  if (!features.isCompleteMajorMinorTriad || features.isRootPosition) {
+    return false;
+  }
+  if (id.extensions.length != 1 ||
+      !id.extensions.contains(ChordExtension.add9)) {
+    return false;
+  }
+
+  final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
+  final expectedThird = id.quality == ChordQualityToken.major ? 4 : 3;
+  return bassInterval == expectedThird || bassInterval == 7;
 }
 
 /// Near-tie tie-breakers, applied in priority order only when two candidates
