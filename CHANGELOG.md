@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.6.19] - 2026-06-19
+
 ### Added
 
 - Added a resizable on-screen keyboard. Pinch to widen the keys, drag the handle
@@ -718,7 +720,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.6.14...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.6.19...HEAD
+[2026.6.19]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.6.14...v2026.6.19
 [2026.6.14]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.6.10...v2026.6.14
 [2026.6.10]:
