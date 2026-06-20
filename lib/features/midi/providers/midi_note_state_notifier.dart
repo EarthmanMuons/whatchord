@@ -69,9 +69,9 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
         break;
 
       case MidiMessageType.controlChange:
-        if (message.ccNumber == MidiConstants.allNotesOffController) {
+        if (message.ccNumber == MidiConstants.ccAllNotesOff) {
           allNotesOff();
-        } else if (message.ccNumber == MidiConstants.sustainPedalController &&
+        } else if (message.ccNumber == MidiConstants.ccSustainPedal &&
             message.ccValue != null) {
           handlePedalValue(message.ccValue!);
         }
