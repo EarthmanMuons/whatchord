@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:flutter_midi_command/flutter_midi_command.dart' as fmc;
 
+import '../models/midi_constants.dart';
+
 /// Sends MIDI note and control messages to connected output devices.
 ///
 /// Used to play app-generated preview notes through an external keyboard's own
@@ -29,8 +31,8 @@ class MidiOutputSender {
   /// note can be left ringing on the device. Notes are only ever sent on
   /// [channel], so clearing that channel is sufficient.
   void panic() {
-    _sendControlChange(120, 0);
-    _sendControlChange(123, 0);
+    _sendControlChange(MidiConstants.allSoundOffController, 0);
+    _sendControlChange(MidiConstants.allNotesOffController, 0);
   }
 
   void _send(int status, int data1, int data2) {
