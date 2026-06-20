@@ -550,7 +550,7 @@ class _AudioMonitorModeControl extends StatelessWidget {
   String get _description => switch (mode) {
     AudioMonitorMode.internal => 'Hear piano sounds through this device',
     AudioMonitorMode.midiOut =>
-      'Play chord previews through the connected MIDI device',
+      'Play previews through the connected MIDI device',
   };
 
   @override
