@@ -6,17 +6,26 @@ import 'audio_monitor_mode.dart';
 class AudioMonitorSettings {
   const AudioMonitorSettings({
     required this.mode,
-    required this.volume,
+    required this.internalVolume,
+    required this.midiOutVolume,
     required this.muted,
   });
 
   const AudioMonitorSettings.defaults()
     : mode = AudioMonitorMode.internal,
-      volume = 0.7,
+      internalVolume = 0.7,
+      midiOutVolume = 0.5,
       muted = false;
 
   final AudioMonitorMode mode;
-  final double volume;
+
+  /// Playback volume for the internal soundfont synth (0-1).
+  final double internalVolume;
+
+  /// Playback volume for MIDI Out, mapped onto note velocity (0-1). Defaults
+  /// lower than internal so an external instrument is not surprisingly loud.
+  final double midiOutVolume;
+
   final bool muted;
 
   /// Whether the monitor produces any sound. Muting is the off switch.
@@ -31,18 +40,26 @@ class AudioMonitorSettings {
   /// Whether the internal synth should be running (internal mode, not muted).
   bool get playsInternal => isInternal && !muted;
 
-  /// Volume applied to playback, accounting for mute. The stored [volume] is
+  /// Volume for the currently selected output.
+  double get volume => switch (mode) {
+    AudioMonitorMode.internal => internalVolume,
+    AudioMonitorMode.midiOut => midiOutVolume,
+  };
+
+  /// Volume applied to playback, accounting for mute. The stored volume is
   /// preserved while muted so unmuting restores the prior level.
   double get effectiveVolume => muted ? 0.0 : volume;
 
   AudioMonitorSettings copyWith({
     AudioMonitorMode? mode,
-    double? volume,
+    double? internalVolume,
+    double? midiOutVolume,
     bool? muted,
   }) {
     return AudioMonitorSettings(
       mode: mode ?? this.mode,
-      volume: volume ?? this.volume,
+      internalVolume: internalVolume ?? this.internalVolume,
+      midiOutVolume: midiOutVolume ?? this.midiOutVolume,
       muted: muted ?? this.muted,
     );
   }
