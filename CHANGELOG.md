@@ -22,6 +22,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- Simplified the Playback Volume control. The mute button now sits inline at the
+  left of the slider, the flanking speaker icons are gone, and volume snaps to
+  5% steps for predictable, repeatable levels. The readout shows "Muted" while
+  muted and the current percentage while you adjust.
 - Explore pages now show live input on the keyboard when playback is idle and
   include the MIDI status button in the top bar. Explore Chords shows non-chord
   live notes with a muted gray highlight, and Explore Scales does the same for
