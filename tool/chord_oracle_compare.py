@@ -1102,9 +1102,7 @@ def degrees_from_quality(
     compact = re.sub(r"^7aug", "aug7", compact)
     # 'dom7dim5': after 'dom' removal becomes '7dim5'; map 'dim5' to 'b5'.
     compact = compact.replace("dim5", "b5")
-    # Leading-number sus ('7sus', '9sus4', …) → move number after sus so the
-    # sus branch in base_degrees applies, then 'b7' is added from the digit.
-    compact = re.sub(r"^(\d+)(sus4?)", r"\g<2>\g<1>", compact)
+    compact = _normalize_leading_sus(compact)
     # Plain 'sus' (music21 canonical for sus4 triad) → 'sus4'.
     if compact == "sus":
         compact = "sus4"
@@ -1151,6 +1149,23 @@ def _absolute_add_pitch_classes(value: str) -> list[int]:
     return out
 
 
+def _normalize_leading_sus(compact: str) -> str:
+    """Expand leading-number sus labels so implied sevenths/extensions survive."""
+    match = re.match(r"^(7|9|11|13)(sus4?)(.*)$", compact)
+    if match is None:
+        return compact
+
+    number, sus, suffix = match.groups()
+    sus_token = "sus4" if sus == "sus" else sus
+    stacked = {
+        "7": "7",
+        "9": "7add9",
+        "11": "7add9add11",
+        "13": "7add9add13",
+    }[number]
+    return f"{sus_token}{stacked}{suffix}"
+
+
 def base_degrees(compact: str) -> set[str]:
     if not compact or compact == "maj":
         return {"3", "5"}
@@ -1161,9 +1176,9 @@ def base_degrees(compact: str) -> set[str]:
         return {"b3", "b5", "bb7"} if "7" in compact else {"b3", "b5"}
     if compact.startswith("aug"):
         out = {"3", "#5"}
-    elif compact.startswith("sus2") or "sus2" in compact:
+    elif "sus2" in compact:
         out = {"2", "5"}
-    elif compact.startswith("sus") and not compact.startswith("sus2"):
+    elif "sus" in compact:
         out = {"4", "5"}
     elif compact.startswith("minmaj") or compact.startswith("mmaj"):
         out = {"b3", "5", "7"}
@@ -1651,7 +1666,7 @@ def comparable_quality_token(raw: str) -> str:
     # '7+' → '7aug' → swap to 'aug7' so the aug prefix is recognized
     compact = re.sub(r"^7aug", "aug7", compact)
     compact = compact.replace("dim5", "b5")
-    compact = re.sub(r"^(\d+)(sus4?)", r"\g<2>\g<1>", compact)
+    compact = _normalize_leading_sus(compact)
     if compact == "sus":
         compact = "sus4"
     if compact in {"", "maj", "min", "m", "dim", "aug", "sus2", "sus4"}:
