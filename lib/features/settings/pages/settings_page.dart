@@ -148,6 +148,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
     final midiStatus = ref.watch(midiConnectionStatusProvider);
+    final midiConnected = midiStatus.phase == MidiConnectionPhase.connected;
     final audioSettings = ref.watch(audioMonitorSettingsNotifier);
     final audioVolumePercent = (audioSettings.volume * 100).round();
 
@@ -196,158 +197,166 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
               ),
 
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Row(
-                  children: [
-                    Semantics(
-                      button: true,
-                      label: 'Playback Volume',
-                      hint: 'Show current playback volume',
-                      onTapHint: 'Show current playback volume',
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: _showCurrentVolume,
-                        child: const Text('Playback Volume'),
-                      ),
-                    ),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 180),
-                      switchInCurve: Curves.easeOut,
-                      switchOutCurve: Curves.easeIn,
-                      transitionBuilder: (child, animation) =>
-                          FadeTransition(opacity: animation, child: child),
-                      child: _isAdjustingAudioVolume
-                          ? Text(
-                              ' $audioVolumePercent%',
-                              key: ValueKey<int>(audioVolumePercent),
-                            )
-                          : const SizedBox.shrink(key: ValueKey<String>('off')),
-                    ),
-                    const Spacer(),
-                    _AudioMuteButton(
-                      muted: audioSettings.muted,
-                      onPressed: () {
-                        unawaited(
-                          ref
-                              .read(audioMonitorSettingsNotifier.notifier)
-                              .setMuted(!audioSettings.muted),
-                        );
-                        unawaited(HapticFeedback.selectionClick());
-                      },
-                    ),
-                  ],
-                ),
-                subtitle: Semantics(
-                  container: true,
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 150),
-                    opacity: audioSettings.muted ? 0.38 : 1,
-                    child: IgnorePointer(
-                      ignoring: audioSettings.muted,
-                      child: SizedBox(
-                        height: 48,
-                        child: Stack(
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.volume_mute_outlined),
-                                Expanded(
-                                  child: Slider(
-                                    value: audioSettings.volume,
-                                    min: 0,
-                                    max: 1,
-                                    divisions: 100,
-                                    onChangeStart: (_) {
-                                      _showAudioVolumePercentLabel();
-                                    },
-                                    onChangeEnd: (_) {
-                                      _scheduleVolumeLabelDismiss();
-                                    },
-                                    onChanged: (value) {
-                                      _showAudioVolumePercentLabel();
-                                      unawaited(
-                                        ref
-                                            .read(
-                                              audioMonitorSettingsNotifier
-                                                  .notifier,
-                                            )
-                                            .setVolume(value),
-                                      );
-                                      _scheduleVolumePreview(
-                                        _sliderVolumePreviewDebounce,
-                                      );
-                                    },
-                                  ),
-                                ),
-                                const Icon(Icons.volume_up_outlined),
-                              ],
-                            ),
-                            Positioned.fill(
-                              child: Row(
-                                children: [
-                                  _VolumeNudgeHitTarget(
-                                    semanticsLabel: 'Decrease volume',
-                                    onTap: () {
-                                      _adjustAudioVolumeByPercent(
-                                        -_volumeNudgeStepPercent,
-                                      );
-                                      _scheduleVolumeLabelDismiss();
-                                    },
-                                    onLongPressStart: () {
-                                      _showAudioVolumePercentLabel();
-                                      _startVolumeRepeat(-1);
-                                    },
-                                    onLongPressEnd: () {
-                                      _stopVolumeRepeat();
-                                      _scheduleVolumeLabelDismiss();
-                                    },
-                                  ),
-                                  const Expanded(child: SizedBox()),
-                                  _VolumeNudgeHitTarget(
-                                    semanticsLabel: 'Increase volume',
-                                    onTap: () {
-                                      _adjustAudioVolumeByPercent(
-                                        _volumeNudgeStepPercent,
-                                      );
-                                      _scheduleVolumeLabelDismiss();
-                                    },
-                                    onLongPressStart: () {
-                                      _showAudioVolumePercentLabel();
-                                      _startVolumeRepeat(1);
-                                    },
-                                    onLongPressEnd: () {
-                                      _stopVolumeRepeat();
-                                      _scheduleVolumeLabelDismiss();
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Audio Monitor'),
-                subtitle: const Text('Hear piano sounds as you play'),
-                value: audioSettings.isInternal,
-                onChanged: (enabled) {
+              _AudioMonitorModeControl(
+                mode: audioSettings.mode,
+                midiAvailable: midiConnected,
+                onModeChanged: (mode) {
                   unawaited(
                     ref
                         .read(audioMonitorSettingsNotifier.notifier)
-                        .setMode(
-                          enabled
-                              ? AudioMonitorMode.internal
-                              : AudioMonitorMode.off,
-                        ),
+                        .setMode(mode),
                   );
                 },
+              ),
+
+              AnimatedSize(
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeInOut,
+                alignment: Alignment.topCenter,
+                child: !audioSettings.isInternal
+                    ? const SizedBox(width: double.infinity)
+                    : ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Row(
+                          children: [
+                            Semantics(
+                              button: true,
+                              label: 'Playback Volume',
+                              hint: 'Show current playback volume',
+                              onTapHint: 'Show current playback volume',
+                              child: GestureDetector(
+                                behavior: HitTestBehavior.opaque,
+                                onTap: _showCurrentVolume,
+                                child: const Text('Playback Volume'),
+                              ),
+                            ),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 180),
+                              switchInCurve: Curves.easeOut,
+                              switchOutCurve: Curves.easeIn,
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  ),
+                              child: _isAdjustingAudioVolume
+                                  ? Text(
+                                      ' $audioVolumePercent%',
+                                      key: ValueKey<int>(audioVolumePercent),
+                                    )
+                                  : const SizedBox.shrink(
+                                      key: ValueKey<String>('off'),
+                                    ),
+                            ),
+                            const Spacer(),
+                            _AudioMuteButton(
+                              muted: audioSettings.muted,
+                              onPressed: () {
+                                unawaited(
+                                  ref
+                                      .read(
+                                        audioMonitorSettingsNotifier.notifier,
+                                      )
+                                      .setMuted(!audioSettings.muted),
+                                );
+                                unawaited(HapticFeedback.selectionClick());
+                              },
+                            ),
+                          ],
+                        ),
+                        subtitle: Semantics(
+                          container: true,
+                          child: AnimatedOpacity(
+                            duration: const Duration(milliseconds: 150),
+                            opacity: audioSettings.muted ? 0.38 : 1,
+                            child: IgnorePointer(
+                              ignoring: audioSettings.muted,
+                              child: SizedBox(
+                                height: 48,
+                                child: Stack(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.volume_mute_outlined),
+                                        Expanded(
+                                          child: Slider(
+                                            value: audioSettings.volume,
+                                            min: 0,
+                                            max: 1,
+                                            divisions: 100,
+                                            onChangeStart: (_) {
+                                              _showAudioVolumePercentLabel();
+                                            },
+                                            onChangeEnd: (_) {
+                                              _scheduleVolumeLabelDismiss();
+                                            },
+                                            onChanged: (value) {
+                                              _showAudioVolumePercentLabel();
+                                              unawaited(
+                                                ref
+                                                    .read(
+                                                      audioMonitorSettingsNotifier
+                                                          .notifier,
+                                                    )
+                                                    .setVolume(value),
+                                              );
+                                              _scheduleVolumePreview(
+                                                _sliderVolumePreviewDebounce,
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        const Icon(Icons.volume_up_outlined),
+                                      ],
+                                    ),
+                                    Positioned.fill(
+                                      child: Row(
+                                        children: [
+                                          _VolumeNudgeHitTarget(
+                                            semanticsLabel: 'Decrease volume',
+                                            onTap: () {
+                                              _adjustAudioVolumeByPercent(
+                                                -_volumeNudgeStepPercent,
+                                              );
+                                              _scheduleVolumeLabelDismiss();
+                                            },
+                                            onLongPressStart: () {
+                                              _showAudioVolumePercentLabel();
+                                              _startVolumeRepeat(-1);
+                                            },
+                                            onLongPressEnd: () {
+                                              _stopVolumeRepeat();
+                                              _scheduleVolumeLabelDismiss();
+                                            },
+                                          ),
+                                          const Expanded(child: SizedBox()),
+                                          _VolumeNudgeHitTarget(
+                                            semanticsLabel: 'Increase volume',
+                                            onTap: () {
+                                              _adjustAudioVolumeByPercent(
+                                                _volumeNudgeStepPercent,
+                                              );
+                                              _scheduleVolumeLabelDismiss();
+                                            },
+                                            onLongPressStart: () {
+                                              _showAudioVolumePercentLabel();
+                                              _startVolumeRepeat(1);
+                                            },
+                                            onLongPressEnd: () {
+                                              _stopVolumeRepeat();
+                                              _scheduleVolumeLabelDismiss();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
               ),
 
               const SizedBox(height: 16),
@@ -620,6 +629,82 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _AudioMonitorModeControl extends StatelessWidget {
+  const _AudioMonitorModeControl({
+    required this.mode,
+    required this.midiAvailable,
+    required this.onModeChanged,
+  });
+
+  final AudioMonitorMode mode;
+  final bool midiAvailable;
+  final ValueChanged<AudioMonitorMode> onModeChanged;
+
+  static const String _midiUnavailableMessage =
+      'Connect a MIDI device to play through its speakers';
+
+  String get _description => switch (mode) {
+    AudioMonitorMode.off => 'Notes are shown but not played',
+    AudioMonitorMode.internal => 'Hear piano sounds through this device',
+    AudioMonitorMode.midiOut =>
+      'Play chord previews through the connected MIDI device',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Audio Monitor', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 2),
+          Text(
+            _description,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Semantics(
+            label: 'Audio monitor output',
+            hint: midiAvailable
+                ? 'Choose off, internal, or MIDI out'
+                : 'MIDI out disabled. $_midiUnavailableMessage',
+            child: SegmentedButton<AudioMonitorMode>(
+              // Styling comes from the app's segmentedButtonTheme so this toggle
+              // shares the selection accent used across the app.
+              showSelectedIcon: false,
+              segments: [
+                const ButtonSegment(
+                  value: AudioMonitorMode.off,
+                  icon: Icon(Icons.volume_off_outlined),
+                  label: Text('Off'),
+                ),
+                const ButtonSegment(
+                  value: AudioMonitorMode.internal,
+                  icon: Icon(Icons.volume_up_outlined),
+                  label: Text('Internal'),
+                ),
+                ButtonSegment(
+                  value: AudioMonitorMode.midiOut,
+                  icon: const Icon(Icons.piano_outlined),
+                  label: const Text('MIDI Out'),
+                  enabled: midiAvailable,
+                  tooltip: midiAvailable ? null : _midiUnavailableMessage,
+                ),
+              ],
+              selected: {mode},
+              onSelectionChanged: (selection) => onModeChanged(selection.first),
+            ),
+          ),
+        ],
       ),
     );
   }
