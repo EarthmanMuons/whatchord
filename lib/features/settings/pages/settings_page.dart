@@ -26,21 +26,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _isAdjustingAudioVolume = false;
   Timer? _audioVolumeLabelDismissTimer;
   Timer? _volumePreviewDebounceTimer;
-  Timer? _volumeRepeatTimer;
-  DateTime? _volumeRepeatStartedAt;
 
   static const int _volumePreviewMidiNote = 60;
   static const Duration _sliderVolumePreviewDebounce = Duration(
-    milliseconds: 125,
-  );
-  static const Duration _nudgeVolumePreviewDebounce = Duration(
-    milliseconds: 300,
-  );
-  static const int _volumeNudgeStepPercent = 5;
-  static const int _volumeFastNudgeStepPercent = 10;
-  static const Duration _volumeRepeatInterval = Duration(milliseconds: 100);
-  static const Duration _volumeRepeatAccelerationDelay = Duration(
-    milliseconds: 800,
+    milliseconds: 250,
   );
 
   // Cached so dispose() can cancel preview notes without touching ref, which is
@@ -60,7 +49,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     _volumePreviewDebounceTimer?.cancel();
     _volumePreviewDebounceTimer = null;
     _audioMonitor.cancelPreviewNotes();
-    _stopVolumeRepeat();
     super.dispose();
   }
 
@@ -96,44 +84,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         setState(() => _isAdjustingAudioVolume = false);
       },
     );
-  }
-
-  void _adjustAudioVolumeByPercent(int deltaPercent) {
-    final settings = ref.read(audioMonitorSettingsNotifier);
-    if (settings.muted) return;
-    _showAudioVolumePercentLabel();
-
-    final notifier = ref.read(audioMonitorSettingsNotifier.notifier);
-    final currentPercent = (settings.volume * 100).round();
-    final nextPercent = (currentPercent + deltaPercent).clamp(0, 100);
-    if (nextPercent == currentPercent) return;
-
-    unawaited(notifier.setVolume(nextPercent / 100));
-    unawaited(HapticFeedback.selectionClick());
-    _scheduleVolumePreview(_nudgeVolumePreviewDebounce);
-  }
-
-  void _startVolumeRepeat(int direction) {
-    final settings = ref.read(audioMonitorSettingsNotifier);
-    if (settings.muted) return;
-
-    _stopVolumeRepeat();
-    _volumeRepeatStartedAt = DateTime.now();
-    _volumeRepeatTimer = Timer.periodic(_volumeRepeatInterval, (_) {
-      final startedAt = _volumeRepeatStartedAt;
-      if (startedAt == null) return;
-      final elapsed = DateTime.now().difference(startedAt);
-      final tickStep = elapsed >= _volumeRepeatAccelerationDelay
-          ? _volumeFastNudgeStepPercent
-          : _volumeNudgeStepPercent;
-      _adjustAudioVolumeByPercent(direction * tickStep);
-    });
-  }
-
-  void _stopVolumeRepeat() {
-    _volumeRepeatTimer?.cancel();
-    _volumeRepeatTimer = null;
-    _volumeRepeatStartedAt = null;
   }
 
   @override
@@ -230,47 +180,52 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       switchOutCurve: Curves.easeIn,
                       transitionBuilder: (child, animation) =>
                           FadeTransition(opacity: animation, child: child),
-                      child: _isAdjustingAudioVolume
+                      child: audioSettings.muted
+                          ? const Text(' Muted', key: ValueKey<String>('muted'))
+                          : _isAdjustingAudioVolume
                           ? Text(
                               ' $audioVolumePercent%',
                               key: ValueKey<int>(audioVolumePercent),
                             )
                           : const SizedBox.shrink(key: ValueKey<String>('off')),
                     ),
-                    const Spacer(),
-                    _AudioMuteButton(
-                      muted: audioSettings.muted,
-                      onPressed: () {
-                        unawaited(
-                          ref
-                              .read(audioMonitorSettingsNotifier.notifier)
-                              .setMuted(!audioSettings.muted),
-                        );
-                        unawaited(HapticFeedback.selectionClick());
-                      },
-                    ),
                   ],
                 ),
                 subtitle: Semantics(
                   container: true,
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 150),
-                    opacity: audioSettings.muted ? 0.38 : 1,
-                    child: IgnorePointer(
-                      ignoring: audioSettings.muted,
-                      child: SizedBox(
-                        height: 48,
-                        child: Stack(
-                          children: [
-                            Row(
-                              children: [
-                                const Icon(Icons.volume_mute_outlined),
-                                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: SizedBox(
+                      height: 48,
+                      child: Row(
+                        children: [
+                          _AudioMuteButton(
+                            muted: audioSettings.muted,
+                            onPressed: () {
+                              unawaited(
+                                ref
+                                    .read(audioMonitorSettingsNotifier.notifier)
+                                    .setMuted(!audioSettings.muted),
+                              );
+                              unawaited(HapticFeedback.selectionClick());
+                            },
+                          ),
+                          Expanded(
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 150),
+                              opacity: audioSettings.muted ? 0.38 : 1,
+                              child: IgnorePointer(
+                                ignoring: audioSettings.muted,
+                                child: SliderTheme(
+                                  data: SliderTheme.of(context).copyWith(
+                                    tickMarkShape:
+                                        SliderTickMarkShape.noTickMark,
+                                  ),
                                   child: Slider(
                                     value: audioSettings.volume,
                                     min: 0,
                                     max: 1,
-                                    divisions: 100,
+                                    divisions: 20,
                                     onChangeStart: (_) {
                                       _showAudioVolumePercentLabel();
                                     },
@@ -293,52 +248,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     },
                                   ),
                                 ),
-                                const Icon(Icons.volume_up_outlined),
-                              ],
-                            ),
-                            Positioned.fill(
-                              child: Row(
-                                children: [
-                                  _VolumeNudgeHitTarget(
-                                    semanticsLabel: 'Decrease volume',
-                                    onTap: () {
-                                      _adjustAudioVolumeByPercent(
-                                        -_volumeNudgeStepPercent,
-                                      );
-                                      _scheduleVolumeLabelDismiss();
-                                    },
-                                    onLongPressStart: () {
-                                      _showAudioVolumePercentLabel();
-                                      _startVolumeRepeat(-1);
-                                    },
-                                    onLongPressEnd: () {
-                                      _stopVolumeRepeat();
-                                      _scheduleVolumeLabelDismiss();
-                                    },
-                                  ),
-                                  const Expanded(child: SizedBox()),
-                                  _VolumeNudgeHitTarget(
-                                    semanticsLabel: 'Increase volume',
-                                    onTap: () {
-                                      _adjustAudioVolumeByPercent(
-                                        _volumeNudgeStepPercent,
-                                      );
-                                      _scheduleVolumeLabelDismiss();
-                                    },
-                                    onLongPressStart: () {
-                                      _showAudioVolumePercentLabel();
-                                      _startVolumeRepeat(1);
-                                    },
-                                    onLongPressEnd: () {
-                                      _stopVolumeRepeat();
-                                      _scheduleVolumeLabelDismiss();
-                                    },
-                                  ),
-                                ],
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -711,38 +624,9 @@ class _AudioMuteButton extends StatelessWidget {
           color: muted ? cs.primary : cs.outlineVariant.withValues(alpha: 0.70),
         ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        fixedSize: const Size(48, 40),
+        padding: EdgeInsets.zero,
         tapTargetSize: MaterialTapTargetSize.padded,
-      ),
-    );
-  }
-}
-
-class _VolumeNudgeHitTarget extends StatelessWidget {
-  const _VolumeNudgeHitTarget({
-    required this.semanticsLabel,
-    required this.onTap,
-    required this.onLongPressStart,
-    required this.onLongPressEnd,
-  });
-
-  final String semanticsLabel;
-  final VoidCallback onTap;
-  final VoidCallback onLongPressStart;
-  final VoidCallback onLongPressEnd;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      label: semanticsLabel,
-      enabled: true,
-      onTap: onTap,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: onTap,
-        onLongPressStart: (_) => onLongPressStart(),
-        onLongPressEnd: (_) => onLongPressEnd(),
-        onLongPressCancel: onLongPressEnd,
-        child: const SizedBox(width: 48, height: 48),
       ),
     );
   }
