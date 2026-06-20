@@ -19,14 +19,17 @@ class AudioMonitorSettings {
   final double volume;
   final bool muted;
 
-  /// Whether the monitor is doing anything at all (internal or MIDI out).
-  bool get isActive => mode != AudioMonitorMode.off;
+  /// Whether the monitor produces any sound. Muting is the off switch.
+  bool get isActive => !muted;
 
-  /// Whether notes should sound through the built-in soundfont synth.
+  /// Whether the selected output is the built-in soundfont synth.
   bool get isInternal => mode == AudioMonitorMode.internal;
 
-  /// Whether preview notes should be sent to an external MIDI device.
+  /// Whether the selected output is an external MIDI device.
   bool get isMidiOut => mode == AudioMonitorMode.midiOut;
+
+  /// Whether the internal synth should be running (internal mode, not muted).
+  bool get playsInternal => isInternal && !muted;
 
   /// Volume applied to playback, accounting for mute. The stored [volume] is
   /// preserved while muted so unmuting restores the prior level.

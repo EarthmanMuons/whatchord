@@ -26,30 +26,33 @@ class AudioMonitorSettingsNotifier extends Notifier<AudioMonitorSettings> {
     final prefs = ref.watch(sharedPreferencesProvider);
     final defaults = const AudioMonitorSettings.defaults();
 
-    return AudioMonitorSettings(
-      mode: _readMode(prefs, defaults.mode),
-      volume:
-          (prefs.getDouble(AudioPreferencesKeys.monitorVolume) ??
-                  defaults.volume)
-              .clamp(0.0, 1.0),
-      muted: prefs.getBool(AudioPreferencesKeys.monitorMuted) ?? defaults.muted,
-    );
+    final volume =
+        (prefs.getDouble(AudioPreferencesKeys.monitorVolume) ?? defaults.volume)
+            .clamp(0.0, 1.0);
+    final (mode, muted) = _readModeAndMuted(prefs, defaults);
+
+    return AudioMonitorSettings(mode: mode, volume: volume, muted: muted);
   }
 
-  /// Reads the stored mode, falling back to the legacy on/off flag so existing
-  /// users keep their prior preference.
-  AudioMonitorMode _readMode(
+  /// Resolves the output mode and muted state, migrating the legacy on/off flag.
+  /// Since mute is now the off switch, a prior disabled monitor maps to muted.
+  (AudioMonitorMode, bool) _readModeAndMuted(
     SharedPreferences prefs,
-    AudioMonitorMode fallback,
+    AudioMonitorSettings defaults,
   ) {
-    final stored = prefs.getString(AudioPreferencesKeys.monitorMode);
-    if (stored != null) return AudioMonitorMode.fromName(stored);
+    final storedMuted =
+        prefs.getBool(AudioPreferencesKeys.monitorMuted) ?? defaults.muted;
+    final storedMode = prefs.getString(AudioPreferencesKeys.monitorMode);
 
-    final legacy = prefs.getBool(AudioPreferencesKeys.monitorEnabled);
-    if (legacy != null) {
-      return legacy ? AudioMonitorMode.internal : AudioMonitorMode.off;
+    if (storedMode != null) {
+      return (AudioMonitorMode.fromName(storedMode), storedMuted);
     }
-    return fallback;
+
+    final legacyEnabled = prefs.getBool(AudioPreferencesKeys.monitorEnabled);
+    if (legacyEnabled == false) {
+      return (AudioMonitorMode.internal, true);
+    }
+    return (defaults.mode, storedMuted);
   }
 
   Future<void> setMode(AudioMonitorMode mode) async {

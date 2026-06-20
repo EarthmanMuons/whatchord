@@ -65,12 +65,13 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       next,
     ) {
       _enqueueAudioOperation(() async {
-        if (!next.isMidiOut) {
-          // Leaving MIDI-out: silence any preview notes left on the device.
+        if (!(next.isMidiOut && !next.muted)) {
+          // No longer sending to the device (mode change or mute): silence any
+          // preview notes left ringing on it.
           _midiPanic();
         }
-        if (previous?.isInternal != true && next.isInternal) {
-          // Enabling monitor should stay silent for already-held notes.
+        if (previous?.playsInternal != true && next.playsInternal) {
+          // Starting the internal engine should stay silent for held notes.
           _allowBootstrapOnNextStart = false;
           _needsBootstrapNoteOnSync = false;
         }
@@ -125,7 +126,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   }
 
   void playVolumePreviewNote(int midiNote) {
-    if (_backgrounded || !ref.read(audioMonitorSettingsNotifier).isInternal) {
+    if (_backgrounded || ref.read(audioMonitorSettingsNotifier).muted) {
       return;
     }
 
@@ -172,7 +173,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     }
     _enqueueAudioOperation(() async {
       final settings = ref.read(audioMonitorSettingsNotifier);
-      final shouldRun = settings.isInternal && !_backgrounded;
+      final shouldRun = settings.playsInternal && !_backgrounded;
       final isRunning = _engine?.isRunning == true;
       if (!shouldRun) return;
 
@@ -232,7 +233,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
   Future<void> _reconcile() async {
     final settings = ref.read(audioMonitorSettingsNotifier);
-    final shouldRun = settings.isInternal && !_backgrounded;
+    final shouldRun = settings.playsInternal && !_backgrounded;
 
     if (!shouldRun) {
       await _stopEngine();
@@ -445,7 +446,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     _midiPanic();
 
     final settings = ref.read(audioMonitorSettingsNotifier);
-    if (!settings.isInternal || _backgrounded) {
+    if (!settings.playsInternal || _backgrounded) {
       await _stopEngine();
       state = const AudioMonitorState.disabled();
     } else {
@@ -458,6 +459,10 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   /// selected with no device connected).
   Future<_PreviewSink?> _preparePreviewSink() async {
     final settings = ref.read(audioMonitorSettingsNotifier);
+
+    // Muted is the off switch: bypass playback entirely rather than sounding
+    // notes at zero volume or starting the synth engine.
+    if (settings.muted) return null;
 
     if (settings.isMidiOut) {
       if (!_midiOutputAvailable) return null;
@@ -480,8 +485,12 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   void _midiNoteOn(int midiNote) {
     final sender = _midiSender;
     if (sender == null) return;
+    // Map the playback volume (0-1) onto MIDI velocity so the slider controls
+    // loudness on the device the same way it does for the internal synth.
+    final volume = ref.read(audioMonitorSettingsNotifier).volume;
+    final velocity = (volume * 100).round().clamp(0, 127);
     _midiNotesPending = true;
-    sender.noteOn(midiNote, velocity: audioMonitorMidiOutVelocity);
+    sender.noteOn(midiNote, velocity: velocity);
   }
 
   void _midiNoteOff(int midiNote) {

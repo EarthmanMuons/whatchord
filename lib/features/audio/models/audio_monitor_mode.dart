@@ -1,11 +1,10 @@
-/// How live and preview notes are sounded by the audio monitor.
+/// Where the audio monitor routes notes when it is sounding.
 ///
-/// The modes are mutually exclusive so the internal synth and an external MIDI
-/// device never play at once, which avoids any sync issues between them.
+/// The on/off state is the mute control, not a mode: muting bypasses playback
+/// entirely. These modes only choose the output when not muted, and are
+/// mutually exclusive so the internal synth and an external MIDI device never
+/// play at once (which avoids any sync issues between them).
 enum AudioMonitorMode {
-  /// No sound. Notes are shown but never played.
-  off,
-
   /// Notes play through the built-in soundfont synth.
   internal,
 
