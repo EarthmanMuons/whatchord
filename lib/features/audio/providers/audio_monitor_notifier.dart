@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/core/services/cancelable_timer_sequence.dart';
 import 'package:whatchord/features/input/input.dart';
+import 'package:whatchord/features/midi/midi.dart';
 
 import '../audio_debug.dart';
 import '../models/audio_monitor_settings.dart';
@@ -42,6 +43,8 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   );
 
   AudioMonitorEngine? _engine;
+  MidiOutputSender? _midiSender;
+  bool _midiNotesPending = false;
   bool _disposed = false;
   bool _backgrounded = false;
   bool _allowBootstrapOnNextStart = true;
@@ -55,11 +58,17 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
   @override
   AudioMonitorState build() {
+    _midiSender = ref.read(midiOutputSenderProvider);
+
     ref.listen<AudioMonitorSettings>(audioMonitorSettingsNotifier, (
       previous,
       next,
     ) {
       _enqueueAudioOperation(() async {
+        if (!next.isMidiOut) {
+          // Leaving MIDI-out: silence any preview notes left on the device.
+          _midiPanic();
+        }
         if (previous?.isInternal != true && next.isInternal) {
           // Enabling monitor should stay silent for already-held notes.
           _allowBootstrapOnNextStart = false;
@@ -77,10 +86,26 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       });
     });
 
+    ref.listen<MidiConnectionState>(midiConnectionStateProvider, (
+      previous,
+      next,
+    ) {
+      // A disconnected device cannot receive a panic; drop any pending state so
+      // we never treat its notes as still sounding.
+      if (previous?.isConnected == true && !next.isConnected) {
+        _enqueueAudioOperation(() async {
+          _midiNotesPending = false;
+        });
+      }
+    });
+
     ref.onDispose(() {
       _disposed = true;
       _cancelPreviewTimers();
-      _enqueueAudioOperation(_stopEngine, runWhenDisposed: true);
+      _enqueueAudioOperation(() async {
+        _midiPanic();
+        await _stopEngine();
+      }, runWhenDisposed: true);
     });
 
     _lastSoundingNotes = Set<int>.unmodifiable(
@@ -178,6 +203,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
         _cancelPreviewTimers();
         _lastSoundingNotes = const <int>{};
         await _engine?.allNotesOff();
+        _midiPanic();
         await _reconcile();
       });
       return;
@@ -330,16 +356,11 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
     if (_backgrounded) return;
 
-    final engine = await _ensureEngineStarted();
-    if (engine == null) return;
-
-    final settings = ref.read(audioMonitorSettingsNotifier);
-    await engine.setVolume(settings.effectiveVolume);
-    await engine.allNotesOff();
-    _resetTrackingForSilentState();
+    final sink = await _preparePreviewSink();
+    if (sink == null) return;
 
     for (final midiNote in midiNotes) {
-      await engine.noteOn(midiNote, velocity: audioMonitorFixedVelocity);
+      await sink.noteOn(midiNote);
     }
 
     _previewSequence.schedule(duration, (_) {
@@ -352,25 +373,20 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
     if (_backgrounded) return;
 
-    final engine = await _ensureEngineStarted();
-    if (engine == null) return;
-
-    final settings = ref.read(audioMonitorSettingsNotifier);
-    await engine.setVolume(settings.effectiveVolume);
-    await engine.allNotesOff();
-    _resetTrackingForSilentState();
+    final sink = await _preparePreviewSink();
+    if (sink == null) return;
 
     for (var i = 0; i < midiNotes.length; i++) {
       final midiNote = midiNotes[i];
       final noteStart = _rolledPreviewStep * i;
       _previewSequence.schedule(noteStart, (_) {
         _enqueuePreviewControl(generation, () async {
-          await engine.noteOn(midiNote, velocity: audioMonitorFixedVelocity);
+          await sink.noteOn(midiNote);
         });
       }, generation: generation);
       _previewSequence.schedule(noteStart + _rolledPreviewNoteDuration, (_) {
         _enqueuePreviewControl(generation, () async {
-          await engine.noteOff(midiNote);
+          await sink.noteOff(midiNote);
         });
       }, generation: generation);
     }
@@ -379,9 +395,9 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
         _rolledPreviewStep * midiNotes.length + _rolledPreviewBlockGap;
     _previewSequence.schedule(blockStart, (_) {
       _enqueuePreviewControl(generation, () async {
-        await engine.allNotesOff();
+        await sink.allNotesOff();
         for (final midiNote in midiNotes) {
-          await engine.noteOn(midiNote, velocity: audioMonitorFixedVelocity);
+          await sink.noteOn(midiNote);
         }
       });
     }, generation: generation);
@@ -395,25 +411,20 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
     if (_backgrounded) return;
 
-    final engine = await _ensureEngineStarted();
-    if (engine == null) return;
-
-    final settings = ref.read(audioMonitorSettingsNotifier);
-    await engine.setVolume(settings.effectiveVolume);
-    await engine.allNotesOff();
-    _resetTrackingForSilentState();
+    final sink = await _preparePreviewSink();
+    if (sink == null) return;
 
     for (var i = 0; i < midiNotes.length; i++) {
       final midiNote = midiNotes[i];
       final noteStart = _sequencePreviewStep * i;
       _previewSequence.schedule(noteStart, (_) {
         _enqueuePreviewControl(generation, () async {
-          await engine.noteOn(midiNote, velocity: audioMonitorFixedVelocity);
+          await sink.noteOn(midiNote);
         });
       }, generation: generation);
       _previewSequence.schedule(noteStart + _sequencePreviewNoteDuration, (_) {
         _enqueuePreviewControl(generation, () async {
-          await engine.noteOff(midiNote);
+          await sink.noteOff(midiNote);
         });
       }, generation: generation);
     }
@@ -431,6 +442,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     if (engine != null && engine.isRunning) {
       await engine.allNotesOff();
     }
+    _midiPanic();
 
     final settings = ref.read(audioMonitorSettingsNotifier);
     if (!settings.isInternal || _backgrounded) {
@@ -439,6 +451,49 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     } else {
       await _syncSoundingNotes();
     }
+  }
+
+  /// Prepares the output for a preview, returning the sink to play through, or
+  /// null if no output is available (engine failed to start, or MIDI-out is
+  /// selected with no device connected).
+  Future<_PreviewSink?> _preparePreviewSink() async {
+    final settings = ref.read(audioMonitorSettingsNotifier);
+
+    if (settings.isMidiOut) {
+      if (!_midiOutputAvailable) return null;
+      _midiPanic();
+      return _MidiPreviewSink(this);
+    }
+
+    final engine = await _ensureEngineStarted();
+    if (engine == null) return null;
+
+    await engine.setVolume(settings.effectiveVolume);
+    await engine.allNotesOff();
+    _resetTrackingForSilentState();
+    return _EnginePreviewSink(engine);
+  }
+
+  bool get _midiOutputAvailable =>
+      _midiSender != null && ref.read(midiConnectionStateProvider).isConnected;
+
+  void _midiNoteOn(int midiNote) {
+    final sender = _midiSender;
+    if (sender == null) return;
+    _midiNotesPending = true;
+    sender.noteOn(midiNote, velocity: audioMonitorMidiOutVelocity);
+  }
+
+  void _midiNoteOff(int midiNote) {
+    _midiSender?.noteOff(midiNote);
+  }
+
+  /// Silences any preview notes left sounding on the connected MIDI device.
+  /// A no-op unless a preview has actually sent notes out.
+  void _midiPanic() {
+    if (!_midiNotesPending) return;
+    _midiNotesPending = false;
+    _midiSender?.panic();
   }
 
   Future<AudioMonitorEngine?> _ensureEngineStarted() async {
@@ -534,4 +589,43 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     _eventDrivenPendingOn.clear();
     _eventDrivenPendingOff.clear();
   }
+}
+
+/// Destination for preview notes: either the internal synth or the external
+/// MIDI device. Lets the preview routines stay output-agnostic.
+abstract interface class _PreviewSink {
+  Future<void> noteOn(int midiNote);
+  Future<void> noteOff(int midiNote);
+  Future<void> allNotesOff();
+}
+
+class _EnginePreviewSink implements _PreviewSink {
+  _EnginePreviewSink(this._engine);
+
+  final AudioMonitorEngine _engine;
+
+  @override
+  Future<void> noteOn(int midiNote) =>
+      _engine.noteOn(midiNote, velocity: audioMonitorFixedVelocity);
+
+  @override
+  Future<void> noteOff(int midiNote) => _engine.noteOff(midiNote);
+
+  @override
+  Future<void> allNotesOff() => _engine.allNotesOff();
+}
+
+class _MidiPreviewSink implements _PreviewSink {
+  _MidiPreviewSink(this._owner);
+
+  final AudioMonitorNotifier _owner;
+
+  @override
+  Future<void> noteOn(int midiNote) async => _owner._midiNoteOn(midiNote);
+
+  @override
+  Future<void> noteOff(int midiNote) async => _owner._midiNoteOff(midiNote);
+
+  @override
+  Future<void> allNotesOff() async => _owner._midiPanic();
 }
