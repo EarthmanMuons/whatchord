@@ -26,7 +26,7 @@ final appAudioMonitorLifecycleProvider = Provider<void>((ref) {
   ref.listen<List<int>>(lookupVoicingProvider, (previous, next) {
     final prev = previous ?? const <int>[];
     if (next.length <= prev.length) return;
-    if (!ref.read(audioMonitorEnabledProvider)) return;
+    if (!ref.read(audioMonitorActiveProvider)) return;
 
     ref.read(audioMonitorNotifier.notifier).playPreviewNotes([next.last]);
   });

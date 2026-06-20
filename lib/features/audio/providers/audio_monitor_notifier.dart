@@ -60,7 +60,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       next,
     ) {
       _enqueueAudioOperation(() async {
-        if (previous?.enabled == false && next.enabled) {
+        if (previous?.isInternal != true && next.isInternal) {
           // Enabling monitor should stay silent for already-held notes.
           _allowBootstrapOnNextStart = false;
           _needsBootstrapNoteOnSync = false;
@@ -100,7 +100,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   }
 
   void playVolumePreviewNote(int midiNote) {
-    if (_backgrounded || !ref.read(audioMonitorSettingsNotifier).enabled) {
+    if (_backgrounded || !ref.read(audioMonitorSettingsNotifier).isInternal) {
       return;
     }
 
@@ -147,7 +147,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     }
     _enqueueAudioOperation(() async {
       final settings = ref.read(audioMonitorSettingsNotifier);
-      final shouldRun = settings.enabled && !_backgrounded;
+      final shouldRun = settings.isInternal && !_backgrounded;
       final isRunning = _engine?.isRunning == true;
       if (!shouldRun) return;
 
@@ -206,7 +206,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
   Future<void> _reconcile() async {
     final settings = ref.read(audioMonitorSettingsNotifier);
-    final shouldRun = settings.enabled && !_backgrounded;
+    final shouldRun = settings.isInternal && !_backgrounded;
 
     if (!shouldRun) {
       await _stopEngine();
@@ -433,7 +433,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     }
 
     final settings = ref.read(audioMonitorSettingsNotifier);
-    if (!settings.enabled || _backgrounded) {
+    if (!settings.isInternal || _backgrounded) {
       await _stopEngine();
       state = const AudioMonitorState.disabled();
     } else {
