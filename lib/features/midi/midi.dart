@@ -34,9 +34,12 @@ export 'providers/app_midi_lifecycle_provider.dart';
 export 'providers/midi_connection_notifier.dart';
 export 'providers/midi_connection_status_provider.dart';
 export 'providers/midi_note_state_notifier.dart';
+export 'providers/midi_output_sender_provider.dart';
 export 'providers/midi_preferences_notifier.dart';
 
 export 'pages/midi_settings_page.dart';
+
+export 'services/midi_output_sender.dart';
 
 export 'widgets/midi_status_icon.dart';
 export 'widgets/wakelock_controller.dart';

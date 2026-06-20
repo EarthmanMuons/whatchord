@@ -12,3 +12,8 @@ const int audioMonitorMaxBufferedFrames = 4096;
 // fixed note-on velocity for the current SoundFont profile.
 const bool audioMonitorUseFixedVelocity = true;
 const int audioMonitorFixedVelocity = 100;
+
+// Velocity for notes sent to an external MIDI device in MIDI Out mode. The
+// instrument's own engine maps velocity to loudness, so a fixed 100 plays much
+// louder than a comfortable performance; use a softer mezzo level instead.
+const int audioMonitorMidiOutVelocity = 64;
