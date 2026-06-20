@@ -327,6 +327,10 @@
     "label": "oracle-limitation",
     "note": "A♭11 is preferred because A♭ is the bass/root and the voicing supplies a complete dominant-eleventh stack A♭-C-E♭-G♭-B♭-D♭. Music21 agrees. Tonal's G♭6/9♯11/A♭ re-roots the same collection as Lydian major-six-nine color, but it turns the bass into the ninth; ChoCo also favors the dominant-eleventh vocabulary here, with 388 dominant7|nine,eleven observations versus 5 exact major6|sharp11,add9 observations."
   },
+  "0-1-3-5-6-8-10_b8": {
+    "label": "genuine-ambiguity",
+    "note": "A♭13 is preferred because A♭ is the bass/root and the voicing supplies the complete dominant-thirteenth stack A♭-C-E♭-G♭-B♭-D♭-F. Music21 agrees semantically as G♯13. Tonal's G♭maj13♯11/A♭ is a valid Lydian-major re-rooting of the same collection, and WhatChord surfaces it as a close alternate; however, it makes the bass the ninth while the A♭ label keeps root-position dominant evidence. ChoCo also favors the broad dominant-thirteenth vocabulary, with 8947 dominant7|nine,eleven,thirteen observations versus 29 major7|nine,sharp11,thirteen observations."
+  },
   "0-1-3-6-8-10_b10": {
     "label": "genuine-ambiguity",
     "note": "G♭6/9♯11/B♭ is preferred because B♭ is the major third of the complete G♭ Lydian major-six-nine sonority. Tonal lists both B♭m11(no5) and F♯6/9♯11/B♭, while music21 chooses an A♭11/B♭ re-rooting. The B♭ bass makes the minor-eleventh view tempting, but the G♭ label names all six tones as a coherent major-family color without treating G♭/F♯ as an altered minor fifth."
