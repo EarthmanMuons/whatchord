@@ -44,7 +44,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
   AudioMonitorEngine? _engine;
   MidiOutputSender? _midiSender;
-  bool _midiNotesPending = false;
+  final Set<int> _midiNotesOn = <int>{};
   bool _disposed = false;
   bool _backgrounded = false;
   bool _allowBootstrapOnNextStart = true;
@@ -91,11 +91,11 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       previous,
       next,
     ) {
-      // A disconnected device cannot receive a panic; drop any pending state so
-      // we never treat its notes as still sounding.
+      // A disconnected device cannot receive note-offs; drop the tracked notes
+      // so we never treat its notes as still sounding.
       if (previous?.isConnected == true && !next.isConnected) {
         _enqueueAudioOperation(() async {
-          _midiNotesPending = false;
+          _midiNotesOn.clear();
         });
       }
     });
@@ -443,7 +443,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     if (engine != null && engine.isRunning) {
       await engine.allNotesOff();
     }
-    _midiPanic();
+    _midiRelease();
 
     final settings = ref.read(audioMonitorSettingsNotifier);
     if (!settings.playsInternal || _backgrounded) {
@@ -466,7 +466,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
     if (settings.isMidiOut) {
       if (!_midiOutputAvailable) return null;
-      _midiPanic();
+      _midiRelease();
       return _MidiPreviewSink(this);
     }
 
@@ -489,19 +489,33 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     // loudness on the device the same way it does for the internal synth.
     final volume = ref.read(audioMonitorSettingsNotifier).volume;
     final velocity = (volume * 100).round().clamp(0, 127);
-    _midiNotesPending = true;
+    _midiNotesOn.add(midiNote);
     sender.noteOn(midiNote, velocity: velocity);
   }
 
   void _midiNoteOff(int midiNote) {
+    _midiNotesOn.remove(midiNote);
     _midiSender?.noteOff(midiNote);
   }
 
-  /// Silences any preview notes left sounding on the connected MIDI device.
-  /// A no-op unless a preview has actually sent notes out.
+  /// Releases preview notes with per-note Note Off so they decay through the
+  /// instrument's own release envelope, rather than being cut off abruptly.
+  /// Used when a preview ends normally.
+  void _midiRelease() {
+    final sender = _midiSender;
+    if (sender == null || _midiNotesOn.isEmpty) return;
+    for (final note in _midiNotesOn) {
+      sender.noteOff(note);
+    }
+    _midiNotesOn.clear();
+  }
+
+  /// Hard-silences any preview notes left sounding on the connected MIDI device,
+  /// ignoring release. Reserved for teardown (mute, mode change, backgrounding,
+  /// dispose) where immediate silence matters. A no-op unless notes are out.
   void _midiPanic() {
-    if (!_midiNotesPending) return;
-    _midiNotesPending = false;
+    if (_midiNotesOn.isEmpty) return;
+    _midiNotesOn.clear();
     _midiSender?.panic();
   }
 
@@ -636,5 +650,5 @@ class _MidiPreviewSink implements _PreviewSink {
   Future<void> noteOff(int midiNote) async => _owner._midiNoteOff(midiNote);
 
   @override
-  Future<void> allNotesOff() async => _owner._midiPanic();
+  Future<void> allNotesOff() async => _owner._midiRelease();
 }
