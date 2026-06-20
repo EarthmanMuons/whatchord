@@ -10,6 +10,14 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Audio Monitor now offers a MIDI Out mode. Choose Off, Internal, or MIDI Out:
+  Internal plays through this device's speakers as before, while MIDI Out sends
+  chord and scale previews to your connected MIDI instrument so you hear them on
+  its own speakers. MIDI Out is available when a device is connected, and live
+  notes you play are never echoed back to the instrument.
+
 ### Changed
 
 - Explore pages now show live input on the keyboard when playback is idle and
