@@ -17,7 +17,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   previews to your connected MIDI instrument so you hear them on its own
   speakers. MIDI Out is available when a device is connected, and live notes you
   play are never echoed back to the instrument. The playback volume control
-  applies to both outputs, and mute silences either one.
+  applies to both outputs, each remembering its own level with MIDI Out starting
+  quieter, and mute silences either one.
 
 ### Changed
 

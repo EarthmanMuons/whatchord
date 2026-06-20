@@ -26,12 +26,22 @@ class AudioMonitorSettingsNotifier extends Notifier<AudioMonitorSettings> {
     final prefs = ref.watch(sharedPreferencesProvider);
     final defaults = const AudioMonitorSettings.defaults();
 
-    final volume =
-        (prefs.getDouble(AudioPreferencesKeys.monitorVolume) ?? defaults.volume)
-            .clamp(0.0, 1.0);
     final (mode, muted) = _readModeAndMuted(prefs, defaults);
+    final internalVolume =
+        (prefs.getDouble(AudioPreferencesKeys.monitorInternalVolume) ??
+                defaults.internalVolume)
+            .clamp(0.0, 1.0);
+    final midiOutVolume =
+        (prefs.getDouble(AudioPreferencesKeys.monitorMidiOutVolume) ??
+                defaults.midiOutVolume)
+            .clamp(0.0, 1.0);
 
-    return AudioMonitorSettings(mode: mode, volume: volume, muted: muted);
+    return AudioMonitorSettings(
+      mode: mode,
+      internalVolume: internalVolume,
+      midiOutVolume: midiOutVolume,
+      muted: muted,
+    );
   }
 
   /// Resolves the output mode and muted state, migrating the legacy on/off flag.
@@ -62,12 +72,26 @@ class AudioMonitorSettingsNotifier extends Notifier<AudioMonitorSettings> {
     await prefs.setString(AudioPreferencesKeys.monitorMode, mode.name);
   }
 
+  /// Sets the volume for the currently selected output, persisting each output's
+  /// level independently.
   Future<void> setVolume(double volume) async {
     final prefs = ref.read(sharedPreferencesProvider);
     final clamped = volume.clamp(0.0, 1.0);
 
-    state = state.copyWith(volume: clamped);
-    await prefs.setDouble(AudioPreferencesKeys.monitorVolume, clamped);
+    switch (state.mode) {
+      case AudioMonitorMode.internal:
+        state = state.copyWith(internalVolume: clamped);
+        await prefs.setDouble(
+          AudioPreferencesKeys.monitorInternalVolume,
+          clamped,
+        );
+      case AudioMonitorMode.midiOut:
+        state = state.copyWith(midiOutVolume: clamped);
+        await prefs.setDouble(
+          AudioPreferencesKeys.monitorMidiOutVolume,
+          clamped,
+        );
+    }
   }
 
   Future<void> setMuted(bool muted) async {
@@ -83,7 +107,8 @@ class AudioMonitorSettingsNotifier extends Notifier<AudioMonitorSettings> {
     state = const AudioMonitorSettings.defaults();
     await prefs.remove(AudioPreferencesKeys.monitorMode);
     await prefs.remove(AudioPreferencesKeys.monitorEnabled);
-    await prefs.remove(AudioPreferencesKeys.monitorVolume);
+    await prefs.remove(AudioPreferencesKeys.monitorInternalVolume);
+    await prefs.remove(AudioPreferencesKeys.monitorMidiOutVolume);
     await prefs.remove(AudioPreferencesKeys.monitorMuted);
   }
 }
