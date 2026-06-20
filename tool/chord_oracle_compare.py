@@ -1076,14 +1076,10 @@ def degrees_from_quality(
 
     absolute_adds = {
         degree_from_interval((pc - root_pc) % 12, prefer_extensions=True)
-        for pc in (
-            pitch_class_number(match.group(1))
-            for match in re.finditer(r"add([A-Ga-g](?:#{1,2}|b{1,2})?)", value)
-        )
-        if pc is not None
+        for pc in _absolute_add_pitch_classes(value)
     }
     absolute_adds.discard("")
-    value = re.sub(r"add[A-Ga-g](?:#{1,2}|b{1,2})?", "", value)
+    value = re.sub(r"add[A-Ga-g](?:#{1,2}|b{1,2})?(?:,[A-Ga-g](?:#{1,2}|b{1,2})?)*", "", value)
 
     compact = value.replace(" ", "")
     compact = compact.replace("(", "").replace(")", "")
@@ -1139,6 +1135,20 @@ def degrees_from_quality(
         if DEGREE_TO_INTERVAL.get(degree) not in absolute_omit_intervals
     }
     return {degree for degree in degrees if degree}
+
+
+def _absolute_add_pitch_classes(value: str) -> list[int]:
+    """Return music21-style absolute add tones from fragments like addB#,D#."""
+    out: list[int] = []
+    for match in re.finditer(
+        r"add([A-Ga-g](?:#{1,2}|b{1,2})?(?:,[A-Ga-g](?:#{1,2}|b{1,2})?)*)",
+        value,
+    ):
+        for note in match.group(1).split(","):
+            pc = pitch_class_number(note)
+            if pc is not None:
+                out.append(pc)
+    return out
 
 
 def base_degrees(compact: str) -> set[str]:
@@ -1322,6 +1332,7 @@ DEGREE_BY_ROLE = {
     "sharp5": "#5",
     "sixth": "6",
     "flat13": "b13",
+    "thirteen": "13",
     "thirteenth": "13",
     "add13": "13",
     "dim7": "bb7",
