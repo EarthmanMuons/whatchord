@@ -31,8 +31,8 @@ class MidiOutputSender {
   /// note can be left ringing on the device. Notes are only ever sent on
   /// [channel], so clearing that channel is sufficient.
   void panic() {
-    _sendControlChange(MidiConstants.allSoundOffController, 0);
-    _sendControlChange(MidiConstants.allNotesOffController, 0);
+    _sendControlChange(MidiConstants.ccAllSoundOff, 0);
+    _sendControlChange(MidiConstants.ccAllNotesOff, 0);
   }
 
   void _send(int status, int data1, int data2) {
