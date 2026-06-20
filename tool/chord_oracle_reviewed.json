@@ -123,6 +123,10 @@
     "label": "oracle-limitation",
     "note": "E♭13♯11 is preferred because E♭, G, D♭, F, A, and C form a root-position Lydian-dominant thirteenth stack. Tonal agrees on the E♭ dominant root but normalizes the tritone as flat five rather than sharp eleven; WhatChord's sharp-eleven spelling is clearer with the ninth and thirteenth present. Music21's D♭aug(maj9)/E♭ add G is an upper-structure add-tone spelling that misses the complete dominant organization."
   },
+  "0-1-3-5-7-8_b3": {
+    "label": "genuine-ambiguity",
+    "note": "E♭13 is preferred because E♭ is the bass/root and the voicing supplies a fifthless dominant-thirteenth stack E♭-G-D♭-F-A♭-C. The natural eleventh creates a real 3/11 rub, but it is observed color in this voicing rather than a reason to abandon the bass-rooted dominant shell. Music21 and tonal choose the valid D♭maj9♯11/E♭ upper-structure reading, which preserves a complete D♭ Lydian-major sonority but makes the bass the ninth. ChoCo favors the dominant vocabulary, with 8947 dominant7|nine,eleven,thirteen observations versus 346 major7|nine,sharp11 observations, so WhatChord's primary is defensible while the D♭ reading remains a real alternate."
+  },
   "0-1-3-5-7-10_b7": {
     "label": "oracle-limitation",
     "note": "E♭13/G is preferred because the bass is the dominant third and the voicing contains the complete E♭ dominant thirteenth stack. Tonal agrees. Music21's Cm7/G add D♭,F re-roots the same pitch material into a C-minor shell and treats the dominant seventh and ninth as additions, which is less idiomatic for this complete dominant inversion."
