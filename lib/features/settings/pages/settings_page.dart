@@ -100,7 +100,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   void _adjustAudioVolumeByPercent(int deltaPercent) {
     final settings = ref.read(audioMonitorSettingsNotifier);
-    if (!settings.enabled) return;
+    if (!settings.isInternal) return;
     _showAudioVolumePercentLabel();
 
     final notifier = ref.read(audioMonitorSettingsNotifier.notifier);
@@ -115,7 +115,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   void _startVolumeRepeat(int direction) {
     final settings = ref.read(audioMonitorSettingsNotifier);
-    if (!settings.enabled) return;
+    if (!settings.isInternal) return;
 
     _stopVolumeRepeat();
     _volumeRepeatStartedAt = DateTime.now();
@@ -336,12 +336,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Audio Monitor'),
                 subtitle: const Text('Hear piano sounds as you play'),
-                value: audioSettings.enabled,
+                value: audioSettings.isInternal,
                 onChanged: (enabled) {
                   unawaited(
                     ref
                         .read(audioMonitorSettingsNotifier.notifier)
-                        .setEnabled(enabled),
+                        .setMode(
+                          enabled
+                              ? AudioMonitorMode.internal
+                              : AudioMonitorMode.off,
+                        ),
                   );
                 },
               ),
