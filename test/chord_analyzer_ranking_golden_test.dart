@@ -632,6 +632,19 @@ void main() {
       expectedExtensions: {ChordExtension.sharp11, ChordExtension.flat13},
     ),
 
+    golden(
+      description:
+          'split-nine dominant keeps tritone substitute visible in third bass',
+      expectedSymbol: 'C9b5b9 / E',
+      expectedAlternateSymbols: ['F#7(#11,b13) / E'],
+      pcs: ['C', 'Db', 'D', 'E', 'F#', 'Bb'],
+      bass: 'E',
+      expectedRoot: 'C',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.dominant7Flat5,
+      expectedExtensions: {ChordExtension.flat9, ChordExtension.nine},
+    ),
+
     // -------------------------------------------------------------------------
     // Simple triad add-tone beats inverted unusual seventh-family quality
     // -------------------------------------------------------------------------
