@@ -147,6 +147,14 @@
     "label": "genuine-ambiguity",
     "note": "C7♭5♭9 is preferred because C is the bass/root of a complete altered dominant containing C, E, G♭, B♭, and D♭. Music21 and tonal both support the tritone-related F♯7♯11/C reading, which is also complete and conventional, and ChoCo shows comparable support for the broad altered-dominant families. The root-position C bass makes WhatChord's primary label defensible, but the tritone-substitute reading keeps this a genuine ambiguity."
   },
+  "0-1-2-4-6-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "C9(♭9,♯11) is preferred because C is the bass/root and the voicing supplies a complete C dominant shell C-E-B♭ with both D♭/D split-ninth color and F♯ as ♯11. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the ♯11 in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the split-ninth C family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."
+  },
+  "0-1-2-4-6-10_b2": {
+    "label": "genuine-ambiguity",
+    "note": "C9♭5♭9/D is preferred because the voicing is the same split-ninth C altered dominant, with D as the natural ninth in the bass. Tonal's F♯7♯11♭13/D is also complete and conventional, treating D as ♭13, but neither bass role is a core chord tone; the C reading uses the less altered bass function while the F♯ reading remains a real tritone-substitute alternate. ChoCo does not strongly settle this exact sonority: dominant7|sharp11,flat13 has only 2 exact observations, while related C altered/split-ninth families are more common."
+  },
   "0-1-2-4-6-9-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C13(♭9,♯11) is preferred because C is the bass/root and the voicing contains the complete C dominant shell C-E-B♭ with D♭, D, F♯, and A as altered and extended dominant color. Tonal's F♯7♯9♯11♭13/C is also a complete tritone-related dominant, and ChoCo has comparable support for the broad C Lydian-dominant-thirteenth family and the F♯ sharp-nine sharp-eleven flat-thirteen family. The C bass makes the root-position label defensible, but this is a genuine tritone-dominant ambiguity."
@@ -154,6 +162,10 @@
   "0-1-4-6-10_b4": {
     "label": "genuine-ambiguity",
     "note": "C7♭5♭9/E is preferred because it is a complete altered dominant with its major third in the bass, while F♯7♯11/E is the complete tritone-related dominant in third inversion. Music21 and tonal choose the valid F♯ reading, but the two chord signatures are similarly common in ChoCo and the E bass gives the C-rooted interpretation the more conventional inversion. Related bass cases consistently favor whichever dominant receives the stronger bass role."
+  },
+  "0-1-2-4-6-10_b4": {
+    "label": "genuine-ambiguity",
+    "note": "C9♭5♭9/E is preferred because it is the complete split-ninth C altered dominant with the major third in the bass. Tonal's F♯7♯11♭13/E is the valid tritone-related dominant with its flat seventh in the bass, so the disagreement is real rather than an oracle error. The app keeps the C reading because both bass roles are conventional and the C label names the full split-ninth altered structure; ChoCo's exact dominant7|sharp11,flat13 count is very small, so corpus evidence does not justify flipping the primary result."
   },
   "0-1-4-6-8-10_b0": {
     "label": "genuine-ambiguity",

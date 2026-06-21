@@ -108,6 +108,7 @@ abstract final class ChordAnalyzer {
   static const _altPenaltyDim7 = 0.30; // softened for symmetric dim7
   static const _altPenaltyTriad =
       0.30; // softened for non-seventh-family chords
+  static const _splitNinthPenalty = 0.05; // simultaneous b9 and natural 9 color
 
   // Dominant-stack coherence bonuses.
   static const _domStackPartial = 0.70; // dom7 + 9 + #11 partial stack
@@ -500,6 +501,11 @@ abstract final class ChordAnalyzer {
       );
     }
 
+    if (_hasSplitNinthColor(extensions)) {
+      raw -= _splitNinthPenalty;
+      add('split ninth', -_splitNinthPenalty);
+    }
+
     final dominantStackDelta = _dominantStackCoherenceBonus(
       quality: template.quality,
       extensions: extensions,
@@ -588,6 +594,11 @@ abstract final class ChordAnalyzer {
         (extensions.contains(ChordExtension.sharp11) &&
             !quality.sharp11IsNaturalColor) ||
         extensions.contains(ChordExtension.flat13);
+  }
+
+  static bool _hasSplitNinthColor(Set<ChordExtension> extensions) {
+    return extensions.contains(ChordExtension.flat9) &&
+        extensions.contains(ChordExtension.nine);
   }
 
   static int _functionalPenaltyExtensionsMask({
