@@ -45,6 +45,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   competitive with altered-dominant reinterpretations.
 - Improved split-ninth dominant handling so close tritone-substitute readings
   remain visible as possible alternatives.
+- Improved altered-dominant handling so complete 7♭9♯9 voicings with the fifth
+  in the bass outrank remote diminished add-tone spellings.
 
 ## [2026.6.19] - 2026-06-19
 

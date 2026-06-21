@@ -3,6 +3,14 @@
     "label": "genuine-ambiguity",
     "note": "Fm6♭13/C is preferred because F-A♭-C-D forms a complete F minor-sixth sonority with C as the fifth in the bass, while D♭ is explainable as flat-thirteen color rather than a chord-defining major seventh against D. Music21's Dm7♭5/C and tonal's D♭maj7♭9/C are both structurally plausible re-roots, so this remains a genuine ambiguity, but the C bass gives the F-rooted reading a conventional inversion advantage."
   },
+  "0-1-3-4-7-10_b1": {
+    "label": "genuine-ambiguity",
+    "note": "A♯dim7(add9,add11)/C♯ is defensible because A♯-C♯-E-G forms a complete diminished-seventh shell, with C/B♯ and E♭/D♯ supplying add9 and add11 color. Music21 agrees on the A♯ diminished-seventh root and C♯ bass, but omits the sounding added ninth. Tonal's C7♭9♯9/D♭ is a valid altered-dominant reinterpretation, but the flat ninth in the bass makes it less forced than the direct diminished-seventh spelling."
+  },
+  "0-1-3-4-7-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "A♯dim7(add9,add11) is defensible because B♭/A♯ is the bass/root of a complete diminished-seventh shell, with C/B♯ and E♭/D♯ as added color. Tonal's C7♭9♯9/B♭ is a conventional altered-dominant reading and music21 exposes a related C-rooted seventh sonority, but the bass is also the diminished root, so the root-position diminished label remains a plausible primary answer rather than an engine issue."
+  },
   "0-1-2-4-6-9-10_b2": {
     "label": "oracle-limitation",
     "note": "F♯7(♯9,♯11,♭13)/D is preferred because the voicing contains the complete F♯ altered-dominant shell F♯-A♯-C♯-E with D as flat thirteenth and A/G𝄪 as sharp-nine color. Tonal agrees as F#7#9#11b13/D, and ChoCo common-name counts favor dominant7 sharp-nine sharp-eleven flat-thirteen signatures over augmented-major-nine variants. Music21's B♭aug(maj9)/D add D♭,E is a related add-tone spelling, but it misses the complete dominant organization."
