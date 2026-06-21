@@ -30,6 +30,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   include the MIDI status button in the top bar. Explore Chords shows non-chord
   live notes with a muted gray highlight, and Explore Scales does the same for
   out-of-scale notes against the selected scale markers.
+- Why This Chord? now distinguishes the Chosen, Possible, and Unlikely ranking
+  tiers more clearly. Each tier uses a distinct marker and rank badge, with a
+  filled badge for the chosen chord, an outlined badge for possible
+  alternatives, and a plain badge for unlikely ones.
 
 ### Fixed
 
