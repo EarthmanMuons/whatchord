@@ -35,6 +35,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Improved whole-tone dominant naming so common 9♯5 and 9♭5 slash readings can
   win over less common root-position ♯5♯11 spellings when the evidence is close.
+- Improved flat-thirteenth bass handling so complete 9♭13 dominant voicings
+  remain preferred over more remote altered-dominant reinterpretations.
 
 ## [2026.6.19] - 2026-06-19
 

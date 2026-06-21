@@ -1828,7 +1828,7 @@ if(a.X(0,new A.cp()))return 0
 if(!((c&1)!==0&&(c&16)!==0&&(c&128)!==0&&(c&1024)!==0))return 0
 t=a.h(0,B.i)||a.h(0,B.n)
 if(a.h(0,B.n))return 0.7
-if(t)return 0.4
+if(t)return 0.7
 return 0.15},
 h1(a,b,c,d){var t,s=c===B.u
 if(!(s||c===B.E))return 0
