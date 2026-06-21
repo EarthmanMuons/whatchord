@@ -180,6 +180,14 @@ advertisements, and does not collect or transmit any personal data. Scoring
 heuristics and user interface details may evolve as edge cases and real-world
 usage inform improvements.
 
+This is a human-led project built with assistance from AI coding tools. AI tools
+may be used as part of the development workflow for exploration, implementation
+support, refactoring, testing ideas, and review, while real people remain
+responsible for design decisions, validation, maintenance, and project
+direction. The project is developed with deliberate attention to musical
+correctness, accessibility, cross-platform behavior, and long-term
+maintainability.
+
 If you believe a chord has been identified incorrectly, please [open an
 issue][ISSUE] on the GitHub repository. When possible, include the notes you
 played, the key signature, and the chord WhatChord reported versus the expected
