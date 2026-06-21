@@ -192,7 +192,10 @@ class CandidateFeatures {
         alteration: ChordExtension.flat9,
         alterationRole: ChordToneRole.flat9,
         fifthRole: ChordToneRole.perfect5,
-        allowedAdditionalExtensions: const {ChordExtension.sharp11},
+        allowedAdditionalExtensions: const {
+          ChordExtension.sharp9,
+          ChordExtension.sharp11,
+        },
       ),
       isCompleteDominantSharp9: _isCompleteDominantWithAlteration(
         id,
