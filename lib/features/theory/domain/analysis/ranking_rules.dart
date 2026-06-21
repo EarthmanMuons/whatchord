@@ -1406,9 +1406,36 @@ int? _preferRootAlteredFifthDom7(
 
   if (!fRoot.hasAlteredColor || fSlash.hasAlteredColor) return null;
 
+  if (_isWholeToneAlteredFifthRootVsNinthSlash(rootCandidate, slashCandidate)) {
+    return null;
+  }
+
   if (rootCandidate.score + 0.50 < slashCandidate.score) return null;
 
   return rootIsA ? -1 : 1;
+}
+
+bool _isWholeToneAlteredFifthRootVsNinthSlash(
+  ChordCandidate rootCandidate,
+  ChordCandidate slashCandidate,
+) {
+  final rootExtensions = rootCandidate.identity.extensions;
+  final slashExtensions = slashCandidate.identity.extensions;
+
+  final rootOnlyWholeToneColor =
+      rootExtensions.length == 1 &&
+      (rootExtensions.contains(ChordExtension.sharp11) ||
+          rootExtensions.contains(ChordExtension.flat13));
+  if (!rootOnlyWholeToneColor) return false;
+
+  final slashIsNinthAlteredFifth =
+      slashExtensions.length == 1 &&
+      slashExtensions.contains(ChordExtension.nine) &&
+      (slashCandidate.identity.quality == ChordQualityToken.dominant7Sharp5 ||
+          slashCandidate.identity.quality == ChordQualityToken.dominant7Flat5);
+  if (!slashIsNinthAlteredFifth) return false;
+
+  return slashCandidate.score >= rootCandidate.score;
 }
 
 /// Avoids promoting remote, non-dominant slash readings whose "simple" color

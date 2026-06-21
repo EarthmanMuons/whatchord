@@ -545,6 +545,35 @@ void main() {
   });
 
   test(
+    'ninth altered-fifth slash can beat whole-tone root-position spelling',
+    () {
+      final ninthSlash = _candidate(
+        quality: ChordQualityToken.dominant7Sharp5,
+        root: 'E',
+        bass: 'G#',
+        presentIntervals: const {0, 2, 4, 8, 10},
+        extensions: const {ChordExtension.nine},
+        score: 8.25,
+      );
+
+      final rootPosition = _candidate(
+        quality: ChordQualityToken.dominant7Sharp5,
+        root: 'G#',
+        bass: 'G#',
+        presentIntervals: const {0, 4, 6, 8, 10},
+        extensions: const {ChordExtension.sharp11},
+        score: 8.20,
+      );
+
+      _expectTieRule(
+        ninthSlash,
+        rootPosition,
+        'prefer fewer altered/tension colors',
+      );
+    },
+  );
+
+  test(
     'root-position extended dominant beats altered-fifth slash near-tie',
     () {
       final rootPosition = _candidate(
