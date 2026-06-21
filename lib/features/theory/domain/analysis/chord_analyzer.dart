@@ -117,7 +117,7 @@ abstract final class ChordAnalyzer {
   static const _completeDominantFlatThirteenthBonus =
       0.15; // complete dom7 shell + b13 should compete with enharmonic maj7#5
   static const _completeDominantNineFlatThirteenthBonus =
-      0.40; // complete dom7 shell + natural 9 + b13 stack
+      0.70; // complete dom7 shell + natural 9 + b13 stack
   static const _completeDominantFlatNineFlatThirteenthBonus =
       0.70; // complete dom7 shell + b9 + b13 altered stack
 
