@@ -37,6 +37,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   win over less common root-position ♯5♯11 spellings when the evidence is close.
 - Improved flat-thirteenth bass handling so complete 9♭13 dominant voicings
   remain preferred over more remote altered-dominant reinterpretations.
+- Improved Lydian-dominant inversion handling so complete 13♯11 voicings stay
+  competitive with altered-dominant reinterpretations.
 
 ## [2026.6.19] - 2026-06-19
 

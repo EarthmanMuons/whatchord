@@ -1810,9 +1810,9 @@ r=b.h(0,B.t)
 q=b.h(0,B.q)
 if(s&&q)return(d&128)!==0?2.1:0
 if(!t)return 0
-if(!r&&!q)return a===0?0.8:0
-if(r&&!q)return a===0?2.1:0
-if(q&&(d&128)===0)return 0
+if(!r&&!q)return a===0?0.7:0
+if(r&&!q){if((d&128)===0)return 0
+return a===0?2.1:0.7}if(q&&(d&128)===0)return 0
 return 2.1},
 h5(a,b,c,d){if(a!==0)return 0
 if(c!==B.a2&&c!==B.o)return 0
