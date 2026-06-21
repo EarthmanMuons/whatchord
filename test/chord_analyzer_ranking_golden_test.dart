@@ -861,6 +861,40 @@ void main() {
 
     golden(
       description:
+          'complete lydian thirteenth dominant handles flat-seventh bass',
+      expectedSymbol: 'F#13#11 / E',
+      expectedAlternateSymbols: ['C7#5(b9,#9,#11) / E'],
+      pcs: ['C', 'Db', 'Eb', 'E', 'F#', 'Ab', 'Bb'],
+      bass: 'E',
+      expectedRoot: 'F#',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.nine,
+        ChordExtension.sharp11,
+        ChordExtension.thirteen,
+      },
+    ),
+
+    golden(
+      description:
+          'complete lydian thirteenth dominant handles major-third bass',
+      expectedSymbol: 'F#13#11 / A#',
+      expectedAlternateSymbols: ['C7#5(b9,#9,#11) / Bb'],
+      pcs: ['C', 'Db', 'Eb', 'E', 'F#', 'Ab', 'Bb'],
+      bass: 'Bb',
+      expectedRoot: 'F#',
+      expectedBass: 'A#',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.nine,
+        ChordExtension.sharp11,
+        ChordExtension.thirteen,
+      },
+    ),
+
+    golden(
+      description:
           'complete altered flat-nine dominant beats remote minor thirteenth',
       expectedSymbol: 'F#7(b9,#11,b13) / B#',
       expectedAlternateSymbols: ['C9(b9,#11)', 'Em13(b5)b13 / C'],

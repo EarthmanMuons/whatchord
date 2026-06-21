@@ -110,7 +110,7 @@ abstract final class ChordAnalyzer {
       0.30; // softened for non-seventh-family chords
 
   // Dominant-stack coherence bonuses.
-  static const _domStackPartial = 0.8; // root-position dom7 + 9 + #11
+  static const _domStackPartial = 0.70; // dom7 + 9 + #11 partial stack
   static const _domStackFull = 2.1; // dom7 + 9 + #11 + 13/b13 coherent stack
   static const _fifthlessExtensionStackBonus =
       2.4; // root-position fifthless natural 9 + #11/13 stacks
@@ -738,7 +738,9 @@ abstract final class ChordAnalyzer {
     }
 
     if (hasNaturalThirteenth && !hasFlatThirteenth) {
-      return bassInterval == 0 ? _domStackFull : 0;
+      final hasRealFifth = (relMask & (1 << perfectFifthInterval)) != 0;
+      if (!hasRealFifth) return 0;
+      return bassInterval == 0 ? _domStackFull : _domStackPartial;
     }
 
     if (hasFlatThirteenth && (relMask & (1 << perfectFifthInterval)) == 0) {
