@@ -394,9 +394,11 @@ class _CandidateRankCardState extends State<_CandidateRankCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final fitLabel = widget.rank == 1
-        ? 'Chosen'
-        : (widget.isAlternative ? 'Possible' : 'Unlikely');
+    final tier = widget.rank == 1
+        ? _CandidateTier.chosen
+        : (widget.isAlternative
+              ? _CandidateTier.possible
+              : _CandidateTier.unlikely);
     final disableAnimations =
         MediaQuery.maybeOf(context)?.disableAnimations ??
         WidgetsBinding
@@ -457,6 +459,7 @@ class _CandidateRankCardState extends State<_CandidateRankCard> {
                 child: _showScoring
                     ? _CandidateScoreBack(
                         rank: widget.rank,
+                        tier: tier,
                         row: widget.row,
                         symbol: widget.symbol,
                         tonality: widget.tonality,
@@ -469,7 +472,7 @@ class _CandidateRankCardState extends State<_CandidateRankCard> {
                         row: widget.row,
                         symbol: widget.symbol,
                         longLabel: widget.longLabel,
-                        fitLabel: fitLabel,
+                        tier: tier,
                         nextDecision: widget.nextDecision,
                         winner: widget.thisCandidate,
                       ),
@@ -488,7 +491,7 @@ class _CandidateExplanationFront extends StatelessWidget {
     required this.row,
     required this.symbol,
     required this.longLabel,
-    required this.fitLabel,
+    required this.tier,
     required this.nextDecision,
     required this.winner,
   });
@@ -497,7 +500,7 @@ class _CandidateExplanationFront extends StatelessWidget {
   final RankedCandidateDebug row;
   final String symbol;
   final String longLabel;
-  final String fitLabel;
+  final _CandidateTier tier;
   final RankingDecision? nextDecision;
   final ChordCandidate winner;
 
@@ -512,7 +515,7 @@ class _CandidateExplanationFront extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _RankBadge(rank: rank),
+            _RankBadge(rank: rank, tier: tier),
             const SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -530,13 +533,7 @@ class _CandidateExplanationFront extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            Text(
-              fitLabel,
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: rank == 1 ? cs.primary : cs.onSurfaceVariant,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+            _TierMarker(tier: tier),
           ],
         ),
         const SizedBox(height: 10),
@@ -558,6 +555,7 @@ class _CandidateExplanationFront extends StatelessWidget {
 class _CandidateScoreBack extends StatelessWidget {
   const _CandidateScoreBack({
     required this.rank,
+    required this.tier,
     required this.row,
     required this.symbol,
     required this.tonality,
@@ -567,6 +565,7 @@ class _CandidateScoreBack extends StatelessWidget {
   });
 
   final int rank;
+  final _CandidateTier tier;
   final RankedCandidateDebug row;
   final String symbol;
   final Tonality tonality;
@@ -663,7 +662,7 @@ class _CandidateScoreBack extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _RankBadge(rank: rank),
+            _RankBadge(rank: rank, tier: tier),
             const SizedBox(width: 10),
             Expanded(child: Text(symbol, style: theme.textTheme.titleMedium)),
             const SizedBox(width: 8),
@@ -908,14 +907,94 @@ class _ScoreRow extends StatelessWidget {
   }
 }
 
+enum _CandidateTier {
+  chosen('Chosen'),
+  possible('Possible'),
+  unlikely('Unlikely');
+
+  const _CandidateTier(this.label);
+
+  final String label;
+}
+
+enum _TierDot { filled, hollow, none }
+
+/// Tier marker shown on each candidate card. Color separates the tiers in the
+/// six seeded palettes; the dot shape (filled, hollow, or absent) encodes the
+/// tier on its own, so all three stay distinguishable in the all-gray Neutral
+/// palette where primary, tertiary, and onSurfaceVariant nearly coincide.
+class _TierMarker extends StatelessWidget {
+  const _TierMarker({required this.tier});
+
+  final _CandidateTier tier;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final (color, dot, weight) = switch (tier) {
+      _CandidateTier.chosen => (cs.primary, _TierDot.filled, FontWeight.w700),
+      _CandidateTier.possible => (
+        cs.tertiary,
+        _TierDot.hollow,
+        FontWeight.w700,
+      ),
+      _CandidateTier.unlikely => (
+        cs.onSurfaceVariant,
+        _TierDot.none,
+        FontWeight.w500,
+      ),
+    };
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (dot != _TierDot.none) ...[
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: dot == _TierDot.filled ? color : Colors.transparent,
+              border: dot == _TierDot.hollow
+                  ? Border.all(color: color, width: 1.5)
+                  : null,
+            ),
+          ),
+          const SizedBox(width: 6),
+        ],
+        Text(
+          tier.label,
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: color,
+            fontWeight: weight,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _RankBadge extends StatelessWidget {
-  const _RankBadge({required this.rank});
+  const _RankBadge({required this.rank, required this.tier});
 
   final int rank;
+  final _CandidateTier tier;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    // Mirrors the tier marker: filled for Chosen, a tertiary ring for Possible,
+    // and a soft neutral fill for Unlikely.
+    final (fill, border, foreground) = switch (tier) {
+      _CandidateTier.chosen => (cs.primary, null, cs.onPrimary),
+      _CandidateTier.possible => (Colors.transparent, cs.tertiary, cs.tertiary),
+      _CandidateTier.unlikely => (
+        cs.surfaceContainerHighest,
+        null,
+        cs.onSurfaceVariant,
+      ),
+    };
 
     return ExcludeSemantics(
       child: Container(
@@ -923,13 +1002,14 @@ class _RankBadge extends StatelessWidget {
         height: 28,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: rank == 1 ? cs.primary : cs.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(14),
+          color: fill,
+          shape: BoxShape.circle,
+          border: border == null ? null : Border.all(color: border, width: 1.5),
         ),
         child: Text(
           '$rank',
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: rank == 1 ? cs.onPrimary : cs.onSurfaceVariant,
+            color: foreground,
             fontWeight: FontWeight.w800,
           ),
         ),
