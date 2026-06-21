@@ -287,6 +287,10 @@
     "label": "genuine-ambiguity",
     "note": "E7#5/D is correct; the notes are the augmented triad C-E-G# plus D, and E is the only augmented-equivalent root whose b7 (D) is present, making E7#5 the unique complete four-note reading with the bass as a chord tone (third inversion). Caug(add9)/D (music21, tonal #1) is the salient triad-first reading but strands the bass D as the added 9th. tonal corroborates E7#5/D at #2. Mirrors the b0 sibling, where C-in-bass correctly prefers root-position Caugadd9: an aug-member bass favors the augmented reading, a non-member bass favors the complete dominant whose bass is a core tone. Sound; no engine change needed."
   },
+  "0-2-4-8_b8": {
+    "label": "genuine-ambiguity",
+    "note": "E7♯5/G♯ is preferred because E-G♯-B♯-D gives a complete augmented-dominant seventh with the bass as the third, and pychord agrees. Music21 and tonal prefer Caugadd9/G♯, which is also valid because C-E-G♯ is the salient augmented triad and D is a natural add-nine above C. Tonal lists E7♯5/G♯ as its second answer, so the split is complete dominant-seventh identity versus augmented-triad add-tone identity; both are musically plausible from the isolated voicing."
+  },
   "0-2-4-6-8-10_b0": {
     "label": "oracle-limitation",
     "note": "C9#5#11 is preferred because this is the complete whole-tone collection and C is the bass/root, so C-D-E-F#-G#/Ab-Bb reads directly as a root-position dominant 9#5#11. Tonal agrees and lists the other whole-tone re-roots as alternates. Music21's Bb9#5/C add E keeps the same symmetric material but chooses a non-bass root and demotes the #11 to an added tone."
