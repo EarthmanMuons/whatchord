@@ -28,7 +28,9 @@ class ChordLongFormFormatter {
         quality: identity.quality,
         extensions: extensions,
       ),
-      qualityFifthModifier: identity.quality.embeddedAcademicFifthModifier,
+      qualityFifthModifier: identity.quality.fifthModifierLabel(
+        ChordQualityLabelForm.academic,
+      ),
     );
 
     final modifierCount = _extensionModifierCount(
@@ -37,7 +39,9 @@ class ChordLongFormFormatter {
         quality: identity.quality,
         extensions: extensions,
       ),
-      qualityFifthModifier: identity.quality.embeddedAcademicFifthModifier,
+      qualityFifthModifier: identity.quality.fifthModifierLabel(
+        ChordQualityLabelForm.academic,
+      ),
     );
 
     // Base: "C major seventh", "F♯ half-diminished seventh", etc.
@@ -132,11 +136,7 @@ String _qualityLongPhrase({
   required ChordQualityToken quality,
   required Set<ChordExtension> extensions,
 }) {
-  final rawBase = quality.label(ChordQualityLabelForm.academic);
-  final fifthModifier = quality.embeddedAcademicFifthModifier;
-  final base = fifthModifier != null
-      ? rawBase.replaceFirst(' $fifthModifier', '')
-      : rawBase;
+  final base = quality.coreLabel(ChordQualityLabelForm.academic);
   final headline = _headlineExtensionForParts(
     quality: quality,
     extensions: extensions,

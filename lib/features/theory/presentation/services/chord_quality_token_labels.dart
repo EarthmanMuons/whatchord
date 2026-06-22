@@ -4,33 +4,107 @@ import '../../domain/theory_domain.dart';
 //   academic: "major seventh", idiomatic: "major seven"
 enum ChordQualityLabelForm { symbolic, textual, academic, idiomatic }
 
+/// How a quality's altered fifth relates to its perfect fifth.
+enum ChordFifthAlteration { none, flat5, sharp5 }
+
 const _symbolicMinorSign = '−';
 
 /// Formatting-only labels for chord quality tokens.
 extension ChordQualityTokenLabels on ChordQualityToken {
+  /// The conventional label for a chord of this quality with no added
+  /// extensions, e.g. "7♭5", "m7(♭5)", "(♭5)", "ø7".
   String label(ChordQualityLabelForm form) {
+    final core = coreLabel(form);
+    final fifth = fifthModifierLabel(form);
+    if (fifth == null) return core;
+
     switch (form) {
       case ChordQualityLabelForm.symbolic:
-        return _symbolLabel();
       case ChordQualityLabelForm.textual:
-        return _suffixLabel();
+        return fifthParenthesizedWhenLone ? '$core($fifth)' : '$core$fifth';
       case ChordQualityLabelForm.academic:
-        return _longLabel();
       case ChordQualityLabelForm.idiomatic:
-        return _spokenLabel();
+        return core.isEmpty ? fifth : '$core $fifth';
     }
   }
 
-  String _symbolLabel() {
+  /// The fifth-free, parenthesis-free quality core, e.g. "7", "maj7", "m7",
+  /// "Δ7", "ø7", "dominant seventh". The half-diminished core keeps the fused ø
+  /// / "half-diminished" spelling except in textual form, which spells m7 with a
+  /// separate ♭5.
+  String coreLabel(ChordQualityLabelForm form) {
+    switch (form) {
+      case ChordQualityLabelForm.symbolic:
+        return _coreSymbol();
+      case ChordQualityLabelForm.textual:
+        return _coreSuffix();
+      case ChordQualityLabelForm.academic:
+        return _coreLong();
+      case ChordQualityLabelForm.idiomatic:
+        return _coreSpoken();
+    }
+  }
+
+  /// How this quality's fifth is altered.
+  ChordFifthAlteration get fifthAlteration {
+    switch (this) {
+      case ChordQualityToken.majorFlat5:
+      case ChordQualityToken.dominant7Flat5:
+      case ChordQualityToken.major7Flat5:
+      case ChordQualityToken.halfDiminished7:
+        return ChordFifthAlteration.flat5;
+      case ChordQualityToken.minorSharp5:
+      case ChordQualityToken.dominant7Sharp5:
+      case ChordQualityToken.major7Sharp5:
+      case ChordQualityToken.minor7Sharp5:
+        return ChordFifthAlteration.sharp5;
+      default:
+        return ChordFifthAlteration.none;
+    }
+  }
+
+  /// Whether a lone altered fifth is conventionally parenthesized for this
+  /// quality (Cm7(♭5), C(♭5)) rather than written inline (C7♭5, Cm♯5).
+  bool get fifthParenthesizedWhenLone =>
+      this == ChordQualityToken.majorFlat5 ||
+      this == ChordQualityToken.halfDiminished7;
+
+  /// The altered-fifth token for a given form, or null when the fifth is not
+  /// spelled separately: when there is none, or when the quality names it in
+  /// itself (the symbolic ø and the academic/idiomatic "half-diminished" all
+  /// imply the ♭5).
+  String? fifthModifierLabel(ChordQualityLabelForm form) {
+    final alteration = fifthAlteration;
+    if (alteration == ChordFifthAlteration.none) return null;
+
+    // Half-diminished names the fifth into its quality everywhere but textual.
+    if (this == ChordQualityToken.halfDiminished7 &&
+        form != ChordQualityLabelForm.textual) {
+      return null;
+    }
+
+    final isFlat = alteration == ChordFifthAlteration.flat5;
+    switch (form) {
+      case ChordQualityLabelForm.symbolic:
+        return isFlat ? '♭5' : '♯5';
+      case ChordQualityLabelForm.textual:
+        return isFlat ? 'b5' : '#5';
+      case ChordQualityLabelForm.academic:
+      case ChordQualityLabelForm.idiomatic:
+        return isFlat ? 'flat five' : 'sharp five';
+    }
+  }
+
+  String _coreSymbol() {
     switch (this) {
       case ChordQualityToken.major:
         return '';
       case ChordQualityToken.majorFlat5:
-        return '(♭5)';
+        return '';
       case ChordQualityToken.minor:
         return _symbolicMinorSign;
       case ChordQualityToken.minorSharp5:
-        return '$_symbolicMinorSign♯5';
+        return _symbolicMinorSign;
       case ChordQualityToken.diminished:
         return '°';
       case ChordQualityToken.augmented:
@@ -52,9 +126,9 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.dominant7sus4:
         return '7sus4';
       case ChordQualityToken.dominant7Flat5:
-        return '7♭5';
+        return '7';
       case ChordQualityToken.dominant7Sharp5:
-        return '7♯5';
+        return '7';
       case ChordQualityToken.major7:
         return 'Δ7';
       case ChordQualityToken.major7sus2:
@@ -62,13 +136,13 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.major7sus4:
         return 'Δ7sus4';
       case ChordQualityToken.major7Flat5:
-        return 'Δ7♭5';
+        return 'Δ7';
       case ChordQualityToken.major7Sharp5:
-        return 'Δ7♯5';
+        return 'Δ7';
       case ChordQualityToken.minor7:
         return '${_symbolicMinorSign}7';
       case ChordQualityToken.minor7Sharp5:
-        return '${_symbolicMinorSign}7♯5';
+        return '${_symbolicMinorSign}7';
       case ChordQualityToken.minorMajor7:
         return '$_symbolicMinorSignΔ7';
       case ChordQualityToken.halfDiminished7:
@@ -78,16 +152,16 @@ extension ChordQualityTokenLabels on ChordQualityToken {
     }
   }
 
-  String _suffixLabel() {
+  String _coreSuffix() {
     switch (this) {
       case ChordQualityToken.major:
         return '';
       case ChordQualityToken.majorFlat5:
-        return '(b5)';
+        return '';
       case ChordQualityToken.minor:
         return 'm';
       case ChordQualityToken.minorSharp5:
-        return 'm#5';
+        return 'm';
       case ChordQualityToken.diminished:
         return 'dim';
       case ChordQualityToken.augmented:
@@ -109,9 +183,9 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.dominant7sus4:
         return '7sus4';
       case ChordQualityToken.dominant7Flat5:
-        return '7b5';
+        return '7';
       case ChordQualityToken.dominant7Sharp5:
-        return '7#5';
+        return '7';
       case ChordQualityToken.major7:
         return 'maj7';
       case ChordQualityToken.major7sus2:
@@ -119,32 +193,32 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.major7sus4:
         return 'maj7sus4';
       case ChordQualityToken.major7Flat5:
-        return 'maj7b5';
+        return 'maj7';
       case ChordQualityToken.major7Sharp5:
-        return 'maj7#5';
+        return 'maj7';
       case ChordQualityToken.minor7:
         return 'm7';
       case ChordQualityToken.minor7Sharp5:
-        return 'm7#5';
+        return 'm7';
       case ChordQualityToken.minorMajor7:
         return 'mM7';
       case ChordQualityToken.halfDiminished7:
-        return 'm7(b5)';
+        return 'm7';
       case ChordQualityToken.diminished7:
         return 'dim7';
     }
   }
 
-  String _longLabel() {
+  String _coreLong() {
     switch (this) {
       case ChordQualityToken.major:
         return 'major';
       case ChordQualityToken.majorFlat5:
-        return 'major flat five';
+        return 'major';
       case ChordQualityToken.minor:
         return 'minor';
       case ChordQualityToken.minorSharp5:
-        return 'minor sharp five';
+        return 'minor';
       case ChordQualityToken.diminished:
         return 'diminished';
       case ChordQualityToken.augmented:
@@ -166,9 +240,9 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.dominant7sus4:
         return 'dominant seventh suspended fourth';
       case ChordQualityToken.dominant7Flat5:
-        return 'dominant seventh flat five';
+        return 'dominant seventh';
       case ChordQualityToken.dominant7Sharp5:
-        return 'dominant seventh sharp five';
+        return 'dominant seventh';
       case ChordQualityToken.major7:
         return 'major seventh';
       case ChordQualityToken.major7sus2:
@@ -176,13 +250,13 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.major7sus4:
         return 'major seventh suspended fourth';
       case ChordQualityToken.major7Flat5:
-        return 'major seventh flat five';
+        return 'major seventh';
       case ChordQualityToken.major7Sharp5:
-        return 'major seventh sharp five';
+        return 'major seventh';
       case ChordQualityToken.minor7:
         return 'minor seventh';
       case ChordQualityToken.minor7Sharp5:
-        return 'minor seventh sharp five';
+        return 'minor seventh';
       case ChordQualityToken.minorMajor7:
         return 'minor-major seventh';
       case ChordQualityToken.halfDiminished7:
@@ -192,16 +266,16 @@ extension ChordQualityTokenLabels on ChordQualityToken {
     }
   }
 
-  String _spokenLabel() {
+  String _coreSpoken() {
     switch (this) {
       case ChordQualityToken.major:
         return '';
       case ChordQualityToken.majorFlat5:
-        return 'flat five';
+        return '';
       case ChordQualityToken.minor:
         return 'minor';
       case ChordQualityToken.minorSharp5:
-        return 'minor sharp five';
+        return 'minor';
       case ChordQualityToken.diminished:
         return 'diminished';
       case ChordQualityToken.augmented:
@@ -223,9 +297,9 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.dominant7sus4:
         return 'seven sus';
       case ChordQualityToken.dominant7Flat5:
-        return 'seven flat five';
+        return 'seven';
       case ChordQualityToken.dominant7Sharp5:
-        return 'seven sharp five';
+        return 'seven';
       case ChordQualityToken.major7:
         return 'major seven';
       case ChordQualityToken.major7sus2:
@@ -233,79 +307,19 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.major7sus4:
         return 'major seven sus';
       case ChordQualityToken.major7Flat5:
-        return 'major seven flat five';
+        return 'major seven';
       case ChordQualityToken.major7Sharp5:
-        return 'major seven sharp five';
+        return 'major seven';
       case ChordQualityToken.minor7:
         return 'minor seven';
       case ChordQualityToken.minor7Sharp5:
-        return 'minor seven sharp five';
+        return 'minor seven';
       case ChordQualityToken.minorMajor7:
         return 'minor major seven';
       case ChordQualityToken.halfDiminished7:
         return 'half-diminished';
       case ChordQualityToken.diminished7:
         return 'diminished seven';
-    }
-  }
-}
-
-extension ChordQualityTokenAcademicStructure on ChordQualityToken {
-  /// The fifth-altering modifier embedded in this quality token's academic label,
-  /// if any. The formatter extracts this and folds it into the "with..." phrase
-  /// so it joins naturally with other extensions and alterations.
-  String? get embeddedAcademicFifthModifier {
-    switch (this) {
-      case ChordQualityToken.majorFlat5:
-      case ChordQualityToken.dominant7Flat5:
-      case ChordQualityToken.major7Flat5:
-        return 'flat five';
-      case ChordQualityToken.minorSharp5:
-      case ChordQualityToken.dominant7Sharp5:
-      case ChordQualityToken.major7Sharp5:
-      case ChordQualityToken.minor7Sharp5:
-        return 'sharp five';
-      default:
-        return null;
-    }
-  }
-
-  /// The fifth-altering token embedded in this quality's compact
-  /// (symbolic/textual) label, whether written bare (7♭5) or parenthesized
-  /// (m7(♭5), (♭5)). The symbol formatter strips this from the base and folds it
-  /// into a single trailing parenthetical group once the chord carries other
-  /// modifiers, so a symbol never shows parentheses in the middle of the label
-  /// or two separate groups (e.g. "9♭5♭9" -> "9(♭5,♭9)", "13(♭5)♭13" ->
-  /// "13(♭5,♭13)"). A lone altered fifth is left untouched. Returns null where
-  /// the fifth is not spelled as a foldable token: the academic and idiomatic
-  /// long forms, and the symbolic half-diminished ø, which implies it.
-  String? embeddedFifthAlteration(ChordQualityLabelForm form) {
-    final bool isFlat;
-    switch (this) {
-      case ChordQualityToken.majorFlat5:
-      case ChordQualityToken.dominant7Flat5:
-      case ChordQualityToken.major7Flat5:
-      case ChordQualityToken.halfDiminished7:
-        isFlat = true;
-      case ChordQualityToken.minorSharp5:
-      case ChordQualityToken.dominant7Sharp5:
-      case ChordQualityToken.major7Sharp5:
-      case ChordQualityToken.minor7Sharp5:
-        isFlat = false;
-      default:
-        return null;
-    }
-
-    switch (form) {
-      case ChordQualityLabelForm.symbolic:
-        // The symbolic half-diminished ø implies the ♭5; there is no token.
-        if (this == ChordQualityToken.halfDiminished7) return null;
-        return isFlat ? '♭5' : '♯5';
-      case ChordQualityLabelForm.textual:
-        return isFlat ? 'b5' : '#5';
-      case ChordQualityLabelForm.academic:
-      case ChordQualityLabelForm.idiomatic:
-        return null;
     }
   }
 }
