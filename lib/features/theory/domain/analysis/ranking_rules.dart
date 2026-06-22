@@ -397,6 +397,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
   ),
   NamedRule('prefer root position', _preferRootPosition),
   NamedRule('prefer common naming preference', preferCommonNamePrior),
+  NamedRule(
+    'prefer cleaner tritone flat-five dominant spelling',
+    _preferCleanerTritoneFlatFiveDominantSpelling,
+  ),
   NamedRule('prefer more conventional inversion', _preferConventionalInversion),
   NamedRule('prefer 7th chords over triads', _prefer7thChords),
   NamedRule('prefer fewer extensions', _preferFewerExtensions),
@@ -1946,6 +1950,73 @@ int? _preferConventionalInversion(
   final cmp = fa.bassRoleRank.compareTo(fb.bassRoleRank);
   if (cmp == 0) return null;
   return cmp;
+}
+
+/// Resolves exact tritone-equivalent dominant-seven-flat-five ties by choosing
+/// the spelling musicians can read directly.
+///
+/// A plain 7b5 chord is symmetric at the tritone: {C, D, F#, Ab} can be either
+/// D7b5/C or Ab7b5/C. Bass role still wins earlier for root-position cases,
+/// but when both readings are otherwise tied, avoid spellings like G#7b5/B#.
+int? _preferCleanerTritoneFlatFiveDominantSpelling(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures _,
+  CandidateFeatures _,
+  Tonality tonality,
+) {
+  if (!_isPlainTritoneFlatFiveDominantPair(a.identity, b.identity)) {
+    return null;
+  }
+  if ((a.score - b.score).abs() > 0.05) return null;
+
+  final aPenalty = _candidateSpellingPenalty(a.identity, tonality);
+  final bPenalty = _candidateSpellingPenalty(b.identity, tonality);
+  if (aPenalty == bPenalty) return null;
+  return aPenalty < bPenalty ? -1 : 1;
+}
+
+bool _isPlainTritoneFlatFiveDominantPair(ChordIdentity a, ChordIdentity b) {
+  return a.quality == ChordQualityToken.dominant7Flat5 &&
+      b.quality == ChordQualityToken.dominant7Flat5 &&
+      a.extensions.isEmpty &&
+      b.extensions.isEmpty &&
+      intervalAboveRoot(a.rootPc, b.rootPc) == tritoneInterval;
+}
+
+int _candidateSpellingPenalty(ChordIdentity identity, Tonality tonality) {
+  final rootName = spellChordRoot(identity, tonality: tonality);
+  var penalty = _readabilityPenalty(rootName);
+
+  for (final entry in identity.toneRolesByInterval.entries) {
+    final pc = (identity.rootPc + entry.key) % 12;
+    final member = spellPitchClass(
+      pc,
+      tonality: tonality,
+      chordRootName: rootName,
+      role: entry.value,
+    );
+    penalty += _readabilityPenalty(member);
+  }
+
+  return penalty;
+}
+
+int _readabilityPenalty(String name) {
+  final ascii = normalizeNoteNameToAscii(name);
+  if (ascii.isEmpty) return 1000;
+
+  final accidental = ascii.substring(1);
+  var penalty = 0;
+  for (final c in accidental.split('')) {
+    if (c == '#' || c == 'b') penalty += 10;
+    if (c == 'x') penalty += 20;
+  }
+  if (accidental.length == 2) penalty += 30;
+  if (ascii == 'B#' || ascii == 'Cb' || ascii == 'E#' || ascii == 'Fb') {
+    penalty += 16;
+  }
+  return penalty;
 }
 
 int? _prefer7thChords(
