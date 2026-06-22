@@ -176,8 +176,8 @@ class ChordQualityFormatter {
     }
 
     // Plain seventh-family cores end in '7': 7 -> 9, maj7 -> maj9, m7 -> m9,
-    // Δ7 -> Δ9, ø7 -> ø9, mM7 -> mM9. Symbolic major7sus (Δ7sus2/Δ7sus4) ends in
-    // its suspension and is left unpromoted.
+    // Δ7 -> Δ9, ø7 -> ø9, mmaj7 -> mmaj9. Symbolic major7sus (Δ7sus2/Δ7sus4) ends
+    // in its suspension and is left unpromoted.
     if (base == '7') return ext;
     if (base.endsWith('7')) {
       return '${base.substring(0, base.length - 1)}$ext';
