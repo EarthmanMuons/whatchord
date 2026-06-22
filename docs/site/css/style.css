@@ -8,16 +8,17 @@
    cell-aligned. */
 @font-face {
   font-family: "WhatChord Symbols";
-  src: url("../fonts/WhatChordSymbols-Regular.woff2") format("woff2");
-  font-weight: 400;
   font-style: normal;
+  font-weight: 400;
+  src: url("../fonts/WhatChordSymbols-Regular.woff2") format("woff2");
   font-display: swap;
 }
+
 @font-face {
   font-family: "WhatChord Symbols";
-  src: url("../fonts/WhatChordSymbols-Bold.woff2") format("woff2");
-  font-weight: 700;
   font-style: normal;
+  font-weight: 700;
+  src: url("../fonts/WhatChordSymbols-Bold.woff2") format("woff2");
   font-display: swap;
 }
 
@@ -994,7 +995,6 @@ footer {
 }
 
 .article-body h2 {
-  scroll-margin-top: var(--sticky-anchor-offset);
   padding-top: 32px;
   margin: 32px 0 14px;
   font-size: 1.55rem;
@@ -1002,6 +1002,7 @@ footer {
   line-height: 1.2;
   color: var(--text);
   letter-spacing: -0.022em;
+  scroll-margin-top: var(--sticky-anchor-offset);
   border-top: 1px solid var(--border);
 }
 
@@ -1048,6 +1049,7 @@ footer {
    keyboard. Falls back to the default marker where ::marker is unsupported. */
 .article-body li::marker {
   font-weight: 600;
+
   /* Between --text-2 (muted body) and --text (near-white): present but soft. */
   color: #bfbfd0;
 }
@@ -1092,7 +1094,7 @@ footer {
   width: 0.8em;
   height: 0.8em;
   vertical-align: middle;
-  fill: currentColor;
+  fill: currentcolor;
 }
 
 .article-body code {
@@ -1307,8 +1309,8 @@ footer {
   padding: 1px 7px;
   margin-left: 4px;
   font-size: 0.62rem;
-  letter-spacing: 0.04em;
   color: var(--text-2);
+  letter-spacing: 0.04em;
   border: 1px solid var(--border-mid);
   border-radius: 100px;
 }

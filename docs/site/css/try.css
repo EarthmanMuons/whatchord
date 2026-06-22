@@ -17,9 +17,9 @@
 }
 
 .is-ios .nav-logo::before {
-  content: "←";
   font-size: 1.1rem;
   font-weight: 600;
+  content: "←";
 }
 
 .is-ios .btn-get-app {
@@ -271,9 +271,9 @@ select.try-select:focus {
 .try-rank {
   display: inline-grid;
   flex-shrink: 0;
+  place-items: center;
   width: 2em;
   height: 2em;
-  place-items: center;
   font-family: var(--mono);
   font-size: 0.72rem;
   font-weight: 600;
