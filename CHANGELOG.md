@@ -56,6 +56,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   remain visible as possible alternatives.
 - Improved altered-dominant handling so complete 7♭9♯9 voicings with the fifth
   in the bass outrank remote diminished add-tone spellings.
+- Improved flat-five dominant naming so exact tritone-related ties prefer the
+  cleaner readable spelling.
 
 ## [2026.6.19] - 2026-06-19
 

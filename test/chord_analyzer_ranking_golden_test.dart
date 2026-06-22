@@ -658,6 +658,17 @@ void main() {
       expectedExtensions: {ChordExtension.flat9, ChordExtension.nine},
     ),
 
+    golden(
+      description: 'tritone flat-five dominant tie uses cleaner spelling',
+      expectedSymbol: 'D7b5 / C',
+      expectedAlternateSymbols: ['G#7b5 / B#'],
+      pcs: ['C', 'D', 'F#', 'Ab'],
+      bass: 'C',
+      expectedRoot: 'D',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.dominant7Flat5,
+    ),
+
     // -------------------------------------------------------------------------
     // Simple triad add-tone beats inverted unusual seventh-family quality
     // -------------------------------------------------------------------------

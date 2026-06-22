@@ -1093,6 +1093,30 @@ void main() {
     );
   });
 
+  test('clean spelling beats awkward tritone flat-five dominant inversion', () {
+    final cleanSeventhBass = _candidate(
+      quality: ChordQualityToken.dominant7Flat5,
+      root: 'D',
+      bass: 'C',
+      presentIntervals: const {0, 4, 6, 10},
+      score: 8.5,
+    );
+
+    final awkwardThirdBass = _candidate(
+      quality: ChordQualityToken.dominant7Flat5,
+      root: 'Ab',
+      bass: 'C',
+      presentIntervals: const {0, 4, 6, 10},
+      score: 8.5,
+    );
+
+    _expectTieRule(
+      cleanSeventhBass,
+      awkwardThirdBass,
+      'prefer cleaner tritone flat-five dominant spelling',
+    );
+  });
+
   test('complete major inversion beats minor sharp-five in a near-tie', () {
     for (final bass in ['C', 'Eb']) {
       final majorInversion = _candidate(
