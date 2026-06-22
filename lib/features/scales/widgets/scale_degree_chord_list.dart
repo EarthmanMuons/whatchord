@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
+import '../services/scale_degree_chord_symbol.dart';
 import 'scale_list_style.dart';
 
 // Shared column metrics so the pinned [ScaleDegreeColumnHeaders] line up with
@@ -96,25 +97,13 @@ class ScaleDegreeChordList extends StatelessWidget {
     );
   }
 
-  String _chordSymbol(ScaleDegreeHarmony degree) {
-    final quality = showSevenths ? degree.seventhQuality : degree.triadQuality;
-    final identity = ChordIdentity(
-      rootPc: degree.rootPc,
-      bassPc: degree.rootPc,
-      quality: quality,
-      presentIntervalsMask: quality.canonicalMask,
-    );
-    final symbol = ChordSymbolBuilder.fromIdentity(
-      identity: identity,
-      tonality: tonality,
-      notation: notation,
-      rootName: degree.rootName,
-    );
-    return chordSymbolDisplayParts(
-      symbol,
-      noteNameSystem: noteNameSystem,
-    ).toString();
-  }
+  String _chordSymbol(ScaleDegreeHarmony degree) => scaleDegreeChordSymbol(
+    degree: degree,
+    showSevenths: showSevenths,
+    tonality: tonality,
+    notation: notation,
+    noteNameSystem: noteNameSystem,
+  );
 
   String _memberNotes(ScaleDegreeHarmony degree) {
     final n = harmony.toneNames.length;

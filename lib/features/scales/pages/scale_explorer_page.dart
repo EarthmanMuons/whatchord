@@ -16,6 +16,7 @@ import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/scale_menu.dart';
 import '../providers/scale_preferences_notifier.dart';
+import '../services/scale_degree_chord_symbol.dart';
 import '../services/scale_explorer_selection.dart';
 import '../services/scale_preview_animation_controller.dart';
 import '../services/scale_voicing.dart';
@@ -255,6 +256,45 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     required Set<int> memberPitchClasses,
     required bool isLandscape,
   }) {
+    final scaleName =
+        '${noteDisplayLabel(scale.tonic.label, noteNameSystem: noteNameSystem)}'
+        ' ${_scale.headerLabel} scale';
+    final chordTonality = Tonality(scale.tonic, TonalityMode.major);
+    final copyChoices = [
+      CopyChoice(
+        title: 'Scale name',
+        icon: Icons.label_outline,
+        value: scaleName,
+        copiedLabel: 'scale name',
+      ),
+      CopyChoice(
+        title: 'Scale tones',
+        icon: Icons.piano,
+        value: [
+          for (final tone in tones.tones)
+            noteDisplayLabel(tone.name, noteNameSystem: noteNameSystem),
+        ].join(', '),
+        copiedLabel: 'scale tones',
+      ),
+      CopyChoice(
+        title: 'Scale formula',
+        icon: Icons.numbers,
+        value: tones.degreeLabels.join(', '),
+        copiedLabel: 'scale formula',
+      ),
+      if (harmony != null)
+        CopyChoice(
+          title: 'Diatonic chords',
+          icon: Icons.music_note,
+          value: [
+            for (final degree in harmony.degrees)
+              '${_showSevenths ? degree.seventhRoman : degree.triadRoman} '
+                  '${scaleDegreeChordSymbol(degree: degree, showSevenths: _showSevenths, tonality: chordTonality, notation: notation, noteNameSystem: noteNameSystem)}',
+          ].join(', '),
+          copiedLabel: 'diatonic chords',
+        ),
+    ];
+
     final header = Row(
       children: [
         CircularPlayButton(
@@ -273,6 +313,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
               selectedOrdinal: _selectedOrdinal,
               supportsChordHarmony: scale.kind.supportsChordHarmony,
             ),
+            copyChoices: copyChoices,
           ),
         ),
       ],
@@ -367,7 +408,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         ? const SizedBox.shrink()
         : ScaleDegreeChordList(
             harmony: harmony,
-            tonality: Tonality(scale.tonic, TonalityMode.major),
+            tonality: chordTonality,
             notation: notation,
             noteNameSystem: noteNameSystem,
             showSevenths: _showSevenths,
@@ -523,6 +564,7 @@ class _ScaleHeader extends StatelessWidget {
     required this.kindLabel,
     required this.noteNameSystem,
     required this.functionLabel,
+    required this.copyChoices,
   });
 
   final Scale scale;
@@ -537,6 +579,10 @@ class _ScaleHeader extends StatelessWidget {
   /// Role and resolution tendency of the selected degree, or null when none is
   /// selected (the line is still laid out so the header height stays fixed).
   final String? functionLabel;
+
+  /// Scale-level texts offered by the copy dialog (scale name, tones, degrees),
+  /// reached by tapping the header, mirroring the chord summary's copy menu.
+  final List<CopyChoice> copyChoices;
 
   @override
   Widget build(BuildContext context) {
@@ -562,48 +608,42 @@ class _ScaleHeader extends StatelessWidget {
       noteNameSystem: noteNameSystem,
     );
 
-    return Column(
+    final details = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Semantics(
-          header: true,
-          label: '$tonicSemanticLabel $kindLabel scale',
-          child: ExcludeSemantics(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.alphabetic,
-              children: [
-                Text(
-                  tonicLabel,
-                  style: tonicStyle,
-                  maxLines: 1,
-                  // Forced strut keeps the line height constant whether or not
-                  // the tonic carries an accidental, so the play button doesn't
-                  // shift while scrubbing. Anchoring it to the fixed-size tonic
-                  // lets the suffix shrink without disturbing the row height.
-                  strutStyle: StrutStyle(
-                    fontSize: tonicStyle?.fontSize,
-                    height: 1.0,
-                    forceStrutHeight: true,
-                  ),
-                ),
-                // Naming the scale explicitly keeps a seeded heading like
-                // "C major" from reading as the chord of the same name on a
-                // page that otherwise mirrors Explore Chords. Only this suffix
-                // shrinks to fit, so the tonic stays at full size.
-                Expanded(
-                  child: AutoSizeText(
-                    ' $kindLabel scale',
-                    style: restStyle,
-                    maxLines: 1,
-                    minFontSize: 13,
-                    stepGranularity: 0.5,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              tonicLabel,
+              style: tonicStyle,
+              maxLines: 1,
+              // Forced strut keeps the line height constant whether or not
+              // the tonic carries an accidental, so the play button doesn't
+              // shift while scrubbing. Anchoring it to the fixed-size tonic
+              // lets the suffix shrink without disturbing the row height.
+              strutStyle: StrutStyle(
+                fontSize: tonicStyle?.fontSize,
+                height: 1.0,
+                forceStrutHeight: true,
+              ),
             ),
-          ),
+            // Naming the scale explicitly keeps a seeded heading like
+            // "C major" from reading as the chord of the same name on a
+            // page that otherwise mirrors Explore Chords. Only this suffix
+            // shrinks to fit, so the tonic stays at full size.
+            Expanded(
+              child: AutoSizeText(
+                ' $kindLabel scale',
+                style: restStyle,
+                maxLines: 1,
+                minFontSize: 13,
+                stepGranularity: 0.5,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 6),
         // Always rendered (a space when empty) so selecting or clearing a
@@ -621,6 +661,42 @@ class _ScaleHeader extends StatelessWidget {
           ),
         ),
       ],
+    );
+
+    final semanticLabel = functionLabel == null
+        ? '$tonicSemanticLabel $kindLabel scale'
+        : '$tonicSemanticLabel $kindLabel scale. $functionLabel';
+
+    return Semantics(
+      container: true,
+      header: true,
+      label: semanticLabel,
+      onTap: () =>
+          unawaited(showCopyChoiceDialog(context, choices: copyChoices)),
+      onTapHint: 'Choose scale details to copy',
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          excludeFromSemantics: true,
+          onTap: () =>
+              unawaited(showCopyChoiceDialog(context, choices: copyChoices)),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: details),
+              Padding(
+                padding: const EdgeInsets.all(9),
+                child: Icon(
+                  Icons.copy_outlined,
+                  size: 18,
+                  color: cs.onSurface.withValues(alpha: 0.38),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
