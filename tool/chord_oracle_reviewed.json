@@ -219,6 +219,10 @@
     "label": "oracle-limitation",
     "note": "Fm(maj7)♭13/A♭ is preferred because A♭ is the minor third of a complete F minor-major seventh sonority with D♭ as flat thirteenth. Tonal agrees. Music21's C♯m(maj7)/G♯ add E♯ preserves related pitch classes but requires simultaneous minor and major thirds, making it less idiomatic than the direct Fm(maj7)♭13 reading."
   },
+  "0-1-3-6-8_b6": {
+    "label": "genuine-ambiguity",
+    "note": "A♭7(add11)/G♭ is defensible because A♭-C-E♭-G♭ forms a complete dominant-seventh shell with the flat seventh in the bass, and music21 agrees semantically. Tonal's D♭maj9sus4/G♭ is also a valid complete suspended-major reading and ChoCo favors the major7sus4|nine vocabulary, but it makes the bass the suspended fourth rather than a stable chord tone. The bass role makes WhatChord's primary label plausible, while the corpus-supported suspended-major reading keeps the row genuinely ambiguous."
+  },
   "0-1-4-7_b1": {
     "label": "genuine-ambiguity",
     "note": "D♭m(maj7)♯11 is preferred because D♭ is the bass/root and the voicing contains the complete D♭-F♭-A♭-C minor-major-seventh shell, with G as sharp-eleventh color. Music21's D♭ diminished add-tone spelling and tonal's D♭ diminished-major-seventh or C major-add-flat-nine alternatives describe related pitch-class organizations, but they are less direct musician-facing names for this root-position minor-major sonority. The close alternate structures make the reviewed split a genuine ambiguity."
