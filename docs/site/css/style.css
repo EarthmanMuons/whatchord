@@ -990,6 +990,10 @@ footer {
   color: var(--text-2);
 }
 
+.article-deck + .article-deck {
+  margin-top: 1em;
+}
+
 .article-body {
   padding: 48px 0 96px;
 }

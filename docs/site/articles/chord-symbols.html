@@ -89,10 +89,16 @@
             A chord symbol is a concise name for a harmonic identity, not an
             exhaustive inventory of the notes being played. It describes a
             chord's quality and function, independent of the register, spacing,
-            and doublings of any particular voicing. The following conventions
-            favor common lead-sheet usage, readable symbols, and consistent
-            meaning wherever a symbol appears, and they are the defaults
-            WhatChord uses.
+            and doublings of any particular voicing.
+          </p>
+
+          <p class="article-deck">
+            Chord-symbol notation has never been governed by a single universal
+            standard. Different publishers, educators, software packages, and
+            musical traditions use slightly different conventions. This guide
+            presents a practical style for contemporary lead-sheet notation,
+            emphasizing readability, consistency, and unambiguous
+            interpretation.
           </p>
         </header>
 
@@ -416,9 +422,9 @@
           <p>
             Some house styles, including Berklee-derived teaching materials,
             parenthesize every tension and alteration, such as
-            <span class="chord">C7(♯11)</span>. Here, parentheses appear only
-            when grouping or disambiguation aids reading, so a lone alteration
-            stays inline as <span class="chord">C7♯11</span>.
+            <span class="chord">C7(♯11)</span>. This guide reserves parentheses
+            for grouping and disambiguation, so a lone alteration stays inline
+            as <span class="chord">C7♯11</span>.
           </p>
 
           <p>
@@ -446,19 +452,26 @@
           <h2>Slash bass</h2>
 
           <p>
-            A non-root bass is appended after a slash, as in
-            <span class="chord">Cmaj7 / E</span>. The spaces around the slash
-            distinguish bass notation from the compact
-            <span class="chord">6/9</span> quality.
+            The slash note names the sounding bass under the chord symbol. It
+            does not change the root, and it does not make the bass note a
+            second chord symbol. A voicing with E in the bass and a C major
+            seventh above it is therefore <span class="chord">Cmaj7 / E</span>,
+            not an E-rooted chord unless the notes support that analysis more
+            strongly.
           </p>
 
           <p>
-            The formatter removes an added-tone label when the slash bass
-            already supplies that same tone. For example, it prefers
+            Slash bass also affects which chord tones need to be named
+            explicitly. If an added-tone label would only repeat the bass note,
+            the formatter removes that label. For example, it prefers
             <span class="chord">A♭7 / D♭</span> over the redundant
-            <span class="chord">A♭7(add11) / D♭</span>. Similarly, a seventh
-            chord whose only ninth is supplied by the slash bass is shown as
-            <span class="chord">C7 / D</span>, not
+            <span class="chord">A♭7(add11) / D♭</span>.
+          </p>
+
+          <p>
+            The same principle keeps slash-bass symbols from overstating stacked
+            extensions. A seventh chord whose only ninth is supplied by the bass
+            is shown as <span class="chord">C7 / D</span>, not
             <span class="chord">C9 / D</span>.
           </p>
 
@@ -483,23 +496,27 @@
               <a href="https://www.shermusic.com/new/0961470143.shtml"
                 ><em>The New Real Book</em></a
               >
-              (Sher Music Co., 1988), representative of the modern jazz
-              lead-sheet consensus.
+              (Sher Music Co., 1988), a practical model of modern jazz
+              lead-sheet usage, including compact symbols that working musicians
+              are likely to recognize quickly.
             </li>
             <li>
               Mark Levine,
               <a href="https://www.shermusic.com/1883217040.php"
                 ><em>The Jazz Theory Book</em></a
               >
-              (Sher Music Co., 1995), a modern pedagogical reference for the
-              reasoning behind chord naming, extensions, and alterations.
+              (Sher Music Co., 1995), a pedagogical reference for the musical
+              reasoning behind chord qualities, extensions, alterations, and
+              common voicing practice.
             </li>
           </ul>
 
           <p>
-            Where these references differ, WhatChord favors the modern consensus
-            and its own readability priorities while keeping their shared
-            clarity principles.
+            Where references or house styles differ, WhatChord favors symbols
+            that are concise, widely recognizable, and clear in a real-time app
+            interface. The goal is not to reproduce any one book's house style
+            exactly, but to apply the same clarity principles consistently
+            across every displayed chord.
           </p>
 
           <div class="article-cta">
