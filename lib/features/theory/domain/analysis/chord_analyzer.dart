@@ -769,9 +769,9 @@ abstract final class ChordAnalyzer {
   }) {
     // Root-position fifthless extended chords are conventional when their upper
     // colors form a natural extension stack. Reward that coherence directly,
-    // rather than relying on a later hard ranking override. Do not apply this
-    // to flat-thirteenth dominants: when interval 8 is present without a
-    // perfect fifth, #5 is usually the clearer altered-fifth spelling.
+    // rather than relying on a later hard ranking override. For dominant
+    // sevenths, require a natural thirteenth: with only 9 + #11 and no fifth,
+    // the tritone is usually clearer as a chord-defining b5.
     if (bassInterval != 0) return 0;
     if (quality != ChordQualityToken.major7 &&
         quality != ChordQualityToken.dominant7) {
@@ -779,10 +779,10 @@ abstract final class ChordAnalyzer {
     }
     if (!extensions.contains(ChordExtension.nine)) return 0;
     if (extensions.contains(ChordExtension.flat13)) return 0;
-    final hasUpperColor =
-        extensions.contains(ChordExtension.sharp11) ||
-        extensions.contains(ChordExtension.thirteen);
-    if (!hasUpperColor) return 0;
+    final hasSharpEleventh = extensions.contains(ChordExtension.sharp11);
+    final hasThirteenth = extensions.contains(ChordExtension.thirteen);
+    if (!hasSharpEleventh && !hasThirteenth) return 0;
+    if (quality == ChordQualityToken.dominant7 && !hasThirteenth) return 0;
     if ((relMask & (1 << perfectFifthInterval)) != 0) return 0;
 
     return _fifthlessExtensionStackBonus;

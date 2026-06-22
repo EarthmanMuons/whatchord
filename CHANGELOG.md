@@ -58,6 +58,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   in the bass outrank remote diminished add-tone spellings.
 - Improved flat-five dominant naming so exact tritone-related ties prefer the
   cleaner readable spelling.
+- Improved fifthless dominant naming so 9♭5 voicings can outrank 9♯11 when the
+  altered fifth is the clearer chord-defining tone.
 
 ## [2026.6.19] - 2026-06-19
 
