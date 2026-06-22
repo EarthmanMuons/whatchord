@@ -127,7 +127,7 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.minor7Sharp5:
         return 'm7#5';
       case ChordQualityToken.minorMajor7:
-        return 'm(maj7)';
+        return 'mM7';
       case ChordQualityToken.halfDiminished7:
         return 'm7(b5)';
       case ChordQualityToken.diminished7:
@@ -266,6 +266,45 @@ extension ChordQualityTokenAcademicStructure on ChordQualityToken {
       case ChordQualityToken.minor7Sharp5:
         return 'sharp five';
       default:
+        return null;
+    }
+  }
+
+  /// The fifth-altering token embedded in this quality's compact
+  /// (symbolic/textual) label, whether written bare (7♭5) or parenthesized
+  /// (m7(♭5), (♭5)). The symbol formatter strips this from the base and folds it
+  /// into a single trailing parenthetical group once the chord carries other
+  /// modifiers, so a symbol never shows parentheses in the middle of the label
+  /// or two separate groups (e.g. "9♭5♭9" -> "9(♭5,♭9)", "13(♭5)♭13" ->
+  /// "13(♭5,♭13)"). A lone altered fifth is left untouched. Returns null where
+  /// the fifth is not spelled as a foldable token: the academic and idiomatic
+  /// long forms, and the symbolic half-diminished ø, which implies it.
+  String? embeddedFifthAlteration(ChordQualityLabelForm form) {
+    final bool isFlat;
+    switch (this) {
+      case ChordQualityToken.majorFlat5:
+      case ChordQualityToken.dominant7Flat5:
+      case ChordQualityToken.major7Flat5:
+      case ChordQualityToken.halfDiminished7:
+        isFlat = true;
+      case ChordQualityToken.minorSharp5:
+      case ChordQualityToken.dominant7Sharp5:
+      case ChordQualityToken.major7Sharp5:
+      case ChordQualityToken.minor7Sharp5:
+        isFlat = false;
+      default:
+        return null;
+    }
+
+    switch (form) {
+      case ChordQualityLabelForm.symbolic:
+        // The symbolic half-diminished ø implies the ♭5; there is no token.
+        if (this == ChordQualityToken.halfDiminished7) return null;
+        return isFlat ? '♭5' : '♯5';
+      case ChordQualityLabelForm.textual:
+        return isFlat ? 'b5' : '#5';
+      case ChordQualityLabelForm.academic:
+      case ChordQualityLabelForm.idiomatic:
         return null;
     }
   }

@@ -61,7 +61,7 @@
   },
   "0-1-2-4-6-8-10_b1": {
     "label": "oracle-limitation",
-    "note": "F♯9(♯11,♭13)/C♯ is preferred because C♯ is the fifth of the complete F♯9♯11♭13 stack. Tonal agrees. Music21's C♯m(maj7) add F♯,D,A♯ re-roots the same pitch material away from the complete dominant shell."
+    "note": "F♯9(♯11,♭13)/C♯ is preferred because C♯ is the fifth of the complete F♯9♯11♭13 stack. Tonal agrees. Music21's C♯mM7 add F♯,D,A♯ re-roots the same pitch material away from the complete dominant shell."
   },
   "0-1-2-4-6-8-10_b2": {
     "label": "oracle-limitation",
@@ -117,15 +117,15 @@
   },
   "0-1-3-6-9_b9": {
     "label": "genuine-ambiguity",
-    "note": "D#m7b5(add13)/A is defensible; the set is the symmetric dim7 {C,Eb,Gb,A} plus the chromatic Db, so root assignment is inherently ambiguous and every source picks a different root (whatchord D#, music21 F#, tonal Db). It is not a functional dominant: the notes are a subset of the C half-whole octatonic but lack any 3rd and b7, so no tritone. Our #1 is a complete m7b5 with a natural 13 and the bass (b5) as a core tone, and wins a 0.10 near-tie over Cdim7(b9) via natural-extension-over-altered-color. music21's F#o7/AaddC# is enharmonically identical to our F#m6#11/A reading (same root, intervals {0,3,6,7,9}, bass A), but we rank that #3 at delta 0.22, below the near-tie cutoff, so it does not surface; among the readings the app actually shows (#1 and the #2 Cdim7(b9) near-tie) no oracle agrees. tonal roots on Db, matching nothing of ours. The intuitive bass-rooted Adim7+chromatic description ranks low because Db will not sit cleanly on Adim7. Genuine ambiguity; no engine change warranted."
+    "note": "D#m7(b5,add13)/A is defensible; the set is the symmetric dim7 {C,Eb,Gb,A} plus the chromatic Db, so root assignment is inherently ambiguous and every source picks a different root (whatchord D#, music21 F#, tonal Db). It is not a functional dominant: the notes are a subset of the C half-whole octatonic but lack any 3rd and b7, so no tritone. Our #1 is a complete m7b5 with a natural 13 and the bass (b5) as a core tone, and wins a 0.10 near-tie over Cdim7(b9) via natural-extension-over-altered-color. music21's F#o7/AaddC# is enharmonically identical to our F#m6#11/A reading (same root, intervals {0,3,6,7,9}, bass A), but we rank that #3 at delta 0.22, below the near-tie cutoff, so it does not surface; among the readings the app actually shows (#1 and the #2 Cdim7(b9) near-tie) no oracle agrees. tonal roots on Db, matching nothing of ours. The intuitive bass-rooted Adim7+chromatic description ranks low because Db will not sit cleanly on Adim7. Genuine ambiguity; no engine change warranted."
   },
   "0-1-3-6-9_b1": {
     "label": "genuine-ambiguity",
-    "note": "D♯m7♭5(add13)/C♯ is defensible because D♯-F♯-A-C♯ forms a complete half-diminished seventh shell with C/B♯ as natural-thirteenth color and C♯ as the flat seventh in the bass. The pitch set is a symmetric diminished-seventh core plus one chromatic tone, so root assignment is inherently ambiguous: music21's F♯m/C♯ add E♭,C matches the surfaced F♯m6♯11/C♯ alternate, tonal's D♭maj9♯5sus4 gives a bass-rooted suspended major-seventh view, and Cdim7♭9/D♭ is also a near-tie. The complete half-diminished shell and conventional seventh bass make WhatChord's primary label defensible, but the competing organizations are musically real."
+    "note": "D♯m7(♭5,add13)/C♯ is defensible because D♯-F♯-A-C♯ forms a complete half-diminished seventh shell with C/B♯ as natural-thirteenth color and C♯ as the flat seventh in the bass. The pitch set is a symmetric diminished-seventh core plus one chromatic tone, so root assignment is inherently ambiguous: music21's F♯m/C♯ add E♭,C matches the surfaced F♯m6♯11/C♯ alternate, tonal's D♭maj9♯5sus4 gives a bass-rooted suspended major-seventh view, and Cdim7♭9/D♭ is also a near-tie. The complete half-diminished shell and conventional seventh bass make WhatChord's primary label defensible, but the competing organizations are musically real."
   },
   "0-1-3-6-9_b6": {
     "label": "genuine-ambiguity",
-    "note": "D♯m7♭5(add13)/F♯ is defensible because F♯ is the minor third of the complete D♯ half-diminished-seventh shell D♯-F♯-A-C♯, with C/B♯ as natural-thirteenth color. The same notes also support music21's D♯dim7/F♯ add C♯ view, the near-tie Cdim7♭9/G♭ reading, and tonal's D♭maj9♯5sus4/F♯ suspended-major re-rooting. Because the voicing is a diminished-seventh core plus one chromatic tone, no single root is forced; the half-diminished inversion is a clear primary label, but the row is genuinely ambiguous."
+    "note": "D♯m7(♭5,add13)/F♯ is defensible because F♯ is the minor third of the complete D♯ half-diminished-seventh shell D♯-F♯-A-C♯, with C/B♯ as natural-thirteenth color. The same notes also support music21's D♯dim7/F♯ add C♯ view, the near-tie Cdim7♭9/G♭ reading, and tonal's D♭maj9♯5sus4/F♯ suspended-major re-rooting. Because the voicing is a diminished-seventh core plus one chromatic tone, no single root is forced; the half-diminished inversion is a clear primary label, but the row is genuinely ambiguous."
   },
   "0-1-3-8_b1": {
     "label": "genuine-ambiguity",
@@ -169,15 +169,15 @@
   },
   "0-1-4-6-10_b0": {
     "label": "genuine-ambiguity",
-    "note": "C7♭5♭9 is preferred because C is the bass/root of a complete altered dominant containing C, E, G♭, B♭, and D♭. Music21 and tonal both support the tritone-related F♯7♯11/C reading, which is also complete and conventional, and ChoCo shows comparable support for the broad altered-dominant families. The root-position C bass makes WhatChord's primary label defensible, but the tritone-substitute reading keeps this a genuine ambiguity."
+    "note": "C7(♭5,♭9) is preferred because C is the bass/root of a complete altered dominant containing C, E, G♭, B♭, and D♭. Music21 and tonal both support the tritone-related F♯7♯11/C reading, which is also complete and conventional, and ChoCo shows comparable support for the broad altered-dominant families. The root-position C bass makes WhatChord's primary label defensible, but the tritone-substitute reading keeps this a genuine ambiguity."
   },
   "0-1-2-4-6-10_b0": {
     "label": "genuine-ambiguity",
-    "note": "C9♭5♭9 is preferred because C is the bass/root and the voicing supplies a complete C dominant-flat-five shell C-E-G♭-B♭, with D♭/D as split flat/natural ninth color. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the sharp eleventh in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the C altered/split-ninth family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."
+    "note": "C9(♭5,♭9) is preferred because C is the bass/root and the voicing supplies a complete C dominant-flat-five shell C-E-G♭-B♭, with D♭/D as split flat/natural ninth color. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the sharp eleventh in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the C altered/split-ninth family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."
   },
   "0-1-2-4-6-10_b2": {
     "label": "genuine-ambiguity",
-    "note": "C9♭5♭9/D is preferred because the voicing is the same split-ninth C altered dominant, with D as the natural ninth in the bass. Tonal's F♯7♯11♭13/D is also complete and conventional, treating D as ♭13, but neither bass role is a core chord tone; the C reading uses the less altered bass function while the F♯ reading remains a real tritone-substitute alternate. ChoCo does not strongly settle this exact sonority: dominant7|sharp11,flat13 has only 2 exact observations, while related C altered/split-ninth families are more common."
+    "note": "C9(♭5,♭9)/D is preferred because the voicing is the same split-ninth C altered dominant, with D as the natural ninth in the bass. Tonal's F♯7♯11♭13/D is also complete and conventional, treating D as ♭13, but neither bass role is a core chord tone; the C reading uses the less altered bass function while the F♯ reading remains a real tritone-substitute alternate. ChoCo does not strongly settle this exact sonority: dominant7|sharp11,flat13 has only 2 exact observations, while related C altered/split-ninth families are more common."
   },
   "0-1-2-4-6-9-10_b0": {
     "label": "genuine-ambiguity",
@@ -185,43 +185,43 @@
   },
   "0-1-4-6-10_b4": {
     "label": "genuine-ambiguity",
-    "note": "C7♭5♭9/E is preferred because it is a complete altered dominant with its major third in the bass, while F♯7♯11/E is the complete tritone-related dominant in third inversion. Music21 and tonal choose the valid F♯ reading, but the two chord signatures are similarly common in ChoCo and the E bass gives the C-rooted interpretation the more conventional inversion. Related bass cases consistently favor whichever dominant receives the stronger bass role."
+    "note": "C7(♭5,♭9)/E is preferred because it is a complete altered dominant with its major third in the bass, while F♯7♯11/E is the complete tritone-related dominant in third inversion. Music21 and tonal choose the valid F♯ reading, but the two chord signatures are similarly common in ChoCo and the E bass gives the C-rooted interpretation the more conventional inversion. Related bass cases consistently favor whichever dominant receives the stronger bass role."
   },
   "0-1-2-4-6-10_b4": {
     "label": "genuine-ambiguity",
-    "note": "C9♭5♭9/E is preferred because it is the complete split-ninth C altered dominant with the major third in the bass. Tonal's F♯7♯11♭13/E is the valid tritone-related dominant with its flat seventh in the bass, so the disagreement is real rather than an oracle error. The app keeps the C reading because both bass roles are conventional and the C label names the full split-ninth altered structure; ChoCo's exact dominant7|sharp11,flat13 count is very small, so corpus evidence does not justify flipping the primary result."
+    "note": "C9(♭5,♭9)/E is preferred because it is the complete split-ninth C altered dominant with the major third in the bass. Tonal's F♯7♯11♭13/E is the valid tritone-related dominant with its flat seventh in the bass, so the disagreement is real rather than an oracle error. The app keeps the C reading because both bass roles are conventional and the C label names the full split-ninth altered structure; ChoCo's exact dominant7|sharp11,flat13 count is very small, so corpus evidence does not justify flipping the primary result."
   },
   "0-1-4-6-8-10_b0": {
     "label": "genuine-ambiguity",
-    "note": "C7#5(b9,#11) is preferred because it names the complete C altered dominant C-E-Bb plus Db, F#, and G#/Ab. Tonal agrees and also lists the valid tritone-related F#9#11/C alternate; music21 prefers that F# reading. The split is a real altered-dominant vs tritone-sub ambiguity, but the C bass and complete altered stack justify WhatChord's primary label."
+    "note": "C7(#5,b9,#11) is preferred because it names the complete C altered dominant C-E-Bb plus Db, F#, and G#/Ab. Tonal agrees and also lists the valid tritone-related F#9#11/C alternate; music21 prefers that F# reading. The split is a real altered-dominant vs tritone-sub ambiguity, but the C bass and complete altered stack justify WhatChord's primary label."
   },
   "0-1-4-6-8-10_b1": {
     "label": "genuine-ambiguity",
-    "note": "C7#5(b9,#11)/Db is preferred because the pitch set is the complete C altered dominant with Db as flat-nine in the bass. Tonal agrees and also lists F#9#11/Db; music21 prefers the same valid tritone-related F# structure. This is a genuine dominant-function ambiguity, with WhatChord choosing the direct altered-dominant spelling."
+    "note": "C7(#5,b9,#11)/Db is preferred because the pitch set is the complete C altered dominant with Db as flat-nine in the bass. Tonal agrees and also lists F#9#11/Db; music21 prefers the same valid tritone-related F# structure. This is a genuine dominant-function ambiguity, with WhatChord choosing the direct altered-dominant spelling."
   },
   "0-1-4-6-8-10_b4": {
     "label": "genuine-ambiguity",
-    "note": "C7#5(b9,#11)/E is preferred because E is the major third of the complete C altered dominant, while F#9#11/E is the valid tritone-related dominant with its flat seventh in the bass. Tonal agrees with the C reading and lists F#9#11/E as the alternate; music21 prefers the F# label, confirming a genuine split rather than a clear oracle winner."
+    "note": "C7(#5,b9,#11)/E is preferred because E is the major third of the complete C altered dominant, while F#9#11/E is the valid tritone-related dominant with its flat seventh in the bass. Tonal agrees with the C reading and lists F#9#11/E as the alternate; music21 prefers the F# label, confirming a genuine split rather than a clear oracle winner."
   },
   "0-1-4-6-8-10_b8": {
     "label": "genuine-ambiguity",
-    "note": "C7#5(b9,#11)/G# is preferred because G#/Ab is the sharp fifth of the complete C altered dominant and avoids the less idiomatic Ab11#5 primary label. Tonal agrees with the C reading and lists F#9#11/Ab as the alternate; music21 prefers F#9/G# add B#. The remaining disagreement is a valid tritone-sub ambiguity."
+    "note": "C7(#5,b9,#11)/G# is preferred because G#/Ab is the sharp fifth of the complete C altered dominant and avoids the less idiomatic Ab11#5 primary label. Tonal agrees with the C reading and lists F#9#11/Ab as the alternate; music21 prefers F#9/G# add B#. The remaining disagreement is a valid tritone-sub ambiguity."
   },
   "0-1-4-6-8-10_b10": {
     "label": "genuine-ambiguity",
-    "note": "C7#5(b9,#11)/Bb is preferred because Bb is the dominant seventh of the complete C altered dominant. Tonal agrees and lists the valid F#9#11/Bb alternate; music21's Gm9/Bb add C is semantically the same F#9#11 pitch-class structure. This is a genuine altered-dominant vs tritone-related split, not a reason to re-rank away from C."
+    "note": "C7(#5,b9,#11)/Bb is preferred because Bb is the dominant seventh of the complete C altered dominant. Tonal agrees and lists the valid F#9#11/Bb alternate; music21's Gm9/Bb add C is semantically the same F#9#11 pitch-class structure. This is a genuine altered-dominant vs tritone-related split, not a reason to re-rank away from C."
   },
   "0-1-4-5-8_b0": {
     "label": "oracle-limitation",
-    "note": "Fm(maj7)♭13/C is preferred because the voicing cleanly contains F-A♭-C-E as a complete F minor-major seventh with D♭ as flat-thirteen color and C as the fifth in the bass. Tonal agrees as FmMaj7b6/C. Music21's D♭m(maj7)/C add F respells the same pitch set with both minor and major thirds, which is less useful as the primary musician-facing label."
+    "note": "FmM7♭13/C is preferred because the voicing cleanly contains F-A♭-C-E as a complete F minor-major seventh with D♭ as flat-thirteen color and C as the fifth in the bass. Tonal agrees as FmMaj7b6/C. Music21's D♭mM7/C add F respells the same pitch set with both minor and major thirds, which is less useful as the primary musician-facing label."
   },
   "0-1-4-5-8_b4": {
     "label": "oracle-limitation",
-    "note": "Fm(maj7)♭13/E is preferred because E is the major seventh of the complete F-A♭-C-E shell and D♭ is conventional flat-thirteen color. Tonal agrees. Music21's C♯m(maj7)/E add E♯ treats F as an added major third above C♯ while also keeping E as the minor third, so the split reflects oracle spelling limits rather than a stronger C♯-rooted analysis."
+    "note": "FmM7♭13/E is preferred because E is the major seventh of the complete F-A♭-C-E shell and D♭ is conventional flat-thirteen color. Tonal agrees. Music21's C♯mM7/E add E♯ treats F as an added major third above C♯ while also keeping E as the minor third, so the split reflects oracle spelling limits rather than a stronger C♯-rooted analysis."
   },
   "0-1-4-5-8_b8": {
     "label": "oracle-limitation",
-    "note": "Fm(maj7)♭13/A♭ is preferred because A♭ is the minor third of a complete F minor-major seventh sonority with D♭ as flat thirteenth. Tonal agrees. Music21's C♯m(maj7)/G♯ add E♯ preserves related pitch classes but requires simultaneous minor and major thirds, making it less idiomatic than the direct Fm(maj7)♭13 reading."
+    "note": "FmM7♭13/A♭ is preferred because A♭ is the minor third of a complete F minor-major seventh sonority with D♭ as flat thirteenth. Tonal agrees. Music21's C♯mM7/G♯ add E♯ preserves related pitch classes but requires simultaneous minor and major thirds, making it less idiomatic than the direct FmM7♭13 reading."
   },
   "0-1-3-6-8_b6": {
     "label": "genuine-ambiguity",
@@ -229,7 +229,7 @@
   },
   "0-1-4-7_b1": {
     "label": "genuine-ambiguity",
-    "note": "D♭m(maj7)♯11 is preferred because D♭ is the bass/root and the voicing contains the complete D♭-F♭-A♭-C minor-major-seventh shell, with G as sharp-eleventh color. Music21's D♭ diminished add-tone spelling and tonal's D♭ diminished-major-seventh or C major-add-flat-nine alternatives describe related pitch-class organizations, but they are less direct musician-facing names for this root-position minor-major sonority. The close alternate structures make the reviewed split a genuine ambiguity."
+    "note": "D♭mM7♯11 is preferred because D♭ is the bass/root and the voicing contains the complete D♭-F♭-A♭-C minor-major-seventh shell, with G as sharp-eleventh color. Music21's D♭ diminished add-tone spelling and tonal's D♭ diminished-major-seventh or C major-add-flat-nine alternatives describe related pitch-class organizations, but they are less direct musician-facing names for this root-position minor-major sonority. The close alternate structures make the reviewed split a genuine ambiguity."
   },
   "0-1-4-7_b0": {
     "label": "oracle-limitation",
@@ -249,15 +249,15 @@
   },
   "0-1-4-7-8_b0": {
     "label": "oracle-limitation",
-    "note": "A♭maj7♯5(add11)/C is preferred because A♭-C-E-G forms a complete augmented major-seventh shell, with D♭ as added eleventh and C as the major third in the bass. Music21's D♭m(maj7)♯11/C is a plausible re-rooting of the same pitch classes, but it treats C as a major seventh under a minor-major shell rather than preserving the more direct augmented-major organization. Tonal and pychord provide no usable competing label."
+    "note": "A♭maj7(♯5,add11)/C is preferred because A♭-C-E-G forms a complete augmented major-seventh shell, with D♭ as added eleventh and C as the major third in the bass. Music21's D♭mM7♯11/C is a plausible re-rooting of the same pitch classes, but it treats C as a major seventh under a minor-major shell rather than preserving the more direct augmented-major organization. Tonal and pychord provide no usable competing label."
   },
   "0-1-4-8_b0": {
     "label": "clearly-correct",
-    "note": "C♯m(maj7)/B♯ is preferred because C♯-E-G♯-B♯ forms a complete minor-major-seventh chord and the bass is the major seventh. Tonal agrees semantically as D♭m(maj7)/C. Music21's A♭ augmented add-eleven spelling and the nearby C augmented add-flat-nine alternative both describe related color, but they do not explain all four notes as core chord tones as directly."
+    "note": "C♯mM7/B♯ is preferred because C♯-E-G♯-B♯ forms a complete minor-major-seventh chord and the bass is the major seventh. Tonal agrees semantically as D♭mM7/C. Music21's A♭ augmented add-eleven spelling and the nearby C augmented add-flat-nine alternative both describe related color, but they do not explain all four notes as core chord tones as directly."
   },
   "0-1-4-9_b0": {
     "label": "context-dependent",
-    "note": "C6♭9 is preferred in neutral/C context because C is the bass/root and the voicing directly supplies the major third, sixth, and flat-ninth color. Music21's Am/C add C♯ is the split-third relative-minor view, while tonal's D♭m♭6M7/C matches the C♯m(maj7)♭13/B♯ alternate that becomes preferred in C♯ minor. The row is context-dependent rather than an engine issue: C-bass root-position evidence favors C6♭9 here, but C♯ minor context legitimately favors the minor-major-seventh reading."
+    "note": "C6♭9 is preferred in neutral/C context because C is the bass/root and the voicing directly supplies the major third, sixth, and flat-ninth color. Music21's Am/C add C♯ is the split-third relative-minor view, while tonal's D♭m♭6M7/C matches the C♯mM7♭13/B♯ alternate that becomes preferred in C♯ minor. The row is context-dependent rather than an engine issue: C-bass root-position evidence favors C6♭9 here, but C♯ minor context legitimately favors the minor-major-seventh reading."
   },
   "0-1-4-7_b7": {
     "label": "clearly-correct",
@@ -265,11 +265,11 @@
   },
   "0-1-5-7-9_b7": {
     "label": "oracle-limitation",
-    "note": "A7♯5♯9/G is preferred because A-C♯-E♯-G is a complete altered dominant seventh in third inversion, with C/B♯ as conventional sharp-nine color. Tonal agrees. Music21's F/G add C♯ keeps an F major shell but treats G as an added ninth and C♯ as chromatic color, so it misses the chord-defining dominant seventh."
+    "note": "A7(♯5,♯9)/G is preferred because A-C♯-E♯-G is a complete altered dominant seventh in third inversion, with C/B♯ as conventional sharp-nine color. Tonal agrees. Music21's F/G add C♯ keeps an F major shell but treats G as an added ninth and C♯ as chromatic color, so it misses the chord-defining dominant seventh."
   },
   "0-1-5-7-9_b9": {
     "label": "oracle-limitation",
-    "note": "A7♯5♯9 is preferred because A is the bass/root and the voicing names every tone as root, major third, sharp fifth, flat seventh, and sharp ninth of a standard altered dominant. Tonal agrees, and ChoCo common-name counts strongly favor dominant7-sharp5 sharp-nine signatures over sparse major add-tone variants. Music21's F/A add G,C♯ is an upper-structure major-triad label that drops the primary dominant identity."
+    "note": "A7(♯5,♯9) is preferred because A is the bass/root and the voicing names every tone as root, major third, sharp fifth, flat seventh, and sharp ninth of a standard altered dominant. Tonal agrees, and ChoCo common-name counts strongly favor dominant7-sharp5 sharp-nine signatures over sparse major add-tone variants. Music21's F/A add G,C♯ is an upper-structure major-triad label that drops the primary dominant identity."
   },
   "0-1-5-9_b1": {
     "label": "clearly-correct",
@@ -297,7 +297,7 @@
   },
   "0-1-5-7-10_b5": {
     "label": "genuine-ambiguity",
-    "note": "B♭m6/9/F is preferred because it is a complete minor-six-nine chord with its fifth in the bass, a more conventional inversion than the complete Gm7♭5(add11)/F reading with its flat seventh in the bass. Music21 chooses the valid G-rooted half-diminished interpretation, while tonal includes B♭m6/9/F. Related root-bass cases favor their respective structures, and key context does not resolve this F-bass ambiguity."
+    "note": "B♭m6/9/F is preferred because it is a complete minor-six-nine chord with its fifth in the bass, a more conventional inversion than the complete Gm7(♭5,add11)/F reading with its flat seventh in the bass. Music21 chooses the valid G-rooted half-diminished interpretation, while tonal includes B♭m6/9/F. Related root-bass cases favor their respective structures, and key context does not resolve this F-bass ambiguity."
   },
   "0-1-6-8-10_b0": {
     "label": "oracle-limitation",
@@ -333,15 +333,15 @@
   },
   "0-2-4-6-8-10_b0": {
     "label": "oracle-limitation",
-    "note": "C9#5#11 is preferred because this is the complete whole-tone collection and C is the bass/root, so C-D-E-F#-G#/Ab-Bb reads directly as a root-position dominant 9#5#11. Tonal agrees and lists the other whole-tone re-roots as alternates. Music21's Bb9#5/C add E keeps the same symmetric material but chooses a non-bass root and demotes the #11 to an added tone."
+    "note": "C9(#5,#11) is preferred because this is the complete whole-tone collection and C is the bass/root, so C-D-E-F#-G#/Ab-Bb reads directly as a root-position dominant 9#5#11. Tonal agrees and lists the other whole-tone re-roots as alternates. Music21's Bb9#5/C add E keeps the same symmetric material but chooses a non-bass root and demotes the #11 to an added tone."
   },
   "0-2-4-6-8-10_b2": {
     "label": "oracle-limitation",
-    "note": "D9#5#11 is preferred because the whole-tone collection is symmetric and D is the bass/root, yielding a complete root-position dominant 9#5#11. Tonal agrees and lists the other whole-tone re-roots as alternates. Music21's C9#5/D add F# chooses a different symmetric root and treats the bass-rooted #11 as an add tone."
+    "note": "D9(#5,#11) is preferred because the whole-tone collection is symmetric and D is the bass/root, yielding a complete root-position dominant 9#5#11. Tonal agrees and lists the other whole-tone re-roots as alternates. Music21's C9#5/D add F# chooses a different symmetric root and treats the bass-rooted #11 as an add tone."
   },
   "0-2-4-6-8-10_b6": {
     "label": "oracle-limitation",
-    "note": "Gb9#5#11 is preferred because Gb/F# is the bass/root of a complete whole-tone dominant 9#5#11 spelling. Tonal agrees semantically as F#9#5#11 and lists the other symmetric re-roots as alternates. Music21's E9#5/F# add A# is a related whole-tone re-rooting but less direct for a context-free bass-rooted chord label."
+    "note": "Gb9(#5,#11) is preferred because Gb/F# is the bass/root of a complete whole-tone dominant 9#5#11 spelling. Tonal agrees semantically as F#9#5#11 and lists the other symmetric re-roots as alternates. Music21's E9#5/F# add A# is a related whole-tone re-rooting but less direct for a context-free bass-rooted chord label."
   },
   "0-2-4-9_b0": {
     "label": "context-dependent",

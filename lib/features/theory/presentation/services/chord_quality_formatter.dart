@@ -72,11 +72,37 @@ class ChordQualityFormatter {
     if (mods.isEmpty) return base;
 
     final labels = mods.map((e) => e.shortLabel).toList();
-    final useParens = _shouldUseParens(
+    var useParens = _shouldUseParens(
       quality: quality,
       notation: notation,
       mods: mods,
     );
+
+    // Fold an altered fifth that is baked into the base quality label into the
+    // single trailing parenthetical group, so a symbol never shows parentheses
+    // in the middle of the label or two separate groups.
+    //
+    // A parenthesized fifth (m7(b5), (b5)) already opens a group, so any
+    // trailing modifier must join it: m13(b5)b13 -> m13(b5,b13). A bare fifth
+    // (7b5, m#5) only needs grouping when another alteration would collide with
+    // it (C9b5b9 -> C9(b5,b9)) or a group is forming for the other modifiers
+    // anyway (C7b5(add13) -> C7(b5,add13)); a bare fifth alongside only an
+    // inline add-tone stays inline (Em#5add13), since "add" already delimits it.
+    final fifthAlt = quality.embeddedFifthAlteration(form);
+    if (fifthAlt != null) {
+      final parenForm = '($fifthAlt)';
+      final fifthIsParenthesized = base.endsWith(parenForm);
+      final fifthIsBare = !fifthIsParenthesized && base.endsWith(fifthAlt);
+      final hasCollidingMod = mods.any((e) => !e.isAddTone);
+      final shouldFold = fifthIsParenthesized || hasCollidingMod || useParens;
+
+      if (shouldFold && (fifthIsParenthesized || fifthIsBare)) {
+        final cut = fifthIsParenthesized ? parenForm.length : fifthAlt.length;
+        base = base.substring(0, base.length - cut);
+        labels.insert(0, fifthAlt);
+        useParens = true;
+      }
+    }
 
     if (useParens) {
       return '$base(${labels.join(_modsSeparator(notation))})';
@@ -168,15 +194,6 @@ class ChordQualityFormatter {
 
     if (base.contains('7♭5')) {
       return base.replaceFirst('7♭5', '$ext♭5');
-    }
-
-    // Handle minor-major seventh textual form: m(maj7) -> m(maj9), etc.
-    // This is the only common seventh-family label where "7" is embedded
-    // inside a parenthetical quality marker rather than being a suffix.
-    if (base.contains('(maj7)')) {
-      // ext is expected to be '9', '11', or '13' here.
-      // We preserve the 'maj' marker and only replace the digit.
-      return base.replaceFirst('(maj7)', '(maj$ext)');
     }
 
     // If base has a parenthetical modifier, we may still be able to promote:

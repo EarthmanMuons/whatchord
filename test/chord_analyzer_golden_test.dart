@@ -60,7 +60,7 @@ void main() {
     golden(
       description: 'split-third major triad in second inversion',
       expectedSymbol: 'Aadd#9 / E',
-      expectedAlternateSymbols: ['C#m(maj7)b13 / E', 'C6b9 / E'],
+      expectedAlternateSymbols: ['C#mM7b13 / E', 'C6b9 / E'],
       pcs: ['C', 'Db', 'E', 'A'],
       bass: 'E',
       expectedRoot: 'A',
@@ -73,7 +73,7 @@ void main() {
     golden(
       description: 'split-third major triad in first inversion',
       expectedSymbol: 'Aadd#9 / C#',
-      expectedAlternateSymbols: ['C#m(maj7)b13', 'C6b9 / Db'],
+      expectedAlternateSymbols: ['C#mM7b13', 'C6b9 / Db'],
       pcs: ['C', 'Db', 'E', 'A'],
       bass: 'Db',
       expectedRoot: 'A',
@@ -85,7 +85,7 @@ void main() {
 
     golden(
       description: 'harmonic-minor tonic beats split-third major inversion',
-      expectedSymbol: 'C#m(maj7)b13',
+      expectedSymbol: 'C#mM7b13',
       expectedAlternateSymbols: ['Aadd#9 / C#', 'C6b9 / Db'],
       pcs: ['C', 'Db', 'E', 'A'],
       bass: 'Db',
@@ -99,7 +99,7 @@ void main() {
     golden(
       description:
           'transposed harmonic-minor tonic beats split-third major inversion',
-      expectedSymbol: 'Fm(maj7)b13',
+      expectedSymbol: 'FmM7b13',
       expectedAlternateSymbols: ['Dbadd#9 / F', 'E6b9 / F'],
       pcs: ['E', 'F', 'Ab', 'Db'],
       bass: 'F',
@@ -249,7 +249,7 @@ void main() {
     golden(
       description: 'flat-nine-bass dominant without fifth',
       expectedSymbol: 'C7b9 / Db',
-      expectedAlternateSymbols: ['C#m(maj7)(add13)', 'A#dimadd9 / C#'],
+      expectedAlternateSymbols: ['C#mM7(add13)', 'A#dimadd9 / C#'],
       pcs: ['C', 'Db', 'E', 'Bb'],
       bass: 'Db',
       expectedRoot: 'C',
@@ -260,7 +260,7 @@ void main() {
 
     golden(
       description: 'tonic minor-major7 context beats flat-nine-bass dominant',
-      expectedSymbol: 'C#m(maj7)(add13)',
+      expectedSymbol: 'C#mM7(add13)',
       pcs: ['C', 'Db', 'E', 'Bb'],
       bass: 'Db',
       tonality: const Tonality(Tonic.cSharp, TonalityMode.minor),
@@ -482,7 +482,7 @@ void main() {
     // Altered augmented dominants keep both the #5 core tone and #9 color.
     golden(
       description: 'altered augmented dominant with sharp ninth',
-      expectedSymbol: 'C7#5#9',
+      expectedSymbol: 'C7(#5,#9)',
       pcs: ['C', 'E', 'G#', 'Bb', 'D#'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7Sharp5,
@@ -493,7 +493,7 @@ void main() {
     // Altered flat-five dominants keep both the b5 core tone and #9 color.
     golden(
       description: 'altered flat-five dominant with sharp ninth',
-      expectedSymbol: 'C7b5#9',
+      expectedSymbol: 'C7(b5,#9)',
       pcs: ['C', 'E', 'Gb', 'Bb', 'D#'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7Flat5,
@@ -635,7 +635,7 @@ void main() {
     // -------------------------------------------------------------------------
     golden(
       description: 'minor-major seventh shell without fifth',
-      expectedSymbol: 'Cm(maj7)',
+      expectedSymbol: 'CmM7',
       pcs: ['C', 'Eb', 'B'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.minorMajor7,
