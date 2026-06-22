@@ -12,10 +12,15 @@ class ExploreSummary extends ConsumerWidget {
     super.key,
     required this.presentation,
     required this.chordTones,
+    required this.chordDegrees,
   });
 
   final ChordPresentation presentation;
   final List<String> chordTones;
+
+  /// Member degree labels in interval order (ASCII, e.g. "1", "b3", "5"),
+  /// glyphed for the "Chord degrees" copy choice.
+  final List<String> chordDegrees;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -56,6 +61,12 @@ class ExploreSummary extends ConsumerWidget {
             )
             .join(', '),
         copiedLabel: 'chord tones',
+      ),
+      CopyChoice(
+        title: 'Chord degrees',
+        icon: Icons.numbers,
+        value: chordDegrees.map(toGlyphAccidentals).join(', '),
+        copiedLabel: 'chord degrees',
       ),
       CopyChoice(
         title: 'Academic name',
