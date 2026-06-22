@@ -32,6 +32,12 @@ extend-ignore-re = [
   "\\b[A-G](?:[#b])?add[#b]?\\d+\\b",
 ]
 
+[type.md]
+extend-ignore-re = [
+  # plural ordinal suffixes (e.g. "4ths") used in musical-interval terminology
+  "\\b\\d+ths\\b",
+]
+
 [type.readme]
 # oddly, the built-in `readme` type isn't matching this properly
 extend-glob = ["README.md"]

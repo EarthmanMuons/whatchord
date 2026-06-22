@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
+- Explore Scales can now copy scale details. Tap the scale name to choose from
+  the scale name, its tones, its formula (such as 1, 2, ♭3, 4, 5, ♭6, ♭7), and
+  its diatonic chords, which follow the 7ths toggle.
 - Audio Monitor now offers a MIDI Out mode. Switch the output between Internal
   (this device's speakers, as before) and MIDI Out, which sends chord and scale
   previews to your connected MIDI instrument so you hear them on its own

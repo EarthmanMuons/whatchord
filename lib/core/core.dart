@@ -20,6 +20,7 @@ export 'services/system_ui_overlay_styles.dart';
 
 export 'widgets/adaptive_side_sheet.dart';
 export 'widgets/circular_play_button.dart';
+export 'widgets/copy_choice_dialog.dart';
 export 'widgets/cyclic_wheel.dart';
 export 'widgets/faded_scroll_view.dart';
 export 'widgets/idle_blackout_overlay.dart';
