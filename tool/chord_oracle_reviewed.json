@@ -23,6 +23,10 @@
     "label": "oracle-limitation",
     "note": "F♯7(♯9,♯11,♭13)/G𝄪 is preferred because A/G𝄪 is the sharp ninth of the complete F♯ altered-dominant stack. Tonal agrees semantically as F#7#9#11b13/A. Music21's B♭aug(maj9)/A add C♯,E names a related augmented-major shell, but it is less idiomatic than the complete altered-dominant reading and ChoCo strongly favors the dominant signature."
   },
+  "0-1-2-4-6-9-10_b10": {
+    "label": "oracle-limitation",
+    "note": "F♯7(♯9,♯11,♭13)/A♯ is preferred because A♯/B♭ is the major third of a complete F♯ altered-dominant shell with sharp-nine, sharp-eleventh, and flat-thirteenth color. Tonal agrees. Music21's B♭ augmented-major-nine add-tone spelling captures an upper-structure color, but it re-roots away from the complete dominant shell and ChoCo favors the dominant7|sharp9,sharp11,flat13 signature."
+  },
   "0-1-2-4-6-7-10_b0": {
     "label": "genuine-ambiguity",
     "note": "F♯7(♭9,♯11,♭13)/B♯ is preferred because the voicing contains the complete F♯ altered-dominant shell F♯-A♯-C♯-E with G as flat ninth, C/B♯ as sharp eleventh, and D as flat thirteenth. Tonal agrees. Music21's C9(♭9,♯11) has a plausible root-position C bass, so this remains a genuine tritone-dominant ambiguity, but it requires simultaneous flat and natural ninths against C while the F♯ reading names the full altered stack directly."
