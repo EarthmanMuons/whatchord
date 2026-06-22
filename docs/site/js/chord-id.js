@@ -1815,11 +1815,15 @@ if(!r&&!q)return a===0?0.7:0
 if(r&&!q){if((d&128)===0)return 0
 return a===0?2.1:0.7}if(q&&(d&128)===0)return 0
 return 2.1},
-h7(a,b,c,d){if(a!==0)return 0
+h7(a,b,c,d){var t,s
+if(a!==0)return 0
 if(c!==B.a2&&c!==B.o)return 0
 if(!b.h(0,B.h))return 0
 if(b.h(0,B.q))return 0
-if(!(b.h(0,B.n)||b.h(0,B.t)))return 0
+t=b.h(0,B.n)
+s=b.h(0,B.t)
+if(!t&&!s)return 0
+if(c===B.o&&!s)return 0
 if((d&128)!==0)return 0
 return 2.4},
 h4(a,b,c){var t
