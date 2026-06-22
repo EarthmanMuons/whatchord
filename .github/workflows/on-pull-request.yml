@@ -23,6 +23,14 @@ jobs:
       pull-requests: read
     uses: EarthmanMuons/reusable-workflows/.github/workflows/detect-changed-files.yml@main
 
+  check_css:
+    name: check css
+    needs: detect_changed_files
+    if: needs.detect_changed_files.outputs.css == 'true'
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/check-css.yml@main
+    with:
+      files: ${{ needs.detect_changed_files.outputs.css_files }}
+
   check_flutter:
     name: check flutter
     needs: detect_changed_files
@@ -34,6 +42,14 @@ jobs:
     needs: detect_changed_files
     if: needs.detect_changed_files.outputs.github_actions == 'true'
     uses: EarthmanMuons/reusable-workflows/.github/workflows/check-github-actions.yml@main
+
+  check_html:
+    name: check html
+    needs: detect_changed_files
+    if: needs.detect_changed_files.outputs.html == 'true'
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/check-html.yml@main
+    with:
+      files: ${{ needs.detect_changed_files.outputs.html_files }}
 
   check_markdown:
     name: check markdown
