@@ -127,13 +127,13 @@
     "label": "genuine-ambiguity",
     "note": "E♭13(♭9,♯9) is preferred because E♭ is the bass/root and the voicing contains the complete E♭ dominant shell E♭-G-B♭-D♭, with C as the thirteenth and F♭/E plus F♯/G♭ as split flat-nine/sharp-nine color. Tonal's F♯13♭9♯11/E♭ is also a complete altered dominant organization of the same pitch classes, so the alternate is real; the root-position E♭ bass makes WhatChord's label the more direct context-free name."
   },
+  "0-1-3-4-6-7-10_b7": {
+    "label": "genuine-ambiguity",
+    "note": "E♭13(♭9,♯9)/G is defensible because G is the major third of a complete E♭ dominant shell E♭-G-B♭-D♭, with C as thirteenth color and E/F♭ plus F♯/G♭ as split ninth color. Music21's C7♭9♯9♯11/G is also a complete dominant reading with the fifth in the bass, and tonal's F♯13♭9♯11/G gives the tritone-related dominant view. With no key context and no clear ChoCo exact-name winner among these dense altered dominants, this is a genuine three-way dominant ambiguity."
+  },
   "0-1-3-4-6-8-10_b1": {
     "label": "genuine-ambiguity",
     "note": "F♯13♯11/C♯ is preferred because the voicing forms a complete F♯ Lydian-dominant thirteenth stack F♯-A♯-C♯-E-G♯-B♯-D♯, with the bass as the fifth, and Tonal agrees. Music21's C♯m(maj13) reading is also complete and root-position; it describes the same melodic-minor pitch collection from its tonic. ChoCo favors the dominant vocabulary, with 314 dominant7|nine,sharp11,thirteen observations versus 8 minorMajor7|nine,eleven,thirteen observations, so the F♯ dominant label is a defensible primary while the C♯ minor-major reading remains a real alternate."
-  },
-  "0-1-3-5-7-9_b3": {
-    "label": "oracle-limitation",
-    "note": "E♭13♯11 is preferred because E♭, G, D♭, F, A, and C form a root-position Lydian-dominant thirteenth stack. Tonal agrees on the E♭ dominant root but normalizes the tritone as flat five rather than sharp eleven; WhatChord's sharp-eleven spelling is clearer with the ninth and thirteenth present. Music21's D♭aug(maj9)/E♭ add G is an upper-structure add-tone spelling that misses the complete dominant organization."
   },
   "0-1-3-5-7_b3": {
     "label": "oracle-limitation",
