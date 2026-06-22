@@ -34,6 +34,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   tiers more clearly. Each tier uses a distinct marker and rank badge, with a
   filled badge for the chosen chord, an outlined badge for possible
   alternatives, and a plain badge for unlikely ones.
+- Explore Scales now opens a chord in Explore from a button on the selected
+  degree row, next to its play button, instead of a compass icon in the header.
+  The action now sits right on the chord it opens, making it clearer which chord
+  you are about to explore.
 
 ### Fixed
 

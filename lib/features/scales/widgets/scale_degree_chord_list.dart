@@ -59,6 +59,7 @@ class ScaleDegreeChordList extends StatelessWidget {
     required this.selectedOrdinal,
     required this.onDegreeTap,
     required this.onDegreePlay,
+    required this.onDegreeExplore,
   });
 
   final ScaleHarmony harmony;
@@ -69,6 +70,7 @@ class ScaleDegreeChordList extends StatelessWidget {
   final int? selectedOrdinal;
   final ValueChanged<ScaleDegreeHarmony> onDegreeTap;
   final ValueChanged<ScaleDegreeHarmony> onDegreePlay;
+  final ValueChanged<ScaleDegreeHarmony> onDegreeExplore;
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +89,7 @@ class ScaleDegreeChordList extends StatelessWidget {
             selected: degree.ordinal == selectedOrdinal,
             onTap: () => onDegreeTap(degree),
             onPlay: () => onDegreePlay(degree),
+            onExplore: () => onDegreeExplore(degree),
           ),
         ],
       ],
@@ -140,6 +143,7 @@ class _ScaleDegreeChordTile extends StatelessWidget {
     required this.selected,
     required this.onTap,
     required this.onPlay,
+    required this.onExplore,
   });
 
   final String roman;
@@ -148,6 +152,7 @@ class _ScaleDegreeChordTile extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
   final VoidCallback onPlay;
+  final VoidCallback onExplore;
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +224,19 @@ class _ScaleDegreeChordTile extends StatelessWidget {
                 ),
               ),
             ),
+            if (selected)
+              IconButton(
+                key: const ValueKey('explore'),
+                onPressed: onExplore,
+                tooltip: 'Explore this chord',
+                constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                icon: Icon(
+                  Icons.explore_outlined,
+                  color: ScaleListStyle.rowText(cs, selected: true),
+                ),
+              ),
             IconButton(
+              key: const ValueKey('play'),
               onPressed: onPlay,
               tooltip: 'Play chord',
               constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
