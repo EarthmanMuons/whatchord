@@ -697,7 +697,7 @@ int? _preferCompleteDom7Flat9OverColoredDim7(
 /// Prefers a fifthless flat-nine-bass dominant shell over the two remote
 /// reinterpretations produced by the same four pitch classes.
 ///
-/// Example: {C, Db, E, Bb} with Db in the bass is C7b9/Db, not C#m(maj7)(add13)
+/// Example: {C, Db, E, Bb} with Db in the bass is C7b9/Db, not C#mM7(add13)
 /// or A#dim(add9)/C#. The dominant names the familiar E-Bb tritone shell; the
 /// competitors require less common added-tone structures.
 ///
@@ -1445,7 +1445,7 @@ bool _isWholeToneAlteredFifthRootVsNinthSlash(
 /// Avoids promoting remote, non-dominant slash readings whose "simple" color
 /// is a natural 11 against a major third.
 ///
-/// Example: {Ab, B, C, E, F} is better read as Fm(maj7)#11/Ab than as
+/// Example: {Ab, B, C, E, F} is better read as FmM7#11/Ab than as
 /// Cmaj7#5(add11)/G#, because the F-rooted reading is a normal inversion of
 /// a complete altered seventh chord while the C-rooted reading depends on a
 /// non-dominant add11 clash and a less stable slash bass.
@@ -1731,7 +1731,7 @@ int? _preferFullyExplainedVoicing(
 /// Lets strong minor-key context resolve a split-third inversion ambiguity.
 ///
 /// Example: {C, Db, E, A} with Db in the bass is Aadd#9/C# in neutral context,
-/// but C#m(maj7)b13 in C# minor. The latter is a root-position harmonic-minor
+/// but C#mM7b13 in C# minor. The latter is a root-position harmonic-minor
 /// tonic containing the tonic, minor third, flat sixth, and raised seventh.
 ///
 /// Keep this pair-specific so harmonic-minor context does not broadly override
