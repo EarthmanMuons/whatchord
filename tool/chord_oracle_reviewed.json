@@ -135,6 +135,14 @@
     "label": "genuine-ambiguity",
     "note": "F♯13♯11/C♯ is preferred because the voicing forms a complete F♯ Lydian-dominant thirteenth stack F♯-A♯-C♯-E-G♯-B♯-D♯, with the bass as the fifth, and Tonal agrees. Music21's C♯m(maj13) reading is also complete and root-position; it describes the same melodic-minor pitch collection from its tonic. ChoCo favors the dominant vocabulary, with 314 dominant7|nine,sharp11,thirteen observations versus 8 minorMajor7|nine,eleven,thirteen observations, so the F♯ dominant label is a defensible primary while the C♯ minor-major reading remains a real alternate."
   },
+  "0-1-3-4-6-8-10_b4": {
+    "label": "oracle-limitation",
+    "note": "F♯13♯11/E is preferred because E is the flat seventh of a complete F♯ Lydian-dominant thirteenth stack, and tonal agrees. Music21's E augmented-major-nine add-tone spelling is a real upper-structure color, but it makes the bass/root an altered major-seventh chord and misses the complete dominant organization. ChoCo favors the dominant signature, with 314 dominant7|nine,sharp11,thirteen observations versus much sparser altered augmented-major alternatives."
+  },
+  "0-1-3-4-6-8-10_b8": {
+    "label": "oracle-limitation",
+    "note": "F♯13♯11/G♯ is preferred because G♯/A♭ is the ninth of a complete F♯ Lydian-dominant thirteenth stack, and tonal agrees. Music21's G♯11 add-tone label treats the same collection as a less specific suspended/add-tone sonority, but it does not name the complete dominant shell F♯-A♯-C♯-E with ninth, sharp-eleventh, and thirteenth color. ChoCo also favors the dominant7|nine,sharp11,thirteen vocabulary."
+  },
   "0-1-3-5-7_b3": {
     "label": "oracle-limitation",
     "note": "E♭13 is preferred because E♭ is the bass/root and the voicing supplies a fifthless dominant-thirteenth shell E♭-G-D♭ with F and C as ninth and thirteenth color. Tonal agrees as E♭13(no5). Music21's Cm/E♭ add D♭,F reading is a possible upper-structure description, but it treats the bass as the minor third of C and turns the dominant seventh and ninth into add tones, which is less direct for this root-position dominant voicing."
