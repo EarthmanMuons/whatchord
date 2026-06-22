@@ -50,9 +50,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   reads as C9(♭5,♭9) rather than C9♭5♭9, and an extended half-diminished chord
   reads as Cm13(♭5,♭13) rather than Cm13(♭5)♭13. A lone altered fifth still
   stays inline, as in C7♭5.
-- Minor-major chords now use the mM7 spelling in textual notation (CmM7, CmM9)
-  instead of m(maj7), so added tensions stay in one clean group such as
-  CmM7(♯11,add13). Symbolic notation continues to use the triangle, as in C−Δ7.
+- Minor-major chords now use the mmaj7 spelling in textual notation (Cmmaj7,
+  Cmmaj9) instead of m(maj7), so added tensions stay in one clean group such as
+  Cmmaj7(♯11,add13). Symbolic notation continues to use the triangle, as in
+  C−Δ7.
 
 ### Fixed
 

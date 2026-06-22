@@ -201,7 +201,7 @@ extension ChordQualityTokenLabels on ChordQualityToken {
       case ChordQualityToken.minor7Sharp5:
         return 'm7';
       case ChordQualityToken.minorMajor7:
-        return 'mM7';
+        return 'mmaj7';
       case ChordQualityToken.halfDiminished7:
         return 'm7';
       case ChordQualityToken.diminished7:
