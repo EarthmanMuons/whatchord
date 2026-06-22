@@ -255,57 +255,23 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
     required Set<int> memberPitchClasses,
     required bool isLandscape,
   }) {
-    final selectedDegree = _selectedOrdinal == null || harmony == null
-        ? null
-        : harmony.degrees[_selectedOrdinal! - 1];
-    final header = Stack(
-      clipBehavior: Clip.none,
+    final header = Row(
       children: [
-        Row(
-          children: [
-            CircularPlayButton(
-              label: 'Play scale',
-              tapHint: 'Play the scale up and down',
-              onPressed: () => _onPlayScale(scale),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 48),
-                child: _ScaleHeader(
-                  scale: scale,
-                  kindLabel: _scale.headerLabel,
-                  noteNameSystem: noteNameSystem,
-                  functionLabel: selectedScaleDegreeFunctionLabel(
-                    scale: scale,
-                    selectedOrdinal: _selectedOrdinal,
-                    supportsChordHarmony: scale.kind.supportsChordHarmony,
-                  ),
-                ),
-              ),
-            ),
-          ],
+        CircularPlayButton(
+          label: 'Play scale',
+          tapHint: 'Play the scale up and down',
+          onPressed: () => _onPlayScale(scale),
         ),
-        Positioned(
-          right: -6,
-          bottom: -8,
-          child: Visibility(
-            visible: selectedDegree != null,
-            maintainAnimation: true,
-            maintainSize: true,
-            maintainState: true,
-            child: IconButton(
-              constraints: const BoxConstraints.tightFor(width: 48, height: 56),
-              tooltip: 'Explore selected chord',
-              onPressed: selectedDegree == null
-                  ? null
-                  : () => _openSelectedChord(selectedDegree),
-              icon: Icon(
-                Icons.explore_outlined,
-                color: SelectionColors.selectedRowText(
-                  Theme.of(context).colorScheme,
-                ),
-              ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _ScaleHeader(
+            scale: scale,
+            kindLabel: _scale.headerLabel,
+            noteNameSystem: noteNameSystem,
+            functionLabel: selectedScaleDegreeFunctionLabel(
+              scale: scale,
+              selectedOrdinal: _selectedOrdinal,
+              supportsChordHarmony: scale.kind.supportsChordHarmony,
             ),
           ),
         ),
@@ -408,6 +374,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
             selectedOrdinal: _selectedOrdinal,
             onDegreeTap: _onDegreeSelect,
             onDegreePlay: (degree) => _onDegreePlay(scale, degree),
+            onDegreeExplore: _openSelectedChord,
           );
 
     return ScaleExplorerContentLayout(
