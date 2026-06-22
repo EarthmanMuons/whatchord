@@ -12,7 +12,7 @@ class ChordQualityFormatter {
   }) {
     final form = qualityFormOverride ?? _defaultQualityFormFor(notation);
 
-    var base = quality.label(form);
+    var base = quality.coreLabel(form);
 
     // Canonical ordering.
     final ordered = extensions.toList()
@@ -69,46 +69,44 @@ class ChordQualityFormatter {
       mods.add(displayExt);
     }
 
-    if (mods.isEmpty) return base;
+    final fifth = quality.fifthModifierLabel(form);
+
+    if (mods.isEmpty) {
+      if (fifth == null) return base;
+      return quality.fifthParenthesizedWhenLone
+          ? '$base($fifth)'
+          : '$base$fifth';
+    }
 
     final labels = mods.map((e) => e.shortLabel).toList();
-    var useParens = _shouldUseParens(
+    final useParens = _shouldUseParens(
       quality: quality,
       notation: notation,
       mods: mods,
     );
 
-    // Fold an altered fifth that is baked into the base quality label into the
-    // single trailing parenthetical group, so a symbol never shows parentheses
-    // in the middle of the label or two separate groups.
-    //
-    // A parenthesized fifth (m7(b5), (b5)) already opens a group, so any
-    // trailing modifier must join it: m13(b5)b13 -> m13(b5,b13). A bare fifth
-    // (7b5, m#5) only needs grouping when another alteration would collide with
-    // it (C9b5b9 -> C9(b5,b9)) or a group is forming for the other modifiers
-    // anyway (C7b5(add13) -> C7(b5,add13)); a bare fifth alongside only an
+    if (fifth == null) {
+      return useParens
+          ? '$base(${labels.join(_modsSeparator(notation))})'
+          : '$base${labels.join()}';
+    }
+
+    // An altered fifth and other modifiers share one trailing group, so the
+    // symbol never has parentheses mid-label or two separate groups. The fifth
+    // folds into the group when it is conventionally parenthesized (Cm13(b5,b13)),
+    // when another alteration would collide with a bare fifth (C9(b5,b9)), or
+    // when a group is forming anyway (C7(b5,add13)). A bare fifth beside a lone
     // inline add-tone stays inline (Em#5add13), since "add" already delimits it.
-    final fifthAlt = quality.embeddedFifthAlteration(form);
-    if (fifthAlt != null) {
-      final parenForm = '($fifthAlt)';
-      final fifthIsParenthesized = base.endsWith(parenForm);
-      final fifthIsBare = !fifthIsParenthesized && base.endsWith(fifthAlt);
-      final hasCollidingMod = mods.any((e) => !e.isAddTone);
-      final shouldFold = fifthIsParenthesized || hasCollidingMod || useParens;
+    final hasCollidingMod = mods.any((e) => !e.isAddTone);
+    final fold =
+        quality.fifthParenthesizedWhenLone || hasCollidingMod || useParens;
 
-      if (shouldFold && (fifthIsParenthesized || fifthIsBare)) {
-        final cut = fifthIsParenthesized ? parenForm.length : fifthAlt.length;
-        base = base.substring(0, base.length - cut);
-        labels.insert(0, fifthAlt);
-        useParens = true;
-      }
+    if (fold) {
+      final grouped = [fifth, ...labels].join(_modsSeparator(notation));
+      return '$base($grouped)';
     }
 
-    if (useParens) {
-      return '$base(${labels.join(_modsSeparator(notation))})';
-    }
-
-    return '$base${labels.join()}';
+    return '$base$fifth${labels.join()}';
   }
 
   static ChordQualityLabelForm _defaultQualityFormFor(
@@ -169,43 +167,17 @@ class ChordQualityFormatter {
   }
 
   static String _replaceSeventhWithExtension(String base, String ext) {
-    // Suspended dominant headline: 7sus4 -> 9sus4, 13sus4, etc.
-    // Applies to both sus2 and sus4 forms if you add them later.
+    // Suspended headline: 7sus4 -> 9sus4, maj7sus4 -> maj9sus4.
     if (base.startsWith('7sus')) {
-      // Replace the leading '7' with the extension headline.
       return '$ext${base.substring(1)}';
     }
-
     if (base.startsWith('maj7sus')) {
       return 'maj$ext${base.substring(4)}';
     }
 
-    if (base.contains('7#5')) {
-      return base.replaceFirst('7#5', '$ext#5');
-    }
-
-    if (base.contains('7♯5')) {
-      return base.replaceFirst('7♯5', '$ext♯5');
-    }
-
-    if (base.contains('7b5')) {
-      return base.replaceFirst('7b5', '${ext}b5');
-    }
-
-    if (base.contains('7♭5')) {
-      return base.replaceFirst('7♭5', '$ext♭5');
-    }
-
-    // If base has a parenthetical modifier, we may still be able to promote:
-    // e.g. m7(b5) -> m9(b5)
-    final idx = base.indexOf('7(');
-    if (idx != -1 && base.endsWith(')')) {
-      // Replace the '7' at idx with the headline extension.
-      return '${base.substring(0, idx)}$ext${base.substring(idx + 1)}';
-    }
-
-    if (base.contains('(')) return base;
-
+    // Plain seventh-family cores end in '7': 7 -> 9, maj7 -> maj9, m7 -> m9,
+    // Δ7 -> Δ9, ø7 -> ø9, mM7 -> mM9. Symbolic major7sus (Δ7sus2/Δ7sus4) ends in
+    // its suspension and is left unpromoted.
     if (base == '7') return ext;
     if (base.endsWith('7')) {
       return '${base.substring(0, base.length - 1)}$ext';
