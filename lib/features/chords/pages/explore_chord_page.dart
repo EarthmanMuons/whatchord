@@ -352,6 +352,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
               child: ExploreSummary(
                 presentation: presentation,
                 chordTones: example.members,
+                chordDegrees: example.memberDegrees,
               ),
             ),
           ],
