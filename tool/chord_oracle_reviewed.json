@@ -11,6 +11,10 @@
     "label": "genuine-ambiguity",
     "note": "A♯dim7(add9,add11) is defensible because B♭/A♯ is the bass/root of a complete diminished-seventh shell, with C/B♯ and E♭/D♯ as added color. Tonal's C7♭9♯9/B♭ is a conventional altered-dominant reading and music21 exposes a related C-rooted seventh sonority, but the bass is also the diminished root, so the root-position diminished label remains a plausible primary answer rather than an engine issue."
   },
+  "0-1-3-7-10_b1": {
+    "label": "oracle-limitation",
+    "note": "E♭7(add13)/D♭ is preferred because E♭-G-B♭-D♭ forms a complete dominant-seventh shell with D♭ as the flat seventh in the bass and C as thirteenth color. Tonal agrees as E♭7add6/D♭. Music21's C minor-seven-flat-nine reading is a valid re-rooting and appears as WhatChord's next candidate, but it makes the bass the flat ninth while minor7|flat9 is sparse in ChoCo, so it is less direct as the primary label."
+  },
   "0-1-2-4-6-9-10_b2": {
     "label": "oracle-limitation",
     "note": "F♯7(♯9,♯11,♭13)/D is preferred because the voicing contains the complete F♯ altered-dominant shell F♯-A♯-C♯-E with D as flat thirteenth and A/G𝄪 as sharp-nine color. Tonal agrees as F#7#9#11b13/D, and ChoCo common-name counts favor dominant7 sharp-nine sharp-eleven flat-thirteen signatures over augmented-major-nine variants. Music21's B♭aug(maj9)/D add D♭,E is a related add-tone spelling, but it misses the complete dominant organization."
