@@ -69,8 +69,10 @@ jobs:
     name: ready to merge
     needs:
       - detect_changed_files
+      - check_css
       - check_flutter
       - check_github_actions
+      - check_html
       - check_markdown
       - check_spelling
     if: always()
