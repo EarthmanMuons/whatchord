@@ -29,7 +29,7 @@ The advisory oracles, with the versions used during review:
 These libraries are comparison evidence, not runtime dependencies of WhatChord's
 analysis engine. `mise run research:oracle-install` installs them into local
 git-ignored directories: music21 and pychord into the project `.venv` via
-`uv pip install`, and Tonal into `node_modules` via `npm install --no-save`.
+`uv pip install`, and Tonal into `node_modules` via `npm install`.
 
 For `music21`, the harness uses `harmony.chordSymbolFigureFromChord()` so
 comparison uses chord-symbol figures such as `C7`, `Am7/C`, and `Cm9`, not prose
@@ -117,7 +117,7 @@ Install whichever advisory oracles you want to compare:
 
 ```sh
 uv pip install music21 pychord
-npm install --no-save --no-package-lock @tonaljs/tonal
+npm install --no-package-lock
 ```
 
 If you use `mise`, `mise run research:oracle-install` handles this into local

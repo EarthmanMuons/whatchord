@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "devDependencies": {
+    "@tonaljs/tonal": "latest",
+    "stylelint": "latest",
+    "stylelint-config-recess-order": "latest",
+    "stylelint-config-standard": "latest"
+  }
+}

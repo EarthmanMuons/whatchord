@@ -8,7 +8,7 @@ _.python.venv = { path = ".venv", create = true }
 
 [tasks."css:lint:install"]
 description = "Install stylelint and shared config for site CSS"
-run = "npm install --no-save --no-package-lock stylelint stylelint-config-standard stylelint-config-recess-order"
+run = "npm install --no-package-lock"
 
 [tasks."css:lint"]
 description = "Lint site CSS with stylelint"
@@ -24,7 +24,7 @@ run = "npx stylelint --fix 'docs/site/css/*.css'"
 description = "Install optional chord oracle dependencies for local comparison runs"
 run = [
   "uv pip install music21 pychord",
-  "npm install --no-save --no-package-lock @tonaljs/tonal",
+  "npm install --no-package-lock",
 ]
 
 [tasks."research:oracle-compare"]
