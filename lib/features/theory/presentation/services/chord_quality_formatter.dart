@@ -201,12 +201,16 @@ class ChordQualityFormatter {
     if (mods.length == 1) {
       final ext = mods.first;
 
-      // Added tones read cleanly inline on triad-like qualities, even when
-      // altered (Cadd9, Cadd#9, Cadd♭9): the "add" already marks them as
-      // non-stacked, so parentheses would be redundant. On seventh-family
-      // chords, parentheses still improve readability (C7(add13)).
+      // Added tones read cleanly inline after the bare root (Cadd9), the fused
+      // single-letter "m" (Cmadd9), and the symbolic +/° quality symbols, which
+      // already delimit (C+add13). They need parentheses on seventh-family
+      // chords (C7(add13)) and after the spelled-out word qualities "aug"/"dim",
+      // whose letters would otherwise collide with "add" ("Caugadd13").
       if (ext.isAddTone) {
-        return quality.isSeventhFamily;
+        if (quality.isSeventhFamily) return true;
+        return notation == ChordNotationStyle.textual &&
+            (quality == ChordQualityToken.augmented ||
+                quality == ChordQualityToken.diminished);
       }
       return false; // b9, #11, 9, 11, 13 inline when alone
     }

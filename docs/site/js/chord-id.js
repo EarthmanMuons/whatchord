@@ -203,7 +203,7 @@ return null}return t},
 c6(a){var t,s,r,q
 if(a instanceof A.p)return A.N(A.cn(a),null)
 t=J.az(a)
-if(t===B.bD||t===B.bE||u.A.b(a)){s=B.b2(a)
+if(t===B.bD||t===B.bE||u.A.b(a)){s=B.b3(a)
 if(s!=="Object"&&s!=="")return s
 r=a.constructor
 if(typeof r=="function"){q=r.name
@@ -1574,13 +1574,13 @@ t=a.e
 q=new A.d(t,A.a(t).i("d<2>"))
 return q.h(0,B.k)&&q.h(0,B.p)&&q.h(0,B.d)&&q.h(0,B.j)},
 fR(a,b){if(!b)return!1
-if(a.c!==B.a3)return!1
+if(a.c!==B.a5)return!1
 return a.d.h(0,B.q)},
 h1(a,b){var t,s,r,q
 if(!b)return!1
 t=a.c
 s=t===B.af
-if(!s&&t!==B.a1)return!1
+if(!s&&t!==B.a3)return!1
 r=a.e
 q=new A.d(r,A.a(r).i("d<2>"))
 return(s?q.h(0,B.N):q.h(0,B.H))&&q.h(0,B.j)},
@@ -1606,14 +1606,14 @@ if(q===r)continue
 if(q===B.m||q===B.E||q===B.n||q===B.q)return!0}return!1},
 fQ(a){var t
 A:{if(B.Q===a){t=B.m
-break A}if(B.a_===a){t=B.E
+break A}if(B.a1===a){t=B.E
 break A}if(B.V===a){t=B.n
 break A}if(B.ai===a){t=B.q
 break A}if(B.aj===a){t=B.h
 break A}if(B.ag===a){t=B.r
 break A}if(B.a7===a){t=B.t
 break A}if(B.a8===a){t=B.w
-break A}if(B.aQ===a){t=B.T
+break A}if(B.aR===a){t=B.T
 break A}if(B.ar===a){t=B.T
 break A}if(B.ah===a){t=B.C
 break A}if(B.aq===a){t=B.ac
@@ -1621,7 +1621,7 @@ break A}t=null
 break A}return t},
 fO(a){var t=a.e.p(0,A.Z(a.b,a.a))
 if(t==null)return!1
-return!(t===B.k||t===B.e||t===B.p||t===B.d||t===B.A||t===B.v||t===B.O||t===B.j||t===B.B||t===B.Z)},
+return!(t===B.k||t===B.e||t===B.p||t===B.d||t===B.A||t===B.v||t===B.O||t===B.j||t===B.B||t===B.a0)},
 dw(a){var t=A.Z(a.b,a.a)
 if(t===0)return 0
 if(t===3||t===4)return 1
@@ -1724,8 +1724,8 @@ g=(c1&~(h|r)|n)>>>0
 f=c3.a
 e=A.Q(f)===B.x
 d=A.cL(u.G)
-if((g&2)!==0)d.l(0,e||A.aE(f)?B.m:B.b8)
-if((g&8)!==0){if(!e)c=!(f===B.u||f===B.D||f===B.a6)
+if((g&2)!==0)d.l(0,e||A.aE(f)?B.m:B.b9)
+if((g&8)!==0){if(!e)c=!(f===B.u||f===B.D||f===B.a_)
 else c=!0
 d.l(0,c?B.E:B.T)}if((g&64)!==0)d.l(0,B.n)
 if((g&256)!==0)d.l(0,B.q)
@@ -1753,7 +1753,7 @@ else if((g&a6)>>>0!==0)a7=A.Q(f)===B.x&&d.a!==0?0.75:0.25
 else a7=-0.25
 a8=a1+a2+a3+a4+a5+a7
 b7.$3$detail("bass fit",a7,"interval="+b8)
-if((f===B.a4||f===B.G)&&b8===8){a8-=3
+if((f===B.a6||f===B.G)&&b8===8){a8-=3
 b7.$2("m#5 bass",-3)}if(A.hd(b8,f)){a8-=2
 b7.$2("sus-tone bass",-2)}A:{c=B.M===f
 a9=0.3
@@ -1792,10 +1792,10 @@ if(a===0)return!0
 t=a===4||a===7
 s=(b&128)!==0
 return t&&s},
-he(a,b){if(!(a===B.u||a===B.D||a===B.a6))return!1
+he(a,b){if(!(a===B.u||a===B.D||a===B.a_))return!1
 return(b&16)!==0&&(b&8)!==0},
 hc(a,b){if(A.aB(b)!==3)return!1
-if(!(a===B.D||a===B.a0))return!1
+if(!(a===B.D||a===B.a2))return!1
 return(b&128)===0},
 hd(a,b){switch(b.a){case 6:case 12:case 17:return a===2
 case 7:case 13:case 18:return a===5
@@ -1817,7 +1817,7 @@ return a===0?2.1:0.7}if(q&&(d&128)===0)return 0
 return 2.1},
 h9(a,b,c,d){var t,s
 if(a!==0)return 0
-if(c!==B.a2&&c!==B.o)return 0
+if(c!==B.a4&&c!==B.o)return 0
 if(!b.h(0,B.h))return 0
 if(b.h(0,B.q))return 0
 t=b.h(0,B.n)
@@ -1906,11 +1906,11 @@ c0=A.dw(o)
 c1=A.fR(o,m)
 c2=A.h1(o,m)
 c3=!1
-if(m)if(n===B.u||n===B.F||n===B.D||n===B.a0){c3=k.a
+if(m)if(n===B.u||n===B.F||n===B.D||n===B.a2){c3=k.a
 c3=c3[1]===0&&c3[2]===0}c4=A.h3(o,m)
-d=n===B.G||n===B.af||n===B.a1||!d||n===B.z||n===B.am||n===B.a3||n===B.X||n===B.Y
+d=n===B.G||n===B.af||n===B.a3||!d||n===B.z||n===B.am||n===B.a5||n===B.X||n===B.Y
 c5=A.e8(o,B.cg,B.m,B.Q,B.d,B.o)
-A.e8(o,B.aU,B.E,B.a_,B.d,B.o)
+A.e8(o,B.aV,B.E,B.a1,B.d,B.o)
 c6=A.fS(o)
 c7=A.fZ(o)
 l=l.a
@@ -1923,7 +1923,7 @@ c8=c8[0]>0&&c9===0&&d2===0
 d3=A.aB(o.f)
 a0=a0.a
 d4=p&&A.ih(o,f0)
-s.push(new A.a0(m,a9,b0===B.x,i,h,b1,b2,b3,b4,b5,b6,n===B.a4,b7,b8,b9,c0===2,c1,c2,c3,c4,d,e,c,b,a,a4,a5,c5,c6,c7,g,j,f,j<=2,l,d0,d1,k,c9>0,d2+c9>0,c8,d3-a0,d4))}q=J.cF(e6,u.S)
+s.push(new A.a0(m,a9,b0===B.x,i,h,b1,b2,b3,b4,b5,b6,n===B.a6,b7,b8,b9,c0===2,c1,c2,c3,c4,d,e,c,b,a,a4,a5,c5,c6,c7,g,j,f,j<=2,l,d0,d1,k,c9>0,d2+c9>0,c8,d3-a0,d4))}q=J.cF(e6,u.S)
 for(d5=0;d5<e6;++d5)q[d5]=d5
 B.b.S(q,new A.cv(t))
 p=u.v
@@ -2046,7 +2046,7 @@ jX(a,b,c,d,e){var t,s,r,q,p=c.w
 if(p===d.w)return null
 t=p?b:a
 s=!(p?d:c).a
-r=s&&t.a.c===B.a1
+r=s&&t.a.c===B.a3
 q=s&&t.a.c===B.ap
 if(!r&&!q)return null
 if((p?a:b).b+1.3<t.b)return null
@@ -2114,7 +2114,7 @@ if(!t.h(0,B.E))return!1
 if(t.L(0,new A.df()))return!1
 t=a.e
 s=new A.d(t,A.a(t).i("d<2>"))
-return s.h(0,B.k)&&s.h(0,B.a_)&&s.h(0,B.e)&&s.h(0,B.d)&&s.h(0,B.j)},
+return s.h(0,B.k)&&s.h(0,B.a1)&&s.h(0,B.e)&&s.h(0,B.d)&&s.h(0,B.j)},
 jt(a,b,c,d,e){var t,s=A.f0(a.a)
 if(s===A.f0(b.a))return null
 t=s?d:c
@@ -2171,7 +2171,7 @@ if(p===d.k4)return q
 t=p?b:a
 s=(p?d:c).a&&t.a.c===B.U
 r=t.a
-if(!s&&r.c!==B.a5)return q
+if(!s&&r.c!==B.Z)return q
 if(e.b===B.l&&s&&r.a===e.a.e)return q
 if((p?a:b).b+0.55<t.b)return q
 return p?-1:1},
@@ -2243,7 +2243,7 @@ t=a.e
 s=new A.d(t,A.a(t).i("d<2>"))
 return s.h(0,B.k)&&s.h(0,B.e)&&s.h(0,B.d)&&s.h(0,B.O)&&s.h(0,B.a8)&&s.h(0,B.V)},
 j7(a){var t,s
-if(a.c!==B.a3)return!1
+if(a.c!==B.a5)return!1
 t=a.d
 if(!t.h(0,B.h)||!t.h(0,B.t))return!1
 t=a.e
@@ -2274,7 +2274,7 @@ t=a.d
 if(t.a!==2||!t.h(0,B.E)||!t.h(0,B.t))return!1
 t=a.e
 s=new A.d(t,A.a(t).i("d<2>"))
-return s.h(0,B.k)&&s.h(0,B.a_)&&s.h(0,B.e)&&s.h(0,B.d)&&s.h(0,B.a7)&&s.h(0,B.j)},
+return s.h(0,B.k)&&s.h(0,B.a1)&&s.h(0,B.e)&&s.h(0,B.d)&&s.h(0,B.a7)&&s.h(0,B.j)},
 j2(a,b){var t,s
 if(a.c!==B.D||!b.p3)return!1
 t=a.d
@@ -2656,8 +2656,8 @@ break A}if(B.p===a||B.ar===a||B.e===a){t=3
 break A}if(B.H===a){t=4
 break A}if(B.A===a||B.d===a||B.v===a){t=5
 break A}if(B.O===a){t=6
-break A}if(B.Z===a||B.j===a||B.B===a){t=7
-break A}if(B.Q===a||B.aj===a||B.a_===a||B.a8===a||B.aQ===a){t=9
+break A}if(B.a0===a||B.j===a||B.B===a){t=7
+break A}if(B.Q===a||B.aj===a||B.a1===a||B.a8===a||B.aR===a){t=9
 break A}if(B.ag===a||B.V===a||B.ah===a){t=11
 break A}if(B.ai===a||B.a7===a||B.aq===a){t=13
 break A}t=null}return t},
@@ -2815,14 +2815,14 @@ t.$2(10,B.j)
 break
 case 25:t.$2(3,B.p)
 t.$2(6,B.A)
-t.$2(9,B.Z)
+t.$2(9,B.a0)
 break}s=new A.cC(n,o)
 for(r=A.aj(a,a.r,A.a(a).c),q=r.$ti.c;r.k();){p=r.d
 switch((p==null?q.a(p):p).a){case 0:case 11:s.$2(1,B.Q)
 break
 case 1:s.$2(2,B.aj)
 break
-case 2:s.$2(3,B.a_)
+case 2:s.$2(3,B.a1)
 break
 case 3:s.$2(3,B.ar)
 break
@@ -2875,9 +2875,9 @@ if(p!=null)return p
 return A.ke(t,q,s,r)},
 eN(a){var t,s,r,q=A.aL(u.N,u.S)
 for(t=0;t<7;++t)q.u(0,B.K[t],0)
-if(a>0)for(s=0;s<a;++s){if(!(s<7))return A.b(B.aS,s)
-q.u(0,B.aS[s],1)}else if(a<0)for(r=-a,s=0;s<r;++s){if(!(s<7))return A.b(B.aR,s)
-q.u(0,B.aR[s],-1)}return q},
+if(a>0)for(s=0;s<a;++s){if(!(s<7))return A.b(B.aT,s)
+q.u(0,B.aT[s],1)}else if(a<0)for(r=-a,s=0;s<r;++s){if(!(s<7))return A.b(B.aS,s)
+q.u(0,B.aS[s],-1)}return q},
 eS(a,b){var t,s,r,q,p,o,n=B.b.X(B.K,b),m=n===-1?0:n,l=A.eN(a),k=u.N,j=J.ej(new Array(7),k)
 for(t=0;t<7;++t)j[t]=B.K[B.a.m(m+t,7)]
 s=A.aL(u.S,k)
@@ -2956,9 +2956,9 @@ hn(a){var t,s=a.b,r=a.a
 if(s===r)return!1
 t=a.e.p(0,A.Z(s,r))
 if(t==null)return!1
-return t===B.e||t===B.p||t===B.d||t===B.A||t===B.v||t===B.O||t===B.j||t===B.B||t===B.Z},
+return t===B.e||t===B.p||t===B.d||t===B.A||t===B.v||t===B.O||t===B.j||t===B.B||t===B.a0},
 ea(a){var t,s,r,q,p
-if(A.ho(a))return B.aU
+if(A.ho(a))return B.aV
 t=a.b
 s=a.a
 if(t===s)return a.d
@@ -3018,7 +3018,7 @@ return t+" and "+a[1]}return B.b.H(B.b.aK(a,0,s-1),", ")+", and "+B.b.gbb(a)},
 cx:function cx(a,b){this.a=a
 this.b=b},
 db:function db(){},
-hz(a0,a1,a2){var t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d=null,c=a1===B.ad?B.bC:B.aP,b=A.ec(a2,c),a=A.ai(a0,A.a(a0).c)
+hz(a0,a1,a2){var t,s,r,q,p,o,n,m,l,k,j,i,h,g,f,e,d=null,c=a1===B.ad?B.bC:B.aQ,b=A.ec(a2,c),a=A.ai(a0,A.a(a0).c)
 B.b.S(a,new A.cy())
 if(A.aE(a2)&&a0.h(0,B.w))b+="/9"
 t=a0.h(0,B.h)
@@ -3063,8 +3063,10 @@ if(c===B.M)return!0
 t=a.length
 if(t===0)return!1
 if(A.Q(c)===B.x&&A.dA(c))return!0
-if(t===1){if(A.bL(B.b.gM(a)))return A.Q(c)===B.x
-return!1}return!0},
+if(t===1){if(A.bL(B.b.gM(a))){if(A.Q(c)===B.x)return!0
+if(b===B.aP)t=c===B.a_||c===B.Z
+else t=!1
+return t}return!1}return!0},
 cy:function cy(){},
 cz:function cz(){},
 cA:function cA(){},
@@ -3073,11 +3075,11 @@ case 1:return A.hC(a)
 case 2:return A.hA(a)
 case 3:return A.hB(a)}},
 hE(a){switch(a.a){case 1:case 14:case 19:case 24:return B.aN
-case 3:case 15:case 20:case 22:return B.b9
+case 3:case 15:case 20:case 22:return B.ba
 default:return B.aM}},
 dz(a,b){var t,s=A.hE(a)
 if(s===B.aM)return null
-if(a===B.L&&b!==B.aP)return null
+if(a===B.L&&b!==B.aQ)return null
 t=s===B.aN
 switch(b.a){case 0:return t?"\u266d5":"\u266f5"
 case 1:return t?"b5":"#5"
@@ -3257,8 +3259,8 @@ b=B.b.gM(c).b
 a=A.hl(c)
 a0=A.i([],u.U)
 for(a1=0;a1<c.length;){a2=c[a1]
-if(a1===0)a3=B.b5
-else a3=a1<=a?B.b6:B.b7;++a1
+if(a1===0)a3=B.b6
+else a3=a1<=a?B.b7:B.b8;++a1
 p=a2.a
 a4=A.aY(p,t)
 m=p.b
@@ -3294,7 +3296,7 @@ r=new A.M(t,s.i("h(1)").a(new A.dr()),r).aL(0,r.i("D(G.E)").a(new A.ds()))
 t=A.ai(r,r.$ti.i("f.E"))
 return t},
 fm(a){var t,s,r,q,p,o,n,m,l,k,j,i,h,g=B.c.G(a)
-if(g.length===0)return B.aW
+if(g.length===0)return B.aX
 r=A.er("\\s+")
 q=A.U(g,r,"")
 t=null
@@ -3413,7 +3415,7 @@ p=A.dI(new A.d(r,t),t.i("f.E"))
 o=p.h(0,B.k)
 n=p.h(0,B.p)||p.h(0,B.e)||p.h(0,B.N)||p.h(0,B.H)
 m=p.h(0,B.d)||p.h(0,B.A)||p.h(0,B.v)
-l=p.h(0,B.j)||p.h(0,B.B)||p.h(0,B.Z)
+l=p.h(0,B.j)||p.h(0,B.B)||p.h(0,B.a0)
 t=A.Q(a.c)
 s=!1
 if(o)if(n)if(m)t=t!==B.x||l
@@ -3431,7 +3433,7 @@ ig(a){var t,s,r,q=A.cL(u.S)
 for(t=a.e,t=new A.L(t,A.a(t).i("L<1,2>")).gq(0),s=a.a;t.k();){r=t.d
 if(A.ez(r.b))q.l(0,B.a.m(s+r.a,12))}return q},
 ez(a){var t
-A:{t=B.k===a||B.N===a||B.H===a||B.p===a||B.e===a||B.A===a||B.d===a||B.v===a||B.O===a||B.Z===a||B.j===a||B.B===a
+A:{t=B.k===a||B.N===a||B.H===a||B.p===a||B.e===a||B.A===a||B.d===a||B.v===a||B.O===a||B.a0===a||B.j===a||B.B===a
 break A}return t},
 a4(a){var t,s,r,q,p="name",o=B.c.G(a),n=o.length
 if(n===0)throw A.c(A.bI(a,p,"Empty note name"))
@@ -3543,7 +3545,7 @@ t=s[0].toUpperCase()
 return B.b.h(B.K,t)?t:null},
 i4(a){var t
 A:{if(B.D===a){t=B.u
-break A}if(B.a0===a){t=B.F
+break A}if(B.a2===a){t=B.F
 break A}t=null
 break A}return t},
 i1(a,b,c,d){var t,s
@@ -3566,7 +3568,7 @@ case 2:t=B.W
 break
 case 3:t=B.aa
 break
-case 4:t=B.aV
+case 4:t=B.aW
 break
 case 5:t=B.W
 break
@@ -3585,7 +3587,7 @@ case 4:t=B.W
 break
 case 5:t=B.aa
 break
-case 6:t=B.aV
+case 6:t=B.aW
 break
 default:t=null}return t
 case 2:switch(b.a){case 0:t=B.cf
@@ -3653,8 +3655,8 @@ lt(a,b){var t
 A:{if(B.o===b){t=a+"7"
 break A}if(B.y===b){t=a+"7b5"
 break A}if(B.z===b){t=a+"7#5"
-break A}if(B.a4===b){t=a+"#5"
-break A}if(B.a2===b){t=a+"maj7"
+break A}if(B.a6===b){t=a+"#5"
+break A}if(B.a4===b){t=a+"maj7"
 break A}if(B.X===b){t=a+"maj7b5"
 break A}if(B.Y===b){t=a+"maj7#5"
 break A}if(B.P===b){t=a+"7"
@@ -3905,7 +3907,7 @@ return q.substring(t,r)},
 aF(a,b){var t,s
 if(0>=b)return""
 if(b===1||a.length===0)return a
-if(b!==b>>>0)throw A.c(B.b4)
+if(b!==b>>>0)throw A.c(B.b5)
 for(t=a,s="";;){if((b&1)===1)s=t+s
 b=b>>>1
 if(b===0)break
@@ -4783,7 +4785,7 @@ r=r.a!==1||!r.h(0,B.q)}}if(r)return!1
 r=a.a
 s=A.eu(this.a,r,r.f,!0,null,!0)
 r=s==null
-if((r?null:s.a)===B.S){t=(r?null:s.b)===B.aT
+if((r?null:s.a)===B.S){t=(r?null:s.b)===B.aU
 r=t}else r=!1
 return r},
 $S:7}
@@ -5126,7 +5128,7 @@ $S:10}
 A.dp.prototype={
 $3(a,b,c){A.Y(a)
 A.Y(b)
-return B.b3.b3(A.kx(a,b,A.Y(c)==="symbolic"?B.ad:B.ba).a2(),null)},
+return B.b4.b3(A.kx(a,b,A.Y(c)==="symbolic"?B.ad:B.aP).a2(),null)},
 $S:14};(function aliases(){var t=J.ag.prototype
 t.aM=t.j
 t=A.f.prototype
@@ -5228,20 +5230,20 @@ B.a=J.ba.prototype
 B.I=J.aH.prototype
 B.c=J.af.prototype
 B.bE=J.aK.prototype
-B.b2=function getTagFallback(o) {
+B.b3=function getTagFallback(o) {
   var s = Object.prototype.toString.call(o);
   return s.substring(8, s.length - 1);
 }
-B.b3=new A.cI()
-B.b4=new A.c5()
+B.b4=new A.cI()
+B.b5=new A.c5()
 B.i=new A.cW()
-B.b5=new A.b3(0,"chosen")
-B.b6=new A.b3(1,"possible")
-B.b7=new A.b3(2,"unlikely")
+B.b6=new A.b3(0,"chosen")
+B.b7=new A.b3(1,"possible")
+B.b8=new A.b3(2,"unlikely")
 B.m=new A.o(0,"flat9")
 B.h=new A.o(1,"nine")
 B.ac=new A.o(10,"add13")
-B.b8=new A.o(11,"addFlat9")
+B.b9=new A.o(11,"addFlat9")
 B.E=new A.o(2,"sharp9")
 B.T=new A.o(3,"addSharp9")
 B.r=new A.o(4,"eleven")
@@ -5252,26 +5254,26 @@ B.w=new A.o(8,"add9")
 B.C=new A.o(9,"add11")
 B.aM=new A.b5(0,"none")
 B.aN=new A.b5(1,"flat5")
-B.b9=new A.b5(2,"sharp5")
+B.ba=new A.b5(2,"sharp5")
 B.aO=new A.cx(0,"glyph")
 B.ad=new A.bP(0,"symbolic")
-B.ba=new A.bP(1,"textual")
+B.aP=new A.bP(1,"textual")
 B.bb=new A.bQ(0,"triad")
 B.x=new A.bQ(1,"seventh")
 B.bC=new A.b6(0,"symbolic")
-B.aP=new A.b6(1,"textual")
+B.aQ=new A.b6(1,"textual")
 B.al=new A.b6(2,"academic")
 B.u=new A.l(0,"major")
 B.ae=new A.l(1,"majorFlat5")
-B.a0=new A.l(10,"minor6")
+B.a2=new A.l(10,"minor6")
 B.o=new A.l(11,"dominant7")
 B.af=new A.l(12,"dominant7sus2")
-B.a1=new A.l(13,"dominant7sus4")
+B.a3=new A.l(13,"dominant7sus4")
 B.y=new A.l(14,"dominant7Flat5")
 B.z=new A.l(15,"dominant7Sharp5")
-B.a2=new A.l(16,"major7")
+B.a4=new A.l(16,"major7")
 B.am=new A.l(17,"major7sus2")
-B.a3=new A.l(18,"major7sus4")
+B.a5=new A.l(18,"major7sus4")
 B.X=new A.l(19,"major7Flat5")
 B.F=new A.l(2,"minor")
 B.Y=new A.l(20,"major7Sharp5")
@@ -5280,9 +5282,9 @@ B.G=new A.l(22,"minor7Sharp5")
 B.U=new A.l(23,"minorMajor7")
 B.L=new A.l(24,"halfDiminished7")
 B.M=new A.l(25,"diminished7")
-B.a4=new A.l(3,"minorSharp5")
-B.a5=new A.l(4,"diminished")
-B.a6=new A.l(5,"augmented")
+B.a6=new A.l(3,"minorSharp5")
+B.Z=new A.l(4,"diminished")
+B.a_=new A.l(5,"augmented")
 B.an=new A.l(6,"sus2")
 B.ao=new A.l(7,"sus4")
 B.ap=new A.l(8,"sus2sus4")
@@ -5301,37 +5303,37 @@ B.ai=new A.n(18,"flat13")
 B.a7=new A.n(19,"thirteen")
 B.Q=new A.n(2,"flat9")
 B.aq=new A.n(20,"add13")
-B.Z=new A.n(21,"dim7")
+B.a0=new A.n(21,"dim7")
 B.j=new A.n(22,"flat7")
 B.B=new A.n(23,"major7")
 B.aj=new A.n(3,"nine")
-B.a_=new A.n(4,"sharp9")
+B.a1=new A.n(4,"sharp9")
 B.a8=new A.n(5,"add9")
-B.aQ=new A.n(6,"addSharp9")
+B.aR=new A.n(6,"addSharp9")
 B.p=new A.n(7,"minor3")
 B.ar=new A.n(8,"splitMinor3")
 B.e=new A.n(9,"major3")
 B.bF=new A.cJ(null)
 B.at=new A.aQ(1,"naturalMinor")
-B.aT=new A.aQ(2,"harmonicMinor")
-B.bV=t([B.at,B.aT],u.f)
+B.aU=new A.aQ(2,"harmonicMinor")
+B.bV=t([B.at,B.aU],u.f)
 B.bW=t(["Too many notes. Enter no more than 128 note names or MIDI numbers."],u.s)
 B.bX=t(["Type some notes, e.g. C E G or 60 64 67."],u.s)
-B.aR=t(["B","E","A","D","G","C","F"],u.s)
-B.aX=new A.x("Cb","C",11,0,"cFlat")
+B.aS=t(["B","E","A","D","G","C","F"],u.s)
+B.aY=new A.x("Cb","C",11,0,"cFlat")
 B.f=new A.cb(0,"major")
-B.ck=new A.j(B.aX,B.f)
+B.ck=new A.j(B.aY,B.f)
 B.aE=new A.x("Ab","A",8,15,"aFlat")
 B.l=new A.cb(1,"minor")
 B.cI=new A.j(B.aE,B.l)
 B.bR=new A.C(-7,B.ck,B.cI)
-B.b0=new A.x("Gb","G",6,12,"gFlat")
-B.cj=new A.j(B.b0,B.f)
+B.b1=new A.x("Gb","G",6,12,"gFlat")
+B.cj=new A.j(B.b1,B.f)
 B.aI=new A.x("Eb","E",3,6,"eFlat")
 B.cF=new A.j(B.aI,B.l)
 B.bU=new A.C(-6,B.cj,B.cF)
-B.b1=new A.x("Db","D",1,3,"dFlat")
-B.cr=new A.j(B.b1,B.f)
+B.b2=new A.x("Db","D",1,3,"dFlat")
+B.cr=new A.j(B.b2,B.f)
 B.aD=new A.x("Bb","B",10,18,"bFlat")
 B.ci=new A.j(B.aD,B.l)
 B.bQ=new A.C(-5,B.cr,B.ci)
@@ -5351,10 +5353,10 @@ B.cx=new A.j(B.aC,B.f)
 B.aG=new A.x("D","D",2,4,"d")
 B.cz=new A.j(B.aG,B.l)
 B.bI=new A.C(-1,B.cx,B.cz)
-B.aW=new A.j(B.ab,B.f)
+B.aX=new A.j(B.ab,B.f)
 B.aF=new A.x("A","A",9,16,"a")
 B.cq=new A.j(B.aF,B.l)
-B.bH=new A.C(0,B.aW,B.cq)
+B.bH=new A.C(0,B.aX,B.cq)
 B.cG=new A.j(B.aL,B.f)
 B.aH=new A.x("E","E",4,7,"e")
 B.cl=new A.j(B.aH,B.l)
@@ -5372,23 +5374,23 @@ B.aB=new A.x("C#","C",1,2,"cSharp")
 B.cy=new A.j(B.aB,B.l)
 B.bS=new A.C(4,B.cJ,B.cy)
 B.cE=new A.j(B.aK,B.f)
-B.b_=new A.x("G#","G",8,14,"gSharp")
-B.cA=new A.j(B.b_,B.l)
+B.b0=new A.x("G#","G",8,14,"gSharp")
+B.cA=new A.j(B.b0,B.l)
 B.bN=new A.C(5,B.cE,B.cA)
 B.cw=new A.j(B.aJ,B.f)
-B.aY=new A.x("D#","D",3,5,"dSharp")
-B.cp=new A.j(B.aY,B.l)
+B.aZ=new A.x("D#","D",3,5,"dSharp")
+B.cp=new A.j(B.aZ,B.l)
 B.bG=new A.C(6,B.cw,B.cp)
 B.cm=new A.j(B.aB,B.f)
-B.aZ=new A.x("A#","A",10,17,"aSharp")
-B.co=new A.j(B.aZ,B.l)
+B.b_=new A.x("A#","A",10,17,"aSharp")
+B.co=new A.j(B.b_,B.l)
 B.bJ=new A.C(7,B.cm,B.co)
 B.bY=t([B.bR,B.bU,B.bQ,B.bT,B.bK,B.bO,B.bI,B.bH,B.bP,B.bL,B.bM,B.bS,B.bN,B.bG,B.bJ],A.E("k<C>"))
-B.aS=t(["F","C","G","D","A","E","B"],u.s)
+B.aT=t(["F","C","G","D","A","E","B"],u.s)
 B.cN=new A.x("E#","E",5,8,"eSharp")
 B.cM=new A.x("Fb","F",4,9,"fFlat")
 B.cL=new A.x("B#","B",0,20,"bSharp")
-B.bZ=t([B.aX,B.ab,B.aB,B.b1,B.aG,B.aY,B.aI,B.aH,B.cN,B.cM,B.aC,B.aJ,B.b0,B.aL,B.b_,B.aE,B.aF,B.aZ,B.aD,B.aK,B.cL],A.E("k<x>"))
+B.bZ=t([B.aY,B.ab,B.aB,B.b2,B.aG,B.aZ,B.aI,B.aH,B.cN,B.cM,B.aC,B.aJ,B.b1,B.aL,B.b0,B.aE,B.aF,B.b_,B.aD,B.aK,B.cL],A.E("k<x>"))
 B.as=new A.aQ(0,"major")
 B.c_=t([B.as],u.f)
 B.c0=t(["Input is too long. Enter no more than 512 characters."],u.s)
@@ -5401,22 +5403,22 @@ B.c4=t(["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],u.s)
 B.bc=new A.m(B.u,145,128)
 B.bn=new A.m(B.ae,81,0)
 B.bu=new A.m(B.F,137,128)
-B.bv=new A.m(B.a4,265,0)
-B.bw=new A.m(B.a5,73,0)
-B.bx=new A.m(B.a6,273,0)
+B.bv=new A.m(B.a6,265,0)
+B.bw=new A.m(B.Z,73,0)
+B.bx=new A.m(B.a_,273,0)
 B.by=new A.m(B.an,133,0)
 B.bz=new A.m(B.ao,161,0)
 B.bA=new A.m(B.ap,165,0)
 B.bB=new A.m(B.D,657,128)
-B.bd=new A.m(B.a0,649,128)
+B.bd=new A.m(B.a2,649,128)
 B.be=new A.m(B.o,1169,128)
 B.bf=new A.m(B.af,1157,128)
-B.bg=new A.m(B.a1,1185,128)
+B.bg=new A.m(B.a3,1185,128)
 B.bh=new A.m(B.y,1105,0)
 B.bi=new A.m(B.z,1297,0)
-B.bj=new A.m(B.a2,2193,128)
+B.bj=new A.m(B.a4,2193,128)
 B.bk=new A.m(B.am,2181,128)
-B.bl=new A.m(B.a3,2209,128)
+B.bl=new A.m(B.a5,2209,128)
 B.bm=new A.m(B.X,2129,0)
 B.bo=new A.m(B.Y,2321,0)
 B.bp=new A.m(B.P,1161,128)
@@ -5441,17 +5443,17 @@ B.ay=new A.a8(5,"six")
 B.az=new A.a8(6,"seven")
 B.ca={A:0,B:1,C:2,D:3,E:4,F:5,G:6}
 B.cc=new A.am(B.ca,7,A.E("am<h>"))
-B.aa=new A.J([B.u,B.a2],u.h)
+B.aa=new A.J([B.u,B.a4],u.h)
 B.cd=new A.J([B.u,B.o,B.z],u.h)
-B.ce=new A.J([B.a6,B.Y],u.h)
+B.ce=new A.J([B.a_,B.Y],u.h)
 B.cf=new A.J([B.F,B.U],u.h)
 B.W=new A.J([B.F,B.P],u.h)
 B.cg=new A.J([B.E,B.n],A.E("J<o>"))
 B.c8={}
-B.aU=new A.am(B.c8,0,A.E("am<o>"))
-B.ch=new A.J([B.a5,B.M],u.h)
-B.aA=new A.J([B.a5,B.L],u.h)
-B.aV=new A.J([B.u,B.o],u.h)
+B.aV=new A.am(B.c8,0,A.E("am<o>"))
+B.ch=new A.J([B.Z,B.M],u.h)
+B.aA=new A.J([B.Z,B.L],u.h)
+B.aW=new A.J([B.u,B.o],u.h)
 B.cO=A.lC("p")})();(function staticFields(){$.O=A.i([],A.E("k<p>"))
 $.eo=null
 $.e6=null
@@ -5476,7 +5478,7 @@ t($,"lR","fC",()=>A.ab(A.ex(void 0)))
 t($,"lQ","fB",()=>A.ab(function(){try{(void 0).$method$}catch(s){return s.message}}()))
 t($,"lS","b0",()=>A.e_(B.cO))
 t($,"lD","fq",()=>A.hS(u.S,A.E("ah<I>")))
-t($,"lV","e2",()=>A.i([A.v(A.u(B.u),3080,!1),A.v(A.u(B.ae),3208,!1),A.v(A.u(B.F),3088,!1),A.v(A.u(B.a4),3216,!1),A.v(A.u(B.a5),144,!1),A.v(A.u(B.a6),136,!1),A.v(A.u(B.an),3096,!1),A.v(A.u(B.ao),3096,!1),A.v(A.u(B.ap),0,!0),A.v(A.u(B.D),3080,!1),A.v(A.u(B.a0),3088,!1),A.v(A.u(B.o),2056,!1),A.v(A.u(B.af),2104,!1),A.v(A.u(B.a1),2072,!1),A.v(A.u(B.y),2184,!1),A.v(A.u(B.z),2184,!1),A.v(A.u(B.a2),1032,!1),A.v(A.u(B.am),1080,!1),A.v(A.u(B.a3),1048,!1),A.v(A.u(B.X),1160,!1),A.v(A.u(B.Y),1160,!1),A.v(A.u(B.P),2064,!1),A.v(A.u(B.G),2192,!1),A.v(A.u(B.U),1040,!1),A.v(A.u(B.L),2192,!1),A.v(A.u(B.M),3216,!1)],A.E("k<b7>")))
+t($,"lV","e2",()=>A.i([A.v(A.u(B.u),3080,!1),A.v(A.u(B.ae),3208,!1),A.v(A.u(B.F),3088,!1),A.v(A.u(B.a6),3216,!1),A.v(A.u(B.Z),144,!1),A.v(A.u(B.a_),136,!1),A.v(A.u(B.an),3096,!1),A.v(A.u(B.ao),3096,!1),A.v(A.u(B.ap),0,!0),A.v(A.u(B.D),3080,!1),A.v(A.u(B.a2),3088,!1),A.v(A.u(B.o),2056,!1),A.v(A.u(B.af),2104,!1),A.v(A.u(B.a3),2072,!1),A.v(A.u(B.y),2184,!1),A.v(A.u(B.z),2184,!1),A.v(A.u(B.a4),1032,!1),A.v(A.u(B.am),1080,!1),A.v(A.u(B.a5),1048,!1),A.v(A.u(B.X),1160,!1),A.v(A.u(B.Y),1160,!1),A.v(A.u(B.P),2064,!1),A.v(A.u(B.G),2192,!1),A.v(A.u(B.U),1040,!1),A.v(A.u(B.L),2192,!1),A.v(A.u(B.M),3216,!1)],A.E("k<b7>")))
 t($,"lW","fF",()=>A.i([A.e("prefer complete dominant flat-nine over colored diminished7",A.kO()),A.e("prefer flat-nine-bass dominant over remote reinterpretation",A.l9()),A.e("prefer complete altered dominant inversion over altered major7",A.kM()),A.e("prefer complete dominant sharp-nine over split-third sixth",A.kP()),A.e("prefer stable extended dominant over double-accidental altered-fifth slash",A.lo()),A.e("prefer complete altered sharp-five dominant over remote spellings",A.kN()),A.e("prefer conventional inversion in split-nine tritone dominant ambiguity",A.l1()),A.e("prefer altered dominant7 over dim7 slash",A.kJ()),A.e("prefer conventional altered seventh over add11 slash",A.l_()),A.e("prefer complete minor sharp11 over altered maj7sus4",A.kV()),A.e("prefer close root-position dominant7 over non-dominant slash",A.l4()),A.e("prefer ninth-bass seventh chord over altered slash",A.le()),A.e("prefer minor7 eleventh-bass slash over minor7 sharp-five slash",A.lc()),A.e("prefer root-position altered-fifth dominant over slash",A.lg()),A.e("prefer root-position add-chord over sus slash",A.lf()),A.e("prefer complete triad over structurally deficient reading",A.kY()),A.e("prefer root-position minor-eleventh shell over sus slash",A.lj()),A.e("prefer complete major six-nine over inverted minor-seven sharp-five",A.kU()),A.e("prefer complete add-nine inversion over minor-seven sharp-five",A.kL()),A.e("prefer simple triad add-tone over seventh-family unusual quality",A.ln())],A.E("k<bi>")))
 t($,"lX","fG",()=>A.i([A.e("prefer voicing-supported upper-structure slash",A.ls()),A.e("prefer root-position 6th over inverted 7th",A.kH()),A.e("prefer complete triad over incomplete inverted 6th",A.kZ()),A.e("prefer upper-structure dominant7 slash",A.lr()),A.e("prefer root-position dominant sus over slash",A.lh()),A.e("prefer stable extended dominant over altered-fifth slash",A.li()),A.e("prefer complete sharp-nine thirteenth dominant over colored sixth",A.kW()),A.e("prefer complete flat-nine flat-thirteen dominant over remote spelling",A.kQ()),A.e("prefer sharp-five sharp-eleven dominant spelling over flat-five flat-thirteen",A.lm()),A.e("prefer complete major inversion over minor sharp-five",A.kS()),A.e("prefer complete lydian six-nine over major13sus4",A.kR()),A.e("prefer complete major inversion over seventh-family color-bass slash",A.kT()),A.e("prefer root-position diminished7",A.l3()),A.e("prefer dominant7 over dim7 slash",A.l5()),A.e("prefer dominant7 shell slash over non-dominant seventh-family slash",A.l6()),A.e("prefer voicing that names every tone",A.la()),A.e("prefer harmonic-minor tonic over split-third inversion",A.lb()),A.e("prefer fewer altered/tension colors",A.l7()),A.e("prefer diatonic chords",A.l2()),A.e("prefer root-position relative minor7 over major6 slash",A.lk()),A.e("prefer tonic chord",A.lq()),A.e("prefer I chord when bass is tonic",A.lp()),A.e("prefer complete triad add-tone over seventh-family add-tone",A.kX()),A.e("prefer natural extensions over adds, then fewer total",A.ld()),A.e("prefer root position",A.ll()),A.e("prefer common naming preference",A.kk()),A.e("prefer cleaner tritone flat-five dominant spelling",A.kK()),A.e("prefer more conventional inversion",A.l0()),A.e("prefer 7th chords over triads",A.kI()),A.e("prefer fewer extensions",A.l8()),A.e("avoid suspended chords",A.kG())],A.E("k<bi>")))
 t($,"lU","fE",()=>{var s,r,q=A.aL(A.E("l"),A.E("m"))

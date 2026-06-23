@@ -685,7 +685,7 @@ void main() {
 
     golden(
       description: 'root-position augmented add-tone beats altered dominant',
-      expectedSymbol: 'Abaugadd9',
+      expectedSymbol: 'Abaug(add9)',
       expectedAlternateSymbols: ['C7#5 / G#'],
       pcs: ['C', 'E', 'Ab', 'Bb'],
       bass: 'Ab',
@@ -698,7 +698,7 @@ void main() {
       description:
           'complete altered dominant inversion beats augmented add-tone slash',
       expectedSymbol: 'C7#5 / E',
-      expectedAlternateSymbols: ['Abaugadd9 / E'],
+      expectedAlternateSymbols: ['Abaug(add9) / E'],
       pcs: ['C', 'E', 'Ab', 'Bb'],
       bass: 'E',
       expectedRoot: 'C',

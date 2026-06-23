@@ -249,7 +249,7 @@ void main() {
     golden(
       description: 'flat-nine-bass dominant without fifth',
       expectedSymbol: 'C7b9 / Db',
-      expectedAlternateSymbols: ['C#mmaj7(add13)', 'A#dimadd9 / C#'],
+      expectedAlternateSymbols: ['C#mmaj7(add13)', 'A#dim(add9) / C#'],
       pcs: ['C', 'Db', 'E', 'Bb'],
       bass: 'Db',
       expectedRoot: 'C',
