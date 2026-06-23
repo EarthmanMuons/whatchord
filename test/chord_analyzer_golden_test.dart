@@ -249,7 +249,7 @@ void main() {
     golden(
       description: 'flat-nine-bass dominant without fifth',
       expectedSymbol: 'C7b9 / Db',
-      expectedAlternateSymbols: ['C#mmaj7(add13)', 'A#dim(add9) / C#'],
+      expectedAlternateSymbols: ['C#mmaj13', 'A#dim(add9) / C#'],
       pcs: ['C', 'Db', 'E', 'Bb'],
       bass: 'Db',
       expectedRoot: 'C',
@@ -260,14 +260,14 @@ void main() {
 
     golden(
       description: 'tonic minor-major7 context beats flat-nine-bass dominant',
-      expectedSymbol: 'C#mmaj7(add13)',
+      expectedSymbol: 'C#mmaj13',
       pcs: ['C', 'Db', 'E', 'Bb'],
       bass: 'Db',
       tonality: const Tonality(Tonic.cSharp, TonalityMode.minor),
       expectedRoot: 'Db',
       expectedBass: 'Db',
       expectedQuality: ChordQualityToken.minorMajor7,
-      expectedExtensions: {ChordExtension.add13},
+      expectedExtensions: {ChordExtension.thirteen},
     ),
 
     // Hendrix chord: dominant shell plus #9 should not be treated as a minor-third penalty.
@@ -561,15 +561,16 @@ void main() {
       expectedExtensions: {ChordExtension.add9},
     ),
 
-    // Dominant 7 with a lone 13 is an added tone, not a true 13th chord.
+    // Dominant 7 with a lone 13 (no ninth) is a 13th chord; the ninth and
+    // eleventh in the stack are optional.
     golden(
-      description: 'dominant seventh with lone added thirteenth',
-      expectedSymbol: 'C7(add13)',
+      description: 'dominant thirteenth without a ninth',
+      expectedSymbol: 'C13',
       pcs: ['C', 'E', 'G', 'Bb', 'A'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7,
-      expectedExtensions: {ChordExtension.add13},
-      unexpectedExtensions: {ChordExtension.thirteen},
+      expectedExtensions: {ChordExtension.thirteen},
+      unexpectedExtensions: {ChordExtension.add13},
     ),
 
     // -------------------------------------------------------------------------

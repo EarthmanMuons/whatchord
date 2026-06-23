@@ -896,11 +896,13 @@ abstract final class ChordAnalyzer {
     if ((extrasMask & (1 << 6)) != 0) out.add(ChordExtension.sharp11);
     if ((extrasMask & (1 << 8)) != 0) out.add(ChordExtension.flat13);
 
-    // Natural extensions/add tones. A natural 11 or 13 reads as a stacked upper
-    // extension (eligible to headline as 11/13) when the chord has a seventh and
-    // some ninth beneath it in the stack, even if that ninth is altered: B7 with
-    // #9, #11, and a natural 13 is B13(#9,#11), not B7(#9,#11,add13). Without any
-    // ninth the tone is unanchored and reads as an added tone (add11/add13).
+    // Natural extensions/add tones. A natural 13 reads as a stacked upper
+    // extension (eligible to headline as 13) whenever the chord has a seventh;
+    // the 9 and 11 beneath it are optional, so C-E-G-B♭-A is C13, not
+    // C7(add13). Without a seventh the tone is a 6/13 added color (a plain
+    // triad plus a sixth is a sixth chord). A natural 11 reads as stacked only
+    // when the chord has both a seventh and some ninth beneath it; without a
+    // ninth it is an added tone (add11).
     const ninthBits = (1 << 1) | (1 << 2) | (1 << 3); // b9, 9, #9
     final has9 = (extrasMask & (1 << 2)) != 0;
     final hasAnyNinth = (extrasMask & ninthBits) != 0;
@@ -914,9 +916,7 @@ abstract final class ChordAnalyzer {
       );
     }
     if (has13) {
-      out.add(
-        has7 && hasAnyNinth ? ChordExtension.thirteen : ChordExtension.add13,
-      );
+      out.add(has7 ? ChordExtension.thirteen : ChordExtension.add13);
     }
 
     return out;

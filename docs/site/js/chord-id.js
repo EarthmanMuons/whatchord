@@ -1732,7 +1732,7 @@ if((g&256)!==0)d.l(0,B.q)
 b=(g&14)!==0
 if((g&4)!==0)d.l(0,e?B.h:B.w)
 if((g&32)!==0)d.l(0,e&&b?B.r:B.C)
-if((g&512)!==0)d.l(0,e&&b?B.t:B.ac)
+if((g&512)!==0)d.l(0,e?B.t:B.ac)
 a=A.e9(d,f)&&(g&330)!==0
 c=A.aB(g)
 a0=c-(a?1:0)
@@ -3035,7 +3035,7 @@ n=A.aE(a2)&&B.c.a0(b,"/9")
 for(m=a.length,l=q===B.r,k=q===B.t,j=0;j<a.length;a.length===m||(0,A.P)(a),++j){i=a[j]
 if(i===q)continue
 if(n&&i===B.w)continue
-if(k){if(i===B.h||i===B.r)continue}else if(l)if(i===B.h)continue
+if(k){if(i===B.h||i===B.r||i===B.C)continue}else if(l)if(i===B.h)continue
 B.b.l(o,A.hw(i,a2))}h=A.dz(a2,c)
 if(o.length===0){if(h==null)return b
 return a2===B.ae||a2===B.L?b+"("+h+")":b+h}m=u.Y

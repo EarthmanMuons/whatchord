@@ -57,8 +57,13 @@ class ChordQualityFormatter {
       if (ext == headline) continue;
       if (absorbedAdd9 && ext == ChordExtension.add9) continue;
 
+      // A headline extension implies the stack beneath it, so a 9 or 11 below a
+      // 13 is absorbed rather than listed, whether stacked (nine/eleven) or
+      // added (add11 when no ninth makes the 11 an add tone).
       if (headline == ChordExtension.thirteen) {
-        if (ext == ChordExtension.nine || ext == ChordExtension.eleven) {
+        if (ext == ChordExtension.nine ||
+            ext == ChordExtension.eleven ||
+            ext == ChordExtension.add11) {
           continue;
         }
       } else if (headline == ChordExtension.eleven) {
