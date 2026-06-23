@@ -168,7 +168,7 @@ void main() {
     golden(
       description: 'minor-major ninth bass chord beats altered major7 slash',
       expectedSymbol: 'C#mmaj7 / D#',
-      expectedAlternateSymbols: ['Emaj7(#5,add13) / D#'],
+      expectedAlternateSymbols: ['Emaj13#5 / D#'],
       pcs: ['C', 'Db', 'Eb', 'E', 'Ab'],
       bass: 'Eb',
       expectedRoot: 'C#',
@@ -748,7 +748,7 @@ void main() {
       description:
           'lydian major six-nine beats minor-eleventh sharp-five slash',
       expectedSymbol: 'Gb6/9#11 / Eb',
-      expectedAlternateSymbols: ['Bbm11#5 / Eb', 'Ebm7(add11,add13)'],
+      expectedAlternateSymbols: ['Bbm11#5 / Eb', 'Ebm13'],
       pcs: ['C', 'Db', 'Eb', 'F#', 'Ab', 'Bb'],
       bass: 'Eb',
       expectedRoot: 'Gb',
@@ -785,7 +785,7 @@ void main() {
     golden(
       description: 'root-position major-sixth sharp-eleven beats minor slash',
       expectedSymbol: 'Eb6#11',
-      expectedAlternateSymbols: ['Cm7(add13) / Eb', 'Am7(b5,b9) / Eb'],
+      expectedAlternateSymbols: ['Cm13 / Eb', 'Am7(b5,b9) / Eb'],
       pcs: ['C', 'Eb', 'G', 'A', 'Bb'],
       bass: 'Eb',
       expectedRoot: 'Eb',
@@ -801,7 +801,7 @@ void main() {
     golden(
       description: 'root-position lydian six-nine sharp-eleven beats b7 slash',
       expectedSymbol: 'B6/9#11',
-      expectedAlternateSymbols: ['G#m7(add11,add13) / B', 'C#11 / B'],
+      expectedAlternateSymbols: ['G#m13 / B', 'C#11 / B'],
       pcs: ['B', 'C#', 'D#', 'E#', 'F#', 'G#'],
       bass: 'B',
       expectedRoot: 'B',

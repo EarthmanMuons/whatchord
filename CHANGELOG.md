@@ -54,6 +54,15 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   Cmmaj9) instead of m(maj7), so added tensions stay in one clean group such as
   Cmmaj7(♯11,add13). Symbolic notation continues to use the triangle, as in
   C−Δ7.
+- Added tones after the spelled-out aug and dim qualities are now wrapped in
+  parentheses in textual notation, so an augmented triad with an added
+  thirteenth reads as Caug(add13) and a diminished triad with an added ninth as
+  Cdim(add9) instead of running the quality and add together. The single-letter
+  m stays fused (Cmadd9), and symbolic notation stays compact (C+add13).
+- A seventh chord that includes a thirteenth but no ninth is now named as a
+  thirteenth chord (such as C13 or Cm13) rather than a seventh with an added
+  thirteenth (C7(add13)), matching common practice where the ninth and eleventh
+  of a thirteenth chord are optional.
 
 ### Fixed
 

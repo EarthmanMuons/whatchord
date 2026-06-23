@@ -1559,7 +1559,6 @@ void main() {
     test('round-trips dominant thirteenth examples through the analyzer', () {
       for (final entry in const {
         'C13': {ChordExtension.thirteen},
-        'C7(add13)': {ChordExtension.add13},
         'C13#11': {ChordExtension.sharp11, ChordExtension.thirteen},
       }.entries) {
         final example = _example(
