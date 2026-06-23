@@ -1422,7 +1422,7 @@ void main() {
         extensions: const {ChordExtension.add13},
       );
 
-      expect(example.presentation.symbol.toString(), 'Caugadd13');
+      expect(example.presentation.symbol.toString(), 'Caug(add13)');
       expect(example.members, ['C', 'E', 'G#', 'A']);
       expect(example.memberDegrees, ['1', '3', '#5', '13']);
       expect(example.normalizedVoicing, [60, 64, 68, 81]);
