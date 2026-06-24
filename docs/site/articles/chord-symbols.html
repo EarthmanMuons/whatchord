@@ -9,12 +9,12 @@
     <title>How to Format Chord Symbols | WhatChord</title>
     <meta
       name="description"
-      content="A reference for how WhatChord formats chord symbols: headline extensions, added tones, alterations, parentheses, omissions, and slash bass, with the reasoning behind each choice."
+      content="A reference for how WhatChord formats chord symbols: extensions, added tones, alterations, parentheses, omissions, and slash bass, with the reasoning behind each choice."
     />
     <meta property="og:title" content="How to Format Chord Symbols" />
     <meta
       property="og:description"
-      content="The conventions behind WhatChord's chord symbols: headline extensions, added tones, alterations, parentheses, and slash bass, explained for musicians."
+      content="The conventions behind WhatChord's chord symbols: extensions, added tones, alterations, parentheses, and slash bass, explained for musicians."
     />
     <meta
       property="og:image"
@@ -36,7 +36,7 @@
     <meta name="twitter:title" content="How to Format Chord Symbols" />
     <meta
       name="twitter:description"
-      content="The conventions behind WhatChord's chord symbols: headline extensions, added tones, alterations, parentheses, and slash bass, explained for musicians."
+      content="The conventions behind WhatChord's chord symbols: extensions, added tones, alterations, parentheses, and slash bass, explained for musicians."
     />
     <meta
       name="twitter:image"
@@ -252,82 +252,6 @@
 
           <p>The examples below use textual notation throughout.</p>
 
-          <h2>Headline extensions</h2>
-
-          <p>
-            This guide uses <em>headline extension</em> to mean the highest
-            natural extension promoted into the main chord symbol, such as the
-            ninth in <span class="chord">C9</span> or the thirteenth in
-            <span class="chord">C13</span>. It is not a standard term, but it
-            names a common practice.
-          </p>
-
-          <p>
-            A headline appears only on a chord that already contains a seventh:
-          </p>
-
-          <ul>
-            <li>
-              <span class="chord">C7</span> with a ninth becomes
-              <span class="chord">C9</span>.
-            </li>
-            <li>
-              <span class="chord">Cm7</span> with a ninth and eleventh becomes
-              <span class="chord">Cm11</span>.
-            </li>
-            <li>
-              <span class="chord">Cmaj7</span> with a thirteenth becomes
-              <span class="chord">Cmaj13</span>.
-            </li>
-            <li>
-              <span class="chord">C7sus4</span> with a ninth becomes
-              <span class="chord">C9sus4</span>.
-            </li>
-          </ul>
-
-          <p>What each headline implies depends on the extension:</p>
-
-          <table class="score-table">
-            <thead>
-              <tr>
-                <th scope="col">Symbol</th>
-                <th scope="col">Common expectation</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><span class="chord">C9</span></td>
-                <td>Seventh and ninth present.</td>
-              </tr>
-              <tr>
-                <td><span class="chord">C11</span></td>
-                <td>Seventh and eleventh present; ninth optional.</td>
-              </tr>
-              <tr>
-                <td><span class="chord">C13</span></td>
-                <td>
-                  Seventh and thirteenth present; ninth and eleventh optional.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
-          <p>
-            When a lower natural extension is present, it is folded into the
-            headline rather than spelled out separately: an eleventh absorbs a
-            present ninth, a thirteenth a present ninth or eleventh. Alterations
-            are never folded in; they stay explicit, so a dominant thirteenth
-            with a flat ninth and sharp eleventh is
-            <span class="chord">C13(♭9,♯11)</span>.
-          </p>
-
-          <p>
-            Fully diminished seventh chords are an exception. Natural upper
-            tones are shown as added tones, such as
-            <span class="chord">Cdim7(add9)</span>, rather than promoted
-            headlines.
-          </p>
-
           <h2>Extensions vs. added tones</h2>
 
           <p>
@@ -357,9 +281,15 @@
           <p>
             The lower members of the stack are optional: a
             <span class="chord">C11</span> may omit its ninth, and a
-            <span class="chord">C13</span> its ninth and eleventh. The symbol
-            names the highest natural extension present, not the full stack
-            beneath it.
+            <span class="chord">C13</span> its ninth and eleventh.
+          </p>
+
+          <p>
+            The highest extension present is promoted into the main symbol. Any
+            present lower extension is folded in rather than spelled out
+            separately, while alterations stay explicit. So a dominant
+            thirteenth with a flat ninth and sharp eleventh is
+            <span class="chord">C13(♭9,♯11)</span>.
           </p>
 
           <h3>Sixth chords</h3>
@@ -463,12 +393,6 @@
             <li>
               Multiple modifiers are grouped:
               <span class="chord">C7(♭9,♯11)</span>.
-            </li>
-            <li>
-              Added tones on chords that contain a seventh, including diminished
-              sevenths, are grouped:
-              <span class="chord">Cm7(add11)</span> and
-              <span class="chord">Cdim7(add9)</span>.
             </li>
             <li>
               Modifiers on suspended seventh chords are grouped rather than run
