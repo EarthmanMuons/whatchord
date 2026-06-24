@@ -331,6 +331,23 @@ void main() {
     );
   });
 
+  test('promotes symbolic major seventh sus ninths into the headline', () {
+    final identity = _identity(
+      root: 'C',
+      quality: ChordQualityToken.major7sus4,
+      extensions: const {ChordExtension.nine},
+      intervals: const [0, 2, 5, 7, 11],
+    );
+
+    final presentation = ChordPresentationBuilder.fromIdentity(
+      identity: identity,
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
+      notation: ChordNotationStyle.symbolic,
+    );
+
+    expect(presentation.symbol.toString(), 'CΔ9sus4');
+  });
+
   test(
     'inserts comma before bass connector when multiple modifiers present',
     () {
