@@ -9,8 +9,8 @@ abstract final class InversionFormatter {
 
     final bassInterval = _interval(id.bassPc, id.rootPc);
 
-    if (ChordDisplayConventions.usesSeventhNinthSlashBassConvention(id)) {
-      return 'slash bass: 9';
+    if (ChordDisplayConventions.usesExtensionSlashBassCompression(id)) {
+      return 'slash bass: ${id.extensions.first.shortLabel}';
     }
 
     // Only treat true chord-members as inversions (root/3rd/5th/7th).
