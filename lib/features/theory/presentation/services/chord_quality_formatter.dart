@@ -198,8 +198,8 @@ class ChordQualityFormatter {
     if (quality == ChordQualityToken.diminished7) return true;
     if (mods.isEmpty) return false;
 
-    // Suspended seventh-family chords read poorly when modifiers are concatenated:
-    // "7sus49" is ambiguous; prefer "7sus4(9)".
+    // Suspended seventh-family chords group their modifiers instead of running
+    // them onto the sus label: C7sus4(b13), CΔ7sus4(9).
     if (quality.isSeventhFamily && quality.isSus) return true;
 
     // Single modifier: generally inline, except add-tones on seventh-family chords.
@@ -209,7 +209,7 @@ class ChordQualityFormatter {
       // Added tones read cleanly inline after the bare root (Cadd9), the fused
       // single-letter "m" (Cmadd9), and the symbolic +/° quality symbols, which
       // already delimit (C+add13). They need parentheses on seventh-family
-      // chords (C7(add13)) and after the spelled-out word qualities "aug"/"dim",
+      // chords (Cm7(add11)) and after the spelled-out word qualities "aug"/"dim",
       // whose letters would otherwise collide with "add" ("Caugadd13").
       if (ext.isAddTone) {
         if (quality.isSeventhFamily) return true;
