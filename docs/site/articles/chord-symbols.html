@@ -256,8 +256,7 @@
           </p>
 
           <p>
-            The highest eligible natural extension becomes the symbol's headline
-            on chords that already contain a seventh:
+            A headline appears only on a chord that already contains a seventh:
           </p>
 
           <ul>
@@ -266,35 +265,53 @@
               <span class="chord">C9</span>.
             </li>
             <li>
-              <span class="chord">Cm7</span> with a supported eleventh becomes
+              <span class="chord">Cm7</span> with a ninth and eleventh becomes
               <span class="chord">Cm11</span>.
             </li>
             <li>
-              <span class="chord">Cmaj7</span> with a supported thirteenth
-              becomes <span class="chord">Cmaj13</span>.
+              <span class="chord">Cmaj7</span> with a thirteenth becomes
+              <span class="chord">Cmaj13</span>.
             </li>
             <li>
-              <span class="chord">C7sus4</span> with a supported ninth becomes
+              <span class="chord">C7sus4</span> with a ninth becomes
               <span class="chord">C9sus4</span>.
             </li>
           </ul>
 
-          <p>
-            A headline communicates a stacked extension. It absorbs lower
-            natural extensions that the headline conventionally implies:
-          </p>
+          <p>What each headline implies depends on the extension:</p>
 
-          <ul>
-            <li>An <strong>11</strong> implies a ninth.</li>
-            <li>
-              A <strong>13</strong> implies a ninth, but does not require or
-              imply a sounding natural eleventh.
-            </li>
-          </ul>
+          <table class="score-table">
+            <thead>
+              <tr>
+                <th scope="col">Symbol</th>
+                <th scope="col">Common expectation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="chord">C9</span></td>
+                <td>Seventh and ninth present.</td>
+              </tr>
+              <tr>
+                <td><span class="chord">C11</span></td>
+                <td>Seventh and eleventh present; ninth implied.</td>
+              </tr>
+              <tr>
+                <td><span class="chord">C13</span></td>
+                <td>
+                  Seventh and thirteenth present; ninth and eleventh optional.
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
           <p>
-            Alterations remain explicit, so a dominant thirteenth with a flat
-            ninth and sharp eleventh is <span class="chord">C13(♭9,♯11)</span>.
+            When a lower natural extension is present, it is folded into the
+            headline rather than spelled out separately: an eleventh absorbs a
+            present ninth, a thirteenth a present ninth or eleventh. Alterations
+            are never folded in; they stay explicit, so a dominant thirteenth
+            with a flat ninth and sharp eleventh is
+            <span class="chord">C13(♭9,♯11)</span>.
           </p>
 
           <p>
@@ -307,35 +324,38 @@
           <h2>Extensions vs. added tones</h2>
 
           <p>
-            A stacked extension is distinguished from a tone added outside that
-            stack:
+            A natural ninth, eleventh, or thirteenth belongs to the tertian
+            stack built up from the seventh. A tone that sits outside that stack
+            is an
+            <em>added tone</em>, written with <code>add</code>. An added tone is
+            added to the basic chord and does not imply a seventh:
+            <span class="chord">Cadd9</span> has no seventh, while
+            <span class="chord">Cm7(add11)</span> does.
           </p>
 
           <ul>
             <li>
-              A natural ninth is <code>9</code> when supported by a seventh;
-              otherwise it is <code>add9</code>.
+              A natural ninth is <code>9</code> when the chord has a seventh;
+              otherwise it is <code>add9</code> (<span class="chord">Cadd9</span
+              >).
             </li>
             <li>
-              A natural eleventh is <code>11</code> when supported by a seventh
-              and some form of ninth; otherwise it is <code>add11</code>.
+              A natural eleventh is <code>11</code> when the chord has a seventh
+              and a ninth (natural or altered) to anchor it; otherwise it is
+              <code>add11</code> (<span class="chord">Cm7(add11)</span> or
+              <span class="chord">Cadd11</span>).
             </li>
             <li>
-              A natural thirteenth is <code>13</code> when supported by a
+              A natural thirteenth is <code>13</code> when the chord has a
               seventh; otherwise it is <code>add13</code>.
             </li>
           </ul>
 
           <p>
-            A thirteenth requires only a seventh; the ninth and eleventh beneath
-            it are optional, and in common practice the eleventh is usually
-            omitted from a thirteenth chord.
-          </p>
-
-          <p>
-            A ninth, when present, may be natural or altered. For example, a
-            dominant chord with a sharp ninth, sharp eleventh, and natural
-            thirteenth headlines as <span class="chord">C13(♯9,♯11)</span>.
+            The eleventh needs a ninth beneath it: without one it reads as a
+            tone added to the chord rather than the top of a stack. The
+            thirteenth does not, because a seventh with a thirteenth is a
+            self-sufficient sound, so its ninth and eleventh are optional.
           </p>
 
           <p>
