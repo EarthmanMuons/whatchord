@@ -429,8 +429,8 @@ t.lastIndex=0
 return a.replace(t,A.fj(c))}return A.lw(a,b,c)},
 lw(a,b,c){var t,s,r,q
 for(t=J.e3(b,a),t=t.gq(t),s=0,r="";t.k();){q=t.gn()
-r=r+a.substring(s,q.ga4())+c
-s=q.ga_()}t=r+a.substring(s)
+r=r+a.substring(s,q.ga5())+c
+s=q.ga0()}t=r+a.substring(s)
 return t.charCodeAt(0)==0?t:t},
 lx(a,b,c){var t,s,r
 if(b===""){if(a==="")return c
@@ -1308,10 +1308,10 @@ this.b=b},
 a9:function a9(){},
 bz:function bz(){},
 em(a,b,c){return new A.be(a,b)},
-iO(a){return a.a2()},
+iO(a){return a.a3()},
 ii(a,b){return new A.d3(a,[],A.ko())},
 ij(a,b,c){var t,s=new A.aR(""),r=A.ii(s,b)
-r.a3(a)
+r.a4(a)
 t=s.a
 return t.charCodeAt(0)==0?t:t},
 bT:function bT(){},
@@ -3038,7 +3038,7 @@ else q=d
 if(q!=null){p=A.hx(b,A.eb(q))
 if(p!==b)b=p
 else q=d}o=A.i([],u._)
-n=A.aE(a2)&&B.c.a0(b,"/9")
+n=A.aE(a2)&&B.c.a1(b,"/9")
 for(m=a.length,l=q===B.n,k=q===B.t,j=0;j<a.length;a.length===m||(0,A.P)(a),++j){i=a[j]
 if(i===q)continue
 if(n&&i===B.w)continue
@@ -3060,10 +3060,11 @@ hw(a,b){if(b===B.M&&A.hq(a))switch(a.a){case 1:return B.w
 case 4:return B.C
 case 7:return B.ad
 default:return a}return a},
-hx(a,b){if(B.c.a5(a,"7sus"))return b+B.c.E(a,1)
-if(B.c.a5(a,"maj7sus"))return"maj"+b+B.c.E(a,4)
+hx(a,b){if(B.c.a_(a,"7sus"))return b+B.c.E(a,1)
+if(B.c.a_(a,"maj7sus"))return"maj"+b+B.c.E(a,4)
+if(B.c.a_(a,"\u03947sus"))return"\u0394"+b+B.c.E(a,2)
 if(a==="7")return b
-if(B.c.a0(a,"7"))return B.c.D(a,0,a.length-1)+b
+if(B.c.a1(a,"7"))return B.c.D(a,0,a.length-1)+b
 return a},
 hy(a,b,c){var t
 if(c===B.M)return!0
@@ -3315,8 +3316,8 @@ m=n==="min"||n==="minor"?B.l:B.f}else{l=t.toLowerCase()
 k=0
 for(;;){if(!(k<4)){m=B.f
 break}A:{j=B.c3[k]
-if(!B.c.a0(l,j))break A
-m=B.c.a5(j,"min")?B.l:B.f
+if(!B.c.a1(l,j))break A
+m=B.c.a_(j,"min")?B.l:B.f
 t=J.fK(t,0,J.bF(t)-j.length)
 break}++k}}s=null
 try{i=A.ie(A.a4(t))
@@ -3669,7 +3670,7 @@ break A}if(B.Y===b){t=a+"maj7#5"
 break A}if(B.P===b){t=a+"7"
 break A}if(B.G===b){t=a+"7#5"
 break A}if(B.U===b){t=a+"(maj7)"
-break A}if(B.L===b){t=(B.c.a0(a,"\xb0")?B.c.D(a,0,a.length-1):a)+"\xf87"
+break A}if(B.L===b){t=(B.c.a1(a,"\xb0")?B.c.D(a,0,a.length-1):a)+"\xf87"
 break A}if(B.M===b){t=a+"7"
 break A}t=a
 break A}return t}},B={}
@@ -3813,16 +3814,16 @@ A(a,b){var t
 A.eQ(b)
 if(a<b)return-1
 else if(a>b)return 1
-else if(a===b){if(a===0){t=this.ga1(b)
-if(this.ga1(a)===t)return 0
-if(this.ga1(a))return-1
+else if(a===b){if(a===0){t=this.ga2(b)
+if(this.ga2(a)===t)return 0
+if(this.ga2(a))return-1
 return 1}return 0}else if(isNaN(a)){if(isNaN(b))return 0
 return 1}else return-1},
-ga1(a){return a===0?1/a<0:a<0},
+ga2(a){return a===0?1/a<0:a<0},
 O(a,b){var t
 if(b>20)throw A.c(A.a1(b,0,20,"fractionDigits",null))
 t=a.toFixed(b)
-if(a===0&&this.ga1(a))return"-"+t
+if(a===0&&this.ga2(a))return"-"+t
 return t},
 bg(a,b){var t,s,r,q,p
 if(b<2||b>36)throw A.c(A.a1(b,2,36,"radix",null))
@@ -3878,7 +3879,7 @@ ae(a,b,c){var t=b.length
 if(c>t)throw A.c(A.a1(c,0,t,null,null))
 return new A.cj(b,a,c)},
 aw(a,b){return this.ae(a,b,0)},
-a0(a,b){var t=b.length,s=a.length
+a1(a,b){var t=b.length,s=a.length
 if(t>s)return!1
 return b===this.E(a,s-t)},
 aI(a,b){var t
@@ -3889,14 +3890,14 @@ if(t)return A.i(a.split(b.b),u.s)
 else return this.aS(a,b)}},
 aS(a,b){var t,s,r,q,p,o,n=A.i([],u.s)
 for(t=J.e3(b,a),t=t.gq(t),s=0,r=1;t.k();){q=t.gn()
-p=q.ga4()
-o=q.ga_()
+p=q.ga5()
+o=q.ga0()
 r=o-p
 if(r===0&&s===p)continue
 B.b.l(n,this.D(a,s,p))
 s=o}if(s<a.length||r>0)B.b.l(n,this.E(a,s))
 return n},
-a5(a,b){var t=b.length
+a_(a,b){var t=b.length
 if(t>a.length)return!1
 return b===a.substring(0,t)},
 D(a,b,c){return a.substring(b,A.hZ(b,c,a.length))},
@@ -4320,8 +4321,8 @@ return new A.ci(t)},
 $icT:1,
 $ii_:1}
 A.ci.prototype={
-ga4(){return this.b.index},
-ga_(){var t=this.b
+ga5(){return this.b.index},
+ga0(){var t=this.b
 return t.index+t[0].length},
 $iaN:1,
 $ibo:1}
@@ -4337,7 +4338,7 @@ s=m.length
 if(t<=s){r=n.a
 q=r.aU(m,t)
 if(q!=null){n.d=q
-p=q.ga_()
+p=q.ga0()
 if(q.b.index===p){t=!1
 if(r.b.unicode){r=n.c
 o=r+1
@@ -4350,9 +4351,9 @@ return!0}}n.b=n.d=null
 return!1},
 $iy:1}
 A.c9.prototype={
-ga_(){return this.a+this.c.length},
+ga0(){return this.a+this.c.length},
 $iaN:1,
-ga4(){return this.a}}
+ga5(){return this.a}}
 A.cj.prototype={
 gq(a){return new A.ck(this.a,this.b,this.c)}}
 A.ck.prototype={
@@ -4547,7 +4548,7 @@ else if(s<n)t.a+=B.c.D(a,s,n)},
 a6(a){var t,s,r,q
 for(t=this.a,s=t.length,r=0;r<s;++r){q=t[r]
 if(a==null?q==null:a===q)throw A.c(new A.c3(a,null))}B.b.l(t,a)},
-a3(a){var t,s,r,q,p=this
+a4(a){var t,s,r,q,p=this
 if(p.aD(a))return
 p.a6(a)
 try{t=p.b.$1(a)
@@ -4582,9 +4583,9 @@ bj(a){var t,s,r=this.c
 r.a+="["
 t=a.length
 if(t!==0){if(0>=t)return A.b(a,0)
-this.a3(a[0])
+this.a4(a[0])
 for(s=1;s<a.length;++s){r.a+=","
-this.a3(a[s])}}r.a+="]"},
+this.a4(a[s])}}r.a+="]"},
 bk(a){var t,s,r,q,p,o,n=this,m={}
 if(a.gag(a)){n.c.a+="{}"
 return!0}t=a.gt(a)*2
@@ -4600,7 +4601,7 @@ n.aE(A.Y(s[r]))
 q.a+='":'
 o=r+1
 if(!(o<t))return A.b(s,o)
-n.a3(s[o])}q.a+="}"
+n.a4(s[o])}q.a+="}"
 return!0}}
 A.d5.prototype={
 $2(a,b){var t,s
@@ -5094,11 +5095,11 @@ A.d6.prototype={}
 A.b3.prototype={
 C(){return"CandidateClass."+this.b}}
 A.bM.prototype={
-a2(){var t=this
+a3(){var t=this
 return A.dI(["rank",t.a,"symbol",t.b,"academicName",t.c,"chordTones",t.d,"alsoPlayedNotes",t.e,"score",A.fi(B.I.O(t.f,2)),"deltaBest",A.fi(B.I.O(t.r,2)),"class",A.fN(t.w)],u.N,u.X)}}
 A.ad.prototype={
-a2(){var t,s,r,q=this,p=u.N,o=u.X,n=A.dI(["notes",q.b,"bass",q.c,"key",q.d],p,o),m=A.i([],u.d)
-for(t=q.e,s=t.length,r=0;r<t.length;t.length===s||(0,A.P)(t),++r)m.push(t[r].a2())
+a3(){var t,s,r,q=this,p=u.N,o=u.X,n=A.dI(["notes",q.b,"bass",q.c,"key",q.d],p,o),m=A.i([],u.d)
+for(t=q.e,s=t.length,r=0;r<t.length;t.length===s||(0,A.P)(t),++r)m.push(t[r].a3())
 return A.dI(["ok",q.a,"input",n,"candidates",m,"warnings",q.f,"errors",q.r],p,o)}}
 A.dq.prototype={
 $2(a,b){A.T(a)
@@ -5138,7 +5139,7 @@ $S:10}
 A.dr.prototype={
 $3(a,b,c){A.Y(a)
 A.Y(b)
-return B.b4.b3(A.kx(a,b,A.Y(c)==="symbolic"?B.ae:B.aP).a2(),null)},
+return B.b4.b3(A.kx(a,b,A.Y(c)==="symbolic"?B.ae:B.aP).a3(),null)},
 $S:14};(function aliases(){var t=J.ag.prototype
 t.aM=t.j
 t=A.f.prototype
