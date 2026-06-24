@@ -172,17 +172,20 @@ class ChordQualityFormatter {
   }
 
   static String _replaceSeventhWithExtension(String base, String ext) {
-    // Suspended headline: 7sus4 -> 9sus4, maj7sus4 -> maj9sus4.
+    // Suspended headline: 7sus4 -> 9sus4, maj7sus4 -> maj9sus4,
+    // Δ7sus4 -> Δ9sus4.
     if (base.startsWith('7sus')) {
       return '$ext${base.substring(1)}';
     }
     if (base.startsWith('maj7sus')) {
       return 'maj$ext${base.substring(4)}';
     }
+    if (base.startsWith('Δ7sus')) {
+      return 'Δ$ext${base.substring(2)}';
+    }
 
     // Plain seventh-family cores end in '7': 7 -> 9, maj7 -> maj9, m7 -> m9,
-    // Δ7 -> Δ9, ø7 -> ø9, mmaj7 -> mmaj9. Symbolic major7sus (Δ7sus2/Δ7sus4) ends
-    // in its suspension and is left unpromoted.
+    // Δ7 -> Δ9, ø7 -> ø9, mmaj7 -> mmaj9.
     if (base == '7') return ext;
     if (base.endsWith('7')) {
       return '${base.substring(0, base.length - 1)}$ext';
@@ -199,7 +202,7 @@ class ChordQualityFormatter {
     if (mods.isEmpty) return false;
 
     // Suspended seventh-family chords group their modifiers instead of running
-    // them onto the sus label: C7sus4(b13), CΔ7sus4(9).
+    // them onto the sus label: C7sus4(b13), CΔ9sus4(b13).
     if (quality.isSeventhFamily && quality.isSus) return true;
 
     // Single modifier: generally inline, except add-tones on seventh-family chords.
