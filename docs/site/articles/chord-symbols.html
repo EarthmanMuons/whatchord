@@ -301,7 +301,7 @@
               </tr>
               <tr>
                 <td><span class="chord">C11</span></td>
-                <td>Seventh and eleventh present; ninth implied.</td>
+                <td>Seventh and eleventh present; ninth optional.</td>
               </tr>
               <tr>
                 <td><span class="chord">C13</span></td>
@@ -345,21 +345,21 @@
               otherwise <code>add9</code>.
             </li>
             <li>
-              A natural eleventh is <code>11</code> only with both a seventh and
-              a ninth (natural or altered) to anchor it, otherwise
-              <code>add11</code>.
+              A natural eleventh is <code>11</code> when the chord has a
+              seventh, otherwise <code>add11</code>.
             </li>
             <li>
               A natural thirteenth is <code>13</code> when the chord has a
-              seventh.
+              seventh, otherwise it's a sixth (see below).
             </li>
           </ul>
 
           <p>
-            The eleventh needs a ninth beneath it: without one it reads as a
-            tone added to the chord rather than the top of a stack. The
-            thirteenth does not, because a seventh with a thirteenth is a
-            self-sufficient sound, so its ninth and eleventh are optional.
+            The lower members of the stack are optional: a
+            <span class="chord">C11</span> may omit its ninth, and a
+            <span class="chord">C13</span> its ninth and eleventh. The symbol
+            names the highest natural extension present, not the full stack
+            beneath it.
           </p>
 
           <h3>Sixth chords</h3>
