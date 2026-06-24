@@ -93,7 +93,7 @@
           </p>
 
           <p class="article-deck">
-            Chord-symbol notation has never been governed by a single universal
+            Chord symbol notation has never been governed by a single universal
             standard. Different publishers, educators, software packages, and
             musical traditions use slightly different conventions. This guide
             documents the conventions WhatChord applies: a practical style for
@@ -401,16 +401,19 @@
 
           <p>
             An altered fifth that defines the base quality normally stays with
-            that quality label, whether inline as in
-            <span class="chord">C7♭5</span> and
-            <span class="chord">Cmaj7♯5</span>, or parenthesized as in
-            <span class="chord">Cm7(♭5)</span>. When such a chord also carries
-            other modifiers, the altered fifth joins them in the single trailing
-            group rather than running the accidentals together or stranding a
-            second set of parentheses: a dominant ninth with a flat five and a
-            flat nine is <span class="chord">C9(♭5,♭9)</span>, and an extended
+            that quality label. It is usually inline, as in
+            <span class="chord">C7♭5</span>, <span class="chord">Cmaj7♯5</span>,
+            and <span class="chord">Cm♯5</span>. The parenthesized
+            half-diminished spelling <span class="chord">Cm7(♭5)</span>, along
+            with <span class="chord">C(♭5)</span>, is a conventional form kept
+            for familiarity, much like <span class="chord">C6/9</span>. When
+            such a chord also carries other modifiers, the altered fifth joins
+            them in the single trailing group rather than running the
+            accidentals together or stranding a second set of parentheses: a
+            dominant ninth with a flat five and a flat nine is
+            <span class="chord">C9(♭5,♭9)</span>, and an extended
             half-diminished chord is <span class="chord">Cm13(♭5,♭13)</span>,
-            not <span class="chord">Cm13(♭5)♭13</span>.
+            not <code>Cm13(♭5)♭13</code>.
           </p>
 
           <p>
@@ -422,10 +425,20 @@
           <h2>Parentheses</h2>
 
           <p>
-            Parentheses group modifiers when grouping improves readability. A
-            symbol carries at most one such group, placed at the end, so it
-            never shows parentheses in the middle of the label or two separate
-            groups:
+            This guide reserves parentheses for grouping and disambiguation.
+            They are one of the least standardized parts of chord symbol
+            notation, used for all sorts of purposes depending on the source.
+            Some teaching styles, such as Berklee-derived materials,
+            parenthesize every tension and alteration as a rule, as in
+            <span class="chord">C7(♯11)</span>, where we prefer to keep a lone
+            alteration inline as <span class="chord">C7♯11</span>.
+          </p>
+
+          <p>
+            A symbol carries at most one parenthesized group, placed at the end,
+            so parentheses never appear in the middle of the label or as two
+            separate groups. A group forms only where running the modifiers
+            inline would be ambiguous or hard to read:
           </p>
 
           <ul>
@@ -439,8 +452,9 @@
               <span class="chord">Cdim7(add9)</span>.
             </li>
             <li>
-              Modifiers on suspended seventh-family chords are grouped to avoid
-              ambiguous strings such as <code>7sus49</code>.
+              Modifiers on suspended seventh-family chords are grouped rather
+              than run onto the suspension:
+              <span class="chord">C7sus4(♭13)</span>.
             </li>
             <li>
               An altered fifth carried in the quality label joins the group when
@@ -451,31 +465,30 @@
           </ul>
 
           <p>
-            A single ordinary modifier is normally inline:
+            Where concatenation is already clear, the modifiers stay inline. A
+            single ordinary alteration or extension needs no group:
             <span class="chord">C7♭9</span>, <span class="chord">C13♯11</span>,
-            or <span class="chord">Cadd♯9</span>. Added tones on triad-like
-            chords also remain inline because <code>add</code> already makes
-            their role clear: <span class="chord">Cadd9</span> or
-            <span class="chord">Cmadd11</span>. The spelled-out qualities
-            <code>aug</code> and <code>dim</code> are an exception, taking
-            parentheses so their letters do not run into <code>add</code>:
-            <span class="chord">Caug(add13)</span>.
-          </p>
-
-          <p>
-            Some house styles, including Berklee-derived teaching materials,
-            parenthesize every tension and alteration, such as
-            <span class="chord">C7(♯11)</span>. This guide reserves parentheses
-            for grouping and disambiguation, so a lone alteration stays inline
-            as <span class="chord">C7♯11</span>.
+            or <span class="chord">Cadd♯9</span>. An added tone reads cleanly
+            inline after a label that already ends in a self-contained mark: the
+            bare root (<span class="chord">Cadd9</span>), the fused
+            <code>m</code> (<span class="chord">Cmadd11</span>), and the
+            symbolic quality signs <code>+</code> and <code>°</code> (<span
+              class="chord"
+              >C+add13</span
+            >). The spelled-out words <code>aug</code> and <code>dim</code> are
+            the telling exception, since their letters would run straight into
+            <code>add</code>. They take the group instead: textual
+            <span class="chord">Caug(add13)</span> where symbolic writes
+            <span class="chord">C+add13</span>, the difference between a
+            readable symbol and <code>Caugadd13</code>.
           </p>
 
           <p>
             Textual notation separates grouped modifiers with commas for
-            readability, as in <span class="chord">C13(♭9,♯11)</span>. The more
-            compact symbolic notation omits them, relying on the accidental and
-            <code>add</code> prefixes that already mark where each modifier
-            begins.
+            readability, as in <span class="chord">C13(♭9,♯11)</span>. Symbolic
+            notation omits them for compactness, writing the same chord as
+            <span class="chord">C13(♭9♯11)</span>, since the accidentals already
+            mark where each modifier begins.
           </p>
 
           <h2>Omissions</h2>

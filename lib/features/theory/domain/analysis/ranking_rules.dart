@@ -697,7 +697,7 @@ int? _preferCompleteDom7Flat9OverColoredDim7(
 /// Prefers a fifthless flat-nine-bass dominant shell over the two remote
 /// reinterpretations produced by the same four pitch classes.
 ///
-/// Example: {C, Db, E, Bb} with Db in the bass is C7b9/Db, not C#mmaj7(add13)
+/// Example: {C, Db, E, Bb} with Db in the bass is C7b9/Db, not C#mmaj13
 /// or A#dim(add9)/C#. The dominant names the familiar E-Bb tritone shell; the
 /// competitors require less common added-tone structures.
 ///
@@ -1017,8 +1017,8 @@ bool _isMajorThirteenSusFour(ChordIdentity id) {
 /// where the bass note only appears as a color-tone add-extension.
 ///
 /// Example: {A, B, C, F} with A in the bass reads naturally as F(#11)/A
-/// (first inversion, bass=M3), not Cmaj7sus4(add13)/A where the bass A is
-/// merely an add13 extension on an unrelated root. The inversion reading keeps
+/// (first inversion, bass=M3), not Cmaj13sus4/A where the bass A is
+/// merely a thirteenth on an unrelated root. The inversion reading keeps
 /// all four tones in a single coherent chord name without borrowing the bass
 /// as an ornament.
 int? _preferCompleteMajorInversionOverSeventhColorBassSlash(
@@ -1326,9 +1326,9 @@ int? _preferDom7RootOverNonDomSlash(
 ///
 /// Example: {C, D, E, G, Bb} with D in the bass is normally understood as
 /// C9/D (often written C7/D), not Em7#5#11/D. Likewise, a complete
-/// Dbm(maj9)/Eb is preferred over Emaj7#5(add13)/D#. The competing spellings
+/// Dbm(maj9)/Eb is preferred over Emaj13#5/D#. The competing spellings
 /// are pitch-class valid, but reinterpret a complete natural ninth chord as a
-/// remote altered seventh chord.
+/// remote altered chord.
 int? _preferNinthBassSeventhOverAlteredSlash(
   ChordCandidate a,
   ChordCandidate b,
@@ -1549,8 +1549,8 @@ int? _preferRootAddChordOverSusSlash(
 ///
 /// A complete triad with simple color tones (e.g., Bbmadd9/Db) is a more
 /// conventional and stable structure than forcing the same pitches into a
-/// seventh-family framework with unusual extension pairings (e.g.,
-/// Dbmaj7(add13) where a maj7(add13) is rare in practice).
+/// fifthless seventh-family reading (e.g., Dbmaj13, which drops the fifth to
+/// book a remote thirteenth).
 int? _preferCompleteTriadAddToneOverSeventhFamilyAddTone(
   ChordCandidate a,
   ChordCandidate b,
@@ -1640,11 +1640,11 @@ int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
 /// stable gestalt. The raw scorer can rank it below a larger template that
 /// books more "required" tones, even when that larger reading omits a core
 /// tone of its own. This prefers the complete triad over:
-/// - a seventh-family slash that omits every fifth (e.g. D♭maj7(add13)/F), and
+/// - a seventh-family slash that omits every fifth (e.g. D♭maj13/F), and
 /// - a plain suspended triad with no seventh (e.g. Fsus4♭13).
 ///
 /// Example: {F, B♭, C, D♭} with F in the bass is B♭m(add9)/F, not
-/// D♭maj7(add13)/F (fifthless) or Fsus4♭13 (no third, no seventh).
+/// D♭maj13/F (fifthless) or Fsus4♭13 (no third, no seventh).
 ///
 /// The deficient side is deliberately narrow so that complete seventh chords,
 /// altered-fifth chords (which keep a flat/sharp fifth), six chords, and
