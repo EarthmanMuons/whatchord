@@ -232,7 +232,7 @@ const _seventhStackChoiceOrder = [
   ChordExtension.thirteen,
 ];
 
-const _seventhAddToneChoiceOrder = [ChordExtension.add11, ChordExtension.add13];
+const _seventhAddToneChoiceOrder = [ChordExtension.add11];
 
 const _seventhAlterationChoiceOrder = [
   ChordExtension.flat9,

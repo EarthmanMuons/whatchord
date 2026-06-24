@@ -72,7 +72,9 @@ Set<ChordExtension> normalizeExtensionsForQuality({
         break;
       case ChordExtension.add13:
         if (quality.isSeventhFamily) {
-          addSeventhAddTone(ChordExtension.add13);
+          // A thirteenth on a seventh chord is always the stacked thirteen;
+          // there is no add13 on seventh-family qualities.
+          addStackExtension(ChordExtension.thirteen);
         } else {
           addTriadLikeExtension(ChordExtension.add13);
         }
@@ -163,10 +165,6 @@ void promoteAddedToneToStack(
       if (!hasAnyNinth(extensions)) break;
       _replaceWithStackedEleventh(extensions);
       break;
-    case ChordExtension.add13:
-      if (!extensions.contains(ChordExtension.eleven)) break;
-      _replaceWithStackedThirteenth(extensions);
-      break;
     default:
       break;
   }
@@ -176,11 +174,6 @@ void promoteAddedToneToStack(
 void promoteCompletedStacks(Set<ChordExtension> extensions) {
   if (extensions.contains(ChordExtension.add11) && hasAnyNinth(extensions)) {
     _replaceWithStackedEleventh(extensions);
-  }
-
-  if (extensions.contains(ChordExtension.add13) &&
-      extensions.contains(ChordExtension.eleven)) {
-    _replaceWithStackedThirteenth(extensions);
   }
 }
 
@@ -383,15 +376,6 @@ void _replaceWithStackedEleventh(Set<ChordExtension> extensions) {
   extensions.add(ChordExtension.eleven);
 }
 
-void _replaceWithStackedThirteenth(Set<ChordExtension> extensions) {
-  extensions.remove(ChordExtension.nine);
-  extensions.remove(ChordExtension.eleven);
-  extensions.remove(ChordExtension.add9);
-  extensions.remove(ChordExtension.add11);
-  extensions.remove(ChordExtension.add13);
-  extensions.add(ChordExtension.thirteen);
-}
-
 const _triadLikeExtensionsByQuality = <ChordQualityToken, Set<ChordExtension>>{
   // Major/minor 6ths and diminished sevenths are core-tone choices, so plain
   // major, minor, and diminished triads do not expose add13 duplicates.
@@ -462,7 +446,7 @@ const _seventhStackExtensionOrder = [
   ChordExtension.thirteen,
 ];
 
-const _seventhAddToneOrder = [ChordExtension.add11, ChordExtension.add13];
+const _seventhAddToneOrder = [ChordExtension.add11];
 
 const _seventhAlterationOrder = [
   ChordExtension.flat9,
