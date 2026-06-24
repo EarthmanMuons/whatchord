@@ -1111,6 +1111,13 @@ footer {
   border-radius: 4px;
 }
 
+/* Notation forms WhatChord does not use: muted, not accented.
+   Applies to token chips (code) and full symbols (.chord) alike. */
+.article-body code.not-used,
+.chord.not-used {
+  color: var(--text-2);
+}
+
 .article-body pre {
   padding: 28px;
   margin: 28px 0;
