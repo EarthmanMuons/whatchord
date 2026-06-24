@@ -13,7 +13,7 @@
   },
   "0-1-3-7-10_b1": {
     "label": "oracle-limitation",
-    "note": "E♭7(add13)/D♭ is preferred because E♭-G-B♭-D♭ forms a complete dominant-seventh shell with D♭ as the flat seventh in the bass and C as thirteenth color. Tonal agrees as E♭7add6/D♭. Music21's C minor-seven-flat-nine reading is a valid re-rooting and appears as WhatChord's next candidate, but it makes the bass the flat ninth while minor7|flat9 is sparse in ChoCo, so it is less direct as the primary label."
+    "note": "E♭13/D♭ is preferred because E♭-G-B♭-D♭ forms a complete dominant-seventh shell with D♭ as the flat seventh in the bass and C as thirteenth color. Tonal agrees semantically as E♭7add6/D♭. Music21's C minor-seven-flat-nine reading is a valid re-rooting and appears as WhatChord's next candidate, but it makes the bass the flat ninth while minor7|flat9 is sparse in ChoCo, so it is less direct as the primary label."
   },
   "0-1-2-4-6-9-10_b2": {
     "label": "oracle-limitation",
@@ -117,15 +117,15 @@
   },
   "0-1-3-6-9_b9": {
     "label": "genuine-ambiguity",
-    "note": "D#m7(b5,add13)/A is defensible; the set is the symmetric dim7 {C,Eb,Gb,A} plus the chromatic Db, so root assignment is inherently ambiguous and every source picks a different root (whatchord D#, music21 F#, tonal Db). It is not a functional dominant: the notes are a subset of the C half-whole octatonic but lack any 3rd and b7, so no tritone. Our #1 is a complete m7b5 with a natural 13 and the bass (b5) as a core tone, and wins a 0.10 near-tie over Cdim7(b9) via natural-extension-over-altered-color. music21's F#o7/AaddC# is enharmonically identical to our F#m6#11/A reading (same root, intervals {0,3,6,7,9}, bass A), but we rank that #3 at delta 0.22, below the near-tie cutoff, so it does not surface; among the readings the app actually shows (#1 and the #2 Cdim7(b9) near-tie) no oracle agrees. tonal roots on Db, matching nothing of ours. The intuitive bass-rooted Adim7+chromatic description ranks low because Db will not sit cleanly on Adim7. Genuine ambiguity; no engine change warranted."
+    "note": "D♯m13(♭5)/A is defensible because D♯-F♯-A-C♯ forms a complete half-diminished seventh shell, A is the flat fifth in the bass, and C/B♯ is natural-thirteenth color. The set is the symmetric diminished-seventh core C-E♭-G♭-A plus D♭, so root assignment is inherently ambiguous and every source picks a different root: WhatChord D♯, music21 F♯, and tonal D♭. It is not a functional dominant because it lacks a clear major-third/flat-seventh dominant shell. The surfaced Cdim7(♭9)/B𝄫 alternative is also plausible, while music21's F♯dim7/A add C♯ corresponds to a lower-ranked F♯m6♯11/A spelling. Genuine ambiguity; no engine change warranted."
   },
   "0-1-3-6-9_b1": {
     "label": "genuine-ambiguity",
-    "note": "D♯m7(♭5,add13)/C♯ is defensible because D♯-F♯-A-C♯ forms a complete half-diminished seventh shell with C/B♯ as natural-thirteenth color and C♯ as the flat seventh in the bass. The pitch set is a symmetric diminished-seventh core plus one chromatic tone, so root assignment is inherently ambiguous: music21's F♯m/C♯ add E♭,C matches the surfaced F♯m6♯11/C♯ alternate, tonal's D♭maj9♯5sus4 gives a bass-rooted suspended major-seventh view, and Cdim7♭9/D♭ is also a near-tie. The complete half-diminished shell and conventional seventh bass make WhatChord's primary label defensible, but the competing organizations are musically real."
+    "note": "D♯m13(♭5)/C♯ is defensible because D♯-F♯-A-C♯ forms a complete half-diminished seventh shell with C/B♯ as natural-thirteenth color and C♯ as the flat seventh in the bass. The pitch set is a symmetric diminished-seventh core plus one chromatic tone, so root assignment is inherently ambiguous: music21's F♯m/C♯ add E♭,C matches the surfaced F♯m6♯11/C♯ alternate, tonal's D♭maj9♯5sus4 gives a bass-rooted suspended major-seventh view, and Cdim7(♭9)/D♭ is also surfaced as a possible alternative. The complete half-diminished shell and conventional seventh bass make WhatChord's primary label defensible, but the competing organizations are musically real."
   },
   "0-1-3-6-9_b6": {
     "label": "genuine-ambiguity",
-    "note": "D♯m7(♭5,add13)/F♯ is defensible because F♯ is the minor third of the complete D♯ half-diminished-seventh shell D♯-F♯-A-C♯, with C/B♯ as natural-thirteenth color. The same notes also support music21's D♯dim7/F♯ add C♯ view, the near-tie Cdim7♭9/G♭ reading, and tonal's D♭maj9♯5sus4/F♯ suspended-major re-rooting. Because the voicing is a diminished-seventh core plus one chromatic tone, no single root is forced; the half-diminished inversion is a clear primary label, but the row is genuinely ambiguous."
+    "note": "D♯m13(♭5)/F♯ is defensible because F♯ is the minor third of the complete D♯ half-diminished-seventh shell D♯-F♯-A-C♯, with C/B♯ as natural-thirteenth color. The same notes also support music21's D♯dim7/F♯ add C♯ view, the surfaced Cdim7(♭9)/G♭ reading, and tonal's D♭maj9♯5sus4/F♯ suspended-major re-rooting. Because the voicing is a diminished-seventh core plus one chromatic tone, no single root is forced; the half-diminished-thirteenth inversion is a clear primary label, but the row is genuinely ambiguous."
   },
   "0-1-3-8_b1": {
     "label": "genuine-ambiguity",
@@ -300,16 +300,16 @@
     "note": "B♭m6/9/F is preferred because it is a complete minor-six-nine chord with its fifth in the bass, a more conventional inversion than the complete Gm7(♭5,add11)/F reading with its flat seventh in the bass. Music21 chooses the valid G-rooted half-diminished interpretation, while tonal includes B♭m6/9/F. Related root-bass cases favor their respective structures, and key context does not resolve this F-bass ambiguity."
   },
   "0-1-6-8-10_b0": {
-    "label": "oracle-limitation",
-    "note": "B♭m7♯5/C is preferred because the voicing contains the complete B♭ minor-seventh-sharp-five shell B♭-D♭-F♯-A♭, with the slash-bass C supplying the ninth color. Tonal agrees semantically as B♭m9♯5/C. Music21's G♭/C add A♭,B♯ captures a related major-shell subset, but it drops the defining B♭ minor seventh and sharp-fifth organization."
+    "label": "genuine-ambiguity",
+    "note": "D♭maj13sus4/C is preferred because D♭-G♭-A♭-C-B♭ forms a D♭ suspended major-seventh sonority with thirteenth color, and the C bass is the major seventh rather than a non-chord chromatic tone. Tonal's B♭m9♯5/C matches WhatChord's surfaced possible alternative and names the complete B♭ minor-seventh-sharp-five structure, but that spelling asks musicians to read F♯ as an altered fifth where the D♭ reading keeps the upper structure diatonic. Music21's G♭/C add-tone label captures a related major-shell subset but omits the suspended-major-seventh organization. The row remains genuinely ambiguous."
   },
   "0-1-6-8-10_b1": {
-    "label": "oracle-limitation",
-    "note": "B♭m9♯5/D♭ is preferred because the voicing contains the complete B♭ minor-seventh-sharp-five shell B♭-D♭-F♯-A♭ with C as the ninth, and D♭ is the minor third in the bass. Tonal agrees. Music21's F♯/C♯ add G♯,B♯ captures an upper-structure major shell but drops the defining minor seventh and sharp-fifth quality."
+    "label": "genuine-ambiguity",
+    "note": "D♭maj13sus4 is preferred because D♭ is the bass/root and the voicing contains a suspended D♭ major-seventh shell D♭-G♭-A♭-C with B♭ as thirteenth color. Tonal's B♭m9♯5/D♭ matches WhatChord's surfaced possible alternative and is structurally plausible, but it makes the root B♭ and requires the F♯/G♭ pitch to function as an altered fifth instead of the suspended fourth of the bass-rooted sonority. Music21's F♯/C♯ add-tone spelling captures an upper-structure major shell but drops the D♭ suspended-major organization. The competing roots are real, so this remains a genuine ambiguity."
   },
   "0-1-6-8-10_b8": {
-    "label": "oracle-limitation",
-    "note": "B♭m9♯5/A♭ is preferred because A♭ is the flat seventh of a complete B♭m9♯5 sonority. Tonal agrees. Music21's F♯/G♯ add B♯ is a partial major/add-tone reading of the same pitch classes, but it omits the B♭-D♭-F♯-A♭ minor-seventh-sharp-five structure."
+    "label": "genuine-ambiguity",
+    "note": "D♭maj13sus4/A♭ is preferred because A♭ is the fifth of a suspended D♭ major-seventh sonority, with B♭ as thirteenth color. Tonal's B♭m9♯5/A♭ matches WhatChord's surfaced possible alternative and names a complete minor-seventh-sharp-five structure, but the D♭ reading avoids treating G♭/F♯ as an altered fifth and gives the slash bass a conventional fifth role. Music21's F♯/G♯ add-tone spelling captures a partial upper-structure major shell but omits the D♭ suspended-major-seventh organization. The two complete structures make this a genuine ambiguity rather than an oracle limitation."
   },
   "0-1-6-8-10_b10": {
     "label": "oracle-limitation",
