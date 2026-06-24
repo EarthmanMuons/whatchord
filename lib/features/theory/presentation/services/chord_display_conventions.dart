@@ -1,21 +1,25 @@
 import '../../domain/theory_domain.dart';
 
 abstract final class ChordDisplayConventions {
-  /// True when a seventh-family chord has a single natural 9 extension and the
-  /// slash bass is the 9th (M2). Produces symbols like "C9 / D" → "C7 / D"
-  /// since the 9 is implied by the bass. (The `nine` extension is not an
-  /// add-tone, so the universal compression in [displayedExtensions] doesn't
-  /// cover this case.)
-  static bool usesSeventhNinthSlashBassConvention(ChordIdentity identity) {
+  /// True when a seventh-family chord carries a single natural extension
+  /// (9, 11, or 13) and the slash bass is that extension, so the symbol drops
+  /// it rather than restate the bass: "C9 / D" → "C7 / D" and "Ab11 / Db" →
+  /// "Ab7 / Db". These stacked extensions are not add-tones, so the universal
+  /// compression in [displayedExtensions] does not cover them.
+  static bool usesExtensionSlashBassCompression(ChordIdentity identity) {
     if (!identity.hasSlashBass) return false;
     if (!identity.quality.isSeventhFamily) return false;
-    if (identity.extensions.length != 1 ||
-        !identity.extensions.contains(ChordExtension.nine)) {
+    if (identity.extensions.length != 1) return false;
+
+    final ext = identity.extensions.first;
+    if (ext != ChordExtension.nine &&
+        ext != ChordExtension.eleven &&
+        ext != ChordExtension.thirteen) {
       return false;
     }
 
     final bassInterval = (identity.bassPc - identity.rootPc) % 12;
-    return bassInterval == majorSecondInterval;
+    return ext.intervalAboveRoot == bassInterval;
   }
 
   /// Returns true when the bass note is a standard inversion tone of the chord
@@ -42,7 +46,7 @@ abstract final class ChordDisplayConventions {
   }
 
   static Set<ChordExtension> displayedExtensions(ChordIdentity identity) {
-    if (usesSeventhNinthSlashBassConvention(identity)) {
+    if (usesExtensionSlashBassCompression(identity)) {
       return const {};
     }
 

@@ -351,7 +351,7 @@ void main() {
     golden(
       description: 'major ninth suspended fourth',
       expectedSymbol: 'Dbmaj9sus4',
-      expectedAlternateSymbols: ['Ab11 / Db'],
+      expectedAlternateSymbols: ['Ab7 / Db'],
       pcs: ['C', 'Db', 'Eb', 'F#', 'Ab'],
       bass: 'Db',
       expectedRoot: 'Db',
