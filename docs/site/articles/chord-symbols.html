@@ -324,26 +324,23 @@
           <h2>Extensions vs. added tones</h2>
 
           <p>
-            A natural ninth, eleventh, or thirteenth belongs to the tertian
-            stack built up from the seventh. A tone that sits outside that stack
-            is an
-            <em>added tone</em>, written with <code>add</code>. An added tone is
-            added to the basic chord and does not imply a seventh:
-            <span class="chord">Cadd9</span> has no seventh, while
-            <span class="chord">Cm7(add11)</span> does.
+            The seventh is what turns an upper note into an extension. With a
+            seventh present, a natural ninth, eleventh, or thirteenth continues
+            the tertian stack and is named as an extension. Without one, that
+            same note is an <em>added tone</em>, written with <code>add</code>,
+            and implies no seventh: <span class="chord">C9</span> has a seventh,
+            while <span class="chord">Cadd9</span> does not.
           </p>
 
           <ul>
             <li>
-              A natural ninth is <code>9</code> when the chord has a seventh;
-              otherwise it is <code>add9</code> (<span class="chord">Cadd9</span
-              >).
+              A natural ninth is <code>9</code> when the chord has a seventh,
+              otherwise <code>add9</code>.
             </li>
             <li>
-              A natural eleventh is <code>11</code> when the chord has a seventh
-              and a ninth (natural or altered) to anchor it; otherwise it is
-              <code>add11</code> (<span class="chord">Cm7(add11)</span> or
-              <span class="chord">Cadd11</span>).
+              A natural eleventh is <code>11</code> only with both a seventh and
+              a ninth (natural or altered) to anchor it, otherwise
+              <code>add11</code>.
             </li>
             <li>
               A natural thirteenth is <code>13</code> when the chord has a
