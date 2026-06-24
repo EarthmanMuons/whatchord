@@ -138,23 +138,19 @@ void main() {
       expectedExtensions: {ChordExtension.nine},
     ),
 
-    // The same pitch set can be read as a dominant add11 chord, but the
-    // complete major-nine-sus4 structure is the clearer primary label.
     golden(
-      description: 'major ninth suspended fourth over fifth bass',
-      expectedSymbol: 'Fmaj9sus4 / C',
-      expectedAlternateSymbols: ['C7(add11)'],
+      description: 'dominant eleventh without ninth beats sus slash',
+      expectedSymbol: 'C11',
+      expectedAlternateSymbols: ['Fmaj9sus4 / C', 'C7sus4'],
       pcs: ['C', 'E', 'G', 'Bb', 'F'],
       bass: 'C',
-      expectedRoot: 'F',
-      expectedBass: 'C',
-      expectedQuality: ChordQualityToken.major7sus4,
-      expectedExtensions: {ChordExtension.nine},
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.eleven},
     ),
 
-    // A true dominant 11 includes the implied ninth.
     golden(
-      description: 'dominant eleventh with implied ninth present',
+      description: 'dominant eleventh with ninth present',
       expectedSymbol: 'C11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F'],
       expectedRoot: 'C',
@@ -355,7 +351,7 @@ void main() {
     golden(
       description: 'major ninth suspended fourth',
       expectedSymbol: 'Dbmaj9sus4',
-      expectedAlternateSymbols: ['Ab7 / Db'],
+      expectedAlternateSymbols: ['Ab11 / Db'],
       pcs: ['C', 'Db', 'Eb', 'F#', 'Ab'],
       bass: 'Db',
       expectedRoot: 'Db',

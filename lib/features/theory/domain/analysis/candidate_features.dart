@@ -333,7 +333,7 @@ class CandidateFeatures {
     if (!rootPosition ||
         id.quality != ChordQualityToken.minor7 ||
         id.extensions.length != 1 ||
-        !id.extensions.contains(ChordExtension.add11)) {
+        !_hasNaturalEleventhColor(id.extensions)) {
       return false;
     }
 
@@ -341,8 +341,15 @@ class CandidateFeatures {
     return roles.contains(ChordToneRole.root) &&
         roles.contains(ChordToneRole.minor3) &&
         roles.contains(ChordToneRole.flat7) &&
-        roles.contains(ChordToneRole.add11);
+        (roles.contains(ChordToneRole.add11) ||
+            roles.contains(ChordToneRole.eleven));
   }
+
+  /// A natural eleventh with no ninth reads as a stacked `eleven`; without a
+  /// seventh it is an `add11`. Both spell the same minor-eleventh shell color.
+  static bool _hasNaturalEleventhColor(Set<ChordExtension> extensions) =>
+      extensions.contains(ChordExtension.add11) ||
+      extensions.contains(ChordExtension.eleven);
 
   static bool _isCompleteMajorSixNine(ChordIdentity id) {
     if (id.quality != ChordQualityToken.major6 ||
@@ -449,8 +456,7 @@ class CandidateFeatures {
   static bool _isCompleteMinor7EleventhBassSlash(ChordIdentity id) {
     if (id.quality != ChordQualityToken.minor7) return false;
     if (id.rootPc == id.bassPc) return false;
-    if (id.extensions.length != 1 ||
-        !id.extensions.contains(ChordExtension.add11)) {
+    if (id.extensions.length != 1 || !_hasNaturalEleventhColor(id.extensions)) {
       return false;
     }
 

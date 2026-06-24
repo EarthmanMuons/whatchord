@@ -1842,7 +1842,8 @@ int? _preferRootMinor7OverMajor6Slash(
   final plainPair = minor7Extensions.isEmpty && major6Extensions.isEmpty;
   final matchingColorPair =
       minor7Extensions.length == 1 &&
-      minor7Extensions.contains(ChordExtension.add11) &&
+      (minor7Extensions.contains(ChordExtension.add11) ||
+          minor7Extensions.contains(ChordExtension.eleven)) &&
       major6Extensions.length == 1 &&
       major6Extensions.contains(ChordExtension.add9);
   if (!plainPair && !matchingColorPair) return null;

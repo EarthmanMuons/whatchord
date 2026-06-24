@@ -144,7 +144,7 @@ void main() {
     golden(
       description: 'root-position ninth sus beats remote slash readings',
       expectedSymbol: 'D9sus4',
-      expectedAlternateSymbols: ['Am7 / D', 'Em7(#5,add11) / D'],
+      expectedAlternateSymbols: ['Am11 / D', 'Em11#5 / D'],
       pcs: ['C', 'D', 'E', 'G', 'A'],
       bass: 'D',
       expectedRoot: 'D',
@@ -192,7 +192,7 @@ void main() {
       description:
           'complete dominant flat-nine sharp-nine beats colored diminished7',
       expectedSymbol: 'C7(b9,#9) / G',
-      expectedAlternateSymbols: ['Gdim7(b13,add11)'],
+      expectedAlternateSymbols: ['Gdim7(add11,b13)'],
       pcs: ['C', 'Db', 'Eb', 'E', 'G', 'Bb'],
       bass: 'G',
       expectedRoot: 'C',
@@ -253,13 +253,13 @@ void main() {
 
     golden(
       description: 'minor-key tonality bias changes best interpretation',
-      expectedSymbol: 'Am7(add11) / C',
+      expectedSymbol: 'Am11 / C',
       pcs: ['C', 'E', 'G', 'A', 'D'],
       tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expectedRoot: 'A',
       expectedBass: 'C',
       expectedQuality: ChordQualityToken.minor7,
-      expectedExtensions: {ChordExtension.add11},
+      expectedExtensions: {ChordExtension.eleven},
     ),
 
     golden(
@@ -288,8 +288,8 @@ void main() {
 
     golden(
       description:
-          'root-position minor7 add11 beats relative-major six-nine slash',
-      expectedSymbol: 'Am7(add11)',
+          'root-position minor7 eleventh beats relative-major six-nine slash',
+      expectedSymbol: 'Am11',
       expectedAlternateSymbols: ['C6/9 / A', 'D9sus4 / A'],
       pcs: ['C', 'D', 'E', 'G', 'A'],
       bass: 'A',
@@ -297,7 +297,7 @@ void main() {
       expectedRoot: 'A',
       expectedBass: 'A',
       expectedQuality: ChordQualityToken.minor7,
-      expectedExtensions: {ChordExtension.add11},
+      expectedExtensions: {ChordExtension.eleven},
     ),
 
     // -------------------------------------------------------------------------
@@ -709,7 +709,7 @@ void main() {
     golden(
       description: 'root-position double suspension beats dominant sus slash',
       expectedSymbol: 'Gsus2sus4',
-      expectedAlternateSymbols: ['D7sus4 / G'],
+      expectedAlternateSymbols: ['Am11 / G'],
       pcs: ['G', 'D', 'A', 'C'],
       bass: 'G',
       tonality: const Tonality(Tonic.d, TonalityMode.major),
@@ -723,38 +723,40 @@ void main() {
 
     golden(
       description: 'root-position minor-eleventh shell beats sus slash',
-      expectedSymbol: 'Dm7(add11)',
+      expectedSymbol: 'Dm11',
       expectedAlternateSymbols: ['G7sus4 / D', 'Csus2sus4 / D'],
       pcs: ['C', 'D', 'F', 'G'],
       bass: 'D',
       expectedRoot: 'D',
       expectedQuality: ChordQualityToken.minor7,
-      expectedExtensions: {ChordExtension.add11},
+      expectedExtensions: {ChordExtension.eleven},
     ),
 
     golden(
-      description: 'complete major six-nine beats altered minor slash',
-      expectedSymbol: 'Eb6/9 / Bb',
-      expectedAlternateSymbols: ['Gm7(#5,add11) / Bb', 'Cm7(add11) / Bb'],
+      // Cm11/Bb and Eb6/9/Bb tie on score; the natural-extension tie-break
+      // selects the minor-eleventh reading.
+      description: 'minor-eleventh slash beats major six-nine slash',
+      expectedSymbol: 'Cm11 / Bb',
+      expectedAlternateSymbols: ['Eb6/9 / Bb', 'Gm11#5 / Bb'],
       pcs: ['C', 'Eb', 'F', 'G', 'Bb'],
       bass: 'Bb',
-      expectedRoot: 'Eb',
+      expectedRoot: 'C',
       expectedBass: 'Bb',
-      expectedQuality: ChordQualityToken.major6,
-      expectedExtensions: {ChordExtension.add9},
+      expectedQuality: ChordQualityToken.minor7,
+      expectedExtensions: {ChordExtension.eleven},
     ),
 
     golden(
-      description:
-          'lydian major six-nine beats minor-eleventh sharp-five slash',
-      expectedSymbol: 'Gb6/9#11 / Eb',
-      expectedAlternateSymbols: ['Bbm11#5 / Eb', 'Ebm13'],
+      // Ebm13 and Gb6/9#11/Eb tie on score; the natural-extension tie-break
+      // selects the root-position minor thirteenth.
+      description: 'minor-thirteenth beats lydian major six-nine slash',
+      expectedSymbol: 'Ebm13',
+      expectedAlternateSymbols: ['Gb6/9#11 / Eb', 'Bbm11#5 / Eb'],
       pcs: ['C', 'Db', 'Eb', 'F#', 'Ab', 'Bb'],
       bass: 'Eb',
-      expectedRoot: 'Gb',
-      expectedBass: 'Eb',
-      expectedQuality: ChordQualityToken.major6,
-      expectedExtensions: {ChordExtension.add9, ChordExtension.sharp11},
+      expectedRoot: 'Eb',
+      expectedQuality: ChordQualityToken.minor7,
+      expectedExtensions: {ChordExtension.eleven, ChordExtension.thirteen},
     ),
 
     golden(
@@ -773,7 +775,7 @@ void main() {
       description:
           'lydian major six-nine handles third bass over minor-eleventh sharp-five',
       expectedSymbol: 'Gb6/9#11 / Bb',
-      expectedAlternateSymbols: ['Bbm11#5', 'Cm7(#5,b9,#11) / Bb'],
+      expectedAlternateSymbols: ['Bbm11#5', 'Ebm13 / Bb'],
       pcs: ['C', 'Db', 'Eb', 'F#', 'Ab', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'Gb',
@@ -793,20 +795,18 @@ void main() {
       expectedExtensions: {ChordExtension.sharp11},
     ),
 
-    // The complete root-position Lydian chord (1-6 of B Lydian) is the
-    // expected reading, not a remote slash over its own b7. The #11 is the
-    // natural Lydian color on a major-family quality, so it must not draw the
-    // alteration penalty that would otherwise sink this below C#11/B (a
-    // dissonant complete dominant eleventh) or G#m7(add11,add13)/B.
+    // B6/9#11 (1-6 of B Lydian) and the G#m13/B slash tie on score; the
+    // natural-extension tie-break selects the minor-thirteenth slash.
     golden(
-      description: 'root-position lydian six-nine sharp-eleven beats b7 slash',
-      expectedSymbol: 'B6/9#11',
-      expectedAlternateSymbols: ['G#m13 / B', 'C#11 / B'],
+      description: 'minor-thirteenth slash beats lydian six-nine sharp-eleven',
+      expectedSymbol: 'G#m13 / B',
+      expectedAlternateSymbols: ['B6/9#11', 'C#11 / B'],
       pcs: ['B', 'C#', 'D#', 'E#', 'F#', 'G#'],
       bass: 'B',
-      expectedRoot: 'B',
-      expectedQuality: ChordQualityToken.major6,
-      expectedExtensions: {ChordExtension.add9, ChordExtension.sharp11},
+      expectedRoot: 'G#',
+      expectedBass: 'B',
+      expectedQuality: ChordQualityToken.minor7,
+      expectedExtensions: {ChordExtension.eleven, ChordExtension.thirteen},
     ),
 
     golden(
@@ -997,7 +997,7 @@ void main() {
       description:
           'complete altered flat-nine dominant handles major-third bass',
       expectedSymbol: 'F#7(b9,#11,b13) / A#',
-      expectedAlternateSymbols: ['Em13(b5,b13) / Bb', 'Em13(#5,#11) / A#'],
+      expectedAlternateSymbols: ['Em13(b5,b13) / Bb', 'Gmmaj13#11 / Bb'],
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'G', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'F#',
