@@ -115,6 +115,8 @@ abstract final class ChordAnalyzer {
   static const _domStackFull = 2.1; // dom7 + 9 + #11 + 13/b13 coherent stack
   static const _fifthlessExtensionStackBonus =
       2.4; // root-position fifthless natural 9 + #11/13 stacks
+  static const _fifthlessMajorThirteenthStackBonus =
+      1.9; // root-position fifthless maj7 + 9 + #11 + 13 stacks
   static const _completeDominantFlatThirteenthBonus =
       0.15; // complete dom7 shell + b13 should compete with enharmonic maj7#5
   static const _completeDominantNineFlatThirteenthBonus =
@@ -791,6 +793,9 @@ abstract final class ChordAnalyzer {
     if (quality == ChordQualityToken.dominant7 && !hasThirteenth) return 0;
     if ((relMask & (1 << perfectFifthInterval)) != 0) return 0;
 
+    if (quality == ChordQualityToken.major7 && hasThirteenth) {
+      return _fifthlessMajorThirteenthStackBonus;
+    }
     return _fifthlessExtensionStackBonus;
   }
 

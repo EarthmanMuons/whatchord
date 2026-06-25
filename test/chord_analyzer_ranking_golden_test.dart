@@ -860,6 +860,19 @@ void main() {
     ),
 
     golden(
+      description:
+          'dominant thirteenth inversion beats fifthless lydian major thirteenth',
+      expectedSymbol: 'Eb13 / Db',
+      expectedAlternateSymbols: ['Bbm6/9add11 / Db', 'Gm11(b5,b13) / Db'],
+      pcs: ['C', 'Db', 'Eb', 'F', 'G', 'Bb'],
+      bass: 'Db',
+      expectedRoot: 'Eb',
+      expectedBass: 'Db',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
+    ),
+
+    golden(
       description: 'fifthless dominant nine flat-five beats sharp-eleven',
       expectedSymbol: 'D9b5',
       expectedAlternateSymbols: ['E9#5 / D'],
