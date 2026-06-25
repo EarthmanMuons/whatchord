@@ -83,6 +83,22 @@
     "label": "genuine-ambiguity",
     "note": "Fm6♭13 is preferred because F-A♭-C-D forms a complete root-position F minor-sixth chord, with D♭ acting as flat-thirteen or lower-neighbor color. Music21's Dm7♭5/F is the enharmonic half-diminished counterpart and tonal's D♭maj7♭9/F is also complete but inverted and requires E𝄫 for its flat ninth. The competing complete structures make this a genuine ambiguity rather than an engine issue."
   },
+  "0-1-3-5-8-9_b0": {
+    "label": "oracle-limitation",
+    "note": "F7(♯9,♭13)/C is preferred because C is the fifth of the complete F-A-C-E♭ dominant shell, with G♯/A♭ as sharp-nine color and D♭ as flat thirteenth. Tonal agrees. Music21's D♭ augmented-major add-tone spelling names a related upper structure, but it re-roots away from the complete altered-dominant organization."
+  },
+  "0-1-3-5-8-9_b1": {
+    "label": "oracle-limitation",
+    "note": "F7(♯9,♭13)/D♭ is preferred because F-A-C-E♭ forms a complete dominant shell, with D♭ in the bass as flat thirteenth and G♯/A♭ as sharp-nine color. Tonal agrees. Music21's A augmented-major-seventh add-tone spelling preserves a plausible upper structure, but it treats the complete F altered-dominant shell as secondary."
+  },
+  "0-1-3-5-8-9_b3": {
+    "label": "oracle-limitation",
+    "note": "F7(♯9,♭13)/E♭ is preferred because E♭ is the flat seventh of the complete F altered-dominant shell, with G♯/A♭ as sharp nine and D♭ as flat thirteenth. Tonal agrees. Music21's D♭ augmented-major add-tone spelling captures related upper-structure color but misses the direct dominant-seventh organization."
+  },
+  "0-1-3-5-8-9_b5": {
+    "label": "oracle-limitation",
+    "note": "F7(♯9,♭13) is preferred because F is the bass/root and the voicing contains the complete F-A-C-E♭ dominant shell plus standard sharp-nine and flat-thirteenth altered colors. Tonal agrees. Music21's D♭ augmented-major add-tone spelling is a plausible enharmonic upper structure, but it is less idiomatic than the root-position altered dominant."
+  },
   "0-1-3-5-8-9_b8": {
     "label": "oracle-limitation",
     "note": "F7(♯9,♭13)/G♯ is preferred because F, A, C, and E♭ form a complete dominant seventh, with G♯/A♭ as sharp-nine bass color and D♭ as flat thirteenth. Tonal agrees as F7#9b13/Ab. Music21's A augmented-major-seventh add-tone spelling names a plausible upper structure but re-roots away from the complete altered-dominant shell that musicians would usually treat as primary."
