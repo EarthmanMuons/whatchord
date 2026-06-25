@@ -178,6 +178,31 @@ void main() {
     ),
 
     golden(
+      description: 'minor-major ninth beats augmented-major thirteenth',
+      expectedSymbol: 'C#mmaj9 / E',
+      expectedAlternateSymbols: ['Emaj13#5'],
+      pcs: ['C', 'Db', 'Eb', 'E', 'Ab'],
+      bass: 'E',
+      expectedRoot: 'C#',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.minorMajor7,
+      expectedExtensions: {ChordExtension.nine},
+    ),
+
+    golden(
+      description:
+          'minor-major ninth flat-thirteenth beats augmented-major eleventh',
+      expectedSymbol: 'C#mmaj9b13 / E',
+      expectedAlternateSymbols: ['Emaj13#5'],
+      pcs: ['C', 'Db', 'Eb', 'E', 'Ab', 'A'],
+      bass: 'E',
+      expectedRoot: 'C#',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.minorMajor7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.flat13},
+    ),
+
+    golden(
       description: 'complete dominant flat-nine beats colored diminished7',
       expectedSymbol: 'C7b9 / G',
       pcs: ['C', 'Db', 'E', 'G', 'Bb'],

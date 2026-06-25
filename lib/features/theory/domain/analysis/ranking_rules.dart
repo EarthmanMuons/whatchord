@@ -87,6 +87,10 @@ final List<NamedRule> hardRules = <NamedRule>[
     _preferNinthBassSeventhOverAlteredSlash,
   ),
   NamedRule(
+    'prefer minor-major ninth over augmented-major thirteenth',
+    _preferMinorMajorNinthOverAugmentedMajorThirteenth,
+  ),
+  NamedRule(
     'prefer minor7 eleventh-bass slash over minor7 sharp-five slash',
     _preferMinor7EleventhBassSlashOverMinor7SharpFiveSlash,
   ),
@@ -1351,6 +1355,76 @@ int? _preferNinthBassSeventhOverAlteredSlash(
   if (preferredCandidate.score + 0.55 < otherCandidate.score) return null;
 
   return aIsPreferred ? -1 : 1;
+}
+
+/// Prefers a complete minor-major ninth family reading over a remote
+/// augmented-major thirteenth spelling rooted a minor third higher.
+///
+/// Example: {C#, E, G#, B#, D#} is normally C#m(maj9), not Emaj13#5:
+/// the latter respells the C# as a thirteenth against an augmented-major shell.
+/// With an added A, C#m(maj9,b13) remains clearer than Emaj13#5(add11):
+/// the E-rooted spelling adds a natural-eleventh clash against its major third.
+int? _preferMinorMajorNinthOverAugmentedMajorThirteenth(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isCompleteMinorMajorNinthFamily(a.identity);
+  final bIsPreferred = _isCompleteMinorMajorNinthFamily(b.identity);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final preferred = aIsPreferred ? a : b;
+  final other = aIsPreferred ? b : a;
+  if (!_isRemoteAugmentedMajorThirteenth(other.identity, preferred.identity)) {
+    return null;
+  }
+  if (preferred.score + 0.45 < other.score) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isCompleteMinorMajorNinthFamily(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.minorMajor7) return false;
+  if (!id.extensions.contains(ChordExtension.nine)) return false;
+  for (final extension in id.extensions) {
+    if (extension != ChordExtension.nine &&
+        extension != ChordExtension.flat13) {
+      return false;
+    }
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.minor3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.major7) &&
+      roles.contains(ChordToneRole.nine);
+}
+
+bool _isRemoteAugmentedMajorThirteenth(
+  ChordIdentity id,
+  ChordIdentity preferred,
+) {
+  if (id.quality != ChordQualityToken.major7Sharp5) return false;
+  if (!id.extensions.contains(ChordExtension.thirteen)) return false;
+  for (final extension in id.extensions) {
+    if (extension != ChordExtension.thirteen &&
+        extension != ChordExtension.eleven) {
+      return false;
+    }
+  }
+  if (intervalAboveRoot(id.rootPc, preferred.rootPc) != minorThirdInterval) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.sharp5) &&
+      roles.contains(ChordToneRole.major7) &&
+      roles.contains(ChordToneRole.thirteen);
 }
 
 /// Prefers the complete minor seventh upper-structure slash reading over a

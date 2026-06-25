@@ -923,6 +923,58 @@ void main() {
     );
   });
 
+  test('minor-major ninth beats augmented-major thirteenth', () {
+    final minorMajorNinth = _candidate(
+      quality: ChordQualityToken.minorMajor7,
+      root: 'C#',
+      bass: 'E',
+      presentIntervals: const {0, 2, 3, 7, 11},
+      extensions: const {ChordExtension.nine},
+      score: 8.08,
+    );
+
+    final augmentedMajorThirteenth = _candidate(
+      quality: ChordQualityToken.major7Sharp5,
+      root: 'E',
+      bass: 'E',
+      presentIntervals: const {0, 4, 8, 9, 11},
+      extensions: const {ChordExtension.thirteen},
+      score: 8.25,
+    );
+
+    _expectTieRule(
+      minorMajorNinth,
+      augmentedMajorThirteenth,
+      'prefer minor-major ninth over augmented-major thirteenth',
+    );
+  });
+
+  test('minor-major ninth flat-thirteenth beats augmented-major eleventh', () {
+    final minorMajorNinthFlat13 = _candidate(
+      quality: ChordQualityToken.minorMajor7,
+      root: 'C#',
+      bass: 'E',
+      presentIntervals: const {0, 2, 3, 7, 8, 11},
+      extensions: const {ChordExtension.nine, ChordExtension.flat13},
+      score: 7.74,
+    );
+
+    final augmentedMajorThirteenthEleventh = _candidate(
+      quality: ChordQualityToken.major7Sharp5,
+      root: 'E',
+      bass: 'E',
+      presentIntervals: const {0, 4, 5, 8, 9, 11},
+      extensions: const {ChordExtension.eleven, ChordExtension.thirteen},
+      score: 8.00,
+    );
+
+    _expectRule(
+      minorMajorNinthFlat13,
+      augmentedMajorThirteenthEleventh,
+      'prefer minor-major ninth over augmented-major thirteenth',
+    );
+  });
+
   test('ninth-bass seventh chord does not override conventional slash', () {
     final ninthBassSeventh = _candidate(
       quality: ChordQualityToken.minorMajor7,
