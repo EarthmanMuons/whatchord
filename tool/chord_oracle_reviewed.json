@@ -175,6 +175,10 @@
     "label": "oracle-limitation",
     "note": "E♭13/D♭ is preferred because E♭-G-B♭-D♭ forms a complete dominant shell with D♭ as the flat seventh in the bass, and F plus C supply ninth and thirteenth color. Tonal agrees, and ChoCo broadly favors dominant-thirteenth vocabulary over exact maj13♯11 observations. Music21's C minor-seven add-tone spelling describes related upper-structure material but misses the complete E♭ dominant organization. The D♭maj13♯11 reading remains a real possible alternate because D♭ is the bass and can support a fifthless Lydian-major stack."
   },
+  "0-1-3-5-7-10_b5": {
+    "label": "oracle-limitation",
+    "note": "E♭13/F is preferred because E♭-G-B♭-D♭ forms a complete dominant shell, with F in the bass as the ninth and C as thirteenth color. Tonal agrees. Music21's Cm7/F add D♭ describes related C-minor upper-structure material, but it treats the E♭ dominant root, flat seventh, and ninth as a slash/add-tone construction rather than naming the complete dominant organization directly."
+  },
   "0-1-3-5-7-10_b7": {
     "label": "oracle-limitation",
     "note": "E♭13/G is preferred because the bass is the dominant third and the voicing contains the complete E♭ dominant thirteenth stack. Tonal agrees. Music21's Cm7/G add D♭,F re-roots the same pitch material into a C-minor shell and treats the dominant seventh and ninth as additions, which is less idiomatic for this complete dominant inversion."

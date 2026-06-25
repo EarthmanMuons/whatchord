@@ -658,6 +658,35 @@ void main() {
   );
 
   test(
+    'complete natural thirteenth dominant beats minor-six add-eleven near-tie',
+    () {
+      final dominant = _candidate(
+        quality: ChordQualityToken.dominant7,
+        root: 'Eb',
+        bass: 'F',
+        presentIntervals: const {0, 2, 4, 7, 9, 10},
+        extensions: const {ChordExtension.nine, ChordExtension.thirteen},
+        score: 7.65,
+      );
+
+      final minorSix = _candidate(
+        quality: ChordQualityToken.minor6,
+        root: 'Bb',
+        bass: 'F',
+        presentIntervals: const {0, 2, 3, 5, 7, 9},
+        extensions: const {ChordExtension.add9, ChordExtension.add11},
+        score: 7.79,
+      );
+
+      _expectTieRule(
+        dominant,
+        minorSix,
+        'prefer complete natural thirteenth dominant over minor-six add-eleven',
+      );
+    },
+  );
+
+  test(
     'altered sharp-five dominant beats natural-eleventh sharp-five near-tie',
     () {
       final alteredDominant = _candidate(
