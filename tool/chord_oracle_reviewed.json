@@ -225,7 +225,7 @@
   },
   "0-1-3-6-8_b6": {
     "label": "genuine-ambiguity",
-    "note": "A♭7(add11)/G♭ is defensible because A♭-C-E♭-G♭ forms a complete dominant-seventh shell with the flat seventh in the bass, and music21 agrees semantically. Tonal's D♭maj9sus4/G♭ is also a valid complete suspended-major reading and ChoCo favors the major7sus4|nine vocabulary, but it makes the bass the suspended fourth rather than a stable chord tone. The bass role makes WhatChord's primary label plausible, while the corpus-supported suspended-major reading keeps the row genuinely ambiguous."
+    "note": "A♭11/G♭ is defensible because A♭-C-E♭-G♭ forms a complete dominant-seventh shell with the flat seventh in the bass and D♭ as eleventh color. Music21 agrees semantically. Tonal's D♭maj9sus4/G♭ is also a valid complete suspended-major reading and ChoCo favors the major7sus4|nine vocabulary, but it makes the bass the suspended fourth rather than a stable chord tone. The bass role makes WhatChord's primary label plausible, while the corpus-supported suspended-major reading keeps the row genuinely ambiguous."
   },
   "0-1-4-7_b1": {
     "label": "genuine-ambiguity",
@@ -249,7 +249,7 @@
   },
   "0-1-4-7-8_b0": {
     "label": "oracle-limitation",
-    "note": "A♭maj7(♯5,add11)/C is preferred because A♭-C-E-G forms a complete augmented major-seventh shell, with D♭ as added eleventh and C as the major third in the bass. Music21's D♭mmaj7♯11/C is a plausible re-rooting of the same pitch classes, but it treats C as a major seventh under a minor-major shell rather than preserving the more direct augmented-major organization. Tonal and pychord provide no usable competing label."
+    "note": "A♭maj11♯5/C is preferred because A♭-C-E-G forms a complete augmented major-seventh shell, with D♭ as eleventh color and C as the major third in the bass. Music21's D♭mmaj7♯11/C is a plausible re-rooting of the same pitch classes, but it treats C as a major seventh under a minor-major shell rather than preserving the more direct augmented-major organization. Tonal and pychord provide no usable competing label."
   },
   "0-1-4-8_b0": {
     "label": "clearly-correct",
@@ -297,7 +297,7 @@
   },
   "0-1-5-7-10_b5": {
     "label": "genuine-ambiguity",
-    "note": "B♭m6/9/F is preferred because it is a complete minor-six-nine chord with its fifth in the bass, a more conventional inversion than the complete Gm7(♭5,add11)/F reading with its flat seventh in the bass. Music21 chooses the valid G-rooted half-diminished interpretation, while tonal includes B♭m6/9/F. Related root-bass cases favor their respective structures, and key context does not resolve this F-bass ambiguity."
+    "note": "Gm11(♭5)/F is preferred because G-B♭-D♭-F forms a complete half-diminished seventh shell with F as the flat seventh in the bass and C as eleventh color. Music21 agrees semantically with the G-rooted half-diminished-eleventh structure. B♭m6/9/F remains a surfaced possible alternative and tonal includes it, giving the bass a conventional fifth role, but it treats G and C as sixth/ninth color rather than preserving the complete G half-diminished shell. The two complete organizations make this a genuine ambiguity."
   },
   "0-1-6-8-10_b0": {
     "label": "genuine-ambiguity",
@@ -361,7 +361,7 @@
   },
   "0-2-5-7_b2": {
     "label": "genuine-ambiguity",
-    "note": "Dm7(add11) is preferred with D in the bass because D, F, C, and G supply the root, minor third, flat seventh, and eleventh of a conventional root-position minor-eleventh shell with an omitted fifth. Tonal's D-rooted first choice supports only the root hearing, not the full minor-eleventh label. G7sus4/D and Csus2sus4/D are complete and valid slash-chord alternatives, so the ambiguity is genuine, but their roots do not align with the bass."
+    "note": "Dm11 is preferred with D in the bass because D, F, C, and G supply the root, minor third, flat seventh, and eleventh of a conventional root-position minor-eleventh shell with an omitted fifth. Tonal's D-rooted first choice supports the D-root hearing but not the full minor-eleventh label. G7sus4/D and Csus2sus4/D are complete and valid slash-chord alternatives, and both surface as possible alternatives, so the ambiguity is genuine, but their roots do not align with the bass."
   },
   "0-1-3-6-8-10_b0": {
     "label": "genuine-ambiguity",
@@ -372,12 +372,12 @@
     "note": "G♭6/9♯11/D♭ is preferred because G♭-B♭-D♭-E♭-A♭-C forms a complete Lydian major-six-nine sonority with D♭ as the fifth in the bass. Tonal agrees on the F♯/G♭ 6/9♯11 identity, while music21's A♭11/D♭ and the near-tie D♭maj13sus4 reading give complete alternatives. The G♭ label is clearer as a musician-facing symbol, but the competing roots are musically real."
   },
   "0-1-3-6-8-10_b3": {
-    "label": "oracle-limitation",
-    "note": "G♭6/9♯11/E♭ is preferred because G♭-B♭-D♭-E♭-A♭-C forms a complete Lydian major six-nine sonority, with E♭ as the sixth in the bass. Tonal agrees on the F♯/G♭ 6/9♯11 identity. Music21's A♭11/E♭ is a complete dominant-eleventh re-rooting, but it creates the major-third-against-eleventh clash that the G♭ Lydian label avoids."
+    "label": "genuine-ambiguity",
+    "note": "E♭m13 is preferred because E♭-G♭-B♭-D♭ forms a complete root-position minor-seventh shell, with A♭ as eleventh color and C as thirteenth color. The previous G♭6/9♯11/E♭ reading remains a surfaced possible alternative and tonal's primary label, but it makes E♭ the sixth in the bass while the E♭ reading gives the bass/root a conventional minor-thirteenth organization. Music21's A♭11/E♭ is another complete re-rooting, but it creates the dominant-eleventh major-third-against-eleventh clash. The row is a genuine three-root ambiguity."
   },
   "0-1-3-6-8-10_b6": {
-    "label": "oracle-limitation",
-    "note": "G♭6/9♯11 is preferred because the notes are degrees 1-6 of G♭ Lydian over a root-position G♭ major triad, the canonical major six-nine sharp-eleven sound. Tonal agrees on the F♯/G♭ 6/9♯11 identity. Music21's A♭11/G♭ stacks thirds off the flat seventh into a complete dominant eleventh whose major-third-against-eleventh clash is exactly the dissonance the G♭ Lydian label avoids."
+    "label": "genuine-ambiguity",
+    "note": "E♭m13/G♭ is preferred because E♭-G♭-B♭-D♭ forms a complete minor-seventh shell with G♭ as the minor third in the bass, plus A♭ as eleventh color and C as thirteenth color. Tonal's G♭6/9♯11 remains a surfaced possible alternative and is a strong root-position Lydian-major reading, but the same pitches also support the complete E♭ minor-thirteenth sonority. Music21's A♭11/G♭ is a complete dominant-eleventh re-rooting with the flat seventh in the bass, but it leans on the less idiomatic major-third-against-eleventh clash. The competing complete structures make this a genuine ambiguity."
   },
   "0-1-3-6-8-10_b8": {
     "label": "oracle-limitation",
