@@ -1919,7 +1919,16 @@ int? _preferNaturalExtensions(
   Tonality _,
 ) {
   final natural = fb.extPref.naturalCount.compareTo(fa.extPref.naturalCount);
-  if (natural != 0) return natural;
+  if (natural != 0) {
+    final preferred = natural < 0 ? fa : fb;
+    final other = natural < 0 ? fb : fa;
+    if (preferred.isStructurallyDeficient &&
+        !preferred.dom7HasShell &&
+        !other.isStructurallyDeficient) {
+      return null;
+    }
+    return natural;
+  }
 
   final add = fa.extPref.addCount.compareTo(fb.extPref.addCount);
   if (add != 0) return add;

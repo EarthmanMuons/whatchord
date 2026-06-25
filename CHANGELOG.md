@@ -66,6 +66,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Improved sparse extension naming so root-position diminished add-tone voicings
+  can outrank deficient minor-major slash readings.
 - Improved whole-tone dominant naming so common 9♯5 and 9♭5 slash readings can
   win over less common root-position ♯5♯11 spellings when the evidence is close.
 - Improved flat-thirteenth bass handling so complete 9♭13 dominant voicings

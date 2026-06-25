@@ -255,6 +255,17 @@ void main() {
     ),
 
     golden(
+      description: 'root-position diminished add-nine beats deficient slash',
+      expectedSymbol: 'A#dim(add9)',
+      expectedAlternateSymbols: ['C#mmaj7 / A#', 'C7b9 / Bb'],
+      pcs: ['C', 'Db', 'E', 'Bb'],
+      bass: 'Bb',
+      expectedRoot: 'A#',
+      expectedQuality: ChordQualityToken.diminished,
+      expectedExtensions: {ChordExtension.add9},
+    ),
+
+    golden(
       description: 'tonic minor-major7 context beats flat-nine-bass dominant',
       expectedSymbol: 'C#mmaj13',
       pcs: ['C', 'Db', 'E', 'Bb'],
