@@ -120,7 +120,7 @@ abstract final class ChordAnalyzer {
   static const _completeDominantFlatThirteenthBonus =
       0.15; // complete dom7 shell + b13 should compete with enharmonic maj7#5
   static const _completeDominantNineFlatThirteenthBonus =
-      0.70; // complete dom7 shell + natural 9 + b13 stack
+      0.70; // complete dom7 shell + natural/altered 9 + b13 stack
   static const _completeDominantFlatNineFlatThirteenthBonus =
       0.70; // complete dom7 shell + b9 + b13 altered stack
 
@@ -842,6 +842,7 @@ abstract final class ChordAnalyzer {
       (extension) =>
           extension != ChordExtension.flat13 &&
           extension != ChordExtension.flat9 &&
+          extension != ChordExtension.sharp9 &&
           extension != ChordExtension.nine,
     )) {
       return 0;
@@ -856,6 +857,7 @@ abstract final class ChordAnalyzer {
 
     final hasNinthColor =
         extensions.contains(ChordExtension.nine) ||
+        extensions.contains(ChordExtension.sharp9) ||
         extensions.contains(ChordExtension.flat9);
     if (extensions.contains(ChordExtension.flat9)) {
       return _completeDominantFlatNineFlatThirteenthBonus;
