@@ -1199,6 +1199,8 @@ String _plainDecision(String? rule, {ChordCandidate? winner}) {
       'the extended dominant inversion avoids the double-accidental spelling required by the altered-fifth slash reading.',
     'prefer stable extended dominant over altered-fifth slash' =>
       'the extended dominant name keeps the bass, seventh shell, and upper extensions in a stable inversion more naturally than an altered-fifth slash reading.',
+    'prefer complete natural thirteenth dominant over minor-six add-eleven' =>
+      'the dominant-thirteenth name keeps the complete seventh shell and natural extensions together, while the minor-six reading needs stacked added tones.',
     'prefer root-position diminished7' =>
       'the diminished seventh is clearest when the bass is named as the root.',
     'prefer dominant7 over dim7 slash' ||

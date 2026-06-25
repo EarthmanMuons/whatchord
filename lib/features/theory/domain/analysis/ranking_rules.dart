@@ -350,6 +350,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferCompleteSharpNineThirteenthDominantOverColoredSixth,
   ),
   NamedRule(
+    'prefer complete natural thirteenth dominant over minor-six add-eleven',
+    _preferCompleteNaturalThirteenthDominantOverMinorSixAddEleven,
+  ),
+  NamedRule(
     'prefer complete flat-nine flat-thirteen dominant over remote spelling',
     _preferCompleteFlatNineFlatThirteenthDominantOverRemoteSpelling,
   ),
@@ -1117,6 +1121,71 @@ bool _isColoredSixthFlatNineSharpEleven(
       roles.contains(ChordToneRole.flat9) &&
       roles.contains(ChordToneRole.major3) &&
       roles.contains(ChordToneRole.sharp11) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.sixth);
+}
+
+/// Prefers a complete natural dominant thirteenth over a minor-six spelling
+/// that needs both add9 and add11 to account for the same collection.
+///
+/// Example: {C, Db, Eb, F, G, Bb} can be read as Eb13/F or Bbm6/9add11/F.
+/// Both are structurally complete, but the dominant reading names the complete
+/// Eb-G-Bb-Db shell plus natural 9 and 13. The minor-six spelling asks a sixth
+/// chord to carry stacked added tones, so it is less direct when scores are
+/// otherwise close.
+int? _preferCompleteNaturalThirteenthDominantOverMinorSixAddEleven(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isCompleteNaturalThirteenthDominant(a.identity);
+  final bIsPreferred = _isCompleteNaturalThirteenthDominant(b.identity);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  final fOther = aIsPreferred ? fb : fa;
+  if (!_isCompleteMinorSixAddEleven(other.identity, fOther)) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isCompleteNaturalThirteenthDominant(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.dominant7) return false;
+  if (id.extensions.length != 2 ||
+      !id.extensions.contains(ChordExtension.nine) ||
+      !id.extensions.contains(ChordExtension.thirteen)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.nine) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.thirteen) &&
+      roles.contains(ChordToneRole.flat7);
+}
+
+bool _isCompleteMinorSixAddEleven(
+  ChordIdentity id,
+  CandidateFeatures features,
+) {
+  if (id.quality != ChordQualityToken.minor6 || !features.hasStableBassRole) {
+    return false;
+  }
+  if (id.extensions.length != 2 ||
+      !id.extensions.contains(ChordExtension.add9) ||
+      !id.extensions.contains(ChordExtension.add11)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.add9) &&
+      roles.contains(ChordToneRole.minor3) &&
+      roles.contains(ChordToneRole.add11) &&
       roles.contains(ChordToneRole.perfect5) &&
       roles.contains(ChordToneRole.sixth);
 }

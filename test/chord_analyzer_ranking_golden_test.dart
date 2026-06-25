@@ -873,6 +873,18 @@ void main() {
     ),
 
     golden(
+      description: 'dominant thirteenth ninth bass beats minor-six added tones',
+      expectedSymbol: 'Eb13 / F',
+      expectedAlternateSymbols: ['Bbm6/9add11 / F', 'Gm11(#5,#11) / F'],
+      pcs: ['C', 'Db', 'Eb', 'F', 'G', 'Bb'],
+      bass: 'F',
+      expectedRoot: 'Eb',
+      expectedBass: 'F',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
+    ),
+
+    golden(
       description: 'fifthless dominant nine flat-five beats sharp-eleven',
       expectedSymbol: 'D9b5',
       expectedAlternateSymbols: ['E9#5 / D'],

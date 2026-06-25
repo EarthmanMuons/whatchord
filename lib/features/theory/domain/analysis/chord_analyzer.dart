@@ -431,7 +431,17 @@ abstract final class ChordAnalyzer {
       // an arbitrary extra tone.
       final isColorBass =
           template.quality.isSeventhFamily && extensions.isNotEmpty;
-      bassDelta = isColorBass ? _bassColor : _bassAdd;
+      bassDelta =
+          _hasCompleteNaturalDominantThirteenthNinthBass(
+            quality: template.quality,
+            extensions: extensions,
+            relMask: relMask,
+            bassInterval: bassInterval,
+          )
+          ? _bassBase
+          : isColorBass
+          ? _bassColor
+          : _bassAdd;
     } else {
       bassDelta = _bassMiss;
     }
@@ -761,6 +771,28 @@ abstract final class ChordAnalyzer {
     }
 
     return _domStackFull;
+  }
+
+  static bool _hasCompleteNaturalDominantThirteenthNinthBass({
+    required ChordQualityToken quality,
+    required Set<ChordExtension> extensions,
+    required int relMask,
+    required int bassInterval,
+  }) {
+    if (quality != ChordQualityToken.dominant7) return false;
+    if (bassInterval != majorSecondInterval) return false;
+    if (extensions.length != 2 ||
+        !extensions.contains(ChordExtension.nine) ||
+        !extensions.contains(ChordExtension.thirteen)) {
+      return false;
+    }
+
+    return (relMask & 1) != 0 &&
+        (relMask & (1 << majorSecondInterval)) != 0 &&
+        (relMask & (1 << majorThirdInterval)) != 0 &&
+        (relMask & (1 << perfectFifthInterval)) != 0 &&
+        (relMask & (1 << majorSixthInterval)) != 0 &&
+        (relMask & (1 << minorSeventhInterval)) != 0;
   }
 
   static double _fifthlessExtensionStackBonusFor({

@@ -69,6 +69,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Refined fifthless major-extension scoring so natural-eleventh major-family
   stacks do not receive the Lydian extension-stack bonus, and fifthless major
   thirteenths do not overwhelm complete dominant-thirteenth inversions.
+- Improved natural dominant-thirteenth slash naming so complete 13th voicings
+  with the ninth in the bass can outrank add-heavy minor-six alternatives.
 - Improved minor-major ninth naming so complete minor-major ninth voicings can
   outrank remote augmented-major thirteenth spellings.
 - Improved sparse extension naming so root-position diminished add-tone voicings
