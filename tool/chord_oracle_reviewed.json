@@ -119,9 +119,17 @@
     "label": "genuine-ambiguity",
     "note": "D♯m13(♭5)/A is defensible because D♯-F♯-A-C♯ forms a complete half-diminished seventh shell, A is the flat fifth in the bass, and C/B♯ is natural-thirteenth color. The set is the symmetric diminished-seventh core C-E♭-G♭-A plus D♭, so root assignment is inherently ambiguous and every source picks a different root: WhatChord D♯, music21 F♯, and tonal D♭. It is not a functional dominant because it lacks a clear major-third/flat-seventh dominant shell. The surfaced Cdim7(♭9)/B𝄫 alternative is also plausible, while music21's F♯dim7/A add C♯ corresponds to a lower-ranked F♯m6♯11/A spelling. Genuine ambiguity; no engine change warranted."
   },
+  "0-1-3-6-9_b0": {
+    "label": "genuine-ambiguity",
+    "note": "Cdim7(♭9) is preferred because C is the bass/root and the voicing supplies the complete C-E♭-G♭-B𝄫 diminished-seventh shell with D♭ as flat-ninth color. The set is the symmetric diminished-seventh core C-E♭-G♭-A plus D♭, so root assignment is inherently ambiguous: music21's F♯dim7/C add C♯ chooses the tritone-related diminished root, tonal's D♭maj9♯5sus4/C gives a suspended-major re-rooting, and WhatChord also surfaces the D♯ half-diminished-thirteenth and F♯ minor-six-sharp-eleven organizations. The root-position diminished-flat-nine label is defensible, but the competing organizations are musically real."
+  },
   "0-1-3-6-9_b1": {
     "label": "genuine-ambiguity",
     "note": "D♯m13(♭5)/C♯ is defensible because D♯-F♯-A-C♯ forms a complete half-diminished seventh shell with C/B♯ as natural-thirteenth color and C♯ as the flat seventh in the bass. The pitch set is a symmetric diminished-seventh core plus one chromatic tone, so root assignment is inherently ambiguous: music21's F♯m/C♯ add E♭,C matches the surfaced F♯m6♯11/C♯ alternate, tonal's D♭maj9♯5sus4 gives a bass-rooted suspended major-seventh view, and Cdim7(♭9)/D♭ is also surfaced as a possible alternative. The complete half-diminished shell and conventional seventh bass make WhatChord's primary label defensible, but the competing organizations are musically real."
+  },
+  "0-1-3-6-9_b3": {
+    "label": "genuine-ambiguity",
+    "note": "D♯m13(♭5) is preferred because D♯ is the bass/root and D♯-F♯-A-C♯ forms a complete half-diminished seventh shell, with C/B♯ as natural-thirteenth color. The same symmetric diminished-seventh-plus-one pitch set also supports music21's A diminished-seventh add-tone view, tonal's D♭maj9♯5sus4/E♭ suspended-major re-rooting, and the surfaced Cdim7(♭9)/E♭ alternative. Because no single root is forced by the pitch-class content, the root-position half-diminished-thirteenth label is defensible but genuinely ambiguous."
   },
   "0-1-3-6-9_b6": {
     "label": "genuine-ambiguity",
