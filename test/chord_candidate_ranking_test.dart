@@ -1191,6 +1191,54 @@ void main() {
     );
   });
 
+  test('does not use natural extensions to promote deficient slash chords', () {
+    final diminishedAdd9 = _candidate(
+      quality: ChordQualityToken.diminished,
+      root: 'A#',
+      bass: 'A#',
+      presentIntervals: const {0, 2, 3, 6},
+      extensions: const {ChordExtension.add9},
+      score: 7.22,
+    );
+
+    final minorMajor13Slash = _candidate(
+      quality: ChordQualityToken.minorMajor7,
+      root: 'C#',
+      bass: 'A#',
+      presentIntervals: const {0, 3, 9, 11},
+      extensions: const {ChordExtension.thirteen},
+      score: 7.07,
+    );
+
+    _expectTieRule(diminishedAdd9, minorMajor13Slash, 'prefer root position');
+  });
+
+  test('allows natural extensions for fifthless dominant shell slash', () {
+    final dominant9Slash = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'D',
+      bass: 'C',
+      presentIntervals: const {0, 2, 4, 10},
+      extensions: const {ChordExtension.nine},
+      score: 7.22,
+    );
+
+    final majorFlat5Add9 = _candidate(
+      quality: ChordQualityToken.majorFlat5,
+      root: 'C',
+      bass: 'C',
+      presentIntervals: const {0, 2, 4, 6},
+      extensions: const {ChordExtension.add9},
+      score: 7.22,
+    );
+
+    _expectTieRule(
+      dominant9Slash,
+      majorFlat5Add9,
+      'prefer natural extensions over adds, then fewer total',
+    );
+  });
+
   group('root-position relative minor7 versus major6 slash', () {
     final minor7 = _candidate(
       quality: ChordQualityToken.minor7,

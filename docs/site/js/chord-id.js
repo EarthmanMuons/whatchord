@@ -2503,12 +2503,15 @@ if(s.b!==e.a.e)return null
 t=q===B.S
 if(r===B.S===t)return null
 return t?1:-1},
-jR(a,b,c,d,e){var t,s,r=d.rx.a,q=c.rx.a,p=B.a.A(r[2],q[2])
-if(p!==0)return p
-t=B.a.A(q[0],r[0])
-if(t!==0)return t
-s=B.a.A(q[3],r[3])
-if(s!==0)return s
+jR(a,b,c,d,e){var t,s,r,q,p=d.rx.a,o=c.rx.a,n=B.a.A(p[2],o[2])
+if(n!==0){p=n<0
+t=p?c:d
+s=p?d:c
+if(t.cy&&!t.go&&!s.cy)return null
+return n}r=B.a.A(o[0],p[0])
+if(r!==0)return r
+q=B.a.A(o[3],p[3])
+if(q!==0)return q
 return null},
 jZ(a,b,c,d,e){var t=d.a
 if(c.a===t)return null
