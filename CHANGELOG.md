@@ -66,6 +66,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Improved minor-major ninth naming so complete minor-major ninth voicings can
+  outrank remote augmented-major thirteenth spellings.
 - Improved sparse extension naming so root-position diminished add-tone voicings
   can outrank deficient minor-major slash readings.
 - Improved whole-tone dominant naming so common 9♯5 and 9♭5 slash readings can
