@@ -404,6 +404,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferCompleteTriadAddToneOverSeventhFamilyAddTone,
   ),
   NamedRule(
+    'prefer root-position minor six-nine over half-diminished slash',
+    _preferRootMinorSixNineOverHalfDiminishedSlash,
+  ),
+  NamedRule(
     'prefer natural extensions over adds, then fewer total',
     _preferNaturalExtensions,
   ),
@@ -1563,7 +1567,7 @@ bool _isRemoteAugmentedMajorThirteenth(
       return false;
     }
   }
-  if (intervalAboveRoot(id.rootPc, preferred.rootPc) != minorThirdInterval) {
+  if (intervalAboveRoot(preferred.rootPc, id.rootPc) != majorSixthInterval) {
     return false;
   }
 
@@ -2071,6 +2075,78 @@ int? _preferRootMinor7OverMajor6Slash(
   if (!plainPair && !matchingColorPair) return null;
 
   return aIsMinor7 ? -1 : 1;
+}
+
+/// Prefers a root-position minor 6/9 over the equivalent half-diminished
+/// eleventh slash spelling.
+///
+/// Example: {B♭, D♭, F, G, C} with B♭ in the bass is normally B♭m6/9,
+/// not Gm11♭5/B♭. The half-diminished reading is valid, but the sounding bass
+/// supplies the complete minor-six root and the added ninth is conventional.
+int? _preferRootMinorSixNineOverHalfDiminishedSlash(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures _,
+  CandidateFeatures _,
+  Tonality _,
+) {
+  final aIsPreferred = _isRootPositionMinorSixNine(a.identity);
+  final bIsPreferred = _isRootPositionMinorSixNine(b.identity);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final preferred = aIsPreferred ? a : b;
+  final other = aIsPreferred ? b : a;
+  if (!_isEquivalentHalfDiminishedElevenSlash(
+    other.identity,
+    preferred.identity,
+  )) {
+    return null;
+  }
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isRootPositionMinorSixNine(ChordIdentity id) {
+  if (id.bassPc != id.rootPc || id.quality != ChordQualityToken.minor6) {
+    return false;
+  }
+  if (id.extensions.length != 1 ||
+      (!id.extensions.contains(ChordExtension.add9) &&
+          !id.extensions.contains(ChordExtension.nine))) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      (roles.contains(ChordToneRole.add9) ||
+          roles.contains(ChordToneRole.nine)) &&
+      roles.contains(ChordToneRole.minor3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.sixth);
+}
+
+bool _isEquivalentHalfDiminishedElevenSlash(
+  ChordIdentity id,
+  ChordIdentity preferred,
+) {
+  if (id.quality != ChordQualityToken.halfDiminished7) return false;
+  if (id.bassPc != preferred.rootPc) return false;
+  if (intervalAboveRoot(id.rootPc, preferred.rootPc) != majorSixthInterval) {
+    return false;
+  }
+  if (id.extensions.length != 1 ||
+      (!id.extensions.contains(ChordExtension.eleven) &&
+          !id.extensions.contains(ChordExtension.add11))) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.minor3) &&
+      roles.contains(ChordToneRole.flat5) &&
+      roles.contains(ChordToneRole.flat7) &&
+      (roles.contains(ChordToneRole.eleven) ||
+          roles.contains(ChordToneRole.add11));
 }
 
 /// Prefers the selected key's tonic chord in otherwise ambiguous near-ties.

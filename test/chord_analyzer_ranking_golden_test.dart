@@ -801,6 +801,17 @@ void main() {
     ),
 
     golden(
+      description: 'root-position minor six-nine beats half-diminished slash',
+      expectedSymbol: 'Bbm6/9',
+      expectedAlternateSymbols: ['Gm11(b5) / Bb', 'Bbm(add9,add13)'],
+      pcs: ['C', 'Db', 'F', 'G', 'Bb'],
+      bass: 'Bb',
+      expectedRoot: 'Bb',
+      expectedQuality: ChordQualityToken.minor6,
+      expectedExtensions: {ChordExtension.add9},
+    ),
+
+    golden(
       // Ebm13 and Gb6/9#11/Eb tie on score; the natural-extension tie-break
       // selects the root-position minor thirteenth.
       description: 'minor-thirteenth beats lydian major six-nine slash',
