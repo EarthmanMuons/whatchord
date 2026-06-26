@@ -877,6 +877,20 @@ void main() {
     ),
 
     golden(
+      description:
+          'fifthless major-nine sharp-eleven inversion beats flat-five respelling',
+      expectedSymbol: 'Dbmaj9#11 / C',
+      expectedAlternateSymbols: ['C#maj9b5 / B#', 'Cm(addb9,add11)'],
+      pcs: ['C', 'Db', 'Eb', 'F', 'G'],
+      bass: 'C',
+      expectedRoot: 'Db',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.major7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
+      expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
+    ),
+
+    golden(
       description: 'natural-eleventh major thirteenth gets no fifthless bonus',
       expectedSymbol: 'Gbmaj13#11 / Db',
       expectedAlternateSymbols: ['Ebm13 / Db', 'Cm11(b5,b9) / Db'],

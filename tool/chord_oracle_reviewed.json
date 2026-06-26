@@ -117,7 +117,7 @@
   },
   "0-1-3-5-7_b5": {
     "label": "oracle-limitation",
-    "note": "C♯maj9♭5/E♯ is preferred because C♯-E♯-G-B♯-D♯ forms a complete major-seventh-flat-five ninth sonority, with E♯ as the major third in the bass and every sounding pitch named directly. Tonal agrees as D♭M9♭5/F. Music21's Cm/F add D♭ keeps a C-minor shell but treats F and D♭ as additions, missing the complete C♯/D♭ major-seventh-flat-five organization."
+    "note": "D♭maj9♯11/F is preferred because the voicing forms a fifthless D♭ Lydian major-ninth stack D♭-F-C-E♭-G, with F as the major third in the bass. Tonal agrees on the D♭ major-nine tritone-color family but spells G as ♭5; WhatChord prefers the ♯11 spelling because ChoCo strongly favors major7|nine,sharp11 over major7Flat5|nine. Music21's Cm/F add D♭ keeps a C-minor shell but treats F and D♭ as additions, missing the complete D♭ Lydian-major organization."
   },
   "0-1-3-5-7_b7": {
     "label": "oracle-limitation",
