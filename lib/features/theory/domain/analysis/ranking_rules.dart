@@ -1555,6 +1555,10 @@ bool _isCompleteMinorMajorNinthFamily(ChordIdentity id) {
       roles.contains(ChordToneRole.nine);
 }
 
+/// True when [a] sits a major sixth above [b] (directional; mod 12).
+bool _isMajorSixthAbove(int a, int b) =>
+    intervalAboveRoot(a, b) == majorSixthInterval;
+
 bool _isRemoteAugmentedMajorThirteenth(
   ChordIdentity id,
   ChordIdentity preferred,
@@ -1567,9 +1571,7 @@ bool _isRemoteAugmentedMajorThirteenth(
       return false;
     }
   }
-  if (intervalAboveRoot(preferred.rootPc, id.rootPc) != majorSixthInterval) {
-    return false;
-  }
+  if (!_isMajorSixthAbove(preferred.rootPc, id.rootPc)) return false;
 
   final roles = id.toneRolesByInterval.values;
   return roles.contains(ChordToneRole.root) &&
@@ -2131,9 +2133,7 @@ bool _isEquivalentHalfDiminishedElevenSlash(
 ) {
   if (id.quality != ChordQualityToken.halfDiminished7) return false;
   if (id.bassPc != preferred.rootPc) return false;
-  if (intervalAboveRoot(id.rootPc, preferred.rootPc) != majorSixthInterval) {
-    return false;
-  }
+  if (!_isMajorSixthAbove(id.rootPc, preferred.rootPc)) return false;
   if (id.extensions.length != 1 ||
       (!id.extensions.contains(ChordExtension.eleven) &&
           !id.extensions.contains(ChordExtension.add11))) {
