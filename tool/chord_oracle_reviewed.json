@@ -375,6 +375,10 @@
     "label": "genuine-ambiguity",
     "note": "Gm11(♭5)/F is preferred because G-B♭-D♭-F forms a complete half-diminished seventh shell with F as the flat seventh in the bass and C as eleventh color. Music21 agrees semantically with the G-rooted half-diminished-eleventh structure. B♭m6/9/F remains a surfaced possible alternative and tonal includes it, giving the bass a conventional fifth role, but it treats G and C as sixth/ninth color rather than preserving the complete G half-diminished shell. The two complete organizations make this a genuine ambiguity."
   },
+  "0-1-5-7-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "B♭m6/9 is preferred with B♭ in the bass because B♭-D♭-F-G forms a complete root-position minor-sixth chord and C is the conventional added ninth. Tonal's B♭m6/9 answer supports this bass-rooted reading, while music21's G half-diminished-eleventh slash label matches WhatChord's surfaced possible alternative and names the same pitch collection from its relative root. ChoCo strongly favors the minor-six-nine vocabulary in this exact color space, with minor6|add9 appearing 236 times versus only 5 halfDiminished7|nine and 4 halfDiminished7|nine,eleven observations, so the root-position minor-six spelling is the stronger musician-facing primary label even though the half-diminished structure is valid."
+  },
   "0-1-6-8-10_b0": {
     "label": "genuine-ambiguity",
     "note": "D♭maj13sus4/C is preferred because D♭-G♭-A♭-C-B♭ forms a D♭ suspended major-seventh sonority with thirteenth color, and the C bass is the major seventh rather than a non-chord chromatic tone. Tonal's B♭m9♯5/C matches WhatChord's surfaced possible alternative and names the complete B♭ minor-seventh-sharp-five structure, but that spelling asks musicians to read F♯ as an altered fifth where the D♭ reading keeps the upper structure diatonic. Music21's G♭/C add-tone label captures a related major-shell subset but omits the suspended-major-seventh organization. The row remains genuinely ambiguous."
