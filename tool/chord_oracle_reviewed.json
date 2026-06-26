@@ -279,9 +279,17 @@
     "label": "oracle-limitation",
     "note": "Fmmaj7♭13/C is preferred because the voicing cleanly contains F-A♭-C-E as a complete F minor-major seventh with D♭ as flat-thirteen color and C as the fifth in the bass. Tonal agrees as FmMaj7b6/C. Music21's D♭mmaj7/C add F respells the same pitch set with both minor and major thirds, which is less useful as the primary musician-facing label."
   },
+  "0-1-4-5-8_b1": {
+    "label": "oracle-limitation",
+    "note": "Fmmaj7♭13/D♭ is preferred because the voicing contains the complete F-A♭-C-E minor-major seventh shell and D♭ is conventional flat-thirteenth color in the bass. Tonal agrees as FmMaj7b6/Db. Music21's C♯mmaj7 add E♯ treats F as an added major third above C♯ while also keeping E as the minor third, making the C♯ reading less direct for the observed voicing."
+  },
   "0-1-4-5-8_b4": {
     "label": "oracle-limitation",
     "note": "Fmmaj7♭13/E is preferred because E is the major seventh of the complete F-A♭-C-E shell and D♭ is conventional flat-thirteen color. Tonal agrees. Music21's C♯mmaj7/E add E♯ treats F as an added major third above C♯ while also keeping E as the minor third, so the split reflects oracle spelling limits rather than a stronger C♯-rooted analysis."
+  },
+  "0-1-4-5-8_b5": {
+    "label": "oracle-limitation",
+    "note": "Fmmaj7♭13 is preferred because F is the bass/root and the voicing contains the complete F-A♭-C-E minor-major seventh shell with D♭ as flat-thirteenth color. Tonal agrees exactly. Music21's D♭maj7/F add F♭ respells the same pitch set from the flat-thirteenth side and introduces an awkward added flat-third color, so it is less idiomatic than the root-position F minor-major reading."
   },
   "0-1-4-5-8_b8": {
     "label": "oracle-limitation",
