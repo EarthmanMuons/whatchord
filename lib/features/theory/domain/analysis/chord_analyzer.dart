@@ -801,14 +801,13 @@ abstract final class ChordAnalyzer {
     required int relMask,
     required int bassInterval,
   }) {
-    // Root-position fifthless extended chords are conventional when their upper
-    // colors form a natural extension stack. Reward that coherence directly,
-    // rather than relying on a later hard ranking override. Major-family stacks
-    // still need Lydian #11 color; a natural 11 against the major third is too
-    // tense to justify this structural bonus. For dominant sevenths, require a
-    // natural thirteenth: with only 9 + #11 and no fifth, the tritone is usually
-    // clearer as a chord-defining b5.
-    if (bassInterval != 0) return 0;
+    // Fifthless extended chords are conventional when their upper colors form a
+    // natural extension stack. Reward that coherence directly, rather than
+    // relying on a later hard ranking override. Major-family stacks still need
+    // Lydian #11 color; a natural 11 against the major third is too tense to
+    // justify this structural bonus. For dominant sevenths, require a natural
+    // thirteenth: with only 9 + #11 and no fifth, the tritone is usually clearer
+    // as a chord-defining b5.
     if (quality != ChordQualityToken.major7 &&
         quality != ChordQualityToken.dominant7) {
       return 0;
@@ -824,6 +823,14 @@ abstract final class ChordAnalyzer {
     }
     if (quality == ChordQualityToken.dominant7 && !hasThirteenth) return 0;
     if ((relMask & (1 << perfectFifthInterval)) != 0) return 0;
+
+    if (bassInterval != 0) {
+      if (quality != ChordQualityToken.major7 || hasThirteenth) return 0;
+      final hasStableMajorSeventhBass =
+          bassInterval == majorThirdInterval ||
+          bassInterval == majorSeventhInterval;
+      if (!hasStableMajorSeventhBass) return 0;
+    }
 
     if (quality == ChordQualityToken.major7 && hasThirteenth) {
       return _fifthlessMajorThirteenthStackBonus;

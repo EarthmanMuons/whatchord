@@ -407,6 +407,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     'prefer natural extensions over adds, then fewer total',
     _preferNaturalExtensions,
   ),
+  NamedRule(
+    'prefer lydian major-nine spelling over flat-five',
+    _preferLydianMajorNineOverFlatFive,
+  ),
   NamedRule('prefer root position', _preferRootPosition),
   NamedRule('prefer common naming preference', preferCommonNamePrior),
   NamedRule(
@@ -2155,6 +2159,57 @@ int? _preferNaturalExtensions(
   if (total != 0) return total;
 
   return null;
+}
+
+int? _preferLydianMajorNineOverFlatFive(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures _,
+  CandidateFeatures _,
+  Tonality _,
+) {
+  final aIsPreferred = _isFifthlessLydianMajorNine(a.identity);
+  final bIsPreferred = _isFifthlessLydianMajorNine(b.identity);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final preferred = aIsPreferred ? a : b;
+  final other = aIsPreferred ? b : a;
+  if (preferred.identity.rootPc != other.identity.rootPc) return null;
+  if (!_isMajorNineFlatFive(other.identity)) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isFifthlessLydianMajorNine(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.major7) return false;
+  if (id.extensions.length != 2 ||
+      !id.extensions.contains(ChordExtension.nine) ||
+      !id.extensions.contains(ChordExtension.sharp11)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.major7) &&
+      roles.contains(ChordToneRole.nine) &&
+      roles.contains(ChordToneRole.sharp11) &&
+      !roles.contains(ChordToneRole.perfect5);
+}
+
+bool _isMajorNineFlatFive(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.major7Flat5) return false;
+  if (id.extensions.length != 1 ||
+      !id.extensions.contains(ChordExtension.nine)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.flat5) &&
+      roles.contains(ChordToneRole.major7) &&
+      roles.contains(ChordToneRole.nine);
 }
 
 int? _preferRootPosition(
