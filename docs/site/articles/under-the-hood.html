@@ -762,18 +762,18 @@
 
           <pre><code>$ dart run tool/chord_debug.dart F# Bb C E
 
-pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
+notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
 
  1) F♯7♭5          8.50
      members: root=F♯  major3=A♯  flat5=C  flat7=E
      scoring: req+16  bass+1  =&gt;  17.00 raw, 8.50 final
 
- 2) C7♭5 / G♭      8.50  Δ +0.00 ~tie
+ 2) C7♭5 / G♭      8.50  Δ +0.00 ~alt
      (vs prev: prefer root position)
      members: root=C  major3=E  flat5=G♭  flat7=B♭
      scoring: req+16  bass+1  =&gt;  17.00 raw, 8.50 final
 
- 3) C7♯11 / F♯     6.73  Δ -1.77
+ 3) C7♯11 / F♯     7.01  Δ -1.49
      (vs prev: score difference beyond tie-break range)</code></pre>
 
           <p>
