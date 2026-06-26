@@ -115,6 +115,14 @@
     "label": "oracle-limitation",
     "note": "F7(♭9,♭13)/E♭ is preferred because E♭ is the flat seventh of a complete F altered dominant. Tonal agrees. Music21's D♭ augmented-major-eleventh slash label captures a related upper structure, but it re-roots away from the complete dominant shell and is less useful as the primary chord symbol."
   },
+  "0-1-3-5-7_b0": {
+    "label": "oracle-limitation",
+    "note": "D♭maj9♯11/C is preferred because the voicing forms a fifthless D♭ Lydian major-ninth stack D♭-F-C-E♭-G, with C as the major seventh in the bass. Tonal agrees on the D♭ major-nine tritone-color family but spells G as ♭5; WhatChord prefers the ♯11 spelling because ChoCo strongly favors major7|nine,sharp11 over major7Flat5|nine. Music21's Cm add D♭ and F keeps a C-minor shell but treats D♭ and F as additions, missing the complete D♭ Lydian-major organization."
+  },
+  "0-1-3-5-7_b1": {
+    "label": "oracle-limitation",
+    "note": "D♭maj9♯11 is preferred because D♭ is the bass/root and the voicing supplies a fifthless Lydian major-ninth stack D♭-F-C-E♭-G. Tonal agrees on the D♭ major-nine tritone-color family but spells G as ♭5; WhatChord prefers the ♯11 spelling because ChoCo strongly favors major7|nine,sharp11 over major7Flat5|nine. Music21 re-roots the same pitches as a C-minor add-tone sonority, which is less direct for the observed root-position D♭ structure."
+  },
   "0-1-3-5-7_b5": {
     "label": "oracle-limitation",
     "note": "D♭maj9♯11/F is preferred because the voicing forms a fifthless D♭ Lydian major-ninth stack D♭-F-C-E♭-G, with F as the major third in the bass. Tonal agrees on the D♭ major-nine tritone-color family but spells G as ♭5; WhatChord prefers the ♯11 spelling because ChoCo strongly favors major7|nine,sharp11 over major7Flat5|nine. Music21's Cm/F add D♭ keeps a C-minor shell but treats F and D♭ as additions, missing the complete D♭ Lydian-major organization."
