@@ -131,6 +131,10 @@
     "label": "oracle-limitation",
     "note": "C♯maj9♭5/G is preferred because G is the flat fifth of the complete C♯maj9♭5 structure, while C, E♯/F, and D♯/E♭ supply the major seventh, third, and ninth. Tonal agrees as D♭M9♭5/G. Music21's Cm/G add F,D♭ describes a related C-minor shell but demotes the major-third role and is less complete as a musician-facing chord symbol."
   },
+  "0-1-3-5-9_b1": {
+    "label": "oracle-limitation",
+    "note": "D♭maj9♯5 is preferred because D♭ is the bass/root and the voicing supplies the complete augmented-major ninth stack D♭-F-A-C-E♭. Tonal agrees exactly. Music21's F7♯5/D♭ add C preserves a plausible altered-dominant subset, but it makes the bass a color tone and treats the D♭ root as added material; the engine chooses F7♭13 when F is actually the bass, so this split is about bass-root evidence rather than a general rejection of the dominant reading."
+  },
   "0-1-3-5-7-9_b0": {
     "label": "genuine-ambiguity",
     "note": "F9♭13/C is preferred because F-A-C-E♭-G-D♭ forms a complete dominant nine flat-thirteen stack with C as the fifth in the bass. Music21 supports the F root but treats D♭ as added sharp-five color, while tonal's E♭13♭5/C is also a complete Lydian-dominant organization. The stronger F dominant shell and stable fifth bass make WhatChord's label defensible, but the E♭ reading is a real competing analysis."
