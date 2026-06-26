@@ -350,6 +350,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferCompleteSharpNineThirteenthDominantOverColoredSixth,
   ),
   NamedRule(
+    'prefer complete altered thirteenth dominant over altered minor thirteenth',
+    _preferCompleteAlteredThirteenthDominantOverAlteredMinorThirteenth,
+  ),
+  NamedRule(
     'prefer complete natural thirteenth dominant over minor-six add-eleven',
     _preferCompleteNaturalThirteenthDominantOverMinorSixAddEleven,
   ),
@@ -1123,6 +1127,77 @@ bool _isColoredSixthFlatNineSharpEleven(
       roles.contains(ChordToneRole.sharp11) &&
       roles.contains(ChordToneRole.perfect5) &&
       roles.contains(ChordToneRole.sixth);
+}
+
+/// Prefers a complete sharp-nine/sharp-eleven dominant thirteenth over a
+/// root-position minor-thirteenth spelling that needs both flat-nine and
+/// sharp-eleven color.
+///
+/// Example: {C, Db, Eb, E, F#, G, A} can be read as A13#9#11/F# or
+/// F#m13(b9,#11). Both name every pitch, but the dominant reading preserves the
+/// complete A-C#-E-G shell and uses standard altered-dominant vocabulary, while
+/// the minor reading depends on the much less idiomatic b9/#11 minor color
+/// combination.
+int? _preferCompleteAlteredThirteenthDominantOverAlteredMinorThirteenth(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isCompleteSharpNineSharpElevenThirteenthDominant(
+    a.identity,
+  );
+  final bIsPreferred = _isCompleteSharpNineSharpElevenThirteenthDominant(
+    b.identity,
+  );
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  final fOther = aIsPreferred ? fb : fa;
+  if (!_isAlteredMinorThirteenth(other.identity, fOther)) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isCompleteSharpNineSharpElevenThirteenthDominant(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.dominant7) return false;
+  if (id.extensions.length != 3 ||
+      !id.extensions.contains(ChordExtension.sharp9) ||
+      !id.extensions.contains(ChordExtension.sharp11) ||
+      !id.extensions.contains(ChordExtension.thirteen)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.sharp9) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.sharp11) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.thirteen) &&
+      roles.contains(ChordToneRole.flat7);
+}
+
+bool _isAlteredMinorThirteenth(ChordIdentity id, CandidateFeatures features) {
+  if (id.quality != ChordQualityToken.minor7 || !features.hasStableBassRole) {
+    return false;
+  }
+  if (id.extensions.length != 3 ||
+      !id.extensions.contains(ChordExtension.flat9) ||
+      !id.extensions.contains(ChordExtension.sharp11) ||
+      !id.extensions.contains(ChordExtension.thirteen)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.flat9) &&
+      roles.contains(ChordToneRole.minor3) &&
+      roles.contains(ChordToneRole.sharp11) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.thirteen) &&
+      roles.contains(ChordToneRole.flat7);
 }
 
 /// Prefers a complete natural dominant thirteenth over a minor-six spelling

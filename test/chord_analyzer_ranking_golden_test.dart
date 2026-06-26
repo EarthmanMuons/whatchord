@@ -599,6 +599,23 @@ void main() {
 
     golden(
       description:
+          'complete altered dominant thirteenth beats altered minor thirteenth',
+      expectedSymbol: 'A13(#9,#11) / F#',
+      expectedAlternateSymbols: ['F#m13(b9,#11)'],
+      pcs: ['C', 'Db', 'Eb', 'E', 'F#', 'G', 'A'],
+      bass: 'F#',
+      expectedRoot: 'A',
+      expectedBass: 'F#',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {
+        ChordExtension.sharp9,
+        ChordExtension.sharp11,
+        ChordExtension.thirteen,
+      },
+    ),
+
+    golden(
+      description:
           'complete flat-thirteenth altered dominant beats add-eleven split-third sixth',
       expectedSymbol: 'F#7(#9,#11,b13) / E',
       expectedAlternateSymbols: ['A6(b9,add#9,add11) / E'],
