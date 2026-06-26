@@ -375,6 +375,10 @@
     "label": "genuine-ambiguity",
     "note": "A6add♯9 is preferred because A is the bass/root and the voicing contains C♯/D♭ as the major third, F♯ as the sixth, and C/B♯ as sharp-nine split-third color. F♯m♯11/A is a strong alternate because it preserves a complete F♯ minor triad with A in the bass, while music21 and tonal choose related diminished or suspended augmented-major spellings. Without key context, the split-third sixth chord and the upper-structure minor reading remain genuinely ambiguous."
   },
+  "0-1-6-9_b0": {
+    "label": "genuine-ambiguity",
+    "note": "C♯maj7sus4(♭13)/B♯ is defensible because the voicing contains the complete C♯ suspended-major-seventh frame C♯-F♯-B♯, with A as the altered fifth/flat-thirteenth color and B♯/C as the major seventh in the bass. Tonal agrees on the D♭ suspended-major family but spells the A as ♯5, which is a reasonable alternate convention for a fifthless sus chord. Music21's F♯ diminished add-tone label leaves the C♯/D♭ as bookkeeping color rather than preserving the suspended-major organization. ChoCo gives broad support for major7sus4 vocabulary but no direct compound maj7♯5sus4 prior, so this is worth reviewing rather than adding a narrow quality."
+  },
   "0-2-7_b2": {
     "label": "oracle-limitation",
     "note": "D7sus4 is preferred because D is the bass/root and C is the flat seventh, giving a conventional sparse dominant-sus shorthand even though the fifth is omitted. Music21 agrees semantically as Dsus add C omit A. Tonal's Csus2/D and Gsus4/D are valid pitch-class rotations, and WhatChord surfaces Gsus4/D as a possible alternate, but the D bass makes the dominant-sus label the clearest context-free primary."
