@@ -307,6 +307,10 @@
     "label": "context-dependent",
     "note": "C6♭9 is preferred in neutral/C context because C is the bass/root and the voicing directly supplies the major third, sixth, and flat-ninth color. Music21's Am/C add C♯ is the split-third relative-minor view, while tonal's D♭m♭6M7/C matches the C♯mmaj7♭13/B♯ alternate that becomes preferred in C♯ minor. The row is context-dependent rather than an engine issue: C-bass root-position evidence favors C6♭9 here, but C♯ minor context legitimately favors the minor-major-seventh reading."
   },
+  "0-1-4-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "A♯dim(add9) is preferred because B♭/A♯ is the bass/root of the complete diminished triad A♯-C♯-E, with C/B♯ as the added ninth. Tonal's C7♭9/B♭ interpretation is a valid dominant-flat-nine reinterpretation and remains surfaced as a possible alternative, but the bass-rooted diminished-add-nine spelling is the clearer primary label for this voicing. Music21 agrees semantically with the diminished-add-nine analysis."
+  },
   "0-1-4-7_b7": {
     "label": "clearly-correct",
     "note": "Cadd♭9/G is the clearest interpretation because it preserves a complete C-major triad in conventional second inversion and names D♭ as the single chromatic flat ninth. Music21 and tonal both agree on the C-rooted add-flat-nine structure. The E-rooted alternatives require less conventional mixed color tones, while C♯dim/G drops the sounding C."
