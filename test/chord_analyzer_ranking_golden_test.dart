@@ -154,6 +154,18 @@ void main() {
     ),
 
     golden(
+      description: 'root-position flat-nine sus beats half-diminished slash',
+      expectedSymbol: 'C7sus4(b9)',
+      expectedAlternateSymbols: ['Gm7(b5) / C'],
+      pcs: ['C', 'Db', 'F', 'G', 'Bb'],
+      bass: 'C',
+      expectedRoot: 'C',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.dominant7sus4,
+      expectedExtensions: {ChordExtension.flat9},
+    ),
+
+    golden(
       description: 'ninth-bass dominant stack beats altered slash',
       expectedSymbol: 'C7 / D',
       expectedAlternateSymbols: ['Gm6add11 / D'],
