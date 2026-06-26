@@ -371,6 +371,10 @@
     "label": "genuine-ambiguity",
     "note": "A6add♯9 is preferred because A is the bass/root and the voicing contains C♯/D♭ as the major third, F♯ as the sixth, and C/B♯ as sharp-nine split-third color. F♯m♯11/A is a strong alternate because it preserves a complete F♯ minor triad with A in the bass, while music21 and tonal choose related diminished or suspended augmented-major spellings. Without key context, the split-third sixth chord and the upper-structure minor reading remain genuinely ambiguous."
   },
+  "0-2-7_b2": {
+    "label": "oracle-limitation",
+    "note": "D7sus4 is preferred because D is the bass/root and C is the flat seventh, giving a conventional sparse dominant-sus shorthand even though the fifth is omitted. Music21 agrees semantically as Dsus add C omit A. Tonal's Csus2/D and Gsus4/D are valid pitch-class rotations, and WhatChord surfaces Gsus4/D as a possible alternate, but the D bass makes the dominant-sus label the clearest context-free primary."
+  },
   "0-2-4-8_b2": {
     "label": "genuine-ambiguity",
     "note": "E7#5/D is correct; the notes are the augmented triad C-E-G# plus D, and E is the only augmented-equivalent root whose b7 (D) is present, making E7#5 the unique complete four-note reading with the bass as a chord tone (third inversion). Caug(add9)/D (music21, tonal #1) is the salient triad-first reading but strands the bass D as the added 9th. tonal corroborates E7#5/D at #2. Mirrors the b0 sibling, where C-in-bass correctly prefers root-position Caugadd9: an aug-member bass favors the augmented reading, a non-member bass favors the complete dominant whose bass is a core tone. Sound; no engine change needed."
