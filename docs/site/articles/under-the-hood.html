@@ -583,52 +583,44 @@
                 <td>Lydian-dominant partial-stack bonus</td>
                 <td class="pos mono">+0.70</td>
                 <td>
-                  Applied when root-position dominant has 9 and ♯11 present;
-                  also applied to complete 13♯11 slash-bass voicings with a real
-                  fifth
+                  Rewards a dominant whose 9 and ♯11 form a partial Lydian
+                  stack, so the score prefers it over remote altered-fifth slash
+                  readings
                 </td>
               </tr>
               <tr>
                 <td>Lydian-dominant 13♯11 coherence bonus</td>
                 <td class="pos mono">+2.1</td>
                 <td>
-                  Applied when root-position dominant has 9, ♯11, and 13 all
-                  present; also applied to complete 9♯11♭13 and ♭9♯11♭13
-                  dominant stacks with a real fifth, including slash-bass
-                  voicings
+                  Stronger version for a complete Lydian or altered dominant
+                  stack (9, ♯11, and a 13 or ♭13), which reads as one chord
+                  rather than a slash reinterpretation
                 </td>
               </tr>
               <tr>
                 <td>Fifthless natural extension stack bonus</td>
                 <td class="pos mono">+2.4</td>
                 <td>
-                  Applied to root-position major 7th chords with 9 plus ♯11, and
-                  to those same major 9♯11 stacks when the bass is the major 3rd
-                  or major 7th; also applied to root-position dominant 7th
-                  chords with 9 plus 13. All require no 5th and no flat 13th.
-                  Major-family stacks with a natural 11 against the major 3rd
-                  are excluded.
+                  Rewards a fifthless major 7th (9 plus ♯11) or dominant 7th (9
+                  plus 13) whose upper colors stack cleanly. A natural 11
+                  against the major 3rd is too tense to count.
                 </td>
               </tr>
               <tr>
                 <td>Fifthless major-thirteenth stack bonus</td>
                 <td class="pos mono">+1.9</td>
                 <td>
-                  Applied to root-position major 7th chords with 9, ♯11, and 13,
-                  no 5th, and no flat 13th. The reduced value lets complete
-                  dominant-thirteenth inversions compete with bass-rooted
-                  Lydian-major thirteenth spellings.
+                  Same idea for a full fifthless major 13(♯11). Slightly lower
+                  so complete dominant-13th inversions can still compete.
                 </td>
               </tr>
               <tr>
                 <td>Complete dominant flat-13 shell bonus</td>
                 <td class="pos mono">+0.15 / +0.70</td>
                 <td>
-                  Applied to dominant 7th chords with a complete root, 3rd, 5th,
-                  7th shell and flat-13 color; stronger values apply when a
-                  natural or altered 9th is also present, so complete altered
-                  dominant stacks remain competitive with closely related
-                  enharmonic readings
+                  Keeps a full dominant 7th shell with ♭13 competitive against
+                  its enharmonic maj7♯5 reading. The larger value applies when a
+                  9th (natural or altered) is also present.
                 </td>
               </tr>
               <tr>
@@ -908,32 +900,20 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
               reading that needs stacked added tones
             </li>
             <li>
-              Prefer complete flat-nine dominant colors over remote diminished
-              or slash spellings when the bass has a stable dominant role
+              Prefer a complete flat-nine flat-thirteen dominant over a remote
+              diminished or seventh-family spelling
             </li>
             <li>
               Prefer root-position 9(♯5,♯11) dominant spelling over an
               equivalent 9(♭5,♭13) spelling
             </li>
             <li>
-              Prefer complete major 6/9 and 6/9♯11 readings over remote
-              minor-7-sharp-5 extension spellings
-            </li>
-            <li>
-              Prefer complete add9 triad inversions over root-position
-              minor-7-sharp-5 spellings
-            </li>
-            <li>
-              Prefer complete minor-major ninth readings over remote
-              augmented-major thirteenth spellings
+              Prefer a complete major-triad inversion over a minor sharp-five
+              reading
             </li>
             <li>
               Prefer complete Lydian 6/9♯11 readings over equivalent
               major-13-sus4 spellings
-            </li>
-            <li>
-              Prefer a complete major-triad inversion over a minor sharp-five
-              reading
             </li>
             <li>
               Prefer a complete major-triad inversion over a seventh-family
@@ -964,9 +944,8 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
               seventh-family chord with only add-tone extensions
             </li>
             <li>
-              Prefer natural extensions (9/11/13) over add-tones when that does
-              not promote a structurally deficient non-dominant slash reading;
-              then fewer total
+              Prefer natural extensions (9/11/13) over add-tones, then fewer
+              overall, unless that would reward an incomplete slash chord
             </li>
             <li>
               Prefer Lydian major-nine spelling over equivalent major-nine
@@ -974,8 +953,8 @@ pcs: B♭ C E F♯  |  bass: F♯ (pc 6)  |  key: C major
             </li>
             <li>Prefer root position</li>
             <li>
-              Prefer the common naming preference when otherwise equivalent
-              names have a strong prior difference
+              Prefer the more common name when the corpus shows a strong
+              preference between otherwise equivalent spellings
             </li>
             <li>
               Prefer cleaner spelling for otherwise tied tritone-related
