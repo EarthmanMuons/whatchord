@@ -155,6 +155,10 @@
     "label": "genuine-ambiguity",
     "note": "D♯m13(♭5)/A is defensible because D♯-F♯-A-C♯ forms a complete half-diminished seventh shell, A is the flat fifth in the bass, and C/B♯ is natural-thirteenth color. The set is the symmetric diminished-seventh core C-E♭-G♭-A plus D♭, so root assignment is inherently ambiguous and every source picks a different root: WhatChord D♯, music21 F♯, and tonal D♭. It is not a functional dominant because it lacks a clear major-third/flat-seventh dominant shell. The surfaced Cdim7(♭9)/B𝄫 alternative is also plausible, while music21's F♯dim7/A add C♯ corresponds to a lower-ranked F♯m6♯11/A spelling. Genuine ambiguity; no engine change warranted."
   },
+  "0-1-3-6-10_b0": {
+    "label": "oracle-limitation",
+    "note": "Cm7(♭5,♭9) is preferred because C is the bass/root and the voicing supplies the complete C-E♭-G♭-B♭ half-diminished seventh shell with D♭ as flat-ninth color. Music21 agrees semantically. Tonal's G♭6♯11/C is a valid rotation of the same pitch set, and WhatChord prefers that G♭6♯11 family when G♭, D♭, or B♭ is the bass, but with C in the bass it makes the bass a sharp-eleventh color tone. Key context in C minor and F♯/G♭ major does not displace the C-root reading, and ChoCo is too sparse on the exact colors to override the bass-root evidence."
+  },
   "0-1-3-6-9_b0": {
     "label": "genuine-ambiguity",
     "note": "Cdim7(♭9) is preferred because C is the bass/root and the voicing supplies the complete C-E♭-G♭-B𝄫 diminished-seventh shell with D♭ as flat-ninth color. The set is the symmetric diminished-seventh core C-E♭-G♭-A plus D♭, so root assignment is inherently ambiguous: music21's F♯dim7/C add C♯ chooses the tritone-related diminished root, tonal's D♭maj9♯5sus4/C gives a suspended-major re-rooting, and WhatChord also surfaces the D♯ half-diminished-thirteenth and F♯ minor-six-sharp-eleven organizations. The root-position diminished-flat-nine label is defensible, but the competing organizations are musically real."
