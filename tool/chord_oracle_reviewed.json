@@ -371,6 +371,10 @@
     "label": "oracle-limitation",
     "note": "G♭maj7♯11/B♭ is preferred because B♭ is the third of a complete G♭maj7♯11 voicing. Music21 agrees semantically. Tonal's F♯maj♯4/B♭ gives the Lydian color but drops the major seventh from the comparable structure, so it is not a better musician-facing answer."
   },
+  "0-1-5-7-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "C7sus4(♭9) is preferred with C in the bass because C-F-G-B♭ forms a complete root-position dominant-sus shell and D♭ is the conventional flat-ninth color. Music21's G half-diminished slash and WhatChord's surfaced possible alternative preserve the complete G-B♭-D♭-F half-diminished-seventh shell with C as eleventh color, so the competing structure is real. Tonal includes a comparable C11♭9 reading, and ChoCo supports the bass-rooted sus-flat-nine vocabulary in this color space: dominant7sus4|flat9 appears 103 times versus only 5 halfDiminished7|nine and 4 halfDiminished7|nine,eleven observations. The row remains genuinely ambiguous, but the root-position suspended dominant is the stronger primary label for the observed bass."
+  },
   "0-1-5-7-10_b5": {
     "label": "genuine-ambiguity",
     "note": "Gm11(♭5)/F is preferred because G-B♭-D♭-F forms a complete half-diminished seventh shell with F as the flat seventh in the bass and C as eleventh color. Music21 agrees semantically with the G-rooted half-diminished-eleventh structure. B♭m6/9/F remains a surfaced possible alternative and tonal includes it, giving the bass a conventional fifth role, but it treats G and C as sixth/ninth color rather than preserving the complete G half-diminished shell. The two complete organizations make this a genuine ambiguity."

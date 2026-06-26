@@ -66,6 +66,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Improved root-position dominant sus flat-nine naming so it can outrank remote
+  half-diminished slash spellings when the bass supplies the suspended dominant
+  root.
 - Improved root-position minor 6/9 naming so it can outrank equivalent
   half-diminished slash spellings when the bass supplies the minor-six root.
 - Refined fifthless major-extension scoring so natural-eleventh major-family

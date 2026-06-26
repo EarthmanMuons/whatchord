@@ -932,8 +932,12 @@ int? _preferRootDominantSusOverSlash(
   final bIsPreferred = fb.isRootDominantSus;
   if (aIsPreferred == bIsPreferred) return null;
 
+  final preferred = aIsPreferred ? a.identity : b.identity;
   final fPreferred = aIsPreferred ? fa : fb;
-  if (fPreferred.extPref.alterationCount > 0) return null;
+  if (fPreferred.extPref.alterationCount > 0 &&
+      !_isRootDominantSusFlatNine(preferred)) {
+    return null;
+  }
 
   final fOther = aIsPreferred ? fb : fa;
   if (!fOther.isSlashBass) return null;
@@ -952,6 +956,13 @@ int? _preferRootDominantSusOverSlash(
   if (isConventionalSlash) return aIsPreferred ? 1 : -1;
 
   return aIsPreferred ? -1 : 1;
+}
+
+bool _isRootDominantSusFlatNine(ChordIdentity id) {
+  return id.bassPc == id.rootPc &&
+      id.quality == ChordQualityToken.dominant7sus4 &&
+      id.extensions.length == 1 &&
+      id.extensions.contains(ChordExtension.flat9);
 }
 
 /// Prefers the ordinary inverted major triad reading over the
