@@ -167,6 +167,18 @@ void main() {
       expectedExtensions: {ChordExtension.nine},
     ),
 
+    golden(
+      description: 'altered major seventh keeps sharp ninth color',
+      expectedSymbol: 'Dmaj7(#9,b13) / A',
+      pcs: ['A', 'D', 'F', 'F#', 'A#', 'C#'],
+      bass: 'A',
+      expectedRoot: 'D',
+      expectedBass: 'A',
+      expectedQuality: ChordQualityToken.major7,
+      expectedExtensions: {ChordExtension.sharp9, ChordExtension.flat13},
+      expectedToneRolesByInterval: {3: ChordToneRole.sharp9},
+    ),
+
     // 13th (as 7 + 9 + 13).
     golden(
       description: 'dominant thirteenth with ninth',
