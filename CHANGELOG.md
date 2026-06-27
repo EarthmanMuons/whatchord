@@ -66,6 +66,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Improved fifthless dominant flat-five thirteenth naming so flat-seventh-bass
+  voicings can use the clearer 13♭5 spelling instead of being forced into 13♯11
+  or remote flat-thirteenth rotations.
 - Improved root-position dominant sus flat-nine naming so it can outrank remote
   half-diminished slash spellings when the bass supplies the suspended dominant
   root.
