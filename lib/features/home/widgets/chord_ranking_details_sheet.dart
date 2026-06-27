@@ -606,19 +606,10 @@ class _CandidateScoreBack extends StatelessWidget {
   List<_ToneEntry> _tonesFor(int mask) {
     final identity = row.candidate.identity;
     final entries = <_ToneEntry>[];
-    final intervals =
-        [
-          for (var interval = 0; interval < 12; interval++)
-            if ((mask & (1 << interval)) != 0) interval,
-        ]..sort((a, b) {
-          final roleA = identity.toneRolesByInterval[a];
-          final roleB = identity.toneRolesByInterval[b];
-          if (roleA == null || roleB == null) return a.compareTo(b);
-          final degreeComparison = roleA.degreeOrder.compareTo(
-            roleB.degreeOrder,
-          );
-          return degreeComparison != 0 ? degreeComparison : a.compareTo(b);
-        });
+    final intervals = ChordToneOrdering.byDegree([
+      for (var interval = 0; interval < 12; interval++)
+        if ((mask & (1 << interval)) != 0) interval,
+    ], identity: identity);
     for (final interval in intervals) {
       final pitchClass = (identity.rootPc + interval) % 12;
       final pc = {pitchClass};

@@ -314,7 +314,7 @@ String _pcLabel(
 /// Notes:
 /// - Always includes root (interval 0).
 /// - Includes all intervals present in toneRolesByInterval.
-/// - Sorts by interval for stable output.
+/// - Sorts by member degree for stable root-position output.
 String _formatChordMembersByRole(
   ChordIdentity id, {
   required AnalysisContext context,
@@ -333,7 +333,11 @@ String _formatChordMembersByRole(
     byInterval[e.key] = e.value;
   }
 
-  final sortedIntervals = byInterval.keys.toList()..sort();
+  final sortedIntervals = ChordToneOrdering.byDegree(
+    byInterval.keys,
+    identity: id,
+    rolesByInterval: byInterval,
+  );
 
   final parts = <String>[];
   for (final interval in sortedIntervals) {
@@ -404,17 +408,10 @@ String _formatTones(
   required AnalysisContext context,
 }) {
   final parts = <String>[];
-  final intervals =
-      [
-        for (var interval = 0; interval < 12; interval++)
-          if ((mask & (1 << interval)) != 0) interval,
-      ]..sort((a, b) {
-        final roleA = id.toneRolesByInterval[a];
-        final roleB = id.toneRolesByInterval[b];
-        if (roleA == null || roleB == null) return a.compareTo(b);
-        final degreeComparison = roleA.degreeOrder.compareTo(roleB.degreeOrder);
-        return degreeComparison != 0 ? degreeComparison : a.compareTo(b);
-      });
+  final intervals = ChordToneOrdering.byDegree([
+    for (var interval = 0; interval < 12; interval++)
+      if ((mask & (1 << interval)) != 0) interval,
+  ], identity: id);
   for (final interval in intervals) {
     final pc = {(id.rootPc + interval) % 12};
     final degree = theoryTokenDisplayLabel(
