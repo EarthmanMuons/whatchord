@@ -391,6 +391,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     'prefer harmonic-minor tonic over split-third inversion',
     _preferHarmonicMinorTonicOverSplitThirdInversion,
   ),
+  NamedRule(
+    'prefer higher-scoring major-seventh-bass inversion over color-bass slash',
+    _preferHigherScoringMajorSeventhBassInversionOverColorBassSlash,
+  ),
   NamedRule('prefer fewer altered/tension colors', _preferFewerAlterations),
   NamedRule('prefer diatonic chords', _preferDiatonic),
   NamedRule(
@@ -2027,6 +2031,33 @@ int? _preferFewerAlterations(
   final cmp = fa.extensionTensionCount.compareTo(fb.extensionTensionCount);
   if (cmp == 0) return null;
   return cmp;
+}
+
+int? _preferHigherScoringMajorSeventhBassInversionOverColorBassSlash(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final higherIsA = a.score > b.score;
+  final higher = higherIsA ? a : b;
+  final lower = higherIsA ? b : a;
+  final fHigher = higherIsA ? fa : fb;
+  final fLower = higherIsA ? fb : fa;
+
+  if (higher.score == lower.score) return null;
+  if (!fHigher.isSeventhFamily || !fLower.isSeventhFamily) return null;
+  if (!fHigher.isSlashBass || !fLower.isSlashBass) return null;
+  if (fHigher.bassIsColorTone) return null;
+  if (!fLower.bassIsColorTone) return null;
+  final higherBassInterval = intervalAboveRoot(
+    higher.identity.bassPc,
+    higher.identity.rootPc,
+  );
+  if (higherBassInterval != majorSeventhInterval) return null;
+
+  return higherIsA ? -1 : 1;
 }
 
 int? _preferDiatonic(
