@@ -428,13 +428,11 @@ String _spellChordTones(ChordIdentity id, {required Tonality tonality}) {
     0: ChordToneRole.root,
     ...id.toneRolesByInterval,
   };
-  final intervals = byInterval.keys.toList()
-    ..sort((a, b) {
-      final degreeComparison = _degreeOrder(
-        byInterval[a]!,
-      ).compareTo(byInterval[b]!.degreeOrder);
-      return degreeComparison != 0 ? degreeComparison : a.compareTo(b);
-    });
+  final intervals = ChordToneOrdering.byDegree(
+    byInterval.keys,
+    identity: id,
+    rolesByInterval: byInterval,
+  );
   return [
     for (final interval in intervals)
       noteDisplayLabel(
@@ -447,8 +445,6 @@ String _spellChordTones(ChordIdentity id, {required Tonality tonality}) {
       ),
   ].join(' ');
 }
-
-int _degreeOrder(ChordToneRole role) => role.degreeOrder;
 
 String _spellAlsoPlayedTones(
   ChordIdentity id,
