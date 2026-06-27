@@ -626,6 +626,11 @@ abstract final class ChordAnalyzer {
       return 1 << minorThirdInterval;
     }
 
+    if (quality == ChordQualityToken.major7 &&
+        _hasMajorSeventhSharpNineColor(relMask)) {
+      return 1 << minorThirdInterval;
+    }
+
     final isSharpNineDominantQuality =
         quality == ChordQualityToken.dominant7 ||
         quality == ChordQualityToken.dominant7Flat5 ||
@@ -643,6 +648,16 @@ abstract final class ChordAnalyzer {
         1 << minorThirdInterval; // same interval, dominant function
     if ((relMask & sharpNineBit) == 0) return 0;
     return sharpNineBit;
+  }
+
+  static bool _hasMajorSeventhSharpNineColor(int relMask) {
+    const majorThirdBit = 1 << majorThirdInterval;
+    const sharpNineBit = 1 << minorThirdInterval;
+    const majorSeventhBit = 1 << majorSeventhInterval;
+
+    return (relMask & majorThirdBit) != 0 &&
+        (relMask & sharpNineBit) != 0 &&
+        (relMask & majorSeventhBit) != 0;
   }
 
   static bool _supportsSplitThirdMajorFamilyVoicing(
