@@ -1092,7 +1092,7 @@ void main() {
       description:
           'complete altered flat-nine dominant handles flat-thirteen bass',
       expectedSymbol: 'F#7(b9,#11,b13) / D',
-      expectedAlternateSymbols: ['Em13(b5,b13) / D', 'Em13(#5,#11) / D'],
+      expectedAlternateSymbols: ['Em13(#5,#11) / D', 'Em13(b5,b13) / D'],
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'G', 'Bb'],
       bass: 'D',
       expectedRoot: 'F#',
