@@ -227,6 +227,10 @@
     "label": "genuine-ambiguity",
     "note": "C♯mmaj9♭13/A is defensible because C♯-E-G♯-B♯-D♯ forms a complete minor-major ninth family, with A as flat-thirteenth bass color, and tonal lists the same DbmMaj9b6/A analysis as its alternate. Tonal's primary Amaj7♯9♯11 and music21's A minor-major-seventh add-tone reading are plausible because A is the bass, but they either omit the sounding C or foreground a split-third A-root sonority. The A bass keeps this genuinely ambiguous, while the C♯ reading names every tone as part of one coherent minor-major structure."
   },
+  "0-1-3-5-6-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "Cm11(♭5,♭9) is preferred because C is the bass/root and C-E♭-G♭-B♭ forms a complete half-diminished seventh shell, with D♭ as flat-ninth color and F as eleventh color. Music21 agrees semantically. Tonal's E♭m13/C is a valid rotation and names a complete E♭ minor-thirteenth collection, but it makes the observed C bass the thirteenth rather than the root. ChoCo broadly supports minor-thirteenth vocabulary more than these rare half-diminished color combinations, so this remains a genuine ambiguity, but the bass-rooted half-diminished label is the more direct musician-facing name for this voicing."
+  },
   "0-1-3-5-7_b3": {
     "label": "oracle-limitation",
     "note": "E♭13 is preferred because E♭ is the bass/root and the voicing supplies a fifthless dominant-thirteenth shell E♭-G-D♭ with F and C as ninth and thirteenth color. Tonal agrees as E♭13(no5). Music21's Cm/E♭ add D♭,F reading is a possible upper-structure description, but it treats the bass as the minor third of C and turns the dominant seventh and ninth into add tones, which is less direct for this root-position dominant voicing."
