@@ -460,15 +460,16 @@ void main() {
     ),
 
     golden(
-      description:
-          'complete dominant nine flat-thirteen handles flat-thirteenth bass',
-      expectedSymbol: 'F9b13 / Db',
+      description: 'fifthless flat-five thirteenth handles flat-seventh bass',
+      expectedSymbol: 'Eb13b5 / Db',
+      expectedAlternateSymbols: ['F9b13 / Db'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G', 'A'],
       bass: 'Db',
-      expectedRoot: 'F',
+      expectedRoot: 'Eb',
       expectedBass: 'Db',
-      expectedQuality: ChordQualityToken.dominant7,
-      expectedExtensions: {ChordExtension.nine, ChordExtension.flat13},
+      expectedQuality: ChordQualityToken.dominant7Flat5,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
+      expectedToneRolesByInterval: {6: ChordToneRole.flat5},
     ),
 
     golden(
@@ -1091,7 +1092,7 @@ void main() {
       description:
           'complete altered flat-nine dominant handles flat-thirteen bass',
       expectedSymbol: 'F#7(b9,#11,b13) / D',
-      expectedAlternateSymbols: ['Em13(#5,#11) / D', 'Em13(b5,b13) / D'],
+      expectedAlternateSymbols: ['Em13(b5,b13) / D', 'Em13(#5,#11) / D'],
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'G', 'Bb'],
       bass: 'D',
       expectedRoot: 'F#',

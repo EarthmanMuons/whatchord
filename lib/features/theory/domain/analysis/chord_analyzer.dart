@@ -367,6 +367,8 @@ abstract final class ChordAnalyzer {
     if (_flatFiveConflictsWithNaturalThirteenth(
       quality: template.quality,
       extensions: extensions,
+      relMask: relMask,
+      bassInterval: bassInterval,
     )) {
       return null;
     }
@@ -721,6 +723,8 @@ abstract final class ChordAnalyzer {
   static bool _flatFiveConflictsWithNaturalThirteenth({
     required ChordQualityToken quality,
     required Set<ChordExtension> extensions,
+    required int relMask,
+    required int bassInterval,
   }) {
     final isFlatFiveQuality =
         quality == ChordQualityToken.dominant7Flat5 ||
@@ -729,6 +733,14 @@ abstract final class ChordAnalyzer {
 
     // With a natural thirteenth present, the tritone usually functions as #11
     // color rather than a literal b5 core tone: C-E-Bb-D-F#-A -> C13#11.
+    // If the perfect fifth is absent, the flat seventh is in the bass, and the
+    // extension stack is not split between b9 and natural 9, the same tritone
+    // can be the defining altered fifth: Eb-G-Db-F-A-C -> Eb13b5/Db.
+    if ((relMask & (1 << perfectFifthInterval)) == 0 &&
+        bassInterval == minorSeventhInterval &&
+        !_hasSplitNinthColor(extensions)) {
+      return false;
+    }
     return extensions.contains(ChordExtension.thirteen) ||
         extensions.contains(ChordExtension.add13);
   }
