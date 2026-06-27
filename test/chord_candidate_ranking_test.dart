@@ -574,6 +574,35 @@ void main() {
   );
 
   test(
+    'higher-scoring major-seventh-bass inversion beats remote color-bass slash',
+    () {
+      final conventionalInversion = _candidate(
+        quality: ChordQualityToken.major7,
+        root: 'Ab',
+        bass: 'G',
+        presentIntervals: const {0, 4, 5, 7, 8, 11},
+        extensions: const {ChordExtension.eleven, ChordExtension.flat13},
+        score: 7.74,
+      );
+
+      final colorBassSlash = _candidate(
+        quality: ChordQualityToken.minorMajor7,
+        root: 'Db',
+        bass: 'G',
+        presentIntervals: const {0, 2, 3, 6, 7, 11},
+        extensions: const {ChordExtension.nine, ChordExtension.sharp11},
+        score: 7.59,
+      );
+
+      _expectTieRule(
+        conventionalInversion,
+        colorBassSlash,
+        'prefer higher-scoring major-seventh-bass inversion over color-bass slash',
+      );
+    },
+  );
+
+  test(
     'root-position extended dominant beats altered-fifth slash near-tie',
     () {
       final rootPosition = _candidate(

@@ -1199,6 +1199,8 @@ String _plainDecision(String? rule, {ChordCandidate? winner}) {
     'prefer dominant7 over dim7 slash' ||
     'prefer altered dominant7 over dim7 slash' =>
       'the dominant-seventh shell gives the voicing a clearer dominant reading.',
+    'prefer higher-scoring major-seventh-bass inversion over color-bass slash' =>
+      'the higher-scoring name gives the bass a conventional major-seventh inversion role instead of treating it as a remote color tone.',
     'prefer fewer altered/tension colors' =>
       'it needs fewer altered color tones.',
     'prefer diatonic chords' => 'it fits the selected key more directly.',

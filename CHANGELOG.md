@@ -66,6 +66,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Improved close slash-chord ranking so a higher-scoring major-seventh-bass
+  inversion is not demoted behind a remote color-bass reading just because the
+  remote name uses fewer altered colors.
 - Improved fifthless dominant flat-five thirteenth naming so flat-seventh-bass
   voicings can use the clearer 13♭5 spelling instead of being forced into 13♯11
   or remote flat-thirteenth rotations.
