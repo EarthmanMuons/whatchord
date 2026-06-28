@@ -302,6 +302,11 @@ select.try-select:focus {
   font-weight: 700;
 }
 
+.try-symbol-bass-slash {
+  display: inline-block;
+  margin: 0 0.26em;
+}
+
 .try-academic-name {
   margin-top: 3px;
   font-size: 0.88rem;

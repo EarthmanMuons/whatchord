@@ -415,10 +415,13 @@
 
   // Matches the app's identity card: the root note is emphasized (bold, larger)
   // while the quality/extensions and any slash bass stay lighter and smaller.
+  // The bass slash is wrapped only for visual spacing; its text stays "/" so
+  // selection and copy/paste preserve the compact canonical chord symbol.
   // The root is always a letter A-G plus glyph accidentals; no quality token
   // begins with one of those accidentals right after the root, so this split is
   // unambiguous for the international note names the engine emits here.
   var ROOT_RE = /^[A-G][♯♭\u{1D12A}\u{1D12B}]*/u;
+  var SLASH_BASS_RE = /\/([A-G][♯♭\u{1D12A}\u{1D12B}]*)$/u;
   function appendSymbol(container, text) {
     var m = ROOT_RE.exec(text);
     if (!m || !m[0]) {
@@ -430,7 +433,23 @@
     root.textContent = m[0];
     container.appendChild(root);
     var rest = text.slice(m[0].length);
-    if (rest) container.appendChild(document.createTextNode(rest));
+    appendSymbolRest(container, rest);
+  }
+
+  function appendSymbolRest(container, text) {
+    if (!text) return;
+    var slash = SLASH_BASS_RE.exec(text);
+    if (!slash || !slash[1]) {
+      container.appendChild(document.createTextNode(text));
+      return;
+    }
+    var before = text.slice(0, slash.index);
+    if (before) container.appendChild(document.createTextNode(before));
+    var slashSpan = document.createElement("span");
+    slashSpan.className = "try-symbol-bass-slash";
+    slashSpan.textContent = "/";
+    container.appendChild(slashSpan);
+    container.appendChild(document.createTextNode(slash[1]));
   }
 
   function appendNoteGroup(container, label, value) {
