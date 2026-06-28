@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.6.28] - 2026-06-28
+
 ### Added
 
 - Explore Chords and Explore Scales now show the notes you are playing live on
@@ -775,7 +777,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.6.19...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.6.28...HEAD
+[2026.6.28]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.6.19...v2026.6.28
 [2026.6.19]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.6.14...v2026.6.19
 [2026.6.14]:
