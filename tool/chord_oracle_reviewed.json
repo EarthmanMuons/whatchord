@@ -211,6 +211,14 @@
     "label": "genuine-ambiguity",
     "note": "Cm11(♭5,♭9,♭13) is preferred because C is the bass/root and C-E♭-G♭-B♭ forms a complete half-diminished seventh shell, with D♭, F, and A♭ as flat-side color tones. Music21 agrees semantically with the C half-diminished family. Tonal's G♭maj13♯11/C is also a complete Lydian-major re-rooting of the same collection, with C as sharp-eleventh bass color, so the split is genuine; the C bass and the more conventional half-diminished flat-side spelling make WhatChord's primary label defensible."
   },
+  "0-1-3-5-6-8-10_b1": {
+    "label": "genuine-ambiguity",
+    "note": "G♭maj13(♯11)/D♭ is preferred because G♭-B♭-D♭-F forms a complete major-seventh shell with D♭ as the fifth in the bass, and A♭, C, and E♭ supply the Lydian 9, ♯11, and 13 colors. Tonal agrees. Music21's D♭maj13 reading is also complete and root-position, and ChoCo contains more major7|nine,eleven,thirteen than major7|nine,sharp11,thirteen observations, but that spelling places a natural 11 against D♭'s major third. The row is a genuine ambiguity between bass-root diatonic major-thirteenth naming and the more idiomatic Lydian-major color stack."
+  },
+  "0-1-3-5-6-8-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "G♭maj13(♯11)/B♭ is preferred because B♭ is the major third of a complete G♭ Lydian-major thirteenth stack, and tonal agrees. Music21's B♭ minor-eleventh add-tone reading is pitch-valid and bass-rooted, but it requires the same G♭ pitch to function as altered fifth or flat-thirteenth color against B♭ minor, while the G♭ label keeps every pitch inside one major-family Lydian collection. The competing bass-root minor and first-inversion Lydian-major organizations make this a genuine ambiguity rather than an oracle limitation."
+  },
   "0-1-3-5-7_b3": {
     "label": "oracle-limitation",
     "note": "E♭13 is preferred because E♭ is the bass/root and the voicing supplies a fifthless dominant-thirteenth shell E♭-G-D♭ with F and C as ninth and thirteenth color. Tonal agrees as E♭13(no5). Music21's Cm/E♭ add D♭,F reading is a possible upper-structure description, but it treats the bass as the minor third of C and turns the dominant seventh and ninth into add tones, which is less direct for this root-position dominant voicing."
