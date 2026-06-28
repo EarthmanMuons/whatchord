@@ -1180,6 +1180,23 @@ void main() {
 
     golden(
       description:
+          'half-diminished flat-color stack beats minor sharp-five sharp-eleven',
+      expectedSymbol: 'Cm11(b5,b9,b13)',
+      expectedAlternateSymbols: ['Cm11(#5,b9,#11)'],
+      pcs: ['C', 'Db', 'Eb', 'F', 'F#', 'Ab', 'Bb'],
+      bass: 'C',
+      expectedRoot: 'C',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.halfDiminished7,
+      expectedExtensions: {
+        ChordExtension.flat9,
+        ChordExtension.eleven,
+        ChordExtension.flat13,
+      },
+    ),
+
+    golden(
+      description:
           'common altered dominant beats rarer enharmonic ninth inversion',
       expectedSymbol: 'G7#5 / A',
       expectedAlternateSymbols: ['F9b5 / A'],

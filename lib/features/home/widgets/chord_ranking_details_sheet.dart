@@ -1201,6 +1201,8 @@ String _plainDecision(String? rule, {ChordCandidate? winner}) {
       'the dominant-seventh shell gives the voicing a clearer dominant reading.',
     'prefer higher-scoring major-seventh-bass inversion over color-bass slash' =>
       'the higher-scoring name gives the bass a conventional major-seventh inversion role instead of treating it as a remote color tone.',
+    'prefer half-diminished flat-color spelling over minor sharp-five' =>
+      'the half-diminished name uses the flatter, more conventional spelling for this diminished-fifth color stack.',
     'prefer fewer altered/tension colors' =>
       'it needs fewer altered color tones.',
     'prefer diatonic chords' => 'it fits the selected key more directly.',

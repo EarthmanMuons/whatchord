@@ -366,6 +366,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferSharpFiveSharpElevenDominantSpelling,
   ),
   NamedRule(
+    'prefer half-diminished flat-color spelling over minor sharp-five',
+    _preferHalfDiminishedFlatColorSpellingOverMinorSharpFive,
+  ),
+  NamedRule(
     'prefer complete major inversion over minor sharp-five',
     _preferCompleteMajorInversionOverMinorSharpFive,
   ),
@@ -917,6 +921,50 @@ bool _isNineFlatFiveFlatThirteen(ChordIdentity id) {
       (id.extensions.contains(ChordExtension.nine) ||
           id.extensions.contains(ChordExtension.flat9)) &&
       id.extensions.contains(ChordExtension.flat13);
+}
+
+/// Prefers the half-diminished flat-side spelling for same-root minor
+/// altered-fifth ambiguities.
+///
+/// A complete Locrian-flavored stack such as C-Eb-Gb-Bb-Db-F-Ab is more
+/// naturally C half-diminished with b9, 11, and b13 than C minor-seven-sharp-five
+/// with both natural 11 and #11.
+int? _preferHalfDiminishedFlatColorSpellingOverMinorSharpFive(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isHalfDiminishedFlatColorStack(a.identity);
+  final bIsPreferred = _isHalfDiminishedFlatColorStack(b.identity);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final preferred = aIsPreferred ? a : b;
+  final other = aIsPreferred ? b : a;
+  if (!_isMinorSharpFiveSharpElevenStack(other.identity)) return null;
+  if (preferred.identity.rootPc != other.identity.rootPc ||
+      preferred.identity.bassPc != other.identity.bassPc) {
+    return null;
+  }
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isHalfDiminishedFlatColorStack(ChordIdentity id) {
+  return id.quality == ChordQualityToken.halfDiminished7 &&
+      id.extensions.length == 3 &&
+      id.extensions.contains(ChordExtension.flat9) &&
+      id.extensions.contains(ChordExtension.eleven) &&
+      id.extensions.contains(ChordExtension.flat13);
+}
+
+bool _isMinorSharpFiveSharpElevenStack(ChordIdentity id) {
+  return id.quality == ChordQualityToken.minor7Sharp5 &&
+      id.extensions.length == 3 &&
+      id.extensions.contains(ChordExtension.flat9) &&
+      id.extensions.contains(ChordExtension.eleven) &&
+      id.extensions.contains(ChordExtension.sharp11);
 }
 
 /// Prefers a bass-rooted suspended dominant over remote slash spellings.

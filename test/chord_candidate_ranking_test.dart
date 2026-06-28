@@ -574,6 +574,43 @@ void main() {
   );
 
   test(
+    'half-diminished flat-color spelling beats minor sharp-five sharp-eleven',
+    () {
+      final halfDiminished = _candidate(
+        quality: ChordQualityToken.halfDiminished7,
+        root: 'C',
+        bass: 'C',
+        presentIntervals: const {0, 1, 3, 5, 6, 8, 10},
+        extensions: const {
+          ChordExtension.flat9,
+          ChordExtension.eleven,
+          ChordExtension.flat13,
+        },
+        score: 7.70,
+      );
+
+      final minorSharpFive = _candidate(
+        quality: ChordQualityToken.minor7Sharp5,
+        root: 'C',
+        bass: 'C',
+        presentIntervals: const {0, 1, 3, 5, 6, 8, 10},
+        extensions: const {
+          ChordExtension.flat9,
+          ChordExtension.eleven,
+          ChordExtension.sharp11,
+        },
+        score: 7.70,
+      );
+
+      _expectTieRule(
+        halfDiminished,
+        minorSharpFive,
+        'prefer half-diminished flat-color spelling over minor sharp-five',
+      );
+    },
+  );
+
+  test(
     'higher-scoring major-seventh-bass inversion beats remote color-bass slash',
     () {
       final conventionalInversion = _candidate(
