@@ -411,6 +411,14 @@
     "label": "oracle-limitation",
     "note": "Gm11(♭5) is preferred because G is the bass/root and G-B♭-D♭-F forms a complete root-position half-diminished seventh shell with C as eleventh color. Music21 agrees semantically. Tonal's C♭9sus/G and C11♭9/G labels are valid rotations of the same pitch collection, but they move the root away from the observed bass and obscure the complete G half-diminished sonority. B♭m6/9/G remains a surfaced possible alternative, but it makes the bass the sixth rather than the root of the chord, so it is less direct as the primary label."
   },
+  "0-1-5-8-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "D♭maj13/C is defensible because D♭-F-A♭-C forms a complete major-seventh shell with B♭ as thirteenth color and C as the major seventh in the bass. Music21 and tonal prefer the real B♭m9/C relative-minor reading, and ChoCo strongly favors minor7|nine vocabulary over sparse major7-thirteenth-only labels, so the alternate is important. WhatChord keeps the D♭ label first because it gives the bass a chord-defining major-seventh role, while the B♭ minor reading makes the bass the ninth color tone; the B♭m7/C slash is still surfaced as a close possible alternative."
+  },
+  "0-1-5-8-10_b1": {
+    "label": "genuine-ambiguity",
+    "note": "D♭maj13 is defensible because D♭ is the bass/root of a complete D♭-F-A♭-C major-seventh sonority with B♭ as thirteenth color. Music21 and tonal prefer B♭m9/D♭, which is also a complete and common relative-minor ninth reading, and ChoCo broadly favors minor7|nine vocabulary. The two candidates score identically and WhatChord surfaces B♭m9/D♭ as a possible alternative; neutral and D♭ major contexts favor the bass-rooted major-thirteenth label, while B♭ minor context correctly flips to the relative-minor ninth."
+  },
   "0-1-6-8-10_b0": {
     "label": "genuine-ambiguity",
     "note": "D♭maj13sus4/C is preferred because D♭-G♭-A♭-C-B♭ forms a D♭ suspended major-seventh sonority with thirteenth color, and the C bass is the major seventh rather than a non-chord chromatic tone. Tonal's B♭m9♯5/C matches WhatChord's surfaced possible alternative and names the complete B♭ minor-seventh-sharp-five structure, but that spelling asks musicians to read F♯ as an altered fifth where the D♭ reading keeps the upper structure diatonic. Music21's G♭/C add-tone label captures a related major-shell subset but omits the suspended-major-seventh organization. The row remains genuinely ambiguous."
