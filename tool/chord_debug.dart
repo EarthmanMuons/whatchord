@@ -200,7 +200,7 @@ void main(List<String> args) {
     final c = r.candidate;
     final id = c.identity;
 
-    final symbol = chordSymbolDisplayLabel(
+    final symbol = chordSymbolTextLabel(
       ChordSymbolBuilder.fromIdentity(
         identity: id,
         tonality: context.tonality,
@@ -779,7 +779,7 @@ Map<String, Object?> _candidateJson({
   final c = result.candidate;
   final id = c.identity;
   final rootName = spellChordRoot(id, tonality: context.tonality);
-  final symbol = chordSymbolDisplayLabel(
+  final symbol = chordSymbolTextLabel(
     ChordSymbolBuilder.fromIdentity(
       identity: id,
       tonality: context.tonality,

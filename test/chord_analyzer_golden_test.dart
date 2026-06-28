@@ -59,8 +59,8 @@ void main() {
 
     golden(
       description: 'split-third major triad in second inversion',
-      expectedSymbol: 'Aadd#9 / E',
-      expectedAlternateSymbols: ['C#m(maj7,b13) / E', 'C6b9 / E'],
+      expectedSymbol: 'Aadd#9/E',
+      expectedAlternateSymbols: ['C#m(maj7,b13)/E', 'C6b9/E'],
       pcs: ['C', 'Db', 'E', 'A'],
       bass: 'E',
       expectedRoot: 'A',
@@ -72,8 +72,8 @@ void main() {
 
     golden(
       description: 'split-third major triad in first inversion',
-      expectedSymbol: 'Aadd#9 / C#',
-      expectedAlternateSymbols: ['C#m(maj7,b13)', 'C6b9 / Db'],
+      expectedSymbol: 'Aadd#9/C#',
+      expectedAlternateSymbols: ['C#m(maj7,b13)', 'C6b9/Db'],
       pcs: ['C', 'Db', 'E', 'A'],
       bass: 'Db',
       expectedRoot: 'A',
@@ -86,7 +86,7 @@ void main() {
     golden(
       description: 'harmonic-minor tonic beats split-third major inversion',
       expectedSymbol: 'C#m(maj7,b13)',
-      expectedAlternateSymbols: ['Aadd#9 / C#', 'C6b9 / Db'],
+      expectedAlternateSymbols: ['Aadd#9/C#', 'C6b9/Db'],
       pcs: ['C', 'Db', 'E', 'A'],
       bass: 'Db',
       tonality: const Tonality(Tonic.cSharp, TonalityMode.minor),
@@ -100,7 +100,7 @@ void main() {
       description:
           'transposed harmonic-minor tonic beats split-third major inversion',
       expectedSymbol: 'Fm(maj7,b13)',
-      expectedAlternateSymbols: ['Dbadd#9 / F', 'E6b9 / F'],
+      expectedAlternateSymbols: ['Dbadd#9/F', 'E6b9/F'],
       pcs: ['E', 'F', 'Ab', 'Db'],
       bass: 'F',
       tonality: const Tonality(Tonic.f, TonalityMode.minor),
@@ -141,7 +141,7 @@ void main() {
     golden(
       description: 'dominant eleventh without ninth beats sus slash',
       expectedSymbol: 'C11',
-      expectedAlternateSymbols: ['Fmaj9sus4 / C', 'C7sus4'],
+      expectedAlternateSymbols: ['Fmaj9sus4/C', 'C7sus4'],
       pcs: ['C', 'E', 'G', 'Bb', 'F'],
       bass: 'C',
       expectedRoot: 'C',
@@ -169,7 +169,7 @@ void main() {
 
     golden(
       description: 'altered major seventh keeps sharp ninth color',
-      expectedSymbol: 'Dmaj7(#9,b13) / A',
+      expectedSymbol: 'Dmaj7(#9,b13)/A',
       pcs: ['A', 'D', 'F', 'F#', 'A#', 'C#'],
       bass: 'A',
       expectedRoot: 'D',
@@ -210,7 +210,7 @@ void main() {
     // Same sonority as C9, but with a non-root bass should render a slash chord.
     golden(
       description: 'dominant ninth over fifth in the bass',
-      expectedSymbol: 'C9 / G',
+      expectedSymbol: 'C9/G',
       pcs: ['C', 'E', 'G', 'Bb', 'D'],
       bass: 'G',
       expectedRoot: 'C',
@@ -220,7 +220,7 @@ void main() {
 
     golden(
       description: 'major sixth in first inversion',
-      expectedSymbol: 'C6 / E',
+      expectedSymbol: 'C6/E',
       pcs: ['C', 'E', 'G', 'A'],
       bass: 'E',
       expectedRoot: 'C',
@@ -232,7 +232,7 @@ void main() {
     // Prefer the complete inverted minor triad.
     golden(
       description: 'complete minor inversion beats doubled fifthless sixth',
-      expectedSymbol: 'Am / C',
+      expectedSymbol: 'Am/C',
       pcs: ['C', 'E', 'A'],
       noteCount: 4,
       expectedRoot: 'A',
@@ -256,8 +256,8 @@ void main() {
     // while retaining the bass-rooted reinterpretations as alternates.
     golden(
       description: 'flat-nine-bass dominant without fifth',
-      expectedSymbol: 'C7b9 / Db',
-      expectedAlternateSymbols: ['C#m(maj13)', 'A#dim(add9) / C#'],
+      expectedSymbol: 'C7b9/Db',
+      expectedAlternateSymbols: ['C#m(maj13)', 'A#dim(add9)/C#'],
       pcs: ['C', 'Db', 'E', 'Bb'],
       bass: 'Db',
       expectedRoot: 'C',
@@ -269,7 +269,7 @@ void main() {
     golden(
       description: 'root-position diminished add-nine beats deficient slash',
       expectedSymbol: 'A#dim(add9)',
-      expectedAlternateSymbols: ['C#m(maj7) / A#', 'C7b9 / Bb'],
+      expectedAlternateSymbols: ['C#m(maj7)/A#', 'C7b9/Bb'],
       pcs: ['C', 'Db', 'E', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'A#',
@@ -374,7 +374,7 @@ void main() {
     golden(
       description: 'major ninth suspended fourth',
       expectedSymbol: 'Dbmaj9sus4',
-      expectedAlternateSymbols: ['Ab7 / Db'],
+      expectedAlternateSymbols: ['Ab7/Db'],
       pcs: ['C', 'Db', 'Eb', 'F#', 'Ab'],
       bass: 'Db',
       expectedRoot: 'Db',
@@ -396,7 +396,7 @@ void main() {
     // major triad is the more conventional default for MIDI-style input.
     golden(
       description: 'first-inversion major triad beats minor sharp fifth',
-      expectedSymbol: 'Ab / C',
+      expectedSymbol: 'Ab/C',
       pcs: ['C', 'Eb', 'G#'],
       expectedRoot: 'Ab',
       expectedBass: 'C',
@@ -410,7 +410,7 @@ void main() {
     golden(
       description:
           'major triad inversion beats minor sharp-five with added ninth',
-      expectedSymbol: 'Ab#11 / C',
+      expectedSymbol: 'Ab#11/C',
       pcs: ['C', 'Eb', 'G#', 'D'],
       expectedRoot: 'Ab',
       expectedBass: 'C',
@@ -625,7 +625,7 @@ void main() {
     ),
     golden(
       description: 'complete dominant flat-nine beats diminished add-eleventh',
-      expectedSymbol: 'F7b9 / C',
+      expectedSymbol: 'F7b9/C',
       pcs: ['C', 'Eb', 'Gb', 'A', 'F'],
       expectedRoot: 'F',
       expectedBass: 'C',
@@ -634,7 +634,7 @@ void main() {
     ),
     golden(
       description: 'complete dominant flat-nine beats diminished flat-thirteen',
-      expectedSymbol: 'G#7b9 / B#',
+      expectedSymbol: 'G#7b9/B#',
       pcs: ['C', 'Eb', 'Gb', 'A', 'Ab'],
       expectedRoot: 'G#',
       expectedBass: 'B#',

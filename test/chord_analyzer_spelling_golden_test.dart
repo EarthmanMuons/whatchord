@@ -35,7 +35,7 @@ void main() {
     // Diminished context: interpret Gb as b5 (not F# as #11) when structure supports dim.
     golden(
       description: 'diminished structure overrides sharp-leaning key spelling',
-      expectedSymbol: 'Cdim / Gb',
+      expectedSymbol: 'Cdim/Gb',
       pcs: ['Gb', 'C', 'Eb'],
       tonality: const Tonality(Tonic.d, TonalityMode.major), // sharp-leaning
       expectedRoot: 'C',

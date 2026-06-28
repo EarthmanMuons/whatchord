@@ -44,7 +44,7 @@ class ChordSymbol {
   String toString() {
     // Keep this intentionally plain and stable for debugging/logging.
     final base = '$root$quality';
-    return bass == null ? base : '$base / $bass';
+    return bass == null ? base : '$base/$bass';
   }
 
   static String? _normalizeOptionalToken(String? s) {

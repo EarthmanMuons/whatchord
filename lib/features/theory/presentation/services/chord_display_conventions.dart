@@ -3,8 +3,8 @@ import '../../domain/theory_domain.dart';
 abstract final class ChordDisplayConventions {
   /// True when a seventh-family chord carries a single natural extension
   /// (9, 11, or 13) and the slash bass is that extension, so the symbol drops
-  /// it rather than restate the bass: "C9 / D" → "C7 / D" and "Ab11 / Db" →
-  /// "Ab7 / Db". These stacked extensions are not add-tones, so the universal
+  /// it rather than restate the bass: "C9/D" -> "C7/D" and "Ab11/Db" ->
+  /// "Ab7/Db". These stacked extensions are not add-tones, so the universal
   /// compression in [displayedExtensions] does not cover them.
   static bool usesExtensionSlashBassCompression(ChordIdentity identity) {
     if (!identity.hasSlashBass) return false;
