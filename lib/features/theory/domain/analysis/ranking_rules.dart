@@ -408,7 +408,7 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
   NamedRule('prefer tonic chord', _preferTonicChord),
   NamedRule('prefer I chord when bass is tonic', _preferTonicAsI),
   NamedRule(
-    'prefer complete triad add-tone over seventh-family add-tone',
+    'prefer complete triad add-tone over sparse seventh-family color',
     _preferCompleteTriadAddToneOverSeventhFamilyAddTone,
   ),
   NamedRule(
@@ -1835,8 +1835,8 @@ int? _preferRootAddChordOverSusSlash(
 
 // ---- Triad completeness vs seventh-family inflation --------------------
 
-/// Prefers a complete major/minor triad with add-tone extensions over a
-/// seventh-family chord whose extensions are all add-tones in a near-tie.
+/// Prefers a complete major/minor triad with add-tone extensions over a sparse
+/// seventh-family chord that inflates the same pitches into remote color.
 ///
 /// A complete triad with simple color tones (e.g., Bbmadd9/Db) is a more
 /// conventional and stable structure than forcing the same pitches into a
@@ -1861,15 +1861,39 @@ int? _preferCompleteTriadAddToneOverSeventhFamilyAddTone(
       fb.extPref.naturalCount == 0;
   if (aIsTriadAddTone == bIsTriadAddTone) return null;
 
-  // The other must be a seventh-family chord carrying only add-tone
-  // extensions, indicating the same pitch set is being forced into an
-  // unconventional seventh-family framework.
+  // The other must be a seventh-family chord carrying only unaltered color,
+  // indicating the same pitch set is being forced into an unconventional
+  // seventh-family framework.
   final fOther = aIsTriadAddTone ? fb : fa;
+  final other = aIsTriadAddTone ? b : a;
   if (!fOther.isSeventhFamily) return null;
   if (fOther.extPref.alterationCount > 0) return null;
-  if (fOther.extPref.naturalCount > 0) return null;
+  if (fOther.extPref.naturalCount > 0 &&
+      !_isSparseNaturalExtensionSeventh(other.identity)) {
+    return null;
+  }
 
   return aIsTriadAddTone ? -1 : 1;
+}
+
+bool _isSparseNaturalExtensionSeventh(ChordIdentity id) {
+  if (!id.quality.isSeventhFamily) return false;
+  final roles = id.toneRolesByInterval.values;
+  final hasFifth =
+      roles.contains(ChordToneRole.perfect5) ||
+      roles.contains(ChordToneRole.flat5) ||
+      roles.contains(ChordToneRole.sharp5);
+  if (hasFifth) return false;
+
+  return id.extensions.every(
+    (extension) =>
+        extension == ChordExtension.add9 ||
+        extension == ChordExtension.add11 ||
+        extension == ChordExtension.add13 ||
+        extension == ChordExtension.nine ||
+        extension == ChordExtension.eleven ||
+        extension == ChordExtension.thirteen,
+  );
 }
 
 /// Prefers a complete major/minor triad with natural add-tone color over a
