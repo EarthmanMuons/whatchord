@@ -12,108 +12,58 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- The Explore Chords copy menu can now copy the chord degrees (such as 1, ♭3, 5,
-  ♭7), matching the degree view available on the member chips.
-- Explore Scales can now copy scale details. Tap the scale name to choose from
-  the scale name, its tones, its formula (such as 1, 2, ♭3, 4, 5, ♭6, ♭7), and
-  its diatonic chords, which follow the 7ths toggle.
-- Audio Monitor now offers a MIDI Out mode. Switch the output between Internal
-  (this device's speakers, as before) and MIDI Out, which sends chord and scale
-  previews to your connected MIDI instrument so you hear them on its own
-  speakers. MIDI Out is available when a device is connected, and live notes you
-  play are never echoed back to the instrument. The playback volume control
-  applies to both outputs, each remembering its own level with MIDI Out starting
-  quieter, and mute silences either one.
+- Explore Chords and Explore Scales now show the notes you are playing live on
+  the keyboard whenever an example is not currently sounding.
+- Audio Monitor can now send Explore chord and scale previews to a connected
+  MIDI instrument. Switch between Internal and MIDI Out playback, with separate
+  remembered volume levels for each output. MIDI Out starts at a quieter
+  default, follows the same mute control, and never echoes the live notes you
+  play back to the instrument.
+- Explore Scales can now copy scale details. Tap the scale name to copy the
+  scale name, tones, formula (such as 1, 2, ♭3, 4, 5, ♭6, ♭7), or diatonic
+  chords. Copied diatonic chords follow the 7ths toggle.
+- Explore Chords can now copy the chord degree formula, such as 1, ♭3, 5, ♭7,
+  matching the degree view available on the member chips.
 
 ### Changed
 
-- Slash chord symbols now use compact spacing in copied text, diagnostics, and
-  command-line output, while the app UI keeps the spaced slash-bass display for
-  readability.
-- Simplified the Playback Volume control. The mute button now sits inline at the
-  left of the slider, the flanking speaker icons are gone, and volume snaps to
-  5% steps for predictable, repeatable levels. The readout shows "Muted" while
-  muted and the current percentage while you adjust.
-- Explore pages now show live input on the keyboard when playback is idle and
-  include the MIDI status button in the top bar. Explore Chords shows non-chord
-  live notes with a muted gray highlight, and Explore Scales does the same for
-  out-of-scale notes against the selected scale markers.
+- Explore pages now include the MIDI status button in the top bar. Explore
+  Chords shows non-chord live notes with a muted gray highlight, and Explore
+  Scales does the same for out-of-scale notes against the selected scale
+  markers.
+- Chord symbols now follow more conventional formatting rules for extensions,
+  modifiers, slash bass, and minor-major chords. This includes C13 instead of
+  C7(add13), C9(♭5,♭9) instead of C9♭5♭9, minor-major labels such as Cm(maj7),
+  compact copied slash symbols such as C/E, and parenthesized add tones after
+  spelled-out aug and dim qualities, such as Caug(add9) and Cdim(add9).
+- Simplified the Playback Volume control. The mute button now sits inline beside
+  the slider, volume moves in predictable 5% steps, and the readout shows
+  "Muted" while muted.
+- Explore Scales now opens a chord in Explore from a button on the selected
+  degree row, next to its play button, instead of a header icon detached from
+  the selected chord.
 - Why This Chord? now distinguishes the Chosen, Possible, and Unlikely ranking
   tiers more clearly. Each tier uses a distinct marker and rank badge, with a
   filled badge for the chosen chord, an outlined badge for possible
   alternatives, and a plain badge for unlikely ones.
-- Explore Scales now opens a chord in Explore from a button on the selected
-  degree row, next to its play button, instead of a compass icon in the header.
-  The action now sits right on the chord it opens, making it clearer which chord
-  you are about to explore.
-- Chord symbols now keep all grouped modifiers in a single set of parentheses at
-  the end of the symbol, never in the middle of the label or split across two
-  groups. An altered fifth carried in the quality joins that group when other
-  modifiers are present, so a dominant ninth with a flat five and flat nine
-  reads as C9(♭5,♭9) rather than C9♭5♭9, and an extended half-diminished chord
-  reads as Cm13(♭5,♭13) rather than Cm13(♭5)♭13. A lone altered fifth still
-  stays inline, as in C7♭5.
-- Minor-major chords now use parenthesized textual notation, such as Cm(maj7),
-  Cm(maj9), and Cm(maj9,♭13), so the major-seventh family marker and any added
-  modifiers stay in one readable group. Symbolic notation continues to use the
-  triangle, as in C−Δ7.
-- Major-family maj11 and maj13 symbols now group a following lone modifier for
-  readability, so dense labels read as Cmaj11(♭13) or Cmaj13(♯11) while compact
-  dominant labels like C13♯11 remain inline.
-- Added tones after the spelled-out aug and dim qualities are now wrapped in
-  parentheses in textual notation, so an augmented triad with an added
-  thirteenth reads as Caug(add13) and a diminished triad with an added ninth as
-  Cdim(add9) instead of running the quality and add together. The single-letter
-  m stays fused (Cmadd9), and symbolic notation stays compact (C+add13).
-- A seventh chord that includes a thirteenth but no ninth is now named as a
-  thirteenth chord (such as C13 or Cm13) rather than a seventh with an added
-  thirteenth (C7(add13)), matching common practice where the ninth and eleventh
-  of a thirteenth chord are optional.
 
 ### Fixed
 
-- Improved add-nine slash-chord ranking so complete triads such as B♭madd9/D♭
-  can outrank sparse major-thirteenth shells that reinterpret the same pitch as
-  remote color.
-- Improved half-diminished color-stack naming so flat-side diminished-fifth
-  spellings can outrank equivalent minor-seven-sharp-five names with sharper
-  color tones.
-- Improved close slash-chord ranking so a higher-scoring major-seventh-bass
-  inversion is not demoted behind a remote color-bass reading just because the
-  remote name uses fewer altered colors.
-- Improved fifthless dominant flat-five thirteenth naming so flat-seventh-bass
-  voicings can use the clearer 13♭5 spelling instead of being forced into 13♯11
-  or remote flat-thirteenth rotations.
-- Improved root-position dominant sus flat-nine naming so it can outrank remote
-  half-diminished slash spellings when the bass supplies the suspended dominant
-  root.
-- Improved root-position minor 6/9 naming so it can outrank equivalent
-  half-diminished slash spellings when the bass supplies the minor-six root.
-- Refined fifthless major-extension scoring so natural-eleventh major-family
-  stacks do not receive the Lydian extension-stack bonus, and fifthless major
-  thirteenths do not overwhelm complete dominant-thirteenth inversions.
-- Improved natural dominant-thirteenth slash naming so complete 13th voicings
-  with the ninth in the bass can outrank add-heavy minor-six alternatives.
-- Improved minor-major ninth naming so complete minor-major ninth voicings can
-  outrank remote augmented-major thirteenth spellings.
-- Improved sparse extension naming so root-position diminished add-tone voicings
-  can outrank deficient minor-major slash readings.
-- Improved whole-tone dominant naming so common 9♯5 and 9♭5 slash readings can
-  win over less common root-position ♯5♯11 spellings when the evidence is close.
-- Improved altered dominant-thirteenth naming so complete 13♯9♯11 voicings can
-  outrank rarer minor-thirteenth flat-nine sharp-eleven reinterpretations.
-- Improved flat-thirteenth bass handling so complete 7♯9♭13 and 9♭13 dominant
-  voicings remain preferred over more remote reinterpretations.
-- Improved Lydian-dominant inversion handling so complete 13♯11 voicings stay
-  competitive with altered-dominant reinterpretations.
-- Improved split-ninth dominant handling so close tritone-substitute readings
-  remain visible as possible alternatives.
-- Improved altered-dominant handling so complete 7♭9♯9 voicings with the fifth
-  in the bass outrank remote diminished add-tone spellings.
-- Improved flat-five dominant naming so exact tritone-related ties prefer the
-  cleaner readable spelling.
-- Improved fifthless dominant naming so 9♭5 voicings can outrank 9♯11 when the
-  altered fifth is the clearer chord-defining tone.
+- Improved identification of extended dominants, including 13ths, 9♭13s, 13♯11s,
+  13♭5s, and altered 13♯9♯11 voicings. Complete dominant structures are now more
+  likely to win over remote minor-six, diminished, minor-major, or Lydian-major
+  reinterpretations.
+- Improved slash-chord ranking so the bass role is weighted more musically.
+  Complete add-nine triad inversions, major-seventh-bass inversions,
+  seventh-bass dominants, ninth-bass dominants, and root-position sus or minor
+  6/9 chords now surface more consistently.
+- Improved half-diminished, diminished, and minor-major naming around close
+  chromatic voicings, favoring clearer root-position or complete-shell labels
+  while keeping real ambiguities available as alternatives.
+- Improved altered-fifth and split-ninth dominant handling, including clearer
+  9♯5, 9♭5, 7♭9♯9, and tritone-related flat-five spellings.
+- Updated analysis diagnostics, chord-debug output, website examples, and
+  reviewed oracle notes to match the current chord-symbol and ranking behavior.
 
 ## [2026.6.19] - 2026-06-19
 
