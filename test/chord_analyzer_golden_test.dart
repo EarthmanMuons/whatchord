@@ -252,6 +252,16 @@ void main() {
       expectedExtensions: {ChordExtension.flat9},
     ),
 
+    golden(
+      description: 'root-position sharp-five flat-nine dominant',
+      expectedSymbol: 'C7(#5,b9)',
+      expectedAlternateSymbols: ['C#m(maj13)/B#', 'C7(b9,b13)'],
+      pcs: ['C', 'Db', 'E', 'Ab', 'Bb'],
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedExtensions: {ChordExtension.flat9},
+    ),
+
     // In neutral context, prefer the familiar fifthless altered-dominant shell
     // while retaining the bass-rooted reinterpretations as alternates.
     golden(

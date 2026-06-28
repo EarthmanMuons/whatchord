@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Improved root-position altered sharp-five dominant recognition, so voicings
+  such as C7♯5♭9 are less likely to be displaced by remote minor-major
+  reinterpretations.
+
 ## [2026.6.28] - 2026-06-28
 
 ### Added

@@ -1336,12 +1336,12 @@ bool _isCompleteMinorSixAddEleven(
       roles.contains(ChordToneRole.sixth);
 }
 
-/// Prefers complete altered-dominant notation with #11 over remote spellings.
+/// Prefers complete altered sharp-five dominant notation over remote spellings.
 ///
 /// Example: {C, Db, E, F#, Ab, Bb} is better read as C7#5(b9,#11)/Ab than
 /// Ab11#5 or Bbm9#5#11. The competing spellings are pitch-class valid, but the
 /// C-rooted spelling names the same material with conventional altered-dominant
-/// vocabulary.
+/// vocabulary. The same principle applies to the simpler complete 7#5b9 shell.
 int? _preferCompleteAlteredSharpFiveDominantOverRemoteSpellings(
   ChordCandidate a,
   ChordCandidate b,
@@ -1355,7 +1355,13 @@ int? _preferCompleteAlteredSharpFiveDominantOverRemoteSpellings(
 
   final other = aIsPreferred ? b : a;
   final preferred = aIsPreferred ? a : b;
+  final fPreferred = aIsPreferred ? fa : fb;
   final fOther = aIsPreferred ? fb : fa;
+  final preferredHasSharpEleven = preferred.identity.extensions.contains(
+    ChordExtension.sharp11,
+  );
+  if (!preferredHasSharpEleven && !fPreferred.isRootPosition) return null;
+
   if (_isStableExtendedDom7(other.identity, fOther) &&
       _alteredSharpFiveHasDoubleAccidental(preferred.identity, tonality)) {
     return null;
@@ -1373,16 +1379,12 @@ int? _preferCompleteAlteredSharpFiveDominantOverRemoteSpellings(
 
 bool _isAlteredSharpFiveDominant(ChordIdentity id) {
   if (id.quality != ChordQualityToken.dominant7Sharp5) return false;
-  if (!id.extensions.contains(ChordExtension.flat9) ||
-      !id.extensions.contains(ChordExtension.sharp11)) {
-    return false;
-  }
+  if (!id.extensions.contains(ChordExtension.flat9)) return false;
 
   final roles = id.toneRolesByInterval.values;
   return roles.contains(ChordToneRole.root) &&
       roles.contains(ChordToneRole.flat9) &&
       roles.contains(ChordToneRole.major3) &&
-      roles.contains(ChordToneRole.sharp11) &&
       roles.contains(ChordToneRole.sharp5) &&
       roles.contains(ChordToneRole.flat7);
 }
