@@ -18,6 +18,8 @@ class ChordSymbolDisplayParts {
 
   String get base => '$root$quality';
 
+  String get compactSlash => bass == null ? base : '$base/$bass';
+
   @override
   String toString() {
     return bass == null ? base : '$base / $bass';
@@ -101,6 +103,18 @@ String chordSymbolDisplayLabel(
     symbol,
     noteNameSystem: noteNameSystem,
   ).toString();
+}
+
+/// Converts a chord symbol to copy/paste text while preserving canonical slash
+/// spacing expectations.
+String chordSymbolCopyLabel(
+  ChordSymbol symbol, {
+  NoteNameSystem noteNameSystem = NoteNameSystem.international,
+}) {
+  return chordSymbolDisplayParts(
+    symbol,
+    noteNameSystem: noteNameSystem,
+  ).compactSlash;
 }
 
 ChordSymbolDisplayParts chordSymbolDisplayParts(

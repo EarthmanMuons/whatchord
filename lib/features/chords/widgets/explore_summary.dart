@@ -46,7 +46,7 @@ class ExploreSummary extends ConsumerWidget {
       CopyChoice(
         title: 'Chord symbol',
         icon: Icons.music_note,
-        value: chordSymbolDisplayLabel(
+        value: chordSymbolCopyLabel(
           presentation.symbol,
           noteNameSystem: noteNameSystem,
         ),
