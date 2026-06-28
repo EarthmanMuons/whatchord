@@ -396,6 +396,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferHarmonicMinorTonicOverSplitThirdInversion,
   ),
   NamedRule(
+    'prefer lydian major-nine over natural-eleventh major-thirteenth',
+    _preferLydianMajorNineOverNaturalEleventhMajorThirteenth,
+  ),
+  NamedRule(
     'prefer higher-scoring major-seventh-bass inversion over color-bass slash',
     _preferHigherScoringMajorSeventhBassInversionOverColorBassSlash,
   ),
@@ -2133,6 +2137,61 @@ int? _preferFewerAlterations(
   final cmp = fa.extensionTensionCount.compareTo(fb.extensionTensionCount);
   if (cmp == 0) return null;
   return cmp;
+}
+
+int? _preferLydianMajorNineOverNaturalEleventhMajorThirteenth(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures _,
+  CandidateFeatures _,
+  Tonality _,
+) {
+  final aIsLydian = _isCompleteLydianMajorNine(a.identity);
+  final bIsLydian = _isCompleteLydianMajorNine(b.identity);
+  if (aIsLydian == bIsLydian) return null;
+
+  final lydian = aIsLydian ? a : b;
+  final other = aIsLydian ? b : a;
+  if (!_isMajorThirteenthWithNaturalEleventhMajorSeventhBass(other.identity)) {
+    return null;
+  }
+  if (lydian.score + 0.25 < other.score) return null;
+
+  return aIsLydian ? -1 : 1;
+}
+
+bool _isCompleteLydianMajorNine(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.major7) return false;
+  if (id.extensions.length != 2 ||
+      !id.extensions.contains(ChordExtension.nine) ||
+      !id.extensions.contains(ChordExtension.sharp11)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.major7) &&
+      roles.contains(ChordToneRole.nine) &&
+      roles.contains(ChordToneRole.sharp11);
+}
+
+bool _isMajorThirteenthWithNaturalEleventhMajorSeventhBass(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.major7) return false;
+  if (!id.extensions.contains(ChordExtension.eleven) ||
+      !id.extensions.contains(ChordExtension.thirteen)) {
+    return false;
+  }
+  if (!_hasMajorSeventhBass(id)) return false;
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.major7) &&
+      roles.contains(ChordToneRole.eleven) &&
+      roles.contains(ChordToneRole.thirteen);
 }
 
 int? _preferHigherScoringMajorSeventhBassInversionOverColorBassSlash(

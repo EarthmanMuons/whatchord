@@ -676,6 +676,35 @@ void main() {
   );
 
   test(
+    'lydian major-nine beats major-thirteenth natural-eleventh inversion',
+    () {
+      final lydian = _candidate(
+        quality: ChordQualityToken.major7,
+        root: 'Db',
+        bass: 'G',
+        presentIntervals: const {0, 2, 4, 6, 7, 11},
+        extensions: const {ChordExtension.nine, ChordExtension.sharp11},
+        score: 7.65,
+      );
+
+      final naturalEleventh = _candidate(
+        quality: ChordQualityToken.major7,
+        root: 'Ab',
+        bass: 'G',
+        presentIntervals: const {0, 4, 5, 7, 9, 11},
+        extensions: const {ChordExtension.eleven, ChordExtension.thirteen},
+        score: 7.79,
+      );
+
+      _expectTieRule(
+        lydian,
+        naturalEleventh,
+        'prefer lydian major-nine over natural-eleventh major-thirteenth',
+      );
+    },
+  );
+
+  test(
     'root-position extended dominant beats altered-fifth slash near-tie',
     () {
       final rootPosition = _candidate(
