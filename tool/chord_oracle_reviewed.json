@@ -223,6 +223,22 @@
     "label": "genuine-ambiguity",
     "note": "Cm11(♭5,♭9) is preferred because C is the bass/root and C-E♭-G♭-B♭ forms a complete half-diminished seventh shell, with D♭ as flat-ninth color and F as eleventh color. Music21 agrees semantically. Tonal's E♭m13/C is a valid rotation and names a complete E♭ minor-thirteenth collection, but it makes the observed C bass the thirteenth rather than the root. ChoCo broadly supports minor-thirteenth vocabulary more than these rare half-diminished color combinations, so this remains a genuine ambiguity, but the bass-rooted half-diminished label is the more direct musician-facing name for this voicing."
   },
+  "0-1-3-5-6-10_b1": {
+    "label": "genuine-ambiguity",
+    "note": "G♭maj13(♯11)/D♭ is defensible because G♭-B♭-D♭-F forms a complete Lydian-major-seventh shell with D♭ as the fifth in the bass, and C plus E♭ supply ♯11 and 13 color. Tonal's E♭m13/D♭ is an equally scored complete relative-minor-thirteenth reading, and music21's C half-diminished-flat-nine reading also names a complete seventh shell. ChoCo offers only weak nearby support for the exact Lydian-major and minor-thirteenth signatures, so the stable fifth-in-bass role makes WhatChord's primary defensible while both oracle families remain real possible alternatives."
+  },
+  "0-1-3-5-6-10_b5": {
+    "label": "genuine-ambiguity",
+    "note": "G♭maj13(♯11)/F is defensible because F is the major seventh in the bass of a complete G♭ Lydian-major-thirteenth stack. Music21's C half-diminished-flat-nine reading and tonal's root-position F7sus4♭9♭13 reading are both pitch-valid ways to organize the same dense flat-side collection, while E♭m13/F is also surfaced as a close possible alternative. The F bass creates a genuine three-way ambiguity between major-seventh-bass Lydian-major color, root-position altered suspended dominant color, and half-diminished color; no single broad rule should displace all of them."
+  },
+  "0-1-3-5-6-10_b6": {
+    "label": "genuine-ambiguity",
+    "note": "G♭maj13(♯11) is defensible because G♭/F♯ is the bass/root of a complete Lydian-major-seventh stack G♭-B♭-D♭-F with C as ♯11 and E♭ as 13. Tonal's E♭m13/G♭ is the complete relative-minor-thirteenth reading and music21's C half-diminished-flat-nine label is another valid complete-shell rotation, but both move the root away from the observed bass. Because the alternatives are surfaced and corpus evidence is not decisive for this exact reduced signature, the bass-rooted Lydian-major label remains the strongest neutral-context primary."
+  },
+  "0-1-3-5-6-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "G♭maj13(♯11)/B♭ is defensible because B♭ is the major third of a complete G♭ Lydian-major-thirteenth stack. Tonal's E♭m13/B♭ gives the same bass a conventional fifth role in a complete relative-minor-thirteenth chord, and music21's C half-diminished-flat-nine reading preserves another complete seventh shell. With all three readings close and surfaced, this is a genuine modal/relative-root ambiguity rather than a clear scoring miss; the G♭ label keeps the observed bass inside a complete major-family shell with no altered flat-nine burden."
+  },
   "0-1-3-5-6-8-10_b0": {
     "label": "genuine-ambiguity",
     "note": "Cm11(♭5,♭9,♭13) is preferred because C is the bass/root and C-E♭-G♭-B♭ forms a complete half-diminished seventh shell, with D♭, F, and A♭ as flat-side color tones. Music21 agrees semantically with the C half-diminished family. Tonal's G♭maj13♯11/C is also a complete Lydian-major re-rooting of the same collection, with C as sharp-eleventh bass color, so the split is genuine; the C bass and the more conventional half-diminished flat-side spelling make WhatChord's primary label defensible."
