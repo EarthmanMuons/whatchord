@@ -69,6 +69,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Improved half-diminished color-stack naming so flat-side diminished-fifth
+  spellings can outrank equivalent minor-seven-sharp-five names with sharper
+  color tones.
 - Improved close slash-chord ranking so a higher-scoring major-seventh-bass
   inversion is not demoted behind a remote color-bass reading just because the
   remote name uses fewer altered colors.
