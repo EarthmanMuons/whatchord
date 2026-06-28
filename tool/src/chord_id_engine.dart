@@ -340,7 +340,41 @@ Tonality parseTonality(String raw) {
   } on ArgumentError {
     tonic = Tonic.c;
   }
-  return Tonality(tonic, mode);
+  return normalizeTonalityForKeySignature(Tonality(tonic, mode));
+}
+
+/// Normalizes theoretical enharmonic key spellings to the supported 15
+/// conventional key signatures while preserving mode and tonic pitch class.
+Tonality normalizeTonalityForKeySignature(Tonality tonality) {
+  for (final keySignature in keySignatureRows) {
+    final rowTonality = tonality.isMajor
+        ? keySignature.relativeMajor
+        : keySignature.relativeMinor;
+    if (rowTonality == tonality) return tonality;
+  }
+
+  final candidates =
+      [
+        for (final keySignature in keySignatureRows)
+          (
+            accidentalDistance: keySignature.accidentalCount.abs(),
+            tonality: tonality.isMajor
+                ? keySignature.relativeMajor
+                : keySignature.relativeMinor,
+          ),
+      ].where(
+        (candidate) =>
+            candidate.tonality.tonicPitchClass == tonality.tonicPitchClass,
+      );
+
+  return candidates.reduce((a, b) {
+    if (a.accidentalDistance != b.accidentalDistance) {
+      return a.accidentalDistance < b.accidentalDistance ? a : b;
+    }
+    return a.tonality.tonic.label.compareTo(b.tonality.tonic.label) <= 0
+        ? a
+        : b;
+  }).tonality;
 }
 
 /// One successfully parsed note, kept in input order. [name] holds the raw
