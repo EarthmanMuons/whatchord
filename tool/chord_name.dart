@@ -16,6 +16,8 @@ import 'package:whatchord/features/theory/presentation/services/chord_spoken_nam
 import 'package:whatchord/features/theory/presentation/services/chord_symbol_builder.dart';
 import 'package:whatchord/features/theory/presentation/services/note_display_formatter.dart';
 
+import 'src/chord_id_engine.dart';
+
 const _usage = '''
 Usage:
   dart run tool/chord_name.dart [notes...] [options]
@@ -269,7 +271,7 @@ Tonality _parseTonalityFlag(String raw) {
 
   final tonicAscii = normalizeNoteNameToAscii(tonicPart);
   final tonic = Tonic.tryFromLabel(tonicAscii) ?? Tonic.c;
-  return Tonality(tonic, mode);
+  return normalizeTonalityForKeySignature(Tonality(tonic, mode));
 }
 
 bool _hasFlag(List<String> args, String name, String shortName) {
