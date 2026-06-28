@@ -818,6 +818,32 @@ void main() {
     },
   );
 
+  test('flat-nine sharp-five dominant beats remote minor-major thirteenth', () {
+    final alteredDominant = _candidate(
+      quality: ChordQualityToken.dominant7Sharp5,
+      root: 'C',
+      bass: 'C',
+      presentIntervals: const {0, 1, 4, 8, 10},
+      extensions: const {ChordExtension.flat9},
+      score: 8.20,
+    );
+
+    final remoteMinorMajor = _candidate(
+      quality: ChordQualityToken.minorMajor7,
+      root: 'C#',
+      bass: 'C',
+      presentIntervals: const {0, 3, 7, 9, 11},
+      extensions: const {ChordExtension.thirteen},
+      score: 8.08,
+    );
+
+    _expectTieRule(
+      alteredDominant,
+      remoteMinorMajor,
+      'prefer complete altered sharp-five dominant over remote spellings',
+    );
+  });
+
   test('root-position dominant sus beats slash reinterpretation near-tie', () {
     final rootPositionSus = _candidate(
       quality: ChordQualityToken.dominant7sus4,
