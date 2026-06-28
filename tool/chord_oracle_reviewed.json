@@ -303,6 +303,18 @@
     "label": "genuine-ambiguity",
     "note": "C7(#5,b9,#11)/Bb is preferred because Bb is the dominant seventh of the complete C altered dominant. Tonal agrees and lists the valid F#9#11/Bb alternate; music21's Gm9/Bb add C is semantically the same F#9#11 pitch-class structure. This is a genuine altered-dominant vs tritone-related split, not a reason to re-rank away from C."
   },
+  "0-1-4-8-10_b1": {
+    "label": "genuine-ambiguity",
+    "note": "C♯m(maj13) is preferred because D♭/C♯ is the bass/root of a complete C♯-E-G♯-B♯ minor-major-seventh shell, with A♯ as thirteenth color. Music21's A♯m9♭5/C♯ and tonal's C7♯5♭9/D♭ are both complete and surfaced as possible alternatives, but they reassign the bass to the half-diminished minor third or dominant flat ninth. ChoCo broadly supports both minor-major and altered sharp-five dominant vocabulary while exact halfDiminished7|nine support is sparse, so this is a genuine three-root ambiguity rather than a scoring issue."
+  },
+  "0-1-4-8-10_b4": {
+    "label": "genuine-ambiguity",
+    "note": "C♯m(maj13)/E is defensible because E is the minor third of a complete C♯ minor-major-seventh shell, with A♯ as thirteenth color. The surfaced A♯m9♭5/E reading also gives E a stable flat-fifth role, and tonal's C7♯5♭9/E treats E as the dominant third; both are structurally real. WhatChord keeps the C♯ label because it preserves the same minor-major organization as the root-position sibling, while ChoCo does not strongly favor the rare half-diminished-nine spelling over the competing minor-major and altered-dominant families."
+  },
+  "0-1-4-8-10_b8": {
+    "label": "genuine-ambiguity",
+    "note": "C♯m(maj13)/G♯ is defensible because G♯/A♭ is the fifth of the complete C♯ minor-major-seventh shell, with A♯ as thirteenth color. Music21's A♯m9♭5/G♯ and tonal's C7♯5♭9/A♭ remain valid alternatives: the former makes the bass the half-diminished flat seventh, while the latter treats it as the altered dominant sharp fifth. Because all three labels give the bass a recognizable role and are surfaced as close alternatives, this remains a genuine ambiguity."
+  },
   "0-1-3-6-8_b6": {
     "label": "genuine-ambiguity",
     "note": "A♭11/G♭ is defensible because A♭-C-E♭-G♭ forms a complete dominant-seventh shell with the flat seventh in the bass and D♭ as eleventh color. Music21 agrees semantically. Tonal's D♭maj9sus4/G♭ is also a valid complete suspended-major reading and ChoCo favors the major7sus4|nine vocabulary, but it makes the bass the suspended fourth rather than a stable chord tone. The bass role makes WhatChord's primary label plausible, while the corpus-supported suspended-major reading keeps the row genuinely ambiguous."
