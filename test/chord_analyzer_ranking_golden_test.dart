@@ -426,7 +426,7 @@ void main() {
     golden(
       description: 'complete dominant nine flat-thirteen handles fifth bass',
       expectedSymbol: 'F9b13/C',
-      expectedAlternateSymbols: ['C#maj9(b5,b13)/B#', 'Dbmaj9(#5,#11)/C'],
+      expectedAlternateSymbols: ['A7(#5,#9,#11)/B#', 'A7(b5,#9,b13)/B#'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G', 'A'],
       bass: 'C',
       expectedRoot: 'F',
@@ -505,6 +505,18 @@ void main() {
       bass: 'Db',
       expectedRoot: 'A',
       expectedBass: 'C#',
+      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedExtensions: {ChordExtension.sharp9},
+    ),
+
+    golden(
+      description:
+          'complete altered dominant sharp-nine bass beats altered major7',
+      expectedSymbol: 'A7(#5,#9)/B#',
+      pcs: ['C', 'Db', 'F', 'G', 'A'],
+      bass: 'C',
+      expectedRoot: 'A',
+      expectedBass: 'B#',
       expectedQuality: ChordQualityToken.dominant7Sharp5,
       expectedExtensions: {ChordExtension.sharp9},
     ),
