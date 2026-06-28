@@ -424,6 +424,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferLydianMajorNineOverFlatFive,
   ),
   NamedRule('prefer root position', _preferRootPosition),
+  NamedRule(
+    'prefer seventh-bass altered-fifth dominant over altered-fifth bass',
+    _preferSeventhBassAlteredFifthDominantOverAlteredFifthBass,
+  ),
   NamedRule('prefer common naming preference', preferCommonNamePrior),
   NamedRule(
     'prefer cleaner tritone flat-five dominant spelling',
@@ -2426,6 +2430,49 @@ bool _isMajorNineFlatFive(ChordIdentity id) {
       roles.contains(ChordToneRole.flat5) &&
       roles.contains(ChordToneRole.major7) &&
       roles.contains(ChordToneRole.nine);
+}
+
+int? _preferSeventhBassAlteredFifthDominantOverAlteredFifthBass(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aPreferred =
+      _isCompleteAlteredFifthDominantNine(a.identity, fa) &&
+      _hasBassRole(a.identity, ChordToneRole.flat7);
+  final bPreferred =
+      _isCompleteAlteredFifthDominantNine(b.identity, fb) &&
+      _hasBassRole(b.identity, ChordToneRole.flat7);
+  if (aPreferred == bPreferred) return null;
+
+  final other = aPreferred ? b : a;
+  final fOther = aPreferred ? fb : fa;
+  if (!_isCompleteAlteredFifthDominantNine(other.identity, fOther)) {
+    return null;
+  }
+  if (!_hasBassRole(other.identity, ChordToneRole.flat5) &&
+      !_hasBassRole(other.identity, ChordToneRole.sharp5)) {
+    return null;
+  }
+  if ((a.score - b.score).abs() > 0.05) return null;
+
+  return aPreferred ? -1 : 1;
+}
+
+bool _isCompleteAlteredFifthDominantNine(
+  ChordIdentity id,
+  CandidateFeatures features,
+) {
+  return features.isCompleteAlteredFifthDominant &&
+      id.extensions.length == 1 &&
+      id.extensions.contains(ChordExtension.nine);
+}
+
+bool _hasBassRole(ChordIdentity id, ChordToneRole role) {
+  final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
+  return id.toneRolesByInterval[bassInterval] == role;
 }
 
 int? _preferRootPosition(

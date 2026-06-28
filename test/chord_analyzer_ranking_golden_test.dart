@@ -989,6 +989,20 @@ void main() {
     ),
 
     golden(
+      description:
+          'seventh-bass flat-five dominant beats altered-fifth bass dominant',
+      expectedSymbol: 'D9b5/C',
+      expectedAlternateSymbols: ['E9#5/B#', 'Ab7(#5,#11)/C'],
+      pcs: ['C', 'D', 'E', 'F#', 'Ab'],
+      bass: 'C',
+      expectedRoot: 'D',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.dominant7Flat5,
+      expectedExtensions: {ChordExtension.nine},
+      expectedToneRolesByInterval: {6: ChordToneRole.flat5},
+    ),
+
+    golden(
       description: 'fifthless thirteenth beats altered sus slash',
       expectedSymbol: 'Eb13',
       expectedAlternateSymbols: ['C#maj7b5/D#', 'F7sus2(b13)/Eb'],

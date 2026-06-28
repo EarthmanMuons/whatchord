@@ -12,9 +12,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
-- Improved root-position and sharp-nine-bass altered sharp-five dominant
-  recognition, so voicings such as C7♯5♭9 and A7♯5♯9/B♯ are less likely to be
-  displaced by remote minor-major or altered-major reinterpretations.
+- Improved altered sharp-five dominant recognition, so voicings such as C7♯5♭9,
+  A7♯5♯9/B♯, and D9♭5/C are less likely to be displaced by remote minor-major,
+  altered-major, or less idiomatic altered-fifth-bass reinterpretations.
 
 ## [2026.6.28] - 2026-06-28
 
