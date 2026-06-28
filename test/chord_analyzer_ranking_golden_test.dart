@@ -179,7 +179,7 @@ void main() {
 
     golden(
       description: 'minor-major ninth bass chord beats altered major7 slash',
-      expectedSymbol: 'C#mmaj7 / D#',
+      expectedSymbol: 'C#m(maj7) / D#',
       expectedAlternateSymbols: ['Emaj13#5 / D#'],
       pcs: ['C', 'Db', 'Eb', 'E', 'Ab'],
       bass: 'Eb',
@@ -191,7 +191,7 @@ void main() {
 
     golden(
       description: 'minor-major ninth beats augmented-major thirteenth',
-      expectedSymbol: 'C#mmaj9 / E',
+      expectedSymbol: 'C#m(maj9) / E',
       expectedAlternateSymbols: ['Emaj13#5'],
       pcs: ['C', 'Db', 'Eb', 'E', 'Ab'],
       bass: 'E',
@@ -204,7 +204,7 @@ void main() {
     golden(
       description:
           'minor-major ninth flat-thirteenth beats augmented-major eleventh',
-      expectedSymbol: 'C#mmaj9b13 / E',
+      expectedSymbol: 'C#m(maj9,b13) / E',
       expectedAlternateSymbols: ['Emaj13#5'],
       pcs: ['C', 'Db', 'Eb', 'E', 'Ab', 'A'],
       bass: 'E',
@@ -386,7 +386,7 @@ void main() {
     golden(
       description:
           'minor-major sharp eleventh beats remote major sharp-five slash',
-      expectedSymbol: 'Fmmaj7#11 / Ab',
+      expectedSymbol: 'Fm(maj7,#11) / Ab',
       pcs: ['Ab', 'B', 'C', 'E', 'F'],
       expectedRoot: 'F',
       expectedQuality: ChordQualityToken.minorMajor7,
@@ -916,7 +916,7 @@ void main() {
 
     golden(
       description: 'natural-eleventh major thirteenth gets no fifthless bonus',
-      expectedSymbol: 'Gbmaj13#11 / Db',
+      expectedSymbol: 'Gbmaj13(#11) / Db',
       expectedAlternateSymbols: ['Ebm13 / Db', 'Cm11(b5,b9) / Db'],
       pcs: ['C', 'Db', 'Eb', 'F', 'F#', 'Bb'],
       bass: 'Db',
@@ -1126,7 +1126,7 @@ void main() {
       description:
           'complete altered flat-nine dominant handles major-third bass',
       expectedSymbol: 'F#7(b9,#11,b13) / A#',
-      expectedAlternateSymbols: ['Em13(b5,b13) / Bb', 'Gmmaj13#11 / Bb'],
+      expectedAlternateSymbols: ['Em13(b5,b13) / Bb', 'Gm(maj13,#11) / Bb'],
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'G', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'F#',

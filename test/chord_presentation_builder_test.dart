@@ -348,6 +348,87 @@ void main() {
     expect(presentation.symbol.toString(), 'CΔ9sus4');
   });
 
+  test('groups textual minor-major markers with other modifiers', () {
+    final minorMajorSeventh = _identity(
+      root: 'C',
+      quality: ChordQualityToken.minorMajor7,
+      intervals: const [0, 3, 7, 11],
+    );
+    final minorMajorNinthFlatThirteenth = _identity(
+      root: 'C',
+      quality: ChordQualityToken.minorMajor7,
+      extensions: const {ChordExtension.nine, ChordExtension.flat13},
+      intervals: const [0, 2, 3, 7, 8, 11],
+    );
+
+    final seventhPresentation = ChordPresentationBuilder.fromIdentity(
+      identity: minorMajorSeventh,
+      tonality: const Tonality(Tonic.c, TonalityMode.minor),
+      notation: notation,
+    );
+    final extendedPresentation = ChordPresentationBuilder.fromIdentity(
+      identity: minorMajorNinthFlatThirteenth,
+      tonality: const Tonality(Tonic.c, TonalityMode.minor),
+      notation: notation,
+    );
+
+    expect(seventhPresentation.symbol.toString(), 'Cm(maj7)');
+    expect(extendedPresentation.symbol.toString(), 'Cm(maj9,b13)');
+  });
+
+  test('groups lone modifiers after dense promoted major-family labels', () {
+    final majorEleventhFlatThirteenth = _identity(
+      root: 'C',
+      quality: ChordQualityToken.major7,
+      extensions: const {
+        ChordExtension.nine,
+        ChordExtension.eleven,
+        ChordExtension.flat13,
+      },
+      intervals: const [0, 2, 4, 5, 7, 8, 11],
+    );
+    final majorThirteenthSharpEleventh = _identity(
+      root: 'C',
+      quality: ChordQualityToken.major7,
+      extensions: const {
+        ChordExtension.nine,
+        ChordExtension.sharp11,
+        ChordExtension.thirteen,
+      },
+      intervals: const [0, 2, 4, 6, 7, 9, 11],
+    );
+    final dominantThirteenthSharpEleventh = _identity(
+      root: 'C',
+      quality: ChordQualityToken.dominant7,
+      extensions: const {
+        ChordExtension.nine,
+        ChordExtension.sharp11,
+        ChordExtension.thirteen,
+      },
+      intervals: const [0, 2, 4, 6, 7, 9, 10],
+    );
+
+    final majorEleventhPresentation = ChordPresentationBuilder.fromIdentity(
+      identity: majorEleventhFlatThirteenth,
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
+      notation: notation,
+    );
+    final majorThirteenthPresentation = ChordPresentationBuilder.fromIdentity(
+      identity: majorThirteenthSharpEleventh,
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
+      notation: notation,
+    );
+    final dominantPresentation = ChordPresentationBuilder.fromIdentity(
+      identity: dominantThirteenthSharpEleventh,
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
+      notation: notation,
+    );
+
+    expect(majorEleventhPresentation.symbol.toString(), 'Cmaj11(b13)');
+    expect(majorThirteenthPresentation.symbol.toString(), 'Cmaj13(#11)');
+    expect(dominantPresentation.symbol.toString(), 'C13#11');
+  });
+
   test(
     'inserts comma before bass connector when multiple modifiers present',
     () {

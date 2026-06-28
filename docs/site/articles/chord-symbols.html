@@ -248,10 +248,10 @@
               </tr>
               <tr>
                 <td>Minor-major seventh</td>
-                <td><code>mmaj7</code></td>
+                <td><code>m(maj7)</code></td>
                 <td><code>−Δ7</code></td>
                 <td>
-                  <span class="chord">Cmmaj7</span> or
+                  <span class="chord">Cm(maj7)</span> or
                   <span class="chord">C−Δ7</span>
                 </td>
               </tr>
@@ -419,10 +419,10 @@
           </p>
 
           <p>
-            A symbol carries at most one parenthesized group, placed at the end,
-            so parentheses never appear in the middle of the label or as two
-            separate groups. A group forms only where running the modifiers
-            inline would be ambiguous or hard to read:
+            A symbol carries <em>at most one parenthesized group</em>, placed at
+            the end, so parentheses never appear in the middle of the label or
+            as two separate groups. A group forms only where running the
+            modifiers inline would be ambiguous or hard to read:
           </p>
 
           <ul>
@@ -436,10 +436,32 @@
               <span class="chord">C7sus4(♭13)</span>.
             </li>
             <li>
+              In textual notation, added tones after the spelled-out
+              <code>aug</code> and <code>dim</code> labels are grouped so the
+              words do not run into <code>add</code>:
+              <span class="chord">Cdim(add9)</span> is clearer than
+              <span class="chord not-used">Cdimadd9</span>.
+            </li>
+            <li>
               An altered fifth carried in the quality label joins the group when
               other modifiers are present:
               <span class="chord">C7(♭5,♭9)</span> and
               <span class="chord">Cm9(♭5,♭13)</span>.
+            </li>
+            <li>
+              Textual minor-major symbols write the major seventh or promoted
+              major extension inside the group, with any other modifiers joining
+              it:
+              <span class="chord">Cm(maj7)</span>,
+              <span class="chord">Cm(maj9)</span>, and
+              <span class="chord">Cm(maj9,♭13)</span>.
+            </li>
+            <li>
+              A lone upper-extension modifier after promoted
+              <code>maj11</code> or <code>maj13</code> is grouped because the
+              two-digit promoted label is already dense:
+              <span class="chord">Cmaj11(♭13)</span> and
+              <span class="chord">Cmaj13(♯11)</span>.
             </li>
           </ul>
 
@@ -447,19 +469,15 @@
             Where concatenation is already clear, the modifiers stay inline. A
             single ordinary modifier needs no group:
             <span class="chord">C7♭9</span>, <span class="chord">C13♯11</span>,
-            or <span class="chord">Cadd♯9</span>. An added tone reads cleanly
+            <span class="chord">Cmaj9♯11</span>, or
+            <span class="chord">Cadd♯9</span>. An added tone reads cleanly
             inline after a label that already ends in a self-contained mark: the
             bare root (<span class="chord">Cadd9</span>), the fused
             <code>m</code> (<span class="chord">Cmadd11</span>), and the
             symbolic quality signs <code>+</code> and <code>°</code> (<span
               class="chord"
               >C+add13</span
-            >). The spelled-out words <code>aug</code> and <code>dim</code> are
-            the telling exception, since their letters would run straight into
-            <code>add</code>. They take the group instead: textual
-            <span class="chord">Caug(add13)</span> where symbolic writes
-            <span class="chord">C+add13</span>, the difference between a
-            readable symbol and <span class="chord not-used">Caugadd13</span>.
+            >).
           </p>
 
           <p>

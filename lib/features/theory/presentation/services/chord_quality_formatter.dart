@@ -12,7 +12,11 @@ class ChordQualityFormatter {
   }) {
     final form = qualityFormOverride ?? _defaultQualityFormFor(notation);
 
-    var base = quality.coreLabel(form);
+    final textualMinorMajor =
+        quality == ChordQualityToken.minorMajor7 &&
+        form == ChordQualityLabelForm.textual;
+
+    var base = textualMinorMajor ? 'm' : quality.coreLabel(form);
 
     // Canonical ordering.
     final ordered = extensions.toList()
@@ -40,7 +44,7 @@ class ChordQualityFormatter {
       }
     }
 
-    if (headline != null) {
+    if (headline != null && !textualMinorMajor) {
       final promoted = _replaceSeventhWithExtension(base, headline.shortLabel);
       if (promoted != base) {
         base = promoted;
@@ -76,22 +80,28 @@ class ChordQualityFormatter {
 
     final fifth = quality.fifthModifierLabel(form);
 
-    if (mods.isEmpty) {
+    final labels = [
+      if (textualMinorMajor) _minorMajorModifierLabel(headline),
+      ...mods.map((e) => e.shortLabel),
+    ];
+
+    if (mods.isEmpty && !textualMinorMajor) {
       if (fifth == null) return base;
       return quality.fifthParenthesizedWhenLone
           ? '$base($fifth)'
           : '$base$fifth';
     }
 
-    final labels = mods.map((e) => e.shortLabel).toList();
     final useParens = _shouldUseParens(
       quality: quality,
       notation: notation,
       mods: mods,
+      headline: headline,
+      textualMinorMajor: textualMinorMajor,
     );
 
     if (fifth == null) {
-      return useParens
+      return textualMinorMajor || useParens
           ? '$base(${labels.join(_modsSeparator(notation))})'
           : '$base${labels.join()}';
     }
@@ -185,7 +195,7 @@ class ChordQualityFormatter {
     }
 
     // Plain seventh-family cores end in '7': 7 -> 9, maj7 -> maj9, m7 -> m9,
-    // Δ7 -> Δ9, ø7 -> ø9, mmaj7 -> mmaj9.
+    // Δ7 -> Δ9, ø7 -> ø9.
     if (base == '7') return ext;
     if (base.endsWith('7')) {
       return '${base.substring(0, base.length - 1)}$ext';
@@ -193,11 +203,19 @@ class ChordQualityFormatter {
     return base;
   }
 
+  static String _minorMajorModifierLabel(ChordExtension? headline) {
+    if (headline == null) return 'maj7';
+    return 'maj${headline.shortLabel}';
+  }
+
   static bool _shouldUseParens({
     required ChordQualityToken quality,
     required ChordNotationStyle notation,
     required List<ChordExtension> mods,
+    required ChordExtension? headline,
+    required bool textualMinorMajor,
   }) {
+    if (textualMinorMajor) return true;
     if (quality == ChordQualityToken.diminished7) return true;
     if (mods.isEmpty) return false;
 
@@ -220,11 +238,33 @@ class ChordQualityFormatter {
             (quality == ChordQualityToken.augmented ||
                 quality == ChordQualityToken.diminished);
       }
+
+      if (_isDensePromotedMajorFamilyLabel(quality, headline)) return true;
+
       return false; // b9, #11, 9, 11, 13 inline when alone
     }
 
     // Multiple modifiers: group them.
     return true;
+  }
+
+  static bool _isDensePromotedMajorFamilyLabel(
+    ChordQualityToken quality,
+    ChordExtension? headline,
+  ) {
+    if (headline != ChordExtension.eleven &&
+        headline != ChordExtension.thirteen) {
+      return false;
+    }
+
+    switch (quality) {
+      case ChordQualityToken.major7:
+      case ChordQualityToken.major7Flat5:
+      case ChordQualityToken.major7Sharp5:
+        return true;
+      default:
+        return false;
+    }
   }
 
   static String _modsSeparator(ChordNotationStyle notation) {
