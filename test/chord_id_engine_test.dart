@@ -25,7 +25,7 @@ void main() {
   test('orders recognized tones by chord degree', () {
     final result = identifyChord('C E G Bb D');
     final suspended = result.candidates.firstWhere(
-      (candidate) => candidate.symbol == 'D9sus4(♭13) / C',
+      (candidate) => candidate.symbol == 'D9sus4(♭13)/C',
     );
 
     expect(suspended.chordTones, 'D G C E B♭');

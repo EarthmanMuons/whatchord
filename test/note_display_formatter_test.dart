@@ -150,17 +150,17 @@ void main() {
     });
   });
 
-  group('chordSymbolCopyLabel', () {
+  group('chordSymbolTextLabel', () {
     test('uses compact slash-bass spacing for copy text', () {
       final symbol = ChordSymbol(root: 'Bb', quality: '7(#11)', bass: 'F#');
 
-      expect(chordSymbolCopyLabel(symbol), 'B♭7(♯11)/F♯');
+      expect(chordSymbolTextLabel(symbol), 'B♭7(♯11)/F♯');
     });
 
     test('keeps non-slash chord symbols unchanged', () {
       final symbol = ChordSymbol(root: 'C', quality: 'maj7');
 
-      expect(chordSymbolCopyLabel(symbol), 'Cmaj7');
+      expect(chordSymbolTextLabel(symbol), 'Cmaj7');
     });
   });
 }

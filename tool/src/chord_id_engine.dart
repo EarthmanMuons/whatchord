@@ -255,7 +255,7 @@ ChordIdResult identifyChord(
     candidates.add(
       ChordIdCandidate(
         rank: i + 1,
-        symbol: chordSymbolDisplayLabel(
+        symbol: chordSymbolTextLabel(
           ChordSymbolBuilder.fromIdentity(
             identity: c.identity,
             tonality: tonality,

@@ -27,6 +27,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- Slash chord symbols now use compact spacing in copied text, diagnostics, and
+  command-line output, while the app UI keeps the spaced slash-bass display for
+  readability.
 - Simplified the Playback Volume control. The mute button now sits inline at the
   left of the slider, the flanking speaker icons are gone, and volume snaps to
   5% steps for predictable, repeatable levels. The readout shows "Muted" while

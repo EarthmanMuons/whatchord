@@ -3466,7 +3466,7 @@ a6=A.U(b0,"b","\u266d")
 b0=a9.J(a4)
 b1=a8!=null?a9.J(a8):b8
 b0+=a6
-b0=b1==null?b0:b0+" / "+b1
+b0=b1==null?b0:b0+"/"+b1
 b2=A.aY(p,t)
 a4=A.fg(b2,B.aP,B.V)
 b3=A.ec(p)
@@ -5180,7 +5180,7 @@ A.cR.prototype={
 C(){return"NoteNameSystem."+this.b}}
 A.dD.prototype={
 j(a){var t=this.a+this.b,s=this.c
-return s==null?t:t+" / "+s}}
+return s==null?t:t+"/"+s}}
 A.cx.prototype={
 $1(a){u.G.a(a)
 if(!A.bL(a))return!0

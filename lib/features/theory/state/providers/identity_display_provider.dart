@@ -110,7 +110,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         final alternatives = ref
             .watch(alternativeChordCandidatesProvider)
             .map(
-              (c) => chordSymbolDisplayLabel(
+              (c) => chordSymbolTextLabel(
                 ChordSymbolBuilder.fromIdentity(
                   identity: c.identity,
                   tonality: tonality,
@@ -137,7 +137,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         final debugText = _debugForChord(
           midis: midis,
           keyName: keyName,
-          chosenSymbol: chordSymbolDisplayLabel(
+          chosenSymbol: chordSymbolTextLabel(
             presentation.symbol,
             noteNameSystem: noteNameSystem,
           ),

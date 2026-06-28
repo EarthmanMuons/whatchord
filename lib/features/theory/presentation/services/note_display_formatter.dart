@@ -105,9 +105,8 @@ String chordSymbolDisplayLabel(
   ).toString();
 }
 
-/// Converts a chord symbol to copy/paste text while preserving canonical slash
-/// spacing expectations.
-String chordSymbolCopyLabel(
+/// Converts a chord symbol to compact text for copy, logs, and CLI output.
+String chordSymbolTextLabel(
   ChordSymbol symbol, {
   NoteNameSystem noteNameSystem = NoteNameSystem.international,
 }) {

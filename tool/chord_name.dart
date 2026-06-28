@@ -143,7 +143,7 @@ void main(List<String> args) {
   for (var i = 0; i < take; i++) {
     final id = results[i].identity;
 
-    final symbolic = chordSymbolDisplayLabel(
+    final symbolic = chordSymbolTextLabel(
       ChordSymbolBuilder.fromIdentity(
         identity: id,
         tonality: context.tonality,
@@ -151,7 +151,7 @@ void main(List<String> args) {
       ),
     );
 
-    final textual = chordSymbolDisplayLabel(
+    final textual = chordSymbolTextLabel(
       ChordSymbolBuilder.fromIdentity(
         identity: id,
         tonality: context.tonality,
