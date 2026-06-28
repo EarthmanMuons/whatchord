@@ -50,10 +50,13 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   reads as C9(♭5,♭9) rather than C9♭5♭9, and an extended half-diminished chord
   reads as Cm13(♭5,♭13) rather than Cm13(♭5)♭13. A lone altered fifth still
   stays inline, as in C7♭5.
-- Minor-major chords now use the mmaj7 spelling in textual notation (Cmmaj7,
-  Cmmaj9) instead of m(maj7), so added tensions stay in one clean group such as
-  Cmmaj7(♯11,add13). Symbolic notation continues to use the triangle, as in
-  C−Δ7.
+- Minor-major chords now use parenthesized textual notation, such as Cm(maj7),
+  Cm(maj9), and Cm(maj9,♭13), so the major-seventh family marker and any added
+  modifiers stay in one readable group. Symbolic notation continues to use the
+  triangle, as in C−Δ7.
+- Major-family maj11 and maj13 symbols now group a following lone modifier for
+  readability, so dense labels read as Cmaj11(♭13) or Cmaj13(♯11) while compact
+  dominant labels like C13♯11 remain inline.
 - Added tones after the spelled-out aug and dim qualities are now wrapped in
   parentheses in textual notation, so an augmented triad with an added
   thirteenth reads as Caug(add13) and a diminished triad with an added ninth as
