@@ -1339,6 +1339,32 @@ void main() {
     );
   });
 
+  test('seventh-bass altered dominant beats altered-fifth bass tie', () {
+    final seventhBass = _candidate(
+      quality: ChordQualityToken.dominant7Flat5,
+      root: 'D',
+      bass: 'C',
+      presentIntervals: const {0, 2, 4, 6, 10},
+      extensions: const {ChordExtension.nine},
+      score: 8.25,
+    );
+
+    final alteredFifthBass = _candidate(
+      quality: ChordQualityToken.dominant7Sharp5,
+      root: 'E',
+      bass: 'C',
+      presentIntervals: const {0, 2, 4, 8, 10},
+      extensions: const {ChordExtension.nine},
+      score: 8.25,
+    );
+
+    _expectTieRule(
+      seventhBass,
+      alteredFifthBass,
+      'prefer seventh-bass altered-fifth dominant over altered-fifth bass',
+    );
+  });
+
   test('clean spelling beats awkward tritone flat-five dominant inversion', () {
     final cleanSeventhBass = _candidate(
       quality: ChordQualityToken.dominant7Flat5,
