@@ -7,6 +7,18 @@
     "label": "context-dependent",
     "note": "Music21's Cpower/GaddD- is the clearer label if the voicing is understood as a C-G no-third power chord with G in the bass and D♭ as flat-nine color. WhatChord instead reports the remote C♯maj7♭5/G because the current templates can score incomplete altered-major-seventh fragments but cannot emit C5 or C(no3) add-tone vocabulary. This is better tracked as missing vocabulary than solved by promoting a sus or altered-fifth approximation."
   },
+  "0-1-8_b0": {
+    "label": "context-dependent",
+    "note": "A♭add11/C is defensible because A♭-C gives a clear major-third sonority and D♭ is naturally explained as added eleventh color, with C as the third in the bass. Music21's D♭power/C names the alternate D♭-A♭ no-third fifth with C/B♯ as major-seventh color, which may be preferable in a context that establishes D♭ as root. WhatChord does not currently emit no-third/power-chord vocabulary, so this should stay reviewed rather than forcing the incomplete D♭maj7/C candidate above a clean A♭ upper-structure reading."
+  },
+  "0-1-8_b1": {
+    "label": "context-dependent",
+    "note": "A♭/D♭ is a practical upper-structure spelling for the pitch classes A♭-C-D♭: A♭-C supplies the major-third sonority while D♭ sits in the bass as an added-eleventh slash. Music21's C♯poweraddB♯ reflects the other plausible hearing, D♭-A♭ as a no-third fifth plus C/B♯ major-seventh color. In isolation the bass supports that D♭-rooted view, but the current engine lacks D♭5(addmaj7) or D♭maj7(no3) vocabulary, and promoting incomplete D♭maj7 would be less explicit than the surfaced slash reading."
+  },
+  "0-1-8_b8": {
+    "label": "context-dependent",
+    "note": "A♭add11 is defensible in root position because A♭-C is a direct major-third sonority and D♭ is conventional added-eleventh color. Music21's C♯power/G♯addB♯ instead hears D♭-A♭ as a no-third power chord with A♭ in the bass and C/B♯ as major-seventh color. That alternate is contextually valid, but without explicit power/no-third vocabulary WhatChord's root-position A♭add11 label is the more usable context-free name."
+  },
   "0-1-2-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C9(♭5,♭9) is preferred because C is the bass/root and the voicing supplies a complete C dominant-flat-five shell C-E-G♭-B♭, with D♭/D as split flat/natural ninth color. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the sharp eleventh in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the C altered/split-ninth family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."
