@@ -940,6 +940,20 @@ void main() {
     ),
 
     golden(
+      description:
+          'lydian major-nine beats natural-eleventh major-thirteenth inversion',
+      expectedSymbol: 'Dbmaj9#11/G',
+      expectedAlternateSymbols: ['Abmaj13/G', 'Fm9b13/G'],
+      pcs: ['C', 'Db', 'Eb', 'F', 'G', 'Ab'],
+      bass: 'G',
+      expectedRoot: 'Db',
+      expectedBass: 'G',
+      expectedQuality: ChordQualityToken.major7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
+      expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
+    ),
+
+    golden(
       description: 'natural-eleventh major thirteenth gets no fifthless bonus',
       expectedSymbol: 'Gbmaj13(#11)/Db',
       expectedAlternateSymbols: ['Ebm13/Db', 'Cm11(b5,b9)/Db'],
