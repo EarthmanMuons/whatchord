@@ -447,6 +447,10 @@
     "label": "genuine-ambiguity",
     "note": "Fm6/A♭ is preferred because F-A♭-C-D forms a complete F minor-sixth chord with the minor third in the bass, a conventional inversion. Dm7♭5/A♭ is the equally complete enharmonic half-diminished reading with the flat fifth in the bass, and music21, tonal, and pychord all expose that alternate. The more conventional bass role favors Fm6/A♭, but the half-diminished reinterpretation makes the ambiguity genuine."
   },
+  "0-2-5-8_b0": {
+    "label": "genuine-ambiguity",
+    "note": "Fm6/C is preferred because F-A♭-C-D forms a complete F minor-sixth chord with C as the fifth in the bass, a conventional second-inversion role. Dm7♭5/C is the equally complete enharmonic half-diminished reading with the flat seventh in the bass, and both music21 and tonal choose it while tonal also exposes Fm6/C as its alternate. ChoCo broadly supports both vocabularies, with halfDiminished7 more common than minor6 but not by enough to displace the conventional minor-six inversion outright, so this remains a genuine ambiguity."
+  },
   "0-2-5-7_b0": {
     "label": "clearly-correct",
     "note": "Csus2sus4 is correct; it is the complete root-position double-suspension template and scores clearly above the incomplete or slash alternatives. Tonal's Csus24 and pychord's Csus4add2 are semantically equivalent names for the same C-rooted structure."
