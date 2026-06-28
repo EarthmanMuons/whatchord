@@ -187,6 +187,10 @@
     "label": "genuine-ambiguity",
     "note": "D♭maj7sus2 is correct, and stronger than the b0 sibling: with D♭ in the bass it is a complete root-position reading (all 4 notes as core template tones, bass = root, every interval consonant), so it wins on structural fit beyond the tie-break window. Ab/Db (music21, pychord) roots on the complete Ab triad but strands D♭ as a natural 11, the avoid-note minor 9th against the major third (C); that C/D♭ minor-9th pair is better read as root+maj7 (our D♭) than as two non-root color tones. tonal also re-roots away from Ab (Cm(b6,b9)/Db), so the split is triad-first matchers vs harmonic reasoners, not a true Ab consensus; ours and tonal agree on rejecting Ab as root. Genuine ambiguity; sound; no engine change needed."
   },
+  "0-1-3-7-8_b1": {
+    "label": "genuine-ambiguity",
+    "note": "D♭maj7sus2(♯11) is preferred because D♭ is the bass/root and every pitch has a direct role in the D♭ sonority: E♭ as suspended second or ninth color, A♭ as fifth, C as major seventh, and G as Lydian sharp-eleventh color. Music21 and pychord choose the complete A♭maj7/D♭ upper-structure reading, which is also surfaced as a close possible alternative, but it makes the bass a natural eleventh against A♭ major. ChoCo has no exact major7sus2♯11 or major7add11 support, and D♭ major and A♭ major key contexts do not displace the bass-rooted D♭ reading, so this remains a genuine ambiguity rather than a scoring issue."
+  },
   "0-1-3-4-6-7-10_b3": {
     "label": "genuine-ambiguity",
     "note": "E♭13(♭9,♯9) is preferred because E♭ is the bass/root and the voicing contains the complete E♭ dominant shell E♭-G-B♭-D♭, with C as the thirteenth and F♭/E plus F♯/G♭ as split flat-nine/sharp-nine color. Tonal's F♯13♭9♯11/E♭ is also a complete altered dominant organization of the same pitch classes, so the alternate is real; the root-position E♭ bass makes WhatChord's label the more direct context-free name."
