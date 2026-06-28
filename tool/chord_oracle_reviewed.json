@@ -1,4 +1,12 @@
 {
+  "0-1-7_b0": {
+    "label": "context-dependent",
+    "note": "Music21's CpoweraddD- is the more musician-readable description when the C-G fifth is heard as a no-third C power chord with D♭ as flat-nine color. WhatChord does not currently model power/no-third chord vocabulary, so it chooses the pitch-class-valid but awkward C♯maj7♭5/B♯ fragment. This should not be patched with a narrow ranking override: a real fix would add explicit no-third/power-chord analysis so sparse fifth-plus-color sonorities can be named directly."
+  },
+  "0-1-7_b7": {
+    "label": "context-dependent",
+    "note": "Music21's Cpower/GaddD- is the clearer label if the voicing is understood as a C-G no-third power chord with G in the bass and D♭ as flat-nine color. WhatChord instead reports the remote C♯maj7♭5/G because the current templates can score incomplete altered-major-seventh fragments but cannot emit C5 or C(no3) add-tone vocabulary. This is better tracked as missing vocabulary than solved by promoting a sus or altered-fifth approximation."
+  },
   "0-1-2-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C9(♭5,♭9) is preferred because C is the bass/root and the voicing supplies a complete C dominant-flat-five shell C-E-G♭-B♭, with D♭/D as split flat/natural ninth color. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the sharp eleventh in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the C altered/split-ninth family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."
