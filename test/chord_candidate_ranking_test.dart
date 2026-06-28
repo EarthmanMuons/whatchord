@@ -1548,6 +1548,35 @@ void main() {
     },
   );
 
+  test(
+    'complete add-nine triad inversion beats sparse major-thirteenth shell',
+    () {
+      final triadAddNine = _candidate(
+        quality: ChordQualityToken.minor,
+        root: 'Bb',
+        bass: 'Db',
+        presentIntervals: const {0, 2, 3, 7},
+        extensions: const {ChordExtension.add9},
+        score: 7.07,
+      );
+
+      final sparseMajorThirteenth = _candidate(
+        quality: ChordQualityToken.major7,
+        root: 'Db',
+        bass: 'Db',
+        presentIntervals: const {0, 4, 9, 11},
+        extensions: const {ChordExtension.thirteen},
+        score: 7.22,
+      );
+
+      _expectTieRule(
+        triadAddNine,
+        sparseMajorThirteenth,
+        'prefer complete triad add-tone over sparse seventh-family color',
+      );
+    },
+  );
+
   group('rank linearizes a non-transitive relation', () {
     const tonality = Tonality(Tonic.c, TonalityMode.major);
 

@@ -751,6 +751,19 @@ void main() {
     ),
 
     golden(
+      description:
+          'complete add-nine triad inversion beats sparse major-thirteenth shell',
+      expectedSymbol: 'Bbmadd9/Db',
+      expectedAlternateSymbols: ['Dbmaj13'],
+      pcs: ['C', 'Db', 'F', 'Bb'],
+      bass: 'Db',
+      expectedRoot: 'Bb',
+      expectedBass: 'Db',
+      expectedQuality: ChordQualityToken.minor,
+      expectedExtensions: {ChordExtension.add9},
+    ),
+
+    golden(
       description: 'root-position augmented add-tone beats altered dominant',
       expectedSymbol: 'Abaug(add9)',
       expectedAlternateSymbols: ['C7#5/G#'],

@@ -72,6 +72,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Improved add-nine slash-chord ranking so complete triads such as B♭madd9/D♭
+  can outrank sparse major-thirteenth shells that reinterpret the same pitch as
+  remote color.
 - Improved half-diminished color-stack naming so flat-side diminished-fifth
   spellings can outrank equivalent minor-seven-sharp-five names with sharper
   color tones.

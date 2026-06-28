@@ -1209,6 +1209,8 @@ String _plainDecision(String? rule, {ChordCandidate? winner}) {
     'prefer tonic chord' => 'it is the tonic chord in the selected key.',
     'prefer I chord when bass is tonic' =>
       'with the tonic in the bass, it gives the clearest I-chord reading.',
+    'prefer complete triad add-tone over sparse seventh-family color' =>
+      'the complete triad with a simple added tone is clearer than a sparse seventh-chord name that treats the same pitch as remote color.',
     'prefer natural extensions over adds, then fewer total' =>
       'natural extensions give a cleaner chord name than added-tone spellings.',
     'prefer root position' => 'its bass is the chord root.',
