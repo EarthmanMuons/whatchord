@@ -650,13 +650,15 @@ int? _preferStableExtendedDom7OverDoubleAccidentalAlteredFifthSlash(
   return aIsPreferred ? -1 : 1;
 }
 
-/// Prefers a complete altered dominant in a stable inversion over a rare
-/// root-position altered major7 reinterpretation.
+/// Prefers a complete altered dominant over a rare root-position altered
+/// major7 reinterpretation.
 ///
 /// Example: {A, C, C#, F, G} with C# in the bass is A7#5#9/C#, not
 /// C#maj7b5b13 or Dbmaj7#5#11. The dominant reading is a conventional altered
 /// chord in first inversion; the major7 readings each combine an altered fifth
-/// quality with an additional alteration.
+/// quality with an additional alteration. The same preference applies when the
+/// altered dominant has its sharp ninth in the bass, because 7#5#9 is still the
+/// more idiomatic vocabulary than a multi-altered major7 chord.
 int? _preferCompleteAlteredDom7InversionOverAlteredMajor7(
   ChordCandidate a,
   ChordCandidate b,
@@ -664,23 +666,20 @@ int? _preferCompleteAlteredDom7InversionOverAlteredMajor7(
   CandidateFeatures fb,
   Tonality _,
 ) {
-  final aIsPreferred =
-      fa.isCompleteAlteredFifthDominant &&
-      fa.isSlashBass &&
-      fa.hasStableBassRole &&
-      fa.hasAlteredColor;
-  final bIsPreferred =
-      fb.isCompleteAlteredFifthDominant &&
-      fb.isSlashBass &&
-      fb.hasStableBassRole &&
-      fb.hasAlteredColor;
+  final aIsPreferred = _isPreferredCompleteAlteredDominant(a.identity, fa);
+  final bIsPreferred = _isPreferredCompleteAlteredDominant(b.identity, fb);
   if (aIsPreferred == bIsPreferred) return null;
 
   final other = aIsPreferred ? b : a;
   final fOther = aIsPreferred ? fb : fa;
-  if (!fOther.isRootPosition) return null;
+  final dominant = aIsPreferred ? a : b;
+  final dominantHasSharpNineBass = _hasSharpNineBass(dominant.identity);
   if (other.identity.quality != ChordQualityToken.major7Flat5 &&
       other.identity.quality != ChordQualityToken.major7Sharp5) {
+    return null;
+  }
+  if (!fOther.isRootPosition &&
+      !(dominantHasSharpNineBass && _hasMajorSeventhBass(other.identity))) {
     return null;
   }
   if (fOther.extensionTensionCount == 0) return null;
@@ -689,6 +688,31 @@ int? _preferCompleteAlteredDom7InversionOverAlteredMajor7(
   if (preferredCandidate.score + 0.55 < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
+}
+
+bool _hasMajorSeventhBass(ChordIdentity id) {
+  final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
+  return id.toneRolesByInterval[bassInterval] == ChordToneRole.major7;
+}
+
+bool _isPreferredCompleteAlteredDominant(
+  ChordIdentity id,
+  CandidateFeatures features,
+) {
+  if (!features.isCompleteAlteredFifthDominant ||
+      !features.isSlashBass ||
+      !features.hasAlteredColor) {
+    return false;
+  }
+  if (features.hasStableBassRole) return true;
+
+  return _hasSharpNineBass(id);
+}
+
+bool _hasSharpNineBass(ChordIdentity id) {
+  final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
+  return id.extensions.contains(ChordExtension.sharp9) &&
+      id.toneRolesByInterval[bassInterval] == ChordToneRole.sharp9;
 }
 
 /// Prefers a complete dominant flat-nine in a stable inversion over a

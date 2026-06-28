@@ -160,7 +160,7 @@ void main() {
     },
   );
 
-  test('complete altered dominant inversion beats altered major7', () {
+  test('complete altered dominant beats altered major7', () {
     final dominant = _candidate(
       quality: ChordQualityToken.dominant7Sharp5,
       root: 'A',
@@ -185,6 +185,42 @@ void main() {
 
       _expectTieRule(
         dominant,
+        alteredMajor7,
+        'prefer complete altered dominant inversion over altered major7',
+      );
+    }
+
+    final sharpNineBassDominant = _candidate(
+      quality: ChordQualityToken.dominant7Sharp5,
+      root: 'A',
+      bass: 'C',
+      presentIntervals: const {0, 3, 4, 8, 10},
+      extensions: const {ChordExtension.sharp9},
+      score: 8.07,
+    );
+
+    final sharpNineBassAlteredMajor7s = [
+      _candidate(
+        quality: ChordQualityToken.major7Flat5,
+        root: 'C#',
+        bass: 'C',
+        presentIntervals: const {0, 4, 6, 8, 11},
+        extensions: const {ChordExtension.flat13},
+        score: 8.2,
+      ),
+      _candidate(
+        quality: ChordQualityToken.major7Sharp5,
+        root: 'Db',
+        bass: 'C',
+        presentIntervals: const {0, 4, 6, 8, 11},
+        extensions: const {ChordExtension.sharp11},
+        score: 8.2,
+      ),
+    ];
+
+    for (final alteredMajor7 in sharpNineBassAlteredMajor7s) {
+      _expectTieRule(
+        sharpNineBassDominant,
         alteredMajor7,
         'prefer complete altered dominant inversion over altered major7',
       );
