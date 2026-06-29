@@ -3,11 +3,12 @@ import 'dart:developer' as developer;
 import 'package:vm_service/vm_service.dart';
 import 'package:vm_service/vm_service_io.dart';
 
-/// Deterministic allocation measurement via the VM service.
+/// Allocation measurement via the VM service.
 ///
-/// Allocation byte/object counts depend only on input and code, not on the
-/// machine, so they are a reproducible memory signal. We read two distinct
-/// things from one API:
+/// Allocation byte/object counts are a useful memory signal, but the VM may
+/// report small differences across runs because the measured window includes
+/// runtime, service, alignment, and GC effects. We read two distinct things from
+/// one API:
 ///
 /// - **churn**: bytes/objects allocated since the last reset. The driver of GC
 ///   pressure; the relevant number while the engine is stateless.

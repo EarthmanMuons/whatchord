@@ -61,12 +61,18 @@ alone.
   cost clears the timer's resolution. The normalized CI is the two component CIs
   propagated in quadrature.
 
-- **Memory (deterministic).** Allocation counts depend only on input and code.
-  - `churn`: bytes/objects allocated during a cold pass. The driver of GC
-    pressure and the relevant number while the engine is stateless.
-  - `live`: bytes/objects retained after a forced GC (mostly the LRU cache
-    today). This is the number that will start to matter once temporal history
-    becomes retained state.
+- **Memory (VM-observed).** Allocation counts are useful for spotting memory
+  movement, but small byte-level differences can come from runtime, VM-service,
+  alignment, or GC effects.
+  - `churn`: bytes/objects allocated during the measured cold pass, after
+    resetting the VM allocation accumulator. This is the driver of GC pressure
+    and the relevant number while the engine is mostly stateless.
+  - `retained`: the post-GC heap growth from before the cold pass to after it.
+    This approximates what the pass caused the isolate to keep alive, mostly the
+    analyzer cache today.
+  - `live heap`: the whole isolate's post-GC heap usage after the cold pass.
+    This is useful context for process footprint, but it includes runtime and
+    benchmark harness state, not only analyzer-owned memory.
 - **Algorithmic operation counters (deterministic).** Cache hits/misses, roots
   considered, templates evaluated, candidates produced. These are integers that
   depend only on input and code, so they catch algorithmic regressions (e.g. a
@@ -84,5 +90,5 @@ tool/benchmark.sh --out=benchmark/baseline.json
 ```
 
 and diff future runs against it. Because of timing noise, gate regressions on
-the deterministic metrics (memory churn, counters, normalized time), not raw
+counters, meaningful memory movement, and normalized time, not raw
 microseconds.
