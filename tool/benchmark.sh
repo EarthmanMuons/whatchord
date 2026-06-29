@@ -6,14 +6,14 @@
 # the reviewed-oracle corpus through the engine. Writes benchmark/last_run.json
 # and prints a summary.
 #
-# Usage: tool/benchmark.sh [--out=path/to/result.json] [--show-baseline]
+# Usage: tool/benchmark.sh [--out=path/to/result.json] [--show-baseline] [--check]
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
 for arg in "$@"; do
   case "$arg" in
-    -h|--help|--show-baseline)
+    -h|--help|--show-baseline|--calibrate-noise)
       exec dart run benchmark/analyze_benchmark.dart "$@"
       ;;
   esac

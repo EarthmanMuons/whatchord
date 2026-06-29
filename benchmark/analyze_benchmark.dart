@@ -43,6 +43,24 @@ const int _warmBatch = 200;
 
 const String _defaultOutPath = 'benchmark/last_run.json';
 const String _baselinePath = 'benchmark/baseline.json';
+const String _noisePath = 'benchmark/noise.json';
+
+const int _minCalibrationRuns = 10;
+const int _maxCalibrationRuns = 50;
+const double _calibrationStabilityTarget = 0.10;
+const double _timeRegressionThreshold = 0.05;
+const double _memoryRegressionThreshold = 0.03;
+const int _churnBytesPerCallRegressionThreshold = 1024;
+const int _retainedBytesRegressionThreshold = 32 * 1024;
+
+const Map<String, List<String>> _calibrationMetricPaths = {
+  'time.oracle.coldNormalized': ['time', 'oracle', 'coldNormalized'],
+  'time.oracle.warmNormalized': ['time', 'oracle', 'warmNormalized'],
+  'time.common.coldNormalized': ['time', 'common', 'coldNormalized'],
+  'time.common.warmNormalized': ['time', 'common', 'warmNormalized'],
+  'memory.churnBytesPerCall': ['memory', 'churnBytesPerCall'],
+  'memory.retainedBytes': ['memory', 'retainedBytes'],
+};
 
 // Accumulates the reference workload result so the compiler cannot elide it.
 int _sink = 0;
@@ -56,8 +74,29 @@ Future<void> main(List<String> args) async {
     _printBaseline();
     return;
   }
+  if (args.contains('--calibrate-noise')) {
+    await _calibrateNoise();
+    return;
+  }
   final outPath = _argValue(args, '--out=') ?? _defaultOutPath;
+  final printSummary = !args.contains('--no-summary');
+  final printComparison = !args.contains('--no-compare');
+  final check = args.contains('--check');
 
+  final result = await _runBenchmark();
+
+  File(
+    outPath,
+  ).writeAsStringSync(const JsonEncoder.withIndent('  ').convert(result));
+  if (printSummary) _printSummary(result);
+  final verdict = printComparison
+      ? _maybePrintComparison(outPath, result, check: check)
+      : _CheckVerdict.pass();
+  if (printSummary || printComparison) stdout.writeln('Wrote $outPath');
+  if (check && !verdict.passed) exitCode = 1;
+}
+
+Future<Map<String, Object?>> _runBenchmark() async {
   final context = buildContext();
   final oracle = loadCorpus();
   final common = [for (final v in commonVoicings()) v.input];
@@ -100,7 +139,7 @@ Future<void> main(List<String> args) async {
 
   if (_sink == 1) stderr.writeln(); // keep _sink observable; effectively never.
 
-  final result = <String, Object?>{
+  return <String, Object?>{
     'meta': {
       'oracleSize': oracle.length,
       'commonSize': common.length,
@@ -124,13 +163,6 @@ Future<void> main(List<String> args) async {
     },
     'counters': counters,
   };
-
-  File(
-    outPath,
-  ).writeAsStringSync(const JsonEncoder.withIndent('  ').convert(result));
-  _printSummary(result);
-  _maybePrintComparison(outPath, result);
-  stdout.writeln('Wrote $outPath');
 }
 
 /// Adaptively samples cold (cache-miss) and warm (cache-hit) per-call time for
@@ -188,11 +220,17 @@ Map<String, Object?> _timeJson(Stats cold, Stats warm, Stats reference) => {
 /// baseline. Counter changes on the same corpus are deterministic; memory is
 /// VM-observed and may have small runtime noise; normalized time changes beyond
 /// its CI are meaningful.
-void _maybePrintComparison(String outPath, Map<String, Object?> current) {
-  if (outPath == _baselinePath) return;
+_CheckVerdict _maybePrintComparison(
+  String outPath,
+  Map<String, Object?> current, {
+  required bool check,
+}) {
+  if (outPath == _baselinePath) return _CheckVerdict.pass();
   final file = File(_baselinePath);
-  if (!file.existsSync()) return;
+  if (!file.existsSync()) return _CheckVerdict.pass();
   final base = jsonDecode(file.readAsStringSync()) as Map<String, Object?>;
+  final noise = _loadNoiseModel();
+  final failures = <String>[];
 
   stdout.writeln('');
   stdout.writeln('Comparison to baseline ($_baselinePath)');
@@ -206,6 +244,8 @@ void _maybePrintComparison(String outPath, Map<String, Object?> current) {
       );
     }
   }
+
+  void addFailure(String message) => failures.add(message);
 
   String changeText(num baseline, num current, {required bool pct}) {
     if (current == baseline) return 'unchanged';
@@ -221,12 +261,25 @@ void _maybePrintComparison(String outPath, Map<String, Object?> current) {
     final b = _at(base, path);
     final c = _at(current, path);
     if (b is! num || c is! num) return;
+    final metricKey = path.join('.');
+    final relativeChange = _relativeChange(b, c);
+    final uncertainty = _combinedTimeUncertainty(base, current, path, noise);
+    if (check &&
+        relativeChange >= _timeRegressionThreshold &&
+        relativeChange > uncertainty) {
+      addFailure(
+        '$corpus $mode normalized time regressed by '
+        '${_formatPercent(relativeChange)}; combined uncertainty '
+        '${_formatMagnitudePercent(uncertainty)}',
+      );
+    }
     stdout.writeln(
       '  ${corpus.padRight(13)}'
       '${mode.padRight(7)}'
       '${_formatNormalized(b).padLeft(10)}'
       '${_formatNormalized(c).padLeft(10)}'
-      '${changeText(b, c, pct: true).padLeft(10)}',
+      '${changeText(b, c, pct: true).padLeft(10)}'
+      '${check && noise != null ? _noiseSuffix(noise, metricKey).padLeft(12) : ''}',
     );
   }
 
@@ -239,11 +292,37 @@ void _maybePrintComparison(String outPath, Map<String, Object?> current) {
     final b = _at(base, path);
     final c = _at(current, path);
     if (b is! num || c is! num) return;
+    final metricKey = path.join('.');
+    final relativeChange = _relativeChange(b, c);
+    final noiseRel95 = noise?.metricNoiseRel95(metricKey) ?? 0;
+    final practicalThreshold = switch (metricKey) {
+      'memory.churnBytesPerCall' => math.max(
+        _memoryRegressionThreshold,
+        _churnBytesPerCallRegressionThreshold / b,
+      ),
+      'memory.retainedBytes' => math.max(
+        _memoryRegressionThreshold,
+        _retainedBytesRegressionThreshold / b,
+      ),
+      _ => 0.0,
+    };
+    if (check &&
+        pct &&
+        relativeChange >= practicalThreshold &&
+        relativeChange > noiseRel95) {
+      addFailure(
+        '$label increased by ${_formatPercent(relativeChange)}; '
+        'VM-observed noise ${_formatMagnitudePercent(noiseRel95)}',
+      );
+    } else if (check && !pct && c > b) {
+      addFailure('$label increased from ${format(b)} to ${format(c)}');
+    }
     stdout.writeln(
       '  ${label.padRight(20)}'
       '${format(b).padLeft(15)}'
       '${format(c).padLeft(15)}'
-      '${changeText(b, c, pct: pct).padLeft(12)}',
+      '${changeText(b, c, pct: pct).padLeft(12)}'
+      '${check && pct && noise != null ? _noiseSuffix(noise, metricKey).padLeft(12) : ''}',
     );
   }
 
@@ -253,7 +332,8 @@ void _maybePrintComparison(String outPath, Map<String, Object?> current) {
     '${'Mode'.padRight(7)}'
     '${'Baseline'.padLeft(10)}'
     '${'Current'.padLeft(10)}'
-    '${'Change'.padLeft(10)}',
+    '${'Change'.padLeft(10)}'
+    '${check && noise != null ? 'Noise95'.padLeft(12) : ''}',
   );
   timeCmp('oracle', 'cold', ['time', 'oracle', 'coldNormalized']);
   timeCmp('oracle', 'warm', ['time', 'oracle', 'warmNormalized']);
@@ -265,7 +345,8 @@ void _maybePrintComparison(String outPath, Map<String, Object?> current) {
     '  ${'Metric'.padRight(20)}'
     '${'Baseline'.padLeft(15)}'
     '${'Current'.padLeft(15)}'
-    '${'Change'.padLeft(12)}',
+    '${'Change'.padLeft(12)}'
+    '${check && noise != null ? 'Noise95'.padLeft(12) : ''}',
   );
   metricCmp(
     'churn bytes/call',
@@ -294,6 +375,123 @@ void _maybePrintComparison(String outPath, Map<String, Object?> current) {
       pct: false,
     );
   }
+
+  final verdict = failures.isEmpty
+      ? _CheckVerdict.pass()
+      : _CheckVerdict.fail(failures);
+  if (check) _printCheckVerdict(verdict, noise);
+  return verdict;
+}
+
+double _combinedTimeUncertainty(
+  Map<String, Object?> baseline,
+  Map<String, Object?> current,
+  List<String> normalizedPath,
+  _NoiseModel? noise,
+) {
+  final relCiPath = [
+    ...normalizedPath.take(normalizedPath.length - 1),
+    '${normalizedPath.last}RelCi95',
+  ];
+  final baselineRelCi = _at(baseline, relCiPath) as num? ?? 0;
+  final currentRelCi = _at(current, relCiPath) as num? ?? 0;
+  final noiseRel95 = noise?.metricNoiseRel95(normalizedPath.join('.')) ?? 0;
+  return _hypot(
+    _hypot(baselineRelCi.toDouble(), currentRelCi.toDouble()),
+    noiseRel95,
+  );
+}
+
+double _relativeChange(num baseline, num current) {
+  if (baseline == 0) return current == 0 ? 0 : double.infinity;
+  return (current - baseline) / baseline;
+}
+
+String _noiseSuffix(_NoiseModel? noise, String key) {
+  final noiseRel95 = noise?.metricNoiseRel95(key);
+  if (noiseRel95 == null) return '';
+  return _formatMagnitudePercent(noiseRel95);
+}
+
+String _formatPercent(num value) =>
+    '${value >= 0 ? '+' : ''}${_formatPercentMagnitude(value)}';
+
+String _formatMagnitudePercent(num value) => _formatPercentMagnitude(value);
+
+String _formatPercentMagnitude(num value) {
+  final pct = value.abs() * 100;
+  final fractionDigits = pct != 0 && pct < 0.1 ? 2 : 1;
+  return '${pct.toStringAsFixed(fractionDigits)}%';
+}
+
+_NoiseModel? _loadNoiseModel() {
+  final file = File(_noisePath);
+  if (!file.existsSync()) return null;
+  try {
+    final json = jsonDecode(file.readAsStringSync()) as Map<String, Object?>;
+    return _NoiseModel(json);
+  } on Object catch (error) {
+    stderr.writeln('Ignoring unreadable noise model at $_noisePath: $error');
+    return null;
+  }
+}
+
+void _printCheckVerdict(_CheckVerdict verdict, _NoiseModel? noise) {
+  stdout.writeln('');
+  stdout.writeln('Benchmark check');
+  if (noise == null) {
+    stdout.writeln('  noise model: not found ($_noisePath)');
+  } else {
+    stdout.writeln(
+      '  noise model: $_noisePath (${noise.runs} runs, ${noise.generatedAt})',
+    );
+  }
+  stdout.writeln(
+    '  time gate: fail regressions >= '
+    '${_formatMagnitudePercent(_timeRegressionThreshold)}'
+    ' and outside combined uncertainty',
+  );
+  stdout.writeln(
+    '  memory gate: fail regressions >= '
+    '${_formatMagnitudePercent(_memoryRegressionThreshold)}'
+    ' and above absolute/noise thresholds',
+  );
+  if (verdict.passed) {
+    stdout.writeln('  result: PASS');
+  } else {
+    stdout.writeln('  result: FAIL');
+    for (final failure in verdict.failures) {
+      stdout.writeln('    - $failure');
+    }
+  }
+}
+
+class _CheckVerdict {
+  const _CheckVerdict._(this.failures);
+
+  factory _CheckVerdict.pass() => const _CheckVerdict._([]);
+  factory _CheckVerdict.fail(List<String> failures) =>
+      _CheckVerdict._(List.unmodifiable(failures));
+
+  final List<String> failures;
+
+  bool get passed => failures.isEmpty;
+}
+
+class _NoiseModel {
+  _NoiseModel(this.json);
+
+  final Map<String, Object?> json;
+
+  int get runs => _at(json, ['meta', 'runs']) as int? ?? 0;
+
+  String get generatedAt =>
+      _at(json, ['meta', 'generatedAt']) as String? ?? 'unknown date';
+
+  double? metricNoiseRel95(String key) {
+    final value = _at(json, ['metrics', key, 'noiseRel95']);
+    return value is num ? value.toDouble() : null;
+  }
 }
 
 Object? _at(Map<String, Object?> map, List<String> path) {
@@ -319,6 +517,145 @@ void _printBaseline() {
   _printSummary(baseline, source: _baselinePath);
 }
 
+Future<void> _calibrateNoise() async {
+  final baselineFile = File(_baselinePath);
+  if (!baselineFile.existsSync()) {
+    stderr.writeln('No baseline found at $_baselinePath.');
+    exitCode = 1;
+    return;
+  }
+  final baseline =
+      jsonDecode(baselineFile.readAsStringSync()) as Map<String, Object?>;
+  final tempDir = await Directory.systemTemp.createTemp(
+    'whatchord-benchmark-noise-',
+  );
+  final results = <Map<String, Object?>>[];
+  stdout.writeln('Calibrating benchmark noise against $_baselinePath');
+  stdout.writeln('  min runs: $_minCalibrationRuns');
+  stdout.writeln('  max runs: $_maxCalibrationRuns');
+  stdout.writeln(
+    '  stop: all noise estimates change by less than '
+    '${_formatMagnitudePercent(_calibrationStabilityTarget)}',
+  );
+  stdout.writeln('  temp: ${tempDir.path}');
+  Map<String, Map<String, double>> previousMetrics = const {};
+  Map<String, Map<String, double>> metrics = const {};
+  var stable = false;
+  try {
+    for (var i = 1; i <= _maxCalibrationRuns; i++) {
+      final outPath = '${tempDir.path}/run-$i.json';
+      stdout.writeln('  run $i/$_maxCalibrationRuns');
+      final process = await Process.run(Platform.resolvedExecutable, [
+        'run',
+        '--enable-vm-service',
+        '--define=whatchord.counters=true',
+        'benchmark/analyze_benchmark.dart',
+        '--out=$outPath',
+        '--no-summary',
+        '--no-compare',
+      ]);
+      if (process.exitCode != 0) {
+        stderr.writeln(process.stdout);
+        stderr.writeln(process.stderr);
+        stderr.writeln('Calibration run $i failed.');
+        exitCode = process.exitCode;
+        return;
+      }
+      results.add(
+        jsonDecode(File(outPath).readAsStringSync()) as Map<String, Object?>,
+      );
+      if (results.length >= _minCalibrationRuns) {
+        metrics = _calculateNoiseMetrics(baseline, results);
+        if (previousMetrics.isNotEmpty &&
+            _noiseMetricsStable(previousMetrics, metrics)) {
+          stable = true;
+          stdout.writeln('  stable after ${results.length} runs');
+          break;
+        }
+        previousMetrics = metrics;
+      }
+    }
+  } finally {
+    try {
+      tempDir.deleteSync(recursive: true);
+    } on FileSystemException {
+      // Temporary calibration runs are best-effort cleanup only.
+    }
+  }
+
+  metrics = metrics.isEmpty
+      ? _calculateNoiseMetrics(baseline, results)
+      : metrics;
+  final noise = <String, Object?>{
+    'meta': {
+      'generatedAt': DateTime.now().toUtc().toIso8601String(),
+      'runs': results.length,
+      'minRuns': _minCalibrationRuns,
+      'maxRuns': _maxCalibrationRuns,
+      'stable': stable,
+      'stabilityTarget': _calibrationStabilityTarget,
+      'baselinePath': _baselinePath,
+      'method':
+          'Relative deltas against baseline; noiseRel95 = 1.96 * 1.4826 * MAD.',
+    },
+    'metrics': metrics,
+  };
+  File(
+    _noisePath,
+  ).writeAsStringSync(const JsonEncoder.withIndent('  ').convert(noise));
+  stdout.writeln('Wrote $_noisePath');
+}
+
+Map<String, Map<String, double>> _calculateNoiseMetrics(
+  Map<String, Object?> baseline,
+  List<Map<String, Object?>> results,
+) {
+  final metrics = <String, Map<String, double>>{};
+  for (final key in _calibrationMetricPaths.keys) {
+    final path = _calibrationMetricPaths[key]!;
+    final baselineValue = _at(baseline, path);
+    if (baselineValue is! num || baselineValue == 0) continue;
+    final deltas = <double>[];
+    for (final result in results) {
+      final value = _at(result, path);
+      if (value is num) {
+        deltas.add(((value - baselineValue) / baselineValue).toDouble());
+      }
+    }
+    if (deltas.length < 3) continue;
+    final medianDelta = _median(deltas);
+    final absDeviations = [
+      for (final delta in deltas) (delta - medianDelta).abs(),
+    ];
+    final mad = _median(absDeviations);
+    final robustSigma = 1.4826 * mad;
+    final noiseRel95 = 1.96 * robustSigma;
+    metrics[key] = {
+      'medianRelativeDelta': medianDelta,
+      'madRelativeDelta': mad,
+      'noiseRel95': noiseRel95,
+      'maxAbsRelativeDelta': deltas.map((d) => d.abs()).reduce(math.max),
+    };
+  }
+  return metrics;
+}
+
+bool _noiseMetricsStable(
+  Map<String, Map<String, double>> previous,
+  Map<String, Map<String, double>> current,
+) {
+  if (previous.keys.length != current.keys.length) return false;
+  for (final key in current.keys) {
+    final oldNoise = previous[key]?['noiseRel95'];
+    final newNoise = current[key]?['noiseRel95'];
+    if (oldNoise == null || newNoise == null) return false;
+    final denominator = math.max(oldNoise.abs(), 1e-12);
+    final relativeChange = (newNoise - oldNoise).abs() / denominator;
+    if (relativeChange > _calibrationStabilityTarget) return false;
+  }
+  return true;
+}
+
 void _printUsage() {
   stdout.writeln('''
 Chord engine performance benchmark.
@@ -333,14 +670,20 @@ Usage:
     benchmark/analyze_benchmark.dart [options]
 
 Options:
-  --out=PATH        Write results JSON to PATH (default: $_defaultOutPath).
-                    Use --out=$_baselinePath to update the committed baseline.
-  --show-baseline   Print $_baselinePath in the same summary format as a run.
-  -h, --help        Show this help and exit.
+  --out=PATH          Write results JSON to PATH (default: $_defaultOutPath).
+                      Use --out=$_baselinePath to update the committed baseline.
+  --show-baseline     Print $_baselinePath in the same summary format as a run.
+  --check             Exit nonzero on meaningful regressions against the baseline.
+  --calibrate-noise   Run repeated subprocess benchmarks and write $_noisePath.
+  -h, --help          Show this help and exit.
 
 Unless --out points at the baseline, the run prints a delta against
 $_baselinePath when it exists. Compare runs on the same corpora only;
 regenerate the baseline after changing a corpus.
+
+--check uses the stored run CIs plus $_noisePath when present. Generate the
+noise model with --calibrate-noise on the same runner class where you plan to
+gate benchmark regressions.
 
 Memory measurement needs the VM service (--enable-vm-service) and the
 operation counters need the whatchord.counters define; tool/benchmark.sh
@@ -498,6 +841,14 @@ String _counterLabel(String key) {
       .replaceAllMapped(RegExp(r'([a-z])([A-Z])'), (m) => '${m[1]} ${m[2]}')
       .toLowerCase();
   return words;
+}
+
+double _median(List<double> values) {
+  final sorted = values.toList()..sort();
+  final mid = sorted.length ~/ 2;
+  return sorted.length.isOdd
+      ? sorted[mid]
+      : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
 double _timeMicros(void Function() body) {
