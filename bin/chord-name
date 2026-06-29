@@ -18,4 +18,4 @@ fi
 
 ##### MAIN
 
-exec dart run "$repo_root/tool/chord_name.dart" "$@"
+exec dart run --verbosity=error "$repo_root/tool/chord_name.dart" "$@"
