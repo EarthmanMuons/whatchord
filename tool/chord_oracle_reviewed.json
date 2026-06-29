@@ -555,6 +555,18 @@
     "label": "genuine-ambiguity",
     "note": "Fm6/A♭ is preferred because F-A♭-C-D forms a complete F minor-sixth chord with the minor third in the bass, a conventional inversion. Dm7♭5/A♭ is the equally complete enharmonic half-diminished reading with the flat fifth in the bass, and music21, tonal, and pychord all expose that alternate. The more conventional bass role favors Fm6/A♭, but the half-diminished reinterpretation makes the ambiguity genuine."
   },
+  "0-2-6_b0": {
+    "label": "clearly-correct",
+    "note": "D7/C is correct because D-F♯-C supplies the root, major third, and flat seventh of a dominant-seventh shell, with the flat seventh in the bass. Tonal's D7no5/C is the same musical analysis with explicit fifth omission. WhatChord does not currently display omission notation, and the missing fifth is conventional in dominant-seventh shell voicings."
+  },
+  "0-2-6_b2": {
+    "label": "clearly-correct",
+    "note": "D7 is correct because D-F♯-C supplies the complete dominant shell: root, major third, and flat seventh. Tonal's D7no5 is more explicit about the omitted fifth, but musicians commonly write this voicing as D7 when the fifth is absent."
+  },
+  "0-2-6_b6": {
+    "label": "clearly-correct",
+    "note": "D7/F♯ is correct because F♯ is the third in the bass of the D dominant-seventh shell D-F♯-C. Tonal's D7no5/F# is the same inversion with explicit omission notation; WhatChord's shorter label is musically acceptable because omitted fifths are standard in dominant seventh chords."
+  },
   "0-2-7_b2": {
     "label": "oracle-limitation",
     "note": "D7sus4 is preferred because D is the bass/root and C is the flat seventh, giving a conventional sparse dominant-sus shorthand even though the fifth is omitted. Music21 agrees semantically as Dsus add C omit A. Tonal's Csus2/D and Gsus4/D are valid pitch-class rotations, and WhatChord surfaces Gsus4/D as a possible alternate, but the D bass makes the dominant-sus label the clearest context-free primary."
