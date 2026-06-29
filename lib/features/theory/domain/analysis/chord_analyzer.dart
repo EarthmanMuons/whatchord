@@ -150,7 +150,7 @@ abstract final class ChordAnalyzer {
     ChordInput input, {
     required AnalysisContext context,
     ObservedVoicing? voicing,
-    int take = 8,
+    int take = 5,
   }) {
     // Cache includes context because tonality affects ranking tie-breakers
     // (e.g., diatonic preference, tonic-as-I rule), and the voicing signature
@@ -178,6 +178,7 @@ abstract final class ChordAnalyzer {
       context: context,
       voicing: voicing,
       debug: false,
+      take: take,
     );
 
     final result = eval
@@ -205,13 +206,14 @@ abstract final class ChordAnalyzer {
     ChordInput input, {
     required AnalysisContext context,
     ObservedVoicing? voicing,
-    int take = 8,
+    int take = 5,
   }) {
     final eval = _evaluateAll(
       input,
       context: context,
       voicing: voicing,
       debug: true,
+      take: take,
     ).take(take).toList(growable: false);
 
     final out = <RankedCandidateDebug>[];
@@ -243,6 +245,7 @@ abstract final class ChordAnalyzer {
     required AnalysisContext context,
     required ObservedVoicing? voicing,
     required bool debug,
+    required int take,
   }) {
     final pcMask = input.pcMask;
     if (pcMask == 0) return const <_Evaluated>[];
@@ -300,7 +303,7 @@ abstract final class ChordAnalyzer {
     // Drop the long tail of low-scoring readings before the O(n^2) ranking.
     // Scores are a pure function of the input, so this is transposition-invariant
     // (both a chord and its transposition prune to the same set).
-    final toRank = _pruneForRanking(out);
+    final toRank = _pruneForRanking(out, take);
     if (kEngineCountersEnabled) {
       EngineCounters.candidatesRanked += toRank.length;
     }
@@ -316,20 +319,38 @@ abstract final class ChordAnalyzer {
     );
   }
 
-  /// Keeps only candidates within [rankingPruneMargin] of the top raw score.
-  /// See [rankingPruneMargin] for why dropping the rest preserves the #1 pick
-  /// and the surfaced alternatives set.
-  static List<_Evaluated> _pruneForRanking(List<_Evaluated> out) {
-    if (out.length <= 1) return out;
+  /// Trims the candidate set before the O(n^2) ranking, keeping whichever is
+  /// larger of: every candidate within [rankingPruneMargin] of the top raw score
+  /// (which preserves the #1 pick and the surfaced alternatives set, see
+  /// [rankingPruneMargin]), or the top [take] by score.
+  ///
+  /// The [take] floor keeps the requested result count honest: a caller asking
+  /// for N ranked candidates gets up to N even on a strong voicing where only
+  /// the winner is within the margin (e.g. C E G as Cmaj, or the top-5/top-12
+  /// lists the try page and the Why This Chord modal show regardless of score).
+  /// Tooling that wants the full list passes a large [take]. The floor only
+  /// engages when the margin set is smaller than [take], i.e. on clear voicings
+  /// with few near-top readings, which are cheap to rank anyway; ambiguous and
+  /// dense voicings keep the (larger) margin set, so the prune's win is intact.
+  static List<_Evaluated> _pruneForRanking(List<_Evaluated> out, int take) {
+    if (out.length <= take) return out;
     var maxScore = double.negativeInfinity;
     for (final e in out) {
       if (e.candidate.score > maxScore) maxScore = e.candidate.score;
     }
     final threshold = maxScore - rankingPruneMargin;
-    return [
+    final within = [
       for (final e in out)
         if (e.candidate.score >= threshold) e,
     ];
+    if (within.length >= take) return within;
+    // Margin set is smaller than the requested count. Keep the top [take] by
+    // score; beyond the surfaced set the ranking is essentially score order, so
+    // these fill the lower positions. The margin set is a subset (the highest
+    // scorers), so the #1 pick and surfaced alternatives are still preserved.
+    final sorted = [...out]
+      ..sort((a, b) => b.candidate.score.compareTo(a.candidate.score));
+    return sorted.sublist(0, take);
   }
 
   // ---- Template scoring: fit voicing to chord structure -----------------
