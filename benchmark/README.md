@@ -53,10 +53,14 @@ alone.
   is hardware-dependent and noisy on shared CI runners, so it is not comparable
   across runs. The harness also times a fixed, allocation-free integer workload
   (`referenceWork`) on the same machine and reports
-  `engineTime / referenceTime`. A slower runner slows both, so the ratio stays
-  roughly constant. **Compare the normalized numbers across runs, not the raw
-  microseconds.** Cold (every call a cache miss) and warm (every call a cache
-  hit) are reported separately.
+  `referenceDisplayScale * engineTime / referenceTime`. A slower runner slows
+  both, so the ratio stays roughly constant. The `referenceDisplayScale` (x100)
+  is purely cosmetic, sized so the oracle cold score lands near 100 and the
+  common pool near 20; it leaves every relative delta and CI unchanged. The warm
+  (cache-hit) scores stay near zero regardless of scale and serve only as a
+  "cache is working" sanity line. **Compare the normalized scores across runs,
+  not the raw microseconds.** Cold (every call a cache miss) and warm (every
+  call a cache hit) are reported separately.
 
   Each timing is **sampled adaptively** (like hyperfine/Criterion): after a few
   warmups the harness keeps sampling until the 95% confidence interval on the
