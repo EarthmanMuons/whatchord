@@ -15,6 +15,15 @@
 // It is a fixture, not generated, so the set is stable and the numbers stay
 // comparable. Keep the qualities list to genuinely common chords; add rare or
 // synthetic shapes to the oracle corpus instead.
+//
+// Provenance: the qualities are the standard lead-sheet vocabulary, picked by
+// hand rather than emitted from data. Cross-checking after the fact, every entry
+// maps to a high-frequency key in the ChoCo common-name prior
+// (lib/.../analysis/choco_common_name_prior.dart), so the pool lines up with
+// observed corpus frequency without being mechanically derived from it. A few
+// chords ranking above some of these in ChoCo are intentionally omitted, all
+// altered dominants (dominant7|flat9, dominant7Sharp5, dominant7sus4): they lean
+// adversarial and belong with the oracle corpus, not the common pool.
 
 import 'package:whatchord/features/theory/domain/theory_domain.dart';
 
