@@ -570,5 +570,9 @@
   "0-2-7_b2": {
     "label": "oracle-limitation",
     "note": "D7sus4 is preferred because D is the bass/root and C is the flat seventh, giving a conventional sparse dominant-sus shorthand even though the fifth is omitted. Music21 agrees semantically as Dsus add C omit A. Tonal's Csus2/D and Gsus4/D are valid pitch-class rotations, and WhatChord surfaces Gsus4/D as a possible alternate, but the D bass makes the dominant-sus label the clearest context-free primary."
+  },
+  "0-2-8_b0": {
+    "label": "clearly-correct",
+    "note": "A♭♯11/C is preferred because the voicing presents A♭-C as a readable major-third sonority with D as Lydian sharp-eleventh color and C as the third in the bass. Tonal's A♭(♭5)/C is pitch-class equivalent, but the theoretically exact flat-five spelling becomes G♯(♭5)/B♯ in WhatChord's role-aware spelling, which is less readable for this slash voicing. The flat-five interpretation remains surfaced as an alternative."
   }
 }
