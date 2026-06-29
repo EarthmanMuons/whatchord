@@ -5,7 +5,7 @@ import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
 import 'chord_input_provider.dart';
 
-const _rankingDetailsCandidateLimit = 12;
+const _rankingDetailsCandidateLimit = 5;
 
 final chordCandidatesProvider = Provider<List<ChordCandidate>>((ref) {
   final input = ref.watch(chordInputProvider);
