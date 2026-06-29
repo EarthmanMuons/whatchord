@@ -14,6 +14,7 @@ import '../services/chord_tone_roles.dart';
 import '../services/pitch_class.dart';
 import 'chord_candidate_ranking.dart';
 import 'chord_templates.dart';
+import 'engine_counters.dart';
 
 @immutable
 class ScoreReason {
@@ -144,6 +145,7 @@ abstract final class ChordAnalyzer {
     );
     final cached = _cache[key];
     if (cached != null) {
+      if (kEngineCountersEnabled) EngineCounters.cacheHits++;
       // Promote cache hits so eviction removes the least recently used entry,
       // not merely the oldest inserted entry.
       _cache
@@ -151,6 +153,7 @@ abstract final class ChordAnalyzer {
         ..[key] = cached;
       return cached;
     }
+    if (kEngineCountersEnabled) EngineCounters.cacheMisses++;
 
     final eval = _evaluateAll(
       input,
@@ -232,11 +235,13 @@ abstract final class ChordAnalyzer {
     // This prevents generating "ghost root" interpretations.
     for (var rootPc = 0; rootPc < 12; rootPc++) {
       if ((pcMask & (1 << rootPc)) == 0) continue;
+      if (kEngineCountersEnabled) EngineCounters.rootsConsidered++;
 
       final relMask = _rotateMaskToRoot(pcMask, rootPc);
       final bassInterval = intervalAboveRoot(input.bassPc, rootPc);
 
       for (final tmpl in chordTemplates) {
+        if (kEngineCountersEnabled) EngineCounters.templatesEvaluated++;
         final reasons = debug ? <ScoreReason>[] : null;
 
         final scored = _scoreTemplate(
@@ -267,6 +272,7 @@ abstract final class ChordAnalyzer {
           score: scored.score,
         );
 
+        if (kEngineCountersEnabled) EngineCounters.candidatesProduced++;
         out.add(
           _Evaluated(candidate: candidate, template: tmpl, reasons: reasons),
         );
