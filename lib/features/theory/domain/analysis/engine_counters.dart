@@ -16,9 +16,10 @@ const bool kEngineCountersEnabled = bool.fromEnvironment('whatchord.counters');
 /// Deterministic, hardware-independent tallies of analysis work.
 ///
 /// These count algorithmic steps (cache lookups, roots considered, templates
-/// evaluated, candidates produced) rather than wall-clock time, so they are a
-/// reproducible regression signal regardless of the machine. Only mutated when
-/// [kEngineCountersEnabled] is true; otherwise the increments compile away.
+/// evaluated, candidates produced, candidates ranked) rather than wall-clock
+/// time, so they are a reproducible regression signal regardless of the machine.
+/// Only mutated when [kEngineCountersEnabled] is true; otherwise the increments
+/// compile away.
 abstract final class EngineCounters {
   static int cacheHits = 0;
   static int cacheMisses = 0;
@@ -26,12 +27,19 @@ abstract final class EngineCounters {
   static int templatesEvaluated = 0;
   static int candidatesProduced = 0;
 
+  /// Candidates that survive the pre-ranking prune and enter the O(n^2)
+  /// ranking. Diverges from [candidatesProduced] by the pruned tail, so it is
+  /// the deterministic signal for the prune's effect (and any regression that
+  /// quietly defeats it).
+  static int candidatesRanked = 0;
+
   static void reset() {
     cacheHits = 0;
     cacheMisses = 0;
     rootsConsidered = 0;
     templatesEvaluated = 0;
     candidatesProduced = 0;
+    candidatesRanked = 0;
   }
 
   static Map<String, int> snapshot() => <String, int>{
@@ -40,5 +48,6 @@ abstract final class EngineCounters {
     'rootsConsidered': rootsConsidered,
     'templatesEvaluated': templatesEvaluated,
     'candidatesProduced': candidatesProduced,
+    'candidatesRanked': candidatesRanked,
   };
 }
