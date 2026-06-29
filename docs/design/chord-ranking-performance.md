@@ -301,40 +301,52 @@ of `n`. There is no locality to exploit. Both variants are dead.
 
 ---
 
-## Next direction: reduce the per-pair cost (not the pair count)
+## Shipped: per-pair fast paths (score short-circuit + set-bit iteration)
 
-The redesign assumed we could do _fewer_ `_decide` calls. We cannot: `n^2` is
-intrinsic (candidates cannot be safely dropped, and the relation has no
-locality). The remaining lever is the _cost of each call_, which is currently
-inflated by two things unrelated to the actual decision:
+Since `n^2` is intrinsic (candidates cannot be safely dropped, and the relation
+has no locality), the only remaining lever is the cost of each `_decide` call.
+Measuring where that goes, over a corpus pass:
 
-1. **Allocation.** Every `_decide` returns a freshly allocated `RankingDecision`
-   (with a rule name, score delta, etc.), but the `n^2` matrix loop only reads
-   `result < 0` and `decidedByHardRule`. That is `n^2` allocations per ranking,
-   a large share of the measured churn and likely of the decide cost.
-2. **Gated-rule loop overhead.** Even after the gate masks, `_decide` still
-   loops all 21 rules per pair checking the mask bit, and runs the score and
-   tie-break branches, for pairs that are decided purely by score.
+| pairs                       | share           |
+| --------------------------- | --------------- |
+| skippable (score decides)   | 20%             |
+| call `_decide`              | 80%             |
+| ...of which reach tie-break | 5% of all pairs |
 
-Both can be cut without changing the algorithm or the output:
+So the tie-break scan is _not_ the cost. The bulk is the ~75% of pairs that are
+hard-rule-eligible but beyond the tie window: they call `_decide`, run the gated
+hard-rule loop, and score-decide. That loop iterated all 21 rules checking the
+mask bit even when one or two bits were set (~18M wasted iterations per pass).
 
-- Extract an allocation-free decision core that returns a small int code
-  (`no-beat` / `beat` / `hard-beat`) for the matrix loop; keep the rich
-  `RankingDecision` only for `compare`/`explain`, which are not hot.
-- Short-circuit at the top of the core: when `gateMasks[i] & gateMasks[j] == 0`
-  (no hard rule can fire) and the score gap exceeds `nearTieWindow`, return the
-  score result immediately, skipping the rule loop and tie-breakers. Most pairs
-  are far apart in score, so this should skip the bulk of the work.
+Two output-identical fast paths address this:
 
-This is provably output-identical (those pairs are already score-decided) and
-carries none of the Copeland-locality risk that sank pruning and the redesign.
-It is a constant-factor win on top of the gate masks, not an asymptotic one, but
-constant factors are all that is available here. Status: hypothesis, to be
-measured next (confirm the allocation/loop share, then implement and benchmark).
+- **Score short-circuit** (in the matrix loop): when the shared gate mask is
+  empty (no hard rule can fire) and the score gap exceeds `nearTieWindow`, set
+  `beats` directly from score and skip `_decide` entirely (and its allocation).
+- **Set-bit iteration** (in `_decide`): walk only the set bits of the shared
+  mask, lowest first to preserve rule order, instead of scanning all 21 rules.
+
+Both are provably output-identical (the skipped work would have returned the
+same result) and carry none of the Copeland-locality risk that sank pruning and
+the redesign. Result: **~4%** on the adversarial corpus (short-circuit ~3%,
+set-bit iteration ~1%), counters byte-identical, all tests pass.
+
+The allocation hypothesis was **wrong**: churn was flat after the short-circuit
+removed ~20% of `RankingDecision` allocations, so per-pair allocation is
+negligible and an allocation-free decision core is not worth building.
+
+This is the end of the safe, worthwhile per-pair wins. The residual is the
+intrinsic `n^2` iteration over densely-scored candidates, each doing small real
+work; there is no further lever that is both safe and meaningful.
 
 ---
 
 ## Status
+
+The performance arc is complete. Bankable wins: the gate-mask index (~27%) and
+the per-pair fast paths (~4%), both provably output-identical. The `O(n^2)` is
+intrinsic and cannot be reduced safely; this is documented above so the dead
+ends are not re-explored.
 
 - Benchmark harness: shipped (`benchmark/`, `tool/benchmark.sh`).
 - Hard-rule gate masks (union gate): shipped.
@@ -343,5 +355,5 @@ measured next (confirm the allocation/loop share, then implement and benchmark).
 - Profiling (step 1): done; the `n^2` `_decide` loop is 97% of ranking.
 - Sorted-rank redesign (step 2): tried, abandoned. Fast path never triggers (0
   hits) and the entangled component is ~all of `n`, so there is no locality.
-- Per-pair cost reduction (allocation-free decide + score short-circuit): next
-  candidate, hypothesis stage.
+- Per-pair fast paths (score short-circuit + set-bit iteration): shipped, ~4%.
+- Allocation-free decision core: rejected (per-pair allocation is negligible).
