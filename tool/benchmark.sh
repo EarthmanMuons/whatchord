@@ -6,10 +6,18 @@
 # the reviewed-oracle corpus through the engine. Writes benchmark/last_run.json
 # and prints a summary.
 #
-# Usage: tool/benchmark.sh [--out=path/to/result.json]
+# Usage: tool/benchmark.sh [--out=path/to/result.json] [--show-baseline]
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
+
+for arg in "$@"; do
+  case "$arg" in
+    -h|--help|--show-baseline)
+      exec dart run benchmark/analyze_benchmark.dart "$@"
+      ;;
+  esac
+done
 
 exec dart run \
   --enable-vm-service \
