@@ -6,18 +6,15 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <title>Why Chord Naming Is Harder Than It Looks | WhatChord</title>
+    <title>How to Name Chords | WhatChord</title>
     <meta
       name="description"
-      content="The inversions, extensions, altered tones, and enharmonic ambiguities that make real chord recognition a hard musical problem."
+      content="A practical guide to naming chords: default interval qualities, tertian stacks, enharmonic spelling, candidate roots, and how WhatChord chooses a readable chord symbol."
     />
-    <meta
-      property="og:title"
-      content="Why Chord Naming Is Harder Than It Looks"
-    />
+    <meta property="og:title" content="How to Name Chords" />
     <meta
       property="og:description"
-      content="The musical ambiguities that make automated chord recognition a hard problem, and what WhatChord does about them."
+      content="How to move from a set of notes to a readable chord name using default interval qualities, tertian stacks, spelling, and candidate roots."
     />
     <meta
       property="og:image"
@@ -31,6 +28,24 @@
       content="WhatChord: Identify chords. Understand harmony."
     />
     <meta property="og:type" content="article" />
+    <meta
+      property="og:url"
+      content="https://whatchord.earthmanmuons.com/articles/chord-naming.html"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="How to Name Chords" />
+    <meta
+      name="twitter:description"
+      content="How to move from a set of notes to a readable chord name using default interval qualities, tertian stacks, spelling, and candidate roots."
+    />
+    <meta
+      name="twitter:image"
+      content="https://whatchord.earthmanmuons.com/images/homepage_social.jpg"
+    />
+    <meta
+      name="twitter:image:alt"
+      content="WhatChord: Identify chords. Understand harmony."
+    />
     <link rel="icon" type="image/webp" href="../images/whatchord_logo.webp" />
     <link rel="stylesheet" href="../css/style.css" />
   </head>
@@ -43,7 +58,7 @@
         </a>
         <div class="nav-spacer"></div>
         <ul class="nav-links">
-          <li><a href="chord-naming.html">For Musicians</a></li>
+          <li><a href="why-chord-naming-is-hard.html">For Musicians</a></li>
           <li><a href="under-the-hood.html">Under the Hood</a></li>
           <li><a href="choco-chord-coverage.html">Chord Data</a></li>
         </ul>
@@ -68,384 +83,585 @@
       <div class="article-wrap">
         <header class="article-header">
           <a class="article-back" href="../">← WhatChord</a>
-          <div class="article-tag">For musicians</div>
-          <h1>Why Chord Naming Is Harder Than It Looks</h1>
+          <div class="article-tag">Reference</div>
+          <h1>Chord Naming Guide</h1>
           <p class="article-deck">
-            Inversions, extensions, altered tones, and enharmonic ambiguities
-            make real chord recognition a hard musical problem. Here is how
-            WhatChord handles them.
+            A chord name is a compact explanation of how a set of notes behaves:
+            which note is the root, which intervals define the quality, which
+            tones are extensions or alterations, and whether the bass needs
+            slash notation. It is not a prescription for exactly how to voice
+            the chord; it names the harmonic identity those notes suggest.
+          </p>
+
+          <p class="article-deck">
+            This guide works through chord naming by hand, moving from a raw set
+            of notes to the name that fits them. It is the companion to the
+            <a href="chord-symbols.html">Chord Symbol Guide</a>, which documents
+            how WhatChord formats the final symbol once the name has been
+            chosen.
           </p>
         </header>
 
         <div class="article-body">
-          <h2>It starts with a deceptively simple question</h2>
+          <h2>The Basic Idea</h2>
 
           <p>
-            You press four notes on a keyboard. A computer reads four numbers.
-            What chord is it?
+            Most chord symbols start from a stack of thirds. Pick a candidate
+            root, then lay out the chord-member letter names above it:
           </p>
 
-          <p>
-            The instinct is to say: look it up in a table. C major is C-E-G.
-            Done. But that instinct breaks down quickly when you sit down with a
-            real piece of music, even something straightforward, and start
-            paying attention to what you are actually hearing versus what the
-            notes technically spell out.
-          </p>
-
-          <p>
-            Chord naming is musical interpretation, not pattern matching. The
-            same set of notes can legitimately be described in several different
-            ways, and musicians resolve this ambiguity constantly through
-            context, convention, and voice-leading intuition. Teaching that
-            intuition to a computer requires encoding a surprising amount of
-            musical knowledge.
-          </p>
-
-          <h2>The same notes, different chords</h2>
-
-          <p>
-            Start with a simple example. Play the notes C, E♭, G♭, and A
-            together. What chord is that?
-          </p>
-
-          <p>
-            It is a fully diminished 7th chord. That much is clear from the
-            interval structure: four notes, each a minor third apart, stacking
-            perfectly up the octave. But here is the catch: fully diminished 7th
-            chords are
-            <em>symmetrical</em>. Every voicing of this chord divides the octave
-            into four equal parts. That means the same four piano keys can
-            support four different diminished-7th readings.
-          </p>
-
-          <div class="callout">
-            <p>
-              <strong>Cdim7</strong> = C - E♭ - G♭ - B♭♭<br />
-              <strong>Adim7/C</strong> = A - C - E♭ - G♭<br />
-              <strong>D♯dim7/C</strong> = D♯ - F♯ - A - C<br />
-              <strong>F♯dim7/C</strong> = F♯ - A - C - E♭
-            </p>
+          <div class="member-stack-scroll">
+            <table
+              class="member-stack"
+              aria-label="C-rooted tertian note names with degree numbers"
+            >
+              <caption>
+                Tertian Slots Above C
+              </caption>
+              <tbody>
+                <tr>
+                  <th scope="row">Note names</th>
+                  <td>C</td>
+                  <td>E</td>
+                  <td>G</td>
+                  <td>B</td>
+                  <td>D</td>
+                  <td>F</td>
+                  <td>A</td>
+                </tr>
+                <tr>
+                  <th scope="row">Degree numbers</th>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>5</td>
+                  <td>7</td>
+                  <td>9</td>
+                  <td>11</td>
+                  <td>13</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           <p>
-            So which name is "right"? Without tonal context, none of the four
-            spellings is automatically more correct than the others. They are
-            enharmonic descriptions of identical piano keys, and the right
-            answer depends on musical context: what key you are in, what chord
-            came before, which note is functioning as the bass, and where the
-            progression is heading.
+            The numbers do not describe register. In chord-symbol language, a D
+            right next to middle C and a D two octaves higher are both the ninth
+            above C. The stack is a naming map: each letter slot has a default
+            quality, and the actual note either matches that default or alters
+            it.
+          </p>
+
+          <h2>Default Interval Qualities</h2>
+
+          <p>
+            The plain degree numbers in the stack name the positions: third,
+            fifth, seventh, ninth, and so on. They do not by themselves tell you
+            the final accidental. The note letter comes from the position in the
+            stack, and the interval quality tells you whether that letter is
+            natural, lowered, or raised.
           </p>
 
           <p>
-            The app resolves this using diatonic context. When you have set a
-            key signature, it prefers the diminished 7th reading that best fits
-            the key, specifically the one whose root is the diatonic leading
-            tone. In D♭ major, these same piano keys naturally point to
-            <span class="chord">Cdim7</span>, the leading-tone diminished 7th
-            that resolves to D♭. Without a key signature, it falls back to
-            preferring root position: the interpretation where the bass note is
-            named as the root, which is a clear default when no surrounding
-            harmony is available.
+            Above C, for example, the seventh slot is always some kind of B. B
+            is the major seventh, B♭ is the minor seventh, and B𝄫 is the
+            diminished seventh. It does not become A just because it has been
+            lowered; changing the letter would move it into a different slot.
           </p>
 
-          <h2>Inversions: the bass note changes everything</h2>
+          <p>Chord symbols have defaults for those interval qualities.</p>
+
+          <table class="score-table">
+            <thead>
+              <tr>
+                <th scope="col">Chord member</th>
+                <th scope="col">Default above C</th>
+                <th scope="col">Lowered</th>
+                <th scope="col">Raised</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>3rd</td>
+                <td>E, major</td>
+                <td>E♭, minor (<code>m</code>)</td>
+                <td>E♯, augmented</td>
+              </tr>
+              <tr>
+                <td>5th</td>
+                <td>G, perfect</td>
+                <td>G♭, diminished (<code>♭5</code>, <code>dim</code>)</td>
+                <td>G♯, augmented (<code>♯5</code>, <code>aug</code>)</td>
+              </tr>
+              <tr>
+                <td>7th</td>
+                <td>B♭, minor (<code>7</code>)</td>
+                <td>B𝄫, diminished (<code>dim7</code>)</td>
+                <td>B, major (<code>maj7</code>)</td>
+              </tr>
+              <tr>
+                <td>9th</td>
+                <td>D, major</td>
+                <td>D♭, minor (<code>♭9</code>)</td>
+                <td>D♯, augmented (<code>♯9</code>)</td>
+              </tr>
+              <tr>
+                <td>11th</td>
+                <td>F, perfect</td>
+                <td>F♭, diminished</td>
+                <td>F♯, augmented (<code>♯11</code>)</td>
+              </tr>
+              <tr>
+                <td>13th</td>
+                <td>A, major</td>
+                <td>A♭, minor (<code>♭13</code>)</td>
+                <td>A♯, augmented</td>
+              </tr>
+            </tbody>
+          </table>
 
           <p>
-            Inversion is one of the main reasons a chord name needs more than a
-            pitch-class lookup. When the third is in the bass instead of the
-            root, a major chord carries a different weight than it does in root
-            position. When the fifth is in the bass, the same pitch classes can
-            sound stable in one progression and transitional in another,
-            depending on the surrounding music.
-          </p>
-
-          <p>
-            Classical theory calls these first and second inversion. Jazz and
-            pop use slash notation: <span class="chord">C/E</span> (C major with
-            E in the bass), <span class="chord">C/G</span> (C major with G in
-            the bass). Either way, the relationship between the bass note and
-            the chord tones above it matters, and it affects how the chord is
-            named.
-          </p>
-
-          <p>
-            A MIDI keyboard tells the analyzer the pitch class of every sounding
-            note, including the lowest one. The lowest note is treated as the
-            bass note and scored separately from the upper structure. A chord
-            where the bass is the root earns a higher score than the same chord
-            with a bass that requires slash notation. Not because root position
-            is "more correct," but because it is the more common interpretation
-            and more informative to name explicitly as root position first.
-          </p>
-
-          <p>
-            This scoring matters for a subtle reason. Consider C, E, G, A played
-            with C in the bass. Is that
-            <span class="chord">C6</span>
-            or
-            <span class="chord">Am7/C</span>? Both are completely valid
-            readings: <span class="chord">C6</span> is a major chord with an
-            added 6th; <span class="chord">Am7/C</span> is an A minor 7th chord
-            in first inversion. In real music, both readings show up. The
-            default behavior is to show <span class="chord">C6</span> as the
-            primary interpretation: the root is in the bass and no inversion
-            notation is required. <span class="chord">Am7/C</span> appears below
-            the chord identity card as an alternative.
-          </p>
-
-          <h2>Extensions: when does an extra note become part of the chord?</h2>
-
-          <p>
-            A triad has three notes. A 7th chord has four. But jazz pianists
-            regularly play voicings with five, six, or even seven distinct pitch
-            classes and still call it a single chord.
-          </p>
-
-          <p>
-            In common chord-symbol practice, extensions are named as part of a
-            stack: 7, 9, 11, 13. A major 9th chord (<span class="chord"
-              >Cmaj9</span
-            >) normally implies the major 7th as well. The 9 is an extension of
-            the 7th-family chord, not just a note tacked on. By contrast,
-            <span class="chord">Cadd9</span> skips the 7th entirely and adds the
-            9th on top of a basic triad. They are different sounds with
-            different names, even though both contain C, E, G, and D.
+            The third is major by default, unless <code>m</code> makes it minor.
+            The fifth and eleventh are perfect by default, unless altered. Every
+            default here matches the major scale except the seventh: the bare
+            <code>7</code> means the lowered, minor seventh, so
+            <span class="chord">C7</span> is C-E-G-B♭, not C-E-G-B. The word
+            <code>maj</code> changes only that seventh, so
+            <span class="chord">Cmaj7</span> means C-E-G-B, while
+            <span class="chord">Cm7</span> changes the third to E♭ but leaves
+            the seventh at its default B♭.
           </p>
 
           <p>
-            WhatChord uses a conservative version of this distinction when
-            labeling extensions. A 9 needs the 7th below it. An 11 needs both
-            the 7th and the 9th. A 13 needs the 7th and 9th, but not a sounding
-            11, matching common chord-symbol practice where the 11th is often
-            omitted. Without that support, the same notes are labeled as add
-            tones: add9, add11, or add13. The rule is simple to state and
-            surprisingly hard to get right in practice, because voicings often
-            omit the 5th while keeping the tones that define the chord function.
+            Diminished and augmented are interval qualities too. A diminished
+            interval is one semitone smaller than minor or perfect. An augmented
+            interval is one semitone larger than major or perfect. Chord labels
+            use those interval qualities as shortcuts:
+            <span class="chord">Cdim</span> means a minor third plus a
+            diminished fifth, C-E♭-G♭. <span class="chord">Cdim7</span> adds a
+            diminished seventh, B𝄫. A half-diminished seventh chord,
+            <span class="chord">Cm7(♭5)</span>, keeps the default minor seventh
+            and lowers only the fifth. <span class="chord">Caug</span> means an
+            augmented triad: C-E-G♯.
           </p>
 
-          <h2>Altered dominants: a dense naming problem</h2>
+          <h2>From Degrees to Quality Names</h2>
 
           <p>
-            Dominant 7th chords such as <span class="chord">G7</span>,
-            <span class="chord">C7</span>, and <span class="chord">F7</span> are
-            the workhorses of functional harmony. They create tension that
-            resolves, and because jazz musicians spend so much time on them,
-            dominant 7ths have accumulated a particularly rich vocabulary of
-            extensions and alterations.
+            Once the notes are mapped to degree numbers, the chord quality comes
+            from the pattern those degrees make. A few common patterns do most
+            of the work:
           </p>
 
-          <p>
-            The "altered scale," the seventh mode of melodic minor, provides a
-            vocabulary of alterations that can be stacked on a dominant chord:
-            flat 9, sharp 9, sharp 11 or flat 5, and flat 13 or sharp 5. A
-            heavily altered dominant might look like
-            <span class="chord">G7(♯9,♯11,♭13)</span>: G plus its major 3rd (B),
-            its minor 7th (F), and three altered upper extensions. That is six
-            distinct pitch classes in a single chord.
-          </p>
+          <table class="score-table">
+            <thead>
+              <tr>
+                <th scope="col">Quality</th>
+                <th scope="col">Degree formula</th>
+                <th scope="col">Example on C</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Major triad</td>
+                <td><code>1 3 5</code></td>
+                <td><span class="chord">C</span> = C-E-G</td>
+              </tr>
+              <tr>
+                <td>Minor triad</td>
+                <td><code>1 ♭3 5</code></td>
+                <td><span class="chord">Cm</span> = C-E♭-G</td>
+              </tr>
+              <tr>
+                <td>Diminished triad</td>
+                <td><code>1 ♭3 ♭5</code></td>
+                <td><span class="chord">Cdim</span> = C-E♭-G♭</td>
+              </tr>
+              <tr>
+                <td>Augmented triad</td>
+                <td><code>1 3 ♯5</code></td>
+                <td><span class="chord">Caug</span> = C-E-G♯</td>
+              </tr>
+              <tr>
+                <td>Dominant seventh</td>
+                <td><code>1 3 5 ♭7</code></td>
+                <td><span class="chord">C7</span> = C-E-G-B♭</td>
+              </tr>
+              <tr>
+                <td>Major seventh</td>
+                <td><code>1 3 5 7</code></td>
+                <td><span class="chord">Cmaj7</span> = C-E-G-B</td>
+              </tr>
+              <tr>
+                <td>Minor seventh</td>
+                <td><code>1 ♭3 5 ♭7</code></td>
+                <td><span class="chord">Cm7</span> = C-E♭-G-B♭</td>
+              </tr>
+              <tr>
+                <td>Half-diminished seventh</td>
+                <td><code>1 ♭3 ♭5 ♭7</code></td>
+                <td><span class="chord">Cm7(♭5)</span> = C-E♭-G♭-B♭</td>
+              </tr>
+              <tr>
+                <td>Fully diminished seventh</td>
+                <td><code>1 ♭3 ♭5 𝄫7</code></td>
+                <td><span class="chord">Cdim7</span> = C-E♭-G♭-B𝄫</td>
+              </tr>
+              <tr>
+                <td>Dominant ninth</td>
+                <td><code>1 3 5 ♭7 9</code></td>
+                <td><span class="chord">C9</span> = C-E-G-B♭-D</td>
+              </tr>
+              <tr>
+                <td>Added ninth</td>
+                <td><code>1 3 5 9</code></td>
+                <td><span class="chord">Cadd9</span> = C-E-G-D</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>Extensions vs. Added Tones</h2>
 
           <p>
-            The dominant 7th sharp-nine chord is particularly well-known,
-            nicknamed the "Hendrix chord" for its prominent use in "Purple
-            Haze," where it appears as <span class="chord">E7♯9</span>. Building
-            one on G, the notes are G, B, F, and A♯. That A♯ is the same piano
-            key as B♭, but the chord role is different: it is the raised 9th
-            above G. Without musical context, a naive recognizer might call the
-            same keys a diminished chord, a minor chord with a strange bass, or
-            something else entirely. The analyzer recognizes the dominant shell
-            (major 3rd + flat 7th) as the anchor, treats the sharp 9 as an
-            alteration on that dominant function, and reports
-            <span class="chord">G7♯9</span> as expected.
-          </p>
-
-          <p>
-            This matters because dominant chords with alterations arise
-            constantly in jazz, blues, and rock. Getting them wrong breaks trust
-            with any musician who knows what they sound like.
-          </p>
-
-          <h3>Upper-structure voicings</h3>
-
-          <p>
-            Experienced jazz pianists often build dominant chord voicings using
-            an "upper structure" technique: the left hand plays the shell tones
-            (usually the 3rd and flat 7th of the dominant, often with a bass
-            root supplied nearby), and the right hand plays what sounds like a
-            separate chord, often a simple triad built on another scale degree.
-            The result is a rich color that resists simple labeling.
-          </p>
-
-          <p>
-            In these cases, the analyzer keeps the dominant shell as the anchor
-            instead of treating the upper notes as unrelated chord roots. If the
-            bass is itself a color tone, such as the ♯11, the result is kept in
-            the dominant family rather than being treated as an unrelated root
-            change.
-          </p>
-
-          <h2>Enharmonic spelling</h2>
-
-          <p>
-            C♯ and D♭ are the same key on a piano. They are the same MIDI note
-            number, but they mean different things. Writing the wrong one in a
-            chord symbol or lead sheet is a mistake that musicians notice
-            immediately.
-          </p>
-
-          <p>
-            In the key of E major, the pitch C♯ is the sixth degree of the
-            scale. Writing that same piano key as D♭ would be technically
-            enharmonic but functionally wrong. In the key of A♭ major, the same
-            piano key is D♭, the fourth degree of the scale.
-          </p>
-
-          <p>
-            Chord symbols follow the same logic. A dominant 7th built on G
-            spells its minor 7th as F (two semitones below the octave), never
-            E♯. A diminished 7th on B spells its top note as A♭, the diminished
-            7th above B, not G♯, even though they are identical pitches.
-          </p>
-
-          <p>
-            The app uses both the key signature and the identified chord root to
-            determine enharmonic spelling. When you have set the key signature
-            to three flats (E♭ major or C minor), it will favor flat spellings
-            for chord tones and extensions throughout. When it identifies a
-            dominant 7th on G, it spells the 7th as F regardless of key context,
-            because that is what the chord quality demands. These two sources of
-            context combine to produce spellings that look like what a
-            professional musician or copyist would write.
-          </p>
-
-          <h2>Ambiguity is a feature, not a problem</h2>
-
-          <p>
-            Some voicings are genuinely ambiguous. Not because the algorithm
-            failed, but because the music itself has multiple valid
-            interpretations.
+            A seventh turns upper notes into extensions. With the seventh
+            present, D above C is a ninth, F is an eleventh, and A is a
+            thirteenth. Without the seventh, those same notes are added tones or
+            sixths:
+            <span class="chord">C9</span> includes B♭, while
+            <span class="chord">Cadd9</span> does not.
           </p>
 
           <p>
-            The <span class="chord">C6</span> versus
-            <span class="chord">Am7/C</span> case from earlier is the basic
-            version of this problem: the notes are identical, but the musical
-            meaning depends on where the harmony is going. Are you at the end of
-            a phrase resolving to tonic, or are you in the middle of a ii-V-I in
-            G major? The notes do not tell you. The music around them does.
+            The thirteenth has one common naming exception. If there is no
+            seventh, an A above C is written as a sixth:
+            <span class="chord">C6</span>. Add the seventh and that same chord
+            member becomes a thirteenth: <span class="chord">C13</span>.
+          </p>
+
+          <h2>Slash Bass</h2>
+
+          <p>
+            The bass note is the lowest sounding note. When the bass is not the
+            root of the chord name, chord symbols write it after a slash:
+            <span class="chord">C9 / E</span> means C dominant ninth with E in
+            the bass. The slash note is not a second chord, and it does not
+            change the root. It only tells the player what note is underneath
+            the chord.
           </p>
 
           <p>
-            Rather than arbitrarily committing to one name, the interface can
-            show both when scores are close. The primary result is the
-            highest-ranked interpretation, displayed as the main chord name.
-            Other plausible readings appear below the chord identity card. A
-            musician looking at the screen gets the most likely reading
-            immediately, but can see at a glance that another name is also in
-            play.
+            If the bass is already the root, no slash note is needed. A C
+            dominant ninth with C in the bass is simply
+            <span class="chord">C9</span>, not
+            <span class="chord not-used">C9 / C</span>.
+          </p>
+
+          <h2>How to Name a Chord</h2>
+
+          <p>A practical naming pass looks like this:</p>
+
+          <ol>
+            <li>
+              List the sounding pitch classes and the bass note. Ignore
+              doublings, but keep the lowest note for slash-bass decisions.
+            </li>
+            <li>
+              Try candidate roots. Usually those are notes already present in
+              the chord, plus obvious enharmonic spellings when they make the
+              tertian stack cleaner.
+            </li>
+            <li>
+              For each root, write the
+              <code>1 3 5 7 9 11 13</code> letter stack.
+            </li>
+            <li>
+              Place each sounding note into its letter slot, respelling
+              enharmonically when the chord function demands it.
+            </li>
+            <li>
+              Prefer names with a clear triad or seventh-chord base, fewer
+              awkward alterations, and no unnecessary slash bass.
+            </li>
+          </ol>
+
+          <p>
+            The result is not always unique. Some pitch sets really do have
+            several good names, and musical context may decide between them. But
+            this process gives you a disciplined way to find the names that are
+            musically defensible before choosing the most readable one.
+          </p>
+
+          <h2>Worked Example</h2>
+
+          <p>
+            Suppose the sounding notes are C, E, G, B♭, and D, with C in the
+            bass. The goal is to work from the notes toward a name, not to
+            assume the name first. C is a good root to test because it is in the
+            bass, and the notes above it include the familiar C-E-G shape.
+          </p>
+
+          <p>Start by stacking thirds above C through the ninth:</p>
+
+          <div class="member-stack-scroll">
+            <table
+              class="member-stack"
+              aria-label="C-rooted tertian note names through the ninth with degree numbers"
+            >
+              <caption>
+                Tertian Slots Above C
+              </caption>
+              <tbody>
+                <tr>
+                  <th scope="row">Note names</th>
+                  <td>C</td>
+                  <td>E</td>
+                  <td>G</td>
+                  <td>B</td>
+                  <td>D</td>
+                </tr>
+                <tr>
+                  <th scope="row">Degree numbers</th>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>5</td>
+                  <td>7</td>
+                  <td>9</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            Now compare the sounding notes to those slots. C, E, and G give a
+            major triad because the third is E, not E♭. The seventh slot above C
+            is some kind of B; the sounding note is B♭, which is the default
+            minor seventh. A major triad plus the default minor seventh is
+            written <span class="chord">C7</span>, not
+            <span class="chord">Cm7</span>, because nothing has made the third
+            minor. D is in the ninth slot. Because the seventh is present, that
+            D is an extension rather than an added tone.
+          </p>
+
+          <div class="member-stack-scroll">
+            <table
+              class="member-stack"
+              aria-label="Sounding note names mapped to degree numbers"
+            >
+              <caption>
+                Sounding Notes Interpreted Above C
+              </caption>
+              <tbody>
+                <tr>
+                  <th scope="row">Note names</th>
+                  <td>C</td>
+                  <td>E</td>
+                  <td>G</td>
+                  <td>B♭</td>
+                  <td>D</td>
+                </tr>
+                <tr>
+                  <th scope="row">Degree numbers</th>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>5</td>
+                  <td>♭7</td>
+                  <td>9</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            That points to <span class="chord">C9</span>: the seventh is
+            present, so it is not <span class="chord">Cadd9</span>, and the bass
+            is C, so no slash note is needed. Before committing to it, though, a
+            thorough pass should weigh the other roots.
+          </p>
+
+          <h2>Trying Other Roots</h2>
+
+          <p>
+            For this note set, the candidate roots are the notes that are
+            actually sounding: C, E, G, B♭, and D.
           </p>
 
           <p>
-            This is the more honest representation of what the notes can
-            support. The four notes C, E, F♯, and B♭ are a clean example: they
-            score identically as <span class="chord">C7♭5</span> and
-            <span class="chord">F♯7♭5/C</span>, two dominant 7th♭5 chords whose
-            roots sit a tritone apart, the same symmetry that underlies tritone
-            substitution in jazz. The app shows
-            <span class="chord">C7♭5</span> as primary (root in the bass), with
-            <span class="chord">F♯7♭5/C</span> listed as an equally scored
-            alternative.
+            Try E next. The letter stack above E is E-G-B-D-F-A-C. The sounding
+            notes then map as E, G, B♭, D, and C:
           </p>
 
-          <h2>Where WhatChord fits</h2>
+          <div class="member-stack-scroll">
+            <table
+              class="member-stack"
+              aria-label="Sounding note names mapped to degree numbers above E"
+            >
+              <caption>
+                Sounding Notes Interpreted Above E
+              </caption>
+              <tbody>
+                <tr>
+                  <th scope="row">Note names</th>
+                  <td>E</td>
+                  <td>G</td>
+                  <td>B♭</td>
+                  <td>D</td>
+                  <td>C</td>
+                </tr>
+                <tr>
+                  <th scope="row">Degree numbers</th>
+                  <td>1</td>
+                  <td>♭3</td>
+                  <td>♭5</td>
+                  <td>♭7</td>
+                  <td>♭13</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <p>
-            WhatChord is not trying to pretend that chord names are objective
-            facts. It tries to make the same practical judgment a good player
-            would make first, while still showing plausible alternatives when
-            the notes support more than one name.
+            That gives an E half-diminished seventh shape:
+            <code>1 ♭3 ♭5 ♭7</code>. The remaining C is the lowered thirteenth
+            above E, but because it is also the bass, slash notation can account
+            for it: <span class="chord">Em7(♭5) / C</span>. That is valid, but
+            it is already more complex than the C-rooted name: it needs an
+            altered fifth and slash bass, while the C reading gave a direct
+            dominant ninth.
           </p>
 
           <p>
-            Today, each snapshot of sounding notes is evaluated independently,
-            using the current key signature setting as context. Progressions,
-            key changes, voice leading, and ensemble-aware interpretation are
-            all interesting avenues for future development. That is the larger
-            point: chord naming is harder than it looks because the notes are
-            only the beginning.
+            Doing the same check for each sounding note gives this comparison:
+          </p>
+
+          <table class="score-table">
+            <thead>
+              <tr>
+                <th scope="col">Root tested</th>
+                <th scope="col">Note names in stack order</th>
+                <th scope="col">Degree numbers</th>
+                <th scope="col">Candidate name</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>C</td>
+                <td>C E G B♭ D</td>
+                <td><code>1 3 5 ♭7 9</code></td>
+                <td><span class="chord">C9</span></td>
+              </tr>
+              <tr>
+                <td>E</td>
+                <td>E G B♭ D C</td>
+                <td><code>1 ♭3 ♭5 ♭7 ♭13</code></td>
+                <td><span class="chord">Em7(♭5) / C</span></td>
+              </tr>
+              <tr>
+                <td>G</td>
+                <td>G B♭ D C E</td>
+                <td><code>1 ♭3 5 11 13</code></td>
+                <td><span class="chord">Gm6 / C</span></td>
+              </tr>
+              <tr>
+                <td>B♭</td>
+                <td>B♭ D C E G</td>
+                <td><code>1 3 9 ♯11 13</code></td>
+                <td><span class="chord">B♭6♯11 / C</span></td>
+              </tr>
+              <tr>
+                <td>D</td>
+                <td>D C E G B♭</td>
+                <td><code>1 ♭7 9 11 ♭13</code></td>
+                <td><span class="chord">D9sus4(♭13) / C</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>
+            Those names are not equally useful. The C reading has a complete,
+            familiar base chord: <code>1 3 5 ♭7</code>, then one ordinary ninth.
+            The alternatives need more explanation: they lack a complete triad
+            or seventh-chord base, depend on several upper extensions or altered
+            degrees, or require slash bass to account for C underneath them.
           </p>
 
           <p>
-            If you want to see how that musical judgment is represented in code,
-            the underlying algorithm is described in more technical depth in the
-            <a href="under-the-hood.html">companion article</a>.
+            The C reading wins because it has the strongest base chord, the bass
+            is the root, and the remaining note has a standard name as a ninth.
+            Deciding which reading is "best" can still be tricky, especially in
+            real music where context matters, but this is the kind of comparison
+            that makes one option much easier to justify than the others.
+          </p>
+
+          <h2>Why Spelling Matters</h2>
+
+          <p>
+            The spelling is not cosmetic. In this example, B♭ is the seventh
+            above C. Spelling the same physical piano key as A♯ would make it
+            look like some kind of altered sixth instead of the chord's seventh.
+            Both spellings represent the same pitch class, but chord symbols use
+            enharmonic spelling to show function, not just keys on the
+            instrument.
+          </p>
+
+          <h2>How WhatChord Uses This Idea</h2>
+
+          <p>
+            WhatChord evaluates candidate roots and qualities in software rather
+            than by hand. It scores candidates for musical strength: stable
+            triads and seventh chords, sensible extensions, spelling that fits
+            the chord member, and bass relationships that musicians expect to
+            read. Close alternatives can still appear when the notes genuinely
+            support more than one interpretation.
+          </p>
+
+          <p>
+            The app asks the same questions a player asks: What is the root?
+            What is the base quality? Which notes are extensions or alterations?
+            Is the bass part of the chord or a slash note? Which spelling makes
+            the stack readable?
+          </p>
+
+          <p>
+            For the implementation details behind those scores, see
+            <a href="under-the-hood.html"
+              >Under the Hood: Building a Real-Time Chord Recognizer</a
+            >.
+          </p>
+
+          <h2>Acknowledgements</h2>
+
+          <p>
+            This guide was inspired in part by discussion with
+            <a href="https://www.reddit.com/user/MaggaraMarine"
+              >u/MaggaraMarine</a
+            >, who pointed toward clarifying default interval qualities behind
+            chord symbols, and
+            <a href="https://www.reddit.com/user/65TwinReverbRI"
+              >u/65TwinReverbRI</a
+            >, whose examples helped motivate the focus on tertian spelling and
+            systematic root checking.
           </p>
 
           <div class="article-cta">
-            <h3>Try it on your own keyboard.</h3>
+            <h3>Try the process on your own notes.</h3>
             <p>
-              Free for iOS and Android. No subscription, no ads, no internet
-              required.
+              Enter any notes and WhatChord identifies the strongest chord
+              names, including close alternatives when the voicing is genuinely
+              ambiguous.
             </p>
-            <div class="store-badges store-badges-spaced">
-              <a
-                href="https://apps.apple.com/us/app/whatchord-midi/id6758409779"
-              >
-                <img
-                  class="store-badge"
-                  src="../images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg"
-                  alt="Download on the App Store"
-                />
-              </a>
-              <a href="#" data-android-beta>
-                <img
-                  class="store-badge"
-                  src="../images/GetItOnGooglePlay_Badge_Web_color_English.svg"
-                  alt="Get it on Google Play"
-                />
-              </a>
-            </div>
-            <p class="cta-secondary">
-              Prefer not to install?
-              <a href="/try">Try identifying chords in your browser →</a>
-            </p>
+            <a class="btn btn-primary" href="/try">Try it in your browser →</a>
           </div>
 
           <div class="article-related">
             <h4>Also on this site</h4>
             <a
               class="article-card article-card-first"
-              href="under-the-hood.html"
-            >
-              <div class="article-tag">Technical deep-dive</div>
-              <h3>Under the Hood: Building a Real-Time Chord Recognizer</h3>
-              <p>
-                The bitmasks, chord-quality templates, scoring and ranking
-                heuristics, and LRU cache behind real-time chord recognition.
-              </p>
-              <span class="read-more">Read the article →</span>
-            </a>
-            <a
-              class="article-card article-card-following"
-              href="choco-chord-coverage.html"
-            >
-              <div class="article-tag">Chord data</div>
-              <h3>What We Learned From 1 Million Chord Annotations</h3>
-              <p>
-                How a large public chord corpus helped validate WhatChord's
-                chord vocabulary and guide future recognition priorities.
-              </p>
-              <span class="read-more">Read the article →</span>
-            </a>
-            <a
-              class="article-card article-card-following"
               href="chord-symbols.html"
             >
               <div class="article-tag">Reference</div>
               <h3>Chord Symbol Guide</h3>
               <p>
-                How to format chord symbols: extensions, added tones,
-                alterations, parentheses, and slash bass.
+                How WhatChord formats extensions, added tones, alterations,
+                omissions, and slash bass once a chord has been named.
               </p>
               <span class="read-more">Read the guide →</span>
             </a>
@@ -492,7 +708,7 @@
 
     <dialog id="android-dialog">
       <div class="dialog-content">
-        <h3>Join the Android beta</h3>
+        <h3>Join the Android Beta</h3>
         <p>
           WhatChord for Android is currently in closed testing. Email
           <a

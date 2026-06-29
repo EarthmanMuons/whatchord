@@ -1171,6 +1171,56 @@ footer {
   font-size: 0.95rem;
 }
 
+.member-stack-scroll {
+  width: 100%;
+  margin: 28px 0;
+  overflow-x: auto;
+}
+
+.member-stack {
+  width: 100%;
+  min-width: 520px;
+  margin: 0;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.member-stack caption {
+  padding-bottom: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: left;
+  letter-spacing: 0.03em;
+}
+
+.member-stack th,
+.member-stack td {
+  padding: 10px 8px;
+  text-align: center;
+  background: #14141d;
+  border: 1px solid var(--border);
+}
+
+.member-stack th {
+  width: 132px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: left;
+  letter-spacing: 0.03em;
+}
+
+.member-stack td {
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: var(--text-2);
+}
+
+.member-stack tr:first-child td {
+  color: var(--accent-light);
+}
+
 .score-table {
   width: 100%;
   margin: 24px 0;
