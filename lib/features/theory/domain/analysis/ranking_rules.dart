@@ -203,6 +203,13 @@ final List<NamedRule> hardRules = <NamedRule>[
         (!f.isSeventhFamily && !f.isSus && f.hasOnlyAddColor) ||
         (f.isSeventhFamily && f.isUnusualSeventhQuality),
   ),
+  NamedRule(
+    'prefer readable sharp-eleven major over flat-five spelling',
+    _preferReadableSharpElevenMajorOverFlatFive,
+    gate: (c, _, _) =>
+        c.identity.quality == ChordQualityToken.major ||
+        c.identity.quality == ChordQualityToken.majorFlat5,
+  ),
 ];
 
 /// Resolves an exact tritone-dominant ambiguity by bass role.
@@ -2061,6 +2068,72 @@ int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
   if (preferredCandidate.score + 1.50 < otherCandidate.score) return null;
 
   return aIsTriadAddTone ? -1 : 1;
+}
+
+/// Prefers a readable Lydian major spelling over an enharmonic flat-five triad
+/// spelling when both describe the same sparse pitch-class collection.
+///
+/// Example: {A♭, C, D} with C in the bass is more readable as A♭♯11/C than
+/// G♯(♭5)/B♯. The flat-five triad is interval-correct, but it needs a wrap
+/// accidental to spell the third; the #11 spelling preserves the observed
+/// A♭-C major-third sonority and treats D as Lydian color.
+int? _preferReadableSharpElevenMajorOverFlatFive(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures _,
+  CandidateFeatures _,
+  Tonality tonality,
+) {
+  final aIsPreferred = _isSparseSharpElevenMajor(a.identity);
+  final bIsPreferred = _isSparseSharpElevenMajor(b.identity);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final preferred = aIsPreferred ? a : b;
+  final other = aIsPreferred ? b : a;
+  if (!preferred.identity.hasSlashBass) return null;
+  if (!_isPlainMajorFlatFive(other.identity)) return null;
+  if (preferred.identity.rootPc != other.identity.rootPc ||
+      preferred.identity.bassPc != other.identity.bassPc ||
+      preferred.identity.presentIntervalsMask !=
+          other.identity.presentIntervalsMask) {
+    return null;
+  }
+
+  final preferredPenalty = _candidateSpellingPenalty(
+    preferred.identity,
+    tonality,
+  );
+  final otherPenalty = _candidateSpellingPenalty(other.identity, tonality);
+  if (preferredPenalty + 15 >= otherPenalty) return null;
+
+  if (preferred.score + 1.50 < other.score) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isSparseSharpElevenMajor(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.major) return false;
+  if (id.extensions.length != 1 ||
+      !id.extensions.contains(ChordExtension.sharp11)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.sharp11) &&
+      !roles.contains(ChordToneRole.perfect5);
+}
+
+bool _isPlainMajorFlatFive(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.majorFlat5) return false;
+  if (id.extensions.isNotEmpty) return false;
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.flat5) &&
+      !roles.contains(ChordToneRole.perfect5);
 }
 
 /// Prefers a complete major/minor triad carrying only natural/add color over

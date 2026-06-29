@@ -926,6 +926,19 @@ void main() {
     ),
 
     golden(
+      description: 'readable sharp-eleven major beats flat-five respelling',
+      expectedSymbol: 'Ab#11/C',
+      expectedAlternateSymbols: ['G#(b5)/B#'],
+      pcs: ['C', 'D', 'Ab'],
+      bass: 'C',
+      expectedRoot: 'Ab',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.sharp11},
+      expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
+    ),
+
+    golden(
       description:
           'fifthless major-nine sharp-eleven inversion beats flat-five respelling',
       expectedSymbol: 'Dbmaj9#11/C',

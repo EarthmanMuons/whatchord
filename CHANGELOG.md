@@ -23,6 +23,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   altered-major, or less idiomatic altered-fifth-bass reinterpretations.
 - Improved Lydian major-ninth recognition when the alternative is a close
   major-thirteenth inversion with a natural eleventh against the major third.
+- Improved sparse Lydian major spelling, favoring readable sharp-eleventh labels
+  over flat-five respellings that require awkward enharmonics.
 
 ## [2026.6.28] - 2026-06-28
 
