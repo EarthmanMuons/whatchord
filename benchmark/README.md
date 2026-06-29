@@ -11,9 +11,16 @@ independent of the machine it runs on.
 tool/benchmark.sh
 ```
 
-This writes `benchmark/last_run.json` and prints a summary. The wrapper enables
-the VM service (needed for allocation measurement) and the counters define. Pass
-`-h`/`--help` for usage.
+This writes `benchmark/last_run.json` and prints a summary. For benchmark runs,
+the wrapper enables the VM service (needed for allocation measurement) and the
+counters define. Pass `-h`/`--help` for usage.
+
+To print the committed baseline in the same summary format as a new benchmark
+run:
+
+```bash
+tool/benchmark.sh --show-baseline
+```
 
 Unless `--out` points at the baseline, the run also prints a delta against
 `benchmark/baseline.json` when it exists, so you can see at a glance whether a

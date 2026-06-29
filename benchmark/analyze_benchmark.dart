@@ -52,6 +52,10 @@ Future<void> main(List<String> args) async {
     _printUsage();
     return;
   }
+  if (args.contains('--show-baseline')) {
+    _printBaseline();
+    return;
+  }
   final outPath = _argValue(args, '--out=') ?? _defaultOutPath;
 
   final context = buildContext();
@@ -124,18 +128,7 @@ Future<void> main(List<String> args) async {
   File(
     outPath,
   ).writeAsStringSync(const JsonEncoder.withIndent('  ').convert(result));
-  _printSummary(
-    oracleSize: oracle.length,
-    commonSize: common.length,
-    reference: reference,
-    oracleCold: oracleCold,
-    oracleWarm: oracleWarm,
-    commonCold: commonCold,
-    commonWarm: commonWarm,
-    memory: result['memory'] as Map<String, Object?>,
-    counters: counters,
-    countersEnabled: kEngineCountersEnabled,
-  );
+  _printSummary(result);
   _maybePrintComparison(outPath, result);
   stdout.writeln('Wrote $outPath');
 }
@@ -253,6 +246,17 @@ Object? _at(Map<String, Object?> map, List<String> path) {
   return node;
 }
 
+void _printBaseline() {
+  final file = File(_baselinePath);
+  if (!file.existsSync()) {
+    stderr.writeln('No baseline found at $_baselinePath.');
+    exitCode = 1;
+    return;
+  }
+  final baseline = jsonDecode(file.readAsStringSync()) as Map<String, Object?>;
+  _printSummary(baseline, source: _baselinePath);
+}
+
 void _printUsage() {
   stdout.writeln('''
 Chord engine performance benchmark.
@@ -267,9 +271,10 @@ Usage:
     benchmark/analyze_benchmark.dart [options]
 
 Options:
-  --out=PATH   Write results JSON to PATH (default: $_defaultOutPath).
-               Use --out=$_baselinePath to update the committed baseline.
-  -h, --help   Show this help and exit.
+  --out=PATH        Write results JSON to PATH (default: $_defaultOutPath).
+                    Use --out=$_baselinePath to update the committed baseline.
+  --show-baseline   Print $_baselinePath in the same summary format as a run.
+  -h, --help        Show this help and exit.
 
 Unless --out points at the baseline, the run prints a delta against
 $_baselinePath when it exists. Compare runs on the same corpora only;
@@ -277,42 +282,50 @@ regenerate the baseline after changing a corpus.
 
 Memory measurement needs the VM service (--enable-vm-service) and the
 operation counters need the whatchord.counters define; tool/benchmark.sh
-sets both.''');
+sets both for benchmark runs.''');
 }
 
-void _printSummary({
-  required int oracleSize,
-  required int commonSize,
-  required Stats reference,
-  required Stats oracleCold,
-  required Stats oracleWarm,
-  required Stats commonCold,
-  required Stats commonWarm,
-  required Map<String, Object?> memory,
-  required Map<String, Object?> counters,
-  required bool countersEnabled,
-}) {
+void _printSummary(Map<String, Object?> result, {String? source}) {
   String f(Object? v, int frac) => (v as num).toStringAsFixed(frac);
+  Map<String, Object?> mapAt(List<String> path) =>
+      _at(result, path) as Map<String, Object?>;
 
-  void timeLine(String label, Stats s) {
-    final norm = s.mean / reference.mean;
-    final normRelCi = _hypot(s.relCi95, reference.relCi95);
-    final conv = s.relCi95 <= _targetRelCi ? 'converged' : 'budget-capped';
+  final meta = mapAt(['meta']);
+  final memory = mapAt(['memory']);
+  final counters = mapAt(['counters']);
+  final countersEnabled = meta['countersEnabled'] == true;
+  final targetRelCi = meta['targetRelCi95'] as num? ?? _targetRelCi;
+
+  void timeLine(String label, Map<String, Object?> time, String statsKey) {
+    final stats = time[statsKey] as Map<String, Object?>;
+    final relCi95 = stats['relCi95'] as num;
+    final normalizedKey = statsKey.replaceFirst('UsPerCall', 'Normalized');
+    final normalizedRelCiKey = statsKey.replaceFirst(
+      'UsPerCall',
+      'NormalizedRelCi95',
+    );
+    final normalizedRelCi95 = time[normalizedRelCiKey] as num;
+    final conv = relCi95 <= targetRelCi ? 'converged' : 'budget-capped';
     stdout.writeln(
-      '      $label ${f(norm, 5)} norm +/-${f(normRelCi * 100, 1)}%'
-      '  |  ${f(s.mean, 3)} +/- ${f(s.stddev, 3)} us/call'
-      '  [n=${s.n}, +/-${f(s.relCi95 * 100, 1)}% CI95, $conv]',
+      '      $label ${f(time[normalizedKey], 5)}'
+      ' norm +/-'
+      '${f(normalizedRelCi95 * 100, 1)}%'
+      '  |  ${f(stats['mean'], 3)} +/- ${f(stats['stddev'], 3)} us/call'
+      '  [n=${stats['n']}, +/-${f(relCi95 * 100, 1)}% CI95, $conv]',
     );
   }
 
   stdout.writeln('Chord engine benchmark');
+  if (source != null) stdout.writeln('  source: $source');
   stdout.writeln('  time (normalized to reference workload):');
-  stdout.writeln('    oracle corpus ($oracleSize voicings):');
-  timeLine('cold (cache miss):', oracleCold);
-  timeLine('warm (cache hit): ', oracleWarm);
-  stdout.writeln('    common voicings ($commonSize):');
-  timeLine('cold (cache miss):', commonCold);
-  timeLine('warm (cache hit): ', commonWarm);
+  stdout.writeln('    oracle corpus (${meta['oracleSize']} voicings):');
+  final oracleTime = mapAt(['time', 'oracle']);
+  timeLine('cold (cache miss):', oracleTime, 'coldUsPerCall');
+  timeLine('warm (cache hit): ', oracleTime, 'warmUsPerCall');
+  stdout.writeln('    common voicings (${meta['commonSize']}):');
+  final commonTime = mapAt(['time', 'common']);
+  timeLine('cold (cache miss):', commonTime, 'coldUsPerCall');
+  timeLine('warm (cache hit): ', commonTime, 'warmUsPerCall');
   stdout.writeln('  memory (oracle corpus, cold pass):');
   stdout.writeln(
     '    churn:    ${f(memory['churnBytesPerCall'], 0)} bytes/call,'
