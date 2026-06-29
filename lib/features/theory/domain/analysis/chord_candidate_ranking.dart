@@ -177,13 +177,23 @@ abstract final class ChordCandidateRanking {
     for (var i = 0; i < n; i++) {
       for (var j = 0; j < n; j++) {
         if (i == j) continue;
+        final mask = gateMasks[i] & gateMasks[j];
+        // When no hard rule can fire (empty shared mask) and the score gap is
+        // beyond the tie window, the score decides. Skip the full _decide (and
+        // its RankingDecision allocation) for those pairs; this is the bulk of
+        // them and is output-identical to what _decide would have returned.
+        if (mask == 0 &&
+            (cands[i].score - cands[j].score).abs() > nearTieWindow) {
+          if (cands[i].score > cands[j].score) beats[i][j] = true;
+          continue;
+        }
         final d = _decide(
           cands[i],
           cands[j],
           feats[i],
           feats[j],
           tonality: tonality,
-          hardRuleMask: gateMasks[i] & gateMasks[j],
+          hardRuleMask: mask,
         );
         if (d.result < 0) {
           beats[i][j] = true;
@@ -269,19 +279,36 @@ abstract final class ChordCandidateRanking {
     final delta = b.score - a.score;
 
     // [hardRuleMask], when provided, has a bit set only for rules that could
-    // fire on this pair (see [rank]); the rest are skipped because they would
-    // return null. When null (direct [compare]/[explain] calls) every rule runs.
-    for (var i = 0; i < hardRules.length; i++) {
-      if (hardRuleMask != null && (hardRuleMask & (1 << i)) == 0) continue;
-      final rule = hardRules[i];
-      final r = rule.apply(a, b, fa, fb, tonality);
-      if (r != null && r != 0) {
-        return RankingDecision(
-          result: r,
-          decidedByRule: rule.name,
-          scoreDelta: delta,
-          decidedByHardRule: true,
-        );
+    // fire on this pair (see [rank]); the rest would return null. Iterate just
+    // the set bits (lowest first, preserving rule order) so a pair sharing one
+    // or two rules does not scan the whole list. When null (direct
+    // [compare]/[explain] calls), every rule runs.
+    if (hardRuleMask == null) {
+      for (final rule in hardRules) {
+        final r = rule.apply(a, b, fa, fb, tonality);
+        if (r != null && r != 0) {
+          return RankingDecision(
+            result: r,
+            decidedByRule: rule.name,
+            scoreDelta: delta,
+            decidedByHardRule: true,
+          );
+        }
+      }
+    } else {
+      var bits = hardRuleMask;
+      while (bits != 0) {
+        final i = (bits & -bits).bitLength - 1;
+        bits &= bits - 1;
+        final r = hardRules[i].apply(a, b, fa, fb, tonality);
+        if (r != null && r != 0) {
+          return RankingDecision(
+            result: r,
+            decidedByRule: hardRules[i].name,
+            scoreDelta: delta,
+            decidedByHardRule: true,
+          );
+        }
       }
     }
 
