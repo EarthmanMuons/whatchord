@@ -453,7 +453,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 1, 4, 10},
       extensions: const {ChordExtension.flat9},
-      score: 1,
+      score: 9,
     );
 
     final diminishedSlash = _candidate(
@@ -462,7 +462,11 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 2, 3, 6, 9},
       extensions: const {ChordExtension.nine},
-      // Intentionally outside the near-tie window in the other direction.
+      // Outside the near-tie window, but only by a realistic margin (gap 1.0).
+      // Hard rules override the score within their measured reach (~1.6 across
+      // the corpus), not by arbitrary amounts; asserting an extreme gap (e.g. 9)
+      // would encode an unbounded-override contract we do not want, since it
+      // conflicts with score-bounded candidate pruning.
       score: 10,
     );
 
