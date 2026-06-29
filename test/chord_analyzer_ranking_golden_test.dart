@@ -939,6 +939,19 @@ void main() {
     ),
 
     golden(
+      description: 'root-position sharp-eleven sus beats add-flat-nine slash',
+      expectedSymbol: 'Gsus4#11',
+      expectedAlternateSymbols: ['Csus2addb9/G'],
+      pcs: ['C', 'Db', 'D', 'G'],
+      bass: 'G',
+      expectedRoot: 'G',
+      expectedBass: 'G',
+      expectedQuality: ChordQualityToken.sus4,
+      expectedExtensions: {ChordExtension.sharp11},
+      expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
+    ),
+
+    golden(
       description:
           'fifthless major-nine sharp-eleven inversion beats flat-five respelling',
       expectedSymbol: 'Dbmaj9#11/C',

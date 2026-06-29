@@ -25,6 +25,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   major-thirteenth inversion with a natural eleventh against the major third.
 - Improved sparse Lydian major spelling, favoring readable sharp-eleventh labels
   over flat-five respellings that require awkward enharmonics.
+- Improved sparse suspended sharp-eleventh recognition, so root-position sus4♯11
+  voicings are less likely to be displaced by inverted sus add-flat-nine
+  spellings.
 
 ## [2026.6.28] - 2026-06-28
 

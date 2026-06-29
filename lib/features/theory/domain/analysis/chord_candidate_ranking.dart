@@ -2,6 +2,7 @@ import '../models/chord_candidate.dart';
 import '../models/observed_voicing.dart';
 import '../models/tonality.dart';
 import 'candidate_features.dart';
+import 'ranking_policy.dart' as ranking_policy;
 import 'ranking_rules.dart';
 
 class RankingDecision {
@@ -36,9 +37,7 @@ class RankingDecision {
 /// detail. Update the article when rules, their order, or nearTieWindow changes.
 abstract final class ChordCandidateRanking {
   /// Score difference threshold for engaging tie-breaker rules.
-  /// A value of 0.20 allows rules to resolve ambiguous interpretations
-  /// without overriding clear score differences.
-  static const double nearTieWindow = 0.20;
+  static const double nearTieWindow = ranking_policy.nearTieWindow;
 
   /// Compares two candidates. Returns -1 if a ranks higher, 1 if b ranks higher.
   static int compare(
