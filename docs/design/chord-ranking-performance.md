@@ -4,9 +4,10 @@
 
 A record of the performance work on the chord analysis engine: how a benchmark
 harness exposed that ranking is `O(n^2)` by design, what we shipped to reduce
-the constant factor, what we tried and reverted, and the planned redesign that
-attacks the asymptotic cost safely. It exists so the shape of the code (and the
-things deliberately _not_ done) is recoverable later.
+the constant factor, what we tried and reverted, and why the `O(n^2)` itself
+cannot be reduced safely (so the only available wins are constant-factor). It
+exists so the shape of the code (and the things deliberately _not_ done) is
+recoverable later.
 
 The headline: the cost is real even for common chords, it lives almost entirely
 in `ChordCandidateRanking.rank`, and it cannot be reduced by dropping or
@@ -168,11 +169,14 @@ redesign that keeps every candidate.
 
 ---
 
-## Planned: sorted-rank with a fast path and exact fallback
+## Tried and abandoned: sorted-rank with a fast path and exact fallback
 
 The redesign keeps the exact output (every candidate, identical order) and only
 computes it faster, so it is provably output-identical rather than
-empirically-validated.
+empirically-validated. The design is kept below for context, but **it does not
+work in practice**: see "Result (step 2)" after the algorithm. Both the binary
+fast path and the localized variant are dead because the candidate scores are
+too dense to give any locality to exploit.
 
 ### The structure it exploits
 
@@ -268,6 +272,66 @@ and the `List<List<bool>>` allocation only 0.2%. Conclusions:
   allocation only, so it is not worth doing. Linearize and masks are not worth
   touching either.
 
+### Result (step 2): the redesign does not work
+
+Built the fast path with a dual-run `assert` (runs in `flutter test`, stripped
+from release). It is **correct** (all tests pass, byte-identical to the full
+algorithm) but **never triggers**:
+
+- Fast-path hit rate: **0 of every voicing measured**, including a plain C major
+  triad. Every voicing has at least one inversion somewhere in its candidate
+  list (some near-tie pair a tie-breaker reorders), and one inversion forces
+  full fallback. Net effect: detection cost for no benefit (~+1%). Reverted.
+
+The localized variant (re-rank only the entangled components) was then checked
+by measuring component sizes (union-find over near-tie and shared-hard-rule
+edges):
+
+| set           | n (median/max) | max component / n     |
+| ------------- | -------------- | --------------------- |
+| oracle corpus | 75 / 143       | median 0.99, max 1.00 |
+| C major triad | 25             | 25 (one component)    |
+| Cm7 / C7      | 46 / 48        | 46 / 48               |
+| Cmaj9 / Cm11  | 67 / 90        | 66 / 90               |
+
+The entangled component is essentially the whole candidate set. Scores are dense
+enough that the within-0.20 near-tie edges chain through almost everything (the
+single-linkage risk, fully realized), so a localized re-rank would re-rank ~all
+of `n`. There is no locality to exploit. Both variants are dead.
+
+---
+
+## Next direction: reduce the per-pair cost (not the pair count)
+
+The redesign assumed we could do _fewer_ `_decide` calls. We cannot: `n^2` is
+intrinsic (candidates cannot be safely dropped, and the relation has no
+locality). The remaining lever is the _cost of each call_, which is currently
+inflated by two things unrelated to the actual decision:
+
+1. **Allocation.** Every `_decide` returns a freshly allocated `RankingDecision`
+   (with a rule name, score delta, etc.), but the `n^2` matrix loop only reads
+   `result < 0` and `decidedByHardRule`. That is `n^2` allocations per ranking,
+   a large share of the measured churn and likely of the decide cost.
+2. **Gated-rule loop overhead.** Even after the gate masks, `_decide` still
+   loops all 21 rules per pair checking the mask bit, and runs the score and
+   tie-break branches, for pairs that are decided purely by score.
+
+Both can be cut without changing the algorithm or the output:
+
+- Extract an allocation-free decision core that returns a small int code
+  (`no-beat` / `beat` / `hard-beat`) for the matrix loop; keep the rich
+  `RankingDecision` only for `compare`/`explain`, which are not hot.
+- Short-circuit at the top of the core: when `gateMasks[i] & gateMasks[j] == 0`
+  (no hard rule can fire) and the score gap exceeds `nearTieWindow`, return the
+  score result immediately, skipping the rule loop and tie-breakers. Most pairs
+  are far apart in score, so this should skip the bulk of the work.
+
+This is provably output-identical (those pairs are already score-decided) and
+carries none of the Copeland-locality risk that sank pruning and the redesign.
+It is a constant-factor win on top of the gate masks, not an asymptotic one, but
+constant factors are all that is available here. Status: hypothesis, to be
+measured next (confirm the allocation/loop share, then implement and benchmark).
+
 ---
 
 ## Status
@@ -277,4 +341,7 @@ and the `List<List<bool>>` allocation only 0.2%. Conclusions:
 - Role-A/B split: tried, reverted (negative result recorded above).
 - Candidate-count reduction: rejected (Copeland trap).
 - Profiling (step 1): done; the `n^2` `_decide` loop is 97% of ranking.
-- Sorted-rank redesign: ready to build (step 2), profiling cleared it.
+- Sorted-rank redesign (step 2): tried, abandoned. Fast path never triggers (0
+  hits) and the entangled component is ~all of `n`, so there is no locality.
+- Per-pair cost reduction (allocation-free decide + score short-circuit): next
+  candidate, hypothesis stage.
