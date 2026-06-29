@@ -152,6 +152,24 @@ abstract final class ChordCandidateRanking {
         return cands[a].identity.rootPc.compareTo(cands[b].identity.rootPc);
       });
 
+    // Per-candidate bitmask of which hard rules could possibly fire with it as
+    // an operand (computed once, O(n * rules)). A rule needs one candidate in
+    // each role, so it can only fire on a pair when both candidates pass its
+    // gate; the pairwise pass then evaluates just `gateMasks[i] & gateMasks[j]`
+    // rather than all rules. Rules without a gate are always set, preserving the
+    // original behavior. (Rule count stays well under 32 so the mask is safe
+    // even under dart2js 32-bit bitwise semantics.)
+    final gateMasks = List<int>.generate(n, (k) {
+      var mask = 0;
+      for (var r = 0; r < hardRules.length; r++) {
+        final gate = hardRules[r].gate;
+        if (gate == null || gate(cands[k], feats[k], tonality)) {
+          mask |= 1 << r;
+        }
+      }
+      return mask;
+    });
+
     // Precompute the pairwise relation once (O(n^2) decisions) so the
     // linearization itself is cheap integer/bool lookups.
     final beats = List.generate(n, (_) => List<bool>.filled(n, false));
@@ -165,6 +183,7 @@ abstract final class ChordCandidateRanking {
           feats[i],
           feats[j],
           tonality: tonality,
+          hardRuleMask: gateMasks[i] & gateMasks[j],
         );
         if (d.result < 0) {
           beats[i][j] = true;
@@ -245,10 +264,16 @@ abstract final class ChordCandidateRanking {
     CandidateFeatures fa,
     CandidateFeatures fb, {
     required Tonality tonality,
+    int? hardRuleMask,
   }) {
     final delta = b.score - a.score;
 
-    for (final rule in hardRules) {
+    // [hardRuleMask], when provided, has a bit set only for rules that could
+    // fire on this pair (see [rank]); the rest are skipped because they would
+    // return null. When null (direct [compare]/[explain] calls) every rule runs.
+    for (var i = 0; i < hardRules.length; i++) {
+      if (hardRuleMask != null && (hardRuleMask & (1 << i)) == 0) continue;
+      final rule = hardRules[i];
       final r = rule.apply(a, b, fa, fb, tonality);
       if (r != null && r != 0) {
         return RankingDecision(
