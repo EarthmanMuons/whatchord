@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Added a Chord Naming Guide to the website, walking through default interval
+  qualities, tertian stacking, enharmonic spelling, and candidate-root checking.
+
 ### Changed
 
 - Chord identification is now up to about 90% faster, for everyday chords as
