@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Chord identification is now up to about 90% faster, for everyday chords as
+  well as dense or ambiguous voicings with many possible readings. The chord
+  shown and the alternatives offered are unchanged.
+
 ### Fixed
 
 - Improved altered sharp-five dominant recognition, so voicings such as C7♯5♭9,

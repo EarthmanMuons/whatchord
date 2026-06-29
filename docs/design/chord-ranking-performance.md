@@ -11,8 +11,15 @@ recoverable later.
 
 The headline: the cost is real even for common chords, it lives almost entirely
 in `ChordCandidateRanking.rank`, and it cannot be reduced by dropping or
-score-pruning candidates without changing musician-facing output. The reasons
+score-pruning candidates without changing _byte-identical_ output. The reasons
 are specific and worth keeping.
+
+(The sections below reason under a byte-identical-output constraint. We later
+relaxed that to the actual product contract -- preserve the #1 pick and the
+surfaced alternatives set, but not the order of alternatives #2+ -- which
+reopened pruning as a large, safe win. See the addendum at the end; read it
+alongside the "Dead end: candidate-count reduction" section, which it
+supersedes.)
 
 ---
 
@@ -148,6 +155,12 @@ itself (the pairwise matrix, the linearization, and `CandidateFeatures`).
 ---
 
 ## Dead end: candidate-count reduction
+
+> **Superseded by the addendum.** This section is correct under byte-identical
+> output. The shipped prune relaxes that to the product contract (#1 and the
+> surfaced set, not the order of alternatives #2+), under which pruning is safe
+> and worthwhile. Kept here as the reasoning that defined the constraint the
+> addendum later loosened.
 
 Generation produces 25 candidates even for a plain triad, so shrinking the
 candidate set looks like a direct attack on `n^2`. It is not safe:
@@ -357,3 +370,150 @@ ends are not re-explored.
   hits) and the entangled component is ~all of `n`, so there is no locality.
 - Per-pair fast paths (score short-circuit + set-bit iteration): shipped, ~4%.
 - Allocation-free decision core: rejected (per-pair allocation is negligible).
+- Candidate prune under a relaxed contract: shipped, ~87-92% on cold ranking.
+  See the addendum.
+
+---
+
+## Addendum: the prune, revisited under the correct contract
+
+The arc above concludes that candidate reduction is unsafe and `O(n^2)` is
+intrinsic. That conclusion was correct _under the constraint it assumed_:
+byte-identical output. We later revisited it, found the constraint was stronger
+than the product actually requires, and shipped the prune that the earlier
+sections reject. This records why that is not a contradiction, how the
+disruption it caused was cleared musically, and how the margin was chosen
+scientifically rather than by feel.
+
+### Why revisit a known dead end
+
+The "Dead end: candidate-count reduction" section rejects pre-ranking pruning
+because removing candidates changes the **global** Copeland win-counts, which
+reorders surfaced near-tie alternatives. That is true and unchanged. The leap
+was realizing the reordering it causes is not a contract violation.
+
+The product contract has exactly two guarantees:
+
+1. the **chosen #1** chord is preserved;
+2. the **set of surfaced alternatives** is preserved.
+
+The **order** of alternatives #2 onward is _not_ a guarantee. Near-tie
+alternatives are routinely enharmonic respellings of one sonority whose relative
+order is already decided by an arbitrary `rootPc` tie-break. So the Copeland
+reshuffle the earlier section treats as disqualifying only ever touches output
+that was never pinned. The earlier analysis was not wrong; it was answering "can
+we prune with _identical_ output?" (no), not "can we prune within the
+_contract_?" (yes). Once the question changed, the dead end reopened.
+
+There is a stronger point hiding in the original objection. The earlier section
+treats the global Copeland count as something to protect, but a global win-count
+is partly an artifact: a candidate's total is inflated by every obviously-wrong
+reading it beats, and those wins carry no musical information. Beating a
+nonsensical interpretation says nothing about how a candidate stands against its
+real rivals. Pruning the unsurfaceable tail removes exactly those padding wins,
+so the surviving order is decided by performance against a _stronger_ pool. The
+reorder is therefore not merely tolerable; the post-prune tie-break is, if
+anything, better justified, since it is no longer skewed by how many junk
+readings each candidate happened to dominate. (We do not claim a measured
+quality gain -- the cases that actually reorder are identical-score enharmonic
+respellings, so the difference is cosmetic -- but the direction of the effect is
+toward more principled tie-breaking, not less.)
+
+### Clearing the golden disruption musically, not by fiat
+
+Margin pruning had regressed three ranking golden cases. Before relying on
+"order is not a contract," we confirmed those specific cases were genuinely
+arbitrary rather than musically meaningful, using the evaluation process in
+`docs/research/chord-oracle-comparison.md` (cross-checking against `tonal` and
+the ChoCo priors).
+
+Each regressed case was the same shape: the #1 pick was **unchanged**, and the
+reorder was between alternatives at **identical scores** that are enharmonic
+respellings of one sonority (for example `A♭7♯5♯11` vs `G♯7♭5♭13`), separated
+only by the `rootPc` tie-break. There is no musically correct order between
+them, so pinning one was over-specification. We therefore loosened the goldens
+at the source rather than per-case:
+
+- `expectAlternateSymbols` became an unordered containment check: every expected
+  alternate must still be surfaced, but their order is free.
+- The synthetic "a hard rule must win across a score gap of 9" unit test was
+  relaxed. Measured hard-rule reach is ~1.6 (see below); an override across a
+  gap of 9 was an assertion about a regime that does not occur, and it blocked
+  reasoning about realistic margins. The test now pins override behavior within
+  the reach that actually happens.
+
+These were committed as their own logical change before the prune, so the test
+relaxation is reviewable independently of the optimization it enables.
+
+### Choosing the margin scientifically
+
+The prune keeps candidates scoring within `rankingPruneMargin` of the top raw
+score. The margin is a **correctness threshold, not a tuning knob**: it must
+exceed the largest gap at which a candidate can still _surface_, or the prune
+silently shrinks the alternatives set. This is a worst-case bound, so it is
+wrong to set it from a standard deviation or an average; a distributional band
+would clip exactly the rare tail case that is the whole risk, and the bound is a
+property of the ranking rules, not of any one corpus's score spread.
+
+The first bound looked clean: a hard rule promotes a winner at most `reach`
+below the top, and alternatives sit within `nearTieWindow` (0.20) of the #1, so
+`surfaced gap <= reach + 0.20 ~= 1.8`. **That is wrong.** `alternativeCount`
+surfaces every candidate through the _last_ near-tie index, and the ranking is
+not monotonic in score, so the non-transitive linearization can sandwich a deep,
+non-near-tie reading above a near-tie member and into the surfaced band. The
+real binding quantity is the measured surfaced gap, not the reach.
+
+So we measured it directly on the unpruned engine, splitting the two terms:
+
+| corpus               | max reach | max alt-band | max surfaced gap |
+| -------------------- | --------- | ------------ | ---------------- |
+| oracle (real)        | 1.283     | 1.443        | **1.599**        |
+| common (real)        | 1.429     | 1.443        | **1.599**        |
+| dense 7-12 (adverse) | 0.484     | 2.858        | **2.858**        |
+
+This **refuted the compression hypothesis** in an instructive way. The intuition
+was that dense 8+ note voicings, lacking any clean template fit, compress scores
+and so keep the margin safe. The reach half of that is exactly right (it
+collapses 1.28 -> 0.48 as scores compress). But reach is not the binding term.
+The alternative band moves the _opposite_ way: more candidates and more
+hard-rule cycles let the linearization sandwich deeper readings, so the surfaced
+gap _grows_ to 2.858 on dense clusters. Compression helps the wrong half of the
+bound.
+
+A multi-seed adversarial sweep (5060 dense voicings, sizes 7-12 including the
+full chromatic on every bass) held the ceiling at 2.858 (the 8-note cluster
+`0-1-3-4-6-8-10-11`), with only 4 voicings above 2.5. The ceiling is stable, not
+a single draw.
+
+Margin choice then came down to headroom, because **performance is flat across
+margins**: the oracle corpus keeps ~10 candidates at margin 2.0, ~15 at 3.0, ~20
+at 4.0, all a >94% reduction in `n^2` pairs against the ~86 baseline. Since
+speed barely moves, correctness picks the number. We took **3.0**: it covers the
+2.858 adversarial ceiling, keeps every surfaced reading on all three corpora,
+and pruning at it changes nothing a musician sees.
+
+### Locking it in
+
+Two guards keep the margin honest, since the bound is empirical (no closed-form
+ceiling on the sandwiching):
+
+- `EngineCounters.candidatesRanked` makes the prune a **deterministic** signal
+  in the benchmark. `candidatesProduced` is unchanged (the prune runs after
+  generation), so without this counter the largest algorithmic change we have
+  made would show up only in noisy time. It falls 11,983 -> 2,120 on the oracle
+  corpus.
+- `chord_ranking_prune_guard_test` raises the margin to infinity to recover the
+  unpruned ranking, measures the surfaced gap across the oracle corpus and a
+  dense sweep, and fails if it reaches the production margin. A future scoring
+  or ranking change that widens the gap past 3.0 then fails CI instead of
+  quietly dropping an alternative.
+
+### Result
+
+Zero changes to the #1 pick or the surfaced alternatives set across the oracle
+and common corpora; only 6 (oracle) and 7 (common) cases reorder alternatives
+#2+, the explicitly non-contract part. Cold ranking time drops **86.7%**
+(oracle) and **91.7%** (common); retained memory falls ~3.5%. This does not
+reduce the `O(n^2)` (dense voicings with no clear winner still rank a full set),
+but it removes the long tail of unsurfaceable readings from the common and
+adversarial cases alike, which is where the cost was.

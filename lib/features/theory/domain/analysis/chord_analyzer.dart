@@ -128,6 +128,24 @@ abstract final class ChordAnalyzer {
   // Upper-structure slash-triad bonus.
   static const _add9BassUpperTriadBonus = 3.2; // e.g. D/E, C#/D#
 
+  // Candidates scoring more than this far below the top raw score are dropped
+  // before ranking. The ranking is O(n^2) in candidate count, and a reading this
+  // far down can never surface: it can be neither the chosen #1 (a hard rule
+  // promotes a winner at most ~1.6 below the top) nor an alternative (those sit
+  // within ChordCandidateRanking.nearTieWindow of the chosen #1, but the
+  // non-monotonic linearization can sandwich a deeper reading into the surfaced
+  // band). The widest surfaced gap measured across the reviewed-oracle corpus,
+  // the common-voicing pool, and an adversarial dense-voicing sweep (7-12 notes,
+  // including the full chromatic) is 2.858, so 3.0 keeps every surfaced reading
+  // while pruning the long tail. The order of alternatives #2+ may differ from
+  // the unpruned ranking (Copeland win-counts shift when the tail is removed);
+  // that order is not a contract, but the #1 pick and the surfaced set are.
+  // chord_ranking_prune_guard_test asserts the surfaced gap stays under this.
+  // Not const so that guard test can disable pruning (raise to infinity) and
+  // measure the unpruned surfaced gap.
+  @visibleForTesting
+  static double rankingPruneMargin = 3.0;
+
   static List<ChordCandidate> analyze(
     ChordInput input, {
     required AnalysisContext context,
@@ -279,15 +297,39 @@ abstract final class ChordAnalyzer {
       }
     }
 
+    // Drop the long tail of low-scoring readings before the O(n^2) ranking.
+    // Scores are a pure function of the input, so this is transposition-invariant
+    // (both a chord and its transposition prune to the same set).
+    final toRank = _pruneForRanking(out);
+    if (kEngineCountersEnabled) {
+      EngineCounters.candidatesRanked += toRank.length;
+    }
+
     // `compare` is intentionally non-transitive (hard rules and the near-tie
     // window override raw score), so a plain sort would be undefined and could
     // bury a strong candidate. `rank` linearizes the relation deterministically.
     return ChordCandidateRanking.rank(
-      out,
+      toRank,
       (e) => e.candidate,
       tonality: context.tonality,
       voicing: voicing,
     );
+  }
+
+  /// Keeps only candidates within [rankingPruneMargin] of the top raw score.
+  /// See [rankingPruneMargin] for why dropping the rest preserves the #1 pick
+  /// and the surfaced alternatives set.
+  static List<_Evaluated> _pruneForRanking(List<_Evaluated> out) {
+    if (out.length <= 1) return out;
+    var maxScore = double.negativeInfinity;
+    for (final e in out) {
+      if (e.candidate.score > maxScore) maxScore = e.candidate.score;
+    }
+    final threshold = maxScore - rankingPruneMargin;
+    return [
+      for (final e in out)
+        if (e.candidate.score >= threshold) e,
+    ];
   }
 
   // ---- Template scoring: fit voicing to chord structure -----------------
