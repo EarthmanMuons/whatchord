@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "corpusSize": 140,
+    "dartVersion": "3.12.2 (stable) (Tue Jun 9 01:11:39 2026 -0700) on \"macos_arm64\"",
+    "targetRelCi95": 0.015,
+    "referenceIterations": 4000000,
+    "countersEnabled": true
+  },
+  "time": {
+    "coldNormalized": 1.0679394399880422,
+    "warmNormalized": 0.000011997587137091898,
+    "coldNormalizedRelCi95": 0.006077910993915839,
+    "warmNormalizedRelCi95": 0.0038653884924243144,
+    "coldUsPerCall": {
+      "mean": 8573.844999999998,
+      "median": 8569.589285714286,
+      "stddev": 83.27035205389201,
+      "min": 8472.442857142858,
+      "max": 8721.457142857143,
+      "n": 10,
+      "relCi95": 0.006019644501930961
+    },
+    "warmUsPerCall": {
+      "mean": 0.09632142857142859,
+      "median": 0.09610714285714286,
+      "stddev": 0.0005863623979059413,
+      "min": 0.09582142857142857,
+      "max": 0.09739285714285714,
+      "n": 10,
+      "relCi95": 0.0037731082779362364
+    },
+    "referenceUs": {
+      "mean": 8028.4,
+      "median": 8025.5,
+      "stddev": 10.87504789261485,
+      "min": 8016.0,
+      "max": 8055.0,
+      "n": 10,
+      "relCi95": 0.0008395725819340244
+    }
+  },
+  "memory": {
+    "churnBytes": 16465600,
+    "churnObjects": 140493,
+    "churnBytesPerCall": 117611.42857142857,
+    "retainedBytes": 818688,
+    "liveHeapBytes": 16465600
+  },
+  "counters": {
+    "cacheHits": 0,
+    "cacheMisses": 140,
+    "rootsConsidered": 765,
+    "templatesEvaluated": 19890,
+    "candidatesProduced": 11983
+  }
+}

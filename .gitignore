@@ -63,3 +63,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/build/
+
+# Benchmark run output (transient; baseline is committed separately)
+/benchmark/last_run.json

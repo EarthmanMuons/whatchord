@@ -1,0 +1,315 @@
+// Offline performance baseline for the chord analysis engine.
+//
+// Measures three reproducible things by replaying the reviewed-oracle corpus
+// through ChordAnalyzer.analyze():
+//
+//   1. Time, normalized to a fixed CPU reference workload (hardware-stable).
+//      Sampled adaptively until the mean's 95% CI is tight; stddev reported.
+//   2. Memory: allocation churn and retained heap delta (deterministic).
+//   3. Algorithmic operation counters (deterministic; require the counters
+//      compile-time define to be set).
+//
+// Run from the repo root:
+//
+//   dart run --enable-vm-service --define=whatchord.counters=true \
+//     benchmark/analyze_benchmark.dart
+//
+// Writes full results as JSON to benchmark/last_run.json and prints a summary.
+
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math' as math;
+
+import 'package:whatchord/features/theory/domain/theory_domain.dart';
+
+import 'src/allocation_probe.dart';
+import 'src/corpus.dart';
+import 'src/reference.dart';
+import 'src/stats.dart';
+
+// Convergence target for adaptive sampling: stop once the mean's 95% CI is
+// within this fraction of the mean (or a budget/run cap is hit).
+const double _targetRelCi = 0.015;
+
+// The fast warm (cache-hit) pass is far below timer resolution per call, so each
+// sample runs the whole corpus this many times and divides, lifting the timed
+// region well above the microsecond clock granularity.
+const int _warmBatch = 200;
+
+const String _defaultOutPath = 'benchmark/last_run.json';
+const String _baselinePath = 'benchmark/baseline.json';
+
+// Accumulates the reference workload result so the compiler cannot elide it.
+int _sink = 0;
+
+Future<void> main(List<String> args) async {
+  if (args.contains('-h') || args.contains('--help')) {
+    _printUsage();
+    return;
+  }
+  final outPath = _argValue(args, '--out=') ?? _defaultOutPath;
+
+  final corpus = loadCorpus();
+  final context = buildContext();
+  final corpusSize = corpus.length;
+
+  void pass() {
+    for (final input in corpus) {
+      ChordAnalyzer.analyze(input, context: context);
+    }
+  }
+
+  // --- Time: adaptively sampled, normalized to the reference workload --------
+  // Reference: one fixed CPU unit. Used only to normalize out hardware speed.
+  final reference = collect(
+    () => _timeMicros(() => _sink ^= referenceWork(referenceIterations)),
+    budget: const Duration(seconds: 8),
+    targetRelCi: _targetRelCi,
+  );
+
+  // Cold: every call misses the cache (full evaluation). Clear outside the
+  // timed region so eviction cost is not charged to the engine. Expensive, so a
+  // generous budget bounds it; it usually hits the budget rather than the CI.
+  final cold = collect(
+    () {
+      ChordAnalyzer.clearCache();
+      return _timeMicros(pass) / corpusSize;
+    },
+    budget: const Duration(seconds: 30),
+    targetRelCi: _targetRelCi,
+  );
+
+  // Warm: cache primed, every call hits. Batched for timer resolution.
+  ChordAnalyzer.clearCache();
+  pass();
+  final warm = collect(
+    () {
+      final us = _timeMicros(() {
+        for (var b = 0; b < _warmBatch; b++) {
+          pass();
+        }
+      });
+      return us / (_warmBatch * corpusSize);
+    },
+    budget: const Duration(seconds: 8),
+    targetRelCi: _targetRelCi,
+  );
+
+  // --- Memory: allocation churn (cold pass) and retained heap delta ---------
+  final probe = await AllocationProbe.connect();
+  ChordAnalyzer.clearCache();
+  // Baseline heap with an empty cache, then reset the accumulator so churn
+  // covers only the pass. Retained-by-engine is the heap growth from caching
+  // the corpus (the after/before heapUsage delta), not the whole isolate heap.
+  final baselineHeap = (await probe.sample()).heapUsage;
+  await probe.resetAndGc();
+  pass();
+  final memory = await probe.sample();
+  final retainedBytes = memory.heapUsage - baselineHeap;
+  await probe.dispose();
+
+  // --- Algorithmic operation counters (cold pass) ---------------------------
+  EngineCounters.reset();
+  ChordAnalyzer.clearCache();
+  pass();
+  final counters = EngineCounters.snapshot();
+
+  if (_sink == 1) stderr.writeln(); // keep _sink observable; effectively never.
+
+  final result = <String, Object?>{
+    'meta': {
+      'corpusSize': corpusSize,
+      'dartVersion': Platform.version,
+      'targetRelCi95': _targetRelCi,
+      'referenceIterations': referenceIterations,
+      'countersEnabled': kEngineCountersEnabled,
+    },
+    'time': {
+      // Compare normalized values across runs, not raw microseconds: a slower
+      // machine inflates both the engine and the reference, so the ratio holds.
+      'coldNormalized': cold.mean / reference.mean,
+      'warmNormalized': warm.mean / reference.mean,
+      // CI of a ratio of independent means, propagated in quadrature.
+      'coldNormalizedRelCi95': _hypot(cold.relCi95, reference.relCi95),
+      'warmNormalizedRelCi95': _hypot(warm.relCi95, reference.relCi95),
+      'coldUsPerCall': cold.toJson(),
+      'warmUsPerCall': warm.toJson(),
+      'referenceUs': reference.toJson(),
+    },
+    'memory': {
+      'churnBytes': memory.churnBytes,
+      'churnObjects': memory.churnObjects,
+      'churnBytesPerCall': memory.churnBytes / corpusSize,
+      'retainedBytes': retainedBytes,
+      'liveHeapBytes': memory.heapUsage,
+    },
+    'counters': counters,
+  };
+
+  File(
+    outPath,
+  ).writeAsStringSync(const JsonEncoder.withIndent('  ').convert(result));
+  _printSummary(
+    corpusSize: corpusSize,
+    cold: cold,
+    warm: warm,
+    coldNormalized: cold.mean / reference.mean,
+    warmNormalized: warm.mean / reference.mean,
+    coldNormRelCi: _hypot(cold.relCi95, reference.relCi95),
+    warmNormRelCi: _hypot(warm.relCi95, reference.relCi95),
+    memory: result['memory'] as Map<String, Object?>,
+    counters: counters,
+    countersEnabled: kEngineCountersEnabled,
+  );
+  _maybePrintComparison(outPath, result);
+  stdout.writeln('Wrote $outPath');
+}
+
+/// Prints a delta against the committed baseline, unless this run *is* the
+/// baseline. Counters and churn are deterministic, so any change on the same
+/// corpus is a real signal; normalized time changes beyond its CI are too.
+void _maybePrintComparison(String outPath, Map<String, Object?> current) {
+  if (outPath == _baselinePath) return;
+  final file = File(_baselinePath);
+  if (!file.existsSync()) return;
+  final base = jsonDecode(file.readAsStringSync()) as Map<String, Object?>;
+
+  stdout.writeln('  vs baseline ($_baselinePath):');
+  final baseN = _at(base, ['meta', 'corpusSize']);
+  final curN = _at(current, ['meta', 'corpusSize']);
+  if (baseN != curN) {
+    stdout.writeln(
+      '    corpus differs ($baseN -> $curN voicings): per-call values are not'
+      ' comparable. Regenerate the baseline.',
+    );
+  }
+
+  void cmp(String label, List<String> path, {int frac = 3, bool pct = true}) {
+    final b = _at(base, path);
+    final c = _at(current, path);
+    if (b is! num || c is! num) return;
+    final arrow = '${b.toStringAsFixed(frac)} -> ${c.toStringAsFixed(frac)}';
+    final String change;
+    if (c == b) {
+      change = 'unchanged';
+    } else if (pct && b != 0) {
+      final p = (c - b) / b * 100;
+      change = '${p >= 0 ? '+' : ''}${p.toStringAsFixed(1)}%';
+    } else {
+      final d = c - b;
+      change = '${d >= 0 ? '+' : ''}$d';
+    }
+    stdout.writeln('    $label $arrow  ($change)');
+  }
+
+  cmp('cold normalized:  ', ['time', 'coldNormalized'], frac: 5);
+  cmp('warm normalized:  ', ['time', 'warmNormalized'], frac: 5);
+  cmp('churn bytes/call: ', ['memory', 'churnBytesPerCall'], frac: 0);
+  cmp('retained bytes:   ', ['memory', 'retainedBytes'], frac: 0);
+  for (final key in (current['counters'] as Map<String, Object?>).keys) {
+    cmp('$key:'.padRight(18), ['counters', key], frac: 0, pct: false);
+  }
+}
+
+Object? _at(Map<String, Object?> map, List<String> path) {
+  Object? node = map;
+  for (final key in path) {
+    if (node is Map && node.containsKey(key)) {
+      node = node[key];
+    } else {
+      return null;
+    }
+  }
+  return node;
+}
+
+void _printUsage() {
+  stdout.writeln('''
+Chord engine performance benchmark.
+
+Replays the reviewed-oracle corpus through ChordAnalyzer.analyze and reports
+normalized time, allocation memory, and algorithmic operation counters.
+
+Usage:
+  tool/benchmark.sh [options]
+  dart run --enable-vm-service --define=whatchord.counters=true \\
+    benchmark/analyze_benchmark.dart [options]
+
+Options:
+  --out=PATH   Write results JSON to PATH (default: $_defaultOutPath).
+               Use --out=$_baselinePath to update the committed baseline.
+  -h, --help   Show this help and exit.
+
+Unless --out points at the baseline, the run prints a delta against
+$_baselinePath when it exists. Compare runs on the same corpus only;
+regenerate the baseline after changing the corpus.
+
+Memory measurement needs the VM service (--enable-vm-service) and the
+operation counters need the whatchord.counters define; tool/benchmark.sh
+sets both.''');
+}
+
+void _printSummary({
+  required int corpusSize,
+  required Stats cold,
+  required Stats warm,
+  required double coldNormalized,
+  required double warmNormalized,
+  required double coldNormRelCi,
+  required double warmNormRelCi,
+  required Map<String, Object?> memory,
+  required Map<String, Object?> counters,
+  required bool countersEnabled,
+}) {
+  String f(Object? v, int frac) => (v as num).toStringAsFixed(frac);
+
+  String line(String label, double norm, double normRelCi, Stats s) {
+    final conv = s.relCi95 <= _targetRelCi ? 'converged' : 'budget-capped';
+    return '    $label ${f(norm, 5)} norm +/-${f(normRelCi * 100, 1)}%'
+        '  |  ${f(s.mean, 3)} +/- ${f(s.stddev, 3)} us/call'
+        '  [n=${s.n}, +/-${f(s.relCi95 * 100, 1)}% CI95, $conv]';
+  }
+
+  stdout.writeln('Chord engine benchmark ($corpusSize voicings)');
+  stdout.writeln('  time (normalized to reference workload):');
+  stdout.writeln(
+    line('cold (cache miss):', coldNormalized, coldNormRelCi, cold),
+  );
+  stdout.writeln(
+    line('warm (cache hit): ', warmNormalized, warmNormRelCi, warm),
+  );
+  stdout.writeln('  memory (cold pass):');
+  stdout.writeln(
+    '    churn:    ${f(memory['churnBytesPerCall'], 0)} bytes/call,'
+    ' ${memory['churnObjects']} objects total',
+  );
+  stdout.writeln(
+    '    retained: ${memory['retainedBytes']} bytes (cache, heap delta);'
+    ' live heap ${memory['liveHeapBytes']} bytes',
+  );
+  if (countersEnabled) {
+    stdout.writeln('  counters (cold pass):');
+    counters.forEach((k, v) => stdout.writeln('    $k: $v'));
+  } else {
+    stdout.writeln(
+      '  counters: disabled'
+      ' (pass --define=whatchord.counters=true to enable)',
+    );
+  }
+}
+
+double _timeMicros(void Function() body) {
+  final sw = Stopwatch()..start();
+  body();
+  sw.stop();
+  return sw.elapsedMicroseconds.toDouble();
+}
+
+double _hypot(double a, double b) => math.sqrt(a * a + b * b);
+
+String? _argValue(List<String> args, String prefix) {
+  for (final a in args) {
+    if (a.startsWith(prefix)) return a.substring(prefix.length);
+  }
+  return null;
+}

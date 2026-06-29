@@ -1,6 +1,7 @@
 // Analysis engine
 export 'analysis/chord_analyzer.dart';
 export 'analysis/chord_candidate_ranking.dart';
+export 'analysis/engine_counters.dart';
 
 // Domain models
 export 'models/analysis_context.dart';
