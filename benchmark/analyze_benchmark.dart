@@ -1,13 +1,17 @@
 // Offline performance baseline for the chord analysis engine.
 //
-// Measures three reproducible things by replaying the reviewed-oracle corpus
-// through ChordAnalyzer.analyze():
+// Measures, by replaying chord corpora through ChordAnalyzer.analyze():
 //
-//   1. Time, normalized to a fixed CPU reference workload (hardware-stable).
-//      Sampled adaptively until the mean's 95% CI is tight; stddev reported.
+//   1. Time, normalized to a fixed CPU reference workload (hardware-stable),
+//      for two corpora: the adversarial reviewed-oracle corpus and the common
+//      voicing pool (real-playing structures). Sampled adaptively until the
+//      mean's 95% CI is tight; stddev reported.
 //   2. Memory: allocation churn and retained heap delta (deterministic).
 //   3. Algorithmic operation counters (deterministic; require the counters
 //      compile-time define to be set).
+//
+// Memory and counters are measured on the oracle corpus only -- it is the
+// adversarial stress case, so it is the most sensitive regression signal.
 //
 // Run from the repo root:
 //
@@ -23,6 +27,7 @@ import 'dart:math' as math;
 import 'package:whatchord/features/theory/domain/theory_domain.dart';
 
 import 'src/allocation_probe.dart';
+import 'src/common_voicings.dart';
 import 'src/corpus.dart';
 import 'src/reference.dart';
 import 'src/stats.dart';
@@ -49,53 +54,29 @@ Future<void> main(List<String> args) async {
   }
   final outPath = _argValue(args, '--out=') ?? _defaultOutPath;
 
-  final corpus = loadCorpus();
   final context = buildContext();
-  final corpusSize = corpus.length;
+  final oracle = loadCorpus();
+  final common = [for (final v in commonVoicings()) v.input];
 
-  void pass() {
-    for (final input in corpus) {
-      ChordAnalyzer.analyze(input, context: context);
-    }
-  }
-
-  // --- Time: adaptively sampled, normalized to the reference workload --------
-  // Reference: one fixed CPU unit. Used only to normalize out hardware speed.
+  // Reference: one fixed CPU unit, measured once. Used only to normalize out
+  // hardware speed; a slower machine inflates the engine and reference alike.
   final reference = collect(
     () => _timeMicros(() => _sink ^= referenceWork(referenceIterations)),
     budget: const Duration(seconds: 8),
     targetRelCi: _targetRelCi,
   );
 
-  // Cold: every call misses the cache (full evaluation). Clear outside the
-  // timed region so eviction cost is not charged to the engine. Expensive, so a
-  // generous budget bounds it; it usually hits the budget rather than the CI.
-  final cold = collect(
-    () {
-      ChordAnalyzer.clearCache();
-      return _timeMicros(pass) / corpusSize;
-    },
-    budget: const Duration(seconds: 30),
-    targetRelCi: _targetRelCi,
-  );
+  // --- Time, per corpus -----------------------------------------------------
+  final (oracleCold, oracleWarm) = _measureCorpusTime(oracle, context);
+  final (commonCold, commonWarm) = _measureCorpusTime(common, context);
 
-  // Warm: cache primed, every call hits. Batched for timer resolution.
-  ChordAnalyzer.clearCache();
-  pass();
-  final warm = collect(
-    () {
-      final us = _timeMicros(() {
-        for (var b = 0; b < _warmBatch; b++) {
-          pass();
-        }
-      });
-      return us / (_warmBatch * corpusSize);
-    },
-    budget: const Duration(seconds: 8),
-    targetRelCi: _targetRelCi,
-  );
+  // --- Memory + counters: oracle corpus (the adversarial stress case) -------
+  void oraclePass() {
+    for (final input in oracle) {
+      ChordAnalyzer.analyze(input, context: context);
+    }
+  }
 
-  // --- Memory: allocation churn (cold pass) and retained heap delta ---------
   final probe = await AllocationProbe.connect();
   ChordAnalyzer.clearCache();
   // Baseline heap with an empty cache, then reset the accumulator so churn
@@ -103,43 +84,37 @@ Future<void> main(List<String> args) async {
   // the corpus (the after/before heapUsage delta), not the whole isolate heap.
   final baselineHeap = (await probe.sample()).heapUsage;
   await probe.resetAndGc();
-  pass();
+  oraclePass();
   final memory = await probe.sample();
   final retainedBytes = memory.heapUsage - baselineHeap;
   await probe.dispose();
 
-  // --- Algorithmic operation counters (cold pass) ---------------------------
   EngineCounters.reset();
   ChordAnalyzer.clearCache();
-  pass();
+  oraclePass();
   final counters = EngineCounters.snapshot();
 
   if (_sink == 1) stderr.writeln(); // keep _sink observable; effectively never.
 
   final result = <String, Object?>{
     'meta': {
-      'corpusSize': corpusSize,
+      'oracleSize': oracle.length,
+      'commonSize': common.length,
       'dartVersion': Platform.version,
       'targetRelCi95': _targetRelCi,
       'referenceIterations': referenceIterations,
       'countersEnabled': kEngineCountersEnabled,
     },
+    'referenceUs': reference.toJson(),
+    // Compare normalized values across runs, not raw microseconds.
     'time': {
-      // Compare normalized values across runs, not raw microseconds: a slower
-      // machine inflates both the engine and the reference, so the ratio holds.
-      'coldNormalized': cold.mean / reference.mean,
-      'warmNormalized': warm.mean / reference.mean,
-      // CI of a ratio of independent means, propagated in quadrature.
-      'coldNormalizedRelCi95': _hypot(cold.relCi95, reference.relCi95),
-      'warmNormalizedRelCi95': _hypot(warm.relCi95, reference.relCi95),
-      'coldUsPerCall': cold.toJson(),
-      'warmUsPerCall': warm.toJson(),
-      'referenceUs': reference.toJson(),
+      'oracle': _timeJson(oracleCold, oracleWarm, reference),
+      'common': _timeJson(commonCold, commonWarm, reference),
     },
     'memory': {
       'churnBytes': memory.churnBytes,
       'churnObjects': memory.churnObjects,
-      'churnBytesPerCall': memory.churnBytes / corpusSize,
+      'churnBytesPerCall': memory.churnBytes / oracle.length,
       'retainedBytes': retainedBytes,
       'liveHeapBytes': memory.heapUsage,
     },
@@ -150,13 +125,13 @@ Future<void> main(List<String> args) async {
     outPath,
   ).writeAsStringSync(const JsonEncoder.withIndent('  ').convert(result));
   _printSummary(
-    corpusSize: corpusSize,
-    cold: cold,
-    warm: warm,
-    coldNormalized: cold.mean / reference.mean,
-    warmNormalized: warm.mean / reference.mean,
-    coldNormRelCi: _hypot(cold.relCi95, reference.relCi95),
-    warmNormRelCi: _hypot(warm.relCi95, reference.relCi95),
+    oracleSize: oracle.length,
+    commonSize: common.length,
+    reference: reference,
+    oracleCold: oracleCold,
+    oracleWarm: oracleWarm,
+    commonCold: commonCold,
+    commonWarm: commonWarm,
     memory: result['memory'] as Map<String, Object?>,
     counters: counters,
     countersEnabled: kEngineCountersEnabled,
@@ -164,6 +139,57 @@ Future<void> main(List<String> args) async {
   _maybePrintComparison(outPath, result);
   stdout.writeln('Wrote $outPath');
 }
+
+/// Adaptively samples cold (cache-miss) and warm (cache-hit) per-call time for
+/// [corpus]. Cold clears the cache outside the timed region; warm batches the
+/// pass for timer resolution.
+(Stats, Stats) _measureCorpusTime(
+  List<ChordInput> corpus,
+  AnalysisContext context,
+) {
+  final n = corpus.length;
+  void pass() {
+    for (final input in corpus) {
+      ChordAnalyzer.analyze(input, context: context);
+    }
+  }
+
+  final cold = collect(
+    () {
+      ChordAnalyzer.clearCache();
+      return _timeMicros(pass) / n;
+    },
+    budget: const Duration(seconds: 30),
+    targetRelCi: _targetRelCi,
+  );
+
+  ChordAnalyzer.clearCache();
+  pass();
+  final warm = collect(
+    () {
+      final us = _timeMicros(() {
+        for (var b = 0; b < _warmBatch; b++) {
+          pass();
+        }
+      });
+      return us / (_warmBatch * n);
+    },
+    budget: const Duration(seconds: 8),
+    targetRelCi: _targetRelCi,
+  );
+
+  return (cold, warm);
+}
+
+Map<String, Object?> _timeJson(Stats cold, Stats warm, Stats reference) => {
+  'coldNormalized': cold.mean / reference.mean,
+  'warmNormalized': warm.mean / reference.mean,
+  // CI of a ratio of independent means, propagated in quadrature.
+  'coldNormalizedRelCi95': _hypot(cold.relCi95, reference.relCi95),
+  'warmNormalizedRelCi95': _hypot(warm.relCi95, reference.relCi95),
+  'coldUsPerCall': cold.toJson(),
+  'warmUsPerCall': warm.toJson(),
+};
 
 /// Prints a delta against the committed baseline, unless this run *is* the
 /// baseline. Counters and churn are deterministic, so any change on the same
@@ -175,13 +201,15 @@ void _maybePrintComparison(String outPath, Map<String, Object?> current) {
   final base = jsonDecode(file.readAsStringSync()) as Map<String, Object?>;
 
   stdout.writeln('  vs baseline ($_baselinePath):');
-  final baseN = _at(base, ['meta', 'corpusSize']);
-  final curN = _at(current, ['meta', 'corpusSize']);
-  if (baseN != curN) {
-    stdout.writeln(
-      '    corpus differs ($baseN -> $curN voicings): per-call values are not'
-      ' comparable. Regenerate the baseline.',
-    );
+  for (final key in ['oracleSize', 'commonSize']) {
+    final b = _at(base, ['meta', key]);
+    final c = _at(current, ['meta', key]);
+    if (b != c) {
+      stdout.writeln(
+        '    $key differs ($b -> $c): per-call values are not comparable.'
+        ' Regenerate the baseline.',
+      );
+    }
   }
 
   void cmp(String label, List<String> path, {int frac = 3, bool pct = true}) {
@@ -202,8 +230,10 @@ void _maybePrintComparison(String outPath, Map<String, Object?> current) {
     stdout.writeln('    $label $arrow  ($change)');
   }
 
-  cmp('cold normalized:  ', ['time', 'coldNormalized'], frac: 5);
-  cmp('warm normalized:  ', ['time', 'warmNormalized'], frac: 5);
+  cmp('oracle cold norm: ', ['time', 'oracle', 'coldNormalized'], frac: 5);
+  cmp('oracle warm norm: ', ['time', 'oracle', 'warmNormalized'], frac: 5);
+  cmp('common cold norm: ', ['time', 'common', 'coldNormalized'], frac: 5);
+  cmp('common warm norm: ', ['time', 'common', 'warmNormalized'], frac: 5);
   cmp('churn bytes/call: ', ['memory', 'churnBytesPerCall'], frac: 0);
   cmp('retained bytes:   ', ['memory', 'retainedBytes'], frac: 0);
   for (final key in (current['counters'] as Map<String, Object?>).keys) {
@@ -227,8 +257,9 @@ void _printUsage() {
   stdout.writeln('''
 Chord engine performance benchmark.
 
-Replays the reviewed-oracle corpus through ChordAnalyzer.analyze and reports
-normalized time, allocation memory, and algorithmic operation counters.
+Replays two corpora through ChordAnalyzer.analyze and reports normalized time
+for each: the adversarial reviewed-oracle corpus and the common voicing pool.
+Allocation memory and operation counters are reported for the oracle corpus.
 
 Usage:
   tool/benchmark.sh [options]
@@ -241,8 +272,8 @@ Options:
   -h, --help   Show this help and exit.
 
 Unless --out points at the baseline, the run prints a delta against
-$_baselinePath when it exists. Compare runs on the same corpus only;
-regenerate the baseline after changing the corpus.
+$_baselinePath when it exists. Compare runs on the same corpora only;
+regenerate the baseline after changing a corpus.
 
 Memory measurement needs the VM service (--enable-vm-service) and the
 operation counters need the whatchord.counters define; tool/benchmark.sh
@@ -250,35 +281,39 @@ sets both.''');
 }
 
 void _printSummary({
-  required int corpusSize,
-  required Stats cold,
-  required Stats warm,
-  required double coldNormalized,
-  required double warmNormalized,
-  required double coldNormRelCi,
-  required double warmNormRelCi,
+  required int oracleSize,
+  required int commonSize,
+  required Stats reference,
+  required Stats oracleCold,
+  required Stats oracleWarm,
+  required Stats commonCold,
+  required Stats commonWarm,
   required Map<String, Object?> memory,
   required Map<String, Object?> counters,
   required bool countersEnabled,
 }) {
   String f(Object? v, int frac) => (v as num).toStringAsFixed(frac);
 
-  String line(String label, double norm, double normRelCi, Stats s) {
+  void timeLine(String label, Stats s) {
+    final norm = s.mean / reference.mean;
+    final normRelCi = _hypot(s.relCi95, reference.relCi95);
     final conv = s.relCi95 <= _targetRelCi ? 'converged' : 'budget-capped';
-    return '    $label ${f(norm, 5)} norm +/-${f(normRelCi * 100, 1)}%'
-        '  |  ${f(s.mean, 3)} +/- ${f(s.stddev, 3)} us/call'
-        '  [n=${s.n}, +/-${f(s.relCi95 * 100, 1)}% CI95, $conv]';
+    stdout.writeln(
+      '      $label ${f(norm, 5)} norm +/-${f(normRelCi * 100, 1)}%'
+      '  |  ${f(s.mean, 3)} +/- ${f(s.stddev, 3)} us/call'
+      '  [n=${s.n}, +/-${f(s.relCi95 * 100, 1)}% CI95, $conv]',
+    );
   }
 
-  stdout.writeln('Chord engine benchmark ($corpusSize voicings)');
+  stdout.writeln('Chord engine benchmark');
   stdout.writeln('  time (normalized to reference workload):');
-  stdout.writeln(
-    line('cold (cache miss):', coldNormalized, coldNormRelCi, cold),
-  );
-  stdout.writeln(
-    line('warm (cache hit): ', warmNormalized, warmNormRelCi, warm),
-  );
-  stdout.writeln('  memory (cold pass):');
+  stdout.writeln('    oracle corpus ($oracleSize voicings):');
+  timeLine('cold (cache miss):', oracleCold);
+  timeLine('warm (cache hit): ', oracleWarm);
+  stdout.writeln('    common voicings ($commonSize):');
+  timeLine('cold (cache miss):', commonCold);
+  timeLine('warm (cache hit): ', commonWarm);
+  stdout.writeln('  memory (oracle corpus, cold pass):');
   stdout.writeln(
     '    churn:    ${f(memory['churnBytesPerCall'], 0)} bytes/call,'
     ' ${memory['churnObjects']} objects total',
@@ -288,7 +323,7 @@ void _printSummary({
     ' live heap ${memory['liveHeapBytes']} bytes',
   );
   if (countersEnabled) {
-    stdout.writeln('  counters (cold pass):');
+    stdout.writeln('  counters (oracle corpus, cold pass):');
     counters.forEach((k, v) => stdout.writeln('    $k: $v'));
   } else {
     stdout.writeln(

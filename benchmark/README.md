@@ -23,8 +23,18 @@ CI is just noise.
 
 ## What it measures
 
-The workload is every voicing in `tool/chord_oracle_reviewed.json`, decoded
-straight from the case keys, replayed through `analyze()`.
+Two corpora are replayed through `analyze()`:
+
+- the **oracle corpus** -- every voicing in `tool/chord_oracle_reviewed.json`,
+  deliberately adversarial edge cases;
+- the **common voicing pool** (`src/common_voicings.dart`) -- the common chord
+  qualities with inversions, approximating real-playing structures.
+
+**Time** is reported for both corpora; **memory and counters** are reported for
+the oracle corpus only, since it is the adversarial stress case and therefore
+the most sensitive regression signal. The two corpora differ a lot in time (the
+oracle corpus is the worst case), so do not judge a change by the oracle numbers
+alone.
 
 - **Time, normalized to a fixed reference workload.** Absolute wall-clock time
   is hardware-dependent and noisy on shared CI runners, so it is not comparable
