@@ -66,3 +66,4 @@ app.*.map.json
 
 # Benchmark run output (transient; baseline is committed separately)
 /benchmark/last_run.json
+/benchmark/noise.json

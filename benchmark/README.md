@@ -22,6 +22,12 @@ run:
 tool/benchmark.sh --show-baseline
 ```
 
+To gate a run against the committed baseline:
+
+```bash
+tool/benchmark.sh --check
+```
+
 Unless `--out` points at the baseline, the run also prints a delta against
 `benchmark/baseline.json` when it exists, so you can see at a glance whether a
 change moved anything. The counters are exact, so any counter delta on the same
@@ -80,6 +86,55 @@ alone.
   gated behind the `whatchord.counters` compile-time define and are dead-code
   eliminated in normal builds (see `EngineCounters`).
 
+## Checking regressions
+
+`--check` runs the benchmark normally, compares it to `benchmark/baseline.json`,
+and exits nonzero only for meaningful regressions. It separates statistical
+significance from practical significance:
+
+- Time metrics must be slower than the baseline by at least 5% and outside the
+  combined uncertainty window.
+- Memory metrics must increase by at least 3%, clear a small absolute threshold,
+  and exceed the calibrated VM-observed noise when a noise model is available.
+- Counter metrics fail on deterministic increases.
+
+The combined time uncertainty starts with the stored normalized CI from both the
+baseline and current run. If `benchmark/noise.json` exists, the check also
+includes calibrated full-run noise:
+
+```text
+combined uncertainty = sqrt(baseline CI^2 + current CI^2 + calibrated noise^2)
+```
+
+This matters because the per-run CI only measures sampling precision inside one
+benchmark process. Separate invocations can drift more due to runtime layout,
+thermal state, CPU scheduling, VM-service effects, and other runner conditions.
+
+## Calibrating noise
+
+Generate a local run-to-run noise model with:
+
+```bash
+tool/benchmark.sh --calibrate-noise
+```
+
+Calibration launches separate benchmark subprocesses, compares each result to
+`benchmark/baseline.json`, and writes `benchmark/noise.json`. It runs at least
+10 subprocess benchmarks, then keeps going until every metric's noise estimate
+changes by less than 10% from the previous estimate, stopping at a hard maximum
+of 50 runs.
+
+For each time and VM-observed memory metric, the noise model stores a robust 95%
+relative run-to-run noise estimate:
+
+```text
+noiseRel95 = 1.96 * 1.4826 * medianAbsoluteDeviation(relative deltas)
+```
+
+Use calibration from the same class of machine or CI runner where `--check` will
+run. A laptop-generated noise model is useful locally, but it does not fully
+describe hosted CI variance.
+
 ## Tracking a baseline
 
 `benchmark/last_run.json` is the latest run and is not committed. To track a
@@ -90,5 +145,4 @@ tool/benchmark.sh --out=benchmark/baseline.json
 ```
 
 and diff future runs against it. Because of timing noise, gate regressions on
-counters, meaningful memory movement, and normalized time, not raw
-microseconds.
+counters, meaningful memory movement, and normalized time, not raw microseconds.
