@@ -574,5 +574,17 @@
   "0-2-8_b0": {
     "label": "clearly-correct",
     "note": "A♭♯11/C is preferred because the voicing presents A♭-C as a readable major-third sonority with D as Lydian sharp-eleventh color and C as the third in the bass. Tonal's A♭(♭5)/C is pitch-class equivalent, but the theoretically exact flat-five spelling becomes G♯(♭5)/B♯ in WhatChord's role-aware spelling, which is less readable for this slash voicing. The flat-five interpretation remains surfaced as an alternative."
+  },
+  "0-2-9_b0": {
+    "label": "context-dependent",
+    "note": "Amadd11/C is defensible because A-C-D supplies a clear A minor-third sonority with D as added-eleventh color and C as the minor third in the bass. Music21's Dpower/C names the alternate D-A no-third fifth with C as flat-seventh color, which may be preferable in a context that establishes D as root. WhatChord does not currently emit no-third/power-chord vocabulary, and promoting the incomplete D7/C candidate would imply a missing third rather than naming the sparse sonority directly."
+  },
+  "0-2-9_b2": {
+    "label": "context-dependent",
+    "note": "Am/D is a practical upper-structure spelling for A-C-D: A-C supplies the minor-third sonority while D sits in the bass as add-eleventh slash color. Music21's DpoweraddC reflects the competing D-rooted no-third fifth with C as flat-seventh color. The D bass makes that reading contextually plausible, but without D5(add♭7) or D7(no3) vocabulary the surfaced Am/D label is the clearer available chord symbol."
+  },
+  "0-2-9_b9": {
+    "label": "context-dependent",
+    "note": "Amadd11 is defensible in root position because A-C is a direct minor-third sonority and D is conventional added-eleventh color. Music21's Dpower/AaddC instead hears D-A as a no-third fifth with A in the bass and C as flat-seventh color. That alternate is valid when D is established by context, but WhatChord's A-rooted label is the more complete context-free name within the current vocabulary."
   }
 }
