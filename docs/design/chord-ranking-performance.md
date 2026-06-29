@@ -245,6 +245,29 @@ hard-rule pair (HE x HE); all others are score-decided and therefore agree.
    voicings separately.
 4. Only if needed, consider the localized-fallback v2.
 
+### Profiling result (step 1)
+
+Done. Temporary phase timers inside `rank`, run over the oracle corpus,
+confirmed the redesign targets the right cost:
+
+| phase        | share of ranking |
+| ------------ | ---------------- |
+| matrix build | 97.0%            |
+| linearize    | 2.1%             |
+| features     | 0.4%             |
+| gate-masks   | 0.4%             |
+| seed-sort    | 0.1%             |
+
+Splitting the matrix build further: the `n^2` `_decide` loop is **99.8%** of it
+and the `List<List<bool>>` allocation only 0.2%. Conclusions:
+
+- Doing fewer `_decide` calls is the only meaningful lever, which is exactly the
+  fast-path premise. GO for the redesign.
+- Risk 4 is dispelled: `CandidateFeatures.from` is 0.4%, not the bottleneck.
+- No cheap shortcut exists: a flat `Uint8List` matrix would save the 0.2%
+  allocation only, so it is not worth doing. Linearize and masks are not worth
+  touching either.
+
 ---
 
 ## Status
@@ -253,4 +276,5 @@ hard-rule pair (HE x HE); all others are score-decided and therefore agree.
 - Hard-rule gate masks (union gate): shipped.
 - Role-A/B split: tried, reverted (negative result recorded above).
 - Candidate-count reduction: rejected (Copeland trap).
-- Sorted-rank redesign: planned, pending the profiling step.
+- Profiling (step 1): done; the `n^2` `_decide` loop is 97% of ranking.
+- Sorted-rank redesign: ready to build (step 2), profiling cleared it.
