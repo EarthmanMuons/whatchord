@@ -7,44 +7,44 @@
     "countersEnabled": true
   },
   "time": {
-    "coldNormalized": 1.0679394399880422,
-    "warmNormalized": 0.000011997587137091898,
-    "coldNormalizedRelCi95": 0.006077910993915839,
-    "warmNormalizedRelCi95": 0.0038653884924243144,
+    "coldNormalized": 0.789686529358908,
+    "warmNormalized": 0.000012266780814648677,
+    "coldNormalizedRelCi95": 0.0048642333469362965,
+    "warmNormalizedRelCi95": 0.008543269026385532,
     "coldUsPerCall": {
-      "mean": 8573.844999999998,
-      "median": 8569.589285714286,
-      "stddev": 83.27035205389201,
-      "min": 8472.442857142858,
-      "max": 8721.457142857143,
+      "mean": 6377.824285714285,
+      "median": 6380.753571428571,
+      "stddev": 17.162038937692362,
+      "min": 6355.778571428571,
+      "max": 6407.457142857143,
       "n": 10,
-      "relCi95": 0.006019644501930961
+      "relCi95": 0.001667832392561307
     },
     "warmUsPerCall": {
-      "mean": 0.09632142857142859,
-      "median": 0.09610714285714286,
-      "stddev": 0.0005863623979059413,
-      "min": 0.09582142857142857,
-      "max": 0.09739285714285714,
+      "mean": 0.09907142857142856,
+      "median": 0.09833928571428571,
+      "stddev": 0.0011538410663298495,
+      "min": 0.098,
+      "max": 0.10103571428571428,
       "n": 10,
-      "relCi95": 0.0037731082779362364
+      "relCi95": 0.007218610980890165
     },
     "referenceUs": {
-      "mean": 8028.4,
-      "median": 8025.5,
-      "stddev": 10.87504789261485,
-      "min": 8016.0,
-      "max": 8055.0,
+      "mean": 8076.4,
+      "median": 8045.5,
+      "stddev": 59.541208885573994,
+      "min": 8030.0,
+      "max": 8179.0,
       "n": 10,
-      "relCi95": 0.0008395725819340244
+      "relCi95": 0.004569365509977322
     }
   },
   "memory": {
-    "churnBytes": 16465600,
-    "churnObjects": 140493,
-    "churnBytesPerCall": 117611.42857142857,
-    "retainedBytes": 818688,
-    "liveHeapBytes": 16465600
+    "churnBytes": 16556032,
+    "churnObjects": 141222,
+    "churnBytesPerCall": 118257.37142857142,
+    "retainedBytes": 819648,
+    "liveHeapBytes": 16556032
   },
   "counters": {
     "cacheHits": 0,

@@ -21,13 +21,33 @@ typedef RuleFn =
       Tonality tonality,
     );
 
+/// Candidate-local necessary condition for a rule to fire.
+///
+/// Returns true if [candidate] could be *either* operand of a rule that returns
+/// non-null. It must be a superset of the rule's real firing precondition: if it
+/// is ever false for a candidate the rule could actually decide, that decision
+/// is silently dropped. It depends only on the single candidate (plus tonality),
+/// never on the candidate it is being compared against.
+typedef RuleGate =
+    bool Function(
+      ChordCandidate candidate,
+      CandidateFeatures features,
+      Tonality tonality,
+    );
+
 /// A ranking rule paired with a human-readable name for debugging and for
 /// explaining ranking decisions to users.
 class NamedRule {
   final String name;
   final RuleFn apply;
 
-  const NamedRule(this.name, this.apply);
+  /// Optional candidate-local gate (see [RuleGate]). When set, the pairwise
+  /// ranking pass skips [apply] for any pair where the gate is false for either
+  /// candidate, since the rule could not fire there anyway. When null, [apply]
+  /// is always evaluated (the original behavior).
+  final RuleGate? gate;
+
+  const NamedRule(this.name, this.apply, {this.gate});
 }
 
 // The two ordered lists below ARE the ranking policy: rules are tried top to
@@ -44,83 +64,144 @@ final List<NamedRule> hardRules = <NamedRule>[
   NamedRule(
     'prefer complete dominant flat-nine over colored diminished7',
     _preferCompleteDom7Flat9OverColoredDim7,
+    gate: (c, f, _) =>
+        (f.isCompleteDominantFlat9 && f.hasStableBassRole) || f.isDim7,
   ),
   NamedRule(
     'prefer flat-nine-bass dominant over remote reinterpretation',
     _preferFlatNineBassDominantOverRemoteReinterpretation,
+    gate: (c, f, _) =>
+        f.isFifthlessFlatNineBassDominant ||
+        c.identity.quality == ChordQualityToken.minorMajor7 ||
+        c.identity.quality == ChordQualityToken.diminished,
   ),
   NamedRule(
     'prefer complete altered dominant inversion over altered major7',
     _preferCompleteAlteredDom7InversionOverAlteredMajor7,
+    gate: (c, f, _) =>
+        _isPreferredCompleteAlteredDominant(c.identity, f) ||
+        c.identity.quality == ChordQualityToken.major7Flat5 ||
+        c.identity.quality == ChordQualityToken.major7Sharp5,
   ),
   NamedRule(
     'prefer complete dominant sharp-nine over split-third sixth',
     _preferCompleteDom7Sharp9OverSixthFlat9,
+    gate: (c, f, _) =>
+        _isCompleteDominantSharpNineReading(c.identity) ||
+        _isStableSplitThirdSixth(c.identity, f),
   ),
   NamedRule(
     'prefer stable extended dominant over double-accidental altered-fifth slash',
     _preferStableExtendedDom7OverDoubleAccidentalAlteredFifthSlash,
+    gate: (c, f, _) =>
+        _isStableExtendedDom7(c.identity, f) ||
+        _isAlteredSharpFiveDominant(c.identity),
   ),
   NamedRule(
     'prefer complete altered sharp-five dominant over remote spellings',
     _preferCompleteAlteredSharpFiveDominantOverRemoteSpellings,
+    gate: (c, _, _) =>
+        _isAlteredSharpFiveDominant(c.identity) ||
+        _isNaturalEleventhSharpFiveDominant(c.identity) ||
+        _isRemoteAlteredNonDominantReading(c.identity),
   ),
   NamedRule(
     'prefer conventional inversion in split-nine tritone dominant ambiguity',
     _preferConventionalSplitNineTritoneDominant,
+    gate: (c, _, _) =>
+        _isSplitNineFlatFiveDominant(c.identity) ||
+        _isSharp11Flat13Dominant(c.identity),
   ),
-  NamedRule('prefer altered dominant7 over dim7 slash', _preferAlteredDom7),
+  NamedRule(
+    'prefer altered dominant7 over dim7 slash',
+    _preferAlteredDom7,
+    gate: (c, f, _) => f.isDom7 || f.isDimFamily,
+  ),
   NamedRule(
     'prefer conventional altered seventh over add11 slash',
     _preferConventionalAlteredSeventhOverAdd11Slash,
+    gate: (c, f, _) =>
+        f.isQuestionableAdd11Slash ||
+        (f.isSeventhFamily && f.extensionTensionCount > 0),
   ),
   NamedRule(
     'prefer complete minor sharp11 over altered maj7sus4',
     _preferCompleteMinorSharp11OverAlteredMaj7Sus4,
+    gate: (c, f, _) => f.isCompleteMinorSharp11 || f.isAlteredMajor7Sus4,
   ),
   NamedRule(
     'prefer close root-position dominant7 over non-dominant slash',
     _preferDom7RootOverNonDomSlash,
+    gate: (c, f, _) =>
+        (f.isDom7RootPosition && f.dom7HasShell) ||
+        (f.isSlashBass && !f.isDom7 && !f.isAlteredFifthDom7),
   ),
   NamedRule(
     'prefer ninth-bass seventh chord over altered slash',
     _preferNinthBassSeventhOverAlteredSlash,
+    gate: (c, f, _) =>
+        f.isCompleteNinthBassSeventhChord ||
+        (f.isSlashBass &&
+            (f.extensionTensionCount > 0 || f.isUnusualSeventhQuality)),
   ),
   NamedRule(
     'prefer minor-major ninth over augmented-major thirteenth',
     _preferMinorMajorNinthOverAugmentedMajorThirteenth,
+    gate: (c, _, _) =>
+        _isCompleteMinorMajorNinthFamily(c.identity) ||
+        c.identity.quality == ChordQualityToken.major7Sharp5,
   ),
   NamedRule(
     'prefer minor7 eleventh-bass slash over minor7 sharp-five slash',
     _preferMinor7EleventhBassSlashOverMinor7SharpFiveSlash,
+    gate: (c, f, _) =>
+        f.isCompleteMinor7EleventhBassSlash ||
+        (f.isSlashBass && c.identity.quality == ChordQualityToken.minor7Sharp5),
   ),
   NamedRule(
     'prefer root-position altered-fifth dominant over slash',
     _preferRootAlteredFifthDom7,
+    gate: (c, f, _) => f.isAlteredFifthDom7,
   ),
   NamedRule(
     'prefer root-position add-chord over sus slash',
     _preferRootAddChordOverSusSlash,
+    gate: (c, f, _) =>
+        f.isRootPositionNaturalAddChord || (f.isSus && f.isSlashBass),
   ),
   NamedRule(
     'prefer complete triad over structurally deficient reading',
     _preferCompleteTriadOverDeficientReading,
+    gate: (c, f, _) => f.isCompleteMajorMinorTriad || f.isStructurallyDeficient,
   ),
   NamedRule(
     'prefer root-position minor-eleventh shell over sus slash',
     _preferRootMinor7Add11ShellOverSusSlash,
+    gate: (c, f, _) =>
+        f.isRootPositionMinor7Add11Shell ||
+        c.identity.quality == ChordQualityToken.dominant7sus4 ||
+        c.identity.quality == ChordQualityToken.sus2sus4,
   ),
   NamedRule(
     'prefer complete major six-nine over inverted minor-seven sharp-five',
     _preferCompleteMajorSixNineOverInvertedMinor7Sharp5,
+    gate: (c, f, _) =>
+        f.isCompleteMajorSixNine ||
+        c.identity.quality == ChordQualityToken.minor7Sharp5,
   ),
   NamedRule(
     'prefer complete add-nine inversion over minor-seven sharp-five',
     _preferCompleteAddNineInversionOverMinor7Sharp5,
+    gate: (c, f, _) =>
+        _isCompleteAddNineTriadInversion(c.identity, f) ||
+        c.identity.quality == ChordQualityToken.minor7Sharp5,
   ),
   NamedRule(
     'prefer simple triad add-tone over seventh-family unusual quality',
     _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality,
+    gate: (c, f, _) =>
+        (!f.isSeventhFamily && !f.isSus && f.hasOnlyAddColor) ||
+        (f.isSeventhFamily && f.isUnusualSeventhQuality),
   ),
 ];
 
