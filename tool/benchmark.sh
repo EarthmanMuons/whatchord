@@ -14,12 +14,13 @@ cd "$(dirname "$0")/.."
 for arg in "$@"; do
   case "$arg" in
     -h|--help|--show-baseline|--calibrate-noise)
-      exec dart run benchmark/analyze_benchmark.dart "$@"
+      exec dart run --verbosity=error benchmark/analyze_benchmark.dart "$@"
       ;;
   esac
 done
 
 exec dart run \
+  --verbosity=error \
   --enable-vm-service \
   --define=whatchord.counters=true \
   benchmark/analyze_benchmark.dart "$@"
