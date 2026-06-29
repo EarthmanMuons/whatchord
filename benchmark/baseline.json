@@ -4,74 +4,75 @@
     "commonSize": 81,
     "dartVersion": "3.12.2 (stable) (Tue Jun 9 01:11:39 2026 -0700) on \"macos_arm64\"",
     "targetRelCi95": 0.015,
-    "referenceIterations": 4000000,
+    "referenceIterations": 400000,
+    "referenceDisplayScale": 100.0,
     "countersEnabled": true
   },
   "referenceUs": {
-    "mean": 8076.3,
-    "median": 8072.0,
-    "stddev": 32.58169220078458,
-    "min": 8036.0,
-    "max": 8128.0,
+    "mean": 814.0,
+    "median": 817.0,
+    "stddev": 13.258121200900895,
+    "min": 799.0,
+    "max": 838.0,
     "n": 10,
-    "relCi95": 0.0025004447638023084
+    "relCi95": 0.010095170338974297
   },
   "time": {
     "oracle": {
-      "coldNormalized": 0.09872448663726847,
-      "warmNormalized": 0.000012191756833486336,
-      "coldNormalizedRelCi95": 0.007677409564158798,
-      "warmNormalizedRelCi95": 0.006197349825199145,
+      "coldNormalized": 98.06862056862056,
+      "warmNormalized": 0.012152070902070902,
+      "coldNormalizedRelCi95": 0.010991565277570793,
+      "warmNormalizedRelCi95": 0.011523646685897952,
       "coldUsPerCall": {
-        "mean": 797.3285714285714,
-        "median": 795.625,
-        "stddev": 9.337851797414448,
-        "min": 785.3785714285714,
-        "max": 815.3785714285714,
+        "mean": 798.2785714285714,
+        "median": 797.9142857142857,
+        "stddev": 5.599545454503631,
+        "min": 788.8857142857142,
+        "max": 806.1,
         "n": 10,
-        "relCi95": 0.007258814889429996
+        "relCi95": 0.0043476479938230365
       },
       "warmUsPerCall": {
-        "mean": 0.0984642857142857,
-        "median": 0.09864285714285714,
-        "stddev": 0.0009008373529710757,
-        "min": 0.09732142857142857,
-        "max": 0.09996428571428571,
+        "mean": 0.09891785714285714,
+        "median": 0.09858928571428571,
+        "stddev": 0.0008868927771641508,
+        "min": 0.09767857142857143,
+        "max": 0.10046428571428571,
         "n": 10,
-        "relCi95": 0.005670530913333379
+        "relCi95": 0.0055571547367785626
       }
     },
     "common": {
-      "coldNormalized": 0.02011066368094545,
-      "warmNormalized": 0.000012756422044503633,
-      "coldNormalizedRelCi95": 0.015025232863532951,
-      "warmNormalizedRelCi95": 0.012736343404479825,
+      "coldNormalized": 20.006905301022954,
+      "warmNormalized": 0.012688446021779355,
+      "coldNormalizedRelCi95": 0.017880829829793932,
+      "warmNormalizedRelCi95": 0.015641142394722935,
       "coldUsPerCall": {
-        "mean": 162.41975308641975,
-        "median": 159.73456790123458,
-        "stddev": 5.208847348153028,
-        "min": 158.20987654320987,
-        "max": 173.679012345679,
-        "n": 18,
-        "relCi95": 0.014815714582380568
+        "mean": 162.85620915032683,
+        "median": 160.7283950617284,
+        "stddev": 5.0560717059216325,
+        "min": 159.50617283950618,
+        "max": 178.54320987654322,
+        "n": 17,
+        "relCi95": 0.014758442032583996
       },
       "warmUsPerCall": {
-        "mean": 0.1030246913580247,
-        "median": 0.10234567901234567,
-        "stddev": 0.0020758451514636383,
-        "min": 0.10104938271604938,
-        "max": 0.10796296296296297,
+        "mean": 0.10328395061728395,
+        "median": 0.1024074074074074,
+        "stddev": 0.001990851061904185,
+        "min": 0.10141975308641975,
+        "max": 0.10672839506172839,
         "n": 10,
-        "relCi95": 0.012488483466778917
+        "relCi95": 0.011947086307509992
       }
     }
   },
   "memory": {
-    "churnBytes": 16549680,
-    "churnObjects": 141247,
-    "churnBytesPerCall": 118212.0,
-    "retainedBytes": 801552,
-    "liveHeapBytes": 16549680
+    "churnBytes": 16549536,
+    "churnObjects": 141222,
+    "churnBytesPerCall": 118210.97142857143,
+    "retainedBytes": 801184,
+    "liveHeapBytes": 16549536
   },
   "counters": {
     "cacheHits": 0,

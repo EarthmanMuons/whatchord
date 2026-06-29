@@ -517,3 +517,60 @@ and common corpora; only 6 (oracle) and 7 (common) cases reorder alternatives
 reduce the `O(n^2)` (dense voicings with no clear winner still rank a full set),
 but it removes the long tail of unsurfaceable readings from the common and
 adversarial cases alike, which is where the cost was.
+
+---
+
+## Addendum: sizing the normalization scale
+
+The prune shrank the normalized scores so far (oracle cold ~0.099, common
+~0.020) that they were awkward to read and to eyeball as deltas. The normalized
+score is a dimensionless `engine / reference` ratio, so its magnitude is
+arbitrary and free to rescale. We re-anchored it to readable integers (oracle
+cold near 100, common near 20), and the choice of how is worth recording because
+it is constrained by timer resolution.
+
+There are two independent levers: the **reference workload size**, which sets
+measurement stability, and a **display multiplier** (`referenceDisplayScale`),
+which sets the printed magnitude. The temptation is to use only the workload
+size, shrinking `referenceIterations` until the ratio lands where you want. That
+fails: to push oracle cold to ~100 the reference workload would have to run ~8
+us, and `_timeMicros` reads `elapsedMicroseconds`, so 8 us is only ~8 timer
+ticks. The reference would become the dominant noise source, defeating its job
+as the stable yardstick.
+
+So we measured reliability versus workload size directly (400 samples each, this
+machine), to find how small the workload can get before resolution and jitter
+bite:
+
+| iters | mean    | per-sample relSd | 1 us quant floor | CI95 (n=400) |
+| ----- | ------- | ---------------- | ---------------- | ------------ |
+| 100k  | 202 us  | 2.67%            | 0.495%           | 0.26%        |
+| 400k  | 806 us  | 1.49%            | 0.124%           | 0.15%        |
+| 1M    | 2023 us | 1.46%            | 0.049%           | 0.13%        |
+| 4M    | 8125 us | 1.30%            | 0.012%           | 0.13%        |
+
+What this shows:
+
+- The hardware clock is 1 ns/tick (`Stopwatch.frequency == 1e9`), but
+  `_timeMicros` truncates to `elapsedMicroseconds`, so we run at a **1 us
+  effective quantization** regardless. (If precision ever mattered, switching to
+  `elapsedTicks / frequency` would cut that 1000x; it would not rescue a tiny
+  workload, since jitter dominates and worsens as the workload shrinks, so it
+  changes nothing here.)
+- **OS scheduling jitter, not timer resolution, is the binding noise.**
+  Per-sample relSd is ~1.3-1.5% and essentially flat from 400k to 4M; the
+  quantization floor at 806 us is 0.124%, two orders below it. Shrinking 4M ->
+  400k barely moves reliability, and the adaptive sampler drives the mean's CI
+  to ~0.15% either way (well under the 1.5% target). Only below ~200 us (100k)
+  does the fixed jitter plus quantization start to bite (relSd 2.67%).
+
+So **400k iterations (~0.8 ms) is the floor that stays reliable**, and at that
+size the oracle cold ratio is ~1.0, which makes the display multiplier a clean
+**x100**. The result: oracle cold ~96, common ~20, clean two-to-three digit
+integers with downward headroom as the engine keeps speeding up. The warm
+(cache-hit) scores are ~4 orders of magnitude smaller than any sane reference
+and stay near zero at any scale; they are a "cache is working" sanity line, not
+a tuning target, so the scale optimizes for the cold scores. The rescale is
+purely cosmetic: a uniform factor leaves every relative delta, CI, and
+regression-check decision unchanged. See `benchmark/src/reference.dart` and
+`benchmark/README.md`.

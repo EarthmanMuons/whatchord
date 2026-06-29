@@ -146,6 +146,7 @@ Future<Map<String, Object?>> _runBenchmark() async {
       'dartVersion': Platform.version,
       'targetRelCi95': _targetRelCi,
       'referenceIterations': referenceIterations,
+      'referenceDisplayScale': referenceDisplayScale,
       'countersEnabled': kEngineCountersEnabled,
     },
     'referenceUs': reference.toJson(),
@@ -207,8 +208,10 @@ Future<Map<String, Object?>> _runBenchmark() async {
 }
 
 Map<String, Object?> _timeJson(Stats cold, Stats warm, Stats reference) => {
-  'coldNormalized': cold.mean / reference.mean,
-  'warmNormalized': warm.mean / reference.mean,
+  // Scaled for readability; see referenceDisplayScale. A uniform factor leaves
+  // the relative CIs (and therefore the regression check) unchanged.
+  'coldNormalized': referenceDisplayScale * cold.mean / reference.mean,
+  'warmNormalized': referenceDisplayScale * warm.mean / reference.mean,
   // CI of a ratio of independent means, propagated in quadrature.
   'coldNormalizedRelCi95': _hypot(cold.relCi95, reference.relCi95),
   'warmNormalizedRelCi95': _hypot(warm.relCi95, reference.relCi95),
@@ -807,8 +810,14 @@ void _printSummary(Map<String, Object?> result, {String? source}) {
 
 String _formatNormalized(num value) {
   final abs = value.abs();
-  if (abs != 0 && abs < 0.0001) return value.toStringAsPrecision(3);
-  return value.toStringAsFixed(5);
+  if (abs == 0) return '0';
+  // Scores span the cold scores (~20-100) and the near-zero warm sanity line
+  // (~0.01). Two decimals reads cleanly for the former; keep more for small
+  // values so the warm line stays informative. Display precision only; the
+  // regression check uses the full stored value.
+  if (abs >= 1) return value.toStringAsFixed(2);
+  if (abs >= 0.001) return value.toStringAsFixed(4);
+  return value.toStringAsPrecision(3);
 }
 
 String _formatBytes(num bytes) {
