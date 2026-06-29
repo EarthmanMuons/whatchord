@@ -9,6 +9,7 @@ import '../services/note_spelling.dart';
 import '../services/pitch_class.dart';
 import 'candidate_features.dart';
 import 'common_name_prior_rule.dart';
+import 'ranking_policy.dart' as ranking_policy;
 
 /// Signature shared by every ranking rule. Returns -1 if `a` ranks higher, 1 if
 /// `b` ranks higher, 0 or null if the rule does not apply to this pair.
@@ -486,6 +487,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
   NamedRule(
     'prefer lydian major-nine over natural-eleventh major-thirteenth',
     _preferLydianMajorNineOverNaturalEleventhMajorThirteenth,
+  ),
+  NamedRule(
+    'prefer root-position sharp-eleven sus over add-flat-nine slash',
+    _preferRootSharpElevenSusOverAddFlatNineSlash,
   ),
   NamedRule(
     'prefer higher-scoring major-seventh-bass inversion over color-bass slash',
@@ -1492,7 +1497,7 @@ int? _preferCompleteAlteredSharpFiveDominantOverRemoteSpellings(
     return null;
   }
 
-  if (preferred.score + 0.20 < other.score) return null;
+  if (preferred.score + ranking_policy.nearTieWindow < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -2312,6 +2317,73 @@ int? _preferLydianMajorNineOverNaturalEleventhMajorThirteenth(
   if (lydian.score + 0.25 < other.score) return null;
 
   return aIsLydian ? -1 : 1;
+}
+
+int? _preferRootSharpElevenSusOverAddFlatNineSlash(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isRootSharpElevenSus(a.identity, fa);
+  final bIsPreferred = _isRootSharpElevenSus(b.identity, fb);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final preferred = aIsPreferred ? a : b;
+  final other = aIsPreferred ? b : a;
+  final fOther = aIsPreferred ? fb : fa;
+  if (!_isAddFlatNineSusSlash(other.identity, fOther)) return null;
+  if (!_samePitchClassSet(preferred.identity, other.identity)) return null;
+  if (preferred.score + ranking_policy.nearTieWindow < other.score) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _samePitchClassSet(ChordIdentity a, ChordIdentity b) {
+  return _absolutePitchClassMask(a) == _absolutePitchClassMask(b);
+}
+
+int _absolutePitchClassMask(ChordIdentity id) {
+  var mask = 0;
+  for (var interval = 0; interval < 12; interval++) {
+    if ((id.presentIntervalsMask & (1 << interval)) == 0) continue;
+    final pc = (id.rootPc + interval) % 12;
+    mask |= 1 << pc;
+  }
+  return mask;
+}
+
+bool _isRootSharpElevenSus(ChordIdentity id, CandidateFeatures features) {
+  if (!features.isRootPosition || id.quality != ChordQualityToken.sus4) {
+    return false;
+  }
+  if (id.extensions.length != 1 ||
+      !id.extensions.contains(ChordExtension.sharp11)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.sus4) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.sharp11);
+}
+
+bool _isAddFlatNineSusSlash(ChordIdentity id, CandidateFeatures features) {
+  if (!features.isSlashBass || id.quality != ChordQualityToken.sus2) {
+    return false;
+  }
+  if (id.extensions.length != 1 ||
+      !id.extensions.contains(ChordExtension.addFlat9)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.sus2) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.flat9);
 }
 
 bool _isCompleteLydianMajorNine(ChordIdentity id) {

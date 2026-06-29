@@ -19,6 +19,18 @@
     "label": "context-dependent",
     "note": "A♭add11 is defensible in root position because A♭-C is a direct major-third sonority and D♭ is conventional added-eleventh color. Music21's C♯power/G♯addB♯ instead hears D♭-A♭ as a no-third power chord with A♭ in the bass and C/B♯ as major-seventh color. That alternate is contextually valid, but without explicit power/no-third vocabulary WhatChord's root-position A♭add11 label is the more usable context-free name."
   },
+  "0-1-2-7_b0": {
+    "label": "clearly-correct",
+    "note": "Csus2add♭9 is correct because C-D-G supplies a complete root-position C sus2 sonority and D♭ is naturally named as added flat-nine color. Music21 agrees semantically as Csus2addC#; the spelling difference is only enharmonic notation for the same pitch class."
+  },
+  "0-1-2-7_b2": {
+    "label": "oracle-limitation",
+    "note": "Gsus4♯11/D is preferred because G-C-D supplies a complete G sus4 structure with D as the fifth in the bass and C♯/D♭ as sharp-eleventh color. Music21's DsusaddC#,C,omitA follows the bass as root, but it requires an omitted fifth and simultaneous C/C♯ color against D, making it less direct as a context-free chord symbol."
+  },
+  "0-1-2-7_b7": {
+    "label": "clearly-correct",
+    "note": "Gsus4♯11 is correct with G in the bass because G-C-D is a complete root-position sus4 chord and C♯/D♭ is conventional sharp-eleventh color above G. Music21 agrees semantically as GsusaddC#; the revised ranking keeps the C-rooted Csus2add♭9/G reading available as a possible alternative."
+  },
   "0-1-2-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C9(♭5,♭9) is preferred because C is the bass/root and the voicing supplies a complete C dominant-flat-five shell C-E-G♭-B♭, with D♭/D as split flat/natural ninth color. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the sharp eleventh in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the C altered/split-ninth family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."
