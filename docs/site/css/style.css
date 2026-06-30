@@ -1305,6 +1305,36 @@ a.heading-anchor svg {
   font-size: 0.86em;
 }
 
+.score-table .unused {
+  font-style: italic;
+}
+
+.score-table sup {
+  margin-left: 0.15em;
+  font-size: 1.1em;
+  font-weight: 700;
+  color: var(--accent-light);
+}
+
+.score-table-note {
+  padding: 10px 14px;
+  margin: -8px 0 24px;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--text-2);
+  background: var(--accent-bg);
+  border-left: 2px solid var(--accent-border);
+  border-radius: 0 4px 4px 0;
+}
+
+.score-table-note .fn-mark {
+  font-size: 1.2rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent-light);
+}
+
 .article-cta {
   padding: 40px;
   margin-top: 60px;
