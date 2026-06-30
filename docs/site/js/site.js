@@ -67,6 +67,49 @@
       });
     });
 
+  // CSS can print an href attribute, but it cannot resolve relative links to
+  // their deployed absolute URLs. Populate a print-only URL attribute for
+  // article links so local previews and production prints match.
+  if (document.body.classList.contains("article-page")) {
+    var siteOrigin = "https://whatchord.earthmanmuons.com";
+    var canonicalLink = document.querySelector('link[rel="canonical"]');
+    var ogUrl = document.querySelector('meta[property="og:url"]');
+    var pageUrl =
+      (canonicalLink && canonicalLink.href) ||
+      (ogUrl && ogUrl.content) ||
+      "";
+
+    if (!pageUrl) {
+      if (/^https?:$/.test(window.location.protocol)) {
+        pageUrl = window.location.href;
+      } else {
+        var sitePath = window.location.pathname;
+        var siteMarker = "/docs/site/";
+        var siteIndex = sitePath.indexOf(siteMarker);
+        if (siteIndex !== -1) {
+          sitePath = "/" + sitePath.slice(siteIndex + siteMarker.length);
+        }
+        pageUrl = siteOrigin + sitePath;
+      }
+    }
+    document.body.dataset.printPageUrl = pageUrl;
+    var footerCopy = document.querySelector(".footer-copy");
+    if (footerCopy) {
+      footerCopy.dataset.printPageUrl = pageUrl;
+    }
+
+    document.querySelectorAll(".article-body a[href]").forEach(function (link) {
+      var href = link.getAttribute("href");
+      if (!href || href.charAt(0) === "#") return;
+
+      try {
+        link.dataset.printUrl = new URL(href, pageUrl).href;
+      } catch (_) {
+        link.dataset.printUrl = href;
+      }
+    });
+  }
+
   // The mobile nav menu opens and closes via a CSS-only checkbox toggle. Add
   // the conveniences CSS can't: close on an outside click, on Escape, or after
   // choosing an item, and keep aria-expanded in sync.
