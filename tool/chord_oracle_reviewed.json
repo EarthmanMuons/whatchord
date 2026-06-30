@@ -31,6 +31,22 @@
     "label": "clearly-correct",
     "note": "Gsus4♯11 is correct with G in the bass because G-C-D is a complete root-position sus4 chord and C♯/D♭ is conventional sharp-eleventh color above G. Music21 agrees semantically as GsusaddC#; the revised ranking keeps the C-rooted Csus2add♭9/G reading available as a possible alternative."
   },
+  "0-1-2-9_b0": {
+    "label": "context-dependent",
+    "note": "Amadd11/C is the clearer available label because A-C supplies a readable minor-third sonority, D is conventional added-eleventh color, and C is the minor third in the bass. Music21's Dpower/CaddC# captures the competing D-A no-third fifth with C and C♯ as seventh colors, which can be preferable when D is established by context. WhatChord does not currently emit no-third/power-chord vocabulary, and the previous C♯maj7♯5♭9/B♯ spelling was less musician-readable because it omitted the third and required awkward enharmonics."
+  },
+  "0-1-2-9_b1": {
+    "label": "context-dependent",
+    "note": "Aadd11/C♯ is the clearer available label because A-C♯ gives a normal first-inversion major sonority and D is added-eleventh color. Music21's Dpower/C#addC reflects the alternate D-A no-third fifth with C and C♯ as seventh colors; that can be valid in a D-rooted context, but without power/no-third vocabulary the A-rooted slash chord is more readable than C♯maj7♯5♭9, which omits its third and spells A as G𝄪."
+  },
+  "0-1-2-9_b2": {
+    "label": "context-dependent",
+    "note": "Am/D is a practical upper-structure spelling: A-C supplies the minor-third sonority while D is the bass/add-eleventh. Music21's DpoweraddC#,C names the D-A no-third fifth with both C and C♯ color, which may be preferable when D is the harmonic root. WhatChord keeps the more readable available slash-chord label and surfaces the C♯maj7♯5♭9/D spelling as a possible alternative rather than promoting a missing-third unusual seventh."
+  },
+  "0-1-2-9_b9": {
+    "label": "context-dependent",
+    "note": "A(add♯9,add11) is defensible in root position because A is the bass/root, C♯ is the major third, C supplies split-third sharp-ninth color, and D is added-eleventh color. Music21's Dpower/AaddC#,C is the competing D-A no-third fifth with A in the bass and both C/C♯ colors. That D-rooted reading is contextually valid, but WhatChord's A-rooted split-third add-chord is the clearer available context-free label within the current vocabulary."
+  },
   "0-1-2-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C9(♭5,♭9) is preferred because C is the bass/root and the voicing supplies a complete C dominant-flat-five shell C-E-G♭-B♭, with D♭/D as split flat/natural ninth color. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the sharp eleventh in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the C altered/split-ninth family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."

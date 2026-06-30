@@ -481,6 +481,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferFullyExplainedVoicing,
   ),
   NamedRule(
+    'prefer higher-scoring add chord over missing-third unusual seventh',
+    _preferHigherScoringAddChordOverMissingThirdUnusualSeventh,
+  ),
+  NamedRule(
     'prefer harmonic-minor tonic over split-third inversion',
     _preferHarmonicMinorTonicOverSplitThirdInversion,
   ),
@@ -1885,6 +1889,7 @@ int? _preferConventionalAlteredSeventhOverAdd11Slash(
 
   if (!fc.isSeventhFamily) return null;
   if (fc.extensionTensionCount == 0) return null;
+  if (_isUnusualSeventhMissingThird(conventional.identity)) return null;
   if (fc.bassRoleRank >= fq.bassRoleRank) return null;
 
   // Keep this rule bounded to close structural ambiguities. Wider gaps should
@@ -2228,12 +2233,80 @@ int? _preferFullyExplainedVoicing(
   ChordCandidate b,
   CandidateFeatures fa,
   CandidateFeatures fb,
-  Tonality _,
+  Tonality tonality,
 ) {
   final aDropsTone = fa.unnamedToneCount > 0;
   final bDropsTone = fb.unnamedToneCount > 0;
   if (aDropsTone == bDropsTone) return null;
+  final explained = aDropsTone ? b : a;
+  final dropped = aDropsTone ? a : b;
+  final fExplained = aDropsTone ? fb : fa;
+  final fDropped = aDropsTone ? fa : fb;
+  if (_shouldNotPreferFullCoverage(
+    explained.identity,
+    dropped.identity,
+    fExplained,
+    fDropped,
+    tonality,
+  )) {
+    return null;
+  }
   return aDropsTone ? 1 : -1;
+}
+
+bool _shouldNotPreferFullCoverage(
+  ChordIdentity explained,
+  ChordIdentity dropped,
+  CandidateFeatures fExplained,
+  CandidateFeatures fDropped,
+  Tonality tonality,
+) {
+  if (!fExplained.isUnusualSeventhQuality ||
+      !_isUnusualSeventhMissingThird(explained)) {
+    return false;
+  }
+  if (!_isMajorMinorAddChord(dropped, fDropped)) return false;
+
+  final explainedPenalty = _candidateSpellingPenalty(explained, tonality);
+  final droppedPenalty = _candidateSpellingPenalty(dropped, tonality);
+  return explainedPenalty > droppedPenalty;
+}
+
+bool _isMajorMinorAddChord(ChordIdentity id, CandidateFeatures features) {
+  if (id.quality != ChordQualityToken.major &&
+      id.quality != ChordQualityToken.minor) {
+    return false;
+  }
+  return features.hasOnlyAddColor;
+}
+
+bool _isUnusualSeventhMissingThird(ChordIdentity id) {
+  if (!id.quality.isSeventhFamily) return false;
+
+  final roles = id.toneRolesByInterval.values;
+  return !roles.contains(ChordToneRole.major3) &&
+      !roles.contains(ChordToneRole.minor3) &&
+      !roles.contains(ChordToneRole.sus2) &&
+      !roles.contains(ChordToneRole.sus4);
+}
+
+int? _preferHigherScoringAddChordOverMissingThirdUnusualSeventh(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsAddChord = _isMajorMinorAddChord(a.identity, fa);
+  final bIsAddChord = _isMajorMinorAddChord(b.identity, fb);
+  if (aIsAddChord == bIsAddChord) return null;
+
+  final addChord = aIsAddChord ? a : b;
+  final unusual = aIsAddChord ? b : a;
+  if (!_isUnusualSeventhMissingThird(unusual.identity)) return null;
+  if (addChord.score < unusual.score) return null;
+
+  return aIsAddChord ? -1 : 1;
 }
 
 /// Lets strong minor-key context resolve a split-third inversion ambiguity.
@@ -2643,25 +2716,66 @@ int? _preferNaturalExtensions(
   ChordCandidate b,
   CandidateFeatures fa,
   CandidateFeatures fb,
-  Tonality _,
+  Tonality tonality,
 ) {
   final natural = fb.extPref.naturalCount.compareTo(fa.extPref.naturalCount);
   if (natural != 0) {
-    final preferred = natural < 0 ? fa : fb;
-    final other = natural < 0 ? fb : fa;
-    if (preferred.isStructurallyDeficient &&
-        !preferred.dom7HasShell &&
-        !other.isStructurallyDeficient) {
+    final preferred = natural < 0 ? a : b;
+    final other = natural < 0 ? b : a;
+    final fPreferred = natural < 0 ? fa : fb;
+    final fOther = natural < 0 ? fb : fa;
+    if (fPreferred.isStructurallyDeficient &&
+        !fPreferred.dom7HasShell &&
+        !fOther.isStructurallyDeficient) {
+      return null;
+    }
+    if (_shouldNotPreferFullCoverage(
+      preferred.identity,
+      other.identity,
+      fPreferred,
+      fOther,
+      tonality,
+    )) {
       return null;
     }
     return natural;
   }
 
   final add = fa.extPref.addCount.compareTo(fb.extPref.addCount);
-  if (add != 0) return add;
+  if (add != 0) {
+    final preferred = add < 0 ? a : b;
+    final other = add < 0 ? b : a;
+    final fPreferred = add < 0 ? fa : fb;
+    final fOther = add < 0 ? fb : fa;
+    if (_shouldNotPreferFullCoverage(
+      preferred.identity,
+      other.identity,
+      fPreferred,
+      fOther,
+      tonality,
+    )) {
+      return null;
+    }
+    return add;
+  }
 
   final total = fa.extPref.totalCount.compareTo(fb.extPref.totalCount);
-  if (total != 0) return total;
+  if (total != 0) {
+    final preferred = total < 0 ? a : b;
+    final other = total < 0 ? b : a;
+    final fPreferred = total < 0 ? fa : fb;
+    final fOther = total < 0 ? fb : fa;
+    if (_shouldNotPreferFullCoverage(
+      preferred.identity,
+      other.identity,
+      fPreferred,
+      fOther,
+      tonality,
+    )) {
+      return null;
+    }
+    return total;
+  }
 
   return null;
 }
@@ -2765,9 +2879,22 @@ int? _preferRootPosition(
   ChordCandidate b,
   CandidateFeatures fa,
   CandidateFeatures fb,
-  Tonality _,
+  Tonality tonality,
 ) {
   if (fa.isRootPosition == fb.isRootPosition) return null;
+  final preferred = fa.isRootPosition ? a : b;
+  final other = fa.isRootPosition ? b : a;
+  final fPreferred = fa.isRootPosition ? fa : fb;
+  final fOther = fa.isRootPosition ? fb : fa;
+  if (_shouldNotPreferFullCoverage(
+    preferred.identity,
+    other.identity,
+    fPreferred,
+    fOther,
+    tonality,
+  )) {
+    return null;
+  }
   return fb.isRootPosition ? 1 : -1;
 }
 
@@ -2776,10 +2903,23 @@ int? _preferConventionalInversion(
   ChordCandidate b,
   CandidateFeatures fa,
   CandidateFeatures fb,
-  Tonality _,
+  Tonality tonality,
 ) {
   final cmp = fa.bassRoleRank.compareTo(fb.bassRoleRank);
   if (cmp == 0) return null;
+  final preferred = cmp < 0 ? a : b;
+  final other = cmp < 0 ? b : a;
+  final fPreferred = cmp < 0 ? fa : fb;
+  final fOther = cmp < 0 ? fb : fa;
+  if (_shouldNotPreferFullCoverage(
+    preferred.identity,
+    other.identity,
+    fPreferred,
+    fOther,
+    tonality,
+  )) {
+    return null;
+  }
   return cmp;
 }
 
@@ -2855,9 +2995,22 @@ int? _prefer7thChords(
   ChordCandidate b,
   CandidateFeatures fa,
   CandidateFeatures fb,
-  Tonality _,
+  Tonality tonality,
 ) {
   if (fa.isSeventhFamily == fb.isSeventhFamily) return null;
+  final preferred = fa.isSeventhFamily ? a : b;
+  final other = fa.isSeventhFamily ? b : a;
+  final fPreferred = fa.isSeventhFamily ? fa : fb;
+  final fOther = fa.isSeventhFamily ? fb : fa;
+  if (_shouldNotPreferFullCoverage(
+    preferred.identity,
+    other.identity,
+    fPreferred,
+    fOther,
+    tonality,
+  )) {
+    return null;
+  }
   return fb.isSeventhFamily ? 1 : -1;
 }
 

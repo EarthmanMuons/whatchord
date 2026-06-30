@@ -33,6 +33,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved sparse suspended sharp-eleventh recognition, so root-position sus4♯11
   voicings are less likely to be displaced by inverted sus add-flat-nine
   spellings.
+- Improved sparse add-chord ranking, so readable add-eleven voicings are less
+  likely to be displaced by unusual seventh spellings that omit the third.
 
 ## [2026.6.28] - 2026-06-28
 

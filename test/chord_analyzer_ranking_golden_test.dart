@@ -953,6 +953,32 @@ void main() {
 
     golden(
       description:
+          'add-eleven inversion beats missing-third unusual seventh spelling',
+      expectedSymbol: 'Aadd11/C#',
+      expectedAlternateSymbols: ['C#maj7(#5,b9)'],
+      pcs: ['C', 'Db', 'D', 'A'],
+      bass: 'Db',
+      expectedRoot: 'A',
+      expectedBass: 'C#',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.add11},
+    ),
+
+    golden(
+      description:
+          'minor add-eleven slash beats missing-third unusual seventh spelling',
+      expectedSymbol: 'Am/D',
+      expectedAlternateSymbols: ['C#maj7(#5,b9)/D', 'A/D'],
+      pcs: ['C', 'Db', 'D', 'A'],
+      bass: 'D',
+      expectedRoot: 'A',
+      expectedBass: 'D',
+      expectedQuality: ChordQualityToken.minor,
+      expectedExtensions: {ChordExtension.add11},
+    ),
+
+    golden(
+      description:
           'fifthless major-nine sharp-eleven inversion beats flat-five respelling',
       expectedSymbol: 'Dbmaj9#11/C',
       expectedAlternateSymbols: ['C#maj9b5/B#', 'Cm(addb9,add11)'],
