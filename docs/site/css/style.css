@@ -1576,6 +1576,384 @@ a.heading-anchor svg {
   border-color: var(--accent-border);
 }
 
+/* ─── Article print styles ───────────────────────────────────── */
+
+@media print {
+  @page {
+    margin: 0.65in;
+  }
+
+  .article-page {
+    display: block;
+    min-height: 0;
+    font-size: 11pt;
+    line-height: 1.5;
+    color: #111;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #fff;
+  }
+
+  .article-page * {
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  .article-page .article-back,
+  .article-page .article-cta,
+  .article-page .article-related,
+  .article-page .heading-anchor,
+  .article-page .dialog {
+    display: none !important;
+  }
+
+  .article-page .site-nav {
+    position: static;
+    padding: 0 0 18pt;
+    background: #fff;
+    border: 0;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .article-page .nav-inner {
+    display: block;
+    max-width: none;
+    height: auto;
+    padding: 0;
+    margin: 0;
+  }
+
+  .article-page .nav-logo {
+    display: inline-flex;
+    gap: 6pt;
+    align-items: center;
+    color: #111;
+  }
+
+  .article-page .nav-logo img {
+    width: 18pt;
+    height: 18pt;
+  }
+
+  .article-page .nav-logo span {
+    font-size: 12pt;
+    color: #111;
+  }
+
+  .article-page .nav-spacer,
+  .article-page .nav-toggle,
+  .article-page .nav-menu,
+  .article-page .btn-get-app,
+  .article-page .nav-burger {
+    display: none !important;
+  }
+
+  .article-page article,
+  .article-page .article-wrap {
+    max-width: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .article-page .article-header {
+    padding: 0 0 18pt;
+    margin: 0 0 22pt;
+    border-bottom: 0;
+  }
+
+  .article-page .article-header .article-tag {
+    margin-bottom: 8pt;
+    font-size: 8pt;
+    color: #555;
+    letter-spacing: 0.08em;
+  }
+
+  .article-page .article-header h1 {
+    margin-bottom: 10pt;
+    font-size: 24pt;
+    line-height: 1.15;
+    color: #000;
+    letter-spacing: 0;
+  }
+
+  .article-page .article-deck {
+    max-width: none;
+    font-size: 11pt;
+    line-height: 1.45;
+    color: #333;
+  }
+
+  .article-page .article-body {
+    padding: 0;
+  }
+
+  .article-page .article-body h2 {
+    padding-top: 18pt;
+    margin: 20pt 0 8pt;
+    font-size: 16pt;
+    line-height: 1.25;
+    color: #000;
+    letter-spacing: 0;
+    border-top: 1pt solid #c8c8c8;
+    break-after: avoid;
+  }
+
+  .article-page .article-body h2:first-child {
+    padding-top: 0;
+    margin-top: 0;
+    border-top: 0;
+  }
+
+  .article-page .article-body h3 {
+    margin: 16pt 0 6pt;
+    font-size: 12pt;
+    color: #111;
+    break-after: avoid;
+  }
+
+  .article-page .article-body p,
+  .article-page .article-body li,
+  .article-page .article-body ul,
+  .article-page .article-body ol,
+  .article-page .article-body p strong,
+  .article-page .article-body li strong {
+    color: #222;
+  }
+
+  .article-page .article-body p {
+    margin-bottom: 11pt;
+    font-size: 11pt;
+    line-height: 1.55;
+  }
+
+  .article-page .article-body ul,
+  .article-page .article-body ol {
+    padding-left: 20pt;
+    margin-bottom: 11pt;
+  }
+
+  .article-page .article-body li {
+    margin-bottom: 4pt;
+    font-size: 11pt;
+    line-height: 1.45;
+  }
+
+  .article-page .article-body li::marker {
+    color: #444;
+  }
+
+  .article-page a,
+  .article-page .article-body a,
+  .article-page .chord,
+  .article-page .article-body code {
+    color: #003b7a;
+  }
+
+  .article-page .article-body a[href^="http"]:not(.btn)::after,
+  .article-page .article-body a[data-print-url]:not(.btn)::after {
+    font-size: 8pt;
+    font-weight: 400;
+    color: #555;
+    overflow-wrap: anywhere;
+  }
+
+  .article-page .article-body a[href^="http"]:not(.btn)::after {
+    content: " (" attr(href) ")";
+  }
+
+  .article-page .article-body a[data-print-url]:not(.btn)::after {
+    content: " (" attr(data-print-url) ")";
+  }
+
+  .article-page .article-body pre,
+  .article-page .article-body code,
+  .article-page .callout,
+  .article-page .score-table-note,
+  .article-page .symbol-part,
+  .article-page .pf-box {
+    background: #f7f7f7;
+    border-color: #b8b8b8;
+  }
+
+  .article-page .article-body code {
+    padding: 1pt 3pt;
+    border: 0.5pt solid #c9c9c9;
+  }
+
+  .article-page .article-body pre {
+    padding: 12pt;
+    margin: 14pt 0;
+    overflow: visible;
+    white-space: pre-wrap;
+    border: 0.75pt solid #b8b8b8;
+    border-radius: 0;
+    break-inside: avoid;
+  }
+
+  .article-page .article-body pre code {
+    padding: 0;
+    color: #111;
+    background: none;
+    border: 0;
+  }
+
+  .article-page .kw,
+  .article-page .cm,
+  .article-page .nu,
+  .article-page .fn,
+  .article-page .pf-endpoint,
+  .article-page .symbol-part-label,
+  .article-page .symbol-part-opt,
+  .article-page .score-table-note,
+  .article-page .article-body code.not-used,
+  .article-page .chord.not-used {
+    color: #444;
+  }
+
+  .article-page .pf-name {
+    color: #111;
+  }
+
+  .article-page .pf-sub {
+    color: #333;
+  }
+
+  .article-page .callout {
+    padding: 10pt 12pt;
+    border: 0.75pt solid #aaa;
+    border-left: 3pt solid #666;
+    border-radius: 0;
+    break-inside: avoid;
+  }
+
+  .article-page .symbol-parts,
+  .article-page .pipeline-flow,
+  .article-page .member-stack-scroll {
+    break-inside: avoid;
+  }
+
+  .article-page .symbol-part,
+  .article-page .pf-box {
+    border: 0.75pt solid #aaa;
+    border-radius: 0;
+  }
+
+  .article-page .symbol-part:hover,
+  .article-page .pf-box:hover {
+    transform: none;
+  }
+
+  .article-page table {
+    break-inside: auto;
+  }
+
+  .article-page thead {
+    display: table-header-group;
+  }
+
+  .article-page tr,
+  .article-page th,
+  .article-page td {
+    break-inside: avoid;
+  }
+
+  .article-page .member-stack-scroll {
+    overflow: visible;
+  }
+
+  .article-page .member-stack,
+  .article-page .score-table,
+  .article-page .bit-field {
+    width: 100%;
+    min-width: 0;
+    margin: 12pt 0;
+    font-size: 9pt;
+    border-collapse: collapse;
+    border: 1pt solid #888;
+  }
+
+  .article-page .member-stack caption {
+    color: #111;
+  }
+
+  .article-page .member-stack th,
+  .article-page .member-stack td,
+  .article-page .score-table th,
+  .article-page .score-table td,
+  .article-page .bit-field th,
+  .article-page .bit-field td,
+  .article-page .bit-field .note-row td,
+  .article-page .bit-field .bit-row td {
+    color: #111;
+    background: #fff;
+    border: 0.75pt solid #8a8a8a;
+  }
+
+  .article-page .member-stack th,
+  .article-page .score-table th,
+  .article-page .bit-field th {
+    font-weight: 700;
+    background: #ececec;
+  }
+
+  .article-page .member-stack tr:first-child td,
+  .article-page .score-table tr:nth-child(even) td {
+    background: #f7f7f7;
+  }
+
+  .article-page .bit-field .bit-row td.b1 {
+    color: #000;
+    background: #e9f1ff;
+    border: 1pt solid #444;
+  }
+
+  .article-page .score-table .pos,
+  .article-page .score-table .neg,
+  .article-page .score-table sup,
+  .article-page .score-table-note .fn-mark {
+    color: #000;
+  }
+
+  .article-page footer {
+    padding: 14pt 0 0;
+    margin-top: 28pt;
+    color: #555;
+    background: #fff;
+    border-top: 1pt solid #c8c8c8;
+  }
+
+  .article-page .footer-inner {
+    display: block;
+    max-width: none;
+    padding: 0;
+  }
+
+  .article-page .footer-left {
+    display: block;
+  }
+
+  .article-page .footer-copy,
+  .article-page .footer-copy a {
+    font-size: 8pt;
+    color: #555;
+  }
+
+  .article-page .footer-copy[data-print-page-url]::after {
+    display: block;
+    margin-top: 3pt;
+    color: #666;
+    overflow-wrap: anywhere;
+    content: "Source: " attr(data-print-page-url);
+  }
+
+  .article-page .footer-links,
+  .article-page .footer-separator,
+  .article-page .footer-license {
+    display: none;
+  }
+}
+
 /* ─── Responsive ─────────────────────────────────────────────── */
 
 /* Collapse Articles + Source into a hamburger menu on phones, keeping the
