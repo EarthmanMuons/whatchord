@@ -190,6 +190,7 @@ img {
 }
 
 .nav-inner {
+  position: relative;
   display: flex;
   gap: 8px;
   align-items: center;
@@ -228,35 +229,39 @@ img {
   flex-shrink: 0;
   width: 18px;
   height: 18px;
-  opacity: 0.75;
+}
+
+.nav-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
 }
 
 .nav-spacer {
   flex: 1;
 }
 
-.nav-links {
+/* Articles + Source group. Inline on desktop; collapses into a toggled
+   dropdown on narrow screens (see the hamburger rules in Responsive). */
+.nav-menu {
   display: flex;
-  gap: 2px;
+  gap: 8px;
   align-items: center;
-  margin-right: 8px;
-  list-style: none;
 }
 
-.nav-links a {
-  padding: 6px 12px;
-  font-size: 0.875rem;
-  color: var(--text-2);
-  border-radius: var(--r);
-  transition:
-    color 0.15s,
-    background 0.15s;
+/* Soft rest tone for the nav buttons: brighter than the muted --text-2, but
+   below full white so hover has somewhere to go. Reaches --text on hover. */
+.nav-menu .btn {
+  color: #bfbfd0;
 }
 
-.nav-links a:hover {
-  color: var(--text);
-  text-decoration: none;
-  background: rgb(255 255 255 / 6%);
+/* The checkbox drives the CSS-only menu, but it is only meaningful on narrow
+   screens. Off by default (no phantom tab stop on desktop, where the menu is
+   always open); the hamburger breakpoint restores it as a focusable,
+   visually-hidden control. */
+.nav-toggle,
+.nav-burger {
+  display: none;
 }
 
 .btn {
@@ -1098,6 +1103,17 @@ footer {
   color: #fff;
 }
 
+/* Likewise for ghost buttons (e.g. "View source on GitHub"): keep the muted
+   ghost color at rest instead of the body link blue, and brighten the label
+   and its currentColor icon together on hover. */
+.article-body a.btn-ghost {
+  color: var(--text-2);
+}
+
+.article-body a.btn-ghost:hover {
+  color: var(--text);
+}
+
 /* GitHub-style section anchors, injected by site.js and revealed on hover or
    keyboard focus so readers can link to a specific heading. */
 a.heading-anchor {
@@ -1532,6 +1548,101 @@ a.heading-anchor svg {
 
 /* ─── Responsive ─────────────────────────────────────────────── */
 
+/* Collapse Articles + Source into a hamburger menu on phones, keeping the
+   logo and the primary "Get the app" CTA visible inline. */
+@media (width <= 640px) {
+  /* Visually hidden but focusable, so keyboard and AT users can operate it. */
+  .nav-toggle {
+    position: absolute;
+    display: block;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+
+  .nav-burger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: var(--text-2);
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid var(--border-mid);
+    border-radius: var(--r);
+  }
+
+  .nav-burger:hover,
+  .nav-burger:active {
+    color: var(--text);
+    background: rgb(255 255 255 / 6%);
+  }
+
+  /* Three equal bars drawn from one element, so they always render crisply
+     at the same weight (box-shadow copies follow the element exactly). */
+  .nav-burger > span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: currentcolor;
+    border-radius: 2px;
+    box-shadow:
+      0 -6px 0 currentcolor,
+      0 6px 0 currentcolor;
+  }
+
+  .nav-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 24px;
+    z-index: 1;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    align-items: stretch;
+    min-width: 208px;
+    padding: 10px;
+    background:
+      radial-gradient(
+        120% 140% at 50% 0%,
+        rgb(64 128 255 / 10%),
+        transparent 70%
+      ),
+      var(--bg-card);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow);
+  }
+
+  .nav-toggle:checked ~ .nav-menu {
+    display: flex;
+  }
+
+  .nav-toggle:focus-visible ~ .nav-burger {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* In the open menu the buttons sit on a darker fill so they pop from the
+     blue panel; they keep the soft rest tone, and hover/tap lifts both the
+     fill and the text toward full white. */
+  .nav-menu .btn {
+    justify-content: center;
+    background: var(--bg);
+  }
+
+  .nav-menu .btn:hover,
+  .nav-menu .btn:active {
+    color: var(--text);
+    background:
+      linear-gradient(rgb(255 255 255 / 8%), rgb(255 255 255 / 8%)),
+      var(--bg);
+  }
+}
+
 @media (width <= 860px) {
   .hero {
     padding: 56px 0 40px;
@@ -1593,10 +1704,6 @@ a.heading-anchor svg {
   .store-badges {
     flex-direction: column;
     align-items: center;
-  }
-
-  .source-label {
-    display: none;
   }
 
   .footer-separator {
