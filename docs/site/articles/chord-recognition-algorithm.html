@@ -1060,6 +1060,17 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
             input.
           </p>
 
+          <p>
+            That linearization is not free. To know which candidate nothing else
+            outranks, the engine has to compare every candidate against every
+            other, which is quadratic in the candidate count and dominates
+            uncached analysis time. The
+            <a href="chord-ranking-performance.html"
+              >ranking-performance deep dive</a
+            >
+            covers the measurement, dead ends, and pruning work in detail.
+          </p>
+
           <h2>Caching for real-time performance</h2>
 
           <p>
