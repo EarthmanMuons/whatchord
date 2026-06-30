@@ -852,6 +852,32 @@ section {
   color: var(--accent-light);
 }
 
+/* ─── Articles index ─────────────────────────────────────────── */
+
+.article-group h2 {
+  padding-top: 34px;
+  margin: 34px 0 24px;
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text);
+  letter-spacing: -0.022em;
+  scroll-margin-top: var(--sticky-anchor-offset);
+  border-top: 1px solid var(--border);
+}
+
+.article-group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 360px));
+  gap: 20px;
+}
+
+@media (width <= 520px) {
+  .article-group-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ─── Android beta dialog ────────────────────────────────────── */
 
 dialog {
@@ -1074,7 +1100,7 @@ footer {
 
 /* GitHub-style section anchors, injected by site.js and revealed on hover or
    keyboard focus so readers can link to a specific heading. */
-.article-body a.heading-anchor {
+a.heading-anchor {
   margin-left: 0.4em;
   font-weight: 400;
   color: var(--text-3);
@@ -1085,16 +1111,16 @@ footer {
     color 0.15s;
 }
 
-.article-body h2:hover a.heading-anchor,
-.article-body a.heading-anchor:focus {
+h2:hover a.heading-anchor,
+a.heading-anchor:focus {
   opacity: 1;
 }
 
-.article-body a.heading-anchor:hover {
+a.heading-anchor:hover {
   color: var(--accent-light);
 }
 
-.article-body a.heading-anchor svg {
+a.heading-anchor svg {
   width: 0.8em;
   height: 0.8em;
   vertical-align: middle;
@@ -1507,10 +1533,6 @@ footer {
 /* ─── Responsive ─────────────────────────────────────────────── */
 
 @media (width <= 860px) {
-  .nav-links {
-    display: none;
-  }
-
   .hero {
     padding: 56px 0 40px;
   }

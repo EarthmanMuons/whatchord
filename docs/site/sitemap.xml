@@ -7,6 +7,9 @@
     <loc>https://whatchord.earthmanmuons.com/try</loc>
   </url>
   <url>
+    <loc>https://whatchord.earthmanmuons.com/articles/</loc>
+  </url>
+  <url>
     <loc>https://whatchord.earthmanmuons.com/articles/chord-naming.html</loc>
   </url>
   <url>
@@ -16,9 +19,9 @@
     <loc>https://whatchord.earthmanmuons.com/articles/chord-symbols.html</loc>
   </url>
   <url>
-    <loc>https://whatchord.earthmanmuons.com/articles/under-the-hood.html</loc>
+    <loc>https://whatchord.earthmanmuons.com/articles/chord-recognition-algorithm.html</loc>
   </url>
   <url>
-    <loc>https://whatchord.earthmanmuons.com/articles/choco-chord-coverage.html</loc>
+    <loc>https://whatchord.earthmanmuons.com/articles/million-chord-annotations.html</loc>
   </url>
 </urlset>

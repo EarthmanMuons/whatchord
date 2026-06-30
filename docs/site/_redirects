@@ -1,0 +1,7 @@
+# Serve the articles index at a clean, extensionless URL.
+/articles /articles/ 301
+/articles/ /articles/index.html 200
+
+# Permanent moves: articles renamed for clearer, more searchable slugs.
+/articles/under-the-hood.html /articles/chord-recognition-algorithm.html 301
+/articles/choco-chord-coverage.html /articles/million-chord-annotations.html 301
