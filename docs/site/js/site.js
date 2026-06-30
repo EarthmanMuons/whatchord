@@ -31,39 +31,41 @@
     }
   }
 
-  // Give article section headings GitHub-style anchor links, generating ids
-  // from the heading text so no article has to hand-author them.
-  var articleBody = document.querySelector(".article-body");
-  if (articleBody) {
-    var usedIds = {};
-    articleBody.querySelectorAll("h2").forEach(function (heading) {
-      // Leave the call-to-action and related-articles headings alone.
-      if (heading.closest(".article-cta, .article-related")) return;
+  // Give section headings GitHub-style anchor links, generating ids from the
+  // heading text so no page has to hand-author them. Covers long-form articles
+  // and the articles index.
+  document
+    .querySelectorAll(".article-body, .articles-index")
+    .forEach(function (scope) {
+      var usedIds = {};
+      scope.querySelectorAll("h2").forEach(function (heading) {
+        // Leave the call-to-action and related-articles headings alone.
+        if (heading.closest(".article-cta, .article-related")) return;
 
-      var slug = heading.textContent
-        .trim()
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .replace(/-+/g, "-");
-      if (!slug) return;
+        var slug = heading.textContent
+          .trim()
+          .toLowerCase()
+          .replace(/[^\w\s-]/g, "")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-");
+        if (!slug) return;
 
-      usedIds[slug] = (usedIds[slug] || 0) + 1;
-      if (usedIds[slug] > 1) slug = slug + "-" + usedIds[slug];
-      if (!heading.id) heading.id = slug;
+        usedIds[slug] = (usedIds[slug] || 0) + 1;
+        if (usedIds[slug] > 1) slug = slug + "-" + usedIds[slug];
+        if (!heading.id) heading.id = slug;
 
-      var anchor = document.createElement("a");
-      anchor.className = "heading-anchor";
-      anchor.href = "#" + heading.id;
-      anchor.setAttribute("aria-label", "Link to this section");
-      anchor.innerHTML =
-        '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-        '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1" d="M10.6 13.4a4 4 0 0 1 0-5.7l2.8-2.8a4 4 0 0 1 5.7 5.7l-1.5 1.5"/>' +
-        '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1" d="M13.4 10.6a4 4 0 0 1 0 5.7l-2.8 2.8a4 4 0 0 1-5.7-5.7l1.5-1.5"/>' +
-        "</svg>";
-      heading.appendChild(anchor);
+        var anchor = document.createElement("a");
+        anchor.className = "heading-anchor";
+        anchor.href = "#" + heading.id;
+        anchor.setAttribute("aria-label", "Link to this section");
+        anchor.innerHTML =
+          '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+          '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1" d="M10.6 13.4a4 4 0 0 1 0-5.7l2.8-2.8a4 4 0 0 1 5.7 5.7l-1.5 1.5"/>' +
+          '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1" d="M13.4 10.6a4 4 0 0 1 0 5.7l-2.8 2.8a4 4 0 0 1-5.7-5.7l1.5-1.5"/>' +
+          "</svg>";
+        heading.appendChild(anchor);
+      });
     });
-  }
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     return;
