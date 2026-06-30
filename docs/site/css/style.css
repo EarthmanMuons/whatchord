@@ -836,7 +836,7 @@ section {
 }
 
 .article-card h3 {
-  flex: 1;
+  flex: 0;
   margin-bottom: 12px;
   font-size: 1.2rem;
   font-weight: 700;
@@ -852,6 +852,7 @@ section {
 }
 
 .read-more {
+  margin-top: auto;
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--accent-light);
