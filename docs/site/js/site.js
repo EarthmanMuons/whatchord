@@ -72,6 +72,7 @@
   // previews and production prints match.
   if (
     document.body.classList.contains("article-page") ||
+    document.body.classList.contains("articles-index-page") ||
     document.body.classList.contains("try-page")
   ) {
     var siteOrigin = "https://whatchord.earthmanmuons.com";
@@ -110,7 +111,9 @@
     function syncPrintLinkUrls() {
       var pageUrl = resolvedPageUrl();
       document
-        .querySelectorAll(".article-body a[href], .try-feedback a[href]")
+        .querySelectorAll(
+          ".article-body a[href], .articles-index a[href], .try-feedback a[href]",
+        )
         .forEach(function (link) {
           var href = link.getAttribute("href");
           if (!href || href.charAt(0) === "#") return;

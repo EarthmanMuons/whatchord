@@ -1954,6 +1954,213 @@ a.heading-anchor svg {
   }
 }
 
+/* ─── Articles index print styles ────────────────────────────── */
+
+@media print {
+  .articles-index-page {
+    display: block;
+    min-height: 0;
+    font-size: 11pt;
+    line-height: 1.45;
+    color: #111;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: #fff;
+  }
+
+  .articles-index-page * {
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  .articles-index-page .site-nav {
+    position: static;
+    padding: 0 0 18pt;
+    background: #fff;
+    border: 0;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .articles-index-page .nav-inner {
+    display: block;
+    max-width: none;
+    height: auto;
+    padding: 0;
+    margin: 0;
+  }
+
+  .articles-index-page .nav-logo {
+    display: inline-flex;
+    gap: 6pt;
+    align-items: center;
+    color: #111;
+  }
+
+  .articles-index-page .nav-logo img {
+    width: 18pt;
+    height: 18pt;
+  }
+
+  .articles-index-page .nav-logo span {
+    font-size: 12pt;
+    color: #111;
+  }
+
+  .articles-index-page .nav-spacer,
+  .articles-index-page .nav-toggle,
+  .articles-index-page .nav-menu,
+  .articles-index-page .btn-get-app,
+  .articles-index-page .nav-burger,
+  .articles-index-page .try-teaser,
+  .articles-index-page .dialog {
+    display: none !important;
+  }
+
+  .articles-index-page main,
+  .articles-index-page .wrap,
+  .articles-index-page .articles-section {
+    max-width: none;
+    padding: 0;
+    margin: 0;
+    background: #fff;
+  }
+
+  .articles-index-page .articles-index,
+  .articles-index-page .article-group,
+  .articles-index-page .article-group-grid {
+    background: #fff;
+  }
+
+  .articles-index-page .section-label {
+    margin-bottom: 8pt;
+    font-size: 8pt;
+    color: #555;
+    letter-spacing: 0.08em;
+    background: none;
+    border: 0;
+  }
+
+  .articles-index-page .section-title {
+    max-width: none;
+    margin-bottom: 10pt;
+    font-size: 24pt;
+    line-height: 1.15;
+    color: #000;
+    letter-spacing: 0;
+  }
+
+  .articles-index-page .section-sub {
+    max-width: none;
+    margin-bottom: 18pt;
+    font-size: 11pt;
+    line-height: 1.45;
+    color: #333;
+  }
+
+  .articles-index-page .article-group {
+    margin-top: 18pt;
+  }
+
+  .articles-index-page .article-group h2 {
+    padding-top: 14pt;
+    margin: 0 0 10pt;
+    font-size: 15pt;
+    line-height: 1.25;
+    color: #000;
+    letter-spacing: 0;
+    background: #fff;
+    border-top: 1pt solid #c8c8c8;
+    break-after: avoid;
+  }
+
+  .articles-index-page .article-group:first-of-type h2 {
+    border-top: 0;
+  }
+
+  .articles-index-page .article-group-grid {
+    display: block;
+  }
+
+  .articles-index-page .article-card {
+    display: block;
+    padding: 9pt 10pt;
+    margin: 0 0 8pt;
+    color: #111;
+    background: #fff;
+    border: 0.75pt solid #999;
+    border-radius: 0;
+    break-inside: avoid;
+  }
+
+  .articles-index-page .article-card h3 {
+    margin: 0 0 4pt;
+    font-size: 12pt;
+    line-height: 1.3;
+    color: #111;
+    letter-spacing: 0;
+  }
+
+  .articles-index-page .article-card p {
+    margin: 0 0 5pt;
+    font-size: 9.5pt;
+    line-height: 1.35;
+    color: #333;
+  }
+
+  .articles-index-page .read-more {
+    font-size: 8pt;
+    color: #555;
+  }
+
+  .articles-index-page .article-card[data-print-url]::after {
+    display: block;
+    margin-top: 3pt;
+    font-size: 8pt;
+    color: #555;
+    overflow-wrap: anywhere;
+    content: attr(data-print-url);
+  }
+
+  .articles-index-page footer {
+    padding: 14pt 0 0;
+    margin-top: 24pt;
+    color: #555;
+    background: #fff;
+    border-top: 1pt solid #c8c8c8;
+  }
+
+  .articles-index-page .footer-inner {
+    display: block;
+    max-width: none;
+    padding: 0;
+  }
+
+  .articles-index-page .footer-left {
+    display: block;
+  }
+
+  .articles-index-page .footer-copy,
+  .articles-index-page .footer-copy a {
+    font-size: 8pt;
+    color: #555;
+  }
+
+  .articles-index-page .footer-copy[data-print-page-url]::after {
+    display: block;
+    margin-top: 3pt;
+    color: #666;
+    overflow-wrap: anywhere;
+    content: "Source: " attr(data-print-page-url);
+  }
+
+  .articles-index-page .footer-links,
+  .articles-index-page .footer-separator,
+  .articles-index-page .footer-license {
+    display: none;
+  }
+}
+
 /* ─── Responsive ─────────────────────────────────────────────── */
 
 /* Collapse Articles + Source into a hamburger menu on phones, keeping the
