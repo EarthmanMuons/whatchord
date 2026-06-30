@@ -92,7 +92,6 @@ Future<void> main(List<String> args) async {
   final verdict = printComparison
       ? _maybePrintComparison(outPath, result, check: check)
       : _CheckVerdict.pass();
-  if (printSummary || printComparison) stdout.writeln('Wrote $outPath');
   if (check && !verdict.passed) exitCode = 1;
 }
 
@@ -459,13 +458,14 @@ void _printCheckVerdict(_CheckVerdict verdict, _NoiseModel? noise) {
     '${_formatMagnitudePercent(_memoryRegressionThreshold)}'
     ' and above absolute/noise thresholds',
   );
+  stdout.writeln('');
   if (verdict.passed) {
     stdout.writeln('  result: PASS');
   } else {
-    stdout.writeln('  result: FAIL');
     for (final failure in verdict.failures) {
-      stdout.writeln('    - $failure');
+      stdout.writeln('  - $failure');
     }
+    stdout.writeln('  result: FAIL');
   }
 }
 
