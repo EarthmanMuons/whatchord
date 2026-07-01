@@ -7,19 +7,19 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
     <title>
-      Optimizing an Algorithm That's Quadratic by Design | WhatChord
+      Optimizing an Algorithm That’s Quadratic by Design | WhatChord
     </title>
     <meta
       name="description"
-      content="Naming a chord means ranking every plausible name, a step that can't use an ordinary sort. Why WhatChord's ranking is quadratic by design, and how we made it an order of magnitude faster without changing the answer a musician sees."
+      content="Naming a chord means ranking every plausible name, a step that can’t use an ordinary sort. Why WhatChord’s ranking is quadratic by design, and how we made it an order of magnitude faster without changing the answer a musician sees."
     />
     <meta
       property="og:title"
-      content="Optimizing an Algorithm That's Quadratic by Design"
+      content="Optimizing an Algorithm That’s Quadratic by Design"
     />
     <meta
       property="og:description"
-      content="Ranking a chord's possible names can't use an ordinary sort, which makes it quadratic by design. The optimizations that worked, the ones that didn't, and the reframe that cut the cost tenfold."
+      content="Ranking a chord’s possible names can’t use an ordinary sort, which makes it quadratic by design. The optimizations that worked, the ones that didn’t, and the reframe that cut the cost tenfold."
     />
     <meta
       property="og:image"
@@ -40,11 +40,11 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
-      content="Optimizing an Algorithm That's Quadratic by Design"
+      content="Optimizing an Algorithm That’s Quadratic by Design"
     />
     <meta
       name="twitter:description"
-      content="Ranking a chord's possible names can't use an ordinary sort, which makes it quadratic by design. The optimizations that worked, the ones that didn't, and the reframe that cut the cost tenfold."
+      content="Ranking a chord’s possible names can’t use an ordinary sort, which makes it quadratic by design. The optimizations that worked, the ones that didn’t, and the reframe that cut the cost tenfold."
     />
     <meta
       name="twitter:image"
@@ -116,11 +116,11 @@
         <header class="article-header">
           <a class="article-back" href="../">← WhatChord</a>
           <div class="article-tag">Technical deep-dive</div>
-          <h1>Optimizing an Algorithm That's Quadratic by Design</h1>
+          <h1>Optimizing an Algorithm That’s Quadratic by Design</h1>
           <p class="article-deck">
             WhatChord names the chord you are playing, in real time. Doing that
             well means generating plausible names and ranking them. That ranking
-            step turned out to eat almost all of the engine's compute because it
+            step turned out to eat almost all of the engine’s compute because it
             cannot use an ordinary sort. In June 2026 we set out to make it
             fast: first by shaving constant factors, then by questioning a
             hidden requirement that had made the larger optimization look
@@ -172,7 +172,7 @@
             already-scored candidates in order.
           </p>
 
-          <h2>Why ranking can't use an ordinary sort</h2>
+          <h2>Why ranking can’t use an ordinary sort</h2>
 
           <p>
             To sort a list, you hand the language a <em>comparator</em>: a
@@ -184,12 +184,12 @@
             <a href="https://en.wikipedia.org/wiki/Transitive_relation"
               >transitive</a
             >: if A belongs before B, and B before C, then A must belong before
-            C. Violate that and the sort's result is undefined. It will not
+            C. Violate that and the sort’s result is undefined. It will not
             usually crash, but it can drop items in nonsensical positions.
           </p>
 
           <p>
-            WhatChord's comparator is deliberately not transitive. Most of the
+            WhatChord’s comparator is deliberately not transitive. Most of the
             time it ranks two candidates by their fit score, but two kinds of
             musical override can outrank the score:
           </p>
@@ -207,7 +207,7 @@
               <strong>Tie-breakers</strong> apply only when two candidates score
               within a small window of each other (0.20 points, a constant the
               code calls <code>nearTieWindow</code>), capturing musical
-              heuristics that a single number can't.
+              heuristics that a single number can’t.
             </li>
           </ul>
 
@@ -216,7 +216,7 @@
             up with a cycle: A beats B, B beats C, and C beats A. No single
             ordering satisfies all three at once, so there is nothing coherent
             for a sort to return. Hand a cyclic comparator to a general sort and
-            the outcome can depend on the candidates' starting order.
+            the outcome can depend on the candidates’ starting order.
           </p>
 
           <p>
@@ -249,7 +249,7 @@
             number of candidates. Second, when a cycle blocks progress, the
             tie-break borrows
             <a href="https://en.wikipedia.org/wiki/Copeland%27s_method"
-              >Copeland's method</a
+              >Copeland’s method</a
             >
             from voting theory: count how many of the others each candidate
             beats, and take the one that beats the most. That count is
@@ -345,7 +345,7 @@
             spelling, a complete triad against a deficient inverted reading, and
             so on), and crucially that condition is
             <strong>candidate-local</strong>: it depends only on a single
-            candidate's quality, extensions, or precomputed features, never on
+            candidate’s quality, extensions, or precomputed features, never on
             the candidate it is being compared against.
           </p>
 
@@ -384,7 +384,7 @@
             done faster. The algorithm is still O(n²).
           </p>
 
-          <h2>What didn't work, part 1: splitting the gate by role</h2>
+          <h2>What didn’t work, part 1: splitting the gate by role</h2>
 
           <p>
             That single combined gate is broad for rules whose “other” side is
@@ -425,7 +425,7 @@
               <strong>Keeping the top N by score</strong> throws away
               lower-scoring candidates before the ranking runs. But the
               tie-break is a global Copeland count, so removing candidates
-              changes everyone else's win total. That can reshuffle the
+              changes everyone else’s win total. That can reshuffle the
               alternatives the app shows the user. This holds for any N and any
               cutoff; the problem is that the dropped candidates were part of
               what the survivors were measured against.
@@ -434,7 +434,7 @@
               <strong>Dropping candidates earlier, at generation time,</strong>
               has the identical problem. You might restrict which roots or chord
               templates are allowed to produce candidates, but any candidate
-              removed before ranking is gone from everyone's win total just the
+              removed before ranking is gone from everyone’s win total just the
               same.
             </li>
             <li>
@@ -452,7 +452,7 @@
             tried to compute the same full ranking faster.
           </p>
 
-          <h2>What didn't work, part 2: the sorted-rank redesign</h2>
+          <h2>What didn’t work, part 2: the sorted-rank redesign</h2>
 
           <p>
             The next redesign kept the exact same output and tried to compute it
@@ -706,7 +706,7 @@
 
           <div class="callout">
             <p>
-              A global Copeland win-count is partly an artifact: a candidate's
+              A global Copeland win-count is partly an artifact: a candidate’s
               total is inflated by every obviously-wrong reading it happens to
               beat. Pruning the unsurfaceable tail removes that padding, so the
               surviving order is decided against a <em>stronger</em> pool.
@@ -964,7 +964,7 @@
               <div class="article-tag">Chord data</div>
               <h3>What We Learned From 1 Million Chord Annotations</h3>
               <p>
-                How real-world chord annotations help keep WhatChord's
+                How real-world chord annotations help keep WhatChord’s
                 recognition roadmap grounded in music people actually write and
                 play.
               </p>
@@ -1020,7 +1020,7 @@
             href="mailto:support@earthmanmuons.com?subject=WhatChord%20Android%20Beta"
             >support@earthmanmuons.com</a
           >
-          with your Gmail address and we'll add you to the tester pool.
+          with your Gmail address and we’ll add you to the tester pool.
         </p>
         <button class="btn btn-primary" data-close-android-dialog>
           Got it
