@@ -850,6 +850,19 @@ void main() {
     ),
 
     golden(
+      description:
+          'sixth-bass minor-six flat-nine beats suspended major-seventh slash',
+      expectedSymbol: 'Cm6b9/A',
+      expectedAlternateSymbols: ['C#maj7sus2(b13)/A'],
+      pcs: ['C', 'Db', 'Eb', 'A'],
+      bass: 'A',
+      expectedRoot: 'C',
+      expectedBass: 'A',
+      expectedQuality: ChordQualityToken.minor6,
+      expectedExtensions: {ChordExtension.flat9},
+    ),
+
+    golden(
       // Ebm13 and Gb6/9#11/Eb tie on score; the natural-extension tie-break
       // selects the root-position minor thirteenth.
       description: 'minor-thirteenth beats lydian major six-nine slash',

@@ -3077,6 +3077,14 @@ int? _prefer7thChords(
   final other = fa.isSeventhFamily ? b : a;
   final fPreferred = fa.isSeventhFamily ? fa : fb;
   final fOther = fa.isSeventhFamily ? fb : fa;
+  if (_shouldNotPreferSeventhFamilyOverStableSixth(
+    preferred,
+    other,
+    fPreferred,
+    fOther,
+  )) {
+    return null;
+  }
   if (_shouldNotPreferFullCoverage(
     preferred.identity,
     other.identity,
@@ -3087,6 +3095,31 @@ int? _prefer7thChords(
     return null;
   }
   return fb.isSeventhFamily ? 1 : -1;
+}
+
+bool _shouldNotPreferSeventhFamilyOverStableSixth(
+  ChordCandidate preferred,
+  ChordCandidate other,
+  CandidateFeatures fPreferred,
+  CandidateFeatures fOther,
+) {
+  if (!fPreferred.isSus ||
+      !fPreferred.isSeventhFamily ||
+      !fPreferred.isUnusualSeventhQuality ||
+      fPreferred.isRootPosition) {
+    return false;
+  }
+  final preferredRoles = preferred.identity.toneRolesByInterval.values;
+  if (preferredRoles.contains(ChordToneRole.major3) ||
+      preferredRoles.contains(ChordToneRole.minor3)) {
+    return false;
+  }
+  if (!fOther.isSixFamily) return false;
+  if (fOther.unnamedToneCount > 0) return false;
+  if (other.score + ranking_policy.nearTieWindow < preferred.score) {
+    return false;
+  }
+  return true;
 }
 
 int? _preferFewerExtensions(
