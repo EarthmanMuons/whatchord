@@ -979,6 +979,32 @@ void main() {
 
     golden(
       description:
+          'major-nine slash beats fifthless sus2 thirteenth reinterpretation',
+      expectedSymbol: 'Dbmaj7/Eb',
+      expectedAlternateSymbols: ['Eb13sus2'],
+      pcs: ['C', 'Db', 'Eb', 'F'],
+      bass: 'Eb',
+      expectedRoot: 'Db',
+      expectedBass: 'Eb',
+      expectedQuality: ChordQualityToken.major7,
+      expectedExtensions: {ChordExtension.nine},
+    ),
+
+    golden(
+      description:
+          'chromatic add-chord does not displace major-nine slash alternative',
+      expectedSymbol: 'Dbmaj9/C',
+      expectedAlternateSymbols: ['Eb7sus2/C'],
+      pcs: ['C', 'Db', 'Eb', 'F'],
+      bass: 'C',
+      expectedRoot: 'Db',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.major7,
+      expectedExtensions: {ChordExtension.nine},
+    ),
+
+    golden(
+      description:
           'fifthless major-nine sharp-eleven inversion beats flat-five respelling',
       expectedSymbol: 'Dbmaj9#11/C',
       expectedAlternateSymbols: ['C#maj9b5/B#', 'Cm(addb9,add11)'],
