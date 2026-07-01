@@ -28,13 +28,16 @@ class Stats {
 
   /// Half-width of the 95% confidence interval on the mean, relative to the
   /// mean. This is the convergence signal: it shrinks as samples accumulate and
-  /// as variance settles. (1.96 = normal approximation; n is large enough here.)
+  /// as variance settles. (1.96 = normal approximation, adequate at the n >= 30
+  /// sample floor, where the exact Student-t multiplier is 2.045.)
   double get relCi95 {
     if (n < 2 || mean == 0) return double.infinity;
     return 1.96 * stddev / math.sqrt(n) / mean;
   }
 
-  Map<String, Object?> toJson() => <String, Object?>{
+  /// When [targetRelCi] is given, emits `converged`: whether the interval met
+  /// the target rather than stopping on a run cap or time budget.
+  Map<String, Object?> toJson({double? targetRelCi}) => <String, Object?>{
     'mean': mean,
     'median': median,
     'stddev': stddev,
@@ -42,6 +45,7 @@ class Stats {
     'max': max,
     'n': n,
     'relCi95': relCi95,
+    if (targetRelCi != null) 'converged': relCi95 <= targetRelCi,
   };
 }
 
@@ -53,7 +57,7 @@ class Stats {
 Stats collect(
   double Function() sampleUs, {
   int warmup = 5,
-  int minRuns = 10,
+  int minRuns = 30,
   int maxRuns = 300,
   double targetRelCi = 0.015,
   Duration budget = const Duration(seconds: 20),
