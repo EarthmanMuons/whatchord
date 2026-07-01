@@ -195,6 +195,22 @@
     "label": "clearly-correct",
     "note": "D♭maj9/F is correct because F is the major third in the bass of the fifthless D♭ major-ninth shell D♭-F-C-E♭. Music21 agrees semantically as D♭maj9/F; the omitted fifth is standard in this sparse extended-chord voicing."
   },
+  "0-1-3-6_b0": {
+    "label": "clearly-correct",
+    "note": "Cdim(add♭9) is correct because C-E♭-G♭ supplies the complete root-position diminished triad and D♭ is naturally named as added flat-nine color. Music21 agrees semantically as Cdim add D♭."
+  },
+  "0-1-3-6_b1": {
+    "label": "context-dependent",
+    "note": "D♭maj9sus4 is defensible because D♭ is the bass/root and the voicing gives a suspended major-seventh/ninth sonority D♭-G♭-C-E♭. Music21's Cdim/D♭ is a valid diminished-triad reading, but it makes the bass the added flat ninth rather than a stable chord tone. The E♭m13/D♭ alternate also scores as a close possible reading, so this row reflects genuine root choice rather than a clear oracle correction."
+  },
+  "0-1-3-6_b3": {
+    "label": "genuine-ambiguity",
+    "note": "E♭m13 is defensible because E♭ is the bass/root of a fifthless E♭ minor-seventh shell E♭-G♭-D♭ with C as thirteenth color. Music21's Cdim/E♭ add D♭ is also structurally real: C-E♭-G♭ is a complete diminished triad with E♭ as the minor third in the bass, and WhatChord surfaces it as a close possible alternative."
+  },
+  "0-1-3-6_b6": {
+    "label": "genuine-ambiguity",
+    "note": "E♭m13/G♭ is defensible because G♭ is the minor third in the bass of the E♭ minor-seventh-plus-thirteenth structure E♭-G♭-D♭-C. Music21's Cdim/G♭ add D♭ is the competing complete diminished-triad reading with the flat fifth in the bass, and WhatChord surfaces that reading as a close possible alternative."
+  },
   "0-1-3-5-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "Cm11(♭5,♭9) is preferred because C is the bass/root and C-E♭-G♭-B♭ forms a complete half-diminished seventh shell, with D♭ as flat-ninth color and F as eleventh color. Music21 agrees semantically. Tonal's E♭m13/C is a valid rotation and names a complete E♭ minor-thirteenth collection, but it makes the observed C bass the thirteenth rather than the root. ChoCo broadly supports minor-thirteenth vocabulary more than these rare half-diminished color combinations, so this remains a genuine ambiguity, but the bass-rooted half-diminished label is the more direct musician-facing name for this voicing."
