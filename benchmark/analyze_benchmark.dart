@@ -148,7 +148,7 @@ Future<Map<String, Object?>> _runBenchmark() async {
       'referenceDisplayScale': referenceDisplayScale,
       'countersEnabled': kEngineCountersEnabled,
     },
-    'referenceUs': reference.toJson(),
+    'referenceUs': reference.toJson(targetRelCi: _targetRelCi),
     // Compare normalized values across runs, not raw microseconds.
     'time': {
       'oracle': _timeJson(oracleCold, oracleWarm, reference),
@@ -214,8 +214,8 @@ Map<String, Object?> _timeJson(Stats cold, Stats warm, Stats reference) => {
   // CI of a ratio of independent means, propagated in quadrature.
   'coldNormalizedRelCi95': _hypot(cold.relCi95, reference.relCi95),
   'warmNormalizedRelCi95': _hypot(warm.relCi95, reference.relCi95),
-  'coldUsPerCall': cold.toJson(),
-  'warmUsPerCall': warm.toJson(),
+  'coldUsPerCall': cold.toJson(targetRelCi: _targetRelCi),
+  'warmUsPerCall': warm.toJson(targetRelCi: _targetRelCi),
 };
 
 /// Prints a delta against the committed baseline, unless this run *is* the

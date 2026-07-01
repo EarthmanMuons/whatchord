@@ -9,70 +9,75 @@
     "countersEnabled": true
   },
   "referenceUs": {
-    "mean": 802.7,
-    "median": 801.0,
-    "stddev": 4.137900702315393,
-    "min": 800.0,
-    "max": 814.0,
-    "n": 10,
-    "relCi95": 0.003195088359762918
+    "mean": 807.9333333333333,
+    "median": 806.5,
+    "stddev": 7.404254756945299,
+    "min": 799.0,
+    "max": 824.0,
+    "n": 30,
+    "relCi95": 0.00327945193898506,
+    "converged": true
   },
   "time": {
     "oracle": {
-      "coldNormalized": 29.492805531331754,
-      "warmNormalized": 0.013864405547942363,
-      "coldNormalizedRelCi95": 0.013434223940818685,
-      "warmNormalizedRelCi95": 0.0035119786934026875,
+      "coldNormalized": 29.087039634733344,
+      "warmNormalized": 0.013802448634375776,
+      "coldNormalizedRelCi95": 0.00753527907295915,
+      "warmNormalizedRelCi95": 0.0037232713966435624,
       "coldUsPerCall": {
-        "mean": 236.73874999999998,
-        "median": 236.29583333333335,
-        "stddev": 4.984046326579823,
-        "min": 231.20416666666668,
-        "max": 247.77083333333334,
-        "n": 10,
-        "relCi95": 0.013048746425054533
+        "mean": 235.0038888888889,
+        "median": 233.40208333333334,
+        "stddev": 4.45532567651124,
+        "min": 229.54583333333332,
+        "max": 245.34583333333333,
+        "n": 30,
+        "relCi95": 0.006784218870825383,
+        "converged": true
       },
       "warmUsPerCall": {
-        "mean": 0.11128958333333334,
-        "median": 0.11129166666666666,
-        "stddev": 0.00026176963355092035,
-        "min": 0.11083333333333334,
-        "max": 0.11183333333333334,
-        "n": 10,
-        "relCi95": 0.0014578767836212901
+        "mean": 0.11151458333333335,
+        "median": 0.11133333333333334,
+        "stddev": 0.0005493800385199089,
+        "min": 0.11095833333333334,
+        "max": 0.11345833333333333,
+        "n": 30,
+        "relCi95": 0.0017629364347449496,
+        "converged": true
       }
     },
     "common": {
-      "coldNormalized": 15.807375416610912,
-      "warmNormalized": 0.012804777702414845,
-      "coldNormalizedRelCi95": 0.01525371517753031,
-      "warmNormalizedRelCi95": 0.013856785252481576,
+      "coldNormalized": 16.216246502023658,
+      "warmNormalized": 0.013005544808223796,
+      "coldNormalizedRelCi95": 0.015339886745161246,
+      "warmNormalizedRelCi95": 0.005180739627309588,
       "coldUsPerCall": {
-        "mean": 126.8858024691358,
-        "median": 125.46913580246914,
-        "stddev": 4.31822221911618,
-        "min": 124.45679012345678,
-        "max": 139.7283950617284,
-        "n": 20,
-        "relCi95": 0.014915335634524823
+        "mean": 131.0164609053498,
+        "median": 128.89506172839506,
+        "stddev": 6.010140870282577,
+        "min": 127.24691358024691,
+        "max": 157.7283950617284,
+        "n": 36,
+        "relCi95": 0.014985236746019757,
+        "converged": true
       },
       "warmUsPerCall": {
-        "mean": 0.10278395061728396,
-        "median": 0.10290123456790123,
-        "stddev": 0.002235982772859465,
-        "min": 0.09901234567901235,
-        "max": 0.10555555555555556,
-        "n": 10,
-        "relCi95": 0.013483393782972386
+        "mean": 0.10507613168724278,
+        "median": 0.10453703703703704,
+        "stddev": 0.0011776673876747901,
+        "min": 0.10401234567901235,
+        "max": 0.1082716049382716,
+        "n": 30,
+        "relCi95": 0.004010643098788899,
+        "converged": true
       }
     }
   },
   "memory": {
-    "churnBytes": 16688192,
-    "churnObjects": 142723,
-    "churnBytesPerCall": 69534.13333333333,
-    "retainedBytes": 867264,
-    "liveHeapBytes": 16688192
+    "churnBytes": 16741440,
+    "churnObjects": 143170,
+    "churnBytesPerCall": 69756.0,
+    "retainedBytes": 866592,
+    "liveHeapBytes": 16741440
   },
   "counters": {
     "cacheHits": 0,
@@ -80,6 +85,6 @@
     "rootsConsidered": 1234,
     "templatesEvaluated": 33318,
     "candidatesProduced": 14952,
-    "candidatesRanked": 2242
+    "candidatesRanked": 2234
   }
 }
