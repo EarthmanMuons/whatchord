@@ -35,6 +35,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   spellings.
 - Improved sparse add-chord ranking, so readable add-eleven voicings are less
   likely to be displaced by unusual seventh spellings that omit the third.
+- Improved major-nine slash ranking, so clear upper-structure major-seventh
+  voicings are less likely to be displaced by fifthless sus2-thirteenth
+  reinterpretations.
 
 ## [2026.6.28] - 2026-06-28
 

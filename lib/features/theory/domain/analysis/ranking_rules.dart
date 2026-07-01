@@ -427,6 +427,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferUpperStructureDom7,
   ),
   NamedRule(
+    'prefer major-nine slash over fifthless sus2 thirteenth',
+    _preferMajorNineSlashOverFifthlessSus2Thirteenth,
+  ),
+  NamedRule(
     'prefer root-position dominant sus over slash',
     _preferRootDominantSusOverSlash,
   ),
@@ -1094,6 +1098,67 @@ bool _isMinorSharpFiveSharpElevenStack(ChordIdentity id) {
       id.extensions.contains(ChordExtension.flat9) &&
       id.extensions.contains(ChordExtension.eleven) &&
       id.extensions.contains(ChordExtension.sharp11);
+}
+
+/// Prefers a stable major-nine slash spelling over a fifthless sus2-thirteenth
+/// re-rooting of the same pitch classes.
+///
+/// The sus2-thirteenth label is interval-valid, but without a fifth or third it
+/// can overstate a suspended-dominant identity where musicians more often read
+/// the voicing as a major-seventh upper structure over its ninth in the bass.
+int? _preferMajorNineSlashOverFifthlessSus2Thirteenth(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsMajorNineSlash = _isMajorNineWithNinthBass(a.identity, fa);
+  final bIsMajorNineSlash = _isMajorNineWithNinthBass(b.identity, fb);
+  if (aIsMajorNineSlash == bIsMajorNineSlash) return null;
+
+  final majorNine = aIsMajorNineSlash ? a : b;
+  final other = aIsMajorNineSlash ? b : a;
+  if (!_isFifthlessSus2Thirteenth(other.identity)) return null;
+  if (!_samePitchClassSet(majorNine.identity, other.identity)) return null;
+
+  return aIsMajorNineSlash ? -1 : 1;
+}
+
+bool _isMajorNineWithNinthBass(ChordIdentity id, CandidateFeatures features) {
+  if (!features.isSlashBass || id.quality != ChordQualityToken.major7) {
+    return false;
+  }
+  if (id.extensions.length != 1 ||
+      !id.extensions.contains(ChordExtension.nine)) {
+    return false;
+  }
+
+  final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
+  if (bassInterval != majorSecondInterval) return false;
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.major7) &&
+      roles.contains(ChordToneRole.nine);
+}
+
+bool _isFifthlessSus2Thirteenth(ChordIdentity id) {
+  if (id.rootPc != id.bassPc || id.quality != ChordQualityToken.dominant7sus2) {
+    return false;
+  }
+  if (id.extensions.length != 1 ||
+      !id.extensions.contains(ChordExtension.thirteen)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.sus2) &&
+      roles.contains(ChordToneRole.flat7) &&
+      roles.contains(ChordToneRole.thirteen) &&
+      !roles.contains(ChordToneRole.perfect5);
 }
 
 /// Prefers a bass-rooted suspended dominant over remote slash spellings.
@@ -1959,10 +2024,20 @@ int? _preferRootAddChordOverSusSlash(
 
   final preferredCandidate = aIsPreferred ? a : b;
   final susCandidate = aIsPreferred ? b : a;
+  if (!_hasOnlyNaturalAddTones(preferredCandidate.identity)) return null;
 
   if (preferredCandidate.score + 1.50 < susCandidate.score) return null;
 
   return aIsPreferred ? -1 : 1;
+}
+
+bool _hasOnlyNaturalAddTones(ChordIdentity id) {
+  return id.extensions.every(
+    (extension) =>
+        extension == ChordExtension.add9 ||
+        extension == ChordExtension.add11 ||
+        extension == ChordExtension.add13,
+  );
 }
 
 // ---- Triad completeness vs seventh-family inflation --------------------
