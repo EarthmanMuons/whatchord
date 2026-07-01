@@ -38,6 +38,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved major-nine slash ranking, so clear upper-structure major-seventh
   voicings are less likely to be displaced by fifthless sus2-thirteenth
   reinterpretations.
+- Improved minor-sixth flat-nine ranking, so stable sixth-chord voicings are
+  less likely to be displaced by unusual suspended major-seventh slash
+  spellings.
 
 ## [2026.6.28] - 2026-06-28
 
