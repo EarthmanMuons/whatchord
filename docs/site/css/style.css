@@ -59,6 +59,10 @@
     monospace;
   --shadow: 0 2px 8px rgb(0 0 0 / 45%), 0 12px 40px rgb(0 0 0 / 22%);
   --shadow-sm: 0 1px 4px rgb(0 0 0 / 40%), 0 4px 16px rgb(0 0 0 / 18%);
+
+  /* "Arrow out of box" glyph for external links; masked with currentColor at
+     the point of use, so the embedded stroke color is arbitrary. */
+  --external-link-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/%3E%3Cpolyline points='15 3 21 3 21 9'/%3E%3Cline x1='10' y1='14' x2='21' y2='3'/%3E%3C/svg%3E");
 }
 
 html {
@@ -1113,6 +1117,27 @@ footer {
 
 .article-body a.btn-ghost:hover {
   color: var(--text);
+}
+
+/* Mark inline prose links that leave the site with a small "arrow out of box"
+   glyph. Internal cross-links are relative (no http scheme) so they stay clean;
+   buttons, heading anchors, and image links (store badges in the CTA) opt out.
+   The mark is a currentColor mask, so it tracks the link color on hover. Scoped
+   to screen: print already appends the full URL in parentheses (see the print
+   block) and owns this ::after. */
+@media screen {
+  .article-body
+    a[href^="http"]:not(.btn, .heading-anchor, :has(img))::after {
+    display: inline-block;
+    width: 0.75em;
+    height: 0.75em;
+    margin-left: 0.18em;
+    vertical-align: -0.03em;
+    content: "";
+    background-color: currentcolor;
+    -webkit-mask: var(--external-link-icon) center / contain no-repeat;
+    mask: var(--external-link-icon) center / contain no-repeat;
+  }
 }
 
 /* GitHub-style section anchors, injected by site.js and revealed on hover or
