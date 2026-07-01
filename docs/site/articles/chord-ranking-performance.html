@@ -706,10 +706,17 @@
 
           <div class="callout">
             <p>
-              A global Copeland win-count is partly an artifact: a candidate’s
-              total is inflated by every obviously-wrong reading it happens to
-              beat. Pruning the unsurfaceable tail removes that padding, so the
-              surviving order is decided against a <em>stronger</em> pool.
+              Pruning never changes a head-to-head comparison between two
+              surviving candidates. It only changes the global Copeland count
+              used when the linearizer has to break a cycle. That count is
+              partly an artifact: a candidate’s total is padded by every
+              obviously wrong reading it happens to beat, which says little
+              about how it compares with another plausible reading. Dropping the
+              unsurfaceable tail removes that padding. The result is not a more
+              correct order, since the Copeland count was never a measure of
+              musical quality. It is a <em>less arbitrary</em> fallback, no
+              longer swayed by how many discarded readings each candidate
+              happened to beat.
             </p>
           </div>
 
