@@ -63,10 +63,12 @@ class NamedRule {
 /// deliberately narrow and guarded.
 final List<NamedRule> hardRules = <NamedRule>[
   NamedRule(
-    'prefer complete dominant flat-nine over colored diminished7',
+    'prefer dominant flat-nine shell over colored diminished',
     _preferCompleteDom7Flat9OverColoredDim7,
     gate: (c, f, _) =>
-        (f.isCompleteDominantFlat9 && f.hasStableBassRole) || f.isDim7,
+        _isStableDominantFlatNineShell(c.identity, f) ||
+        f.isDimFamily ||
+        c.identity.quality == ChordQualityToken.diminished,
   ),
   NamedRule(
     'prefer flat-nine-bass dominant over remote reinterpretation',
@@ -824,8 +826,8 @@ bool _hasSharpNineBass(ChordIdentity id) {
       id.toneRolesByInterval[bassInterval] == ChordToneRole.sharp9;
 }
 
-/// Prefers a complete dominant flat-nine in a stable inversion over a
-/// diminished7 reading that needs an added or altered color tone.
+/// Prefers a dominant flat-nine shell in a stable inversion over a
+/// diminished reading that needs an added or altered color tone.
 ///
 /// Example: {C, Db, E, G, Bb} with G in the bass is normally C7b9/G, not
 /// Gdim7(add11). The dominant reading names a complete, conventional chord;
@@ -841,18 +843,53 @@ int? _preferCompleteDom7Flat9OverColoredDim7(
   CandidateFeatures fb,
   Tonality _,
 ) {
-  final aIsPreferred = fa.isCompleteDominantFlat9 && fa.hasStableBassRole;
-  final bIsPreferred = fb.isCompleteDominantFlat9 && fb.hasStableBassRole;
+  final aIsPreferred = _isStableDominantFlatNineShell(a.identity, fa);
+  final bIsPreferred = _isStableDominantFlatNineShell(b.identity, fb);
   if (aIsPreferred == bIsPreferred) return null;
 
-  final fDim = aIsPreferred ? fb : fa;
-  if (!fDim.isDim7 || fDim.extensionCount == 0) return null;
+  final other = aIsPreferred ? b : a;
+  final fOther = aIsPreferred ? fb : fa;
+  if (!_isColoredDiminishedReading(other.identity, fOther)) return null;
 
   final preferredCandidate = aIsPreferred ? a : b;
   final otherCandidate = aIsPreferred ? b : a;
   if (preferredCandidate.score + 0.55 < otherCandidate.score) return null;
 
   return aIsPreferred ? -1 : 1;
+}
+
+bool _isStableDominantFlatNineShell(
+  ChordIdentity id,
+  CandidateFeatures features,
+) {
+  if (id.quality != ChordQualityToken.dominant7) return false;
+  if (!features.hasStableBassRole) return false;
+  if (!id.extensions.contains(ChordExtension.flat9)) return false;
+  for (final extension in id.extensions) {
+    if (extension != ChordExtension.flat9 &&
+        extension != ChordExtension.sharp9 &&
+        extension != ChordExtension.sharp11) {
+      return false;
+    }
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.flat7) &&
+      roles.contains(ChordToneRole.flat9);
+}
+
+bool _isColoredDiminishedReading(ChordIdentity id, CandidateFeatures features) {
+  if (!features.isDimFamily && id.quality != ChordQualityToken.diminished) {
+    return false;
+  }
+  if (features.extensionCount == 0) return false;
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.minor3) &&
+      roles.contains(ChordToneRole.flat5);
 }
 
 /// Prefers a fifthless flat-nine-bass dominant shell over the two remote
@@ -2259,13 +2296,14 @@ int? _preferCompleteTriadOverDeficientReading(
   return aIsTriad ? -1 : 1;
 }
 
-/// Prefers a dominant7 slash with shell tones and a color-tone bass over a
-/// non-dominant seventh-family slash of similar score.
+/// Prefers a dominant7 slash with shell tones and either a stable inversion
+/// bass or a color-tone bass over a non-dominant seventh-family slash of
+/// similar score.
 ///
 /// When the same notes can be read as either a strongly-voiced dominant7
-/// (major 3rd + flat 7th present, bass is a color extension rather than a
-/// core inversion tone) or as a non-dominant seventh-family slash, the
-/// dominant reading is the one musicians expect.
+/// (major 3rd + flat 7th present, with the bass as a core inversion tone or
+/// color extension) or as a non-dominant seventh-family slash, the dominant
+/// reading is the one musicians expect.
 ///
 /// Example: {C, D♭, E♭, F, A♭, A} with A♭ bass reads as F7(♯9,♭13)/A♭,
 /// not as C♯maj9♭13/A♭. The F dominant interpretation has shell tones (A +
@@ -2287,7 +2325,14 @@ int? _preferDom7ShellSlashOverSeventhFamilySlash(
   final fOther = domIsA ? fb : fa;
 
   if (!fDom.dom7HasShell) return null;
-  if (!fDom.bassIsColorTone) return null;
+  if (fDom.bassIsColorTone) {
+    // Color-bass dominant slashes are the original target of this rule.
+  } else if (fDom.hasStableBassRole) {
+    final dom = domIsA ? a : b;
+    if (!_isStableDominantFlatNineShell(dom.identity, fDom)) return null;
+  } else {
+    return null;
+  }
   if (!fOther.isSeventhFamily) return null;
   if (fOther.isDom7) return null;
   if (!fOther.isSlashBass) return null;

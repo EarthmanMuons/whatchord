@@ -287,7 +287,7 @@ void main() {
     _expectRule(
       dominant,
       diminished,
-      'prefer complete dominant flat-nine over colored diminished7',
+      'prefer dominant flat-nine shell over colored diminished',
     );
   });
 
@@ -315,7 +315,7 @@ void main() {
       _expectRule(
         dominant,
         diminished,
-        'prefer complete dominant flat-nine over colored diminished7',
+        'prefer dominant flat-nine shell over colored diminished',
       );
     },
   );
@@ -349,7 +349,33 @@ void main() {
     expect(explanation.result, 1);
     expect(
       explanation.decidedByRule,
-      isNot('prefer complete dominant flat-nine over colored diminished7'),
+      isNot('prefer dominant flat-nine shell over colored diminished'),
+    );
+  });
+
+  test('complete dominant flat-nine beats diminished add-nine', () {
+    final dominant = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'C',
+      bass: 'E',
+      presentIntervals: const {0, 1, 4, 10},
+      extensions: const {ChordExtension.flat9},
+      score: 7.16,
+    );
+
+    final diminished = _candidate(
+      quality: ChordQualityToken.diminished,
+      root: 'A#',
+      bass: 'E',
+      presentIntervals: const {0, 2, 3, 6},
+      extensions: const {ChordExtension.add9},
+      score: 7.22,
+    );
+
+    _expectTieRule(
+      dominant,
+      diminished,
+      'prefer dominant flat-nine shell over colored diminished',
     );
   });
 
