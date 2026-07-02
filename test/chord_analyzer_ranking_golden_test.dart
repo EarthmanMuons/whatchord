@@ -1012,6 +1012,18 @@ void main() {
     ),
 
     golden(
+      description: 'lydian add triad stays surfaced under suspended major',
+      expectedSymbol: 'Dbmaj13sus4/Gb',
+      expectedAlternateSymbols: ['Gb(#11,add9)'],
+      pcs: ['C', 'Db', 'Gb', 'Ab', 'Bb'],
+      bass: 'Gb',
+      expectedRoot: 'Db',
+      expectedBass: 'Gb',
+      expectedQuality: ChordQualityToken.major7sus4,
+      expectedExtensions: {ChordExtension.thirteen},
+    ),
+
+    golden(
       description: 'root-position sharp-eleven sus beats add-flat-nine slash',
       expectedSymbol: 'Gsus4#11',
       expectedAlternateSymbols: ['Csus2addb9/G'],

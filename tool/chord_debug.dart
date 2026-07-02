@@ -1185,6 +1185,7 @@ String _formatDeltaToken(ScoreReason r, {required bool includeReasonDetails}) {
     'bass fit' => 'bass',
     'sus-tone bass' => 'sus-bass',
     'alterations penalty' => 'alt',
+    'complete root triad color' => 'triad-color',
     'tonality bias' => 'ton',
     _ => r.label.replaceAll(' ', ''),
   };
