@@ -523,6 +523,22 @@
     "label": "context-dependent",
     "note": "C6♭9 is preferred in neutral/C context because C is the bass/root and the voicing directly supplies the major third, sixth, and flat-ninth color. Music21's Am/C add C♯ is the split-third relative-minor view, while tonal's D♭m♭6M7/C matches the C♯mmaj7♭13/B♯ alternate that becomes preferred in C♯ minor. The row is context-dependent rather than an engine issue: C-bass root-position evidence favors C6♭9 here, but C♯ minor context legitimately favors the minor-major-seventh reading."
   },
+  "0-1-5-7_b0": {
+    "label": "clearly-correct",
+    "note": "D♭maj7♯11/C is preferred because D♭-F-C forms a fifthless D♭ major-seventh shell with C as the major seventh in the bass, and G is the readable Lydian sharp-eleventh color. Tonal's D♭maj7♭5/C names the same root and bass but treats G as a literal flat fifth, which would be A𝄫 in D♭ spelling or C♯maj7♭5/B♯ in neutral spelling. ChoCo also favors major7|sharp11 over major7Flat5, and WhatChord keeps the flat-five spelling surfaced as the next candidate."
+  },
+  "0-1-5-7_b1": {
+    "label": "clearly-correct",
+    "note": "D♭maj7♯11 is preferred because the root-position voicing supplies D♭, F, C, and G: a fifthless D♭ major-seventh shell plus Lydian sharp-eleventh color. Tonal's D♭maj7♭5 is the enharmonic literal-flat-five interpretation, but in D♭ notation that fifth is A𝄫, while the sharp-eleventh spelling names the observed G directly. ChoCo supports the broader preference with more major7|sharp11 observations than major7Flat5 observations, and the flat-five spelling remains available as the next candidate."
+  },
+  "0-1-5-7_b5": {
+    "label": "clearly-correct",
+    "note": "D♭maj7♯11/F is preferred because F is the major third in the bass of the fifthless D♭ major-seventh shell D♭-F-C, with G as Lydian sharp-eleventh color. Tonal's D♭maj7♭5/F preserves the same root and bass but names G as a literal flat fifth, which requires A𝄫 in D♭ spelling or C♯maj7♭5/E♯ in neutral spelling. The sharp-eleventh label is the more musician-readable spelling, with ChoCo favoring major7|sharp11 over major7Flat5 and the flat-five spelling still surfaced as candidate #2."
+  },
+  "0-1-5-7_b7": {
+    "label": "clearly-correct",
+    "note": "D♭maj7♯11/G is preferred because the voicing is a fifthless D♭ major-seventh shell D♭-F-C with the Lydian sharp eleventh in the bass. Tonal's D♭maj7♭5/G is pitch-class equivalent but treats the bass as a literal altered fifth; in D♭ spelling that role is A𝄫, while the WhatChord label names the sounding G directly as sharp-eleventh color. ChoCo favors major7|sharp11 over major7Flat5, and the literal flat-five analysis remains surfaced as the next candidate."
+  },
   "0-1-5-6-10_b0": {
     "label": "oracle-limitation",
     "note": "G♭maj7♯11/C is preferred because the voicing contains the complete G♭ major-seventh shell G♭-B♭-D♭-F with C as ♯11. Music21 agrees semantically. Tonal's F♯maj♯4/C keeps the Lydian color but drops the major seventh from its normalized structure, so the split reflects oracle vocabulary rather than an engine issue."
