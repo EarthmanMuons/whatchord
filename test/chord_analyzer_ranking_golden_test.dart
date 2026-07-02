@@ -977,6 +977,33 @@ void main() {
     ),
 
     golden(
+      description:
+          'major sharp-eleven inversion beats sparse major-thirteen sus4',
+      expectedSymbol: 'Gb#11/Db',
+      expectedAlternateSymbols: ['Dbmaj13sus4', 'Bbm#5add9/Db'],
+      pcs: ['C', 'Db', 'Gb', 'Bb'],
+      bass: 'Db',
+      expectedRoot: 'Gb',
+      expectedBass: 'Db',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.sharp11},
+      expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
+    ),
+
+    golden(
+      description:
+          'sharp-eleven color bass does not displace sparse major-thirteen sus4',
+      expectedSymbol: 'Dbmaj13sus4/C',
+      expectedAlternateSymbols: ['Bbm#5/C'],
+      pcs: ['C', 'Db', 'Gb', 'Bb'],
+      bass: 'C',
+      expectedRoot: 'Db',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.major7sus4,
+      expectedExtensions: {ChordExtension.thirteen},
+    ),
+
+    golden(
       description: 'root-position sharp-eleven sus beats add-flat-nine slash',
       expectedSymbol: 'Gsus4#11',
       expectedAlternateSymbols: ['Csus2addb9/G'],
