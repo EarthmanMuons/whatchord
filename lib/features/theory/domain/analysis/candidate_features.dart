@@ -24,7 +24,6 @@ class CandidateFeatures {
   final bool isCompleteMajorSixNine;
   final bool isCompleteMajorMinorTriad;
   final bool isCompleteMajorTriadInversion;
-  final bool isMinorSharpFive;
   final bool isIncompleteInvertedSixth;
   final bool isCompleteNinthBassSeventhChord;
   final bool isCompleteMinor7EleventhBassSlash;
@@ -77,7 +76,6 @@ class CandidateFeatures {
     required this.isCompleteMajorSixNine,
     required this.isCompleteMajorMinorTriad,
     required this.isCompleteMajorTriadInversion,
-    required this.isMinorSharpFive,
     required this.isIncompleteInvertedSixth,
     required this.isCompleteNinthBassSeventhChord,
     required this.isCompleteMinor7EleventhBassSlash,
@@ -162,7 +160,6 @@ class CandidateFeatures {
         id,
         rootPos,
       ),
-      isMinorSharpFive: q == ChordQualityToken.minorSharp5,
       isIncompleteInvertedSixth: _isIncompleteInvertedSixth(id, rootPos),
       isCompleteNinthBassSeventhChord: _isCompleteNinthBassSeventhChord(id),
       isCompleteMinor7EleventhBassSlash: _isCompleteMinor7EleventhBassSlash(id),

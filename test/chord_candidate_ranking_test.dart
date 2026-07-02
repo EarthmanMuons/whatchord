@@ -1448,32 +1448,6 @@ void main() {
     );
   });
 
-  test('complete major inversion beats minor sharp-five in a near-tie', () {
-    for (final bass in ['C', 'Eb']) {
-      final majorInversion = _candidate(
-        quality: ChordQualityToken.major,
-        root: 'Ab',
-        bass: bass,
-        presentIntervals: const {0, 4, 7},
-        score: 7.42,
-      );
-
-      final minorSharpFive = _candidate(
-        quality: ChordQualityToken.minorSharp5,
-        root: 'C',
-        bass: bass,
-        presentIntervals: const {0, 3, 8},
-        score: 7.51,
-      );
-
-      _expectTieRule(
-        majorInversion,
-        minorSharpFive,
-        'prefer complete major inversion over minor sharp-five',
-      );
-    }
-  });
-
   test('common naming preference breaks complete sixth and minor7 tie', () {
     final minor7 = _candidate(
       quality: ChordQualityToken.minor7,
