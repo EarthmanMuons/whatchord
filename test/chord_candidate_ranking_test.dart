@@ -1185,6 +1185,30 @@ void main() {
     _expectTieRule(minor7, major6, 'prefer common naming preference');
   });
 
+  test('cleaner spelling breaks final ties', () {
+    // Same root, same extension load, nothing structural separates them; the
+    // C#maj7 reading spells its third as E# while the minor reading uses E.
+    final minorMajor = _candidate(
+      quality: ChordQualityToken.minorMajor7,
+      root: 'C#',
+      bass: 'C#',
+      presentIntervals: const {0, 1, 3, 11},
+      extensions: const {ChordExtension.flat9},
+      score: 7.5,
+    );
+
+    final major7 = _candidate(
+      quality: ChordQualityToken.major7,
+      root: 'C#',
+      bass: 'C#',
+      presentIntervals: const {0, 1, 4, 11},
+      extensions: const {ChordExtension.flat9},
+      score: 7.5,
+    );
+
+    _expectTieRule(minorMajor, major7, 'prefer cleaner spelling');
+  });
+
   test('root-position major6 sharp11 beats inverted minor7 add13', () {
     // These enharmonic readings tie on score; natural-extension preference
     // settles it toward the major6 (its #11 is natural; the minor7's add13 is
