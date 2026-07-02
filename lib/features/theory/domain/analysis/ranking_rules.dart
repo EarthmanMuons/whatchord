@@ -475,6 +475,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferCompleteLydianSixNineOverMajor13Sus4,
   ),
   NamedRule(
+    'prefer complete major sharp-eleven inversion over major13sus4',
+    _preferCompleteMajorSharpElevenInversionOverMajor13Sus4,
+  ),
+  NamedRule(
     'prefer complete major inversion over seventh-family color-bass slash',
     _preferCompleteMajorInversionOverSeventhColorBassSlash,
   ),
@@ -1327,6 +1331,60 @@ bool _isMajorThirteenSusFour(ChordIdentity id) {
       roles.contains(ChordToneRole.major7) &&
       roles.contains(ChordToneRole.nine) &&
       roles.contains(ChordToneRole.thirteen);
+}
+
+/// Prefers a complete Lydian major triad inversion over a sparse
+/// major-thirteenth-sus4 spelling in close cases.
+///
+/// Example: {C, D♭, G♭, B♭} with D♭ in the bass is more directly G♭♯11/D♭:
+/// G♭-B♭-D♭ is a complete major triad with C as Lydian color. The D♭maj13sus4
+/// spelling is possible, but it has neither the major third nor fifth of D♭ and
+/// turns the G♭ triad root into a suspended tone.
+int? _preferCompleteMajorSharpElevenInversionOverMajor13Sus4(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsPreferred = _isCompleteMajorSharpElevenInversion(a.identity, fa);
+  final bIsPreferred = _isCompleteMajorSharpElevenInversion(b.identity, fb);
+  if (aIsPreferred == bIsPreferred) return null;
+
+  final other = aIsPreferred ? b : a;
+  if (!_isSparseMajorThirteenSusFour(other.identity)) return null;
+
+  return aIsPreferred ? -1 : 1;
+}
+
+bool _isCompleteMajorSharpElevenInversion(
+  ChordIdentity id,
+  CandidateFeatures features,
+) {
+  if (!features.isCompleteMajorTriadInversion) return false;
+  if (id.extensions.length != 1 ||
+      !id.extensions.contains(ChordExtension.sharp11)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.sharp11);
+}
+
+bool _isSparseMajorThirteenSusFour(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.major7sus4) return false;
+  if (!id.extensions.contains(ChordExtension.thirteen)) return false;
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.sus4) &&
+      roles.contains(ChordToneRole.major7) &&
+      roles.contains(ChordToneRole.thirteen) &&
+      !roles.contains(ChordToneRole.major3) &&
+      !roles.contains(ChordToneRole.perfect5);
 }
 
 /// Prefers a complete major triad inversion over a seventh-family slash chord

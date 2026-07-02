@@ -33,6 +33,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved fifthless Lydian major-seventh spelling, so voicings such as
   D♭maj7♯11 are less likely to appear as awkward major-seven-flat-five
   respellings.
+- Improved sparse Lydian major inversion ranking, so complete ♯11 triad
+  inversions are less likely to be displaced by suspended major-thirteenth
+  reinterpretations.
 - Improved sparse suspended sharp-eleventh recognition, so root-position sus4♯11
   voicings are less likely to be displaced by inverted sus add-flat-nine
   spellings.
