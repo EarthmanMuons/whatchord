@@ -20,6 +20,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Chord identification is now up to about 90% faster, for everyday chords as
   well as dense or ambiguous voicings with many possible readings. The chord
   shown and the alternatives offered are unchanged.
+- Rarely used chord vocabulary (m♯5, maj♭5, 7sus2, and maj7sus2) now needs a
+  decisively better fit to be chosen or offered as an alternative, so dense
+  voicings favor common chord names such as A♭maj7/D♭ over respellings such as
+  D♭maj7sus2(♯11).
 
 ### Fixed
 
