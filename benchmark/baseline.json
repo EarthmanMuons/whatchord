@@ -1,6 +1,6 @@
 {
   "meta": {
-    "oracleSize": 191,
+    "oracleSize": 192,
     "commonSize": 81,
     "dartVersion": "3.12.2 (stable) (Tue Jun 9 01:11:39 2026 -0700) on \"macos_arm64\"",
     "targetRelCi95": 0.015,
@@ -9,77 +9,77 @@
     "countersEnabled": true
   },
   "referenceUs": {
-    "mean": 810.6,
-    "median": 809.5,
-    "stddev": 8.422192905255336,
-    "min": 799.0,
-    "max": 829.0,
+    "mean": 809.1,
+    "median": 808.5,
+    "stddev": 5.152130088074683,
+    "min": 803.0,
+    "max": 822.0,
     "n": 10,
-    "relCi95": 0.006439833758805629
+    "relCi95": 0.003946759748412783
   },
   "time": {
     "oracle": {
-      "coldNormalized": 63.18369303069409,
-      "warmNormalized": 0.012683061994024206,
-      "coldNormalizedRelCi95": 0.009178722471510036,
-      "warmNormalizedRelCi95": 0.007485224071429607,
+      "coldNormalized": 63.11719812136942,
+      "warmNormalized": 0.012691570881226055,
+      "coldNormalizedRelCi95": 0.008107952428948543,
+      "warmNormalizedRelCi95": 0.005315363638722229,
       "coldUsPerCall": {
-        "mean": 512.1670157068063,
-        "median": 512.9319371727748,
-        "stddev": 5.404595189547724,
-        "min": 502.9738219895288,
-        "max": 518.6020942408377,
+        "mean": 510.68125,
+        "median": 510.3125,
+        "stddev": 5.835541703342599,
+        "min": 502.8958333333333,
+        "max": 521.0,
         "n": 10,
-        "relCi95": 0.006540450089095601
+        "relCi95": 0.007082512271673185
       },
       "warmUsPerCall": {
-        "mean": 0.10280890052356022,
-        "median": 0.10312827225130891,
-        "stddev": 0.0006328669010810646,
-        "min": 0.10162303664921465,
-        "max": 0.10345549738219895,
+        "mean": 0.1026875,
+        "median": 0.10290364583333333,
+        "stddev": 0.000589869139599498,
+        "min": 0.10174479166666667,
+        "max": 0.10325520833333333,
         "n": 10,
-        "relCi95": 0.0038153794776478777
+        "relCi95": 0.003560362074306358
       }
     },
     "common": {
-      "coldNormalized": 17.43604169075371,
-      "warmNormalized": 0.012087525472672276,
-      "coldNormalizedRelCi95": 0.01610691487304813,
-      "warmNormalizedRelCi95": 0.012125124121463621,
+      "coldNormalized": 17.49013578229396,
+      "warmNormalized": 0.012948391063992759,
+      "coldNormalizedRelCi95": 0.01536316153110661,
+      "warmNormalizedRelCi95": 0.008121195038590299,
       "coldUsPerCall": {
-        "mean": 141.3365539452496,
-        "median": 138.70987654320987,
-        "stddev": 7.220495231495644,
-        "min": 135.97530864197532,
-        "max": 166.87654320987653,
-        "n": 46,
-        "relCi95": 0.014763510689756908
+        "mean": 141.51268861454045,
+        "median": 139.462962962963,
+        "stddev": 6.431991107035609,
+        "min": 136.87654320987653,
+        "max": 165.97530864197532,
+        "n": 36,
+        "relCi95": 0.01484755265083046
       },
       "warmUsPerCall": {
-        "mean": 0.09798148148148147,
-        "median": 0.09725308641975308,
-        "stddev": 0.001624094290330007,
-        "min": 0.09666666666666666,
-        "max": 0.10098765432098765,
+        "mean": 0.10476543209876543,
+        "median": 0.10441358024691358,
+        "stddev": 0.0011997137628778328,
+        "min": 0.10339506172839506,
+        "max": 0.10635802469135802,
         "n": 10,
-        "relCi95": 0.010273615532997441
+        "relCi95": 0.007097668373707829
       }
     }
   },
   "memory": {
-    "churnBytes": 16680432,
-    "churnObjects": 141620,
-    "churnBytesPerCall": 87332.10471204188,
-    "retainedBytes": 712992,
-    "liveHeapBytes": 16680432
+    "churnBytes": 16687376,
+    "churnObjects": 141658,
+    "churnBytesPerCall": 86913.41666666667,
+    "retainedBytes": 716096,
+    "liveHeapBytes": 16687376
   },
   "counters": {
     "cacheHits": 0,
-    "cacheMisses": 191,
-    "rootsConsidered": 964,
-    "templatesEvaluated": 25064,
-    "candidatesProduced": 14125,
-    "candidatesRanked": 2228
+    "cacheMisses": 192,
+    "rootsConsidered": 969,
+    "templatesEvaluated": 25194,
+    "candidatesProduced": 14196,
+    "candidatesRanked": 2240
   }
 }

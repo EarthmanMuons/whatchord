@@ -667,6 +667,10 @@
     "label": "genuine-ambiguity",
     "note": "D♭maj7sus4/B♭ is defensible because D♭-G♭-A♭-C forms a complete suspended-major-seventh sonority with B♭ as thirteenth color in the bass. Tonal's B♭m9♯5 is still a structurally plausible root-position alternate, but it asks musicians to hear G♭/F♯ as an altered fifth; the current ranking favors the suspended-major organization and demotes the rarer minor-seventh-sharp-five vocabulary. Music21's G♭/B♭ add-tone label captures a related upper-structure major view, so this row remains a genuine ambiguity rather than an oracle limitation."
   },
+  "0-1-6-8-10_b6": {
+    "label": "genuine-ambiguity",
+    "note": "D♭maj13sus4/G♭ is defensible because D♭-G♭-A♭-C forms a complete suspended-major-seventh sonority with B♭ as thirteenth color, though the G♭ bass is the suspended fourth. Music21's F♯ add-tone label matches the surfaced G♭(♯11,add9) possible alternative, which names the complete G♭-B♭-D♭ major triad with A♭ and C as Lydian add colors. Tonal's B♭m9♯5/F♯ is also pitch-valid, but it relies on rarer minor-seventh-sharp-five vocabulary and treats G♭/F♯ as an altered fifth. The row is a genuine three-root ambiguity rather than a reason to displace the suspended-major primary."
+  },
   "0-1-6-8-10_b8": {
     "label": "genuine-ambiguity",
     "note": "D♭maj13sus4/A♭ is preferred because A♭ is the fifth of a suspended D♭ major-seventh sonority, with B♭ as thirteenth color. Tonal's B♭m9♯5/A♭ matches WhatChord's surfaced possible alternative and names a complete minor-seventh-sharp-five structure, but the D♭ reading avoids treating G♭/F♯ as an altered fifth and gives the slash bass a conventional fifth role. Music21's F♯/G♯ add-tone spelling captures a partial upper-structure major shell but omits the D♭ suspended-major-seventh organization. The two complete structures make this a genuine ambiguity rather than an oracle limitation."

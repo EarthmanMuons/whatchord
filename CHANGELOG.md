@@ -63,6 +63,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved dominant-flat-nine shell ranking, so stable inversions such as C7♭9/E
   are less likely to be displaced by diminished add-tone or remote minor-major
   slash reinterpretations.
+- Improved sparse add-color triad scoring, so complete bass-rooted triads with
+  modest color tones can stay visible against suspended or seventh-family
+  reinterpretations.
 
 ## [2026.6.28] - 2026-06-28
 

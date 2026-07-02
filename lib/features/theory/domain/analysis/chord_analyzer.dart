@@ -124,6 +124,8 @@ abstract final class ChordAnalyzer {
       0.70; // complete dom7 shell + natural/altered 9 + b13 stack
   static const _completeDominantFlatNineFlatThirteenthBonus =
       0.70; // complete dom7 shell + b9 + b13 altered stack
+  static const _completeRootTriadColorBonus =
+      0.25; // complete root major/minor triad + simple color
 
   // Upper-structure slash-triad bonus.
   static const _add9BassUpperTriadBonus = 3.2; // e.g. D/E, C#/D#
@@ -628,6 +630,17 @@ abstract final class ChordAnalyzer {
       add('complete b13 dominant', completeDominantFlatThirteenthDelta);
     }
 
+    final completeRootTriadColorDelta = _completeRootTriadColorBonusFor(
+      quality: template.quality,
+      extensions: extensions,
+      relMask: relMask,
+      bassInterval: bassInterval,
+    );
+    if (completeRootTriadColorDelta != 0) {
+      raw += completeRootTriadColorDelta;
+      add('complete root triad color', completeRootTriadColorDelta);
+    }
+
     final add9BassUpperTriadDelta = _add9BassUpperTriadBonusFor(
       quality: template.quality,
       extensions: extensions,
@@ -1007,6 +1020,41 @@ abstract final class ChordAnalyzer {
     }
     if (hasNinthColor) return _completeDominantNineFlatThirteenthBonus;
     return _completeDominantFlatThirteenthBonus;
+  }
+
+  static double _completeRootTriadColorBonusFor({
+    required ChordQualityToken quality,
+    required Set<ChordExtension> extensions,
+    required int relMask,
+    required int bassInterval,
+  }) {
+    final isMajor = quality == ChordQualityToken.major;
+    final isMinor = quality == ChordQualityToken.minor;
+    if (!isMajor && !isMinor) return 0;
+    if (bassInterval != 0) return 0;
+    if (extensions.isEmpty || extensions.length > 2) return 0;
+
+    final thirdInterval = isMajor ? majorThirdInterval : minorThirdInterval;
+    final hasCompleteTriad =
+        (relMask & 1) != 0 &&
+        (relMask & (1 << thirdInterval)) != 0 &&
+        (relMask & (1 << perfectFifthInterval)) != 0;
+    if (!hasCompleteTriad) return 0;
+
+    final allowed = isMajor
+        ? const {
+            ChordExtension.add9,
+            ChordExtension.add13,
+            ChordExtension.sharp11,
+          }
+        : const {
+            ChordExtension.add9,
+            ChordExtension.add11,
+            ChordExtension.add13,
+          };
+    if (!extensions.every(allowed.contains)) return 0;
+
+    return _completeRootTriadColorBonus;
   }
 
   static double _add9BassUpperTriadBonusFor({
