@@ -160,73 +160,6 @@ void main() {
     },
   );
 
-  test('complete altered dominant beats altered major7', () {
-    final dominant = _candidate(
-      quality: ChordQualityToken.dominant7Sharp5,
-      root: 'A',
-      bass: 'C#',
-      presentIntervals: const {0, 3, 4, 8, 10},
-      extensions: const {ChordExtension.sharp9},
-      score: 8.2,
-    );
-
-    for (final quality in [
-      ChordQualityToken.major7Flat5,
-      ChordQualityToken.major7Sharp5,
-    ]) {
-      final alteredMajor7 = _candidate(
-        quality: quality,
-        root: 'C#',
-        bass: 'C#',
-        presentIntervals: const {0, 4, 6, 8, 11},
-        extensions: const {ChordExtension.flat13},
-        score: 8.2,
-      );
-
-      _expectTieRule(
-        dominant,
-        alteredMajor7,
-        'prefer complete altered dominant inversion over altered major7',
-      );
-    }
-
-    final sharpNineBassDominant = _candidate(
-      quality: ChordQualityToken.dominant7Sharp5,
-      root: 'A',
-      bass: 'C',
-      presentIntervals: const {0, 3, 4, 8, 10},
-      extensions: const {ChordExtension.sharp9},
-      score: 8.07,
-    );
-
-    final sharpNineBassAlteredMajor7s = [
-      _candidate(
-        quality: ChordQualityToken.major7Flat5,
-        root: 'C#',
-        bass: 'C',
-        presentIntervals: const {0, 4, 6, 8, 11},
-        extensions: const {ChordExtension.flat13},
-        score: 8.2,
-      ),
-      _candidate(
-        quality: ChordQualityToken.major7Sharp5,
-        root: 'Db',
-        bass: 'C',
-        presentIntervals: const {0, 4, 6, 8, 11},
-        extensions: const {ChordExtension.sharp11},
-        score: 8.2,
-      ),
-    ];
-
-    for (final alteredMajor7 in sharpNineBassAlteredMajor7s) {
-      _expectTieRule(
-        sharpNineBassDominant,
-        alteredMajor7,
-        'prefer complete altered dominant inversion over altered major7',
-      );
-    }
-  });
-
   test('split-nine tritone dominants follow the conventional bass role', () {
     ChordCandidate splitNine({required String bass, required double score}) =>
         _candidate(
@@ -640,43 +573,6 @@ void main() {
   );
 
   test(
-    'half-diminished flat-color spelling beats minor sharp-five sharp-eleven',
-    () {
-      final halfDiminished = _candidate(
-        quality: ChordQualityToken.halfDiminished7,
-        root: 'C',
-        bass: 'C',
-        presentIntervals: const {0, 1, 3, 5, 6, 8, 10},
-        extensions: const {
-          ChordExtension.flat9,
-          ChordExtension.eleven,
-          ChordExtension.flat13,
-        },
-        score: 7.70,
-      );
-
-      final minorSharpFive = _candidate(
-        quality: ChordQualityToken.minor7Sharp5,
-        root: 'C',
-        bass: 'C',
-        presentIntervals: const {0, 1, 3, 5, 6, 8, 10},
-        extensions: const {
-          ChordExtension.flat9,
-          ChordExtension.eleven,
-          ChordExtension.sharp11,
-        },
-        score: 7.70,
-      );
-
-      _expectTieRule(
-        halfDiminished,
-        minorSharpFive,
-        'prefer half-diminished flat-color spelling over minor sharp-five',
-      );
-    },
-  );
-
-  test(
     'higher-scoring major-seventh-bass inversion beats remote color-bass slash',
     () {
       final conventionalInversion = _candidate(
@@ -762,32 +658,6 @@ void main() {
       );
     },
   );
-
-  test('inverted extended dominant beats double-sharp altered-fifth slash', () {
-    final inversion = _candidate(
-      quality: ChordQualityToken.dominant7,
-      root: 'C',
-      bass: 'Bb',
-      presentIntervals: const {0, 2, 4, 6, 7, 10},
-      extensions: const {ChordExtension.nine, ChordExtension.sharp11},
-      score: 7.74,
-    );
-
-    final slash = _candidate(
-      quality: ChordQualityToken.dominant7Sharp5,
-      root: 'F#',
-      bass: 'Bb',
-      presentIntervals: const {0, 1, 4, 6, 8, 10},
-      extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
-      score: 7.95,
-    );
-
-    _expectRule(
-      inversion,
-      slash,
-      'prefer stable extended dominant over double-accidental altered-fifth slash',
-    );
-  });
 
   test(
     'complete sharp-nine thirteenth dominant beats colored sixth near-tie',
@@ -999,56 +869,6 @@ void main() {
     }
   });
 
-  test('complete major six-nine beats inverted minor7 sharp-five', () {
-    final majorSixNine = _candidate(
-      quality: ChordQualityToken.major6,
-      root: 'Eb',
-      bass: 'Bb',
-      presentIntervals: const {0, 2, 4, 7, 9},
-      extensions: const {ChordExtension.add9},
-      score: 8.08,
-    );
-    final alteredMinorSlash = _candidate(
-      quality: ChordQualityToken.minor7Sharp5,
-      root: 'G',
-      bass: 'Bb',
-      presentIntervals: const {0, 3, 5, 8, 10},
-      extensions: const {ChordExtension.add11},
-      score: 8.25,
-    );
-
-    _expectTieRule(
-      majorSixNine,
-      alteredMinorSlash,
-      'prefer complete major six-nine over inverted minor-seven sharp-five',
-    );
-  });
-
-  test('complete lydian major six-nine beats minor11 sharp-five', () {
-    final lydianMajorSixNine = _candidate(
-      quality: ChordQualityToken.major6,
-      root: 'Gb',
-      bass: 'Eb',
-      presentIntervals: const {0, 2, 4, 6, 7, 9},
-      extensions: const {ChordExtension.add9, ChordExtension.sharp11},
-      score: 7.79,
-    );
-    final alteredMinorSlash = _candidate(
-      quality: ChordQualityToken.minor7Sharp5,
-      root: 'Bb',
-      bass: 'Eb',
-      presentIntervals: const {0, 2, 3, 5, 8, 10},
-      extensions: const {ChordExtension.nine, ChordExtension.eleven},
-      score: 7.88,
-    );
-
-    _expectTieRule(
-      lydianMajorSixNine,
-      alteredMinorSlash,
-      'prefer complete major six-nine over inverted minor-seven sharp-five',
-    );
-  });
-
   test('complete add-nine inversion beats minor7 sharp-five', () {
     final addNineInversion = _candidate(
       quality: ChordQualityToken.major,
@@ -1070,32 +890,6 @@ void main() {
       addNineInversion,
       minorSevenSharpFive,
       'prefer complete add-nine inversion over minor-seven sharp-five',
-    );
-  });
-
-  test('minor7 eleventh-bass slash beats minor7 sharp-five slash', () {
-    final minor7Slash = _candidate(
-      quality: ChordQualityToken.minor7,
-      root: 'A',
-      bass: 'D',
-      presentIntervals: const {0, 3, 5, 7, 10},
-      extensions: const {ChordExtension.add11},
-      score: 7.94,
-    );
-
-    final alteredSlash = _candidate(
-      quality: ChordQualityToken.minor7Sharp5,
-      root: 'E',
-      bass: 'D',
-      presentIntervals: const {0, 3, 5, 8, 10},
-      extensions: const {ChordExtension.add11},
-      score: 8.25,
-    );
-
-    _expectRule(
-      minor7Slash,
-      alteredSlash,
-      'prefer minor7 eleventh-bass slash over minor7 sharp-five slash',
     );
   });
 
@@ -1148,58 +942,6 @@ void main() {
       ninthBassSeventh,
       alteredSlash,
       'prefer ninth-bass seventh chord over altered slash',
-    );
-  });
-
-  test('minor-major ninth beats augmented-major thirteenth', () {
-    final minorMajorNinth = _candidate(
-      quality: ChordQualityToken.minorMajor7,
-      root: 'C#',
-      bass: 'E',
-      presentIntervals: const {0, 2, 3, 7, 11},
-      extensions: const {ChordExtension.nine},
-      score: 8.08,
-    );
-
-    final augmentedMajorThirteenth = _candidate(
-      quality: ChordQualityToken.major7Sharp5,
-      root: 'E',
-      bass: 'E',
-      presentIntervals: const {0, 4, 8, 9, 11},
-      extensions: const {ChordExtension.thirteen},
-      score: 8.25,
-    );
-
-    _expectTieRule(
-      minorMajorNinth,
-      augmentedMajorThirteenth,
-      'prefer minor-major ninth over augmented-major thirteenth',
-    );
-  });
-
-  test('minor-major ninth flat-thirteenth beats augmented-major eleventh', () {
-    final minorMajorNinthFlat13 = _candidate(
-      quality: ChordQualityToken.minorMajor7,
-      root: 'C#',
-      bass: 'E',
-      presentIntervals: const {0, 2, 3, 7, 8, 11},
-      extensions: const {ChordExtension.nine, ChordExtension.flat13},
-      score: 7.74,
-    );
-
-    final augmentedMajorThirteenthEleventh = _candidate(
-      quality: ChordQualityToken.major7Sharp5,
-      root: 'E',
-      bass: 'E',
-      presentIntervals: const {0, 4, 5, 8, 9, 11},
-      extensions: const {ChordExtension.eleven, ChordExtension.thirteen},
-      score: 8.00,
-    );
-
-    _expectRule(
-      minorMajorNinthFlat13,
-      augmentedMajorThirteenthEleventh,
-      'prefer minor-major ninth over augmented-major thirteenth',
     );
   });
 

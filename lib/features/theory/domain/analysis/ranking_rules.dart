@@ -79,26 +79,11 @@ final List<NamedRule> hardRules = <NamedRule>[
         c.identity.quality == ChordQualityToken.diminished,
   ),
   NamedRule(
-    'prefer complete altered dominant inversion over altered major7',
-    _preferCompleteAlteredDom7InversionOverAlteredMajor7,
-    gate: (c, f, _) =>
-        _isPreferredCompleteAlteredDominant(c.identity, f) ||
-        c.identity.quality == ChordQualityToken.major7Flat5 ||
-        c.identity.quality == ChordQualityToken.major7Sharp5,
-  ),
-  NamedRule(
     'prefer complete dominant sharp-nine over split-third sixth',
     _preferCompleteDom7Sharp9OverSixthFlat9,
     gate: (c, f, _) =>
         _isCompleteDominantSharpNineReading(c.identity) ||
         _isStableSplitThirdSixth(c.identity, f),
-  ),
-  NamedRule(
-    'prefer stable extended dominant over double-accidental altered-fifth slash',
-    _preferStableExtendedDom7OverDoubleAccidentalAlteredFifthSlash,
-    gate: (c, f, _) =>
-        _isStableExtendedDom7(c.identity, f) ||
-        _isAlteredSharpFiveDominant(c.identity),
   ),
   NamedRule(
     'prefer complete altered sharp-five dominant over remote spellings',
@@ -148,20 +133,6 @@ final List<NamedRule> hardRules = <NamedRule>[
             (f.extensionTensionCount > 0 || f.isUnusualSeventhQuality)),
   ),
   NamedRule(
-    'prefer minor-major ninth over augmented-major thirteenth',
-    _preferMinorMajorNinthOverAugmentedMajorThirteenth,
-    gate: (c, _, _) =>
-        _isCompleteMinorMajorNinthFamily(c.identity) ||
-        c.identity.quality == ChordQualityToken.major7Sharp5,
-  ),
-  NamedRule(
-    'prefer minor7 eleventh-bass slash over minor7 sharp-five slash',
-    _preferMinor7EleventhBassSlashOverMinor7SharpFiveSlash,
-    gate: (c, f, _) =>
-        f.isCompleteMinor7EleventhBassSlash ||
-        (f.isSlashBass && c.identity.quality == ChordQualityToken.minor7Sharp5),
-  ),
-  NamedRule(
     'prefer root-position altered-fifth dominant over slash',
     _preferRootAlteredFifthDom7,
     gate: (c, f, _) => f.isAlteredFifthDom7,
@@ -184,13 +155,6 @@ final List<NamedRule> hardRules = <NamedRule>[
         f.isRootPositionMinor7Add11Shell ||
         c.identity.quality == ChordQualityToken.dominant7sus4 ||
         c.identity.quality == ChordQualityToken.sus2sus4,
-  ),
-  NamedRule(
-    'prefer complete major six-nine over inverted minor-seven sharp-five',
-    _preferCompleteMajorSixNineOverInvertedMinor7Sharp5,
-    gate: (c, f, _) =>
-        f.isCompleteMajorSixNine ||
-        c.identity.quality == ChordQualityToken.minor7Sharp5,
   ),
   NamedRule(
     'prefer complete add-nine inversion over minor-seven sharp-five',
@@ -293,51 +257,6 @@ int? _preferRootMinor7Add11ShellOverSusSlash(
   if (preferred.score + 1.30 < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
-}
-
-/// Prefers a complete major 6/9 over a minor7 sharp-five extension spelling.
-///
-/// Example: {Eb, G, Bb, C, F} with Bb in the bass is most naturally Eb6/9/Bb,
-/// not Gm7#5(add11)/Bb. The altered-minor template's extra required tone can
-/// create a modest score advantage despite the conventional complete 6/9
-/// reading.
-int? _preferCompleteMajorSixNineOverInvertedMinor7Sharp5(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = fa.isCompleteMajorSixNine;
-  final bIsPreferred = fb.isCompleteMajorSixNine;
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final other = aIsPreferred ? b : a;
-  if (other.identity.quality != ChordQualityToken.minor7Sharp5 ||
-      !_minor7SharpFiveExtensionStackIsRemote(other.identity)) {
-    return null;
-  }
-
-  final preferred = aIsPreferred ? a : b;
-  if (preferred.score + 0.30 < other.score) return null;
-
-  return aIsPreferred ? -1 : 1;
-}
-
-bool _minor7SharpFiveExtensionStackIsRemote(ChordIdentity id) {
-  final extensions = id.extensions;
-  if (extensions.isEmpty) return false;
-  if (!extensions.contains(ChordExtension.add11) &&
-      !extensions.contains(ChordExtension.eleven)) {
-    return false;
-  }
-  return extensions.every(
-    (extension) =>
-        extension == ChordExtension.nine ||
-        extension == ChordExtension.add9 ||
-        extension == ChordExtension.eleven ||
-        extension == ChordExtension.add11,
-  );
 }
 
 /// Prefers a complete major/minor add9 inversion over root-position minor7#5.
@@ -463,10 +382,6 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferSharpFiveSharpElevenDominantSpelling,
   ),
   NamedRule(
-    'prefer half-diminished flat-color spelling over minor sharp-five',
-    _preferHalfDiminishedFlatColorSpellingOverMinorSharpFive,
-  ),
-  NamedRule(
     'prefer complete major sharp-eleven inversion over major13sus4',
     _preferCompleteMajorSharpElevenInversionOverMajor13Sus4,
   ),
@@ -523,10 +438,6 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
   NamedRule(
     'prefer natural extensions over adds, then fewer total',
     _preferNaturalExtensions,
-  ),
-  NamedRule(
-    'prefer lydian major-nine spelling over flat-five',
-    _preferLydianMajorNineOverFlatFive,
   ),
   NamedRule('prefer root position', _preferRootPosition),
   NamedRule(
@@ -730,98 +641,9 @@ bool _isStableSplitThirdSixth(ChordIdentity id, CandidateFeatures features) {
               extensions.contains(ChordExtension.add11)));
 }
 
-/// Prefers a complete 9#11 dominant in a stable inversion over an altered
-/// sharp-five slash reading that would require double-accidental spelling.
-///
-/// Example: {C, D, E, F#, G, Bb} with Bb in the bass is C9#11/Bb, not
-/// F#7#5(b9,#11)/A#. The latter is pitch-class valid, but it spells the
-/// sounding D as Cx, while the C-rooted dominant names every tone directly.
-int? _preferStableExtendedDom7OverDoubleAccidentalAlteredFifthSlash(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality tonality,
-) {
-  final aIsPreferred = _isStableExtendedDom7(a.identity, fa);
-  final bIsPreferred = _isStableExtendedDom7(b.identity, fb);
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final other = aIsPreferred ? b : a;
-  if (!_isAlteredSharpFiveDominant(other.identity)) return null;
-  if (!_alteredSharpFiveHasDoubleAccidental(other.identity, tonality)) {
-    return null;
-  }
-
-  final preferred = aIsPreferred ? a : b;
-  if (preferred.score + 0.30 < other.score) return null;
-
-  return aIsPreferred ? -1 : 1;
-}
-
-/// Prefers a complete altered dominant over a rare root-position altered
-/// major7 reinterpretation.
-///
-/// Example: {A, C, C#, F, G} with C# in the bass is A7#5#9/C#, not
-/// C#maj7b5b13 or Dbmaj7#5#11. The dominant reading is a conventional altered
-/// chord in first inversion; the major7 readings each combine an altered fifth
-/// quality with an additional alteration. The same preference applies when the
-/// altered dominant has its sharp ninth in the bass, because 7#5#9 is still the
-/// more idiomatic vocabulary than a multi-altered major7 chord.
-int? _preferCompleteAlteredDom7InversionOverAlteredMajor7(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = _isPreferredCompleteAlteredDominant(a.identity, fa);
-  final bIsPreferred = _isPreferredCompleteAlteredDominant(b.identity, fb);
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final other = aIsPreferred ? b : a;
-  final fOther = aIsPreferred ? fb : fa;
-  final dominant = aIsPreferred ? a : b;
-  final dominantHasSharpNineBass = _hasSharpNineBass(dominant.identity);
-  if (other.identity.quality != ChordQualityToken.major7Flat5 &&
-      other.identity.quality != ChordQualityToken.major7Sharp5) {
-    return null;
-  }
-  if (!fOther.isRootPosition &&
-      !(dominantHasSharpNineBass && _hasMajorSeventhBass(other.identity))) {
-    return null;
-  }
-  if (fOther.extensionTensionCount == 0) return null;
-
-  final preferredCandidate = aIsPreferred ? a : b;
-  if (preferredCandidate.score + 0.55 < other.score) return null;
-
-  return aIsPreferred ? -1 : 1;
-}
-
 bool _hasMajorSeventhBass(ChordIdentity id) {
   final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
   return id.toneRolesByInterval[bassInterval] == ChordToneRole.major7;
-}
-
-bool _isPreferredCompleteAlteredDominant(
-  ChordIdentity id,
-  CandidateFeatures features,
-) {
-  if (!features.isCompleteAlteredFifthDominant ||
-      !features.isSlashBass ||
-      !features.hasAlteredColor) {
-    return false;
-  }
-  if (features.hasStableBassRole) return true;
-
-  return _hasSharpNineBass(id);
-}
-
-bool _hasSharpNineBass(ChordIdentity id) {
-  final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
-  return id.extensions.contains(ChordExtension.sharp9) &&
-      id.toneRolesByInterval[bassInterval] == ChordToneRole.sharp9;
 }
 
 /// Prefers a dominant flat-nine shell in a stable inversion over a
@@ -1089,50 +911,6 @@ bool _isNineFlatFiveFlatThirteen(ChordIdentity id) {
       (id.extensions.contains(ChordExtension.nine) ||
           id.extensions.contains(ChordExtension.flat9)) &&
       id.extensions.contains(ChordExtension.flat13);
-}
-
-/// Prefers the half-diminished flat-side spelling for same-root minor
-/// altered-fifth ambiguities.
-///
-/// A complete Locrian-flavored stack such as C-Eb-Gb-Bb-Db-F-Ab is more
-/// naturally C half-diminished with b9, 11, and b13 than C minor-seven-sharp-five
-/// with both natural 11 and #11.
-int? _preferHalfDiminishedFlatColorSpellingOverMinorSharpFive(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = _isHalfDiminishedFlatColorStack(a.identity);
-  final bIsPreferred = _isHalfDiminishedFlatColorStack(b.identity);
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final preferred = aIsPreferred ? a : b;
-  final other = aIsPreferred ? b : a;
-  if (!_isMinorSharpFiveSharpElevenStack(other.identity)) return null;
-  if (preferred.identity.rootPc != other.identity.rootPc ||
-      preferred.identity.bassPc != other.identity.bassPc) {
-    return null;
-  }
-
-  return aIsPreferred ? -1 : 1;
-}
-
-bool _isHalfDiminishedFlatColorStack(ChordIdentity id) {
-  return id.quality == ChordQualityToken.halfDiminished7 &&
-      id.extensions.length == 3 &&
-      id.extensions.contains(ChordExtension.flat9) &&
-      id.extensions.contains(ChordExtension.eleven) &&
-      id.extensions.contains(ChordExtension.flat13);
-}
-
-bool _isMinorSharpFiveSharpElevenStack(ChordIdentity id) {
-  return id.quality == ChordQualityToken.minor7Sharp5 &&
-      id.extensions.length == 3 &&
-      id.extensions.contains(ChordExtension.flat9) &&
-      id.extensions.contains(ChordExtension.eleven) &&
-      id.extensions.contains(ChordExtension.sharp11);
 }
 
 /// Prefers a bass-rooted suspended dominant over remote slash spellings.
@@ -1717,108 +1495,9 @@ int? _preferNinthBassSeventhOverAlteredSlash(
   return aIsPreferred ? -1 : 1;
 }
 
-/// Prefers a complete minor-major ninth family reading over a remote
-/// augmented-major thirteenth spelling rooted a minor third higher.
-///
-/// Example: {C#, E, G#, B#, D#} is normally C#m(maj9), not Emaj13#5:
-/// the latter respells the C# as a thirteenth against an augmented-major shell.
-/// With an added A, C#m(maj9,b13) remains clearer than Emaj13#5(add11):
-/// the E-rooted spelling adds a natural-eleventh clash against its major third.
-int? _preferMinorMajorNinthOverAugmentedMajorThirteenth(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = _isCompleteMinorMajorNinthFamily(a.identity);
-  final bIsPreferred = _isCompleteMinorMajorNinthFamily(b.identity);
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final preferred = aIsPreferred ? a : b;
-  final other = aIsPreferred ? b : a;
-  if (!_isRemoteAugmentedMajorThirteenth(other.identity, preferred.identity)) {
-    return null;
-  }
-  if (preferred.score + 0.45 < other.score) return null;
-
-  return aIsPreferred ? -1 : 1;
-}
-
-bool _isCompleteMinorMajorNinthFamily(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.minorMajor7) return false;
-  if (!id.extensions.contains(ChordExtension.nine)) return false;
-  for (final extension in id.extensions) {
-    if (extension != ChordExtension.nine &&
-        extension != ChordExtension.flat13) {
-      return false;
-    }
-  }
-
-  final roles = id.toneRolesByInterval.values;
-  return roles.contains(ChordToneRole.root) &&
-      roles.contains(ChordToneRole.minor3) &&
-      roles.contains(ChordToneRole.perfect5) &&
-      roles.contains(ChordToneRole.major7) &&
-      roles.contains(ChordToneRole.nine);
-}
-
 /// True when [a] sits a major sixth above [b] (directional; mod 12).
 bool _isMajorSixthAbove(int a, int b) =>
     intervalAboveRoot(a, b) == majorSixthInterval;
-
-bool _isRemoteAugmentedMajorThirteenth(
-  ChordIdentity id,
-  ChordIdentity preferred,
-) {
-  if (id.quality != ChordQualityToken.major7Sharp5) return false;
-  if (!id.extensions.contains(ChordExtension.thirteen)) return false;
-  for (final extension in id.extensions) {
-    if (extension != ChordExtension.thirteen &&
-        extension != ChordExtension.eleven) {
-      return false;
-    }
-  }
-  if (!_isMajorSixthAbove(preferred.rootPc, id.rootPc)) return false;
-
-  final roles = id.toneRolesByInterval.values;
-  return roles.contains(ChordToneRole.root) &&
-      roles.contains(ChordToneRole.major3) &&
-      roles.contains(ChordToneRole.sharp5) &&
-      roles.contains(ChordToneRole.major7) &&
-      roles.contains(ChordToneRole.thirteen);
-}
-
-/// Prefers the complete minor seventh upper-structure slash reading over a
-/// remote minor-seven-sharp-five slash spelling.
-///
-/// Example: {D, A, C, E, G} with D in the bass has D9sus4 as the strongest
-/// root-position sus reading, but if comparing slash alternatives, Am7/D is
-/// clearer than Em7#5(add11)/D. The latter respells C as B# and turns a
-/// complete minor seventh chord into a remote altered-fifth chord.
-int? _preferMinor7EleventhBassSlashOverMinor7SharpFiveSlash(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = fa.isCompleteMinor7EleventhBassSlash;
-  final bIsPreferred = fb.isCompleteMinor7EleventhBassSlash;
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final fOther = aIsPreferred ? fb : fa;
-  final preferredCandidate = aIsPreferred ? a : b;
-  final otherCandidate = aIsPreferred ? b : a;
-  if (!fOther.isSlashBass) return null;
-  if (otherCandidate.identity.quality != ChordQualityToken.minor7Sharp5) {
-    return null;
-  }
-
-  if (preferredCandidate.score + 0.55 < otherCandidate.score) return null;
-
-  return aIsPreferred ? -1 : 1;
-}
 
 /// Prefers root-position altered-fifth dominants over close slash readings.
 ///
@@ -2851,57 +2530,6 @@ int? _preferNaturalExtensions(
   }
 
   return null;
-}
-
-int? _preferLydianMajorNineOverFlatFive(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures _,
-  CandidateFeatures _,
-  Tonality _,
-) {
-  final aIsPreferred = _isFifthlessLydianMajorNine(a.identity);
-  final bIsPreferred = _isFifthlessLydianMajorNine(b.identity);
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final preferred = aIsPreferred ? a : b;
-  final other = aIsPreferred ? b : a;
-  if (preferred.identity.rootPc != other.identity.rootPc) return null;
-  if (!_isMajorNineFlatFive(other.identity)) return null;
-
-  return aIsPreferred ? -1 : 1;
-}
-
-bool _isFifthlessLydianMajorNine(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.major7) return false;
-  if (id.extensions.length != 2 ||
-      !id.extensions.contains(ChordExtension.nine) ||
-      !id.extensions.contains(ChordExtension.sharp11)) {
-    return false;
-  }
-
-  final roles = id.toneRolesByInterval.values;
-  return roles.contains(ChordToneRole.root) &&
-      roles.contains(ChordToneRole.major3) &&
-      roles.contains(ChordToneRole.major7) &&
-      roles.contains(ChordToneRole.nine) &&
-      roles.contains(ChordToneRole.sharp11) &&
-      !roles.contains(ChordToneRole.perfect5);
-}
-
-bool _isMajorNineFlatFive(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.major7Flat5) return false;
-  if (id.extensions.length != 1 ||
-      !id.extensions.contains(ChordExtension.nine)) {
-    return false;
-  }
-
-  final roles = id.toneRolesByInterval.values;
-  return roles.contains(ChordToneRole.root) &&
-      roles.contains(ChordToneRole.major3) &&
-      roles.contains(ChordToneRole.flat5) &&
-      roles.contains(ChordToneRole.major7) &&
-      roles.contains(ChordToneRole.nine);
 }
 
 int? _preferSeventhBassAlteredFifthDominantOverAlteredFifthBass(
