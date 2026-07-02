@@ -128,6 +128,12 @@ abstract final class ChordAnalyzer {
   // Upper-structure slash-triad bonus.
   static const _add9BassUpperTriadBonus = 3.2; // e.g. D/E, C#/D#
 
+  // Cost for naming a voicing with a quality musicians rarely reach for
+  // (see _isRareVocabulary). Without it, a rare template that books every
+  // sounding note as a required tone outscores a commoner reading that
+  // treats one note as color.
+  static const _rareVocabularyCost = 1.0;
+
   // Candidates scoring more than this far below the top raw score are dropped
   // before ranking. The ranking is O(n^2) in candidate count, and a reading this
   // far down can never surface: it can be neither the chosen #1 (a hard rule
@@ -654,7 +660,7 @@ abstract final class ChordAnalyzer {
     // Square root (vs linear) preserves meaningful score separation while
     // preventing over-penalization of complex chords.
     final denom = reqCount > 0 ? math.sqrt(reqCount.toDouble()) : 1.0;
-    final normalized = raw / denom;
+    var normalized = raw / denom;
 
     if (reasons != null) {
       add(
@@ -665,7 +671,25 @@ abstract final class ChordAnalyzer {
       );
     }
 
+    if (_isRareVocabulary(template.quality)) {
+      normalized -= _rareVocabularyCost;
+      add('vocabulary rarity', -_rareVocabularyCost);
+    }
+
     return _ScoredTemplate(score: normalized, extensions: extensions);
+  }
+
+  /// Qualities that in practice almost always respell a commoner chord:
+  /// minor sharp-five readings of inverted major triads, major flat-five
+  /// readings of Lydian sharp-eleven colors, and the sus2 sevenths.
+  static bool _isRareVocabulary(ChordQualityToken quality) {
+    return switch (quality) {
+      ChordQualityToken.minorSharp5 ||
+      ChordQualityToken.majorFlat5 ||
+      ChordQualityToken.dominant7sus2 ||
+      ChordQualityToken.major7sus2 => true,
+      _ => false,
+    };
   }
 
   static bool _hasAlterations(

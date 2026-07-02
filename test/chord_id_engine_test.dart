@@ -11,7 +11,7 @@ void main() {
   });
 
   test('separates chord tones and also-played input tones', () {
-    final result = identifyChord('C E G Bb D');
+    final result = identifyChord('C E G Bb D', top: 12);
     final suspended = result.candidates.firstWhere(
       (candidate) => candidate.symbol == 'C7sus2',
     );
