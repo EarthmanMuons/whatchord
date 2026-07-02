@@ -226,6 +226,18 @@ void main() {
     ),
 
     golden(
+      description: 'complete dominant flat-nine beats diminished add-nine',
+      expectedSymbol: 'C7b9/E',
+      expectedAlternateSymbols: ['C#m(maj13)/E', 'A#dim(add9)/E'],
+      pcs: ['C', 'Db', 'E', 'Bb'],
+      bass: 'E',
+      expectedRoot: 'C',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9},
+    ),
+
+    golden(
       description:
           'complete dominant flat-nine sharp-nine beats colored diminished7',
       expectedSymbol: 'C7(b9,#9)/G',
