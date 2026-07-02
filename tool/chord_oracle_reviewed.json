@@ -619,6 +619,22 @@
     "label": "context-dependent",
     "note": "D♭maj7sus4(♯11) is defensible in neutral context because D♭ is the bass/root and the voicing supplies a D♭ suspended-major-seventh frame D♭-G♭-C, with G as sharp-eleventh color. Music21's F♯power/C♯addG,C captures the alternate F♯/G♭ no-third fifth-plus-color hearing, but without explicit power/no-third vocabulary WhatChord has no direct F♯5/C♯ add-tone label to emit. The nearby Gmaj7sus4(♯11)/C♯ reading stays surfaced as a possible alternative, and ChoCo broadly supports major7sus4 vocabulary even though this exact split-fourth color is sparse."
   },
+  "0-1-6-8_b0": {
+    "label": "clearly-correct",
+    "note": "D♭maj7sus4/C is correct because D♭-G♭-A♭-C forms a complete suspended-major-seventh sonority, with C as the major seventh in the bass. Tonal agrees semantically as D♭M7sus4/C. The A♭11/C and G♭sus2♯11/C rotations are pitch-valid, but they obscure the complete D♭ suspended-major organization."
+  },
+  "0-1-6-8_b1": {
+    "label": "clearly-correct",
+    "note": "D♭maj7sus4 is correct because D♭ is the bass/root and the voicing contains the complete suspended-major-seventh structure D♭-G♭-A♭-C. Tonal agrees semantically. The G♭sus2♯11/D♭ and A♭7/D♭ alternatives are less direct rotations of the same tones rather than stronger musician-facing names."
+  },
+  "0-1-6-8_b6": {
+    "label": "clearly-correct",
+    "note": "D♭maj7sus4/G♭ remains defensible even with the suspension in the bass because the pitch set still gives a complete D♭ suspended-major-seventh chord, D♭-G♭-A♭-C, and Tonal agrees semantically. The A♭11/G♭ and G♭sus2♯11 readings are close and surfaced as possible alternatives, but the D♭ label preserves the complete suspended-major-seventh vocabulary instead of recasting the same sonority as a dominant eleventh or Lydian sus2 rotation."
+  },
+  "0-1-6-8_b8": {
+    "label": "clearly-correct",
+    "note": "D♭maj7sus4/A♭ is correct because A♭ is the fifth in the bass of a complete D♭ suspended-major-seventh sonority, D♭-G♭-A♭-C. Tonal agrees semantically. A♭11 is a plausible bass-rooted rotation, but the D♭ spelling names the full suspended-major-seventh structure with a conventional fifth-in-bass inversion."
+  },
   "0-1-6-8-10_b0": {
     "label": "genuine-ambiguity",
     "note": "D♭maj13sus4/C is preferred because D♭-G♭-A♭-C-B♭ forms a D♭ suspended major-seventh sonority with thirteenth color, and the C bass is the major seventh rather than a non-chord chromatic tone. Tonal's B♭m9♯5/C matches WhatChord's surfaced possible alternative and names the complete B♭ minor-seventh-sharp-five structure, but that spelling asks musicians to read F♯ as an altered fifth where the D♭ reading keeps the upper structure diatonic. Music21's G♭/C add-tone label captures a related major-shell subset but omits the suspended-major-seventh organization. The row remains genuinely ambiguous."
