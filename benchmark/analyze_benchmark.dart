@@ -297,17 +297,7 @@ _CheckVerdict _maybePrintComparison(
     final metricKey = path.join('.');
     final relativeChange = _relativeChange(b, c);
     final noiseRel95 = noise?.metricNoiseRel95(metricKey) ?? 0;
-    final practicalThreshold = switch (metricKey) {
-      'memory.churnBytesPerCall' => math.max(
-        _memoryRegressionThreshold,
-        _churnBytesPerCallRegressionThreshold / b,
-      ),
-      'memory.retainedBytes' => math.max(
-        _memoryRegressionThreshold,
-        _retainedBytesRegressionThreshold / b,
-      ),
-      _ => 0.0,
-    };
+    final practicalThreshold = _practicalRegressionThreshold(metricKey, b);
     if (check &&
         pct &&
         relativeChange >= practicalThreshold &&
@@ -407,6 +397,27 @@ double _combinedTimeUncertainty(
 double _relativeChange(num baseline, num current) {
   if (baseline == 0) return current == 0 ? 0 : double.infinity;
   return (current - baseline) / baseline;
+}
+
+/// Relative change that --check treats as a real regression for [metricKey],
+/// independent of noise. Time metrics use a flat floor; memory metrics also
+/// honor an absolute-bytes floor so tiny heaps do not trip on rounding.
+double _practicalRegressionThreshold(String metricKey, num baselineValue) {
+  return switch (metricKey) {
+    'time.oracle.coldNormalized' ||
+    'time.oracle.warmNormalized' ||
+    'time.common.coldNormalized' ||
+    'time.common.warmNormalized' => _timeRegressionThreshold,
+    'memory.churnBytesPerCall' => math.max(
+      _memoryRegressionThreshold,
+      _churnBytesPerCallRegressionThreshold / baselineValue,
+    ),
+    'memory.retainedBytes' => math.max(
+      _memoryRegressionThreshold,
+      _retainedBytesRegressionThreshold / baselineValue,
+    ),
+    _ => 0.0,
+  };
 }
 
 String _noiseSuffix(_NoiseModel? noise, String key) {
@@ -607,6 +618,43 @@ Future<void> _calibrateNoise() async {
     _noisePath,
   ).writeAsStringSync(const JsonEncoder.withIndent('  ').convert(noise));
   stdout.writeln('Wrote $_noisePath');
+  _reportBaselineStaleness(baseline, metrics);
+}
+
+/// Warns when the calibration cloud has a systematic offset from the committed
+/// baseline that exceeds both the measured noise and the regression floor. A
+/// persistent offset means the baseline no longer represents this runner:
+/// regenerate it with --out=$_baselinePath. Do not fold the drift into the
+/// noise model, which measures spread, not center.
+void _reportBaselineStaleness(
+  Map<String, Object?> baseline,
+  Map<String, Map<String, double>> metrics,
+) {
+  final drifted = <String>[];
+  for (final key in metrics.keys) {
+    final offset = metrics[key]?['medianRelativeDelta'];
+    final noiseRel95 = metrics[key]?['noiseRel95'];
+    if (offset == null || noiseRel95 == null) continue;
+    final baselineValue = _at(baseline, _calibrationMetricPaths[key]!);
+    if (baselineValue is! num || baselineValue == 0) continue;
+    final floor = _practicalRegressionThreshold(key, baselineValue);
+    if (offset.abs() > noiseRel95 && offset.abs() >= floor) {
+      drifted.add(
+        '    $key ${_formatPercent(offset)} '
+        '(noise ${_formatMagnitudePercent(noiseRel95)}, '
+        'floor ${_formatMagnitudePercent(floor)})',
+      );
+    }
+  }
+  if (drifted.isEmpty) return;
+  stdout.writeln(
+    'Baseline may be stale: these metrics sit off-center beyond noise and the '
+    'regression floor:',
+  );
+  drifted.forEach(stdout.writeln);
+  stdout.writeln(
+    'Regenerate with --out=$_baselinePath if the engine or runner changed.',
+  );
 }
 
 Map<String, Map<String, double>> _calculateNoiseMetrics(
