@@ -615,6 +615,10 @@
     "label": "clearly-correct",
     "note": "G♭♯11 is preferred because G♭ is the bass/root of the complete G♭-B♭-D♭ major triad and C is the Lydian sharp eleventh. Music21 agrees semantically as F♯ add B♯. The D♭maj13sus4/G♭ alternative makes the bass a suspended fourth against D♭ and lacks the D♭ major third, so it is less direct."
   },
+  "0-1-6-7_b1": {
+    "label": "context-dependent",
+    "note": "D♭maj7sus4(♯11) is defensible in neutral context because D♭ is the bass/root and the voicing supplies a D♭ suspended-major-seventh frame D♭-G♭-C, with G as sharp-eleventh color. Music21's F♯power/C♯addG,C captures the alternate F♯/G♭ no-third fifth-plus-color hearing, but without explicit power/no-third vocabulary WhatChord has no direct F♯5/C♯ add-tone label to emit. The nearby Gmaj7sus4(♯11)/C♯ reading stays surfaced as a possible alternative, and ChoCo broadly supports major7sus4 vocabulary even though this exact split-fourth color is sparse."
+  },
   "0-1-6-8-10_b0": {
     "label": "genuine-ambiguity",
     "note": "D♭maj13sus4/C is preferred because D♭-G♭-A♭-C-B♭ forms a D♭ suspended major-seventh sonority with thirteenth color, and the C bass is the major seventh rather than a non-chord chromatic tone. Tonal's B♭m9♯5/C matches WhatChord's surfaced possible alternative and names the complete B♭ minor-seventh-sharp-five structure, but that spelling asks musicians to read F♯ as an altered fifth where the D♭ reading keeps the upper structure diatonic. Music21's G♭/C add-tone label captures a related major-shell subset but omits the suspended-major-seventh organization. The row remains genuinely ambiguous."
