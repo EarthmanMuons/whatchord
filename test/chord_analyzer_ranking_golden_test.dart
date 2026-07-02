@@ -951,6 +951,19 @@ void main() {
     ),
 
     golden(
+      description:
+          'fifthless major-seven sharp-eleven beats major-seven flat-five',
+      expectedSymbol: 'Dbmaj7#11',
+      expectedAlternateSymbols: ['C#maj7b5'],
+      pcs: ['C', 'Db', 'F', 'G'],
+      bass: 'Db',
+      expectedRoot: 'Db',
+      expectedQuality: ChordQualityToken.major7,
+      expectedExtensions: {ChordExtension.sharp11},
+      expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
+    ),
+
+    golden(
       description: 'readable sharp-eleven major beats flat-five respelling',
       expectedSymbol: 'Ab#11/C',
       expectedAlternateSymbols: ['G#(b5)/B#'],
