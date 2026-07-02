@@ -24,6 +24,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   decisively better fit to be chosen or offered as an alternative, so dense
   voicings favor common chord names such as A♭maj7/D♭ over respellings such as
   D♭maj7sus2(♯11).
+- The rare-vocabulary preference now also covers m7♯5, maj7♭5, and maj7♯5, so
+  readings such as Cadd9/E, F7♭13, and half-diminished flat-color stacks win
+  over altered-fifth respellings of the same notes.
+- Extended dominants rooted a tritone apart (such as C7alt against G♭9♯11) now
+  prefer the reading whose members spell cleanly in context, and Lydian dominant
+  9♯11 voicings keep their preference in shell-tone inversions such as C9♯11/B♭.
 
 ### Fixed
 

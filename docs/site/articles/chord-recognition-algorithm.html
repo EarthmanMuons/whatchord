@@ -603,8 +603,9 @@
                 <td class="pos mono">+0.70</td>
                 <td>
                   Rewards a dominant whose 9 and ♯11 form a partial Lydian
-                  stack, so the score prefers it over remote altered-fifth slash
-                  readings
+                  stack, in root position or with a shell tone (3rd, 5th, ♭7) in
+                  the bass, so the score prefers it over remote altered-fifth
+                  slash readings
                 </td>
               </tr>
               <tr>
@@ -690,8 +691,10 @@
           <p>
             After normalization, a flat <code>-1.0</code> cost applies to the
             qualities musicians almost never reach for because they usually
-            respell to a more common chord: m♯5 (an inverted major triad), maj♭5
-            (a Lydian ♯11 color), and the sus2 sevenths 7sus2 and maj7sus2.
+            respell to a more common chord: m♯5 (an inverted major triad), m7♯5
+            (usually a triad with added color or a half-diminished shape spelled
+            from the wrong root), maj♭5, maj7♭5, and maj7♯5 (Lydian ♯11 and
+            dominant ♭13 colors), and the sus2 sevenths 7sus2 and maj7sus2.
             These templates can otherwise win on fit alone by booking every
             sounding note as a required tone, where the expected reading treats
             one note as color. A rare quality can still win, but only when the
@@ -917,6 +920,11 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
               over remote slash reinterpretations
             </li>
             <li>
+              Prefer the cleaner-spelled reading of tritone-twin extended
+              dominants (C7alt vs G♭9♯11 shapes), unless one side is a complete
+              natural-thirteenth stack
+            </li>
+            <li>
               Prefer stable extended dominant inversions over altered-fifth
               dominant slash
             </li>
@@ -943,10 +951,6 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
             <li>
               Prefer half-diminished flat-color spellings over equivalent minor
               sharp-five spellings
-            </li>
-            <li>
-              Prefer complete Lydian 6/9♯11 readings over equivalent
-              major-13-sus4 spellings
             </li>
             <li>
               Prefer complete major-triad ♯11 inversions over sparse

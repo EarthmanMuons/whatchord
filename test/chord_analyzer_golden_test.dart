@@ -675,7 +675,7 @@ void main() {
   runChordAnalyzerGoldenCases(cases);
 
   test(
-    'dominant flat-thirteen alternate surfaces near major-nine sharp-five',
+    'complete dominant flat-thirteen beats enharmonic major-nine sharp-five',
     () {
       for (final bass in ['C', 'A']) {
         final input = chordInputFromNames(
@@ -687,27 +687,26 @@ void main() {
           context: makeAnalysisContext(),
         );
 
-        expect(results.first.identity.rootPc, pc('Db'));
-        expect(results.first.identity.quality, ChordQualityToken.major7Sharp5);
-
-        final alternatives = ChordCandidateRanking.alternatives(results);
+        expect(results.first.identity.rootPc, pc('F'));
+        expect(results.first.identity.quality, ChordQualityToken.dominant7);
         expect(
-          alternatives,
+          results.first.identity.extensions,
+          contains(ChordExtension.flat13),
+        );
+
+        // The enharmonic Dbmaj9#5 stays ranked but no longer near-ties.
+        expect(
+          results,
           contains(
             isA<ChordCandidate>()
-                .having((c) => c.identity.rootPc, 'root', pc('F'))
+                .having((c) => c.identity.rootPc, 'root', pc('Db'))
                 .having(
                   (c) => c.identity.quality,
                   'quality',
-                  ChordQualityToken.dominant7,
-                )
-                .having(
-                  (c) => c.identity.extensions,
-                  'extensions',
-                  contains(ChordExtension.flat13),
+                  ChordQualityToken.major7Sharp5,
                 ),
           ),
-          reason: 'F7b13 should surface as an alternative for bass $bass',
+          reason: 'Dbmaj9#5 should stay a ranked reading for bass $bass',
         );
       }
     },

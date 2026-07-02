@@ -435,6 +435,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferRootDominantSusOverSlash,
   ),
   NamedRule(
+    'prefer cleaner-spelled tritone-twin extended dominant',
+    _preferCleanerSpelledTritoneTwinExtendedDominant,
+  ),
+  NamedRule(
     'prefer stable extended dominant over altered-fifth slash',
     _preferRootExtendedDom7OverAlteredFifthSlash,
   ),
@@ -461,10 +465,6 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
   NamedRule(
     'prefer half-diminished flat-color spelling over minor sharp-five',
     _preferHalfDiminishedFlatColorSpellingOverMinorSharpFive,
-  ),
-  NamedRule(
-    'prefer complete lydian six-nine over major13sus4',
-    _preferCompleteLydianSixNineOverMajor13Sus4,
   ),
   NamedRule(
     'prefer complete major sharp-eleven inversion over major13sus4',
@@ -1183,61 +1183,6 @@ bool _isRootDominantSusFlatNine(ChordIdentity id) {
       id.quality == ChordQualityToken.dominant7sus4 &&
       id.extensions.length == 1 &&
       id.extensions.contains(ChordExtension.flat9);
-}
-
-/// Prefers a complete Lydian major 6/9 over a suspended major-thirteenth
-/// spelling of the same collection.
-///
-/// Example: {C, Db, Eb, F#, Ab, Bb} is more directly G♭6/9#11 than
-/// D♭maj13sus4: the G♭ reading preserves a major triad with 6/9/#11 color,
-/// while the D♭ reading turns the same G♭ into a suspension.
-int? _preferCompleteLydianSixNineOverMajor13Sus4(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = _isCompleteLydianSixNine(a.identity);
-  final bIsPreferred = _isCompleteLydianSixNine(b.identity);
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final other = aIsPreferred ? b : a;
-  if (!_isMajorThirteenSusFour(other.identity)) return null;
-
-  return aIsPreferred ? -1 : 1;
-}
-
-bool _isCompleteLydianSixNine(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.major6) return false;
-  if (!id.extensions.contains(ChordExtension.add9) ||
-      !id.extensions.contains(ChordExtension.sharp11)) {
-    return false;
-  }
-
-  final roles = id.toneRolesByInterval.values;
-  return roles.contains(ChordToneRole.root) &&
-      roles.contains(ChordToneRole.major3) &&
-      roles.contains(ChordToneRole.perfect5) &&
-      roles.contains(ChordToneRole.sixth) &&
-      roles.contains(ChordToneRole.add9) &&
-      roles.contains(ChordToneRole.sharp11);
-}
-
-bool _isMajorThirteenSusFour(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.major7sus4) return false;
-  if (!id.extensions.contains(ChordExtension.nine) ||
-      !id.extensions.contains(ChordExtension.thirteen)) {
-    return false;
-  }
-
-  final roles = id.toneRolesByInterval.values;
-  return roles.contains(ChordToneRole.root) &&
-      roles.contains(ChordToneRole.sus4) &&
-      roles.contains(ChordToneRole.perfect5) &&
-      roles.contains(ChordToneRole.major7) &&
-      roles.contains(ChordToneRole.nine) &&
-      roles.contains(ChordToneRole.thirteen);
 }
 
 /// Prefers a complete Lydian major triad inversion over a sparse
@@ -3049,6 +2994,44 @@ int? _preferConventionalInversion(
     return null;
   }
   return cmp;
+}
+
+/// Resolves near-tied extended dominant readings rooted a tritone apart by
+/// choosing the reading musicians can read directly.
+///
+/// Tritone-twin dominants describe the same tension collection from either
+/// root (C7alt vs F#9#11). Which root is clearer depends on how its members
+/// spell in context: {C, Db, E, F#, Ab, Bb} over E is C7(#5,b9,#11)/E, not
+/// F#9#11/E, because the F# reading spells A# and B#. Plain fifthless-7b5
+/// twins carry no extensions and are handled later by
+/// [_preferCleanerTritoneFlatFiveDominantSpelling].
+int? _preferCleanerSpelledTritoneTwinExtendedDominant(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality tonality,
+) {
+  final aIsDominant = fa.isDom7 || fa.isAlteredFifthDom7;
+  final bIsDominant = fb.isDom7 || fb.isAlteredFifthDom7;
+  if (!aIsDominant || !bIsDominant) return null;
+  if (!fa.hasRealExt && !fb.hasRealExt) return null;
+
+  // A complete natural-thirteenth stack is a stronger identity than spelling
+  // readability; leave those pairs to the structural rules below.
+  if (a.identity.extensions.contains(ChordExtension.thirteen) ||
+      b.identity.extensions.contains(ChordExtension.thirteen)) {
+    return null;
+  }
+  if (intervalAboveRoot(a.identity.rootPc, b.identity.rootPc) !=
+      tritoneInterval) {
+    return null;
+  }
+
+  final aPenalty = _candidateSpellingPenalty(a.identity, tonality);
+  final bPenalty = _candidateSpellingPenalty(b.identity, tonality);
+  if ((aPenalty - bPenalty).abs() <= 10) return null;
+  return aPenalty < bPenalty ? -1 : 1;
 }
 
 /// Resolves exact tritone-equivalent dominant-seven-flat-five ties by choosing

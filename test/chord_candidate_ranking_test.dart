@@ -1049,31 +1049,6 @@ void main() {
     );
   });
 
-  test('complete lydian major six-nine beats major13sus4', () {
-    final lydianMajorSixNine = _candidate(
-      quality: ChordQualityToken.major6,
-      root: 'Gb',
-      bass: 'Db',
-      presentIntervals: const {0, 2, 4, 6, 7, 9},
-      extensions: const {ChordExtension.add9, ChordExtension.sharp11},
-      score: 7.79,
-    );
-    final majorThirteenSus = _candidate(
-      quality: ChordQualityToken.major7sus4,
-      root: 'Db',
-      bass: 'Db',
-      presentIntervals: const {0, 2, 5, 7, 9, 11},
-      extensions: const {ChordExtension.nine, ChordExtension.thirteen},
-      score: 7.79,
-    );
-
-    _expectTieRule(
-      lydianMajorSixNine,
-      majorThirteenSus,
-      'prefer complete lydian six-nine over major13sus4',
-    );
-  });
-
   test('complete add-nine inversion beats minor7 sharp-five', () {
     final addNineInversion = _candidate(
       quality: ChordQualityToken.major,

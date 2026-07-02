@@ -662,6 +662,11 @@ abstract final class ChordAnalyzer {
     final denom = reqCount > 0 ? math.sqrt(reqCount.toDouble()) : 1.0;
     var normalized = raw / denom;
 
+    if (_isRareVocabulary(template.quality)) {
+      normalized -= _rareVocabularyCost;
+      add('vocabulary rarity', -_rareVocabularyCost);
+    }
+
     if (reasons != null) {
       add(
         'normalize',
@@ -671,21 +676,20 @@ abstract final class ChordAnalyzer {
       );
     }
 
-    if (_isRareVocabulary(template.quality)) {
-      normalized -= _rareVocabularyCost;
-      add('vocabulary rarity', -_rareVocabularyCost);
-    }
-
     return _ScoredTemplate(score: normalized, extensions: extensions);
   }
 
   /// Qualities that in practice almost always respell a commoner chord:
-  /// minor sharp-five readings of inverted major triads, major flat-five
-  /// readings of Lydian sharp-eleven colors, and the sus2 sevenths.
+  /// altered-fifth readings of major triads, sevenths, and minor sevenths
+  /// (usually inversions or Lydian/flat-thirteen colors of commoner chords)
+  /// and the sus2 sevenths.
   static bool _isRareVocabulary(ChordQualityToken quality) {
     return switch (quality) {
       ChordQualityToken.minorSharp5 ||
+      ChordQualityToken.minor7Sharp5 ||
       ChordQualityToken.majorFlat5 ||
+      ChordQualityToken.major7Flat5 ||
+      ChordQualityToken.major7Sharp5 ||
       ChordQualityToken.dominant7sus2 ||
       ChordQualityToken.major7sus2 => true,
       _ => false,
@@ -880,7 +884,7 @@ abstract final class ChordAnalyzer {
 
     if (!hasNaturalNinth) return 0;
     if (!hasNaturalThirteenth && !hasFlatThirteenth) {
-      return bassInterval == 0 ? _domStackPartial : 0;
+      return _isShellToneBass(bassInterval) ? _domStackPartial : 0;
     }
 
     if (hasNaturalThirteenth && !hasFlatThirteenth) {
@@ -894,6 +898,15 @@ abstract final class ChordAnalyzer {
     }
 
     return _domStackFull;
+  }
+
+  /// Whether the bass is a chord shell tone (root, third, fifth, or seventh),
+  /// i.e. a conventional inversion rather than a color-tone slash.
+  static bool _isShellToneBass(int bassInterval) {
+    return bassInterval == 0 ||
+        bassInterval == majorThirdInterval ||
+        bassInterval == perfectFifthInterval ||
+        bassInterval == minorSeventhInterval;
   }
 
   static bool _hasCompleteNaturalDominantThirteenthNinthBass({
