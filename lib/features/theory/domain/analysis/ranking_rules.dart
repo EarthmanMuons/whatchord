@@ -211,6 +211,8 @@ final List<NamedRule> hardRules = <NamedRule>[
     _preferReadableSharpElevenMajorOverFlatFive,
     gate: (c, _, _) =>
         c.identity.quality == ChordQualityToken.major ||
+        c.identity.quality == ChordQualityToken.major7 ||
+        c.identity.quality == ChordQualityToken.major7Flat5 ||
         c.identity.quality == ChordQualityToken.majorFlat5,
   ),
 ];
@@ -2192,13 +2194,15 @@ int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
   return aIsTriadAddTone ? -1 : 1;
 }
 
-/// Prefers a readable Lydian major spelling over an enharmonic flat-five triad
+/// Prefers a readable Lydian major spelling over an enharmonic flat-five
 /// spelling when both describe the same sparse pitch-class collection.
 ///
 /// Example: {A♭, C, D} with C in the bass is more readable as A♭♯11/C than
 /// G♯(♭5)/B♯. The flat-five triad is interval-correct, but it needs a wrap
 /// accidental to spell the third; the #11 spelling preserves the observed
-/// A♭-C major-third sonority and treats D as Lydian color.
+/// A♭-C major-third sonority and treats D as Lydian color. The same applies
+/// to fifthless major-seventh voicings: D♭-F-C-G is more idiomatic as
+/// D♭maj7♯11 than D♭maj7♭5/A𝄫 bookkeeping.
 int? _preferReadableSharpElevenMajorOverFlatFive(
   ChordCandidate a,
   ChordCandidate b,
@@ -2212,8 +2216,11 @@ int? _preferReadableSharpElevenMajorOverFlatFive(
 
   final preferred = aIsPreferred ? a : b;
   final other = aIsPreferred ? b : a;
-  if (!preferred.identity.hasSlashBass) return null;
-  if (!_isPlainMajorFlatFive(other.identity)) return null;
+  if (_isSparseSharpElevenMajorTriad(preferred.identity) &&
+      !preferred.identity.hasSlashBass) {
+    return null;
+  }
+  if (!_isMatchingMajorFlatFiveCounterpart(other.identity)) return null;
   if (preferred.identity.rootPc != other.identity.rootPc ||
       preferred.identity.bassPc != other.identity.bassPc ||
       preferred.identity.presentIntervalsMask !=
@@ -2234,6 +2241,11 @@ int? _preferReadableSharpElevenMajorOverFlatFive(
 }
 
 bool _isSparseSharpElevenMajor(ChordIdentity id) {
+  return _isSparseSharpElevenMajorTriad(id) ||
+      _isFifthlessSharpElevenMajorSeventh(id);
+}
+
+bool _isSparseSharpElevenMajorTriad(ChordIdentity id) {
   if (id.quality != ChordQualityToken.major) return false;
   if (id.extensions.length != 1 ||
       !id.extensions.contains(ChordExtension.sharp11)) {
@@ -2247,6 +2259,25 @@ bool _isSparseSharpElevenMajor(ChordIdentity id) {
       !roles.contains(ChordToneRole.perfect5);
 }
 
+bool _isFifthlessSharpElevenMajorSeventh(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.major7) return false;
+  if (id.extensions.length != 1 ||
+      !id.extensions.contains(ChordExtension.sharp11)) {
+    return false;
+  }
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.major7) &&
+      roles.contains(ChordToneRole.sharp11) &&
+      !roles.contains(ChordToneRole.perfect5);
+}
+
+bool _isMatchingMajorFlatFiveCounterpart(ChordIdentity id) {
+  return _isPlainMajorFlatFive(id) || _isPlainMajorSeventhFlatFive(id);
+}
+
 bool _isPlainMajorFlatFive(ChordIdentity id) {
   if (id.quality != ChordQualityToken.majorFlat5) return false;
   if (id.extensions.isNotEmpty) return false;
@@ -2255,6 +2286,18 @@ bool _isPlainMajorFlatFive(ChordIdentity id) {
   return roles.contains(ChordToneRole.root) &&
       roles.contains(ChordToneRole.major3) &&
       roles.contains(ChordToneRole.flat5) &&
+      !roles.contains(ChordToneRole.perfect5);
+}
+
+bool _isPlainMajorSeventhFlatFive(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.major7Flat5) return false;
+  if (id.extensions.isNotEmpty) return false;
+
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.flat5) &&
+      roles.contains(ChordToneRole.major7) &&
       !roles.contains(ChordToneRole.perfect5);
 }
 
