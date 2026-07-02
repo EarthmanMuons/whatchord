@@ -453,6 +453,7 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
   NamedRule('prefer 7th chords over triads', _prefer7thChords),
   NamedRule('prefer fewer extensions', _preferFewerExtensions),
   NamedRule('avoid suspended chords', _avoidSuspended),
+  NamedRule('prefer cleaner spelling', _preferCleanerSpelling),
 ];
 
 // ---- Six chords vs inverted sevenths -----------------------------------
@@ -1817,12 +1818,9 @@ int? _preferReadableSharpElevenMajorOverFlatFive(
     return null;
   }
 
-  final preferredPenalty = _candidateSpellingPenalty(
-    preferred.identity,
-    tonality,
-  );
-  final otherPenalty = _candidateSpellingPenalty(other.identity, tonality);
-  if (preferredPenalty + 15 >= otherPenalty) return null;
+  if (_cleanerSpelledSide(preferred, other, tonality, margin: 15) != -1) {
+    return null;
+  }
 
   if (preferred.score + 1.50 < other.score) return null;
 
@@ -2656,10 +2654,7 @@ int? _preferCleanerSpelledTritoneTwinExtendedDominant(
     return null;
   }
 
-  final aPenalty = _candidateSpellingPenalty(a.identity, tonality);
-  final bPenalty = _candidateSpellingPenalty(b.identity, tonality);
-  if ((aPenalty - bPenalty).abs() <= 10) return null;
-  return aPenalty < bPenalty ? -1 : 1;
+  return _cleanerSpelledSide(a, b, tonality, margin: 10);
 }
 
 /// Resolves exact tritone-equivalent dominant-seven-flat-five ties by choosing
@@ -2680,10 +2675,7 @@ int? _preferCleanerTritoneFlatFiveDominantSpelling(
   }
   if ((a.score - b.score).abs() > 0.05) return null;
 
-  final aPenalty = _candidateSpellingPenalty(a.identity, tonality);
-  final bPenalty = _candidateSpellingPenalty(b.identity, tonality);
-  if (aPenalty == bPenalty) return null;
-  return aPenalty < bPenalty ? -1 : 1;
+  return _cleanerSpelledSide(a, b, tonality, margin: 0);
 }
 
 bool _isPlainTritoneFlatFiveDominantPair(ChordIdentity a, ChordIdentity b) {
@@ -2692,6 +2684,20 @@ bool _isPlainTritoneFlatFiveDominantPair(ChordIdentity a, ChordIdentity b) {
       a.extensions.isEmpty &&
       b.extensions.isEmpty &&
       intervalAboveRoot(a.rootPc, b.rootPc) == tritoneInterval;
+}
+
+/// Returns -1 or 1 for the candidate whose members spell more readably in
+/// context, or null when the penalty difference does not exceed [margin].
+int? _cleanerSpelledSide(
+  ChordCandidate a,
+  ChordCandidate b,
+  Tonality tonality, {
+  required int margin,
+}) {
+  final aPenalty = _candidateSpellingPenalty(a.identity, tonality);
+  final bPenalty = _candidateSpellingPenalty(b.identity, tonality);
+  if ((aPenalty - bPenalty).abs() <= margin) return null;
+  return aPenalty < bPenalty ? -1 : 1;
 }
 
 int _candidateSpellingPenalty(ChordIdentity identity, Tonality tonality) {
@@ -2807,4 +2813,17 @@ int? _avoidSuspended(
 ) {
   if (fa.isSus == fb.isSus) return null;
   return fa.isSus ? 1 : -1;
+}
+
+/// Last-resort readability preference: when no structural rule separates two
+/// near-tied readings, prefer the one whose members spell more cleanly rather
+/// than falling through to the arbitrary root-order fallback.
+int? _preferCleanerSpelling(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures _,
+  CandidateFeatures _,
+  Tonality tonality,
+) {
+  return _cleanerSpelledSide(a, b, tonality, margin: 0);
 }

@@ -30,6 +30,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Extended dominants rooted a tritone apart (such as C7alt against G♭9♯11) now
   prefer the reading whose members spell cleanly in context, and Lydian dominant
   9♯11 voicings keep their preference in shell-tone inversions such as C9♯11/B♭.
+- When nothing structural separates two close readings, the chord with the
+  cleaner spelling now wins instead of an arbitrary root-order fallback, so
+  C♯m(maj7,♭9) is chosen over C♯maj7♭9 and its E♯ spelling.
 
 ### Fixed
 

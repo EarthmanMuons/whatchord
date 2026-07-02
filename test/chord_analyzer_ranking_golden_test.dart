@@ -450,7 +450,7 @@ void main() {
     golden(
       description: 'complete dominant nine flat-thirteen handles ninth bass',
       expectedSymbol: 'F9b13/G',
-      expectedAlternateSymbols: ['A7(b5,#9,b13)/G', 'C#maj9(b5,b13)/G'],
+      expectedAlternateSymbols: ['A7(b5,#9,b13)/G', 'Dbmaj9(#5,#11)/G'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G', 'A'],
       bass: 'G',
       expectedRoot: 'F',
