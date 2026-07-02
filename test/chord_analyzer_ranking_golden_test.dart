@@ -450,7 +450,7 @@ void main() {
     golden(
       description: 'complete dominant nine flat-thirteen handles ninth bass',
       expectedSymbol: 'F9b13/G',
-      expectedAlternateSymbols: ['C#maj9(b5,b13)/G', 'Dbmaj9(#5,#11)/G'],
+      expectedAlternateSymbols: ['A7(b5,#9,b13)/G', 'C#maj9(b5,b13)/G'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G', 'A'],
       bass: 'G',
       expectedRoot: 'F',
@@ -462,7 +462,7 @@ void main() {
     golden(
       description: 'complete dominant nine flat-thirteen handles third bass',
       expectedSymbol: 'F9b13/A',
-      expectedAlternateSymbols: ['Dbmaj9(#5,#11)/A', 'C#maj9(b5,b13)/A'],
+      expectedAlternateSymbols: ['A7(b5,#9,b13)', 'Dbmaj9(#5,#11)/A'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G', 'A'],
       bass: 'A',
       expectedRoot: 'F',
@@ -472,16 +472,19 @@ void main() {
     ),
 
     golden(
-      description: 'fifthless flat-five thirteenth handles flat-seventh bass',
-      expectedSymbol: 'Eb13b5/Db',
-      expectedAlternateSymbols: ['F9b13/Db'],
+      // The Eb13b5 reading stays available, but it spells its flat fifth as
+      // B double-flat; the complete dominant b13 stack names the same notes
+      // plainly and matches the other basses of this collection.
+      description:
+          'complete dominant nine flat-thirteen handles flat-thirteenth bass',
+      expectedSymbol: 'F9b13/Db',
+      expectedAlternateSymbols: ['Eb13b5/Db'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G', 'A'],
       bass: 'Db',
-      expectedRoot: 'Eb',
+      expectedRoot: 'F',
       expectedBass: 'Db',
-      expectedQuality: ChordQualityToken.dominant7Flat5,
-      expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
-      expectedToneRolesByInterval: {6: ChordToneRole.flat5},
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.flat13},
     ),
 
     golden(
@@ -888,28 +891,33 @@ void main() {
     ),
 
     golden(
-      description: 'lydian major six-nine beats major-thirteenth sus4',
-      expectedSymbol: 'Gb6/9#11/Db',
-      expectedAlternateSymbols: ['Bbm11#5/Db', 'Dbmaj13sus4'],
+      // With its root sounding, the complete suspended major-thirteenth is
+      // the root-position reading of this collection; the relative m13 and
+      // Lydian six-nine slashes stay as alternatives.
+      description: 'suspended major-thirteenth root bass beats slash readings',
+      expectedSymbol: 'Dbmaj13sus4',
+      expectedAlternateSymbols: ['Ebm13/Db', 'Gb6/9#11/Db'],
       pcs: ['C', 'Db', 'Eb', 'F#', 'Ab', 'Bb'],
       bass: 'Db',
-      expectedRoot: 'Gb',
+      expectedRoot: 'Db',
       expectedBass: 'Db',
-      expectedQuality: ChordQualityToken.major6,
-      expectedExtensions: {ChordExtension.add9, ChordExtension.sharp11},
+      expectedQuality: ChordQualityToken.major7sus4,
+      expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
     ),
 
     golden(
-      description:
-          'lydian major six-nine handles third bass over minor-eleventh sharp-five',
-      expectedSymbol: 'Gb6/9#11/Bb',
-      expectedAlternateSymbols: ['Bbm11#5', 'Ebm13/Bb'],
+      // The stacked-natural minor thirteenth wins over the Lydian six-nine
+      // slash on the natural-extension preference, matching the Eb-bass
+      // sibling case.
+      description: 'minor-thirteenth fifth bass beats lydian six-nine slash',
+      expectedSymbol: 'Ebm13/Bb',
+      expectedAlternateSymbols: ['Cm7(b5,b9,b13)/Bb', 'Gb6/9#11/Bb'],
       pcs: ['C', 'Db', 'Eb', 'F#', 'Ab', 'Bb'],
       bass: 'Bb',
-      expectedRoot: 'Gb',
+      expectedRoot: 'Eb',
       expectedBass: 'Bb',
-      expectedQuality: ChordQualityToken.major6,
-      expectedExtensions: {ChordExtension.add9, ChordExtension.sharp11},
+      expectedQuality: ChordQualityToken.minor7,
+      expectedExtensions: {ChordExtension.eleven, ChordExtension.thirteen},
     ),
 
     golden(
@@ -1124,7 +1132,7 @@ void main() {
     golden(
       description: 'dominant thirteenth ninth bass beats minor-six added tones',
       expectedSymbol: 'Eb13/F',
-      expectedAlternateSymbols: ['Bbm6/9add11/F', 'Gm11(#5,#11)/F'],
+      expectedAlternateSymbols: ['Bbm6/9add11/F', 'Gm11(b5,b13)/F'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G', 'Bb'],
       bass: 'F',
       expectedRoot: 'Eb',
@@ -1375,10 +1383,11 @@ void main() {
     ),
 
     golden(
-      description:
-          'half-diminished flat-color stack beats minor sharp-five sharp-eleven',
+      // The minor sharp-five respelling of the same stack no longer
+      // surfaces; the rare-vocabulary cost keeps the flat-side spelling.
+      description: 'half-diminished flat-color stack names locrian collection',
       expectedSymbol: 'Cm11(b5,b9,b13)',
-      expectedAlternateSymbols: ['Cm11(#5,b9,#11)'],
+      expectedAlternateSymbols: ['Ebm13/C', 'Ab13/C'],
       pcs: ['C', 'Db', 'Eb', 'F', 'F#', 'Ab', 'Bb'],
       bass: 'C',
       expectedRoot: 'C',
