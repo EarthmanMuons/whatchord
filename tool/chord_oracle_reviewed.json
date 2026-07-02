@@ -443,6 +443,10 @@
     "label": "context-dependent",
     "note": "D♭maj7♯9/F is the strongest available WhatChord label because D♭-F-C supplies a complete major-seventh shell with F as the third in the bass, and E is named explicitly as sharp-nine color. Music21's FpoweraddE,C# is a plausible F-rooted no-third fifth plus major-seventh/altered-fifth color reading, but WhatChord does not currently model that power/no-third vocabulary. ChoCo offers only sparse exact support for major7|sharp9, so this should stay reviewed rather than forcing an incomplete F-rooted proxy above the complete D♭ shell."
   },
+  "0-1-4-6_b1": {
+    "label": "context-dependent",
+    "note": "C♯m(maj11) is defensible because C♯ is the bass/root and the voicing supplies the defining C♯ minor-major-seventh color C♯-E-B♯/C, with F♯ as eleventh color. Music21's F♯power/C♯addC,E is a plausible F♯ no-third fifth-plus-color reading, but without A♯ it lacks the third that would make a normal F♯7♯11/C♯ label. ChoCo has broad support for dominant7|sharp11 only when the dominant third is present, and no exact minorMajor7|eleven prior, so the row is better treated as context-dependent sparse vocabulary rather than a ranking bug."
+  },
   "0-1-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C7(♭5,♭9) is preferred because C is the bass/root of a complete altered dominant containing C, E, G♭, B♭, and D♭. Music21 and tonal both support the tritone-related F♯7♯11/C reading, which is also complete and conventional, and ChoCo shows comparable support for the broad altered-dominant families. The root-position C bass makes WhatChord's primary label defensible, but the tritone-substitute reading keeps this a genuine ambiguity."
