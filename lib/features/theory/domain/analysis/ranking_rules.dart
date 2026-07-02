@@ -431,10 +431,6 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferUpperStructureDom7,
   ),
   NamedRule(
-    'prefer major-nine slash over fifthless sus2 thirteenth',
-    _preferMajorNineSlashOverFifthlessSus2Thirteenth,
-  ),
-  NamedRule(
     'prefer root-position dominant sus over slash',
     _preferRootDominantSusOverSlash,
   ),
@@ -465,10 +461,6 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
   NamedRule(
     'prefer half-diminished flat-color spelling over minor sharp-five',
     _preferHalfDiminishedFlatColorSpellingOverMinorSharpFive,
-  ),
-  NamedRule(
-    'prefer complete major inversion over minor sharp-five',
-    _preferCompleteMajorInversionOverMinorSharpFive,
   ),
   NamedRule(
     'prefer complete lydian six-nine over major13sus4',
@@ -1143,67 +1135,6 @@ bool _isMinorSharpFiveSharpElevenStack(ChordIdentity id) {
       id.extensions.contains(ChordExtension.sharp11);
 }
 
-/// Prefers a stable major-nine slash spelling over a fifthless sus2-thirteenth
-/// re-rooting of the same pitch classes.
-///
-/// The sus2-thirteenth label is interval-valid, but without a fifth or third it
-/// can overstate a suspended-dominant identity where musicians more often read
-/// the voicing as a major-seventh upper structure over its ninth in the bass.
-int? _preferMajorNineSlashOverFifthlessSus2Thirteenth(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsMajorNineSlash = _isMajorNineWithNinthBass(a.identity, fa);
-  final bIsMajorNineSlash = _isMajorNineWithNinthBass(b.identity, fb);
-  if (aIsMajorNineSlash == bIsMajorNineSlash) return null;
-
-  final majorNine = aIsMajorNineSlash ? a : b;
-  final other = aIsMajorNineSlash ? b : a;
-  if (!_isFifthlessSus2Thirteenth(other.identity)) return null;
-  if (!_samePitchClassSet(majorNine.identity, other.identity)) return null;
-
-  return aIsMajorNineSlash ? -1 : 1;
-}
-
-bool _isMajorNineWithNinthBass(ChordIdentity id, CandidateFeatures features) {
-  if (!features.isSlashBass || id.quality != ChordQualityToken.major7) {
-    return false;
-  }
-  if (id.extensions.length != 1 ||
-      !id.extensions.contains(ChordExtension.nine)) {
-    return false;
-  }
-
-  final bassInterval = intervalAboveRoot(id.bassPc, id.rootPc);
-  if (bassInterval != majorSecondInterval) return false;
-
-  final roles = id.toneRolesByInterval.values;
-  return roles.contains(ChordToneRole.root) &&
-      roles.contains(ChordToneRole.major3) &&
-      roles.contains(ChordToneRole.major7) &&
-      roles.contains(ChordToneRole.nine);
-}
-
-bool _isFifthlessSus2Thirteenth(ChordIdentity id) {
-  if (id.rootPc != id.bassPc || id.quality != ChordQualityToken.dominant7sus2) {
-    return false;
-  }
-  if (id.extensions.length != 1 ||
-      !id.extensions.contains(ChordExtension.thirteen)) {
-    return false;
-  }
-
-  final roles = id.toneRolesByInterval.values;
-  return roles.contains(ChordToneRole.root) &&
-      roles.contains(ChordToneRole.sus2) &&
-      roles.contains(ChordToneRole.flat7) &&
-      roles.contains(ChordToneRole.thirteen) &&
-      !roles.contains(ChordToneRole.perfect5);
-}
-
 /// Prefers a bass-rooted suspended dominant over remote slash spellings.
 ///
 /// Example: {D, G, A, C, E} with D in the bass is normally read as D9sus4,
@@ -1252,30 +1183,6 @@ bool _isRootDominantSusFlatNine(ChordIdentity id) {
       id.quality == ChordQualityToken.dominant7sus4 &&
       id.extensions.length == 1 &&
       id.extensions.contains(ChordExtension.flat9);
-}
-
-/// Prefers the ordinary inverted major triad reading over the
-/// enharmonically equivalent minor-sharp-five reading.
-///
-/// Example: {C, Eb, Ab} with C or Eb in the bass is normally heard and written
-/// as Ab/C or Ab/Eb, not Cm#5. The latter is pitch-class valid, but it depends
-/// on spelling Ab as G# and treats a complete consonant triad as an altered
-/// minor color.
-int? _preferCompleteMajorInversionOverMinorSharpFive(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsMajorInversion = fa.isCompleteMajorTriadInversion;
-  final bIsMajorInversion = fb.isCompleteMajorTriadInversion;
-  if (aIsMajorInversion == bIsMajorInversion) return null;
-
-  final fOther = aIsMajorInversion ? fb : fa;
-  if (!fOther.isMinorSharpFive) return null;
-
-  return aIsMajorInversion ? -1 : 1;
 }
 
 /// Prefers a complete Lydian major 6/9 over a suspended major-thirteenth
