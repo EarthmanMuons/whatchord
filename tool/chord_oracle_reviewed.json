@@ -1,7 +1,7 @@
 {
   "0-1-7_b0": {
     "label": "context-dependent",
-    "note": "Music21's CpoweraddD- is the more musician-readable description when the C-G fifth is heard as a no-third C power chord with D♭ as flat-nine color. WhatChord does not currently model power/no-third chord vocabulary, so it chooses the pitch-class-valid but awkward C♯maj7♭5/B♯ fragment. This should not be patched with a narrow ranking override: a real fix would add explicit no-third/power-chord analysis so sparse fifth-plus-color sonorities can be named directly."
+    "note": "Csus4add♭9 is now a better fallback than the previous remote C♯ fragment because it keeps C as the bass/root and names D♭ as flat-ninth color over the C-G fifth. Music21 labels the same sparse sonority as a C power/no-third chord with added D♭, which is arguably more idiomatic. WhatChord still does not model explicit power/no-third vocabulary, so a fully satisfying answer would come from adding that vocabulary rather than another narrow ranking override."
   },
   "0-1-7_b7": {
     "label": "context-dependent",
@@ -53,15 +53,11 @@
   },
   "0-1-2-4-6-10_b2": {
     "label": "genuine-ambiguity",
-    "note": "C9(♭5,♭9)/D is preferred because the voicing is the same split-ninth C altered dominant, with D as the natural ninth in the bass. Tonal's F♯7♯11♭13/D is also complete and conventional, treating D as ♭13, but neither bass role is a core chord tone; the C reading uses the less altered bass function while the F♯ reading remains a real tritone-substitute alternate. ChoCo does not strongly settle this exact sonority: dominant7|sharp11,flat13 has only 2 exact observations, while related C altered/split-ninth families are more common."
+    "note": "F♯7(♯11,♭13)/D is preferred because F♯-A♯-C♯-E forms a complete dominant-seventh shell, with C as readable sharp-eleventh color and D as flat-thirteenth bass. Tonal agrees on this organization. C9(♭5,♭9)/D remains a plausible tritone-related split-ninth dominant, but the new explanation-cost scoring no longer rewards it for booking an extra altered slot over the cleaner F♯ dominant shell."
   },
   "0-1-2-4-6-10_b4": {
     "label": "genuine-ambiguity",
-    "note": "C9(♭5,♭9)/E is preferred because it is the complete split-ninth C altered dominant with the major third in the bass. Tonal's F♯7♯11♭13/E is the valid tritone-related dominant with its flat seventh in the bass, so the disagreement is real rather than an oracle error. The app keeps the C reading because both bass roles are conventional and the C label names the full split-ninth altered structure; ChoCo's exact dominant7|sharp11,flat13 count is very small, so corpus evidence does not justify flipping the primary result."
-  },
-  "0-1-2-4-6-7-10_b0": {
-    "label": "genuine-ambiguity",
-    "note": "F♯7(♭9,♯11,♭13)/B♯ is preferred because the voicing contains the complete F♯ altered-dominant shell F♯-A♯-C♯-E with G as flat ninth, C/B♯ as sharp eleventh, and D as flat thirteenth. Tonal agrees. Music21's C9(♭9,♯11) has a plausible root-position C bass, so this remains a genuine tritone-dominant ambiguity, but it requires simultaneous flat and natural ninths against C while the F♯ reading names the full altered stack directly."
+    "note": "F♯7(♯11,♭13)/E is preferred because E is the flat seventh of a complete F♯ dominant shell, with C/B♯ as sharp-eleventh color and D as flat thirteenth. Tonal agrees. C9(♭5,♭9)/E is still a valid tritone-related altered-dominant reading with the third in the bass, but it is no longer the cleaner explanation once each sounding note is priced directly."
   },
   "0-1-2-4-6-7-10_b1": {
     "label": "oracle-limitation",
@@ -71,17 +67,9 @@
     "label": "oracle-limitation",
     "note": "F♯7(♭9,♯11,♭13)/A♯ is preferred because A♯/B♭ is the major third of the complete F♯ altered dominant. Tonal agrees. Music21's C7♭5/B♭ add-tone spelling describes a tritone-related dominant color, but it needs extra add tones while the F♯ label names the complete altered stack directly."
   },
-  "0-1-2-4-6-7-10_b2": {
-    "label": "oracle-limitation",
-    "note": "F♯7(♭9,♯11,♭13)/D is preferred because D is the flat thirteenth of the complete F♯ altered-dominant stack. Tonal agrees. Music21's C9/D add-tone spelling keeps a C dominant shell but treats the altered colors as additions and loses the direct F♯ dominant function."
-  },
   "0-1-2-4-6-7-10_b4": {
     "label": "oracle-limitation",
     "note": "F♯7(♭9,♯11,♭13)/E is preferred because E is the flat seventh of a complete F♯ altered dominant with flat-nine, sharp-eleven, and flat-thirteen color. Tonal agrees. Music21's D augmented-eleventh slash spelling is a related upper-structure label, but it obscures the complete dominant shell."
-  },
-  "0-1-2-4-6-7-10_b7": {
-    "label": "oracle-limitation",
-    "note": "F♯7(♭9,♯11,♭13)/G is preferred because G is the flat ninth of the complete F♯ altered-dominant stack. Tonal agrees. Music21's C9/G add-tone spelling names a related C dominant sonority, but it treats the altered colors as additions and misses the more idiomatic complete altered-dominant organization."
   },
   "0-1-2-4-6-8-10_b0": {
     "label": "oracle-limitation",
@@ -98,10 +86,6 @@
   "0-1-2-4-6-8-10_b2": {
     "label": "oracle-limitation",
     "note": "F♯9(♯11,♭13)/D is preferred because D is the flat thirteenth of a complete F♯ Lydian-dominant-flat-thirteen sonority. Tonal agrees. Music21's C9♯5/D add C♯,F♯ preserves some altered-dominant color but misses the complete F♯ dominant organization."
-  },
-  "0-1-2-4-6-8-10_b4": {
-    "label": "oracle-limitation",
-    "note": "F♯9(♯11,♭13)/E is preferred because E is the dominant seventh of the complete F♯9♯11♭13 stack. Tonal agrees. Music21's E9♯5 add C♯,A♯ is a related altered-fifth add-tone spelling, but it treats F♯ as the ninth of E rather than the clearer dominant root."
   },
   "0-1-2-4-6-8-10_b8": {
     "label": "oracle-limitation",
@@ -141,11 +125,7 @@
   },
   "0-1-3-4-6-7-10_b1": {
     "label": "genuine-ambiguity",
-    "note": "A♯dim7(add9,add11,♭13)/C♯ is defensible because A♯-C♯-E-G forms a complete diminished-seventh shell with C♯ as the minor third in the bass, and B♯/C, D♯/E♭, and F♯ supply stacked added color. Tonal's F♯13♭9♯11/D♭ is a complete altered-dominant organization of the same pitch classes, but it is lower-scoring here because the D♭ bass is a stable diminished-shell tone. Music21 keeps a related C♯ diminished add-tone view, so this remains a genuine diminished-versus-altered-dominant ambiguity."
-  },
-  "0-1-3-4-6-7-10_b10": {
-    "label": "genuine-ambiguity",
-    "note": "A♯dim7(add9,add11,♭13) is defensible because B♭/A♯ is the bass/root of a complete diminished-seventh shell, with C/B♯, E♭/D♯, and F♯ as added color. Tonal's F♯13♭9♯11/B♭ is also a complete altered-dominant reading, and music21 exposes a separate C-rooted half-diminished/add-tone view, but the root-position diminished shell is direct enough that this is a real ambiguity rather than a clear engine miss."
+    "note": "F♯13(♭9,♯11)/C♯ is defensible because it names a complete F♯ altered-dominant stack, with C♯ as the fifth in the bass and C/B♯, G, and E♭/D♯ as sharp-eleventh, flat-ninth, and thirteenth color. Tonal agrees on the F♯ dominant family. The surfaced E♭13(♭9,♯9)/D♭ and music21 C♯ diminished add-tone views are also pitch-valid, so this remains a dense dominant-versus-diminished ambiguity rather than a parser failure."
   },
   "0-1-3-4-6-7-10_b3": {
     "label": "genuine-ambiguity",
@@ -167,13 +147,9 @@
     "label": "oracle-limitation",
     "note": "F♯13♯11/E is preferred because E is the flat seventh of a complete F♯ Lydian-dominant thirteenth stack, and tonal agrees. Music21's E augmented-major-nine add-tone spelling is a real upper-structure color, but it makes the bass/root an altered major-seventh chord and misses the complete dominant organization. ChoCo favors the dominant signature, with 314 dominant7|nine,sharp11,thirteen observations versus much sparser altered augmented-major alternatives."
   },
-  "0-1-3-4-6-8-10_b8": {
-    "label": "oracle-limitation",
-    "note": "F♯13♯11/G♯ is preferred because G♯/A♭ is the ninth of a complete F♯ Lydian-dominant thirteenth stack, and tonal agrees. Music21's G♯11 add-tone label treats the same collection as a less specific suspended/add-tone sonority, but it does not name the complete dominant shell F♯-A♯-C♯-E with ninth, sharp-eleventh, and thirteenth color. ChoCo also favors the dominant7|nine,sharp11,thirteen vocabulary."
-  },
   "0-1-3-4-7-10_b1": {
     "label": "genuine-ambiguity",
-    "note": "A♯dim7(add9,add11)/C♯ is defensible because A♯-C♯-E-G forms a complete diminished-seventh shell, with C/B♯ and E♭/D♯ supplying add9 and add11 color. Music21 agrees on the A♯ diminished-seventh root and C♯ bass, but omits the sounding added ninth. Tonal's C7♭9♯9/D♭ is a valid altered-dominant reinterpretation, but the flat ninth in the bass makes it less forced than the direct diminished-seventh spelling."
+    "note": "E♭13♭9/D♭ is preferred because E♭-G-B♭-D♭ forms a complete dominant-seventh shell with C as thirteenth color and F♭/E as flat ninth. Tonal surfaces the same E♭13♭9/D♭ reading behind C7♭9♯9/D♭, while music21 keeps the related A♯ diminished add-tone organization. The C altered-dominant and diminished readings remain plausible alternatives, but the E♭ dominant shell gives a direct chord-symbol explanation of the sounded tones."
   },
   "0-1-3-4-7-10_b10": {
     "label": "genuine-ambiguity",
@@ -196,8 +172,8 @@
     "note": "D♭maj9/F is correct because F is the major third in the bass of the fifthless D♭ major-ninth shell D♭-F-C-E♭. Music21 agrees semantically as D♭maj9/F; the omitted fifth is standard in this sparse extended-chord voicing."
   },
   "0-1-3-6_b0": {
-    "label": "clearly-correct",
-    "note": "Cdim(add♭9) is correct because C-E♭-G♭ supplies the complete root-position diminished triad and D♭ is naturally named as added flat-nine color. Music21 agrees semantically as Cdim add D♭."
+    "label": "genuine-ambiguity",
+    "note": "D♭maj9sus4/C is defensible because D♭-G♭-C-E♭ forms a compact suspended-major-ninth sonority with the major seventh in the bass. Cdim(add♭9) remains surfaced and matches music21 semantically as the direct C-E♭-G♭ diminished triad with D♭ flat-ninth color. E♭m7/C is also close, so this sparse four-note collection is genuinely ambiguous rather than clearly settled by the oracle."
   },
   "0-1-3-6_b1": {
     "label": "context-dependent",
@@ -257,7 +233,7 @@
   },
   "0-1-3-5-6-8-10_b0": {
     "label": "genuine-ambiguity",
-    "note": "Cm11(♭5,♭9,♭13) is preferred because C is the bass/root and C-E♭-G♭-B♭ forms a complete half-diminished seventh shell, with D♭, F, and A♭ as flat-side color tones. Music21 agrees semantically with the C half-diminished family. Tonal's G♭maj13♯11/C is also a complete Lydian-major re-rooting of the same collection, with C as sharp-eleventh bass color, so the split is genuine; the C bass and the more conventional half-diminished flat-side spelling make WhatChord's primary label defensible."
+    "note": "E♭m13/C is preferred because the voicing supplies the complete E♭ minor-thirteenth stack E♭-G♭-B♭-D♭-F-A♭-C, with C as thirteenth in the bass. Music21 instead roots the same collection on C as a half-diminished flat-side chord, while Tonal chooses the G♭ Lydian-major re-rooting. All three are structurally complete views of a dense seven-note collection, so the row remains genuinely ambiguous."
   },
   "0-1-3-5-6-8-10_b1": {
     "label": "genuine-ambiguity",
@@ -303,17 +279,13 @@
     "label": "genuine-ambiguity",
     "note": "F9♭13 is preferred because the voicing is a complete root-position F dominant with ninth and flat-thirteenth color. Music21 re-roots the same pitch classes as a D♭ augmented-major ninth add-tone spelling, and tonal chooses the complete E♭13♭5/F Lydian-dominant reading. The F bass makes the F9♭13 label the clearest primary symbol, while the other complete structures keep this as genuine ambiguity."
   },
-  "0-1-3-5-7-9_b7": {
-    "label": "genuine-ambiguity",
-    "note": "F9♭13/G is preferred because it preserves the complete F-A-C-E♭ dominant shell with G as the ninth in the bass and D♭ as flat thirteenth. Music21 also keeps the F root, though it spells D♭ as added sharp-five color. Tonal's E♭13♭5/G gives the bass a stronger third role and is a conventional alternate, so the row is genuinely ambiguous rather than an oracle error."
-  },
   "0-1-3-5-7-9_b9": {
     "label": "genuine-ambiguity",
     "note": "F9♭13/A is preferred because A is the major third of the complete F9♭13 stack, giving the F-rooted dominant a conventional first-inversion bass role. Music21 supports the F root with an added-sharp-five spelling, while tonal's E♭13♭5/A is a complete alternate with A as the flat fifth. The stable F-dominant inversion is the clearer primary label, but both dominant organizations are defensible."
   },
   "0-1-3-5-7_b0": {
-    "label": "oracle-limitation",
-    "note": "D♭maj9♯11/C is preferred because the voicing forms a fifthless D♭ Lydian major-ninth stack D♭-F-C-E♭-G, with C as the major seventh in the bass. Tonal agrees on the D♭ major-nine tritone-color family but spells G as ♭5; WhatChord prefers the ♯11 spelling because ChoCo strongly favors major7|nine,sharp11 over major7Flat5|nine. Music21's Cm add D♭ and F keeps a C-minor shell but treats D♭ and F as additions, missing the complete D♭ Lydian-major organization."
+    "label": "genuine-ambiguity",
+    "note": "E♭13/C is preferred because E♭-G-D♭ plus F and C gives a compact fifthless dominant-thirteenth reading, with C as thirteenth bass. D♭maj9♯11/C remains surfaced and Tonal reports both the D♭ major-nine flat-five spelling and the E♭13 no-fifth spelling. The old D♭ Lydian-major explanation is still valid, but this is better treated as a genuine dominant-thirteenth versus Lydian-major ambiguity than as an oracle limitation."
   },
   "0-1-3-5-7_b1": {
     "label": "oracle-limitation",
@@ -324,20 +296,20 @@
     "note": "E♭13 is preferred because E♭ is the bass/root and the voicing supplies a fifthless dominant-thirteenth shell E♭-G-D♭ with F and C as ninth and thirteenth color. Tonal agrees as E♭13(no5). Music21's Cm/E♭ add D♭,F reading is a possible upper-structure description, but it treats the bass as the minor third of C and turns the dominant seventh and ninth into add tones, which is less direct for this root-position dominant voicing."
   },
   "0-1-3-5-7_b5": {
-    "label": "oracle-limitation",
-    "note": "D♭maj9♯11/F is preferred because the voicing forms a fifthless D♭ Lydian major-ninth stack D♭-F-C-E♭-G, with F as the major third in the bass. Tonal agrees on the D♭ major-nine tritone-color family but spells G as ♭5; WhatChord prefers the ♯11 spelling because ChoCo strongly favors major7|nine,sharp11 over major7Flat5|nine. Music21's Cm/F add D♭ keeps a C-minor shell but treats F and D♭ as additions, missing the complete D♭ Lydian-major organization."
+    "label": "genuine-ambiguity",
+    "note": "E♭13/F is preferred because the voicing forms a fifthless E♭ dominant-thirteenth color stack with F as ninth in the bass. D♭maj9♯11/F remains the surfaced Lydian-major alternative, and Tonal reports both the D♭ major-nine flat-five spelling and the E♭13 no-fifth spelling. Music21 keeps a C-minor add-tone view, so the disagreement reflects a real multi-root ambiguity."
   },
   "0-1-3-5-7_b7": {
-    "label": "oracle-limitation",
-    "note": "C♯maj9♭5/G is preferred because G is the flat fifth of the complete C♯maj9♭5 structure, while C, E♯/F, and D♯/E♭ supply the major seventh, third, and ninth. Tonal agrees as D♭M9♭5/G. Music21's Cm/G add F,D♭ describes a related C-minor shell but demotes the major-third role and is less complete as a musician-facing chord symbol."
+    "label": "genuine-ambiguity",
+    "note": "E♭13/G is preferred because G is the major third of a fifthless E♭ dominant-thirteenth sonority, with D♭, F, and C as flat seventh, ninth, and thirteenth. D♭maj9♯11/G remains a plausible Lydian-major spelling and Tonal reports that family as well. The new primary avoids treating G as a literal flat fifth while still acknowledging the D♭ alternative, so this is a genuine dominant-versus-Lydian-major ambiguity."
   },
   "0-1-3-5-8-9_b0": {
     "label": "oracle-limitation",
     "note": "F7(♯9,♭13)/C is preferred because C is the fifth of the complete F-A-C-E♭ dominant shell, with G♯/A♭ as sharp-nine color and D♭ as flat thirteenth. Tonal agrees. Music21's D♭ augmented-major add-tone spelling names a related upper structure, but it re-roots away from the complete altered-dominant organization."
   },
   "0-1-3-5-8-9_b1": {
-    "label": "oracle-limitation",
-    "note": "F7(♯9,♭13)/D♭ is preferred because F-A-C-E♭ forms a complete dominant shell, with D♭ in the bass as flat thirteenth and G♯/A♭ as sharp-nine color. Tonal agrees. Music21's A augmented-major-seventh add-tone spelling preserves a plausible upper structure, but it treats the complete F altered-dominant shell as secondary."
+    "label": "genuine-ambiguity",
+    "note": "C♯maj9♭13 is defensible because the bass is the root and the voicing supplies a complete C♯ major-ninth shell, with A as flat-thirteenth color. F7(♯9,♭13)/D♭ remains surfaced and matches Tonal; it names a complete altered-dominant shell but makes the bass a flat-thirteenth color tone. Music21 chooses an A augmented-major upper-structure view, so this is a genuine root-bass major-color versus altered-dominant ambiguity."
   },
   "0-1-3-5-8-9_b3": {
     "label": "oracle-limitation",
@@ -355,10 +327,6 @@
     "label": "genuine-ambiguity",
     "note": "F7♭13/C is defensible because F-A-C-E♭ forms a complete dominant-seventh shell with C as the fifth in the bass and D♭ as flat-thirteenth color. Music21 supports the F-rooted dominant reading, while tonal prefers the complete D♭maj9♯5/C augmented-major ninth alternate and also lists F7♭13/C. The D♭ reading is musically real, but the F label gives the bass a conventional fifth role in a familiar altered-dominant sonority."
   },
-  "0-1-3-5-9_b1": {
-    "label": "oracle-limitation",
-    "note": "D♭maj9♯5 is preferred because D♭ is the bass/root and the voicing supplies the complete augmented-major ninth stack D♭-F-A-C-E♭. Tonal agrees exactly. Music21's F7♯5/D♭ add C preserves a plausible altered-dominant subset, but it makes the bass a color tone and treats the D♭ root as added material; the engine chooses F7♭13 when F is actually the bass, so this split is about bass-root evidence rather than a general rejection of the dominant reading."
-  },
   "0-1-3-5-9_b3": {
     "label": "genuine-ambiguity",
     "note": "F7♭13/E♭ is defensible because E♭ is the flat seventh in the bass of the complete F dominant shell F-A-C-E♭, with D♭ as flat-thirteenth color. Music21 and tonal both support the complete D♭maj9♯5/E♭ augmented-major ninth alternate, and tonal also lists F7♭13/E♭. The row is a genuine altered-dominant versus augmented-major re-rooting split; WhatChord favors the dominant because the bass has a primary seventh role."
@@ -372,8 +340,8 @@
     "note": "F7♭13/A is defensible because A is the major third in the bass of the complete F dominant-seventh shell, with D♭ as flat-thirteenth color. Music21 supports the F-rooted reading, while tonal prefers the complete D♭maj9♯5/A augmented-major ninth alternate and also lists F7♭13/A. Both labels organize all five tones, but the F reading gives the bass a conventional dominant-third role and uses more common altered-dominant vocabulary."
   },
   "0-1-3-6-10_b0": {
-    "label": "oracle-limitation",
-    "note": "Cm7(♭5,♭9) is preferred because C is the bass/root and the voicing supplies the complete C-E♭-G♭-B♭ half-diminished seventh shell with D♭ as flat-ninth color. Music21 agrees semantically. Tonal's G♭6♯11/C is a valid rotation of the same pitch set, and WhatChord prefers that G♭6♯11 family when G♭, D♭, or B♭ is the bass, but with C in the bass it makes the bass a sharp-eleventh color tone. Key context in C minor and F♯/G♭ major does not displace the C-root reading, and ChoCo is too sparse on the exact colors to override the bass-root evidence."
+    "label": "genuine-ambiguity",
+    "note": "E♭m7/C is preferred because E♭-G♭-B♭-D♭ forms a complete minor-seventh sonority with C as thirteenth bass. Music21 hears the C-rooted half-diminished-flat-nine shell and Tonal hears the G♭6♯11 rotation, both of which are plausible from the same pitch classes. The new scorer favors the complete minor-seventh explanation over the previous C-rooted missing-color expansion, so the row remains genuinely ambiguous."
   },
   "0-1-3-6-10_b3": {
     "label": "genuine-ambiguity",
@@ -405,7 +373,7 @@
   },
   "0-1-3-6-8_b6": {
     "label": "genuine-ambiguity",
-    "note": "A♭11/G♭ is defensible because A♭-C-E♭-G♭ forms a complete dominant-seventh shell with the flat seventh in the bass and D♭ as eleventh color. Music21 agrees semantically. Tonal's D♭maj9sus4/G♭ is also a valid complete suspended-major reading and ChoCo favors the major7sus4|nine vocabulary, but it makes the bass the suspended fourth rather than a stable chord tone. The bass role makes WhatChord's primary label plausible, while the corpus-supported suspended-major reading keeps the row genuinely ambiguous."
+    "note": "E♭m13/G♭ is preferred because G♭ is the minor third of an E♭ minor color stack, with D♭, A♭, and C as flat seventh, eleventh, and thirteenth. A♭11/G♭ remains a strong complete dominant-seventh-shell alternative, while Tonal reports the D♭maj9sus4/F♯ suspended-major view. The three readings differ mainly in which stable shell gets priority, so this is still a genuine ambiguity."
   },
   "0-1-3-6-9_b0": {
     "label": "genuine-ambiguity",
@@ -421,7 +389,7 @@
   },
   "0-1-3-6-9_b6": {
     "label": "genuine-ambiguity",
-    "note": "D♯m13(♭5)/F♯ is defensible because F♯ is the minor third of the complete D♯ half-diminished-seventh shell D♯-F♯-A-C♯, with C/B♯ as natural-thirteenth color. The same notes also support music21's D♯dim7/F♯ add C♯ view, the surfaced Cdim7(♭9)/G♭ reading, and tonal's D♭maj9♯5sus4/F♯ suspended-major re-rooting. Because the voicing is a diminished-seventh core plus one chromatic tone, no single root is forced; the half-diminished-thirteenth inversion is a clear primary label, but the row is genuinely ambiguous."
+    "note": "F♯m6♯11 is preferred because F♯-A-C♯ forms a root-position minor triad, with D♯/E♭ as sixth color and C as sharp eleventh. Music21 keeps a D♯ diminished-seventh add-tone view and Tonal chooses a D♭ suspended-major sharp-five view. The collection contains a diminished core plus chromatic color, so no single root is forced; the root-position F♯ minor-six sharp-eleven label is a defensible primary."
   },
   "0-1-3-6-9_b9": {
     "label": "genuine-ambiguity",
@@ -463,26 +431,6 @@
     "label": "genuine-ambiguity",
     "note": "C7(♭5,♭9) is preferred because C is the bass/root of a complete altered dominant containing C, E, G♭, B♭, and D♭. Music21 and tonal both support the tritone-related F♯7♯11/C reading, which is also complete and conventional, and ChoCo shows comparable support for the broad altered-dominant families. The root-position C bass makes WhatChord's primary label defensible, but the tritone-substitute reading keeps this a genuine ambiguity."
   },
-  "0-1-4-6-10_b1": {
-    "label": "genuine-ambiguity",
-    "note": "C7(♭5,♭9)/D♭ is defensible because the voicing contains the complete altered-dominant shell C-E-G♭-B♭ with D♭ as flat ninth in the bass. Music21 and tonal both choose the tritone-related F♯7♯11/C♯ reading, which is also complete and gives the bass a conventional fifth role. WhatChord surfaces that F♯ interpretation as a possible alternative; the row is a real tritone-dominant ambiguity rather than a clear ranking failure."
-  },
-  "0-1-4-6-10_b10": {
-    "label": "genuine-ambiguity",
-    "note": "C7(♭5,♭9)/B♭ is defensible because B♭ is the flat seventh in the bass of the complete C altered-dominant shell C-E-G♭-B♭, with D♭ as flat-ninth color. Music21 and tonal both support the tritone-related F♯7♯11/A♯ reading, and WhatChord surfaces it as a possible alternative. The C label gives the bass the stronger dominant-seventh role, while the F♯ label gives the same bass an enharmonic major-third role, so this remains a genuine tritone-substitute split."
-  },
-  "0-1-4-6-10_b4": {
-    "label": "genuine-ambiguity",
-    "note": "C7(♭5,♭9)/E is preferred because it is a complete altered dominant with its major third in the bass, while F♯7♯11/E is the complete tritone-related dominant in third inversion. Music21 and tonal choose the valid F♯ reading, but the two chord signatures are similarly common in ChoCo and the E bass gives the C-rooted interpretation the more conventional inversion. Related bass cases consistently favor whichever dominant receives the stronger bass role."
-  },
-  "0-1-4-6-10_b6": {
-    "label": "genuine-ambiguity",
-    "note": "C7(♭5,♭9)/G♭ is defensible because G♭ is the flat fifth in the bass of the complete C altered-dominant shell, with D♭ as flat-ninth color. Music21 and tonal prefer the root-position tritone-related F♯7♯11 reading, which is especially strong because the observed bass becomes the root. WhatChord surfaces F♯7♯11 as a close possible alternative, so this is a genuine tritone-dominant ambiguity and a useful row to keep documented."
-  },
-  "0-1-4-6-8-10_b0": {
-    "label": "genuine-ambiguity",
-    "note": "C7(#5,b9,#11) is preferred because it names the complete C altered dominant C-E-Bb plus Db, F#, and G#/Ab. Tonal agrees and also lists the valid tritone-related F#9#11/C alternate; music21 prefers that F# reading. The split is a real altered-dominant vs tritone-sub ambiguity, but the C bass and complete altered stack justify WhatChord's primary label."
-  },
   "0-1-4-6-8-10_b1": {
     "label": "genuine-ambiguity",
     "note": "C7(#5,b9,#11)/Db is preferred because the pitch set is the complete C altered dominant with Db as flat-nine in the bass. Tonal agrees and also lists F#9#11/Db; music21 prefers the same valid tritone-related F# structure. This is a genuine dominant-function ambiguity, with WhatChord choosing the direct altered-dominant spelling."
@@ -492,8 +440,8 @@
     "note": "C7(#5,b9,#11)/G# is preferred because G#/Ab is the sharp fifth of the complete C altered dominant and avoids the less idiomatic Ab11#5 primary label. Tonal agrees with the C reading and lists F#9#11/Ab as the alternate; music21 prefers F#9/G# add B#. The remaining disagreement is a valid tritone-sub ambiguity."
   },
   "0-1-4-7-10_b1": {
-    "label": "clearly-correct",
-    "note": "A♯dim7(add9)/C♯ is preferred because A♯-C♯-E-G is a complete diminished-seventh chord and B♯/C supplies the added ninth, with C♯ as the minor third in the bass. Music21 agrees semantically. Tonal's D♭ diminished-major-seventh normalization preserves the same symmetric core but drops the added-ninth function, so it is less complete as the primary label."
+    "label": "genuine-ambiguity",
+    "note": "C7♭9/D♭ is preferred because C-E-G-B♭ forms a complete dominant-seventh shell and D♭ is the flat ninth in the bass. Tonal includes the same C7♭9/D♭ reading, while music21 prefers the related A♯ diminished-seventh add-nine inversion that remains surfaced. The dominant-flat-nine and diminished-seventh analyses are standard enharmonic partners, so this row remains a genuine ambiguity."
   },
   "0-1-4-7-10_b10": {
     "label": "genuine-ambiguity",
@@ -541,19 +489,19 @@
   },
   "0-1-5-7_b0": {
     "label": "clearly-correct",
-    "note": "D♭maj7♯11/C is preferred because D♭-F-C forms a fifthless D♭ major-seventh shell with C as the major seventh in the bass, and G is the readable Lydian sharp-eleventh color. Tonal's D♭maj7♭5/C names the same root and bass but treats G as a literal flat fifth, which would be A𝄫 in D♭ spelling or C♯maj7♭5/B♯ in neutral spelling. ChoCo also favors major7|sharp11 over major7Flat5, and WhatChord keeps the flat-five spelling surfaced as the next candidate."
+    "note": "Csus4add♭9 is the expected isolated-voicing label because C is the bass/root and C-F-G supplies a complete suspended triad with D♭ as flat-ninth color. Tonal reports the pitch-equivalent D♭maj7♭5/C family, but that treats the sounding G as an altered fifth rather than naming the direct C suspended sonority. The D♭maj7♯11/C spelling remains surfaced as a possible alternative."
   },
   "0-1-5-7_b1": {
     "label": "clearly-correct",
     "note": "D♭maj7♯11 is preferred because the root-position voicing supplies D♭, F, C, and G: a fifthless D♭ major-seventh shell plus Lydian sharp-eleventh color. Tonal's D♭maj7♭5 is the enharmonic literal-flat-five interpretation, but in D♭ notation that fifth is A𝄫, while the sharp-eleventh spelling names the observed G directly. ChoCo supports the broader preference with more major7|sharp11 observations than major7Flat5 observations, and the flat-five spelling remains available as the next candidate."
   },
   "0-1-5-7_b5": {
-    "label": "clearly-correct",
-    "note": "D♭maj7♯11/F is preferred because F is the major third in the bass of the fifthless D♭ major-seventh shell D♭-F-C, with G as Lydian sharp-eleventh color. Tonal's D♭maj7♭5/F preserves the same root and bass but names G as a literal flat fifth, which requires A𝄫 in D♭ spelling or C♯maj7♭5/E♯ in neutral spelling. The sharp-eleventh label is the more musician-readable spelling, with ChoCo favoring major7|sharp11 over major7Flat5 and the flat-five spelling still surfaced as candidate #2."
+    "label": "genuine-ambiguity",
+    "note": "Fsus2♭13 is defensible because F-G-C forms a root-position suspended-second triad with D♭ as flat-thirteenth color. D♭maj7♯11/F remains surfaced and gives F a strong major-third bass role in a Lydian-major shell, while Tonal reports the related D♭maj7♭5/F spelling. The two readings emphasize different complete sparse structures, so this row is now better classified as a genuine ambiguity."
   },
   "0-1-5-7_b7": {
     "label": "clearly-correct",
-    "note": "D♭maj7♯11/G is preferred because the voicing is a fifthless D♭ major-seventh shell D♭-F-C with the Lydian sharp eleventh in the bass. Tonal's D♭maj7♭5/G is pitch-class equivalent but treats the bass as a literal altered fifth; in D♭ spelling that role is A𝄫, while the WhatChord label names the sounding G directly as sharp-eleventh color. ChoCo favors major7|sharp11 over major7Flat5, and the literal flat-five analysis remains surfaced as the next candidate."
+    "note": "Csus4add♭9/G is preferred because C-F-G supplies a complete suspended triad, G is its fifth in the bass, and D♭ is naturally named as flat-ninth color. Tonal reports the D♭maj7♭5/G reinterpretation, but that makes the bass an altered fifth; WhatChord still surfaces the D♭maj7♯11/G spelling as a possible alternative while choosing the more direct suspended C reading."
   },
   "0-1-5-6-10_b0": {
     "label": "oracle-limitation",
@@ -606,10 +554,6 @@
   "0-1-5-7-9_b9": {
     "label": "oracle-limitation",
     "note": "A7(♯5,♯9) is preferred because A is the bass/root and the voicing names every tone as root, major third, sharp fifth, flat seventh, and sharp ninth of a standard altered dominant. Tonal agrees, and ChoCo common-name counts strongly favor dominant7-sharp5 sharp-nine signatures over sparse major add-tone variants. Music21's F/A add G,C♯ is an upper-structure major-triad label that drops the primary dominant identity."
-  },
-  "0-1-5-8-10_b0": {
-    "label": "genuine-ambiguity",
-    "note": "D♭maj13/C is defensible because D♭-F-A♭-C forms a complete major-seventh shell with B♭ as thirteenth color and C as the major seventh in the bass. Music21 and tonal prefer the real B♭m9/C relative-minor reading, and ChoCo strongly favors minor7|nine vocabulary over sparse major7-thirteenth-only labels, so the alternate is important. WhatChord keeps the D♭ label first because it gives the bass a chord-defining major-seventh role, while the B♭ minor reading makes the bass the ninth color tone; the B♭m7/C slash is still surfaced as a close possible alternative."
   },
   "0-1-5-8-10_b1": {
     "label": "genuine-ambiguity",
@@ -665,7 +609,7 @@
   },
   "0-1-6-8-10_b10": {
     "label": "genuine-ambiguity",
-    "note": "D♭maj7sus4/B♭ is defensible because D♭-G♭-A♭-C forms a complete suspended-major-seventh sonority with B♭ as thirteenth color in the bass. Tonal's B♭m9♯5 is still a structurally plausible root-position alternate, but it asks musicians to hear G♭/F♯ as an altered fifth; the current ranking favors the suspended-major organization and demotes the rarer minor-seventh-sharp-five vocabulary. Music21's G♭/B♭ add-tone label captures a related upper-structure major view, so this row remains a genuine ambiguity rather than an oracle limitation."
+    "note": "G♭(♯11,add9)/B♭ is preferred because G♭-B♭-D♭ forms a complete major triad, with A♭ as add-nine and C as Lydian sharp-eleventh color; music21 agrees semantically. D♭maj7sus4/B♭ remains a plausible suspended-major alternative, and Tonal still reports the B♭m9♯5 root-position reading. The current primary favors the complete add-color triad over rarer altered-fifth vocabulary, but the row remains genuinely ambiguous."
   },
   "0-1-6-8-10_b6": {
     "label": "genuine-ambiguity",
@@ -673,11 +617,11 @@
   },
   "0-1-6-8-10_b8": {
     "label": "genuine-ambiguity",
-    "note": "D♭maj13sus4/A♭ is preferred because A♭ is the fifth of a suspended D♭ major-seventh sonority, with B♭ as thirteenth color. Tonal's B♭m9♯5/A♭ matches WhatChord's surfaced possible alternative and names a complete minor-seventh-sharp-five structure, but the D♭ reading avoids treating G♭/F♯ as an altered fifth and gives the slash bass a conventional fifth role. Music21's F♯/G♯ add-tone spelling captures a partial upper-structure major shell but omits the D♭ suspended-major-seventh organization. The two complete structures make this a genuine ambiguity rather than an oracle limitation."
+    "note": "A♭11 is defensible because A♭-C-G♭ forms a dominant-seventh shell, with B♭ and D♭ as ninth and eleventh color in root position. D♭maj13sus4/A♭ remains a plausible suspended-major alternative with A♭ as fifth in the bass, while music21 favors the G♭ add-color triad and Tonal favors B♭m9♯5/A♭. The root-position dominant-eleventh reading is musician-readable, but the row remains a genuine three-root ambiguity."
   },
   "0-1-6-9_b0": {
     "label": "genuine-ambiguity",
-    "note": "C♯maj7sus4(♭13)/B♯ is defensible because the voicing contains the complete C♯ suspended-major-seventh frame C♯-F♯-B♯, with A as the altered fifth/flat-thirteenth color and B♯/C as the major seventh in the bass. Tonal agrees on the D♭ suspended-major family but spells the A as ♯5, which is a reasonable alternate convention for a fifthless sus chord. Music21's F♯ diminished add-tone label leaves the C♯/D♭ as bookkeeping color rather than preserving the suspended-major organization. ChoCo gives broad support for major7sus4 vocabulary but no direct compound maj7♯5sus4 prior, so this is worth reviewing rather than adding a narrow quality."
+    "note": "F♯m♯11/B♯ is defensible because F♯-A-C♯ forms a complete minor triad and C/B♯ is the Lydian sharp-eleventh color in the bass; music21 agrees on the F♯ family. Tonal instead reports the D♭ suspended-major sharp-five view. The same sparse four-note set can be heard as minor sharp-eleven color, diminished/add color, or suspended-major color, so this remains genuinely ambiguous."
   },
   "0-1-6-9_b6": {
     "label": "clearly-correct",
@@ -697,7 +641,7 @@
   },
   "0-2-4-6-8-10_b6": {
     "label": "genuine-ambiguity",
-    "note": "F♯9(♭5,♭13) is defensible because F♯ is the bass/root of the symmetric whole-tone collection and the current spelling policy keeps the observed C and D as flat-five and flat-thirteen color rather than respelling them as B♯ and D𝄪. Tonal's F♯9♯5♯11 is the enharmonically equivalent whole-tone-dominant spelling and remains the more conventional abstract quality name; music21 chooses a related E9♯5/F♯ re-rooting. Because the whole-tone collection supports several enharmonic dominant names, this is now best treated as a genuine spelling ambiguity rather than an oracle limitation."
+    "note": "G♭9(♯5,♯11) is defensible because G♭ is the bass/root of the whole-tone collection and the current spelling names B♭, D, F♭/E, A♭, and C as third, sharp fifth, flat seventh, ninth, and sharp eleventh. Tonal agrees on the same root and quality, while music21 chooses a related E9♯5/F♯ re-rooting. The whole-tone collection supports several enharmonic dominant names, so this remains a genuine spelling and root-choice ambiguity."
   },
   "0-2-4-8_b2": {
     "label": "genuine-ambiguity",
