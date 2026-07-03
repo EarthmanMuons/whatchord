@@ -462,32 +462,6 @@ void main() {
     );
   });
 
-  test('complete minor sharp11 beats altered major7sus4', () {
-    final minorSharp11 = _candidate(
-      quality: ChordQualityToken.minor,
-      root: 'A',
-      bass: 'E',
-      presentIntervals: const {0, 3, 6, 7},
-      extensions: const {ChordExtension.sharp11},
-      score: 9.65,
-    );
-
-    final alteredSus = _candidate(
-      quality: ChordQualityToken.major7sus4,
-      root: 'E',
-      bass: 'E',
-      presentIntervals: const {0, 5, 8, 11},
-      extensions: const {ChordExtension.flat13},
-      score: 10,
-    );
-
-    _expectRule(
-      minorSharp11,
-      alteredSus,
-      'prefer complete minor sharp11 over altered maj7sus4',
-    );
-  });
-
   test('root-position dominant7 beats close non-dominant slash', () {
     final dominant = _candidate(
       quality: ChordQualityToken.dominant7,
@@ -602,35 +576,6 @@ void main() {
   );
 
   test(
-    'lydian major-nine beats major-thirteenth natural-eleventh inversion',
-    () {
-      final lydian = _candidate(
-        quality: ChordQualityToken.major7,
-        root: 'Db',
-        bass: 'G',
-        presentIntervals: const {0, 2, 4, 6, 7, 11},
-        extensions: const {ChordExtension.nine, ChordExtension.sharp11},
-        score: 7.65,
-      );
-
-      final naturalEleventh = _candidate(
-        quality: ChordQualityToken.major7,
-        root: 'Ab',
-        bass: 'G',
-        presentIntervals: const {0, 4, 5, 7, 9, 11},
-        extensions: const {ChordExtension.eleven, ChordExtension.thirteen},
-        score: 7.79,
-      );
-
-      _expectTieRule(
-        lydian,
-        naturalEleventh,
-        'prefer lydian major-nine over natural-eleventh major-thirteenth',
-      );
-    },
-  );
-
-  test(
     'root-position extended dominant beats altered-fifth slash near-tie',
     () {
       final rootPosition = _candidate(
@@ -655,35 +600,6 @@ void main() {
         rootPosition,
         slash,
         'prefer stable extended dominant over altered-fifth slash',
-      );
-    },
-  );
-
-  test(
-    'complete sharp-nine thirteenth dominant beats colored sixth near-tie',
-    () {
-      final dominant = _candidate(
-        quality: ChordQualityToken.dominant7,
-        root: 'Eb',
-        bass: 'Db',
-        presentIntervals: const {0, 3, 4, 7, 9, 10},
-        extensions: const {ChordExtension.sharp9, ChordExtension.thirteen},
-        score: 7.74,
-      );
-
-      final coloredSixth = _candidate(
-        quality: ChordQualityToken.major6,
-        root: 'F#',
-        bass: 'C#',
-        presentIntervals: const {0, 1, 4, 6, 7, 9},
-        extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
-        score: 7.74,
-      );
-
-      _expectTieRule(
-        dominant,
-        coloredSixth,
-        'prefer complete sharp-nine thirteenth dominant over colored sixth',
       );
     },
   );
@@ -721,35 +637,6 @@ void main() {
         dominant,
         minor,
         'prefer complete altered thirteenth dominant over altered minor thirteenth',
-      );
-    },
-  );
-
-  test(
-    'complete natural thirteenth dominant beats minor-six add-eleven near-tie',
-    () {
-      final dominant = _candidate(
-        quality: ChordQualityToken.dominant7,
-        root: 'Eb',
-        bass: 'F',
-        presentIntervals: const {0, 2, 4, 7, 9, 10},
-        extensions: const {ChordExtension.nine, ChordExtension.thirteen},
-        score: 7.65,
-      );
-
-      final minorSix = _candidate(
-        quality: ChordQualityToken.minor6,
-        root: 'Bb',
-        bass: 'F',
-        presentIntervals: const {0, 2, 3, 5, 7, 9},
-        extensions: const {ChordExtension.add9, ChordExtension.add11},
-        score: 7.79,
-      );
-
-      _expectTieRule(
-        dominant,
-        minorSix,
-        'prefer complete natural thirteenth dominant over minor-six add-eleven',
       );
     },
   );
@@ -867,30 +754,6 @@ void main() {
         'prefer root-position minor-eleventh shell over sus slash',
       );
     }
-  });
-
-  test('complete add-nine inversion beats minor7 sharp-five', () {
-    final addNineInversion = _candidate(
-      quality: ChordQualityToken.major,
-      root: 'C',
-      bass: 'E',
-      presentIntervals: const {0, 2, 4, 7},
-      extensions: const {ChordExtension.add9},
-      score: 7.07,
-    );
-    final minorSevenSharpFive = _candidate(
-      quality: ChordQualityToken.minor7Sharp5,
-      root: 'E',
-      bass: 'E',
-      presentIntervals: const {0, 3, 8, 10},
-      score: 8.50,
-    );
-
-    _expectRule(
-      addNineInversion,
-      minorSevenSharpFive,
-      'prefer complete add-nine inversion over minor-seven sharp-five',
-    );
   });
 
   test('ninth-bass seventh chord beats altered slash outside near-tie', () {
@@ -1112,32 +975,6 @@ void main() {
       conventionalAlteredDominant,
       rarerInversion,
       'prefer common naming preference',
-    );
-  });
-
-  test('seventh-bass altered dominant beats altered-fifth bass tie', () {
-    final seventhBass = _candidate(
-      quality: ChordQualityToken.dominant7Flat5,
-      root: 'D',
-      bass: 'C',
-      presentIntervals: const {0, 2, 4, 6, 10},
-      extensions: const {ChordExtension.nine},
-      score: 8.25,
-    );
-
-    final alteredFifthBass = _candidate(
-      quality: ChordQualityToken.dominant7Sharp5,
-      root: 'E',
-      bass: 'C',
-      presentIntervals: const {0, 2, 4, 8, 10},
-      extensions: const {ChordExtension.nine},
-      score: 8.25,
-    );
-
-    _expectTieRule(
-      seventhBass,
-      alteredFifthBass,
-      'prefer seventh-bass altered-fifth dominant over altered-fifth bass',
     );
   });
 

@@ -19,14 +19,12 @@ class CandidateFeatures {
   final bool isDim7;
   final bool isDimFamily;
   final bool isSus;
-  final bool isCompleteMinorSharp11;
   final bool isRootPositionMinor7Add11Shell;
   final bool isCompleteMajorMinorTriad;
   final bool isCompleteMajorTriadInversion;
   final bool isIncompleteInvertedSixth;
   final bool isCompleteNinthBassSeventhChord;
   final bool isSecondInversion;
-  final bool isAlteredMajor7Sus4;
   final bool isRootDominantSus;
   final bool isRootPositionNaturalAddChord;
   final bool isStructurallyDeficient;
@@ -69,14 +67,12 @@ class CandidateFeatures {
     required this.isDim7,
     required this.isDimFamily,
     required this.isSus,
-    required this.isCompleteMinorSharp11,
     required this.isRootPositionMinor7Add11Shell,
     required this.isCompleteMajorMinorTriad,
     required this.isCompleteMajorTriadInversion,
     required this.isIncompleteInvertedSixth,
     required this.isCompleteNinthBassSeventhChord,
     required this.isSecondInversion,
-    required this.isAlteredMajor7Sus4,
     required this.isRootDominantSus,
     required this.isRootPositionNaturalAddChord,
     required this.isStructurallyDeficient,
@@ -145,7 +141,6 @@ class CandidateFeatures {
       isDim7: isDim7,
       isDimFamily: isDimFamily,
       isSus: q.isSus,
-      isCompleteMinorSharp11: _isCompleteMinorSharp11(id),
       isRootPositionMinor7Add11Shell: _isRootPositionMinor7Add11Shell(
         id,
         rootPos,
@@ -158,7 +153,6 @@ class CandidateFeatures {
       isIncompleteInvertedSixth: _isIncompleteInvertedSixth(id, rootPos),
       isCompleteNinthBassSeventhChord: _isCompleteNinthBassSeventhChord(id),
       isSecondInversion: _bassRoleRank(id) == 2,
-      isAlteredMajor7Sus4: _isAlteredMajor7Sus4(id, rootPos),
       isRootDominantSus: _isRootDominantSus(id, rootPos),
       isRootPositionNaturalAddChord:
           rootPos &&
@@ -305,18 +299,6 @@ class CandidateFeatures {
         quality == ChordQualityToken.major7Sharp5;
   }
 
-  static bool _isCompleteMinorSharp11(ChordIdentity id) {
-    if (id.quality != ChordQualityToken.minor) return false;
-    if (id.extensions.length != 1) return false;
-    if (!id.extensions.contains(ChordExtension.sharp11)) return false;
-
-    final roles = id.toneRolesByInterval.values;
-    return roles.contains(ChordToneRole.root) &&
-        roles.contains(ChordToneRole.minor3) &&
-        roles.contains(ChordToneRole.perfect5) &&
-        roles.contains(ChordToneRole.sharp11);
-  }
-
   static bool _isRootPositionMinor7Add11Shell(
     ChordIdentity id,
     bool rootPosition,
@@ -423,12 +405,6 @@ class CandidateFeatures {
         hasThird &&
         roles.contains(ChordToneRole.perfect5) &&
         hasSeventh;
-  }
-
-  static bool _isAlteredMajor7Sus4(ChordIdentity id, bool rootPos) {
-    if (!rootPos) return false;
-    if (id.quality != ChordQualityToken.major7sus4) return false;
-    return id.extensions.contains(ChordExtension.flat13);
   }
 
   static bool _isRootDominantSus(ChordIdentity id, bool rootPos) {

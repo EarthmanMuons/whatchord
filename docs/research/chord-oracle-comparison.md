@@ -224,6 +224,12 @@ playing.
 
 ## Recommended Review Workflow
 
+Since the engine moved to explanation-cost scoring, the preferred lever for a
+naming change is a price, not a rule. Every price in `chord_analyzer.dart` is a
+one-line musical statement (vocabulary rarity, a color tone's tension, a
+structural surcharge, a bass-placement cost), so most conventions can be
+expressed where they generalize instead of as a pairwise exception.
+
 1. Confirm the disagreement is semantic, not only spelling or parser behavior.
 2. Judge the candidates against WhatChord's goal: the musician-expected name of
    the observed voicing. Treat oracles and ChoCo frequency as evidence, not
@@ -231,12 +237,29 @@ playing.
 3. Decide whether the case is clearly wrong, clearly correct, genuinely
    ambiguous, context-dependent, voicing-dependent, or an oracle limitation.
 4. Change the engine only when a reusable musical principle explains the
-   preferred answer. Add positive and negative boundary tests; do not encode one
-   exact pitch set.
-5. After any scoring or ranking-rule change, run focused tests and the full
-   chord golden suite. Review every changed golden result rather than accepting
-   it mechanically.
-6. Add unresolved-but-reviewed cases to `tool/chord_oracle_reviewed.json`. Prune
+   preferred answer, and reach for levers in this order: a general price or
+   structural surcharge in the cost model first; a tie-breaker (which only acts
+   inside the near-tie window) when the principle is genuinely order-not-score;
+   a hard rule only for a score-independent convention that cannot be priced.
+   Add positive and negative boundary tests; do not encode one exact pitch set.
+5. Measure the blast radius of any price change against the full canonical pool
+   before trusting it. Zero flips on `clearly-correct` reviewed entries is a
+   hard constraint. Agreement changes on 3-5 note cases are trusted signal; 6-7
+   note flips need musical eyeballing rather than score-keeping, because the
+   previous engine's dense-voicing output is itself part of what these changes
+   exist to fix. Do not tune to maximize agreement with any single oracle,
+   including the engine's own previous behavior.
+6. Run focused tests and the full chord golden suite. Golden expectations are a
+   snapshot of the engine, not ground truth: re-carve a changed golden when the
+   new reading is musically defensible, and record the justification in its
+   description. Spelling-dependent changes also need an all-transpositions pass,
+   since the canonical pool only sees one spelling per shape.
+7. After retiring or adding rules, re-run the per-rule ablation: remove each
+   rule, re-run the pool, and diff the top pick and surfaced alternative set.
+   Rules whose removal changes neither (alternates order below the top pick is
+   not a contract) should be deleted, verified as a joint removal across all
+   transpositions.
+8. Add unresolved-but-reviewed cases to `tool/chord_oracle_reviewed.json`. Prune
    entries the Reviewed Audit lists as `resolved`, `no-longer-comparable`, or
    `orphaned`, and re-check anything it lists as `drifted`.
 
