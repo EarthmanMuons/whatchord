@@ -563,7 +563,7 @@ int? _preferCompleteDom7Sharp9OverSixthFlat9(
   }
 
   final preferredCandidate = aIsPreferred ? a : b;
-  if (preferredCandidate.score + 0.55 < other.score) return null;
+  if (preferredCandidate.score + 0.70 < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -674,7 +674,7 @@ int? _preferCompleteDom7Flat9OverColoredDim7(
 
   final preferredCandidate = aIsPreferred ? a : b;
   final otherCandidate = aIsPreferred ? b : a;
-  if (preferredCandidate.score + 0.55 < otherCandidate.score) return null;
+  if (preferredCandidate.score + 0.70 < otherCandidate.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -750,7 +750,7 @@ int? _preferFlatNineBassDominantOverRemoteReinterpretation(
   }
 
   final preferredCandidate = aIsPreferred ? a : b;
-  if (preferredCandidate.score + 0.55 < other.score) return null;
+  if (preferredCandidate.score + 0.70 < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -1459,7 +1459,7 @@ int? _preferDom7RootOverNonDomSlash(
   // Ensure the dominant reading is not "plain"; it should have some color.
   if (!fDom.hasNaturalOrAlteredColor) return null;
 
-  if (domCandidate.score + 0.25 < otherCandidate.score) return null;
+  if (domCandidate.score + 0.30 < otherCandidate.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -1491,7 +1491,7 @@ int? _preferNinthBassSeventhOverAlteredSlash(
   if (fOther.extensionTensionCount == 0 && !fOther.isUnusualSeventhQuality) {
     return null;
   }
-  if (preferredCandidate.score + 0.55 < otherCandidate.score) return null;
+  if (preferredCandidate.score + 0.70 < otherCandidate.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -1530,7 +1530,7 @@ int? _preferRootAlteredFifthDom7(
     return null;
   }
 
-  if (rootCandidate.score + 0.50 < slashCandidate.score) return null;
+  if (rootCandidate.score + 0.65 < slashCandidate.score) return null;
 
   return rootIsA ? -1 : 1;
 }
@@ -1588,7 +1588,7 @@ int? _preferConventionalAlteredSeventhOverAdd11Slash(
 
   // Keep this rule bounded to close structural ambiguities. Wider gaps should
   // still be decided by the raw template fit.
-  if (conventional.score + 0.55 < questionable.score) return null;
+  if (conventional.score + 0.70 < questionable.score) return null;
 
   return aIsQuestionableSlash ? 1 : -1;
 }
@@ -1620,7 +1620,7 @@ int? _preferCompleteMinorSharp11OverAlteredMaj7Sus4(
 
   // Keep the override narrow: if the template score strongly favors the sus
   // reading, let score win.
-  if (minorCandidate.score + 0.35 < susCandidate.score) return null;
+  if (minorCandidate.score + 0.45 < susCandidate.score) return null;
 
   return aIsMinorSharp11 ? -1 : 1;
 }
@@ -1921,7 +1921,7 @@ int? _preferCompleteTriadOverDeficientReading(
 
   final triadCandidate = aIsTriad ? a : b;
   final otherCandidate = aIsTriad ? b : a;
-  if (triadCandidate.score + 0.55 < otherCandidate.score) return null;
+  if (triadCandidate.score + 0.70 < otherCandidate.score) return null;
 
   return aIsTriad ? -1 : 1;
 }
@@ -2137,7 +2137,7 @@ int? _preferLydianMajorNineOverNaturalEleventhMajorThirteenth(
   if (!_isMajorThirteenthWithNaturalEleventhMajorSeventhBass(other.identity)) {
     return null;
   }
-  if (lydian.score + 0.25 < other.score) return null;
+  if (lydian.score + 0.30 < other.score) return null;
 
   return aIsLydian ? -1 : 1;
 }

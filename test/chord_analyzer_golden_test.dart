@@ -358,11 +358,11 @@ void main() {
     ),
 
     golden(
-      description: 'dominant seventh suspended second',
-      expectedSymbol: 'C7sus2',
+      description: 'dominant seventh suspended second respells as minor slash',
+      expectedSymbol: 'Gm/C',
       pcs: ['C', 'D', 'G', 'Bb'],
-      expectedRoot: 'C',
-      expectedQuality: ChordQualityToken.dominant7sus2,
+      expectedRoot: 'G',
+      expectedQuality: ChordQualityToken.minor,
     ),
 
     golden(
@@ -429,14 +429,16 @@ void main() {
       expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
     ),
 
-    // Minor 7 sharp 5 should treat the augmented fifth as a core tone.
+    // Minor 7 sharp 5 is rare vocabulary; its canonical voicing reads as the
+    // more common first-inversion add-nine major it respells.
     golden(
-      description: 'minor seventh sharp fifth',
-      expectedSymbol: 'Cm7#5',
+      description:
+          'minor seventh sharp fifth respells as inverted add-nine major',
+      expectedSymbol: 'Abadd9/C',
       pcs: ['C', 'Eb', 'G#', 'Bb'],
-      expectedRoot: 'C',
-      expectedQuality: ChordQualityToken.minor7Sharp5,
-      expectedToneRolesByInterval: {8: ChordToneRole.sharp5},
+      expectedRoot: 'Ab',
+      expectedQuality: ChordQualityToken.major,
+      expectedToneRolesByInterval: {2: ChordToneRole.add9},
     ),
 
     // Dominant 7 flat 5 should treat the diminished fifth as a core tone.

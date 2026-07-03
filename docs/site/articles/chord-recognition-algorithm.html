@@ -160,10 +160,10 @@
             </div>
             <div class="pf-arrow">↓</div>
             <div class="pf-box">
-              <div class="pf-name">Score normalization</div>
+              <div class="pf-name">Explanation cost</div>
               <div class="pf-sub">
-                Raw scores are normalized for fair comparison across chord
-                complexities
+                Each reading is priced by how cheaply it explains the input;
+                core tones are free, everything else costs
               </div>
             </div>
             <div class="pf-arrow">↓</div>
@@ -522,213 +522,146 @@
 }</code></pre>
 
           <p>
-            The scoring formula accumulates raw points from several components:
+            Each surviving reading is then priced by how well it explains the
+            input. The score is a negated <em>explanation cost</em>: core chord
+            tones are free, and the name pays for everything else it asks a
+            reader to accept. Lower cost wins.
           </p>
 
           <table class="score-table">
             <thead>
               <tr>
-                <th>Component</th>
-                <th>Weight</th>
+                <th>Cost component</th>
+                <th>Price</th>
                 <th>Notes</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Each required tone present</td>
-                <td class="pos mono">+4.0</td>
-                <td>Structural foundation</td>
+                <td>Core chord tone present</td>
+                <td class="pos mono">0</td>
+                <td>The name itself carries these</td>
               </tr>
               <tr>
-                <td>Each missing required tone</td>
-                <td class="neg mono">-6.0</td>
-                <td>Max 1 allowed; 2+ causes the template to be rejected</td>
-              </tr>
-              <tr>
-                <td>Each optional tone present</td>
-                <td class="pos mono">+1.5</td>
-                <td>Adds color without being essential</td>
-              </tr>
-              <tr>
-                <td>Each penalty tone present</td>
-                <td class="neg mono">-3.0</td>
-                <td>Contradicts the chord quality</td>
-              </tr>
-              <tr>
-                <td>Each added-complexity tone</td>
-                <td class="neg mono">-0.5</td>
+                <td>Vocabulary rarity</td>
+                <td class="neg mono">0.1 / 0.4 / 1.0</td>
                 <td>
-                  Before extension extraction; small because extensions are real
+                  How readily a musician reaches for the quality name: everyday
+                  names (major, minor, 7, m7, maj7, sus4, 6ths) are free; marked
+                  names (dim, aug, dim7, m7♭5, m(maj7), sus2, 7sus4) cost 0.1;
+                  uncommon ones (7♭5, 7♯5, maj7sus4, maj7♯5) cost 0.4; names
+                  that almost always respell a more common chord (m♯5, m7♯5,
+                  maj♭5, maj7♭5, 7sus2, maj7sus2) cost 1.0
                 </td>
               </tr>
               <tr>
-                <td>Stable bass fit</td>
-                <td class="pos mono">+1.0</td>
+                <td>Natural extension (9, 11, 13)</td>
+                <td class="neg mono">0.30&ndash;0.35</td>
                 <td>
-                  Root position, 1st inv, 2nd inv, 3rd inv; also ninth bass in a
-                  complete natural dominant 13th
+                  Integrated stack members on seventh chords. An 11 or 13 with
+                  no 9 under it pays a small surcharge (it is really an add-tone
+                  wearing a stack name), waived for an 11 in the bass (the
+                  sus-pedal idiom, Am7/D). On marked-vocabulary hosts (a 13 on a
+                  half-diminished or minor-major seventh) the price is
+                  multiplied by 1.75.
                 </td>
               </tr>
               <tr>
-                <td>Bass is color tone (7th-family chord)</td>
-                <td class="pos mono">+0.75</td>
-                <td>Upper-structure voicing, legitimate</td>
-              </tr>
-              <tr>
-                <td>Bass is extension (triad + slash)</td>
-                <td class="pos mono">+0.25</td>
-                <td>Add-chord slash notation</td>
-              </tr>
-              <tr>
-                <td>Bass unexplained by template</td>
-                <td class="neg mono">-0.25</td>
-                <td>Arbitrary slash</td>
-              </tr>
-              <tr>
-                <td>Alteration penalty (altered extension)</td>
-                <td class="neg mono">-0.30 / -0.60</td>
+                <td>Add tone (add9, add11, add13)</td>
+                <td class="neg mono">0.30&ndash;0.40</td>
                 <td>
-                  Softer value applies to plain triads and fully dim7; larger
-                  penalty is the default. A ♯11 as natural Lydian color is
-                  exempt
+                  Triad color. A natural 11 against a major third pays an
+                  avoid-tone surcharge of 0.5.
                 </td>
               </tr>
               <tr>
-                <td>Split-ninth color penalty</td>
-                <td class="neg mono">-0.05</td>
-                <td>Applied when a chord uses both ♭9 and natural 9 color</td>
-              </tr>
-              <tr>
-                <td>Lydian-dominant partial-stack bonus</td>
-                <td class="pos mono">+0.70</td>
+                <td>Altered color (♭9, ♯9, ♯11, ♭13)</td>
+                <td class="neg mono">0.45&ndash;0.55</td>
                 <td>
-                  Rewards a dominant whose 9 and ♯11 form a partial Lydian
-                  stack, in root position or with a shell tone (3rd, 5th, ♭7) in
-                  the bass, so the score prefers it over remote altered-fifth
-                  slash readings
+                  The alt palette lives on dominant chords; hosting one of these
+                  on any other quality doubles its price. The ♯11 stays
+                  unmultiplied where it is idiomatic Lydian color (major,
+                  dominant, minor, and sus4 hosts).
                 </td>
               </tr>
               <tr>
-                <td>Lydian-dominant 13♯11 coherence bonus</td>
-                <td class="pos mono">+2.1</td>
+                <td>Split-degree surcharges</td>
+                <td class="neg mono">0.4 / 0.6</td>
                 <td>
-                  Stronger version for a complete Lydian or altered dominant
-                  stack (9, ♯11, and a 13 or ♭13), which reads as one chord
-                  rather than a slash reinterpretation
+                  Two chromatic variants of one degree at once: a natural 2 plus
+                  ♭9/♯9, or a natural 4 plus ♯11
                 </td>
               </tr>
               <tr>
-                <td>Fifthless natural extension stack bonus</td>
-                <td class="pos mono">+2.4</td>
+                <td>Empty fifth slot</td>
+                <td class="neg mono">0.5 / 0.75</td>
                 <td>
-                  Rewards a fifthless major 7th (9 plus ♯11) or dominant 7th (9
-                  plus 13) whose upper colors stack cleanly. A natural 11
-                  against the major 3rd is too tense to count.
+                  A ♯11 or ♭13 with no fifth-slot tone sounding reads as the
+                  altered fifth instead: C-E-G♭ is C(♭5), not a fifthless
+                  Cadd♯11, and G-B-F-A-D♯ is G7♯5(9), not G9♭13. Fifthless
+                  major-family Lydian stacks with a supporting ninth (D♭maj9♯11)
+                  and the harmonic-minor m(maj7)♭13 idiom are exempt.
                 </td>
               </tr>
               <tr>
-                <td>Fifthless major-thirteenth stack bonus</td>
-                <td class="pos mono">+1.9</td>
+                <td>Missing essential tone</td>
+                <td class="neg mono">0.5&ndash;1.7</td>
                 <td>
-                  Same idea for a full fifthless major 13(♯11). Slightly lower
-                  so complete dominant-13th inversions can still compete.
+                  By the degree it would fill: a perfect fifth is routinely
+                  dropped (0.5), but a chord without its third (1.7), seventh
+                  (0.75), suspension (1.1), or defining altered fifth (0.9) is
+                  barely that chord. At most one may be missing.
                 </td>
               </tr>
               <tr>
-                <td>Complete dominant flat-13 shell bonus</td>
-                <td class="pos mono">+0.15 / +0.70</td>
+                <td>Unexplained tone</td>
+                <td class="neg mono">2.0</td>
+                <td>A sounding pitch the name cannot account for at all</td>
+              </tr>
+              <tr>
+                <td>Bass placement</td>
+                <td class="neg mono">0&ndash;1.0</td>
                 <td>
-                  Keeps a full dominant 7th shell with ♭13 competitive against
-                  its enharmonic maj7♯5 reading. The larger value applies when a
-                  9th (natural or altered) is also present.
+                  Root free; conventional inversion 0.15; integrated extension
+                  0.3; altered color 0.5; bare add tone 0.65; suspended tone
+                  0.7; unexplained 1.0. Diminished and augmented chords invert
+                  freely, so their fifth in the bass counts as a plain core
+                  tone. A complete plain triad over its added-ninth bass (the
+                  D/E idiom) is treated as an upper-structure pedal instead.
                 </td>
               </tr>
               <tr>
-                <td>Complete root-position triad color bonus</td>
-                <td class="pos mono">+0.25</td>
+                <td>Bare fifthless sixth chord</td>
+                <td class="neg mono">0.45</td>
                 <td>
-                  Keeps complete bass-rooted major/minor triads with modest
-                  add-tone or Lydian color competitive against larger suspended
-                  or seventh-family reinterpretations.
+                  A three-tone root-third-sixth set is better read as the
+                  relative minor's triad (C-E-A as Am/C, not C6)
                 </td>
-              </tr>
-              <tr>
-                <td>Complete add9 slash triad bonus</td>
-                <td class="pos mono">+3.2</td>
-                <td>
-                  Applied to complete major/minor triads whose slash bass is the
-                  added ninth, such as D/E or C#/D#
-                </td>
-              </tr>
-              <tr>
-                <td>Sus chord with suspended tone in bass</td>
-                <td class="neg mono">-2.00</td>
-                <td>
-                  Demotes unusual inversions like D7sus2/E (sus2 in bass) so
-                  competing add-chord or triad readings can win via tie-breakers
-                </td>
-              </tr>
-              <tr>
-                <td>6th chord without 5th (3-note voicing)</td>
-                <td class="neg mono">-0.60</td>
-                <td>Disambiguates C6(no5) from Am7/C</td>
               </tr>
             </tbody>
           </table>
 
           <p>
-            The raw score is then divided by
-            <code>sqrt(requiredToneCount)</code>
-            to normalize across chord complexities:
-          </p>
-
-          <pre><code><span class="kw">final</span> denom = reqCount &gt; <span class="nu">0</span> ? math.<span class="fn">sqrt</span>(reqCount.<span class="fn">toDouble</span>()) : <span class="nu">1.0</span>;
-<span class="kw">final</span> normalized = raw / denom;</code></pre>
-
-          <p>
-            Without normalization, 7th chords (which have more required tones)
-            would consistently outscore triads just by having more opportunities
-            to earn the <code>+4.0</code> required-tone bonus. A perfectly
-            matched C major triad would lose to a slightly-mismatched C dominant
-            7th. The square root normalization (rather than linear) preserves
-            meaningful score separation while preventing complex chords from
-            systematically outscoring well-matched simpler ones.
-          </p>
-
-          <h3>Rare-vocabulary cost</h3>
-
-          <p>
-            After normalization, a flat <code>-1.0</code> cost applies to the
-            qualities musicians almost never reach for because they usually
-            respell to a more common chord: m♯5 (an inverted major triad), m7♯5
-            (usually a triad with added color or a half-diminished shape spelled
-            from the wrong root), maj♭5, maj7♭5, and maj7♯5 (Lydian ♯11 and
-            dominant ♭13 colors), and the sus2 sevenths 7sus2 and maj7sus2.
-            These templates can otherwise win on fit alone by booking every
-            sounding note as a required tone, where the expected reading treats
-            one note as color. A rare quality can still win, but only when the
-            voicing fits it decisively better than any common name.
-          </p>
-
-          <h3>Diminished 7th penalty</h3>
-
-          <p>
-            Fully diminished 7th chords receive a softer alteration penalty
-            because their symmetry makes alternate roots score unusually well.
-            Halving that penalty helps preserve the reading musicians expect
-            when an added tone could otherwise make a rotated diminished
-            interpretation look artificially cleaner.
+            This input-centric accounting replaced an earlier template-centric
+            score that rewarded each matched template slot and normalized by
+            template size. That formulation systematically favored rare
+            four-tone templates that booked every sounding note as a required
+            tone over more common readings that treat one note as color, and it
+            took a dozen hand-tuned counterweight bonuses to fight the bias.
+            Pricing the input directly removes the bias at the source: a rare
+            name can still win, but only when it explains the voicing decisively
+            more cheaply than any common name.
           </p>
 
           <h2>Extension extraction</h2>
 
           <p>
             During template scoring, any tone not accounted for by the base
-            template (required + optional + penalty) lands in the “extras” mask
-            and adds a small complexity cost. A few context-specific penalty
-            tones can be moved into that extras mask first when they function as
-            chord color instead of true contradictions. These get converted to
-            named extensions in the final chord identity:
+            template (required + optional + penalty) lands in the “extras” mask.
+            A few context-specific penalty tones can be moved into that extras
+            mask first when they function as chord color instead of true
+            contradictions. These get converted to named extensions in the final
+            chord identity, each priced by its role as described above:
           </p>
 
           <ul>
@@ -767,15 +700,16 @@
             major-seventh colors from being misread as contradictions.
           </p>
 
-          <h2>How the weights were tuned</h2>
+          <h2>How the prices were tuned</h2>
 
           <p>
-            The scoring weights were not established arbitrarily. They were
-            tuned empirically against a set of golden test cases: specific
-            voicings where the expected output was chosen in advance. Most
-            golden cases capture chords a musician would name unambiguously;
-            ambiguous cases pin the intended primary reading for the current
-            scoring and ranking model.
+            The prices were not established arbitrarily. They started as
+            musician-judged priors, were calibrated offline against a pool of
+            every distinct 3&ndash;7 note pitch-class set, and were then tuned
+            against a set of golden test cases: specific voicings where the
+            expected output was chosen in advance. Most golden cases capture
+            chords a musician would name unambiguously; ambiguous cases pin the
+            intended primary reading for the current scoring and ranking model.
           </p>
 
           <p>
@@ -791,34 +725,31 @@
               tool to inspect the full ranked candidate list with score
               breakdowns.
             </li>
-            <li>
-              Adjust weights, add rules, or add scoring bonuses until the
-              failing case passed.
-            </li>
+            <li>Adjust prices or rules until the failing case passed.</li>
             <li>Re-run the full suite to verify no regressions.</li>
           </ol>
 
           <p>
             The <code>chord-debug</code> tool runs the full analysis pipeline on
             any set of notes and prints each candidate with its score,
-            individual weight contributions, and the ranking rule that decided
-            its position relative to the previous candidate:
+            individual cost contributions, and the ranking rule that decided its
+            position relative to the previous candidate:
           </p>
 
           <pre><code>$ dart run tool/chord_debug.dart F# Bb C E
 
 notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
 
- 1) F♯7♭5          8.50
+ 1) F♯7♭5         -0.40
      members: root=F♯  major3=A♯  flat5=C  flat7=E
-     scoring: req+16  bass+1  =&gt;  17.00 raw, 8.50 final
+     scoring: vocabularyrarity-0.40
 
- 2) C7♭5 / G♭      8.50  Δ +0.00 ~alt
-     (vs prev: prefer root position)
+ 2) C7♭5/G♭       -0.70  Δ -0.30
+     (vs prev: score difference beyond tie-break range)
      members: root=C  major3=E  flat5=G♭  flat7=B♭
-     scoring: req+16  bass+1  =&gt;  17.00 raw, 8.50 final
+     scoring: vocabularyrarity-0.40  bass-0.30
 
- 3) C7♯11 / F♯     7.01  Δ -1.49
+ 3) F♯7♯11        -1.30  Δ -0.90
      (vs prev: score difference beyond tie-break range)</code></pre>
 
           <p>
@@ -846,8 +777,8 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
 
           <p>
             This is not an isolated case. Several common note sets produce
-            near-identical scores for multiple plausible interpretations, and
-            the raw score cannot distinguish which one a musician would name:
+            near-identical costs for multiple plausible interpretations, and the
+            cost alone cannot distinguish which one a musician would name:
           </p>
 
           <ul>
@@ -894,7 +825,7 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
           <p>
             The ordered list below applies only after those hard rules have had
             a chance to run. If none of them fire and the score difference is
-            greater than <code>0.20</code> (the
+            greater than <code>0.25</code> (the
             <code>nearTieWindow</code> constant), the higher-scoring candidate
             wins on score alone.
           </p>

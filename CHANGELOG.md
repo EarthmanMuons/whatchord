@@ -17,6 +17,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- Rebuilt chord scoring around explanation cost: a reading now pays for its
+  vocabulary rarity, each color tone, missing essential tones, and awkward bass
+  placement, instead of earning points per matched template slot. Common names
+  win unless a rarer name explains the voicing decisively better, dense voicings
+  no longer favor exotic altered-fifth or minor-major readings, and exact-tie
+  shuffles between readings such as C6/9 and Am11/C are gone.
 - Chord identification is now up to about 90% faster, for everyday chords as
   well as dense or ambiguous voicings with many possible readings. The chord
   shown and the alternatives offered are unchanged.
