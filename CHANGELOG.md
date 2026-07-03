@@ -14,6 +14,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Added a Chord Naming Guide to the website, walking through default interval
   qualities, tertian stacking, enharmonic spelling, and candidate-root checking.
+- Power chords (bare root-and-fifth voicings) are now named directly, such as
+  C5, C5/G, and C5(add♭9), instead of being read as a remote third-bearing
+  fragment. A power chord is chosen only when nothing but the fifth and its
+  named colors are sounding; add a third or seventh and the usual triad or
+  seventh-chord reading still wins.
 
 ### Changed
 

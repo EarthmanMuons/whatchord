@@ -408,8 +408,12 @@ abstract final class ChordAnalyzer {
 
     // Allow up to 1 missing required tone for sparse voicings.
     // Example: dominant7 without the 5th (shell voicing) is still valid.
-    // More than 1 missing tone suggests wrong template entirely.
+    // More than 1 missing tone suggests wrong template entirely. A power
+    // chord is nothing but its fifth, so it gets no such allowance.
     if (missCount > 1) return null;
+    if (missCount > 0 && template.quality == ChordQualityToken.power) {
+      return null;
+    }
 
     // Extras: tones outside the base template. These may become named
     // extensions in the final chord identity.
@@ -528,6 +532,13 @@ abstract final class ChordAnalyzer {
     if (isBareFifthlessSixChord) {
       cost += _sixChordNoFifthSurcharge;
       add('fifthless sixth', -_sixChordNoFifthSurcharge);
+    }
+
+    // A power chord is only a credible reading when the bare fifth plus its
+    // named colors account for every sounding tone; a leftover tone means
+    // some other harmony is in play.
+    if (unexplainedMask != 0 && template.quality == ChordQualityToken.power) {
+      return null;
     }
 
     if (unexplainedMask != 0) {

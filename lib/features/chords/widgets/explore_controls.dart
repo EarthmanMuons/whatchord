@@ -418,6 +418,7 @@ String _baseQualityLabel(ExploreBaseQuality quality) {
   return switch (quality) {
     ExploreBaseQuality.major => 'maj',
     ExploreBaseQuality.minor => 'min',
+    ExploreBaseQuality.power => '5',
     ExploreBaseQuality.diminished => 'dim',
     ExploreBaseQuality.augmented => 'aug',
     ExploreBaseQuality.sus2 => 'sus2',
@@ -430,6 +431,7 @@ String _baseQualitySemanticLabel(ExploreBaseQuality quality) {
   return switch (quality) {
     ExploreBaseQuality.major => 'Major',
     ExploreBaseQuality.minor => 'Minor',
+    ExploreBaseQuality.power => 'Power chord',
     ExploreBaseQuality.diminished => 'Diminished',
     ExploreBaseQuality.augmented => 'Augmented',
     ExploreBaseQuality.sus2 => 'Suspended second',

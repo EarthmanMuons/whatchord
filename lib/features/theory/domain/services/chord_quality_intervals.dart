@@ -78,6 +78,10 @@ const chordQualityIntervalSets = <ChordQualityIntervals>[
         (1 << augmentedFifthInterval),
   ),
   ChordQualityIntervals(
+    quality: ChordQualityToken.power,
+    canonicalMask: chordRootBit | (1 << perfectFifthInterval),
+  ),
+  ChordQualityIntervals(
     quality: ChordQualityToken.sus2,
     canonicalMask:
         chordRootBit | (1 << majorSecondInterval) | (1 << perfectFifthInterval),

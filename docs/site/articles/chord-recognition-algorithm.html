@@ -316,7 +316,7 @@
             </li>
           </ul>
 
-          <p>The 26 templates, organized by complexity:</p>
+          <p>The 27 templates, organized by complexity:</p>
 
           <table class="score-table">
             <thead>
@@ -363,6 +363,12 @@
                 <td class="mono">R, M3, ♯5</td>
                 <td>—</td>
                 <td class="mono">m3, P5</td>
+              </tr>
+              <tr>
+                <td>Power (5)</td>
+                <td class="mono">R, P5</td>
+                <td>—</td>
+                <td class="mono">m3, M3, ♭5, m6/M6, m7, M7</td>
               </tr>
               <tr>
                 <td>Sus2</td>
@@ -507,7 +513,7 @@
             For each candidate root (each pitch class present in the voicing),
             the analyzer rotates the pitch class mask relative to that root to
             get an interval mask. Then it scores that interval mask against all
-            26 templates.
+            27 templates.
           </p>
 
           <pre><code><span class="cm">// Rotate: compute intervals above rootPc for each sounding note</span>
@@ -990,8 +996,8 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
           <h2>Caching for real-time performance</h2>
 
           <p>
-            Running the full pipeline (up to 12 candidate roots × 26 templates =
-            312 template evaluations) on every MIDI state change would be
+            Running the full pipeline (up to 12 candidate roots × 27 templates =
+            324 template evaluations) on every MIDI state change would be
             wasteful. In practice, a pianist tends to produce many repeated
             input states throughout a musical piece.
           </p>

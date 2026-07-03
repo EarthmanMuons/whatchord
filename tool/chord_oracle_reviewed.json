@@ -1,11 +1,11 @@
 {
   "0-1-7_b0": {
-    "label": "context-dependent",
-    "note": "Csus4add♭9 is now a better fallback than the previous remote C♯ fragment because it keeps C as the bass/root and names D♭ as flat-ninth color over the C-G fifth. Music21 labels the same sparse sonority as a C power/no-third chord with added D♭, which is arguably more idiomatic. WhatChord still does not model explicit power/no-third vocabulary, so a fully satisfying answer would come from adding that vocabulary rather than another narrow ranking override."
+    "label": "oracle-limitation",
+    "note": "C5add♭9 is now the expected reading: WhatChord models explicit power/no-third vocabulary, so the C-G bare fifth names as C5 with D♭ as flat-nine color. This matches music21's CpoweraddD- reading of the same sonority; the residual flag is only label normalization (music21 re-parses its own power label with an implied third)."
   },
   "0-1-7_b7": {
-    "label": "context-dependent",
-    "note": "Gdim(add11) is a defensible current label because G is the bass/root and G-D♭ supplies the diminished fifth, with C as added eleventh color. Music21's Cpower/GaddD- remains a clearer label if the voicing is understood as a C-G no-third power chord with G in the bass and D♭ as flat-nine color, but WhatChord does not currently emit C5 or C(no3) add-tone vocabulary. The ranking has improved from the previous remote C♯maj7♭5/G result, and the remaining disagreement is best tracked as missing no-third/power-chord vocabulary rather than solved by a narrow override."
+    "label": "oracle-limitation",
+    "note": "C5add♭9/G is now the expected reading: the C-G bare fifth names as a C power chord with G in the bass and D♭ as flat-nine color, matching music21's Cpower/GaddD-. The residual flag is only label normalization, not a naming disagreement."
   },
   "0-1-8_b0": {
     "label": "context-dependent",
@@ -262,10 +262,6 @@
   "0-1-3-5-7-10_b5": {
     "label": "oracle-limitation",
     "note": "E♭13/F is preferred because E♭-G-B♭-D♭ forms a complete dominant shell, with F in the bass as the ninth and C as thirteenth color. Tonal agrees. Music21's Cm7/F add D♭ describes related C-minor upper-structure material, but it treats the E♭ dominant root, flat seventh, and ninth as a slash/add-tone construction rather than naming the complete dominant organization directly."
-  },
-  "0-1-3-5-7-8_b3": {
-    "label": "genuine-ambiguity",
-    "note": "E♭13 is preferred because E♭ is the bass/root and the voicing supplies a fifthless dominant-thirteenth stack E♭-G-D♭-F-A♭-C. The natural eleventh creates a real 3/11 rub, but it is observed color in this voicing rather than a reason to abandon the bass-rooted dominant shell. Music21 and tonal choose the valid D♭maj9♯11/E♭ upper-structure reading, which preserves a complete D♭ Lydian-major sonority but makes the bass the ninth. ChoCo favors the dominant vocabulary, with 8947 dominant7|nine,eleven,thirteen observations versus 346 major7|nine,sharp11 observations, so WhatChord's primary is defensible while the D♭ reading remains a real alternate."
   },
   "0-1-3-5-7-9_b0": {
     "label": "genuine-ambiguity",
@@ -542,10 +538,6 @@
   "0-1-5-7-10_b7": {
     "label": "oracle-limitation",
     "note": "Gm11(♭5) is preferred because G is the bass/root and G-B♭-D♭-F forms a complete root-position half-diminished seventh shell with C as eleventh color. Music21 agrees semantically. Tonal's C♭9sus/G and C11♭9/G labels are valid rotations of the same pitch collection, but they move the root away from the observed bass and obscure the complete G half-diminished sonority. B♭m6/9/G remains a surfaced possible alternative, but it makes the bass the sixth rather than the root of the chord, so it is less direct as the primary label."
-  },
-  "0-1-5-7-9_b5": {
-    "label": "oracle-limitation",
-    "note": "A7(♯5,♯9)/E♯ is preferred because the voicing contains the complete A altered-dominant shell A-C♯-E♯-G, with C/B♯ as sharp-ninth color and E♯/F as the sharp fifth in the bass. Tonal agrees. Music21's D♭ augmented-major-seventh add-tone spelling captures a related upper structure, but it re-roots away from the complete altered dominant and does not give the bass the chord-defining altered-fifth role."
   },
   "0-1-5-7-9_b7": {
     "label": "oracle-limitation",
