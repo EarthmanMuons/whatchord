@@ -326,7 +326,6 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferRootMinor7OverMajor6Slash,
   ),
   NamedRule('prefer tonic chord', _preferTonicChord),
-  NamedRule('prefer I chord when bass is tonic', _preferTonicAsI),
   NamedRule(
     'prefer complete triad add-tone over sparse seventh-family color',
     _preferCompleteTriadAddToneOverSeventhFamilyAddTone,
@@ -1867,41 +1866,6 @@ int? _preferTonicChord(
   final da = tonality.scaleDegreeForChord(a.identity);
   final db = tonality.scaleDegreeForChord(b.identity);
   if (da == null || db == null) return null;
-
-  final aIsI = da == ScaleDegree.one;
-  final bIsI = db == ScaleDegree.one;
-
-  if (aIsI == bIsI) return null;
-
-  return bIsI ? 1 : -1;
-}
-
-/// Prefers the I chord when the bass is the tonic pitch class.
-///
-/// When multiple diatonic interpretations are possible with tonic in bass,
-/// favor the most stable/expected reading (the I chord itself) over other
-/// scale degrees that happen to have tonic as a chord tone.
-///
-/// Example in C major with bass = C:
-/// - Prefer "C" (I) over "Am/C" (vi/I) or "Fmaj7/C" (IV/I)
-/// - Tonic bass + tonic chord = strongest harmonic stability
-///
-/// Only applies when both candidates are diatonic to the key.
-int? _preferTonicAsI(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality tonality,
-) {
-  final tonic = tonality.tonicPitchClass;
-
-  final da = tonality.scaleDegreeForChord(a.identity);
-  final db = tonality.scaleDegreeForChord(b.identity);
-  if (da == null || db == null) return null;
-
-  final bassIsTonic = a.identity.bassPc == tonic;
-  if (!bassIsTonic) return null;
 
   final aIsI = da == ScaleDegree.one;
   final bIsI = db == ScaleDegree.one;
