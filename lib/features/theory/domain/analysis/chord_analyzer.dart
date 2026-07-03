@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:math' as math;
 
 import 'package:meta/meta.dart';
 
@@ -8,6 +7,7 @@ import '../models/chord_candidate.dart';
 import '../models/chord_extension.dart';
 import '../models/chord_identity.dart';
 import '../models/chord_input.dart';
+import '../models/chord_tone_role.dart';
 import '../models/observed_voicing.dart';
 import '../services/chord_quality_intervals.dart';
 import '../services/chord_tone_roles.dart';
@@ -68,13 +68,13 @@ class RankedCandidateDebug {
 /// 3. Rank candidates using score + tie-breaking heuristics
 /// 4. Cache results keyed by input + context
 ///
-/// Scoring philosophy:
-/// - Reward structural completeness (required tones present)
-/// - Penalize missing tones, contradictory tones, and added complexity
-/// - Normalize by chord complexity to allow fair comparison
+/// Scoring philosophy: a candidate's score is the negated cost of
+/// explaining the input under that name. Core chord tones are free; the
+/// name pays for its rarity, appended colors, missing essentials,
+/// unexplained tones, and awkward bass placement.
 ///
 /// NOTE: docs/site/articles/under-the-hood.html documents this pipeline in
-/// detail. Update the article when scoring weights or algorithm structure changes.
+/// detail. Update the article when prices or algorithm structure change.
 abstract final class ChordAnalyzer {
   @visibleForTesting
   static const int cacheCapacity = 512;
@@ -82,77 +82,83 @@ abstract final class ChordAnalyzer {
   static final LinkedHashMap<int, List<ChordCandidate>> _cache =
       LinkedHashMap<int, List<ChordCandidate>>();
 
-  // ---- Scoring weights (tuned empirically) ----------------------------------
-  // See docs/site/articles/under-the-hood.html for the full scoring model.
+  // ---- Explanation-cost prices -----------------------------------------
+  // A candidate's score is the negated cost of explaining every sounding
+  // pitch under that name: core chord tones are free, and the name pays for
+  // its own rarity, each color tone it appends, essential tones it lacks,
+  // tones it cannot account for, and awkward bass placement. Prices are
+  // musician-judged priors calibrated against the reviewed oracle pool.
+  // See docs/site/articles/chord-recognition-algorithm.html.
 
-  // Core per-tone weights (positive magnitude; sign applied at use site).
-  static const _reqWeight = 4.0; // required tone present
-  static const _missWeight = 6.0; // required tone missing
-  static const _optWeight = 1.5; // optional tone present
-  static const _penWeight = 3.0; // penalty (contradicting) tone present
-  static const _extraWeight = 0.5; // complexity cost per extra-template tone
+  // Vocabulary rarity: how readily a musician reaches for the quality name.
+  static const _vocabularyMarked = 0.1; // dim, aug, sus2, dim7, m7b5, ...
+  static const _vocabularyUncommon = 0.4; // 7b5, 7#5, maj7sus4, maj7#5
+  static const _vocabularyRare = 1.0; // m#5, m7#5, majb5, maj7b5, sus2 7ths
 
-  // Bass fit scores.
-  static const _bassBase = 1.00; // bass is a required/optional tone
-  static const _bassColor =
-      0.75; // bass is a color/extension tone on 7th-family chord
-  static const _bassAdd = 0.25; // bass is an add/extension tone on a triad
-  static const _bassMiss = -0.25; // bass pitch not accounted for by template
+  // Natural color tones. Upper extensions are idiomatic on everyday hosts
+  // (a 13 on a dominant, an 11 on a minor seventh); on marked-vocabulary
+  // hosts (a 13 on a half-diminished or minor-major seventh) they are far
+  // rarer and cost proportionally more.
+  static const _priceNine = 0.35;
+  static const _priceEleven = 0.3;
+  static const _priceThirteen = 0.3;
+  static const _priceAdd9 = 0.4;
+  static const _priceAdd11 = 0.3;
+  static const _priceAdd13 = 0.3;
+  static const _markedHostExtensionMultiplier = 1.75;
 
-  // One-off structural penalties (applied as raw -= constant).
-  static const _minorSharp5BassPenalty = 3.0; // m#5/m7#5 with the #5 in bass
-  static const _susToneBassPenalty =
-      2.0; // sus chord with suspended tone in bass
-  static const _sixChordNo5Penalty =
-      0.60; // 6th chord omitting the 5th in a 3-note voicing
-  static const _altPenalty = 0.60; // alteration spelling preference
-  static const _altPenaltyDim7 = 0.30; // softened for symmetric dim7
-  static const _altPenaltyTriad =
-      0.30; // softened for non-seventh-family chords
-  static const _splitNinthPenalty = 0.05; // simultaneous b9 and natural 9 color
+  // Altered color tones. The alt palette lives on dominant chords; hosting
+  // one of these on another quality doubles its price (#11 stays unmultiplied
+  // on the qualities where it is idiomatic Lydian color).
+  static const _priceFlat9 = 0.45;
+  static const _priceSharp9 = 0.5;
+  static const _priceSharp11 = 0.55;
+  static const _priceFlat13 = 0.5;
+  static const _priceSplitThird = 0.4;
+  static const _offDominantAlterationMultiplier = 2.0;
 
-  // Dominant-stack coherence bonuses.
-  static const _domStackPartial = 0.70; // dom7 + 9 + #11 partial stack
-  static const _domStackFull = 2.1; // dom7 + 9 + #11 + 13/b13 coherent stack
-  static const _fifthlessExtensionStackBonus =
-      2.4; // root-position fifthless natural 9 + #11/13 stacks
-  static const _fifthlessMajorThirteenthStackBonus =
-      1.9; // root-position fifthless maj7 + 9 + #11 + 13 stacks
-  static const _completeDominantFlatThirteenthBonus =
-      0.15; // complete dom7 shell + b13 should compete with enharmonic maj7#5
-  static const _completeDominantNineFlatThirteenthBonus =
-      0.70; // complete dom7 shell + natural/altered 9 + b13 stack
-  static const _completeDominantFlatNineFlatThirteenthBonus =
-      0.70; // complete dom7 shell + b9 + b13 altered stack
-  static const _completeRootTriadColorBonus =
-      0.25; // complete root major/minor triad + simple color
+  // Structural surcharges on individual color tones.
+  static const _unsupportedElevenSurcharge = 0.15; // 11 with no 9 below it
+  static const _unsupportedThirteenSurcharge = 0.25; // 13 with no 9 below it
+  static const _elevenOverMajorThirdSurcharge = 0.5; // avoid-tone clash
+  static const _splitFourthSurcharge = 0.6; // natural 4 and #11 at once
+  static const _splitSecondSurcharge = 0.4; // natural 2 and b9/#9 at once
+  static const _sharpElevenEmptyFifthSurcharge = 0.75; // #11 with no 5th tone
+  static const _flatThirteenEmptyFifthSurcharge = 0.5; // b13 with no 5th
+  static const _sixChordNoFifthSurcharge = 0.45; // bare R-3-6 set as a 6th
+  static const _upperTriadNinthBassCost = 0.15; // D/E idiom: add9 as pedal
 
-  // Upper-structure slash-triad bonus.
-  static const _add9BassUpperTriadBonus = 3.2; // e.g. D/E, C#/D#
+  // Missing essential tones (candidate generation allows at most one).
+  static const _missingThirdCost = 1.7;
+  static const _missingSusToneCost = 1.1;
+  static const _missingAlteredFifthCost = 0.9;
+  static const _missingSeventhCost = 0.75;
+  static const _missingFifthCost = 0.5;
 
-  // Cost for naming a voicing with a quality musicians rarely reach for
-  // (see _isRareVocabulary). Without it, a rare template that books every
-  // sounding note as a required tone outscores a commoner reading that
-  // treats one note as color.
-  static const _rareVocabularyCost = 1.0;
+  // A sounding tone the name cannot account for at all.
+  static const _unexplainedToneCost = 2.0;
 
-  // Candidates scoring more than this far below the top raw score are dropped
-  // before ranking. The ranking is O(n^2) in candidate count, and a reading this
-  // far down can never surface: it can be neither the chosen #1 (a hard rule
-  // promotes a winner at most ~1.6 below the top) nor an alternative (those sit
-  // within ChordCandidateRanking.nearTieWindow of the chosen #1, but the
-  // non-monotonic linearization can sandwich a deeper reading into the surfaced
-  // band). The widest surfaced gap measured across the reviewed-oracle corpus,
-  // the common-voicing pool, and an adversarial dense-voicing sweep (7-12 notes,
-  // including the full chromatic) is 2.858, so 3.0 keeps every surfaced reading
-  // while pruning the long tail. The order of alternatives #2+ may differ from
-  // the unpruned ranking (Copeland win-counts shift when the tail is removed);
-  // that order is not a contract, but the #1 pick and the surfaced set are.
-  // chord_ranking_prune_guard_test asserts the surfaced gap stays under this.
+  // Bass placement: root is free, conventional inversions are cheap, color
+  // tones and especially suspended tones in the bass read awkwardly. An
+  // integrated extension in the bass (the 11 of a m7) reads smoother than a
+  // bare add tone (the add9 under a 6/9), which reads like a pedal the name
+  // fails to acknowledge.
+  static const _bassCoreToneCost = 0.15;
+  static const _bassSusToneCost = 0.7;
+  static const _bassAlteredFifthCost = 0.3;
+  static const _bassNaturalColorCost = 0.3;
+  static const _bassAddToneCost = 0.65;
+  static const _bassAlteredColorCost = 0.5;
+  static const _bassUnexplainedCost = 1.0;
+
+  // Candidates costing more than this above the cheapest reading are dropped
+  // before the O(n^2) ranking. A reading this far down can never surface as
+  // the #1 pick or an alternative; chord_ranking_prune_guard_test measures
+  // the widest surfaced gap and asserts it stays under this margin.
   // Not const so that guard test can disable pruning (raise to infinity) and
   // measure the unpruned surfaced gap.
   @visibleForTesting
-  static double rankingPruneMargin = 3.0;
+  static double rankingPruneMargin = 2.0;
 
   static List<ChordCandidate> analyze(
     ChordInput input, {
@@ -283,19 +289,13 @@ abstract final class ChordAnalyzer {
         );
         if (scored == null) continue;
 
-        final roles = ChordToneRoles.build(
-          quality: tmpl.quality,
-          extensions: scored.extensions,
-          relMask: relMask,
-        );
-
         final candidate = ChordCandidate(
           identity: ChordIdentity(
             rootPc: rootPc,
             bassPc: input.bassPc,
             quality: tmpl.quality,
             extensions: scored.extensions,
-            toneRolesByInterval: roles,
+            toneRolesByInterval: scored.roles,
             presentIntervalsMask: relMask,
           ),
           score: scored.score,
@@ -401,8 +401,6 @@ abstract final class ChordAnalyzer {
       relMask: relMask,
       bassInterval: bassInterval,
     );
-    final presentPenaltyMask =
-        (penalty & relMask) & ~functionalPenaltyExtensionsMask;
 
     final missCount = popCount(missingRequiredMask);
 
@@ -411,35 +409,17 @@ abstract final class ChordAnalyzer {
     // More than 1 missing tone suggests wrong template entirely.
     if (missCount > 1) return null;
 
-    final reqCount = popCount(presentRequiredMask);
-    final optCount = popCount(presentOptionalMask);
-    final penCount = popCount(presentPenaltyMask);
-
     // Extras: tones outside the base template. These may become named
     // extensions in the final chord identity.
     final base = required | optional;
     final extrasMask =
         (relMask & ~(base | penalty)) | functionalPenaltyExtensionsMask;
 
-    // Extract extensions before counting extras so the alt-penalty check below
-    // can inform which extra tones are already covered by that penalty.
-    final has7 = template.quality.isSeventhFamily;
     final extensions = _extensionsFromExtras(
       extrasMask,
-      has7: has7,
+      has7: template.quality.isSeventhFamily,
       quality: template.quality,
     );
-
-    // The flat alt penalty below covers the cost of having any alteration
-    // extension outside the base template — so the first such extra should not
-    // also incur the per-tone complexity cost. Additional alteration extras
-    // beyond the first still incur that cost because the flat penalty doesn't
-    // scale with count.
-    const alterationIntervalBits = (1 << 1) | (1 << 3) | (1 << 6) | (1 << 8);
-    final hasAltExtras =
-        _hasAlterations(extensions, template.quality) &&
-        (extrasMask & alterationIntervalBits) != 0;
-    final extraCount = popCount(extrasMask) - (hasAltExtras ? 1 : 0);
 
     if (_flatFiveConflictsWithNaturalThirteenth(
       quality: template.quality,
@@ -450,279 +430,407 @@ abstract final class ChordAnalyzer {
       return null;
     }
 
-    // Raw scoring components (single source of truth).
-    var raw = 0.0;
+    final roles = ChordToneRoles.build(
+      quality: template.quality,
+      extensions: extensions,
+      relMask: relMask,
+    );
 
-    final reqDelta = reqCount * _reqWeight;
-    raw += reqDelta;
+    var cost = 0.0;
+
+    final vocabulary = _vocabularyCost(template.quality);
+    if (vocabulary != 0) {
+      cost += vocabulary;
+      add('vocabulary rarity', -vocabulary);
+    }
+
+    // Core tones are free; report them so downstream tone ledgers can show
+    // what the name accounts for.
     add(
       'required tones',
-      reqDelta,
-      detail: 'count=$reqCount',
+      0,
+      detail: 'count=${popCount(presentRequiredMask)}',
       intervals: presentRequiredMask,
     );
-
-    final missDelta = -missCount * _missWeight;
-    raw += missDelta;
-    add(
-      'missing required',
-      missDelta,
-      detail: 'count=$missCount',
-      intervals: missingRequiredMask,
-    );
-
-    final optDelta = optCount * _optWeight;
-    raw += optDelta;
-    add(
-      'optional tones',
-      optDelta,
-      detail: 'count=$optCount',
-      intervals: presentOptionalMask,
-    );
-
-    final penDelta = -penCount * _penWeight;
-    raw += penDelta;
-    add(
-      'penalty tones',
-      penDelta,
-      detail: 'count=$penCount',
-      intervals: presentPenaltyMask,
-    );
-
-    final extraDelta = -extraCount * _extraWeight;
-    raw += extraDelta;
-    add(
-      'extras',
-      extraDelta,
-      detail: 'count=$extraCount',
-      intervals: extrasMask,
-    );
-
-    // Bass scoring priority (reflects common voicing practices):
-    // base tone > color/extension tone on 7th chord > add tone on triad > not in template
-    final bassBit = 1 << bassInterval;
-    final double bassDelta;
-    if ((base & bassBit) != 0) {
-      bassDelta = _bassBase;
-    } else if ((extrasMask & bassBit) != 0) {
-      // If the bass is being interpreted as an extension/alteration tone on a
-      // seventh-family chord, treat it as a legitimate "color bass" rather than
-      // an arbitrary extra tone.
-      final isColorBass =
-          template.quality.isSeventhFamily && extensions.isNotEmpty;
-      bassDelta =
-          _hasCompleteNaturalDominantThirteenthNinthBass(
-            quality: template.quality,
-            extensions: extensions,
-            relMask: relMask,
-            bassInterval: bassInterval,
-          )
-          ? _bassBase
-          : isColorBass
-          ? _bassColor
-          : _bassAdd;
-    } else {
-      bassDelta = _bassMiss;
-    }
-    raw += bassDelta;
-    add('bass fit', bassDelta, detail: 'interval=$bassInterval');
-
-    // Minor sharp-five sonorities are real but uncommon. When the bass is the
-    // altered fifth, common add-chord voicings can otherwise be overread as a
-    // remote slash minor-sharp-five chord (for example Cadd9 as Em7#5/C).
-    if (_hasMinorSharpFiveAlteredFifthBass(
-      quality: template.quality,
-      bassInterval: bassInterval,
-    )) {
-      raw -= _minorSharp5BassPenalty;
-      add('m#5 bass', -_minorSharp5BassPenalty);
-    }
-
-    // Sus chords with the suspended tone itself in the bass are rare and
-    // awkward to read. Musicians almost never write "D7sus2/E" (the suspension
-    // in the bass); instead they hear the voicing from a different root where
-    // the bass is a normal core tone. Penalize enough that a competing
-    // add-chord or triad reading can win through the diatonic and
-    // root-position tie-breakers when one exists.
-    //
-    // Root-position sus chords (bassInterval == 0) are unaffected because the
-    // root is always a core tone. Inversions with the 5th or 7th in bass are
-    // also unaffected; only the suspended tone itself triggers the penalty.
-    if (_hasSusToneInBass(
-      quality: template.quality,
-      bassInterval: bassInterval,
-    )) {
-      raw -= _susToneBassPenalty;
-      add('sus-tone bass', -_susToneBassPenalty);
-    }
-
-    // Alteration penalty: prefer simpler spellings over altered interpretations.
-    //
-    // Special case: Fully diminished seventh chords are symmetric (minor-third stacks).
-    // With one extra pitch, the same pitch-class set can be explained either as:
-    //   - dim7 rooted on the bass with an "altered" color tone (e.g. Cdim7(b13)), or
-    //   - a different dim7 root that reinterprets that same pitch as a "natural/add"
-    //     extension, often forcing a slash bass (e.g. D#dim7(add11)/C).
-    //
-    // Musicians typically expect the bass-root reading for symmetric dim7 chords in
-    // ambiguous contexts, so we soften the alteration penalty specifically for dim7
-    // to avoid over-favoring slash-root reinterpretations.
-    final altPenalty = switch (template.quality) {
-      ChordQualityToken.diminished7 => _altPenaltyDim7,
-      _
-          when !template.quality.isSeventhFamily &&
-              !template.quality.isSixFamily =>
-        _altPenaltyTriad,
-      _ => _altPenalty,
-    };
-
-    if (_hasAlterations(extensions, template.quality)) {
-      raw -= altPenalty;
+    if (presentOptionalMask != 0) {
       add(
-        'alterations penalty',
-        -altPenalty,
-        detail: switch (template.quality) {
-          ChordQualityToken.diminished7 => 'dim7 softened',
-          _
-              when !template.quality.isSeventhFamily &&
-                  !template.quality.isSixFamily =>
-            'triad softened',
-          _ => null,
-        },
+        'optional tones',
+        0,
+        detail: 'count=${popCount(presentOptionalMask)}',
+        intervals: presentOptionalMask,
       );
     }
 
-    if (_hasSplitNinthColor(extensions)) {
-      raw -= _splitNinthPenalty;
-      add('split ninth', -_splitNinthPenalty);
-    }
+    // A complete plain triad voiced over its added ninth in the bass is the
+    // upper-structure slash idiom (D/E, C#/D#): the bass reads as an
+    // independent pedal, not as chord color the name must justify.
+    final isUpperTriadOverNinthBass =
+        (template.quality == ChordQualityToken.major ||
+            template.quality == ChordQualityToken.minor) &&
+        bassInterval == majorSecondInterval &&
+        extensions.length == 1 &&
+        extensions.contains(ChordExtension.add9) &&
+        (relMask & (1 << perfectFifthInterval)) != 0;
 
-    final dominantStackDelta = _dominantStackCoherenceBonus(
-      quality: template.quality,
-      extensions: extensions,
-      relMask: relMask,
-      bassInterval: bassInterval,
-    );
-    if (dominantStackDelta != 0) {
-      raw += dominantStackDelta;
-      add('dominant stack', dominantStackDelta);
+    // Each color tone the name appends is priced by its role; tones with no
+    // role are contradictions the name cannot account for.
+    var colorCost = 0.0;
+    var colorMask = 0;
+    var unexplainedMask = 0;
+    final colorDetails = reasons == null ? null : <String>[];
+    for (var interval = 1; interval < 12; interval++) {
+      if ((relMask & (1 << interval)) == 0) continue;
+      final role = roles[interval];
+      if (role == null) {
+        unexplainedMask |= 1 << interval;
+        continue;
+      }
+      final price = role == ChordToneRole.add9 && isUpperTriadOverNinthBass
+          ? _upperTriadNinthBassCost
+          : _tonePrice(
+              role: role,
+              quality: template.quality,
+              relMask: relMask,
+              roles: roles,
+              isBassTone: interval == bassInterval,
+            );
+      if (price == 0) continue;
+      colorCost += price;
+      colorMask |= 1 << interval;
+      colorDetails?.add('${role.name}=${price.toStringAsFixed(2)}');
     }
-
-    final fifthlessExtensionStackDelta = _fifthlessExtensionStackBonusFor(
-      quality: template.quality,
-      extensions: extensions,
-      relMask: relMask,
-      bassInterval: bassInterval,
-    );
-    if (fifthlessExtensionStackDelta != 0) {
-      raw += fifthlessExtensionStackDelta;
-      add('fifthless extension stack', fifthlessExtensionStackDelta);
-    }
-
-    final completeDominantFlatThirteenthDelta =
-        _completeDominantFlatThirteenthBonusFor(
-          quality: template.quality,
-          extensions: extensions,
-          relMask: relMask,
-        );
-    if (completeDominantFlatThirteenthDelta != 0) {
-      raw += completeDominantFlatThirteenthDelta;
-      add('complete b13 dominant', completeDominantFlatThirteenthDelta);
-    }
-
-    final completeRootTriadColorDelta = _completeRootTriadColorBonusFor(
-      quality: template.quality,
-      extensions: extensions,
-      relMask: relMask,
-      bassInterval: bassInterval,
-    );
-    if (completeRootTriadColorDelta != 0) {
-      raw += completeRootTriadColorDelta;
-      add('complete root triad color', completeRootTriadColorDelta);
-    }
-
-    final add9BassUpperTriadDelta = _add9BassUpperTriadBonusFor(
-      quality: template.quality,
-      extensions: extensions,
-      relMask: relMask,
-      bassInterval: bassInterval,
-    );
-    if (add9BassUpperTriadDelta != 0) {
-      raw += add9BassUpperTriadDelta;
-      add('add9 bass triad', add9BassUpperTriadDelta);
-    }
-
-    // Penalize sparse 6-chord interpretations that omit the 5th. Doubling a
-    // tone does not make the pitch-class structure more complete.
-    // Helps avoid "root-3-6" ambiguity by disfavoring incomplete 6th chords.
-    //
-    // Example: {C, E, A} could be C6(no5) or Am7/C → prefer Am7/C
-    if (_has6ChordWithout5(quality: template.quality, relMask: relMask)) {
-      raw -= _sixChordNo5Penalty;
+    if (colorCost != 0) {
+      cost += colorCost;
       add(
-        'sixNo5',
-        -_sixChordNo5Penalty,
-        detail: 'pitchClasses=${popCount(relMask)}',
+        'color tones',
+        -colorCost,
+        detail: colorDetails?.join(' '),
+        intervals: colorMask,
       );
     }
 
-    // Normalize by sqrt(required_tone_count) to allow fair comparison across
-    // chord complexities. Without normalization, 7th chords would always outscore
-    // triads simply due to having more required tones to match.
-    //
-    // Square root (vs linear) preserves meaningful score separation while
-    // preventing over-penalization of complex chords.
-    final denom = reqCount > 0 ? math.sqrt(reqCount.toDouble()) : 1.0;
-    var normalized = raw / denom;
-
-    if (_isRareVocabulary(template.quality)) {
-      normalized -= _rareVocabularyCost;
-      add('vocabulary rarity', -_rareVocabularyCost);
+    // A bare root-third-sixth set is better read as the relative minor's
+    // triad; a sixth chord needs its fifth to anchor the sixth as color.
+    final isBareFifthlessSixChord =
+        template.quality.isSixFamily &&
+        (relMask & (1 << perfectFifthInterval)) == 0 &&
+        popCount(relMask) == 3;
+    if (isBareFifthlessSixChord) {
+      cost += _sixChordNoFifthSurcharge;
+      add('fifthless sixth', -_sixChordNoFifthSurcharge);
     }
 
-    if (reasons != null) {
+    if (unexplainedMask != 0) {
+      final unexplainedCost = popCount(unexplainedMask) * _unexplainedToneCost;
+      cost += unexplainedCost;
       add(
-        'normalize',
-        0.0,
-        detail:
-            'raw=${raw.toStringAsFixed(2)} denom=${denom.toStringAsFixed(2)} => ${normalized.toStringAsFixed(2)}',
+        'penalty tones',
+        -unexplainedCost,
+        detail: 'count=${popCount(unexplainedMask)}',
+        intervals: unexplainedMask,
       );
     }
 
-    return _ScoredTemplate(score: normalized, extensions: extensions);
+    if (missingRequiredMask != 0) {
+      var missingCost = 0.0;
+      for (var interval = 1; interval < 12; interval++) {
+        if ((missingRequiredMask & (1 << interval)) != 0) {
+          missingCost += _missingEssentialCost(interval);
+        }
+      }
+      cost += missingCost;
+      add(
+        'missing required',
+        -missingCost,
+        detail: 'count=$missCount',
+        intervals: missingRequiredMask,
+      );
+    }
+
+    final bassCost = isUpperTriadOverNinthBass
+        ? 0.0
+        : _bassPlacementCost(roles[bassInterval], template.quality);
+    if (bassCost != 0) {
+      cost += bassCost;
+      add('bass fit', -bassCost, detail: 'interval=$bassInterval');
+    }
+
+    return _ScoredTemplate(score: -cost, extensions: extensions, roles: roles);
   }
 
-  /// Qualities that in practice almost always respell a commoner chord:
-  /// altered-fifth readings of major triads, sevenths, and minor sevenths
-  /// (usually inversions or Lydian/flat-thirteen colors of commoner chords)
-  /// and the sus2 sevenths.
-  static bool _isRareVocabulary(ChordQualityToken quality) {
+  /// How readily a musician reaches for this quality name. Everyday names
+  /// (major, minor, 7, m7, maj7, sus4, 6ths) are free; a rare name has to be
+  /// much cheaper at explaining the tones than a common one to win.
+  static double _vocabularyCost(ChordQualityToken quality) {
     return switch (quality) {
+      ChordQualityToken.sus2 ||
+      ChordQualityToken.sus2sus4 ||
+      ChordQualityToken.diminished ||
+      ChordQualityToken.augmented ||
+      ChordQualityToken.diminished7 ||
+      ChordQualityToken.halfDiminished7 ||
+      ChordQualityToken.minorMajor7 ||
+      ChordQualityToken.dominant7sus4 => _vocabularyMarked,
+      ChordQualityToken.dominant7Flat5 ||
+      ChordQualityToken.dominant7Sharp5 ||
+      ChordQualityToken.major7sus4 ||
+      ChordQualityToken.major7Sharp5 => _vocabularyUncommon,
+      ChordQualityToken.minorSharp5 ||
+      ChordQualityToken.minor7Sharp5 ||
+      ChordQualityToken.majorFlat5 ||
+      ChordQualityToken.major7Flat5 ||
+      ChordQualityToken.dominant7sus2 ||
+      ChordQualityToken.major7sus2 => _vocabularyRare,
+      _ => 0,
+    };
+  }
+
+  static bool _isDominantFamily(ChordQualityToken quality) {
+    return switch (quality) {
+      ChordQualityToken.dominant7 ||
+      ChordQualityToken.dominant7sus2 ||
+      ChordQualityToken.dominant7sus4 ||
+      ChordQualityToken.dominant7Flat5 ||
+      ChordQualityToken.dominant7Sharp5 => true,
+      _ => false,
+    };
+  }
+
+  /// Hosts where a sharp eleven is idiomatic color rather than a marked
+  /// alteration: Lydian majors, dominants, minor family (Dorian #11), and
+  /// sus4 frames (where the split-fourth surcharge prices the clash
+  /// separately). On diminished and sus2 hosts it stays multiplied.
+  static bool _isSharpElevenFriendly(ChordQualityToken quality) {
+    return _isDominantFamily(quality) ||
+        switch (quality) {
+          ChordQualityToken.major ||
+          ChordQualityToken.major6 ||
+          ChordQualityToken.major7 ||
+          ChordQualityToken.minor ||
+          ChordQualityToken.minor6 ||
+          ChordQualityToken.minor7 ||
+          ChordQualityToken.minorMajor7 ||
+          ChordQualityToken.sus4 ||
+          ChordQualityToken.major7sus4 ||
+          ChordQualityToken.sus2sus4 => true,
+          _ => false,
+        };
+  }
+
+  static double _tonePrice({
+    required ChordToneRole role,
+    required ChordQualityToken quality,
+    required int relMask,
+    required Map<int, ChordToneRole> roles,
+    required bool isBassTone,
+  }) {
+    final hasNinth = (relMask & (1 << majorSecondInterval)) != 0;
+    final hasMajorThirdRole = roles[majorThirdInterval] == ChordToneRole.major3;
+
+    switch (role) {
+      case ChordToneRole.root:
+      case ChordToneRole.sus2:
+      case ChordToneRole.minor3:
+      case ChordToneRole.major3:
+      case ChordToneRole.sus4:
+      case ChordToneRole.flat5:
+      case ChordToneRole.perfect5:
+      case ChordToneRole.sharp5:
+      case ChordToneRole.sixth:
+      case ChordToneRole.dim7:
+      case ChordToneRole.flat7:
+      case ChordToneRole.major7:
+        return 0;
+
+      case ChordToneRole.nine:
+        return _naturalExtensionPrice(_priceNine, quality);
+      case ChordToneRole.add9:
+        return _naturalExtensionPrice(_priceAdd9, quality);
+      case ChordToneRole.eleven:
+        // An 11 with no 9 below it is really an add-tone wearing a stack
+        // name, unless the 11 is the bass itself (the sus-pedal idiom, e.g.
+        // Am7/D, needs no stack support); an 11 against a major third is the
+        // classic avoid-tone clash.
+        return _naturalExtensionPrice(_priceEleven, quality) +
+            (hasNinth || isBassTone ? 0 : _unsupportedElevenSurcharge) +
+            (hasMajorThirdRole ? _elevenOverMajorThirdSurcharge : 0);
+      case ChordToneRole.add11:
+        return _naturalExtensionPrice(_priceAdd11, quality) +
+            (hasMajorThirdRole ? _elevenOverMajorThirdSurcharge : 0);
+      case ChordToneRole.thirteen:
+        return _naturalExtensionPrice(_priceThirteen, quality) +
+            (hasNinth ? 0 : _unsupportedThirteenSurcharge);
+      case ChordToneRole.add13:
+        return _naturalExtensionPrice(_priceAdd13, quality);
+
+      case ChordToneRole.flat9:
+      case ChordToneRole.sharp9:
+      case ChordToneRole.sharp11:
+      case ChordToneRole.flat13:
+      case ChordToneRole.splitMinor3:
+      case ChordToneRole.addSharp9:
+        return _alteredTonePrice(
+          role: role,
+          quality: quality,
+          relMask: relMask,
+          roles: roles,
+        );
+    }
+  }
+
+  static double _alteredTonePrice({
+    required ChordToneRole role,
+    required ChordQualityToken quality,
+    required int relMask,
+    required Map<int, ChordToneRole> roles,
+  }) {
+    bool has(int interval) => (relMask & (1 << interval)) != 0;
+
+    var price = switch (role) {
+      ChordToneRole.flat9 => _priceFlat9,
+      ChordToneRole.sharp9 => _priceSharp9,
+      ChordToneRole.sharp11 => _priceSharp11,
+      ChordToneRole.flat13 => _priceFlat13,
+      _ => _priceSplitThird,
+    };
+    if (role == ChordToneRole.sharp11 && _hasNaturalFourthRole(roles)) {
+      price += _splitFourthSurcharge;
+    }
+    // A #11 is color above an occupied fifth slot; with no fifth-slot tone
+    // sounding at all, the tritone reads as the altered fifth instead
+    // (C-E-Gb is C(b5), not a fifthless Cadd#11). A natural 13 keeps the
+    // #11 reading (C13#11 shells; the b5-plus-13 template is rejected
+    // outright), as do fifthless major-family Lydian stacks with a
+    // supporting ninth (Dbmaj9#11).
+    final majorFamilyLydianStack =
+        has(majorSecondInterval) &&
+        switch (quality) {
+          ChordQualityToken.major ||
+          ChordQualityToken.major6 ||
+          ChordQualityToken.major7 => true,
+          _ => false,
+        };
+    if (role == ChordToneRole.sharp11 &&
+        !has(perfectFifthInterval) &&
+        !has(minorSixthInterval) &&
+        !has(majorSixthInterval) &&
+        !majorFamilyLydianStack) {
+      price += _sharpElevenEmptyFifthSurcharge;
+    }
+    // Same fifth-slot logic for the flat thirteen: with no perfect fifth
+    // sounding, the m6 interval reads as a sharp five (G-B-F-A-D# is G7#5(9),
+    // not a fifthless G9b13). Minor-major sevenths are exempt: the fifthless
+    // m(maj7)b13 is the harmonic-minor tonic idiom and has no competing
+    // sharp-five reading.
+    if (role == ChordToneRole.flat13 &&
+        !has(perfectFifthInterval) &&
+        quality != ChordQualityToken.minorMajor7) {
+      price += _flatThirteenEmptyFifthSurcharge;
+    }
+    if ((role == ChordToneRole.flat9 || role == ChordToneRole.sharp9) &&
+        _hasNaturalSecondRole(roles)) {
+      price += _splitSecondSurcharge;
+    }
+    final multiplied =
+        !_isDominantFamily(quality) &&
+        !(role == ChordToneRole.sharp11 && _isSharpElevenFriendly(quality));
+    return multiplied ? price * _offDominantAlterationMultiplier : price;
+  }
+
+  static double _naturalExtensionPrice(double base, ChordQualityToken quality) {
+    return _isMarkedExtensionHost(quality)
+        ? base * _markedHostExtensionMultiplier
+        : base;
+  }
+
+  /// Qualities on which upper extensions are rare enough that a stacked or
+  /// added color tone reads as a stretch rather than everyday vocabulary.
+  /// Dominants (including sus dominants), plain major/minor sevenths, and
+  /// sixth chords keep flat extension prices.
+  static bool _isMarkedExtensionHost(ChordQualityToken quality) {
+    return switch (quality) {
+      ChordQualityToken.diminished ||
+      ChordQualityToken.augmented ||
+      ChordQualityToken.diminished7 ||
+      ChordQualityToken.halfDiminished7 ||
+      ChordQualityToken.minorMajor7 ||
       ChordQualityToken.minorSharp5 ||
       ChordQualityToken.minor7Sharp5 ||
       ChordQualityToken.majorFlat5 ||
       ChordQualityToken.major7Flat5 ||
       ChordQualityToken.major7Sharp5 ||
-      ChordQualityToken.dominant7sus2 ||
-      ChordQualityToken.major7sus2 => true,
+      ChordQualityToken.major7sus2 ||
+      ChordQualityToken.sus2 ||
+      ChordQualityToken.sus2sus4 ||
+      ChordQualityToken.dominant7sus2 => true,
       _ => false,
     };
   }
 
-  static bool _hasAlterations(
-    Set<ChordExtension> extensions,
-    ChordQualityToken quality,
-  ) {
-    return extensions.contains(ChordExtension.flat9) ||
-        extensions.contains(ChordExtension.sharp9) ||
-        (extensions.contains(ChordExtension.sharp11) &&
-            !quality.sharp11IsNaturalColor) ||
-        extensions.contains(ChordExtension.flat13);
+  static bool _hasNaturalFourthRole(Map<int, ChordToneRole> roles) {
+    return roles.containsValue(ChordToneRole.sus4) ||
+        roles.containsValue(ChordToneRole.eleven) ||
+        roles.containsValue(ChordToneRole.add11);
   }
 
-  static bool _hasSplitNinthColor(Set<ChordExtension> extensions) {
-    return extensions.contains(ChordExtension.flat9) &&
-        extensions.contains(ChordExtension.nine);
+  static bool _hasNaturalSecondRole(Map<int, ChordToneRole> roles) {
+    return roles.containsValue(ChordToneRole.sus2) ||
+        roles.containsValue(ChordToneRole.nine) ||
+        roles.containsValue(ChordToneRole.add9);
+  }
+
+  /// Price of a required tone the voicing omits, by the degree it would fill.
+  /// A perfect fifth is routinely dropped; a third, seventh, or the tone that
+  /// defines a suspension or altered fifth is the name's identity.
+  static double _missingEssentialCost(int interval) {
+    return switch (interval) {
+      2 || 5 => _missingSusToneCost,
+      3 || 4 => _missingThirdCost,
+      6 || 8 => _missingAlteredFifthCost,
+      7 => _missingFifthCost,
+      _ => _missingSeventhCost,
+    };
+  }
+
+  static double _bassPlacementCost(
+    ChordToneRole? bassRole,
+    ChordQualityToken quality,
+  ) {
+    // Diminished and augmented chords invert freely; their fifth in the bass
+    // is a plain core tone, unlike the altered fifth of a m#5 or 7#5.
+    final fifthIsDefinitional = switch (quality) {
+      ChordQualityToken.diminished ||
+      ChordQualityToken.diminished7 ||
+      ChordQualityToken.halfDiminished7 ||
+      ChordQualityToken.augmented => true,
+      _ => false,
+    };
+    if (bassRole == null) return _bassUnexplainedCost;
+    return switch (bassRole) {
+      ChordToneRole.root => 0,
+      ChordToneRole.sus2 || ChordToneRole.sus4 => _bassSusToneCost,
+      ChordToneRole.flat5 || ChordToneRole.sharp5 =>
+        fifthIsDefinitional ? _bassCoreToneCost : _bassAlteredFifthCost,
+      ChordToneRole.minor3 ||
+      ChordToneRole.major3 ||
+      ChordToneRole.perfect5 ||
+      ChordToneRole.sixth ||
+      ChordToneRole.dim7 ||
+      ChordToneRole.flat7 ||
+      ChordToneRole.major7 => _bassCoreToneCost,
+      ChordToneRole.nine ||
+      ChordToneRole.eleven ||
+      ChordToneRole.thirteen => _bassNaturalColorCost,
+      ChordToneRole.add9 ||
+      ChordToneRole.add11 ||
+      ChordToneRole.add13 => _bassAddToneCost,
+      ChordToneRole.flat9 ||
+      ChordToneRole.sharp9 ||
+      ChordToneRole.sharp11 ||
+      ChordToneRole.flat13 ||
+      ChordToneRole.splitMinor3 ||
+      ChordToneRole.addSharp9 => _bassAlteredColorCost,
+    };
   }
 
   static int _functionalPenaltyExtensionsMask({
@@ -799,52 +907,6 @@ abstract final class ChordAnalyzer {
     return (relMask & majorThirdBit) != 0 && (relMask & minorThirdBit) != 0;
   }
 
-  static bool _has6ChordWithout5({
-    required ChordQualityToken quality,
-    required int relMask,
-  }) {
-    if (popCount(relMask) != 3) return false;
-
-    final isSixChord =
-        quality == ChordQualityToken.major6 ||
-        quality == ChordQualityToken.minor6;
-    if (!isSixChord) return false;
-
-    final hasFifth = (relMask & (1 << perfectFifthInterval)) != 0;
-
-    return !hasFifth;
-  }
-
-  static bool _hasMinorSharpFiveAlteredFifthBass({
-    required ChordQualityToken quality,
-    required int bassInterval,
-  }) {
-    final isMinorSharpFiveQuality =
-        quality == ChordQualityToken.minorSharp5 ||
-        quality == ChordQualityToken.minor7Sharp5;
-    return isMinorSharpFiveQuality && bassInterval == 8;
-  }
-
-  /// Returns true when a sus chord has its suspended tone (not the root) in
-  /// the bass. The sus2 interval is 2 (M2); the sus4 interval is 5 (P4).
-  static bool _hasSusToneInBass({
-    required ChordQualityToken quality,
-    required int bassInterval,
-  }) {
-    switch (quality) {
-      case ChordQualityToken.sus2:
-      case ChordQualityToken.dominant7sus2:
-      case ChordQualityToken.major7sus2:
-        return bassInterval == 2;
-      case ChordQualityToken.sus4:
-      case ChordQualityToken.dominant7sus4:
-      case ChordQualityToken.major7sus4:
-        return bassInterval == 5;
-      default:
-        return false;
-    }
-  }
-
   static bool _flatFiveConflictsWithNaturalThirteenth({
     required ChordQualityToken quality,
     required Set<ChordExtension> extensions,
@@ -871,218 +933,6 @@ abstract final class ChordAnalyzer {
     }
     return extensions.contains(ChordExtension.thirteen) ||
         extensions.contains(ChordExtension.add13);
-  }
-
-  static double _dominantStackCoherenceBonus({
-    required ChordQualityToken quality,
-    required Set<ChordExtension> extensions,
-    required int relMask,
-    required int bassInterval,
-  }) {
-    // Lydian and altered dominant stacks are commonly voiced as dominant chords
-    // with 9/#11 or b9/#11/b13 color. Without this structural bonus, the scorer
-    // overvalues remote altered-fifth slash readings that happen to reinterpret
-    // one color tone as a required chord tone.
-    if (quality != ChordQualityToken.dominant7) return 0;
-    if (!extensions.contains(ChordExtension.sharp11)) return 0;
-
-    final hasNaturalNinth = extensions.contains(ChordExtension.nine);
-    final hasFlatNinth = extensions.contains(ChordExtension.flat9);
-    final hasNaturalThirteenth = extensions.contains(ChordExtension.thirteen);
-    final hasFlatThirteenth = extensions.contains(ChordExtension.flat13);
-    if (hasFlatNinth && hasFlatThirteenth) {
-      final hasRealFifth = (relMask & (1 << perfectFifthInterval)) != 0;
-      return hasRealFifth ? _domStackFull : 0;
-    }
-
-    if (!hasNaturalNinth) return 0;
-    if (!hasNaturalThirteenth && !hasFlatThirteenth) {
-      return _isShellToneBass(bassInterval) ? _domStackPartial : 0;
-    }
-
-    if (hasNaturalThirteenth && !hasFlatThirteenth) {
-      final hasRealFifth = (relMask & (1 << perfectFifthInterval)) != 0;
-      if (!hasRealFifth) return 0;
-      return bassInterval == 0 ? _domStackFull : _domStackPartial;
-    }
-
-    if (hasFlatThirteenth && (relMask & (1 << perfectFifthInterval)) == 0) {
-      return 0;
-    }
-
-    return _domStackFull;
-  }
-
-  /// Whether the bass is a chord shell tone (root, third, fifth, or seventh),
-  /// i.e. a conventional inversion rather than a color-tone slash.
-  static bool _isShellToneBass(int bassInterval) {
-    return bassInterval == 0 ||
-        bassInterval == majorThirdInterval ||
-        bassInterval == perfectFifthInterval ||
-        bassInterval == minorSeventhInterval;
-  }
-
-  static bool _hasCompleteNaturalDominantThirteenthNinthBass({
-    required ChordQualityToken quality,
-    required Set<ChordExtension> extensions,
-    required int relMask,
-    required int bassInterval,
-  }) {
-    if (quality != ChordQualityToken.dominant7) return false;
-    if (bassInterval != majorSecondInterval) return false;
-    if (extensions.length != 2 ||
-        !extensions.contains(ChordExtension.nine) ||
-        !extensions.contains(ChordExtension.thirteen)) {
-      return false;
-    }
-
-    return (relMask & 1) != 0 &&
-        (relMask & (1 << majorSecondInterval)) != 0 &&
-        (relMask & (1 << majorThirdInterval)) != 0 &&
-        (relMask & (1 << perfectFifthInterval)) != 0 &&
-        (relMask & (1 << majorSixthInterval)) != 0 &&
-        (relMask & (1 << minorSeventhInterval)) != 0;
-  }
-
-  static double _fifthlessExtensionStackBonusFor({
-    required ChordQualityToken quality,
-    required Set<ChordExtension> extensions,
-    required int relMask,
-    required int bassInterval,
-  }) {
-    // Fifthless extended chords are conventional when their upper colors form a
-    // natural extension stack. Reward that coherence directly, rather than
-    // relying on a later hard ranking override. Major-family stacks still need
-    // Lydian #11 color; a natural 11 against the major third is too tense to
-    // justify this structural bonus. For dominant sevenths, require a natural
-    // thirteenth: with only 9 + #11 and no fifth, the tritone is usually clearer
-    // as a chord-defining b5.
-    if (quality != ChordQualityToken.major7 &&
-        quality != ChordQualityToken.dominant7) {
-      return 0;
-    }
-    if (!extensions.contains(ChordExtension.nine)) return 0;
-    if (extensions.contains(ChordExtension.flat13)) return 0;
-    final hasSharpEleventh = extensions.contains(ChordExtension.sharp11);
-    final hasThirteenth = extensions.contains(ChordExtension.thirteen);
-    if (!hasSharpEleventh && !hasThirteenth) return 0;
-    if (quality == ChordQualityToken.major7 &&
-        extensions.contains(ChordExtension.eleven)) {
-      return 0;
-    }
-    if (quality == ChordQualityToken.dominant7 && !hasThirteenth) return 0;
-    if ((relMask & (1 << perfectFifthInterval)) != 0) return 0;
-
-    if (bassInterval != 0) {
-      if (quality != ChordQualityToken.major7 || hasThirteenth) return 0;
-      final hasStableMajorSeventhBass =
-          bassInterval == majorThirdInterval ||
-          bassInterval == majorSeventhInterval;
-      if (!hasStableMajorSeventhBass) return 0;
-    }
-
-    if (quality == ChordQualityToken.major7 && hasThirteenth) {
-      return _fifthlessMajorThirteenthStackBonus;
-    }
-    return _fifthlessExtensionStackBonus;
-  }
-
-  static double _completeDominantFlatThirteenthBonusFor({
-    required ChordQualityToken quality,
-    required Set<ChordExtension> extensions,
-    required int relMask,
-  }) {
-    if (quality != ChordQualityToken.dominant7) return 0;
-    if (!extensions.contains(ChordExtension.flat13)) return 0;
-    if (extensions.any(
-      (extension) =>
-          extension != ChordExtension.flat13 &&
-          extension != ChordExtension.flat9 &&
-          extension != ChordExtension.sharp9 &&
-          extension != ChordExtension.nine,
-    )) {
-      return 0;
-    }
-
-    final hasCompleteShell =
-        (relMask & 1) != 0 &&
-        (relMask & (1 << majorThirdInterval)) != 0 &&
-        (relMask & (1 << perfectFifthInterval)) != 0 &&
-        (relMask & (1 << minorSeventhInterval)) != 0;
-    if (!hasCompleteShell) return 0;
-
-    final hasNinthColor =
-        extensions.contains(ChordExtension.nine) ||
-        extensions.contains(ChordExtension.sharp9) ||
-        extensions.contains(ChordExtension.flat9);
-    if (extensions.contains(ChordExtension.flat9)) {
-      return _completeDominantFlatNineFlatThirteenthBonus;
-    }
-    if (hasNinthColor) return _completeDominantNineFlatThirteenthBonus;
-    return _completeDominantFlatThirteenthBonus;
-  }
-
-  static double _completeRootTriadColorBonusFor({
-    required ChordQualityToken quality,
-    required Set<ChordExtension> extensions,
-    required int relMask,
-    required int bassInterval,
-  }) {
-    final isMajor = quality == ChordQualityToken.major;
-    final isMinor = quality == ChordQualityToken.minor;
-    if (!isMajor && !isMinor) return 0;
-    if (bassInterval != 0) return 0;
-    if (extensions.isEmpty || extensions.length > 2) return 0;
-
-    final thirdInterval = isMajor ? majorThirdInterval : minorThirdInterval;
-    final hasCompleteTriad =
-        (relMask & 1) != 0 &&
-        (relMask & (1 << thirdInterval)) != 0 &&
-        (relMask & (1 << perfectFifthInterval)) != 0;
-    if (!hasCompleteTriad) return 0;
-
-    final allowed = isMajor
-        ? const {
-            ChordExtension.add9,
-            ChordExtension.add13,
-            ChordExtension.sharp11,
-          }
-        : const {
-            ChordExtension.add9,
-            ChordExtension.add11,
-            ChordExtension.add13,
-          };
-    if (!extensions.every(allowed.contains)) return 0;
-
-    return _completeRootTriadColorBonus;
-  }
-
-  static double _add9BassUpperTriadBonusFor({
-    required ChordQualityToken quality,
-    required Set<ChordExtension> extensions,
-    required int relMask,
-    required int bassInterval,
-  }) {
-    // A complete major/minor triad over a bass a whole step above the root is
-    // commonly heard as an upper-structure slash chord (D/E, C#/D#), not as a
-    // remote altered seventh or incomplete sus reinterpretation.
-    final isPlainMajorMinor =
-        quality == ChordQualityToken.major ||
-        quality == ChordQualityToken.minor;
-    if (!isPlainMajorMinor) return 0;
-    if (bassInterval != majorSecondInterval) return 0;
-    if (extensions.length != 1 || !extensions.contains(ChordExtension.add9)) {
-      return 0;
-    }
-
-    final thirdInterval = quality == ChordQualityToken.major
-        ? majorThirdInterval
-        : minorThirdInterval;
-    final hasThird = (relMask & (1 << thirdInterval)) != 0;
-    final hasFifth = (relMask & (1 << perfectFifthInterval)) != 0;
-    if (!hasThird || !hasFifth) return 0;
-
-    return _add9BassUpperTriadBonus;
   }
 
   /// Rotates a 12-bit pitch-class mask to be relative to the given root.
@@ -1164,6 +1014,11 @@ class _Evaluated {
 class _ScoredTemplate {
   final double score;
   final Set<ChordExtension> extensions;
+  final Map<int, ChordToneRole> roles;
 
-  const _ScoredTemplate({required this.score, required this.extensions});
+  const _ScoredTemplate({
+    required this.score,
+    required this.extensions,
+    required this.roles,
+  });
 }

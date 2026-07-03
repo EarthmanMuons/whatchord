@@ -11,15 +11,17 @@ void main() {
   });
 
   test('separates chord tones and also-played input tones', () {
-    final result = identifyChord('C E G Bb D', top: 12);
-    final suspended = result.candidates.firstWhere(
-      (candidate) => candidate.symbol == 'C7sus2',
+    // The major seventh clashes with C7's flat seventh, so the candidate
+    // carries it as an also-played tone rather than a chord member.
+    final result = identifyChord('C E G Bb B');
+    final dominant = result.candidates.firstWhere(
+      (candidate) => candidate.symbol == 'C7',
     );
 
-    expect(suspended.chordTones, 'C D G B♭');
-    expect(suspended.alsoPlayedNotes, 'E');
-    expect(suspended.toJson()['chordTones'], 'C D G B♭');
-    expect(suspended.toJson()['alsoPlayedNotes'], 'E');
+    expect(dominant.chordTones, 'C E G B♭');
+    expect(dominant.alsoPlayedNotes, 'B');
+    expect(dominant.toJson()['chordTones'], 'C E G B♭');
+    expect(dominant.toJson()['alsoPlayedNotes'], 'B');
   });
 
   test('orders recognized tones by chord degree', () {

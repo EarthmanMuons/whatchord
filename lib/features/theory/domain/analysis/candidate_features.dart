@@ -461,8 +461,11 @@ class CandidateFeatures {
 
     // Seventh-family slash that omits every fifth (perfect, diminished, or
     // augmented). Root-position fifthless sevenths are common and intentional,
-    // so only the inverted/slash form counts as deficient here.
-    if (q.isSeventhFamily && !rootPos) {
+    // as are nine-supported fifthless stacks (Dbmaj9#11/C), so only the
+    // inverted/slash form without a ninth counts as deficient here.
+    if (q.isSeventhFamily &&
+        !rootPos &&
+        !id.extensions.contains(ChordExtension.nine)) {
       final roles = id.toneRolesByInterval.values;
       final hasFifth =
           roles.contains(ChordToneRole.perfect5) ||

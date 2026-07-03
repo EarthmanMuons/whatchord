@@ -184,7 +184,7 @@ void main() {
 
     for (final bass in ['Bb', 'F#', 'Db']) {
       _expectRule(
-        tritoneColor(bass: bass, score: 7.74),
+        tritoneColor(bass: bass, score: 7.65),
         splitNine(bass: bass, score: 7.95),
         'prefer conventional inversion in split-nine tritone dominant ambiguity',
       );
@@ -192,7 +192,7 @@ void main() {
     for (final bass in ['C', 'E']) {
       _expectRule(
         splitNine(bass: bass, score: 7.95),
-        tritoneColor(bass: bass, score: 7.74),
+        tritoneColor(bass: bass, score: 7.65),
         'prefer conventional inversion in split-nine tritone dominant ambiguity',
       );
     }
@@ -205,7 +205,7 @@ void main() {
       bass: 'G',
       presentIntervals: const {0, 1, 4, 7, 10},
       extensions: const {ChordExtension.flat9},
-      score: 8.03,
+      score: 7.95,
     );
 
     final diminished = _candidate(
@@ -260,7 +260,7 @@ void main() {
       bass: 'Bb',
       presentIntervals: const {0, 1, 4, 7, 10},
       extensions: const {ChordExtension.flat9},
-      score: 8.03,
+      score: 7.95,
     );
 
     final diminished = _candidate(
@@ -319,7 +319,7 @@ void main() {
       bass: 'Db',
       presentIntervals: const {0, 1, 4, 10},
       extensions: const {ChordExtension.flat9},
-      score: 7.01,
+      score: 6.92,
     );
 
     final minorMajor7 = _candidate(
@@ -499,7 +499,7 @@ void main() {
         ChordExtension.sharp11,
         ChordExtension.flat13,
       },
-      score: 9.79,
+      score: 9.70,
     );
 
     final remoteSlash = _candidate(
@@ -1511,8 +1511,8 @@ void main() {
     test('isNearTie window is one-sided around the chosen #1 score', () {
       const best = 7.0;
       expect(ChordCandidateRanking.isNearTie(best, 6.85), isTrue); // within
-      expect(ChordCandidateRanking.isNearTie(best, 6.81), isTrue); // within
-      expect(ChordCandidateRanking.isNearTie(best, 6.79), isFalse); // outside
+      expect(ChordCandidateRanking.isNearTie(best, 6.76), isTrue); // within
+      expect(ChordCandidateRanking.isNearTie(best, 6.74), isFalse); // outside
       // A reading scoring higher than the chosen #1 is still a near-tie; the
       // window must not clamp the difference to its absolute value.
       expect(ChordCandidateRanking.isNearTie(best, 7.30), isTrue);
