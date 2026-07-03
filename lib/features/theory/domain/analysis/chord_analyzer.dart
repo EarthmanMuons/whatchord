@@ -575,12 +575,7 @@ abstract final class ChordAnalyzer {
       ChordQualityToken.dominant7Sharp5 ||
       ChordQualityToken.major7sus4 ||
       ChordQualityToken.major7Sharp5 => _vocabularyUncommon,
-      ChordQualityToken.minorSharp5 ||
-      ChordQualityToken.minor7Sharp5 ||
-      ChordQualityToken.majorFlat5 ||
-      ChordQualityToken.major7Flat5 ||
-      ChordQualityToken.dominant7sus2 ||
-      ChordQualityToken.major7sus2 => _vocabularyRare,
+      _ when quality.isRareVocabulary => _vocabularyRare,
       _ => 0,
     };
   }

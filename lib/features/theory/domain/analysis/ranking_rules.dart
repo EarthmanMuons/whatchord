@@ -455,7 +455,7 @@ int? _preferCompleteDom7Sharp9OverSixthFlat9(
   }
 
   final preferredCandidate = aIsPreferred ? a : b;
-  if (preferredCandidate.score + 0.70 < other.score) return null;
+  if (preferredCandidate.score + 0.30 < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -561,7 +561,7 @@ int? _preferCompleteDom7Flat9OverColoredDim7(
 
   final preferredCandidate = aIsPreferred ? a : b;
   final otherCandidate = aIsPreferred ? b : a;
-  if (preferredCandidate.score + 0.70 < otherCandidate.score) return null;
+  if (preferredCandidate.score + 0.30 < otherCandidate.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -637,7 +637,7 @@ int? _preferFlatNineBassDominantOverRemoteReinterpretation(
   }
 
   final preferredCandidate = aIsPreferred ? a : b;
-  if (preferredCandidate.score + 0.70 < other.score) return null;
+  if (preferredCandidate.score + 0.35 < other.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -1124,7 +1124,19 @@ int? _preferDom7RootOverNonDomSlash(
   // Ensure the dominant reading is not "plain"; it should have some color.
   if (!fDom.hasNaturalOrAlteredColor) return null;
 
-  if (domCandidate.score + 0.30 < otherCandidate.score) return null;
+  // Do not promote a fifthless dominant whose natural 11 clashes with its
+  // major third (Ab11 shells); without the fifth the 11 reads as a
+  // suspension and the avoid-tone price is there for a reason. A complete
+  // eleventh with its fifth (C11 over C-E-G-Bb-F) stays promotable.
+  final domRoles = domCandidate.identity.toneRolesByInterval.values;
+  if (domRoles.contains(ChordToneRole.major3) &&
+      !domRoles.contains(ChordToneRole.perfect5) &&
+      (domRoles.contains(ChordToneRole.eleven) ||
+          domRoles.contains(ChordToneRole.add11))) {
+    return null;
+  }
+
+  if (domCandidate.score + 0.45 < otherCandidate.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -1159,7 +1171,7 @@ int? _preferRootAlteredFifthDom7(
     return null;
   }
 
-  if (rootCandidate.score + 0.65 < slashCandidate.score) return null;
+  if (rootCandidate.score + 0.30 < slashCandidate.score) return null;
 
   return rootIsA ? -1 : 1;
 }
@@ -1214,7 +1226,7 @@ int? _preferNinthBassSeventhOverAlteredSlash(
   if (fOther.extensionTensionCount == 0 && !fOther.isUnusualSeventhQuality) {
     return null;
   }
-  if (preferredCandidate.score + 0.70 < otherCandidate.score) return null;
+  if (preferredCandidate.score + 0.60 < otherCandidate.score) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -1244,6 +1256,9 @@ int? _preferConventionalAlteredSeventhOverAdd11Slash(
 
   if (!fc.isSeventhFamily) return null;
   if (fc.extensionTensionCount == 0) return null;
+  // A rule that promotes the "conventional" reading must not promote a
+  // rare-vocabulary respelling like m7#5.
+  if (conventional.identity.quality.isRareVocabulary) return null;
   if (_isUnusualSeventhMissingThird(conventional.identity)) return null;
   if (fc.bassRoleRank >= fq.bassRoleRank) return null;
 
@@ -1550,7 +1565,7 @@ int? _preferCompleteTriadOverDeficientReading(
 
   final triadCandidate = aIsTriad ? a : b;
   final otherCandidate = aIsTriad ? b : a;
-  if (triadCandidate.score + 0.70 < otherCandidate.score) return null;
+  if (triadCandidate.score + 0.45 < otherCandidate.score) return null;
 
   return aIsTriad ? -1 : 1;
 }
