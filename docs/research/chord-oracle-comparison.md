@@ -243,22 +243,23 @@ expressed where they generalize instead of as a pairwise exception.
    a hard rule only for a score-independent convention that cannot be priced.
    Add positive and negative boundary tests; do not encode one exact pitch set.
 5. Measure the blast radius of any price change against the full canonical pool
-   before trusting it. Zero flips on `clearly-correct` reviewed entries is a
-   hard constraint. Agreement changes on 3-5 note cases are trusted signal; 6-7
-   note flips need musical eyeballing rather than score-keeping, because the
-   previous engine's dense-voicing output is itself part of what these changes
-   exist to fix. Do not tune to maximize agreement with any single oracle,
-   including the engine's own previous behavior.
+   before trusting it, using `tool/chord_pool_diff.py` (see below). Zero flips
+   on `clearly-correct` reviewed entries is a hard constraint. Agreement changes
+   on 3-5 note cases are trusted signal; 6-7 note flips need musical eyeballing
+   rather than score-keeping, because the previous engine's dense-voicing output
+   is itself part of what these changes exist to fix. Do not tune to maximize
+   agreement with any single oracle, including the engine's own previous
+   behavior.
 6. Run focused tests and the full chord golden suite. Golden expectations are a
    snapshot of the engine, not ground truth: re-carve a changed golden when the
    new reading is musically defensible, and record the justification in its
    description. Spelling-dependent changes also need an all-transpositions pass,
    since the canonical pool only sees one spelling per shape.
-7. After retiring or adding rules, re-run the per-rule ablation: remove each
-   rule, re-run the pool, and diff the top pick and surfaced alternative set.
-   Rules whose removal changes neither (alternates order below the top pick is
-   not a contract) should be deleted, verified as a joint removal across all
-   transpositions.
+7. After retiring or adding rules, re-run the per-rule ablation
+   (`mise run research:rule-ablation`): remove each rule, re-run the pool, and
+   diff the top pick and surfaced alternative set. Rules whose removal changes
+   neither (alternates order below the top pick is not a contract) should be
+   deleted, verified as a joint removal across all transpositions.
 8. Add unresolved-but-reviewed cases to `tool/chord_oracle_reviewed.json`. Prune
    entries the Reviewed Audit lists as `resolved`, `no-longer-comparable`, or
    `orphaned`, and re-check anything it lists as `drifted`.
@@ -293,6 +294,35 @@ The main engineering value is prioritization. The harness should help answer:
   rows where oracles disagree?
 - Which external disagreements are actually notation differences rather than
   analysis differences?
+
+## Blast Radius And Rule Ablation Tools
+
+Two companion tools reuse the same batch entry point and pool generation to make
+the workflow's measurement steps one-command operations.
+
+`tool/chord_pool_diff.py` measures a change's blast radius. Snapshot the pool
+before and after an engine change, then diff:
+
+```sh
+python3 tool/chord_pool_diff.py snapshot --out build/pool-diff/before.json
+# ...make the engine change...
+python3 tool/chord_pool_diff.py snapshot --out build/pool-diff/after.json
+python3 tool/chord_pool_diff.py diff build/pool-diff/before.json \
+  build/pool-diff/after.json
+```
+
+The diff classifies each changed case as a top-pick change, a surfaced-set
+change, or an order-only change below the top pick, stratified by note count.
+The `census` subcommand counts which rule decides each case's top pair, which
+shows where the rule layer still carries load.
+
+`tool/chord_rule_ablation.py` (also `mise run research:rule-ablation`) answers
+whether each ranking rule still changes any outcome: it removes one rule at a
+time from `ranking_rules.dart`, re-runs the pool, and diffs against the
+unmodified engine, always restoring the file. Rules whose removal changes no top
+pick and no surfaced set are retirable; verify the batch with `--joint` and
+`--all-transpositions` before deleting code, and use `--key` before trusting a
+zero on a tonality-gated rule.
 
 ## Limitations
 

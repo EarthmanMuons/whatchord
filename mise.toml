@@ -32,6 +32,10 @@ description = "Run the full chord oracle comparison pass with reviewed audit"
 depends = ["research:oracle-install"]
 run = "python tool/chord_oracle_compare.py"
 
+[tasks."research:rule-ablation"]
+description = "Measure whether each ranking rule still changes any pool outcome"
+run = "python tool/chord_rule_ablation.py"
+
 [tasks."research:choco-coverage"]
 description = "Summarize ChoCo chord-label coverage against WhatChord support"
 run = """
