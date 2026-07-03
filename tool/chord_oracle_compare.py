@@ -688,6 +688,7 @@ def run_whatchord_batch(
     *,
     top: int,
     repo_root: Path,
+    key: str = "C:maj",
 ) -> list[dict]:
     """Analyze every case in a single warm Dart VM.
 
@@ -703,7 +704,7 @@ def run_whatchord_batch(
                 "notes": list(case.notes),
                 "bass": case.bass,
                 "top": top,
-                "key": "C:maj",
+                "key": key,
             }
         )
         + "\n"
