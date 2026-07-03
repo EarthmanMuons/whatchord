@@ -233,7 +233,7 @@ void main() {
         bass: 'Db',
         presentIntervals: const {0, 1, 4, 6, 7, 10},
         extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
-        score: 7.74,
+        score: 7.80,
       );
 
       final diminished = _candidate(
@@ -498,7 +498,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 3, 4, 6, 10},
       extensions: const {ChordExtension.sharp9},
-      score: 9.6,
+      score: 9.7,
     );
 
     final slash = _candidate(

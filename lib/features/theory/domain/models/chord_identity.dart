@@ -206,6 +206,23 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
     }
   }
 
+  /// Whether musicians almost never reach for this quality name because it
+  /// usually respells a more common chord (the analyzer's rare vocabulary
+  /// pricing tier).
+  bool get isRareVocabulary {
+    switch (this) {
+      case ChordQualityToken.minorSharp5:
+      case ChordQualityToken.minor7Sharp5:
+      case ChordQualityToken.majorFlat5:
+      case ChordQualityToken.major7Flat5:
+      case ChordQualityToken.dominant7sus2:
+      case ChordQualityToken.major7sus2:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   /// Whether a raised eleventh is the natural Lydian color on this quality
   /// rather than an alteration.
   ///
