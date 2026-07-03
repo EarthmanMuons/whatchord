@@ -574,7 +574,6 @@ void main() {
       description:
           'complete altered dominant fifth bass beats split-third sixth',
       expectedSymbol: 'A7(#9,#11)/E',
-      expectedAlternateSymbols: ['C6(b9,add#9)/E'],
       pcs: ['C', 'Db', 'Eb', 'E', 'G', 'A'],
       bass: 'E',
       expectedRoot: 'A',
@@ -587,7 +586,6 @@ void main() {
       description:
           'complete altered dominant seventh bass beats split-third sixth',
       expectedSymbol: 'A7(#9,#11)/G',
-      expectedAlternateSymbols: ['C6(b9,add#9)/G'],
       pcs: ['C', 'Db', 'Eb', 'E', 'G', 'A'],
       bass: 'G',
       expectedRoot: 'A',
@@ -600,7 +598,7 @@ void main() {
       description:
           'complete altered dominant thirteenth beats colored split-third sixth',
       expectedSymbol: 'A13(#9,#11)/B#',
-      expectedAlternateSymbols: ['C6(b9,add#9,#11)'],
+      expectedAlternateSymbols: ['Eb13(b9,#9,#11)/C'],
       pcs: ['C', 'Db', 'Eb', 'E', 'F#', 'G', 'A'],
       bass: 'C',
       expectedRoot: 'A',
@@ -617,7 +615,6 @@ void main() {
       description:
           'complete altered dominant thirteenth fifth bass beats colored split-third sixth',
       expectedSymbol: 'A13(#9,#11)/E',
-      expectedAlternateSymbols: ['C6(b9,add#9,#11)/E'],
       pcs: ['C', 'Db', 'Eb', 'E', 'F#', 'G', 'A'],
       bass: 'E',
       expectedRoot: 'A',
@@ -634,7 +631,6 @@ void main() {
       description:
           'complete altered dominant thirteenth seventh bass beats colored split-third sixth',
       expectedSymbol: 'A13(#9,#11)/G',
-      expectedAlternateSymbols: ['C6(b9,add#9,#11)/G'],
       pcs: ['C', 'Db', 'Eb', 'E', 'F#', 'G', 'A'],
       bass: 'G',
       expectedRoot: 'A',
@@ -668,7 +664,6 @@ void main() {
       description:
           'complete flat-thirteenth altered dominant beats add-eleven split-third sixth',
       expectedSymbol: 'F#7(#9,#11,b13)/E',
-      expectedAlternateSymbols: ['A6(b9,add#9,add11)/E'],
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'A', 'Bb'],
       bass: 'E',
       expectedRoot: 'F#',
@@ -685,7 +680,6 @@ void main() {
       description:
           'complete flat-thirteenth altered dominant beats root-position add-eleven split-third sixth',
       expectedSymbol: 'F#7(#9,#11,b13)/Gx',
-      expectedAlternateSymbols: ['A6(b9,add#9,add11)'],
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'A', 'Bb'],
       bass: 'A',
       expectedRoot: 'F#',
@@ -714,14 +708,13 @@ void main() {
     golden(
       description:
           'complete sharp-nine thirteenth dominant beats root-position colored sixth',
-      expectedSymbol: 'F#6(b9,#11)',
-      expectedAlternateSymbols: ['F#(addb9,#11,add13)', 'Eb13#9/F#'],
+      expectedSymbol: 'Eb13#9/F#',
       pcs: ['C', 'Db', 'Eb', 'F#', 'G', 'Bb'],
       bass: 'F#',
-      expectedRoot: 'F#',
+      expectedRoot: 'Eb',
       expectedBass: 'F#',
-      expectedQuality: ChordQualityToken.major6,
-      expectedExtensions: {ChordExtension.flat9, ChordExtension.sharp11},
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.sharp9, ChordExtension.thirteen},
     ),
 
     golden(

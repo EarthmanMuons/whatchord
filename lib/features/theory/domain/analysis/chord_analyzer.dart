@@ -126,6 +126,8 @@ abstract final class ChordAnalyzer {
   static const _sharpElevenEmptyFifthSurcharge = 0.75; // #11 with no 5th tone
   static const _flatThirteenEmptyFifthSurcharge = 0.5; // b13 with no 5th
   static const _sixChordNoFifthSurcharge = 0.45; // bare R-3-6 set as a 6th
+  static const _flatNineMajorHostSurcharge = 0.3; // b9 on a major 6th/7th
+  static const _stackedChromaticAddSurcharge = 0.15; // addb9/add#9 in a pile
   static const _upperTriadNinthBassCost = 0.15; // D/E idiom: add9 as pedal
 
   // Missing essential tones (candidate generation allows at most one).
@@ -472,6 +474,12 @@ abstract final class ChordAnalyzer {
         extensions.contains(ChordExtension.add9) &&
         (relMask & (1 << perfectFifthInterval)) != 0;
 
+    final isStackedColor = extensions.length > 1;
+    final isStackedChromaticAdd =
+        isStackedColor &&
+        (extensions.contains(ChordExtension.addFlat9) ||
+            extensions.contains(ChordExtension.addSharp9));
+
     // Each color tone the name appends is priced by its role; tones with no
     // role are contradictions the name cannot account for.
     var colorCost = 0.0;
@@ -493,6 +501,8 @@ abstract final class ChordAnalyzer {
               relMask: relMask,
               roles: roles,
               isBassTone: interval == bassInterval,
+              isStackedColor: isStackedColor,
+              isStackedChromaticAdd: isStackedChromaticAdd,
             );
       if (price == 0) continue;
       colorCost += price;
@@ -618,6 +628,8 @@ abstract final class ChordAnalyzer {
     required int relMask,
     required Map<int, ChordToneRole> roles,
     required bool isBassTone,
+    required bool isStackedColor,
+    required bool isStackedChromaticAdd,
   }) {
     final hasNinth = (relMask & (1 << majorSecondInterval)) != 0;
     final hasMajorThirdRole = roles[majorThirdInterval] == ChordToneRole.major3;
@@ -669,6 +681,8 @@ abstract final class ChordAnalyzer {
           quality: quality,
           relMask: relMask,
           roles: roles,
+          isStackedColor: isStackedColor,
+          isStackedChromaticAdd: isStackedChromaticAdd,
         );
     }
   }
@@ -678,6 +692,8 @@ abstract final class ChordAnalyzer {
     required ChordQualityToken quality,
     required int relMask,
     required Map<int, ChordToneRole> roles,
+    required bool isStackedColor,
+    required bool isStackedChromaticAdd,
   }) {
     bool has(int interval) => (relMask & (1 << interval)) != 0;
 
@@ -725,6 +741,28 @@ abstract final class ChordAnalyzer {
     if ((role == ChordToneRole.flat9 || role == ChordToneRole.sharp9) &&
         _hasNaturalSecondRole(roles)) {
       price += _splitSecondSurcharge;
+    }
+    // A b9 stacked among other colors on a major sixth or seventh chord is
+    // the alt sound without its dominant context; musicians do not write
+    // F#6(b9,#11). As the single color it stays the harmonic-minor gesture
+    // (C6b9, Cmaddb9), like the add-b9 Phrygian color on a bare triad.
+    if (role == ChordToneRole.flat9 &&
+        isStackedColor &&
+        switch (quality) {
+          ChordQualityToken.major6 ||
+          ChordQualityToken.major7 ||
+          ChordQualityToken.major7Flat5 ||
+          ChordQualityToken.major7Sharp5 => true,
+          _ => false,
+        }) {
+      price += _flatNineMajorHostSurcharge;
+    }
+    // A lone chromatic add is the Phrygian gesture (Cmaddb9); stacked among
+    // other colors it reads as alt tension the name fails to integrate
+    // (F#(addb9,#11,add13)).
+    if (isStackedChromaticAdd &&
+        (role == ChordToneRole.flat9 || role == ChordToneRole.splitMinor3)) {
+      price += _stackedChromaticAddSurcharge;
     }
     final multiplied =
         !_isDominantFamily(quality) &&
