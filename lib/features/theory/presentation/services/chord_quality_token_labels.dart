@@ -109,6 +109,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return '°';
       case ChordQualityToken.augmented:
         return '+';
+      case ChordQualityToken.power:
+        return '5';
       case ChordQualityToken.sus2:
         return 'sus2';
       case ChordQualityToken.sus4:
@@ -166,6 +168,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'dim';
       case ChordQualityToken.augmented:
         return 'aug';
+      case ChordQualityToken.power:
+        return '5';
       case ChordQualityToken.sus2:
         return 'sus2';
       case ChordQualityToken.sus4:
@@ -223,6 +227,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'diminished';
       case ChordQualityToken.augmented:
         return 'augmented';
+      case ChordQualityToken.power:
+        return 'power chord';
       case ChordQualityToken.sus2:
         return 'suspended second';
       case ChordQualityToken.sus4:
@@ -280,6 +286,8 @@ extension ChordQualityTokenLabels on ChordQualityToken {
         return 'diminished';
       case ChordQualityToken.augmented:
         return 'augmented';
+      case ChordQualityToken.power:
+        return 'five';
       case ChordQualityToken.sus2:
         return 'sus two';
       case ChordQualityToken.sus4:

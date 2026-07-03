@@ -365,6 +365,47 @@ void main() {
       expectedQuality: ChordQualityToken.minor,
     ),
 
+    // Power chord: a bare fifth is named directly rather than borrowing a
+    // third or suspension to fill out a triad.
+    golden(
+      description: 'bare fifth names a power chord',
+      expectedSymbol: 'C5',
+      pcs: ['C', 'G'],
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.power,
+    ),
+
+    golden(
+      description: 'power chord fifth in the bass',
+      expectedSymbol: 'C5/G',
+      pcs: ['C', 'G'],
+      bass: 'G',
+      expectedRoot: 'C',
+      expectedBass: 'G',
+      expectedQuality: ChordQualityToken.power,
+    ),
+
+    // A sparse fifth-plus-color voicing reads as the power chord carrying that
+    // color, not a remote third-bearing fragment.
+    golden(
+      description: 'power chord carries flat-nine color',
+      expectedSymbol: 'C5addb9',
+      pcs: ['C', 'Db', 'G'],
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.power,
+      expectedExtensions: {ChordExtension.addFlat9},
+    ),
+
+    // A genuine suspended second is more idiomatic than reading its 2nd as an
+    // added tone over a power chord.
+    golden(
+      description: 'genuine sus2 beats power chord add-nine',
+      expectedSymbol: 'Csus2',
+      pcs: ['C', 'D', 'G'],
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.sus2,
+    ),
+
     golden(
       description: 'major seventh suspended second',
       expectedSymbol: 'Cmaj7sus2',

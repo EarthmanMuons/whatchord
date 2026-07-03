@@ -78,8 +78,9 @@ class ChordTemplate {
 /// The analyzer tests all templates; order doesn't affect results.
 /// Organized by complexity: triads -> 6ths -> 7ths
 ///
-/// NOTE: docs/site/articles/under-the-hood.html lists and describes each
-/// template. Update the article when templates are added, removed, or changed.
+/// NOTE: docs/site/articles/chord-recognition-algorithm.html lists and
+/// describes each template. Update the article when templates are added,
+/// removed, or changed.
 final chordTemplates = <ChordTemplate>[
   // Major triad: R + M3 + (P5)
   // - M3 defines major quality
@@ -146,6 +147,25 @@ final chordTemplates = <ChordTemplate>[
   ChordTemplate.fromIntervals(
     ChordQualityToken.augmented.intervals,
     penaltyMask: (1 << minorThirdInterval) | (1 << perfectFifthInterval),
+  ),
+
+  // Power chord: R + P5, no third at all
+  // - The bare fifth is the chord; a third resolves it to major/minor, a
+  //   seventh belongs to a (possibly shell) seventh chord, and tritone or
+  //   sixth colors imply other harmony, so all are penalties rather than
+  //   color
+  // - Second and fourth extras stay nameable so sparse fifth-plus-color
+  //   voicings can be read directly (C-Db-G as C5(addb9))
+  ChordTemplate.fromIntervals(
+    ChordQualityToken.power.intervals,
+    penaltyMask:
+        (1 << minorThirdInterval) |
+        (1 << majorThirdInterval) |
+        (1 << diminishedFifthInterval) |
+        (1 << minorSixthInterval) |
+        (1 << majorSixthInterval) |
+        (1 << minorSeventhInterval) |
+        (1 << majorSeventhInterval),
   ),
 
   // Sus2: R + M2 + P5

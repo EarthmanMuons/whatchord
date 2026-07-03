@@ -130,6 +130,7 @@ enum ChordQualityToken {
   minorSharp5,
   diminished,
   augmented,
+  power,
   sus2,
   sus4,
   sus2sus4,

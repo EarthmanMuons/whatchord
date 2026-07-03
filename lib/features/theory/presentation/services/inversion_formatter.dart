@@ -54,6 +54,9 @@ abstract final class InversionFormatter {
       case ChordQualityToken.augmented:
         return const {0, 4, 8}; // 1, 3, #5
 
+      case ChordQualityToken.power:
+        return const {0, 7}; // 1, 5
+
       case ChordQualityToken.sus2:
         return const {0, 2, 7}; // 1, 2, 5
 
