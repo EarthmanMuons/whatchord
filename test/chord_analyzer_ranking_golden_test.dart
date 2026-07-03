@@ -314,6 +314,33 @@ void main() {
       expectedExtensions: {ChordExtension.eleven},
     ),
 
+    // The relative-major reading and the tonic-minor reading of the same
+    // pitches cost almost the same; in A minor the tonic name wins.
+    golden(
+      description: 'minor tonic beats relative-major reading of the same notes',
+      expectedSymbol: 'Am9/C',
+      expectedAlternateSymbols: ['Cmaj13'],
+      pcs: ['C', 'E', 'G', 'A', 'B'],
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
+      expectedRoot: 'A',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.minor7,
+    ),
+
+    // The symmetric augmented triad has three equal-cost spellings; the
+    // diatonic tie-breaker picks the one rooted on a scale degree.
+    golden(
+      description: 'diatonic augmented spelling wins in minor key',
+      expectedSymbol: 'Caug/E',
+      expectedAlternateSymbols: ['Eaug'],
+      pcs: ['C', 'E', 'Ab'],
+      bass: 'E',
+      tonality: const Tonality(Tonic.a, TonalityMode.minor),
+      expectedRoot: 'C',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.augmented,
+    ),
+
     golden(
       description: 'common-name prior breaks sixth versus minor seventh tie',
       expectedSymbol: 'Dm7/A',
@@ -833,7 +860,12 @@ void main() {
     golden(
       description: 'root-position minor-eleventh shell beats sus slash',
       expectedSymbol: 'Dm11',
-      expectedAlternateSymbols: ['G7sus4/D', 'Csus2sus4/D'],
+      expectedAlternateSymbols: [
+        'Csus2sus4/D',
+        'Csus4/D',
+        'Csus2add11/D',
+        'Fsus2/D',
+      ],
       pcs: ['C', 'D', 'F', 'G'],
       bass: 'D',
       expectedRoot: 'D',
