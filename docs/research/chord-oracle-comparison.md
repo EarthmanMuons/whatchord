@@ -195,16 +195,17 @@ machine-readable `patterns` array in `chord_oracle_summary.json`.
 
 The most important columns are:
 
-| Column              | Meaning                                         |
-| ------------------- | ----------------------------------------------- |
-| `notes`             | Canonical pitch names sent to every tool        |
-| `bass`              | Bass note passed to WhatChord and oracle inputs |
-| `whatchord_symbol`  | WhatChord's top display label                   |
-| `whatchord_harte`   | WhatChord's top Harte-style label               |
-| `whatchord_second`  | WhatChord's second-ranked label                 |
-| `*_labels`          | Raw labels returned by each external oracle     |
-| `review_flag`       | High-level triage classification                |
-| `normalized_labels` | Simple normalized labels used for comparison    |
+| Column              | Meaning                                                     |
+| ------------------- | ----------------------------------------------------------- |
+| `notes`             | Canonical pitch names sent to every tool                    |
+| `bass`              | Bass note passed to WhatChord and oracle inputs             |
+| `whatchord_symbol`  | WhatChord's top display label                               |
+| `whatchord_harte`   | WhatChord's top Harte-style label                           |
+| `whatchord_second`  | WhatChord's second-ranked label, surfaced or not            |
+| `alternative`       | Whether a WhatChord candidate is surfaced as an alternative |
+| `*_labels`          | Raw labels returned by each external oracle                 |
+| `review_flag`       | High-level triage classification                            |
+| `normalized_labels` | Simple normalized labels used for comparison                |
 
 The current review flags are:
 
@@ -254,12 +255,16 @@ expressed where they generalize instead of as a pairwise exception.
 6. Run focused tests and the full chord golden suite. Golden expectations are a
    snapshot of the engine, not ground truth: re-carve a changed golden when the
    new reading is musically defensible, and record the justification in its
-   description. Spelling-dependent changes also need an all-transpositions pass,
-   since the canonical pool only sees one spelling per shape.
+   description. In analyzer goldens, `expectedAlternatives` means surfaced
+   near-tie alternatives (`ChordCandidateRanking.alternatives`), not every
+   lower-ranked candidate the engine can produce. Do not add an
+   `expectedAlternatives` entry only because the label appears somewhere in the
+   raw ranked list. Spelling-dependent changes also need an all-transpositions
+   pass, since the canonical pool only sees one spelling per shape.
 7. After retiring or adding rules, re-run the per-rule ablation
    (`mise run research:rule-ablation`): remove each rule, re-run the pool, and
    diff the top pick and surfaced alternative set. Rules whose removal changes
-   neither (alternates order below the top pick is not a contract) should be
+   neither (alternatives order below the top pick is not a contract) should be
    deleted, verified as a joint removal across all transpositions.
 8. Add unresolved-but-reviewed cases to `tool/chord_oracle_reviewed.json`. Prune
    entries the Reviewed Audit lists as `resolved`, `no-longer-comparable`, or
@@ -291,8 +296,8 @@ The main engineering value is prioritization. The harness should help answer:
 
 - Which ambiguous pitch-class sets produce fragile names?
 - Which inversions change external-tool naming unexpectedly?
-- Which WhatChord second candidates are more plausible than the primary label on
-  rows where oracles disagree?
+- Which surfaced WhatChord alternatives are more plausible than the primary
+  label on rows where oracles disagree?
 - Which external disagreements are actually notation differences rather than
   analysis differences?
 

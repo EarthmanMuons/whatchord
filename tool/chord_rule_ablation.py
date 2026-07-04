@@ -4,7 +4,7 @@
 For each targeted rule, remove it from its list in ranking_rules.dart, re-run
 the research pool, and diff the ranked output against the unmodified engine.
 The file is always restored afterward. A rule whose removal changes no top
-pick and no surfaced candidate set is retirable (alternates order below the
+pick and no surfaced candidate set is retirable (alternatives order below the
 top pick is not a contract); verify the full retirement batch with --joint
 before deleting code, and re-verify spelling-sensitive results with
 --all-transpositions.

@@ -24,8 +24,8 @@ class GoldenCase {
   /// Expected rendered symbol.
   final String expectedSymbol;
 
-  /// Expected rendered symbols for ranked candidates after the winner.
-  final List<String> expectedCandidates;
+  /// Expected rendered symbols for surfaced alternatives after the winner.
+  final List<String> expectedAlternatives;
 
   /// Expected winning root pitch name.
   final String? expectedRoot;
@@ -52,7 +52,7 @@ class GoldenCase {
     required this.description,
     required this.expectedSymbol,
     required this.pcs,
-    this.expectedCandidates = const [],
+    this.expectedAlternatives = const [],
     this.bass,
     this.noteCount,
     this.tonality,
@@ -71,7 +71,7 @@ GoldenCase golden({
   required String description,
   required String expectedSymbol,
   required List<String> pcs,
-  List<String> expectedCandidates = const [],
+  List<String> expectedAlternatives = const [],
   String? bass,
   int? noteCount,
   Tonality? tonality,
@@ -87,7 +87,7 @@ GoldenCase golden({
     description: description,
     expectedSymbol: expectedSymbol,
     pcs: pcs,
-    expectedCandidates: expectedCandidates,
+    expectedAlternatives: expectedAlternatives,
     bass: bass,
     noteCount: noteCount,
     tonality: tonality,
@@ -132,7 +132,12 @@ void runChordAnalyzerGoldenCases(Iterable<GoldenCase> cases) {
         c.expectedSymbol,
         reason: 'Rendered symbol mismatch',
       );
-      expectCandidates(results, c, tonality: tonality, notation: testNotation);
+      expectAlternatives(
+        results,
+        c,
+        tonality: tonality,
+        notation: testNotation,
+      );
 
       try {
         expectTopIdentity(top, c);
@@ -175,32 +180,27 @@ String _testName(GoldenCase c) {
   return parts.join(' | ');
 }
 
-void expectCandidates(
+void expectAlternatives(
   List<ChordCandidate> results,
   GoldenCase c, {
   required Tonality tonality,
   required ChordNotationStyle notation,
 }) {
-  if (c.expectedCandidates.isEmpty) {
+  if (c.expectedAlternatives.isEmpty) {
     return;
   }
 
-  // The order below the top pick is not a contract. Near-tied readings are
+  // The order among alternatives is not a contract. Near-tied readings are
   // often enharmonic respellings of the same sonority (e.g. A♭7♯5♯11 vs
   // G♯7♭5♭13), whose relative order is decided by an arbitrary tie-break and can
   // swap freely without changing what a musician sees. So assert only that each
-  // expected candidate is present among the ranked results after the top
+  // expected alternative is present among the surfaced alternatives after the top
   // pick, unordered. The top pick is pinned separately and strictly.
   //
-  // Note this checks the full ranked list the analyzer returns, not the
-  // near-tie alternatives band; a listed candidate may sit outside the
-  // near-tie window and still be required here.
-  //
   // Trade-off: this does not catch an unexpected reading ranking above the
-  // expected candidates, only a missing one. That is acceptable because the
+  // expected alternatives, only a missing one. That is acceptable because the
   // surfaced set, not its internal order, is the product contract.
-  final actualSymbols = results
-      .skip(1)
+  final actualSymbols = ChordCandidateRanking.alternatives(results)
       .map(
         (candidate) => ChordSymbolBuilder.fromIdentity(
           identity: candidate.identity,
@@ -210,11 +210,11 @@ void expectCandidates(
       )
       .toSet();
 
-  for (final expected in c.expectedCandidates) {
+  for (final expected in c.expectedAlternatives) {
     expect(
       actualSymbols,
       contains(expected),
-      reason: 'expected candidate "$expected" not found among $actualSymbols',
+      reason: 'expected alternative "$expected" not found among $actualSymbols',
     );
   }
 }

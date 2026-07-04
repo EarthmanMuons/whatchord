@@ -625,11 +625,11 @@
   },
   "0-2-4-6-8-10_b0": {
     "label": "oracle-limitation",
-    "note": "C9(#5,#11) is preferred because this is the complete whole-tone collection and C is the bass/root, so C-D-E-F#-G#/Ab-Bb reads directly as a root-position dominant 9#5#11. Tonal agrees and lists the other whole-tone re-roots as alternates. Music21's Bb9#5/C add E keeps the same symmetric material but chooses a non-bass root and demotes the #11 to an added tone."
+    "note": "C9(#5,#11) is preferred because this is the complete whole-tone collection and C is the bass/root, so C-D-E-F#-G#/Ab-Bb reads directly as a root-position dominant 9#5#11. Tonal agrees and lists the other whole-tone re-roots as alternatives. Music21's Bb9#5/C add E keeps the same symmetric material but chooses a non-bass root and demotes the #11 to an added tone."
   },
   "0-2-4-6-8-10_b2": {
     "label": "oracle-limitation",
-    "note": "D9(#5,#11) is preferred because the whole-tone collection is symmetric and D is the bass/root, yielding a complete root-position dominant 9#5#11. Tonal agrees and lists the other whole-tone re-roots as alternates. Music21's C9#5/D add F# chooses a different symmetric root and treats the bass-rooted #11 as an add tone."
+    "note": "D9(#5,#11) is preferred because the whole-tone collection is symmetric and D is the bass/root, yielding a complete root-position dominant 9#5#11. Tonal agrees and lists the other whole-tone re-roots as alternatives. Music21's C9#5/D add F# chooses a different symmetric root and treats the bass-rooted #11 as an add tone."
   },
   "0-2-4-6-8-10_b6": {
     "label": "genuine-ambiguity",
