@@ -1256,6 +1256,7 @@ int? _preferConventionalAlteredSeventhOverAdd11Slash(
 
   if (!fc.isSeventhFamily) return null;
   if (fc.extensionTensionCount == 0) return null;
+  if (!fc.hasAlteredColor) return null;
   // A rule that promotes the "conventional" reading must not promote a
   // rare-vocabulary respelling like m7#5.
   if (conventional.identity.quality.isRareVocabulary) return null;

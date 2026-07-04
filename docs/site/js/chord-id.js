@@ -2363,6 +2363,7 @@ r=n?c:d
 q=n?d:c
 if(!q.c)return o
 if(q.ok===0)return o
+if(!q.p4)return o
 p=s.a
 if(A.eN(p.c))return o
 if(A.eu(p))return o

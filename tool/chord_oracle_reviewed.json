@@ -147,6 +147,10 @@
     "label": "oracle-limitation",
     "note": "A13(♯9,♯11)/C♯ is preferred because C♯ is the major third in the bass of a complete A dominant shell, with C/B♯ as sharp-nine color, E♭/D♯ as sharp eleventh, and F♯ as thirteenth. Tonal agrees. Music21's F♯ minor-thirteenth flat-nine spelling is a pitch-valid rotation, but it relies on rare minor flat-nine color while the A label names the complete dominant organization directly."
   },
+  "0-1-3-4-6-7-9_b3": {
+    "label": "genuine-ambiguity",
+    "note": "E♭13(♭9,♯9,♯11) is preferred because E♭ is the bass/root and E♭-G-D♭ forms a complete dominant shell, with E/F♭, F♯, A, and C as altered thirteenth color. Tonal prefers the tritone-related A13(♯9,♯11)/E♭ reading, which is also complete and remains surfaced as a possible alternative, but it makes the bass the sharp eleventh. Music21's A diminished add-tone spelling captures a related symmetric subset but does not name the root-position E♭ dominant organization. The row is a genuine tritone-dominant ambiguity rather than a scoring issue."
+  },
   "0-1-3-4-6-7-9_b4": {
     "label": "oracle-limitation",
     "note": "A13(♯9,♯11)/E is preferred because E is the fifth of a complete A dominant shell, with C/B♯ as sharp-nine color, E♭/D♯ as sharp eleventh, and F♯ as thirteenth. Tonal agrees. Music21's F♯ half-diminished-flat-nine add-tone spelling describes related pitch material but misses the more direct dominant organization."
