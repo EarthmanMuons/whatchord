@@ -1248,13 +1248,11 @@ String _formatCostToken(CostReason r, {required bool includeReasonDetails}) {
     'required tones' => 'req',
     'missing required' => 'miss',
     'optional tones' => 'opt',
+    'color tones' => 'color',
+    'vocabulary rarity' => 'vocab',
+    'fifthless sixth' => '6no5',
     'penalty tones' => 'pen',
-    'extras' => 'extra',
     'bass fit' => 'bass',
-    'sus-tone bass' => 'sus-bass',
-    'alterations penalty' => 'alt',
-    'complete root triad color' => 'triad-color',
-    'tonality bias' => 'ton',
     _ => r.label.replaceAll(' ', ''),
   };
 
