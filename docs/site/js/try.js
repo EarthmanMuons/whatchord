@@ -402,14 +402,14 @@
     tag.className = "try-tag tag-" + c.class;
     tag.textContent = TAG_LABEL[c.class] || c.class;
 
-    var score = document.createElement("div");
-    score.className = "try-score";
-    score.textContent = c.score.toFixed(2);
+    var cost = document.createElement("div");
+    cost.className = "try-cost";
+    cost.textContent = c.cost.toFixed(2);
 
     row.appendChild(rank);
     row.appendChild(main);
     row.appendChild(tag);
-    row.appendChild(score);
+    row.appendChild(cost);
     return row;
   }
 

@@ -53,7 +53,7 @@
   },
   "0-1-2-4-6-10_b2": {
     "label": "genuine-ambiguity",
-    "note": "F♯7(♯11,♭13)/D is preferred because F♯-A♯-C♯-E forms a complete dominant-seventh shell, with C as readable sharp-eleventh color and D as flat-thirteenth bass. Tonal agrees on this organization. C9(♭5,♭9)/D remains a plausible tritone-related split-ninth dominant, but the new explanation-cost scoring no longer rewards it for booking an extra altered slot over the cleaner F♯ dominant shell."
+    "note": "F♯7(♯11,♭13)/D is preferred because F♯-A♯-C♯-E forms a complete dominant-seventh shell, with C as readable sharp-eleventh color and D as flat-thirteenth bass. Tonal agrees on this organization. C9(♭5,♭9)/D remains a plausible tritone-related split-ninth dominant, but the new explanation-cost model no longer rewards it for booking an extra altered slot over the cleaner F♯ dominant shell."
   },
   "0-1-2-4-6-10_b4": {
     "label": "genuine-ambiguity",
@@ -121,7 +121,7 @@
   },
   "0-1-2-5-8_b8": {
     "label": "genuine-ambiguity",
-    "note": "Fm6♭13/A♭ is defensible because F-A♭-C-D forms a complete F minor-sixth chord with A♭ as the minor third in the bass, while D♭ is explainable as flat-thirteen or lower-neighbor color. Music21 and tonal both choose the equally scored D♭maj7♭9/A♭ reading, which also has a conventional fifth-in-bass role, so this is a real ambiguity. ChoCo does not provide exact support for major7|flat9 or minor6|flat13; the broader minor-six vocabulary is common, but not enough to make the oracle-supported D♭ spelling wrong."
+    "note": "Fm6♭13/A♭ is defensible because F-A♭-C-D forms a complete F minor-sixth chord with A♭ as the minor third in the bass, while D♭ is explainable as flat-thirteen or lower-neighbor color. Music21 and tonal both choose the equal-cost D♭maj7♭9/A♭ reading, which also has a conventional fifth-in-bass role, so this is a real ambiguity. ChoCo does not provide exact support for major7|flat9 or minor6|flat13; the broader minor-six vocabulary is common, but not enough to make the oracle-supported D♭ spelling wrong."
   },
   "0-1-3-4-6-7-10_b1": {
     "label": "genuine-ambiguity",
@@ -177,7 +177,7 @@
   },
   "0-1-3-6_b1": {
     "label": "context-dependent",
-    "note": "D♭maj9sus4 is defensible because D♭ is the bass/root and the voicing gives a suspended major-seventh/ninth sonority D♭-G♭-C-E♭. Music21's Cdim/D♭ is a valid diminished-triad reading, but it makes the bass the added flat ninth rather than a stable chord tone. The E♭m13/D♭ alternate also scores as a close possible reading, so this row reflects genuine root choice rather than a clear oracle correction."
+    "note": "D♭maj9sus4 is defensible because D♭ is the bass/root and the voicing gives a suspended major-seventh/ninth sonority D♭-G♭-C-E♭. Music21's Cdim/D♭ is a valid diminished-triad reading, but it makes the bass the added flat ninth rather than a stable chord tone. The E♭m13/D♭ alternate also has a close cost and surfaces as a possible reading, so this row reflects genuine root choice rather than a clear oracle correction."
   },
   "0-1-3-6_b3": {
     "label": "genuine-ambiguity",
@@ -217,11 +217,11 @@
   },
   "0-1-3-5-6-10_b1": {
     "label": "genuine-ambiguity",
-    "note": "G♭maj13(♯11)/D♭ is defensible because G♭-B♭-D♭-F forms a complete Lydian-major-seventh shell with D♭ as the fifth in the bass, and C plus E♭ supply ♯11 and 13 color. Tonal's E♭m13/D♭ is an equally scored complete relative-minor-thirteenth reading, and music21's C half-diminished-flat-nine reading also names a complete seventh shell. ChoCo offers only weak nearby support for the exact Lydian-major and minor-thirteenth signatures, so the stable fifth-in-bass role makes WhatChord's primary defensible while both oracle families remain real possible alternatives."
+    "note": "G♭maj13(♯11)/D♭ is defensible because G♭-B♭-D♭-F forms a complete Lydian-major-seventh shell with D♭ as the fifth in the bass, and C plus E♭ supply ♯11 and 13 color. Tonal's E♭m13/D♭ is an equal-cost complete relative-minor-thirteenth reading, and music21's C half-diminished-flat-nine reading also names a complete seventh shell. ChoCo offers only weak nearby support for the exact Lydian-major and minor-thirteenth signatures, so the stable fifth-in-bass role makes WhatChord's primary defensible while both oracle families remain real possible alternatives."
   },
   "0-1-3-5-6-10_b10": {
     "label": "genuine-ambiguity",
-    "note": "G♭maj13(♯11)/B♭ is defensible because B♭ is the major third of a complete G♭ Lydian-major-thirteenth stack. Tonal's E♭m13/B♭ gives the same bass a conventional fifth role in a complete relative-minor-thirteenth chord, and music21's C half-diminished-flat-nine reading preserves another complete seventh shell. With all three readings close and surfaced, this is a genuine modal/relative-root ambiguity rather than a clear scoring miss; the G♭ label keeps the observed bass inside a complete major-family shell with no altered flat-nine burden."
+    "note": "G♭maj13(♯11)/B♭ is defensible because B♭ is the major third of a complete G♭ Lydian-major-thirteenth stack. Tonal's E♭m13/B♭ gives the same bass a conventional fifth role in a complete relative-minor-thirteenth chord, and music21's C half-diminished-flat-nine reading preserves another complete seventh shell. With all three readings close and surfaced, this is a genuine modal/relative-root ambiguity rather than a clear cost-model miss; the G♭ label keeps the observed bass inside a complete major-family shell with no altered flat-nine burden."
   },
   "0-1-3-5-6-10_b5": {
     "label": "genuine-ambiguity",
@@ -341,7 +341,7 @@
   },
   "0-1-3-6-10_b3": {
     "label": "genuine-ambiguity",
-    "note": "E♭m13 is preferred because E♭ is the bass/root of a complete E♭-G♭-B♭-D♭ minor-seventh shell, with C as thirteenth color. Tonal's G♭6♯11/E♭ is equally scored and surfaced as a possible alternative, but it makes the observed bass the sixth rather than the root. Music21's Cm7♭5♭9/E♭ also names a complete half-diminished-flat-nine structure and scores slightly higher before tie-breaks, but ChoCo has only one exact halfDiminished7|flat9 observation, and key contexts in E♭ minor, G♭ major, and C minor do not displace the bass-rooted E♭ minor-thirteenth reading."
+    "note": "E♭m13 is preferred because E♭ is the bass/root of a complete E♭-G♭-B♭-D♭ minor-seventh shell, with C as thirteenth color. Tonal's G♭6♯11/E♭ has the same cost and surfaces as a possible alternative, but it makes the observed bass the sixth rather than the root. Music21's Cm7♭5♭9/E♭ also names a complete half-diminished-flat-nine structure and has a slightly higher cost before tie-breaks, but ChoCo has only one exact halfDiminished7|flat9 observation, and key contexts in E♭ minor, G♭ major, and C minor do not displace the bass-rooted E♭ minor-thirteenth reading."
   },
   "0-1-3-6-8-10_b0": {
     "label": "genuine-ambiguity",
@@ -397,7 +397,7 @@
   },
   "0-1-3-7-9_b0": {
     "label": "genuine-ambiguity",
-    "note": "Cm6♭9 is preferred because C is the bass/root of a complete C-E♭-G minor triad with A as sixth color and D♭ as flat ninth. The A-rooted altered-dominant reading is real: A7♭5♯9/B♯ scores slightly higher before tie-breaks, pychord chooses A7♯9♭5/C, and ChoCo has 57 dominant7Flat5|sharp9 observations versus 3 minor6|flat9 observations. The C-rooted label remains defensible because the A-rooted spelling turns the observed C bass into B♯ as sharp-nine and D♭ into C♯, while WhatChord surfaces that altered-dominant interpretation as a close possible alternative."
+    "note": "Cm6♭9 is preferred because C is the bass/root of a complete C-E♭-G minor triad with A as sixth color and D♭ as flat ninth. The A-rooted altered-dominant reading is real: A7♭5♯9/B♯ has a slightly higher cost before tie-breaks, pychord chooses A7♯9♭5/C, and ChoCo has 57 dominant7Flat5|sharp9 observations versus 3 minor6|flat9 observations. The C-rooted label remains defensible because the A-rooted spelling turns the observed C bass into B♯ as sharp-nine and D♭ into C♯, while WhatChord surfaces that altered-dominant interpretation as a close possible alternative."
   },
   "0-1-3-8_b1": {
     "label": "genuine-ambiguity",
@@ -465,7 +465,7 @@
   },
   "0-1-4-8-10_b1": {
     "label": "genuine-ambiguity",
-    "note": "C♯m(maj13) is preferred because D♭/C♯ is the bass/root of a complete C♯-E-G♯-B♯ minor-major-seventh shell, with A♯ as thirteenth color. Music21's A♯m9♭5/C♯ and tonal's C7♯5♭9/D♭ are both complete and surfaced as possible alternatives, but they reassign the bass to the half-diminished minor third or dominant flat ninth. ChoCo broadly supports both minor-major and altered sharp-five dominant vocabulary while exact halfDiminished7|nine support is sparse, so this is a genuine three-root ambiguity rather than a scoring issue."
+    "note": "C♯m(maj13) is preferred because D♭/C♯ is the bass/root of a complete C♯-E-G♯-B♯ minor-major-seventh shell, with A♯ as thirteenth color. Music21's A♯m9♭5/C♯ and tonal's C7♯5♭9/D♭ are both complete and surfaced as possible alternatives, but they reassign the bass to the half-diminished minor third or dominant flat ninth. ChoCo broadly supports both minor-major and altered sharp-five dominant vocabulary while exact halfDiminished7|nine support is sparse, so this is a genuine three-root ambiguity rather than a cost-model issue."
   },
   "0-1-4-8-10_b4": {
     "label": "genuine-ambiguity",
@@ -549,7 +549,7 @@
   },
   "0-1-5-8-10_b1": {
     "label": "genuine-ambiguity",
-    "note": "D♭maj13 is defensible because D♭ is the bass/root of a complete D♭-F-A♭-C major-seventh sonority with B♭ as thirteenth color. Music21 and tonal prefer B♭m9/D♭, which is also a complete and common relative-minor ninth reading, and ChoCo broadly favors minor7|nine vocabulary. The two candidates score identically and WhatChord surfaces B♭m9/D♭ as a possible alternative; neutral and D♭ major contexts favor the bass-rooted major-thirteenth label, while B♭ minor context correctly flips to the relative-minor ninth."
+    "note": "D♭maj13 is defensible because D♭ is the bass/root of a complete D♭-F-A♭-C major-seventh sonority with B♭ as thirteenth color. Music21 and tonal prefer B♭m9/D♭, which is also a complete and common relative-minor ninth reading, and ChoCo broadly favors minor7|nine vocabulary. The two candidates cost identically and WhatChord surfaces B♭m9/D♭ as a possible alternative; neutral and D♭ major contexts favor the bass-rooted major-thirteenth label, while B♭ minor context correctly flips to the relative-minor ninth."
   },
   "0-1-5-9_b1": {
     "label": "clearly-correct",
@@ -653,7 +653,7 @@
   },
   "0-2-5-7_b0": {
     "label": "clearly-correct",
-    "note": "Csus2sus4 is correct; it is the complete root-position double-suspension template and scores clearly above the incomplete or slash alternatives. Tonal's Csus24 and pychord's Csus4add2 are semantically equivalent names for the same C-rooted structure."
+    "note": "Csus2sus4 is correct; it is the complete root-position double-suspension template and has a clearly lower cost than the incomplete or slash alternatives. Tonal's Csus24 and pychord's Csus4add2 are semantically equivalent names for the same C-rooted structure."
   },
   "0-2-5-7_b2": {
     "label": "genuine-ambiguity",

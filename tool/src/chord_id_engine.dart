@@ -32,7 +32,7 @@ enum CandidateClass {
   /// Alternative the app surfaces alongside the chosen chord.
   possible,
 
-  /// Ranked but well below the chosen score; shown for transparency.
+  /// Ranked but well above the chosen cost; shown for transparency.
   unlikely,
 }
 
@@ -52,8 +52,8 @@ class ChordIdCandidate {
     required this.academicName,
     required this.chordTones,
     required this.alsoPlayedNotes,
-    required this.score,
-    required this.deltaBest,
+    required this.cost,
+    required this.deltaChosenCost,
     required this.classification,
   });
 
@@ -66,8 +66,8 @@ class ChordIdCandidate {
 
   /// Input pitch classes not represented by this chord interpretation.
   final String alsoPlayedNotes;
-  final double score;
-  final double deltaBest;
+  final double cost;
+  final double deltaChosenCost;
   final CandidateClass classification;
 
   Map<String, Object?> toJson() => <String, Object?>{
@@ -76,8 +76,8 @@ class ChordIdCandidate {
     'academicName': academicName,
     'chordTones': chordTones,
     'alsoPlayedNotes': alsoPlayedNotes,
-    'score': double.parse(score.toStringAsFixed(2)),
-    'deltaBest': double.parse(deltaBest.toStringAsFixed(2)),
+    'cost': double.parse(cost.toStringAsFixed(2)),
+    'deltaChosenCost': double.parse(deltaChosenCost.toStringAsFixed(2)),
     'class': classification.wireName,
   };
 }
@@ -241,7 +241,7 @@ ChordIdResult identifyChord(
     );
   }
 
-  final chosenScore = ranked.first.score;
+  final chosenCost = ranked.first.cost;
   final alternativeCount = ChordCandidateRanking.alternativeCount(ranked);
   final candidates = <ChordIdCandidate>[];
   for (var i = 0; i < ranked.length; i++) {
@@ -272,8 +272,8 @@ ChordIdResult identifyChord(
           parsed,
           tonality: tonality,
         ),
-        score: c.score,
-        deltaBest: c.score - chosenScore,
+        cost: c.cost,
+        deltaChosenCost: c.cost - chosenCost,
         classification: classification,
       ),
     );

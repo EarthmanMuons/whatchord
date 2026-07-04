@@ -252,13 +252,13 @@
                 <div class="feature-label">Context-aware naming</div>
                 <h3>Chord names the way musicians write them.</h3>
                 <p>
-                  WhatChord scores and ranks multiple plausible interpretations
-                  using musical heuristics: inversions, extensions, upper
-                  structures, altered dominants, and the selected key signature.
-                  It favors the name a musician would usually expect. When a
-                  voicing is genuinely ambiguous, the app shows the alternatives
-                  rather than hiding them. Tap any of them to see why the
-                  current chord ranked first.
+                  WhatChord assigns an explanation cost to multiple plausible
+                  interpretations, then ranks them using musical heuristics:
+                  inversions, extensions, upper structures, altered dominants,
+                  and the selected key signature. It favors the name a musician
+                  would usually expect. When a voicing is genuinely ambiguous,
+                  the app shows the alternatives rather than hiding them. Tap
+                  any of them to see why the current chord ranked first.
                 </p>
               </div>
               <div class="feature-img-wrap">
@@ -428,7 +428,7 @@
               <h3>Under the Hood: Building a Real-Time Chord Recognizer</h3>
               <p>
                 A detailed look at the bitmasks, chord-quality templates,
-                scoring and ranking heuristics, and LRU cache that power
+                explanation costs, ranking heuristics, and LRU cache that power
                 real-time chord identification in a Flutter app.
               </p>
               <span class="read-more">Read the article →</span>

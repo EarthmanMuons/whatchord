@@ -189,13 +189,13 @@ String _normalizedCandidateSignature(
     'mask=${identity.presentIntervalsMask}',
     'ext=${normalizedExtensions.map((extension) => extension.name).join(",")}',
     'roles=${normalizedRoles.map((entry) => '${entry.key}:${entry.value.name}').join(",")}',
-    'score=${candidate.score.toStringAsFixed(6)}',
+    'cost=${candidate.cost.toStringAsFixed(6)}',
   ].join('|');
 }
 
 bool _hasClearTopWinner(List<ChordCandidate> results) {
   if (results.length < 2) return true;
-  final gap = results.first.score - results[1].score;
+  final gap = results[1].cost - results.first.cost;
   return gap > ChordCandidateRanking.nearTieWindow;
 }
 

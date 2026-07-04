@@ -194,7 +194,7 @@
 
           <p>Chord symbols have defaults for those interval qualities.</p>
 
-          <table class="score-table">
+          <table class="article-table">
             <thead>
               <tr>
                 <th scope="col">Chord member</th>
@@ -243,7 +243,7 @@
             </tbody>
           </table>
 
-          <p class="score-table-note">
+          <p class="article-table-note">
             <span class="fn-mark">*</span> Chord symbols never use these three
             qualities. Each is enharmonically a plainer chord member, so the
             simpler spelling always wins: a raised 3rd (E♯) is the perfect 11th
@@ -284,7 +284,7 @@
             of the work:
           </p>
 
-          <table class="score-table">
+          <table class="article-table">
             <thead>
               <tr>
                 <th scope="col">Quality</th>
@@ -564,7 +564,7 @@
             Doing the same check for each sounding note gives this comparison:
           </p>
 
-          <table class="score-table">
+          <table class="article-table">
             <thead>
               <tr>
                 <th scope="col">Root tested</th>
@@ -638,11 +638,11 @@
 
           <p>
             WhatChord evaluates candidate roots and qualities in software rather
-            than by hand. It scores candidates for musical strength: stable
-            triads and seventh chords, sensible extensions, spelling that fits
-            the chord member, and bass relationships that musicians expect to
-            read. Close alternatives can still appear when the notes genuinely
-            support more than one interpretation.
+            than by hand. It assigns each candidate an explanation cost based on
+            musical fit: stable triads and seventh chords, sensible extensions,
+            spelling that fits the chord member, and bass relationships that
+            musicians expect to read. Close alternatives can still appear when
+            the notes genuinely support more than one interpretation.
           </p>
 
           <p>
@@ -653,7 +653,7 @@
           </p>
 
           <p>
-            For the implementation details behind those scores, see
+            For the implementation details behind those costs, see
             <a href="chord-recognition-algorithm.html"
               >Building a Real-Time Chord Recognizer</a
             >.

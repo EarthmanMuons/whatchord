@@ -190,7 +190,7 @@ void main(List<String> args) {
     return;
   }
 
-  final bestScore = results.first.candidate.score;
+  final chosenCost = results.first.candidate.cost;
   final alternativeCount = ChordCandidateRanking.alternativeCount([
     for (final result in results) result.candidate,
   ]);
@@ -208,8 +208,8 @@ void main(List<String> args) {
       ),
     );
 
-    final score = c.score;
-    final deltaBest = score - bestScore;
+    final cost = c.cost;
+    final deltaChosenCost = cost - chosenCost;
     final alternative = i != 0 && i <= alternativeCount;
 
     final rule = _formatRankingRule(r.vsPrevious?.decidedByRule);
@@ -217,16 +217,16 @@ void main(List<String> args) {
     // One-line summary.
     final rank = (i + 1).toString().padLeft(2);
     final sym = _padRight(symbol, 12);
-    final scoreStr = score.toStringAsFixed(2).padLeft(6);
+    final costStr = cost.toStringAsFixed(2).padLeft(6);
     final deltaStr = i == 0
         ? ''
-        : '  Δ${_fmtSigned(deltaBest, width: 6, decimals: 2)}';
+        : '  Δ${_fmtSigned(deltaChosenCost, width: 6, decimals: 2)}';
     final alternativeStr = alternative ? ' ~alt' : '';
     final ruleStr = compact && i != 0 && rule.isNotEmpty
         ? '  (vs prev: $rule)'
         : '';
 
-    stdout.writeln('$rank) $sym $scoreStr$deltaStr$alternativeStr$ruleStr');
+    stdout.writeln('$rank) $sym $costStr$deltaStr$alternativeStr$ruleStr');
 
     if (compact) continue;
 
@@ -257,22 +257,16 @@ void main(List<String> args) {
     // Played/missing/also-played tone buckets, mirroring the app's tone ledger.
     if (verbose) {
       stdout.writeln(
-        '     tones: ${_formatToneBuckets(id, r.scoreReasons, context: context)}',
+        '     tones: ${_formatToneBuckets(id, r.costReasons, context: context)}',
       );
     }
 
     // Reasons: tokenized & compact.
-    final tokens = _reasonTokens(
-      r.scoreReasons,
-      includeNormalize: true,
-      includeReasonDetails: verbose,
-      includeNormalizationDenom: verbose,
-      requiredToneCount: _requiredToneCountFromReasons(r.scoreReasons),
-    );
+    final tokens = _reasonTokens(r.costReasons, includeReasonDetails: verbose);
 
     if (tokens.isNotEmpty) {
       // Indent 5 spaces to align under the candidate line.
-      stdout.writeln('     scoring: ${tokens.join('  ')}');
+      stdout.writeln('     cost: ${tokens.join('  ')}');
     }
 
     stdout.writeln('');
@@ -368,7 +362,7 @@ String _formatChordMembersByRole(
 /// template-based. The bass tone is marked with a trailing `*`.
 String _formatToneBuckets(
   ChordIdentity id,
-  List<ScoreReason> reasons, {
+  List<CostReason> reasons, {
   required AnalysisContext context,
 }) {
   final chordMask = id.toneRolesByInterval.keys.fold<int>(
@@ -393,7 +387,7 @@ String _formatToneBuckets(
 
 /// Returns the root-relative interval mask the analyzer recorded for [label],
 /// or 0 when that reason carries no tone set.
-int _maskForReason(List<ScoreReason> reasons, String label) {
+int _maskForReason(List<CostReason> reasons, String label) {
   for (final reason in reasons) {
     if (reason.label == label) return reason.intervals ?? 0;
   }
@@ -538,7 +532,7 @@ List<RankedCandidateDebug> _applySpellingMode(
     for (var i = 0; i < ranked.length; i++)
       RankedCandidateDebug(
         candidate: ranked[i].candidate,
-        scoreReasons: ranked[i].scoreReasons,
+        costReasons: ranked[i].costReasons,
         template: ranked[i].template,
         vsPrevious: i == 0
             ? null
@@ -564,14 +558,14 @@ RankedCandidateDebug _adjustCandidateForSpelling(
     context: context,
     spellingMode: spellingMode,
   );
-  if (evidence.delta == 0) return result;
+  if (evidence.costAdjustment == 0) return result;
 
   return RankedCandidateDebug(
     candidate: ChordCandidate(
       identity: result.candidate.identity,
-      score: result.candidate.score + evidence.delta,
+      cost: result.candidate.cost + evidence.costAdjustment,
     ),
-    scoreReasons: result.scoreReasons,
+    costReasons: result.costReasons,
     vsPrevious: result.vsPrevious,
     template: result.template,
   );
@@ -625,14 +619,15 @@ _SpellingEvidence _spellingEvidenceFor(
   final respellDelta = spellingMode == ChordDebugSpellingMode.strict
       ? -3.00
       : -0.45;
-  final delta = preserved.length * matchDelta + respelled.length * respellDelta;
+  final costAdjustment =
+      preserved.length * matchDelta + respelled.length * respellDelta;
 
   return _SpellingEvidence(
     mode: spellingMode,
     hasNamedInput: true,
     matches: preserved.length,
     respellings: respelled.length,
-    delta: delta,
+    costAdjustment: costAdjustment,
     preserved: preserved,
     respelled: respelled,
   );
@@ -650,7 +645,7 @@ String _formatSpellingEvidence(_SpellingEvidence evidence) {
   if (evidence.respelled.isNotEmpty) {
     parts.add('respells ${evidence.respelled.join(', ')}');
   }
-  parts.add(_fmtSigned(evidence.delta, width: 0, decimals: 2));
+  parts.add(_fmtSigned(evidence.costAdjustment, width: 0, decimals: 2));
   return parts.join('; ');
 }
 
@@ -659,7 +654,7 @@ class _SpellingEvidence {
   final bool hasNamedInput;
   final int matches;
   final int respellings;
-  final double delta;
+  final double costAdjustment;
   final List<String> preserved;
   final List<String> respelled;
 
@@ -668,7 +663,7 @@ class _SpellingEvidence {
     required this.hasNamedInput,
     required this.matches,
     required this.respellings,
-    required this.delta,
+    required this.costAdjustment,
     required this.preserved,
     required this.respelled,
   });
@@ -679,7 +674,7 @@ class _SpellingEvidence {
         hasNamedInput: false,
         matches: 0,
         respellings: 0,
-        delta: 0,
+        costAdjustment: 0,
         preserved: const [],
         respelled: const [],
       );
@@ -688,7 +683,7 @@ class _SpellingEvidence {
     'mode': mode.wireName,
     'matches': matches,
     'respellings': respellings,
-    'delta': double.parse(delta.toStringAsFixed(2)),
+    'costAdjustment': double.parse(costAdjustment.toStringAsFixed(2)),
     'preserved': preserved,
     'respelled': respelled,
   };
@@ -706,7 +701,7 @@ Map<String, Object?> chordDebugJsonPayload({
   ChordDebugSpellingMode spellingMode = ChordDebugSpellingMode.pc,
   NoteParse? parsed,
 }) {
-  final bestScore = results.isEmpty ? null : results.first.candidate.score;
+  final chosenCost = results.isEmpty ? null : results.first.candidate.cost;
   final alternativeCount = ChordCandidateRanking.alternativeCount([
     for (final result in results) result.candidate,
   ]);
@@ -729,7 +724,7 @@ Map<String, Object?> chordDebugJsonPayload({
         _candidateJson(
           rank: i + 1,
           result: results[i],
-          bestScore: bestScore,
+          chosenCost: chosenCost,
           isAlternative: i != 0 && i <= alternativeCount,
           context: context,
           notation: notation,
@@ -769,7 +764,7 @@ void _writeJsonOutput({
 Map<String, Object?> _candidateJson({
   required int rank,
   required RankedCandidateDebug result,
-  required double? bestScore,
+  required double? chosenCost,
   required bool isAlternative,
   required AnalysisContext context,
   required ChordNotationStyle notation,
@@ -790,7 +785,7 @@ Map<String, Object?> _candidateJson({
     ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
   final sortedRoles = id.toneRolesByInterval.entries.toList()
     ..sort((a, b) => a.key.compareTo(b.key));
-  final deltaBest = bestScore == null ? null : c.score - bestScore;
+  final deltaChosenCost = chosenCost == null ? null : c.cost - chosenCost;
   final spelling = parsed == null
       ? null
       : _spellingEvidenceFor(
@@ -804,8 +799,8 @@ Map<String, Object?> _candidateJson({
     'rank': rank,
     'symbol': symbol,
     'harte': HarteChordFormatter.format(id, rootName: rootName),
-    'score': c.score,
-    'deltaBest': deltaBest,
+    'cost': c.cost,
+    'deltaChosenCost': deltaChosenCost,
     'alternative': isAlternative,
     'rootPc': id.rootPc,
     'rootName': rootName,
@@ -821,11 +816,11 @@ Map<String, Object?> _candidateJson({
         spelling.mode != ChordDebugSpellingMode.pc &&
         spelling.hasNamedInput)
       'spellingEvidence': spelling.toJson(),
-    'scoreReasons': [
-      for (final reason in result.scoreReasons)
+    'costReasons': [
+      for (final reason in result.costReasons)
         <String, Object?>{
           'label': reason.label,
-          'delta': reason.delta,
+          'cost': reason.cost,
           if (reason.detail != null) 'detail': reason.detail,
         },
     ],
@@ -1089,51 +1084,28 @@ String _formatPcNumbers(List<({String label, int pc})> pcDisplays) {
   ].join('  ');
 }
 
-/// Converts ScoreReason entries into compact CLI tokens.
+/// Converts CostReason entries into compact CLI tokens.
 /// Example tokens:
 ///   req+12  miss-6  opt+3  bass+1  alt-0.6  => 8.40 raw, 4.85 final
 List<String> _reasonTokens(
-  List<ScoreReason> reasons, {
-  required bool includeNormalize,
+  List<CostReason> reasons, {
   required bool includeReasonDetails,
-  required bool includeNormalizationDenom,
-  required int requiredToneCount,
 }) {
   if (reasons.isEmpty) return const [];
 
-  // Pull out normalize (info) separately.
-  ScoreReason? normalize;
-  final deltas = <ScoreReason>[];
+  final contributions = <CostReason>[];
 
   for (final r in reasons) {
-    final isNormalize = r.label.toLowerCase() == 'normalize';
-    if (isNormalize) {
-      normalize = r;
-      continue;
-    }
-    if (r.delta == 0.0) continue;
-    deltas.add(r);
+    if (r.cost == 0.0) continue;
+    contributions.add(r);
   }
 
-  // Sort delta reasons by absolute impact.
-  deltas.sort((a, b) => b.delta.abs().compareTo(a.delta.abs()));
+  // Sort cost contributions by absolute impact.
+  contributions.sort((a, b) => b.cost.abs().compareTo(a.cost.abs()));
 
   final tokens = <String>[];
-  for (final r in deltas) {
-    tokens.add(
-      _formatDeltaToken(r, includeReasonDetails: includeReasonDetails),
-    );
-  }
-
-  if (includeNormalize && normalize != null && normalize.detail != null) {
-    // IMPORTANT: render normalize as info, not +0.00.
-    tokens.add(
-      _formatNormalizeToken(
-        normalize.detail!,
-        includeDenom: includeNormalizationDenom,
-        requiredToneCount: requiredToneCount,
-      ),
-    );
+  for (final r in contributions) {
+    tokens.add(_formatCostToken(r, includeReasonDetails: includeReasonDetails));
   }
 
   return tokens;
@@ -1144,37 +1116,7 @@ String _formatRankingRule(String? rule) {
   return rule.replaceAll(RegExp(r'[()]'), '').replaceAll(RegExp(r'\s+'), ' ');
 }
 
-String _formatNormalizeToken(
-  String detail, {
-  required bool includeDenom,
-  required int requiredToneCount,
-}) {
-  final match = RegExp(
-    r'^raw=([^\s]+) denom=([^\s]+) => (.+)$',
-  ).firstMatch(detail);
-  if (match == null) return detail;
-
-  final raw = match.group(1)!;
-  final denom = match.group(2)!;
-  final normalized = match.group(3)!;
-  if (includeDenom) {
-    return '=>  $raw raw / sqrt($requiredToneCount required tones, denom=$denom), $normalized final';
-  }
-  return '=>  $raw raw, $normalized final';
-}
-
-int _requiredToneCountFromReasons(List<ScoreReason> reasons) {
-  for (final reason in reasons) {
-    if (reason.label != 'required tones') continue;
-    final detail = reason.detail;
-    if (detail == null) continue;
-    final match = RegExp(r'^count=(\d+)$').firstMatch(detail);
-    if (match != null) return int.parse(match.group(1)!);
-  }
-  return 1;
-}
-
-String _formatDeltaToken(ScoreReason r, {required bool includeReasonDetails}) {
+String _formatCostToken(CostReason r, {required bool includeReasonDetails}) {
   // Map long labels to compact keys for CLI.
   final key = switch (r.label) {
     'required tones' => 'req',
@@ -1191,7 +1133,7 @@ String _formatDeltaToken(ScoreReason r, {required bool includeReasonDetails}) {
   };
 
   // Compact number formatting: integers look cleaner when whole.
-  final v = r.delta;
+  final v = r.cost;
   final sign = v >= 0 ? '+' : '';
   final asInt = v == v.roundToDouble();
 

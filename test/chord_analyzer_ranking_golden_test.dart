@@ -874,7 +874,7 @@ void main() {
     ),
 
     golden(
-      // Cm11/Bb and Eb6/9/Bb tie on score; the natural-extension tie-break
+      // Cm11/Bb and Eb6/9/Bb tie on cost; the natural-extension tie-break
       // selects the minor-eleventh reading.
       description: 'minor-eleventh slash beats major six-nine slash',
       expectedSymbol: 'Cm11/Bb',
@@ -915,7 +915,7 @@ void main() {
     ),
 
     golden(
-      // Ebm13 and Gb6/9#11/Eb tie on score; the natural-extension tie-break
+      // Ebm13 and Gb6/9#11/Eb tie on cost; the natural-extension tie-break
       // selects the root-position minor thirteenth.
       description: 'minor-thirteenth beats lydian major six-nine slash',
       expectedSymbol: 'Ebm13',
@@ -973,7 +973,7 @@ void main() {
       expectedExtensions: {ChordExtension.sharp11},
     ),
 
-    // B6/9#11 (1-6 of B Lydian) and the G#m13/B slash tie on score; the
+    // B6/9#11 (1-6 of B Lydian) and the G#m13/B slash tie on cost; the
     // natural-extension tie-break selects the minor-thirteenth slash.
     golden(
       description: 'minor-thirteenth slash beats lydian six-nine sharp-eleven',

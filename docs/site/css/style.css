@@ -1289,14 +1289,14 @@ a.heading-anchor svg {
   color: var(--accent-light);
 }
 
-.score-table {
+.article-table {
   width: 100%;
   margin: 24px 0;
   font-size: 0.9rem;
   border-collapse: collapse;
 }
 
-.score-table th {
+.article-table th {
   padding: 10px 16px;
   font-size: 0.82rem;
   font-weight: 600;
@@ -1307,42 +1307,42 @@ a.heading-anchor svg {
   border: 1px solid var(--border-mid);
 }
 
-.score-table td {
+.article-table td {
   padding: 9px 16px;
   font-size: 0.9rem;
   color: var(--text-2);
   border: 1px solid var(--border);
 }
 
-.score-table tr:nth-child(even) td {
+.article-table tr:nth-child(even) td {
   background: rgb(255 255 255 / 2%);
 }
 
-.score-table .pos {
+.article-table .pos {
   color: #56d364;
 }
 
-.score-table .neg {
+.article-table .neg {
   color: #f85149;
 }
 
-.score-table .mono {
+.article-table .mono {
   font-family: var(--mono);
   font-size: 0.86em;
 }
 
-.score-table .unused {
+.article-table .unused {
   font-style: italic;
 }
 
-.score-table sup {
+.article-table sup {
   margin-left: 0.15em;
   font-size: 1.1em;
   font-weight: 700;
   color: var(--accent-light);
 }
 
-.score-table-note {
+.article-table-note {
   padding: 10px 14px;
   margin: -8px 0 24px;
   font-size: 0.85rem;
@@ -1353,7 +1353,7 @@ a.heading-anchor svg {
   border-radius: 0 4px 4px 0;
 }
 
-.score-table-note .fn-mark {
+.article-table-note .fn-mark {
   font-size: 1.2rem;
   font-style: normal;
   font-weight: 700;
@@ -1795,7 +1795,7 @@ a.heading-anchor svg {
   .article-page .article-body pre,
   .article-page .article-body code,
   .article-page .callout,
-  .article-page .score-table-note,
+  .article-page .article-table-note,
   .article-page .symbol-part,
   .article-page .pf-box {
     background: #f7f7f7;
@@ -1831,7 +1831,7 @@ a.heading-anchor svg {
   .article-page .pf-endpoint,
   .article-page .symbol-part-label,
   .article-page .symbol-part-opt,
-  .article-page .score-table-note,
+  .article-page .article-table-note,
   .article-page .article-body code.not-used,
   .article-page .chord.not-used {
     color: #444;
@@ -1889,7 +1889,7 @@ a.heading-anchor svg {
   }
 
   .article-page .member-stack,
-  .article-page .score-table,
+  .article-page .article-table,
   .article-page .bit-field {
     width: 100%;
     min-width: 0;
@@ -1905,8 +1905,8 @@ a.heading-anchor svg {
 
   .article-page .member-stack th,
   .article-page .member-stack td,
-  .article-page .score-table th,
-  .article-page .score-table td,
+  .article-page .article-table th,
+  .article-page .article-table td,
   .article-page .bit-field th,
   .article-page .bit-field td,
   .article-page .bit-field .note-row td,
@@ -1917,14 +1917,14 @@ a.heading-anchor svg {
   }
 
   .article-page .member-stack th,
-  .article-page .score-table th,
+  .article-page .article-table th,
   .article-page .bit-field th {
     font-weight: 700;
     background: #ececec;
   }
 
   .article-page .member-stack tr:first-child td,
-  .article-page .score-table tr:nth-child(even) td {
+  .article-page .article-table tr:nth-child(even) td {
     background: #f7f7f7;
   }
 
@@ -1934,10 +1934,10 @@ a.heading-anchor svg {
     border: 1pt solid #444;
   }
 
-  .article-page .score-table .pos,
-  .article-page .score-table .neg,
-  .article-page .score-table sup,
-  .article-page .score-table-note .fn-mark {
+  .article-page .article-table .pos,
+  .article-page .article-table .neg,
+  .article-page .article-table sup,
+  .article-page .article-table-note .fn-mark {
     color: #000;
   }
 

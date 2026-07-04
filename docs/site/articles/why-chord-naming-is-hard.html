@@ -217,15 +217,16 @@
           <p>
             A MIDI keyboard tells the analyzer the pitch class of every sounding
             note, including the lowest one. The lowest note is treated as the
-            bass note and scored separately from the upper structure. A chord
-            where the bass is the root earns a higher score than the same chord
-            with a bass that requires slash notation. Not because root position
-            is “more correct,” but because it is the more common interpretation
-            and more informative to name explicitly as root position first.
+            bass note and priced separately from the upper structure. A chord
+            where the bass is the root has a lower explanation cost than the
+            same chord with a bass that requires slash notation. Not because
+            root position is “more correct,” but because it is the more common
+            interpretation and more informative to name explicitly as root
+            position first.
           </p>
 
           <p>
-            This scoring matters for a subtle reason. Consider C, E, G, A played
+            This pricing matters for a subtle reason. Consider C, E, G, A played
             with C in the bass. Is that
             <span class="chord">C6</span>
             or
@@ -382,7 +383,7 @@
 
           <p>
             Rather than arbitrarily committing to one name, the interface can
-            show both when scores are close. The primary result is the
+            show both when costs are close. The primary result is the
             highest-ranked interpretation, displayed as the main chord name.
             Other plausible readings appear below the chord identity card. A
             musician looking at the screen gets the most likely reading
@@ -393,12 +394,12 @@
           <p>
             This is the more honest representation of what the notes can
             support. The four notes C, E, F♯, and B♭ are a clean example: they
-            score identically as <span class="chord">C7♭5</span> and
+            cost identically as <span class="chord">C7♭5</span> and
             <span class="chord">F♯7♭5/C</span>, two dominant 7th♭5 chords whose
             roots sit a tritone apart, the same symmetry that underlies tritone
             substitution in jazz. The app shows
             <span class="chord">C7♭5</span> as primary (root in the bass), with
-            <span class="chord">F♯7♭5/C</span> listed as an equally scored
+            <span class="chord">F♯7♭5/C</span> listed as an equal-cost
             alternative.
           </p>
 
@@ -465,8 +466,9 @@
               <div class="article-tag">Technical deep-dive</div>
               <h3>Building a Real-Time Chord Recognizer</h3>
               <p>
-                The bitmasks, chord-quality templates, scoring and ranking
-                heuristics, and LRU cache behind real-time chord recognition.
+                The bitmasks, chord-quality templates, explanation costs and
+                ranking heuristics, and LRU cache behind real-time chord
+                recognition.
               </p>
               <span class="read-more">Read the article →</span>
             </a>

@@ -12,7 +12,7 @@ import 'choco_common_name_prior.dart';
 /// signatures, not roots or keys, and it refuses to run unless the competing
 /// names are similarly well explained. That makes it useful for ambiguities
 /// such as Dm7/A vs F6/A without turning corpus frequency into a primary
-/// scoring signal.
+/// cost signal.
 int? preferCommonNamePrior(
   ChordCandidate a,
   ChordCandidate b,
@@ -20,10 +20,10 @@ int? preferCommonNamePrior(
   CandidateFeatures fb,
   Tonality _,
 ) {
-  // Allow the prior to resolve a modest scoring preference caused only by bass
+  // Allow the prior to resolve a modest cost preference caused only by bass
   // position. This remains below the general near-tie window and is guarded by
   // equivalent explanation/extension complexity below.
-  if ((a.score - b.score).abs() > 0.15) return null;
+  if ((a.cost - b.cost).abs() > 0.15) return null;
   if (fa.unnamedToneCount != fb.unnamedToneCount) return null;
   if (fa.extensionCount != fb.extensionCount) return null;
   if (fa.extensionTensionCount != fb.extensionTensionCount) return null;

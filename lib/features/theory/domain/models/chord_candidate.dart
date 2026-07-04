@@ -7,11 +7,11 @@ import 'chord_identity.dart';
 class ChordCandidate {
   final ChordIdentity identity;
 
-  /// Score is intentionally unitless.
-  final double score;
+  /// Explanation cost is intentionally unitless; lower is better.
+  final double cost;
 
-  const ChordCandidate({required this.identity, required this.score});
+  const ChordCandidate({required this.identity, required this.cost});
 
   @override
-  String toString() => 'ChordCandidate(score=$score, $identity)';
+  String toString() => 'ChordCandidate(cost=$cost, $identity)';
 }

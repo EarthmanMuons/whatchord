@@ -873,7 +873,7 @@ def build_row(
         "whatchord_symbol": best.get("symbol", ""),
         "whatchord_harte": best.get("harte", ""),
         "whatchord_quality": best.get("quality", ""),
-        "whatchord_score": best.get("score", ""),
+        "whatchord_cost": best.get("cost", ""),
         "whatchord_second": candidates[1].get("symbol", "") if len(candidates) > 1 else "",
         "review_flag": review_flag,
         "matching_oracles": " ".join(matching_oracles),

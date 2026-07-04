@@ -45,7 +45,7 @@ descending weight, so the first label is its preferred reading.
 Chord naming has no single universally authoritative answer. Different tools
 optimize for different use cases:
 
-- score and analysis libraries often prefer theoretically complete names;
+- notation and analysis libraries often prefer theoretically complete names;
 - JavaScript harmony helpers often prefer compact chord-symbol detection;
 - interactive MIDI tools need stable, musician-expected labels for the observed
   voicing.
@@ -107,7 +107,7 @@ text. Each WhatChord row includes:
 - display symbol;
 - Harte-style label;
 - quality token;
-- score;
+- cost;
 - second-ranked candidate;
 - alternative flag for diagnostics.
 
@@ -224,7 +224,7 @@ playing.
 
 ## Recommended Review Workflow
 
-Since the engine moved to explanation-cost scoring, the preferred lever for a
+Since the engine moved to explanation-cost pricing, the preferred lever for a
 naming change is a price, not a rule. Every price in `chord_analyzer.dart` is a
 one-line musical statement (vocabulary rarity, a color tone's tension, a
 structural surcharge, a bass-placement cost), so most conventions can be
@@ -239,14 +239,15 @@ expressed where they generalize instead of as a pairwise exception.
 4. Change the engine only when a reusable musical principle explains the
    preferred answer, and reach for levers in this order: a general price or
    structural surcharge in the cost model first; a tie-breaker (which only acts
-   inside the near-tie window) when the principle is genuinely order-not-score;
-   a hard rule only for a score-independent convention that cannot be priced.
-   Add positive and negative boundary tests; do not encode one exact pitch set.
+   inside the near-tie window) when the principle is genuinely about ordering
+   close readings rather than changing prices; a hard rule only for a
+   cost-independent convention that cannot be priced. Add positive and negative
+   boundary tests; do not encode one exact pitch set.
 5. Measure the blast radius of any price change against the full canonical pool
    before trusting it, using `tool/chord_pool_diff.py` (see below). Zero flips
    on `clearly-correct` reviewed entries is a hard constraint. Agreement changes
    on 3-5 note cases are trusted signal; 6-7 note flips need musical eyeballing
-   rather than score-keeping, because the previous engine's dense-voicing output
+   rather than tally-keeping, because the previous engine's dense-voicing output
    is itself part of what these changes exist to fix. Do not tune to maximize
    agreement with any single oracle, including the engine's own previous
    behavior.

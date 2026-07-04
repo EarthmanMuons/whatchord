@@ -51,7 +51,7 @@ void main() {
               'rootPc': candidates[i].identity.rootPc,
               'bassPc': candidates[i].identity.bassPc,
               'quality': candidates[i].identity.quality.name,
-              'score': candidates[i].score,
+              'cost': candidates[i].cost,
               'presentIntervalsMask':
                   candidates[i].identity.presentIntervalsMask,
               'alternative': i > 0 && i <= alternativeCount,

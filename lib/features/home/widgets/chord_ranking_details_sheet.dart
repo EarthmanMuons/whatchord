@@ -384,10 +384,10 @@ class _CandidateRankCard extends StatefulWidget {
 }
 
 class _CandidateRankCardState extends State<_CandidateRankCard> {
-  bool _showScoring = false;
+  bool _showCosts = false;
 
   void _toggleFace() {
-    setState(() => _showScoring = !_showScoring);
+    setState(() => _showCosts = !_showCosts);
   }
 
   @override
@@ -409,12 +409,12 @@ class _CandidateRankCardState extends State<_CandidateRankCard> {
 
     return Semantics(
       button: true,
-      toggled: _showScoring,
+      toggled: _showCosts,
       label: '${widget.symbol}, rank ${widget.rank}',
-      hint: _showScoring
+      hint: _showCosts
           ? 'Tap to show the plain-language explanation. '
                 'Long press to flip all ranked chords'
-          : 'Tap to show scoring details. Long press to flip all ranked chords',
+          : 'Tap to show cost details. Long press to flip all ranked chords',
       child: Material(
         color: cs.surface,
         shape: RoundedRectangleBorder(
@@ -454,10 +454,10 @@ class _CandidateRankCardState extends State<_CandidateRankCard> {
                 ),
               ),
               child: Padding(
-                key: ValueKey(_showScoring),
+                key: ValueKey(_showCosts),
                 padding: const EdgeInsets.all(12),
-                child: _showScoring
-                    ? _CandidateScoreBack(
+                child: _showCosts
+                    ? _CandidateCostBack(
                         rank: widget.rank,
                         tier: tier,
                         row: widget.row,
@@ -552,8 +552,8 @@ class _CandidateExplanationFront extends StatelessWidget {
   }
 }
 
-class _CandidateScoreBack extends StatelessWidget {
-  const _CandidateScoreBack({
+class _CandidateCostBack extends StatelessWidget {
+  const _CandidateCostBack({
     required this.rank,
     required this.tier,
     required this.row,
@@ -584,7 +584,7 @@ class _CandidateScoreBack extends StatelessWidget {
   }
 
   int _maskFor(String label) {
-    for (final reason in row.scoreReasons) {
+    for (final reason in row.costReasons) {
       if (reason.label == label) return reason.intervals ?? 0;
     }
     return 0;
@@ -642,8 +642,8 @@ class _CandidateScoreBack extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final scoringReasons = row.scoreReasons.where(
-      (reason) => reason.label != 'normalize' && reason.delta != 0,
+    final costContributions = row.costReasons.where(
+      (reason) => reason.cost != 0,
     );
 
     return Column(
@@ -657,7 +657,7 @@ class _CandidateScoreBack extends StatelessWidget {
             Expanded(child: Text(symbol, style: theme.textTheme.titleMedium)),
             const SizedBox(width: 8),
             Text(
-              row.candidate.score.toStringAsFixed(2),
+              row.candidate.cost.toStringAsFixed(2),
               style: theme.textTheme.titleMedium?.copyWith(
                 color: cs.primary,
                 fontWeight: FontWeight.w700,
@@ -672,14 +672,11 @@ class _CandidateScoreBack extends StatelessWidget {
           alsoPlayed: _tonesFor(_alsoPlayedTonesMask),
         ),
         const Divider(height: 16),
-        for (final reason in scoringReasons)
-          _ScoreRow(
-            label: _scoreReasonLabel(reason.label),
-            value: reason.delta,
-          ),
-        _ScoreRow(
-          label: 'Final score',
-          value: row.candidate.score,
+        for (final reason in costContributions)
+          _CostRow(label: _costReasonLabel(reason.label), value: reason.cost),
+        _CostRow(
+          label: 'Explanation cost',
+          value: row.candidate.cost,
           signed: false,
           emphasized: true,
         ),
@@ -858,8 +855,8 @@ class _ToneChip extends StatelessWidget {
   }
 }
 
-class _ScoreRow extends StatelessWidget {
-  const _ScoreRow({
+class _CostRow extends StatelessWidget {
+  const _CostRow({
     required this.label,
     required this.value,
     this.signed = true,
@@ -1129,7 +1126,7 @@ String _roleLabel(ChordToneRole role) {
 }
 
 int? _reasonCount(RankedCandidateDebug row, String label) {
-  for (final reason in row.scoreReasons) {
+  for (final reason in row.costReasons) {
     if (reason.label != label) continue;
     final detail = reason.detail;
     if (detail == null) return null;
@@ -1140,14 +1137,17 @@ int? _reasonCount(RankedCandidateDebug row, String label) {
   return null;
 }
 
-String _scoreReasonLabel(String label) {
+String _costReasonLabel(String label) {
   return switch (label) {
     'required tones' => 'Required notes present',
-    'missing required' => 'Required notes missing',
+    'missing required' => 'Missing essential notes',
     'optional tones' => 'Optional color tones',
     'penalty tones' => 'Conflicting tones',
+    'color tones' => 'Named color tones',
+    'vocabulary rarity' => 'Uncommon chord name',
+    'fifthless sixth' => 'Sixth chord missing fifth',
     'extras' => 'Added complexity',
-    'bass fit' => 'Bass fit',
+    'bass fit' => 'Bass placement',
     'm#5 bass' => 'Sharp-five bass',
     'sus-tone bass' => 'Suspended-tone bass',
     'alterations penalty' => 'Altered spelling',
@@ -1160,7 +1160,7 @@ String _scoreReasonLabel(String label) {
 
 String _plainDecision(String? rule, {ChordCandidate? winner}) {
   final sentence = switch (rule) {
-    'score difference beyond tie-break range' =>
+    'cost difference beyond tie-break range' =>
       'its explanation cost was clearly lower.',
     'prefer root-position 6th over inverted 7th' =>
       'the sixth-chord name is in root position, while the alternate reading puts another chord over a non-root bass.',

@@ -8,7 +8,7 @@ import 'ranking_rules.dart';
 class RankingDecision {
   final int result;
   final String? decidedByRule;
-  final double scoreDelta;
+  final double costDelta;
 
   /// Whether [decidedByRule] was one of the hard rules (a cost-independent
   /// override) rather than a near-tie tie-breaker. Used by [ChordCandidateRanking.rank]
@@ -19,7 +19,7 @@ class RankingDecision {
   const RankingDecision({
     required this.result,
     required this.decidedByRule,
-    required this.scoreDelta,
+    required this.costDelta,
     this.decidedByHardRule = false,
   });
 }
@@ -33,8 +33,9 @@ class RankingDecision {
 /// `candidate_features.dart`; this class is just the comparator and the
 /// linearizer that turns pairwise decisions into a stable ranking.
 ///
-/// NOTE: docs/site/articles/under-the-hood.html documents the ranking rules in
-/// detail. Update the article when rules, their order, or nearTieWindow changes.
+/// NOTE: docs/site/articles/chord-recognition-algorithm.html documents the
+/// ranking rules in detail. Update the article when rules, their order, or
+/// nearTieWindow changes.
 abstract final class ChordCandidateRanking {
   /// Cost difference threshold for engaging tie-breaker rules.
   static const double nearTieWindow = ranking_policy.nearTieWindow;
@@ -72,26 +73,25 @@ abstract final class ChordCandidateRanking {
     );
   }
 
-  /// Whether a candidate costing [candidateScore] is a near-tie with the
-  /// top-ranked candidate costing [bestScore]. Scores are explanation costs,
-  /// so lower is better.
+  /// Whether a candidate at [candidateCost] is a near-tie with the top-ranked
+  /// candidate at [chosenCost]. Lower is better.
   ///
   /// The window is one-sided, anchored to the chosen #1: any candidate at or
-  /// below `bestScore + nearTieWindow` qualifies. Because a hard rule can
+  /// below `chosenCost + nearTieWindow` qualifies. Because a hard rule can
   /// promote a higher-cost reading to #1, a near-tie can legitimately cost
   /// *less* than the chosen chord, so this must not clamp the difference to
   /// its absolute value.
-  static bool isNearTie(double bestScore, double candidateScore) =>
-      candidateScore - bestScore <= nearTieWindow;
+  static bool isNearTie(double chosenCost, double candidateCost) =>
+      candidateCost - chosenCost <= nearTieWindow;
 
   /// Returns the alternatives from a [ranked] candidate list: the non-chosen
-  /// readings close enough in score to surface alongside the top pick.
+  /// readings close enough in cost to surface alongside the top pick.
   ///
-  /// The near-tie score window is anchored to the top pick, but [rank] order is
-  /// not strictly monotonic in score: tie-breakers can place a candidate
+  /// The near-tie cost window is anchored to the top pick, but [rank] order is
+  /// not strictly monotonic in cost: tie-breakers can place a candidate
   /// outside the window above one that is inside it. To keep the surfaced
   /// alternatives coherent, include every ranked candidate through the last
-  /// candidate that qualifies by score.
+  /// candidate that qualifies by cost.
   static List<ChordCandidate> alternatives(List<ChordCandidate> ranked) {
     final count = alternativeCount(ranked);
     if (count == 0) return const <ChordCandidate>[];
@@ -102,10 +102,10 @@ abstract final class ChordCandidateRanking {
   /// group.
   static int alternativeCount(List<ChordCandidate> ranked) {
     if (ranked.length < 2) return 0;
-    final bestScore = ranked.first.score;
+    final chosenCost = ranked.first.cost;
     var lastNearTieIndex = -1;
     for (var i = 1; i < ranked.length; i++) {
-      if (isNearTie(bestScore, ranked[i].score)) lastNearTieIndex = i;
+      if (isNearTie(chosenCost, ranked[i].cost)) lastNearTieIndex = i;
     }
     return lastNearTieIndex < 1 ? 0 : lastNearTieIndex;
   }
@@ -125,7 +125,7 @@ abstract final class ChordCandidateRanking {
   /// resolved by pairwise win count, cost, and finally root pitch class.
   ///
   /// [candidateOf] extracts the [ChordCandidate] from each item so callers can
-  /// rank wrappers (e.g. scored candidates carrying debug data) directly.
+  /// rank wrappers (e.g. candidate/debug pairs) directly.
   static List<T> rank<T>(
     List<T> items,
     ChordCandidate Function(T) candidateOf, {
@@ -147,8 +147,8 @@ abstract final class ChordCandidateRanking {
     // ties between mutually-equal candidates and seeds the cycle tie-break.
     final seeded = List<int>.generate(n, (i) => i)
       ..sort((a, b) {
-        final byScore = cands[a].score.compareTo(cands[b].score);
-        if (byScore != 0) return byScore;
+        final byCost = cands[a].cost.compareTo(cands[b].cost);
+        if (byCost != 0) return byCost;
         return cands[a].identity.rootPc.compareTo(cands[b].identity.rootPc);
       });
 
@@ -183,8 +183,8 @@ abstract final class ChordCandidateRanking {
         // its RankingDecision allocation) for those pairs; this is the bulk of
         // them and is output-identical to what _decide would have returned.
         if (mask == 0 &&
-            (cands[i].score - cands[j].score).abs() > nearTieWindow) {
-          if (cands[i].score < cands[j].score) beats[i][j] = true;
+            (cands[i].cost - cands[j].cost).abs() > nearTieWindow) {
+          if (cands[i].cost < cands[j].cost) beats[i][j] = true;
           continue;
         }
         final d = _decide(
@@ -276,9 +276,9 @@ abstract final class ChordCandidateRanking {
     required Tonality tonality,
     int? hardRuleMask,
   }) {
-    // Cost delta: negative when a is cheaper (better) than b, so the
-    // result mapping below (delta > 0 => a ranks after b) still holds.
-    final delta = a.score - b.score;
+    // Negative when a is cheaper (better) than b, so the result mapping below
+    // (costDelta > 0 => a ranks after b) still holds.
+    final costDelta = a.cost - b.cost;
 
     // [hardRuleMask], when provided, has a bit set only for rules that could
     // fire on this pair (see [rank]); the rest would return null. Iterate just
@@ -292,7 +292,7 @@ abstract final class ChordCandidateRanking {
           return RankingDecision(
             result: r,
             decidedByRule: rule.name,
-            scoreDelta: delta,
+            costDelta: costDelta,
             decidedByHardRule: true,
           );
         }
@@ -307,22 +307,22 @@ abstract final class ChordCandidateRanking {
           return RankingDecision(
             result: r,
             decidedByRule: hardRules[i].name,
-            scoreDelta: delta,
+            costDelta: costDelta,
             decidedByHardRule: true,
           );
         }
       }
     }
 
-    if (delta.abs() > nearTieWindow) {
-      final result = delta > 0 ? 1 : -1;
+    if (costDelta.abs() > nearTieWindow) {
+      final result = costDelta > 0 ? 1 : -1;
       // Named for the pairwise gap to the adjacent candidate, distinct from the
       // one-sided near-tie membership (see isNearTie). The cost difference here
       // exceeds nearTieWindow, so tie-breakers are not engaged.
       return RankingDecision(
         result: result,
-        decidedByRule: 'score difference beyond tie-break range',
-        scoreDelta: delta,
+        decidedByRule: 'cost difference beyond tie-break range',
+        costDelta: costDelta,
       );
     }
 
@@ -332,7 +332,7 @@ abstract final class ChordCandidateRanking {
         return RankingDecision(
           result: r,
           decidedByRule: rule.name,
-          scoreDelta: delta,
+          costDelta: costDelta,
         );
       }
     }
@@ -341,7 +341,7 @@ abstract final class ChordCandidateRanking {
     return RankingDecision(
       result: finalResult,
       decidedByRule: 'deterministic fallback: rootPc',
-      scoreDelta: delta,
+      costDelta: costDelta,
     );
   }
 }
