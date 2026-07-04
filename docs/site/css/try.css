@@ -359,7 +359,7 @@ select.try-select:focus {
   border: 1px solid var(--border-mid);
 }
 
-.try-score {
+.try-cost {
   flex-shrink: 0;
   width: 3.2em;
   font-family: var(--mono);
@@ -510,7 +510,7 @@ select.try-select:focus {
     grid-column: 3;
   }
 
-  .try-score {
+  .try-cost {
     grid-row: 4;
     grid-column: 1 / -1;
     width: auto;
@@ -520,9 +520,9 @@ select.try-select:focus {
     border-top: 1px solid var(--border);
   }
 
-  .try-score::before {
+  .try-cost::before {
     color: var(--text-3);
-    content: "Score ";
+    content: "Cost ";
   }
 
   .try-section .article-cta {
@@ -746,16 +746,16 @@ select.try-select:focus {
     border-radius: 0;
   }
 
-  .try-page .try-score {
+  .try-page .try-cost {
     width: auto;
     font-size: 8pt;
     color: #333;
     text-align: right;
   }
 
-  .try-page .try-score::before {
+  .try-page .try-cost::before {
     color: #555;
-    content: "Score ";
+    content: "Cost ";
   }
 
   .try-page footer {

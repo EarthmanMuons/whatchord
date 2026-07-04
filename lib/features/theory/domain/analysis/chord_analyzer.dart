@@ -17,9 +17,9 @@ import 'chord_templates.dart';
 import 'engine_counters.dart';
 
 @immutable
-class ScoreReason {
+class CostReason {
   final String label;
-  final double delta;
+  final double cost;
   final String? detail;
 
   /// Root-relative interval mask for the notes in this category, when the
@@ -27,13 +27,13 @@ class ScoreReason {
   /// missing). Null for contextual modifiers that have no note set.
   final int? intervals;
 
-  const ScoreReason(this.label, this.delta, {this.detail, this.intervals});
+  const CostReason(this.label, this.cost, {this.detail, this.intervals});
 
   @override
   String toString() {
-    final d = delta >= 0
-        ? '+${delta.toStringAsFixed(2)}'
-        : delta.toStringAsFixed(2);
+    final d = cost >= 0
+        ? '+${cost.toStringAsFixed(2)}'
+        : cost.toStringAsFixed(2);
     return detail == null ? '$label $d' : '$label $d ($detail)';
   }
 }
@@ -42,8 +42,8 @@ class ScoreReason {
 class RankedCandidateDebug {
   final ChordCandidate candidate;
 
-  /// High-signal scoring deltas; intended for CLI explanation.
-  final List<ScoreReason> scoreReasons;
+  /// High-signal cost deltas; intended for CLI explanation.
+  final List<CostReason> costReasons;
 
   /// Why this candidate is ordered where it is relative to the previous one.
   /// (Null for the first result.)
@@ -54,7 +54,7 @@ class RankedCandidateDebug {
 
   const RankedCandidateDebug({
     required this.candidate,
-    required this.scoreReasons,
+    required this.costReasons,
     required this.vsPrevious,
     required this.template,
   });
@@ -64,17 +64,18 @@ class RankedCandidateDebug {
 ///
 /// Core pipeline:
 /// 1. Generate candidates from all possible roots present in the voicing
-/// 2. Score each candidate against chord templates using fit metrics
-/// 3. Rank candidates using score + tie-breaking heuristics
+/// 2. Price each candidate against chord templates using fit metrics
+/// 3. Rank candidates using cost + tie-breaking heuristics
 /// 4. Cache results keyed by input + context
 ///
-/// Scoring philosophy: a candidate's score is the positive cost of explaining
-/// the input under that name; lower is better. Core chord tones are free, and
-/// the name pays for its rarity, appended colors, missing essentials,
-/// unexplained tones, and awkward bass placement.
+/// Pricing philosophy: a candidate's cost is the price of explaining the input
+/// under that name; lower is better. Core chord tones are free, and the name
+/// pays for its rarity, appended colors, missing essentials, unexplained tones,
+/// and awkward bass placement.
 ///
-/// NOTE: docs/site/articles/under-the-hood.html documents this pipeline in
-/// detail. Update the article when prices or algorithm structure change.
+/// NOTE: docs/site/articles/chord-recognition-algorithm.html documents this
+/// pipeline in detail. Update the article when prices or algorithm structure
+/// change.
 abstract final class ChordAnalyzer {
   @visibleForTesting
   static const int cacheCapacity = 512;
@@ -83,8 +84,8 @@ abstract final class ChordAnalyzer {
       LinkedHashMap<int, List<ChordCandidate>>();
 
   // ---- Explanation-cost prices -----------------------------------------
-  // A candidate's score is the positive cost of explaining every sounding pitch
-  // under that name: core chord tones are free, and the name pays for its own
+  // A candidate's cost is the price of explaining every sounding pitch under
+  // that name: core chord tones are free, and the name pays for its own
   // rarity, each color tone it appends, essential tones it lacks, tones it
   // cannot account for, and awkward bass placement. Lower is better. Prices are
   // musician-judged priors calibrated against the reviewed oracle pool.
@@ -153,7 +154,7 @@ abstract final class ChordAnalyzer {
   static const _bassAlteredColorCost = 0.5;
   static const _bassUnexplainedCost = 1.0;
 
-  // Candidates costing more than this above the cheapest reading are dropped
+  // Candidates priced more than this above the cheapest reading are dropped
   // before the O(n^2) ranking. A reading this far down can never surface as
   // the #1 pick or an alternative; chord_ranking_prune_guard_test measures
   // the widest surfaced gap and asserts it stays under this margin.
@@ -217,7 +218,7 @@ abstract final class ChordAnalyzer {
   /// Debug entrypoint for CLI tooling.
   ///
   /// Uses the exact same evaluation + ranking logic as [analyze], but also
-  /// returns human-readable score reasons and tie-break explanations.
+  /// returns human-readable cost reasons and tie-break explanations.
   static List<RankedCandidateDebug> analyzeDebug(
     ChordInput input, {
     required AnalysisContext context,
@@ -241,7 +242,7 @@ abstract final class ChordAnalyzer {
         RankedCandidateDebug(
           candidate: current.candidate,
           template: current.template,
-          scoreReasons: current.reasons ?? const <ScoreReason>[],
+          costReasons: current.reasons ?? const <CostReason>[],
           vsPrevious: prev == null
               ? null
               : ChordCandidateRanking.explain(
@@ -279,9 +280,9 @@ abstract final class ChordAnalyzer {
 
       for (final tmpl in chordTemplates) {
         if (kEngineCountersEnabled) EngineCounters.templatesEvaluated++;
-        final reasons = debug ? <ScoreReason>[] : null;
+        final reasons = debug ? <CostReason>[] : null;
 
-        final scored = _scoreTemplate(
+        final priced = _priceTemplate(
           relMask: relMask,
           bassInterval: bassInterval,
           template: tmpl,
@@ -289,18 +290,18 @@ abstract final class ChordAnalyzer {
           context: context,
           reasons: reasons,
         );
-        if (scored == null) continue;
+        if (priced == null) continue;
 
         final candidate = ChordCandidate(
           identity: ChordIdentity(
             rootPc: rootPc,
             bassPc: input.bassPc,
             quality: tmpl.quality,
-            extensions: scored.extensions,
-            toneRolesByInterval: scored.roles,
+            extensions: priced.extensions,
+            toneRolesByInterval: priced.roles,
             presentIntervalsMask: relMask,
           ),
-          score: scored.score,
+          cost: priced.cost,
         );
 
         if (kEngineCountersEnabled) EngineCounters.candidatesProduced++;
@@ -344,14 +345,14 @@ abstract final class ChordAnalyzer {
   /// dense voicings keep the (larger) margin set, so the prune's win is intact.
   static List<_Evaluated> _pruneForRanking(List<_Evaluated> out, int take) {
     if (out.length <= take) return out;
-    var minScore = double.infinity;
+    var minCost = double.infinity;
     for (final e in out) {
-      if (e.candidate.score < minScore) minScore = e.candidate.score;
+      if (e.candidate.cost < minCost) minCost = e.candidate.cost;
     }
-    final threshold = minScore + rankingPruneMargin;
+    final threshold = minCost + rankingPruneMargin;
     final within = [
       for (final e in out)
-        if (e.candidate.score <= threshold) e,
+        if (e.candidate.cost <= threshold) e,
     ];
     if (within.length >= take) return within;
     // Margin set is smaller than the requested count. Keep the cheapest [take]
@@ -359,28 +360,38 @@ abstract final class ChordAnalyzer {
     // these fill the lower positions. The margin set is a subset (the cheapest
     // readings), so the #1 pick and surfaced alternatives are still preserved.
     final sorted = [...out]
-      ..sort((a, b) => a.candidate.score.compareTo(b.candidate.score));
+      ..sort((a, b) => a.candidate.cost.compareTo(b.candidate.cost));
     return sorted.sublist(0, take);
   }
 
-  // ---- Template scoring: fit voicing to chord structure -----------------
+  // ---- Template pricing: fit voicing to chord structure -----------------
   //
   // Weights are tuned empirically to balance:
   // - Structural integrity (required > optional)
   // - Penalty for ambiguity and complexity (missing tones, extras)
   // - Bass role appropriateness
 
-  static _ScoredTemplate? _scoreTemplate({
+  static _PricedTemplate? _priceTemplate({
     required int relMask,
     required int bassInterval,
     required ChordTemplate template,
     required int rootPc,
     required AnalysisContext context,
-    List<ScoreReason>? reasons,
+    List<CostReason>? reasons,
   }) {
-    void add(String label, double delta, {String? detail, int? intervals}) {
+    void add(
+      String label,
+      double costContribution, {
+      String? detail,
+      int? intervals,
+    }) {
       reasons?.add(
-        ScoreReason(label, delta, detail: detail, intervals: intervals),
+        CostReason(
+          label,
+          costContribution,
+          detail: detail,
+          intervals: intervals,
+        ),
       );
     }
 
@@ -576,7 +587,7 @@ abstract final class ChordAnalyzer {
       add('bass fit', bassCost, detail: 'interval=$bassInterval');
     }
 
-    return _ScoredTemplate(score: cost, extensions: extensions, roles: roles);
+    return _PricedTemplate(cost: cost, extensions: extensions, roles: roles);
   }
 
   /// How readily a musician reaches for this quality name. Everyday names
@@ -1046,7 +1057,7 @@ abstract final class ChordAnalyzer {
 class _Evaluated {
   final ChordCandidate candidate;
   final ChordTemplate template;
-  final List<ScoreReason>? reasons;
+  final List<CostReason>? reasons;
 
   const _Evaluated({
     required this.candidate,
@@ -1055,13 +1066,13 @@ class _Evaluated {
   });
 }
 
-class _ScoredTemplate {
-  final double score;
+class _PricedTemplate {
+  final double cost;
   final Set<ChordExtension> extensions;
   final Map<int, ChordToneRole> roles;
 
-  const _ScoredTemplate({
-    required this.score,
+  const _PricedTemplate({
+    required this.cost,
     required this.extensions,
     required this.roles,
   });

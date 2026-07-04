@@ -9,7 +9,7 @@ import '../services/pitch_class.dart';
 /// ergonomics, omit roots, and double for texture. So this only contributes a
 /// narrow, high-confidence signal, and only within the ranking near-tie window,
 /// where it prefers a reading the register clearly supports over one it does
-/// not. It never moves scores and never overrides a clear cost gap.
+/// not. It never changes costs and never overrides a clear cost gap.
 abstract final class VoicingEvidence {
   /// Minimum bass-to-next-note gap (semitones) that counts as an isolated bass.
   static const int _isolationGap = 3;

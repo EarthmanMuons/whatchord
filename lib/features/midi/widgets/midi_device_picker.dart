@@ -136,18 +136,18 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
         continue;
       }
 
-      final existingScore = _devicePriority(
+      final existingPriority = _devicePriority(
         existing,
         connectedDeviceId: connectedDeviceId,
         connectingDeviceId: connectingDeviceId,
       );
-      final candidateScore = _devicePriority(
+      final candidatePriority = _devicePriority(
         device,
         connectedDeviceId: connectedDeviceId,
         connectingDeviceId: connectingDeviceId,
       );
 
-      if (candidateScore > existingScore) {
+      if (candidatePriority > existingPriority) {
         byKey[key] = device;
       }
     }
@@ -175,13 +175,13 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
     required String? connectedDeviceId,
     required String? connectingDeviceId,
   }) {
-    var score = 0;
-    if (device.id == connectedDeviceId) score += 100;
-    if (device.isConnected) score += 50;
-    if (device.id == connectingDeviceId) score += 25;
-    if (device.transport == MidiTransportType.ble) score += 10;
-    if (_hasBluetoothSuffix(device.name)) score -= 5;
-    return score;
+    var priority = 0;
+    if (device.id == connectedDeviceId) priority += 100;
+    if (device.isConnected) priority += 50;
+    if (device.id == connectingDeviceId) priority += 25;
+    if (device.transport == MidiTransportType.ble) priority += 10;
+    if (_hasBluetoothSuffix(device.name)) priority -= 5;
+    return priority;
   }
 
   bool _isBluetoothLikeDevice(MidiDevice device) {

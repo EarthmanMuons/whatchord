@@ -15,7 +15,7 @@ import '../services/chord_quality_intervals.dart';
 ///
 /// Design philosophy:
 /// - Fifths are usually optional (shell voicing support)
-/// - Penalties are soft (scoring penalty, not hard rejection)
+/// - Penalties are soft (cost penalty, not hard rejection)
 /// - Third quality defines major/minor family membership
 /// - Seventh presence/type defines extended chord categories
 @immutable
@@ -73,7 +73,7 @@ class ChordTemplate {
 // Note: P1 is always enforced by the analyzer, not templates.
 // Note: m2 is handled as an extension, not in base templates.
 
-/// Template list (ordered for clarity, not scoring priority).
+/// Template list (ordered for clarity, not cost priority).
 ///
 /// The analyzer tests all templates; order doesn't affect results.
 /// Organized by complexity: triads -> 6ths -> 7ths

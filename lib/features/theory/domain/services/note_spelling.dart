@@ -57,16 +57,16 @@ String spellChordRoot(ChordIdentity identity, {required Tonality tonality}) {
 
   _RootSpellingCandidate? best;
   for (final name in candidates) {
-    final score = _scoreChordRootName(
+    final cost = _costChordRootName(
       identity,
       rootName: name,
       tonality: tonality,
       tonalName: tonalName,
     );
-    final candidate = _RootSpellingCandidate(name: name, score: score);
+    final candidate = _RootSpellingCandidate(name: name, cost: cost);
     if (best == null ||
-        candidate.score < best.score ||
-        (candidate.score == best.score && candidate.name == tonalName)) {
+        candidate.cost < best.cost ||
+        (candidate.cost == best.cost && candidate.name == tonalName)) {
       best = candidate;
     }
   }
@@ -248,15 +248,15 @@ String _spellChromaticPc(
     final isWrap = name == 'B#' || name == 'Cb' || name == 'E#' || name == 'Fb';
     if (isWrap && !allowWrap(name)) continue;
 
-    // Scoring: keep it stable and musically sane.
-    var score = 0;
-    score += delta.abs() * 10; // prefer smallest chromatic deviation
-    if (finalAcc.abs() == 2) score += 60; // heavily penalize double accidentals
-    if (fifths > 0 && finalAcc > 0) score -= 1; // slight key-direction bias
-    if (fifths < 0 && finalAcc < 0) score -= 1;
+    // Pricing: keep it stable and musically sane.
+    var cost = 0;
+    cost += delta.abs() * 10; // prefer smallest chromatic deviation
+    if (finalAcc.abs() == 2) cost += 60; // heavily penalize double accidentals
+    if (fifths > 0 && finalAcc > 0) cost -= 1; // slight key-direction bias
+    if (fifths < 0 && finalAcc < 0) cost -= 1;
 
-    final cand = _Candidate(name: name, score: score);
-    if (best == null || cand.score < best.score) best = cand;
+    final cand = _Candidate(name: name, cost: cost);
+    if (best == null || cand.cost < best.cost) best = cand;
   }
 
   return best?.name ?? _fallbackSharpName(pc);
@@ -290,16 +290,16 @@ List<String> _candidateNamesForPc(int pc) {
   return out;
 }
 
-int _scoreChordRootName(
+int _costChordRootName(
   ChordIdentity identity, {
   required String rootName,
   required Tonality tonality,
   required String tonalName,
 }) {
-  var score = 0;
+  var cost = 0;
 
-  if (rootName != tonalName) score += 3;
-  score += _noteNamePenalty(rootName);
+  if (rootName != tonalName) cost += 3;
+  cost += _noteNamePenalty(rootName);
 
   for (final entry in identity.toneRolesByInterval.entries) {
     final pc = (identity.rootPc + entry.key) % 12;
@@ -309,10 +309,10 @@ int _scoreChordRootName(
       chordRootName: rootName,
       role: entry.value,
     );
-    score += _noteNamePenalty(member);
+    cost += _noteNamePenalty(member);
   }
 
-  return score;
+  return cost;
 }
 
 int _noteNamePenalty(String name) {
@@ -320,16 +320,16 @@ int _noteNamePenalty(String name) {
   if (ascii.isEmpty) return 1000;
 
   final accidental = ascii.substring(1);
-  var score = 0;
+  var cost = 0;
   for (final c in accidental.split('')) {
-    if (c == '#' || c == 'b') score += 10;
-    if (c == 'x') score += 20;
+    if (c == '#' || c == 'b') cost += 10;
+    if (c == 'x') cost += 20;
   }
-  if (accidental.length == 2) score += 30;
+  if (accidental.length == 2) cost += 30;
   if (ascii == 'B#' || ascii == 'Cb' || ascii == 'E#' || ascii == 'Fb') {
-    score += 16;
+    cost += 16;
   }
-  return score;
+  return cost;
 }
 
 String _fallbackSharpName(int pc) {
@@ -351,13 +351,13 @@ String _fallbackSharpName(int pc) {
 }
 
 class _Candidate {
-  _Candidate({required this.name, required this.score});
+  _Candidate({required this.name, required this.cost});
   final String name;
-  final int score;
+  final int cost;
 }
 
 class _RootSpellingCandidate {
-  _RootSpellingCandidate({required this.name, required this.score});
+  _RootSpellingCandidate({required this.name, required this.cost});
   final String name;
-  final int score;
+  final int cost;
 }

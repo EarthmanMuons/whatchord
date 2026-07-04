@@ -9,12 +9,12 @@
     <title>Building a Real-Time Chord Recognizer | WhatChord</title>
     <meta
       name="description"
-      content="A technical deep-dive into the pitch-class bitmasks, chord-quality templates, scoring and ranking heuristics, and LRU cache behind real-time chord identification."
+      content="A technical deep-dive into the pitch-class bitmasks, chord-quality templates, explanation costs and ranking heuristics, and LRU cache behind real-time chord identification."
     />
     <meta property="og:title" content="Building a Real-Time Chord Recognizer" />
     <meta
       property="og:description"
-      content="A detailed look at the bitmasks, templates, scoring and ranking heuristics, and LRU cache that power real-time chord identification in a Flutter app."
+      content="A detailed look at the bitmasks, templates, explanation costs and ranking heuristics, and LRU cache that power real-time chord identification in a Flutter app."
     />
     <meta
       property="og:image"
@@ -93,9 +93,9 @@
           <h1>Building a Real-Time Chord Recognizer</h1>
           <p class="article-deck">
             A technical look at the analysis engine behind WhatChord:
-            pitch-class bitmasks, chord-quality templates, scoring and ranking
-            heuristics, and the small LRU cache that keeps real-time chord
-            identification fast in a Flutter app.
+            pitch-class bitmasks, chord-quality templates, explanation costs and
+            ranking heuristics, and the small LRU cache that keeps real-time
+            chord identification fast in a Flutter app.
           </p>
         </header>
 
@@ -126,9 +126,9 @@
           </p>
 
           <p>
-            What you actually need is a scoring model. It has to evaluate how
-            well any given set of notes fits each chord type, rank all plausible
-            interpretations, and apply musical judgment when scores are close.
+            What you actually need is a cost model. It has to evaluate how well
+            any given set of notes fits each chord type, rank all plausible
+            interpretations, and apply musical judgment when costs are close.
           </p>
 
           <h2>Overview: a four-stage pipeline</h2>
@@ -154,7 +154,7 @@
             <div class="pf-box">
               <div class="pf-name">Candidate generation</div>
               <div class="pf-sub">
-                Each sounding note becomes a candidate root, scored against
+                Each sounding note becomes a candidate root, evaluated against
                 every chord template, extensions extracted
               </div>
             </div>
@@ -170,8 +170,8 @@
             <div class="pf-box">
               <div class="pf-name">Ranking</div>
               <div class="pf-sub">
-                Musical heuristics resolve ambiguous scores; hard structural
-                rules override when the score alone would pick the wrong answer
+                Musical heuristics resolve ambiguous costs; hard structural
+                rules override when cost alone would pick the wrong answer
               </div>
             </div>
             <div class="pf-arrow">↓</div>
@@ -312,13 +312,13 @@
             <li>
               <strong>Penalty:</strong> tones that actively contradict this
               quality. Having a major 3rd present when you are trying to
-              identify a minor chord hurts the score.
+              identify a minor chord raises the cost.
             </li>
           </ul>
 
           <p>The 27 templates, organized by complexity:</p>
 
-          <table class="score-table">
+          <table class="article-table">
             <thead>
               <tr>
                 <th>Quality</th>
@@ -503,20 +503,20 @@
           </p>
 
           <p>
-            Penalty tones are not hard rejections. The template is still scored,
-            it just loses points. This handles cases where a note might
-            simultaneously belong to one chord and partially fit another, and
-            lets the score reflect the degree of fit rather than producing a
-            binary yes/no.
+            Penalty tones are not hard rejections. The template is still
+            evaluated; it just pays an added price. This handles cases where a
+            note might simultaneously belong to one chord and partially fit
+            another, and lets the cost reflect the degree of fit rather than
+            producing a binary yes/no.
           </p>
 
-          <h2>Template scoring</h2>
+          <h2>Template pricing</h2>
 
           <p>
             For each candidate root (each pitch class present in the voicing),
             the analyzer rotates the pitch class mask relative to that root to
-            get an interval mask. Then it scores that interval mask against all
-            27 templates.
+            get an interval mask. Then it assigns an explanation cost for that
+            interval mask against all 27 templates.
           </p>
 
           <pre><code><span class="cm">// Rotate: compute intervals above rootPc for each sounding note</span>
@@ -532,12 +532,12 @@
 
           <p>
             Each surviving reading is then priced by how well it explains the
-            input. The score is its <em>explanation cost</em>: core chord tones
+            input. That price is its <em>explanation cost</em>: core chord tones
             are free, and the name pays for everything else it asks a reader to
-            accept. The number is a price, so the lowest score is the best fit.
+            accept. The lowest cost is the best fit.
           </p>
 
-          <table class="score-table">
+          <table class="article-table">
             <thead>
               <tr>
                 <th>Cost component</th>
@@ -665,8 +665,8 @@
 
           <p>
             This input-centric accounting replaced an earlier template-centric
-            score that rewarded each matched template slot and normalized by
-            template size. That formulation systematically favored rare
+            cost model that rewarded each matched template slot and normalized
+            by template size. That formulation systematically favored rare
             four-tone templates that booked every sounding note as a required
             tone over more common readings that treat one note as color, and it
             took a dozen hand-tuned counterweight bonuses to fight the bias.
@@ -678,7 +678,7 @@
           <h2>Extension extraction</h2>
 
           <p>
-            During template scoring, any tone not accounted for by the base
+            During template pricing, any tone not accounted for by the base
             template (required + optional + penalty) lands in the “extras” mask.
             A few context-specific penalty tones can be moved into that extras
             mask first when they function as chord color instead of true
@@ -731,7 +731,7 @@
             against a set of golden test cases: specific voicings where the
             expected output was chosen in advance. Most golden cases capture
             chords a musician would name unambiguously; ambiguous cases pin the
-            intended primary reading for the current scoring and ranking model.
+            intended primary reading for the current cost and ranking model.
           </p>
 
           <p>
@@ -744,7 +744,7 @@
             <li>Run the golden test suite.</li>
             <li>
               For any case that failed, use the <code>chord-debug</code> CLI
-              tool to inspect the full ranked candidate list with score
+              tool to inspect the full ranked candidate list with cost
               breakdowns.
             </li>
             <li>Adjust prices or rules until the failing case passed.</li>
@@ -753,9 +753,9 @@
 
           <p>
             The <code>chord-debug</code> tool runs the full analysis pipeline on
-            any set of notes and prints each candidate with its score,
-            individual cost contributions, and the ranking rule that decided its
-            position relative to the previous candidate:
+            any set of notes and prints each candidate with its cost, individual
+            cost contributions, and the ranking rule that decided its position
+            relative to the previous candidate:
           </p>
 
           <pre><code>$ dart run tool/chord_debug.dart F# Bb C E
@@ -764,15 +764,15 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
 
  1) F♯7♭5          0.40
      members: root=F♯  major3=A♯  flat5=C  flat7=E
-     scoring: vocabularyrarity+0.40
+     cost: vocabularyrarity+0.40
 
  2) C7♭5/G♭        0.70  Δ +0.30
-     (vs prev: score difference beyond tie-break range)
+     (vs prev: cost difference beyond tie-break range)
      members: root=C  major3=E  flat5=G♭  flat7=B♭
-     scoring: vocabularyrarity+0.40  bass+0.30
+     cost: vocabularyrarity+0.40  bass+0.30
 
  3) F♯7♯11         1.30  Δ +0.90
-     (vs prev: score difference beyond tie-break range)</code></pre>
+     (vs prev: cost difference beyond tie-break range)</code></pre>
 
           <p>
             The same diagnostic output also exposes enharmonic spelling
@@ -791,10 +791,10 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
           <h2>The ranking problem</h2>
 
           <p>
-            The debug output above shows why scoring is only the first half of
+            The debug output above shows why raw cost is only the first half of
             the problem. Once multiple readings are plausible, the analysis
             engine needs a separate ranking layer that encodes musical
-            priorities more directly than a single numeric score can.
+            priorities more directly than a single numeric cost can.
           </p>
 
           <p>
@@ -806,7 +806,7 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
           <ul>
             <li>
               C-E-G-A: <span class="chord">C6</span> vs.
-              <span class="chord">Am7/C</span> (identical scores; the 6th chord
+              <span class="chord">Am7/C</span> (identical costs; the 6th chord
               in root position should win)
             </li>
             <li>
@@ -819,7 +819,7 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
               <span class="chord">G♯dim7/B</span> vs.
               <span class="chord">Ddim7/C♭</span> vs.
               <span class="chord">Fdim7/C♭</span>
-              (C♭ = B enharmonically; all four readings score identically due to
+              (C♭ = B enharmonically; all four readings cost identically due to
               dim7 symmetry)
             </li>
           </ul>
@@ -827,41 +827,41 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
           <p>
             The analyzer handles these ambiguities with two ranking paths:
             narrow structural overrides for cases where the conventional name
-            should win despite score, and ordered tie-breakers for candidates
-            whose scores are already close.
+            should win despite cost, and ordered tie-breakers for candidates
+            whose costs are already close.
           </p>
 
           <h3>Hard rules</h3>
 
           <p>
             Hard rules are intentionally narrow guardrails for known failure
-            modes in the scoring model. They only fire when a pitch-class-valid
-            but misleading interpretation scores above the name musicians would
-            normally expect. Each rule is documented in code with the concrete
-            voicing that motivated it, and covered by focused ranking tests so
-            the exception stays bounded.
+            modes in the cost model. They only fire when a pitch-class-valid but
+            misleading interpretation looks cheaper than the name musicians
+            would normally expect. Each rule is documented in code with the
+            concrete voicing that motivated it, and covered by focused ranking
+            tests so the exception stays bounded.
           </p>
 
           <h3>The near-tie window</h3>
 
           <p>
             The ordered list below applies only after those hard rules have had
-            a chance to run. If none of them fire and the score difference is
+            a chance to run. If none of them fire and the cost difference is
             greater than <code>0.25</code> (the
             <code>nearTieWindow</code> constant), the lower-cost candidate wins
-            on score alone.
+            on cost alone.
           </p>
 
           <p>
-            When scores are within the near-tie window, tie-breaker rules are
+            When costs are within the near-tie window, tie-breaker rules are
             applied sequentially. The first rule that produces a non-tie result
             decides the ordering:
           </p>
 
           <p>
-            The displayed alternatives use the same score window as a lower
+            The displayed alternatives use the same cost window as a lower
             bound, then include every ranked candidate through the last
-            score-window match. This keeps hard-rule ordering coherent when a
+            cost-window match. This keeps hard-rule ordering coherent when a
             higher-ranked candidate sits just outside the raw numeric window.
           </p>
 
@@ -984,8 +984,8 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
 
           <p>
             Because hard rules and the near-tie window deliberately override raw
-            score, the candidate comparison is not guaranteed to be transitive:
-            A can beat B, B can beat C, and yet C can beat A. A generic sort is
+            cost, the candidate comparison is not guaranteed to be transitive: A
+            can beat B, B can beat C, and yet C can beat A. A generic sort is
             undefined on a comparison like that and can bury a strong reading
             below a weaker one.
           </p>
@@ -1095,7 +1095,7 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
           </ul>
 
           <p>
-            The scoring heuristics are tuned from experience. They encode
+            The cost heuristics are tuned from experience. They encode
             accumulated musical convention, but they are adjustable constants,
             not proven axioms. Edge cases and counterexamples help improve them.
           </p>

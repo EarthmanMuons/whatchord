@@ -22,12 +22,14 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
-- Rebuilt chord scoring around explanation cost: a reading now pays for its
+- Rebuilt chord pricing around explanation cost: a reading now pays for its
   vocabulary rarity, each color tone, missing essential tones, and awkward bass
   placement, instead of earning points per matched template slot. Common names
   win unless a rarer name explains the voicing decisively better, dense voicings
   no longer favor exotic altered-fifth or minor-major readings, and exact-tie
   shuffles between readings such as C6/9 and Am11/C are gone.
+- Renamed chord explanation values to costs across the app, tools, and current
+  algorithm docs, so the visible number reads as a lower-is-better price.
 - Chord identification is now up to about 90% faster, for everyday chords as
   well as dense or ambiguous voicings with many possible readings. The chord
   shown and the alternatives offered are unchanged.
@@ -74,7 +76,7 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved dominant-flat-nine shell ranking, so stable inversions such as C7♭9/E
   are less likely to be displaced by diminished add-tone or remote minor-major
   slash reinterpretations.
-- Improved sparse add-color triad scoring, so complete bass-rooted triads with
+- Improved sparse add-color triad pricing, so complete bass-rooted triads with
   modest color tones can stay visible against suspended or seventh-family
   reinterpretations.
 
