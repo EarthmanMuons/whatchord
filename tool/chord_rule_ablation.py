@@ -39,6 +39,19 @@ TIE_DECL = "final List<NamedRule> tieBreakerRules = <NamedRule>["
 VOICING_ONLY_RULES = {"prefer voicing-supported upper-structure slash"}
 
 
+def surfaced_symbols(candidates: list[dict]) -> list[str | None]:
+    if not candidates:
+        return []
+    return [
+        candidates[0].get("symbol"),
+        *[
+            c.get("symbol")
+            for c in candidates[1:]
+            if c.get("alternative") is True
+        ],
+    ]
+
+
 def split_list_elements(src: str, list_decl: str) -> tuple[int, int, list[str]]:
     """Return (open_bracket, close_bracket, elements) for a Dart list literal."""
     start = src.index(list_decl)
@@ -88,7 +101,7 @@ def remove_rules(src: str, names: list[str], decl_by_name: dict[str, str]) -> st
     return src
 
 
-def run_pool(*, all_transpositions: bool, top: int, key: str) -> dict[str, list]:
+def run_pool(*, all_transpositions: bool, top: int, key: str) -> dict[str, dict]:
     cases = list(
         generate_cases(
             min_notes=3,
@@ -100,26 +113,35 @@ def run_pool(*, all_transpositions: bool, top: int, key: str) -> dict[str, list]
     payloads = run_whatchord_batch(
         CHORD_BATCH, cases, top=top, repo_root=REPO_ROOT, key=key
     )
-    return {
-        case.case_id: [c.get("symbol") for c in (payload.get("candidates") or [])]
-        for case, payload in zip(cases, payloads)
-    }
+    out = {}
+    for case, payload in zip(cases, payloads):
+        candidates = payload.get("candidates") or []
+        out[case.case_id] = {
+            "symbols": [c.get("symbol") for c in candidates],
+            "surfacedSymbols": surfaced_symbols(candidates),
+        }
+    return out
 
 
 def diff_counts(
-    ref: dict[str, list], snap: dict[str, list]
+    ref: dict[str, dict], snap: dict[str, dict]
 ) -> tuple[int, int, int, list]:
     top1 = surfaced = order = 0
     examples = []
-    for case_id, ref_symbols in ref.items():
-        snap_symbols = snap.get(case_id, [])
-        if ref_symbols == snap_symbols:
+    for case_id, ref_case in ref.items():
+        snap_case = snap.get(case_id, {})
+        ref_symbols = ref_case.get("symbols") or []
+        snap_symbols = snap_case.get("symbols") or []
+        ref_surfaced = ref_case.get("surfacedSymbols") or ref_symbols
+        snap_surfaced = snap_case.get("surfacedSymbols") or snap_symbols
+        if ref_symbols == snap_symbols and ref_surfaced == snap_surfaced:
             continue
         if ref_symbols[:1] != snap_symbols[:1]:
             top1 += 1
-            examples.append((case_id, ref_symbols[:1], snap_symbols[:1]))
-        elif set(ref_symbols) != set(snap_symbols):
+            examples.append((case_id, ref_surfaced, snap_surfaced))
+        elif set(ref_surfaced) != set(snap_surfaced):
             surfaced += 1
+            examples.append((case_id, ref_surfaced, snap_surfaced))
         else:
             order += 1
     return top1, surfaced, order, examples[:5]
