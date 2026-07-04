@@ -990,31 +990,66 @@ void main() {
     );
   });
 
-  test('common naming prior can resolve modest cost gap before inversion', () {
-    final conventionalAlteredDominant = _candidate(
-      quality: ChordQualityToken.dominant7Sharp5,
-      root: 'G',
-      bass: 'A',
-      presentIntervals: const {0, 2, 4, 8, 10},
+  test('common naming prior can resolve full near-tie cost gap', () {
+    final commonMinorNinth = _candidate(
+      quality: ChordQualityToken.minor7,
+      root: 'Bb',
+      bass: 'F',
+      presentIntervals: const {0, 2, 3, 7, 10},
       extensions: const {ChordExtension.nine},
-      cost: 2.875,
+      cost: 0.5,
     );
 
-    final rarerInversion = _candidate(
-      quality: ChordQualityToken.dominant7Flat5,
-      root: 'F',
-      bass: 'A',
-      presentIntervals: const {0, 2, 4, 6, 10},
-      extensions: const {ChordExtension.nine},
-      cost: 2.75,
+    final rarerMajorThirteenth = _candidate(
+      quality: ChordQualityToken.major7,
+      root: 'Db',
+      bass: 'F',
+      presentIntervals: const {0, 4, 7, 9, 11},
+      extensions: const {ChordExtension.thirteen},
+      cost: 0.7,
     );
 
     _expectTieRule(
-      conventionalAlteredDominant,
-      rarerInversion,
+      commonMinorNinth,
+      rarerMajorThirteenth,
       'prefer common naming preference',
     );
   });
+
+  test(
+    'common naming prior does not promote sharp-five dominant over flat-five',
+    () {
+      final alteredFifthDominant = _candidate(
+        quality: ChordQualityToken.dominant7Sharp5,
+        root: 'G',
+        bass: 'A',
+        presentIntervals: const {0, 2, 4, 8, 10},
+        extensions: const {ChordExtension.nine},
+        cost: 1.05,
+      );
+
+      final flatFiveDominant = _candidate(
+        quality: ChordQualityToken.dominant7Flat5,
+        root: 'F',
+        bass: 'A',
+        presentIntervals: const {0, 2, 4, 6, 10},
+        extensions: const {ChordExtension.nine},
+        cost: 0.9,
+      );
+
+      final explanation = ChordCandidateRanking.explain(
+        flatFiveDominant,
+        alteredFifthDominant,
+        tonality: defaultTestTonality,
+      );
+
+      expect(explanation.result, -1);
+      expect(
+        explanation.decidedByRule,
+        isNot('prefer common naming preference'),
+      );
+    },
+  );
 
   test('clean spelling beats awkward tritone flat-five dominant inversion', () {
     final cleanSeventhBass = _candidate(
