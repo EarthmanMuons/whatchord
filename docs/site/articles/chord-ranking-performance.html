@@ -133,14 +133,14 @@
 
           <p>
             WhatChord is an app that watches the notes you play on a MIDI
-            keyboard and names the chord as you play it. Press C, E, and G
-            together and it shows <span class="chord">C major</span>. That
-            sounds like a dictionary lookup, and for that example it nearly is.
-            The trouble is that real playing is rarely so tidy: the same notes
-            can carry several legitimate names depending on the surrounding
-            music, players leave notes out and add color tones, and a chord can
-            get spread across both hands. So the engine does not look chords up.
-            It treats naming as a <em>ranking</em> problem: list every plausible
+            keyboard and names the chord as you play it. Press C-E-G together
+            and it shows <span class="chord">C major</span>. That sounds like a
+            dictionary lookup, and for that example it nearly is. The trouble is
+            that real playing is rarely so tidy: the same notes can carry
+            several legitimate names depending on the surrounding music, players
+            leave notes out and add color tones, and a chord can get spread
+            across both hands. So the engine does not look chords up. It treats
+            naming as a <em>ranking</em> problem: list every plausible
             interpretation, score how well each one fits, then put them in the
             order a musician would expect to read.
           </p>
@@ -150,12 +150,12 @@
           <ul>
             <li>
               A <strong>voicing</strong> is the specific set of notes being
-              played, including which one is lowest (the bass). “C, E, G” and
-              “E, G, then C an octave up” are two voicings of the same chord.
+              played, including which one is lowest (the bass). “C-E-G” and
+              “E-G, then C an octave up” are two voicings of the same chord.
             </li>
             <li>
               A <strong>candidate</strong> is one possible name for a voicing.
-              The four notes C, E, G, A can be read as
+              The four notes C-E-G-A can be read as
               <span class="chord">C6</span> or <span class="chord">Am7</span>,
               among others, so the engine produces many candidates per voicing
               and has to choose and order them.
