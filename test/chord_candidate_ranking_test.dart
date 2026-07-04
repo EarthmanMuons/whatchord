@@ -1,10 +1,53 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:whatchord/features/theory/domain/analysis/candidate_features.dart';
 import 'package:whatchord/features/theory/domain/theory_domain.dart';
 
 import 'helpers/theory_test_helpers.dart';
 
 void main() {
+  test('sharp-nine bass is not treated as a stable inversion', () {
+    final candidate = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'C',
+      bass: 'Eb',
+      presentIntervals: const {0, 3, 4, 7, 10},
+      extensions: const {ChordExtension.sharp9},
+      cost: 1,
+    );
+
+    final features = CandidateFeatures.from(candidate);
+
+    expect(features.bassIsColorTone, isTrue);
+    expect(features.hasStableBassRole, isFalse);
+  });
+
+  test('generic seventh preference requires a sounding seventh', () {
+    final missingSeventh = _candidate(
+      quality: ChordQualityToken.dominant7,
+      root: 'C',
+      bass: 'C',
+      presentIntervals: const {0, 4, 7},
+      cost: 1,
+    );
+
+    final triad = _candidate(
+      quality: ChordQualityToken.major,
+      root: 'C',
+      bass: 'C',
+      presentIntervals: const {0, 4, 7},
+      cost: 1,
+    );
+
+    final explanation = ChordCandidateRanking.explain(
+      missingSeventh,
+      triad,
+      tonality: defaultTestTonality,
+    );
+
+    expect(explanation.decidedByRule, isNot('prefer 7th chords over triads'));
+  });
+
   test('complete dominant sharp-nine beats sixth flat-nine', () {
     final dominant = _candidate(
       quality: ChordQualityToken.dominant7,
