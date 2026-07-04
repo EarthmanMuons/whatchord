@@ -496,7 +496,10 @@
           <p>
             Notice that the perfect 5th is optional for most chord families.
             Requiring it would cause the algorithm to miss many idiomatic
-            voicings in common use.
+            voicings in common use. The power chord is the exception: a bare
+            fifth is the whole chord, so its fifth is required, and the reading
+            is discarded outright if any tone it cannot name as color is left
+            over.
           </p>
 
           <p>
@@ -553,11 +556,12 @@
                 <td class="neg mono">0.1 / 0.4 / 1.0</td>
                 <td>
                   How readily a musician reaches for the quality name: everyday
-                  names (major, minor, 7, m7, maj7, sus4, 6ths) are free; marked
-                  names (dim, aug, dim7, m7♭5, m(maj7), sus2, 7sus4) cost 0.1;
-                  uncommon ones (7♭5, 7♯5, maj7sus4, maj7♯5) cost 0.4; names
-                  that almost always respell a more common chord (m♯5, m7♯5,
-                  maj♭5, maj7♭5, 7sus2, maj7sus2) cost 1.0
+                  names (major, minor, 7, m7, maj7, sus4, 6ths, and the bare
+                  power chord) are free; marked names (dim, aug, dim7, m7♭5,
+                  m(maj7), sus2, double-sus, 7sus4) cost 0.1; uncommon ones
+                  (7♭5, 7♯5, maj7sus4, maj7♯5) cost 0.4; names that almost
+                  always respell a more common chord (m♯5, m7♯5, maj♭5, maj7♭5,
+                  7sus2, maj7sus2) cost 1.0
                 </td>
               </tr>
               <tr>
@@ -599,6 +603,17 @@
                 </td>
               </tr>
               <tr>
+                <td>Stacked chromatic color</td>
+                <td class="neg mono">0.15 / 0.3</td>
+                <td>
+                  A chromatic color stacked among other colors reads as tension
+                  the name fails to integrate: an added ♭9 or ♯9 alongside other
+                  colors pays 0.15, and a ♭9 on a major sixth or seventh chord
+                  among other colors pays 0.3. A lone chromatic color (the
+                  harmonic-minor C6♭9, the Phrygian Cmadd♭9) is untouched.
+                </td>
+              </tr>
+              <tr>
                 <td>Empty fifth slot</td>
                 <td class="neg mono">0.5 / 0.75</td>
                 <td>
@@ -629,11 +644,12 @@
                 <td class="neg mono">0&ndash;1.0</td>
                 <td>
                   Root free; conventional inversion 0.15; integrated extension
-                  0.3; altered color 0.5; bare add tone 0.65; suspended tone
-                  0.7; unexplained 1.0. Diminished and augmented chords invert
-                  freely, so their fifth in the bass counts as a plain core
-                  tone. A complete plain triad over its added-ninth bass (the
-                  D/E idiom) is treated as an upper-structure pedal instead.
+                  0.3; altered fifth 0.3; altered color 0.5; bare add tone 0.65;
+                  suspended tone 0.7; unexplained 1.0. Diminished and augmented
+                  chords invert freely, so their fifth in the bass counts as a
+                  plain core tone rather than an altered fifth. A complete plain
+                  triad over its added-ninth bass (the D/E idiom) is treated as
+                  an upper-structure pedal instead.
                 </td>
               </tr>
               <tr>
@@ -1005,15 +1021,19 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
           <p>
             The engine uses a 512-entry Least Recently Used (LRU) cache
             implemented as a <code>LinkedHashMap</code>. The cache key is a hash
-            of three inputs:
+            of four inputs:
           </p>
 
           <ul>
-            <li>The pitch class set</li>
+            <li>The pitch class set and bass note</li>
             <li>The analysis context (key signature + tonality)</li>
             <li>
+              The observed voicing's register signature, when one is supplied,
+              because register evidence can nudge the ranking
+            </li>
+            <li>
               The <code>take</code> parameter (how many candidates to return,
-              default 8)
+              default 5)
             </li>
           </ul>
 
@@ -1023,7 +1043,7 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
             ranks first even for identical voicings.
           </p>
 
-          <pre><code><span class="kw">final</span> key = Object.<span class="fn">hash</span>(input.cacheKey, context, take);
+          <pre><code><span class="kw">final</span> key = Object.<span class="fn">hash</span>(input.cacheKey, voicing?.signature ?? <span class="nu">0</span>, context, take);
 <span class="kw">final</span> cached = _cache[key];
 <span class="kw">if</span> (cached != <span class="kw">null</span>) {
   <span class="cm">// Promote on hit so eviction removes LRU, not FIFO</span>
