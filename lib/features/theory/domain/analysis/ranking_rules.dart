@@ -2121,6 +2121,7 @@ int? _prefer7thChords(
   final other = fa.isSeventhFamily ? b : a;
   final fPreferred = fa.isSeventhFamily ? fa : fb;
   final fOther = fa.isSeventhFamily ? fb : fa;
+  if (!_hasSeventhRole(preferred.identity)) return null;
   if (_shouldNotPreferSeventhFamilyOverStableSixth(
     preferred,
     other,
@@ -2139,6 +2140,13 @@ int? _prefer7thChords(
     return null;
   }
   return fb.isSeventhFamily ? 1 : -1;
+}
+
+bool _hasSeventhRole(ChordIdentity id) {
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.dim7) ||
+      roles.contains(ChordToneRole.flat7) ||
+      roles.contains(ChordToneRole.major7);
 }
 
 bool _shouldNotPreferSeventhFamilyOverStableSixth(

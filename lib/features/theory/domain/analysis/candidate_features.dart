@@ -575,12 +575,21 @@ class CandidateFeatures {
 
   static int _bassRoleRank(ChordIdentity id) {
     final interval = intervalAboveRoot(id.bassPc, id.rootPc);
+    final role = id.toneRolesByInterval[interval];
 
     // Rank inversions by commonality/stability:
-    if (interval == 0) return 0; // Root position
-    if (interval == 3 || interval == 4) return 1; // 1st inv (3rd in bass)
-    if (interval == 7) return 2; // 2nd inv (5th in bass)
-    if (interval == 10 || interval == 11) return 3; // 3rd inv (7th in bass)
+    if (role == ChordToneRole.root) return 0; // Root position
+    if (role == ChordToneRole.minor3 || role == ChordToneRole.major3) {
+      return 1; // 1st inv (3rd in bass)
+    }
+    if (role == ChordToneRole.perfect5) {
+      return 2; // 2nd inv (fifth in bass)
+    }
+    if (role == ChordToneRole.dim7 ||
+        role == ChordToneRole.flat7 ||
+        role == ChordToneRole.major7) {
+      return 3; // 3rd inv (7th in bass)
+    }
     return 4; // Other slash chords
   }
 }
