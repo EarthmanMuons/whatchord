@@ -17,6 +17,8 @@ import 'package:whatchord/features/theory/presentation/services/note_display_for
 
 import 'src/chord_id_engine.dart';
 
+const _rootFilterCandidateLimit = 1024;
+
 const _usage = '''
 Usage:
   dart run tool/chord_debug.dart [notes...] [options]
@@ -24,6 +26,7 @@ Usage:
 Examples:
   dart run tool/chord_debug.dart C E G D
   dart run tool/chord_debug.dart C E G Bb D --bass=C
+  dart run tool/chord_debug.dart C E G Bb D --root=E
   dart run tool/chord_debug.dart 60 64 67 74
   dart run tool/chord_debug.dart 60 64 67 70 74 --top=12
 
@@ -34,6 +37,8 @@ Options:
   -t, --top=N            Number of ranked candidates to show. Default: 5.
   -b, --bass=PC          Set the bass pitch class, adding it to the sounding
                          notes when needed.
+      --root=PC          Show only candidates with this root pitch class.
+                         Accepts note names or pitch-class numbers 0-11.
   -k, --key=KEY          Tonality for tie-breaks/spelling. Default: C:maj.
                          Examples: C, C:maj, A:min, Eb:maj, F#:min.
   -n, --notation=STYLE   Chord symbol style. Valid: textual, symbolic.
@@ -90,6 +95,10 @@ void main(List<String> args) {
     keySignature: ks,
     spellingPolicy: spellingPolicy,
   );
+  final rootFilter = _parseRootFilterFlag(
+    _readStringFlag(args, 'root', ''),
+    context: context,
+  );
 
   final notationFlag = _readStringFlag(args, 'notation', 'n');
   final notation = _parseNotationFlag(notationFlag);
@@ -138,22 +147,36 @@ void main(List<String> args) {
       ? ObservedVoicing.fromMidi(debugMidi)
       : null;
 
+  final analysisTake = _analysisTake(
+    top: top,
+    spellingMode: spellingMode,
+    hasRootFilter: rootFilter != null,
+  );
   final baseResults = ChordAnalyzer.analyzeDebug(
     input,
     context: context,
     voicing: voicing,
-    take: spellingMode == ChordDebugSpellingMode.pc
-        ? top
-        : (top < 24 ? 24 : top),
+    take: analysisTake,
   );
-  final results = _applySpellingMode(
+  final rankedResults = _applySpellingMode(
     baseResults,
     parsed: prepared.parsed,
     context: context,
     spellingMode: spellingMode,
-    take: top,
+    take: rootFilter == null ? top : analysisTake,
     voicing: voicing,
   );
+  final results = _filterResultsByRoot(
+    rankedResults,
+    rootFilter: rootFilter,
+    take: top,
+  );
+  final chosenCost = rankedResults.isEmpty
+      ? null
+      : rankedResults.first.candidate.cost;
+  final alternativeCount = ChordCandidateRanking.alternativeCount([
+    for (final result in rankedResults) result.candidate,
+  ]);
 
   if (outputFormat == _OutputFormat.json) {
     _writeJsonOutput(
@@ -165,6 +188,9 @@ void main(List<String> args) {
       spellingMode: spellingMode,
       parsed: prepared.parsed,
       results: results,
+      rootFilter: rootFilter,
+      chosenCost: chosenCost,
+      alternativeCount: alternativeCount,
     );
     return;
   }
@@ -180,20 +206,20 @@ void main(List<String> args) {
   if (!compact) {
     stdout.writeln(
       'notes: ${noteLabels.join(' ')}  |  bass: $bassLabel (pc ${input.bassPc})  |  '
-      'key: ${tonalityDisplayLabel(context.tonality)}',
+      'key: ${tonalityDisplayLabel(context.tonality)}'
+      '${rootFilter == null ? '' : '  |  root: ${rootFilter.label} (pc ${rootFilter.pc})'}',
     );
     stdout.writeln('');
   }
 
   if (results.isEmpty) {
-    stdout.writeln('No candidates.');
+    if (rootFilter == null) {
+      stdout.writeln('No candidates.');
+    } else {
+      stdout.writeln('No candidates with root ${rootFilter.label}.');
+    }
     return;
   }
-
-  final chosenCost = results.first.candidate.cost;
-  final alternativeCount = ChordCandidateRanking.alternativeCount([
-    for (final result in results) result.candidate,
-  ]);
 
   for (var i = 0; i < results.length; i++) {
     final r = results[i];
@@ -209,20 +235,26 @@ void main(List<String> args) {
     );
 
     final cost = c.cost;
-    final deltaChosenCost = cost - chosenCost;
-    final alternative = i != 0 && i <= alternativeCount;
+    final deltaChosenCost = chosenCost == null ? 0.0 : cost - chosenCost;
+    final rankNumber = _candidateRank(r, fallbackIndex: i);
+    final chosen = rankNumber == 1;
+    final alternative = _isAlternativeCandidate(
+      r,
+      alternativeCount,
+      fallbackIndex: i,
+    );
 
     final rule = _formatRankingRule(r.vsPrevious?.decidedByRule);
 
     // One-line summary.
-    final rank = (i + 1).toString().padLeft(2);
+    final rank = rankNumber.toString().padLeft(2);
     final sym = _padRight(symbol, 12);
     final costStr = cost.toStringAsFixed(2).padLeft(6);
-    final deltaStr = i == 0
+    final deltaStr = chosen
         ? ''
         : '  Δ${_fmtSigned(deltaChosenCost, width: 6, decimals: 2)}';
     final alternativeStr = alternative ? ' ~alt' : '';
-    final ruleStr = compact && i != 0 && rule.isNotEmpty
+    final ruleStr = compact && !chosen && rule.isNotEmpty
         ? '  (vs prev: $rule)'
         : '';
 
@@ -230,7 +262,7 @@ void main(List<String> args) {
 
     if (compact) continue;
 
-    if (i != 0 && rule.isNotEmpty) {
+    if (!chosen && rule.isNotEmpty) {
       stdout.writeln('     (vs prev: $rule)');
     }
 
@@ -435,6 +467,8 @@ typedef ChordDebugPrepared = ({
   NoteParse parsed,
 });
 
+typedef ChordDebugRootFilter = ({String label, int pc});
+
 /// Parses [noteTokens] (with an optional explicit [bassName]) into the
 /// [ChordInput], per-pitch display labels, and bass label used by every output
 /// path. Returns null when no notes could be parsed. Shared with the batch
@@ -532,6 +566,7 @@ List<RankedCandidateDebug> _applySpellingMode(
     for (var i = 0; i < ranked.length; i++)
       RankedCandidateDebug(
         candidate: ranked[i].candidate,
+        originalRank: i + 1,
         costReasons: ranked[i].costReasons,
         template: ranked[i].template,
         vsPrevious: i == 0
@@ -565,10 +600,48 @@ RankedCandidateDebug _adjustCandidateForSpelling(
       identity: result.candidate.identity,
       cost: result.candidate.cost + evidence.costAdjustment,
     ),
+    originalRank: result.originalRank,
     costReasons: result.costReasons,
     vsPrevious: result.vsPrevious,
     template: result.template,
   );
+}
+
+int _analysisTake({
+  required int top,
+  required ChordDebugSpellingMode spellingMode,
+  required bool hasRootFilter,
+}) {
+  if (hasRootFilter) {
+    return top > _rootFilterCandidateLimit ? top : _rootFilterCandidateLimit;
+  }
+  if (spellingMode == ChordDebugSpellingMode.pc) return top;
+  return top < 24 ? 24 : top;
+}
+
+List<RankedCandidateDebug> _filterResultsByRoot(
+  List<RankedCandidateDebug> results, {
+  required ChordDebugRootFilter? rootFilter,
+  required int take,
+}) {
+  if (rootFilter == null) return results.take(take).toList(growable: false);
+  return [
+    for (final result in results)
+      if (result.candidate.identity.rootPc == rootFilter.pc) result,
+  ].take(take).toList(growable: false);
+}
+
+int _candidateRank(RankedCandidateDebug result, {required int fallbackIndex}) {
+  return result.originalRank ?? fallbackIndex + 1;
+}
+
+bool _isAlternativeCandidate(
+  RankedCandidateDebug result,
+  int alternativeCount, {
+  required int fallbackIndex,
+}) {
+  final rank = _candidateRank(result, fallbackIndex: fallbackIndex);
+  return rank != 1 && rank <= alternativeCount + 1;
 }
 
 bool _hasNamedInput(NoteParse parsed) => parsed.pcLabels.isNotEmpty;
@@ -700,11 +773,17 @@ Map<String, Object?> chordDebugJsonPayload({
   required List<RankedCandidateDebug> results,
   ChordDebugSpellingMode spellingMode = ChordDebugSpellingMode.pc,
   NoteParse? parsed,
+  ChordDebugRootFilter? rootFilter,
+  double? chosenCost,
+  int? alternativeCount,
 }) {
-  final chosenCost = results.isEmpty ? null : results.first.candidate.cost;
-  final alternativeCount = ChordCandidateRanking.alternativeCount([
-    for (final result in results) result.candidate,
-  ]);
+  final effectiveChosenCost =
+      chosenCost ?? (results.isEmpty ? null : results.first.candidate.cost);
+  final effectiveAlternativeCount =
+      alternativeCount ??
+      ChordCandidateRanking.alternativeCount([
+        for (final result in results) result.candidate,
+      ]);
   return <String, Object?>{
     'input': <String, Object?>{
       'noteCount': input.noteCount,
@@ -718,14 +797,20 @@ Map<String, Object?> chordDebugJsonPayload({
       'bassLabel': bassLabel,
       'key': tonalityDisplayLabel(context.tonality),
       'spellingMode': spellingMode.wireName,
+      if (rootFilter != null) 'rootFilterPc': rootFilter.pc,
+      if (rootFilter != null) 'rootFilterLabel': rootFilter.label,
     },
     'candidates': [
       for (var i = 0; i < results.length; i++)
         _candidateJson(
-          rank: i + 1,
+          rank: _candidateRank(results[i], fallbackIndex: i),
           result: results[i],
-          chosenCost: chosenCost,
-          isAlternative: i != 0 && i <= alternativeCount,
+          chosenCost: effectiveChosenCost,
+          isAlternative: _isAlternativeCandidate(
+            results[i],
+            effectiveAlternativeCount,
+            fallbackIndex: i,
+          ),
           context: context,
           notation: notation,
           spellingMode: spellingMode,
@@ -744,6 +829,9 @@ void _writeJsonOutput({
   required ChordDebugSpellingMode spellingMode,
   required NoteParse parsed,
   required List<RankedCandidateDebug> results,
+  ChordDebugRootFilter? rootFilter,
+  double? chosenCost,
+  int? alternativeCount,
 }) {
   stdout.writeln(
     const JsonEncoder.withIndent('  ').convert(
@@ -756,6 +844,9 @@ void _writeJsonOutput({
         spellingMode: spellingMode,
         parsed: parsed,
         results: results,
+        rootFilter: rootFilter,
+        chosenCost: chosenCost,
+        alternativeCount: alternativeCount,
       ),
     ),
   );
@@ -879,6 +970,39 @@ Never _failUnknownNotation(String raw) {
   exit(2);
 }
 
+ChordDebugRootFilter? _parseRootFilterFlag(
+  String? raw, {
+  required AnalysisContext context,
+}) {
+  if (raw == null) return null;
+
+  final value = raw.trim();
+  if (value.isEmpty) return _failUnknownRoot(value);
+
+  final asInt = int.tryParse(value);
+  if (asInt != null) {
+    if (asInt < 0 || asInt > 11) return _failUnknownRoot(raw);
+    return (
+      label: _displayNoteLabel(
+        _pcLabel(asInt, context: context, chordRootName: null, role: null),
+      ),
+      pc: asInt,
+    );
+  }
+
+  try {
+    return (label: _displayNoteLabel(value), pc: pitchClassFromNoteName(value));
+  } on ArgumentError {
+    return _failUnknownRoot(raw);
+  }
+}
+
+Never _failUnknownRoot(String raw) {
+  stderr.writeln('Unknown --root value: "$raw"');
+  stderr.writeln('Use a note name or pitch-class number 0-11.');
+  exit(2);
+}
+
 ChordDebugSpellingMode _parseSpellingModeFlag(String? raw) {
   if (raw == null || raw.trim().isEmpty) return ChordDebugSpellingMode.pc;
 
@@ -921,6 +1045,7 @@ List<String> _unknownFlags(List<String> args) {
     '--help',
     '--top',
     '--bass',
+    '--root',
     '--key',
     '--notation',
     '--spelling',
@@ -987,6 +1112,7 @@ List<String> _readNoteTokens(List<String> args) {
   const valueFlags = {
     '--top',
     '--bass',
+    '--root',
     '--key',
     '--notation',
     '--spelling',

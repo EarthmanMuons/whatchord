@@ -42,6 +42,10 @@ class CostReason {
 class RankedCandidateDebug {
   final ChordCandidate candidate;
 
+  /// Rank in the full list returned by the ranking pass. Debug tools can
+  /// filter candidates while still showing where each row originally landed.
+  final int? originalRank;
+
   /// High-signal cost deltas; intended for CLI explanation.
   final List<CostReason> costReasons;
 
@@ -54,6 +58,7 @@ class RankedCandidateDebug {
 
   const RankedCandidateDebug({
     required this.candidate,
+    this.originalRank,
     required this.costReasons,
     required this.vsPrevious,
     required this.template,
@@ -241,6 +246,7 @@ abstract final class ChordAnalyzer {
       out.add(
         RankedCandidateDebug(
           candidate: current.candidate,
+          originalRank: i + 1,
           template: current.template,
           costReasons: current.reasons ?? const <CostReason>[],
           vsPrevious: prev == null
