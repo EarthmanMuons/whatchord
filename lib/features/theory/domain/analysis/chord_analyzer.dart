@@ -68,9 +68,9 @@ class RankedCandidateDebug {
 /// 3. Rank candidates using score + tie-breaking heuristics
 /// 4. Cache results keyed by input + context
 ///
-/// Scoring philosophy: a candidate's score is the negated cost of
-/// explaining the input under that name. Core chord tones are free; the
-/// name pays for its rarity, appended colors, missing essentials,
+/// Scoring philosophy: a candidate's score is the positive cost of explaining
+/// the input under that name; lower is better. Core chord tones are free, and
+/// the name pays for its rarity, appended colors, missing essentials,
 /// unexplained tones, and awkward bass placement.
 ///
 /// NOTE: docs/site/articles/under-the-hood.html documents this pipeline in
@@ -83,10 +83,10 @@ abstract final class ChordAnalyzer {
       LinkedHashMap<int, List<ChordCandidate>>();
 
   // ---- Explanation-cost prices -----------------------------------------
-  // A candidate's score is the negated cost of explaining every sounding
-  // pitch under that name: core chord tones are free, and the name pays for
-  // its own rarity, each color tone it appends, essential tones it lacks,
-  // tones it cannot account for, and awkward bass placement. Prices are
+  // A candidate's score is the positive cost of explaining every sounding pitch
+  // under that name: core chord tones are free, and the name pays for its own
+  // rarity, each color tone it appends, essential tones it lacks, tones it
+  // cannot account for, and awkward bass placement. Lower is better. Prices are
   // musician-judged priors calibrated against the reviewed oracle pool.
   // See docs/site/articles/chord-recognition-algorithm.html.
 
@@ -310,8 +310,8 @@ abstract final class ChordAnalyzer {
       }
     }
 
-    // Drop the long tail of low-scoring readings before the O(n^2) ranking.
-    // Scores are a pure function of the input, so this is transposition-invariant
+    // Drop the long tail of high-cost readings before the O(n^2) ranking.
+    // Costs are a pure function of the input, so this is transposition-invariant
     // (both a chord and its transposition prune to the same set).
     final toRank = _pruneForRanking(out, take);
     if (kEngineCountersEnabled) {
@@ -319,7 +319,7 @@ abstract final class ChordAnalyzer {
     }
 
     // `compare` is intentionally non-transitive (hard rules and the near-tie
-    // window override raw score), so a plain sort would be undefined and could
+    // window override raw cost), so a plain sort would be undefined and could
     // bury a strong candidate. `rank` linearizes the relation deterministically.
     return ChordCandidateRanking.rank(
       toRank,
@@ -330,36 +330,36 @@ abstract final class ChordAnalyzer {
   }
 
   /// Trims the candidate set before the O(n^2) ranking, keeping whichever is
-  /// larger of: every candidate within [rankingPruneMargin] of the top raw score
-  /// (which preserves the #1 pick and the surfaced alternatives set, see
-  /// [rankingPruneMargin]), or the top [take] by score.
+  /// larger of: every candidate within [rankingPruneMargin] of the cheapest raw
+  /// cost (which preserves the #1 pick and the surfaced alternatives set, see
+  /// [rankingPruneMargin]), or the cheapest [take] by cost.
   ///
   /// The [take] floor keeps the requested result count honest: a caller asking
   /// for N ranked candidates gets up to N even on a strong voicing where only
   /// the winner is within the margin (e.g. C E G as Cmaj, or the top-5/top-12
-  /// lists the try page and the Why This Chord modal show regardless of score).
+  /// lists the try page and the Why This Chord modal show regardless of cost).
   /// Tooling that wants the full list passes a large [take]. The floor only
   /// engages when the margin set is smaller than [take], i.e. on clear voicings
   /// with few near-top readings, which are cheap to rank anyway; ambiguous and
   /// dense voicings keep the (larger) margin set, so the prune's win is intact.
   static List<_Evaluated> _pruneForRanking(List<_Evaluated> out, int take) {
     if (out.length <= take) return out;
-    var maxScore = double.negativeInfinity;
+    var minScore = double.infinity;
     for (final e in out) {
-      if (e.candidate.score > maxScore) maxScore = e.candidate.score;
+      if (e.candidate.score < minScore) minScore = e.candidate.score;
     }
-    final threshold = maxScore - rankingPruneMargin;
+    final threshold = minScore + rankingPruneMargin;
     final within = [
       for (final e in out)
-        if (e.candidate.score >= threshold) e,
+        if (e.candidate.score <= threshold) e,
     ];
     if (within.length >= take) return within;
-    // Margin set is smaller than the requested count. Keep the top [take] by
-    // score; beyond the surfaced set the ranking is essentially score order, so
-    // these fill the lower positions. The margin set is a subset (the highest
-    // scorers), so the #1 pick and surfaced alternatives are still preserved.
+    // Margin set is smaller than the requested count. Keep the cheapest [take]
+    // by cost; beyond the surfaced set the ranking is essentially cost order, so
+    // these fill the lower positions. The margin set is a subset (the cheapest
+    // readings), so the #1 pick and surfaced alternatives are still preserved.
     final sorted = [...out]
-      ..sort((a, b) => b.candidate.score.compareTo(a.candidate.score));
+      ..sort((a, b) => a.candidate.score.compareTo(b.candidate.score));
     return sorted.sublist(0, take);
   }
 
@@ -447,7 +447,7 @@ abstract final class ChordAnalyzer {
     final vocabulary = _vocabularyCost(template.quality);
     if (vocabulary != 0) {
       cost += vocabulary;
-      add('vocabulary rarity', -vocabulary);
+      add('vocabulary rarity', vocabulary);
     }
 
     // Core tones are free; report them so downstream tone ledgers can show
@@ -517,7 +517,7 @@ abstract final class ChordAnalyzer {
       cost += colorCost;
       add(
         'color tones',
-        -colorCost,
+        colorCost,
         detail: colorDetails?.join(' '),
         intervals: colorMask,
       );
@@ -531,7 +531,7 @@ abstract final class ChordAnalyzer {
         popCount(relMask) == 3;
     if (isBareFifthlessSixChord) {
       cost += _sixChordNoFifthSurcharge;
-      add('fifthless sixth', -_sixChordNoFifthSurcharge);
+      add('fifthless sixth', _sixChordNoFifthSurcharge);
     }
 
     // A power chord is only a credible reading when the bare fifth plus its
@@ -546,7 +546,7 @@ abstract final class ChordAnalyzer {
       cost += unexplainedCost;
       add(
         'penalty tones',
-        -unexplainedCost,
+        unexplainedCost,
         detail: 'count=${popCount(unexplainedMask)}',
         intervals: unexplainedMask,
       );
@@ -562,7 +562,7 @@ abstract final class ChordAnalyzer {
       cost += missingCost;
       add(
         'missing required',
-        -missingCost,
+        missingCost,
         detail: 'count=$missCount',
         intervals: missingRequiredMask,
       );
@@ -573,10 +573,10 @@ abstract final class ChordAnalyzer {
         : _bassPlacementCost(roles[bassInterval], template.quality);
     if (bassCost != 0) {
       cost += bassCost;
-      add('bass fit', -bassCost, detail: 'interval=$bassInterval');
+      add('bass fit', bassCost, detail: 'interval=$bassInterval');
     }
 
-    return _ScoredTemplate(score: -cost, extensions: extensions, roles: roles);
+    return _ScoredTemplate(score: cost, extensions: extensions, roles: roles);
   }
 
   /// How readily a musician reaches for this quality name. Everyday names

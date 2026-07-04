@@ -8,14 +8,15 @@ import 'package:whatchord/features/theory/theory.dart';
 
 import 'helpers/theory_test_helpers.dart';
 
-// Guards ChordAnalyzer.rankingPruneMargin. The prune drops candidates scoring
-// more than the margin below the top raw score before the O(n^2) ranking, on
-// the premise that such a reading can never surface (neither the chosen #1 nor
-// an alternative). This test measures the actual surfaced gap on the unpruned
-// engine and fails if any voicing produces a gap at or above the margin, which
-// would mean the prune is silently dropping a reading a musician would have
-// seen. If a future scoring/ranking change trips this, raise the margin (or
-// reconsider the change) rather than ship a quietly shrinking alternatives set.
+// Guards ChordAnalyzer.rankingPruneMargin. The prune drops candidates costing
+// more than the margin above the cheapest raw reading before the O(n^2) ranking,
+// on the premise that such a reading can never surface (neither the chosen #1
+// nor an alternative). This test measures the actual surfaced gap on the
+// unpruned engine and fails if any voicing produces a gap at or above the
+// margin, which would mean the prune is silently dropping a reading a musician
+// would have seen. If a future scoring/ranking change trips this, raise the
+// margin (or reconsider the change) rather than ship a quietly shrinking
+// alternatives set.
 void main() {
   late double productionMargin;
 
@@ -98,22 +99,24 @@ void main() {
       reason:
           'Widest surfaced gap was ${worstGap.toStringAsFixed(3)} at $worstKey '
           'across $tested voicings, but ChordAnalyzer.rankingPruneMargin is '
-          '$productionMargin. A candidate scoring this far below the top still '
-          'surfaces, so the prune would drop it. Raise rankingPruneMargin above '
-          'the observed gap (with headroom) or revisit the change that widened '
-          'it.',
+          '$productionMargin. A candidate costing this far above the cheapest '
+          'raw reading still surfaces, so the prune would drop it. Raise '
+          'rankingPruneMargin above the observed gap (with headroom) or revisit '
+          'the change that widened it.',
     );
   });
 }
 
-/// The widest gap between the top raw score and the lowest-scoring *surfaced*
+/// The widest gap between the cheapest raw cost and the highest-cost *surfaced*
 /// candidate (the #1 plus its alternatives), for a single voicing on the
 /// unpruned engine.
 double _surfacedGap(ChordInput input, AnalysisContext ctx) {
   final ranked = ChordAnalyzer.analyze(input, context: ctx, take: 100000);
   if (ranked.isEmpty) return 0;
   final scores = [for (final c in ranked) c.score];
-  final maxScore = scores.reduce(math.max);
+  // Scores are explanation costs (lower is better); the prune anchors on the
+  // cheapest reading and drops anything costing more than margin above it.
+  final minScore = scores.reduce(math.min);
   final best = scores.first;
 
   // Mirror ChordCandidateRanking.alternativeCount: the surfaced set runs through
@@ -121,15 +124,15 @@ double _surfacedGap(ChordInput input, AnalysisContext ctx) {
   // readings the linearization placed above it.
   var lastNearTie = 0;
   for (var i = 1; i < scores.length; i++) {
-    if (best - scores[i] <= ChordCandidateRanking.nearTieWindow) {
+    if (scores[i] - best <= ChordCandidateRanking.nearTieWindow) {
       lastNearTie = i;
     }
   }
-  var minSurfaced = best;
+  var maxSurfaced = best;
   for (var i = 0; i <= lastNearTie; i++) {
-    minSurfaced = math.min(minSurfaced, scores[i]);
+    maxSurfaced = math.max(maxSurfaced, scores[i]);
   }
-  return maxScore - minSurfaced;
+  return maxSurfaced - minScore;
 }
 
 /// Loads the reviewed-oracle voicings, decoded from their case keys (a key like

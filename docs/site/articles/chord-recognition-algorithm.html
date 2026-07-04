@@ -532,9 +532,9 @@
 
           <p>
             Each surviving reading is then priced by how well it explains the
-            input. The score is a negated <em>explanation cost</em>: core chord
-            tones are free, and the name pays for everything else it asks a
-            reader to accept. Lower cost wins.
+            input. The score is its <em>explanation cost</em>: core chord tones
+            are free, and the name pays for everything else it asks a reader to
+            accept. The number is a price, so the lowest score is the best fit.
           </p>
 
           <table class="score-table">
@@ -762,16 +762,16 @@
 
 notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
 
- 1) F♯7♭5         -0.40
+ 1) F♯7♭5          0.40
      members: root=F♯  major3=A♯  flat5=C  flat7=E
-     scoring: vocabularyrarity-0.40
+     scoring: vocabularyrarity+0.40
 
- 2) C7♭5/G♭       -0.70  Δ -0.30
+ 2) C7♭5/G♭        0.70  Δ +0.30
      (vs prev: score difference beyond tie-break range)
      members: root=C  major3=E  flat5=G♭  flat7=B♭
-     scoring: vocabularyrarity-0.40  bass-0.30
+     scoring: vocabularyrarity+0.40  bass+0.30
 
- 3) F♯7♯11        -1.30  Δ -0.90
+ 3) F♯7♯11         1.30  Δ +0.90
      (vs prev: score difference beyond tie-break range)</code></pre>
 
           <p>
@@ -848,8 +848,8 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
             The ordered list below applies only after those hard rules have had
             a chance to run. If none of them fire and the score difference is
             greater than <code>0.25</code> (the
-            <code>nearTieWindow</code> constant), the higher-scoring candidate
-            wins on score alone.
+            <code>nearTieWindow</code> constant), the lower-cost candidate wins
+            on score alone.
           </p>
 
           <p>
@@ -914,7 +914,7 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
               Prefer a reading that names every tone over one that drops a tone
             </li>
             <li>
-              Prefer a higher-scoring add-chord reading over an unusual
+              Prefer a lower-cost add-chord reading over an unusual
               seventh-family spelling that omits the third
             </li>
             <li>
@@ -922,7 +922,7 @@ notes: F♯ B♭ C E  |  bass: F♯ (pc 6)  |  key: C major
               inversion
             </li>
             <li>
-              Prefer a higher-scoring major-seventh-bass inversion over a slash
+              Prefer a lower-cost major-seventh-bass inversion over a slash
               reading where the bass is only a remote color tone
             </li>
             <li>Prefer fewer altered/tension colors</li>
