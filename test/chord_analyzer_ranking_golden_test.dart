@@ -440,7 +440,7 @@ void main() {
     // -------------------------------------------------------------------------
     // {C, Db, Eb, F, Ab, A} with Ab bass: the F altered dominant reading
     // (F7#9b13 with Ab=G# as the sharp-9 bass) is what musicians expect.
-    // The competing C#maj9b13/Ab interpretation has a higher raw score, but
+    // The competing C#maj9b13/Ab interpretation has a lower raw cost, but
     // the dom7 shell-slash rule correctly promotes F7.
     golden(
       description: 'dominant7 shell slash beats major7 family slash',

@@ -12,7 +12,7 @@ void main() {
       bass: 'Eb',
       presentIntervals: const {0, 3, 4, 7, 10},
       extensions: const {ChordExtension.sharp9},
-      score: 7.88,
+      score: 3.12,
     );
 
     final sixthFlat9 = _candidate(
@@ -21,7 +21,7 @@ void main() {
       bass: 'Eb',
       presentIntervals: const {0, 1, 4, 7, 9},
       extensions: const {ChordExtension.flat9},
-      score: 8.03,
+      score: 2.97,
     );
 
     _expectTieRule(
@@ -38,7 +38,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 3, 4, 6, 7, 10},
       extensions: const {ChordExtension.sharp9, ChordExtension.sharp11},
-      score: 7.59,
+      score: 3.41,
     );
 
     final splitThirdSixth = _candidate(
@@ -47,7 +47,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 1, 3, 4, 7, 9},
       extensions: const {ChordExtension.flat9, ChordExtension.addSharp9},
-      score: 7.74,
+      score: 3.26,
     );
 
     _expectTieRule(
@@ -70,7 +70,7 @@ void main() {
           ChordExtension.sharp11,
           ChordExtension.thirteen,
         },
-        score: 7.3,
+        score: 3.7,
       );
 
       final splitThirdSixth = _candidate(
@@ -83,7 +83,7 @@ void main() {
           ChordExtension.addSharp9,
           ChordExtension.sharp11,
         },
-        score: 7.45,
+        score: 3.55,
       );
 
       _expectTieRule(
@@ -107,7 +107,7 @@ void main() {
           ChordExtension.sharp11,
           ChordExtension.flat13,
         },
-        score: 7.45,
+        score: 3.55,
       );
 
       final splitThirdSixth = _candidate(
@@ -120,7 +120,7 @@ void main() {
           ChordExtension.addSharp9,
           ChordExtension.add11,
         },
-        score: 7.45,
+        score: 3.55,
       );
 
       _expectTieRule(
@@ -140,7 +140,7 @@ void main() {
         bass: 'Eb',
         presentIntervals: const {0, 1, 4, 7, 8, 10},
         extensions: const {ChordExtension.flat9, ChordExtension.flat13},
-        score: 8.14,
+        score: 2.86,
       );
 
       final remoteMinor = _candidate(
@@ -149,7 +149,7 @@ void main() {
         bass: 'D#',
         presentIntervals: const {0, 2, 3, 6, 9, 10},
         extensions: const {ChordExtension.nine, ChordExtension.thirteen},
-        score: 8.0,
+        score: 3.0,
       );
 
       _expectTieRule(
@@ -184,15 +184,15 @@ void main() {
 
     for (final bass in ['Bb', 'F#', 'Db']) {
       _expectRule(
-        tritoneColor(bass: bass, score: 7.65),
-        splitNine(bass: bass, score: 7.95),
+        tritoneColor(bass: bass, score: 3.32),
+        splitNine(bass: bass, score: 3.05),
         'prefer conventional inversion in split-nine tritone dominant ambiguity',
       );
     }
     for (final bass in ['C', 'E']) {
       _expectRule(
-        splitNine(bass: bass, score: 7.95),
-        tritoneColor(bass: bass, score: 7.65),
+        splitNine(bass: bass, score: 3.05),
+        tritoneColor(bass: bass, score: 3.32),
         'prefer conventional inversion in split-nine tritone dominant ambiguity',
       );
     }
@@ -205,7 +205,7 @@ void main() {
       bass: 'G',
       presentIntervals: const {0, 1, 4, 7, 10},
       extensions: const {ChordExtension.flat9},
-      score: 7.95,
+      score: 3.05,
     );
 
     final diminished = _candidate(
@@ -214,7 +214,7 @@ void main() {
       bass: 'G',
       presentIntervals: const {0, 3, 5, 6, 9},
       extensions: const {ChordExtension.add11},
-      score: 8.25,
+      score: 2.75,
     );
 
     _expectRule(
@@ -233,7 +233,7 @@ void main() {
         bass: 'Db',
         presentIntervals: const {0, 1, 4, 6, 7, 10},
         extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
-        score: 7.80,
+        score: 3.17,
       );
 
       final diminished = _candidate(
@@ -242,7 +242,7 @@ void main() {
         bass: 'Db',
         presentIntervals: const {0, 2, 3, 6, 8},
         extensions: const {ChordExtension.nine, ChordExtension.flat13},
-        score: 8.10,
+        score: 2.9,
       );
 
       _expectRule(
@@ -260,7 +260,7 @@ void main() {
       bass: 'Bb',
       presentIntervals: const {0, 1, 4, 7, 10},
       extensions: const {ChordExtension.flat9},
-      score: 7.95,
+      score: 3.05,
     );
 
     final diminished = _candidate(
@@ -269,7 +269,7 @@ void main() {
       bass: 'Bb',
       presentIntervals: const {0, 2, 3, 6, 9},
       extensions: const {ChordExtension.nine},
-      score: 8.25,
+      score: 2.75,
     );
 
     const tonality = Tonality(Tonic.c, TonalityMode.major);
@@ -293,7 +293,7 @@ void main() {
       bass: 'E',
       presentIntervals: const {0, 1, 4, 10},
       extensions: const {ChordExtension.flat9},
-      score: 7.16,
+      score: 3.84,
     );
 
     final diminished = _candidate(
@@ -302,7 +302,7 @@ void main() {
       bass: 'E',
       presentIntervals: const {0, 2, 3, 6},
       extensions: const {ChordExtension.add9},
-      score: 7.22,
+      score: 3.78,
     );
 
     _expectTieRule(
@@ -319,7 +319,7 @@ void main() {
       bass: 'Db',
       presentIntervals: const {0, 1, 4, 10},
       extensions: const {ChordExtension.flat9},
-      score: 6.92,
+      score: 4.08,
     );
 
     final minorMajor7 = _candidate(
@@ -328,7 +328,7 @@ void main() {
       bass: 'Db',
       presentIntervals: const {0, 3, 9, 11},
       extensions: const {ChordExtension.add13},
-      score: 7.22,
+      score: 3.78,
     );
 
     final diminishedTriad = _candidate(
@@ -337,7 +337,7 @@ void main() {
       bass: 'Db',
       presentIntervals: const {0, 2, 3, 6},
       extensions: const {ChordExtension.add9},
-      score: 7.22,
+      score: 3.78,
     );
 
     test('prefers familiar dominant shell in neutral context', () {
@@ -390,7 +390,7 @@ void main() {
         bass: 'Db',
         presentIntervals: const {0, 1, 4, 7, 10},
         extensions: const {ChordExtension.flat9},
-        score: 7.01,
+        score: 3.99,
       );
       final explanation = ChordCandidateRanking.explain(
         completeDominant,
@@ -412,7 +412,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 1, 4, 10},
       extensions: const {ChordExtension.flat9},
-      score: 9,
+      score: 2.0,
     );
 
     final diminishedSlash = _candidate(
@@ -426,7 +426,7 @@ void main() {
       // the corpus), not by arbitrary amounts; asserting an extreme gap (e.g. 9)
       // would encode an unbounded-override contract we do not want, since it
       // conflicts with score-bounded candidate pruning.
-      score: 10,
+      score: 1.0,
     );
 
     _expectRule(
@@ -443,7 +443,7 @@ void main() {
       bass: 'Ab',
       presentIntervals: const {0, 3, 6, 7, 11},
       extensions: const {ChordExtension.sharp11},
-      score: 9.6,
+      score: 1.4,
     );
 
     final add11Slash = _candidate(
@@ -452,7 +452,7 @@ void main() {
       bass: 'Ab',
       presentIntervals: const {0, 4, 5, 8, 11},
       extensions: const {ChordExtension.add11},
-      score: 10,
+      score: 1.0,
     );
 
     _expectRule(
@@ -473,7 +473,7 @@ void main() {
         ChordExtension.sharp11,
         ChordExtension.flat13,
       },
-      score: 9.70,
+      score: 1.3,
     );
 
     final remoteSlash = _candidate(
@@ -481,7 +481,7 @@ void main() {
       root: 'Db',
       bass: 'C',
       presentIntervals: const {0, 3, 7, 11},
-      score: 10,
+      score: 1.0,
     );
 
     _expectRule(
@@ -498,7 +498,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 3, 4, 6, 10},
       extensions: const {ChordExtension.sharp9},
-      score: 9.7,
+      score: 1.3,
     );
 
     final slash = _candidate(
@@ -507,7 +507,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 2, 4, 6, 10},
       extensions: const {ChordExtension.nine},
-      score: 10,
+      score: 1.0,
     );
 
     _expectRule(
@@ -526,7 +526,7 @@ void main() {
         bass: 'G#',
         presentIntervals: const {0, 2, 4, 8, 10},
         extensions: const {ChordExtension.nine},
-        score: 8.25,
+        score: 2.75,
       );
 
       final rootPosition = _candidate(
@@ -535,7 +535,7 @@ void main() {
         bass: 'G#',
         presentIntervals: const {0, 4, 6, 8, 10},
         extensions: const {ChordExtension.sharp11},
-        score: 8.20,
+        score: 2.8,
       );
 
       _expectTieRule(
@@ -547,7 +547,7 @@ void main() {
   );
 
   test(
-    'higher-scoring major-seventh-bass inversion beats remote color-bass slash',
+    'lower-cost major-seventh-bass inversion beats remote color-bass slash',
     () {
       final conventionalInversion = _candidate(
         quality: ChordQualityToken.major7,
@@ -555,7 +555,7 @@ void main() {
         bass: 'G',
         presentIntervals: const {0, 4, 5, 7, 8, 11},
         extensions: const {ChordExtension.eleven, ChordExtension.flat13},
-        score: 7.74,
+        score: 3.26,
       );
 
       final colorBassSlash = _candidate(
@@ -564,13 +564,13 @@ void main() {
         bass: 'G',
         presentIntervals: const {0, 2, 3, 6, 7, 11},
         extensions: const {ChordExtension.nine, ChordExtension.sharp11},
-        score: 7.59,
+        score: 3.41,
       );
 
       _expectTieRule(
         conventionalInversion,
         colorBassSlash,
-        'prefer higher-scoring major-seventh-bass inversion over color-bass slash',
+        'prefer lower-cost major-seventh-bass inversion over color-bass slash',
       );
     },
   );
@@ -584,7 +584,7 @@ void main() {
         bass: 'C',
         presentIntervals: const {0, 2, 4, 6, 7, 10},
         extensions: const {ChordExtension.nine, ChordExtension.sharp11},
-        score: 7.91,
+        score: 3.09,
       );
 
       final slash = _candidate(
@@ -593,7 +593,7 @@ void main() {
         bass: 'C',
         presentIntervals: const {0, 2, 4, 5, 8, 10},
         extensions: const {ChordExtension.nine, ChordExtension.eleven},
-        score: 8,
+        score: 3.0,
       );
 
       _expectTieRule(
@@ -617,7 +617,7 @@ void main() {
           ChordExtension.sharp11,
           ChordExtension.thirteen,
         },
-        score: 7.30,
+        score: 3.7,
       );
 
       final minor = _candidate(
@@ -630,7 +630,7 @@ void main() {
           ChordExtension.sharp11,
           ChordExtension.thirteen,
         },
-        score: 7.45,
+        score: 3.55,
       );
 
       _expectTieRule(
@@ -650,7 +650,7 @@ void main() {
         bass: 'Ab',
         presentIntervals: const {0, 1, 4, 6, 8, 10},
         extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
-        score: 7.95,
+        score: 3.05,
       );
 
       final naturalEleventhSharpFive = _candidate(
@@ -659,7 +659,7 @@ void main() {
         bass: 'Ab',
         presentIntervals: const {0, 2, 4, 5, 8, 10},
         extensions: const {ChordExtension.nine, ChordExtension.eleven},
-        score: 8,
+        score: 3.0,
       );
 
       _expectTieRule(
@@ -677,7 +677,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 1, 4, 8, 10},
       extensions: const {ChordExtension.flat9},
-      score: 8.20,
+      score: 2.8,
     );
 
     final remoteMinorMajor = _candidate(
@@ -686,7 +686,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 3, 7, 9, 11},
       extensions: const {ChordExtension.thirteen},
-      score: 8.08,
+      score: 2.92,
     );
 
     _expectTieRule(
@@ -703,7 +703,7 @@ void main() {
       bass: 'D',
       presentIntervals: const {0, 2, 5, 7, 10},
       extensions: const {ChordExtension.nine},
-      score: 8.08,
+      score: 2.92,
     );
 
     final alteredSlash = _candidate(
@@ -712,7 +712,7 @@ void main() {
       bass: 'D',
       presentIntervals: const {0, 3, 5, 8, 10},
       extensions: const {ChordExtension.add11},
-      score: 8.25,
+      score: 2.75,
     );
 
     _expectTieRule(
@@ -729,7 +729,7 @@ void main() {
       bass: 'D',
       presentIntervals: const {0, 3, 5, 10},
       extensions: const {ChordExtension.add11},
-      score: 7.22,
+      score: 3.78,
     );
 
     final dominantSusSlash = _candidate(
@@ -737,14 +737,14 @@ void main() {
       root: 'G',
       bass: 'D',
       presentIntervals: const {0, 5, 7, 10},
-      score: 8.37,
+      score: 2.63,
     );
     final doubleSusSlash = _candidate(
       quality: ChordQualityToken.sus2sus4,
       root: 'C',
       bass: 'D',
       presentIntervals: const {0, 2, 5, 7},
-      score: 8.50,
+      score: 2.5,
     );
 
     for (final susSlash in [dominantSusSlash, doubleSusSlash]) {
@@ -763,7 +763,7 @@ void main() {
       bass: 'D',
       presentIntervals: const {0, 2, 4, 7, 10},
       extensions: const {ChordExtension.nine},
-      score: 7.94,
+      score: 3.06,
     );
 
     final alteredSlash = _candidate(
@@ -772,7 +772,7 @@ void main() {
       bass: 'D',
       presentIntervals: const {0, 3, 6, 8, 10},
       extensions: const {ChordExtension.sharp11},
-      score: 8.20,
+      score: 2.8,
     );
 
     _expectRule(
@@ -789,7 +789,7 @@ void main() {
       bass: 'D#',
       presentIntervals: const {0, 2, 3, 7, 11},
       extensions: const {ChordExtension.nine},
-      score: 7.94,
+      score: 3.06,
     );
 
     final alteredSlash = _candidate(
@@ -798,7 +798,7 @@ void main() {
       bass: 'D#',
       presentIntervals: const {0, 4, 8, 9, 11},
       extensions: const {ChordExtension.add13},
-      score: 8.25,
+      score: 2.75,
     );
 
     _expectRule(
@@ -815,7 +815,7 @@ void main() {
       bass: 'D#',
       presentIntervals: const {0, 2, 3, 7, 11},
       extensions: const {ChordExtension.nine},
-      score: 7.94,
+      score: 3.06,
     );
 
     final conventionalSlash = _candidate(
@@ -823,7 +823,7 @@ void main() {
       root: 'E',
       bass: 'D#',
       presentIntervals: const {0, 3, 7, 10},
-      score: 8.25,
+      score: 2.75,
     );
 
     const tonality = Tonality(Tonic.c, TonalityMode.major);
@@ -846,7 +846,7 @@ void main() {
       root: 'E',
       bass: 'B',
       presentIntervals: const {0, 3, 7},
-      score: 7.42,
+      score: 3.58,
     );
 
     final incompleteSixth = _candidate(
@@ -854,7 +854,7 @@ void main() {
       root: 'G',
       bass: 'B',
       presentIntervals: const {0, 4, 9},
-      score: 7.50,
+      score: 3.5,
     );
 
     _expectTieRule(
@@ -871,7 +871,7 @@ void main() {
       bass: 'C#',
       presentIntervals: const {0, 3, 8, 11},
       extensions: const {ChordExtension.flat13},
-      score: 7.16,
+      score: 3.84,
     );
     final splitThirdInversion = _candidate(
       quality: ChordQualityToken.major,
@@ -879,7 +879,7 @@ void main() {
       bass: 'C#',
       presentIntervals: const {0, 3, 4, 7},
       extensions: const {ChordExtension.addSharp9},
-      score: 7.07,
+      score: 3.93,
     );
 
     test('minor-key context prefers the harmonic-minor tonic', () {
@@ -926,7 +926,7 @@ void main() {
 
   test('root-position add-chord beats sus-family slash outside near-tie', () {
     // {C, E, G, F}: musicians hear Cadd11, not Fmaj7sus2/C.
-    // The sus reading earns a higher raw score (clean template fit with 3
+    // The sus reading earns a lower raw cost (clean template fit with 3
     // required tones) but is a remote, convoluted name for a simple voicing.
     final addChord = _candidate(
       quality: ChordQualityToken.major,
@@ -934,7 +934,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 4, 5, 7},
       extensions: const {ChordExtension.add11},
-      score: 7.07,
+      score: 3.93,
     );
 
     final susSlash = _candidate(
@@ -942,7 +942,7 @@ void main() {
       root: 'F',
       bass: 'C',
       presentIntervals: const {0, 2, 7, 11},
-      score: 8.37,
+      score: 2.63,
     );
 
     _expectRule(
@@ -952,14 +952,14 @@ void main() {
     );
   });
 
-  test('common naming prior can resolve modest score gap before inversion', () {
+  test('common naming prior can resolve modest cost gap before inversion', () {
     final conventionalAlteredDominant = _candidate(
       quality: ChordQualityToken.dominant7Sharp5,
       root: 'G',
       bass: 'A',
       presentIntervals: const {0, 2, 4, 8, 10},
       extensions: const {ChordExtension.nine},
-      score: 8.125,
+      score: 2.875,
     );
 
     final rarerInversion = _candidate(
@@ -968,7 +968,7 @@ void main() {
       bass: 'A',
       presentIntervals: const {0, 2, 4, 6, 10},
       extensions: const {ChordExtension.nine},
-      score: 8.25,
+      score: 2.75,
     );
 
     _expectTieRule(
@@ -984,7 +984,7 @@ void main() {
       root: 'D',
       bass: 'C',
       presentIntervals: const {0, 4, 6, 10},
-      score: 8.5,
+      score: 2.5,
     );
 
     final awkwardThirdBass = _candidate(
@@ -992,7 +992,7 @@ void main() {
       root: 'Ab',
       bass: 'C',
       presentIntervals: const {0, 4, 6, 10},
-      score: 8.5,
+      score: 2.5,
     );
 
     _expectTieRule(
@@ -1008,7 +1008,7 @@ void main() {
       root: 'D',
       bass: 'A',
       presentIntervals: const {0, 3, 7, 10},
-      score: 8.37,
+      score: 2.63,
     );
 
     final major6 = _candidate(
@@ -1016,7 +1016,7 @@ void main() {
       root: 'F',
       bass: 'A',
       presentIntervals: const {0, 4, 7, 9},
-      score: 8.37,
+      score: 2.63,
     );
 
     _expectTieRule(minor7, major6, 'prefer common naming preference');
@@ -1031,7 +1031,7 @@ void main() {
       bass: 'C#',
       presentIntervals: const {0, 1, 3, 11},
       extensions: const {ChordExtension.flat9},
-      score: 7.5,
+      score: 3.5,
     );
 
     final major7 = _candidate(
@@ -1040,7 +1040,7 @@ void main() {
       bass: 'C#',
       presentIntervals: const {0, 1, 4, 11},
       extensions: const {ChordExtension.flat9},
-      score: 7.5,
+      score: 3.5,
     );
 
     _expectTieRule(minorMajor, major7, 'prefer cleaner spelling');
@@ -1056,7 +1056,7 @@ void main() {
       bass: 'Eb',
       presentIntervals: const {0, 4, 6, 7, 9},
       extensions: const {ChordExtension.sharp11},
-      score: 8.08,
+      score: 2.92,
     );
     final minor7Add13 = _candidate(
       quality: ChordQualityToken.minor7,
@@ -1064,7 +1064,7 @@ void main() {
       bass: 'Eb',
       presentIntervals: const {0, 3, 7, 9, 10},
       extensions: const {ChordExtension.add13},
-      score: 8.08,
+      score: 2.92,
     );
 
     _expectTieRule(
@@ -1081,7 +1081,7 @@ void main() {
       bass: 'A#',
       presentIntervals: const {0, 2, 3, 6},
       extensions: const {ChordExtension.add9},
-      score: 7.22,
+      score: 3.78,
     );
 
     final minorMajor13Slash = _candidate(
@@ -1090,7 +1090,7 @@ void main() {
       bass: 'A#',
       presentIntervals: const {0, 3, 9, 11},
       extensions: const {ChordExtension.thirteen},
-      score: 7.07,
+      score: 3.93,
     );
 
     _expectTieRule(diminishedAdd9, minorMajor13Slash, 'prefer root position');
@@ -1103,7 +1103,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 2, 4, 10},
       extensions: const {ChordExtension.nine},
-      score: 7.22,
+      score: 3.78,
     );
 
     final majorFlat5Add9 = _candidate(
@@ -1112,7 +1112,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 2, 4, 6},
       extensions: const {ChordExtension.add9},
-      score: 7.22,
+      score: 3.78,
     );
 
     _expectTieRule(
@@ -1128,14 +1128,14 @@ void main() {
       root: 'A',
       bass: 'A',
       presentIntervals: const {0, 3, 7, 10},
-      score: 8.37,
+      score: 2.63,
     );
     final major6Slash = _candidate(
       quality: ChordQualityToken.major6,
       root: 'C',
       bass: 'A',
       presentIntervals: const {0, 4, 7, 9},
-      score: 8.37,
+      score: 2.63,
     );
 
     test('prefers the bass-rooted minor7 despite major-key tonic context', () {
@@ -1159,7 +1159,7 @@ void main() {
         bass: 'A',
         presentIntervals: const {0, 3, 5, 7, 10},
         extensions: const {ChordExtension.add11},
-        score: 8.08,
+        score: 2.92,
       );
       final coloredMajor6Slash = _candidate(
         quality: ChordQualityToken.major6,
@@ -1167,7 +1167,7 @@ void main() {
         bass: 'A',
         presentIntervals: const {0, 2, 4, 7, 9},
         extensions: const {ChordExtension.add9},
-        score: 8.08,
+        score: 2.92,
       );
 
       final explanation = ChordCandidateRanking.explain(
@@ -1189,14 +1189,14 @@ void main() {
         root: 'C',
         bass: 'C',
         presentIntervals: const {0, 4, 7, 9},
-        score: 8.37,
+        score: 2.63,
       );
       final minor7Slash = _candidate(
         quality: ChordQualityToken.minor7,
         root: 'A',
         bass: 'C',
         presentIntervals: const {0, 3, 7, 10},
-        score: 8.37,
+        score: 2.63,
       );
       final explanation = ChordCandidateRanking.explain(
         rootMajor6,
@@ -1217,7 +1217,7 @@ void main() {
     () {
       // F7(#9,b13)/G# vs C#maj9b13/G#: same six notes, same bass.
       // F7 has shell (A=major3 + Eb=flat7) and color bass (G#=sharp9 of F).
-      // C# has a higher raw score but the F dominant reading is what musicians
+      // C# has a lower raw cost but the F dominant reading is what musicians
       // expect for this voicing.
       final dom7Slash = _candidate(
         quality: ChordQualityToken.dominant7,
@@ -1226,7 +1226,7 @@ void main() {
         // intervals: root=0, sharp9=3, major3=4, perfect5=7, flat13=8, flat7=10
         presentIntervals: const {0, 3, 4, 7, 8, 10},
         extensions: const {ChordExtension.sharp9, ChordExtension.flat13},
-        score: 7.59,
+        score: 3.41,
       );
 
       final maj7Slash = _candidate(
@@ -1236,7 +1236,7 @@ void main() {
         // intervals: root=0, nine=2, major3=4, perfect5=7, flat13=8, major7=11
         presentIntervals: const {0, 2, 4, 7, 8, 11},
         extensions: const {ChordExtension.nine, ChordExtension.flat13},
-        score: 7.74,
+        score: 3.26,
       );
 
       _expectTieRule(
@@ -1256,7 +1256,7 @@ void main() {
         bass: 'Db',
         presentIntervals: const {0, 2, 3, 7},
         extensions: const {ChordExtension.add9},
-        score: 7.07,
+        score: 3.93,
       );
 
       final sparseMajorThirteenth = _candidate(
@@ -1265,7 +1265,7 @@ void main() {
         bass: 'Db',
         presentIntervals: const {0, 4, 9, 11},
         extensions: const {ChordExtension.thirteen},
-        score: 7.22,
+        score: 3.78,
       );
 
       _expectTieRule(
@@ -1280,7 +1280,7 @@ void main() {
     const tonality = Tonality(Tonic.c, TonalityMode.major);
 
     // A beats B via a hard rule (altered dominant7 over dim7 slash) despite B
-    // scoring higher; B beats C and C beats A on score alone (gaps exceed the
+    // costing less; B beats C and C beats A on cost alone (gaps exceed the
     // near-tie window). That is a cycle: A > B > C > A.
     final a = _candidate(
       quality: ChordQualityToken.dominant7,
@@ -1288,7 +1288,7 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 1, 4, 10},
       extensions: const {ChordExtension.flat9},
-      score: 1,
+      score: 10.0,
     );
     final b = _candidate(
       quality: ChordQualityToken.diminished7,
@@ -1296,14 +1296,14 @@ void main() {
       bass: 'C',
       presentIntervals: const {0, 2, 3, 6, 9},
       extensions: const {ChordExtension.nine},
-      score: 10,
+      score: 1.0,
     );
     final c = _candidate(
       quality: ChordQualityToken.major,
       root: 'E',
       bass: 'E',
       presentIntervals: const {0, 4, 7},
-      score: 5,
+      score: 6.0,
     );
 
     int cmp(ChordCandidate x, ChordCandidate y) =>
@@ -1346,13 +1346,13 @@ void main() {
 
   group('near-tie selection', () {
     test('isNearTie window is one-sided around the chosen #1 score', () {
-      const best = 7.0;
-      expect(ChordCandidateRanking.isNearTie(best, 6.85), isTrue); // within
-      expect(ChordCandidateRanking.isNearTie(best, 6.76), isTrue); // within
-      expect(ChordCandidateRanking.isNearTie(best, 6.74), isFalse); // outside
-      // A reading scoring higher than the chosen #1 is still a near-tie; the
+      const best = 4.0;
+      expect(ChordCandidateRanking.isNearTie(best, 4.15), isTrue); // within
+      expect(ChordCandidateRanking.isNearTie(best, 4.24), isTrue); // within
+      expect(ChordCandidateRanking.isNearTie(best, 4.26), isFalse); // outside
+      // A reading costing less than the chosen #1 is still a near-tie; the
       // window must not clamp the difference to its absolute value.
-      expect(ChordCandidateRanking.isNearTie(best, 7.30), isTrue);
+      expect(ChordCandidateRanking.isNearTie(best, 3.7), isTrue);
     });
 
     ChordCandidate plain(String root, double score) => _candidate(
@@ -1364,15 +1364,15 @@ void main() {
     );
 
     test('keeps ranked candidates above the last score-window alternative', () {
-      // #1 was promoted below a higher-scoring reading (D, 7.30). A later
-      // candidate (F, 6.90) is within the window even though the one before it
-      // (E, 6.50) is not, so the visible alternative list should include the
+      // #1 was promoted above a lower-cost reading (D, 3.7). A later
+      // candidate (F, 4.1) is within the window even though the one before it
+      // (E, 4.5) is not, so the visible alternative list should include the
       // whole ranked prefix through F rather than skipping E.
       final ranked = [
-        plain('C', 7.00),
-        plain('D', 7.30),
-        plain('E', 6.50),
-        plain('F', 6.90),
+        plain('C', 4.0),
+        plain('D', 3.7),
+        plain('E', 4.5),
+        plain('F', 4.1),
       ];
 
       final alternatives = ChordCandidateRanking.alternatives(ranked);
@@ -1386,9 +1386,9 @@ void main() {
     });
 
     test('returns empty when there are fewer than two candidates', () {
-      expect(ChordCandidateRanking.alternativeCount([plain('C', 7.0)]), 0);
+      expect(ChordCandidateRanking.alternativeCount([plain('C', 4.0)]), 0);
       expect(ChordCandidateRanking.alternativeCount(const []), 0);
-      expect(ChordCandidateRanking.alternatives([plain('C', 7.0)]), isEmpty);
+      expect(ChordCandidateRanking.alternatives([plain('C', 4.0)]), isEmpty);
       expect(ChordCandidateRanking.alternatives(const []), isEmpty);
     });
   });

@@ -59,7 +59,7 @@ class NamedRule {
 // order in detail. Update the article when rules or their order change.
 
 /// Score-independent overrides, applied before the near-tie window check.
-/// A hard rule can promote a lower-scoring reading to the top, so each is
+/// A hard rule can promote a higher-cost reading to the top, so each is
 /// deliberately narrow and guarded.
 final List<NamedRule> hardRules = <NamedRule>[
   NamedRule(
@@ -173,7 +173,7 @@ final List<NamedRule> hardRules = <NamedRule>[
 ///
 /// {C, Db, D, E, F#, Bb} can be read as C9b5b9 or F#7(#11,b13). Both are
 /// complete dominant structures, but the altered-fifth template's extra
-/// required tone creates a modest score advantage that can hide a much more
+/// required tone creates a modest cost advantage that can hide a much more
 /// conventional inversion of the tritone-related dominant.
 int? _preferConventionalSplitNineTritoneDominant(
   ChordCandidate a,
@@ -242,7 +242,7 @@ int? _preferRootMinor7Add11ShellOverSusSlash(
   if (!otherIsInvertedDominantSus && !otherIsInvertedDoubleSus) return null;
 
   final preferred = aIsPreferred ? a : b;
-  if (preferred.score + 1.30 < other.score) return null;
+  if (preferred.score > other.score + 1.30) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -308,16 +308,16 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferFullyExplainedVoicing,
   ),
   NamedRule(
-    'prefer higher-scoring add chord over missing-third unusual seventh',
-    _preferHigherScoringAddChordOverMissingThirdUnusualSeventh,
+    'prefer lower-cost add chord over missing-third unusual seventh',
+    _preferLowerCostAddChordOverMissingThirdUnusualSeventh,
   ),
   NamedRule(
     'prefer harmonic-minor tonic over split-third inversion',
     _preferHarmonicMinorTonicOverSplitThirdInversion,
   ),
   NamedRule(
-    'prefer higher-scoring major-seventh-bass inversion over color-bass slash',
-    _preferHigherScoringMajorSeventhBassInversionOverColorBassSlash,
+    'prefer lower-cost major-seventh-bass inversion over color-bass slash',
+    _preferLowerCostMajorSeventhBassInversionOverColorBassSlash,
   ),
   NamedRule('prefer fewer altered/tension colors', _preferFewerAlterations),
   NamedRule('prefer diatonic chords', _preferDiatonic),
@@ -454,7 +454,7 @@ int? _preferCompleteDom7Sharp9OverSixthFlat9(
   }
 
   final preferredCandidate = aIsPreferred ? a : b;
-  if (preferredCandidate.score + 0.30 < other.score) return null;
+  if (preferredCandidate.score > other.score + 0.30) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -560,7 +560,7 @@ int? _preferCompleteDom7Flat9OverColoredDim7(
 
   final preferredCandidate = aIsPreferred ? a : b;
   final otherCandidate = aIsPreferred ? b : a;
-  if (preferredCandidate.score + 0.30 < otherCandidate.score) return null;
+  if (preferredCandidate.score > otherCandidate.score + 0.30) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -608,7 +608,7 @@ bool _isColoredDiminishedReading(ChordIdentity id, CandidateFeatures features) {
 ///
 /// This remains an ambiguity preference, not an absolute analysis: when the
 /// bass-rooted minor-major7 reading is rooted on the selected tonic, context
-/// provides enough evidence to leave that higher-scoring reading ahead.
+/// provides enough evidence to leave that lower-cost reading ahead.
 int? _preferFlatNineBassDominantOverRemoteReinterpretation(
   ChordCandidate a,
   ChordCandidate b,
@@ -636,7 +636,7 @@ int? _preferFlatNineBassDominantOverRemoteReinterpretation(
   }
 
   final preferredCandidate = aIsPreferred ? a : b;
-  if (preferredCandidate.score + 0.35 < other.score) return null;
+  if (preferredCandidate.score > other.score + 0.35) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -1000,7 +1000,7 @@ int? _preferCompleteAlteredSharpFiveDominantOverRemoteSpellings(
     return null;
   }
 
-  if (preferred.score + ranking_policy.nearTieWindow < other.score) return null;
+  if (preferred.score > other.score + ranking_policy.nearTieWindow) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -1135,7 +1135,7 @@ int? _preferDom7RootOverNonDomSlash(
     return null;
   }
 
-  if (domCandidate.score + 0.45 < otherCandidate.score) return null;
+  if (domCandidate.score > otherCandidate.score + 0.45) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -1170,7 +1170,7 @@ int? _preferRootAlteredFifthDom7(
     return null;
   }
 
-  if (rootCandidate.score + 0.30 < slashCandidate.score) return null;
+  if (rootCandidate.score > slashCandidate.score + 0.30) return null;
 
   return rootIsA ? -1 : 1;
 }
@@ -1195,7 +1195,7 @@ bool _isWholeToneAlteredFifthRootVsNinthSlash(
           slashCandidate.identity.quality == ChordQualityToken.dominant7Flat5);
   if (!slashIsNinthAlteredFifth) return false;
 
-  return slashCandidate.score >= rootCandidate.score;
+  return slashCandidate.score <= rootCandidate.score;
 }
 
 /// Prefers a complete seventh chord with the ninth in the bass over a remote
@@ -1225,7 +1225,7 @@ int? _preferNinthBassSeventhOverAlteredSlash(
   if (fOther.extensionTensionCount == 0 && !fOther.isUnusualSeventhQuality) {
     return null;
   }
-  if (preferredCandidate.score + 0.60 < otherCandidate.score) return null;
+  if (preferredCandidate.score > otherCandidate.score + 0.60) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -1263,7 +1263,7 @@ int? _preferConventionalAlteredSeventhOverAdd11Slash(
 
   // Keep this rule bounded to close structural ambiguities. Wider gaps should
   // still be decided by the raw template fit.
-  if (conventional.score + 0.70 < questionable.score) return null;
+  if (conventional.score > questionable.score + 0.70) return null;
 
   return aIsQuestionableSlash ? 1 : -1;
 }
@@ -1273,12 +1273,12 @@ int? _preferConventionalAlteredSeventhOverAdd11Slash(
 ///
 /// Example: {C, E, G, F} is naturally read as Cadd11, not Fmaj7sus2/C.
 /// The F-rooted sus reading fits the template cleanly (no extra tones), so it
-/// earns a higher raw score. But the score advantage is a structural artifact:
-/// the major7sus2 template has three required tones, which accumulates more
-/// reward than the two-required-tone major template, even though musicians
-/// universally hear the simpler root-position reading.
+/// can earn a lower raw cost. But that cost advantage is a structural artifact:
+/// the major7sus2 template accounts for more tones as required structure than
+/// the two-required-tone major template, even though musicians universally hear
+/// the simpler root-position reading.
 ///
-/// The 1.50-point guard lets the sus reading win when the score difference is
+/// The 1.50-point guard lets the sus reading win when the cost difference is
 /// decisive rather than merely a template-complexity artifact.
 int? _preferRootAddChordOverSusSlash(
   ChordCandidate a,
@@ -1298,7 +1298,7 @@ int? _preferRootAddChordOverSusSlash(
   final susCandidate = aIsPreferred ? b : a;
   if (!_hasOnlyNaturalAddTones(preferredCandidate.identity)) return null;
 
-  if (preferredCandidate.score + 1.50 < susCandidate.score) return null;
+  if (preferredCandidate.score > susCandidate.score + 1.50) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -1380,8 +1380,8 @@ bool _isSparseNaturalExtensionSeventh(ChordIdentity id) {
 ///
 /// When a plain triad with a simple add-tone (e.g., Cadd9/G) competes
 /// against a seventh-family reading with an unusual quality (e.g.,
-/// Em7#5/G), the seventh-family template's extra required tones create a
-/// structural score advantage that doesn't reflect musician expectations.
+/// Em7#5/G), the seventh-family template's extra required tones can create a
+/// structural cost advantage that doesn't reflect musician expectations.
 /// Both oracles (music21, tonal) converge on the simpler triad reading.
 int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
   ChordCandidate a,
@@ -1418,11 +1418,11 @@ int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
     return null;
   }
 
-  // Score guard: let decisively higher-scoring unusual-quality readings
+  // Cost guard: let decisively lower-cost unusual-quality readings
   // through when the gap exceeds what structural inflation explains.
   final preferredCandidate = aIsTriadAddTone ? a : b;
   final otherCandidate = aIsTriadAddTone ? b : a;
-  if (preferredCandidate.score + 1.50 < otherCandidate.score) return null;
+  if (preferredCandidate.score > otherCandidate.score + 1.50) return null;
 
   return aIsTriadAddTone ? -1 : 1;
 }
@@ -1465,7 +1465,7 @@ int? _preferReadableSharpElevenMajorOverFlatFive(
     return null;
   }
 
-  if (preferred.score + 1.50 < other.score) return null;
+  if (preferred.score > other.score + 1.50) return null;
 
   return aIsPreferred ? -1 : 1;
 }
@@ -1535,7 +1535,7 @@ bool _isPlainMajorSeventhFlatFive(ChordIdentity id) {
 /// a structurally deficient reading that omits a core tone.
 ///
 /// A complete triad (root + 3rd + 5th) with simple add color is a strong,
-/// stable gestalt. The raw scorer can rank it below a larger template that
+/// stable gestalt. Raw cost can rank it below a larger template that
 /// books more "required" tones, even when that larger reading omits a core
 /// tone of its own. This prefers the complete triad over:
 /// - a seventh-family slash that omits every fifth (e.g. D♭maj13/F), and
@@ -1547,7 +1547,7 @@ bool _isPlainMajorSeventhFlatFive(ChordIdentity id) {
 /// The deficient side is deliberately narrow so that complete seventh chords,
 /// altered-fifth chords (which keep a flat/sharp fifth), six chords, and
 /// dominant/major suspended chords (which keep a seventh) are never demoted.
-/// A score guard keeps a decisively higher-scoring reading in front.
+/// A cost guard keeps a decisively lower-cost reading in front.
 int? _preferCompleteTriadOverDeficientReading(
   ChordCandidate a,
   ChordCandidate b,
@@ -1564,7 +1564,7 @@ int? _preferCompleteTriadOverDeficientReading(
 
   final triadCandidate = aIsTriad ? a : b;
   final otherCandidate = aIsTriad ? b : a;
-  if (triadCandidate.score + 0.45 < otherCandidate.score) return null;
+  if (triadCandidate.score > otherCandidate.score + 0.45) return null;
 
   return aIsTriad ? -1 : 1;
 }
@@ -1683,7 +1683,7 @@ bool _isUnusualSeventhMissingThird(ChordIdentity id) {
       !roles.contains(ChordToneRole.sus4);
 }
 
-int? _preferHigherScoringAddChordOverMissingThirdUnusualSeventh(
+int? _preferLowerCostAddChordOverMissingThirdUnusualSeventh(
   ChordCandidate a,
   ChordCandidate b,
   CandidateFeatures fa,
@@ -1697,7 +1697,7 @@ int? _preferHigherScoringAddChordOverMissingThirdUnusualSeventh(
   final addChord = aIsAddChord ? a : b;
   final unusual = aIsAddChord ? b : a;
   if (!_isUnusualSeventhMissingThird(unusual.identity)) return null;
-  if (addChord.score < unusual.score) return null;
+  if (addChord.score > unusual.score) return null;
 
   return aIsAddChord ? -1 : 1;
 }
@@ -1764,31 +1764,31 @@ int? _preferFewerAlterations(
   return cmp;
 }
 
-int? _preferHigherScoringMajorSeventhBassInversionOverColorBassSlash(
+int? _preferLowerCostMajorSeventhBassInversionOverColorBassSlash(
   ChordCandidate a,
   ChordCandidate b,
   CandidateFeatures fa,
   CandidateFeatures fb,
   Tonality _,
 ) {
-  final higherIsA = a.score > b.score;
-  final higher = higherIsA ? a : b;
-  final lower = higherIsA ? b : a;
-  final fHigher = higherIsA ? fa : fb;
-  final fLower = higherIsA ? fb : fa;
+  final betterIsA = a.score < b.score;
+  final better = betterIsA ? a : b;
+  final worse = betterIsA ? b : a;
+  final fBetter = betterIsA ? fa : fb;
+  final fWorse = betterIsA ? fb : fa;
 
-  if (higher.score == lower.score) return null;
-  if (!fHigher.isSeventhFamily || !fLower.isSeventhFamily) return null;
-  if (!fHigher.isSlashBass || !fLower.isSlashBass) return null;
-  if (fHigher.bassIsColorTone) return null;
-  if (!fLower.bassIsColorTone) return null;
-  final higherBassInterval = intervalAboveRoot(
-    higher.identity.bassPc,
-    higher.identity.rootPc,
+  if (better.score == worse.score) return null;
+  if (!fBetter.isSeventhFamily || !fWorse.isSeventhFamily) return null;
+  if (!fBetter.isSlashBass || !fWorse.isSlashBass) return null;
+  if (fBetter.bassIsColorTone) return null;
+  if (!fWorse.bassIsColorTone) return null;
+  final betterBassInterval = intervalAboveRoot(
+    better.identity.bassPc,
+    better.identity.rootPc,
   );
-  if (higherBassInterval != majorSeventhInterval) return null;
+  if (betterBassInterval != majorSeventhInterval) return null;
 
-  return higherIsA ? -1 : 1;
+  return betterIsA ? -1 : 1;
 }
 
 int? _preferDiatonic(
@@ -2159,7 +2159,7 @@ bool _shouldNotPreferSeventhFamilyOverStableSixth(
   }
   if (!fOther.isSixFamily) return false;
   if (fOther.unnamedToneCount > 0) return false;
-  if (other.score + ranking_policy.nearTieWindow < preferred.score) {
+  if (other.score > preferred.score + ranking_policy.nearTieWindow) {
     return false;
   }
   return true;

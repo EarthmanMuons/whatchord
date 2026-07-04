@@ -645,7 +645,6 @@ class _CandidateScoreBack extends StatelessWidget {
     final scoringReasons = row.scoreReasons.where(
       (reason) => reason.label != 'normalize' && reason.delta != 0,
     );
-    final rawScore = _rawScore(row);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -678,10 +677,6 @@ class _CandidateScoreBack extends StatelessWidget {
             label: _scoreReasonLabel(reason.label),
             value: reason.delta,
           ),
-        if (rawScore != null) ...[
-          const Divider(height: 16),
-          _ScoreRow(label: 'Raw score', value: rawScore, signed: false),
-        ],
         _ScoreRow(
           label: 'Final score',
           value: row.candidate.score,
@@ -1145,16 +1140,6 @@ int? _reasonCount(RankedCandidateDebug row, String label) {
   return null;
 }
 
-double? _rawScore(RankedCandidateDebug row) {
-  final normalize = row.scoreReasons
-      .where((reason) => reason.label == 'normalize')
-      .firstOrNull;
-  final match = RegExp(
-    r'raw=(-?\d+(?:\.\d+)?)',
-  ).firstMatch(normalize?.detail ?? '');
-  return match == null ? null : double.tryParse(match.group(1)!);
-}
-
 String _scoreReasonLabel(String label) {
   return switch (label) {
     'required tones' => 'Required notes present',
@@ -1176,7 +1161,7 @@ String _scoreReasonLabel(String label) {
 String _plainDecision(String? rule, {ChordCandidate? winner}) {
   final sentence = switch (rule) {
     'score difference beyond tie-break range' =>
-      'its fit score was clearly stronger.',
+      'its explanation cost was clearly lower.',
     'prefer root-position 6th over inverted 7th' =>
       'the sixth-chord name is in root position, while the alternate reading puts another chord over a non-root bass.',
     'prefer complete triad over incomplete inverted 6th' =>
@@ -1201,8 +1186,8 @@ String _plainDecision(String? rule, {ChordCandidate? winner}) {
     'prefer dominant7 over dim7 slash' ||
     'prefer altered dominant7 over dim7 slash' =>
       'the dominant-seventh shell gives the voicing a clearer dominant reading.',
-    'prefer higher-scoring major-seventh-bass inversion over color-bass slash' =>
-      'the higher-scoring name gives the bass a conventional major-seventh inversion role instead of treating it as a remote color tone.',
+    'prefer lower-cost major-seventh-bass inversion over color-bass slash' =>
+      'the better-fitting name gives the bass a conventional major-seventh inversion role instead of treating it as a remote color tone.',
     'prefer half-diminished flat-color spelling over minor sharp-five' =>
       'the half-diminished name uses the flatter, more conventional spelling for this diminished-fifth color stack.',
     'prefer fewer altered/tension colors' =>
