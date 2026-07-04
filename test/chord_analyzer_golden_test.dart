@@ -60,7 +60,7 @@ void main() {
     golden(
       description: 'split-third major triad in second inversion',
       expectedSymbol: 'Aadd#9/E',
-      expectedAlternateSymbols: ['C#m(maj7,b13)/E', 'C6b9/E'],
+      expectedCandidates: ['C#m(maj7,b13)/E', 'C6b9/E'],
       pcs: ['C', 'Db', 'E', 'A'],
       bass: 'E',
       expectedRoot: 'A',
@@ -73,7 +73,7 @@ void main() {
     golden(
       description: 'split-third major triad in first inversion',
       expectedSymbol: 'Aadd#9/C#',
-      expectedAlternateSymbols: ['C#m(maj7,b13)', 'C6b9/Db'],
+      expectedCandidates: ['C#m(maj7,b13)', 'C6b9/Db'],
       pcs: ['C', 'Db', 'E', 'A'],
       bass: 'Db',
       expectedRoot: 'A',
@@ -86,7 +86,7 @@ void main() {
     golden(
       description: 'harmonic-minor tonic beats split-third major inversion',
       expectedSymbol: 'C#m(maj7,b13)',
-      expectedAlternateSymbols: ['Aadd#9/C#', 'C6b9/Db'],
+      expectedCandidates: ['Aadd#9/C#', 'C6b9/Db'],
       pcs: ['C', 'Db', 'E', 'A'],
       bass: 'Db',
       tonality: const Tonality(Tonic.cSharp, TonalityMode.minor),
@@ -100,7 +100,7 @@ void main() {
       description:
           'transposed harmonic-minor tonic beats split-third major inversion',
       expectedSymbol: 'Fm(maj7,b13)',
-      expectedAlternateSymbols: ['Dbadd#9/F', 'E6b9/F'],
+      expectedCandidates: ['Dbadd#9/F', 'E6b9/F'],
       pcs: ['E', 'F', 'Ab', 'Db'],
       bass: 'F',
       tonality: const Tonality(Tonic.f, TonalityMode.minor),
@@ -141,7 +141,7 @@ void main() {
     golden(
       description: 'dominant eleventh without ninth beats sus slash',
       expectedSymbol: 'C11',
-      expectedAlternateSymbols: ['Fmaj9sus4/C', 'C7sus4'],
+      expectedCandidates: ['Fmaj9sus4/C', 'C7sus4'],
       pcs: ['C', 'E', 'G', 'Bb', 'F'],
       bass: 'C',
       expectedRoot: 'C',
@@ -255,7 +255,7 @@ void main() {
     golden(
       description: 'root-position sharp-five flat-nine dominant',
       expectedSymbol: 'C7(#5,b9)',
-      expectedAlternateSymbols: ['C#m(maj13)/B#', 'C7(b9,b13)'],
+      expectedCandidates: ['C#m(maj13)/B#', 'C7(b9,b13)'],
       pcs: ['C', 'Db', 'E', 'Ab', 'Bb'],
       expectedRoot: 'C',
       expectedQuality: ChordQualityToken.dominant7Sharp5,
@@ -263,11 +263,11 @@ void main() {
     ),
 
     // In neutral context, prefer the familiar fifthless altered-dominant shell
-    // while retaining the bass-rooted reinterpretations as alternates.
+    // while retaining the bass-rooted reinterpretations as ranked candidates.
     golden(
       description: 'flat-nine-bass dominant without fifth',
       expectedSymbol: 'C7b9/Db',
-      expectedAlternateSymbols: ['C#m(maj13)', 'A#dim(add9)/C#'],
+      expectedCandidates: ['C#m(maj13)', 'A#dim(add9)/C#'],
       pcs: ['C', 'Db', 'E', 'Bb'],
       bass: 'Db',
       expectedRoot: 'C',
@@ -279,7 +279,7 @@ void main() {
     golden(
       description: 'root-position diminished add-nine beats deficient slash',
       expectedSymbol: 'A#dim(add9)',
-      expectedAlternateSymbols: ['C#m(maj7)/A#', 'C7b9/Bb'],
+      expectedCandidates: ['C#m(maj7)/A#', 'C7b9/Bb'],
       pcs: ['C', 'Db', 'E', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'A#',
@@ -425,7 +425,7 @@ void main() {
     golden(
       description: 'major ninth suspended fourth',
       expectedSymbol: 'Dbmaj9sus4',
-      expectedAlternateSymbols: ['Ab7/Db'],
+      expectedCandidates: ['Ab7/Db'],
       pcs: ['C', 'Db', 'Eb', 'F#', 'Ab'],
       bass: 'Db',
       expectedRoot: 'Db',
