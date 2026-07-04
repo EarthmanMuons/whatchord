@@ -1,6 +1,9 @@
+import 'package:flutter_test/flutter_test.dart';
+
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'helpers/chord_analyzer_golden_helpers.dart';
+import 'helpers/theory_test_helpers.dart';
 
 void main() {
   final cases = <GoldenCase>[
@@ -1492,4 +1495,30 @@ void main() {
   ];
 
   runChordAnalyzerGoldenCases(cases);
+
+  test('rejects missing-seventh thirteenth slash candidates', () {
+    final input = chordInputFromNames(
+      names: ['C', 'G', 'Bb', 'D', 'E'],
+      bass: 'C',
+    );
+    final results = ChordAnalyzer.analyze(
+      input,
+      context: makeAnalysisContext(),
+      take: 40,
+    );
+    final symbols = results
+        .map(
+          (candidate) => ChordSymbolBuilder.fromIdentity(
+            identity: candidate.identity,
+            tonality: defaultTestTonality,
+            notation: ChordNotationStyle.textual,
+          ).toString(),
+        )
+        .toSet();
+
+    expect(symbols, contains('Gm6/C'));
+    expect(symbols, isNot(contains('Gm13/C')));
+    expect(symbols, isNot(contains('Gm(maj13)/C')));
+    expect(symbols, isNot(contains('Bb13#11/C')));
+  });
 }
