@@ -1163,7 +1163,7 @@ String _plainDecision(String? rule, {ChordCandidate? winner}) {
     'cost difference beyond tie-break range' =>
       'its explanation cost was clearly lower.',
     'prefer root-position 6th over inverted 7th' =>
-      'the sixth-chord name is in root position, while the alternate reading puts another chord over a non-root bass.',
+      'the sixth-chord name is in root position, while the alternative reading puts another chord over a non-root bass.',
     'prefer complete triad over incomplete inverted 6th' =>
       'a complete triad is clearer than an incomplete inverted sixth chord.',
     'prefer upper-structure dominant7 slash' => _upperStructureDominantReason(

@@ -434,8 +434,9 @@ only by the `rootPc` tie-break. There is no musically correct order between
 them, so pinning one was over-specification. We therefore loosened the goldens
 at the source rather than per-case:
 
-- `expectAlternateSymbols` became an unordered containment check: every expected
-  alternate must still be surfaced, but their order is free.
+- `expectedAlternatives` became an unordered containment check against the
+  surfaced alternatives band: every expected alternative must still be surfaced,
+  but their order is free.
 - The synthetic "a hard rule must win across a score gap of 9" unit test was
   relaxed. Measured hard-rule reach is ~1.6 (see below); an override across a
   gap of 9 was an assertion about a regime that does not occur, and it blocked
