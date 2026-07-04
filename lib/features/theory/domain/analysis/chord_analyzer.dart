@@ -453,6 +453,17 @@ abstract final class ChordAnalyzer {
       quality: template.quality,
     );
 
+    // The seventh is what makes a chord a ninth, eleventh, or thirteenth.
+    // Without that required seventh sounding, the same tones should be named
+    // as add tones or sixth chords, not as a stacked seventh-family extension.
+    if (_missesSeventhUnderStackedExtensions(
+      template: template,
+      missingRequiredMask: missingRequiredMask,
+      extensions: extensions,
+    )) {
+      return null;
+    }
+
     if (_flatFiveConflictsWithNaturalThirteenth(
       quality: template.quality,
       extensions: extensions,
@@ -809,8 +820,13 @@ abstract final class ChordAnalyzer {
         (role == ChordToneRole.flat9 || role == ChordToneRole.splitMinor3)) {
       price += _stackedChromaticAddSurcharge;
     }
+    // The alt-palette discount belongs to sounding dominants; a dominant name
+    // whose flat seventh is missing is a phantom host, and its alterations
+    // pay the off-dominant rate like any other quality's.
+    final soundingDominant =
+        _isDominantFamily(quality) && has(minorSeventhInterval);
     final multiplied =
-        !_isDominantFamily(quality) &&
+        !soundingDominant &&
         !(role == ChordToneRole.sharp11 && _isSharpElevenFriendly(quality));
     return multiplied ? price * _offDominantAlterationMultiplier : price;
   }
@@ -855,6 +871,26 @@ abstract final class ChordAnalyzer {
     return roles.containsValue(ChordToneRole.sus2) ||
         roles.containsValue(ChordToneRole.nine) ||
         roles.containsValue(ChordToneRole.add9);
+  }
+
+  /// True when a seventh-family name is missing its seventh while promoting
+  /// stacked natural extensions (a 9, 11, or 13 in the symbol). Under the
+  /// [isSeventhFamily] guard, interval 9 can only be a required diminished
+  /// seventh, never a sixth.
+  static bool _missesSeventhUnderStackedExtensions({
+    required ChordTemplate template,
+    required int missingRequiredMask,
+    required Set<ChordExtension> extensions,
+  }) {
+    if (!template.quality.isSeventhFamily) return false;
+    const seventhMask =
+        (1 << majorSixthInterval) |
+        (1 << minorSeventhInterval) |
+        (1 << majorSeventhInterval);
+    if ((missingRequiredMask & seventhMask) == 0) return false;
+    return extensions.contains(ChordExtension.nine) ||
+        extensions.contains(ChordExtension.eleven) ||
+        extensions.contains(ChordExtension.thirteen);
   }
 
   /// Price of a required tone the voicing omits, by the degree it would fill.
