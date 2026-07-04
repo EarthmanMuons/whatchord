@@ -503,6 +503,41 @@ void main() {
     );
   });
 
+  test(
+    'natural dominant color does not trigger altered seventh add11 rule',
+    () {
+      final naturalDominant = _candidate(
+        quality: ChordQualityToken.dominant7,
+        root: 'Eb',
+        bass: 'Db',
+        presentIntervals: const {0, 4, 5, 9, 10},
+        extensions: const {ChordExtension.eleven, ChordExtension.thirteen},
+        cost: 1.65,
+      );
+
+      final add11Slash = _candidate(
+        quality: ChordQualityToken.major7,
+        root: 'Ab',
+        bass: 'Db',
+        presentIntervals: const {0, 4, 5, 7, 11},
+        extensions: const {ChordExtension.eleven},
+        cost: 1.10,
+      );
+
+      final explanation = ChordCandidateRanking.explain(
+        add11Slash,
+        naturalDominant,
+        tonality: defaultTestTonality,
+      );
+
+      expect(explanation.result, -1);
+      expect(
+        explanation.decidedByRule,
+        isNot('prefer conventional altered seventh over add11 slash'),
+      );
+    },
+  );
+
   test('root-position dominant7 beats close non-dominant slash', () {
     final dominant = _candidate(
       quality: ChordQualityToken.dominant7,
