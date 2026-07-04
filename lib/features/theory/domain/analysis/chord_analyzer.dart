@@ -432,6 +432,21 @@ abstract final class ChordAnalyzer {
     final extrasMask =
         (relMask & ~(base | penalty)) | functionalPenaltyExtensionsMask;
 
+    // A bare triad plus the major sixth is a sixth chord (C6, Cm6); the add13
+    // labeling of the same tones would duplicate the six-family template
+    // under a name the symbol guide reserves for seventh chords. When the
+    // sixth is the bass, the add13 label compresses into the slash and the
+    // reading survives as the conventional triad-over-sixth symbol (A-C-E as
+    // C/A), so only tones above the bass trigger the rejection.
+    final isBareTriad =
+        template.quality == ChordQualityToken.major ||
+        template.quality == ChordQualityToken.minor;
+    if (isBareTriad &&
+        (extrasMask & (1 << majorSixthInterval)) != 0 &&
+        bassInterval != majorSixthInterval) {
+      return null;
+    }
+
     final extensions = _extensionsFromExtras(
       extrasMask,
       has7: template.quality.isSeventhFamily,
@@ -750,13 +765,21 @@ abstract final class ChordAnalyzer {
         !majorFamilyLydianStack) {
       price += _sharpElevenEmptyFifthSurcharge;
     }
-    // Same fifth-slot logic for the flat thirteen: with no perfect fifth
+    // Same fifth-slot logic for the flat thirteen: with no fifth-slot tone
     // sounding, the m6 interval reads as a sharp five (G-B-F-A-D# is G7#5(9),
-    // not a fifthless G9b13). Minor-major sevenths are exempt: the fifthless
-    // m(maj7)b13 is the harmonic-minor tonic idiom and has no competing
-    // sharp-five reading.
+    // not a fifthless G9b13). On a minor-third flat-five host (m7b5, dim) the
+    // flat five occupies the slot and the sharp-five re-reading would respell
+    // the whole chord, so Em7(b5,b13) keeps its plain name; major-third
+    // flat-five hosts keep the surcharge because the #5/#11 reading stays
+    // available (whole-tone sets prefer C9(#5,#11) over C9(b5,b13)).
+    // Minor-major sevenths are exempt: the fifthless m(maj7)b13 is the
+    // harmonic-minor tonic idiom and has no competing sharp-five reading.
+    final flatFiveMinorHost =
+        roles[tritoneInterval] == ChordToneRole.flat5 &&
+        roles[minorThirdInterval] == ChordToneRole.minor3;
     if (role == ChordToneRole.flat13 &&
         !has(perfectFifthInterval) &&
+        !flatFiveMinorHost &&
         quality != ChordQualityToken.minorMajor7) {
       price += _flatThirteenEmptyFifthSurcharge;
     }

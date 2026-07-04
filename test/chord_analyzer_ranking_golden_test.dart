@@ -29,6 +29,25 @@ void main() {
     ),
 
     golden(
+      // The chord-naming article's worked example: every sounding note has a
+      // per-root reading, and all five surface. Guards against redundant
+      // same-root relabelings (Gmadd13/C) crowding out real alternatives.
+      description: 'dominant ninth surfaces one reading per candidate root',
+      expectedSymbol: 'C9',
+      expectedAlternateSymbols: [
+        'Gm6/C',
+        'Bb6#11/C',
+        'D9sus4(b13)/C',
+        'Em7(b5,b13)/C',
+      ],
+      pcs: ['C', 'E', 'G', 'Bb', 'D'],
+      bass: 'C',
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine},
+    ),
+
+    golden(
       description: 'root-position thirteenth sharp eleventh beats remote slash',
       expectedSymbol: 'C13#11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F#', 'A'],
@@ -878,11 +897,7 @@ void main() {
       // selects the minor-eleventh reading.
       description: 'minor-eleventh slash beats major six-nine slash',
       expectedSymbol: 'Cm11/Bb',
-      expectedAlternateSymbols: [
-        'Eb6/9/Bb',
-        'Eb(add9,add13)/Bb',
-        'Bbsus4(add9,add13)',
-      ],
+      expectedAlternateSymbols: ['Eb6/9/Bb', 'Bbsus4(add9,add13)'],
       pcs: ['C', 'Eb', 'F', 'G', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'C',
@@ -894,7 +909,7 @@ void main() {
     golden(
       description: 'root-position minor six-nine beats half-diminished slash',
       expectedSymbol: 'Bbm6/9',
-      expectedAlternateSymbols: ['Gm11(b5)/Bb', 'Bbm(add9,add13)'],
+      expectedAlternateSymbols: ['Gm11(b5)/Bb'],
       pcs: ['C', 'Db', 'F', 'G', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'Bb',
@@ -948,12 +963,7 @@ void main() {
       // sibling case.
       description: 'minor-thirteenth fifth bass beats lydian six-nine slash',
       expectedSymbol: 'Ebm13/Bb',
-      expectedAlternateSymbols: [
-        'Gb6/9#11/Bb',
-        'Gb(#11,add9,add13)/Bb',
-        'Ab11/Bb',
-        'Dbmaj13sus4/Bb',
-      ],
+      expectedAlternateSymbols: ['Gb6/9#11/Bb', 'Ab11/Bb', 'Dbmaj13sus4/Bb'],
       pcs: ['C', 'Db', 'Eb', 'F#', 'Ab', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'Eb',
@@ -1190,7 +1200,6 @@ void main() {
         'Bbm6/9add11/F',
         'F9sus4(b13)',
         'Dbmaj13(#11)/F',
-        'Bbm(add9,add11,add13)/F',
       ],
       pcs: ['C', 'Db', 'Eb', 'F', 'G', 'Bb'],
       bass: 'F',
