@@ -4,6 +4,7 @@ import '../models/chord_identity.dart';
 import '../models/tonality.dart';
 import 'candidate_features.dart';
 import 'choco_common_name_prior.dart';
+import 'ranking_policy.dart' as ranking_policy;
 
 /// Uses ChoCo chord-label frequency as a weak common-name prior for otherwise
 /// equivalent near-ties.
@@ -20,10 +21,10 @@ int? preferCommonNamePrior(
   CandidateFeatures fb,
   Tonality _,
 ) {
-  // Allow the prior to resolve a modest cost preference caused only by bass
-  // position. This remains below the general near-tie window and is guarded by
-  // equivalent explanation/extension complexity below.
-  if ((a.cost - b.cost).abs() > 0.15) return null;
+  // Allow the prior to resolve modest cost differences inside the same
+  // near-tie window used by the ranking rules, while the equivalence guards
+  // below keep corpus frequency from becoming a primary cost signal.
+  if ((a.cost - b.cost).abs() > ranking_policy.nearTieWindow) return null;
   if (fa.unnamedToneCount != fb.unnamedToneCount) return null;
   if (fa.extensionCount != fb.extensionCount) return null;
   if (fa.extensionTensionCount != fb.extensionTensionCount) return null;
@@ -39,7 +40,25 @@ int? preferCommonNamePrior(
   if (high < minObservations) return null;
   if (low > 0 && high / low < minRatio) return null;
 
+  final preferred = aCount > bCount ? a : b;
+  final other = aCount > bCount ? b : a;
+  if (preferred.cost > other.cost &&
+      _isSharpFiveDominantOverFlatFiveDominant(
+        preferred.identity,
+        other.identity,
+      )) {
+    return null;
+  }
+
   return aCount > bCount ? -1 : 1;
+}
+
+bool _isSharpFiveDominantOverFlatFiveDominant(
+  ChordIdentity preferred,
+  ChordIdentity other,
+) {
+  return preferred.quality == ChordQualityToken.dominant7Sharp5 &&
+      other.quality == ChordQualityToken.dominant7Flat5;
 }
 
 int _commonNamePriorCount(ChordIdentity identity) {
