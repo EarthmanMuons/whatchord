@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Snapshot and diff the research pool to measure a change's blast radius.
 
-A snapshot records the engine's ranked symbols for every pool case. Diffing
-two snapshots classifies each changed case by severity: a different top pick,
-a different surfaced candidate set, or only a different order below the top
-pick (which is not a contract). Take a snapshot before an engine change,
-another after, and review the diff by stratum: 3-5 note flips deserve
-individual attention, dense-set flips need musical eyeballing.
+A snapshot records the engine's ranked symbols and the app-visible surfaced
+symbols for every pool case. Diffing two snapshots classifies each changed case
+by severity: a different top pick, a different surfaced candidate set, or only
+a different order below the top pick (which is not a contract). Take a snapshot
+before an engine change, another after, and review the diff by stratum: 3-5
+note flips deserve individual attention, dense-set flips need musical
+eyeballing.
 
 Examples:
   python3 tool/chord_pool_diff.py snapshot --out build/pool-diff/before.json
@@ -30,6 +31,19 @@ CHORD_BATCH = REPO_ROOT / "tool" / "chord_oracle_batch.dart"
 DEFAULT_TOP = 5
 
 
+def surfaced_symbols(candidates: list[dict]) -> list[str | None]:
+    if not candidates:
+        return []
+    return [
+        candidates[0].get("symbol"),
+        *[
+            c.get("symbol")
+            for c in candidates[1:]
+            if c.get("alternative") is True
+        ],
+    ]
+
+
 def take_snapshot(*, all_transpositions: bool, top: int, key: str) -> dict:
     cases = list(
         generate_cases(
@@ -47,6 +61,7 @@ def take_snapshot(*, all_transpositions: bool, top: int, key: str) -> dict:
         candidates = payload.get("candidates") or []
         snapshot_cases[case.case_id] = {
             "symbols": [c.get("symbol") for c in candidates],
+            "surfacedSymbols": surfaced_symbols(candidates),
             "rule": candidates[1].get("vsPreviousRule")
             if len(candidates) > 1
             else None,
@@ -65,6 +80,16 @@ def note_count(case_id: str) -> int:
     return case_id.count("-") + 1
 
 
+def ranked(case: dict) -> list:
+    return case.get("symbols") or []
+
+
+def surfaced(case: dict) -> list:
+    # Backward-compatible fallback for snapshots created before surfacedSymbols
+    # existed. New snapshots always carry the app-visible surfaced band.
+    return case.get("surfacedSymbols") or ranked(case)
+
+
 def diff_snapshots(
     before: dict, after: dict, *, example_limit: int
 ) -> tuple[Counter, list]:
@@ -75,18 +100,22 @@ def diff_snapshots(
         if a is None:
             counts["missing"] += 1
             continue
-        if b["symbols"] == a["symbols"]:
+        b_ranked = ranked(b)
+        a_ranked = ranked(a)
+        b_surfaced = surfaced(b)
+        a_surfaced = surfaced(a)
+        if b_ranked == a_ranked and b_surfaced == a_surfaced:
             continue
-        if b["symbols"][:1] != a["symbols"][:1]:
+        if b_ranked[:1] != a_ranked[:1]:
             kind = "top1"
-        elif set(b["symbols"]) != set(a["symbols"]):
+        elif set(b_surfaced) != set(a_surfaced):
             kind = "surfaced-set"
         else:
             kind = "order-only"
         counts[kind] += 1
         counts[f"{kind}/{note_count(case_id)}n"] += 1
         if kind != "order-only" and len(examples) < example_limit:
-            examples.append((case_id, kind, b["symbols"][:2], a["symbols"][:2]))
+            examples.append((case_id, kind, b_surfaced, a_surfaced))
     return counts, examples
 
 
