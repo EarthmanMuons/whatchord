@@ -22,6 +22,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- Explore copy dialogs, website chord results, and article examples now use
+  hyphenated note lists such as C-E-G while keeping chord degrees
+  comma-separated.
 - Rebuilt chord pricing around explanation cost: a reading now pays for its
   vocabulary rarity, each color tone, missing essential tones, and awkward bass
   placement, instead of earning points per matched template slot. Common names

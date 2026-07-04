@@ -386,13 +386,13 @@
     academicName.textContent = c.academicName;
     var notes = document.createElement("div");
     notes.className = "try-notes";
-    appendNoteGroup(notes, "Chord tones", c.chordTones);
+    appendNoteGroup(notes, "Chord tones", formatNoteList(c.chordTones));
     if (c.alsoPlayedNotes) {
       var separator = document.createElement("span");
       separator.className = "try-notes-also-played-marker";
       separator.textContent = " + ";
       notes.appendChild(separator);
-      appendNoteGroup(notes, "also", c.alsoPlayedNotes);
+      appendNoteGroup(notes, "also", formatNoteList(c.alsoPlayedNotes));
     }
     main.appendChild(symbol);
     main.appendChild(academicName);
@@ -460,6 +460,10 @@
     group.appendChild(labelSpan);
     group.appendChild(document.createTextNode(value));
     container.appendChild(group);
+  }
+
+  function formatNoteList(value) {
+    return value.trim().split(/\s+/).join("-");
   }
 
   // ─── Run loop ──────────────────────────────────────────────────

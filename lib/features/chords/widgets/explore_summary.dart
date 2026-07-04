@@ -59,7 +59,7 @@ class ExploreSummary extends ConsumerWidget {
             .map(
               (tone) => noteDisplayLabel(tone, noteNameSystem: noteNameSystem),
             )
-            .join(', '),
+            .join('-'),
         copiedLabel: 'chord tones',
       ),
       CopyChoice(

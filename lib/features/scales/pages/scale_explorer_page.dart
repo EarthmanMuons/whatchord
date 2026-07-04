@@ -273,7 +273,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
         value: [
           for (final tone in tones.tones)
             noteDisplayLabel(tone.name, noteNameSystem: noteNameSystem),
-        ].join(', '),
+        ].join('-'),
         copiedLabel: 'scale tones',
       ),
       CopyChoice(
