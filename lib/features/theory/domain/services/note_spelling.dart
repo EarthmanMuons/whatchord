@@ -44,6 +44,66 @@ String spellPitchClass(
   return targetLetter + _accidentalToAscii(delta);
 }
 
+/// Spells a slash-bass pitch class, balancing function against readability.
+///
+/// A slash bass names the sounding note under the chord symbol, so its job is
+/// performer readability rather than restating the chord's interior harmonic
+/// role. Genuine chord-tone inversions (root, 3rd, perfect 5th, 7th) keep their
+/// conventional functional spelling even when that is a wrap letter, so a
+/// C#maj7 with its leading tone in the bass stays C#maj7/B#. For other bass
+/// roles (tensions, altered fifths, added tones), a functional spelling that
+/// forces a double accidental or a wrap enharmonic (B#, E#, Cb, Fb) is replaced
+/// by the plainest sounding-pitch spelling. That keeps A13(#9,#11) over C as
+/// .../C instead of the awkward .../B#, and Db7(b5) over G as .../G instead of
+/// .../Abb, while the chord body still carries the harmonic role.
+String spellSlashBass(
+  int pc, {
+  required Tonality tonality,
+  String? chordRootName,
+  ChordToneRole? role,
+}) {
+  final functional = spellPitchClass(
+    pc,
+    tonality: tonality,
+    chordRootName: chordRootName,
+    role: role,
+  );
+
+  if (role == null || _isConventionalInversionTone(role)) {
+    return functional;
+  }
+
+  if (_isReadableBassSpelling(functional)) return functional;
+
+  return pcToName(pc, tonality: tonality);
+}
+
+/// Roles whose conventional slash spelling should always be preserved, even as
+/// a wrap letter (e.g. C#maj7/B#). These are the true inversion tones.
+bool _isConventionalInversionTone(ChordToneRole role) {
+  return switch (role) {
+    ChordToneRole.root ||
+    ChordToneRole.minor3 ||
+    ChordToneRole.splitMinor3 ||
+    ChordToneRole.major3 ||
+    ChordToneRole.perfect5 ||
+    ChordToneRole.flat7 ||
+    ChordToneRole.major7 => true,
+    _ => false,
+  };
+}
+
+/// A bass spelling reads cleanly unless it needs a double accidental or is a
+/// wrap enharmonic (B#, E#, Cb, Fb).
+bool _isReadableBassSpelling(String name) {
+  final ascii = normalizeNoteNameToAscii(name);
+  if (ascii.length < 2) return true; // natural letter
+
+  final accidental = ascii.substring(1);
+  if (accidental == 'x' || accidental.length >= 2) return false; // double
+  return !(ascii == 'B#' || ascii == 'E#' || ascii == 'Cb' || ascii == 'Fb');
+}
+
 /// Chooses a root spelling that keeps the whole chord readable.
 ///
 /// Tonality still matters, but role-aware member spellings can override a
