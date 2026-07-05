@@ -51,11 +51,16 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - When nothing structural separates two close readings, the chord with the
   cleaner spelling now wins instead of an arbitrary root-order fallback, so
   C♯m(maj7,♭9) is chosen over C♯maj7♭9 and its E♯ spelling.
+- Slash bass notes now favor a readable sounding-pitch spelling when the bass is
+  a color or altered tone, so a sharp-nine in the bass shows as A7♯9/C rather
+  than A7♯9/B♯, and double accidentals such as F♯7(♯9,♯11,♭13)/G𝄪 become
+  F♯7(♯9,♯11,♭13)/A. Genuine chord-tone inversions keep their conventional
+  spelling, so A/C♯, F♯7/A♯, and C♯maj7/B♯ are unchanged.
 
 ### Fixed
 
 - Improved altered sharp-five dominant recognition, so voicings such as C7♯5♭9,
-  A7♯5♯9/B♯, and D9♭5/C are less likely to be displaced by remote minor-major,
+  A7♯5♯9/C, and D9♭5/C are less likely to be displaced by remote minor-major,
   altered-major, sus add-color, or less idiomatic altered-fifth-bass
   reinterpretations.
 - Improved Lydian major-ninth recognition when the alternative is a close

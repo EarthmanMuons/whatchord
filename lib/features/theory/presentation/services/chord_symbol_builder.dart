@@ -16,7 +16,7 @@ class ChordSymbolBuilder {
     if (identity.hasSlashBass) {
       final interval = (identity.bassPc - identity.rootPc) % 12;
       final role = identity.toneRolesByInterval[interval];
-      bass = spellPitchClass(
+      bass = spellSlashBass(
         identity.bassPc,
         tonality: tonality,
         chordRootName: root,

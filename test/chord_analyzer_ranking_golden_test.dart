@@ -553,7 +553,7 @@ void main() {
     golden(
       description:
           'complete altered dominant sharp-nine bass beats sus add-color',
-      expectedSymbol: 'A7(#5,#9)/B#',
+      expectedSymbol: 'A7(#5,#9)/C',
       pcs: ['C', 'Db', 'F', 'G', 'A'],
       bass: 'C',
       expectedRoot: 'A',
@@ -576,7 +576,7 @@ void main() {
     golden(
       description:
           'complete sharp-nine sharp-eleven dominant beats split-third sixth',
-      expectedSymbol: 'A7(#9,#11)/B#',
+      expectedSymbol: 'A7(#9,#11)/C',
       pcs: ['C', 'Db', 'Eb', 'E', 'G', 'A'],
       bass: 'C',
       expectedRoot: 'A',
@@ -612,7 +612,7 @@ void main() {
     golden(
       description:
           'complete altered dominant thirteenth beats colored split-third sixth',
-      expectedSymbol: 'A13(#9,#11)/B#',
+      expectedSymbol: 'A13(#9,#11)/C',
       expectedAlternatives: ['Eb13(b9,#9,#11)/C'],
       pcs: ['C', 'Db', 'Eb', 'E', 'F#', 'G', 'A'],
       bass: 'C',
@@ -694,7 +694,7 @@ void main() {
     golden(
       description:
           'complete flat-thirteenth altered dominant beats root-position add-eleven split-third sixth',
-      expectedSymbol: 'F#7(#9,#11,b13)/Gx',
+      expectedSymbol: 'F#7(#9,#11,b13)/A',
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'A', 'Bb'],
       bass: 'A',
       expectedRoot: 'F#',
@@ -1175,7 +1175,7 @@ void main() {
       description:
           'seventh-bass flat-five dominant beats altered-fifth bass dominant',
       expectedSymbol: 'D9b5/C',
-      expectedAlternatives: ['E9#5/B#', 'Ab7(#5,#11)/C'],
+      expectedAlternatives: ['E9#5/C', 'Ab7(#5,#11)/C'],
       pcs: ['C', 'D', 'E', 'F#', 'Ab'],
       bass: 'C',
       expectedRoot: 'D',
@@ -1210,8 +1210,8 @@ void main() {
     golden(
       description:
           'complete lydian flat-thirteen dominant beats remote altered fifth dominant',
-      expectedSymbol: 'F#9(#11,b13)/B#',
-      expectedAlternatives: ['E13(#5,#11)/B#'],
+      expectedSymbol: 'F#9(#11,b13)/C',
+      expectedAlternatives: ['E13(#5,#11)/C'],
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'C',
       expectedRoot: 'F#',
@@ -1293,7 +1293,7 @@ void main() {
       description:
           'complete altered flat-nine dominant beats remote minor thirteenth',
       expectedSymbol: 'C9(b9,#11)',
-      expectedAlternatives: ['F#7(b9,#11,b13)/B#'],
+      expectedAlternatives: ['F#7(b9,#11,b13)/C'],
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'G', 'Bb'],
       bass: 'C',
       expectedRoot: 'C',
