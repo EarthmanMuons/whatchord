@@ -127,6 +127,10 @@
     "label": "genuine-ambiguity",
     "note": "Fm6♭13/A♭ is defensible because F-A♭-C-D forms a complete F minor-sixth chord with A♭ as the minor third in the bass, while D♭ is explainable as flat-thirteen or lower-neighbor color. Music21 and tonal both choose the equal-cost D♭maj7♭9/A♭ reading, which also has a conventional fifth-in-bass role, so this is a real ambiguity. ChoCo does not provide exact support for major7|flat9 or minor6|flat13; the broader minor-six vocabulary is common, but not enough to make the oracle-supported D♭ spelling wrong."
   },
+  "0-1-3-4-6-7-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "C7(♭9,♯9,♯11) is preferred because C is the bass/root and C-E-G-B♭ forms a complete dominant shell, with D♭, E♭/D♯, and F♯ as flat-nine, sharp-nine, and sharp-eleven color. Music21 preserves the C-rooted organization but parses the same dense chromatic material as a half-diminished add-tone label. Tonal's F♯13(♭9,♯11)/C is the valid tritone-related dominant, but it makes the observed bass the sharp eleventh/B♯ and ranks below the direct root-position C altered-dominant reading. ChoCo broadly supports altered-dominant vocabulary, but the exact dense variants are sparse enough that this remains a genuine dominant-root ambiguity rather than a reason to displace the bass-rooted primary."
+  },
   "0-1-3-4-6-7-10_b1": {
     "label": "genuine-ambiguity",
     "note": "F♯13(♭9,♯11)/C♯ is defensible because it names a complete F♯ altered-dominant stack, with C♯ as the fifth in the bass and C/B♯, G, and E♭/D♯ as sharp-eleventh, flat-ninth, and thirteenth color. Tonal agrees on the F♯ dominant family. The surfaced E♭13(♭9,♯9)/D♭ and music21 C♯ diminished add-tone views are also pitch-valid, so this remains a dense dominant-versus-diminished ambiguity rather than a parser failure."
@@ -290,6 +294,10 @@
   "0-1-3-5-6-8-10_b1": {
     "label": "genuine-ambiguity",
     "note": "G♭maj13(♯11)/D♭ is preferred because G♭-B♭-D♭-F forms a complete major-seventh shell with D♭ as the fifth in the bass, and A♭, C, and E♭ supply the Lydian 9, ♯11, and 13 colors. Tonal agrees. Music21's D♭maj13 reading is also complete and root-position, and ChoCo contains more major7|nine,eleven,thirteen than major7|nine,sharp11,thirteen observations, but that spelling places a natural 11 against D♭'s major third. The row is a genuine ambiguity between bass-root diatonic major-thirteenth naming and the more idiomatic Lydian-major color stack."
+  },
+  "0-1-3-5-6-8-10_b3": {
+    "label": "clearly-correct",
+    "note": "E♭m13 is the expected isolated-voicing label because E♭ is the bass/root and the voicing supplies the complete E♭-G♭-B♭-D♭ minor-seventh shell, with F, A♭, and C as ninth, eleventh, and thirteenth color. Music21 agrees semantically. Tonal's G♭maj13(♯11)/E♭ is the valid relative Lydian-major re-rooting, but it makes the observed bass the thirteenth rather than the root. ChoCo also gives somewhat stronger exact support to minor7|nine,eleven,thirteen than major7|nine,sharp11,thirteen."
   },
   "0-1-3-5-6-8-10_b10": {
     "label": "genuine-ambiguity",
