@@ -75,6 +75,22 @@
     "label": "context-dependent",
     "note": "A(add♯9,add11) is defensible in root position because A is the bass/root, C♯ is the major third, C supplies split-third sharp-ninth color, and D is added-eleventh color. Music21's Dpower/AaddC#,C is the competing D-A no-third fifth with A in the bass and both C/C♯ colors. That D-rooted reading is contextually valid, but WhatChord's A-rooted split-third add-chord is the clearer available context-free label within the current vocabulary."
   },
+  "0-1-2-3-10_b0": {
+    "label": "oracle-limitation",
+    "note": "Cm9♭9 is preferred because C is the bass/root and the voicing supplies the minor third, flat seventh, flat ninth, and natural ninth of a complete C minor-seventh color shell. Music21 agrees semantically as Cm9 add D♭ with the fifth omitted. WhatChord does not spell routine omitted fifths in chord symbols, and the next candidates cost more than a full point higher, so this is an oracle-normalization limitation rather than a ranking issue."
+  },
+  "0-1-2-3-10_b10": {
+    "label": "oracle-limitation",
+    "note": "Cm9♭9/B♭ is preferred because B♭ is the flat seventh in the bass of the C minor-seventh shell, with D♭ and D as split flat/natural ninth color. Music21 agrees semantically and only differs by explicitly marking the omitted fifth. Omitting the fifth is normal for dense minor-ninth symbols, and the nearby B♭ add-color reading remains a possible alternative rather than a clearer primary label."
+  },
+  "0-1-2-3-10_b2": {
+    "label": "oracle-limitation",
+    "note": "Cm9♭9/D is preferred because D is the natural ninth in the bass of a C minor-seventh shell that also includes the flat ninth D♭. Music21 agrees semantically as Cm9/D add D♭ with the fifth omitted. The B♭ add-nine/add-eleven slash alternative gives D a stable third-in-bass role, but it leaves the D♭/C♯ pitch as sharp-nine color and costs substantially more, so the C minor-ninth-flat-nine reading remains the expected primary label."
+  },
+  "0-1-2-3-10_b3": {
+    "label": "oracle-limitation",
+    "note": "Cm9♭9/E♭ is preferred because E♭ is the minor third in the bass of a C minor-seventh shell with split flat/natural ninth color. Music21 agrees semantically while explicitly noting the omitted fifth. The half-diminished and B♭ add-color alternatives cost well outside the possible range, so this residual flag is only omitted-fifth normalization."
+  },
   "0-1-2-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C9(♭5,♭9) is preferred because C is the bass/root and the voicing supplies a complete C dominant-flat-five shell C-E-G♭-B♭, with D♭/D as split flat/natural ninth color. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the sharp eleventh in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the C altered/split-ninth family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."
