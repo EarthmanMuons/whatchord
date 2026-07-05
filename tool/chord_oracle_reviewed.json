@@ -19,6 +19,22 @@
     "label": "oracle-limitation",
     "note": "Gdim(add11) is preferred because G is the bass/root and G-B♭-D♭ forms a complete diminished triad with C as added eleventh. Music21 agrees semantically. B♭m6/9/G is a valid relative minor-six/nine rotation and remains a possible alternative, but it makes the observed bass the sixth of the chord rather than the root, so the root-position diminished label is the clearer primary name for this bass."
   },
+  "0-1-8-10_b0": {
+    "label": "oracle-limitation",
+    "note": "B♭m7/C is preferred because B♭-D♭-A♭ supplies the minor-seventh shell and C is the ninth in the bass; the slash spelling keeps the bass role explicit rather than redundantly headlining the same pitch as B♭m9/C. Music21 agrees on the B♭/A♯ minor-ninth family but normalizes the missing fifth into its semantic comparison. ChoCo strongly supports minor7|nine vocabulary with 5800 observations, while the nearest A♭ add-nine/add-eleven alternative has only 4, so this is an oracle-normalization limitation rather than a ranking issue."
+  },
+  "0-1-8-10_b1": {
+    "label": "oracle-limitation",
+    "note": "B♭m9/D♭ is preferred because D♭ is the minor third in the bass of a B♭ minor-seventh shell with C as ninth color. Music21 agrees semantically as A♯m9/C♯; the residual flag comes from enharmonic spelling and music21's implied omitted fifth, not from a real naming disagreement."
+  },
+  "0-1-8-10_b10": {
+    "label": "oracle-limitation",
+    "note": "B♭m9 is preferred because B♭ is the bass/root and the voicing contains the minor third, flat seventh, and ninth of a conventional minor-ninth chord. Music21 agrees semantically as B♭m9 but expects the omitted fifth in its normalized structure. Omitting the fifth from a minor-ninth shell is standard chord-symbol practice, so this is an oracle-normalization limitation rather than an engine issue."
+  },
+  "0-1-8-10_b8": {
+    "label": "oracle-limitation",
+    "note": "B♭m9/A♭ is preferred because A♭ is the flat seventh in the bass of a B♭ minor-ninth shell. Music21 agrees semantically as A♯m9/G♯, with only enharmonic spelling and implied-fifth normalization separating the labels. The A♭ add-nine/add-eleven reading is pitch-valid but costs substantially more and has sparse ChoCo support compared with the broad minor7|nine vocabulary."
+  },
   "0-1-8_b0": {
     "label": "context-dependent",
     "note": "A♭add11/C is defensible because A♭-C gives a clear major-third sonority and D♭ is naturally explained as added eleventh color, with C as the third in the bass. Music21's D♭power/C names the alternate D♭-A♭ no-third fifth with C/B♯ as major-seventh color, which may be preferable in a context that establishes D♭ as root. WhatChord does not currently emit no-third/power-chord vocabulary, so this should stay reviewed rather than forcing the incomplete D♭maj7/C candidate above a clean A♭ upper-structure reading."
@@ -850,6 +866,10 @@
   "0-2-5-7_b2": {
     "label": "genuine-ambiguity",
     "note": "Dm11 is preferred with D in the bass because D, F, C, and G supply the root, minor third, flat seventh, and eleventh of a conventional root-position minor-eleventh shell with an omitted fifth. Tonal's D-rooted first choice supports the D-root hearing but not the full minor-eleventh label. G7sus4/D and Csus2sus4/D are complete and valid slash-chord alternatives, and both surface as possible alternatives, so the ambiguity is genuine, but their roots do not align with the bass."
+  },
+  "0-2-5-7_b5": {
+    "label": "genuine-ambiguity",
+    "note": "Dm11/F is defensible because F is the minor third in the bass of the D-F-C-G minor-eleventh shell, giving the voicing a conventional first-inversion minor-seventh/add-eleventh organization. Tonal's Csus24/F is a valid C-rooted double-suspension slash reading, but it makes the observed F bass the suspended fourth rather than a stable chord tone. WhatChord also keeps the bass-rooted Fsus2add13 and complete G7sus4/F readings as possible alternatives, so the row is a genuine sparse-sus/minor-eleventh ambiguity rather than an engine issue."
   },
   "0-2-5-8_b0": {
     "label": "genuine-ambiguity",
