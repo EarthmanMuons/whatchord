@@ -59,6 +59,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Improved note handling for Bluetooth MIDI controllers that use running status,
+  a common way to save bandwidth by omitting the repeated status byte between
+  messages. These notes were previously ignored, so fast or chord-dense playing
+  could drop notes; they are now read correctly.
 - Improved altered sharp-five dominant recognition, so voicings such as C7♯5♭9,
   A7♯5♯9/C, and D9♭5/C are less likely to be displaced by remote minor-major,
   altered-major, sus add-color, or less idiomatic altered-fifth-bass

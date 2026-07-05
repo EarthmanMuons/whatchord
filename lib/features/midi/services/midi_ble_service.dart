@@ -1,12 +1,11 @@
 import 'dart:async';
-import 'dart:typed_data';
-
-import 'package:flutter/foundation.dart';
 
 import 'package:flutter_midi_command/flutter_midi_command.dart' as fmc;
+import 'package:flutter_midi_command/flutter_midi_command_messages.dart' as msg;
 
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
+import '../models/midi_message.dart';
 
 /// Low-level MIDI-over-BLE (Bluetooth Low Energy) transport service.
 ///
@@ -29,15 +28,51 @@ class MidiBleService {
   Stream<void> get onMidiSetupChanged =>
       (_midi.onMidiSetupChanged ?? const Stream.empty()).map((_) {});
 
-  /// Stream of raw MIDI data packets as bytes.
+  /// Stream of parsed MIDI messages relevant to the app.
   ///
-  /// If the plugin does not expose a MIDI data stream on this platform/version,
-  /// this stream is empty.
-  Stream<Uint8List> get onMidiData =>
-      _midi.onMidiPacketReceived?.map(
-        (packet) => Uint8List.fromList(packet.data),
-      ) ??
-      const Stream<Uint8List>.empty();
+  /// The plugin parses raw bytes into typed messages with per-source state
+  /// (running status, multi-message packets); we translate those into our own
+  /// [MidiMessage] model and drop the ones we don't use. If the plugin exposes
+  /// no MIDI stream on this platform/version, this stream is empty.
+  Stream<MidiMessage> get onMidiMessages =>
+      _midi.onMidiDataReceived
+          ?.map((event) => mapMessage(event.message))
+          .where((message) => message != null)
+          .cast<MidiMessage>() ??
+      const Stream<MidiMessage>.empty();
+
+  /// Translates a plugin message into our [MidiMessage] model.
+  ///
+  /// Returns null for message kinds the app does not consume. Velocity-0 note
+  /// on is already delivered by the plugin as a note off.
+  static MidiMessage? mapMessage(msg.MidiMessage message) {
+    return switch (message) {
+      final msg.NoteOnMessage m => MidiMessage(
+        type: MidiMessageType.noteOn,
+        note: m.note,
+        velocity: m.velocity,
+      ),
+      final msg.NoteOffMessage m => MidiMessage(
+        type: MidiMessageType.noteOff,
+        note: m.note,
+        velocity: m.velocity,
+      ),
+      final msg.CCMessage m => MidiMessage(
+        type: MidiMessageType.controlChange,
+        ccNumber: m.controller,
+        ccValue: m.value,
+      ),
+      final msg.PCMessage m => MidiMessage(
+        type: MidiMessageType.programChange,
+        program: m.program,
+      ),
+      final msg.PitchBendMessage m => MidiMessage(
+        type: MidiMessageType.pitchBend,
+        bend: m.bend,
+      ),
+      _ => null,
+    };
+  }
 
   // ---- Bluetooth Central -------------------------------------------------
 
