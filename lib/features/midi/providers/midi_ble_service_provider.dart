@@ -1,4 +1,5 @@
 import 'package:flutter_midi_command/flutter_midi_command.dart' as fmc;
+import 'package:flutter_midi_command_ble/flutter_midi_command_ble.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../services/midi_ble_service.dart';
@@ -9,5 +10,7 @@ final midiBleServiceProvider = Provider<MidiBleService>((ref) {
 });
 
 final midiCommandProvider = Provider<fmc.MidiCommand>((ref) {
-  return fmc.MidiCommand();
+  // As of flutter_midi_command 1.0, BLE is an injectable transport rather than
+  // built in; without one, all Bluetooth operations throw StateError.
+  return fmc.MidiCommand(bleTransport: UniversalBleMidiTransport());
 });

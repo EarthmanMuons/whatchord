@@ -34,7 +34,7 @@ class MidiBleService {
   /// If the plugin does not expose a MIDI data stream on this platform/version,
   /// this stream is empty.
   Stream<Uint8List> get onMidiData =>
-      _midi.onMidiDataReceived?.map(
+      _midi.onMidiPacketReceived?.map(
         (packet) => Uint8List.fromList(packet.data),
       ) ??
       const Stream<Uint8List>.empty();
@@ -46,8 +46,8 @@ class MidiBleService {
   Future<void> startCentral({
     Duration timeout = const Duration(seconds: 2),
   }) async {
-    // IMPORTANT: startBluetoothCentral can hang; guard it.
-    await _midi.startBluetoothCentral().timeout(timeout);
+    // IMPORTANT: startBluetooth can hang; guard it.
+    await _midi.startBluetooth().timeout(timeout);
   }
 
   Future<void> waitUntilInitialized({
@@ -138,9 +138,18 @@ class MidiBleService {
   MidiDevice _convertToMidiDevice(fmc.MidiDevice device) => MidiDevice(
     id: device.id,
     name: device.name,
-    transport: MidiTransportType.fromString(device.type),
+    transport: _mapTransport(device.type),
     isConnected: device.connected,
   );
+
+  MidiTransportType _mapTransport(fmc.MidiDeviceType type) {
+    return switch (type) {
+      fmc.MidiDeviceType.ble => MidiTransportType.ble,
+      fmc.MidiDeviceType.serial => MidiTransportType.usb,
+      fmc.MidiDeviceType.network => MidiTransportType.network,
+      _ => MidiTransportType.unknown,
+    };
+  }
 }
 
 class BleServiceException implements Exception {
