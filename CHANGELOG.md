@@ -59,6 +59,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Fixed an iOS issue where some Bluetooth MIDI devices, such as dedicated MIDI
+  adapters that skip system-level pairing, would connect successfully but never
+  deliver any notes.
 - Improved note handling for Bluetooth MIDI controllers that use running status,
   a common way to save bandwidth by omitting the repeated status byte between
   messages. These notes were previously ignored, so fast or chord-dense playing
