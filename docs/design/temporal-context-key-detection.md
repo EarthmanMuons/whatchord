@@ -4,7 +4,13 @@
 
 WhatChord is a **stateless real-time analyzer**: each MIDI event triggers a
 re-analysis, but no memory is kept between chord changes. The user manually sets
-the tonality/key signature, which drives spellings but not analysis.
+the tonality/key signature, which drives spellings and also biases analysis:
+several ranking tie-breakers are tonality-gated (diatonic, tonic,
+harmonic-minor, and spelling-cleanliness rules), and the analyzer's LRU cache is
+keyed on `AnalysisContext` for exactly this reason. Key detection therefore
+cannot be treated as a pure output layer: anything that writes an inferred key
+back into `AnalysisContext` changes how future chords are named (see Decision
+Point 1).
 
 Data flow:
 
@@ -21,8 +27,17 @@ Key structures already in place:
 - `ChordInput`: pcMask, bassPc, noteCount (pure pitch-class, no octaves)
 - `ObservedVoicing`: full MIDI note numbers with register (null for lookup pad)
 - `ChordIdentity`: rootPc, quality, extensions, presentIntervalsMask, toneRoles
-- `ChordCandidate`: identity + score
+- `ChordCandidate`: identity + `cost` (unitless explanation cost, lower is
+  better; `nearTieWindow` in `ranking_policy.dart` defines when candidates count
+  as near-ties)
 - `AnalysisContext`: tonality + keySignature + spellingPolicy (all user-set)
+- `analysisModeProvider`: gates analysis by note count;
+  `chordCandidatesProvider` returns an empty list for 0-2 sounding notes
+  (`AnalysisMode.none`/`single`/`dyad`), so ranked candidates only exist for 3+
+  notes
+- `midiSoundingNoteNumbersProvider` (re-exported to the input layer as
+  `midiNoteNumbersSource`): live-MIDI-only, pedal-aware sounding set, the raw
+  source that history capture ultimately cares about
 - `Tonality` / `KeySignature` / `ScaleDegree`: target output types for key
   detection already exist
 - `InputIdleNotifier`: already tracks engagement/release transitions for the
@@ -49,28 +64,38 @@ File: `features/history/models/chord_event.dart`
 class ChordEvent {
   final DateTime timestamp;
   final ChordInput input;             // raw pitch-class data
-  final ObservedVoicing? voicing;     // live voicing; null only for a lone note
+  final ObservedVoicing voicing;      // live voicing (always 3+ notes, see below)
   final List<ChordCandidate> candidates; // ranked, best-first
+  final Tonality tonality;            // context the candidates were ranked under
   final Duration duration;            // how long this identity persisted
 
   ChordIdentity get identity => candidates.first.identity;
-  double get score => candidates.first.score;
+  double get cost => candidates.first.cost;
 }
 ```
 
 This captures everything a key-detection algorithm needs: raw notes, the ranked
 identification with confidence, timing, and hold duration.
 
-Store a single best-first `candidates` list and expose `identity`/`score` as
+Store a single best-first `candidates` list and expose `identity`/`cost` as
 getters rather than as separate stored fields. This keeps one source of truth
-and lets key detection use score gaps and confidence weighting without
-re-running analysis.
+and lets key detection use cost gaps (best-to-second delta measured against
+`nearTieWindow`) for confidence weighting without re-running analysis.
 
-`voicing` is nullable only for the lone-note case (the provider needs 2+ notes).
-Because history records live MIDI only and gates out lookup/demo, a committed
-chord event effectively always carries a voicing. When implementing, decide
-whether single sustained notes are ever committed: if not, tighten `voicing` to
-non-nullable and drop the lone-note case.
+`voicing` is non-nullable, resolved by an existing gate: `analysisModeProvider`
+only yields `AnalysisMode.chord` for 3+ notes, and `chordCandidatesProvider`
+returns an empty list otherwise. An event with a non-empty `candidates` list
+therefore always has 3+ live (non-lookup) notes, so a real voicing always
+exists. The flip side: single notes and dyads never enter history at all, which
+discards melodic and bass-line key evidence between chords. That is acceptable
+for v1; revisit if Phase 2 detectors want melody (see 2e's bass-line note).
+
+Store the `tonality` from the `AnalysisContext` active at analysis time. The
+candidates were ranked under that context (tonality-gated tie-breakers), so a
+mid-session tonality change (manual today, possibly inferred later) makes
+history context-heterogeneous. One enum-pair field costs nothing, lets detectors
+de-bias or discard cross-context events, and is required to reason about the
+write-back feedback loop (Decision Point 1).
 
 Populate `candidates` from the existing near-tie definition rather than an
 ad-hoc "top ~3": `bestChordCandidateProvider` plus
@@ -111,7 +136,11 @@ progression (where the sounding set never empties until the end) into a single
   persisted past a minimum-duration threshold), commit the previous snapshot
   with `duration = now - startedAt`, then start a new snapshot.
 - Commit the final in-progress snapshot on release (sounding set becomes empty),
-  using the same threshold.
+  using the same threshold. Treat "candidates became empty" the same way: the
+  note count dropping below 3 leaves `AnalysisMode.chord`, and
+  `chordCandidatesProvider` returns `[]` well before the sounding set empties. A
+  decay from Cmaj7 down to a held single C should commit the Cmaj7, not wait for
+  full silence.
 - The previous identity is committed when the _new_ one appears, while notes are
   still sounding, so there is no empty-providers-on-release case to handle.
 - `duration` is the time the identity was actually held, which Phase 2 weights
@@ -129,12 +158,15 @@ before a snapshot is eligible to commit.
 Lookup and demo input must never enter history. The subtlety is that gating has
 to guard _snapshot capture_, not the commit:
 
-- There is no live-MIDI-only sounding-note provider today.
-  `soundingNoteNumbersProvider` / `soundingNotesProvider` already **merge** demo
-  and lookup notes in, and `chordInputProvider` includes lookup notes (only
-  `observedVoicingProvider` excludes lookup). So both demo and lookup _do_ flow
-  through `chordCandidatesProvider`; reusing the analysis chain without gating
-  would leak them into history.
+- A live-MIDI-only _sounding set_ exists (`midiSoundingNoteNumbersProvider`,
+  re-exported as `midiNoteNumbersSource`; `liveSoundingNoteNumbersProvider`
+  additionally exists but swaps to demo notes in demo mode), but there is no
+  live-MIDI-only _analysis_ chain. `soundingNoteNumbersProvider` /
+  `soundingNotesProvider` **merge** demo and lookup notes in, and
+  `chordInputProvider` includes lookup notes (only `observedVoicingProvider`
+  excludes lookup). So both demo and lookup _do_ flow through
+  `chordCandidatesProvider`; reusing the analysis chain without gating would
+  leak them into history.
 - Commit-time gating is not enough. `InputIdleNotifier.markIdleNow()` fires a
   release the instant demo/lookup toggles _off_, by which point
   `demoModeProvider` has already flipped to `false`. A commit-time
@@ -142,8 +174,12 @@ to guard _snapshot capture_, not the commit:
 - Therefore: **only ever update the in-progress snapshot while
   `!demoModeProvider && !lookupActiveProvider`.** With capture gated this way
   the toggle-timing race disappears and the flags do double duty. The cleaner
-  long-term option is a dedicated live-only input provider feeding history; the
-  capture-time flag check is the minimum and is required regardless.
+  long-term option is a dedicated live-only analysis chain feeding history
+  (cheaper than it sounds, since `midiNoteNumbersSource` already provides the
+  live sounding set; only the `ChordInput`/candidates derivation needs a live
+  variant, at the cost of running the analyzer redundantly while demo or lookup
+  is active). The capture-time flag check is the minimum and is required
+  regardless.
 
 **Retention**: One stored bound, one read-time view.
 
@@ -226,15 +262,28 @@ history.recentEvents(window)
 
 Implementation: pure-Dart static function `KeyEstimator.ksProfile(...)` that
 takes `List<ChordEvent>` and returns `List<(Tonality, double)>` (tonality +
-correlation score). The K-S profiles are 24 constant vectors (12 major + 12
-minor).
+correlation score). The profiles are 24 constant vectors (12 major + 12 minor),
+derived from 2 base vectors by rotation.
+
+Make the profile pair a parameter, not a constant: the literature is clear that
+profile choice matters more than the correlation formula. The original
+Krumhansl-Kessler probe-tone profiles are the historical baseline but are known
+to underperform in minor; Temperley's 1999 revision and the corpus-trained
+Albrecht-Shanahan (2013) profiles both do better, the latter specifically on
+minor-mode pieces (see References). Shipping one algorithm with 3 profile pairs
+gives the benchmark harness cheap A/B material.
 
 Weighting strategies to implement:
 
 - **Flat**: each event contributes equally to the pitch-class histogram.
+- **Duration-weighted**: scale each event's contribution by `duration`. A chord
+  held four bars is far stronger evidence than a passing half-beat hit, and
+  duration weighting is standard in this family of algorithms (Temperley 1999).
 - **Decay-weighted**: recent events contribute more. Exponential decay with a
   half-life of ~30 seconds. The decay is applied to the histogram bins, so older
   events fade out of the correlation naturally.
+
+These compose (duration x decay is the natural default).
 
 ### 2b. Temperley Bayesian approach
 
@@ -248,7 +297,10 @@ which scale degrees are diatonic to a key, so likelihood estimation builds on
 existing infrastructure.
 
 Uniform prior over keys, or optionally a prior favoring closely-related keys
-from the previously detected key (smooth transitions).
+from the previously detected key (smooth transitions). Temperley's Bayesian
+formulation (2002; expanded in _Music and Probability_, 2007) is the reference
+model here; it subsumes the profile approach, since a key profile is just an
+emission distribution.
 
 ### 2c. Hidden Markov Model / Viterbi
 
@@ -262,6 +314,17 @@ Most sophisticated option. Models the key as a hidden state with:
 Viterbi decoding finds the most probable key sequence given the chord sequence.
 More complex to implement and tune but handles key changes cleanly.
 
+This is the best-studied structure in the modern literature. Nápoles López,
+Arthur & Fujinaga (2019) get strong global and local key results from an HMM
+whose emissions are plain key profiles over pitch-class observations (the
+`justkeydding` implementation; see References), which suggests a useful
+sequencing: an HMM over per-event pitch classes is a small step up from 2a, and
+chord-identity emissions (root + quality relative to key, the Raphael & Stoddard
+2004 approach to harmonic analysis) can come after. For streaming use, run
+Viterbi over the sliding window, or use the forward algorithm's filtered
+posterior; the transition matrix then doubles as the modulation hysteresis that
+2d has to hand-roll.
+
 ### 2d. Weighted Evidence Model (simplest hybrid)
 
 Maintain a running score per key, updated incrementally as each chord event
@@ -274,6 +337,14 @@ arrives:
 - Leading-tone diminished (e.g. B° in C major): +3 bonus for the tonic key
 - Decay: all scores multiplied by a factor (e.g. 0.95) at each event, so old
   evidence fades
+
+**Minor-mode trap.** Do not implement "diatonic to key" with
+`Tonality.containsPitchClass`: it models natural minor only, so in A minor the
+G# of E7 would take a chromatic penalty on the single strongest indicator of A
+minor (the dominant with its leading tone). `ScaleDegreeClassifier` already
+evaluates harmonic minor as a source (`ScaleDegreeSource`); route diatonicity
+checks through it, or the model will systematically underrate minor keys, the
+classic failure mode profile algorithms suffer from too (see Albrecht-Shanahan).
 
 The key with the highest running score wins. This naturally handles key changes
 via score overtaking. Advantages:
@@ -333,22 +404,35 @@ Questions to resolve before implementing any algorithm:
 1. **Should the detected key auto-set the user's selected tonality, or be a
    separate "inferred" display?** Recommend: display as a secondary indicator
    ("Likely key: C major") without replacing the manual selection, so musicians
-   can override.
+   can override. The stakes are higher than display alone: tonality biases
+   ranking tie-breakers, so auto-setting it also changes what the analyzer names
+   subsequent chords, closing a loop (inferred key -> tonality -> candidate
+   ranking -> history -> inferred key). Display-only inference stays out of that
+   loop entirely. Any later write-back needs hysteresis plus the per-event
+   `tonality` field (1a) to keep history interpretable, and should be validated
+   in the harness by re-running detection with the loop closed.
 
 2. **Should all events contribute, or only those with strong confidence?** A
-   score threshold (e.g. only events where best candidate beats 2nd best by a
-   clear margin) may improve signal quality.
+   cost-gap threshold (e.g. only events where the best candidate beats the 2nd
+   best by a clear margin relative to `nearTieWindow`) may improve signal
+   quality.
 
-3. **Which algorithm to implement first?** The weighted evidence model (2d) is
-   the simplest to implement and validate. It can serve as a baseline while more
-   sophisticated algorithms (2a/2b) are built and compared.
+3. **Which algorithm to implement first?** Profile correlation (2a) is the
+   cheapest to build (a histogram and 24 dot products) and is the established
+   floor every published system is measured against, so implement it first as
+   the harness's baseline. The weighted evidence model (2d) follows as the first
+   model that actually uses chord identities, and everything later must beat
+   both on the harness to earn its complexity.
 
 ### Notes on Algorithm Tuning
 
 - Chord voicings with ambiguous identities (low-confidence near-ties) should be
   weighted less or excluded from the key detection signal. The full best-first
   `candidates` list is retained precisely so an algorithm can measure the
-  best-to-second score gap and down-weight near-ties without re-analyzing.
+  best-to-second cost gap and down-weight near-ties without re-analyzing. Better
+  still, ambiguity is signal for the histogram approaches: a near-tie's pitch
+  classes are unambiguous even when its name is not, so 2a can use every event
+  while the functional detectors (2e) apply the cost-gap filter.
 - The `duration` field on `ChordEvent` lets algorithms weight longer-held chords
   more heavily; a chord played for 4 bars matters more than one for a beat.
 - Key detection should only activate when at least N chord events have been
@@ -379,19 +463,161 @@ Questions to resolve before implementing any algorithm:
   when ambiguous), and degrade gracefully to no claim below a confidence floor
   rather than always asserting some key.
 - **Evaluation harness before tuning.** Because several algorithms are planned
-  (2a/2b/2d) and meant to be A/B compared, build a small offline harness that
-  replays a recorded `List<ChordEvent>` (or a hand-authored fixture of known
-  progressions with labeled keys) through each estimator. That makes the
-  comparison reproducible and keeps tuning out of live-playing guesswork. The
-  `ChordEvent` model serializes cleanly (1e), so capturing these dev fixtures is
-  straightforward even though runtime history is never persisted.
+  (2a/2b/2c/2d) and meant to be A/B compared, build a small offline harness that
+  replays serialized `List<ChordEvent>` fixtures through each estimator. That
+  makes the comparison reproducible and keeps tuning out of live-playing
+  guesswork. Most of the fixture pipeline already exists:
+  `tool/when_in_rome_chord_benchmark.py` parses When in Rome pieces (RomanText
+  annotations via music21) and drives the real engine in batch through
+  `tool/when_in_rome_chord_batch.dart`. RomanText carries the analyst's local
+  key at every annotation, so the same corpus yields time-aligned key ground
+  truth with explicit modulation boundaries, and the Roman numerals themselves
+  are the functional labels (cadence points, applied dominants) that 2e's
+  detectors need scoring against. Extend that tooling to emit `ChordEvent`
+  fixtures (chord stream and durations from the score, candidates from the real
+  engine, labeled local key per event) and check in a curated subset as test
+  fixtures. Follow the `tool/chord_rule_ablation.py` pattern for the compare
+  loop.
+- **Corpus balance.** When in Rome skews common-practice classical. Complement
+  it with a small set of hand-authored pop/jazz fixtures (I-V-vi-IV loops,
+  ii-V-I chains, 12-bar blues, modal vamps, and a few deliberately ambiguous
+  ones like an Am-F-C-G four-chord loop) closer to what a player actually
+  noodles. These are also where the "no claim below the confidence floor"
+  behavior gets tested: a modal vamp has no single right answer, and asserting
+  one confidently is a worse outcome than staying quiet.
+- **Metrics.** Score more than final-key accuracy. Use the MIREX key-detection
+  task's weighting for near misses (exact 1.0, perfect fifth 0.5, relative
+  major/minor 0.3, parallel major/minor 0.2), plus time-aligned local-key
+  accuracy, modulation lag (events between an annotated key change and the
+  detector switching), stability (spurious switches per piece), and
+  time-to-first-claim (how many events before the detector commits at all). The
+  last three trade off against each other, which is exactly what the A/B
+  comparison needs to expose.
 - **Spelling feedback loop (later).** Once a key is inferred with confidence, it
   could optionally drive `AnalysisContext` spelling (the thing the user sets
   manually today), closing the loop from detection back to presentation. This is
   explicitly a separate decision from Phase 2's detection work (see Decision
-  Point 1), but it is the natural payoff and worth keeping in view so the
-  inferred-key type stays compatible with the manual `Tonality`/`KeySignature`
-  the spelling policy already consumes.
+  Point 1, including the ranking feedback loop it creates), but it is the
+  natural payoff and worth keeping in view so the inferred-key type stays
+  compatible with the manual `Tonality`/`KeySignature` the spelling policy
+  already consumes. Joint estimation of pitch spelling and local key from MIDI
+  is an active research area (see the Bouquillard & Jacquemard reference),
+  reinforcing that spelling and key are one inference problem, deferred here on
+  purpose.
+
+---
+
+## Performance Notes
+
+Key detection is cheap because of rate, not because the math is trivial. The
+optimized hot path (`ChordAnalyzer.analyze`, ~240 us cold / ~0.1 us cached per
+`benchmark/baseline.json`) runs on every sounding-set change, i.e. every note
+on/off during transitions. Detection runs once per _committed_ chord event,
+after debounce and minimum-duration filtering: 1-2 per second at most in real
+playing, roughly two orders of magnitude less often.
+
+Per-event cost estimates, against that baseline:
+
+- **Phase 1 history**: one `ChordIdentity` equality check per analysis frame
+  plus an append-and-trim on commit. Sub-microsecond; ~100 events with 3-5
+  candidates each is tens of KB. No extra analyzer calls: history consumes
+  `chordCandidatesProvider` output, it never re-invokes `analyze()`.
+- **Profile correlation (2a)**: 12-bin histogram over the window plus 24
+  length-12 dot products; single-digit microseconds.
+- **Weighted evidence (2d)**: incremental, 24 keys times a few bitmask checks
+  per event with precomputed scale masks; low tens of microseconds even routed
+  through `ScaleDegreeClassifier`.
+- **Full-window Viterbi (2c)**: ~100 events x 24^2 transitions, ~58k
+  multiply-adds; tens of microseconds.
+
+The whole Phase 2 stack per committed chord costs about one cold `analyze()`
+call or less. Run it synchronously in the commit path; no isolate.
+
+Two rules keep it that way:
+
+1. **Detection watches history, not the candidates provider.** History changes
+   at commit rate; `chordCandidatesProvider` changes at note rate. Wiring
+   detection to the latter would re-run it on every note toggle mid-transition.
+2. **Write-back is the one path that touches the hot path.** The analyzer's LRU
+   cache key includes `AnalysisContext`, so an inferred key auto-updating the
+   context kills every entry under the old context and recomputes the current
+   chord through the whole Riverpod chain. One recompute is imperceptible; a
+   flapping detector would thrash the 512-entry cache with dual-context entries.
+   This is the performance argument, alongside Decision Point 1's feedback-loop
+   argument, for display-only inference in v1.
+
+---
+
+## Research Framing
+
+This work is potentially publishable as research, not just an app feature. The
+novelty is not key detection itself (a 30+ year literature); it is the setting:
+**causal, streaming key inference from live performance input, over an
+uncertainty-carrying chord-label stream, with an abstain option.** Published
+work is almost entirely offline, score-based, and whole-piece. The closest
+neighbors each miss a piece of it: Nápoles López et al. do local keys but
+offline over clean pitch sequences; Chew's CEG is real-time but consumes raw
+pitch events, not a recognizer's cost-ranked candidates. Key inference where the
+observations carry recognizer confidence, and where abstention and latency are
+first-class metrics, appears to be an open niche. The streaming metrics
+themselves (modulation lag, stability, time-to-first-claim, abstain calibration)
+are a methodological contribution if defined precisely and contrasted with
+segment-accuracy evaluation.
+
+Most of what makes work publishable is cheap if decided early and expensive or
+impossible to retrofit. Steps by phase:
+
+**Before any Phase 2 tuning (these have a deadline):**
+
+- **Freeze a held-out test split now, by piece (better, by composer), and never
+  tune against it.** Every price, decay constant, and profile choice tuned while
+  watching the whole corpus contaminates it. Record the split in the repo before
+  the first experiment.
+- **Version fixtures like a dataset.** Fixtures embed the engine's candidate
+  rankings, and the engine is a moving target that gets retuned; regenerating
+  fixtures after a ranking change silently changes the dataset. Each fixture
+  manifest records the engine commit, generation script parameters, and corpus
+  source commits (When in Rome / contrapunctus-bench pins).
+- **Check corpus licenses before committing derived fixtures.** When in Rome is
+  a meta-corpus with heterogeneous licenses across sub-corpora; sort out
+  redistribution of derivatives per sub-corpus, and record provenance per
+  fixture.
+- **Write the evaluation protocol down first**: metrics, split, corpus versions,
+  baselines. This document is the start of that; keep it current.
+
+**During development:**
+
+- **Run external baselines on the same fixtures, not just our own algorithms.**
+  music21's Krumhansl variants are nearly free (the fixture pipeline already
+  sits on music21) and justkeydding runs on the same pitch streams. Without an
+  external reference point, "our 2d beats our 2a" is an engineering note, not a
+  result.
+- **Design 2a-2e for ablation.** Each ingredient (profile pair, duration
+  weighting, cost-gap confidence weighting, functional detectors) must toggle
+  independently. Confidence weighting from the recognizer is the most novel
+  claim and needs the cleanest ablation.
+- **Report uncertainty.** Extend the benchmark habit (CI95 in
+  `benchmark/baseline.json`) to the key harness: per-piece variance and paired
+  comparisons across pieces, not pooled event accuracy. Small pooled deltas on a
+  corpus dominated by a few composers are how false wins happen.
+- **Keep dated experiment logs** (the existing initiative-log habit). They
+  become the methods section almost verbatim.
+
+**Performed vs. score-derived streams.** The fixtures are quantized score
+reductions; the claim is about live playing, with finger rolls, pedal blur, and
+noodling. The [ASAP dataset](https://github.com/fosfrancesco/asap-dataset)
+closes most of this gap without collecting anything: real performed piano MIDI
+aligned to scores, with key-signature change annotations, and repertoire
+overlapping When in Rome's analyses (notably the Beethoven sonatas via BPS).
+Replaying ASAP performances through the live capture path (Phase 1's actual
+debounce and segmentation, not idealized score events) tests the whole system
+under realistic input. No app-user data is ever collected for this; corpus and
+personal dev captures suffice (see 1e).
+
+**At publication time:** natural venues are ISMIR or TISMIR for the full study,
+DLfM or SMC for an earlier methods-focused paper. Consider extracting the
+harness plus fixtures as a standalone open repo; a runnable benchmark is often
+the most cited artifact of this kind of paper.
 
 ---
 
@@ -414,7 +640,8 @@ Questions to resolve before implementing any algorithm:
    - Ignores lookup chords (capture gated while `lookupActiveProvider`).
    - Ignores demo chords, including the demo toggle-off release that fires after
      `demoModeProvider` has already flipped to false.
-   - Preserves the full best-first `candidates` list (score gaps intact).
+   - Preserves the full best-first `candidates` list (cost gaps intact) and the
+     analysis-time `tonality`.
    - Enforces `historyCapacity`; `recentEvents(window)` filters by age at read
      time.
 8. **Stop and validate**: verify events are recorded correctly with tests and,
@@ -423,11 +650,19 @@ Questions to resolve before implementing any algorithm:
 
 ### Phase 2 (future PRs, in order)
 
-1. Implement weighted evidence model (`KeySignatureEstimator.weightedEvidence`)
-2. Add provider that reads history and returns inferred `Tonality?`
-3. Add subtle UI indicator on home page
-4. Implement K-S profile correlation for comparison
-5. A/B compare algorithms on real playing sessions
+1. Build fixtures: extend the When in Rome tooling
+   (`tool/when_in_rome_chord_benchmark.py` / `when_in_rome_chord_batch.dart`) to
+   emit labeled `ChordEvent` fixtures; hand-author the pop/jazz set
+2. Build the offline harness and metrics (MIREX weighting, local-key accuracy,
+   modulation lag, stability, time-to-first-claim)
+3. Implement profile correlation (`KeyEstimator.ksProfile`) as the floor, with
+   the profile pair as a parameter (Krumhansl-Kessler, Temperley,
+   Albrecht-Shanahan)
+4. Implement weighted evidence model (`KeyEstimator.weightedEvidence`)
+5. A/B on the harness, then add the provider that reads history and returns an
+   inferred `(Tonality, confidence)?` plus the subtle home-page indicator
+6. Grow toward progression detectors (2e) and the HMM (2c) as harness results
+   justify
 
 ---
 
@@ -448,3 +683,83 @@ Questions to resolve before implementing any algorithm:
       Resolved: in-memory only and never persisted to disk, in Phase 1 and
       beyond (see 1e). History is a transient session signal, so there is
       nothing to leak.
+
+---
+
+## References
+
+Profile / distributional key finding:
+
+- Krumhansl, C. L. (1990). _Cognitive Foundations of Musical Pitch_. Oxford
+  University Press. Source of the original Krumhansl-Kessler probe-tone profiles
+  behind 2a.
+- Temperley, D. (1999).
+  ["What's Key for Key? The Krumhansl-Schmuckler Key-Finding Algorithm Reconsidered"](https://doi.org/10.2307/40285812).
+  _Music Perception_ 17(1). Duration weighting, revised profiles, and a catalog
+  of the base algorithm's failure modes.
+- Albrecht, J., & Shanahan, D. (2013).
+  ["The Use of Large Corpora to Train a New Type of Key-Finding Algorithm"](https://online.ucpress.edu/mp/article-abstract/31/1/59/62597/The-Use-of-Large-Corpora-to-Train-a-New-Type-of).
+  _Music Perception_ 31(1). Corpus-trained profiles, notably better in minor;
+  the recommended default profile pair for 2a.
+
+Sequence / probabilistic models:
+
+- Temperley, D. (2007). _Music and Probability_. MIT Press. The Bayesian
+  key-finding framework behind 2b (earlier form: "A Bayesian Approach to
+  Key-Finding", ICMAI 2002).
+- Raphael, C., & Stoddard, J. (2004). "Functional Harmonic Analysis Using
+  Probabilistic Models". _Computer Music Journal_ 28(3). HMM harmonic analysis
+  with chord-level observables, the precedent for 2c's chord-identity emissions.
+- Nápoles López, N., Arthur, C., & Fujinaga, I. (2019).
+  ["Key-Finding Based on a Hidden Markov Model and Key Profiles"](https://napulen.github.io/media/justkeydding/napoles19key.pdf)
+  (DLfM 2019, [ACM page](https://dl.acm.org/doi/10.1145/3358664.3358675)).
+  Reference implementation:
+  [justkeydding](https://github.com/napulen/justkeydding). Global and local key
+  from an HMM with profile emissions; the closest published analogue of 2c.
+
+Geometric / real-time:
+
+- Chew, E. (2000/2014). The
+  [Spiral Array model](https://en.wikipedia.org/wiki/Spiral_array_model) and
+  Center of Effect Generator
+  ([overview](https://eniale.kcl.ac.uk/spiral-array-model/)). Real-time key
+  finding as nearest-neighbor search in a tonal space; also covers pitch
+  spelling and key-boundary detection, both adjacent to this plan's later
+  phases.
+
+Functional harmony / local key (state of the art, symbolic):
+
+- Micchi, G., Gotham, M., & Giraud, M. (2020).
+  ["Not All Roads Lead to Rome: Pitch Representation and Model Architecture for Automatic Harmonic Analysis"](https://transactions.ismir.net/articles/10.5334/tismir.45).
+  _TISMIR_ 3(1). Frames local key as one head of a joint harmonic-analysis task,
+  the mature version of 2e's "function is key-relative" argument.
+- Nápoles López, N., Gotham, M., & Fujinaga, I. (2021).
+  ["AugmentedNet"](https://archives.ismir.net/ismir2021/paper/000050.pdf) (ISMIR
+  2021, [code](https://github.com/napulen/AugmentedNet)). Multitask
+  Roman-numeral network with an explicit local-key task; its evaluation
+  conventions are worth mirroring in the harness even though a neural model is
+  out of scope in-app.
+- Bouquillard, A., & Jacquemard, F. (2024).
+  ["Engraving Oriented Joint Estimation of Pitch Spelling and Local and Global Keys"](https://arxiv.org/abs/2402.10247)
+  (TENOR 2024). Joint spelling + local/global key from MIDI via dynamic
+  programming; directly relevant to the spelling feedback loop.
+
+Ground-truth corpora:
+
+- Gotham, M., et al. (2023).
+  ["When in Rome: A Meta-corpus of Functional Harmony"](https://transactions.ismir.net/articles/10.5334/tismir.165).
+  _TISMIR_. Repo:
+  [MarkGotham/When-in-Rome](https://github.com/MarkGotham/When-in-Rome). Already
+  wired into `tool/when_in_rome_chord_benchmark.py`; RomanText annotations carry
+  per-event local keys and modulation boundaries.
+- Tymoczko, D., Gotham, M., Cuthbert, M. S., & Ariza, C. (2019).
+  ["The RomanText Format: A Flexible and Standard Method for Representing Roman Numeral Analyses"](https://dspace.mit.edu/bitstream/handle/1721.1/137847/romantext.pdf)
+  (ISMIR 2019). The annotation syntax the fixture extractor will parse (via
+  music21).
+- Foscarin, F., et al. (2020).
+  ["ASAP: A Dataset of Aligned Scores and Performances for Piano Transcription"](https://archives.ismir.net/ismir2020/paper/000127.pdf)
+  (ISMIR 2020). Repo:
+  [fosfrancesco/asap-dataset](https://github.com/fosfrancesco/asap-dataset).
+  Real performed piano MIDI aligned to scores, with key-signature change
+  annotations; the bridge from score-derived fixtures to realistic live input
+  (see Research Framing).
