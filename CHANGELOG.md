@@ -78,6 +78,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved minor-sixth flat-nine ranking, so stable sixth-chord voicings are
   less likely to be displaced by unusual suspended major-seventh slash
   spellings.
+- Improved sparse diminished-triad recognition, so complete diminished triads
+  such as Cdim/E♭ are no longer displaced by fifthless minor-sixth spellings.
 - Improved dominant-flat-nine shell ranking, so stable inversions such as C7♭9/E
   are less likely to be displaced by diminished add-tone or remote minor-major
   slash reinterpretations.

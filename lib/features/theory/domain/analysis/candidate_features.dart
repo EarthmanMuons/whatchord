@@ -20,6 +20,7 @@ class CandidateFeatures {
   final bool isDimFamily;
   final bool isSus;
   final bool isRootPositionMinor7Add11Shell;
+  final bool isCompleteTriad;
   final bool isCompleteMajorMinorTriad;
   final bool isCompleteMajorTriadInversion;
   final bool isIncompleteInvertedSixth;
@@ -68,6 +69,7 @@ class CandidateFeatures {
     required this.isDimFamily,
     required this.isSus,
     required this.isRootPositionMinor7Add11Shell,
+    required this.isCompleteTriad,
     required this.isCompleteMajorMinorTriad,
     required this.isCompleteMajorTriadInversion,
     required this.isIncompleteInvertedSixth,
@@ -145,6 +147,7 @@ class CandidateFeatures {
         id,
         rootPos,
       ),
+      isCompleteTriad: _isCompleteTriadCore(id),
       isCompleteMajorMinorTriad: _isCompleteMajorMinorTriadCore(id),
       isCompleteMajorTriadInversion: _isCompleteMajorTriadInversion(
         id,
@@ -343,6 +346,20 @@ class CandidateFeatures {
     return roles.contains(ChordToneRole.root) &&
         hasThird &&
         roles.contains(ChordToneRole.perfect5);
+  }
+
+  static bool _isCompleteTriadCore(ChordIdentity id) {
+    final q = id.quality;
+    if (q == ChordQualityToken.diminished) {
+      if (id.extensions.isNotEmpty) return false;
+
+      final roles = id.toneRolesByInterval.values;
+      return roles.contains(ChordToneRole.root) &&
+          roles.contains(ChordToneRole.minor3) &&
+          roles.contains(ChordToneRole.flat5);
+    }
+
+    return _isCompleteMajorMinorTriadCore(id);
   }
 
   static bool _isCompleteMajorTriadInversion(ChordIdentity id, bool rootPos) {

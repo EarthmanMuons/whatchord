@@ -913,7 +913,7 @@ void main() {
     expect(explanation.decidedByRule, 'cost difference beyond tie-break range');
   });
 
-  test('complete triad beats incomplete inverted 6th in a near-tie', () {
+  test('complete triad beats incomplete 6th in a near-tie', () {
     final completeTriad = _candidate(
       quality: ChordQualityToken.minor,
       root: 'E',
@@ -933,7 +933,63 @@ void main() {
     _expectTieRule(
       completeTriad,
       incompleteSixth,
-      'prefer complete triad over incomplete inverted 6th',
+      'prefer complete triad over incomplete 6th',
+    );
+  });
+
+  test('complete diminished triad beats root-position fifthless minor 6th', () {
+    final diminishedTriad = _candidate(
+      quality: ChordQualityToken.diminished,
+      root: 'C',
+      bass: 'Eb',
+      presentIntervals: const {0, 3, 6},
+      cost: 0.25,
+    );
+
+    final fifthlessMinorSixth = _candidate(
+      quality: ChordQualityToken.minor6,
+      root: 'Eb',
+      bass: 'Eb',
+      presentIntervals: const {0, 3, 9},
+      cost: 0.45,
+    );
+
+    _expectTieRule(
+      diminishedTriad,
+      fifthlessMinorSixth,
+      'prefer complete triad over incomplete 6th',
+    );
+  });
+
+  test('complete triad rule preserves root-position six-nine color', () {
+    final rootSixNine = _candidate(
+      quality: ChordQualityToken.major6,
+      root: 'C',
+      bass: 'C',
+      presentIntervals: const {0, 2, 4, 9},
+      extensions: const {ChordExtension.add9},
+      cost: 0.4,
+    );
+
+    final completeTriad = _candidate(
+      quality: ChordQualityToken.minor,
+      root: 'A',
+      bass: 'C',
+      presentIntervals: const {0, 3, 5, 7},
+      extensions: const {ChordExtension.add11},
+      cost: 0.45,
+    );
+
+    final explanation = ChordCandidateRanking.explain(
+      rootSixNine,
+      completeTriad,
+      tonality: defaultTestTonality,
+    );
+
+    expect(explanation.result, -1);
+    expect(
+      explanation.decidedByRule,
+      isNot('prefer complete triad over incomplete 6th'),
     );
   });
 
