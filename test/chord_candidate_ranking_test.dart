@@ -798,6 +798,32 @@ void main() {
     );
   });
 
+  test('major-seventh upper-structure slash beats dominant sus label', () {
+    final upperStructureSlash = _candidate(
+      quality: ChordQualityToken.major7,
+      root: 'Db',
+      bass: 'Eb',
+      presentIntervals: const {0, 2, 4, 7, 11},
+      extensions: const {ChordExtension.nine},
+      cost: 0.65,
+    );
+
+    final rootPositionSus = _candidate(
+      quality: ChordQualityToken.dominant7sus4,
+      root: 'Eb',
+      bass: 'Eb',
+      presentIntervals: const {0, 2, 5, 9, 10},
+      extensions: const {ChordExtension.nine, ChordExtension.thirteen},
+      cost: 0.75,
+    );
+
+    _expectTieRule(
+      upperStructureSlash,
+      rootPositionSus,
+      'prefer major-seventh upper-structure sus slash',
+    );
+  });
+
   test('root-position minor-eleventh shell beats inverted sus readings', () {
     final minor11Shell = _candidate(
       quality: ChordQualityToken.minor7,
