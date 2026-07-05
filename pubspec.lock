@@ -313,10 +313,9 @@ packages:
   flutter_midi_command:
     dependency: "direct main"
     description:
-      name: flutter_midi_command
-      sha256: "3bca948b6a36aca3233ae4899a77cc31b344638fa36d589669c22fd0e46df57d"
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/flutter_midi_command"
+      relative: true
+    source: path
     version: "1.0.2"
   flutter_midi_command_android:
     dependency: transitive
@@ -329,10 +328,9 @@ packages:
   flutter_midi_command_ble:
     dependency: "direct main"
     description:
-      name: flutter_midi_command_ble
-      sha256: ba1a344bc5454f6ce193c790cc9f81ff56727f1b0d7ea4377037d101719c4cfb
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/flutter_midi_command_ble"
+      relative: true
+    source: path
     version: "1.0.2"
   flutter_midi_command_darwin:
     dependency: transitive

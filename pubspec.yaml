@@ -32,6 +32,14 @@ dependencies:
   url_launcher: ^6.3.2
   wakelock_plus: ^1.4.0
 
+# Vendored copies of upstream 1.0.2 carrying two iOS BLE patches (see
+# third_party/README.md); drop once upstream ships equivalent fixes.
+dependency_overrides:
+  flutter_midi_command:
+    path: third_party/flutter_midi_command
+  flutter_midi_command_ble:
+    path: third_party/flutter_midi_command_ble
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
