@@ -7,6 +7,18 @@
     "label": "oracle-limitation",
     "note": "C5add♭9/G is now the expected reading: the C-G bare fifth names as a C power chord with G in the bass and D♭ as flat-nine color, matching music21's Cpower/GaddD-. The residual flag is only label normalization, not a naming disagreement."
   },
+  "0-1-7-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "B♭m6/C is preferred because B♭-D♭-G-C is a compact minor-sixth/add-nine sonority with C as the ninth in the bass. Music21's Gdim/C is also structurally real: G-B♭-D♭ forms a complete diminished triad with C as added eleventh, and WhatChord surfaces it as a possible alternative. The minor-six reading has the lower explanation cost and stronger corpus support, with ChoCo showing minor6|add9 at 236 observations versus diminished|add11 at 1, so the B♭m6/C label is the more idiomatic primary name even though the diminished reading is valid."
+  },
+  "0-1-7-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "B♭m6/9 is preferred with B♭ in the bass because B♭-D♭-G forms the minor-sixth core and C is a conventional added ninth. Music21's Gdim/B♭ add C matches WhatChord's next-ranked candidate and names G-B♭-D♭ as a diminished triad with C as added eleventh. Both organizations explain every pitch, but ChoCo strongly favors the minor-six-nine vocabulary here, with minor6|add9 at 236 observations versus diminished|add11 at 1, and the B♭ root-position label is the more direct musician-facing spelling."
+  },
+  "0-1-7-10_b7": {
+    "label": "oracle-limitation",
+    "note": "Gdim(add11) is preferred because G is the bass/root and G-B♭-D♭ forms a complete diminished triad with C as added eleventh. Music21 agrees semantically. B♭m6/9/G is a valid relative minor-six/nine rotation and remains a possible alternative, but it makes the observed bass the sixth of the chord rather than the root, so the root-position diminished label is the clearer primary name for this bass."
+  },
   "0-1-8_b0": {
     "label": "context-dependent",
     "note": "A♭add11/C is defensible because A♭-C gives a clear major-third sonority and D♭ is naturally explained as added eleventh color, with C as the third in the bass. Music21's D♭power/C names the alternate D♭-A♭ no-third fifth with C/B♯ as major-seventh color, which may be preferable in a context that establishes D♭ as root. WhatChord does not currently emit no-third/power-chord vocabulary, so this should stay reviewed rather than forcing the incomplete D♭maj7/C candidate above a clean A♭ upper-structure reading."
