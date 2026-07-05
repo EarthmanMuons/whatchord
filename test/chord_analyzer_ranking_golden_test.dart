@@ -552,14 +552,14 @@ void main() {
 
     golden(
       description:
-          'complete altered dominant sharp-nine bass beats altered major7',
-      expectedSymbol: 'Csus4(addb9,add13)',
+          'complete altered dominant sharp-nine bass beats sus add-color',
+      expectedSymbol: 'A7(#5,#9)/B#',
       pcs: ['C', 'Db', 'F', 'G', 'A'],
       bass: 'C',
-      expectedRoot: 'C',
-      expectedBass: 'C',
-      expectedQuality: ChordQualityToken.sus4,
-      expectedExtensions: {ChordExtension.addFlat9, ChordExtension.add13},
+      expectedRoot: 'A',
+      expectedBass: 'B#',
+      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedExtensions: {ChordExtension.sharp9},
     ),
 
     golden(

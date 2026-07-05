@@ -56,7 +56,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 - Improved altered sharp-five dominant recognition, so voicings such as C7♯5♭9,
   A7♯5♯9/B♯, and D9♭5/C are less likely to be displaced by remote minor-major,
-  altered-major, or less idiomatic altered-fifth-bass reinterpretations.
+  altered-major, sus add-color, or less idiomatic altered-fifth-bass
+  reinterpretations.
 - Improved Lydian major-ninth recognition when the alternative is a close
   major-thirteenth inversion with a natural eleventh against the major third.
 - Improved sparse Lydian major spelling, favoring readable sharp-eleventh labels
