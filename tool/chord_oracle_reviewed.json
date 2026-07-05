@@ -767,6 +767,10 @@
     "label": "genuine-ambiguity",
     "note": "A6add♯9 is preferred because A is the bass/root and the voicing contains C♯/D♭ as the major third, F♯ as the sixth, and C/B♯ as sharp-nine split-third color. F♯m♯11/A is a strong alternate because it preserves a complete F♯ minor triad with A in the bass, while music21 and tonal choose related diminished or suspended augmented-major spellings. Without key context, the split-third sixth chord and the upper-structure minor reading remain genuinely ambiguous."
   },
+  "0-2-4-7_b4": {
+    "label": "clearly-correct",
+    "note": "Cadd9/E is the expected isolated-voicing label because C-E-G forms a complete C major triad with E as the third in the bass, and D is a conventional add-nine color. Music21 agrees, and Tonal lists the same Cadd9/E identity after its Em7♯5 primary. The Em7♯5 re-rooting is pitch-valid, but it respells the sounding C as B♯ sharp-five color and uses rarer minor-seven-sharp-five vocabulary rather than naming the complete major-triad inversion; ChoCo also favors major|add9 over minor7Sharp5."
+  },
   "0-2-4-6-8-10_b0": {
     "label": "oracle-limitation",
     "note": "C9(#5,#11) is preferred because this is the complete whole-tone collection and C is the bass/root, so C-D-E-F#-G#/Ab-Bb reads directly as a root-position dominant 9#5#11. Tonal agrees and lists the other whole-tone re-roots as alternatives. Music21's Bb9#5/C add E keeps the same symmetric material but chooses a non-bass root and demotes the #11 to an added tone."
@@ -778,6 +782,10 @@
   "0-2-4-6-8-10_b6": {
     "label": "genuine-ambiguity",
     "note": "G♭9(♯5,♯11) is defensible because G♭ is the bass/root of the whole-tone collection and the current spelling names B♭, D, F♭/E, A♭, and C as third, sharp fifth, flat seventh, ninth, and sharp eleventh. Tonal agrees on the same root and quality, while music21 chooses a related E9♯5/F♯ re-rooting. The whole-tone collection supports several enharmonic dominant names, so this remains a genuine spelling and root-choice ambiguity."
+  },
+  "0-2-4-8_b0": {
+    "label": "clearly-correct",
+    "note": "Caug(add9) is the expected isolated-voicing label because C is the bass/root and C-E-G♯/A♭ forms a complete augmented triad, with D as natural add-nine color. Tonal agrees. Music21's A♭aug♯11/C is a valid augmented-triad re-rooting, but it turns the C bass into the third and the simple D ninth into sharp-eleventh color, making it less direct than the root-position C augmented add-nine reading."
   },
   "0-2-4-8_b2": {
     "label": "genuine-ambiguity",
