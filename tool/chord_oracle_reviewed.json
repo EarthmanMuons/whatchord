@@ -271,6 +271,10 @@
     "label": "genuine-ambiguity",
     "note": "G♭maj13(♯11)/B♭ is defensible because B♭ is the major third of a complete G♭ Lydian-major-thirteenth stack. Tonal's E♭m13/B♭ gives the same bass a conventional fifth role in a complete relative-minor-thirteenth chord, and music21's C half-diminished-flat-nine reading preserves another complete seventh shell. With all three readings close and surfaced, this is a genuine modal/relative-root ambiguity rather than a clear cost-model miss; the G♭ label keeps the observed bass inside a complete major-family shell with no altered flat-nine burden."
   },
+  "0-1-3-5-6-10_b3": {
+    "label": "clearly-correct",
+    "note": "E♭m13 is the expected isolated-voicing label because E♭ is the bass/root and E♭-G♭-B♭-D♭ supplies a complete minor-seventh shell, with F and C as ninth and thirteenth color. Tonal agrees. Music21's Cm11(♭5,♭9)/E♭ is a pitch-valid half-diminished re-rooting, but it makes the bass the minor third, has a much higher explanation cost, and relies on extremely sparse halfDiminished7|flat9 vocabulary in ChoCo."
+  },
   "0-1-3-5-6-10_b5": {
     "label": "genuine-ambiguity",
     "note": "G♭maj13(♯11)/F is defensible because F is the major seventh in the bass of a complete G♭ Lydian-major-thirteenth stack. Music21's C half-diminished-flat-nine reading and tonal's root-position F7sus4♭9♭13 reading are both pitch-valid ways to organize the same dense flat-side collection, while E♭m13/F is also surfaced as a close possible alternative. The F bass creates a genuine three-way ambiguity between major-seventh-bass Lydian-major color, root-position altered suspended dominant color, and half-diminished color; no single broad rule should displace all of them."
@@ -558,6 +562,10 @@
   "0-1-4-6-7-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C7(♭9,♯11) is preferred because C is the bass/root and C-E-G-B♭ forms a complete dominant shell, with D♭ and F♯ as flat-nine and sharp-eleven color. Tonal agrees and lists the tritone-related F♯7(♭9,♯11)/C alternate. Music21 chooses that F♯/G♭ dominant organization, which is structurally real, but it makes the observed C bass the sharp eleventh/B♯. The root-position C label has lower explanation cost and is the stronger context-free primary, while the tritone twin keeps this a genuine ambiguity."
+  },
+  "0-1-4-6-7-10_b1": {
+    "label": "genuine-ambiguity",
+    "note": "F♯7(♭9,♯11)/C♯ is preferred because F♯-A♯-C♯-E forms a complete dominant shell and the observed D♭/C♯ bass is the fifth, with G and C/B♯ as flat-nine and sharp-eleven color. Music21 agrees semantically. Tonal's C7(♭9,♯11)/D♭ is the valid tritone-related dominant and ranks next, but the cost gap keeps it outside the possible-alternative window and it makes the observed bass the flat ninth rather than a stable chord tone. ChoCo supports the shared dominant7|flat9,sharp11 vocabulary, so this remains a genuine tritone-dominant ambiguity rather than a corpus-backed reason to displace the fifth-in-bass primary."
   },
   "0-1-4-6-8-10_b1": {
     "label": "genuine-ambiguity",
