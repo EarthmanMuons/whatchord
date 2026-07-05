@@ -80,11 +80,11 @@ final List<NamedRule> hardRules = <NamedRule>[
         c.identity.quality == ChordQualityToken.diminished,
   ),
   NamedRule(
-    'prefer complete dominant sharp-nine over split-third sixth',
-    _preferCompleteDom7Sharp9OverSixthFlat9,
+    'prefer complete dominant sharp-nine over non-seventh color',
+    _preferCompleteDominantSharp9OverNonSeventhColor,
     gate: (c, f, _) =>
         _isCompleteDominantSharpNineReading(c.identity) ||
-        _isStableSplitThirdSixth(c.identity, f),
+        _isStableNonSeventhSharpNineCompetitor(c.identity, f),
   ),
   NamedRule(
     'prefer complete altered sharp-five dominant over remote spellings',
@@ -489,8 +489,8 @@ bool _isMajorSeventhUpperStructureSusSlash(
 
 // ---- Dominant and slash readings ---------------------------------------
 
-/// Prefers a complete dominant sharp-nine over a root-position sixth chord
-/// carrying split-third altered color.
+/// Prefers a complete dominant sharp-nine over a root-position non-seventh
+/// chord carrying destabilizing altered color.
 ///
 /// Example: {C, Eb, E, G, Bb} with Eb in the bass is C7#9/Eb, not Eb6b9.
 /// The seventh completes the conventional altered dominant; without it, the
@@ -500,7 +500,12 @@ bool _isMajorSeventhUpperStructureSusSlash(
 /// natural or flat thirteenth: the complete dominant shell is more idiomatic
 /// than a major-sixth chord carrying split-third, flat-nine, and eleventh
 /// add-tone color.
-int? _preferCompleteDom7Sharp9OverSixthFlat9(
+///
+/// Sharp-five dominant sevenths are included when they contain the same
+/// complete root/third/altered-fifth/seventh/#9 organization. A complete
+/// A7#5#9 is more idiomatic than a root-position sus or add chord whose main
+/// evidence is flat-nine and added-thirteenth color.
+int? _preferCompleteDominantSharp9OverNonSeventhColor(
   ChordCandidate a,
   ChordCandidate b,
   CandidateFeatures fa,
@@ -513,7 +518,7 @@ int? _preferCompleteDom7Sharp9OverSixthFlat9(
 
   final other = aIsPreferred ? b : a;
   final fOther = aIsPreferred ? fb : fa;
-  if (!_isStableSplitThirdSixth(other.identity, fOther)) {
+  if (!_isStableNonSeventhSharpNineCompetitor(other.identity, fOther)) {
     return null;
   }
 
@@ -524,7 +529,12 @@ int? _preferCompleteDom7Sharp9OverSixthFlat9(
 }
 
 bool _isCompleteDominantSharpNineReading(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.dominant7) return false;
+  final fifthRole = switch (id.quality) {
+    ChordQualityToken.dominant7 => ChordToneRole.perfect5,
+    ChordQualityToken.dominant7Sharp5 => ChordToneRole.sharp5,
+    _ => null,
+  };
+  if (fifthRole == null) return false;
   if (!id.extensions.contains(ChordExtension.sharp9)) return false;
   if (id.extensions.any(
     (extension) =>
@@ -540,7 +550,7 @@ bool _isCompleteDominantSharpNineReading(ChordIdentity id) {
   return roles.contains(ChordToneRole.root) &&
       roles.contains(ChordToneRole.sharp9) &&
       roles.contains(ChordToneRole.major3) &&
-      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(fifthRole) &&
       roles.contains(ChordToneRole.flat7);
 }
 
@@ -595,6 +605,28 @@ bool _isStableSplitThirdSixth(ChordIdentity id, CandidateFeatures features) {
           extensions.contains(ChordExtension.addSharp9) &&
           (extensions.contains(ChordExtension.sharp11) ||
               extensions.contains(ChordExtension.add11)));
+}
+
+bool _isStableNonSeventhSharpNineCompetitor(
+  ChordIdentity id,
+  CandidateFeatures features,
+) {
+  if (_isStableSplitThirdSixth(id, features)) return true;
+  if (!features.hasStableBassRole || features.isSeventhFamily) return false;
+
+  final extensions = id.extensions;
+  final hasFlatNine =
+      extensions.contains(ChordExtension.flat9) ||
+      extensions.contains(ChordExtension.addFlat9);
+  final hasDestabilizingUpperColor =
+      extensions.contains(ChordExtension.addSharp9) ||
+      extensions.contains(ChordExtension.sharp11) ||
+      extensions.contains(ChordExtension.add11) ||
+      extensions.contains(ChordExtension.thirteen) ||
+      extensions.contains(ChordExtension.add13) ||
+      extensions.contains(ChordExtension.flat13);
+
+  return hasFlatNine && hasDestabilizingUpperColor;
 }
 
 /// Prefers a dominant flat-nine shell in a stable inversion over a

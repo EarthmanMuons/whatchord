@@ -1183,6 +1183,8 @@ String _plainDecision(String? rule, {ChordCandidate? winner}) {
       'the dominant-thirteenth name keeps the complete seventh shell and natural extensions together, while the minor-six reading needs stacked added tones.',
     'prefer dominant flat-nine shell over colored diminished' =>
       'the dominant-flat-nine name keeps the complete dominant shell together, while the diminished reading treats one of the dominant tones as added color.',
+    'prefer complete dominant sharp-nine over non-seventh color' =>
+      'the dominant-sharp-nine name keeps the complete dominant shell together, while the other reading treats the same tension as non-seventh color.',
     'prefer root-position diminished7' =>
       'the diminished seventh is clearest when the bass is named as the root.',
     'prefer dominant7 over dim7 slash' ||

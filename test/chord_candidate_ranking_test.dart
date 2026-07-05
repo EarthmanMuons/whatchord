@@ -70,7 +70,7 @@ void main() {
     _expectTieRule(
       dominant,
       sixthFlat9,
-      'prefer complete dominant sharp-nine over split-third sixth',
+      'prefer complete dominant sharp-nine over non-seventh color',
     );
   });
 
@@ -96,7 +96,7 @@ void main() {
     _expectTieRule(
       dominant,
       splitThirdSixth,
-      'prefer complete dominant sharp-nine over split-third sixth',
+      'prefer complete dominant sharp-nine over non-seventh color',
     );
   });
 
@@ -132,7 +132,7 @@ void main() {
       _expectTieRule(
         dominant,
         splitThirdSixth,
-        'prefer complete dominant sharp-nine over split-third sixth',
+        'prefer complete dominant sharp-nine over non-seventh color',
       );
     },
   );
@@ -169,10 +169,36 @@ void main() {
       _expectTieRule(
         dominant,
         splitThirdSixth,
-        'prefer complete dominant sharp-nine over split-third sixth',
+        'prefer complete dominant sharp-nine over non-seventh color',
       );
     },
   );
+
+  test('complete sharp-five sharp-nine dominant beats sus flat-nine color', () {
+    final dominant = _candidate(
+      quality: ChordQualityToken.dominant7Sharp5,
+      root: 'A',
+      bass: 'C',
+      presentIntervals: const {0, 3, 4, 8, 10},
+      extensions: const {ChordExtension.sharp9},
+      cost: 1.40,
+    );
+
+    final susColor = _candidate(
+      quality: ChordQualityToken.sus4,
+      root: 'C',
+      bass: 'C',
+      presentIntervals: const {0, 1, 5, 7, 9},
+      extensions: const {ChordExtension.addFlat9, ChordExtension.add13},
+      cost: 1.50,
+    );
+
+    _expectTieRule(
+      dominant,
+      susColor,
+      'prefer complete dominant sharp-nine over non-seventh color',
+    );
+  });
 
   test(
     'complete flat-nine flat-thirteen dominant beats remote seventh spelling',
