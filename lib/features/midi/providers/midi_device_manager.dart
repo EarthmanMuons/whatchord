@@ -228,6 +228,20 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         await _ensureBluetoothCentralReady();
       }
 
+      // Switching devices: drop the current connection first, or its link
+      // stays open at the plugin level and keeps delivering MIDI alongside
+      // the new device (the message stream is not filtered by device).
+      final previous = state.connectedDevice;
+      if (previous != null && previous.id != device.id) {
+        try {
+          await _disconnectBestEffort(
+            previous.id,
+            transport: previous.transport,
+          );
+        } catch (_) {}
+        _setConnectedDevice(null);
+      }
+
       // Do not stop scanning until after connection is verified.
       // With the Bluetooth service boundary, we connect by id and verify by querying state.
       await _cleanupStaleConnection(device.id);
