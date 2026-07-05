@@ -19,22 +19,6 @@
     "label": "oracle-limitation",
     "note": "Gdim(add11) is preferred because G is the bass/root and G-B♭-D♭ forms a complete diminished triad with C as added eleventh. Music21 agrees semantically. B♭m6/9/G is a valid relative minor-six/nine rotation and remains a possible alternative, but it makes the observed bass the sixth of the chord rather than the root, so the root-position diminished label is the clearer primary name for this bass."
   },
-  "0-1-8-10_b0": {
-    "label": "oracle-limitation",
-    "note": "B♭m7/C is preferred because B♭-D♭-A♭ supplies the minor-seventh shell and C is the ninth in the bass; the slash spelling keeps the bass role explicit rather than redundantly headlining the same pitch as B♭m9/C. Music21 agrees on the B♭/A♯ minor-ninth family but normalizes the missing fifth into its semantic comparison. ChoCo strongly supports minor7|nine vocabulary with 5800 observations, while the nearest A♭ add-nine/add-eleven alternative has only 4, so this is an oracle-normalization limitation rather than a ranking issue."
-  },
-  "0-1-8-10_b1": {
-    "label": "oracle-limitation",
-    "note": "B♭m9/D♭ is preferred because D♭ is the minor third in the bass of a B♭ minor-seventh shell with C as ninth color. Music21 agrees semantically as A♯m9/C♯; the residual flag comes from enharmonic spelling and music21's implied omitted fifth, not from a real naming disagreement."
-  },
-  "0-1-8-10_b10": {
-    "label": "oracle-limitation",
-    "note": "B♭m9 is preferred because B♭ is the bass/root and the voicing contains the minor third, flat seventh, and ninth of a conventional minor-ninth chord. Music21 agrees semantically as B♭m9 but expects the omitted fifth in its normalized structure. Omitting the fifth from a minor-ninth shell is standard chord-symbol practice, so this is an oracle-normalization limitation rather than an engine issue."
-  },
-  "0-1-8-10_b8": {
-    "label": "oracle-limitation",
-    "note": "B♭m9/A♭ is preferred because A♭ is the flat seventh in the bass of a B♭ minor-ninth shell. Music21 agrees semantically as A♯m9/G♯, with only enharmonic spelling and implied-fifth normalization separating the labels. The A♭ add-nine/add-eleven reading is pitch-valid but costs substantially more and has sparse ChoCo support compared with the broad minor7|nine vocabulary."
-  },
   "0-1-8_b0": {
     "label": "context-dependent",
     "note": "A♭add11/C is defensible because A♭-C gives a clear major-third sonority and D♭ is naturally explained as added eleventh color, with C as the third in the bass. Music21's D♭power/C names the alternate D♭-A♭ no-third fifth with C/B♯ as major-seventh color, which may be preferable in a context that establishes D♭ as root. WhatChord does not currently emit no-third/power-chord vocabulary, so this should stay reviewed rather than forcing the incomplete D♭maj7/C candidate above a clean A♭ upper-structure reading."
@@ -78,18 +62,6 @@
   "0-1-2-3-10_b0": {
     "label": "oracle-limitation",
     "note": "Cm9♭9 is preferred because C is the bass/root and the voicing supplies the minor third, flat seventh, flat ninth, and natural ninth of a complete C minor-seventh color shell. Music21 agrees semantically as Cm9 add D♭ with the fifth omitted. WhatChord does not spell routine omitted fifths in chord symbols, and the next candidates cost more than a full point higher, so this is an oracle-normalization limitation rather than a ranking issue."
-  },
-  "0-1-2-3-10_b10": {
-    "label": "oracle-limitation",
-    "note": "Cm9♭9/B♭ is preferred because B♭ is the flat seventh in the bass of the C minor-seventh shell, with D♭ and D as split flat/natural ninth color. Music21 agrees semantically and only differs by explicitly marking the omitted fifth. Omitting the fifth is normal for dense minor-ninth symbols, and the nearby B♭ add-color reading remains a possible alternative rather than a clearer primary label."
-  },
-  "0-1-2-3-10_b2": {
-    "label": "oracle-limitation",
-    "note": "Cm9♭9/D is preferred because D is the natural ninth in the bass of a C minor-seventh shell that also includes the flat ninth D♭. Music21 agrees semantically as Cm9/D add D♭ with the fifth omitted. The B♭ add-nine/add-eleven slash alternative gives D a stable third-in-bass role, but it leaves the D♭/C♯ pitch as sharp-nine color and costs substantially more, so the C minor-ninth-flat-nine reading remains the expected primary label."
-  },
-  "0-1-2-3-10_b3": {
-    "label": "oracle-limitation",
-    "note": "Cm9♭9/E♭ is preferred because E♭ is the minor third in the bass of a C minor-seventh shell with split flat/natural ninth color. Music21 agrees semantically while explicitly noting the omitted fifth. The half-diminished and B♭ add-color alternatives cost well outside the possible range, so this residual flag is only omitted-fifth normalization."
   },
   "0-1-2-4-6-10_b0": {
     "label": "genuine-ambiguity",
@@ -250,22 +222,6 @@
   "0-1-3-4-7-9_b3": {
     "label": "genuine-ambiguity",
     "note": "E♭13(♭9,♯11) is defensible because E♭ is the bass/root and E♭-G-D♭ forms a complete dominant shell, with F♭/E, A, and C as flat-nine, sharp-eleven, and thirteenth color. Tonal prefers the equal-cost tritone-related A7(♯9,♯11)/E♭ reading, which remains surfaced as a possible alternative, while music21 chooses an A half-diminished add-tone spelling. With both dominant roots structurally complete and nearby ChoCo support for both altered-dominant color families, this is a genuine tritone-dominant ambiguity rather than a scoring issue."
-  },
-  "0-1-3-5_b0": {
-    "label": "clearly-correct",
-    "note": "D♭maj9/C is correct because D♭-F-C-E♭ supplies a clear fifthless D♭ major-ninth sonority with the major seventh in the bass. Music21 agrees semantically as D♭maj9/C; the missing fifth is conventional for a major-ninth shell."
-  },
-  "0-1-3-5_b1": {
-    "label": "clearly-correct",
-    "note": "D♭maj9 is correct because D♭ is the bass/root and the voicing supplies root, major third, major seventh, and ninth. Music21 agrees semantically as C♯M9; the enharmonic root spelling differs, but both labels describe the same fifthless major-ninth structure."
-  },
-  "0-1-3-5_b3": {
-    "label": "clearly-correct",
-    "note": "D♭maj7/E♭ is preferred because the voicing is a stable fifthless D♭ major-ninth sonority with E♭, the ninth, in the bass. Music21 agrees semantically as D♭maj9/E♭. The alternate E♭13sus2 is pitch-class valid and remains surfaced, but it is a fifthless sus2-thirteenth reinterpretation with no third."
-  },
-  "0-1-3-5_b5": {
-    "label": "clearly-correct",
-    "note": "D♭maj9/F is correct because F is the major third in the bass of the fifthless D♭ major-ninth shell D♭-F-C-E♭. Music21 agrees semantically as D♭maj9/F; the omitted fifth is standard in this sparse extended-chord voicing."
   },
   "0-1-3-6_b0": {
     "label": "genuine-ambiguity",
@@ -894,18 +850,6 @@
   "0-2-5-8_b8": {
     "label": "genuine-ambiguity",
     "note": "Fm6/A♭ is preferred because F-A♭-C-D forms a complete F minor-sixth chord with the minor third in the bass, a conventional inversion. Dm7♭5/A♭ is the equally complete enharmonic half-diminished reading with the flat fifth in the bass, and music21, tonal, and pychord all expose that alternate. The more conventional bass role favors Fm6/A♭, but the half-diminished reinterpretation makes the ambiguity genuine."
-  },
-  "0-2-6_b0": {
-    "label": "clearly-correct",
-    "note": "D7/C is correct because D-F♯-C supplies the root, major third, and flat seventh of a dominant-seventh shell, with the flat seventh in the bass. Tonal's D7no5/C is the same musical analysis with explicit fifth omission. WhatChord does not currently display omission notation, and the missing fifth is conventional in dominant-seventh shell voicings."
-  },
-  "0-2-6_b2": {
-    "label": "clearly-correct",
-    "note": "D7 is correct because D-F♯-C supplies the complete dominant shell: root, major third, and flat seventh. Tonal's D7no5 is more explicit about the omitted fifth, but musicians commonly write this voicing as D7 when the fifth is absent."
-  },
-  "0-2-6_b6": {
-    "label": "clearly-correct",
-    "note": "D7/F♯ is correct because F♯ is the third in the bass of the D dominant-seventh shell D-F♯-C. Tonal's D7no5/F# is the same inversion with explicit omission notation; WhatChord's shorter label is musically acceptable because omitted fifths are standard in dominant seventh chords."
   },
   "0-2-6-8_b2": {
     "label": "clearly-correct",

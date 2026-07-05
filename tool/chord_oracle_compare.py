@@ -793,6 +793,11 @@ def build_row(
         for name, keys in primary_semantic_oracles.items()
         if semantic_key_matches(whatchord_key, keys, case.pcs)
     ]
+    optional_fifth_matching_oracles = [
+        name
+        for name, keys in primary_semantic_oracles.items()
+        if semantic_key_matches_by_optional_fifth(whatchord_key, keys, case.pcs)
+    ]
     for name in semantic_matching_oracles:
         if name not in matching_oracles:
             matching_oracles.append(name)
@@ -833,13 +838,18 @@ def build_row(
         name for name in disagreeing_oracles if name not in ranking_divergence_oracles
     ]
     review_flag = "agree"
+    single_oracle_optional_fifth_agreement = (
+        len(comparable_primary_oracle_names) == 1
+        and bool(matching_oracles)
+        and comparable_primary_oracle_names[0] in optional_fifth_matching_oracles
+    )
     if not best:
         review_flag = "no-whatchord-candidate"
     elif any(result.status == "error" for result in oracle_results.values()):
         review_flag = "oracle-error"
     elif not comparable_primary_oracle_names:
         review_flag = "unrecognized-by-oracles"
-    elif len(comparable_primary_oracle_names) == 1:
+    elif len(comparable_primary_oracle_names) == 1 and not single_oracle_optional_fifth_agreement:
         review_flag = "insufficient-oracle-labels"
     elif not whatchord_label and whatchord_key is None:
         review_flag = "insufficient-oracle-labels"
@@ -957,11 +967,65 @@ def semantic_key_matches(
             continue
         if _key_intervals(oracle_key, sounding_intervals) != whatchord_intervals:
             continue
-        if oracle_key.bass_pc is None or whatchord_key.bass_pc is None:
-            return True
-        if oracle_key.bass_pc == whatchord_key.bass_pc:
+        if _bass_matches(whatchord_key, oracle_key):
             return True
     return False
+
+
+def semantic_key_matches_by_optional_fifth(
+    whatchord_key: SemanticChordKey | None,
+    oracle_keys: Iterable[SemanticChordKey],
+    sounding_pcs: Iterable[int] | None = None,
+) -> bool:
+    if whatchord_key is None or sounding_pcs is None:
+        return False
+
+    sounding_intervals = frozenset(
+        (pc - whatchord_key.root_pc) % 12 for pc in sounding_pcs
+    )
+    if DEGREE_TO_INTERVAL["5"] in sounding_intervals:
+        return False
+
+    whatchord_intervals = _key_intervals(whatchord_key, None)
+    for oracle_key in oracle_keys:
+        if oracle_key.root_pc != whatchord_key.root_pc:
+            continue
+        if not _bass_matches(whatchord_key, oracle_key):
+            continue
+
+        oracle_intervals = _key_intervals(oracle_key, None)
+        if whatchord_intervals == oracle_intervals:
+            continue
+        if whatchord_intervals ^ oracle_intervals != frozenset(
+            {DEGREE_TO_INTERVAL["5"]}
+        ):
+            continue
+        if not _supports_optional_perfect_fifth(
+            set(whatchord_key.degrees) | set(oracle_key.degrees)
+        ):
+            continue
+        if _key_intervals(oracle_key, sounding_intervals) == _key_intervals(
+            whatchord_key, sounding_intervals
+        ):
+            return True
+    return False
+
+
+def _bass_matches(
+    whatchord_key: SemanticChordKey, oracle_key: SemanticChordKey
+) -> bool:
+    if oracle_key.bass_pc is None or whatchord_key.bass_pc is None:
+        return True
+    return oracle_key.bass_pc == whatchord_key.bass_pc
+
+
+def _supports_optional_perfect_fifth(degrees: set[str]) -> bool:
+    """Whether an absent perfect fifth is routine enough to ignore in triage."""
+    if "b5" in degrees or "#5" in degrees:
+        return False
+    if not has_third(degrees):
+        return False
+    return bool(degrees & {"bb7", "b7", "7", "6"})
 
 
 def semantic_key_from_whatchord(candidate: dict) -> SemanticChordKey | None:
