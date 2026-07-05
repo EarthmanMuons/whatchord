@@ -619,6 +619,10 @@
     "label": "context-dependent",
     "note": "C6♭9 is preferred in neutral/C context because C is the bass/root and the voicing directly supplies the major third, sixth, and flat-ninth color. Music21's Am/C add C♯ is the split-third relative-minor view, while tonal's D♭m♭6M7/C matches the C♯mmaj7♭13/B♯ alternate that becomes preferred in C♯ minor. The row is context-dependent rather than an engine issue: C-bass root-position evidence favors C6♭9 here, but C♯ minor context legitimately favors the minor-major-seventh reading."
   },
+  "0-1-4-9_b9": {
+    "label": "clearly-correct",
+    "note": "Aadd♯9 is the expected isolated-voicing label because A is the bass/root and A-C♯-E forms a complete major triad, with C as split-third sharp-nine color. Music21 agrees semantically as Am add C♯. Tonal's D♭m♭6M7/A is pitch-valid but less direct: it makes the bass a flat-thirteenth color tone, relies on minor-major vocabulary with added flat-thirteenth color, and stays well below the surfaced alternative range even in C♯ minor context."
+  },
   "0-1-5-7_b0": {
     "label": "clearly-correct",
     "note": "Csus4add♭9 is the expected isolated-voicing label because C is the bass/root and C-F-G supplies a complete suspended triad with D♭ as flat-ninth color. Tonal reports the pitch-equivalent D♭maj7♭5/C family, but that treats the sounding G as an altered fifth rather than naming the direct C suspended sonority. The D♭maj7♯11/C spelling remains surfaced as a possible alternative."
@@ -750,6 +754,10 @@
   "0-1-6-9_b0": {
     "label": "genuine-ambiguity",
     "note": "F♯m♯11/B♯ is defensible because F♯-A-C♯ forms a complete minor triad and C/B♯ is the Lydian sharp-eleventh color in the bass; music21 agrees on the F♯ family. Tonal instead reports the D♭ suspended-major sharp-five view. The same sparse four-note set can be heard as minor sharp-eleven color, diminished/add color, or suspended-major color, so this remains genuinely ambiguous."
+  },
+  "0-1-6-9_b1": {
+    "label": "clearly-correct",
+    "note": "F♯m♯11/C♯ is the expected isolated-voicing label because F♯-A-C♯ forms a complete minor triad with C♯ as the fifth in the bass, and C/B♯ supplies a single sharp-eleventh color. Music21 agrees semantically as F♯m/C♯ add C. Tonal's D♭maj7♯5sus4 is pitch-valid but less direct because it has no third and uses a suspended augmented-major frame instead of naming the complete minor triad present in the voicing."
   },
   "0-1-6-9_b6": {
     "label": "clearly-correct",
