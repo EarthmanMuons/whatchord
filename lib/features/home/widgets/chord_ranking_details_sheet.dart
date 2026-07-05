@@ -1169,6 +1169,8 @@ String _plainDecision(String? rule, {ChordCandidate? winner}) {
     'prefer upper-structure dominant7 slash' => _upperStructureDominantReason(
       winner,
     ),
+    'prefer major-seventh upper-structure sus slash' =>
+      'a complete major-seventh upper-structure slash is a clearer spelling for this suspended dominant color.',
     'prefer voicing-supported upper-structure slash' =>
       'the way it was played stacks a complete chord above an isolated bass note, so this slash name reads more naturally than a root-position reading.',
     'prefer stable extended dominant over double-accidental altered-fifth slash' =>

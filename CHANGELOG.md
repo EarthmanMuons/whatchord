@@ -80,6 +80,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   spellings.
 - Improved sparse diminished-triad recognition, so complete diminished triads
   such as Cdim/E♭ are no longer displaced by fifthless minor-sixth spellings.
+- Improved suspended-dominant slash recognition, so upper-structure major
+  seventh voicings such as D♭maj7/E♭ are preferred when they are the clearer
+  spelling of a sus13 color.
 - Improved dominant-flat-nine shell ranking, so stable inversions such as C7♭9/E
   are less likely to be displaced by diminished add-tone or remote minor-major
   slash reinterpretations.

@@ -272,6 +272,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     _preferUpperStructureDom7,
   ),
   NamedRule(
+    'prefer major-seventh upper-structure sus slash',
+    _preferMajorSeventhUpperStructureSusSlash,
+  ),
+  NamedRule(
     'prefer root-position dominant sus over slash',
     _preferRootDominantSusOverSlash,
   ),
@@ -440,6 +444,47 @@ bool _isIncompleteSixthForTriadRule(ChordIdentity id) {
   if (id.rootPc != id.bassPc) return true;
 
   return id.extensions.isEmpty;
+}
+
+/// Prefers the conventional major-seventh upper-structure notation for a
+/// dominant-sus color when the slash candidate is a complete major-seventh
+/// chord a whole step below the bass/root.
+///
+/// Example: D♭maj7/E♭ is a standard, readable spelling for the same pitch
+/// collection as E♭13sus4: D♭ supplies ♭7, F supplies 9, A♭ supplies sus4, and
+/// C supplies 13 over the E♭ bass. In that situation the upper-structure slash
+/// is more informative than collapsing the voicing into a root-position sus
+/// symbol, especially without register evidence proving a root-shell voicing.
+int? _preferMajorSeventhUpperStructureSusSlash(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality _,
+) {
+  final aIsSlash = _isMajorSeventhUpperStructureSusSlash(a.identity, fb);
+  final bIsSlash = _isMajorSeventhUpperStructureSusSlash(b.identity, fa);
+  if (aIsSlash == bIsSlash) return null;
+
+  return aIsSlash ? -1 : 1;
+}
+
+bool _isMajorSeventhUpperStructureSusSlash(
+  ChordIdentity slash,
+  CandidateFeatures otherFeatures,
+) {
+  if (!otherFeatures.isRootDominantSus) return false;
+  if (slash.rootPc == slash.bassPc) return false;
+  if (slash.quality != ChordQualityToken.major7) return false;
+  if (intervalAboveRoot(slash.bassPc, slash.rootPc) != majorSecondInterval) {
+    return false;
+  }
+
+  final roles = slash.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.major3) &&
+      roles.contains(ChordToneRole.perfect5) &&
+      roles.contains(ChordToneRole.major7);
 }
 
 // ---- Dominant and slash readings ---------------------------------------
