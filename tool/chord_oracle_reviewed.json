@@ -63,6 +63,30 @@
     "label": "oracle-limitation",
     "note": "Cm9♭9 is preferred because C is the bass/root and the voicing supplies the minor third, flat seventh, flat ninth, and natural ninth of a complete C minor-seventh color shell. Music21 agrees semantically as Cm9 add D♭ with the fifth omitted. WhatChord does not spell routine omitted fifths in chord symbols, and the next candidates cost more than a full point higher, so this is an oracle-normalization limitation rather than a ranking issue."
   },
+  "0-1-2-3-6_b3": {
+    "label": "genuine-ambiguity",
+    "note": "E♭m13 is defensible because E♭ is the bass/root of a fifthless E♭ minor-seventh shell E♭-G♭-D♭, with C as thirteenth color and D treated as a chromatic extra tone. Music21's Cdim(add♭9,add9)/E♭ exactly names every pitch as C-E♭-G♭ plus adjacent D♭/D color, but that diminished split-ninth vocabulary is not an idiomatic neutral-context primary; ChoCo has only one diminished|addFlat9 observation, while minor-seventh vocabulary is broadly common and minor7|nine,eleven,thirteen appears 50 times. The row is a real ambiguity between exact chromatic bookkeeping and a more musician-readable bass-rooted shell, not an engine issue."
+  },
+  "0-1-2-3-7_b0": {
+    "label": "clearly-correct",
+    "note": "Cm(add♭9,add9) is correct because C is the bass/root and C-E♭-G supplies a complete C minor triad, with adjacent D♭/D named explicitly as flat-nine and natural-nine color. Music21 agrees semantically as CmaddC#,D. The competing G suspended and E♭ seventh-family rotations either require denser altered/split-color readings or leave a chromatic tone outside the label, so the root-position C minor split-ninth spelling is the clearest neutral-context name."
+  },
+  "0-1-2-3-7_b1": {
+    "label": "context-dependent",
+    "note": "Cmadd9/D♭ is defensible because C-E♭-G supplies a complete C minor triad and the D♭ bass is explicit flat-nine color, with D as the natural ninth. Music21's Gpower/C#addD#,B# reflects a possible G-rooted no-third fifth-plus-color hearing, but it is awkward as a standalone chord symbol and depends on context establishing G as root. WhatChord surfaces the related Gsus4(♯11,♭13)/C♯ reading as a possible alternative, so the row is context-dependent rather than a reason to displace the complete C minor split-ninth inversion."
+  },
+  "0-1-2-3-7_b2": {
+    "label": "genuine-ambiguity",
+    "note": "D7sus4(♭9) is defensible because D is the bass/root and C-E♭-G over D forms the familiar dominant-sus-flat-nine upper structure, with D♭ as chromatic major-seventh color outside the compact label. Music21's Cm/DaddC# names every pitch as a C minor split-ninth slash chord, and WhatChord surfaces that C-rooted reading as a possible alternative. The choice is a genuine bass-root dominant-sus shorthand versus exact chromatic upper-structure spelling, not a scoring issue."
+  },
+  "0-1-2-3-7_b3": {
+    "label": "genuine-ambiguity",
+    "note": "E♭13 is defensible because E♭ is the bass/root and E♭-G-D♭-C gives a complete dominant-seventh/thirteenth shell, with D treated as a chromatic major-seventh extra. Music21's Cm(add♭9,add9)/E♭ exactly names the C minor triad plus adjacent D♭/D color, and WhatChord surfaces that equal-cost slash reading as a possible alternative. In neutral context the root-position dominant shell is musician-readable, but the C minor split-ninth inversion is also structurally real."
+  },
+  "0-1-2-3-7_b7": {
+    "label": "clearly-correct",
+    "note": "Cm(add♭9,add9)/G is correct because the voicing contains the complete C-E♭-G minor triad with G as the fifth in the bass, plus D♭ and D as explicit split flat/natural ninth color. Music21 agrees semantically as Cm/GaddC#,D. The lower-cost Gsus4(♯11,♭13) candidate is surfaced as a possible alternative, but it turns the same adjacent C/C♯ tones into suspended-fourth and sharp-eleventh color and is less direct than preserving the complete minor-triad inversion."
+  },
   "0-1-2-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C9(♭5,♭9) is preferred because C is the bass/root and the voicing supplies a complete C dominant-flat-five shell C-E-G♭-B♭, with D♭/D as split flat/natural ninth color. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the sharp eleventh in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the C altered/split-ninth family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."
