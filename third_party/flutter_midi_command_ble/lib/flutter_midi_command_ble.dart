@@ -398,12 +398,10 @@ class _BleMidiDevice extends MidiDevice {
       _startNotify();
       return;
     }
-    // WhatChord patch: on platforms without a system pairing API (Apple, web)
-    // isPaired returns null and onPairingStateChange never fires, so waiting
-    // for a pairing confirmation leaves notifications off forever and no MIDI
-    // data ever arrives. Read the MIDI characteristic once (the BLE MIDI spec
-    // asks centrals to do this, and it triggers OS pairing when the peripheral
-    // requires encryption), then subscribe directly.
+    // Platforms without a system pairing API (Apple, web) return null and
+    // never fire onPairingStateChange, so notifications would never start.
+    // Read the MIDI characteristic once (per the BLE MIDI spec; triggers OS
+    // pairing when encryption is required) and subscribe directly.
     if (isPaired == null) {
       try {
         await UniversalBle.read(
@@ -426,9 +424,8 @@ class _BleMidiDevice extends MidiDevice {
     if (_midiService == null || _midiCharacteristic == null) {
       return;
     }
-    // WhatChord patch: subscribeNotifications is async; a bare try/catch never
-    // caught its errors. Swallow them explicitly so a failed subscribe cannot
-    // surface as an unhandled async error.
+    // subscribeNotifications is async, so a synchronous try/catch cannot
+    // catch its errors; swallow them explicitly instead.
     unawaited(
       UniversalBle.subscribeNotifications(
         deviceId,

@@ -344,14 +344,13 @@ class MidiCommand {
         _requireTransport(MidiTransport.ble, 'connectToDevice');
         _requireBleTransport('connectToDevice');
         await _bleTransport!.connectToDevice(device);
-        // WhatChord patch: upstream hands the data path over to a CoreMIDI
-        // counterpart here (_handoffBleToPlatform), because its BLE transport
-        // never delivers data on Apple (its notification subscribe is gated on
-        // pairing callbacks that never fire there). Our patched transport
-        // subscribes directly, making it the data path on every platform; the
-        // handoff would only add a second CoreMIDI delivery of the same bytes
-        // (duplicate notes) or, for peripherals CoreMIDI never surfaces (e.g.
-        // ones that don't require encryption), time out after 20s.
+        // On Apple platforms a bonded BLE peripheral becomes available through
+        // CoreMIDI under the same id (its CoreBluetooth UUID), and that is the
+        // path that actually carries MIDI data. Hand the data path over to it
+        // once it appears. This is a no-op on platforms where the BLE transport
+        // is itself the data path (e.g. Android), where no platform counterpart
+        // ever shows up.
+        unawaited(_handoffBleToPlatform(device));
       } else {
         await _platform.connectToDevice(device);
       }
@@ -465,7 +464,7 @@ class MidiCommand {
     if (_bleTransport != null && isTransportEnabled(MidiTransport.ble)) {
       streams.add(
         _mapPacketsToTypedEvents(
-          _bleTransport!.onMidiDataReceived,
+          _bleTransportPackets(),
           fallbackTransport: MidiTransport.ble,
         ),
       );
@@ -488,7 +487,7 @@ class MidiCommand {
       streams.add(_platform.onMidiDataReceived!);
     }
     if (_bleTransport != null && isTransportEnabled(MidiTransport.ble)) {
-      streams.add(_bleTransport!.onMidiDataReceived);
+      streams.add(_bleTransportPackets());
     }
     if (streams.isEmpty) {
       return null;
@@ -634,10 +633,6 @@ class MidiCommand {
 
     _log('Handoff: waiting for CoreMIDI counterpart of ${device.id}');
     while (DateTime.now().isBefore(deadline)) {
-      if (_deviceRouteById[device.id] == _MidiDeviceRoute.platform) {
-        // Already handed off (e.g. by a concurrent devices() refresh).
-        return;
-      }
       final platformDevices = await _platform.devices ?? <MidiDevice>[];
       MidiDevice? match;
       for (final candidate in platformDevices) {
@@ -649,6 +644,13 @@ class MidiCommand {
       if (match != null) {
         _setDeviceRoute(device, _MidiDeviceRoute.platform);
         _setDeviceRoute(match, _MidiDeviceRoute.platform);
+        // A concurrent devices() refresh may have routed this id already,
+        // but routing alone does not open the platform endpoint; skip the
+        // connect only when the platform reports it live.
+        if (match.connected) {
+          _log('Handoff: CoreMIDI endpoint already connected for ${device.id}');
+          return;
+        }
         try {
           await _platform.connectToDevice(match);
           _log('Handoff: connected CoreMIDI endpoint for ${device.id}');
@@ -682,6 +684,16 @@ class MidiCommand {
     }
 
     return _MidiDeviceRoute.platform;
+  }
+
+  /// BLE transport packets, excluding devices handed off to the platform
+  /// backend (see [_handoffBleToPlatform]), whose CoreMIDI endpoint would
+  /// otherwise deliver every message a second time.
+  Stream<MidiPacket> _bleTransportPackets() {
+    return _bleTransport!.onMidiDataReceived.where(
+      (packet) =>
+          _deviceRouteById[packet.device.id] != _MidiDeviceRoute.platform,
+    );
   }
 
   Stream<MidiDataReceivedEvent> _mapPacketsToTypedEvents(
