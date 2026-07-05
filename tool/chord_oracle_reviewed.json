@@ -299,6 +299,10 @@
     "label": "clearly-correct",
     "note": "E♭m13 is the expected isolated-voicing label because E♭ is the bass/root and the voicing supplies the complete E♭-G♭-B♭-D♭ minor-seventh shell, with F, A♭, and C as ninth, eleventh, and thirteenth color. Music21 agrees semantically. Tonal's G♭maj13(♯11)/E♭ is the valid relative Lydian-major re-rooting, but it makes the observed bass the thirteenth rather than the root. ChoCo also gives somewhat stronger exact support to minor7|nine,eleven,thirteen than major7|nine,sharp11,thirteen."
   },
+  "0-1-3-5-6-8-10_b5": {
+    "label": "genuine-ambiguity",
+    "note": "G♭maj13(♯11)/F is defensible because G♭-B♭-D♭-F forms a complete major-seventh shell with F as the major seventh in the bass, and A♭, C, and E♭ supply Lydian 9, ♯11, and 13 color. Tonal agrees. The lower-cost E♭m13/F relative-minor reading is surfaced as a possible alternative, while music21's Fm11(♭9,♭13) view is pitch-valid but depends on a root-position minor chord with simultaneous flat-nine and flat-thirteen color. ChoCo gives some exact support to major7|nine,sharp11,thirteen, while only sparse support exists for minor7|flat9 and no exact F-minor-style flat-nine/flat-thirteen extension signature is listed."
+  },
   "0-1-3-5-6-8-10_b10": {
     "label": "genuine-ambiguity",
     "note": "G♭maj13(♯11)/B♭ is preferred because B♭ is the major third of a complete G♭ Lydian-major thirteenth stack, and tonal agrees. Music21's B♭ minor-eleventh add-tone reading is pitch-valid and bass-rooted, but it requires the same G♭ pitch to function as altered fifth or flat-thirteenth color against B♭ minor, while the G♭ label keeps every pitch inside one major-family Lydian collection. The competing bass-root minor and first-inversion Lydian-major organizations make this a genuine ambiguity rather than an oracle limitation."
