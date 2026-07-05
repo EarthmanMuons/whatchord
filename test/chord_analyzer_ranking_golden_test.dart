@@ -1436,11 +1436,11 @@ void main() {
     ),
 
     // -------------------------------------------------------------------------
-    // Conventional add-tone slash beats root-position dominant sus
+    // Root-position dominant sus beats conventional add-tone slash
     // -------------------------------------------------------------------------
     golden(
       description:
-          'conventional add-tone slash beats root-position dominant sus',
+          'root-position dominant sus beats conventional add-tone slash',
       expectedSymbol: 'Eb13sus4',
       pcs: ['C', 'Db', 'Eb', 'Ab'],
       bass: 'Eb',
