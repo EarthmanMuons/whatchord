@@ -731,10 +731,14 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   Future<void> _performConnection(String deviceId) async {
     if (_debugLog) debugPrint('[MGR] performConnection id=$deviceId');
+    // The plugin blocks until connected/failed within _connectTimeout and
+    // throws on timeout (resetting device state), so let it own that budget.
+    // The slightly longer outer guard only catches a wedged native call that
+    // never returns.
     await _ble
-        .connect(deviceId)
+        .connect(deviceId, timeout: _connectTimeout)
         .timeout(
-          _connectTimeout,
+          _connectTimeout + const Duration(seconds: 2),
           onTimeout: () {
             throw const MidiException('Connection timed out');
           },
@@ -743,6 +747,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   }
 
   Future<void> _verifyConnection(String deviceId) async {
+    // Since flutter_midi_command 1.0, connect() only returns on a confirmed
+    // connection, so this poll is now mostly redundant. Kept as cheap insurance
+    // against a plugin that reports success without a live link.
     final connected = await _withTimeout(
       _ble.isConnected(deviceId),
       timeout: const Duration(seconds: 2),

@@ -85,9 +85,16 @@ class MidiBleService {
 
   // ---- Connection --------------------------------------------------------
 
-  Future<void> connect(String deviceId) async {
+  Future<void> connect(
+    String deviceId, {
+    Duration timeout = const Duration(seconds: 6),
+  }) async {
     final native = await _findNativeDevice(deviceId);
-    await _midi.connectToDevice(native);
+    // As of flutter_midi_command 1.0, connectToDevice blocks until the device
+    // reports connected or fails, up to awaitConnectionTimeout, and throws on
+    // timeout. Own that budget here so it matches the caller's rather than
+    // racing a separate outer timer.
+    await _midi.connectToDevice(native, awaitConnectionTimeout: timeout);
   }
 
   Future<void> disconnect(String deviceId) async {
