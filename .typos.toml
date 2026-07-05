@@ -16,8 +16,8 @@ extend-ignore-re = [
   # string interpolation followed by an ordinal suffix (e.g. `${n}nd`)
   "\\$\\{[^}]+\\}nd\\b",
 
-  # chord symbols with an added tone (e.g. "Aadd#9")
-  "\\b[A-G](?:[#b])?add[#b]?\\d+\\b",
+  # chord symbols with an added tone (e.g. "Aadd#9", "Aadd♯9")
+  "\\b[A-G](?:[#b♯♭])?add[#b♯♭]?\\d+\\b",
 ]
 
 [type.html]
@@ -28,8 +28,8 @@ extend-ignore-re = [
 
 [type.json]
 extend-ignore-re = [
-  # chord symbols with an added tone (e.g. "Aadd#9")
-  "\\b[A-G](?:[#b])?add[#b]?\\d+\\b",
+  # chord symbols with an added tone (e.g. "Aadd#9", "Aadd♯9")
+  "\\b[A-G](?:[#b♯♭])?add[#b♯♭]?\\d+\\b",
 ]
 
 [type.md]
