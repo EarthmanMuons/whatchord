@@ -1,8 +1,7 @@
 # Vendored packages
 
 Copies of upstream pub.dev packages carried here via `dependency_overrides`
-until upstream ships equivalent fixes. Keep diffs minimal; every deliberate
-change is marked with a `WhatChord patch` comment.
+until upstream ships equivalent fixes.
 
 ## flutter_midi_command 1.0.2 and flutter_midi_command_ble 1.0.2
 
@@ -23,17 +22,20 @@ Two upstream defects combine:
    For never-bonded peripherals it never appears, the handoff times out, and no
    data path remains.
 
-Patches:
+Patches (proposed upstream as a PR; these copies match the PR branch exactly):
 
 - `flutter_midi_command_ble`: when `isPaired` returns null, read the MIDI
-  characteristic once (BLE MIDI spec behavior; also triggers OS pairing when
+  characteristic once (per the BLE MIDI spec; also triggers OS pairing when
   encryption is required) and subscribe to notifications directly. Also swallow
   async subscribe errors that upstream's sync try/catch missed.
-- `flutter_midi_command`: remove the CoreMIDI handoff, since the patched BLE
-  transport is now the data path on every platform and a CoreMIDI counterpart
-  would deliver every message a second time.
+- `flutter_midi_command`: with the BLE path live, a handed-off device would
+  deliver every message twice, so BLE transport packets are suppressed for
+  devices routed to the platform backend, keeping the handed-off CoreMIDI
+  endpoint authoritative. The handoff also now connects the endpoint even when a
+  concurrent `devices()` refresh already flipped the route, since routing alone
+  never opens the endpoint.
 
 To update: diff these copies against the matching version in
 `~/.pub-cache/hosted/pub.dev/`, re-vendor `lib/`, `pubspec.yaml`, and `LICENSE`,
-and re-apply the marked patches. Remove the overrides in `pubspec.yaml` once
-upstream resolves the iOS BLE data path.
+and re-apply the patches. Remove the overrides in `pubspec.yaml` once upstream
+resolves the iOS BLE data path.
