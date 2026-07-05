@@ -463,6 +463,10 @@
     "label": "oracle-limitation",
     "note": "A♭11 is preferred because A♭ is the bass/root and the voicing supplies a complete dominant-eleventh stack A♭-C-E♭-G♭-B♭-D♭. Music21 agrees. Tonal's G♭6/9♯11/A♭ re-roots the same collection as Lydian major-six-nine color, but it turns the bass into the ninth; ChoCo also favors the dominant-eleventh vocabulary here, with 388 dominant7|nine,eleven observations versus 5 exact major6|sharp11,add9 observations."
   },
+  "0-1-3-6-8_b1": {
+    "label": "clearly-correct",
+    "note": "D♭maj9sus4 is the expected isolated-voicing label because D♭ is the bass/root and D♭-G♭-A♭-C-E♭ supplies a complete suspended-major-ninth structure. Tonal agrees. Music21's A♭7/D♭ is a valid re-rooting of the same tones, but it makes the bass the eleventh color above A♭ and costs more than the direct bass-rooted suspended-major reading."
+  },
   "0-1-3-6-8_b3": {
     "label": "genuine-ambiguity",
     "note": "E♭m13 is defensible because E♭ is the bass/root of the E♭-G♭-D♭ minor-seventh shell, with A♭ and C as eleventh and thirteenth color. Tonal's D♭maj9sus4/E♭ is a strong suspended-major reading and music21's A♭11/E♭ names a complete dominant-eleventh re-rooting; both remain surfaced as possible alternatives. ChoCo has some support for the nearby full minor-thirteenth body and major7sus4|nine body, but not enough exact evidence to override the bass-rooted minor-thirteenth interpretation, so this is a genuine three-root ambiguity rather than a scoring issue."
@@ -538,6 +542,10 @@
   "0-1-4-5_b5": {
     "label": "context-dependent",
     "note": "D♭maj7♯9/F is the strongest available WhatChord label because D♭-F-C supplies a complete major-seventh shell with F as the third in the bass, and E is named explicitly as sharp-nine color. Music21's FpoweraddE,C# is a plausible F-rooted no-third fifth plus major-seventh/altered-fifth color reading, but WhatChord does not currently model that power/no-third vocabulary. ChoCo offers only sparse exact support for major7|sharp9, so this should stay reviewed rather than forcing an incomplete F-rooted proxy above the complete D♭ shell."
+  },
+  "0-1-4-5-8_b1": {
+    "label": "clearly-correct",
+    "note": "D♭maj7♯9 is the expected isolated-voicing label because D♭ is the bass/root and D♭-F-A♭-C supplies a complete major-seventh shell, with E as sharp-nine split-third color. Music21 agrees semantically as C♯mM7 add E♯. Tonal's Fm(maj7,♭13)/D♭ is a complete re-rooting, but it makes the bass a flat-thirteenth color tone and has a substantially higher explanation cost than the direct D♭ root-position label."
   },
   "0-1-4-6_b1": {
     "label": "context-dependent",
