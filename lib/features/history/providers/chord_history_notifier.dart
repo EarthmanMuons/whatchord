@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/demo/demo.dart';
@@ -9,8 +11,10 @@ import '../models/chord_event.dart';
 /// Memory cap on stored events; the oldest are dropped beyond this count.
 final historyCapacityProvider = Provider<int>((ref) => 100);
 
-/// Minimum hold time before an identity is committed to history. Filters out
-/// finger rolls and passing voicings during transitions.
+/// How long an identity must persist to count as real. Serves double duty:
+/// a challenger identity must outlive this to end the current chord
+/// (debounce), and a committed chord must have been held this long to be
+/// recorded. Split into separate providers if tuning ever needs them apart.
 final historyMinChordDurationProvider = Provider<Duration>(
   (ref) => const Duration(milliseconds: 200),
 );
@@ -31,6 +35,10 @@ typedef _CaptureFrame = ({
   List<ChordCandidate> candidates,
   Tonality tonality,
 });
+
+extension on _CaptureFrame {
+  ChordIdentity get identity => candidates.first.identity;
+}
 
 /// The analyzed live chord currently eligible for capture, or null while demo
 /// or lookup is active or fewer than three notes sound.
@@ -62,25 +70,40 @@ final _captureFrameProvider = Provider<_CaptureFrame?>((ref) {
   return (
     input: input,
     voicing: voicing,
-    candidates: List.unmodifiable(relevant),
+    candidates: relevant,
     tonality: tonality,
   );
 });
 
 /// Sliding-window history of committed live chords, oldest first.
 ///
-/// The unit of history is a held chord identity: the in-progress snapshot is
-/// committed when a different identity appears, when the sounding set drops
-/// out of chord analysis (below three notes), or when capture is gated off.
-/// Snapshots held for less than [historyMinChordDurationProvider] are dropped.
+/// The unit of history is a held chord identity. A different identity showing
+/// up does not end the current chord immediately: it becomes a pending
+/// challenger, and only ends (commits) the current chord once it has itself
+/// persisted past [historyMinChordDurationProvider]. A challenger that
+/// vanishes back into the current identity was a finger roll or passing
+/// voicing, and the current chord continues as one uninterrupted event.
+/// Release, decay below three notes, and capture gating-off all end the
+/// current chord directly.
+///
+/// Events snapshot their frame (input, voicing, candidates, tonality) at
+/// identity onset. Same-identity changes mid-hold, like an added octave
+/// doubling or a manual tonality switch, neither update the snapshot nor
+/// re-segment the event; the stored candidates stay consistent with the
+/// stored tonality they were ranked under.
 class ChordHistoryNotifier extends Notifier<List<ChordEvent>> {
   DateTime? _startedAt;
-  _CaptureFrame? _inProgress;
+  _CaptureFrame? _current;
+  DateTime? _pendingSince;
+  _CaptureFrame? _pending;
+  Timer? _pendingTimer;
 
   @override
   List<ChordEvent> build() {
     _startedAt = null;
-    _inProgress = null;
+    _current = null;
+    _clearPending();
+    ref.onDispose(_clearPending);
     ref.listen(
       _captureFrameProvider,
       (previous, next) => _onFrame(next),
@@ -100,7 +123,8 @@ class ChordHistoryNotifier extends Notifier<List<ChordEvent>> {
 
   void clear() {
     _startedAt = null;
-    _inProgress = null;
+    _current = null;
+    _clearPending();
     state = const [];
   }
 
@@ -112,31 +136,66 @@ class ChordHistoryNotifier extends Notifier<List<ChordEvent>> {
 
   void _onFrame(_CaptureFrame? frame) {
     final now = ref.read(historyClockProvider)();
+    _resolvePending(now);
 
     if (frame == null) {
-      _commit(now);
+      // The current chord ended when an unresolved challenger began, else now.
+      final end = _pendingSince ?? now;
+      _clearPending();
+      _commitCurrent(end);
       return;
     }
 
-    final current = _inProgress;
-    if (current != null &&
-        current.candidates.first.identity == frame.candidates.first.identity) {
+    if (_current != null && frame.identity == _current!.identity) {
+      // Back to (or still) the stable identity: any challenger was a blip.
+      _clearPending();
       return;
     }
 
-    _commit(now);
-    _startedAt = now;
-    _inProgress = frame;
+    if (_pending != null && frame.identity == _pending!.identity) {
+      // The challenger continues; its stabilization clock keeps running.
+      return;
+    }
+
+    if (_current == null) {
+      // Nothing to protect with a debounce; the identity starts immediately
+      // and the commit-time duration check drops it if it turns out fleeting.
+      _startedAt = now;
+      _current = frame;
+      return;
+    }
+
+    _clearPending();
+    _pendingSince = now;
+    _pending = frame;
+    _schedulePendingTimer();
   }
 
-  void _commit(DateTime now) {
+  /// Promotes the pending challenger once it has outlived the debounce:
+  /// commits the current chord as ending at the challenger's onset, and the
+  /// challenger becomes the current chord, backdated to that onset.
+  void _resolvePending(DateTime now) {
+    final pending = _pending;
+    final since = _pendingSince;
+    if (pending == null || since == null) return;
+    if (now.difference(since) < ref.read(historyMinChordDurationProvider)) {
+      return;
+    }
+
+    _clearPending();
+    _commitCurrent(since);
+    _startedAt = since;
+    _current = pending;
+  }
+
+  void _commitCurrent(DateTime end) {
     final startedAt = _startedAt;
-    final frame = _inProgress;
+    final frame = _current;
     _startedAt = null;
-    _inProgress = null;
+    _current = null;
     if (startedAt == null || frame == null) return;
 
-    final held = now.difference(startedAt);
+    final held = end.difference(startedAt);
     if (held < ref.read(historyMinChordDurationProvider)) return;
 
     record(
@@ -149,5 +208,22 @@ class ChordHistoryNotifier extends Notifier<List<ChordEvent>> {
         duration: held,
       ),
     );
+  }
+
+  /// Without this timer, a stabilized challenger would only be noticed at the
+  /// next input change, delaying the previous chord's commit by one chord.
+  void _schedulePendingTimer() {
+    _pendingTimer?.cancel();
+    _pendingTimer = Timer(ref.read(historyMinChordDurationProvider), () {
+      _pendingTimer = null;
+      _resolvePending(ref.read(historyClockProvider)());
+    });
+  }
+
+  void _clearPending() {
+    _pendingTimer?.cancel();
+    _pendingTimer = null;
+    _pendingSince = null;
+    _pending = null;
   }
 }

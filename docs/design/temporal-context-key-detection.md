@@ -151,7 +151,16 @@ progression (where the sounding set never empties until the end) into a single
 
 **Stabilization.** To avoid recording finger-rolls and passing voicings, apply a
 short debounce/hysteresis on identity changes and a minimum-duration threshold
-before a snapshot is eligible to commit.
+before a snapshot is eligible to commit. As implemented, one threshold serves
+both roles: a different identity becomes a _pending challenger_ that only ends
+(commits) the current chord once it has itself persisted past the threshold, and
+the same threshold drops short-lived commits. A challenger that vanishes back
+into the current identity was a blip, and the current chord continues as one
+uninterrupted event, so duration weighting is not fragmented by transients. The
+committed chord ends at the challenger's onset, and events snapshot their frame
+(input, voicing, candidates, tonality) at identity onset; same-identity changes
+mid-hold neither update the snapshot nor re-segment the event, keeping stored
+candidates consistent with the stored tonality they were ranked under.
 
 #### Live-only gating happens at capture, not at commit
 
@@ -672,8 +681,10 @@ the most cited artifact of this kind of paper.
       read window for `recentEvents`. With the identity-change model, ~100
       events is a few minutes of active playing. Phase 1 shipped with
       `historyCapacityProvider` = 100 and `historyMinChordDurationProvider` =
-      200 ms (both tunable providers); the default detection window is still a
-      Phase 2 decision.
+      200 ms (the latter doing double duty as the challenger-stabilization
+      debounce and the commit minimum; split it into two providers if tuning
+      ever needs them apart). The default detection window is still a Phase 2
+      decision.
 - [x] Chord event boundary for Phase 1: **commit on identity change**, with
       release as one more commit trigger, so pedaled/legato progressions are
       captured as a sequence. Stabilization (debounce + minimum duration) is

@@ -81,7 +81,7 @@ void main() {
 
   void advance(Duration duration) => now = now.add(duration);
 
-  test('commits the previous identity when a new one appears', () async {
+  test('commits the previous identity once a new one stabilizes', () async {
     final container = await makeContainer();
     final startedAt = now;
 
@@ -89,20 +89,59 @@ void main() {
     advance(const Duration(seconds: 2));
     await play(container, fMajor);
 
-    var events = container.read(chordHistoryProvider);
-    expect(events, hasLength(1));
-    expect(events.single.identity.rootPc, 0);
-    expect(events.single.identity.quality, ChordQualityToken.major);
-    expect(events.single.timestamp, startedAt);
-    expect(events.single.duration, const Duration(seconds: 2));
+    // F has not outlived the debounce yet, so C is still the open chord.
+    expect(container.read(chordHistoryProvider), isEmpty);
 
     advance(const Duration(seconds: 1));
     await play(container, const {});
 
-    events = container.read(chordHistoryProvider);
+    final events = container.read(chordHistoryProvider);
     expect(events, hasLength(2));
+    expect(events.first.identity.rootPc, 0);
+    expect(events.first.identity.quality, ChordQualityToken.major);
+    expect(events.first.timestamp, startedAt);
+    // C ended when the F challenger began, not when it stabilized.
+    expect(events.first.duration, const Duration(seconds: 2));
     expect(events.last.identity.rootPc, 5);
     expect(events.last.duration, const Duration(seconds: 1));
+  });
+
+  test('keeps one continuous event across a transient blip', () async {
+    final container = await makeContainer();
+
+    await play(container, cMajor);
+    advance(const Duration(seconds: 2));
+    await play(container, const {60, 64, 67, 69});
+    advance(const Duration(milliseconds: 50));
+    await play(container, cMajor);
+    advance(const Duration(seconds: 1));
+    await play(container, const {});
+
+    final events = container.read(chordHistoryProvider);
+    expect(events, hasLength(1));
+    expect(events.single.identity.quality, ChordQualityToken.major);
+    // The blip folds into the held chord instead of splitting it.
+    expect(
+      events.single.duration,
+      const Duration(seconds: 3, milliseconds: 50),
+    );
+  });
+
+  test('debounce timer promotes a stabilized identity by itself', () async {
+    final container = await makeContainer();
+
+    await play(container, cMajor);
+    advance(const Duration(seconds: 1));
+    await play(container, fMajor);
+    advance(const Duration(seconds: 1));
+
+    // No further input: the pending timer alone resolves the challenger.
+    await Future<void>.delayed(const Duration(milliseconds: 300));
+
+    final events = container.read(chordHistoryProvider);
+    expect(events, hasLength(1));
+    expect(events.single.identity.rootPc, 0);
+    expect(events.single.duration, const Duration(seconds: 1));
   });
 
   test('captures a pedaled overlap as a sequence, not a union chord', () async {
@@ -119,7 +158,8 @@ void main() {
     final events = container.read(chordHistoryProvider);
     expect(events, hasLength(2));
     expect(events.first.identity.rootPc, 0);
-    expect(events.first.duration, const Duration(seconds: 2));
+    // C runs until the F challenger began; the union blip folds into C.
+    expect(events.first.duration, const Duration(seconds: 2, milliseconds: 50));
     expect(events.last.identity.rootPc, 5);
     expect(events.last.duration, const Duration(seconds: 1));
   });
@@ -288,5 +328,30 @@ void main() {
 
     await play(container, const {});
     expect(container.read(chordHistoryProvider), isEmpty);
+  });
+
+  test('ChordEvent rejects empty candidates and freezes the list', () async {
+    final container = await makeContainer();
+
+    await play(container, cMajor);
+    advance(const Duration(seconds: 1));
+    await play(container, const {});
+    final event = container.read(chordHistoryProvider).single;
+
+    expect(
+      () => ChordEvent(
+        timestamp: event.timestamp,
+        input: event.input,
+        voicing: event.voicing,
+        candidates: const [],
+        tonality: event.tonality,
+        duration: event.duration,
+      ),
+      throwsA(isA<AssertionError>()),
+    );
+    expect(
+      () => event.candidates.add(event.candidates.first),
+      throwsUnsupportedError,
+    );
   });
 }
