@@ -130,6 +130,7 @@ abstract final class ChordAnalyzer {
   static const _splitFourthSurcharge = 0.6; // natural 4 and #11 at once
   static const _splitSecondSurcharge = 0.4; // natural 2 and b9/#9 at once
   static const _splitSixthSurcharge = 0.4; // natural 6/13 and b13 at once
+  static const _splitSharpFiveThirteenSurcharge = 0.8; // #5 and 13 at once
   static const _sharpElevenEmptyFifthSurcharge = 0.75; // #11 with no 5th tone
   static const _flatThirteenEmptyFifthSurcharge = 0.5; // b13 with no 5th
   static const _sixChordNoFifthSurcharge = 0.45; // bare R-3-6 set as a 6th
@@ -722,7 +723,8 @@ abstract final class ChordAnalyzer {
             (hasMajorThirdRole ? _elevenOverMajorThirdSurcharge : 0);
       case ChordToneRole.thirteen:
         return _naturalExtensionPrice(_priceThirteen, quality) +
-            (hasNinth ? 0 : _unsupportedThirteenSurcharge);
+            (hasNinth ? 0 : _unsupportedThirteenSurcharge) +
+            (_hasSharpFifthRole(roles) ? _splitSharpFiveThirteenSurcharge : 0);
       case ChordToneRole.add13:
         return _naturalExtensionPrice(_priceAdd13, quality);
 
@@ -894,6 +896,10 @@ abstract final class ChordAnalyzer {
     return roles.containsValue(ChordToneRole.sixth) ||
         roles.containsValue(ChordToneRole.thirteen) ||
         roles.containsValue(ChordToneRole.add13);
+  }
+
+  static bool _hasSharpFifthRole(Map<int, ChordToneRole> roles) {
+    return roles.containsValue(ChordToneRole.sharp5);
   }
 
   /// True when a seventh-family name is missing its seventh while promoting
