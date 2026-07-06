@@ -12,50 +12,47 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Added a Chord Naming Guide to the website, walking through default interval
-  qualities, tertian stacking, enharmonic spelling, and candidate-root checking.
-- Power chords (bare root-and-fifth voicings) are now named directly, such as
-  C5, C5/G, and C5(add♭9), instead of being read as a remote third-bearing
-  fragment. A power chord is chosen only when nothing but the fifth and its
-  named colors are sounding; add a third or seventh and the usual triad or
-  seventh-chord reading still wins.
+- Power chords are now named directly for bare root-and-fifth voicings, such as
+  C5, C5/G, and C5(add♭9). Add a third or seventh and the usual triad or seventh
+  chord reading still wins.
+- Added a Chord Naming Guide to the website, covering interval names, chord
+  formulas, slash bass, enharmonic spelling, and how possible roots are
+  compared.
+- Added website articles and tooling notes for chord ranking performance,
+  recognition behavior, and the oracle-comparison workflow.
+- Added benchmark regression checks, noise calibration, rule-ablation reports,
+  and pool-diff tooling for tracking chord-analysis behavior and performance.
 
 ### Changed
 
+- Rebuilt chord ranking around explanation cost. A chord name now pays for what
+  it must explain: uncommon vocabulary, color tones, missing essential tones,
+  unexplained notes, and awkward bass placement. Lower cost is better, which
+  makes results line up more naturally with musician expectations.
+- Common, readable chord names now win more often unless a rarer name explains
+  the voicing decisively better. This reduces exotic altered-fifth, minor-major,
+  suspended, and chromatic bookkeeping labels in dense voicings.
+- Chord identification is now roughly 15x faster on common everyday chords and
+  about 24x faster across the oracle benchmark, including dense or ambiguous
+  voicings with many possible readings.
+- Possible alternatives now track the app-visible near-tie set more directly, so
+  alternatives are focused on musically close readings instead of incidental
+  candidates from the full ranking list.
+- Rare chord vocabulary such as m♯5, maj♭5, 7sus2, maj7sus2, m7♯5, maj7♭5, and
+  maj7♯5 now needs a stronger musical fit before it can displace common chord
+  names.
+- Slash bass notes now favor readable sounding-pitch spellings when the bass is
+  a color or altered tone, so A7♯9/C is preferred over A7♯9/B♯. Ordinary
+  chord-tone inversions such as A/C♯, F♯7/A♯, and C♯maj7/B♯ are unchanged.
+- Close ties now prefer cleaner contextual spelling instead of falling back to
+  arbitrary root order, especially for tritone-related dominants and dense
+  altered or Lydian voicings.
 - Explore copy dialogs, website chord results, and article examples now use
   hyphenated note lists such as C-E-G while keeping chord degrees
   comma-separated.
-- Rebuilt chord pricing around explanation cost: a reading now pays for its
-  vocabulary rarity, each color tone, missing essential tones, and awkward bass
-  placement, instead of earning points per matched template slot. Common names
-  win unless a rarer name explains the voicing decisively better, dense voicings
-  no longer favor exotic altered-fifth or minor-major readings, and exact-tie
-  shuffles between readings such as C6/9 and Am11/C are gone.
-- Renamed chord explanation values to costs across the app, tools, and current
-  algorithm docs, so the visible number reads as a lower-is-better price.
-- Chord identification is now roughly 15x faster on common everyday chords and
-  about 24x faster across the oracle benchmark, including dense or ambiguous
-  voicings with many possible readings, while still using the fuller
-  explanation-cost ranking that improved chord names and alternatives in this
-  release.
-- Rarely used chord vocabulary (m♯5, maj♭5, 7sus2, and maj7sus2) now needs a
-  decisively better fit to be chosen or offered as an alternative, so dense
-  voicings favor common chord names such as A♭maj7/D♭ over respellings such as
-  D♭maj7sus2(♯11).
-- The rare-vocabulary preference now also covers m7♯5, maj7♭5, and maj7♯5, so
-  readings such as Cadd9/E, F7♭13, and half-diminished flat-color stacks win
-  over altered-fifth respellings of the same notes.
-- Extended dominants rooted a tritone apart (such as C7alt against G♭9♯11) now
-  prefer the reading whose members spell cleanly in context, and Lydian dominant
-  9♯11 voicings keep their preference in shell-tone inversions such as C9♯11/B♭.
-- When nothing structural separates two close readings, the chord with the
-  cleaner spelling now wins instead of an arbitrary root-order fallback, so
-  C♯m(maj7,♭9) is chosen over C♯maj7♭9 and its E♯ spelling.
-- Slash bass notes now favor a readable sounding-pitch spelling when the bass is
-  a color or altered tone, so a sharp-nine in the bass shows as A7♯9/C rather
-  than A7♯9/B♯, and double accidentals such as F♯7(♯9,♯11,♭13)/G𝄪 become
-  F♯7(♯9,♯11,♭13)/A. Genuine chord-tone inversions keep their conventional
-  spelling, so A/C♯, F♯7/A♯, and C♯maj7/B♯ are unchanged.
+- The website now has an article index, cleaner article URLs, a mobile hamburger
+  menu, external-link markers, stronger print layouts, and improved 404-page
+  asset loading.
 
 ### Fixed
 
@@ -69,51 +66,19 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   a common way to save bandwidth by omitting the repeated status byte between
   messages. These notes were previously ignored, so fast or chord-dense playing
   could drop notes; they are now read correctly.
-- Improved altered sharp-five dominant recognition, so voicings such as C7♯5♭9,
-  A7♯5♯9/C, and D9♭5/C are less likely to be displaced by remote minor-major,
-  altered-major, sus add-color, or less idiomatic altered-fifth-bass
-  reinterpretations.
-- Improved Lydian major-ninth recognition when the alternative is a close
-  major-thirteenth inversion with a natural eleventh against the major third.
-- Improved sparse Lydian major spelling, favoring readable sharp-eleventh labels
-  over flat-five respellings that require awkward enharmonics.
-- Improved fifthless Lydian major-seventh spelling, so voicings such as
-  D♭maj7♯11 are less likely to appear as awkward major-seven-flat-five
-  respellings.
-- Improved sparse Lydian major inversion ranking, so complete ♯11 triad
-  inversions are less likely to be displaced by suspended major-thirteenth
-  reinterpretations.
-- Improved sparse suspended sharp-eleventh recognition, so root-position sus4♯11
-  voicings are less likely to be displaced by inverted sus add-flat-nine
-  spellings.
-- Improved sparse add-chord ranking, so readable add-eleven voicings are less
-  likely to be displaced by unusual seventh spellings that omit the third.
-- Improved major-nine slash ranking, so clear upper-structure major-seventh
-  voicings are less likely to be displaced by fifthless sus2-thirteenth
-  reinterpretations.
-- Improved minor-sixth flat-nine ranking, so stable sixth-chord voicings are
-  less likely to be displaced by unusual suspended major-seventh slash
-  spellings.
-- Improved sparse diminished-triad recognition, so complete diminished triads
-  such as Cdim/E♭ are no longer displaced by fifthless minor-sixth spellings.
-- Improved suspended-dominant slash recognition, so upper-structure major
-  seventh voicings such as D♭maj7/E♭ are preferred when they are the clearer
-  spelling of a sus13 color.
-- Improved dominant-flat-nine shell ranking, so stable inversions such as C7♭9/E
-  are less likely to be displaced by diminished add-tone or remote minor-major
-  slash reinterpretations.
-- Improved split-ninth dominant, dominant-ninth slash, and minor-ninth slash
-  ranking, so voicings such as C9♭9/D♭, D9/C, and Dm9/C are less likely to be
-  displaced by rarer altered or minor-major bookkeeping.
-- Improved split-ninth add-triad ranking, so complete root-position triads such
-  as C(add♭9,add9) are less likely to be displaced by remote unusual seventh
-  slash reinterpretations.
-- Improved sharp-five thirteenth pricing, so readings that stack ♯5 and natural
-  13 are less likely to displace cleaner split-ninth triad or minor-major
-  shells.
-- Improved sparse add-color triad pricing, so complete bass-rooted triads with
-  modest color tones can stay visible against suspended or seventh-family
-  reinterpretations.
+- Fixed connection timing around the updated MIDI plugin so slow-but-valid
+  connections are not aborted early or left orphaned in the background.
+- Improved dominant, altered-dominant, and tritone-dominant recognition,
+  including C7♯5♭9, A7♯5♯9/C, D9♭5/C, C9♭9/D♭, D9/C, and D7/E-style voicings.
+- Improved Lydian, sharp-eleventh, and upper-structure slash recognition,
+  including D♭maj7♯11, G♭♯11/D♭, and D♭maj7/E♭-style voicings.
+- Improved minor-ninth, minor-sixth, minor-major, and diminished recognition, so
+  complete shells and stable bass roles are less likely to be displaced by
+  remote chromatic reinterpretations.
+- Improved add-chord and split-ninth triad recognition, so complete triads such
+  as C(add♭9,add9), Cadd9/E, and add-eleven slash voicings are easier to read.
+- Fixed website layout issues around article cards, printed chord results,
+  printed articles, and mobile navigation.
 
 ## [2026.6.28] - 2026-06-28
 
