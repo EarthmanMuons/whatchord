@@ -348,6 +348,30 @@ void main() {
     ),
 
     golden(
+      description:
+          'dominant ninth slash beats exact minor-major flat-nine bookkeeping',
+      expectedSymbol: 'D9/C',
+      pcs: ['C', 'Db', 'D', 'E', 'F#'],
+      bass: 'C',
+      expectedRoot: 'D',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine},
+    ),
+
+    golden(
+      description:
+          'dominant seventh over ninth bass beats exact altered bookkeeping',
+      expectedSymbol: 'D7/E',
+      pcs: ['C', 'Db', 'D', 'E', 'F#'],
+      bass: 'E',
+      expectedRoot: 'D',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.nine},
+    ),
+
+    golden(
       description: 'dominant seventh with flat ninth and sharp eleventh',
       expectedSymbol: 'C7(b9,#11)',
       pcs: ['C', 'E', 'G', 'Bb', 'Db', 'F#'],

@@ -1401,6 +1401,42 @@ void main() {
     },
   );
 
+  test(
+    'decorated seventh reading does not promote over lower-cost dominant ninth shell',
+    () {
+      final dominantNinthShell = _candidate(
+        quality: ChordQualityToken.dominant7,
+        root: 'D',
+        bass: 'E',
+        presentIntervals: const {0, 2, 4, 10},
+        extensions: const {ChordExtension.nine},
+        cost: 2.65,
+      );
+
+      final alteredThirteenth = _candidate(
+        quality: ChordQualityToken.dominant7Sharp5,
+        root: 'E',
+        bass: 'E',
+        presentIntervals: const {0, 2, 8, 9, 10},
+        extensions: const {ChordExtension.nine, ChordExtension.thirteen},
+        cost: 2.75,
+      );
+
+      final explanation = ChordCandidateRanking.explain(
+        dominantNinthShell,
+        alteredThirteenth,
+        tonality: defaultTestTonality,
+      );
+
+      expect(explanation.result, -1);
+      expect(
+        explanation.decidedByRule,
+        isNot('prefer voicing that names every tone'),
+      );
+      expect(explanation.decidedByRule, isNot('prefer root position'));
+    },
+  );
+
   group('root-position relative minor7 versus major6 slash', () {
     final minor7 = _candidate(
       quality: ChordQualityToken.minor7,

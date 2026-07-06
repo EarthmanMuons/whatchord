@@ -205,15 +205,11 @@
   },
   "0-1-2-5-8_b0": {
     "label": "genuine-ambiguity",
-    "note": "Fm6♭13/C is preferred because F-A♭-C-D forms a complete F minor-sixth sonority with C as the fifth in the bass, while D♭ is explainable as flat-thirteen color rather than a chord-defining major seventh against D. Music21's Dm7♭5/C and tonal's D♭maj7♭9/C are both structurally plausible re-roots, so this remains a genuine ambiguity, but the C bass gives the F-rooted reading a conventional inversion advantage."
+    "note": "C♯maj7♭9/B♯ is preferred because the voicing forms a complete D♭/C♯ major-seventh-flat-nine sonority: D♭-F-A♭-C with D natural as flat-nine color. Tonal agrees semantically as D♭maj7♭9/C. Music21's D half-diminished add-tone reading is also structurally plausible, but it treats the D♭ pitch as added major-seventh color against D rather than preserving the complete major-seventh shell."
   },
   "0-1-2-5-8_b5": {
     "label": "genuine-ambiguity",
-    "note": "Fm6♭13 is preferred because F-A♭-C-D forms a complete root-position F minor-sixth chord, with D♭ acting as flat-thirteen or lower-neighbor color. Music21's Dm7♭5/F is the enharmonic half-diminished counterpart and tonal's D♭maj7♭9/F is also complete but inverted and requires E𝄫 for its flat ninth. The competing complete structures make this a genuine ambiguity rather than an engine issue."
-  },
-  "0-1-2-5-8_b8": {
-    "label": "genuine-ambiguity",
-    "note": "Fm6♭13/A♭ is defensible because F-A♭-C-D forms a complete F minor-sixth chord with A♭ as the minor third in the bass, while D♭ is explainable as flat-thirteen or lower-neighbor color. Music21 and tonal both choose the equal-cost D♭maj7♭9/A♭ reading, which also has a conventional fifth-in-bass role, so this is a real ambiguity. ChoCo does not provide exact support for major7|flat9 or minor6|flat13; the broader minor-six vocabulary is common, but not enough to make the oracle-supported D♭ spelling wrong."
+    "note": "C♯maj7♭9/E♯ is preferred because F/E♯ is the major third in the bass of the complete D♭/C♯ major-seventh-flat-nine sonority. Tonal agrees semantically as D♭maj7♭9/F. Music21's D half-diminished add-tone label is a real alternate, but the major-seventh-flat-nine reading names the full D♭-F-A♭-C shell directly instead of treating D♭ as an extra color on D."
   },
   "0-1-3-4-6-7-10_b0": {
     "label": "genuine-ambiguity",

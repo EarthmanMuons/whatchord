@@ -102,9 +102,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved dominant-flat-nine shell ranking, so stable inversions such as C7♭9/E
   are less likely to be displaced by diminished add-tone or remote minor-major
   slash reinterpretations.
-- Improved split-ninth dominant and minor-ninth slash ranking, so voicings such
-  as C9♭9/D♭ and Dm9/C are less likely to be displaced by rarer altered
-  major-seventh bookkeeping.
+- Improved split-ninth dominant, dominant-ninth slash, and minor-ninth slash
+  ranking, so voicings such as C9♭9/D♭, D9/C, and Dm9/C are less likely to be
+  displaced by rarer altered or minor-major bookkeeping.
 - Improved sparse add-color triad pricing, so complete bass-rooted triads with
   modest color tones can stay visible against suspended or seventh-family
   reinterpretations.
