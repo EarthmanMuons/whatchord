@@ -106,8 +106,17 @@ gets the cleanest ablation: identical pipelines with it on and off.
 
 - Per-piece results with paired comparisons across pieces; pooled event accuracy
   alone is not acceptable (a few long pieces dominate pools).
-- Uncertainty on every headline number (CI95, matching the
-  `benchmark/baseline.json` habit).
+- Accuracy-like metrics (MIREX-weighted score, local-key accuracy): per-piece
+  mean with a bootstrap CI95, and paired A/B comparisons via the Wilcoxon
+  signed-rank test across pieces. One confidence level (95%) throughout; when a
+  result is marginal, show the per-piece distribution rather than reaching for a
+  different interval.
+- Latency- and count-like metrics (modulation lag, time-to-first-claim, spurious
+  switches): skewed, long-tailed distributions, so report the median and p90
+  across pieces rather than means, with bootstrap CIs when an interval is
+  needed.
+- Always report n (pieces and events) alongside any aggregate. Fix and record
+  the RNG seed for bootstrap resampling so intervals reproduce.
 - Every experiment gets a dated entry in `log/` with the fixture version and
   engine commit it ran against.
 
