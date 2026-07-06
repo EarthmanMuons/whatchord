@@ -8,6 +8,11 @@ import 'package:whatchord/features/theory/theory.dart';
 /// Events are the input to key detection, so they preserve everything a
 /// detector needs without re-running analysis: raw pitch classes, register,
 /// the ranked identification with its cost gaps, and timing.
+///
+/// Everything but [duration] is a snapshot from identity onset. Same-identity
+/// changes mid-hold (an added octave doubling, a manual tonality switch) do
+/// not update it, so [candidates] always reflect a ranking performed under
+/// [tonality].
 @immutable
 class ChordEvent {
   /// When this identity began sounding (not when it was committed).
@@ -34,14 +39,15 @@ class ChordEvent {
   /// input released.
   final Duration duration;
 
-  const ChordEvent({
+  ChordEvent({
     required this.timestamp,
     required this.input,
     required this.voicing,
-    required this.candidates,
+    required List<ChordCandidate> candidates,
     required this.tonality,
     required this.duration,
-  });
+  }) : assert(candidates.isNotEmpty, 'ChordEvent requires a chosen candidate'),
+       candidates = List.unmodifiable(candidates);
 
   ChordIdentity get identity => candidates.first.identity;
 
