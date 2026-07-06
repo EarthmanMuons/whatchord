@@ -1,0 +1,54 @@
+import 'package:meta/meta.dart';
+
+import 'package:whatchord/features/theory/theory.dart';
+
+/// One committed chord from live play: what sounded, how it was identified,
+/// and how long it was held.
+///
+/// Events are the input to key detection, so they preserve everything a
+/// detector needs without re-running analysis: raw pitch classes, register,
+/// the ranked identification with its cost gaps, and timing.
+@immutable
+class ChordEvent {
+  /// When this identity began sounding (not when it was committed).
+  final DateTime timestamp;
+
+  /// Raw pitch-class data the identification was computed from.
+  final ChordInput input;
+
+  /// Live register evidence. Always present: only live MIDI chords with 3+
+  /// sounding notes enter history, and those always carry a real voicing.
+  final ObservedVoicing voicing;
+
+  /// Ranked identification, best first: the chosen candidate followed by its
+  /// surfaced near-tie alternatives. Never empty. Cost gaps are intact so
+  /// detectors can down-weight ambiguous events.
+  final List<ChordCandidate> candidates;
+
+  /// Tonality the candidates were ranked under. Ranking tie-breakers are
+  /// tonality-gated, so detectors need this to reason about history recorded
+  /// across a tonality change.
+  final Tonality tonality;
+
+  /// How long this identity persisted before the next one stabilized or the
+  /// input released.
+  final Duration duration;
+
+  const ChordEvent({
+    required this.timestamp,
+    required this.input,
+    required this.voicing,
+    required this.candidates,
+    required this.tonality,
+    required this.duration,
+  });
+
+  ChordIdentity get identity => candidates.first.identity;
+
+  double get cost => candidates.first.cost;
+
+  @override
+  String toString() =>
+      'ChordEvent($timestamp, $identity, duration=$duration, '
+      '${candidates.length} candidates, $tonality)';
+}

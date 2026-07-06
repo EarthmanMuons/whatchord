@@ -670,8 +670,10 @@ the most cited artifact of this kind of paper.
 
 - [ ] Retention: `historyCapacity` (the single stored memory cap) plus a default
       read window for `recentEvents`. With the identity-change model, ~100
-      events is a few minutes of active playing; confirm the cap default
-      (`historyCapacityProvider`) and the default detection window.
+      events is a few minutes of active playing. Phase 1 shipped with
+      `historyCapacityProvider` = 100 and `historyMinChordDurationProvider` =
+      200 ms (both tunable providers); the default detection window is still a
+      Phase 2 decision.
 - [x] Chord event boundary for Phase 1: **commit on identity change**, with
       release as one more commit trigger, so pedaled/legato progressions are
       captured as a sequence. Stabilization (debounce + minimum duration) is
