@@ -59,6 +59,14 @@ jobs:
     with:
       files: ${{ needs.detect_changed_files.outputs.markdown_files }}
 
+  check_python:
+    name: check python
+    needs: detect_changed_files
+    if: needs.detect_changed_files.outputs.python == 'true'
+    uses: EarthmanMuons/reusable-workflows/.github/workflows/check-python.yml@main
+    with:
+      files: ${{ needs.detect_changed_files.outputs.python_files }}
+
   check_spelling:
     name: check spelling
     needs: detect_changed_files
@@ -74,6 +82,7 @@ jobs:
       - check_github_actions
       - check_html
       - check_markdown
+      - check_python
       - check_spelling
     if: always()
     uses: EarthmanMuons/reusable-workflows/.github/workflows/ready-to-merge.yml@main
