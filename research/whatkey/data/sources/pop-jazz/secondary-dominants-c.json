@@ -1,0 +1,33 @@
+{
+  "title": "Secondary dominants in C major",
+  "tempoBpm": 120,
+  "labels": {
+    "globalKey": "C:maj",
+    "notes": "V/ii and V/V tonicizations inside a firmly C major phrase. The detector should absorb them without switching keys; flapping here is the failure this fixture exists to catch."
+  },
+  "chords": [
+    { "notes": "C3 C4 E4 G4", "beats": 4, "localKey": "C:maj", "figure": "I" },
+    {
+      "notes": "A2 G3 C#4 E4",
+      "beats": 2,
+      "localKey": "C:maj",
+      "figure": "V7/ii"
+    },
+    {
+      "notes": "D3 F3 A3 C4",
+      "beats": 2,
+      "localKey": "C:maj",
+      "figure": "ii7"
+    },
+    { "notes": "G2 F3 B3 D4", "beats": 2, "localKey": "C:maj", "figure": "V7" },
+    { "notes": "C3 C4 E4 G4", "beats": 4, "localKey": "C:maj", "figure": "I" },
+    {
+      "notes": "D3 C4 F#4 A4",
+      "beats": 2,
+      "localKey": "C:maj",
+      "figure": "V7/V"
+    },
+    { "notes": "G2 F3 B3 D4", "beats": 2, "localKey": "C:maj", "figure": "V7" },
+    { "notes": "C3 C4 E4 G4", "beats": 8, "localKey": "C:maj", "figure": "I" }
+  ]
+}

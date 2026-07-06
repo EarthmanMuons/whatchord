@@ -1,0 +1,19 @@
+{
+  "title": "I-V-vi-IV loop in C major",
+  "tempoBpm": 120,
+  "labels": {
+    "globalKey": "C:maj",
+    "notes": "The four-chord pop loop starting on the tonic. Clear C major."
+  },
+  "chords": [
+    { "notes": "C3 C4 E4 G4", "beats": 4, "localKey": "C:maj", "figure": "I" },
+    { "notes": "G2 B3 D4 G4", "beats": 4, "localKey": "C:maj", "figure": "V" },
+    { "notes": "A2 A3 C4 E4", "beats": 4, "localKey": "C:maj", "figure": "vi" },
+    { "notes": "F2 A3 C4 F4", "beats": 4, "localKey": "C:maj", "figure": "IV" },
+    { "notes": "C3 C4 E4 G4", "beats": 4, "localKey": "C:maj", "figure": "I" },
+    { "notes": "G2 B3 D4 G4", "beats": 4, "localKey": "C:maj", "figure": "V" },
+    { "notes": "A2 A3 C4 E4", "beats": 4, "localKey": "C:maj", "figure": "vi" },
+    { "notes": "F2 A3 C4 F4", "beats": 4, "localKey": "C:maj", "figure": "IV" },
+    { "notes": "C3 C4 E4 G4", "beats": 8, "localKey": "C:maj", "figure": "I" }
+  ]
+}

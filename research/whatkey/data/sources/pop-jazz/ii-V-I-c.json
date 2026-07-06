@@ -1,0 +1,31 @@
+{
+  "title": "ii-V-I in C major",
+  "tempoBpm": 120,
+  "labels": {
+    "globalKey": "C:maj",
+    "notes": "The fundamental jazz cadence, twice, then a held tonic."
+  },
+  "chords": [
+    {
+      "notes": "D3 F3 A3 C4",
+      "beats": 2,
+      "localKey": "C:maj",
+      "figure": "ii7"
+    },
+    { "notes": "G2 F3 B3 D4", "beats": 2, "localKey": "C:maj", "figure": "V7" },
+    {
+      "notes": "C3 E3 G3 B3",
+      "beats": 4,
+      "localKey": "C:maj",
+      "figure": "IM7"
+    },
+    {
+      "notes": "D3 F3 A3 C4",
+      "beats": 2,
+      "localKey": "C:maj",
+      "figure": "ii7"
+    },
+    { "notes": "G2 F3 B3 D4", "beats": 2, "localKey": "C:maj", "figure": "V7" },
+    { "notes": "C3 E3 G3 B3", "beats": 8, "localKey": "C:maj", "figure": "IM7" }
+  ]
+}

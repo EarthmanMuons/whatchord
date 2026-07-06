@@ -1,0 +1,27 @@
+{
+  "title": "i-iv-V7-i in A minor",
+  "tempoBpm": 120,
+  "labels": {
+    "globalKey": "A:min",
+    "notes": "The harmonic-minor dominant: E7's G# is the single strongest indicator of A minor and must not be scored as chromatic against it (the natural-minor diatonicity trap)."
+  },
+  "chords": [
+    { "notes": "A2 A3 C4 E4", "beats": 4, "localKey": "A:min", "figure": "i" },
+    { "notes": "D3 A3 D4 F4", "beats": 4, "localKey": "A:min", "figure": "iv" },
+    {
+      "notes": "E2 G#3 B3 D4",
+      "beats": 4,
+      "localKey": "A:min",
+      "figure": "V7"
+    },
+    { "notes": "A2 A3 C4 E4", "beats": 4, "localKey": "A:min", "figure": "i" },
+    { "notes": "D3 A3 D4 F4", "beats": 4, "localKey": "A:min", "figure": "iv" },
+    {
+      "notes": "E2 G#3 B3 D4",
+      "beats": 4,
+      "localKey": "A:min",
+      "figure": "V7"
+    },
+    { "notes": "A2 A3 C4 E4", "beats": 8, "localKey": "A:min", "figure": "i" }
+  ]
+}

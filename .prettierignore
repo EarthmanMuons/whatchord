@@ -1,2 +1,5 @@
 docs/marketplace/description.md
 third_party/
+
+# Generated fixture sets; formatting is owned by tool/whatkey_fixture_extract.py
+research/whatkey/data/fixtures/
