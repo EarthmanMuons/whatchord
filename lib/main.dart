@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/audio/audio.dart';
+import 'package:whatchord/features/history/history.dart';
 import 'package:whatchord/features/home/home.dart';
 import 'package:whatchord/features/links/links.dart';
 import 'package:whatchord/features/midi/midi.dart';
@@ -31,6 +32,7 @@ class MyApp extends ConsumerWidget {
     ref.watch(appResumeWakeupProvider);
     ref.watch(appMidiLifecycleProvider);
     ref.watch(appAudioMonitorLifecycleProvider);
+    ref.watch(appChordHistoryLifecycleProvider);
     ref.watch(appDeepLinkProvider);
 
     final themeMode = ref.watch(appThemeModeProvider);
