@@ -12,12 +12,18 @@ Evaluation fixtures and splits for Phase 2.
   progression plus a `manifest.json`. Regenerate the hand-authored set with
   `mise research:whatkey-fixtures-pop-jazz`.
 - `splits/`: the frozen development/test split definitions, by piece and by
-  composer, recorded before the first experiment (see `../PROTOCOL.md`). Not yet
-  created.
+  composer where the corpus allows, recorded before the first experiment (see
+  `../PROTOCOL.md`). The When-in-Rome v1 split is frozen in
+  `splits/when-in-rome-v1.json`.
+- `provenance/`: corpus license and source-gate notes for fixture sets derived
+  from external corpora.
 
 Corpus-derived sets (`mise research:whatkey-fixtures-when-in-rome`) generate
 into `build/whatkey-fixtures/`, not here, until the source sub-corpus license is
-verified.
+verified. For `when-in-rome-v1`, the committed-fixture gate is limited to
+`bach-wtc`, `brahms-lieder`, `schubert-lieder`, and `tavern`; see
+`provenance/when-in-rome-v1.md`. Licensing boundaries for this subtree are
+summarized in `NOTICE.md`.
 
 ## Fixture format
 

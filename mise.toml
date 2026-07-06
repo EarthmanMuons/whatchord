@@ -104,8 +104,7 @@ python tool/whatkey_fixture_extract.py \
   --set when-in-rome-v1 \
   --out build/whatkey-fixtures \
   when-in-rome --bench-root "$bench_root" \
-  --groups bach-wtc mozart-sonatas-dcml brahms-lieder schubert-lieder \
-    chorales tavern
+  --groups bach-wtc brahms-lieder schubert-lieder tavern
 """
 
 [tasks."symbols:install"]
