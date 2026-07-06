@@ -1591,6 +1591,35 @@ void main() {
     },
   );
 
+  test(
+    'root-position split-ninth add triad beats remote unusual seventh slash',
+    () {
+      final splitNinthTriad = _candidate(
+        quality: ChordQualityToken.major,
+        root: 'C',
+        bass: 'C',
+        presentIntervals: const {0, 1, 2, 4, 7},
+        extensions: const {ChordExtension.addFlat9, ChordExtension.add9},
+        cost: 2.40,
+      );
+
+      final remoteMinorSharpFive = _candidate(
+        quality: ChordQualityToken.minor7Sharp5,
+        root: 'E',
+        bass: 'C',
+        presentIntervals: const {0, 3, 8, 9, 10},
+        extensions: const {ChordExtension.thirteen},
+        cost: 2.07,
+      );
+
+      _expectRule(
+        splitNinthTriad,
+        remoteMinorSharpFive,
+        'prefer simple triad add-tone over seventh-family unusual quality',
+      );
+    },
+  );
+
   group('rank linearizes a non-transitive relation', () {
     const tonality = Tonality(Tonic.c, TonalityMode.major);
 

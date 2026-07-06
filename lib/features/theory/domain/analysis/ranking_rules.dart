@@ -1473,13 +1473,14 @@ bool _isSparseNaturalExtensionSeventh(ChordIdentity id) {
 }
 
 /// Prefers a complete major/minor triad with natural add-tone color over a
-/// seventh-family reading with an unusual quality and no extensions.
+/// seventh-family reading with an unusual quality.
 ///
-/// When a plain triad with a simple add-tone (e.g., Cadd9/G) competes
-/// against a seventh-family reading with an unusual quality (e.g.,
-/// Em7#5/G), the seventh-family template's extra required tones can create a
-/// structural cost advantage that doesn't reflect musician expectations.
-/// Both oracles (music21, tonal) converge on the simpler triad reading.
+/// When a plain triad with a simple add-tone (e.g., Cadd9/G) competes against
+/// a seventh-family reading with an unusual quality (e.g., Em7#5/G), the
+/// seventh-family vocabulary can create a structural advantage that doesn't
+/// reflect musician expectations. This also covers root-position split-ninth
+/// triads such as C(addb9,add9), where the complete triad is clearer than a
+/// remote unusual seventh slash with natural extension color.
 int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
   ChordCandidate a,
   ChordCandidate b,
@@ -1498,19 +1499,29 @@ int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
 
   // The other must be a seventh-family chord with an unusual quality
   // (altered-fifth, suspended, or flat-five seventh qualities) in an
-  // inversion with no extensions at all. Standard qualities like plain
-  // dominant7, minor7, or major7 should not be overridden by this rule.
+  // inversion. Standard qualities like plain dominant7, minor7, or major7
+  // should not be overridden by this rule.
   final fOther = aIsTriadAddTone ? fb : fa;
   if (!fOther.isSeventhFamily) return null;
   if (!fOther.isUnusualSeventhQuality) return null;
-  if (fOther.extPref.totalCount > 0) return null;
   if (fOther.isRootPosition) return null;
+
+  final fTriad = aIsTriadAddTone ? fa : fb;
+  final triad = aIsTriadAddTone ? a : b;
+  final triadIsRootPositionSplitNinth = _isRootPositionSplitNinthTriadAddTone(
+    triad.identity,
+    fTriad,
+  );
+  if (fOther.extPref.totalCount > 0) {
+    if (!triadIsRootPositionSplitNinth) return null;
+    if (!fOther.isSlashBass) return null;
+    if (fOther.extPref.alterationCount > 0) return null;
+  }
 
   // A complete altered dominant in a conventional inversion is a stronger
   // structural reading than an inverted augmented add-tone chord. Preserve
   // the triad preference when it aligns with the bass, but do not use it to
   // demote readings such as C7#5/E in favor of Abaugadd9/E.
-  final fTriad = aIsTriadAddTone ? fa : fb;
   if (fOther.isCompleteAlteredFifthDominant && !fTriad.isRootPosition) {
     return null;
   }
@@ -1522,6 +1533,19 @@ int? _preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
   if (preferredCandidate.cost > otherCandidate.cost + 1.50) return null;
 
   return aIsTriadAddTone ? -1 : 1;
+}
+
+bool _isRootPositionSplitNinthTriadAddTone(
+  ChordIdentity id,
+  CandidateFeatures features,
+) {
+  return features.isRootPosition &&
+      features.isCompleteMajorMinorTriad &&
+      !features.isSeventhFamily &&
+      !features.isSus &&
+      features.hasOnlyAddColor &&
+      id.extensions.contains(ChordExtension.addFlat9) &&
+      id.extensions.contains(ChordExtension.add9);
 }
 
 /// Prefers a readable Lydian major spelling over an enharmonic flat-five

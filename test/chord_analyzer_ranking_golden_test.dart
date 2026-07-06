@@ -793,6 +793,17 @@ void main() {
 
     golden(
       description:
+          'root-position split-ninth add triad beats remote unusual seventh slash',
+      expectedSymbol: 'C(addb9,add9)',
+      pcs: ['C', 'Db', 'D', 'E', 'G'],
+      bass: 'C',
+      expectedRoot: 'C',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.addFlat9, ChordExtension.add9},
+    ),
+
+    golden(
+      description:
           'complete add-nine triad inversion beats sparse major-thirteenth shell',
       expectedSymbol: 'Bbmadd9/Db',
       expectedAlternatives: ['Dbmaj13'],
