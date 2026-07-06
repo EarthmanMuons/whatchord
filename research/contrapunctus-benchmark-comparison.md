@@ -68,8 +68,8 @@ WhatChord accuracy target.
 
 The research harnesses are:
 
-- [`tool/when_in_rome_chord_benchmark.py`](../../tool/when_in_rome_chord_benchmark.py)
-- [`tool/when_in_rome_chord_batch.dart`](../../tool/when_in_rome_chord_batch.dart)
+- [`tool/when_in_rome_chord_benchmark.py`](../tool/when_in_rome_chord_benchmark.py)
+- [`tool/when_in_rome_chord_batch.dart`](../tool/when_in_rome_chord_batch.dart)
 
 The Python harness reuses Contrapunctus's public alignment helpers to:
 

@@ -49,7 +49,7 @@ observation carrying a `value`, `time`, and `duration`.
 ## Method
 
 The extraction script lives in
-[`tool/choco/chord_label_stats.py`](../../tool/choco/chord_label_stats.py).
+[`tool/choco/chord_label_stats.py`](../tool/choco/chord_label_stats.py).
 
 The command used for this snapshot was:
 
