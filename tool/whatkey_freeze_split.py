@@ -63,9 +63,7 @@ def main() -> int:
         "benchRepository": "https://github.com/Tomczik76/contrapunctus-bench",
         "benchCommit": git(bench_root, "rev-parse", "HEAD"),
         "corpusRepository": "https://github.com/MarkGotham/When-in-Rome",
-        "corpusCommit": git(
-            bench_root / "corpus/When-in-Rome", "rev-parse", "HEAD"
-        ),
+        "corpusCommit": git(bench_root / "corpus/When-in-Rome", "rev-parse", "HEAD"),
         "manifestPath": "corpus/manifest.json",
     }
     if args.fixtures_manifest is not None:

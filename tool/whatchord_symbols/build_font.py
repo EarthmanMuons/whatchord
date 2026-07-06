@@ -92,10 +92,11 @@ CENTERED_PAIR = (0x00B0, 0x00F8)
 @dataclass(frozen=True)
 class Instance:
     """One weight in the family."""
-    subfamily: str        # name ID 2, e.g. "Regular" / "Bold"
-    ps_name: str          # PostScript name (no spaces, ASCII)
-    weight_class: int     # OS/2 usWeightClass
-    bold: bool            # set the bold selection bits + embolden outlines
+
+    subfamily: str  # name ID 2, e.g. "Regular" / "Bold"
+    ps_name: str  # PostScript name (no spaces, ASCII)
+    weight_class: int  # OS/2 usWeightClass
+    bold: bool  # set the bold selection bits + embolden outlines
 
     @property
     def full_name(self) -> str:
@@ -355,12 +356,12 @@ def set_names(font: TTFont, inst: Instance) -> None:
     name = font["name"]
     name.names = []  # wipe inherited Leland names
     values = {
-        1: FAMILY_NAME,                          # Family
-        2: inst.subfamily,                       # Subfamily
-        3: f"{inst.ps_name};{VERSION}",          # Unique ID
-        4: inst.full_name,                       # Full name
-        5: f"Version {VERSION}",                 # Version string
-        6: inst.ps_name,                         # PostScript name
+        1: FAMILY_NAME,  # Family
+        2: inst.subfamily,  # Subfamily
+        3: f"{inst.ps_name};{VERSION}",  # Unique ID
+        4: inst.full_name,  # Full name
+        5: f"Version {VERSION}",  # Version string
+        6: inst.ps_name,  # PostScript name
     }
     for nid, val in values.items():
         # Windows (3,1,0x409) and Mac (1,0,0) records for broad compatibility.
@@ -466,8 +467,9 @@ def raise_glyphs(
         if gname is None or dy == 0:
             continue
         path = pathops.Path()
-        glyph_set[gname].draw(TransformPen(path.getPen(glyphSet=glyph_set),
-                                           (1, 0, 0, 1, 0, dy)))
+        glyph_set[gname].draw(
+            TransformPen(path.getPen(glyphSet=glyph_set), (1, 0, 0, 1, 0, dy))
+        )
         _set_charstring(font, gname, path, hmtx[gname][0])
 
 
@@ -493,8 +495,9 @@ def set_sidebearings(font: TTFont, pad: int, skip: set[str] = frozenset()) -> No
         shift = pad - x0
         new_adv = round((x1 + shift) + pad)
         path = pathops.Path()
-        glyph_set[gname].draw(TransformPen(path.getPen(glyphSet=glyph_set),
-                                           (1, 0, 0, 1, shift, 0)))
+        glyph_set[gname].draw(
+            TransformPen(path.getPen(glyphSet=glyph_set), (1, 0, 0, 1, shift, 0))
+        )
         _set_charstring(font, gname, path, new_adv)
         hmtx[gname] = (new_adv, round(pad))
 
@@ -529,8 +532,9 @@ def center_glyphs(
         dx = left - x0
         dy = ink_cy - (y0 + y1) / 2
         path = pathops.Path()
-        glyph_set[gname].draw(TransformPen(path.getPen(glyphSet=glyph_set),
-                                           (1, 0, 0, 1, dx, dy)))
+        glyph_set[gname].draw(
+            TransformPen(path.getPen(glyphSet=glyph_set), (1, 0, 0, 1, dx, dy))
+        )
         _set_charstring(font, gname, path, advance)
         hmtx[gname] = (advance, round(left))
 
@@ -548,8 +552,7 @@ def recompute_bounds(font: TTFont) -> None:
         if box is None:
             box = [x0, y0, x1, y1]
         else:
-            box = [min(box[0], x0), min(box[1], y0),
-                   max(box[2], x1), max(box[3], y1)]
+            box = [min(box[0], x0), min(box[1], y0), max(box[2], x1), max(box[3], y1)]
     if box is None:
         return
     ibox = [round(v) for v in box]
@@ -623,8 +626,9 @@ def build_instance(rows: list[MappingRow], inst: Instance) -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     font.flavor = None
     font.save(inst.output_path)
-    print(f"Wrote {inst.output_path} ({inst.subfamily}, "
-          f"{len(target_to_glyph)} glyph(s)).")
+    print(
+        f"Wrote {inst.output_path} ({inst.subfamily}, {len(target_to_glyph)} glyph(s))."
+    )
 
     # Same font, re-saved as brotli-compressed woff2 for the website.
     WEB_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

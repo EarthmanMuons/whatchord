@@ -325,18 +325,12 @@ def build_summary(rows: list[dict], piece_counts: Counter, bench_root: Path) -> 
         "all_events": metrics(rows),
         "clean_events": metrics([row for row in rows if row["clean"]]),
         "clean_events_with_annotated_bass": metrics(
-            [
-                row
-                for row in rows
-                if row["clean"] and row["bassMatchesAnnotation"]
-            ]
+            [row for row in rows if row["clean"] and row["bassMatchesAnnotation"]]
         ),
         "groups": {
             group: {
                 "all_events": metrics(group_rows),
-                "clean_events": metrics(
-                    [row for row in group_rows if row["clean"]]
-                ),
+                "clean_events": metrics([row for row in group_rows if row["clean"]]),
             }
             for group, group_rows in grouped(rows).items()
         },
@@ -351,9 +345,7 @@ def metrics(rows: list[dict]) -> dict:
         "root_visible": ratio(rows, "rootVisible"),
         "root_top3": ratio(rows, "rootTop3"),
         "root_alternative": ratio(rows, "rootAlternative"),
-        "root_and_annotation_bass_exact": ratio(
-            rows, "rootAndAnnotationBassExact"
-        ),
+        "root_and_annotation_bass_exact": ratio(rows, "rootAndAnnotationBassExact"),
     }
 
 
@@ -377,11 +369,7 @@ def print_report(rows: list[dict], piece_counts: Counter) -> None:
         ("Clean pitch-set events", [row for row in rows if row["clean"]]),
         (
             "Clean events with annotated bass",
-            [
-                row
-                for row in rows
-                if row["clean"] and row["bassMatchesAnnotation"]
-            ],
+            [row for row in rows if row["clean"] and row["bassMatchesAnnotation"]],
         ),
     ):
         result = metrics(selected)
@@ -494,7 +482,9 @@ def report_section(rows: list[dict], flag: str, title: str) -> list[str]:
         row = case_rows[0]
         figures = ", ".join(
             figure
-            for figure, _ in Counter(item["figure"] for item in case_rows).most_common(3)
+            for figure, _ in Counter(item["figure"] for item in case_rows).most_common(
+                3
+            )
         )
         locations = ", ".join(
             f"{item['piece']} m{item['measure']} b{item['beat']:g}"
@@ -528,9 +518,7 @@ def report_section(rows: list[dict], flag: str, title: str) -> list[str]:
 
 
 def debug_command(row: dict) -> str:
-    return (
-        f"bin/chord-debug {row['midiNotes']} --key={row['key']} --top=8 --verbose"
-    )
+    return f"bin/chord-debug {row['midiNotes']} --key={row['key']} --top=8 --verbose"
 
 
 def pc_name(pc: int | str | None) -> str:

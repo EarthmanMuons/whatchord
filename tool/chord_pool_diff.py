@@ -36,11 +36,7 @@ def surfaced_symbols(candidates: list[dict]) -> list[str | None]:
         return []
     return [
         candidates[0].get("symbol"),
-        *[
-            c.get("symbol")
-            for c in candidates[1:]
-            if c.get("alternative") is True
-        ],
+        *[c.get("symbol") for c in candidates[1:] if c.get("alternative") is True],
     ]
 
 
@@ -136,9 +132,7 @@ def cmd_diff(args: argparse.Namespace) -> None:
     counts, examples = diff_snapshots(before, after, example_limit=args.examples)
     total = len(before["cases"])
     for kind in ("top1", "surfaced-set", "order-only"):
-        strata = "  ".join(
-            f"{n}n:{counts[f'{kind}/{n}n']}" for n in range(3, 8)
-        )
+        strata = "  ".join(f"{n}n:{counts[f'{kind}/{n}n']}" for n in range(3, 8))
         print(f"{kind:>12}: {counts[kind]:5d} / {total}   {strata}")
     if counts["missing"]:
         print(f"{'missing':>12}: {counts['missing']:5d}")
