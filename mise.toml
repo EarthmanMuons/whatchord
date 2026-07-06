@@ -81,6 +81,33 @@ python tool/when_in_rome_chord_benchmark.py \
   --out-dir build/when-in-rome-chord-benchmark-expanded
 """
 
+[tasks."research:whatkey-fixtures-pop-jazz"]
+description = "Regenerate the WhatKey hand-authored pop/jazz fixture set"
+run = """
+python tool/whatkey_fixture_extract.py \
+  --set pop-jazz-v1 \
+  --out research/whatkey/data/fixtures \
+  charts --charts-dir research/whatkey/data/sources/pop-jazz
+"""
+
+[tasks."research:whatkey-fixtures-when-in-rome"]
+description = "Generate WhatKey fixtures from When-in-Rome (to build/; license-gated before committing)"
+depends = ["research:when-in-rome-install"]
+run = """
+bench_root="${CONTRAPUNCTUS_BENCH_ROOT:-/private/tmp/contrapunctus-bench}"
+if [ ! -f "$bench_root/corpus/manifest.json" ]; then
+  echo "Contrapunctus benchmark checkout not found at $bench_root" >&2
+  echo "Set CONTRAPUNCTUS_BENCH_ROOT or follow research/contrapunctus-benchmark-comparison.md" >&2
+  exit 1
+fi
+python tool/whatkey_fixture_extract.py \
+  --set when-in-rome-v1 \
+  --out build/whatkey-fixtures \
+  when-in-rome --bench-root "$bench_root" \
+  --groups bach-wtc mozart-sonatas-dcml brahms-lieder schubert-lieder \
+    chorales tavern
+"""
+
 [tasks."symbols:install"]
 description = "Install Python dependencies for regenerating WhatChord Symbols fonts"
 run = "uv pip install -r tool/whatchord_symbols/requirements.txt"

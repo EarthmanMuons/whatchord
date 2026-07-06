@@ -1,0 +1,59 @@
+{
+  "title": "Am-F-C-G loop (deliberately ambiguous)",
+  "tempoBpm": 120,
+  "labels": {
+    "globalKey": null,
+    "acceptableKeys": ["A:min", "C:maj"],
+    "notes": "The same axis chords rotated to start on Am, with no dominant of A minor anywhere. Reasonable musicians disagree between A minor and C major; abstaining or either acceptable key is correct."
+  },
+  "chords": [
+    {
+      "notes": "A2 A3 C4 E4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["A:min", "C:maj"]
+    },
+    {
+      "notes": "F2 A3 C4 F4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["A:min", "C:maj"]
+    },
+    {
+      "notes": "C3 C4 E4 G4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["A:min", "C:maj"]
+    },
+    {
+      "notes": "G2 B3 D4 G4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["A:min", "C:maj"]
+    },
+    {
+      "notes": "A2 A3 C4 E4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["A:min", "C:maj"]
+    },
+    {
+      "notes": "F2 A3 C4 F4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["A:min", "C:maj"]
+    },
+    {
+      "notes": "C3 C4 E4 G4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["A:min", "C:maj"]
+    },
+    {
+      "notes": "G2 B3 D4 G4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["A:min", "C:maj"]
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "title": "12-bar blues in C",
+  "tempoBpm": 120,
+  "labels": {
+    "globalKey": "C:maj",
+    "notes": "Blues harmony: dominant sevenths on I and IV are stylistic color, not modulations. The conventional 24-key label is C major even though every chord is chromatic against it."
+  },
+  "chords": [
+    {
+      "notes": "C3 Bb3 E4 G4",
+      "beats": 4,
+      "localKey": "C:maj",
+      "figure": "I7"
+    },
+    {
+      "notes": "C3 Bb3 E4 G4",
+      "beats": 4,
+      "localKey": "C:maj",
+      "figure": "I7"
+    },
+    {
+      "notes": "C3 Bb3 E4 G4",
+      "beats": 4,
+      "localKey": "C:maj",
+      "figure": "I7"
+    },
+    {
+      "notes": "C3 Bb3 E4 G4",
+      "beats": 4,
+      "localKey": "C:maj",
+      "figure": "I7"
+    },
+    {
+      "notes": "F2 Eb3 A3 C4",
+      "beats": 4,
+      "localKey": "C:maj",
+      "figure": "IV7"
+    },
+    {
+      "notes": "F2 Eb3 A3 C4",
+      "beats": 4,
+      "localKey": "C:maj",
+      "figure": "IV7"
+    },
+    {
+      "notes": "C3 Bb3 E4 G4",
+      "beats": 4,
+      "localKey": "C:maj",
+      "figure": "I7"
+    },
+    {
+      "notes": "C3 Bb3 E4 G4",
+      "beats": 4,
+      "localKey": "C:maj",
+      "figure": "I7"
+    },
+    { "notes": "G2 F3 B3 D4", "beats": 4, "localKey": "C:maj", "figure": "V7" },
+    {
+      "notes": "F2 Eb3 A3 C4",
+      "beats": 4,
+      "localKey": "C:maj",
+      "figure": "IV7"
+    },
+    {
+      "notes": "C3 Bb3 E4 G4",
+      "beats": 4,
+      "localKey": "C:maj",
+      "figure": "I7"
+    },
+    { "notes": "G2 F3 B3 D4", "beats": 4, "localKey": "C:maj", "figure": "V7" }
+  ]
+}

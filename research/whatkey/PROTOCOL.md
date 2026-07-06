@@ -54,7 +54,11 @@ three, never a single blended score.
   modulation boundaries. Corpus commit pin recorded at freeze.
 - **Hand-authored pop/jazz set**: I-V-vi-IV loops, ii-V-I chains, 12-bar blues,
   modal vamps, deliberately ambiguous progressions. Authored with labels before
-  any detector sees them.
+  any detector sees them. This set is a directed behavioral suite, not a
+  statistical sample: each fixture is a pass/fail probe of a known failure mode
+  (abstention on vamps, stability through tonicizations, the harmonic-minor
+  dominant). Report it per fixture and exclude it from pooled statistics and
+  paired comparisons; statistical claims come from corpus-derived sets only.
 - **ASAP** (performed piano MIDI, aligned scores, key-signature annotations):
   the bridge from quantized score events to realistic live input, replayed
   through the actual Phase 1 capture path.
@@ -71,6 +75,11 @@ fixtures are versioned like a dataset. Every fixture set records: engine commit,
 generation script and parameters, corpus source and commit pins, and per-fixture
 license/provenance. See `data/README.md`. Results are only comparable within a
 fixture version.
+
+Fixture candidates are ranked under a fixed neutral analysis context (default
+`C:maj`), recorded in the manifest, never under the annotated key: several
+ranking tie-breakers are tonality-gated, so ranking under ground truth would
+leak the answer into the observations the detectors consume.
 
 ## Baselines
 

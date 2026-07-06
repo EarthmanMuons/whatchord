@@ -1,0 +1,347 @@
+{
+  "events": [
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 0
+        }
+      ],
+      "durationMs": 2000,
+      "index": 0,
+      "labels": {
+        "figure": "I7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        48,
+        58,
+        64,
+        67
+      ],
+      "noteCount": 4,
+      "pcMask": 1169,
+      "timestampMs": 0
+    },
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 0
+        }
+      ],
+      "durationMs": 2000,
+      "index": 1,
+      "labels": {
+        "figure": "I7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        48,
+        58,
+        64,
+        67
+      ],
+      "noteCount": 4,
+      "pcMask": 1169,
+      "timestampMs": 2000
+    },
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 0
+        }
+      ],
+      "durationMs": 2000,
+      "index": 2,
+      "labels": {
+        "figure": "I7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        48,
+        58,
+        64,
+        67
+      ],
+      "noteCount": 4,
+      "pcMask": 1169,
+      "timestampMs": 4000
+    },
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 0
+        }
+      ],
+      "durationMs": 2000,
+      "index": 3,
+      "labels": {
+        "figure": "I7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        48,
+        58,
+        64,
+        67
+      ],
+      "noteCount": 4,
+      "pcMask": 1169,
+      "timestampMs": 6000
+    },
+    {
+      "bassPc": 5,
+      "candidates": [
+        {
+          "bassPc": 5,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 5
+        }
+      ],
+      "durationMs": 2000,
+      "index": 4,
+      "labels": {
+        "figure": "IV7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        41,
+        51,
+        57,
+        60
+      ],
+      "noteCount": 4,
+      "pcMask": 553,
+      "timestampMs": 8000
+    },
+    {
+      "bassPc": 5,
+      "candidates": [
+        {
+          "bassPc": 5,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 5
+        }
+      ],
+      "durationMs": 2000,
+      "index": 5,
+      "labels": {
+        "figure": "IV7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        41,
+        51,
+        57,
+        60
+      ],
+      "noteCount": 4,
+      "pcMask": 553,
+      "timestampMs": 10000
+    },
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 0
+        }
+      ],
+      "durationMs": 2000,
+      "index": 6,
+      "labels": {
+        "figure": "I7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        48,
+        58,
+        64,
+        67
+      ],
+      "noteCount": 4,
+      "pcMask": 1169,
+      "timestampMs": 12000
+    },
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 0
+        }
+      ],
+      "durationMs": 2000,
+      "index": 7,
+      "labels": {
+        "figure": "I7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        48,
+        58,
+        64,
+        67
+      ],
+      "noteCount": 4,
+      "pcMask": 1169,
+      "timestampMs": 14000
+    },
+    {
+      "bassPc": 7,
+      "candidates": [
+        {
+          "bassPc": 7,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 7
+        }
+      ],
+      "durationMs": 2000,
+      "index": 8,
+      "labels": {
+        "figure": "V7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        43,
+        53,
+        59,
+        62
+      ],
+      "noteCount": 4,
+      "pcMask": 2212,
+      "timestampMs": 16000
+    },
+    {
+      "bassPc": 5,
+      "candidates": [
+        {
+          "bassPc": 5,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 5
+        }
+      ],
+      "durationMs": 2000,
+      "index": 9,
+      "labels": {
+        "figure": "IV7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        41,
+        51,
+        57,
+        60
+      ],
+      "noteCount": 4,
+      "pcMask": 553,
+      "timestampMs": 18000
+    },
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 0
+        }
+      ],
+      "durationMs": 2000,
+      "index": 10,
+      "labels": {
+        "figure": "I7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        48,
+        58,
+        64,
+        67
+      ],
+      "noteCount": 4,
+      "pcMask": 1169,
+      "timestampMs": 20000
+    },
+    {
+      "bassPc": 7,
+      "candidates": [
+        {
+          "bassPc": 7,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 7
+        }
+      ],
+      "durationMs": 2000,
+      "index": 11,
+      "labels": {
+        "figure": "V7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        43,
+        53,
+        59,
+        62
+      ],
+      "noteCount": 4,
+      "pcMask": 2212,
+      "timestampMs": 22000
+    }
+  ],
+  "id": "pop-jazz-v1/twelve-bar-blues-c",
+  "labels": {
+    "globalKey": "C:maj",
+    "notes": "Blues harmony: dominant sevenths on I and IV are stylistic color, not modulations. The conventional 24-key label is C major even though every chord is chromatic against it."
+  },
+  "schema": "whatkey-fixture/1",
+  "title": "12-bar blues in C"
+}

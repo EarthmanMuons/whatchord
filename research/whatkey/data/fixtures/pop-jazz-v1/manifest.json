@@ -1,0 +1,68 @@
+{
+  "context": "C:maj",
+  "engineCommit": "349fb2c49ee5b32dc9c0bf8f03d888a5837be029",
+  "engineLibDirty": false,
+  "fixtures": [
+    {
+      "events": 8,
+      "file": "axis-four-chord-am.json",
+      "id": "pop-jazz-v1/axis-four-chord-am"
+    },
+    {
+      "events": 9,
+      "file": "axis-four-chord-c.json",
+      "id": "pop-jazz-v1/axis-four-chord-c"
+    },
+    {
+      "events": 7,
+      "file": "dorian-vamp-dm.json",
+      "id": "pop-jazz-v1/dorian-vamp-dm"
+    },
+    {
+      "events": 6,
+      "file": "ii-V-I-c.json",
+      "id": "pop-jazz-v1/ii-V-I-c"
+    },
+    {
+      "events": 9,
+      "file": "ii-V-I-descending-chain.json",
+      "id": "pop-jazz-v1/ii-V-I-descending-chain"
+    },
+    {
+      "events": 7,
+      "file": "minor-dominant-am.json",
+      "id": "pop-jazz-v1/minor-dominant-am"
+    },
+    {
+      "events": 8,
+      "file": "secondary-dominants-c.json",
+      "id": "pop-jazz-v1/secondary-dominants-c"
+    },
+    {
+      "events": 12,
+      "file": "twelve-bar-blues-c.json",
+      "id": "pop-jazz-v1/twelve-bar-blues-c"
+    }
+  ],
+  "generatedAt": "2026-07-06T20:30:59+00:00",
+  "generator": {
+    "arguments": [
+      "--set",
+      "pop-jazz-v1",
+      "--out",
+      "research/whatkey/data/fixtures",
+      "charts",
+      "--charts-dir",
+      "research/whatkey/data/sources/pop-jazz"
+    ],
+    "script": "tool/whatkey_fixture_extract.py"
+  },
+  "schema": "whatkey-manifest/1",
+  "set": "pop-jazz-v1",
+  "source": {
+    "chartsDir": "research/whatkey/data/sources/pop-jazz",
+    "license": "Same as repository (original content)",
+    "type": "hand-authored"
+  },
+  "tempoBpm": 120.0
+}

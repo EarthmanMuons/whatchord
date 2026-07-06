@@ -1,0 +1,59 @@
+{
+  "title": "ii-V-I chain descending through C, Bb, Ab",
+  "tempoBpm": 120,
+  "labels": {
+    "globalKey": null,
+    "notes": "A modulating chain of ii-V-I cadences a whole step apart. Evaluate local keys and modulation lag; there is no single global key."
+  },
+  "chords": [
+    {
+      "notes": "D3 F3 A3 C4",
+      "beats": 2,
+      "localKey": "C:maj",
+      "figure": "ii7"
+    },
+    { "notes": "G2 F3 B3 D4", "beats": 2, "localKey": "C:maj", "figure": "V7" },
+    {
+      "notes": "C3 E3 G3 B3",
+      "beats": 4,
+      "localKey": "C:maj",
+      "figure": "IM7"
+    },
+    {
+      "notes": "C3 Eb3 G3 Bb3",
+      "beats": 2,
+      "localKey": "Bb:maj",
+      "figure": "ii7"
+    },
+    {
+      "notes": "F2 Eb3 A3 C4",
+      "beats": 2,
+      "localKey": "Bb:maj",
+      "figure": "V7"
+    },
+    {
+      "notes": "Bb2 D3 F3 A3",
+      "beats": 4,
+      "localKey": "Bb:maj",
+      "figure": "IM7"
+    },
+    {
+      "notes": "Bb2 Db3 F3 Ab3",
+      "beats": 2,
+      "localKey": "Ab:maj",
+      "figure": "ii7"
+    },
+    {
+      "notes": "Eb2 Db3 G3 Bb3",
+      "beats": 2,
+      "localKey": "Ab:maj",
+      "figure": "V7"
+    },
+    {
+      "notes": "Ab2 C3 Eb3 G3",
+      "beats": 8,
+      "localKey": "Ab:maj",
+      "figure": "IM7"
+    }
+  ]
+}

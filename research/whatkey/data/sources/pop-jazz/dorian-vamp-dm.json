@@ -1,0 +1,53 @@
+{
+  "title": "D dorian vamp (Dm7-G7)",
+  "tempoBpm": 120,
+  "labels": {
+    "globalKey": null,
+    "acceptableKeys": ["D:min", "C:maj"],
+    "notes": "A two-chord modal vamp. D dorian is outside the 24-key major/minor space; abstention is the best outcome, and D minor or C major are the acceptable nearest labels. The G7 never resolves to C, so claiming C major confidently would be wrong in spirit."
+  },
+  "chords": [
+    {
+      "notes": "D3 C4 F4 A4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["D:min", "C:maj"]
+    },
+    {
+      "notes": "G2 F3 B3 D4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["D:min", "C:maj"]
+    },
+    {
+      "notes": "D3 C4 F4 A4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["D:min", "C:maj"]
+    },
+    {
+      "notes": "G2 F3 B3 D4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["D:min", "C:maj"]
+    },
+    {
+      "notes": "D3 C4 F4 A4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["D:min", "C:maj"]
+    },
+    {
+      "notes": "G2 F3 B3 D4",
+      "beats": 4,
+      "localKey": null,
+      "acceptableKeys": ["D:min", "C:maj"]
+    },
+    {
+      "notes": "D3 C4 F4 A4",
+      "beats": 8,
+      "localKey": null,
+      "acceptableKeys": ["D:min", "C:maj"]
+    }
+  ]
+}
