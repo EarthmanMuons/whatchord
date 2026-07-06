@@ -87,6 +87,30 @@
     "label": "clearly-correct",
     "note": "Cm(add♭9,add9)/G is correct because the voicing contains the complete C-E♭-G minor triad with G as the fifth in the bass, plus D♭ and D as explicit split flat/natural ninth color. Music21 agrees semantically as Cm/GaddC#,D. The lower-cost Gsus4(♯11,♭13) candidate is surfaced as a possible alternative, but it turns the same adjacent C/C♯ tones into suspended-fourth and sharp-eleventh color and is less direct than preserving the complete minor-triad inversion."
   },
+  "0-1-2-3-8_b0": {
+    "label": "clearly-correct",
+    "note": "A♭(♯11,add11)/C is correct because A♭-C-E♭ supplies a complete A♭ major triad with C as the third in the bass, while D♭ and D are named explicitly as eleventh and sharp-eleventh color. Music21 agrees semantically as A♭/C add D♭,D. The C♯ major-seven-sus and E♭ suspended-seventh rotations are less direct because they obscure the plain A♭ major-triad inversion."
+  },
+  "0-1-2-3-8_b3": {
+    "label": "clearly-correct",
+    "note": "A♭(♯11,add11)/E♭ is correct because A♭-C-E♭ supplies a complete A♭ major triad with E♭ as the fifth in the bass, and D♭/D are adjacent eleventh and sharp-eleventh color. Music21 agrees semantically as A♭/E♭ add D♭,D. The E♭13sus4 rotation is pitch-valid, but it leaves D as chromatic major-seventh color outside the compact label and is less direct than the complete A♭ triad inversion."
+  },
+  "0-1-2-3-9_b0": {
+    "label": "clearly-correct",
+    "note": "Cm6/9♭9 is preferred because C is the bass/root and the label names every pitch as a compact C minor-sixth sonority with adjacent D♭/D flat-nine and natural-nine color. Music21's Adim/C add C♯,D is structurally possible, but it treats the same D♭ pitch as a major-third add against an A diminished triad. ChoCo gives broader support to the C minor-six vocabulary, with minor6|add9 at 236 and minor6|flat9 at 3 observations, versus 1 diminished|add11 observation."
+  },
+  "0-1-2-3-9_b2": {
+    "label": "clearly-correct",
+    "note": "Cm6♭9/D is preferred because C-E♭-A gives the C minor-sixth color, D is the ninth in the bass, and D♭ is explicit flat-nine color. Music21's Adim/D add C♯ names the A-C-E♭ diminished subset but leaves the same C♯/D♭ pitch as less idiomatic added major-third color. The C-rooted label explains every tone with a lower cost and better broad ChoCo support from the minor-six vocabulary."
+  },
+  "0-1-2-3-9_b3": {
+    "label": "clearly-correct",
+    "note": "Cm6/9♭9/E♭ is preferred because E♭ is the minor third in the bass of a C minor-sixth split-ninth sonority, and every pitch is named directly as root, minor third, sixth, flat ninth, or ninth. Music21's Adim/E♭ add D♭,D is pitch-valid but turns D♭ into added major-third color on an A diminished triad. The C minor-six reading is lower cost and more idiomatic for the observed voicing."
+  },
+  "0-1-2-3-9_b9": {
+    "label": "clearly-correct",
+    "note": "Cm6/9♭9/A is preferred because A is the sixth in the bass of a C-E♭-A minor-sixth sonority, with D♭ and D as adjacent flat/natural ninth color. Music21's AdimaddC#,D follows the A bass/root but requires both diminished-triad and added-major-third bookkeeping, while WhatChord's C-rooted label names all tones as one compact minor-six color stack. ChoCo support is sparse for both exact altered forms, but the broader minor-six family is substantially better represented than diminished add-eleven vocabulary."
+  },
   "0-1-2-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C9(♭5,♭9) is preferred because C is the bass/root and the voicing supplies a complete C dominant-flat-five shell C-E-G♭-B♭, with D♭/D as split flat/natural ninth color. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the sharp eleventh in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the C altered/split-ninth family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."
