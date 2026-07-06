@@ -127,6 +127,18 @@
     "label": "clearly-correct",
     "note": "Dm9/F is the expected first-inversion reading because F is the minor third in the bass of the D-F-C-E minor-ninth shell, while D♭ is best treated as chromatic neighbor color rather than forcing a rarer D♭maj7(♭9,♯9)/F spelling. Music21 agrees on the D minor-ninth identity and only adds explicit D♭ plus omitted-fifth annotation."
   },
+  "0-1-2-4-6_b0": {
+    "label": "clearly-correct",
+    "note": "D9/C is the expected compact reading because D-F♯-C-E supplies a fifthless D dominant-ninth shell with the flat seventh in the bass, while D♭/C♯ is a chromatic neighbor outside the practical chord symbol. Music21's D9/C add C♯, omit A preserves the same D dominant-ninth identity but uses analysis-annotation detail that is too verbose for a musician-facing primary label."
+  },
+  "0-1-2-4-6_b2": {
+    "label": "clearly-correct",
+    "note": "D9 is the expected root-position label because D-F♯-C-E gives the root, major third, flat seventh, and ninth of a D dominant-ninth shell. Music21's D9 add C♯, omit A keeps the same core identity but annotates the chromatic neighbor and omitted fifth; WhatChord intentionally keeps the conventional compact chord symbol rather than spelling every non-structural pitch in the name."
+  },
+  "0-1-2-4-6_b4": {
+    "label": "clearly-correct",
+    "note": "D7/E is defensible because D-F♯-C forms the upper D dominant-seventh shell and E is explicitly named as the slash bass, which is a normal musician-facing way to write the ninth in the bass without redundantly headlining D9/E. Music21's D9/E add C♯, omit A is a fuller analysis annotation of the same D-rooted sonority, not evidence that the compact slash label is wrong."
+  },
   "0-1-2-4-10_b0": {
     "label": "clearly-correct",
     "note": "C9♭9 is correct because C is the bass/root and C-E-B♭ supplies the dominant shell, with adjacent D♭ and D as split flat/natural ninth color. Music21 agrees semantically as C9 add D♭, omit G; WhatChord leaves the routine omitted fifth implicit and keeps the conventional split-ninth dominant label."
