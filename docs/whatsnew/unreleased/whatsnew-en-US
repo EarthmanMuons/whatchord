@@ -1,4 +1,0 @@
-- Chord names now use a lower-is-better explanation cost model for results that better match musician expectations.
-- Analysis is much faster: about 15x on common chords and over 20x on dense benchmark voicings.
-- Improved Bluetooth MIDI reliability on iOS, device switching, and controllers that use running status.
-- Added power chord names and a chord naming guide on the website.
