@@ -105,6 +105,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved split-ninth dominant, dominant-ninth slash, and minor-ninth slash
   ranking, so voicings such as C9♭9/D♭, D9/C, and Dm9/C are less likely to be
   displaced by rarer altered or minor-major bookkeeping.
+- Improved split-ninth add-triad ranking, so complete root-position triads such
+  as C(add♭9,add9) are less likely to be displaced by remote unusual seventh
+  slash reinterpretations.
 - Improved sparse add-color triad pricing, so complete bass-rooted triads with
   modest color tones can stay visible against suspended or seventh-family
   reinterpretations.
