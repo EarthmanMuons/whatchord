@@ -111,6 +111,30 @@
     "label": "clearly-correct",
     "note": "Cm6/9♭9/A is preferred because A is the sixth in the bass of a C-E♭-A minor-sixth sonority, with D♭ and D as adjacent flat/natural ninth color. Music21's AdimaddC#,D follows the A bass/root but requires both diminished-triad and added-major-third bookkeeping, while WhatChord's C-rooted label names all tones as one compact minor-six color stack. ChoCo support is sparse for both exact altered forms, but the broader minor-six family is substantially better represented than diminished add-eleven vocabulary."
   },
+  "0-1-2-4-5_b0": {
+    "label": "clearly-correct",
+    "note": "Dm9/C is the expected compact reading because D-F-C-E supplies a complete fifthless D minor-ninth shell with the flat seventh in the bass, while D♭/C♯ is a chromatic neighbor outside the practical chord symbol. Music21's Dm9/C add C♯, omit A preserves the same D minor-ninth identity but uses analysis-annotation detail that is too verbose for a musician-facing primary label."
+  },
+  "0-1-2-4-5_b2": {
+    "label": "clearly-correct",
+    "note": "Dm9 is the expected root-position label because D-F-C-E gives the root, minor third, flat seventh, and ninth of a D minor-ninth shell. Music21's Dm9 add C♯, omit A keeps the same core identity but annotates the chromatic neighbor and omitted fifth; WhatChord intentionally keeps the conventional compact chord symbol rather than spelling every non-structural pitch in the name."
+  },
+  "0-1-2-4-5_b4": {
+    "label": "clearly-correct",
+    "note": "Dm7/E is defensible because D-F-C forms the upper D minor-seventh shell and E is explicitly named as the slash bass, which is a normal musician-facing way to write the ninth in the bass without redundantly headlining Dm9/E. Music21's Dm9/E add C♯, omit A is a fuller analysis annotation of the same D-rooted sonority, not evidence that the compact slash label is wrong."
+  },
+  "0-1-2-4-5_b5": {
+    "label": "clearly-correct",
+    "note": "Dm9/F is the expected first-inversion reading because F is the minor third in the bass of the D-F-C-E minor-ninth shell, while D♭ is best treated as chromatic neighbor color rather than forcing a rarer D♭maj7(♭9,♯9)/F spelling. Music21 agrees on the D minor-ninth identity and only adds explicit D♭ plus omitted-fifth annotation."
+  },
+  "0-1-2-4-10_b0": {
+    "label": "clearly-correct",
+    "note": "C9♭9 is correct because C is the bass/root and C-E-B♭ supplies the dominant shell, with adjacent D♭ and D as split flat/natural ninth color. Music21 agrees semantically as C9 add D♭, omit G; WhatChord leaves the routine omitted fifth implicit and keeps the conventional split-ninth dominant label."
+  },
+  "0-1-2-4-10_b1": {
+    "label": "oracle-limitation",
+    "note": "C9♭9/D♭ is preferred because the voicing preserves the familiar C dominant shell C-E-B♭ with the flat ninth in the bass and the natural ninth also present. Music21's A♯ diminished add-tone spelling is pitch-valid bookkeeping, and the C♯ minor-major reading remains surfaced as a possible alternative, but both re-root away from the dominant sonority most players would expect from this flat-nine-bass voicing."
+  },
   "0-1-2-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C9(♭5,♭9) is preferred because C is the bass/root and the voicing supplies a complete C dominant-flat-five shell C-E-G♭-B♭, with D♭/D as split flat/natural ninth color. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the sharp eleventh in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the C altered/split-ninth family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."
