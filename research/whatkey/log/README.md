@@ -7,7 +7,9 @@ project's reasoning without combing through git history.
 ## Conventions
 
 - One file per working session, experiment, or significant decision:
-  `YYYY-MM-DD-short-slug.md`. Multiple entries on one day get distinct slugs.
+  `YYYY-MM-DD-NN-short-slug.md`, where `NN` is a zero-padded sequence number for
+  that date. Multiple entries on one day increment the sequence so directory
+  sorting preserves the order decisions were made.
 - Entries are append-only. If a conclusion turns out to be wrong, write a new
   entry that corrects it and links back; do not rewrite the old one.
 - Record enough to reproduce: engine commit, fixture version, script parameters.
