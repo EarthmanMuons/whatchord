@@ -177,7 +177,7 @@ void main() {
     golden(
       description: 'minor-major ninth bass chord beats altered major7 slash',
       expectedSymbol: 'C#m(maj7)/D#',
-      expectedAlternatives: ['Emaj13#5/D#'],
+      expectedAlternatives: ['D#13sus4(b9)'],
       pcs: ['C', 'Db', 'Eb', 'E', 'Ab'],
       bass: 'Eb',
       expectedRoot: 'C#',
@@ -804,6 +804,18 @@ void main() {
 
     golden(
       description:
+          'split-ninth add triad inversion beats sharp-five thirteenth stack',
+      expectedSymbol: 'C(addb9,add9)/E',
+      pcs: ['C', 'Db', 'D', 'E', 'G'],
+      bass: 'E',
+      expectedRoot: 'C',
+      expectedBass: 'E',
+      expectedQuality: ChordQualityToken.major,
+      expectedExtensions: {ChordExtension.addFlat9, ChordExtension.add9},
+    ),
+
+    golden(
+      description:
           'complete add-nine triad inversion beats sparse major-thirteenth shell',
       expectedSymbol: 'Bbmadd9/Db',
       expectedAlternatives: ['Dbmaj13'],
@@ -1222,7 +1234,6 @@ void main() {
       description:
           'complete lydian flat-thirteen dominant beats remote altered fifth dominant',
       expectedSymbol: 'F#9(#11,b13)/C',
-      expectedAlternatives: ['E13(#5,#11)/C'],
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'C',
       expectedRoot: 'F#',
@@ -1239,7 +1250,6 @@ void main() {
       description:
           'complete lydian flat-thirteen dominant handles flat-thirteen bass',
       expectedSymbol: 'F#9(#11,b13)/D',
-      expectedAlternatives: ['E13(#5,#11)/D'],
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'D',
       expectedRoot: 'F#',

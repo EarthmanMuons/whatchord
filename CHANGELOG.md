@@ -108,6 +108,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Improved split-ninth add-triad ranking, so complete root-position triads such
   as C(add♭9,add9) are less likely to be displaced by remote unusual seventh
   slash reinterpretations.
+- Improved sharp-five thirteenth pricing, so readings that stack ♯5 and natural
+  13 are less likely to displace cleaner split-ninth triad or minor-major
+  shells.
 - Improved sparse add-color triad pricing, so complete bass-rooted triads with
   modest color tones can stay visible against suspended or seventh-family
   reinterpretations.
