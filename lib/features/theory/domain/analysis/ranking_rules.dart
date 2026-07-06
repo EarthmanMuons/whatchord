@@ -1733,12 +1733,13 @@ int? _preferFullyExplainedVoicing(
   final fExplained = aDropsTone ? fb : fa;
   final fDropped = aDropsTone ? fa : fb;
   if (_shouldNotPreferFullCoverage(
-    explained.identity,
-    dropped.identity,
-    fExplained,
-    fDropped,
-    tonality,
-  )) {
+        explained.identity,
+        dropped.identity,
+        fExplained,
+        fDropped,
+        tonality,
+      ) ||
+      _shouldNotPreferFullCoverageForLowerCostMinorNinth(explained, dropped)) {
     return null;
   }
   return aDropsTone ? 1 : -1;
@@ -1751,15 +1752,44 @@ bool _shouldNotPreferFullCoverage(
   CandidateFeatures fDropped,
   Tonality tonality,
 ) {
-  if (!fExplained.isUnusualSeventhQuality ||
-      !_isUnusualSeventhMissingThird(explained)) {
+  if (fExplained.isUnusualSeventhQuality &&
+      _isUnusualSeventhMissingThird(explained) &&
+      _isMajorMinorAddChord(dropped, fDropped)) {
+    final explainedPenalty = _candidateSpellingPenalty(explained, tonality);
+    final droppedPenalty = _candidateSpellingPenalty(dropped, tonality);
+    return explainedPenalty > droppedPenalty;
+  }
+
+  return false;
+}
+
+bool _shouldNotPreferFullCoverageForLowerCostMinorNinth(
+  ChordCandidate explained,
+  ChordCandidate dropped,
+) {
+  return dropped.cost < explained.cost &&
+      _isMajorSeventhSplitNinth(explained.identity) &&
+      _isMinorSeventhNinthShell(dropped.identity);
+}
+
+bool _isMajorSeventhSplitNinth(ChordIdentity id) {
+  return id.quality == ChordQualityToken.major7 &&
+      id.extensions.length == 2 &&
+      id.extensions.contains(ChordExtension.flat9) &&
+      id.extensions.contains(ChordExtension.sharp9);
+}
+
+bool _isMinorSeventhNinthShell(ChordIdentity id) {
+  if (id.quality != ChordQualityToken.minor7 ||
+      !id.extensions.contains(ChordExtension.nine)) {
     return false;
   }
-  if (!_isMajorMinorAddChord(dropped, fDropped)) return false;
 
-  final explainedPenalty = _candidateSpellingPenalty(explained, tonality);
-  final droppedPenalty = _candidateSpellingPenalty(dropped, tonality);
-  return explainedPenalty > droppedPenalty;
+  final roles = id.toneRolesByInterval.values;
+  return roles.contains(ChordToneRole.root) &&
+      roles.contains(ChordToneRole.minor3) &&
+      roles.contains(ChordToneRole.flat7) &&
+      roles.contains(ChordToneRole.nine);
 }
 
 bool _isMajorMinorAddChord(ChordIdentity id, CandidateFeatures features) {

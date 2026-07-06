@@ -420,6 +420,34 @@ void main() {
       );
     });
 
+    test(
+      'also applies when the dominant has split flat and natural ninths',
+      () {
+        final splitNinthDominant = _candidate(
+          quality: ChordQualityToken.dominant7,
+          root: 'C',
+          bass: 'Db',
+          presentIntervals: const {0, 1, 2, 4, 10},
+          extensions: const {ChordExtension.flat9, ChordExtension.nine},
+          cost: 1.70,
+        );
+        final splitNinthMinorMajor = _candidate(
+          quality: ChordQualityToken.minorMajor7,
+          root: 'Db',
+          bass: 'Db',
+          presentIntervals: const {0, 1, 3, 9, 11},
+          extensions: const {ChordExtension.flat9, ChordExtension.thirteen},
+          cost: 1.78,
+        );
+
+        _expectTieRule(
+          splitNinthDominant,
+          splitNinthMinorMajor,
+          'prefer flat-nine-bass dominant over remote reinterpretation',
+        );
+      },
+    );
+
     test('preserves bass-rooted minor-major7 on the selected tonic', () {
       const tonality = Tonality(Tonic.cSharp, TonalityMode.minor);
       final explanation = ChordCandidateRanking.explain(
@@ -1337,6 +1365,41 @@ void main() {
       'prefer natural extensions over adds, then fewer total',
     );
   });
+
+  test(
+    'full coverage does not promote altered major7 over lower-cost minor ninth shell',
+    () {
+      final minorNinthShell = _candidate(
+        quality: ChordQualityToken.minor7,
+        root: 'D',
+        bass: 'C',
+        presentIntervals: const {0, 2, 3, 10},
+        extensions: const {ChordExtension.nine},
+        cost: 2.50,
+      );
+
+      final majorSeventhSplitNinth = _candidate(
+        quality: ChordQualityToken.major7,
+        root: 'Db',
+        bass: 'C',
+        presentIntervals: const {0, 1, 3, 4, 11},
+        extensions: const {ChordExtension.flat9, ChordExtension.sharp9},
+        cost: 2.65,
+      );
+
+      final explanation = ChordCandidateRanking.explain(
+        minorNinthShell,
+        majorSeventhSplitNinth,
+        tonality: defaultTestTonality,
+      );
+
+      expect(explanation.result, -1);
+      expect(
+        explanation.decidedByRule,
+        isNot('prefer voicing that names every tone'),
+      );
+    },
+  );
 
   group('root-position relative minor7 versus major6 slash', () {
     final minor7 = _candidate(

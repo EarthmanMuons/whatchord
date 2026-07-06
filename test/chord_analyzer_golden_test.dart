@@ -299,6 +299,18 @@ void main() {
       expectedExtensions: {ChordExtension.thirteen},
     ),
 
+    golden(
+      description: 'split-ninth flat-nine-bass dominant beats minor-major root',
+      expectedSymbol: 'C9b9/Db',
+      expectedAlternatives: ['C#m(maj13,b9)'],
+      pcs: ['C', 'Db', 'D', 'E', 'Bb'],
+      bass: 'Db',
+      expectedRoot: 'C',
+      expectedBass: 'Db',
+      expectedQuality: ChordQualityToken.dominant7,
+      expectedExtensions: {ChordExtension.flat9, ChordExtension.nine},
+    ),
+
     // Hendrix chord: dominant shell plus #9 should not be treated as a minor-third penalty.
     golden(
       description: 'dominant seventh sharp ninth',
@@ -307,6 +319,32 @@ void main() {
       expectedRoot: 'G',
       expectedQuality: ChordQualityToken.dominant7,
       expectedExtensions: {ChordExtension.sharp9},
+    ),
+
+    golden(
+      description:
+          'minor ninth slash beats exact altered major seventh bookkeeping',
+      expectedSymbol: 'Dm9/C',
+      expectedAlternatives: ['Dbmaj7(b9,#9)/C'],
+      pcs: ['C', 'Db', 'D', 'E', 'F'],
+      bass: 'C',
+      expectedRoot: 'D',
+      expectedBass: 'C',
+      expectedQuality: ChordQualityToken.minor7,
+      expectedExtensions: {ChordExtension.nine},
+    ),
+
+    golden(
+      description:
+          'minor ninth first inversion beats exact altered major seventh bookkeeping',
+      expectedSymbol: 'Dm9/F',
+      expectedAlternatives: ['Dbmaj7(b9,#9)/F'],
+      pcs: ['C', 'Db', 'D', 'E', 'F'],
+      bass: 'F',
+      expectedRoot: 'D',
+      expectedBass: 'F',
+      expectedQuality: ChordQualityToken.minor7,
+      expectedExtensions: {ChordExtension.nine},
     ),
 
     golden(

@@ -249,14 +249,20 @@ class CandidateFeatures {
   }
 
   /// Returns true for a fifthless dominant7 flat-nine shell whose flat-ninth is
-  /// the bass note.
+  /// the bass note. A simultaneous natural ninth is still the same split-ninth
+  /// dominant color.
   ///
   /// This identifies the narrow ambiguous shape that can be heard as a familiar
   /// altered-dominant shell or as a more remote chord rooted on the bass.
   static bool _isFifthlessFlatNineBassDominant(ChordIdentity id) {
     if (id.quality != ChordQualityToken.dominant7) return false;
-    if (id.extensions.length != 1 ||
-        !id.extensions.contains(ChordExtension.flat9)) {
+    if (!id.extensions.contains(ChordExtension.flat9)) {
+      return false;
+    }
+    if (id.extensions.any(
+      (extension) =>
+          extension != ChordExtension.flat9 && extension != ChordExtension.nine,
+    )) {
       return false;
     }
 
