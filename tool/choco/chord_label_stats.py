@@ -167,7 +167,10 @@ def classify(degrees: set[str]) -> str:
     normalized = normalize_degrees(degrees)
     for required, optional in WHATCHORD_BASES.values():
         explained = required | optional
-        if required.issubset(normalized) and normalized - explained <= WHATCHORD_EXTENSIONS:
+        if (
+            required.issubset(normalized)
+            and normalized - explained <= WHATCHORD_EXTENSIONS
+        ):
             return "supported"
     return "unsupported"
 
@@ -207,7 +210,13 @@ def iter_chord_observations(jams_path: Path):
         for observation in annotation.get("data", []):
             value = observation.get("value")
             if isinstance(value, str):
-                yield value, float(observation.get("duration") or 0), corpus, partition, jam_type
+                yield (
+                    value,
+                    float(observation.get("duration") or 0),
+                    corpus,
+                    partition,
+                    jam_type,
+                )
 
 
 def write_csv(path: Path, rows: list[dict[str, object]]) -> None:
@@ -246,7 +255,9 @@ def main() -> int:
     observations = 0
 
     for jams_path in files:
-        for label, duration, _corpus, partition, _jam_type in iter_chord_observations(jams_path):
+        for label, duration, _corpus, partition, _jam_type in iter_chord_observations(
+            jams_path
+        ):
             parsed = parse_label(label)
             if parsed is None:
                 continue
@@ -256,7 +267,9 @@ def main() -> int:
             body_counts[parsed.body] += 1
             body_durations[parsed.body] += duration
             body_classes[parsed.body] = parsed.label_class
-            body_degrees[parsed.body] = " ".join(sorted(parsed.degrees, key=degree_sort_key))
+            body_degrees[parsed.body] = " ".join(
+                sorted(parsed.degrees, key=degree_sort_key)
+            )
             partition_counts[partition][parsed.body] += 1
             if parsed.label_class == "parse-error":
                 parse_errors[label] += 1

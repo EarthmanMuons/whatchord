@@ -20,6 +20,14 @@ description = "Lint and auto-fix site CSS with stylelint"
 depends = ["css:lint:install"]
 run = "npx stylelint --fix 'docs/site/css/*.css'"
 
+[tasks."python:format"]
+description = "Format Python tooling with Ruff"
+run = "uvx ruff@latest format tool"
+
+[tasks."python:lint"]
+description = "Lint Python tooling with Ruff"
+run = "uvx ruff@latest check tool"
+
 [tasks."research:oracle-install"]
 description = "Install optional chord oracle dependencies for local comparison runs"
 run = [

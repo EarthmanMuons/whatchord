@@ -44,11 +44,7 @@ def surfaced_symbols(candidates: list[dict]) -> list[str | None]:
         return []
     return [
         candidates[0].get("symbol"),
-        *[
-            c.get("symbol")
-            for c in candidates[1:]
-            if c.get("alternative") is True
-        ],
+        *[c.get("symbol") for c in candidates[1:] if c.get("alternative") is True],
     ]
 
 
@@ -168,9 +164,7 @@ def main() -> None:
 
     original = RULES_PATH.read_text()
     decl_by_name = list_rules(original)
-    targets = args.rules or [
-        n for n in decl_by_name if n not in VOICING_ONLY_RULES
-    ]
+    targets = args.rules or [n for n in decl_by_name if n not in VOICING_ONLY_RULES]
     unknown = [n for n in targets if n not in decl_by_name]
     if unknown:
         sys.exit(f"unknown rule name(s): {unknown}")
@@ -178,7 +172,9 @@ def main() -> None:
     pool_args = dict(
         all_transpositions=args.all_transpositions, top=args.top, key=args.key
     )
-    print(f"building reference over the {'full' if args.all_transpositions else 'canonical'} pool...")
+    print(
+        f"building reference over the {'full' if args.all_transpositions else 'canonical'} pool..."
+    )
     ref = run_pool(**pool_args)
     print(f"reference: {len(ref)} cases")
 

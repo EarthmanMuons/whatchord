@@ -140,7 +140,9 @@ class Music21Oracle(Oracle):
                 return OracleResult("ok")
             return OracleResult("ok", (figure,))
         except Exception as error:  # pragma: no cover - depends on optional lib
-            return OracleResult("ok", detail=f"music21 chord symbol unavailable: {error}")
+            return OracleResult(
+                "ok", detail=f"music21 chord symbol unavailable: {error}"
+            )
 
 
 class PychordOracle(Oracle):
@@ -285,7 +287,10 @@ def main() -> int:
 
     oracles = _available_oracles(args.oracles)
     if not oracles:
-        print("No optional oracles are available; install one of music21, tonal, or pychord.", file=sys.stderr)
+        print(
+            "No optional oracles are available; install one of music21, tonal, or pychord.",
+            file=sys.stderr,
+        )
         return 2
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
@@ -320,23 +325,17 @@ def main() -> int:
             # invocations clash on the shared native-assets build cache. This
             # mode is a single-case/debug escape hatch, so --jobs only affects
             # oracle detection below.
-            whats = [
-                run_whatchord(chord_debug, case, top=args.top) for case in cases
-            ]
+            whats = [run_whatchord(chord_debug, case, top=args.top) for case in cases]
         oracle_inputs = [
             oracle_input_from_whatchord(what, fallback=case)
             for case, what in zip(cases, whats)
         ]
-        oracle_results_by_case: list[dict[str, OracleResult]] = [
-            {} for _ in cases
-        ]
+        oracle_results_by_case: list[dict[str, OracleResult]] = [{} for _ in cases]
         for oracle in oracles:
             # music21 mutates shared module state while identifying symbols, so
             # preserve input order for deterministic results.
             if oracle.name == Music21Oracle.name:
-                results = [
-                    oracle.detect(notes, bass) for notes, bass in oracle_inputs
-                ]
+                results = [oracle.detect(notes, bass) for notes, bass in oracle_inputs]
             else:
                 results = list(
                     executor.map(
@@ -394,7 +393,9 @@ def main() -> int:
         encoding="utf-8",
     )
 
-    print(f"Compared {len(rows)} cases with: {', '.join(oracle.name for oracle in oracles)}")
+    print(
+        f"Compared {len(rows)} cases with: {', '.join(oracle.name for oracle in oracles)}"
+    )
     for flag, count in summary.most_common():
         print(f"{flag}: {count}")
     audit_buckets = reviewed_audit["buckets"]
@@ -849,11 +850,18 @@ def build_row(
         review_flag = "oracle-error"
     elif not comparable_primary_oracle_names:
         review_flag = "unrecognized-by-oracles"
-    elif len(comparable_primary_oracle_names) == 1 and not single_oracle_optional_fifth_agreement:
+    elif (
+        len(comparable_primary_oracle_names) == 1
+        and not single_oracle_optional_fifth_agreement
+    ):
         review_flag = "insufficient-oracle-labels"
     elif not whatchord_label and whatchord_key is None:
         review_flag = "insufficient-oracle-labels"
-    elif matching_oracles and disagreeing_oracles and len(disagreeing_oracles) >= len(matching_oracles):
+    elif (
+        matching_oracles
+        and disagreeing_oracles
+        and len(disagreeing_oracles) >= len(matching_oracles)
+    ):
         review_flag = "oracle-split"
     elif not matching_oracles and disagreeing_oracles:
         review_flag = "disagreement"
@@ -864,8 +872,7 @@ def build_row(
     if whatchord_label:
         normalized_parts.append(f"whatchord={whatchord_label}")
     normalized_parts.extend(
-        f"{name}={' | '.join(labels)}"
-        for name, labels in comparable_oracles.items()
+        f"{name}={' | '.join(labels)}" for name, labels in comparable_oracles.items()
     )
     semantic_parts = []
     if whatchord_key is not None:
@@ -884,7 +891,9 @@ def build_row(
         "whatchord_harte": best.get("harte", ""),
         "whatchord_quality": best.get("quality", ""),
         "whatchord_cost": best.get("cost", ""),
-        "whatchord_second": candidates[1].get("symbol", "") if len(candidates) > 1 else "",
+        "whatchord_second": candidates[1].get("symbol", "")
+        if len(candidates) > 1
+        else "",
         "review_flag": review_flag,
         "matching_oracles": " ".join(matching_oracles),
         "disagreeing_oracles": " ".join(disagreeing_oracles),
@@ -1065,7 +1074,9 @@ def semantic_key_from_label(label: str) -> SemanticChordKey | None:
     root_pc, quality, bass_pc, slash_suffix = parsed
     degrees = degrees_from_quality(quality, root_pc=root_pc)
     if slash_suffix:
-        degrees.update(degrees_from_quality(slash_suffix, root_pc=root_pc, base_only=False))
+        degrees.update(
+            degrees_from_quality(slash_suffix, root_pc=root_pc, base_only=False)
+        )
 
     # If the slash bass note is a chord tone not already captured by the
     # quality description, add its degree. This catches cases like G#7/C#
@@ -1075,9 +1086,7 @@ def semantic_key_from_label(label: str) -> SemanticChordKey | None:
         bass_degree = degree_from_interval(
             bass_interval, prefer_extensions=has_third(degrees)
         )
-        if bass_degree and not _interval_covered_by_degrees(
-            bass_interval, degrees
-        ):
+        if bass_degree and not _interval_covered_by_degrees(bass_interval, degrees):
             degrees.add(bass_degree)
 
     if not degrees:
@@ -1144,7 +1153,9 @@ def degrees_from_quality(
         for pc in _absolute_add_pitch_classes(value)
     }
     absolute_adds.discard("")
-    value = re.sub(r"add[A-Ga-g](?:#{1,2}|b{1,2})?(?:,[A-Ga-g](?:#{1,2}|b{1,2})?)*", "", value)
+    value = re.sub(
+        r"add[A-Ga-g](?:#{1,2}|b{1,2})?(?:,[A-Ga-g](?:#{1,2}|b{1,2})?)*", "", value
+    )
 
     compact = value.replace(" ", "")
     compact = compact.replace("(", "").replace(")", "")
@@ -1171,6 +1182,7 @@ def degrees_from_quality(
     # Plain 'sus' (music21 canonical for sus4 triad) → 'sus4'.
     if compact == "sus":
         compact = "sus4"
+
     # Expand headline-extension forms whose prefix blocks headline_extension().
     # Converts e.g. 'aug11' → 'aug7add9add11' so token matching picks up every
     # implied degree.  Prefixes that already work via headline_extension() (bare
@@ -1247,7 +1259,9 @@ def base_degrees(compact: str) -> set[str]:
         out = {"4", "5"}
     elif compact.startswith("minmaj") or compact.startswith("mmaj"):
         out = {"b3", "5", "7"}
-    elif compact.startswith("min") or (compact.startswith("m") and not compact.startswith("maj")):
+    elif compact.startswith("min") or (
+        compact.startswith("m") and not compact.startswith("maj")
+    ):
         out = {"b3", "5"}
     else:
         out = {"3", "5"}
@@ -1260,7 +1274,9 @@ def base_degrees(compact: str) -> set[str]:
         out.add("b5")
     if "maj7" in compact or "ma7" in compact:
         out.add("7")
-    elif ("7" in compact or headline is not None) and "bb7" not in out and "7" not in out:
+    elif (
+        ("7" in compact or headline is not None) and "bb7" not in out and "7" not in out
+    ):
         out.add("b7")
     if "b6" in compact:
         out.add("b13")
@@ -1337,7 +1353,9 @@ def has_third(degrees: set[str]) -> bool:
 
 
 def sort_degrees(degrees: set[str]) -> tuple[str, ...]:
-    return tuple(sorted(degrees, key=lambda degree: (DEGREE_SORT_RANK.get(degree, 99), degree)))
+    return tuple(
+        sorted(degrees, key=lambda degree: (DEGREE_SORT_RANK.get(degree, 99), degree))
+    )
 
 
 DEGREE_SORT_RANK = {
@@ -1456,9 +1474,7 @@ def write_report(
         if needs_attention(row) and str(row["case_id"]) not in reviewed
     ]
     suppressed = sum(
-        1
-        for row in rows
-        if needs_attention(row) and str(row["case_id"]) in reviewed
+        1 for row in rows if needs_attention(row) and str(row["case_id"]) in reviewed
     )
     if limit > 0:
         attention_rows = attention_rows[:limit]
@@ -1500,7 +1516,9 @@ def write_report(
         ]
     )
     if suppressed:
-        lines.append(f"({suppressed} previously reviewed cases suppressed -- see tool/chord_oracle_reviewed.json)")
+        lines.append(
+            f"({suppressed} previously reviewed cases suppressed -- see tool/chord_oracle_reviewed.json)"
+        )
         lines.append("")
 
     if not attention_rows:

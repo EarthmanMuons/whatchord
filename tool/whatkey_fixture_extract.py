@@ -108,7 +108,9 @@ def main() -> int:
         "set": args.set_name,
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "engineCommit": git(REPO_ROOT, "rev-parse", "HEAD"),
-        "engineLibDirty": bool(git(REPO_ROOT, "status", "--porcelain", "--", "lib", "pubspec.yaml")),
+        "engineLibDirty": bool(
+            git(REPO_ROOT, "status", "--porcelain", "--", "lib", "pubspec.yaml")
+        ),
         "generator": {
             "script": "tool/whatkey_fixture_extract.py",
             "arguments": sys.argv[1:],
@@ -149,9 +151,7 @@ def load_charts(args: argparse.Namespace) -> tuple[list[dict], dict]:
             for optional in ("figure", "acceptableKeys"):
                 if optional in entry:
                     labels[optional] = entry[optional]
-            events.append(
-                event_dict(index, clock_ms, duration_ms, midi_notes, labels)
-            )
+            events.append(event_dict(index, clock_ms, duration_ms, midi_notes, labels))
             clock_ms += duration_ms
         fixtures.append(
             {
@@ -247,9 +247,7 @@ def load_when_in_rome(args: argparse.Namespace) -> tuple[list[dict], dict]:
         "type": "when-in-rome",
         "benchRoot": str(bench_root),
         "benchCommit": git(bench_root, "rev-parse", "HEAD"),
-        "corpusCommit": git(
-            bench_root / "corpus/When-in-Rome", "rev-parse", "HEAD"
-        ),
+        "corpusCommit": git(bench_root / "corpus/When-in-Rome", "rev-parse", "HEAD"),
         "licenseVerified": not unverified,
         "license": when_in_rome_license_summary(unverified),
         "verifiedGroups": sorted(VERIFIED_WHEN_IN_ROME_GROUPS),

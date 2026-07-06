@@ -74,7 +74,9 @@ def main() -> None:
 
     body = font(24, 400)
     draw.text((72, 375), "Live MIDI and manual note entry.", font=body, fill="#9494ae")
-    draw.text((72, 411), "Explore voicings, scales, and context.", font=body, fill="#9494ae")
+    draw.text(
+        (72, 411), "Explore voicings, scales, and context.", font=body, fill="#9494ae"
+    )
 
     screenshot = Image.open(SCREENSHOT).convert("RGB")
     crop = screenshot.crop((0, 0, 2868, 1320))

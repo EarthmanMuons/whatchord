@@ -24,12 +24,12 @@ FONTS = [
 ]
 OUTPUT = TOOL_DIR / "specimen.svg"
 
-SCALE = 0.15            # px per font unit (1000-unit em -> 150px)
-ASC, DESC = 900, -300   # framing extents (font units), not real metrics
-CELL_W = 200            # px width of one weight's cell
-LABEL_W = 230           # px width of the left label column
-ROW_GAP = 26            # px between rows
-PAD = 30                # px outer margin
+SCALE = 0.15  # px per font unit (1000-unit em -> 150px)
+ASC, DESC = 900, -300  # framing extents (font units), not real metrics
+CELL_W = 200  # px width of one weight's cell
+LABEL_W = 230  # px width of the left label column
+ROW_GAP = 26  # px between rows
+PAD = 30  # px outer margin
 
 CELL_H = round((ASC - DESC) * SCALE)
 ROW_H = CELL_H + ROW_GAP
@@ -56,15 +56,14 @@ def cell_svg(font: TTFont, gname: str, ox: float, oy: float) -> str:
     box_px = adv * SCALE
     gx = ox + (CELL_W - box_px) / 2
     baseline = oy + ASC * SCALE  # font y=0 lands here
-    g = f'translate({gx:.2f},{baseline:.2f}) scale({SCALE},{-SCALE})'
+    g = f"translate({gx:.2f},{baseline:.2f}) scale({SCALE},{-SCALE})"
 
     pen = SVGPathPen(gs)
     gs[gname].draw(pen)
     d = pen.getCommands()
 
     def vline(x, cls):
-        return (f'<line x1="{x}" y1="{DESC}" x2="{x}" y2="{ASC}" '
-                f'class="{cls}"/>')
+        return f'<line x1="{x}" y1="{DESC}" x2="{x}" y2="{ASC}" class="{cls}"/>'
 
     parts = [f'<g transform="{g}">']
     # advance box edges + baseline
@@ -80,7 +79,7 @@ def cell_svg(font: TTFont, gname: str, ox: float, oy: float) -> str:
     # sidebearing readout under the cell
     lsb, rsb = round(xmin), round(adv - xmax)
     parts.append(
-        f'<text x="{ox + CELL_W/2:.1f}" y="{oy + CELL_H + 16:.1f}" '
+        f'<text x="{ox + CELL_W / 2:.1f}" y="{oy + CELL_H + 16:.1f}" '
         f'class="sb">adv {adv}  ·  sb {lsb}/{rsb}</text>'
     )
     return "".join(parts)
@@ -124,12 +123,12 @@ def main() -> None:
         cp = glyph_to_cp[gname]
         # label
         out.append(
-            f'<text x="{PAD}" y="{oy + CELL_H/2 - 4:.1f}" class="lbl">'
-            f'U+{cp:04X}</text>'
+            f'<text x="{PAD}" y="{oy + CELL_H / 2 - 4:.1f}" class="lbl">'
+            f"U+{cp:04X}</text>"
         )
         out.append(
-            f'<text x="{PAD}" y="{oy + CELL_H/2 + 14:.1f}" class="sub">'
-            f'{escape(gname)}</text>'
+            f'<text x="{PAD}" y="{oy + CELL_H / 2 + 14:.1f}" class="sub">'
+            f"{escape(gname)}</text>"
         )
         for i, (_, font, _) in enumerate(fonts):
             ox = PAD + LABEL_W + i * CELL_W

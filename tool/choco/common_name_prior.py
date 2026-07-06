@@ -18,9 +18,7 @@ from pathlib import Path
 from chord_label_stats import choco_jams_files, iter_chord_observations, parse_label
 
 
-OUTPUT_PATH = Path(
-    "lib/features/theory/domain/analysis/choco_common_name_prior.dart"
-)
+OUTPUT_PATH = Path("lib/features/theory/domain/analysis/choco_common_name_prior.dart")
 
 QUALITY_BASES = [
     ("major", {"3"}, {"5"}),
@@ -165,7 +163,9 @@ def iter_degree_rows(source: Path, jams_version: str):
         return
 
     for jams_path in files:
-        for label, _duration, _corpus, _partition, _jam_type in iter_chord_observations(jams_path):
+        for label, _duration, _corpus, _partition, _jam_type in iter_chord_observations(
+            jams_path
+        ):
             parsed = parse_label(label)
             if parsed is None or parsed.label_class != "supported":
                 continue

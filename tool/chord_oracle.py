@@ -63,7 +63,9 @@ def main() -> int:
     ]
     what = run_chord_debug(chord_debug, debug_args)
     input_data = what["input"]
-    notes = tuple(oracle_note_name(item["label"]) for item in input_data["pitchClasses"])
+    notes = tuple(
+        oracle_note_name(item["label"]) for item in input_data["pitchClasses"]
+    )
     bass = oracle_note_name(input_data["bassLabel"])
     candidates = what.get("candidates", [])[: args.top]
 
@@ -90,13 +92,17 @@ def main() -> int:
         for index, candidate in enumerate(candidates, start=1):
             semantic = semantic_key_from_whatchord(candidate)
             semantic_label = f"[semantic: {semantic.display()}]" if semantic else ""
-            whatchord_rows.append(("whatchord", f"{index}. {candidate.get('symbol', '')}", semantic_label))
+            whatchord_rows.append(
+                ("whatchord", f"{index}. {candidate.get('symbol', '')}", semantic_label)
+            )
     else:
         whatchord_rows.append(("whatchord", "<no candidate>", ""))
 
     all_rows = oracle_rows + whatchord_rows
     name_width = max(len(name) for name, _, _ in all_rows)
-    body_width = max((len(body) for _, body, semantic in all_rows if semantic), default=0)
+    body_width = max(
+        (len(body) for _, body, semantic in all_rows if semantic), default=0
+    )
 
     def format_row(row: tuple[str, str, str]) -> str:
         name, body, semantic = row
@@ -115,7 +121,9 @@ def main() -> int:
         print(format_row(row))
 
     pcs = tuple(item["pc"] for item in input_data["pitchClasses"])
-    matches = reviewed_matches(pcs, input_data["bassPc"], load_reviewed(DEFAULT_REVIEWED_PATH))
+    matches = reviewed_matches(
+        pcs, input_data["bassPc"], load_reviewed(DEFAULT_REVIEWED_PATH)
+    )
     if matches:
         print("------------")
         print_reviewed_matches(matches)
