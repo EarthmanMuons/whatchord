@@ -1,0 +1,583 @@
+{
+  "counts": {
+    "development": {
+      "byComposer": {
+        "Bach, Johann Sebastian": 18,
+        "Beethoven, Ludwig van": 4,
+        "Brahms, Johannes": 7,
+        "Schubert, Franz": 30
+      },
+      "byGroup": {
+        "bach-wtc": 18,
+        "brahms-lieder": 7,
+        "schubert-lieder": 30,
+        "tavern": 4
+      },
+      "events": 3694,
+      "pieces": 59
+    },
+    "test": {
+      "byComposer": {
+        "Bach, Johann Sebastian": 5,
+        "Brahms, Johannes": 2,
+        "Mozart, Wolfgang Amadeus": 3,
+        "Schubert, Franz": 8
+      },
+      "byGroup": {
+        "bach-wtc": 5,
+        "brahms-lieder": 2,
+        "schubert-lieder": 8,
+        "tavern": 3
+      },
+      "events": 1513,
+      "pieces": 18
+    },
+    "total": {
+      "byComposer": {
+        "Bach, Johann Sebastian": 23,
+        "Beethoven, Ludwig van": 4,
+        "Brahms, Johannes": 9,
+        "Mozart, Wolfgang Amadeus": 3,
+        "Schubert, Franz": 38
+      },
+      "byGroup": {
+        "bach-wtc": 23,
+        "brahms-lieder": 9,
+        "schubert-lieder": 38,
+        "tavern": 7
+      },
+      "events": 5207,
+      "pieces": 77
+    }
+  },
+  "frozenAt": "2026-07-06",
+  "licenseGate": {
+    "excludedGroups": [
+      {
+        "group": "mozart-sonatas-dcml",
+        "reason": "DCML source is CC BY-NC-SA 4.0; do not commit derived fixtures without a separate decision."
+      },
+      {
+        "group": "chorales",
+        "reason": "Craig Sapp bach-370-chorales source is CC BY-NC-SA 4.0; do not commit derived fixtures without a separate decision."
+      }
+    ],
+    "includedGroups": [
+      "bach-wtc",
+      "brahms-lieder",
+      "schubert-lieder",
+      "tavern"
+    ],
+    "status": "passed-for-v1-groups"
+  },
+  "method": {
+    "groupNotes": [
+      {
+        "developmentPieces": 18,
+        "group": "bach-wtc",
+        "mode": "piece hash within single-composer group",
+        "testPieces": 5
+      },
+      {
+        "developmentPieces": 7,
+        "group": "brahms-lieder",
+        "mode": "piece hash within single-composer group",
+        "testPieces": 2
+      },
+      {
+        "developmentPieces": 30,
+        "group": "schubert-lieder",
+        "mode": "piece hash within single-composer group",
+        "testPieces": 8
+      },
+      {
+        "developmentPieces": 4,
+        "group": "tavern",
+        "mode": "held out composer Mozart, Wolfgang Amadeus",
+        "testPieces": 3
+      }
+    ],
+    "seed": "whatkey-when-in-rome-v1-split-2026-07-06",
+    "selection": "Single-composer groups use a stable SHA-256 hash of seed plus piece ID to select approximately 20% held-out pieces. Multi-composer groups hold out the composer whose piece count is closest to the target test size.",
+    "testRatio": 0.2
+  },
+  "schema": "whatkey-split/1",
+  "set": "when-in-rome-v1",
+  "source": {
+    "benchCommit": "b9e011c8cf34c5e76691dcf2c835b8c99ebd9d59",
+    "benchRepository": "https://github.com/Tomczik76/contrapunctus-bench",
+    "corpusCommit": "aa7539f1cf480997a68998405c0783ebf6339c16",
+    "corpusRepository": "https://github.com/MarkGotham/When-in-Rome",
+    "fixtureManifest": "build/whatkey-fixtures/when-in-rome-v1/manifest.json",
+    "manifestPath": "corpus/manifest.json",
+    "type": "when-in-rome"
+  },
+  "splits": {
+    "development": [
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 2,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 02"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 55,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 04"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 13,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 05"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 12,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 06"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 182,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 07"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 56,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 08"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 37,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 09"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 44,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 10"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 3,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 11"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 54,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 12"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 1,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 15"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 71,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 16"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 7,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 17"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 49,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 18"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 38,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 19"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 19,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 20"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 10,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 21"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 125,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 24"
+      },
+      {
+        "composer": "Brahms, Johannes",
+        "events": 41,
+        "group": "brahms-lieder",
+        "id": "Brahms Liebe und Fr\u00fchling II"
+      },
+      {
+        "composer": "Brahms, Johannes",
+        "events": 95,
+        "group": "brahms-lieder",
+        "id": "Brahms Liebesklage des M\u00e4dchens"
+      },
+      {
+        "composer": "Brahms, Johannes",
+        "events": 107,
+        "group": "brahms-lieder",
+        "id": "Brahms Marienlieder 1 Der englische Gruss"
+      },
+      {
+        "composer": "Brahms, Johannes",
+        "events": 46,
+        "group": "brahms-lieder",
+        "id": "Brahms Marienlieder 2 Marias Kirchgang"
+      },
+      {
+        "composer": "Brahms, Johannes",
+        "events": 70,
+        "group": "brahms-lieder",
+        "id": "Brahms Marienlieder 5 Ruf zur Maria"
+      },
+      {
+        "composer": "Brahms, Johannes",
+        "events": 27,
+        "group": "brahms-lieder",
+        "id": "Brahms Marienlieder 6 Magdalena"
+      },
+      {
+        "composer": "Brahms, Johannes",
+        "events": 40,
+        "group": "brahms-lieder",
+        "id": "Brahms Marienlieder 7 Marias Lob"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 77,
+        "group": "schubert-lieder",
+        "id": "Schubert Abschied"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 83,
+        "group": "schubert-lieder",
+        "id": "Schubert Am Meer"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 91,
+        "group": "schubert-lieder",
+        "id": "Schubert Das Fischerm\u00e4dchen"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 61,
+        "group": "schubert-lieder",
+        "id": "Schubert Das Rosenband D.280"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 20,
+        "group": "schubert-lieder",
+        "id": "Schubert Das Wandern"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 23,
+        "group": "schubert-lieder",
+        "id": "Schubert Der Atlas"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 26,
+        "group": "schubert-lieder",
+        "id": "Schubert Der Doppelg\u00e4nger"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 103,
+        "group": "schubert-lieder",
+        "id": "Schubert Die Sterne D.939"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 76,
+        "group": "schubert-lieder",
+        "id": "Schubert Die Taubenpost"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 59,
+        "group": "schubert-lieder",
+        "id": "Schubert Fr\u00fchlingssehnsucht"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 39,
+        "group": "schubert-lieder",
+        "id": "Schubert Ihr Bild"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 97,
+        "group": "schubert-lieder",
+        "id": "Schubert In der Ferne"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 87,
+        "group": "schubert-lieder",
+        "id": "Schubert Kriegers Ahnung"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 112,
+        "group": "schubert-lieder",
+        "id": "Schubert Pause"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 7,
+        "group": "schubert-lieder",
+        "id": "Schubert St\u00e4ndchen"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 79,
+        "group": "schubert-lieder",
+        "id": "Schubert Trockne Blumen"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 162,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 01 Gute Nacht"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 38,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 02 Die Wetterfahne"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 77,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 05 Der Lindenbaum"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 42,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 06 Wasserfluth"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 50,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 12 Einsamkeit"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 80,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 13 Die Post"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 40,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 14 Der greise Kopf"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 46,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 16 Letzte Hoffnung"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 79,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 17 Im Dorfe"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 121,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 20 Der Wegweiser"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 68,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 22 Muth"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 70,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 23 Die Nebensonnen"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 35,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 24 Der Leiermann"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 40,
+        "group": "schubert-lieder",
+        "id": "Schubert Wohin"
+      },
+      {
+        "composer": "Beethoven, Ludwig van",
+        "events": 20,
+        "group": "tavern",
+        "id": "Beethoven WoO 64 (Swiss)"
+      },
+      {
+        "composer": "Beethoven, Ludwig van",
+        "events": 344,
+        "group": "tavern",
+        "id": "Beethoven WoO 65 (Venni amore)"
+      },
+      {
+        "composer": "Beethoven, Ludwig van",
+        "events": 62,
+        "group": "tavern",
+        "id": "Beethoven WoO 70 (Nel cor)"
+      },
+      {
+        "composer": "Beethoven, Ludwig van",
+        "events": 76,
+        "group": "tavern",
+        "id": "Beethoven WoO 77 (Original)"
+      }
+    ],
+    "test": [
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 1,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 01"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 2,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 03"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 22,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 14"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 81,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 22"
+      },
+      {
+        "composer": "Bach, Johann Sebastian",
+        "events": 51,
+        "group": "bach-wtc",
+        "id": "Bach WTC I Prelude 23"
+      },
+      {
+        "composer": "Brahms, Johannes",
+        "events": 57,
+        "group": "brahms-lieder",
+        "id": "Brahms Marienlieder 3 Marias Wallfahrt"
+      },
+      {
+        "composer": "Brahms, Johannes",
+        "events": 84,
+        "group": "brahms-lieder",
+        "id": "Brahms Marienlieder 4 Der J\u00e4ger"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 128,
+        "group": "schubert-lieder",
+        "id": "Schubert Aufenthalt"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 81,
+        "group": "schubert-lieder",
+        "id": "Schubert Du bist die Ruh"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 89,
+        "group": "schubert-lieder",
+        "id": "Schubert Liebesbotschaft"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 106,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 04 Erstarrung"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 71,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 07 Auf dem Flusse"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 48,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 09 Irrlicht"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 59,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 10 Rast"
+      },
+      {
+        "composer": "Schubert, Franz",
+        "events": 128,
+        "group": "schubert-lieder",
+        "id": "Schubert Winterreise 21 Das Wirthshaus"
+      },
+      {
+        "composer": "Mozart, Wolfgang Amadeus",
+        "events": 138,
+        "group": "tavern",
+        "id": "Mozart K179 (Fischer Minuet)"
+      },
+      {
+        "composer": "Mozart, Wolfgang Amadeus",
+        "events": 181,
+        "group": "tavern",
+        "id": "Mozart K265 (Twinkle)"
+      },
+      {
+        "composer": "Mozart, Wolfgang Amadeus",
+        "events": 186,
+        "group": "tavern",
+        "id": "Mozart K573 (Duport Minuet)"
+      }
+    ]
+  }
+}

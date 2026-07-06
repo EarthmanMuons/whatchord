@@ -35,6 +35,28 @@ FIXTURE_SCHEMA = "whatkey-fixture/1"
 MANIFEST_SCHEMA = "whatkey-manifest/1"
 NOTE_NAME = re.compile(r"^([A-Ga-g])([#b]*)(-?\d)$")
 NOTE_BASE = {"C": 0, "D": 2, "E": 4, "F": 5, "G": 7, "A": 9, "B": 11}
+VERIFIED_WHEN_IN_ROME_GROUPS = {
+    "bach-wtc": {
+        "fixtureLicense": "CC BY-SA 4.0",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+    },
+    "brahms-lieder": {
+        "fixtureLicense": "CC BY-SA 4.0",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+    },
+    "schubert-lieder": {
+        "fixtureLicense": "CC BY-SA 4.0",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+    },
+    "tavern": {
+        "fixtureLicense": "CC BY-SA 4.0",
+        "scoreLicense": "CC BY-SA 4.0 (TAVERN)",
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome/TAVERN conversion)",
+    },
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -52,6 +74,14 @@ def parse_args() -> argparse.Namespace:
     wir.add_argument("--bench-root", type=Path, required=True)
     wir.add_argument("--groups", nargs="+")
     wir.add_argument("--max-pieces", type=int, default=0)
+    wir.add_argument(
+        "--allow-unverified-license",
+        action="store_true",
+        help=(
+            "Allow non-v1 or license-unverified When-in-Rome groups for local "
+            "build/ output."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -89,8 +119,10 @@ def main() -> int:
         "fixtures": [
             {
                 "id": fixture["id"],
+                "title": fixture["title"],
                 "file": f"{fixture['id'].split('/')[-1]}.json",
                 "events": len(fixture["events"]),
+                "provenance": fixture.get("provenance"),
             }
             for fixture in fixtures
         ],
@@ -153,6 +185,20 @@ def load_when_in_rome(args: argparse.Namespace) -> tuple[list[dict], dict]:
         if piece["in_common_subset"]
         and (not args.groups or piece["genre"] in args.groups)
     ]
+    unverified = sorted(
+        {
+            piece["genre"]
+            for piece in pieces
+            if piece["genre"] not in VERIFIED_WHEN_IN_ROME_GROUPS
+        }
+    )
+    if unverified and not args.allow_unverified_license:
+        raise RuntimeError(
+            "When-in-Rome groups are not license-verified for committed "
+            "WhatKey fixtures: "
+            + ", ".join(unverified)
+            + ". Use --allow-unverified-license only for local build/ output."
+        )
     if args.max_pieces:
         pieces = pieces[: args.max_pieces]
 
@@ -191,6 +237,7 @@ def load_when_in_rome(args: argparse.Namespace) -> tuple[list[dict], dict]:
                 "id": f"{args.set_name}/{piece['id'].replace('/', '-')}",
                 "title": piece["id"],
                 "labels": {"group": piece["genre"]},
+                "provenance": when_in_rome_provenance(piece),
                 "events": events,
             }
         )
@@ -203,12 +250,40 @@ def load_when_in_rome(args: argparse.Namespace) -> tuple[list[dict], dict]:
         "corpusCommit": git(
             bench_root / "corpus/When-in-Rome", "rev-parse", "HEAD"
         ),
-        "license": (
-            "UNVERIFIED: check the When-in-Rome sub-corpus license before "
-            "committing derived fixtures"
-        ),
+        "licenseVerified": not unverified,
+        "license": when_in_rome_license_summary(unverified),
+        "verifiedGroups": sorted(VERIFIED_WHEN_IN_ROME_GROUPS),
     }
     return fixtures, source_info
+
+
+def when_in_rome_provenance(piece: dict) -> dict:
+    license_info = VERIFIED_WHEN_IN_ROME_GROUPS.get(piece["genre"])
+    if license_info is None:
+        license_info = {
+            "fixtureLicense": "UNVERIFIED",
+            "scoreLicense": "UNVERIFIED",
+            "analysisLicense": "UNVERIFIED",
+        }
+    return {
+        "sourceCorpus": "When-in-Rome",
+        "group": piece["genre"],
+        "sourceUrl": piece["source_url"],
+        **license_info,
+    }
+
+
+def when_in_rome_license_summary(unverified: list[str]) -> str:
+    if unverified:
+        return (
+            "UNVERIFIED: check the When-in-Rome sub-corpus license before "
+            "committing derived fixtures"
+        )
+    return (
+        "Verified for WhatKey when-in-rome-v1 groups. Fixture artifacts are "
+        "derived from When-in-Rome analyses and carry CC BY-SA 4.0 provenance; "
+        "see research/whatkey/data/provenance/when-in-rome-v1.md."
+    )
 
 
 def event_dict(
