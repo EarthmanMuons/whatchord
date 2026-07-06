@@ -494,14 +494,14 @@ Questions to resolve before implementing any algorithm:
   noodles. These are also where the "no claim below the confidence floor"
   behavior gets tested: a modal vamp has no single right answer, and asserting
   one confidently is a worse outcome than staying quiet.
-- **Metrics.** Score more than final-key accuracy. Use the MIREX key-detection
-  task's weighting for near misses (exact 1.0, perfect fifth 0.5, relative
-  major/minor 0.3, parallel major/minor 0.2), plus time-aligned local-key
-  accuracy, modulation lag (events between an annotated key change and the
-  detector switching), stability (spurious switches per piece), and
-  time-to-first-claim (how many events before the detector commits at all). The
-  last three trade off against each other, which is exactly what the A/B
-  comparison needs to expose.
+- **Metrics.** Score more than final-key accuracy. Use the
+  [MIREX key-detection task's weighting](https://music-ir.org/mirex/wiki/2019:Audio_Key_Detection)
+  for near misses (exact 1.0, perfect fifth 0.5, relative major/minor 0.3,
+  parallel major/minor 0.2), plus time-aligned local-key accuracy, modulation
+  lag (events between an annotated key change and the detector switching),
+  stability (spurious switches per piece), and time-to-first-claim (how many
+  events before the detector commits at all). The last three trade off against
+  each other, which is exactly what the A/B comparison needs to expose.
 - **Spelling feedback loop (later).** Once a key is inferred with confidence, it
   could optionally drive `AnalysisContext` spelling (the thing the user sets
   manually today), closing the loop from detection back to presentation. This is
@@ -776,3 +776,10 @@ Ground-truth corpora:
   Real performed piano MIDI aligned to scores, with key-signature change
   annotations; the bridge from score-derived fixtures to realistic live input
   (see Research Framing).
+
+Evaluation:
+
+- [MIREX Audio Key Detection task](https://music-ir.org/mirex/wiki/2019:Audio_Key_Detection)
+  (music-ir.org wiki; the task definition is stable across years). Source of the
+  standard near-miss weighting for key evaluation: same 1.0, perfect fifth 0.5,
+  relative major/minor 0.3, parallel major/minor 0.2, other 0.0.

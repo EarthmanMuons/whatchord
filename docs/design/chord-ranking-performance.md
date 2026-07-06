@@ -424,8 +424,8 @@ toward more principled tie-breaking, not less.)
 Margin pruning had regressed three ranking golden cases. Before relying on
 "order is not a contract," we confirmed those specific cases were genuinely
 arbitrary rather than musically meaningful, using the evaluation process in
-`docs/research/chord-oracle-comparison.md` (cross-checking against `tonal` and
-the ChoCo priors).
+`research/chord-oracle-comparison.md` (cross-checking against `tonal` and the
+ChoCo priors).
 
 Each regressed case was the same shape: the #1 pick was **unchanged**, and the
 reorder was between alternatives at **identical scores** that are enharmonic

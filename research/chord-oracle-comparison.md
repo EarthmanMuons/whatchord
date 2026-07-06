@@ -7,7 +7,7 @@ goal is to find places where reasonable tools disagree, because those rows are
 good candidates for closer musical review.
 
 The comparison harness lives in
-[`tool/chord_oracle_compare.py`](../../tool/chord_oracle_compare.py).
+[`tool/chord_oracle_compare.py`](../tool/chord_oracle_compare.py).
 
 It compares WhatChord against optional third-party libraries:
 
