@@ -1739,7 +1739,10 @@ int? _preferFullyExplainedVoicing(
         fDropped,
         tonality,
       ) ||
-      _shouldNotPreferFullCoverageForLowerCostMinorNinth(explained, dropped)) {
+      _shouldNotPreferDecoratedReadingOverLowerCostNinthShell(
+        explained,
+        dropped,
+      )) {
     return null;
   }
   return aDropsTone ? 1 : -1;
@@ -1763,13 +1766,14 @@ bool _shouldNotPreferFullCoverage(
   return false;
 }
 
-bool _shouldNotPreferFullCoverageForLowerCostMinorNinth(
+bool _shouldNotPreferDecoratedReadingOverLowerCostNinthShell(
   ChordCandidate explained,
   ChordCandidate dropped,
 ) {
   return dropped.cost < explained.cost &&
-      _isMajorSeventhSplitNinth(explained.identity) &&
-      _isMinorSeventhNinthShell(dropped.identity);
+      _isDominantOrMinorSeventhNinthShell(dropped.identity) &&
+      (_isMajorSeventhSplitNinth(explained.identity) ||
+          _isUnusualSeventhMissingThird(explained.identity));
 }
 
 bool _isMajorSeventhSplitNinth(ChordIdentity id) {
@@ -1779,15 +1783,17 @@ bool _isMajorSeventhSplitNinth(ChordIdentity id) {
       id.extensions.contains(ChordExtension.sharp9);
 }
 
-bool _isMinorSeventhNinthShell(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.minor7 ||
+bool _isDominantOrMinorSeventhNinthShell(ChordIdentity id) {
+  if ((id.quality != ChordQualityToken.dominant7 &&
+          id.quality != ChordQualityToken.minor7) ||
       !id.extensions.contains(ChordExtension.nine)) {
     return false;
   }
 
   final roles = id.toneRolesByInterval.values;
   return roles.contains(ChordToneRole.root) &&
-      roles.contains(ChordToneRole.minor3) &&
+      (roles.contains(ChordToneRole.major3) ||
+          roles.contains(ChordToneRole.minor3)) &&
       roles.contains(ChordToneRole.flat7) &&
       roles.contains(ChordToneRole.nine);
 }
@@ -2023,12 +2029,16 @@ int? _preferNaturalExtensions(
       return null;
     }
     if (_shouldNotPreferFullCoverage(
-      preferred.identity,
-      other.identity,
-      fPreferred,
-      fOther,
-      tonality,
-    )) {
+          preferred.identity,
+          other.identity,
+          fPreferred,
+          fOther,
+          tonality,
+        ) ||
+        _shouldNotPreferDecoratedReadingOverLowerCostNinthShell(
+          preferred,
+          other,
+        )) {
       return null;
     }
     return natural;
@@ -2086,12 +2096,16 @@ int? _preferRootPosition(
   final fPreferred = fa.isRootPosition ? fa : fb;
   final fOther = fa.isRootPosition ? fb : fa;
   if (_shouldNotPreferFullCoverage(
-    preferred.identity,
-    other.identity,
-    fPreferred,
-    fOther,
-    tonality,
-  )) {
+        preferred.identity,
+        other.identity,
+        fPreferred,
+        fOther,
+        tonality,
+      ) ||
+      _shouldNotPreferDecoratedReadingOverLowerCostNinthShell(
+        preferred,
+        other,
+      )) {
     return null;
   }
   return fb.isRootPosition ? 1 : -1;
@@ -2111,12 +2125,16 @@ int? _preferConventionalInversion(
   final fPreferred = cmp < 0 ? fa : fb;
   final fOther = cmp < 0 ? fb : fa;
   if (_shouldNotPreferFullCoverage(
-    preferred.identity,
-    other.identity,
-    fPreferred,
-    fOther,
-    tonality,
-  )) {
+        preferred.identity,
+        other.identity,
+        fPreferred,
+        fOther,
+        tonality,
+      ) ||
+      _shouldNotPreferDecoratedReadingOverLowerCostNinthShell(
+        preferred,
+        other,
+      )) {
     return null;
   }
   return cmp;

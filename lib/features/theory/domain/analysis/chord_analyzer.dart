@@ -129,16 +129,18 @@ abstract final class ChordAnalyzer {
   static const _elevenOverMajorThirdSurcharge = 0.5; // avoid-tone clash
   static const _splitFourthSurcharge = 0.6; // natural 4 and #11 at once
   static const _splitSecondSurcharge = 0.4; // natural 2 and b9/#9 at once
+  static const _splitSixthSurcharge = 0.4; // natural 6/13 and b13 at once
   static const _sharpElevenEmptyFifthSurcharge = 0.75; // #11 with no 5th tone
   static const _flatThirteenEmptyFifthSurcharge = 0.5; // b13 with no 5th
   static const _sixChordNoFifthSurcharge = 0.45; // bare R-3-6 set as a 6th
   static const _flatNineMajorHostSurcharge = 0.3; // b9 on a major 6th/7th
+  static const _minorMajorFlatNineElevenSurcharge = 0.9;
   static const _stackedChromaticAddSurcharge = 0.15; // addb9/add#9 in a pile
   static const _upperTriadNinthBassCost = 0.15; // D/E idiom: add9 as pedal
 
   // Missing essential tones (candidate generation allows at most one).
   static const _missingThirdCost = 1.7;
-  static const _missingSusToneCost = 1.1;
+  static const _missingSusToneCost = 1.4;
   static const _missingAlteredFifthCost = 0.9;
   static const _missingSeventhCost = 0.75;
   static const _missingFifthCost = 0.5;
@@ -804,6 +806,9 @@ abstract final class ChordAnalyzer {
         _hasNaturalSecondRole(roles)) {
       price += _splitSecondSurcharge;
     }
+    if (role == ChordToneRole.flat13 && _hasNaturalSixthRole(roles)) {
+      price += _splitSixthSurcharge;
+    }
     // A b9 stacked among other colors on a major sixth or seventh chord is
     // the alt sound without its dominant context; musicians do not write
     // F#6(b9,#11). As the single color it stays the harmonic-minor gesture
@@ -818,6 +823,12 @@ abstract final class ChordAnalyzer {
           _ => false,
         }) {
       price += _flatNineMajorHostSurcharge;
+    }
+    if (role == ChordToneRole.flat9 &&
+        quality == ChordQualityToken.minorMajor7 &&
+        roles[perfectFifthInterval] != ChordToneRole.perfect5 &&
+        roles.containsValue(ChordToneRole.eleven)) {
+      price += _minorMajorFlatNineElevenSurcharge;
     }
     // A lone chromatic add is the Phrygian gesture (Cmaddb9); stacked among
     // other colors it reads as alt tension the name fails to integrate
@@ -877,6 +888,12 @@ abstract final class ChordAnalyzer {
     return roles.containsValue(ChordToneRole.sus2) ||
         roles.containsValue(ChordToneRole.nine) ||
         roles.containsValue(ChordToneRole.add9);
+  }
+
+  static bool _hasNaturalSixthRole(Map<int, ChordToneRole> roles) {
+    return roles.containsValue(ChordToneRole.sixth) ||
+        roles.containsValue(ChordToneRole.thirteen) ||
+        roles.containsValue(ChordToneRole.add13);
   }
 
   /// True when a seventh-family name is missing its seventh while promoting
