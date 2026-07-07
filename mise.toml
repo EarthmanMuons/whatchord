@@ -154,6 +154,12 @@ for f in build/whatkey-baselines/when-in-rome-v1-development/*.claims.json; do
 done
 """
 
+[tasks."research:whatkey-paper"]
+description = "Compile the WhatKey paper (research/whatkey/paper/main.pdf)"
+run = """
+typst compile research/whatkey/paper/main.typ
+"""
+
 [tasks."symbols:install"]
 description = "Install Python dependencies for regenerating WhatChord Symbols fonts"
 run = "uv pip install -r tool/whatchord_symbols/requirements.txt"
