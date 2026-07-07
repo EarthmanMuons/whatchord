@@ -54,6 +54,12 @@ class ProgressionKeyDetector implements KeyDetector {
 
   /// Score half-life; null disables decay.
   final Duration? decayHalfLife;
+
+  /// Event-count half-life: when set, scores decay by a fixed factor per
+  /// event instead of on elapsed wall-clock time, normalizing the memory
+  /// dial across corpora with different event rates (log entry
+  /// 2026-07-07-15).
+  final double? decayHalfLifeEvents;
   final int minEvents;
   final double marginFloor;
 
@@ -77,6 +83,7 @@ class ProgressionKeyDetector implements KeyDetector {
     this.confidenceWeighted = true,
     this.durationWeighted = true,
     this.decayHalfLife = const Duration(seconds: 30),
+    this.decayHalfLifeEvents,
     this.minEvents = 3,
     this.marginFloor = 0.5,
   });
@@ -93,6 +100,7 @@ class ProgressionKeyDetector implements KeyDetector {
       'confidenceWeighted=$confidenceWeighted '
       'durationWeighted=$durationWeighted '
       'decayHalfLifeMs=${decayHalfLife?.inMilliseconds} '
+      'decayHalfLifeEvents=$decayHalfLifeEvents '
       'minEvents=$minEvents marginFloor=$marginFloor';
 
   @override
@@ -236,13 +244,22 @@ class ProgressionKeyDetector implements KeyDetector {
   }
 
   void _decayTo(DateTime timestamp) {
-    final halfLife = decayHalfLife;
     final last = _lastTimestamp;
     _lastTimestamp = timestamp;
-    if (halfLife == null || last == null) return;
+    if (last == null) return;
+    final eventHalfLife = decayHalfLifeEvents;
+    if (eventHalfLife != null) {
+      _applyDecay(math.pow(0.5, 1 / eventHalfLife) as double);
+      return;
+    }
+    final halfLife = decayHalfLife;
+    if (halfLife == null) return;
     final elapsedMs = timestamp.difference(last).inMilliseconds;
     if (elapsedMs <= 0) return;
-    final factor = math.pow(0.5, elapsedMs / halfLife.inMilliseconds) as double;
+    _applyDecay(math.pow(0.5, elapsedMs / halfLife.inMilliseconds) as double);
+  }
+
+  void _applyDecay(double factor) {
     for (var k = 0; k < 24; k++) {
       _scores[k] *= factor;
     }

@@ -52,6 +52,7 @@ class HybridKeyDetector implements KeyDetector {
     KeyProfilePair profiles = KeyProfilePair.albrechtShanahan,
     bool durationWeighted = true,
     Duration? decayHalfLife = const Duration(seconds: 30),
+    double? decayHalfLifeEvents,
     bool confidenceWeighted = true,
     // Selected on the development split: the blend sweep plateaus at
     // 0.1-0.15 and the paired test against the profile floor is decisive
@@ -66,12 +67,14 @@ class HybridKeyDetector implements KeyDetector {
          profiles: profiles,
          durationWeighted: durationWeighted,
          decayHalfLife: decayHalfLife,
+         decayHalfLifeEvents: decayHalfLifeEvents,
          minEvents: 1,
          marginFloor: 0,
        ),
        _evidence = WeightedEvidenceKeyDetector(
          durationWeighted: durationWeighted,
          decayHalfLife: decayHalfLife,
+         decayHalfLifeEvents: decayHalfLifeEvents,
          confidenceWeighted: confidenceWeighted,
          minEvents: 1,
          marginFloor: 0,
@@ -79,6 +82,7 @@ class HybridKeyDetector implements KeyDetector {
        _progression = ProgressionKeyDetector(
          durationWeighted: durationWeighted,
          decayHalfLife: decayHalfLife,
+         decayHalfLifeEvents: decayHalfLifeEvents,
          confidenceWeighted: confidenceWeighted,
          minEvents: 1,
          marginFloor: 0,

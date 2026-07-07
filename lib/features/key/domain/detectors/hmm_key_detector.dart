@@ -59,6 +59,7 @@ class HmmKeyDetector implements KeyDetector {
     Duration? decayHalfLife = const Duration(
       seconds: defaultEmissionHalfLifeSeconds,
     ),
+    double? decayHalfLifeEvents,
     bool confidenceWeighted = true,
     double functionalBlend = HybridKeyDetector.defaultFunctionalBlend,
     double progressionBlend = HybridKeyDetector.defaultProgressionBlend,
@@ -73,6 +74,7 @@ class HmmKeyDetector implements KeyDetector {
          profiles: profiles,
          durationWeighted: durationWeighted,
          decayHalfLife: decayHalfLife,
+         decayHalfLifeEvents: decayHalfLifeEvents,
          confidenceWeighted: confidenceWeighted,
          functionalBlend: functionalBlend,
          progressionBlend: progressionBlend,

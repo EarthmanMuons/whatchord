@@ -15,6 +15,7 @@
 //     [--progression-blend X] \
 //     [--hysteresis N] [--self-transition X] [--emission-temperature X] \
 //     [--weighting duration|flat] [--decay-half-life-seconds N] \
+//     [--decay-half-life-events N] \
 //     [--min-events N] [--margin-floor X] [--out <dir>] \
 //     [--claims-file <claims.json>] [--restrict-to <claims.json>] \
 //     [--sweep-margin-floors 0,0.02,0.05,...]
@@ -438,6 +439,7 @@ class _Options {
   final KeyProfilePair profiles;
   final bool durationWeighted;
   final int? decayHalfLifeSeconds;
+  final double? decayHalfLifeEvents;
   final int minEvents;
   final double? marginFloor;
   final String? outDir;
@@ -459,6 +461,7 @@ class _Options {
     required this.profiles,
     required this.durationWeighted,
     required this.decayHalfLifeSeconds,
+    required this.decayHalfLifeEvents,
     required this.minEvents,
     required this.marginFloor,
     required this.outDir,
@@ -479,12 +482,16 @@ class _Options {
         (detectorName == 'hmm'
             ? HmmKeyDetector.defaultEmissionHalfLifeSeconds
             : 30);
-    final decay = seconds == 0 ? null : Duration(seconds: seconds);
+    // Event-count decay replaces wall-clock decay when set.
+    final decay = decayHalfLifeEvents != null || seconds == 0
+        ? null
+        : Duration(seconds: seconds);
     return switch (detectorName) {
       'profile' => ProfileCorrelationKeyDetector(
         profiles: profiles,
         durationWeighted: durationWeighted,
         decayHalfLife: decay,
+        decayHalfLifeEvents: decayHalfLifeEvents,
         minEvents: minEvents,
         marginFloor: marginFloorOverride ?? marginFloor ?? 0.05,
       ),
@@ -492,6 +499,7 @@ class _Options {
         confidenceWeighted: confidenceWeighted,
         durationWeighted: durationWeighted,
         decayHalfLife: decay,
+        decayHalfLifeEvents: decayHalfLifeEvents,
         minEvents: minEvents,
         marginFloor: marginFloorOverride ?? marginFloor ?? 0.5,
       ),
@@ -499,6 +507,7 @@ class _Options {
         confidenceWeighted: confidenceWeighted,
         durationWeighted: durationWeighted,
         decayHalfLife: decay,
+        decayHalfLifeEvents: decayHalfLifeEvents,
         minEvents: minEvents,
         marginFloor: marginFloorOverride ?? marginFloor ?? 0.5,
       ),
@@ -506,6 +515,7 @@ class _Options {
         profiles: profiles,
         durationWeighted: durationWeighted,
         decayHalfLife: decay,
+        decayHalfLifeEvents: decayHalfLifeEvents,
         confidenceWeighted: confidenceWeighted,
         functionalBlend: functionalBlend,
         progressionBlend: progressionBlend,
@@ -521,6 +531,7 @@ class _Options {
         profiles: profiles,
         durationWeighted: durationWeighted,
         decayHalfLife: decay,
+        decayHalfLifeEvents: decayHalfLifeEvents,
         confidenceWeighted: confidenceWeighted,
         functionalBlend: functionalBlend,
         progressionBlend: progressionBlend,
@@ -591,6 +602,10 @@ class _Options {
       decayHalfLifeSeconds: switch (values.remove('decay-half-life-seconds')) {
         null => null,
         final raw => int.parse(raw),
+      },
+      decayHalfLifeEvents: switch (values.remove('decay-half-life-events')) {
+        null => null,
+        final raw => double.parse(raw),
       },
       minEvents: int.parse(values.remove('min-events') ?? '3'),
       marginFloor: switch (values.remove('margin-floor')) {
