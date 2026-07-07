@@ -253,6 +253,55 @@ void main() {
       expect(() => empty.framesFor(fixture), throwsStateError);
     });
 
+    test('evaluate mask restricts coverage and accuracy, not streaming', () {
+      final fixture = _fixture([
+        for (var i = 0; i < 4; i++) _eventJson(i, localKey: 'C:maj'),
+      ]);
+      final frames = [
+        _claim('C:maj'),
+        _claim('G:maj'),
+        _abstain,
+        _claim('C:maj'),
+      ];
+      final unrestricted = PieceScore.compute(fixture, frames);
+      final restricted = PieceScore.compute(
+        fixture,
+        frames,
+        evaluateMask: const [true, false, false, true],
+      );
+
+      expect(restricted.events, 2);
+      expect(restricted.claimed, 2);
+      expect(restricted.coverage, 1.0);
+      // The wrong G claim at index 1 is masked out of the accuracy pool.
+      expect(restricted.exactOnClaimed, 1.0);
+      expect(unrestricted.exactOnClaimed, closeTo(2 / 3, 1e-9));
+      // Streaming metrics are unchanged by the mask.
+      expect(restricted.switches, unrestricted.switches);
+      expect(restricted.timeToFirstClaim, unrestricted.timeToFirstClaim);
+    });
+
+    test('applyMarginFloor abstains claims below the post-hoc floor', () {
+      KeyEstimateFrame withMargin(double top, double second) {
+        final first = KeyEstimate(
+          tonality: parseTonality('C:maj'),
+          confidence: top,
+        );
+        final ranked = [
+          first,
+          KeyEstimate(tonality: parseTonality('G:maj'), confidence: second),
+        ];
+        return KeyEstimateFrame(ranked: ranked, claim: first);
+      }
+
+      final frames = [withMargin(0.9, 0.8), withMargin(0.9, 0.5), _abstain];
+      final floored = applyMarginFloor(frames, 0.2);
+      expect(floored[0].isAbstention, isTrue);
+      expect(floored[0].ranked, isNotEmpty);
+      expect(floored[1].isAbstention, isFalse);
+      expect(floored[2].isAbstention, isTrue);
+    });
+
     test('global key scores final and duration-weighted majority claims', () {
       final fixture = _fixture([
         _eventJson(0, localKey: 'C:maj', durationMs: 4000),

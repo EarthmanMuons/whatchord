@@ -78,13 +78,23 @@ class PieceScore {
 
   double get coverage => events == 0 ? 0 : claimed / events;
 
+  /// Scores [frames] against the fixture's labels.
+  ///
+  /// With [evaluateMask], coverage, accuracy, and ambiguous-event metrics are
+  /// computed over the masked-in events only (the matched-coverage
+  /// comparison); streaming metrics (time-to-first-claim, switches, lag,
+  /// global key) always use the full stream, since restricting them has no
+  /// meaning.
   static PieceScore compute(
     LabeledFixture fixture,
-    List<KeyEstimateFrame> frames,
-  ) {
+    List<KeyEstimateFrame> frames, {
+    List<bool>? evaluateMask,
+  }) {
     assert(frames.length == fixture.events.length);
+    assert(evaluateMask == null || evaluateMask.length == frames.length);
     final labels = fixture.labels;
 
+    var evaluated = 0;
     var claimed = 0;
     var labeledClaimed = 0;
     var exactSum = 0.0;
@@ -97,6 +107,13 @@ class PieceScore {
     for (var i = 0; i < frames.length; i++) {
       final claim = frames[i].claim;
       final truth = labels[i].localKey;
+      if (claim != null) {
+        timeToFirstClaim ??= i;
+        claims.add((index: i, key: KeyLabel.of(claim.tonality)));
+      }
+
+      if (evaluateMask != null && !evaluateMask[i]) continue;
+      evaluated += 1;
       if (labels[i].localKey == null && labels[i].acceptableKeys.isNotEmpty) {
         ambiguousEvents += 1;
         final ok =
@@ -108,10 +125,8 @@ class PieceScore {
       }
       if (claim == null) continue;
       claimed += 1;
-      timeToFirstClaim ??= i;
-      final claimKey = KeyLabel.of(claim.tonality);
-      claims.add((index: i, key: claimKey));
       if (truth != null) {
+        final claimKey = KeyLabel.of(claim.tonality);
         labeledClaimed += 1;
         exactSum += claimKey.matches(truth) ? 1 : 0;
         mirexSum += mirexWeight(claimKey, truth);
@@ -191,7 +206,7 @@ class PieceScore {
     return PieceScore._(
       id: fixture.id,
       title: fixture.title,
-      events: frames.length,
+      events: evaluated,
       claimed: claimed,
       labeledClaimed: labeledClaimed,
       exactOnClaimed: labeledClaimed == 0 ? 0 : exactSum / labeledClaimed,
@@ -309,3 +324,22 @@ double _percentile(List<double> sorted, double p) {
   final rank = (p * sorted.length).ceil().clamp(1, sorted.length);
   return sorted[rank - 1];
 }
+
+/// Re-applies a margin floor to frames produced with `marginFloor: 0`.
+///
+/// The margin floor is a post-hoc threshold: claims never feed back into the
+/// detector's histogram, so one floor-zero pass plus this function yields the
+/// whole coverage-accuracy curve without re-running the detector.
+List<KeyEstimateFrame> applyMarginFloor(
+  List<KeyEstimateFrame> frames,
+  double floor,
+) => [
+  for (final frame in frames)
+    frame.claim != null && _margin(frame) < floor
+        ? KeyEstimateFrame.abstain(frame.ranked)
+        : frame,
+];
+
+double _margin(KeyEstimateFrame frame) => frame.ranked.length < 2
+    ? double.infinity
+    : frame.ranked[0].confidence - frame.ranked[1].confidence;
