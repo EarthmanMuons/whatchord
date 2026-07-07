@@ -1,0 +1,1395 @@
+{
+  "counts": {
+    "development": {
+      "byComposer": {
+        "Carole King": 7,
+        "Queen": 20,
+        "The Beatles": 138,
+        "Zweieck": 18
+      },
+      "events": 15497,
+      "pieces": 183
+    },
+    "test": {
+      "byComposer": {
+        "The Beatles": 41
+      },
+      "events": 3565,
+      "pieces": 41
+    },
+    "total": {
+      "byComposer": {
+        "Carole King": 7,
+        "Queen": 20,
+        "The Beatles": 179,
+        "Zweieck": 18
+      },
+      "events": 19062,
+      "pieces": 224
+    }
+  },
+  "frozenAt": "2026-07-07",
+  "method": {
+    "seed": "whatkey-isophonics-nc-v1-split-2026-07-07",
+    "selection": "Piece folders ranked by SHA-256 of seed plus folder within each composer; the top testRatio share per composer is held out. Every performance of a piece folder lands on one side.",
+    "testRatio": 0.2
+  },
+  "schema": "whatkey-split/1",
+  "set": "isophonics-nc-v1",
+  "source": {
+    "chocoCommit": "5fe168fd55be5c84512abcfbc4e6f1b1f8f0092a",
+    "fixtureManifest": "build/whatkey-fixtures/isophonics-nc-v1/manifest.json",
+    "license": "GATED: Isophonics reference annotations are research-distributed without an explicit redistribution license; local uncommitted experiments only (research/whatkey/data/NOTICE.md)",
+    "type": "isophonics-choco"
+  },
+  "splits": {
+    "development": [
+      {
+        "composer": "Carole King",
+        "events": 89,
+        "folder": "Carole King/Carole King",
+        "id": "Carole King/Carole King/Beautiful"
+      },
+      {
+        "composer": "Carole King",
+        "events": 100,
+        "folder": "Carole King/Carole King",
+        "id": "Carole King/Carole King/Home Again"
+      },
+      {
+        "composer": "Carole King",
+        "events": 104,
+        "folder": "Carole King/Carole King",
+        "id": "Carole King/Carole King/I Feel The Earth Move"
+      },
+      {
+        "composer": "Carole King",
+        "events": 99,
+        "folder": "Carole King/Carole King",
+        "id": "Carole King/Carole King/It's Too Late"
+      },
+      {
+        "composer": "Carole King",
+        "events": 142,
+        "folder": "Carole King/Carole King",
+        "id": "Carole King/Carole King/So Far Away"
+      },
+      {
+        "composer": "Carole King",
+        "events": 88,
+        "folder": "Carole King/Carole King",
+        "id": "Carole King/Carole King/Way Over Yonder"
+      },
+      {
+        "composer": "Carole King",
+        "events": 122,
+        "folder": "Carole King/Carole King",
+        "id": "Carole King/Carole King/You've Got A Friend"
+      },
+      {
+        "composer": "Queen",
+        "events": 100,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/Another One Bites The Dust"
+      },
+      {
+        "composer": "Queen",
+        "events": 103,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/Bicycle Race"
+      },
+      {
+        "composer": "Queen",
+        "events": 235,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/Bohemian Rhapsody"
+      },
+      {
+        "composer": "Queen",
+        "events": 92,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/Crazy Little Thing Called Love"
+      },
+      {
+        "composer": "Queen",
+        "events": 130,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/Don't Stop Me Now"
+      },
+      {
+        "composer": "Queen",
+        "events": 72,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/Fat Bottomed Girls"
+      },
+      {
+        "composer": "Queen",
+        "events": 143,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/Good Old-Fashioned Lover Boy"
+      },
+      {
+        "composer": "Queen",
+        "events": 129,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/Play The Game"
+      },
+      {
+        "composer": "Queen",
+        "events": 138,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/Save Me"
+      },
+      {
+        "composer": "Queen",
+        "events": 86,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/Seven Seas Of Rhye"
+      },
+      {
+        "composer": "Queen",
+        "events": 162,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/Somebody To Love"
+      },
+      {
+        "composer": "Queen",
+        "events": 104,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/We Are The Champions"
+      },
+      {
+        "composer": "Queen",
+        "events": 11,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/We Will Rock You"
+      },
+      {
+        "composer": "Queen",
+        "events": 100,
+        "folder": "Queen/Greatest Hits I",
+        "id": "Queen/Greatest Hits I/You're My Best Friend"
+      },
+      {
+        "composer": "Queen",
+        "events": 73,
+        "folder": "Queen/Greatest Hits II",
+        "id": "Queen/Greatest Hits II/A Kind Of Magic"
+      },
+      {
+        "composer": "Queen",
+        "events": 137,
+        "folder": "Queen/Greatest Hits II",
+        "id": "Queen/Greatest Hits II/Friends Will Be Friends"
+      },
+      {
+        "composer": "Queen",
+        "events": 193,
+        "folder": "Queen/Greatest Hits II",
+        "id": "Queen/Greatest Hits II/Hammer To Fall"
+      },
+      {
+        "composer": "Queen",
+        "events": 165,
+        "folder": "Queen/Greatest Hits II",
+        "id": "Queen/Greatest Hits II/I Want It All"
+      },
+      {
+        "composer": "Queen",
+        "events": 74,
+        "folder": "Queen/Greatest Hits II",
+        "id": "Queen/Greatest Hits II/I Want To Break Free"
+      },
+      {
+        "composer": "Queen",
+        "events": 93,
+        "folder": "Queen/Greatest Hits II",
+        "id": "Queen/Greatest Hits II/Who Wants To Live Forever"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 99,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/A Hard Day's Night"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 58,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/And I Love Her"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 76,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/Any Time At All"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 63,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/Can't Buy Me Love"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 135,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/I Should Have Known Better"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 66,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/I'll Be Back"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 40,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/I'll Cry Instead"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 106,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/I'm Happy Just To Dance With You"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 78,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/If I Fell"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 96,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/Tell Me Why"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 96,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/Things We Said Today"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 56,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/When I Get Home"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 57,
+        "folder": "The Beatles/A Hard Day's Night",
+        "id": "The Beatles/A Hard Day's Night/You Can't Do That"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 47,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Because"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 44,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Carry That Weight"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 33,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Come Together"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 31,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Golden Slumbers"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 29,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Her Majesty"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 129,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Here Comes The Sun"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 260,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/I Want You"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 215,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Maxwell's Silver Hammer"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 33,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Mean Mr Mustard"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 98,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Octopus's Garden"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 66,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Oh! Darling"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 70,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Polythene Pam"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 58,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/She Came In Through The Bathroom Window"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 97,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Something"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 39,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/Sun King"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 56,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/The End"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 125,
+        "folder": "The Beatles/Abbey Road",
+        "id": "The Beatles/Abbey Road/You Never Give Me Your Money"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 82,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/Baby's In Black"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 100,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/Eight Days a Week"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 95,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/Every Little Thing"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 56,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/Everybody's Trying to Be My Baby"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 63,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/Honey Don't"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 88,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/I Don't Want to Spoil the Party"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 76,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/I'll Follow the Sun"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 114,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/I'm a Loser"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 60,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/Kansas City- Hey, Hey, Hey, Hey"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 98,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/Mr. Moonlight"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 56,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/No Reply"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 54,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/Rock and Roll Music"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 69,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/What You're Doing"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 100,
+        "folder": "The Beatles/Beatles for Sale",
+        "id": "The Beatles/Beatles for Sale/Words of Love"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 63,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/Act Naturally"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 79,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/Another Girl"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 56,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/Dizzy Miss Lizzy"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 57,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/Help!"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 104,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/I Need You"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 63,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/I've Just Seen a Face"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 61,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/It's Only Love"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 106,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/Tell Me What You See"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 104,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/The Night Before"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 51,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/Ticket To Ride"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 93,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/Yesterday"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 86,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/You Like Me Too Much"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 75,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/You're Going To Lose That Girl"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 106,
+        "folder": "The Beatles/Help!",
+        "id": "The Beatles/Help!/You've Got To Hide Your Love Away"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 63,
+        "folder": "The Beatles/Let It Be",
+        "id": "The Beatles/Let It Be/Across the Universe"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 40,
+        "folder": "The Beatles/Let It Be",
+        "id": "The Beatles/Let It Be/Dig It"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 81,
+        "folder": "The Beatles/Let It Be",
+        "id": "The Beatles/Let It Be/Dig a Pony"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 60,
+        "folder": "The Beatles/Let It Be",
+        "id": "The Beatles/Let It Be/For You Blue"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 80,
+        "folder": "The Beatles/Let It Be",
+        "id": "The Beatles/Let It Be/Get Back"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 79,
+        "folder": "The Beatles/Let It Be",
+        "id": "The Beatles/Let It Be/I Me Mine"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 148,
+        "folder": "The Beatles/Let It Be",
+        "id": "The Beatles/Let It Be/I've Got A Feeling"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 159,
+        "folder": "The Beatles/Let It Be",
+        "id": "The Beatles/Let It Be/Let It Be"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 12,
+        "folder": "The Beatles/Let It Be",
+        "id": "The Beatles/Let It Be/Maggie Mae"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 55,
+        "folder": "The Beatles/Let It Be",
+        "id": "The Beatles/Let It Be/One After 909"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 95,
+        "folder": "The Beatles/Let It Be",
+        "id": "The Beatles/Let It Be/The Long and Winding Road"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 89,
+        "folder": "The Beatles/Let It Be",
+        "id": "The Beatles/Let It Be/Two of Us"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 58,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/A Taste Of Honey"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 72,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/Anna (Go To Him)"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 95,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/Ask Me Why"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 54,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/Baby It's You"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 50,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/Boys"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 40,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/Chains"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 112,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/Do You Want To Know A Secret"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 60,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/I Saw Her Standing There"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 71,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/Love Me Do"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 44,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/Misery"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 76,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/P. S. I Love You"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 77,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/Please Please Me"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 60,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/There's A Place"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 113,
+        "folder": "The Beatles/Please Please Me",
+        "id": "The Beatles/Please Please Me/Twist And Shout"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 41,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/And Your Bird Can Sing"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 31,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/Doctor Robert"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 53,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/Eleanor Rigby"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 66,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/For No One"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 57,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/Good Day Sunshine"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 79,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/Got To Get You Into My Life"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 96,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/Here, There And Everywhere"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 65,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/I Want To Tell You"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 82,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/I'm Only Sleeping"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 16,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/Love You To"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 92,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/She Said She Said"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 41,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/Taxman"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 39,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/Tomorrow Never Knows"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 105,
+        "folder": "The Beatles/Revolver",
+        "id": "The Beatles/Revolver/Yellow Submarine"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 80,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/Drive My Car"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 91,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/Girl"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 133,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/I'm Looking Through You"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 34,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/If I Needed Someone"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 78,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/In My Life"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 92,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/Michelle"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 43,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/Norwegian Wood (This Bird Has Flown)"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 72,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/Nowhere Man"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 57,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/Run For Your Life"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 63,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/The Word"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 61,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/Think For Yourself"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 111,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/Wait"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 59,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/What Goes On"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 92,
+        "folder": "The Beatles/Rubber Soul",
+        "id": "The Beatles/Rubber Soul/You Won't See Me"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 52,
+        "folder": "The Beatles/The Beatles CD2",
+        "id": "The Beatles/The Beatles CD2/Birthday"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 98,
+        "folder": "The Beatles/The Beatles CD2",
+        "id": "The Beatles/The Beatles CD2/Cry Baby Cry"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 102,
+        "folder": "The Beatles/The Beatles CD2",
+        "id": "The Beatles/The Beatles CD2/Everybody's Got Something To Hide Except Me and My Monkey"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 101,
+        "folder": "The Beatles/The Beatles CD2",
+        "id": "The Beatles/The Beatles CD2/Good Night"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 43,
+        "folder": "The Beatles/The Beatles CD2",
+        "id": "The Beatles/The Beatles CD2/Helter Skelter"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 93,
+        "folder": "The Beatles/The Beatles CD2",
+        "id": "The Beatles/The Beatles CD2/Honey Pie"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 79,
+        "folder": "The Beatles/The Beatles CD2",
+        "id": "The Beatles/The Beatles CD2/Long Long Long"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 118,
+        "folder": "The Beatles/The Beatles CD2",
+        "id": "The Beatles/The Beatles CD2/Mother Nature's Son"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 85,
+        "folder": "The Beatles/The Beatles CD2",
+        "id": "The Beatles/The Beatles CD2/Revolution 1"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 76,
+        "folder": "The Beatles/The Beatles CD2",
+        "id": "The Beatles/The Beatles CD2/Savoy Truffle"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 116,
+        "folder": "The Beatles/The Beatles CD2",
+        "id": "The Beatles/The Beatles CD2/Sexy Sadie"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 82,
+        "folder": "The Beatles/The Beatles CD2",
+        "id": "The Beatles/The Beatles CD2/Yer Blues"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 43,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/All I've Got To Do"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 69,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/All My Loving"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 89,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/Devil In Her Heart"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 84,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/Don't Bother Me"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 83,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/Hold Me Tight"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 29,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/I Wanna Be Your Man"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 68,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/It Won't Be Long"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 64,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/Little Child"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 91,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/Money"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 64,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/Not A Second Time"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 39,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/Please Mister Postman"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 71,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/Roll Over Beethoven"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 91,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/Till There Was You"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 58,
+        "folder": "The Beatles/With the Beatles",
+        "id": "The Beatles/With the Beatles/You Really Got A Hold On Me"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 101,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Akne"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 87,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Andersrum"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 63,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Blass"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 150,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Duell"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 182,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Erbauliche Gedanken Eines Tobackrauchers"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 73,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Es Wird Alles Wieder Gut, Herr Professor"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 88,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Ich Kann Heute Nicht"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 110,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Jakob Und Marie"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 122,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Liebesleid"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 135,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Mr Morgan"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 71,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Paparazzi"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 114,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Rawhide"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 50,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Santa Donna Lucia Mobile"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 52,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/She"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 52,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Spiel Mir Eine Alte Melodie"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 124,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Tigerfest"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 145,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Zu Leise F\u00fcr Mich"
+      },
+      {
+        "composer": "Zweieck",
+        "events": 163,
+        "folder": "Zweieck/Zwielicht",
+        "id": "Zweieck/Zwielicht/Zuhause"
+      }
+    ],
+    "test": [
+      {
+        "composer": "The Beatles",
+        "events": 137,
+        "folder": "The Beatles/Magical Mystery Tour",
+        "id": "The Beatles/Magical Mystery Tour/All You Need Is Love"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 79,
+        "folder": "The Beatles/Magical Mystery Tour",
+        "id": "The Beatles/Magical Mystery Tour/Baby You're A Rich Man"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 21,
+        "folder": "The Beatles/Magical Mystery Tour",
+        "id": "The Beatles/Magical Mystery Tour/Blue Jay Way"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 24,
+        "folder": "The Beatles/Magical Mystery Tour",
+        "id": "The Beatles/Magical Mystery Tour/Flying"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 103,
+        "folder": "The Beatles/Magical Mystery Tour",
+        "id": "The Beatles/Magical Mystery Tour/Hello Goodbye"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 120,
+        "folder": "The Beatles/Magical Mystery Tour",
+        "id": "The Beatles/Magical Mystery Tour/I Am The Walrus"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 72,
+        "folder": "The Beatles/Magical Mystery Tour",
+        "id": "The Beatles/Magical Mystery Tour/Magical Mystery Tour"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 140,
+        "folder": "The Beatles/Magical Mystery Tour",
+        "id": "The Beatles/Magical Mystery Tour/Penny Lane"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 110,
+        "folder": "The Beatles/Magical Mystery Tour",
+        "id": "The Beatles/Magical Mystery Tour/Strawberry Fields Forever"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 114,
+        "folder": "The Beatles/Magical Mystery Tour",
+        "id": "The Beatles/Magical Mystery Tour/The Fool On The Hill"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 72,
+        "folder": "The Beatles/Magical Mystery Tour",
+        "id": "The Beatles/Magical Mystery Tour/Your Mother Should Know"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 113,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/A Day In The Life"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 113,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Being For The Benefit Of Mr. Kite!"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 97,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Fixing A Hole"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 98,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Getting Better"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 135,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Good Morning Good Morning"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 88,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Lovely Rita"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 117,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Lucy In The Sky With Diamonds"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 57,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Sgt. Pepper's Lonely Hearts Club Band"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 38,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Sgt. Pepper's Lonely Hearts Club Band (Reprise)"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 73,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/She's Leaving Home"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 75,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/When I'm Sixty-Four"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 98,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/With A Little Help From My Friends"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 14,
+        "folder": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band",
+        "id": "The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Within You Without You"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 96,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Back in the USSR"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 128,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Black Bird"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 129,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Dear Prudence"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 41,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Don't Pass Me By"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 66,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Glass Onion"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 74,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Happiness is a Warm Gun"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 81,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/I Will"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 50,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/I'm So Tired"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 85,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Julia"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 87,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Martha My Dear"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 102,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Ob-La-Di, Ob-La-Da"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 91,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Piggies"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 95,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Rocky Raccoon"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 151,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/The Continuing Story of Bungalow Bill"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 140,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/While My Guitar Gently Weeps"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 19,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Why Don't We Do It In The Road"
+      },
+      {
+        "composer": "The Beatles",
+        "events": 22,
+        "folder": "The Beatles/The Beatles CD1",
+        "id": "The Beatles/The Beatles CD1/Wild Honey Pie"
+      }
+    ]
+  }
+}

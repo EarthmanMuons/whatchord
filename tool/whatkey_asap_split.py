@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Freeze a development/test split for an ASAP-derived WhatKey fixture set.
+"""Freeze a development/test split for a slash-titled WhatKey fixture set.
 
-Mirrors tool/whatkey_freeze_split.py's rules on ASAP's structure: the split
-unit is the piece folder (so every performance of a piece lands on one side),
-selected by a stable seeded hash within each composer, targeting the test
-ratio per composer. The split file records piece identifiers and counts only
-(facts, not corpus content), so it is committable even though ASAP-derived
-fixtures themselves are noncommercial-gated.
+Mirrors tool/whatkey_freeze_split.py's rules for any fixture manifest whose
+titles are slash paths grouped as top-level-group/.../piece (ASAP:
+composer/piece/performance; Isophonics via ChoCo: performer/album/track).
+The split unit is the parent folder (so every performance of a piece, or
+every track of an album, lands on one side), selected by a stable seeded
+hash within each top-level group, targeting the test ratio per group. The
+split file records identifiers and counts only (facts, not corpus content),
+so it is committable even when the fixtures themselves are license-gated.
 """
 
 from __future__ import annotations
@@ -21,6 +23,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SPLIT_SCHEMA = "whatkey-split/1"
 DEFAULT_SEED = "whatkey-asap-nc-v2-split-2026-07-07"
+ISOPHONICS_SEED = "whatkey-isophonics-nc-v1-split-2026-07-07"
 
 
 def parse_args() -> argparse.Namespace:
@@ -73,8 +76,12 @@ def main() -> int:
         "set": set_name,
         "frozenAt": date.today().isoformat(),
         "source": {
-            "type": "asap",
-            "asapCommit": manifest["source"]["asapCommit"],
+            "type": manifest["source"]["type"],
+            **{
+                key: value
+                for key, value in manifest["source"].items()
+                if key.endswith("Commit")
+            },
             "fixtureManifest": str(args.fixtures_manifest),
             "license": manifest["source"]["license"],
         },
