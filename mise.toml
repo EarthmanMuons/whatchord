@@ -115,6 +115,18 @@ python tool/whatkey_fixture_extract.py \
   --groups bach-wtc brahms-lieder schubert-lieder tavern
 """
 
+[tasks."research:whatkey-harness-pop-jazz"]
+description = "Run the WhatKey harness on the hand-authored behavioral suite"
+run = "dart run tool/whatkey_harness.dart --fixtures research/whatkey/data/fixtures/pop-jazz-v1"
+
+[tasks."research:whatkey-harness-dev"]
+description = "Run the WhatKey harness on the When-in-Rome development split"
+run = """
+dart run tool/whatkey_harness.dart \
+  --fixtures build/whatkey-fixtures/when-in-rome-v1 \
+  --split-file research/whatkey/data/splits/when-in-rome-v1.json
+"""
+
 [tasks."symbols:install"]
 description = "Install Python dependencies for regenerating WhatChord Symbols fonts"
 run = "uv pip install -r tool/whatchord_symbols/requirements.txt"

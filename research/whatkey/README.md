@@ -55,10 +55,14 @@ versioned fixtures, external baselines, and dated logs.
 ## Where the code lives
 
 - `lib/features/history/`: Phase 1 chord event capture (in the app).
+- `lib/features/key/`: the key detectors (pure Dart domain, no UI yet); the same
+  code the harness benchmarks is what the app will eventually run.
 - `lib/features/theory/`: the chord analysis engine the events come from.
-- `tool/`: corpus tooling and batch drivers; the Phase 2 fixture extractor and
-  harness will extend `tool/when_in_rome_chord_benchmark.py` and
-  `tool/when_in_rome_chord_batch.dart`.
+- `tool/`: `whatkey_fixture_extract.py` and `whatkey_fixture_batch.dart` build
+  labeled fixtures; `whatkey_harness.dart` (with `tool/src/whatkey/`) replays
+  fixtures through detectors and reports the protocol metrics. Run via
+  `mise research:whatkey-harness-pop-jazz` and
+  `mise research:whatkey-harness-dev`.
 
 ## Planned, not yet started
 
