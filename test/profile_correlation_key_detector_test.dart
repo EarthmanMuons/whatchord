@@ -64,12 +64,19 @@ void main() {
     expect(frames[2].isAbstention, isFalse);
   });
 
-  test('claims C major for a C major cadence', () {
-    final frames = _run(ProfileCorrelationKeyDetector(), [_c, _f, _g7, _c]);
-    final claim = frames.last.claim;
-    expect(claim, isNotNull);
-    expect(claim!.tonality.tonicPitchClass, 0);
-    expect(claim.tonality.isMajor, isTrue);
+  test('claims C major for a C major cadence under every profile pair', () {
+    for (final profiles in KeyProfilePair.values) {
+      final frames = _run(ProfileCorrelationKeyDetector(profiles: profiles), [
+        _c,
+        _f,
+        _g7,
+        _c,
+      ]);
+      final claim = frames.last.claim;
+      expect(claim, isNotNull, reason: profiles.name);
+      expect(claim!.tonality.tonicPitchClass, 0, reason: profiles.name);
+      expect(claim.tonality.isMajor, isTrue, reason: profiles.name);
+    }
   });
 
   test('claims A minor for a harmonic-minor cadence with E7', () {
