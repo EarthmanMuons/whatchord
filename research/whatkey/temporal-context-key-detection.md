@@ -588,9 +588,30 @@ Questions to resolve before implementing any algorithm:
   - **Minor-profile mixture emissions** (natural/harmonic/melodic as a mixture):
     lowest priority; touches shared machinery and risks tonic accuracy already
     at parity.
+  - **Relative-pair tilt (the analogous move for relative errors)**: the same
+    zero-sum pattern generalizes; for relative twins the shared quantity is the
+    key signature (distance zero in the transition kernel), so a
+    within-relative-pair tilt cannot add evidence for any other signature and
+    cannot fight modulation between signatures. The crux is weaker evidence: the
+    rival's tonic chord is ordinary diatonic harmony there (Am in C major is
+    just vi, common), not rare mode mixture, so isolated chord quality fires
+    constantly for the twin and the usable strength is tiny. Sharper cues, in
+    increasing promise: cadential bigrams (a dominant-quality chord resolving
+    down a fifth onto a tonic-quality chord, an extraction from the retired
+    progression detector, rescoped to the pair; scoped excursion-re-import risk
+    since V/vi tonicization is a cadence into the relative minor), bass
+    placement (fire only when root is also the bass, using the register we
+    capture but no detector reads), and duration-weighting the tilt. Lower
+    expected value than the parallel tilt: smaller error pool (4-6% of claims,
+    and MIREX's most forgivable miss at 0.3), genuine-ambiguity ceiling
+    (relative twins share every pitch class; the Am-F-C-G probe's abstention
+    must survive), and a relative flip moves the displayed tonic letter, the
+    most visible possible wobble.
   - Measurement path: tune on the Isophonics and When in Rome development splits
     (both mode-resolved), add mode-mixture probes to the pop-jazz behavioral
-    suite, verify once on the ASAP overlap set.
+    suite, verify once on the ASAP overlap set. For relative-pair work the
+    tripwire metrics are the mode-confusion table's relative row, the
+    ambiguous-loop probe, and spurious switches.
 
 ---
 
