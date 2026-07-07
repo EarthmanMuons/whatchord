@@ -105,7 +105,10 @@ Output:
 research/whatkey/data/fixtures/pop-jazz-v1/
 ```
 
-Regenerate the license-gated When-in-Rome fixtures:
+The generated `when-in-rome-v1` set is committed at
+`data/fixtures/when-in-rome-v1/` (the protocol is frozen against it), so
+regeneration is only needed to verify the committed files or to build a new
+fixture version. Regenerate the license-gated When-in-Rome fixtures:
 
 ```sh
 mise research:whatkey-fixtures-when-in-rome

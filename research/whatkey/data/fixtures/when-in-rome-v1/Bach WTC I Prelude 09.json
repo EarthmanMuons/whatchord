@@ -1,0 +1,1096 @@
+{
+  "events": [
+    {
+      "bassPc": 4,
+      "candidates": [
+        {
+          "bassPc": 4,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 9
+        }
+      ],
+      "durationMs": 1500,
+      "index": 0,
+      "labels": {
+        "figure": "IV64",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        52,
+        57,
+        73
+      ],
+      "noteCount": 3,
+      "pcMask": 530,
+      "timestampMs": 1500
+    },
+    {
+      "bassPc": 4,
+      "candidates": [
+        {
+          "bassPc": 4,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 4
+        }
+      ],
+      "durationMs": 1500,
+      "index": 1,
+      "labels": {
+        "figure": "I",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        52,
+        56,
+        71
+      ],
+      "noteCount": 3,
+      "pcMask": 2320,
+      "timestampMs": 3000
+    },
+    {
+      "bassPc": 4,
+      "candidates": [
+        {
+          "bassPc": 4,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 1033,
+          "quality": "minor7",
+          "rootPc": 6
+        }
+      ],
+      "durationMs": 750,
+      "index": 2,
+      "labels": {
+        "figure": "ii42",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        52,
+        54,
+        69
+      ],
+      "noteCount": 3,
+      "pcMask": 592,
+      "timestampMs": 4500
+    },
+    {
+      "bassPc": 3,
+      "candidates": [
+        {
+          "bassPc": 3,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 11
+        }
+      ],
+      "durationMs": 8250,
+      "index": 3,
+      "labels": {
+        "figure": "V65",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        51,
+        54,
+        71
+      ],
+      "noteCount": 3,
+      "pcMask": 2120,
+      "timestampMs": 5250
+    },
+    {
+      "bassPc": 6,
+      "candidates": [
+        {
+          "bassPc": 6,
+          "cost": 0.44999999999999996,
+          "extensions": [
+            "add11"
+          ],
+          "presentIntervalsMask": 41,
+          "quality": "minor",
+          "rootPc": 3
+        }
+      ],
+      "durationMs": 750,
+      "index": 4,
+      "labels": {
+        "figure": "vi42",
+        "localKey": "B:maj"
+      },
+      "midiNotes": [
+        54,
+        63,
+        68
+      ],
+      "noteCount": 3,
+      "pcMask": 328,
+      "timestampMs": 13500
+    },
+    {
+      "bassPc": 6,
+      "candidates": [
+        {
+          "bassPc": 6,
+          "cost": 1.05,
+          "extensions": [
+            "addFlat9"
+          ],
+          "presentIntervalsMask": 11,
+          "quality": "minor",
+          "rootPc": 3
+        }
+      ],
+      "durationMs": 2250,
+      "index": 5,
+      "labels": {
+        "figure": "v7",
+        "localKey": "B:maj"
+      },
+      "midiNotes": [
+        54,
+        63,
+        76
+      ],
+      "noteCount": 3,
+      "pcMask": 88,
+      "timestampMs": 14250
+    },
+    {
+      "bassPc": 2,
+      "candidates": [
+        {
+          "bassPc": 2,
+          "cost": 0.1,
+          "extensions": [],
+          "presentIntervalsMask": 273,
+          "quality": "augmented",
+          "rootPc": 2
+        },
+        {
+          "bassPc": 2,
+          "cost": 0.25,
+          "extensions": [],
+          "presentIntervalsMask": 273,
+          "quality": "augmented",
+          "rootPc": 10
+        },
+        {
+          "bassPc": 2,
+          "cost": 0.25,
+          "extensions": [],
+          "presentIntervalsMask": 273,
+          "quality": "augmented",
+          "rootPc": 6
+        }
+      ],
+      "durationMs": 1500,
+      "index": 6,
+      "labels": {
+        "figure": "bIII+7",
+        "localKey": "B:maj"
+      },
+      "midiNotes": [
+        50,
+        58,
+        66
+      ],
+      "noteCount": 3,
+      "pcMask": 1092,
+      "timestampMs": 16500
+    },
+    {
+      "bassPc": 7,
+      "candidates": [
+        {
+          "bassPc": 7,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 7
+        }
+      ],
+      "durationMs": 1500,
+      "index": 7,
+      "labels": {
+        "figure": "iv6b5",
+        "localKey": "B:maj"
+      },
+      "midiNotes": [
+        55,
+        59,
+        74
+      ],
+      "noteCount": 3,
+      "pcMask": 2180,
+      "timestampMs": 18000
+    },
+    {
+      "bassPc": 6,
+      "candidates": [
+        {
+          "bassPc": 6,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1041,
+          "quality": "dominant7",
+          "rootPc": 6
+        }
+      ],
+      "durationMs": 750,
+      "index": 8,
+      "labels": {
+        "figure": "V7",
+        "localKey": "B:maj"
+      },
+      "midiNotes": [
+        54,
+        64,
+        70
+      ],
+      "noteCount": 3,
+      "pcMask": 1104,
+      "timestampMs": 19500
+    },
+    {
+      "bassPc": 6,
+      "candidates": [
+        {
+          "bassPc": 6,
+          "cost": 1.05,
+          "extensions": [
+            "add9"
+          ],
+          "presentIntervalsMask": 13,
+          "quality": "minor",
+          "rootPc": 4
+        }
+      ],
+      "durationMs": 1253,
+      "index": 9,
+      "labels": {
+        "figure": "Vb9",
+        "localKey": "B:maj"
+      },
+      "midiNotes": [
+        54,
+        64,
+        79
+      ],
+      "noteCount": 3,
+      "pcMask": 208,
+      "timestampMs": 20250
+    },
+    {
+      "bassPc": 5,
+      "candidates": [
+        {
+          "bassPc": 5,
+          "cost": 0.25,
+          "extensions": [],
+          "presentIntervalsMask": 73,
+          "quality": "diminished",
+          "rootPc": 11
+        }
+      ],
+      "durationMs": 247,
+      "index": 10,
+      "labels": {
+        "figure": "viio[no3]/V",
+        "localKey": "B:maj"
+      },
+      "midiNotes": [
+        53,
+        59,
+        74
+      ],
+      "noteCount": 3,
+      "pcMask": 2084,
+      "timestampMs": 21502
+    },
+    {
+      "bassPc": 6,
+      "candidates": [
+        {
+          "bassPc": 6,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 161,
+          "quality": "sus4",
+          "rootPc": 6
+        },
+        {
+          "bassPc": 6,
+          "cost": 0.25,
+          "extensions": [],
+          "presentIntervalsMask": 133,
+          "quality": "sus2",
+          "rootPc": 11
+        }
+      ],
+      "durationMs": 5250,
+      "index": 11,
+      "labels": {
+        "figure": "V7",
+        "localKey": "B:maj"
+      },
+      "midiNotes": [
+        54,
+        59,
+        73
+      ],
+      "noteCount": 3,
+      "pcMask": 2114,
+      "timestampMs": 21750
+    },
+    {
+      "bassPc": 6,
+      "candidates": [
+        {
+          "bassPc": 6,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 161,
+          "quality": "sus4",
+          "rootPc": 6
+        },
+        {
+          "bassPc": 6,
+          "cost": 0.25,
+          "extensions": [],
+          "presentIntervalsMask": 133,
+          "quality": "sus2",
+          "rootPc": 11
+        }
+      ],
+      "durationMs": 750,
+      "index": 12,
+      "labels": {
+        "figure": "i",
+        "localKey": "F#:min"
+      },
+      "midiNotes": [
+        54,
+        61,
+        83
+      ],
+      "noteCount": 3,
+      "pcMask": 2114,
+      "timestampMs": 27000
+    },
+    {
+      "bassPc": 2,
+      "candidates": [
+        {
+          "bassPc": 2,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 1033,
+          "quality": "minor7",
+          "rootPc": 11
+        }
+      ],
+      "durationMs": 750,
+      "index": 13,
+      "labels": {
+        "figure": "iio64",
+        "localKey": "F#:min"
+      },
+      "midiNotes": [
+        50,
+        59,
+        81
+      ],
+      "noteCount": 3,
+      "pcMask": 2564,
+      "timestampMs": 27750
+    },
+    {
+      "bassPc": 3,
+      "candidates": [
+        {
+          "bassPc": 3,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 8
+        }
+      ],
+      "durationMs": 4500,
+      "index": 14,
+      "labels": {
+        "figure": "viio63/V",
+        "localKey": "F#:min"
+      },
+      "midiNotes": [
+        51,
+        60,
+        80
+      ],
+      "noteCount": 3,
+      "pcMask": 265,
+      "timestampMs": 28500
+    },
+    {
+      "bassPc": 6,
+      "candidates": [
+        {
+          "bassPc": 6,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 161,
+          "quality": "sus4",
+          "rootPc": 6
+        },
+        {
+          "bassPc": 6,
+          "cost": 0.25,
+          "extensions": [],
+          "presentIntervalsMask": 133,
+          "quality": "sus2",
+          "rootPc": 11
+        }
+      ],
+      "durationMs": 750,
+      "index": 15,
+      "labels": {
+        "figure": "i",
+        "localKey": "F#:min"
+      },
+      "midiNotes": [
+        54,
+        71,
+        73
+      ],
+      "noteCount": 3,
+      "pcMask": 2114,
+      "timestampMs": 33000
+    },
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 137,
+          "quality": "minor",
+          "rootPc": 6
+        }
+      ],
+      "durationMs": 750,
+      "index": 16,
+      "labels": {
+        "figure": "i6",
+        "localKey": "F#:min"
+      },
+      "midiNotes": [
+        45,
+        66,
+        73
+      ],
+      "noteCount": 3,
+      "pcMask": 578,
+      "timestampMs": 33750
+    },
+    {
+      "bassPc": 11,
+      "candidates": [
+        {
+          "bassPc": 11,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 1033,
+          "quality": "minor7",
+          "rootPc": 8
+        }
+      ],
+      "durationMs": 750,
+      "index": 17,
+      "labels": {
+        "figure": "iv7[no3]",
+        "localKey": "F#:min"
+      },
+      "midiNotes": [
+        47,
+        66,
+        68
+      ],
+      "noteCount": 3,
+      "pcMask": 2368,
+      "timestampMs": 34500
+    },
+    {
+      "bassPc": 1,
+      "candidates": [
+        {
+          "bassPc": 1,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1041,
+          "quality": "dominant7",
+          "rootPc": 1
+        }
+      ],
+      "durationMs": 2250,
+      "index": 18,
+      "labels": {
+        "figure": "V7",
+        "localKey": "F#:min"
+      },
+      "midiNotes": [
+        49,
+        65,
+        71
+      ],
+      "noteCount": 3,
+      "pcMask": 2082,
+      "timestampMs": 35250
+    },
+    {
+      "bassPc": 11,
+      "candidates": [
+        {
+          "bassPc": 11,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1041,
+          "quality": "dominant7",
+          "rootPc": 11
+        }
+      ],
+      "durationMs": 6000,
+      "index": 19,
+      "labels": {
+        "figure": "V7/V",
+        "localKey": "A:maj"
+      },
+      "midiNotes": [
+        47,
+        63,
+        69
+      ],
+      "noteCount": 3,
+      "pcMask": 2568,
+      "timestampMs": 37500
+    },
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 2
+        }
+      ],
+      "durationMs": 1500,
+      "index": 20,
+      "labels": {
+        "figure": "ii42",
+        "localKey": "A:maj"
+      },
+      "midiNotes": [
+        57,
+        62,
+        78
+      ],
+      "noteCount": 3,
+      "pcMask": 580,
+      "timestampMs": 43500
+    },
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 9
+        }
+      ],
+      "durationMs": 1500,
+      "index": 21,
+      "labels": {
+        "figure": "I",
+        "localKey": "A:maj"
+      },
+      "midiNotes": [
+        57,
+        61,
+        76
+      ],
+      "noteCount": 3,
+      "pcMask": 530,
+      "timestampMs": 45000
+    },
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 1033,
+          "quality": "minor7",
+          "rootPc": 11
+        }
+      ],
+      "durationMs": 9000,
+      "index": 22,
+      "labels": {
+        "figure": "V65",
+        "localKey": "A:maj"
+      },
+      "midiNotes": [
+        57,
+        59,
+        74
+      ],
+      "noteCount": 3,
+      "pcMask": 2564,
+      "timestampMs": 46500
+    },
+    {
+      "bassPc": 11,
+      "candidates": [
+        {
+          "bassPc": 11,
+          "cost": 0.44999999999999996,
+          "extensions": [
+            "add11"
+          ],
+          "presentIntervalsMask": 41,
+          "quality": "minor",
+          "rootPc": 8
+        }
+      ],
+      "durationMs": 750,
+      "index": 23,
+      "labels": {
+        "figure": "vi42",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        47,
+        56,
+        61
+      ],
+      "noteCount": 3,
+      "pcMask": 2306,
+      "timestampMs": 55500
+    },
+    {
+      "bassPc": 11,
+      "candidates": [
+        {
+          "bassPc": 11,
+          "cost": 1.05,
+          "extensions": [
+            "addFlat9"
+          ],
+          "presentIntervalsMask": 11,
+          "quality": "minor",
+          "rootPc": 8
+        }
+      ],
+      "durationMs": 2250,
+      "index": 24,
+      "labels": {
+        "figure": "V7",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        47,
+        56,
+        69
+      ],
+      "noteCount": 3,
+      "pcMask": 2816,
+      "timestampMs": 56250
+    },
+    {
+      "bassPc": 7,
+      "candidates": [
+        {
+          "bassPc": 7,
+          "cost": 0.1,
+          "extensions": [],
+          "presentIntervalsMask": 273,
+          "quality": "augmented",
+          "rootPc": 7
+        },
+        {
+          "bassPc": 7,
+          "cost": 0.25,
+          "extensions": [],
+          "presentIntervalsMask": 273,
+          "quality": "augmented",
+          "rootPc": 3
+        },
+        {
+          "bassPc": 7,
+          "cost": 0.25,
+          "extensions": [],
+          "presentIntervalsMask": 273,
+          "quality": "augmented",
+          "rootPc": 11
+        }
+      ],
+      "durationMs": 1500,
+      "index": 25,
+      "labels": {
+        "figure": "bIII+",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        43,
+        51,
+        59
+      ],
+      "noteCount": 3,
+      "pcMask": 2184,
+      "timestampMs": 58500
+    },
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 0
+        }
+      ],
+      "durationMs": 750,
+      "index": 26,
+      "labels": {
+        "figure": "bVI",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        48,
+        52,
+        67
+      ],
+      "noteCount": 3,
+      "pcMask": 145,
+      "timestampMs": 60000
+    },
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.25,
+          "extensions": [],
+          "presentIntervalsMask": 73,
+          "quality": "diminished",
+          "rootPc": 6
+        }
+      ],
+      "durationMs": 750,
+      "index": 27,
+      "labels": {
+        "figure": "iv6b5",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        48,
+        57,
+        66
+      ],
+      "noteCount": 3,
+      "pcMask": 577,
+      "timestampMs": 60750
+    },
+    {
+      "bassPc": 11,
+      "candidates": [
+        {
+          "bassPc": 11,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1041,
+          "quality": "dominant7",
+          "rootPc": 11
+        }
+      ],
+      "durationMs": 750,
+      "index": 28,
+      "labels": {
+        "figure": "V7",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        47,
+        57,
+        63
+      ],
+      "noteCount": 3,
+      "pcMask": 2568,
+      "timestampMs": 61500
+    },
+    {
+      "bassPc": 11,
+      "candidates": [
+        {
+          "bassPc": 11,
+          "cost": 1.05,
+          "extensions": [
+            "add9"
+          ],
+          "presentIntervalsMask": 13,
+          "quality": "minor",
+          "rootPc": 9
+        }
+      ],
+      "durationMs": 1252,
+      "index": 29,
+      "labels": {
+        "figure": "Vb9",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        47,
+        57,
+        72
+      ],
+      "noteCount": 3,
+      "pcMask": 2561,
+      "timestampMs": 62250
+    },
+    {
+      "bassPc": 10,
+      "candidates": [
+        {
+          "bassPc": 10,
+          "cost": 0.25,
+          "extensions": [],
+          "presentIntervalsMask": 73,
+          "quality": "diminished",
+          "rootPc": 4
+        }
+      ],
+      "durationMs": 248,
+      "index": 30,
+      "labels": {
+        "figure": "viio7/v",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        46,
+        52,
+        67
+      ],
+      "noteCount": 3,
+      "pcMask": 1168,
+      "timestampMs": 63502
+    },
+    {
+      "bassPc": 11,
+      "candidates": [
+        {
+          "bassPc": 11,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 161,
+          "quality": "sus4",
+          "rootPc": 11
+        },
+        {
+          "bassPc": 11,
+          "cost": 0.25,
+          "extensions": [],
+          "presentIntervalsMask": 133,
+          "quality": "sus2",
+          "rootPc": 4
+        }
+      ],
+      "durationMs": 750,
+      "index": 31,
+      "labels": {
+        "figure": "V7",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        47,
+        52,
+        66
+      ],
+      "noteCount": 3,
+      "pcMask": 2128,
+      "timestampMs": 63750
+    },
+    {
+      "bassPc": 1,
+      "candidates": [
+        {
+          "bassPc": 1,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 137,
+          "quality": "minor",
+          "rootPc": 1
+        }
+      ],
+      "durationMs": 750,
+      "index": 32,
+      "labels": {
+        "figure": "vi",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        49,
+        56,
+        64
+      ],
+      "noteCount": 3,
+      "pcMask": 274,
+      "timestampMs": 64500
+    },
+    {
+      "bassPc": 1,
+      "candidates": [
+        {
+          "bassPc": 1,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 9
+        }
+      ],
+      "durationMs": 2250,
+      "index": 33,
+      "labels": {
+        "figure": "IV6",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        49,
+        57,
+        64
+      ],
+      "noteCount": 3,
+      "pcMask": 530,
+      "timestampMs": 65250
+    },
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 9
+        }
+      ],
+      "durationMs": 1252,
+      "index": 34,
+      "labels": {
+        "figure": "IV",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        45,
+        45,
+        61,
+        64
+      ],
+      "noteCount": 4,
+      "pcMask": 530,
+      "timestampMs": 67500
+    },
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.1,
+          "extensions": [],
+          "presentIntervalsMask": 73,
+          "quality": "diminished",
+          "rootPc": 9
+        }
+      ],
+      "durationMs": 248,
+      "index": 35,
+      "labels": {
+        "figure": "viio4b3",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        45,
+        57,
+        60,
+        63
+      ],
+      "noteCount": 4,
+      "pcMask": 521,
+      "timestampMs": 68752
+    },
+    {
+      "bassPc": 4,
+      "candidates": [
+        {
+          "bassPc": 4,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 4
+        }
+      ],
+      "durationMs": 1252,
+      "index": 36,
+      "labels": {
+        "figure": "I",
+        "localKey": "E:maj"
+      },
+      "midiNotes": [
+        40,
+        56,
+        59,
+        64
+      ],
+      "noteCount": 4,
+      "pcMask": 2320,
+      "timestampMs": 69000
+    }
+  ],
+  "id": "when-in-rome-v1/Bach WTC I Prelude 09",
+  "labels": {
+    "group": "bach-wtc"
+  },
+  "provenance": {
+    "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+    "fixtureLicense": "CC BY-SA 4.0",
+    "group": "bach-wtc",
+    "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+    "sourceCorpus": "When-in-Rome",
+    "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/09"
+  },
+  "schema": "whatkey-fixture/1",
+  "title": "Bach WTC I Prelude 09"
+}

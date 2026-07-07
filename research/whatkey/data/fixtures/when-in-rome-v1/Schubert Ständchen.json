@@ -1,0 +1,228 @@
+{
+  "events": [
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.95,
+          "extensions": [
+            "add11"
+          ],
+          "presentIntervalsMask": 41,
+          "quality": "minor",
+          "rootPc": 7
+        }
+      ],
+      "durationMs": 9000,
+      "index": 0,
+      "labels": {
+        "figure": "V7",
+        "localKey": "F:maj"
+      },
+      "midiNotes": [
+        36,
+        48,
+        67,
+        70
+      ],
+      "noteCount": 4,
+      "pcMask": 1153,
+      "timestampMs": 30000
+    },
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.95,
+          "extensions": [
+            "add11"
+          ],
+          "presentIntervalsMask": 41,
+          "quality": "minor",
+          "rootPc": 4
+        }
+      ],
+      "durationMs": 22500,
+      "index": 1,
+      "labels": {
+        "figure": "V9",
+        "localKey": "D:maj"
+      },
+      "midiNotes": [
+        33,
+        45,
+        67,
+        76,
+        79
+      ],
+      "noteCount": 5,
+      "pcMask": 656,
+      "timestampMs": 39000
+    },
+    {
+      "bassPc": 10,
+      "candidates": [
+        {
+          "bassPc": 10,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 6
+        }
+      ],
+      "durationMs": 1500,
+      "index": 2,
+      "labels": {
+        "figure": "iio6",
+        "localKey": "D:maj"
+      },
+      "midiNotes": [
+        34,
+        46,
+        64,
+        66,
+        73,
+        78
+      ],
+      "noteCount": 6,
+      "pcMask": 1106,
+      "timestampMs": 61500
+    },
+    {
+      "bassPc": 11,
+      "candidates": [
+        {
+          "bassPc": 11,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 137,
+          "quality": "minor",
+          "rootPc": 11
+        }
+      ],
+      "durationMs": 1500,
+      "index": 3,
+      "labels": {
+        "figure": "V7",
+        "localKey": "D:maj"
+      },
+      "midiNotes": [
+        35,
+        47,
+        62,
+        66,
+        71,
+        71
+      ],
+      "noteCount": 6,
+      "pcMask": 2116,
+      "timestampMs": 63000
+    },
+    {
+      "bassPc": 11,
+      "candidates": [
+        {
+          "bassPc": 11,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 137,
+          "quality": "minor",
+          "rootPc": 4
+        }
+      ],
+      "durationMs": 1500,
+      "index": 4,
+      "labels": {
+        "figure": "I",
+        "localKey": "D:maj"
+      },
+      "midiNotes": [
+        35,
+        47,
+        64,
+        67,
+        71
+      ],
+      "noteCount": 5,
+      "pcMask": 2192,
+      "timestampMs": 64500
+    },
+    {
+      "bassPc": 11,
+      "candidates": [
+        {
+          "bassPc": 11,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 137,
+          "quality": "minor",
+          "rootPc": 11
+        }
+      ],
+      "durationMs": 4500,
+      "index": 5,
+      "labels": {
+        "figure": "iv",
+        "localKey": "D:maj"
+      },
+      "midiNotes": [
+        35,
+        47,
+        62,
+        66,
+        71
+      ],
+      "noteCount": 5,
+      "pcMask": 2116,
+      "timestampMs": 66000
+    },
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.95,
+          "extensions": [
+            "add11"
+          ],
+          "presentIntervalsMask": 41,
+          "quality": "minor",
+          "rootPc": 4
+        }
+      ],
+      "durationMs": 3000,
+      "index": 6,
+      "labels": {
+        "figure": "I",
+        "localKey": "D:maj"
+      },
+      "midiNotes": [
+        33,
+        45,
+        67,
+        76,
+        79
+      ],
+      "noteCount": 5,
+      "pcMask": 656,
+      "timestampMs": 70500
+    }
+  ],
+  "id": "when-in-rome-v1/Schubert St\u00e4ndchen",
+  "labels": {
+    "group": "schubert-lieder"
+  },
+  "provenance": {
+    "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+    "fixtureLicense": "CC BY-SA 4.0",
+    "group": "schubert-lieder",
+    "scoreLicense": "CC0 (OpenScore Lieder)",
+    "sourceCorpus": "When-in-Rome",
+    "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/04_St%C3%A4ndchen"
+  },
+  "schema": "whatkey-fixture/1",
+  "title": "Schubert St\u00e4ndchen"
+}

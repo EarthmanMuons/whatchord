@@ -1,0 +1,1120 @@
+{
+  "context": "C:maj",
+  "engineCommit": "aed5ea8b89b1b96fa98c977579b068fc48011259",
+  "engineLibDirty": false,
+  "fixtures": [
+    {
+      "events": 1,
+      "file": "Bach WTC I Prelude 01.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 01",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/01"
+      },
+      "title": "Bach WTC I Prelude 01"
+    },
+    {
+      "events": 2,
+      "file": "Bach WTC I Prelude 02.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 02",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/02"
+      },
+      "title": "Bach WTC I Prelude 02"
+    },
+    {
+      "events": 2,
+      "file": "Bach WTC I Prelude 03.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 03",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/03"
+      },
+      "title": "Bach WTC I Prelude 03"
+    },
+    {
+      "events": 55,
+      "file": "Bach WTC I Prelude 04.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 04",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/04"
+      },
+      "title": "Bach WTC I Prelude 04"
+    },
+    {
+      "events": 13,
+      "file": "Bach WTC I Prelude 05.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 05",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/05"
+      },
+      "title": "Bach WTC I Prelude 05"
+    },
+    {
+      "events": 12,
+      "file": "Bach WTC I Prelude 06.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 06",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/06"
+      },
+      "title": "Bach WTC I Prelude 06"
+    },
+    {
+      "events": 182,
+      "file": "Bach WTC I Prelude 07.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 07",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/07"
+      },
+      "title": "Bach WTC I Prelude 07"
+    },
+    {
+      "events": 56,
+      "file": "Bach WTC I Prelude 08.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 08",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/08"
+      },
+      "title": "Bach WTC I Prelude 08"
+    },
+    {
+      "events": 37,
+      "file": "Bach WTC I Prelude 09.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 09",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/09"
+      },
+      "title": "Bach WTC I Prelude 09"
+    },
+    {
+      "events": 44,
+      "file": "Bach WTC I Prelude 10.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 10",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/10"
+      },
+      "title": "Bach WTC I Prelude 10"
+    },
+    {
+      "events": 3,
+      "file": "Bach WTC I Prelude 11.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 11",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/11"
+      },
+      "title": "Bach WTC I Prelude 11"
+    },
+    {
+      "events": 54,
+      "file": "Bach WTC I Prelude 12.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 12",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/12"
+      },
+      "title": "Bach WTC I Prelude 12"
+    },
+    {
+      "events": 22,
+      "file": "Bach WTC I Prelude 14.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 14",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/14"
+      },
+      "title": "Bach WTC I Prelude 14"
+    },
+    {
+      "events": 1,
+      "file": "Bach WTC I Prelude 15.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 15",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/15"
+      },
+      "title": "Bach WTC I Prelude 15"
+    },
+    {
+      "events": 71,
+      "file": "Bach WTC I Prelude 16.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 16",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/16"
+      },
+      "title": "Bach WTC I Prelude 16"
+    },
+    {
+      "events": 7,
+      "file": "Bach WTC I Prelude 17.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 17",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/17"
+      },
+      "title": "Bach WTC I Prelude 17"
+    },
+    {
+      "events": 49,
+      "file": "Bach WTC I Prelude 18.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 18",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/18"
+      },
+      "title": "Bach WTC I Prelude 18"
+    },
+    {
+      "events": 38,
+      "file": "Bach WTC I Prelude 19.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 19",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/19"
+      },
+      "title": "Bach WTC I Prelude 19"
+    },
+    {
+      "events": 19,
+      "file": "Bach WTC I Prelude 20.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 20",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/20"
+      },
+      "title": "Bach WTC I Prelude 20"
+    },
+    {
+      "events": 10,
+      "file": "Bach WTC I Prelude 21.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 21",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/21"
+      },
+      "title": "Bach WTC I Prelude 21"
+    },
+    {
+      "events": 81,
+      "file": "Bach WTC I Prelude 22.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 22",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/22"
+      },
+      "title": "Bach WTC I Prelude 22"
+    },
+    {
+      "events": 51,
+      "file": "Bach WTC I Prelude 23.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 23",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/23"
+      },
+      "title": "Bach WTC I Prelude 23"
+    },
+    {
+      "events": 125,
+      "file": "Bach WTC I Prelude 24.json",
+      "id": "when-in-rome-v1/Bach WTC I Prelude 24",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "bach-wtc",
+        "scoreLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Keyboard_Other/Bach%2C_Johann_Sebastian/The_Well-Tempered_Clavier_I/24"
+      },
+      "title": "Bach WTC I Prelude 24"
+    },
+    {
+      "events": 41,
+      "file": "Brahms Liebe und Fr\u00fchling II.json",
+      "id": "when-in-rome-v1/Brahms Liebe und Fr\u00fchling II",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "brahms-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Brahms%2C_Johannes/6_Songs%2C_Op.3/3_Liebe_und_Fr%C3%BChling_II"
+      },
+      "title": "Brahms Liebe und Fr\u00fchling II"
+    },
+    {
+      "events": 95,
+      "file": "Brahms Liebesklage des M\u00e4dchens.json",
+      "id": "when-in-rome-v1/Brahms Liebesklage des M\u00e4dchens",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "brahms-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Brahms%2C_Johannes/7_Lieder%2C_Op.48/3_Liebesklage_des_M%C3%A4dchens"
+      },
+      "title": "Brahms Liebesklage des M\u00e4dchens"
+    },
+    {
+      "events": 107,
+      "file": "Brahms Marienlieder 1 Der englische Gruss.json",
+      "id": "when-in-rome-v1/Brahms Marienlieder 1 Der englische Gruss",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "brahms-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Brahms%2C_Johannes/Marienlieder%2C_Op.22/1_Der_englische_Gruss"
+      },
+      "title": "Brahms Marienlieder 1 Der englische Gruss"
+    },
+    {
+      "events": 46,
+      "file": "Brahms Marienlieder 2 Marias Kirchgang.json",
+      "id": "when-in-rome-v1/Brahms Marienlieder 2 Marias Kirchgang",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "brahms-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Brahms%2C_Johannes/Marienlieder%2C_Op.22/2_Marias_Kirchgang"
+      },
+      "title": "Brahms Marienlieder 2 Marias Kirchgang"
+    },
+    {
+      "events": 57,
+      "file": "Brahms Marienlieder 3 Marias Wallfahrt.json",
+      "id": "when-in-rome-v1/Brahms Marienlieder 3 Marias Wallfahrt",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "brahms-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Brahms%2C_Johannes/Marienlieder%2C_Op.22/3_Marias_Wallfahrt"
+      },
+      "title": "Brahms Marienlieder 3 Marias Wallfahrt"
+    },
+    {
+      "events": 84,
+      "file": "Brahms Marienlieder 4 Der J\u00e4ger.json",
+      "id": "when-in-rome-v1/Brahms Marienlieder 4 Der J\u00e4ger",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "brahms-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Brahms%2C_Johannes/Marienlieder%2C_Op.22/4_Der_J%C3%A4ger"
+      },
+      "title": "Brahms Marienlieder 4 Der J\u00e4ger"
+    },
+    {
+      "events": 70,
+      "file": "Brahms Marienlieder 5 Ruf zur Maria.json",
+      "id": "when-in-rome-v1/Brahms Marienlieder 5 Ruf zur Maria",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "brahms-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Brahms%2C_Johannes/Marienlieder%2C_Op.22/5_Ruf_zur_Maria"
+      },
+      "title": "Brahms Marienlieder 5 Ruf zur Maria"
+    },
+    {
+      "events": 27,
+      "file": "Brahms Marienlieder 6 Magdalena.json",
+      "id": "when-in-rome-v1/Brahms Marienlieder 6 Magdalena",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "brahms-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Brahms%2C_Johannes/Marienlieder%2C_Op.22/6_Magdalena"
+      },
+      "title": "Brahms Marienlieder 6 Magdalena"
+    },
+    {
+      "events": 40,
+      "file": "Brahms Marienlieder 7 Marias Lob.json",
+      "id": "when-in-rome-v1/Brahms Marienlieder 7 Marias Lob",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "brahms-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Brahms%2C_Johannes/Marienlieder%2C_Op.22/7_Marias_Lob"
+      },
+      "title": "Brahms Marienlieder 7 Marias Lob"
+    },
+    {
+      "events": 77,
+      "file": "Schubert Abschied.json",
+      "id": "when-in-rome-v1/Schubert Abschied",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/07_Abschied"
+      },
+      "title": "Schubert Abschied"
+    },
+    {
+      "events": 83,
+      "file": "Schubert Am Meer.json",
+      "id": "when-in-rome-v1/Schubert Am Meer",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/12_Am_Meer"
+      },
+      "title": "Schubert Am Meer"
+    },
+    {
+      "events": 128,
+      "file": "Schubert Aufenthalt.json",
+      "id": "when-in-rome-v1/Schubert Aufenthalt",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/05_Aufenthalt"
+      },
+      "title": "Schubert Aufenthalt"
+    },
+    {
+      "events": 91,
+      "file": "Schubert Das Fischerm\u00e4dchen.json",
+      "id": "when-in-rome-v1/Schubert Das Fischerm\u00e4dchen",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/10_Das_Fischerm%C3%A4dchen"
+      },
+      "title": "Schubert Das Fischerm\u00e4dchen"
+    },
+    {
+      "events": 61,
+      "file": "Schubert Das Rosenband D.280.json",
+      "id": "when-in-rome-v1/Schubert Das Rosenband D.280",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/_/Das_Rosenband%2C_D.280"
+      },
+      "title": "Schubert Das Rosenband D.280"
+    },
+    {
+      "events": 20,
+      "file": "Schubert Das Wandern.json",
+      "id": "when-in-rome-v1/Schubert Das Wandern",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Die_sch%C3%B6ne_M%C3%BCllerin%2C_D.795/01_Das_Wandern"
+      },
+      "title": "Schubert Das Wandern"
+    },
+    {
+      "events": 23,
+      "file": "Schubert Der Atlas.json",
+      "id": "when-in-rome-v1/Schubert Der Atlas",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/08_Der_Atlas"
+      },
+      "title": "Schubert Der Atlas"
+    },
+    {
+      "events": 26,
+      "file": "Schubert Der Doppelg\u00e4nger.json",
+      "id": "when-in-rome-v1/Schubert Der Doppelg\u00e4nger",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/13_Der_Doppelg%C3%A4nger"
+      },
+      "title": "Schubert Der Doppelg\u00e4nger"
+    },
+    {
+      "events": 103,
+      "file": "Schubert Die Sterne D.939.json",
+      "id": "when-in-rome-v1/Schubert Die Sterne D.939",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/4_Lieder%2C_Op.96/1_Die_Sterne%2C_D.939"
+      },
+      "title": "Schubert Die Sterne D.939"
+    },
+    {
+      "events": 76,
+      "file": "Schubert Die Taubenpost.json",
+      "id": "when-in-rome-v1/Schubert Die Taubenpost",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/14_Die_Taubenpost"
+      },
+      "title": "Schubert Die Taubenpost"
+    },
+    {
+      "events": 81,
+      "file": "Schubert Du bist die Ruh.json",
+      "id": "when-in-rome-v1/Schubert Du bist die Ruh",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Op.59/3_Du_bist_die_Ruh"
+      },
+      "title": "Schubert Du bist die Ruh"
+    },
+    {
+      "events": 59,
+      "file": "Schubert Fr\u00fchlingssehnsucht.json",
+      "id": "when-in-rome-v1/Schubert Fr\u00fchlingssehnsucht",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/03_Fr%C3%BChlingssehnsucht"
+      },
+      "title": "Schubert Fr\u00fchlingssehnsucht"
+    },
+    {
+      "events": 39,
+      "file": "Schubert Ihr Bild.json",
+      "id": "when-in-rome-v1/Schubert Ihr Bild",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/09_Ihr_Bild"
+      },
+      "title": "Schubert Ihr Bild"
+    },
+    {
+      "events": 97,
+      "file": "Schubert In der Ferne.json",
+      "id": "when-in-rome-v1/Schubert In der Ferne",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/06_In_der_Ferne"
+      },
+      "title": "Schubert In der Ferne"
+    },
+    {
+      "events": 87,
+      "file": "Schubert Kriegers Ahnung.json",
+      "id": "when-in-rome-v1/Schubert Kriegers Ahnung",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/02_Kriegers_Ahnung"
+      },
+      "title": "Schubert Kriegers Ahnung"
+    },
+    {
+      "events": 89,
+      "file": "Schubert Liebesbotschaft.json",
+      "id": "when-in-rome-v1/Schubert Liebesbotschaft",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/01_Liebesbotschaft"
+      },
+      "title": "Schubert Liebesbotschaft"
+    },
+    {
+      "events": 112,
+      "file": "Schubert Pause.json",
+      "id": "when-in-rome-v1/Schubert Pause",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Die_sch%C3%B6ne_M%C3%BCllerin%2C_D.795/12_Pause"
+      },
+      "title": "Schubert Pause"
+    },
+    {
+      "events": 7,
+      "file": "Schubert St\u00e4ndchen.json",
+      "id": "when-in-rome-v1/Schubert St\u00e4ndchen",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Schwanengesang%2C_D.957/04_St%C3%A4ndchen"
+      },
+      "title": "Schubert St\u00e4ndchen"
+    },
+    {
+      "events": 79,
+      "file": "Schubert Trockne Blumen.json",
+      "id": "when-in-rome-v1/Schubert Trockne Blumen",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Die_sch%C3%B6ne_M%C3%BCllerin%2C_D.795/18_Trockne_Blumen"
+      },
+      "title": "Schubert Trockne Blumen"
+    },
+    {
+      "events": 162,
+      "file": "Schubert Winterreise 01 Gute Nacht.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 01 Gute Nacht",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/01_Gute_Nacht"
+      },
+      "title": "Schubert Winterreise 01 Gute Nacht"
+    },
+    {
+      "events": 38,
+      "file": "Schubert Winterreise 02 Die Wetterfahne.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 02 Die Wetterfahne",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/02_Die_Wetterfahne"
+      },
+      "title": "Schubert Winterreise 02 Die Wetterfahne"
+    },
+    {
+      "events": 106,
+      "file": "Schubert Winterreise 04 Erstarrung.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 04 Erstarrung",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/04_Erstarrung"
+      },
+      "title": "Schubert Winterreise 04 Erstarrung"
+    },
+    {
+      "events": 77,
+      "file": "Schubert Winterreise 05 Der Lindenbaum.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 05 Der Lindenbaum",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/05_Der_Lindenbaum"
+      },
+      "title": "Schubert Winterreise 05 Der Lindenbaum"
+    },
+    {
+      "events": 42,
+      "file": "Schubert Winterreise 06 Wasserfluth.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 06 Wasserfluth",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/06_Wasserfluth"
+      },
+      "title": "Schubert Winterreise 06 Wasserfluth"
+    },
+    {
+      "events": 71,
+      "file": "Schubert Winterreise 07 Auf dem Flusse.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 07 Auf dem Flusse",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/07_Auf_dem_Flusse"
+      },
+      "title": "Schubert Winterreise 07 Auf dem Flusse"
+    },
+    {
+      "events": 48,
+      "file": "Schubert Winterreise 09 Irrlicht.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 09 Irrlicht",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/09_Irrlicht"
+      },
+      "title": "Schubert Winterreise 09 Irrlicht"
+    },
+    {
+      "events": 59,
+      "file": "Schubert Winterreise 10 Rast.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 10 Rast",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/10_Rast_%28Sp%C3%A4tere_Fassung%29"
+      },
+      "title": "Schubert Winterreise 10 Rast"
+    },
+    {
+      "events": 50,
+      "file": "Schubert Winterreise 12 Einsamkeit.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 12 Einsamkeit",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/12_Einsamkeit_%28Urspruengliche_Fassung%29"
+      },
+      "title": "Schubert Winterreise 12 Einsamkeit"
+    },
+    {
+      "events": 80,
+      "file": "Schubert Winterreise 13 Die Post.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 13 Die Post",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/13_Die_Post"
+      },
+      "title": "Schubert Winterreise 13 Die Post"
+    },
+    {
+      "events": 40,
+      "file": "Schubert Winterreise 14 Der greise Kopf.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 14 Der greise Kopf",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/14_Der_greise_Kopf"
+      },
+      "title": "Schubert Winterreise 14 Der greise Kopf"
+    },
+    {
+      "events": 46,
+      "file": "Schubert Winterreise 16 Letzte Hoffnung.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 16 Letzte Hoffnung",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/16_Letzte_Hoffnung"
+      },
+      "title": "Schubert Winterreise 16 Letzte Hoffnung"
+    },
+    {
+      "events": 79,
+      "file": "Schubert Winterreise 17 Im Dorfe.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 17 Im Dorfe",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/17_Im_Dorfe"
+      },
+      "title": "Schubert Winterreise 17 Im Dorfe"
+    },
+    {
+      "events": 121,
+      "file": "Schubert Winterreise 20 Der Wegweiser.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 20 Der Wegweiser",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/20_Der_Wegweiser"
+      },
+      "title": "Schubert Winterreise 20 Der Wegweiser"
+    },
+    {
+      "events": 128,
+      "file": "Schubert Winterreise 21 Das Wirthshaus.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 21 Das Wirthshaus",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/21_Das_Wirthshaus"
+      },
+      "title": "Schubert Winterreise 21 Das Wirthshaus"
+    },
+    {
+      "events": 68,
+      "file": "Schubert Winterreise 22 Muth.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 22 Muth",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/22_Muth"
+      },
+      "title": "Schubert Winterreise 22 Muth"
+    },
+    {
+      "events": 70,
+      "file": "Schubert Winterreise 23 Die Nebensonnen.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 23 Die Nebensonnen",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/23_Die_Nebensonnen"
+      },
+      "title": "Schubert Winterreise 23 Die Nebensonnen"
+    },
+    {
+      "events": 35,
+      "file": "Schubert Winterreise 24 Der Leiermann.json",
+      "id": "when-in-rome-v1/Schubert Winterreise 24 Der Leiermann",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Winterreise%2C_D.911/24_Der_Leiermann_%28Sp%C3%A4tere_Fassung%29"
+      },
+      "title": "Schubert Winterreise 24 Der Leiermann"
+    },
+    {
+      "events": 40,
+      "file": "Schubert Wohin.json",
+      "id": "when-in-rome-v1/Schubert Wohin",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "schubert-lieder",
+        "scoreLicense": "CC0 (OpenScore Lieder)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/OpenScore-LiederCorpus/Schubert%2C_Franz/Die_sch%C3%B6ne_M%C3%BCllerin%2C_D.795/02_Wohin"
+      },
+      "title": "Schubert Wohin"
+    },
+    {
+      "events": 20,
+      "file": "Beethoven WoO 64 (Swiss).json",
+      "id": "when-in-rome-v1/Beethoven WoO 64 (Swiss)",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome/TAVERN conversion)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "tavern",
+        "scoreLicense": "CC BY-SA 4.0 (TAVERN)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Variations_and_Grounds/Beethoven%2C_Ludwig_van/_/WoO_64"
+      },
+      "title": "Beethoven WoO 64 (Swiss)"
+    },
+    {
+      "events": 344,
+      "file": "Beethoven WoO 65 (Venni amore).json",
+      "id": "when-in-rome-v1/Beethoven WoO 65 (Venni amore)",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome/TAVERN conversion)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "tavern",
+        "scoreLicense": "CC BY-SA 4.0 (TAVERN)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Variations_and_Grounds/Beethoven%2C_Ludwig_van/_/WoO_65"
+      },
+      "title": "Beethoven WoO 65 (Venni amore)"
+    },
+    {
+      "events": 62,
+      "file": "Beethoven WoO 70 (Nel cor).json",
+      "id": "when-in-rome-v1/Beethoven WoO 70 (Nel cor)",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome/TAVERN conversion)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "tavern",
+        "scoreLicense": "CC BY-SA 4.0 (TAVERN)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Variations_and_Grounds/Beethoven%2C_Ludwig_van/_/WoO_70"
+      },
+      "title": "Beethoven WoO 70 (Nel cor)"
+    },
+    {
+      "events": 76,
+      "file": "Beethoven WoO 77 (Original).json",
+      "id": "when-in-rome-v1/Beethoven WoO 77 (Original)",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome/TAVERN conversion)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "tavern",
+        "scoreLicense": "CC BY-SA 4.0 (TAVERN)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Variations_and_Grounds/Beethoven%2C_Ludwig_van/_/WoO_77"
+      },
+      "title": "Beethoven WoO 77 (Original)"
+    },
+    {
+      "events": 138,
+      "file": "Mozart K179 (Fischer Minuet).json",
+      "id": "when-in-rome-v1/Mozart K179 (Fischer Minuet)",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome/TAVERN conversion)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "tavern",
+        "scoreLicense": "CC BY-SA 4.0 (TAVERN)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Variations_and_Grounds/Mozart%2C_Wolfgang_Amadeus/_/K179"
+      },
+      "title": "Mozart K179 (Fischer Minuet)"
+    },
+    {
+      "events": 181,
+      "file": "Mozart K265 (Twinkle).json",
+      "id": "when-in-rome-v1/Mozart K265 (Twinkle)",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome/TAVERN conversion)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "tavern",
+        "scoreLicense": "CC BY-SA 4.0 (TAVERN)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Variations_and_Grounds/Mozart%2C_Wolfgang_Amadeus/_/K265"
+      },
+      "title": "Mozart K265 (Twinkle)"
+    },
+    {
+      "events": 186,
+      "file": "Mozart K573 (Duport Minuet).json",
+      "id": "when-in-rome-v1/Mozart K573 (Duport Minuet)",
+      "provenance": {
+        "analysisLicense": "CC BY-SA 4.0 (When-in-Rome/TAVERN conversion)",
+        "fixtureLicense": "CC BY-SA 4.0",
+        "group": "tavern",
+        "scoreLicense": "CC BY-SA 4.0 (TAVERN)",
+        "sourceCorpus": "When-in-Rome",
+        "sourceUrl": "https://github.com/MarkGotham/When-in-Rome/tree/master/Corpus/Variations_and_Grounds/Mozart%2C_Wolfgang_Amadeus/_/K573"
+      },
+      "title": "Mozart K573 (Duport Minuet)"
+    }
+  ],
+  "generatedAt": "2026-07-06T21:42:42+00:00",
+  "generator": {
+    "arguments": [
+      "--set",
+      "when-in-rome-v1",
+      "--out",
+      "build/whatkey-fixtures",
+      "when-in-rome",
+      "--bench-root",
+      "/private/tmp/contrapunctus-bench",
+      "--groups",
+      "bach-wtc",
+      "brahms-lieder",
+      "schubert-lieder",
+      "tavern"
+    ],
+    "script": "tool/whatkey_fixture_extract.py"
+  },
+  "schema": "whatkey-manifest/1",
+  "set": "when-in-rome-v1",
+  "source": {
+    "benchCommit": "b9e011c8cf34c5e76691dcf2c835b8c99ebd9d59",
+    "benchRoot": "/private/tmp/contrapunctus-bench",
+    "corpusCommit": "aa7539f1cf480997a68998405c0783ebf6339c16",
+    "license": "Verified for WhatKey when-in-rome-v1 groups. Fixture artifacts are derived from When-in-Rome analyses and carry CC BY-SA 4.0 provenance; see research/whatkey/data/provenance/when-in-rome-v1.md.",
+    "licenseVerified": true,
+    "type": "when-in-rome",
+    "verifiedGroups": [
+      "bach-wtc",
+      "brahms-lieder",
+      "schubert-lieder",
+      "tavern"
+    ]
+  },
+  "tempoBpm": 120.0
+}

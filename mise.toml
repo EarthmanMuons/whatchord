@@ -123,7 +123,7 @@ run = "dart run tool/whatkey_harness.dart --fixtures research/whatkey/data/fixtu
 description = "Run the WhatKey harness on the When-in-Rome development split"
 run = """
 dart run tool/whatkey_harness.dart \
-  --fixtures build/whatkey-fixtures/when-in-rome-v1 \
+  --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json
 """
 
@@ -132,11 +132,11 @@ description = "Score music21 external key baselines on the When-in-Rome developm
 depends = ["research:when-in-rome-install"]
 run = """
 python tool/whatkey_external_baseline.py \
-  --fixtures build/whatkey-fixtures/when-in-rome-v1 \
+  --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json
 for f in build/whatkey-baselines/when-in-rome-v1-development/*.claims.json; do
   dart run tool/whatkey_harness.dart \
-    --fixtures build/whatkey-fixtures/when-in-rome-v1 \
+    --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --claims-file "$f"
 done
