@@ -430,9 +430,9 @@ class _Options {
   final String? restrictTo;
   final List<double> sweepMarginFloors;
   final String detectorName;
-  final bool confidenceWeighted;
-  final double functionalBlend;
-  final double progressionBlend;
+  final bool? confidenceWeighted;
+  final double? functionalBlend;
+  final double? progressionBlend;
   final double selfTransition;
   final double emissionTemperature;
   final int hysteresis;
@@ -486,6 +486,23 @@ class _Options {
     final decay = decayHalfLifeEvents != null || seconds == 0
         ? null
         : Duration(seconds: seconds);
+    // Blend/weighting defaults are per detector: the hybrid's identity keeps
+    // its validated blends, while the HMM's shipped emissions run pure
+    // profile correlation (log entry 2026-07-07-18).
+    final hmmDefaults = detectorName == 'hmm';
+    final effectiveFunctional =
+        functionalBlend ??
+        (hmmDefaults
+            ? HmmKeyDetector.defaultEmissionFunctionalBlend
+            : HybridKeyDetector.defaultFunctionalBlend);
+    final effectiveProgression =
+        progressionBlend ??
+        (hmmDefaults
+            ? HmmKeyDetector.defaultEmissionProgressionBlend
+            : HybridKeyDetector.defaultProgressionBlend);
+    final effectiveConfidence =
+        confidenceWeighted ??
+        (hmmDefaults ? HmmKeyDetector.defaultEmissionConfidenceWeighted : true);
     return switch (detectorName) {
       'profile' => ProfileCorrelationKeyDetector(
         profiles: profiles,
@@ -496,7 +513,7 @@ class _Options {
         marginFloor: marginFloorOverride ?? marginFloor ?? 0.05,
       ),
       'progression' => ProgressionKeyDetector(
-        confidenceWeighted: confidenceWeighted,
+        confidenceWeighted: effectiveConfidence,
         durationWeighted: durationWeighted,
         decayHalfLife: decay,
         decayHalfLifeEvents: decayHalfLifeEvents,
@@ -504,7 +521,7 @@ class _Options {
         marginFloor: marginFloorOverride ?? marginFloor ?? 0.5,
       ),
       'evidence' => WeightedEvidenceKeyDetector(
-        confidenceWeighted: confidenceWeighted,
+        confidenceWeighted: effectiveConfidence,
         durationWeighted: durationWeighted,
         decayHalfLife: decay,
         decayHalfLifeEvents: decayHalfLifeEvents,
@@ -516,9 +533,9 @@ class _Options {
         durationWeighted: durationWeighted,
         decayHalfLife: decay,
         decayHalfLifeEvents: decayHalfLifeEvents,
-        confidenceWeighted: confidenceWeighted,
-        functionalBlend: functionalBlend,
-        progressionBlend: progressionBlend,
+        confidenceWeighted: effectiveConfidence,
+        functionalBlend: effectiveFunctional,
+        progressionBlend: effectiveProgression,
         selfTransition: selfTransition,
         emissionTemperature: emissionTemperature,
         minEvents: minEvents,
@@ -532,9 +549,9 @@ class _Options {
         durationWeighted: durationWeighted,
         decayHalfLife: decay,
         decayHalfLifeEvents: decayHalfLifeEvents,
-        confidenceWeighted: confidenceWeighted,
-        functionalBlend: functionalBlend,
-        progressionBlend: progressionBlend,
+        confidenceWeighted: effectiveConfidence,
+        functionalBlend: effectiveFunctional,
+        progressionBlend: effectiveProgression,
         minEvents: minEvents,
         marginFloor: marginFloorOverride ?? marginFloor ?? 0.05,
       ),
@@ -574,16 +591,18 @@ class _Options {
       claimsFile: values.remove('claims-file'),
       restrictTo: values.remove('restrict-to'),
       detectorName: values.remove('detector') ?? 'profile',
-      confidenceWeighted:
-          (values.remove('confidence-weighting') ?? 'on') != 'off',
-      functionalBlend: double.parse(
-        values.remove('functional-blend') ??
-            '${HybridKeyDetector.defaultFunctionalBlend}',
-      ),
-      progressionBlend: double.parse(
-        values.remove('progression-blend') ??
-            '${HybridKeyDetector.defaultProgressionBlend}',
-      ),
+      confidenceWeighted: switch (values.remove('confidence-weighting')) {
+        null => null,
+        final raw => raw != 'off',
+      },
+      functionalBlend: switch (values.remove('functional-blend')) {
+        null => null,
+        final raw => double.parse(raw),
+      },
+      progressionBlend: switch (values.remove('progression-blend')) {
+        null => null,
+        final raw => double.parse(raw),
+      },
       selfTransition: double.parse(values.remove('self-transition') ?? '0.9'),
       emissionTemperature: double.parse(
         values.remove('emission-temperature') ?? '0.25',

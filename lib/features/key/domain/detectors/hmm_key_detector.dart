@@ -45,6 +45,17 @@ class HmmKeyDetector implements KeyDetector {
   /// default.
   static const double defaultMarginFloor = 0.3;
 
+  /// Emission blends for the shipped section-scale configuration (log entry
+  /// 2026-07-07-18): the ablation factorial showed the functional and
+  /// progression terms vote for exactly the tonicization-scale excursions
+  /// the product absorbs, and removing them is a significant paired win on
+  /// section-scale labels (and what finally fixed blues). The hybrid
+  /// detector keeps its own nonzero blend defaults for tonicization-scale
+  /// work; these constants configure only the HMM's emissions.
+  static const double defaultEmissionFunctionalBlend = 0;
+  static const double defaultEmissionProgressionBlend = 0;
+  static const bool defaultEmissionConfidenceWeighted = false;
+
   final HybridKeyDetector _emissions;
   final double selfTransition;
   final double fifthsDecay;
@@ -64,9 +75,9 @@ class HmmKeyDetector implements KeyDetector {
       seconds: defaultEmissionHalfLifeSeconds,
     ),
     double? decayHalfLifeEvents,
-    bool confidenceWeighted = true,
-    double functionalBlend = HybridKeyDetector.defaultFunctionalBlend,
-    double progressionBlend = HybridKeyDetector.defaultProgressionBlend,
+    bool confidenceWeighted = defaultEmissionConfidenceWeighted,
+    double functionalBlend = defaultEmissionFunctionalBlend,
+    double progressionBlend = defaultEmissionProgressionBlend,
     this.selfTransition = 0.9,
     this.fifthsDecay = 0.5,
     this.modeSwitchFactor = 0.5,
