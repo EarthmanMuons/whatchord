@@ -31,6 +31,15 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
   /// Points for a chord root that is a scale degree of the key.
   final double rootDiatonicPoints;
 
+  /// Points for a tonic-degree chord with a home quality (the tonic set
+  /// includes dominant7 in major, so a blues I7 can be home evidence rather
+  /// than only V-of-IV). Default 0: at +4 and +2 it failed to flip blues
+  /// while regressing the modulating-chain probe and the corpus, because a
+  /// per-event tonic reward strengthens whatever key the current chord could
+  /// be tonic of and so fights modulation tracking (log entry 2026-07-07-11).
+  /// Kept as an ablatable parameter.
+  final double tonicBonusPoints;
+
   /// Points when every sounding pitch class fits the key's scale.
   final double allTonesDiatonicPoints;
 
@@ -65,6 +74,7 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
 
   WeightedEvidenceKeyDetector({
     this.rootDiatonicPoints = 2,
+    this.tonicBonusPoints = 0,
     this.allTonesDiatonicPoints = 3,
     this.chromaticPenaltyPoints = 1,
     this.dominantBonusPoints = 4,
@@ -82,7 +92,7 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
 
   @override
   String get configuration =>
-      'points=$rootDiatonicPoints/$allTonesDiatonicPoints/'
+      'points=$rootDiatonicPoints/$tonicBonusPoints/$allTonesDiatonicPoints/'
       '-$chromaticPenaltyPoints/$dominantBonusPoints/'
       '$dominantTriadBonusPoints/$leadingToneBonusPoints '
       'confidenceWeighted=$confidenceWeighted '
@@ -143,6 +153,10 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
     }
 
     final rootInterval = (identity.rootPc - tonality.tonicPitchClass + 12) % 12;
+    if (rootInterval == 0 &&
+        KeySpace.tonicQualities(tonality).contains(identity.quality)) {
+      points += tonicBonusPoints;
+    }
     if (rootInterval == 7 && _dominantFamily.contains(identity.quality)) {
       points += dominantBonusPoints;
     }

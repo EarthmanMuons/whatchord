@@ -154,6 +154,30 @@ void main() {
     expect(claim.tonality.isMajor, isTrue);
   });
 
+  test('a dominant-quality tonic is home evidence, not only V-of-IV', () {
+    // A lone C7: without the tonic bonus, F major scores +9 (diatonic root,
+    // all tones diatonic, dominant-on-V) while C major scores +1 (root
+    // diatonic, Bb chromatic). The bonus must narrow that structural gap.
+    final event = _event(0, [0, 4, 7, 10], ChordQualityToken.dominant7);
+    double gap(WeightedEvidenceKeyDetector detector) {
+      detector.reset();
+      final ranked = detector.onEvent(event).ranked;
+      double confidence(int pc) => ranked
+          .firstWhere(
+            (e) => e.tonality.tonicPitchClass == pc && e.tonality.isMajor,
+          )
+          .confidence;
+      return confidence(5) - confidence(0);
+    }
+
+    final without = gap(WeightedEvidenceKeyDetector(minEvents: 1));
+    final with_ = gap(
+      WeightedEvidenceKeyDetector(tonicBonusPoints: 4, minEvents: 1),
+    );
+    expect(with_, lessThan(without));
+    expect(with_, greaterThan(0)); // F still leads on one chord; that is fair.
+  });
+
   test('ranked list covers all 24 keys exactly once', () {
     final frames = _run(WeightedEvidenceKeyDetector(), cCadence);
     final ranked = frames.last.ranked;

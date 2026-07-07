@@ -27,6 +27,12 @@ import 'weighted_evidence_key_detector.dart';
 /// reduces exactly to pure profile correlation, the ablation anchor; each
 /// term toggles independently per the protocol's ablation rules.
 class HybridKeyDetector implements KeyDetector {
+  /// Champion defaults, selected on the development split (log entries
+  /// 2026-07-07-04 and -08). The harness parse defaults reference these
+  /// constants so the CLI cannot silently diverge from the class defaults.
+  static const double defaultFunctionalBlend = 0.1;
+  static const double defaultProgressionBlend = 0.02;
+
   final ProfileCorrelationKeyDetector _profile;
   final WeightedEvidenceKeyDetector _evidence;
   final ProgressionKeyDetector _progression;
@@ -50,10 +56,10 @@ class HybridKeyDetector implements KeyDetector {
     // Selected on the development split: the blend sweep plateaus at
     // 0.1-0.15 and the paired test against the profile floor is decisive
     // there (log entry 2026-07-07-04).
-    this.functionalBlend = 0.1,
+    this.functionalBlend = defaultFunctionalBlend,
     // Selected on the development split: paired coverage win at unchanged
     // accuracy, plus more modulations matched (log entry 2026-07-07-08).
-    this.progressionBlend = 0.02,
+    this.progressionBlend = defaultProgressionBlend,
     this.minEvents = 3,
     this.marginFloor = 0.05,
   }) : _profile = ProfileCorrelationKeyDetector(
