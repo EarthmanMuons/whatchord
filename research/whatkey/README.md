@@ -41,14 +41,16 @@ versioned fixtures, external baselines, and dated logs.
   matched coverage, trails TemperleyKostkaPayne, and misses most annotated
   modulations, which is the gap the next detector targets. See `log/` for the
   numbers.
-- **Detectors so far:** the profile-correlation floor and the weighted evidence
-  model (design plan section 2d). The evidence model wins the functional probes
-  the histogram fails (it tracks the modulating ii-V-I chain) but loses to the
-  floor on the classical corpus; the two fail in complementary places. See
-  `log/` for the numbers.
-- **Next:** a hybrid detector (histogram base plus functional bonuses), claim
-  hysteresis for tonicizations, and the progression-pattern layer (design plan
-  section 2e), gated by paired per-piece statistics.
+- **Detectors so far:** the profile-correlation floor, the weighted evidence
+  model (design plan section 2d), and their hybrid, the current champion: it
+  beats the floor on the development split with paired statistics (+0.096 exact
+  per piece, Wilcoxon p = 0.003) at higher coverage. The two ingredients fail in
+  complementary places and the blend captures both; blues remains the flagship
+  open probe (function rules mis-key it toward the subdominant). See `log/` for
+  the numbers.
+- **Next:** modulation responsiveness (adaptive decay or claim hysteresis), the
+  progression-pattern layer (design plan section 2e), and the deferred
+  default-profile revisit, all gated by paired per-piece statistics.
 
 ## Reading order
 

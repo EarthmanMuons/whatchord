@@ -17,8 +17,12 @@ project's reasoning without combing through git history.
 - Negative results and dead ends get entries too; they are the part git history
   is worst at preserving.
 - Link measurement terms to [../GLOSSARY.md](../GLOSSARY.md) instead of
-  re-defining them; keep an entry's own plain-English section for interpreting
-  that entry's specific results.
+  re-defining them.
+- When an entry leans on heavy technical jargon, statistics, or math, include a
+  **Plain-English reading** section (after Results/Reading, before Decisions)
+  that interprets that entry's specific numbers for a reader without the
+  background: what the result means, not just what it measures. Entries
+  2026-07-07-01 and 2026-07-07-04 are the pattern to follow.
 
 ## Entry template
 
@@ -30,6 +34,9 @@ project's reasoning without combing through git history.
 **Setup.** Engine commit, fixture version, corpus pins, parameters.
 
 **What happened.** Actions and results, with numbers.
+
+**Plain-English reading.** (When the entry is jargon- or statistics-heavy.) What
+the numbers mean for a reader without the background.
 
 **Decisions.** What was decided and why, including alternatives rejected.
 

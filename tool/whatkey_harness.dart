@@ -8,10 +8,10 @@
 // Usage:
 //   dart run tool/whatkey_harness.dart --fixtures <set-dir> \
 //     [--split-file <split.json>] [--split development|test] \
-//     [--detector profile|evidence] \
+//     [--detector profile|evidence|hybrid] \
 //     [--profiles krumhanslKessler|temperley|temperleyKostkaPayne|
 //                 albrechtShanahan] \
-//     [--confidence-weighting on|off] \
+//     [--confidence-weighting on|off] [--functional-blend X] \
 //     [--weighting duration|flat] [--decay-half-life-seconds N] \
 //     [--min-events N] [--margin-floor X] [--out <dir>] \
 //     [--claims-file <claims.json>] [--restrict-to <claims.json>] \
@@ -429,6 +429,7 @@ class _Options {
   final List<double> sweepMarginFloors;
   final String detectorName;
   final bool confidenceWeighted;
+  final double functionalBlend;
   final KeyProfilePair profiles;
   final bool durationWeighted;
   final int decayHalfLifeSeconds;
@@ -445,6 +446,7 @@ class _Options {
     required this.sweepMarginFloors,
     required this.detectorName,
     required this.confidenceWeighted,
+    required this.functionalBlend,
     required this.profiles,
     required this.durationWeighted,
     required this.decayHalfLifeSeconds,
@@ -472,7 +474,18 @@ class _Options {
         minEvents: minEvents,
         marginFloor: marginFloorOverride ?? marginFloor ?? 0.5,
       ),
-      _ => throw ArgumentError('--detector must be profile or evidence'),
+      'hybrid' => HybridKeyDetector(
+        profiles: profiles,
+        durationWeighted: durationWeighted,
+        decayHalfLife: decay,
+        confidenceWeighted: confidenceWeighted,
+        functionalBlend: functionalBlend,
+        minEvents: minEvents,
+        marginFloor: marginFloorOverride ?? marginFloor ?? 0.05,
+      ),
+      _ => throw ArgumentError(
+        '--detector must be profile, evidence, or hybrid',
+      ),
     };
   }
 
@@ -508,6 +521,7 @@ class _Options {
       detectorName: values.remove('detector') ?? 'profile',
       confidenceWeighted:
           (values.remove('confidence-weighting') ?? 'on') != 'off',
+      functionalBlend: double.parse(values.remove('functional-blend') ?? '0.1'),
       sweepMarginFloors: [
         for (final floor in (values.remove('sweep-margin-floors') ?? '').split(
           ',',
