@@ -98,6 +98,7 @@ void main(List<String> arguments) {
   final report = <String, Object?>{
     'schema': 'whatkey-harness-report/1',
     'generatedAt': DateTime.now().toUtc().toIso8601String(),
+    'command': 'dart run tool/whatkey_harness.dart ${arguments.join(' ')}',
     'engineCommit': _git(['rev-parse', 'HEAD']),
     'engineLibDirty': _git(['status', '--porcelain', '--', 'lib']).isNotEmpty,
     'fixtures': {
@@ -224,7 +225,8 @@ String _textReport(Map<String, Object?> report, List<PieceScore> pieces) {
       'engine:    ${report['engineCommit']}'
       '${report['engineLibDirty'] == true ? ' (lib dirty)' : ''}',
     )
-    ..writeln('generated: ${report['generatedAt']}');
+    ..writeln('generated: ${report['generatedAt']}')
+    ..writeln('command:   ${report['command']}');
   if (report['restrictedTo'] != null) {
     buffer.writeln(
       'restricted: coverage/accuracy computed only over events claimed in\n'
