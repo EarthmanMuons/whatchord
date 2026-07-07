@@ -1,4 +1,5 @@
 export 'domain/detectors/claim_hysteresis_detector.dart';
+export 'domain/detectors/hmm_key_detector.dart';
 export 'domain/detectors/hybrid_key_detector.dart';
 export 'domain/detectors/key_detector.dart';
 export 'domain/detectors/key_profiles.dart';
