@@ -48,15 +48,16 @@ versioned fixtures, external baselines, and dated logs.
   it beats the floor with paired statistics (+0.096 exact per piece, p = 0.003),
   and the progression term added a decisive paired coverage win (+0.052 per
   piece, p = 0.0008) at unchanged accuracy. The protocol is frozen. Blues
-  remains the flagship open probe, now with a precise diagnosis: even on the
-  fair two-chorus fixture, the evidence layer's per-event V-of-F pull outweighs
-  the sparse seam cadence, so the fix is a dominant-quality-tonic concept in the
-  evidence model. See `log/` for the numbers.
-- **Next:** the 2c HMM (forward-algorithm posterior over the hybrid's
-  emissions), ASAP performed-input fixtures, and the evidence model's
-  dominant-quality-tonic fix, all gated by paired per-piece statistics. The
-  profile revisit is closed (Albrecht-Shanahan stays) and the behavioral suite
-  is at pop-jazz-v2.
+  remains the flagship open probe with two mechanisms tried and precisely
+  rejected (raising the progression blend costs corpus accuracy; a per-event
+  tonic bonus in the evidence model buys only a partial fix at a real corpus
+  cost), leaving stateful sequence modeling as the remaining candidate. See
+  `log/` for the numbers.
+- **Next:** the 2c HMM (forward-algorithm posterior over the hybrid's emissions,
+  whose self-transition persistence is what both blues and modulation tracking
+  now point at) and ASAP performed-input fixtures, gated by paired per-piece
+  statistics. The profile revisit is closed (Albrecht-Shanahan stays) and the
+  behavioral suite is at pop-jazz-v2.
 
 ## Reading order
 

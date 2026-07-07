@@ -152,8 +152,8 @@ class ProgressionKeyDetector implements KeyDetector {
     final toInterval = interval(to.rootPc);
     var points = 0.0;
 
-    final tonicQualities = key.isMajor ? _majorTonic : _minorTonic;
-    final toIsTonic = toInterval == 0 && tonicQualities.contains(to.quality);
+    final toIsTonic =
+        toInterval == 0 && KeySpace.tonicQualities(key).contains(to.quality);
 
     if (toIsTonic && fromInterval == 7) {
       if (_dominantFamily.contains(from.quality)) {
@@ -259,22 +259,6 @@ class ProgressionKeyDetector implements KeyDetector {
     ]..sort((a, b) => b.confidence.compareTo(a.confidence));
     return estimates;
   }
-
-  /// Chords that read as "home" over the tonic. Major includes dominant7 so a
-  /// blues I7 is tonic, not V-of-IV.
-  static const Set<ChordQualityToken> _majorTonic = {
-    ChordQualityToken.major,
-    ChordQualityToken.major6,
-    ChordQualityToken.major7,
-    ChordQualityToken.dominant7,
-  };
-
-  static const Set<ChordQualityToken> _minorTonic = {
-    ChordQualityToken.minor,
-    ChordQualityToken.minor6,
-    ChordQualityToken.minor7,
-    ChordQualityToken.minorMajor7,
-  };
 
   static const Set<ChordQualityToken> _dominantFamily = {
     ChordQualityToken.dominant7,

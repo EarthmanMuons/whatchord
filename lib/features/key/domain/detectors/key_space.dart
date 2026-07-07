@@ -37,4 +37,26 @@ abstract final class KeySpace {
 
   // Natural {0,2,3,5,7,8,10} union harmonic {..., 11}: 0,2,3,5,7,8,10,11
   static const int _minorMask = 0xDAD;
+
+  /// Chord qualities that read as "home" over a major tonic. Includes
+  /// dominant7 so a blues I7 counts as tonic rather than only as V-of-IV
+  /// (log entry 2026-07-07-10).
+  static const Set<ChordQualityToken> majorTonicQualities = {
+    ChordQualityToken.major,
+    ChordQualityToken.major6,
+    ChordQualityToken.major7,
+    ChordQualityToken.dominant7,
+  };
+
+  /// Chord qualities that read as "home" over a minor tonic.
+  static const Set<ChordQualityToken> minorTonicQualities = {
+    ChordQualityToken.minor,
+    ChordQualityToken.minor6,
+    ChordQualityToken.minor7,
+    ChordQualityToken.minorMajor7,
+  };
+
+  /// The tonic quality set for [tonality]'s mode.
+  static Set<ChordQualityToken> tonicQualities(Tonality tonality) =>
+      tonality.isMajor ? majorTonicQualities : minorTonicQualities;
 }

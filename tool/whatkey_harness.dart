@@ -541,8 +541,14 @@ class _Options {
       detectorName: values.remove('detector') ?? 'profile',
       confidenceWeighted:
           (values.remove('confidence-weighting') ?? 'on') != 'off',
-      functionalBlend: double.parse(values.remove('functional-blend') ?? '0.1'),
-      progressionBlend: double.parse(values.remove('progression-blend') ?? '0'),
+      functionalBlend: double.parse(
+        values.remove('functional-blend') ??
+            '${HybridKeyDetector.defaultFunctionalBlend}',
+      ),
+      progressionBlend: double.parse(
+        values.remove('progression-blend') ??
+            '${HybridKeyDetector.defaultProgressionBlend}',
+      ),
       hysteresis: int.parse(values.remove('hysteresis') ?? '1'),
       sweepMarginFloors: [
         for (final floor in (values.remove('sweep-margin-floors') ?? '').split(
