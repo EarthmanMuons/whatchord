@@ -541,6 +541,15 @@ Questions to resolve before implementing any algorithm:
   - **Bayesian online changepoint detection.** Maintains a posterior over "when
     did the current key section start," handling the timescale question natively
     instead of via a fixed decay, and composes naturally with abstention.
+    **Built and measured, not adopted** (log entry 2026-07-07-26,
+    `BocpdKeyDetector` retained): the adaptive window delivers its promise,
+    modulation matching jumps from 94/192 to ~165/192 on Isophonics dev, but at
+    a stability cost no tuning recovers (spurious median 5+ vs 0), and it
+    dominates the HMM only in the reactive regime the product deliberately did
+    not choose. Tsaknaki, Lillo & Mazzarisi (2024) diagnose the false alarms
+    correctly (within-regime dependence violating independent-given-key) but
+    their autoregressive Gaussian remedies have no analog for categorical chord
+    emissions; see References.
   - **Ruled out for this setting**: neural sequence models (offline,
     score-hungry, heavy for on-device causal inference; the accuracy state of
     the art for symbolic local key, but the wrong tool here), particle filters
@@ -856,6 +865,18 @@ Sequence / probabilistic models:
   Reference implementation:
   [justkeydding](https://github.com/napulen/justkeydding). Global and local key
   from an HMM with profile emissions; the closest published analogue of 2c.
+- Adams, R. P., & MacKay, D. J. C. (2007).
+  ["Bayesian Online Changepoint Detection"](https://arxiv.org/abs/0710.3742)
+  (arXiv:0710.3742). The run-length posterior recursion behind the BOCPD
+  detector: constant-hazard changepoints with per-run conjugate evidence
+  pooling, run causally.
+- Tsaknaki, I.-Y., Lillo, F., & Mazzarisi, P. (2024).
+  ["Bayesian Autoregressive Online Change-Point Detection with Time-Varying Parameters"](https://www.sciencedirect.com/science/article/pii/S1007570424006853)
+  (_Communications in Nonlinear Science and Numerical Simulation_;
+  [arXiv:2407.16376](https://arxiv.org/abs/2407.16376)). Extends BOCPD with
+  within-regime autoregression and score-driven parameters to suppress false
+  changepoints from within-regime dependence; reviewed for WhatKey in log entry
+  2026-07-07-26 (diagnosis transfers, Gaussian remedies do not).
 
 Geometric / real-time:
 
