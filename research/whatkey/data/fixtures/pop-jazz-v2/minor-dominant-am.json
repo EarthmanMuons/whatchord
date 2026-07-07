@@ -1,0 +1,207 @@
+{
+  "events": [
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 137,
+          "quality": "minor",
+          "rootPc": 9
+        }
+      ],
+      "durationMs": 2000,
+      "index": 0,
+      "labels": {
+        "figure": "i",
+        "localKey": "A:min"
+      },
+      "midiNotes": [
+        45,
+        57,
+        60,
+        64
+      ],
+      "noteCount": 4,
+      "pcMask": 529,
+      "timestampMs": 0
+    },
+    {
+      "bassPc": 2,
+      "candidates": [
+        {
+          "bassPc": 2,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 137,
+          "quality": "minor",
+          "rootPc": 2
+        }
+      ],
+      "durationMs": 2000,
+      "index": 1,
+      "labels": {
+        "figure": "iv",
+        "localKey": "A:min"
+      },
+      "midiNotes": [
+        50,
+        57,
+        62,
+        65
+      ],
+      "noteCount": 4,
+      "pcMask": 548,
+      "timestampMs": 2000
+    },
+    {
+      "bassPc": 4,
+      "candidates": [
+        {
+          "bassPc": 4,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 4
+        }
+      ],
+      "durationMs": 2000,
+      "index": 2,
+      "labels": {
+        "figure": "V7",
+        "localKey": "A:min"
+      },
+      "midiNotes": [
+        40,
+        56,
+        59,
+        62
+      ],
+      "noteCount": 4,
+      "pcMask": 2324,
+      "timestampMs": 4000
+    },
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 137,
+          "quality": "minor",
+          "rootPc": 9
+        }
+      ],
+      "durationMs": 2000,
+      "index": 3,
+      "labels": {
+        "figure": "i",
+        "localKey": "A:min"
+      },
+      "midiNotes": [
+        45,
+        57,
+        60,
+        64
+      ],
+      "noteCount": 4,
+      "pcMask": 529,
+      "timestampMs": 6000
+    },
+    {
+      "bassPc": 2,
+      "candidates": [
+        {
+          "bassPc": 2,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 137,
+          "quality": "minor",
+          "rootPc": 2
+        }
+      ],
+      "durationMs": 2000,
+      "index": 4,
+      "labels": {
+        "figure": "iv",
+        "localKey": "A:min"
+      },
+      "midiNotes": [
+        50,
+        57,
+        62,
+        65
+      ],
+      "noteCount": 4,
+      "pcMask": 548,
+      "timestampMs": 8000
+    },
+    {
+      "bassPc": 4,
+      "candidates": [
+        {
+          "bassPc": 4,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 4
+        }
+      ],
+      "durationMs": 2000,
+      "index": 5,
+      "labels": {
+        "figure": "V7",
+        "localKey": "A:min"
+      },
+      "midiNotes": [
+        40,
+        56,
+        59,
+        62
+      ],
+      "noteCount": 4,
+      "pcMask": 2324,
+      "timestampMs": 10000
+    },
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 137,
+          "quality": "minor",
+          "rootPc": 9
+        }
+      ],
+      "durationMs": 4000,
+      "index": 6,
+      "labels": {
+        "figure": "i",
+        "localKey": "A:min"
+      },
+      "midiNotes": [
+        45,
+        57,
+        60,
+        64
+      ],
+      "noteCount": 4,
+      "pcMask": 529,
+      "timestampMs": 12000
+    }
+  ],
+  "id": "pop-jazz-v2/minor-dominant-am",
+  "labels": {
+    "globalKey": "A:min",
+    "notes": "The harmonic-minor dominant: E7's G# is the single strongest indicator of A minor and must not be scored as chromatic against it (the natural-minor diatonicity trap)."
+  },
+  "schema": "whatkey-fixture/1",
+  "title": "i-iv-V7-i in A minor"
+}

@@ -90,10 +90,10 @@ python tool/when_in_rome_chord_benchmark.py \
 """
 
 [tasks."research:whatkey-fixtures-pop-jazz"]
-description = "Regenerate the WhatKey hand-authored pop/jazz fixture set"
+description = "Regenerate the WhatKey hand-authored pop/jazz fixture set (current version)"
 run = """
 python tool/whatkey_fixture_extract.py \
-  --set pop-jazz-v1 \
+  --set pop-jazz-v2 \
   --out research/whatkey/data/fixtures \
   charts --charts-dir research/whatkey/data/sources/pop-jazz
 """
@@ -117,7 +117,7 @@ python tool/whatkey_fixture_extract.py \
 
 [tasks."research:whatkey-harness-pop-jazz"]
 description = "Run the WhatKey harness on the hand-authored behavioral suite"
-run = "dart run tool/whatkey_harness.dart --fixtures research/whatkey/data/fixtures/pop-jazz-v1"
+run = "dart run tool/whatkey_harness.dart --fixtures research/whatkey/data/fixtures/pop-jazz-v2"
 
 [tasks."research:whatkey-harness-dev"]
 description = "Run the WhatKey harness on the When-in-Rome development split"

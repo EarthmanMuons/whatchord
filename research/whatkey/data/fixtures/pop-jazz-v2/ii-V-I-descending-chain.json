@@ -1,0 +1,287 @@
+{
+  "events": [
+    {
+      "bassPc": 2,
+      "candidates": [
+        {
+          "bassPc": 2,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1161,
+          "quality": "minor7",
+          "rootPc": 2
+        },
+        {
+          "bassPc": 2,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 657,
+          "quality": "major6",
+          "rootPc": 5
+        }
+      ],
+      "durationMs": 1000,
+      "index": 0,
+      "labels": {
+        "figure": "ii7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        50,
+        53,
+        57,
+        60
+      ],
+      "noteCount": 4,
+      "pcMask": 549,
+      "timestampMs": 0
+    },
+    {
+      "bassPc": 7,
+      "candidates": [
+        {
+          "bassPc": 7,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 7
+        }
+      ],
+      "durationMs": 1000,
+      "index": 1,
+      "labels": {
+        "figure": "V7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        43,
+        53,
+        59,
+        62
+      ],
+      "noteCount": 4,
+      "pcMask": 2212,
+      "timestampMs": 1000
+    },
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 2193,
+          "quality": "major7",
+          "rootPc": 0
+        }
+      ],
+      "durationMs": 2000,
+      "index": 2,
+      "labels": {
+        "figure": "IM7",
+        "localKey": "C:maj"
+      },
+      "midiNotes": [
+        48,
+        52,
+        55,
+        59
+      ],
+      "noteCount": 4,
+      "pcMask": 2193,
+      "timestampMs": 2000
+    },
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1161,
+          "quality": "minor7",
+          "rootPc": 0
+        },
+        {
+          "bassPc": 0,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 657,
+          "quality": "major6",
+          "rootPc": 3
+        }
+      ],
+      "durationMs": 1000,
+      "index": 3,
+      "labels": {
+        "figure": "ii7",
+        "localKey": "Bb:maj"
+      },
+      "midiNotes": [
+        48,
+        51,
+        55,
+        58
+      ],
+      "noteCount": 4,
+      "pcMask": 1161,
+      "timestampMs": 4000
+    },
+    {
+      "bassPc": 5,
+      "candidates": [
+        {
+          "bassPc": 5,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 5
+        }
+      ],
+      "durationMs": 1000,
+      "index": 4,
+      "labels": {
+        "figure": "V7",
+        "localKey": "Bb:maj"
+      },
+      "midiNotes": [
+        41,
+        51,
+        57,
+        60
+      ],
+      "noteCount": 4,
+      "pcMask": 553,
+      "timestampMs": 5000
+    },
+    {
+      "bassPc": 10,
+      "candidates": [
+        {
+          "bassPc": 10,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 2193,
+          "quality": "major7",
+          "rootPc": 10
+        }
+      ],
+      "durationMs": 2000,
+      "index": 5,
+      "labels": {
+        "figure": "IM7",
+        "localKey": "Bb:maj"
+      },
+      "midiNotes": [
+        46,
+        50,
+        53,
+        57
+      ],
+      "noteCount": 4,
+      "pcMask": 1572,
+      "timestampMs": 6000
+    },
+    {
+      "bassPc": 10,
+      "candidates": [
+        {
+          "bassPc": 10,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1161,
+          "quality": "minor7",
+          "rootPc": 10
+        },
+        {
+          "bassPc": 10,
+          "cost": 0.15,
+          "extensions": [],
+          "presentIntervalsMask": 657,
+          "quality": "major6",
+          "rootPc": 1
+        }
+      ],
+      "durationMs": 1000,
+      "index": 6,
+      "labels": {
+        "figure": "ii7",
+        "localKey": "Ab:maj"
+      },
+      "midiNotes": [
+        46,
+        49,
+        53,
+        56
+      ],
+      "noteCount": 4,
+      "pcMask": 1314,
+      "timestampMs": 8000
+    },
+    {
+      "bassPc": 3,
+      "candidates": [
+        {
+          "bassPc": 3,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 1169,
+          "quality": "dominant7",
+          "rootPc": 3
+        }
+      ],
+      "durationMs": 1000,
+      "index": 7,
+      "labels": {
+        "figure": "V7",
+        "localKey": "Ab:maj"
+      },
+      "midiNotes": [
+        39,
+        49,
+        55,
+        58
+      ],
+      "noteCount": 4,
+      "pcMask": 1162,
+      "timestampMs": 9000
+    },
+    {
+      "bassPc": 8,
+      "candidates": [
+        {
+          "bassPc": 8,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 2193,
+          "quality": "major7",
+          "rootPc": 8
+        }
+      ],
+      "durationMs": 4000,
+      "index": 8,
+      "labels": {
+        "figure": "IM7",
+        "localKey": "Ab:maj"
+      },
+      "midiNotes": [
+        44,
+        48,
+        51,
+        55
+      ],
+      "noteCount": 4,
+      "pcMask": 393,
+      "timestampMs": 10000
+    }
+  ],
+  "id": "pop-jazz-v2/ii-V-I-descending-chain",
+  "labels": {
+    "globalKey": null,
+    "notes": "A modulating chain of ii-V-I cadences a whole step apart. Evaluate local keys and modulation lag; there is no single global key."
+  },
+  "schema": "whatkey-fixture/1",
+  "title": "ii-V-I chain descending through C, Bb, Ab"
+}

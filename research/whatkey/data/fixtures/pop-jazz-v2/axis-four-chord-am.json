@@ -1,0 +1,263 @@
+{
+  "events": [
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 137,
+          "quality": "minor",
+          "rootPc": 9
+        }
+      ],
+      "durationMs": 2000,
+      "index": 0,
+      "labels": {
+        "acceptableKeys": [
+          "A:min",
+          "C:maj"
+        ],
+        "localKey": null
+      },
+      "midiNotes": [
+        45,
+        57,
+        60,
+        64
+      ],
+      "noteCount": 4,
+      "pcMask": 529,
+      "timestampMs": 0
+    },
+    {
+      "bassPc": 5,
+      "candidates": [
+        {
+          "bassPc": 5,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 5
+        }
+      ],
+      "durationMs": 2000,
+      "index": 1,
+      "labels": {
+        "acceptableKeys": [
+          "A:min",
+          "C:maj"
+        ],
+        "localKey": null
+      },
+      "midiNotes": [
+        41,
+        57,
+        60,
+        65
+      ],
+      "noteCount": 4,
+      "pcMask": 545,
+      "timestampMs": 2000
+    },
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 0
+        }
+      ],
+      "durationMs": 2000,
+      "index": 2,
+      "labels": {
+        "acceptableKeys": [
+          "A:min",
+          "C:maj"
+        ],
+        "localKey": null
+      },
+      "midiNotes": [
+        48,
+        60,
+        64,
+        67
+      ],
+      "noteCount": 4,
+      "pcMask": 145,
+      "timestampMs": 4000
+    },
+    {
+      "bassPc": 7,
+      "candidates": [
+        {
+          "bassPc": 7,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 7
+        }
+      ],
+      "durationMs": 2000,
+      "index": 3,
+      "labels": {
+        "acceptableKeys": [
+          "A:min",
+          "C:maj"
+        ],
+        "localKey": null
+      },
+      "midiNotes": [
+        43,
+        59,
+        62,
+        67
+      ],
+      "noteCount": 4,
+      "pcMask": 2180,
+      "timestampMs": 6000
+    },
+    {
+      "bassPc": 9,
+      "candidates": [
+        {
+          "bassPc": 9,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 137,
+          "quality": "minor",
+          "rootPc": 9
+        }
+      ],
+      "durationMs": 2000,
+      "index": 4,
+      "labels": {
+        "acceptableKeys": [
+          "A:min",
+          "C:maj"
+        ],
+        "localKey": null
+      },
+      "midiNotes": [
+        45,
+        57,
+        60,
+        64
+      ],
+      "noteCount": 4,
+      "pcMask": 529,
+      "timestampMs": 8000
+    },
+    {
+      "bassPc": 5,
+      "candidates": [
+        {
+          "bassPc": 5,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 5
+        }
+      ],
+      "durationMs": 2000,
+      "index": 5,
+      "labels": {
+        "acceptableKeys": [
+          "A:min",
+          "C:maj"
+        ],
+        "localKey": null
+      },
+      "midiNotes": [
+        41,
+        57,
+        60,
+        65
+      ],
+      "noteCount": 4,
+      "pcMask": 545,
+      "timestampMs": 10000
+    },
+    {
+      "bassPc": 0,
+      "candidates": [
+        {
+          "bassPc": 0,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 0
+        }
+      ],
+      "durationMs": 2000,
+      "index": 6,
+      "labels": {
+        "acceptableKeys": [
+          "A:min",
+          "C:maj"
+        ],
+        "localKey": null
+      },
+      "midiNotes": [
+        48,
+        60,
+        64,
+        67
+      ],
+      "noteCount": 4,
+      "pcMask": 145,
+      "timestampMs": 12000
+    },
+    {
+      "bassPc": 7,
+      "candidates": [
+        {
+          "bassPc": 7,
+          "cost": 0.0,
+          "extensions": [],
+          "presentIntervalsMask": 145,
+          "quality": "major",
+          "rootPc": 7
+        }
+      ],
+      "durationMs": 2000,
+      "index": 7,
+      "labels": {
+        "acceptableKeys": [
+          "A:min",
+          "C:maj"
+        ],
+        "localKey": null
+      },
+      "midiNotes": [
+        43,
+        59,
+        62,
+        67
+      ],
+      "noteCount": 4,
+      "pcMask": 2180,
+      "timestampMs": 14000
+    }
+  ],
+  "id": "pop-jazz-v2/axis-four-chord-am",
+  "labels": {
+    "acceptableKeys": [
+      "A:min",
+      "C:maj"
+    ],
+    "globalKey": null,
+    "notes": "The same axis chords rotated to start on Am, with no dominant of A minor anywhere. Reasonable musicians disagree between A minor and C major; abstaining or either acceptable key is correct."
+  },
+  "schema": "whatkey-fixture/1",
+  "title": "Am-F-C-G loop (deliberately ambiguous)"
+}
