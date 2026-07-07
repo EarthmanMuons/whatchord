@@ -1,0 +1,43 @@
+WhatKey harness report
+============================================================
+set:       asap-nc-v2 (test split)
+detector:  hmm
+config:    selfTransition=0.9 fifthsDecay=0.5 modeSwitchFactor=0.5 emissionTemperature=0.25 minEvents=3 marginFloor=0.3 modeTilt=2.0 relativeTilt=0.0 relativeCadenceTilt=0.0 | emissions: functionalBlend=0.0 progressionBlend=0.0 minEvents=1 marginFloor=0.0 | profile: profiles=albrechtShanahan durationWeighted=true decayHalfLifeMs=30000 decayHalfLifeEvents=null minEvents=1 marginFloor=0.0 | evidence: points=2.0/0.0/3.0/-1.0/4.0/2.0/3.0 confidenceWeighted=false durationWeighted=true decayHalfLifeMs=30000 decayHalfLifeEvents=null minEvents=1 marginFloor=0.0 | progression: points=5.0/3.0/+1.0/4.0/2.0/3.0/2.0/2.0/1.0/1.0 confidenceWeighted=false durationWeighted=true decayHalfLifeMs=30000 decayHalfLifeEvents=null minEvents=1 marginFloor=0.0
+engine:    0c891453b104fd7c60eb1f5f0c2677884d0e842b
+generated: 2026-07-07T22:55:53.846613Z
+command:   dart run tool/whatkey_harness.dart --fixtures build/whatkey-fixtures/asap-nc-v2 --split-file research/whatkey/data/splits/asap-nc-v2.json --split test --detector hmm --out build/whatkey-harness/test-asap-hmm-shipped
+
+Summary (10 pieces, 4139 events)
+  Coverage (mean per piece)                                0.83
+  Accuracy on claimed, exact (mean per piece)                 -  (0 pieces with claims)
+  Accuracy on claimed, MIREX (mean per piece)                 -
+  Global key MIREX, final claim                               -  (0 pieces scored)
+  Global key MIREX, majority claim                            -
+  Time to first claim (events)                  median 2, p90 3  (0 pieces never claim)
+  Switches per piece                           median 7, p90 18
+  Spurious switches per piece                   median 0, p90 0
+  Modulations matched                                       0/0  (0 censored)
+  Modulation lag (events)                                     -
+
+Per piece
+  events: chord events
+  cover: fraction of events with a key claim
+  exact: exact-match accuracy on claimed events
+  mirex: MIREX-weighted accuracy on claimed events
+  ttfc: events before the first claim
+  sw: key switches
+  spur: spurious switches
+  amb-ok: ambiguous events handled acceptably
+
+  piece                                         events  cover  exact  mirex  ttfc  sw  spur   amb-ok
+  --------------------------------------------  ------  -----  -----  -----  ----  --  ----  -------
+  Bach/Fugue/bwv_856/LuoJ01M                        11   0.36      -      -     3   1     0    11/11
+  Beethoven/Piano_Sonatas/1-1/KimG01                33   0.91      -      -     2   2     0    33/33
+  Chopin/Ballades/4/ChenC04M                       807   0.90      -      -     2  26     0  252/807
+  Haydn/Keyboard_Sonatas/32-1/Pavlovic02           175   0.75      -      -     2   7     0  156/175
+  Liszt/Ballade_2/Broberg03                        842   0.90      -      -     2  16     0  352/842
+  Mozart/Fantasie_475/Huangci05M                   630   0.93      -      -     2  18     0   48/630
+  Rachmaninoff/Preludes_op_23/4/ChenGuang12M       313   0.99      -      -     2   0     0  313/313
+  Ravel/Pavane/ChenS03                             321   0.64      -      -     2  15     0  230/321
+  Schubert/Impromptu_op.90_D.899/2/Denisova11M     353   0.93      -      -     3  10     0  146/353
+  Schumann/Kreisleriana/2/JohannsonP03             654   0.98      -      -     2   2     0  654/654

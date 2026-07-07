@@ -55,9 +55,15 @@ versioned fixtures, external baselines, and dated logs.
   calibrated confidence; the controlled same-input experiment on the
   mode-resolved set confirmed the timescale story on performed input and
   measured mode accuracy directly.
-- **Next:** the one-shot test-split evaluation across the three frozen splits,
-  then the product integration (inferred-key provider and home-screen
-  indicator).
+- **Test-split evaluation (done, 2026-07-07, log entry 27):** the one-shot
+  held-out evaluation passed everywhere: section-scale exact 0.73 at coverage
+  0.88 with spurious p90 3; the two-ruler crossover significant on held-out data
+  in both directions; the shipped detector's point estimate ahead of every
+  music21 offline whole-piece analyzer (reportable claim: at least parity under
+  a strictly harder setting); parallel-mode confusion holding at 2%. The test
+  split is spent for this result set.
+- **Next:** the product integration (inferred-key provider and home-screen
+  indicator) and the `paper/` writeup.
 
 ## Reading order
 
@@ -76,6 +82,8 @@ versioned fixtures, external baselines, and dated logs.
 6. [log/](log/): dated entries recording what was tried, what happened, and what
    was decided, so nobody has to comb through git history.
 7. [data/](data/): fixture, split, and provenance conventions.
+8. [results/](results/): committed evaluation artifacts for spent, unrepeatable
+   runs (currently the one-shot test-split outputs; see log entry 27).
 
 ## Where the code lives
 

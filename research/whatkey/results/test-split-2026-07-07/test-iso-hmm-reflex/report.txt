@@ -1,0 +1,74 @@
+WhatKey harness report
+============================================================
+set:       isophonics-nc-v1 (test split)
+detector:  hmm
+config:    selfTransition=0.9 fifthsDecay=0.5 modeSwitchFactor=0.5 emissionTemperature=0.25 minEvents=3 marginFloor=0.3 modeTilt=2.0 relativeTilt=0.0 relativeCadenceTilt=0.0 | emissions: functionalBlend=0.1 progressionBlend=0.0 minEvents=1 marginFloor=0.0 | profile: profiles=albrechtShanahan durationWeighted=true decayHalfLifeMs=1000 decayHalfLifeEvents=null minEvents=1 marginFloor=0.0 | evidence: points=2.0/0.0/3.0/-1.0/4.0/2.0/3.0 confidenceWeighted=false durationWeighted=true decayHalfLifeMs=1000 decayHalfLifeEvents=null minEvents=1 marginFloor=0.0 | progression: points=5.0/3.0/+1.0/4.0/2.0/3.0/2.0/2.0/1.0/1.0 confidenceWeighted=false durationWeighted=true decayHalfLifeMs=1000 decayHalfLifeEvents=null minEvents=1 marginFloor=0.0
+engine:    0c891453b104fd7c60eb1f5f0c2677884d0e842b
+generated: 2026-07-07T22:55:55.869151Z
+command:   dart run tool/whatkey_harness.dart --fixtures build/whatkey-fixtures/isophonics-nc-v1 --split-file research/whatkey/data/splits/isophonics-nc-v1.json --split test --detector hmm --decay-half-life-seconds 1 --functional-blend 0.1 --out build/whatkey-harness/test-iso-hmm-reflex
+
+Summary (41 pieces, 3565 events)
+  Coverage (mean per piece)                                0.80
+  Accuracy on claimed, exact (mean per piece)              0.56  (38 pieces with claims)
+  Accuracy on claimed, MIREX (mean per piece)              0.66
+  Global key MIREX, final claim                            0.59  (38 pieces scored)
+  Global key MIREX, majority claim                         0.74
+  Time to first claim (events)                  median 2, p90 3  (0 pieces never claim)
+  Switches per piece                           median 9, p90 20
+  Spurious switches per piece                  median 5, p90 11
+  Modulations matched                                     18/22  (4 censored)
+  Modulation lag (events)                       median 0, p90 2
+
+Per piece
+  events: chord events
+  cover: fraction of events with a key claim
+  exact: exact-match accuracy on claimed events
+  mirex: MIREX-weighted accuracy on claimed events
+  ttfc: events before the first claim
+  sw: key switches
+  spur: spurious switches
+  amb-ok: ambiguous events handled acceptably
+
+  piece                                                                                              events  cover  exact  mirex  ttfc  sw  spur  amb-ok
+  -------------------------------------------------------------------------------------------------  ------  -----  -----  -----  ----  --  ----  ------
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Being For The Benefit Of Mr. Kite!                  113   0.91   0.90   0.90     2   8     5       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Fixing A Hole                                        97   0.85      -      -     3   8     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Lucy In The Sky With Diamonds                       117   0.85   0.55   0.63     3  14     8       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Getting Better                                       98   0.91   1.00   1.00     3   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/She's Leaving Home                                   73   0.71   0.65   0.74     2  12     7       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Sgt. Pepper's Lonely Hearts Club Band (Reprise)      38   0.71   0.89   0.91     2   3     2       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Sgt. Pepper's Lonely Hearts Club Band                57   0.79   0.29   0.64     3   5     3       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/With A Little Help From My Friends                   98   0.83   0.30   0.62     2   9     5       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Lovely Rita                                          88   0.84   0.82   0.88     2  21    12       -
+  The Beatles/The Beatles CD1/Wild Honey Pie                                                             22   0.68   0.00   0.04     2   6     6       -
+  The Beatles/The Beatles CD1/While My Guitar Gently Weeps                                              140   0.78   0.91   0.95     2  10     4       -
+  The Beatles/The Beatles CD1/Back in the USSR                                                           96   0.75   0.58   0.79     2   8     4       -
+  The Beatles/The Beatles CD1/Ob-La-Di, Ob-La-Da                                                        102   0.97   0.00   0.00     2   1     1       -
+  The Beatles/The Beatles CD1/Happiness is a Warm Gun                                                    74   0.85   0.62   0.64     2   6     5       -
+  The Beatles/The Beatles CD1/Why Don't We Do It In The Road                                             19   0.74   0.00   0.50     2   0     0       -
+  The Beatles/The Beatles CD1/Julia                                                                      85   0.85   0.79   0.79     2  15    10       -
+  The Beatles/The Beatles CD1/Martha My Dear                                                             87   0.56   0.53   0.53     3  10     6       -
+  The Beatles/The Beatles CD1/Don't Pass Me By                                                           41   0.93   1.00   1.00     3   0     0       -
+  The Beatles/The Beatles CD1/I Will                                                                     81   0.93   0.97   0.98     2   3     1       -
+  The Beatles/The Beatles CD1/Glass Onion                                                                66   0.58   0.05   0.09     2  11    11       -
+  The Beatles/The Beatles CD1/Rocky Raccoon                                                              95   0.86   0.72   0.86     3  23    11       -
+  The Beatles/The Beatles CD1/Piggies                                                                    91   0.60   0.00   0.00     2   9     9       -
+  The Beatles/The Beatles CD1/Black Bird                                                                128   0.85   0.64   0.72     2  16    10       -
+  The Beatles/The Beatles CD1/I'm So Tired                                                               50   0.88   0.98   0.98     2   1     0       -
+  The Beatles/The Beatles CD1/The Continuing Story of Bungalow Bill                                     151   0.81   0.48   0.52     4  24    14       -
+  The Beatles/The Beatles CD1/Dear Prudence                                                             129   0.71      -      -     2  20     0       -
+  The Beatles/Magical Mystery Tour/All You Need Is Love                                                 137   0.91   0.78   0.87     3  12     8       -
+  The Beatles/Magical Mystery Tour/I Am The Walrus                                                      120   0.63   0.09   0.40     2  24    21       -
+  The Beatles/Magical Mystery Tour/Your Mother Should Know                                               72   0.74   0.57   0.65     2  11     7       -
+  The Beatles/Magical Mystery Tour/Magical Mystery Tour                                                  72   0.63   0.53   0.70     2   6     3       -
+  The Beatles/Magical Mystery Tour/Baby You're A Rich Man                                                79   0.96      -      -     2   1     0       -
+  The Beatles/Magical Mystery Tour/Hello Goodbye                                                        103   0.88   0.89   0.93     2   9     5       -
+  The Beatles/Magical Mystery Tour/Penny Lane                                                           140   0.90   0.67   0.71     2  15     9       -
+  The Beatles/Magical Mystery Tour/Blue Jay Way                                                          21   0.90   0.00   0.00     2   0     0       -
+  The Beatles/Magical Mystery Tour/Strawberry Fields Forever                                            110   0.75   0.62   0.74     7  18    11       -
+  The Beatles/Magical Mystery Tour/The Fool On The Hill                                                 114   0.76   0.78   0.84     3  13     7       -
+  The Beatles/Magical Mystery Tour/Flying                                                                24   0.75   1.00   1.00     3   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Within You Without You                               14   0.71   0.10   0.55     3   1     1       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/When I'm Sixty-Four                                  75   0.85   0.66   0.80     2  10     5       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Good Morning Good Morning                           135   0.78   0.24   0.62     3  18     9       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/A Day In The Life                                   113   0.80   0.53   0.72     2  18    14       -

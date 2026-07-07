@@ -1,0 +1,76 @@
+WhatKey harness report
+============================================================
+set:       isophonics-nc-v1 (test split)
+detector:  music21-krumhanslschmuckler
+config:    music21 10.1.0, offline whole-piece, constant claim per event, non-abstaining
+engine:    0c891453b104fd7c60eb1f5f0c2677884d0e842b
+generated: 2026-07-07T22:57:03.256963Z
+command:   dart run tool/whatkey_harness.dart --fixtures build/whatkey-fixtures/isophonics-nc-v1 --split-file research/whatkey/data/splits/isophonics-nc-v1.json --split test --claims-file build/whatkey-baselines/isophonics-nc-v1-test/krumhanslschmuckler.claims.json --restrict-to build/whatkey-harness/test-iso-hmm-shipped/claims.json --out build/whatkey-harness/test-iso-m21-ks-matched
+restricted: coverage/accuracy computed only over events claimed in
+           build/whatkey-harness/test-iso-hmm-shipped/claims.json (streaming metrics use the full stream)
+
+Summary (41 pieces, 3160 events)
+  Coverage (mean per piece)                               1.00
+  Accuracy on claimed, exact (mean per piece)             0.63  (38 pieces with claims)
+  Accuracy on claimed, MIREX (mean per piece)             0.73
+  Global key MIREX, final claim                           0.73  (38 pieces scored)
+  Global key MIREX, majority claim                        0.73
+  Time to first claim (events)                 median 0, p90 0  (0 pieces never claim)
+  Switches per piece                           median 0, p90 0
+  Spurious switches per piece                  median 0, p90 0
+  Modulations matched                                     2/22  (20 censored)
+  Modulation lag (events)                      median 0, p90 0
+
+Per piece
+  events: chord events
+  cover: fraction of events with a key claim
+  exact: exact-match accuracy on claimed events
+  mirex: MIREX-weighted accuracy on claimed events
+  ttfc: events before the first claim
+  sw: key switches
+  spur: spurious switches
+  amb-ok: ambiguous events handled acceptably
+
+  piece                                                                                              events  cover  exact  mirex  ttfc  sw  spur  amb-ok
+  -------------------------------------------------------------------------------------------------  ------  -----  -----  -----  ----  --  ----  ------
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Being For The Benefit Of Mr. Kite!                   94   1.00   0.00   0.06     0   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Fixing A Hole                                        87   1.00      -      -     0   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Lucy In The Sky With Diamonds                       109   1.00   0.00   0.41     0   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Getting Better                                       81   1.00   0.00   0.50     0   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/She's Leaving Home                                   71   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Sgt. Pepper's Lonely Hearts Club Band (Reprise)      34   1.00   0.00   0.50     0   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Sgt. Pepper's Lonely Hearts Club Band                42   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/With A Little Help From My Friends                   90   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Lovely Rita                                          78   1.00   0.97   0.97     0   0     0       -
+  The Beatles/The Beatles CD1/Wild Honey Pie                                                             15   1.00   0.00   0.00     0   0     0       -
+  The Beatles/The Beatles CD1/While My Guitar Gently Weeps                                              130   1.00   0.78   0.82     0   0     0       -
+  The Beatles/The Beatles CD1/Back in the USSR                                                           76   1.00   1.00   1.00     0   0     0       -
+  The Beatles/The Beatles CD1/Ob-La-Di, Ob-La-Da                                                         98   1.00   0.00   0.00     0   0     0       -
+  The Beatles/The Beatles CD1/Happiness is a Warm Gun                                                    50   1.00   0.00   0.30     0   0     0       -
+  The Beatles/The Beatles CD1/Why Don't We Do It In The Road                                             17   1.00   1.00   1.00     0   0     0       -
+  The Beatles/The Beatles CD1/Julia                                                                      83   1.00   0.00   0.00     0   0     0       -
+  The Beatles/The Beatles CD1/Martha My Dear                                                             74   1.00   0.00   0.50     0   0     0       -
+  The Beatles/The Beatles CD1/Don't Pass Me By                                                           39   1.00   1.00   1.00     0   0     0       -
+  The Beatles/The Beatles CD1/I Will                                                                     78   1.00   1.00   1.00     0   0     0       -
+  The Beatles/The Beatles CD1/Glass Onion                                                                63   1.00   1.00   1.00     0   0     0       -
+  The Beatles/The Beatles CD1/Rocky Raccoon                                                              90   1.00   0.00   0.50     0   0     0       -
+  The Beatles/The Beatles CD1/Piggies                                                                    79   1.00   0.00   0.00     0   0     0       -
+  The Beatles/The Beatles CD1/Black Bird                                                                126   1.00   1.00   1.00     0   0     0       -
+  The Beatles/The Beatles CD1/I'm So Tired                                                               47   1.00   1.00   1.00     0   0     0       -
+  The Beatles/The Beatles CD1/The Continuing Story of Bungalow Bill                                     120   1.00   1.00   1.00     0   0     0       -
+  The Beatles/The Beatles CD1/Dear Prudence                                                             123   1.00      -      -     0   0     0       -
+  The Beatles/Magical Mystery Tour/All You Need Is Love                                                  88   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Magical Mystery Tour/I Am The Walrus                                                      109   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Magical Mystery Tour/Your Mother Should Know                                               69   1.00   0.00   0.30     0   0     0       -
+  The Beatles/Magical Mystery Tour/Magical Mystery Tour                                                  55   1.00   0.00   0.50     0   0     0       -
+  The Beatles/Magical Mystery Tour/Baby You're A Rich Man                                                64   1.00      -      -     0   0     0       -
+  The Beatles/Magical Mystery Tour/Hello Goodbye                                                        100   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Magical Mystery Tour/Penny Lane                                                           119   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Magical Mystery Tour/Blue Jay Way                                                          19   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Magical Mystery Tour/Strawberry Fields Forever                                            108   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Magical Mystery Tour/The Fool On The Hill                                                  92   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Magical Mystery Tour/Flying                                                                22   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Within You Without You                               12   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/When I'm Sixty-Four                                  73   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/Good Morning Good Morning                           132   1.00   1.00   1.00     0   0     0       -
+  The Beatles/Sgt. Pepper's Lonely Hearts Club Band/A Day In The Life                                   104   1.00   0.00   0.28     0   0     0       -
