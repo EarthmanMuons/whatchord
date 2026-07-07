@@ -8,7 +8,8 @@
 // Usage:
 //   dart run tool/whatkey_harness.dart --fixtures <set-dir> \
 //     [--split-file <split.json>] [--split development|test] \
-//     [--profiles krumhanslKessler|temperley|albrechtShanahan] \
+//     [--profiles krumhanslKessler|temperley|temperleyKostkaPayne|
+//                 albrechtShanahan] \
 //     [--weighting duration|flat] [--decay-half-life-seconds N] \
 //     [--min-events N] [--margin-floor X] [--out <dir>]
 
@@ -102,26 +103,127 @@ String _textReport(Map<String, Object?> report, List<PieceScore> pieces) {
 
   buffer
     ..writeln('WhatKey harness report')
+    ..writeln('=' * 60)
     ..writeln(
-      'set: ${fixtures['set']}'
-      '${split == null ? ' (all fixtures)' : ' split=${split['name']}'}',
+      'set:       ${fixtures['set']}'
+      '${split == null ? ' (all fixtures)' : ' (${split['name']} split)'}',
     )
-    ..writeln('detector: ${detector['name']} ${detector['configuration']}')
+    ..writeln('detector:  ${detector['name']}')
+    ..writeln('config:    ${detector['configuration']}')
     ..writeln(
-      'engine: ${report['engineCommit']}'
+      'engine:    ${report['engineCommit']}'
       '${report['engineLibDirty'] == true ? ' (lib dirty)' : ''}',
     )
+    ..writeln('generated: ${report['generatedAt']}')
     ..writeln()
-    ..writeln(const JsonEncoder.withIndent('  ').convert(summary))
-    ..writeln()
+    ..writeln(_summaryBlock(summary))
+    ..writeln('Per piece')
     ..writeln(
-      'piece | events | cover | exact | mirex | ttfc | sw | spur | amb-ok',
+      '  events: chord events\n'
+      '  cover: fraction of events with a key claim\n'
+      '  exact: exact-match accuracy on claimed events\n'
+      '  mirex: MIREX-weighted accuracy on claimed events\n'
+      '  ttfc: events before the first claim\n'
+      '  sw: key switches\n'
+      '  spur: spurious switches\n'
+      '  amb-ok: ambiguous events handled acceptably\n',
+    )
+    ..write(_pieceTable(pieces));
+  return buffer.toString();
+}
+
+String _summaryBlock(Map<String, Object?> summary) {
+  final coverage = summary['coverage'] as Map<String, Object?>;
+  final accuracy = summary['accuracyOnClaimed'] as Map<String, Object?>;
+  final ttfc = summary['timeToFirstClaim'] as Map<String, Object?>;
+  final switches = summary['switchesPerPiece'] as Map<String, Object?>;
+  final spurious = summary['spuriousSwitchesPerPiece'] as Map<String, Object?>;
+  final modulation = summary['modulation'] as Map<String, Object?>;
+  final lag = modulation['lagEvents'] as Map<String, Object?>;
+  final globalKey = summary['globalKey'] as Map<String, Object?>;
+
+  String num2(Object? value) =>
+      value == null ? '-' : (value as num).toStringAsFixed(2);
+  String dist(Map<String, Object?> d) => d['n'] == 0
+      ? '-'
+      : 'median ${_trimNum(d['median'])}, p90 ${_trimNum(d['p90'])}';
+  String pieces(Object? count) => '$count piece${count == 1 ? '' : 's'}';
+
+  final lines = <(String, String, String)>[
+    ('Coverage (mean per piece)', num2(coverage['meanPerPiece']), ''),
+    (
+      'Accuracy on claimed, exact (mean per piece)',
+      num2(accuracy['meanExactPerPiece']),
+      '${pieces(accuracy['piecesWithClaims'])} with claims',
+    ),
+    (
+      'Accuracy on claimed, MIREX (mean per piece)',
+      num2(accuracy['meanMirexPerPiece']),
+      '',
+    ),
+    (
+      'Global key MIREX, final claim',
+      num2(globalKey['meanFinalMirex']),
+      '${pieces(globalKey['scoredPieces'])} scored',
+    ),
+    (
+      'Global key MIREX, majority claim',
+      num2(globalKey['meanMajorityMirex']),
+      '',
+    ),
+    (
+      'Time to first claim (events)',
+      dist(ttfc),
+      '${pieces(ttfc['neverClaimedPieces'])} never claim',
+    ),
+    ('Switches per piece', dist(switches), ''),
+    ('Spurious switches per piece', dist(spurious), ''),
+    (
+      'Modulations matched',
+      '${modulation['matched']}/${modulation['annotatedChanges']}',
+      '${modulation['censored']} censored',
+    ),
+    ('Modulation lag (events)', dist(lag), ''),
+  ];
+
+  final buffer = StringBuffer()
+    ..writeln(
+      'Summary (${summary['pieces']} pieces, '
+      '${summary['events']} events)',
     );
-  for (final piece in pieces) {
+  final labelWidth = lines
+      .map((line) => line.$1.length)
+      .reduce((a, b) => a > b ? a : b);
+  final valueWidth = lines
+      .map((line) => line.$2.length)
+      .reduce((a, b) => a > b ? a : b);
+  for (final (label, value, note) in lines) {
     buffer.writeln(
+      '  ${label.padRight(labelWidth)}  ${value.padLeft(valueWidth)}'
+      '${note.isEmpty ? '' : '  ($note)'}',
+    );
+  }
+  return buffer.toString();
+}
+
+String _pieceTable(List<PieceScore> pieces) {
+  final header = [
+    'piece',
+    'events',
+    'cover',
+    'exact',
+    'mirex',
+    'ttfc',
+    'sw',
+    'spur',
+    'amb-ok',
+  ];
+  final rows = <List<String>>[
+    header,
+    for (final piece in pieces)
       [
         piece.title,
-        piece.events,
+        '${piece.events}',
         piece.coverage.toStringAsFixed(2),
         piece.labeledClaimed == 0
             ? '-'
@@ -129,16 +231,43 @@ String _textReport(Map<String, Object?> report, List<PieceScore> pieces) {
         piece.labeledClaimed == 0
             ? '-'
             : piece.mirexOnClaimed.toStringAsFixed(2),
-        piece.timeToFirstClaim ?? '-',
-        piece.switches,
-        piece.spuriousSwitches,
+        '${piece.timeToFirstClaim ?? '-'}',
+        '${piece.switches}',
+        '${piece.spuriousSwitches}',
         piece.ambiguousEvents == 0
             ? '-'
             : '${piece.ambiguousOk}/${piece.ambiguousEvents}',
-      ].join(' | '),
-    );
+      ],
+  ];
+
+  final widths = [
+    for (var column = 0; column < header.length; column++)
+      rows.map((row) => row[column].length).reduce((a, b) => a > b ? a : b),
+  ];
+  final buffer = StringBuffer();
+  for (final (index, row) in rows.indexed) {
+    final cells = [
+      // Title column left-aligned, numeric columns right-aligned.
+      row[0].padRight(widths[0]),
+      for (var column = 1; column < row.length; column++)
+        row[column].padLeft(widths[column]),
+    ];
+    buffer.writeln('  ${cells.join('  ')}'.trimRight());
+    if (index == 0) {
+      buffer.writeln(
+        '  ${[for (final width in widths) '-' * width].join('  ')}',
+      );
+    }
   }
   return buffer.toString();
+}
+
+/// Renders whole numbers without a trailing ".0".
+String _trimNum(Object? value) {
+  final number = value as num;
+  return number == number.truncate()
+      ? '${number.truncate()}'
+      : number.toStringAsFixed(1);
 }
 
 String _git(List<String> arguments) =>
