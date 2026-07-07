@@ -19,11 +19,15 @@ Evaluation fixtures and splits for Phase 2.
   from external corpora.
 
 Corpus-derived sets (`mise research:whatkey-fixtures-when-in-rome`) generate
-into `build/whatkey-fixtures/`, not here, until the source sub-corpus license is
-verified. For `when-in-rome-v1`, the committed-fixture gate is limited to
+into `build/whatkey-fixtures/` and are committed here only once the source
+sub-corpus license is verified. `when-in-rome-v1` passed that gate (limited to
 `bach-wtc`, `brahms-lieder`, `schubert-lieder`, and `tavern`; see
-`provenance/when-in-rome-v1.md`. Licensing boundaries for this subtree are
-summarized in `NOTICE.md`.
+`provenance/when-in-rome-v1.md`) and is committed under
+`fixtures/when-in-rome-v1/`: the protocol is frozen against this set, so the
+frozen artifact must be durable in the repo rather than rebuilt on demand from a
+local corpus checkout. Committed fixture sets are immutable; an engine or
+generator change produces a new versioned set beside them. Licensing boundaries
+for this subtree are summarized in `NOTICE.md`.
 
 ## Fixture format
 
