@@ -1,0 +1,243 @@
+import 'dart:math' as math;
+
+import 'package:whatchord/features/history/history_domain.dart';
+import 'package:whatchord/features/theory/domain/theory_domain.dart';
+
+import '../models/key_estimate.dart';
+import 'key_detector.dart';
+import 'profile_correlation_key_detector.dart';
+
+/// Weighted evidence key detection (design plan section 2d): the first model
+/// that uses chord identities and recognizer confidence rather than pitch
+/// classes alone.
+///
+/// Maintains a running score per key, updated incrementally per event with
+/// small musician-like rules: diatonic roots and fully diatonic chords add
+/// points, chromatic tones subtract, and the two strongest single-chord
+/// functions (a dominant-family chord on the fifth degree, a diminished chord
+/// on the leading tone) add a bonus for their tonic. Scores decay on elapsed
+/// time so old evidence fades.
+///
+/// Minor keys are scored against the union of natural and harmonic minor,
+/// mirroring `ScaleDegreeClassifier`'s sources: in A minor, E7's G# is
+/// diatonic evidence for the key, not a chromatic penalty (the natural-minor
+/// trap the design plan warns about).
+///
+/// Each event's contribution is weighted by hold duration and, when
+/// [confidenceWeighted] is on, by the recognizer's confidence in the chord
+/// identity: the best-to-second explanation-cost gap measured against the
+/// ranking near-tie window, so ambiguous identifications carry less weight.
+class WeightedEvidenceKeyDetector implements KeyDetector {
+  /// Points for a chord root that is a scale degree of the key.
+  final double rootDiatonicPoints;
+
+  /// Points when every sounding pitch class fits the key's scale.
+  final double allTonesDiatonicPoints;
+
+  /// Points subtracted per sounding pitch class outside the key's scale.
+  final double chromaticPenaltyPoints;
+
+  /// Tonic bonus for a dominant-seventh-family chord on the fifth degree.
+  final double dominantBonusPoints;
+
+  /// Smaller tonic bonus for a plain major triad on the fifth degree: still
+  /// dominant function, but without the tritone that pins it (design plan
+  /// section 2e). This is also what separates C major from A minor on a
+  /// diatonic pop loop, where every chord fits both keys and only the G triad
+  /// points at C.
+  final double dominantTriadBonusPoints;
+
+  /// Tonic bonus for a diminished-family chord on the leading tone.
+  final double leadingToneBonusPoints;
+
+  final bool confidenceWeighted;
+  final bool durationWeighted;
+
+  /// Score half-life; null disables decay.
+  final Duration? decayHalfLife;
+  final int minEvents;
+  final double marginFloor;
+
+  final List<double> _scores = List.filled(24, 0);
+  double _weightMass = 0;
+  int _eventCount = 0;
+  DateTime? _lastTimestamp;
+
+  WeightedEvidenceKeyDetector({
+    this.rootDiatonicPoints = 2,
+    this.allTonesDiatonicPoints = 3,
+    this.chromaticPenaltyPoints = 1,
+    this.dominantBonusPoints = 4,
+    this.dominantTriadBonusPoints = 2,
+    this.leadingToneBonusPoints = 3,
+    this.confidenceWeighted = true,
+    this.durationWeighted = true,
+    this.decayHalfLife = const Duration(seconds: 30),
+    this.minEvents = 3,
+    this.marginFloor = 0.5,
+  });
+
+  @override
+  String get name => 'weighted-evidence';
+
+  @override
+  String get configuration =>
+      'points=$rootDiatonicPoints/$allTonesDiatonicPoints/'
+      '-$chromaticPenaltyPoints/$dominantBonusPoints/'
+      '$dominantTriadBonusPoints/$leadingToneBonusPoints '
+      'confidenceWeighted=$confidenceWeighted '
+      'durationWeighted=$durationWeighted '
+      'decayHalfLifeMs=${decayHalfLife?.inMilliseconds} '
+      'minEvents=$minEvents marginFloor=$marginFloor';
+
+  @override
+  void reset() {
+    _scores.fillRange(0, 24, 0);
+    _weightMass = 0;
+    _eventCount = 0;
+    _lastTimestamp = null;
+  }
+
+  @override
+  KeyEstimateFrame onEvent(ChordEvent event) {
+    _decayTo(event.timestamp);
+    _eventCount += 1;
+
+    final weight = _eventWeight(event);
+    if (weight > 0) {
+      final identity = event.identity;
+      final pcMask = event.input.pcMask;
+      final tonalities = ProfileCorrelationKeyDetector.canonicalTonalities;
+      for (var k = 0; k < 24; k++) {
+        _scores[k] += weight * _points(tonalities[k], identity, pcMask);
+      }
+      _weightMass += weight;
+    }
+
+    final ranked = _rankKeys();
+    if (ranked.isEmpty || _eventCount < minEvents) {
+      return KeyEstimateFrame.abstain(ranked);
+    }
+    final margin = ranked.length < 2
+        ? double.infinity
+        : ranked[0].confidence - ranked[1].confidence;
+    if (ranked[0].confidence <= 0 || margin < marginFloor) {
+      return KeyEstimateFrame.abstain(ranked);
+    }
+    return KeyEstimateFrame(ranked: ranked, claim: ranked.first);
+  }
+
+  double _points(Tonality tonality, ChordIdentity identity, int pcMask) {
+    final scaleMask = _scaleMask(tonality);
+    var points = 0.0;
+
+    if (scaleMask & (1 << identity.rootPc) != 0) {
+      points += rootDiatonicPoints;
+    }
+
+    final chromatic = _bitCount(pcMask & ~scaleMask);
+    if (chromatic == 0) {
+      points += allTonesDiatonicPoints;
+    } else {
+      points -= chromaticPenaltyPoints * chromatic;
+    }
+
+    final rootInterval = (identity.rootPc - tonality.tonicPitchClass + 12) % 12;
+    if (rootInterval == 7 && _dominantFamily.contains(identity.quality)) {
+      points += dominantBonusPoints;
+    }
+    if (rootInterval == 7 && identity.quality == ChordQualityToken.major) {
+      points += dominantTriadBonusPoints;
+    }
+    if (rootInterval == 11 && _leadingToneFamily.contains(identity.quality)) {
+      points += leadingToneBonusPoints;
+    }
+
+    return points;
+  }
+
+  double _eventWeight(ChordEvent event) {
+    var weight = durationWeighted
+        ? event.duration.inMilliseconds / 1000.0
+        : 1.0;
+    if (confidenceWeighted) weight *= _identityConfidence(event);
+    return weight;
+  }
+
+  /// Recognizer confidence in the chord identity: 1.0 for an uncontested
+  /// identification, scaling down to 0.0 as the best-to-second cost gap
+  /// closes to a dead tie relative to the ranking near-tie window.
+  static double _identityConfidence(ChordEvent event) {
+    if (event.candidates.length < 2) return 1.0;
+    final gap = event.candidates[1].cost - event.candidates.first.cost;
+    return (gap / ChordCandidateRanking.nearTieWindow).clamp(0.0, 1.0);
+  }
+
+  void _decayTo(DateTime timestamp) {
+    final halfLife = decayHalfLife;
+    final last = _lastTimestamp;
+    _lastTimestamp = timestamp;
+    if (halfLife == null || last == null) return;
+    final elapsedMs = timestamp.difference(last).inMilliseconds;
+    if (elapsedMs <= 0) return;
+    final factor = math.pow(0.5, elapsedMs / halfLife.inMilliseconds) as double;
+    for (var k = 0; k < 24; k++) {
+      _scores[k] *= factor;
+    }
+    _weightMass *= factor;
+  }
+
+  List<KeyEstimate> _rankKeys() {
+    if (_weightMass <= 0) return const [];
+    final tonalities = ProfileCorrelationKeyDetector.canonicalTonalities;
+    final estimates = <KeyEstimate>[
+      // Confidence is points per weighted event, so it is scale-free across
+      // stream lengths and decay states.
+      for (var k = 0; k < 24; k++)
+        KeyEstimate(
+          tonality: tonalities[k],
+          confidence: _scores[k] / _weightMass,
+        ),
+    ];
+    estimates.sort((a, b) => b.confidence.compareTo(a.confidence));
+    return estimates;
+  }
+
+  /// Scale pitch classes per key. Major keys use the major scale; minor keys
+  /// use natural union harmonic minor, mirroring the classifier's sources.
+  static int _scaleMask(Tonality tonality) {
+    final relative = tonality.isMajor ? _majorMask : _minorMask;
+    final tonic = tonality.tonicPitchClass;
+    return ((relative << tonic) | (relative >> (12 - tonic))) & 0xFFF;
+  }
+
+  // 0,2,4,5,7,9,11
+  static const int _majorMask = 0xAB5;
+
+  // Natural {0,2,3,5,7,8,10} union harmonic {..., 11}: 0,2,3,5,7,8,10,11
+  static const int _minorMask = 0xDAD;
+
+  static const Set<ChordQualityToken> _dominantFamily = {
+    ChordQualityToken.dominant7,
+    ChordQualityToken.dominant7sus2,
+    ChordQualityToken.dominant7sus4,
+    ChordQualityToken.dominant7Flat5,
+    ChordQualityToken.dominant7Sharp5,
+  };
+
+  static const Set<ChordQualityToken> _leadingToneFamily = {
+    ChordQualityToken.diminished,
+    ChordQualityToken.halfDiminished7,
+    ChordQualityToken.diminished7,
+  };
+
+  static int _bitCount(int mask) {
+    var count = 0;
+    var current = mask;
+    while (current != 0) {
+      current &= current - 1;
+      count += 1;
+    }
+    return count;
+  }
+}

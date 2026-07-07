@@ -41,9 +41,14 @@ versioned fixtures, external baselines, and dated logs.
   matched coverage, trails TemperleyKostkaPayne, and misses most annotated
   modulations, which is the gap the next detector targets. See `log/` for the
   numbers.
-- **Next:** the weighted evidence model (design plan section 2d), the first
-  detector that uses chord identities and recognizer confidence rather than
-  pitch-class histograms alone.
+- **Detectors so far:** the profile-correlation floor and the weighted evidence
+  model (design plan section 2d). The evidence model wins the functional probes
+  the histogram fails (it tracks the modulating ii-V-I chain) but loses to the
+  floor on the classical corpus; the two fail in complementary places. See
+  `log/` for the numbers.
+- **Next:** a hybrid detector (histogram base plus functional bonuses), claim
+  hysteresis for tonicizations, and the progression-pattern layer (design plan
+  section 2e), gated by paired per-piece statistics.
 
 ## Reading order
 

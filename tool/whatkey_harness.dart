@@ -8,8 +8,10 @@
 // Usage:
 //   dart run tool/whatkey_harness.dart --fixtures <set-dir> \
 //     [--split-file <split.json>] [--split development|test] \
+//     [--detector profile|evidence] \
 //     [--profiles krumhanslKessler|temperley|temperleyKostkaPayne|
 //                 albrechtShanahan] \
+//     [--confidence-weighting on|off] \
 //     [--weighting duration|flat] [--decay-half-life-seconds N] \
 //     [--min-events N] [--margin-floor X] [--out <dir>] \
 //     [--claims-file <claims.json>] [--restrict-to <claims.json>] \
@@ -122,7 +124,11 @@ void main(List<String> arguments) {
     options.outDir ??
         'build/whatkey-harness/${_basename(options.fixturesDir)}-'
             '${options.splitFile == null ? 'all' : options.split}'
-            '${claims == null ? '' : '-${detectorInfo['name']}'}',
+            '${claims != null
+                ? '-${detectorInfo['name']}'
+                : options.detectorName == 'profile'
+                ? ''
+                : '-${options.detectorName}'}',
   )..createSync(recursive: true);
   File('${outDir.path}/report.json').writeAsStringSync(
     '${const JsonEncoder.withIndent('  ').convert(report)}\n',
@@ -421,11 +427,13 @@ class _Options {
   final String? claimsFile;
   final String? restrictTo;
   final List<double> sweepMarginFloors;
+  final String detectorName;
+  final bool confidenceWeighted;
   final KeyProfilePair profiles;
   final bool durationWeighted;
   final int decayHalfLifeSeconds;
   final int minEvents;
-  final double marginFloor;
+  final double? marginFloor;
   final String? outDir;
 
   _Options._({
@@ -435,6 +443,8 @@ class _Options {
     required this.claimsFile,
     required this.restrictTo,
     required this.sweepMarginFloors,
+    required this.detectorName,
+    required this.confidenceWeighted,
     required this.profiles,
     required this.durationWeighted,
     required this.decayHalfLifeSeconds,
@@ -443,16 +453,28 @@ class _Options {
     required this.outDir,
   });
 
-  KeyDetector buildDetector({double? marginFloorOverride}) =>
-      ProfileCorrelationKeyDetector(
+  KeyDetector buildDetector({double? marginFloorOverride}) {
+    final decay = decayHalfLifeSeconds == 0
+        ? null
+        : Duration(seconds: decayHalfLifeSeconds);
+    return switch (detectorName) {
+      'profile' => ProfileCorrelationKeyDetector(
         profiles: profiles,
         durationWeighted: durationWeighted,
-        decayHalfLife: decayHalfLifeSeconds == 0
-            ? null
-            : Duration(seconds: decayHalfLifeSeconds),
+        decayHalfLife: decay,
         minEvents: minEvents,
-        marginFloor: marginFloorOverride ?? marginFloor,
-      );
+        marginFloor: marginFloorOverride ?? marginFloor ?? 0.05,
+      ),
+      'evidence' => WeightedEvidenceKeyDetector(
+        confidenceWeighted: confidenceWeighted,
+        durationWeighted: durationWeighted,
+        decayHalfLife: decay,
+        minEvents: minEvents,
+        marginFloor: marginFloorOverride ?? marginFloor ?? 0.5,
+      ),
+      _ => throw ArgumentError('--detector must be profile or evidence'),
+    };
+  }
 
   static _Options parse(List<String> arguments) {
     final values = <String, String>{};
@@ -483,6 +505,9 @@ class _Options {
       split: split,
       claimsFile: values.remove('claims-file'),
       restrictTo: values.remove('restrict-to'),
+      detectorName: values.remove('detector') ?? 'profile',
+      confidenceWeighted:
+          (values.remove('confidence-weighting') ?? 'on') != 'off',
       sweepMarginFloors: [
         for (final floor in (values.remove('sweep-margin-floors') ?? '').split(
           ',',
@@ -497,7 +522,10 @@ class _Options {
         values.remove('decay-half-life-seconds') ?? '30',
       ),
       minEvents: int.parse(values.remove('min-events') ?? '3'),
-      marginFloor: double.parse(values.remove('margin-floor') ?? '0.05'),
+      marginFloor: switch (values.remove('margin-floor')) {
+        null => null,
+        final raw => double.parse(raw),
+      },
       outDir: values.remove('out'),
     );
     if (values.isNotEmpty) {
