@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:whatchord/features/history/history_domain.dart';
+import 'package:whatchord/features/key/key.dart';
 import 'package:whatchord/features/theory/domain/theory_domain.dart';
 
 import '../chord_id_engine.dart';
@@ -165,6 +166,35 @@ class KeyLabel {
       'F#', 'G', 'Ab', 'A', 'Bb', 'B',
     ];
     return '${names[tonicPc]}:${isMinor ? 'min' : 'maj'}';
+  }
+}
+
+/// Externally produced key claims (see tool/whatkey_external_baseline.py):
+/// one global key per fixture, scored as a constant claim on every event so
+/// offline, non-abstaining baselines run through the same metrics as our
+/// detectors.
+class ClaimsFile {
+  final Map<String, dynamic> detector;
+  final Map<String, String> _globalByFixtureId;
+
+  ClaimsFile._(this.detector, this._globalByFixtureId);
+
+  static ClaimsFile load(File file) {
+    final raw = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+    return ClaimsFile._((raw['detector'] as Map).cast<String, dynamic>(), {
+      for (final entry in (raw['claims'] as Map).entries)
+        entry.key as String: (entry.value as Map)['global'] as String,
+    });
+  }
+
+  List<KeyEstimateFrame> framesFor(LabeledFixture fixture) {
+    final wire = _globalByFixtureId[fixture.id];
+    if (wire == null) {
+      throw StateError('Claims file has no claim for ${fixture.id}');
+    }
+    final estimate = KeyEstimate(tonality: parseTonality(wire), confidence: 1);
+    final frame = KeyEstimateFrame(ranked: [estimate], claim: estimate);
+    return List.filled(fixture.events.length, frame);
   }
 }
 

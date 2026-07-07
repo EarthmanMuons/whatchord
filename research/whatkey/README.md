@@ -60,9 +60,11 @@ versioned fixtures, external baselines, and dated logs.
 - `lib/features/theory/`: the chord analysis engine the events come from.
 - `tool/`: `whatkey_fixture_extract.py` and `whatkey_fixture_batch.dart` build
   labeled fixtures; `whatkey_harness.dart` (with `tool/src/whatkey/`) replays
-  fixtures through detectors and reports the protocol metrics. Run via
-  `mise research:whatkey-harness-pop-jazz` and
-  `mise research:whatkey-harness-dev`.
+  fixtures through detectors and reports the protocol metrics;
+  `whatkey_external_baseline.py` runs music21 key analyzers over the same
+  fixtures as claims files the harness scores. Run via
+  `mise research:whatkey-harness-pop-jazz`, `mise research:whatkey-harness-dev`,
+  and `mise research:whatkey-baselines-dev`.
 
 ## Planned, not yet started
 

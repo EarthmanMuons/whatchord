@@ -127,6 +127,21 @@ dart run tool/whatkey_harness.dart \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json
 """
 
+[tasks."research:whatkey-baselines-dev"]
+description = "Score music21 external key baselines on the When-in-Rome development split"
+depends = ["research:when-in-rome-install"]
+run = """
+python tool/whatkey_external_baseline.py \
+  --fixtures build/whatkey-fixtures/when-in-rome-v1 \
+  --split-file research/whatkey/data/splits/when-in-rome-v1.json
+for f in build/whatkey-baselines/when-in-rome-v1-development/*.claims.json; do
+  dart run tool/whatkey_harness.dart \
+    --fixtures build/whatkey-fixtures/when-in-rome-v1 \
+    --split-file research/whatkey/data/splits/when-in-rome-v1.json \
+    --claims-file "$f"
+done
+"""
+
 [tasks."symbols:install"]
 description = "Install Python dependencies for regenerating WhatChord Symbols fonts"
 run = "uv pip install -r tool/whatchord_symbols/requirements.txt"

@@ -216,6 +216,43 @@ void main() {
       expect(score.labeledClaimed, 0);
     });
 
+    test('claims file scores a constant global claim on every event', () {
+      final fixture = _fixture([
+        for (var i = 0; i < 3; i++) _eventJson(i, localKey: 'C:maj'),
+      ]);
+      final dir = Directory.systemTemp.createTempSync('whatkey-claims-test');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final file = File('${dir.path}/stub.claims.json')
+        ..writeAsStringSync(
+          jsonEncode({
+            'schema': 'whatkey-claims/1',
+            'detector': {'name': 'stub', 'configuration': 'test'},
+            'claims': {
+              'test-set/fixture': {'global': 'C:maj'},
+            },
+          }),
+        );
+      final claims = ClaimsFile.load(file);
+
+      final frames = claims.framesFor(fixture);
+      expect(frames, hasLength(3));
+      final score = PieceScore.compute(fixture, frames);
+      expect(score.coverage, 1.0);
+      expect(score.exactOnClaimed, 1.0);
+      expect(score.switches, 0);
+
+      final empty = ClaimsFile.load(
+        File('${dir.path}/empty.claims.json')..writeAsStringSync(
+          jsonEncode({
+            'schema': 'whatkey-claims/1',
+            'detector': {'name': 'stub', 'configuration': 'test'},
+            'claims': <String, Object?>{},
+          }),
+        ),
+      );
+      expect(() => empty.framesFor(fixture), throwsStateError);
+    });
+
     test('global key scores final and duration-weighted majority claims', () {
       final fixture = _fixture([
         _eventJson(0, localKey: 'C:maj', durationMs: 4000),

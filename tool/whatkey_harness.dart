@@ -11,7 +11,12 @@
 //     [--profiles krumhanslKessler|temperley|temperleyKostkaPayne|
 //                 albrechtShanahan] \
 //     [--weighting duration|flat] [--decay-half-life-seconds N] \
-//     [--min-events N] [--margin-floor X] [--out <dir>]
+//     [--min-events N] [--margin-floor X] [--out <dir>] \
+//     [--claims-file <claims.json>]
+//
+// With --claims-file (see tool/whatkey_external_baseline.py), detector flags
+// are ignored and the externally produced global claims are scored as a
+// constant claim per event through the same metrics.
 
 import 'dart:convert';
 import 'dart:io';
@@ -47,13 +52,23 @@ void main(List<String> arguments) {
     return;
   }
 
-  final detector = options.buildDetector();
+  final claims = options.claimsFile == null
+      ? null
+      : ClaimsFile.load(File(options.claimsFile!));
+  final detector = claims == null ? options.buildDetector() : null;
+  final detectorInfo =
+      claims?.detector ??
+      {'name': detector!.name, 'configuration': detector.configuration};
+
   final pieces = <PieceScore>[];
   for (final fixture in fixtures) {
-    detector.reset();
-    final frames = [
-      for (final event in fixture.events) detector.onEvent(event),
-    ];
+    List<KeyEstimateFrame> frames;
+    if (claims != null) {
+      frames = claims.framesFor(fixture);
+    } else {
+      detector!.reset();
+      frames = [for (final event in fixture.events) detector.onEvent(event)];
+    }
     pieces.add(PieceScore.compute(fixture, frames));
   }
   final summary = summarize(pieces);
@@ -72,10 +87,7 @@ void main(List<String> arguments) {
     'split': options.splitFile == null
         ? null
         : {'file': options.splitFile, 'name': options.split},
-    'detector': {
-      'name': detector.name,
-      'configuration': detector.configuration,
-    },
+    'detector': detectorInfo,
     'provisionalDefinitions':
         'Modulation-lag censoring, spurious-switch alignment, and the '
         'global-key operationalization are provisional pending protocol '
@@ -84,7 +96,12 @@ void main(List<String> arguments) {
     'perPiece': [for (final piece in pieces) piece.toJson()],
   };
 
-  final outDir = Directory(options.outDir)..createSync(recursive: true);
+  final outDir = Directory(
+    options.outDir ??
+        'build/whatkey-harness/${_basename(options.fixturesDir)}-'
+            '${options.splitFile == null ? 'all' : options.split}'
+            '${claims == null ? '' : '-${detectorInfo['name']}'}',
+  )..createSync(recursive: true);
   File('${outDir.path}/report.json').writeAsStringSync(
     '${const JsonEncoder.withIndent('  ').convert(report)}\n',
   );
@@ -277,17 +294,19 @@ class _Options {
   final String fixturesDir;
   final String? splitFile;
   final String split;
+  final String? claimsFile;
   final KeyProfilePair profiles;
   final bool durationWeighted;
   final int decayHalfLifeSeconds;
   final int minEvents;
   final double marginFloor;
-  final String outDir;
+  final String? outDir;
 
   _Options._({
     required this.fixturesDir,
     required this.splitFile,
     required this.split,
+    required this.claimsFile,
     required this.profiles,
     required this.durationWeighted,
     required this.decayHalfLifeSeconds,
@@ -333,6 +352,7 @@ class _Options {
       fixturesDir: fixturesDir,
       splitFile: splitFile,
       split: split,
+      claimsFile: values.remove('claims-file'),
       profiles: KeyProfilePair.values.byName(
         values.remove('profiles') ?? 'albrechtShanahan',
       ),
@@ -342,17 +362,14 @@ class _Options {
       ),
       minEvents: int.parse(values.remove('min-events') ?? '3'),
       marginFloor: double.parse(values.remove('margin-floor') ?? '0.05'),
-      outDir:
-          values.remove('out') ??
-          'build/whatkey-harness/${_basename(fixturesDir)}-'
-              '${splitFile == null ? 'all' : split}',
+      outDir: values.remove('out'),
     );
     if (values.isNotEmpty) {
       throw ArgumentError('Unknown flags: ${values.keys.toList()}');
     }
     return options;
   }
-
-  static String _basename(String path) =>
-      path.split('/').where((part) => part.isNotEmpty).last;
 }
+
+String _basename(String path) =>
+    path.split('/').where((part) => part.isNotEmpty).last;
