@@ -33,31 +33,29 @@ versioned fixtures, external baselines, and dated logs.
   voicing, tonality context, hold duration) from live MIDI play. In-memory only,
   never persisted; no user data is ever collected.
 - **Phase 2 (in progress, July 2026):** the evaluation infrastructure is
-  complete: labeled fixtures (hand-authored pop/jazz suite plus license-gated
-  When in Rome sets), a frozen development/test split, the offline harness with
-  the protocol metrics, matched-coverage comparison, and coverage-accuracy
-  sweeps. The profile-correlation floor is implemented and anchored against
-  music21's offline analyzers: it beats KrumhanslSchmuckler and Aarden-Essen at
-  matched coverage, trails TemperleyKostkaPayne, and misses most annotated
-  modulations, which is the gap the next detector targets. See `log/` for the
-  numbers.
-- **Detectors so far:** the profile-correlation floor, the weighted evidence
-  model (design plan section 2d), the progression-pattern layer (section 2e),
-  and a claim-hysteresis wrapper (built, currently unused). The champion is the
-  three-way hybrid (correlation base, functional and progression blend terms):
-  it beats the floor with paired statistics (+0.096 exact per piece, p = 0.003),
-  and the progression term added a decisive paired coverage win (+0.052 per
-  piece, p = 0.0008) at unchanged accuracy. The protocol is frozen. Blues
-  remains the flagship open probe with two mechanisms tried and precisely
-  rejected (raising the progression blend costs corpus accuracy; a per-event
-  tonic bonus in the evidence model buys only a partial fix at a real corpus
-  cost), leaving stateful sequence modeling as the remaining candidate. See
-  `log/` for the numbers.
-- **Next:** the 2c HMM (forward-algorithm posterior over the hybrid's emissions,
-  whose self-transition persistence is what both blues and modulation tracking
-  now point at) and ASAP performed-input fixtures, gated by paired per-piece
-  statistics. The profile revisit is closed (Albrecht-Shanahan stays) and the
-  behavioral suite is at pop-jazz-v2.
+  complete: labeled fixtures across four corpora (hand-authored pop/jazz suite,
+  When in Rome scores, ASAP performed sonatas, Isophonics pop songs, plus the
+  mode-resolved ASAP+When-in-Rome overlap set), frozen development/test splits,
+  the offline harness with the protocol metrics, matched-coverage comparison,
+  paired per-piece statistics, and music21 external baselines. See `log/` for
+  the numbers.
+- **The adopted detector** is a causal HMM: a filtered posterior (forward
+  algorithm, no lookahead) over pure profile-correlation emissions
+  (Albrecht-Shanahan profiles, duration weighting, 30-second emission memory),
+  with a posterior-gap abstention floor. Two full 16-cell ablation factorials
+  showed the functional and progression blend layers detect brief tonicization
+  excursions, which the product deliberately absorbs, so they are removed from
+  the shipped configuration (and blues is fixed as a side effect); at the
+  1-second reflex scale the functional blend flips to decisively load-bearing,
+  the paper's central crossover exhibit. The shipped configuration reaches
+  statistical parity with music21's offline whole-piece analyzers on Isophonics
+  while operating causally, abstaining honestly, and carrying calibrated
+  confidence; the controlled same-input experiment on the mode-resolved set
+  confirmed the timescale story on performed input and measured mode accuracy
+  directly.
+- **Next:** the one-shot test-split evaluation across the three frozen splits,
+  then the product integration (inferred-key provider and home-screen
+  indicator).
 
 ## Reading order
 
