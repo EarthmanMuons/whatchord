@@ -104,9 +104,14 @@ versioned fixtures, external baselines, and dated logs.
   `mise research:whatkey-harness-dev`, and
   `mise research:whatkey-baselines-dev`.
 
+## Paper
+
+- [paper/](paper/): the typst writeup ("Streaming Key Estimation with Abstention
+  from Live Chord-Recognition Output"), drawing every number from the dated log
+  entries and the committed one-shot artifacts. Build with
+  `mise research:whatkey-paper`; the PDF is generated, not committed.
+
 ## Planned, not yet started
 
-- `paper/`: a typst writeup tracked in this repo, once there are results worth
-  writing up.
 - A debug/profile-build-only in-app panel for observing recorded history and
   detector outputs during development (never in release builds).

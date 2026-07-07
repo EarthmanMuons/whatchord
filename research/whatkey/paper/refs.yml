@@ -1,0 +1,149 @@
+krumhansl1990:
+  type: book
+  title: Cognitive Foundations of Musical Pitch
+  author: Krumhansl, Carol L.
+  date: 1990
+  publisher: Oxford University Press
+
+temperley1999:
+  type: article
+  title: "What's Key for Key? The Krumhansl-Schmuckler Key-Finding Algorithm Reconsidered"
+  author: Temperley, David
+  date: 1999
+  parent:
+    type: periodical
+    title: Music Perception
+    volume: 17
+    issue: 1
+  serial-number:
+    doi: 10.2307/40285812
+
+albrecht2013:
+  type: article
+  title: The Use of Large Corpora to Train a New Type of Key-Finding Algorithm
+  author:
+    - Albrecht, Joshua
+    - Shanahan, Daniel
+  date: 2013
+  parent:
+    type: periodical
+    title: Music Perception
+    volume: 31
+    issue: 1
+
+temperley2007:
+  type: book
+  title: Music and Probability
+  author: Temperley, David
+  date: 2007
+  publisher: MIT Press
+
+raphael2004:
+  type: article
+  title: Functional Harmonic Analysis Using Probabilistic Models
+  author:
+    - Raphael, Christopher
+    - Stoddard, Joshua
+  date: 2004
+  parent:
+    type: periodical
+    title: Computer Music Journal
+    volume: 28
+    issue: 3
+
+napoles2019:
+  type: article
+  title: Key-Finding Based on a Hidden Markov Model and Key Profiles
+  author:
+    - Nápoles López, Néstor
+    - Arthur, Claire
+    - Fujinaga, Ichiro
+  date: 2019
+  parent:
+    type: proceedings
+    title: 6th International Conference on Digital Libraries for Musicology (DLfM)
+  serial-number:
+    doi: 10.1145/3358664.3358675
+
+adams2007:
+  type: article
+  title: Bayesian Online Changepoint Detection
+  author:
+    - Adams, Ryan P.
+    - MacKay, David J. C.
+  date: 2007
+  serial-number:
+    arxiv: "0710.3742"
+  url: https://arxiv.org/abs/0710.3742
+
+tsaknaki2024:
+  type: article
+  title: Bayesian Autoregressive Online Change-Point Detection with Time-Varying Parameters
+  author:
+    - Tsaknaki, Ioanna-Yvonni
+    - Lillo, Fabrizio
+    - Mazzarisi, Piero
+  date: 2024
+  parent:
+    type: periodical
+    title: Communications in Nonlinear Science and Numerical Simulation
+  serial-number:
+    arxiv: "2407.16376"
+  url: https://www.sciencedirect.com/science/article/pii/S1007570424006853
+
+mirex:
+  type: web
+  title: "MIREX Audio Key Detection Task: Evaluation Procedures"
+  organization: Music Information Retrieval Evaluation eXchange
+  url: https://music-ir.org/mirex/wiki/2019:Audio_Key_Detection
+
+wheninrome:
+  type: repository
+  title: "When in Rome: A Meta-Corpus of Functional Harmonic Analysis"
+  author: Gotham, Mark
+  url: https://github.com/MarkGotham/When-in-Rome
+
+asap2020:
+  type: article
+  title: "ASAP: A Dataset of Aligned Scores and Performances for Piano Transcription"
+  author:
+    - Foscarin, Francesco
+    - McLeod, Andrew
+    - Rigaux, Philippe
+    - Jacquemard, Florent
+    - Sakai, Masahiko
+  date: 2020
+  parent:
+    type: proceedings
+    title: Proceedings of the 21st International Society for Music Information Retrieval Conference (ISMIR)
+
+choco2023:
+  type: article
+  title: "ChoCo: A Chord Corpus and a Data Transformation Workflow for Musical Harmony Knowledge Graphs"
+  author:
+    - de Berardinis, Jacopo
+    - Meroño-Peñuela, Albert
+    - Poltronieri, Andrea
+    - Presutti, Valentina
+  date: 2023
+  parent:
+    type: periodical
+    title: Scientific Data
+    volume: 10
+
+isophonics2009:
+  type: article
+  title: "OMRAS2 Metadata Project 2009"
+  author:
+    - Mauch, Matthias
+    - Cannam, Chris
+    - Davies, Matthew
+    - Dixon, Simon
+    - Harte, Christopher
+    - Kolozali, Sefki
+    - Tidhar, Dan
+    - Sandler, Mark
+  date: 2009
+  parent:
+    type: proceedings
+    title: Late-Breaking Session, 10th International Society for Music Information Retrieval Conference (ISMIR)
