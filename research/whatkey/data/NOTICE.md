@@ -32,6 +32,15 @@ verified group set) are all gated this way: `tool/whatkey_asap_extract.py`,
 `tool/whatkey_isophonics_extract.py`, and `tool/whatkey_asap_wir_extract.py`
 refuse to write under `research/`, and none of their fixtures are committed.
 
+## Results Artifacts
+
+Evaluation outputs committed under `../results/` (harness reports and claims
+files) contain piece identifiers and titles, aggregate metrics, and detector
+outputs. Where a report records a per-piece summary key label derived from a
+gated corpus, the committing log entry records the redistribution decision
+(first: the one-shot test-split artifacts, log entry 2026-07-07-27). No
+time-aligned annotation content or score content is committed this way.
+
 ## Split Files
 
 Files under `splits/` record piece identifiers, counts, grouping metadata, and

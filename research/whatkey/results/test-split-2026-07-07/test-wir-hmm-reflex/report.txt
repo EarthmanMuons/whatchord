@@ -1,0 +1,51 @@
+WhatKey harness report
+============================================================
+set:       when-in-rome-v1 (test split)
+detector:  hmm
+config:    selfTransition=0.9 fifthsDecay=0.5 modeSwitchFactor=0.5 emissionTemperature=0.25 minEvents=3 marginFloor=0.3 modeTilt=2.0 relativeTilt=0.0 relativeCadenceTilt=0.0 | emissions: functionalBlend=0.1 progressionBlend=0.0 minEvents=1 marginFloor=0.0 | profile: profiles=albrechtShanahan durationWeighted=true decayHalfLifeMs=1000 decayHalfLifeEvents=null minEvents=1 marginFloor=0.0 | evidence: points=2.0/0.0/3.0/-1.0/4.0/2.0/3.0 confidenceWeighted=false durationWeighted=true decayHalfLifeMs=1000 decayHalfLifeEvents=null minEvents=1 marginFloor=0.0 | progression: points=5.0/3.0/+1.0/4.0/2.0/3.0/2.0/2.0/1.0/1.0 confidenceWeighted=false durationWeighted=true decayHalfLifeMs=1000 decayHalfLifeEvents=null minEvents=1 marginFloor=0.0
+engine:    0c891453b104fd7c60eb1f5f0c2677884d0e842b
+generated: 2026-07-07T22:55:55.157716Z
+command:   dart run tool/whatkey_harness.dart --fixtures research/whatkey/data/fixtures/when-in-rome-v1 --split-file research/whatkey/data/splits/when-in-rome-v1.json --split test --detector hmm --decay-half-life-seconds 1 --functional-blend 0.1 --out build/whatkey-harness/test-wir-hmm-reflex
+
+Summary (18 pieces, 1513 events)
+  Coverage (mean per piece)                                0.74
+  Accuracy on claimed, exact (mean per piece)              0.65  (16 pieces with claims)
+  Accuracy on claimed, MIREX (mean per piece)              0.76
+  Global key MIREX, final claim                            0.82  (16 pieces scored)
+  Global key MIREX, majority claim                         0.89
+  Time to first claim (events)                  median 2, p90 3  (2 pieces never claim)
+  Switches per piece                           median 8, p90 13
+  Spurious switches per piece                   median 1, p90 4
+  Modulations matched                                    65/115  (50 censored)
+  Modulation lag (events)                       median 3, p90 6
+
+Per piece
+  events: chord events
+  cover: fraction of events with a key claim
+  exact: exact-match accuracy on claimed events
+  mirex: MIREX-weighted accuracy on claimed events
+  ttfc: events before the first claim
+  sw: key switches
+  spur: spurious switches
+  amb-ok: ambiguous events handled acceptably
+
+  piece                                   events  cover  exact  mirex  ttfc  sw  spur  amb-ok
+  --------------------------------------  ------  -----  -----  -----  ----  --  ----  ------
+  Bach WTC I Prelude 01                        1   0.00      -      -     -   0     0       -
+  Bach WTC I Prelude 03                        2   0.00      -      -     -   0     0       -
+  Bach WTC I Prelude 14                       22   0.91   0.55   0.70     2   3     0       -
+  Bach WTC I Prelude 22                       81   0.91   0.88   0.91     2   5     2       -
+  Bach WTC I Prelude 23                       51   0.78   0.50   0.71     3   2     0       -
+  Brahms Marienlieder 3 Marias Wallfahrt      57   0.81   0.33   0.51     3   5     0       -
+  Brahms Marienlieder 4 Der Jäger             84   0.86   0.33   0.55     2  10     1       -
+  Mozart K179 (Fischer Minuet)               138   0.97   1.00   1.00     2   0     0       -
+  Mozart K265 (Twinkle)                      181   0.92   0.93   0.94     2   8     3       -
+  Mozart K573 (Duport Minuet)                186   0.90   0.98   0.99     2   8     3       -
+  Schubert Aufenthalt                        128   0.86   0.81   0.89     2  13     3       -
+  Schubert Du bist die Ruh                    81   0.83   0.66   0.80     2  10     0       -
+  Schubert Liebesbotschaft                    89   0.75   0.46   0.55     2  12     4       -
+  Schubert Winterreise 04 Erstarrung         106   0.79   0.69   0.80     2  13     4       -
+  Schubert Winterreise 07 Auf dem Flusse      71   0.83   0.61   0.72     3   8     2       -
+  Schubert Winterreise 09 Irrlicht            48   0.79   0.47   0.61     2   5     1       -
+  Schubert Winterreise 10 Rast                59   0.66   0.62   0.78     3   8     3       -
+  Schubert Winterreise 21 Das Wirthshaus     128   0.83   0.58   0.69     2  15     9       -

@@ -3,3 +3,6 @@ third_party/
 
 # Generated fixture sets; formatting is owned by tool/whatkey_fixture_extract.py
 research/whatkey/data/fixtures/
+
+# Committed evaluation artifacts; byte fidelity matters, never reformat
+research/whatkey/results/
