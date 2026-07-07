@@ -45,6 +45,13 @@ curve describes a detector's calibration without depending on any one threshold
 choice, which is why the protocol reports it rather than a single operating
 point.
 
+**Emission.** In the HMM, the per-event observation model: how likely the chords
+we just heard would be under each candidate key. Ours converts the hybrid
+detector's per-key scores into a probability distribution with a
+[softmax](https://en.wikipedia.org/wiki/Softmax_function); its temperature sets
+how decisive one event is allowed to be. Emissions must be memoryless (one
+event's worth of evidence), or history gets counted twice.
+
 **Event.** One committed chord from the history capture: a held identity with
 its ranked candidates, voicing, timing, and duration. The unit everything is
 scored over, each counting once regardless of how long it was held.
@@ -55,6 +62,13 @@ partial credit for musically close misses: the key a fifth away 0.5, the
 relative major/minor 0.3, the parallel major/minor 0.2. A gap between the two
 numbers means the errors are mostly neighboring keys, not random ones.
 
+**Filtered posterior (forward algorithm).** The
+[forward algorithm](https://en.wikipedia.org/wiki/Forward_algorithm) run
+causally: after each event, the probability of each key given everything heard
+so far, and nothing from the future (unlike Viterbi, which needs the whole
+piece). This is what the HMM claims from, and why its confidence is a true
+probability.
+
 **Fixture.** A stored, labeled event stream the harness replays: what the
 detector would have seen live, plus the ground-truth keys only the scorer may
 read. Versioned like a dataset because fixtures embed engine output.
@@ -62,6 +76,13 @@ read. Versioned like a dataset because fixtures embed engine output.
 **Global vs. local key.** Global: one key per piece, the whole-piece answer the
 older literature reports. Local: the key at each moment, which is what the app
 displays and what modulation tracking is about.
+
+**Hidden Markov model (HMM).** A
+[model](https://en.wikipedia.org/wiki/Hidden_Markov_model) that treats the key
+as a hidden state we never observe directly: each chord event gives noisy
+evidence (the emission), and the key itself changes only occasionally (the
+transitions). Inference balances the two, so an established key persists through
+momentary contradictions but yields to sustained ones.
 
 **Margin floor.** The confidence bar for speaking at all. At each event the
 detector ranks all 24 keys; if the leader is not ahead of the runner-up by at
@@ -97,6 +118,12 @@ for each pair are cited in the
 [design doc's references](temporal-context-key-detection.md#references), and
 their values are verified against reference implementations (log entry
 2026-07-06-08).
+
+**Self-transition.** The HMM's probability that the key this event is the same
+as the key last event. Higher values mean a steadier detector that needs more
+sustained evidence to change its mind: the principled version of the persistence
+that decay tuning and claim hysteresis approximated. The remaining probability
+spreads over other keys, nearer ones on the circle of fifths getting more.
 
 **Spurious switch.** A key switch the annotation gives no reason for: the
 labeled key did not change across the window and the detector's new claim does

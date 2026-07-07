@@ -4,7 +4,8 @@ import 'package:whatchord/features/theory/domain/theory_domain.dart';
 /// per-key scale membership masks.
 abstract final class KeySpace {
   /// One canonical `Tonality` per (pitch class, mode) pair, taken from the key
-  /// signature table. Detection is pitch-class based; enharmonic spelling is a
+  /// signature table and ordered so that a tonality's list position equals
+  /// [index] of it. Detection is pitch-class based; enharmonic spelling is a
   /// presentation concern.
   static final List<Tonality> canonicalTonalities = _canonicalTonalities();
 
@@ -16,7 +17,7 @@ abstract final class KeySpace {
       }
     }
     assert(byKey.length == 24);
-    return List.unmodifiable(byKey.values);
+    return List.unmodifiable([for (var k = 0; k < 24; k++) byKey[k]!]);
   }
 
   /// Stable index of a tonality in the 24-key space.

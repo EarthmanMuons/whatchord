@@ -8,12 +8,12 @@
 // Usage:
 //   dart run tool/whatkey_harness.dart --fixtures <set-dir> \
 //     [--split-file <split.json>] [--split development|test] \
-//     [--detector profile|evidence|progression|hybrid] \
+//     [--detector profile|evidence|progression|hybrid|hmm] \
 //     [--profiles krumhanslKessler|temperley|temperleyKostkaPayne|
 //                 albrechtShanahan] \
 //     [--confidence-weighting on|off] [--functional-blend X] \
 //     [--progression-blend X] \
-//     [--hysteresis N] \
+//     [--hysteresis N] [--self-transition X] [--emission-temperature X] \
 //     [--weighting duration|flat] [--decay-half-life-seconds N] \
 //     [--min-events N] [--margin-floor X] [--out <dir>] \
 //     [--claims-file <claims.json>] [--restrict-to <claims.json>] \
@@ -432,10 +432,12 @@ class _Options {
   final bool confidenceWeighted;
   final double functionalBlend;
   final double progressionBlend;
+  final double selfTransition;
+  final double emissionTemperature;
   final int hysteresis;
   final KeyProfilePair profiles;
   final bool durationWeighted;
-  final int decayHalfLifeSeconds;
+  final int? decayHalfLifeSeconds;
   final int minEvents;
   final double? marginFloor;
   final String? outDir;
@@ -451,6 +453,8 @@ class _Options {
     required this.confidenceWeighted,
     required this.functionalBlend,
     required this.progressionBlend,
+    required this.selfTransition,
+    required this.emissionTemperature,
     required this.hysteresis,
     required this.profiles,
     required this.durationWeighted,
@@ -468,9 +472,14 @@ class _Options {
   }
 
   KeyDetector _buildBase({double? marginFloorOverride}) {
-    final decay = decayHalfLifeSeconds == 0
-        ? null
-        : Duration(seconds: decayHalfLifeSeconds);
+    // Per-detector decay defaults: the HMM wants memoryless emissions while
+    // the accumulator detectors want the 30 s half-life; 0 disables decay.
+    final seconds =
+        decayHalfLifeSeconds ??
+        (detectorName == 'hmm'
+            ? HmmKeyDetector.defaultEmissionHalfLifeSeconds
+            : 30);
+    final decay = seconds == 0 ? null : Duration(seconds: seconds);
     return switch (detectorName) {
       'profile' => ProfileCorrelationKeyDetector(
         profiles: profiles,
@@ -493,6 +502,21 @@ class _Options {
         minEvents: minEvents,
         marginFloor: marginFloorOverride ?? marginFloor ?? 0.5,
       ),
+      'hmm' => HmmKeyDetector(
+        profiles: profiles,
+        durationWeighted: durationWeighted,
+        decayHalfLife: decay,
+        confidenceWeighted: confidenceWeighted,
+        functionalBlend: functionalBlend,
+        progressionBlend: progressionBlend,
+        selfTransition: selfTransition,
+        emissionTemperature: emissionTemperature,
+        minEvents: minEvents,
+        marginFloor:
+            marginFloorOverride ??
+            marginFloor ??
+            HmmKeyDetector.defaultMarginFloor,
+      ),
       'hybrid' => HybridKeyDetector(
         profiles: profiles,
         durationWeighted: durationWeighted,
@@ -504,7 +528,7 @@ class _Options {
         marginFloor: marginFloorOverride ?? marginFloor ?? 0.05,
       ),
       _ => throw ArgumentError(
-        '--detector must be profile, evidence, progression, or hybrid',
+        '--detector must be profile, evidence, progression, hybrid, or hmm',
       ),
     };
   }
@@ -549,6 +573,10 @@ class _Options {
         values.remove('progression-blend') ??
             '${HybridKeyDetector.defaultProgressionBlend}',
       ),
+      selfTransition: double.parse(values.remove('self-transition') ?? '0.9'),
+      emissionTemperature: double.parse(
+        values.remove('emission-temperature') ?? '0.25',
+      ),
       hysteresis: int.parse(values.remove('hysteresis') ?? '1'),
       sweepMarginFloors: [
         for (final floor in (values.remove('sweep-margin-floors') ?? '').split(
@@ -560,9 +588,10 @@ class _Options {
         values.remove('profiles') ?? 'albrechtShanahan',
       ),
       durationWeighted: (values.remove('weighting') ?? 'duration') != 'flat',
-      decayHalfLifeSeconds: int.parse(
-        values.remove('decay-half-life-seconds') ?? '30',
-      ),
+      decayHalfLifeSeconds: switch (values.remove('decay-half-life-seconds')) {
+        null => null,
+        final raw => int.parse(raw),
+      },
       minEvents: int.parse(values.remove('min-events') ?? '3'),
       marginFloor: switch (values.remove('margin-floor')) {
         null => null,
