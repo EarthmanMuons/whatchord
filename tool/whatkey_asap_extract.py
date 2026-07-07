@@ -49,6 +49,12 @@ def parse_args() -> argparse.Namespace:
         help="Cap on performances (one per piece folder, spread by composer).",
     )
     parser.add_argument("--composers", nargs="+", help="Only these composers.")
+    parser.add_argument(
+        "--segmenter-min-ms",
+        type=int,
+        default=200,
+        help="Capture segmenter minimum/debounce duration (app default 200).",
+    )
     return parser.parse_args()
 
 
@@ -78,7 +84,7 @@ def main() -> int:
         )
         print(f"{perf_path}: {len(snapshots)} snapshots", file=sys.stderr)
 
-    replayed = replay(pieces, args.context)
+    replayed = replay(pieces, args.context, args.segmenter_min_ms)
 
     set_dir = args.out / args.set_name
     set_dir.mkdir(parents=True, exist_ok=True)
@@ -121,6 +127,7 @@ def main() -> int:
             "arguments": sys.argv[1:],
         },
         "context": args.context,
+        "segmenterMinMs": args.segmenter_min_ms,
         "source": {
             "type": "asap",
             "asapRoot": str(args.asap_root),
@@ -208,9 +215,18 @@ def sounding_snapshots(midi_path: Path) -> list[dict]:
     return snapshots
 
 
-def replay(pieces: list[dict], context: str) -> dict[str, list[dict]]:
+def replay(
+    pieces: list[dict], context: str, segmenter_min_ms: int
+) -> dict[str, list[dict]]:
     payload = "".join(
-        json.dumps({"id": p["id"], "context": context, "snapshots": p["snapshots"]})
+        json.dumps(
+            {
+                "id": p["id"],
+                "context": context,
+                "segmenterMinMs": segmenter_min_ms,
+                "snapshots": p["snapshots"],
+            }
+        )
         + "\n"
         for p in pieces
     )

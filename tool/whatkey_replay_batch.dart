@@ -2,11 +2,14 @@
 // path for WhatKey fixture generation (research/whatkey/).
 //
 // Reads JSON-lines requests on stdin, one piece per line:
-//   {"id": "...", "context": "C:maj",
+//   {"id": "...", "context": "C:maj", "segmenterMinMs": 200,
 //    "snapshots": [{"timestampMs": 0, "midiNotes": [60, 64, 67]}, ...]}
 // where each snapshot is the pedal-aware sounding set after a change, and
 // writes one JSON line per piece with the committed ChordEvents in the
 // fixture event schema (without labels; the caller attaches those).
+// segmenterMinMs is optional (default 200, the app's live value); it exists
+// for the stacked-filter experiments, and any adopted change must ship in
+// the app's segmenter default too.
 //
 // This is the same pipeline the app runs live: the analyzer with voicing
 // evidence, capture gating at fewer than three notes, and the actual
@@ -38,7 +41,9 @@ void main() {
     );
 
     final segmenter = ChordEventSegmenter(
-      minChordDuration: const Duration(milliseconds: 200),
+      minChordDuration: Duration(
+        milliseconds: (request['segmenterMinMs'] as int?) ?? 200,
+      ),
     );
     final events = <ChordEvent>[];
     var lastMs = 0;
