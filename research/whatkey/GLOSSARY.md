@@ -103,6 +103,13 @@ of events (the ones a reference run claimed on), so neither gets an advantage
 from skipping harder questions. This is how "different coverage" is ruled out as
 the explanation for an accuracy difference.
 
+**Mode tilt.** A per-event nudge applied within one parallel pair of keys (same
+tonic, major vs. minor): when the chord just played is rooted on that tonic and
+has a clearly major or minor home quality, emission mass shifts toward the
+matching mode. The pair's total is preserved, so the tilt can pick between a
+key's twins but can never favor a different tonic, which is why it avoids the
+problems that removed its parent rules (log entry 2026-07-07-23).
+
 **Modulation lag.** After an annotated
 [key change](https://en.wikipedia.org/wiki/Modulation_%28music%29), how many
 events pass before the detector's claim arrives in the new key. Reported as

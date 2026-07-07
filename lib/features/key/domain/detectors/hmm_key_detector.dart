@@ -56,6 +56,19 @@ class HmmKeyDetector implements KeyDetector {
   static const double defaultEmissionProgressionBlend = 0;
   static const bool defaultEmissionConfidenceWeighted = false;
 
+  /// Log-odds tilt applied within the parallel-key pair rooted on the event's
+  /// chord when that chord has a home quality ([KeySpace.tonicQualities]):
+  /// toward major for major-tonic qualities, toward minor for minor-tonic
+  /// ones. The pair's emission sum is preserved, so the tilt redistributes
+  /// mode evidence without adding evidence for any other tonic; this is the
+  /// mode-only extraction of the evidence model's rejected tonic bonus (log
+  /// entry 2026-07-07-11), which cannot fight modulation tracking by
+  /// construction. Adopted at 2 (log entry 2026-07-07-23): a significant
+  /// paired exact win on both development rulers, parallel-mode confusion
+  /// roughly halved, no behavioral-suite or stability cost on the product
+  /// genre; strengths 2-4 are a plateau, so the gentlest plateau value ships.
+  static const double defaultModeTilt = 2;
+
   final HybridKeyDetector _emissions;
   final double selfTransition;
   final double fifthsDecay;
@@ -63,6 +76,7 @@ class HmmKeyDetector implements KeyDetector {
   final double emissionTemperature;
   final int minEvents;
   final double marginFloor;
+  final double modeTilt;
 
   late final List<List<double>> _transition = _buildTransitionMatrix();
   final List<double> _posterior = List.filled(24, 1 / 24);
@@ -84,6 +98,7 @@ class HmmKeyDetector implements KeyDetector {
     this.emissionTemperature = 0.25,
     this.minEvents = 3,
     this.marginFloor = defaultMarginFloor,
+    this.modeTilt = defaultModeTilt,
   }) : assert(selfTransition > 0 && selfTransition < 1),
        _emissions = HybridKeyDetector(
          profiles: profiles,
@@ -105,7 +120,7 @@ class HmmKeyDetector implements KeyDetector {
       'selfTransition=$selfTransition fifthsDecay=$fifthsDecay '
       'modeSwitchFactor=$modeSwitchFactor '
       'emissionTemperature=$emissionTemperature '
-      'minEvents=$minEvents marginFloor=$marginFloor '
+      'minEvents=$minEvents marginFloor=$marginFloor modeTilt=$modeTilt '
       '| emissions: ${_emissions.configuration}';
 
   @override
@@ -136,6 +151,7 @@ class HmmKeyDetector implements KeyDetector {
     // prediction stands.
     if (emissionFrame.ranked.isNotEmpty) {
       final emission = _emissionDistribution(emissionFrame.ranked);
+      _applyModeTilt(emission, event);
       var total = 0.0;
       for (var k = 0; k < 24; k++) {
         predicted[k] *= emission[k];
@@ -163,6 +179,32 @@ class HmmKeyDetector implements KeyDetector {
     final margin = ranked[0].confidence - ranked[1].confidence;
     if (margin < marginFloor) return KeyEstimateFrame.abstain(ranked);
     return KeyEstimateFrame(ranked: ranked, claim: ranked.first);
+  }
+
+  /// Redistributes emission mass within the parallel pair rooted on the
+  /// event's chord by [modeTilt] log-odds when the chord quality reads as a
+  /// tonic. The pair sum is unchanged, so no other tonic gains or loses.
+  void _applyModeTilt(List<double> emission, ChordEvent event) {
+    if (modeTilt == 0) return;
+    final quality = event.identity.quality;
+    final int direction;
+    if (KeySpace.majorTonicQualities.contains(quality)) {
+      direction = 1;
+    } else if (KeySpace.minorTonicQualities.contains(quality)) {
+      direction = -1;
+    } else {
+      return;
+    }
+    final majorK = event.identity.rootPc * 2;
+    final minorK = majorK + 1;
+    final pairSum = emission[majorK] + emission[minorK];
+    if (pairSum == 0) return;
+    final factor = math.exp(modeTilt * direction);
+    final major = emission[majorK] * factor;
+    final minor = emission[minorK] / factor;
+    final rescale = pairSum / (major + minor);
+    emission[majorK] = major * rescale;
+    emission[minorK] = minor * rescale;
   }
 
   /// Softmax of the hybrid's scores at [emissionTemperature], as a 24-vector
