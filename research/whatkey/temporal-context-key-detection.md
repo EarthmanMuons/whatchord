@@ -612,6 +612,24 @@ Questions to resolve before implementing any algorithm:
     significance on the primary ruler while trending negative on the other and
     doubling spurious p90; both parameters remain in the detector at default 0
     as a measured negative.
+  - **Fifths errors: no analogous tilt exists (ruled out 2026-07-07).** The
+    pair-tilt pattern requires a conserved quantity so the nudge cannot leak
+    into modulation tracking: parallel twins conserve the tonic pitch class,
+    relative twins conserve the signature. Fifth neighbors conserve neither, and
+    every key has two of them, so there is no pair to redistribute within;
+    discriminating C from G _is_ the modulation problem, and any chord-quality
+    nudge between fifth neighbors is the evidence model's tonic bonus reborn,
+    already measured and rejected at corpus cost (log entry 2026-07-07-11).
+    Empirically the residual fifth errors have no single exploitable shape
+    either: they split nearly evenly between the dominant and subdominant sides
+    (57/43 on Isophonics, 56/44 on the overlap set, shipped configuration).
+    Fifth neighbors differ by one pitch class, making them the
+    information-theoretic hardest call; the levers that exist are already in the
+    system (the margin floor abstains on true near-ties, persistence absorbs
+    brief excursions) or already recorded as future directions
+    (explicit-duration modeling). The remainder is the timescale trade and the
+    "on the dominant" vs. "in the dominant" ambiguity where analysts themselves
+    differ.
   - Measurement path: tune on the Isophonics and When in Rome development splits
     (both mode-resolved), add mode-mixture probes to the pop-jazz behavioral
     suite, verify once on the ASAP overlap set. For relative-pair work the
