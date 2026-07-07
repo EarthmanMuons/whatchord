@@ -62,8 +62,8 @@ versioned fixtures, external baselines, and dated logs.
 1. This README.
 2. [temporal-context-key-detection.md](temporal-context-key-detection.md): the
    full design and implementation plan, including the algorithm menu, decision
-   points, performance analysis, and references. Denser than this page; it is
-   the source of truth.
+   points, performance analysis, and references. Denser than this page; the
+   source of truth for design rationale (current results live in `log/`).
 3. [PROTOCOL.md](PROTOCOL.md): how results are evaluated. Frozen 2026-07-07;
    changes are dated amendments.
 4. [GLOSSARY.md](GLOSSARY.md): plain-English definitions of the measurement
@@ -82,12 +82,17 @@ versioned fixtures, external baselines, and dated logs.
   code the harness benchmarks is what the app will eventually run.
 - `lib/features/theory/`: the chord analysis engine the events come from.
 - `tool/`: `whatkey_fixture_extract.py` and `whatkey_fixture_batch.dart` build
-  labeled fixtures; `whatkey_harness.dart` (with `tool/src/whatkey/`) replays
-  fixtures through detectors and reports the protocol metrics;
-  `whatkey_external_baseline.py` runs music21 key analyzers over the same
-  fixtures as claims files the harness scores. Run via
-  `mise research:whatkey-harness-pop-jazz`, `mise research:whatkey-harness-dev`,
-  and `mise research:whatkey-baselines-dev`.
+  labeled fixtures; `whatkey_asap_extract.py`, `whatkey_isophonics_extract.py`,
+  and `whatkey_asap_wir_extract.py` build the license-gated sets (with
+  `whatkey_replay_batch.dart` replaying snapshots through the real capture
+  path); `whatkey_harness.dart` (with `tool/src/whatkey/`) replays fixtures
+  through detectors and reports the protocol metrics; `whatkey_compare.py` runs
+  the paired per-piece statistics; `whatkey_freeze_split.py` and
+  `whatkey_asap_split.py` freeze splits; `whatkey_external_baseline.py` runs
+  music21 key analyzers over the same fixtures as claims files the harness
+  scores. Run via `mise research:whatkey-harness-pop-jazz`,
+  `mise research:whatkey-harness-dev`, and
+  `mise research:whatkey-baselines-dev`.
 
 ## Planned, not yet started
 

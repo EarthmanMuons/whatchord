@@ -164,12 +164,97 @@ whatkey-when-in-rome-v1-split-2026-07-06
 The test split is held out. Tuning, ablation, threshold selection, and detector
 selection happen on the development split only.
 
-## Verify Outputs
+## License-Gated Corpora (ASAP, Isophonics, Overlap Set)
 
-Validate the split JSON:
+These sets generate into `build/whatkey-fixtures/` only; their extractors refuse
+to write under `research/` (see License Boundaries below). Their split files are
+committed because splits record identifiers and counts, not corpus content.
+
+### ASAP (`asap-nc-v2`)
+
+Clone ASAP outside this repository and verify the pin:
 
 ```sh
-python3 -m json.tool research/whatkey/data/splits/when-in-rome-v1.json > /tmp/whatkey-split-check.json
+git clone https://github.com/fosfrancesco/asap-dataset /private/tmp/asap-dataset
+git -C /private/tmp/asap-dataset checkout afc815c75c42e83a79c03feb6da8a35e77d4c6b8
+```
+
+Regenerate the fixtures (or `mise research:whatkey-fixtures-asap` with
+`ASAP_ROOT` exported):
+
+```sh
+python3 tool/whatkey_asap_extract.py \
+  --asap-root /private/tmp/asap-dataset \
+  --set asap-nc-v2 --max-performances 60
+```
+
+Regenerate the frozen split (verification only; the committed file is
+normative):
+
+```sh
+python3 tool/whatkey_asap_split.py \
+  --fixtures-manifest build/whatkey-fixtures/asap-nc-v2/manifest.json \
+  --seed whatkey-asap-nc-v2-split-2026-07-07 \
+  --out research/whatkey/data/splits/asap-nc-v2.json
+```
+
+Expected split counts:
+
+```text
+development: 50 pieces, 15407 events
+test:        10 pieces,  4139 events
+```
+
+### Isophonics via ChoCo (`isophonics-nc-v1`)
+
+Clone ChoCo outside this repository and verify the pin:
+
+```sh
+git clone https://github.com/smashub/choco /private/tmp/choco
+git -C /private/tmp/choco checkout 5fe168fd55be5c84512abcfbc4e6f1b1f8f0092a
+```
+
+Regenerate the fixtures and the frozen split:
+
+```sh
+python3 tool/whatkey_isophonics_extract.py \
+  --choco-root /private/tmp/choco --set isophonics-nc-v1
+python3 tool/whatkey_asap_split.py \
+  --fixtures-manifest build/whatkey-fixtures/isophonics-nc-v1/manifest.json \
+  --seed whatkey-isophonics-nc-v1-split-2026-07-07 \
+  --out research/whatkey/data/splits/isophonics-nc-v1.json
+```
+
+Expected split counts:
+
+```text
+development: 183 pieces, 15497 events
+test:         41 pieces,  3565 events
+```
+
+### ASAP plus When in Rome overlap (`asap-wir-nc-v1`)
+
+Requires both the ASAP checkout and the contrapunctus-bench checkout above. This
+set is evaluation-only (no tuning, configurations committed beforehand), so it
+has no split file:
+
+```sh
+python3 tool/whatkey_asap_wir_extract.py \
+  --asap-root /private/tmp/asap-dataset \
+  --bench-root "${CONTRAPUNCTUS_BENCH_ROOT:-/private/tmp/contrapunctus-bench}"
+```
+
+Expected sanity result: 36 fixtures, each piece's opening key matching the known
+sonata key, with unalignable performances reported as skipped.
+
+## Verify Outputs
+
+Validate the split JSONs:
+
+```sh
+for f in research/whatkey/data/splits/*.json; do
+  python3 -m json.tool "$f" > /dev/null && echo "ok: $f"
+done
 ```
 
 ## License Boundaries

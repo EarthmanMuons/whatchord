@@ -206,3 +206,18 @@ in Rome, RomanText, ASAP) is cited with links in the
   looping case; both fixtures are retained. No corpus set, split, metric, or
   scoring change; the suite is per-fixture pass/fail and outside all pooled
   statistics, so no tuning contamination is possible.
+- **2026-07-07** (log entries 2026-07-07-13/14/16/21): three corpus sets added
+  under the existing split rules, no metric or scoring change. `asap-nc-v2`
+  (ASAP performed piano MIDI, key-signature labels mode-unknown via
+  `acceptableKeys`; split `data/splits/asap-nc-v2.json` frozen before any tuning
+  on the set) and `isophonics-nc-v1` (Isophonics pop songs via ChoCo,
+  section-scale tonic-and-mode song keys; split
+  `data/splits/isophonics-nc-v1.json`, likewise frozen first). Both are
+  license-gated to `build/` (see `data/NOTICE.md`). `asap-wir-nc-v1` (ASAP
+  performances labeled with When in Rome analyst keys) is evaluation-only: no
+  tuning is permitted on it and every configuration run against it must be
+  committed beforehand, so it carries no split.
+- **2026-07-07** (log entries 2026-07-07-09/19): the justkeydding baseline is
+  recorded as unmeasurable in this environment (unreproducible build); the
+  external anchor obligation is met by the music21 analyzers alone, and no
+  comparison claim against justkeydding is made in either direction.

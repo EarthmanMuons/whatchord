@@ -47,10 +47,19 @@ point.
 
 **Emission.** In the HMM, the per-event observation model: how likely the chords
 we just heard would be under each candidate key. Ours converts the hybrid
-detector's per-key scores into a probability distribution with a
-[softmax](https://en.wikipedia.org/wiki/Softmax_function); its temperature sets
-how decisive one event is allowed to be. Emissions must be memoryless (one
+detector's per-key scores (both blend terms at zero in the shipped
+configuration, so pure profile correlation) into a probability distribution with
+a [softmax](https://en.wikipedia.org/wiki/Softmax_function); its temperature
+sets how decisive one event is allowed to be. Emissions must be memoryless (one
 event's worth of evidence), or history gets counted twice.
+
+**Emission memory (decay half-life).** How much recent context the emission
+scorer integrates when judging "the chords we just heard": pitch-class evidence
+decays exponentially with this half-life. Short memory makes each emission a
+snapshot of the immediate harmony, quick to see excursions; long memory makes it
+a summary of the current section. Log entries 2026-07-07-16/17 found this dial
+selects which timescale of key structure the detector reports (see Section scale
+vs. tonicization scale).
 
 **Event.** One committed chord from the history capture: a held identity with
 its ranked candidates, voicing, timing, and duration. The unit everything is
@@ -118,6 +127,15 @@ for each pair are cited in the
 [design doc's references](temporal-context-key-detection.md#references), and
 their values are verified against reference implementations (log entry
 2026-07-06-08).
+
+**Section scale vs. tonicization scale.** Two granularities of "the key," both
+legitimate. Section scale is the home key of a stretch of music, what a song's
+key or a movement's key names; tonicization scale additionally tracks brief
+excursions, the few measures an analyst marks as V-of or the relative minor.
+Corpus labels come at different scales (Isophonics song keys and ASAP key
+signatures are section-scale; When in Rome analyst local keys are
+tonicization-scale), so accuracy numbers are only comparable against the same
+ruler. WhatChord ships the section scale (log entry 2026-07-07-17).
 
 **Self-transition.** The HMM's probability that the key this event is the same
 as the key last event. Higher values mean a steadier detector that needs more
