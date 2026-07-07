@@ -143,6 +143,51 @@ void main() {
     expect(lastClaim!.tonality.tonicPitchClass, anyOf(0, 5));
   });
 
+  test('mode tilt never moves the claimed tonic', () {
+    final events = [
+      ...cCadence,
+      for (var i = 0; i < 6; i++) ...[
+        _event(4 + 2 * i, [2, 6, 9, 0], ChordQualityToken.dominant7),
+        _event(5 + 2 * i, [7, 11, 2], ChordQualityToken.major),
+      ],
+    ];
+    final plain = _run(HmmKeyDetector(modeTilt: 0), events);
+    final tilted = _run(HmmKeyDetector(modeTilt: 2), events);
+    for (var i = 0; i < events.length; i++) {
+      expect(
+        tilted[i].ranked.first.tonality.tonicPitchClass,
+        plain[i].ranked.first.tonality.tonicPitchClass,
+        reason: 'event $i',
+      );
+    }
+  });
+
+  test('mode tilt resolves parallel-ambiguous content by tonic quality', () {
+    // Melodic-minor-flavored vamp: the pitch content is one chromatic tone
+    // away from both C major and C minor, so the mode is carried by the
+    // tonic chord's quality, which is exactly what the tilt reads.
+    final vamp = [
+      for (var i = 0; i < 4; i++) ...[
+        _event(4 * i, [0, 3, 7], ChordQualityToken.minor),
+        _event(4 * i + 1, [5, 9, 0], ChordQualityToken.major),
+        _event(4 * i + 2, [7, 11, 2], ChordQualityToken.major),
+        _event(4 * i + 3, [0, 3, 7], ChordQualityToken.minor),
+      ],
+    ];
+    double cMinorConfidence(List<KeyEstimateFrame> frames) => frames.last.ranked
+        .firstWhere(
+          (e) => e.tonality.tonicPitchClass == 0 && e.tonality.isMinor,
+        )
+        .confidence;
+    final plain = _run(HmmKeyDetector(modeTilt: 0), vamp);
+    final tilted = _run(HmmKeyDetector(modeTilt: 2), vamp);
+    expect(cMinorConfidence(tilted), greaterThan(cMinorConfidence(plain)));
+    final claim = tilted.last.claim;
+    expect(claim, isNotNull);
+    expect(claim!.tonality.tonicPitchClass, 0);
+    expect(claim.tonality.isMinor, isTrue);
+  });
+
   test('transition rows are proper distributions', () {
     final detector = HmmKeyDetector();
     // Exercised indirectly: run one event and confirm the posterior stays

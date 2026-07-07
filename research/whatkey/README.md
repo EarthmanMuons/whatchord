@@ -42,17 +42,19 @@ versioned fixtures, external baselines, and dated logs.
 - **The adopted detector** is a causal HMM: a filtered posterior (forward
   algorithm, no lookahead) over pure profile-correlation emissions
   (Albrecht-Shanahan profiles, duration weighting, 30-second emission memory),
-  with a posterior-gap abstention floor. Two full 16-cell ablation factorials
-  showed the functional and progression blend layers detect brief tonicization
-  excursions, which the product deliberately absorbs, so they are removed from
-  the shipped configuration (and blues is fixed as a side effect); at the
-  1-second reflex scale the functional blend flips to decisively load-bearing,
-  the paper's central crossover exhibit. The shipped configuration reaches
-  statistical parity with music21's offline whole-piece analyzers on Isophonics
-  while operating causally, abstaining honestly, and carrying calibrated
-  confidence; the controlled same-input experiment on the mode-resolved set
-  confirmed the timescale story on performed input and measured mode accuracy
-  directly.
+  with a posterior-gap abstention floor and a within-pair mode tilt from tonic
+  chord quality that roughly halves parallel major/minor confusion (the first
+  ingredient to win on both label timescales; log entry 23). Two full 16-cell
+  ablation factorials showed the functional and progression blend layers detect
+  brief tonicization excursions, which the product deliberately absorbs, so they
+  are removed from the shipped configuration (and blues is fixed as a side
+  effect); at the 1-second reflex scale the functional blend flips to decisively
+  load-bearing, the paper's central crossover exhibit. The shipped configuration
+  reaches statistical parity with music21's offline whole-piece analyzers on
+  Isophonics while operating causally, abstaining honestly, and carrying
+  calibrated confidence; the controlled same-input experiment on the
+  mode-resolved set confirmed the timescale story on performed input and
+  measured mode accuracy directly.
 - **Next:** the one-shot test-split evaluation across the three frozen splits,
   then the product integration (inferred-key provider and home-screen
   indicator).

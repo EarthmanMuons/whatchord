@@ -573,7 +573,11 @@ Questions to resolve before implementing any algorithm:
     hypotheses share the tonic pitch class, and only the mode side of the pair
     moves. The ablation verdicts against the functional blend therefore do not
     apply to this slice by construction. One tilt-strength parameter; a
-    mode-specific hysteresis would steady the displayed glyph.
+    mode-specific hysteresis would steady the displayed glyph. **Executed and
+    shipped the same day** (log entry 2026-07-07-23,
+    `HmmKeyDetector.modeTilt = 2`): significant paired exact wins on both
+    development rulers, parallel confusion roughly halved everywhere measured,
+    no behavioral or product-genre stability cost.
   - **Mode as a slow latent variable**: factor the 24 states into 12 tonics
     times 2 modes with mode self-transition well above tonic's (sections change
     more often than mode does); composes with the HSMM direction above.
