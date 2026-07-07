@@ -173,9 +173,12 @@ gets the cleanest ablation: identical pipelines with it on and off.
 
 The MIREX weighting comes from the
 [MIREX Audio Key Detection task](https://music-ir.org/mirex/wiki/2019:Audio_Key_Detection),
-whose evaluation table is stable across task years. Every other system, profile
-set, and corpus named here (Krumhansl-Schmuckler variants and their profile
-pairs, justkeydding, When in Rome, RomanText, ASAP) is cited with links in the
+whose evaluation table is stable across task years. The paired test is the
+[Wilcoxon signed-rank test](https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test)
+(implemented in `tool/whatkey_compare.py`; plain-English explanation in
+[GLOSSARY.md](GLOSSARY.md)). Every other system, profile set, and corpus named
+here (Krumhansl-Schmuckler variants and their profile pairs, justkeydding, When
+in Rome, RomanText, ASAP) is cited with links in the
 [design doc's references](temporal-context-key-detection.md#references).
 
 ## Amendments
