@@ -56,8 +56,11 @@ void main() {
     expect(claim.tonality.isMajor, isTrue);
   });
 
-  test('zero blend ranks identically to pure profile correlation', () {
-    final hybridFrames = _run(HybridKeyDetector(functionalBlend: 0), cCadence);
+  test('zero blends rank identically to pure profile correlation', () {
+    final hybridFrames = _run(
+      HybridKeyDetector(functionalBlend: 0, progressionBlend: 0),
+      cCadence,
+    );
     final profileFrames = _run(ProfileCorrelationKeyDetector(), cCadence);
     for (var i = 0; i < cCadence.length; i++) {
       final hybrid = hybridFrames[i].ranked;

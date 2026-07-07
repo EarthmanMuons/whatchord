@@ -8,10 +8,11 @@
 // Usage:
 //   dart run tool/whatkey_harness.dart --fixtures <set-dir> \
 //     [--split-file <split.json>] [--split development|test] \
-//     [--detector profile|evidence|hybrid] \
+//     [--detector profile|evidence|progression|hybrid] \
 //     [--profiles krumhanslKessler|temperley|temperleyKostkaPayne|
 //                 albrechtShanahan] \
 //     [--confidence-weighting on|off] [--functional-blend X] \
+//     [--progression-blend X] \
 //     [--hysteresis N] \
 //     [--weighting duration|flat] [--decay-half-life-seconds N] \
 //     [--min-events N] [--margin-floor X] [--out <dir>] \
@@ -430,6 +431,7 @@ class _Options {
   final String detectorName;
   final bool confidenceWeighted;
   final double functionalBlend;
+  final double progressionBlend;
   final int hysteresis;
   final KeyProfilePair profiles;
   final bool durationWeighted;
@@ -448,6 +450,7 @@ class _Options {
     required this.detectorName,
     required this.confidenceWeighted,
     required this.functionalBlend,
+    required this.progressionBlend,
     required this.hysteresis,
     required this.profiles,
     required this.durationWeighted,
@@ -476,6 +479,13 @@ class _Options {
         minEvents: minEvents,
         marginFloor: marginFloorOverride ?? marginFloor ?? 0.05,
       ),
+      'progression' => ProgressionKeyDetector(
+        confidenceWeighted: confidenceWeighted,
+        durationWeighted: durationWeighted,
+        decayHalfLife: decay,
+        minEvents: minEvents,
+        marginFloor: marginFloorOverride ?? marginFloor ?? 0.5,
+      ),
       'evidence' => WeightedEvidenceKeyDetector(
         confidenceWeighted: confidenceWeighted,
         durationWeighted: durationWeighted,
@@ -489,11 +499,12 @@ class _Options {
         decayHalfLife: decay,
         confidenceWeighted: confidenceWeighted,
         functionalBlend: functionalBlend,
+        progressionBlend: progressionBlend,
         minEvents: minEvents,
         marginFloor: marginFloorOverride ?? marginFloor ?? 0.05,
       ),
       _ => throw ArgumentError(
-        '--detector must be profile, evidence, or hybrid',
+        '--detector must be profile, evidence, progression, or hybrid',
       ),
     };
   }
@@ -531,6 +542,7 @@ class _Options {
       confidenceWeighted:
           (values.remove('confidence-weighting') ?? 'on') != 'off',
       functionalBlend: double.parse(values.remove('functional-blend') ?? '0.1'),
+      progressionBlend: double.parse(values.remove('progression-blend') ?? '0'),
       hysteresis: int.parse(values.remove('hysteresis') ?? '1'),
       sweepMarginFloors: [
         for (final floor in (values.remove('sweep-margin-floors') ?? '').split(

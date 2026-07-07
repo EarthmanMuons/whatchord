@@ -6,6 +6,7 @@ import 'package:whatchord/features/theory/domain/theory_domain.dart';
 import '../models/key_estimate.dart';
 import 'key_detector.dart';
 import 'key_profiles.dart';
+import 'key_space.dart';
 
 /// Profile-correlation key detection (Krumhansl-Schmuckler family): the floor
 /// every later model must beat.
@@ -141,22 +142,9 @@ class ProfileCorrelationKeyDetector implements KeyDetector {
     return covariance / (histogram.deviation * profileStats.deviation);
   }
 
-  /// One canonical `Tonality` per (pitch class, mode) pair, taken from the key
-  /// signature table. Detection is pitch-class based; enharmonic spelling is a
-  /// presentation concern.
-  static final List<Tonality> canonicalTonalities = _canonicalTonalities();
-
-  static List<Tonality> _canonicalTonalities() {
-    final byKey = <int, Tonality>{};
-    for (final row in keySignatureRows) {
-      for (final tonality in [row.relativeMajor, row.relativeMinor]) {
-        final key = tonality.tonicPitchClass * 2 + (tonality.isMinor ? 1 : 0);
-        byKey.putIfAbsent(key, () => tonality);
-      }
-    }
-    assert(byKey.length == 24);
-    return List.unmodifiable(byKey.values);
-  }
+  /// See [KeySpace.canonicalTonalities]; kept here as the historical access
+  /// point.
+  static List<Tonality> get canonicalTonalities => KeySpace.canonicalTonalities;
 }
 
 class _VectorStats {
