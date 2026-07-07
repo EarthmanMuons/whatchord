@@ -8,7 +8,7 @@
 // Usage:
 //   dart run tool/whatkey_harness.dart --fixtures <set-dir> \
 //     [--split-file <split.json>] [--split development|test] \
-//     [--detector profile|evidence|progression|hybrid|hmm] \
+//     [--detector profile|evidence|progression|hybrid|hmm|bocpd] \
 //     [--profiles krumhanslKessler|temperley|temperleyKostkaPayne|
 //                 albrechtShanahan] \
 //     [--confidence-weighting on|off] [--functional-blend X] \
@@ -17,7 +17,8 @@
 //     [--weighting duration|flat] [--decay-half-life-seconds N] \
 //     [--decay-half-life-events N] \
 //     [--min-events N] [--margin-floor X] [--mode-tilt X] \
-//     [--relative-tilt X] [--relative-cadence-tilt X] [--out <dir>] \
+//     [--relative-tilt X] [--relative-cadence-tilt X] \
+//     [--hazard X] [--max-run-length N] [--out <dir>] \
 //     [--claims-file <claims.json>] [--restrict-to <claims.json>] \
 //     [--sweep-margin-floors 0,0.02,0.05,...]
 //
@@ -446,6 +447,8 @@ class _Options {
   final double modeTilt;
   final double relativeTilt;
   final double relativeCadenceTilt;
+  final double hazard;
+  final int maxRunLength;
   final String? outDir;
 
   _Options._({
@@ -471,6 +474,8 @@ class _Options {
     required this.modeTilt,
     required this.relativeTilt,
     required this.relativeCadenceTilt,
+    required this.hazard,
+    required this.maxRunLength,
     required this.outDir,
   });
 
@@ -554,6 +559,19 @@ class _Options {
         relativeTilt: relativeTilt,
         relativeCadenceTilt: relativeCadenceTilt,
       ),
+      'bocpd' => BocpdKeyDetector(
+        profiles: profiles,
+        durationWeighted: durationWeighted,
+        hazard: hazard,
+        maxRunLength: maxRunLength,
+        emissionTemperature: emissionTemperature,
+        modeTilt: modeTilt,
+        minEvents: minEvents,
+        marginFloor:
+            marginFloorOverride ??
+            marginFloor ??
+            HmmKeyDetector.defaultMarginFloor,
+      ),
       'hybrid' => HybridKeyDetector(
         profiles: profiles,
         durationWeighted: durationWeighted,
@@ -566,7 +584,8 @@ class _Options {
         marginFloor: marginFloorOverride ?? marginFloor ?? 0.05,
       ),
       _ => throw ArgumentError(
-        '--detector must be profile, evidence, progression, hybrid, or hmm',
+        '--detector must be profile, evidence, progression, hybrid, hmm, '
+        'or bocpd',
       ),
     };
   }
@@ -651,6 +670,13 @@ class _Options {
       relativeCadenceTilt: double.parse(
         values.remove('relative-cadence-tilt') ??
             '${HmmKeyDetector.defaultRelativeCadenceTilt}',
+      ),
+      hazard: double.parse(
+        values.remove('hazard') ?? '${BocpdKeyDetector.defaultHazard}',
+      ),
+      maxRunLength: int.parse(
+        values.remove('max-run-length') ??
+            '${BocpdKeyDetector.defaultMaxRunLength}',
       ),
       outDir: values.remove('out'),
     );
