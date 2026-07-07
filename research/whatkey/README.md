@@ -42,15 +42,17 @@ versioned fixtures, external baselines, and dated logs.
   modulations, which is the gap the next detector targets. See `log/` for the
   numbers.
 - **Detectors so far:** the profile-correlation floor, the weighted evidence
-  model (design plan section 2d), and their hybrid, the current champion: it
-  beats the floor on the development split with paired statistics (+0.096 exact
-  per piece, Wilcoxon p = 0.003) at higher coverage. The two ingredients fail in
-  complementary places and the blend captures both; blues remains the flagship
-  open probe (function rules mis-key it toward the subdominant). See `log/` for
-  the numbers.
-- **Next:** modulation responsiveness (adaptive decay or claim hysteresis), the
-  progression-pattern layer (design plan section 2e), and the deferred
-  default-profile revisit, all gated by paired per-piece statistics.
+  model (design plan section 2d), the progression-pattern layer (section 2e),
+  and a claim-hysteresis wrapper (built, currently unused). The champion is the
+  three-way hybrid (correlation base, functional and progression blend terms):
+  it beats the floor with paired statistics (+0.096 exact per piece, p = 0.003),
+  and the progression term added a decisive paired coverage win (+0.052 per
+  piece, p = 0.0008) at unchanged accuracy. The protocol is frozen. Blues
+  remains the flagship open probe: the single-chorus fixture ends before the
+  loop-seam cadence that would identify the tonic. See `log/` for the numbers.
+- **Next:** a pop-jazz-v2 fixture set (two-chorus blues) via protocol amendment,
+  the deferred default-profile revisit, and ASAP performed-input fixtures, all
+  gated by paired per-piece statistics.
 
 ## Reading order
 
@@ -59,8 +61,8 @@ versioned fixtures, external baselines, and dated logs.
    full design and implementation plan, including the algorithm menu, decision
    points, performance analysis, and references. Denser than this page; it is
    the source of truth.
-3. [PROTOCOL.md](PROTOCOL.md): how results will be evaluated. Draft until
-   frozen; frozen before the first tuning experiment.
+3. [PROTOCOL.md](PROTOCOL.md): how results are evaluated. Frozen 2026-07-07;
+   changes are dated amendments.
 4. [GLOSSARY.md](GLOSSARY.md): plain-English definitions of the measurement
    terms the log entries and reports use.
 5. [REPRODUCING.md](REPRODUCING.md): exact steps for rebuilding the Phase 2

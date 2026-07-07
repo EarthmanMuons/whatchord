@@ -5,7 +5,7 @@ import 'package:whatchord/features/theory/domain/theory_domain.dart';
 
 import '../models/key_estimate.dart';
 import 'key_detector.dart';
-import 'profile_correlation_key_detector.dart';
+import 'key_space.dart';
 
 /// Weighted evidence key detection (design plan section 2d): the first model
 /// that uses chord identities and recognizer confidence rather than pitch
@@ -107,7 +107,7 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
     if (weight > 0) {
       final identity = event.identity;
       final pcMask = event.input.pcMask;
-      final tonalities = ProfileCorrelationKeyDetector.canonicalTonalities;
+      final tonalities = KeySpace.canonicalTonalities;
       for (var k = 0; k < 24; k++) {
         _scores[k] += weight * _points(tonalities[k], identity, pcMask);
       }
@@ -128,7 +128,7 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
   }
 
   double _points(Tonality tonality, ChordIdentity identity, int pcMask) {
-    final scaleMask = _scaleMask(tonality);
+    final scaleMask = KeySpace.scaleMask(tonality);
     var points = 0.0;
 
     if (scaleMask & (1 << identity.rootPc) != 0) {
@@ -189,7 +189,7 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
 
   List<KeyEstimate> _rankKeys() {
     if (_weightMass <= 0) return const [];
-    final tonalities = ProfileCorrelationKeyDetector.canonicalTonalities;
+    final tonalities = KeySpace.canonicalTonalities;
     final estimates = <KeyEstimate>[
       // Confidence is points per weighted event, so it is scale-free across
       // stream lengths and decay states.
@@ -202,20 +202,6 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
     estimates.sort((a, b) => b.confidence.compareTo(a.confidence));
     return estimates;
   }
-
-  /// Scale pitch classes per key. Major keys use the major scale; minor keys
-  /// use natural union harmonic minor, mirroring the classifier's sources.
-  static int _scaleMask(Tonality tonality) {
-    final relative = tonality.isMajor ? _majorMask : _minorMask;
-    final tonic = tonality.tonicPitchClass;
-    return ((relative << tonic) | (relative >> (12 - tonic))) & 0xFFF;
-  }
-
-  // 0,2,4,5,7,9,11
-  static const int _majorMask = 0xAB5;
-
-  // Natural {0,2,3,5,7,8,10} union harmonic {..., 11}: 0,2,3,5,7,8,10,11
-  static const int _minorMask = 0xDAD;
 
   static const Set<ChordQualityToken> _dominantFamily = {
     ChordQualityToken.dominant7,

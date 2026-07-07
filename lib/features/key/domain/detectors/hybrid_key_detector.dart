@@ -1,31 +1,42 @@
 import 'package:whatchord/features/history/history_domain.dart';
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
 
 import '../models/key_estimate.dart';
 import 'key_detector.dart';
 import 'key_profiles.dart';
+import 'key_space.dart';
 import 'profile_correlation_key_detector.dart';
+import 'progression_key_detector.dart';
 import 'weighted_evidence_key_detector.dart';
 
 /// Hybrid key detection: profile correlation as the base score with the
-/// weighted evidence model's functional points as an adjustment.
+/// weighted evidence model's functional points, and optionally the
+/// progression detector's transition points, as adjustments.
 ///
-/// The two ingredients fail in complementary places (log entry 2026-07-07-03):
-/// histograms are robust on dense romantic harmony but blind to function, so
-/// they lag modulations; the functional rules track cadences but tie on
-/// purely diatonic or dominant-heavy stretches. Per key, the hybrid score is
+/// The ingredients fail in complementary places (log entries 2026-07-07-03
+/// and -04): histograms are robust on dense romantic harmony but blind to
+/// function, so they lag modulations; the functional rules track cadences but
+/// tie on purely diatonic or dominant-heavy stretches. Per key, the hybrid
+/// score is
 ///
-///   correlation + functionalBlend * functional points per weighted event
+///   correlation
+///     + functionalBlend * functional points per weighted event
+///     + progressionBlend * progression points per weighted event
 ///
 /// so profile shape breaks functional ties and functional evidence moves the
-/// histogram's supertanker at key changes. `functionalBlend: 0` reduces to
-/// pure profile correlation, which is the ablation anchor.
+/// histogram's supertanker at key changes. With both blends at zero this
+/// reduces exactly to pure profile correlation, the ablation anchor; each
+/// term toggles independently per the protocol's ablation rules.
 class HybridKeyDetector implements KeyDetector {
   final ProfileCorrelationKeyDetector _profile;
   final WeightedEvidenceKeyDetector _evidence;
+  final ProgressionKeyDetector _progression;
 
   /// Weight of one functional point per weighted event, in correlation units.
   final double functionalBlend;
+
+  /// Weight of one progression point per weighted event, in correlation
+  /// units. Zero disables the progression term entirely.
+  final double progressionBlend;
   final int minEvents;
   final double marginFloor;
 
@@ -40,6 +51,9 @@ class HybridKeyDetector implements KeyDetector {
     // 0.1-0.15 and the paired test against the profile floor is decisive
     // there (log entry 2026-07-07-04).
     this.functionalBlend = 0.1,
+    // Selected on the development split: paired coverage win at unchanged
+    // accuracy, plus more modulations matched (log entry 2026-07-07-08).
+    this.progressionBlend = 0.02,
     this.minEvents = 3,
     this.marginFloor = 0.05,
   }) : _profile = ProfileCorrelationKeyDetector(
@@ -55,6 +69,13 @@ class HybridKeyDetector implements KeyDetector {
          confidenceWeighted: confidenceWeighted,
          minEvents: 1,
          marginFloor: 0,
+       ),
+       _progression = ProgressionKeyDetector(
+         durationWeighted: durationWeighted,
+         decayHalfLife: decayHalfLife,
+         confidenceWeighted: confidenceWeighted,
+         minEvents: 1,
+         marginFloor: 0,
        );
 
   @override
@@ -62,14 +83,17 @@ class HybridKeyDetector implements KeyDetector {
 
   @override
   String get configuration =>
-      'functionalBlend=$functionalBlend minEvents=$minEvents '
-      'marginFloor=$marginFloor | profile: ${_profile.configuration} '
-      '| evidence: ${_evidence.configuration}';
+      'functionalBlend=$functionalBlend progressionBlend=$progressionBlend '
+      'minEvents=$minEvents marginFloor=$marginFloor '
+      '| profile: ${_profile.configuration} '
+      '| evidence: ${_evidence.configuration} '
+      '| progression: ${_progression.configuration}';
 
   @override
   void reset() {
     _profile.reset();
     _evidence.reset();
+    _progression.reset();
     _eventCount = 0;
   }
 
@@ -77,24 +101,31 @@ class HybridKeyDetector implements KeyDetector {
   KeyEstimateFrame onEvent(ChordEvent event) {
     final profileFrame = _profile.onEvent(event);
     final evidenceFrame = _evidence.onEvent(event);
+    final progressionFrame = _progression.onEvent(event);
     _eventCount += 1;
 
     final combined = <int, double>{};
     for (final estimate in profileFrame.ranked) {
-      combined[_keyIndex(estimate.tonality)] = estimate.confidence;
+      combined[KeySpace.index(estimate.tonality)] = estimate.confidence;
     }
-    for (final estimate in evidenceFrame.ranked) {
-      combined.update(
-        _keyIndex(estimate.tonality),
-        (base) => base + functionalBlend * estimate.confidence,
-        ifAbsent: () => functionalBlend * estimate.confidence,
-      );
+    void blend(List<KeyEstimate> ranked, double factor) {
+      if (factor == 0) return;
+      for (final estimate in ranked) {
+        combined.update(
+          KeySpace.index(estimate.tonality),
+          (base) => base + factor * estimate.confidence,
+          ifAbsent: () => factor * estimate.confidence,
+        );
+      }
     }
+
+    blend(evidenceFrame.ranked, functionalBlend);
+    blend(progressionFrame.ranked, progressionBlend);
     if (combined.isEmpty) return const KeyEstimateFrame.abstain([]);
 
     final byIndex = {
-      for (final tonality in ProfileCorrelationKeyDetector.canonicalTonalities)
-        _keyIndex(tonality): tonality,
+      for (final tonality in KeySpace.canonicalTonalities)
+        KeySpace.index(tonality): tonality,
     };
     final ranked = [
       for (final entry in combined.entries)
@@ -110,7 +141,4 @@ class HybridKeyDetector implements KeyDetector {
     }
     return KeyEstimateFrame(ranked: ranked, claim: ranked.first);
   }
-
-  static int _keyIndex(Tonality tonality) =>
-      tonality.tonicPitchClass * 2 + (tonality.isMinor ? 1 : 0);
 }
