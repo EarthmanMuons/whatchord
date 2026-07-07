@@ -113,10 +113,7 @@ void main(List<String> arguments) {
     'detector': detectorInfo,
     'restrictedTo': options.restrictTo,
     'sweep': sweep,
-    'provisionalDefinitions':
-        'Modulation-lag censoring, spurious-switch alignment, and the '
-        'global-key operationalization are provisional pending protocol '
-        'freeze; see PROTOCOL.md "Deferred to freeze".',
+    'protocol': 'research/whatkey/PROTOCOL.md, frozen 2026-07-07',
     'summary': summary,
     'perPiece': [for (final piece in pieces) piece.toJson()],
   };
