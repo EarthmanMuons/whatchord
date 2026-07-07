@@ -7,10 +7,10 @@ held-out test split has not been evaluated as of the freeze.
 
 Frozen against: fixture set `when-in-rome-v1` (When in Rome corpus commit
 `aa7539f1`, contrapunctus-bench commit `b9e011c8`), split
-`data/splits/when-in-rome-v1.json`, behavioral suite `pop-jazz-v1`. The scoring
-implementation in `tool/src/whatkey/whatkey_scoring.dart` at the freeze commit
-is the normative operational definition of every metric; this document states
-the rules in prose.
+`data/splits/when-in-rome-v1.json`, behavioral suite `pop-jazz-v2` (at freeze:
+`pop-jazz-v1`; see Amendments). The scoring implementation in
+`tool/src/whatkey/whatkey_scoring.dart` at the freeze commit is the normative
+operational definition of every metric; this document states the rules in prose.
 
 ## Task definition
 
@@ -199,4 +199,10 @@ in Rome, RomanText, ASAP) is cited with links in the
 
 ## Amendments
 
-None. (Protocol not yet frozen.)
+- **2026-07-07** (log entry 2026-07-07-10): behavioral suite updated from
+  `pop-jazz-v1` to `pop-jazz-v2`, adding one fixture, a two-chorus 12-bar blues.
+  The single-chorus fixture ends on the V7 turnaround before the loop-seam
+  cadence that identifies the blues tonic, so it under-tests the realistic
+  looping case; both fixtures are retained. No corpus set, split, metric, or
+  scoring change; the suite is per-fixture pass/fail and outside all pooled
+  statistics, so no tuning contamination is possible.

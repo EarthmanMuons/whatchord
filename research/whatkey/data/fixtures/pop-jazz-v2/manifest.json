@@ -1,0 +1,91 @@
+{
+  "context": "C:maj",
+  "engineCommit": "b3176e9b188a2b189eebb27f4cbc9724ff1e645a",
+  "engineLibDirty": false,
+  "fixtures": [
+    {
+      "events": 8,
+      "file": "axis-four-chord-am.json",
+      "id": "pop-jazz-v2/axis-four-chord-am",
+      "provenance": null,
+      "title": "Am-F-C-G loop (deliberately ambiguous)"
+    },
+    {
+      "events": 9,
+      "file": "axis-four-chord-c.json",
+      "id": "pop-jazz-v2/axis-four-chord-c",
+      "provenance": null,
+      "title": "I-V-vi-IV loop in C major"
+    },
+    {
+      "events": 7,
+      "file": "dorian-vamp-dm.json",
+      "id": "pop-jazz-v2/dorian-vamp-dm",
+      "provenance": null,
+      "title": "D dorian vamp (Dm7-G7)"
+    },
+    {
+      "events": 6,
+      "file": "ii-V-I-c.json",
+      "id": "pop-jazz-v2/ii-V-I-c",
+      "provenance": null,
+      "title": "ii-V-I in C major"
+    },
+    {
+      "events": 9,
+      "file": "ii-V-I-descending-chain.json",
+      "id": "pop-jazz-v2/ii-V-I-descending-chain",
+      "provenance": null,
+      "title": "ii-V-I chain descending through C, Bb, Ab"
+    },
+    {
+      "events": 7,
+      "file": "minor-dominant-am.json",
+      "id": "pop-jazz-v2/minor-dominant-am",
+      "provenance": null,
+      "title": "i-iv-V7-i in A minor"
+    },
+    {
+      "events": 8,
+      "file": "secondary-dominants-c.json",
+      "id": "pop-jazz-v2/secondary-dominants-c",
+      "provenance": null,
+      "title": "Secondary dominants in C major"
+    },
+    {
+      "events": 23,
+      "file": "twelve-bar-blues-c-two-chorus.json",
+      "id": "pop-jazz-v2/twelve-bar-blues-c-two-chorus",
+      "provenance": null,
+      "title": "12-bar blues in C, two choruses"
+    },
+    {
+      "events": 12,
+      "file": "twelve-bar-blues-c.json",
+      "id": "pop-jazz-v2/twelve-bar-blues-c",
+      "provenance": null,
+      "title": "12-bar blues in C"
+    }
+  ],
+  "generatedAt": "2026-07-07T16:51:26+00:00",
+  "generator": {
+    "arguments": [
+      "--set",
+      "pop-jazz-v2",
+      "--out",
+      "research/whatkey/data/fixtures",
+      "charts",
+      "--charts-dir",
+      "research/whatkey/data/sources/pop-jazz"
+    ],
+    "script": "tool/whatkey_fixture_extract.py"
+  },
+  "schema": "whatkey-manifest/1",
+  "set": "pop-jazz-v2",
+  "source": {
+    "chartsDir": "research/whatkey/data/sources/pop-jazz",
+    "license": "Same as repository (original content)",
+    "type": "hand-authored"
+  },
+  "tempoBpm": 120.0
+}
