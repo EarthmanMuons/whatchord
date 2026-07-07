@@ -22,6 +22,15 @@ Two evaluation views over the same outputs:
 - **Local key:** the claim at each event, scored against time-aligned
   annotations, which is what the app actually displays.
 
+**Label isolation.** Detectors receive only observation fields (timestamps,
+durations, voicing, candidates); the harness structurally strips fixture
+`labels` before events reach a detector, so ground truth cannot leak even by
+accident.
+
+**What is scored.** The top-1 claim is what every metric scores; the ranked
+hypothesis list is diagnostic output. Scoring is event-weighted: each event
+counts once regardless of its duration.
+
 ## Metrics
 
 Exact operational definitions (tie handling, alignment windows, smoothing) are
@@ -45,8 +54,31 @@ pinned at freeze time; the metric set is:
   abstention on genuinely ambiguous passages counts for the detector, not
   against it.
 
+**Abstention scoring.** Accuracy metrics use the selective-prediction frame:
+report **coverage** (fraction of events with a claim) and **accuracy on claimed
+events** as an inseparable pair, never accuracy alone. Abstentions are not
+errors; they reduce coverage. On events labeled ambiguous (`localKey` null with
+`acceptableKeys`, hand-authored fixtures only), abstaining or claiming any
+acceptable key is correct; such events are excluded from corpus-set accuracy
+pools.
+
+**Switches.** Stability counts a switch only between consecutive claims with
+different keys; an abstention followed by a claim of the same key as before is
+not a switch. Abstaining under uncertainty must not be charged twice.
+
 Lag, stability, and time-to-first-claim trade off against each other; report all
 three, never a single blended score.
+
+**Deferred to freeze** (deliberately unpinned until the harness runs on the
+development split; each needs a dated amendment when pinned):
+
+- Modulation-lag alignment: the censoring rule when a detector never reaches the
+  new key before the next change, and whether annotated key segments below a
+  minimum length count as modulations for lag and stability.
+- The global-key operationalization: the harness reports both the final-event
+  claim and the duration-weighted majority claim until one is pinned.
+- Abstain calibration presentation: single operating point vs. a
+  coverage-accuracy curve swept over the confidence threshold.
 
 ## Corpora and splits
 
@@ -64,9 +96,20 @@ three, never a single blended score.
   through the actual Phase 1 capture path.
 
 **Split rules:** held-out test split by piece, and by composer where the corpus
-allows, frozen and recorded in `data/` before the first experiment. All tuning,
-ablation, and model selection happens on the development split only. The test
-split is evaluated once per reported result set, not per iteration.
+allows, frozen and recorded in `data/splits/` before the first experiment (done:
+`data/splits/when-in-rome-v1.json`). All tuning, ablation, and model selection
+happens on the development split only. The test split is evaluated once per
+reported result set, not per iteration.
+
+**Harness discipline:**
+
+- The harness runs the development split by default; evaluating the test split
+  requires an explicit flag, and every test-split run gets a dated log entry.
+- The harness validates that the split file's corpus and bench pins match the
+  fixture manifest's, and fails if the fixture set's pieces do not exactly match
+  the split; silently skipping missing pieces changes the sample.
+- Results from different fixture versions are never pooled or compared in one
+  report.
 
 ## Fixtures
 
