@@ -60,4 +60,13 @@ abstract final class KeySpace {
   /// The tonic quality set for [tonality]'s mode.
   static Set<ChordQualityToken> tonicQualities(Tonality tonality) =>
       tonality.isMajor ? majorTonicQualities : minorTonicQualities;
+
+  /// Chord qualities that read as dominant function on any root.
+  static const Set<ChordQualityToken> dominantQualities = {
+    ChordQualityToken.dominant7,
+    ChordQualityToken.dominant7sus2,
+    ChordQualityToken.dominant7sus4,
+    ChordQualityToken.dominant7Flat5,
+    ChordQualityToken.dominant7Sharp5,
+  };
 }
