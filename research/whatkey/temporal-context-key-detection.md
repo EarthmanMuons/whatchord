@@ -547,6 +547,46 @@ Questions to resolve before implementing any algorithm:
     test-split evaluation or performed-input mode accuracy reveals headroom
     worth the complexity; the higher-expected-value work is data-side and
     product-side.
+- **Mode disambiguation (added 2026-07-07).** Mode errors are ~10% of claims on
+  both rulers once the timescale trade is filtered out (log entries
+  2026-07-07-21/-22: parallel-dominated on performed classical, relative
+  slightly ahead on pop), roughly 40% of all residual error. Profile correlation
+  is intrinsically weak here: parallel keys share tonic, 2, 4, and 5, and
+  practical minor borrows the raised 6th and 7th, so the discriminating evidence
+  collapses to roughly one pitch class (the third), easily outvoted in a
+  12-dimensional correlation; dominant-heavy minor passages and genuine mode
+  mixture (borrowed iv/bVI, Picardy, pop's Mixolydian bVII) set a real ambiguity
+  floor. Candidate techniques, in order of architectural fit:
+  - **Hierarchical tonic-then-mode**: sum posterior mass over each parallel pair
+    to pick the tonic (already correct in these errors), then decide mode by a
+    focused likelihood ratio over only the distinguishing degrees. Causal,
+    cheap, leaves the HMM untouched.
+  - **Tonic chord quality as evidence (our unique asset)**: we observe symbolic
+    chord identities, so the quality of chords rooted on the candidate tonic is
+    the most direct mode cue available. This is an extraction, not new
+    machinery: the evidence model's zeroed `tonicBonusPoints` path already
+    computes exactly this check (`rootInterval == 0` plus
+    `KeySpace.tonicQualities`). It was rejected as a tonic-selection force
+    because rewarding every chord's own would-be tonic fights modulation
+    tracking (log entry 2026-07-07-11), but reapplied as a zero-sum tilt
+    _within_ each parallel pair it cannot touch the tonic marginal at all: both
+    hypotheses share the tonic pitch class, and only the mode side of the pair
+    moves. The ablation verdicts against the functional blend therefore do not
+    apply to this slice by construction. One tilt-strength parameter; a
+    mode-specific hysteresis would steady the displayed glyph.
+  - **Mode as a slow latent variable**: factor the 24 states into 12 tonics
+    times 2 modes with mode self-transition well above tonic's (sections change
+    more often than mode does); composes with the HSMM direction above.
+  - **Product-level hedging (cheapest)**: show the tonic confidently and
+    withhold the mode glyph when the parallel-pair posterior gap is under a
+    mode-specific margin; converts the dominant residual error into honest
+    abstention with zero model risk.
+  - **Minor-profile mixture emissions** (natural/harmonic/melodic as a mixture):
+    lowest priority; touches shared machinery and risks tonic accuracy already
+    at parity.
+  - Measurement path: tune on the Isophonics and When in Rome development splits
+    (both mode-resolved), add mode-mixture probes to the pop-jazz behavioral
+    suite, verify once on the ASAP overlap set.
 
 ---
 
