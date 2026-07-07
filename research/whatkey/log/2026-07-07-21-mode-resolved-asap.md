@@ -30,6 +30,9 @@ dart run tool/whatkey_harness.dart \
   --fixtures build/whatkey-fixtures/asap-wir-nc-v1 --detector hmm \
   --decay-half-life-seconds 1 --functional-blend 0.1 \
   --out build/whatkey-harness/asap-wir-hmm-reflex
+python3 tool/whatkey_mode_confusion.py \
+  --fixtures build/whatkey-fixtures/asap-wir-nc-v1 \
+  --claims build/whatkey-harness/asap-wir-hmm-shipped/claims.json
 ```
 
 **The controlled timescale experiment** (identical performances, analyst

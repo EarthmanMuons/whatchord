@@ -1,5 +1,15 @@
 # Temporal Context and Key Detection: Implementation Plan
 
+> **Status note (2026-07-07).** This is the design-time plan and algorithm
+> reference; it is kept as written, with dated additions marked inline. Much of
+> it has since been executed: Phase 1 shipped, the detector family through the
+> 2c HMM is implemented and evaluated, and the adopted configuration is a causal
+> HMM over pure profile-correlation emissions (log entries 2026-07-07-12 through
+> -18). For current results and decisions, read [README.md](README.md) and
+> [log/](log/); this document remains the source of truth for design rationale,
+> the algorithm menu, and references. Sections below describe the pre-Phase-1
+> codebase where they say "current".
+
 ## Current State
 
 WhatChord is a **stateless real-time analyzer**: each MIDI event triggers a
@@ -255,7 +265,7 @@ benchmark harness in Phase 2), not for runtime persistence of a user's session.
 
 ---
 
-## Phase 2: Key Detection Engine (future)
+## Phase 2: Key Detection Engine (in progress; detectors 2a-2e built)
 
 Once `ChordHistoryNotifier` exists, key detection algorithms can consume it
 without touching UI or MIDI code. All algorithms operate on `List<ChordEvent>`.

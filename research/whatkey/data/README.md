@@ -13,8 +13,11 @@ Evaluation fixtures and splits for Phase 2.
   `mise research:whatkey-fixtures-pop-jazz`.
 - `splits/`: the frozen development/test split definitions, by piece and by
   composer where the corpus allows, recorded before the first experiment (see
-  `../PROTOCOL.md`). The When-in-Rome v1 split is frozen in
-  `splits/when-in-rome-v1.json`.
+  `../PROTOCOL.md`). Three splits are frozen: `splits/when-in-rome-v1.json`,
+  `splits/asap-nc-v2.json`, and `splits/isophonics-nc-v1.json`. Split files
+  record identifiers and counts only, so they are committed even when their
+  fixtures are license-gated to `build/`. The `asap-wir-nc-v1` overlap set is
+  evaluation-only and has no split.
 - `provenance/`: corpus license and source-gate notes for fixture sets derived
   from external corpora.
 
@@ -59,7 +62,8 @@ manifest (`whatkey-manifest/1`) records:
 - the engine commit the fixtures were generated with (plus a lib-dirty flag);
 - the generation script and its arguments;
 - the analysis context and tempo used;
-- the source corpus and its commit pin (When in Rome, ASAP) or "hand-authored";
+- the source corpus and its commit pin (When in Rome, ASAP, ChoCo/Isophonics) or
+  "hand-authored";
 - per-fixture license and provenance, checked before anything derived from an
   external corpus is committed (When in Rome sub-corpora have heterogeneous
   licenses).

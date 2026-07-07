@@ -124,7 +124,7 @@ if [ ! -f "$asap_root/asap_annotations.json" ]; then
   echo "Set ASAP_ROOT or: git clone --depth 1 https://github.com/fosfrancesco/asap-dataset.git $asap_root" >&2
   exit 1
 fi
-python tool/whatkey_asap_extract.py --asap-root "$asap_root" --set asap-nc-v1
+python tool/whatkey_asap_extract.py --asap-root "$asap_root" --set asap-nc-v2 --max-performances 60
 """
 
 [tasks."research:whatkey-harness-pop-jazz"]
