@@ -532,7 +532,12 @@ Questions to resolve before implementing any algorithm:
   - **HSMM (explicit-duration HMM).** The HMM's self-transition implies
     geometric key-dwell times; real sections have long, non-geometric durations.
     Modeling dwell explicitly is the probabilistic form of the timescale finding
-    (log entry 2026-07-07-16) and stays causal-compatible.
+    (log entry 2026-07-07-16) and stays causal-compatible. **Headroom measured
+    as small** (log entry 2026-07-07-25): sweeping the geometric dwell parameter
+    (`selfTransition` 0.7-0.98, mean dwell ~3 to ~50 events) only slides results
+    along the coverage-accuracy curve, so a richer dwell family has nothing to
+    act on; build only if future evidence shows dwell sensitivity this probe did
+    not.
   - **Bayesian online changepoint detection.** Maintains a posterior over "when
     did the current key section start," handling the timescale question natively
     instead of via a fixed decay, and composes naturally with abstention.
