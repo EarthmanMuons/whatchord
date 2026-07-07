@@ -12,11 +12,17 @@
 //                 albrechtShanahan] \
 //     [--weighting duration|flat] [--decay-half-life-seconds N] \
 //     [--min-events N] [--margin-floor X] [--out <dir>] \
-//     [--claims-file <claims.json>]
+//     [--claims-file <claims.json>] [--restrict-to <claims.json>] \
+//     [--sweep-margin-floors 0,0.02,0.05,...]
 //
 // With --claims-file (see tool/whatkey_external_baseline.py), detector flags
 // are ignored and the externally produced global claims are scored as a
 // constant claim per event through the same metrics.
+//
+// --restrict-to takes the claims.json artifact of a previous run and computes
+// coverage/accuracy over only the events that run claimed on (matched-coverage
+// comparison). --sweep-margin-floors adds a coverage-accuracy curve from one
+// extra detector pass (detector mode only).
 
 import 'dart:convert';
 import 'dart:io';
@@ -55,11 +61,15 @@ void main(List<String> arguments) {
   final claims = options.claimsFile == null
       ? null
       : ClaimsFile.load(File(options.claimsFile!));
+  final restrictTo = options.restrictTo == null
+      ? null
+      : ClaimMask.load(File(options.restrictTo!));
   final detector = claims == null ? options.buildDetector() : null;
   final detectorInfo =
       claims?.detector ??
       {'name': detector!.name, 'configuration': detector.configuration};
 
+  final framesByFixture = <String, List<KeyEstimateFrame>>{};
   final pieces = <PieceScore>[];
   for (final fixture in fixtures) {
     List<KeyEstimateFrame> frames;
@@ -69,9 +79,19 @@ void main(List<String> arguments) {
       detector!.reset();
       frames = [for (final event in fixture.events) detector.onEvent(event)];
     }
-    pieces.add(PieceScore.compute(fixture, frames));
+    framesByFixture[fixture.id] = frames;
+    pieces.add(
+      PieceScore.compute(
+        fixture,
+        frames,
+        evaluateMask: restrictTo?.maskFor(fixture),
+      ),
+    );
   }
   final summary = summarize(pieces);
+  final sweep = options.sweepMarginFloors.isEmpty
+      ? null
+      : _sweep(options, fixtures);
 
   final report = <String, Object?>{
     'schema': 'whatkey-harness-report/1',
@@ -88,6 +108,8 @@ void main(List<String> arguments) {
         ? null
         : {'file': options.splitFile, 'name': options.split},
     'detector': detectorInfo,
+    'restrictedTo': options.restrictTo,
+    'sweep': sweep,
     'provisionalDefinitions':
         'Modulation-lag censoring, spurious-switch alignment, and the '
         'global-key operationalization are provisional pending protocol '
@@ -105,10 +127,75 @@ void main(List<String> arguments) {
   File('${outDir.path}/report.json').writeAsStringSync(
     '${const JsonEncoder.withIndent('  ').convert(report)}\n',
   );
+  File('${outDir.path}/claims.json').writeAsStringSync(
+    '${const JsonEncoder.withIndent('  ').convert(_claimsArtifact(detectorInfo, fixtures, framesByFixture))}\n',
+  );
   final text = _textReport(report, pieces);
   File('${outDir.path}/report.txt').writeAsStringSync(text);
   stdout.write(text);
   stderr.writeln('Report -> ${outDir.path}');
+}
+
+/// Per-event claims artifact written next to every report, so later runs can
+/// restrict scoring to exactly these events (--restrict-to).
+Map<String, Object?> _claimsArtifact(
+  Map<String, Object?> detectorInfo,
+  List<LabeledFixture> fixtures,
+  Map<String, List<KeyEstimateFrame>> framesByFixture,
+) {
+  String? wire(KeyEstimateFrame frame) => frame.claim == null
+      ? null
+      : KeyLabel.of(frame.claim!.tonality).toString();
+  return {
+    'schema': 'whatkey-claims/1',
+    'detector': detectorInfo,
+    'claims': {
+      for (final fixture in fixtures)
+        fixture.id: {
+          'events': [
+            for (final frame in framesByFixture[fixture.id]!) wire(frame),
+          ],
+        },
+    },
+  };
+}
+
+/// One extra detector pass at marginFloor 0, then post-hoc thresholds: the
+/// coverage-accuracy curve for abstention calibration.
+List<Map<String, Object?>> _sweep(
+  _Options options,
+  List<LabeledFixture> fixtures,
+) {
+  final detector = options.buildDetector(marginFloorOverride: 0);
+  final framesByFixture = <String, List<KeyEstimateFrame>>{
+    for (final fixture in fixtures)
+      fixture.id: (() {
+        detector.reset();
+        return [for (final event in fixture.events) detector.onEvent(event)];
+      })(),
+  };
+
+  return [
+    for (final floor in options.sweepMarginFloors)
+      (() {
+        final pieces = [
+          for (final fixture in fixtures)
+            PieceScore.compute(
+              fixture,
+              applyMarginFloor(framesByFixture[fixture.id]!, floor),
+            ),
+        ];
+        final summary = summarize(pieces);
+        final accuracy = summary['accuracyOnClaimed'] as Map<String, Object?>;
+        return <String, Object?>{
+          'marginFloor': floor,
+          'coverage': (summary['coverage'] as Map)['meanPerPiece'],
+          'exactOnClaimed': accuracy['meanExactPerPiece'],
+          'mirexOnClaimed': accuracy['meanMirexPerPiece'],
+          'piecesWithClaims': accuracy['piecesWithClaims'],
+        };
+      })(),
+  ];
 }
 
 String _textReport(Map<String, Object?> report, List<PieceScore> pieces) {
@@ -131,9 +218,25 @@ String _textReport(Map<String, Object?> report, List<PieceScore> pieces) {
       'engine:    ${report['engineCommit']}'
       '${report['engineLibDirty'] == true ? ' (lib dirty)' : ''}',
     )
-    ..writeln('generated: ${report['generatedAt']}')
+    ..writeln('generated: ${report['generatedAt']}');
+  if (report['restrictedTo'] != null) {
+    buffer.writeln(
+      'restricted: coverage/accuracy computed only over events claimed in\n'
+      '           ${report['restrictedTo']} (streaming metrics use the '
+      'full stream)',
+    );
+  }
+  buffer
     ..writeln()
-    ..writeln(_summaryBlock(summary))
+    ..writeln(_summaryBlock(summary));
+  final sweep = report['sweep'] as List?;
+  if (sweep != null) {
+    buffer
+      ..writeln('Coverage-accuracy sweep (margin floor varied post hoc)')
+      ..write(_sweepTable(sweep.cast<Map<String, Object?>>()))
+      ..writeln();
+  }
+  buffer
     ..writeln('Per piece')
     ..writeln(
       '  events: chord events\n'
@@ -279,6 +382,27 @@ String _pieceTable(List<PieceScore> pieces) {
   return buffer.toString();
 }
 
+String _sweepTable(List<Map<String, Object?>> sweep) {
+  final buffer = StringBuffer()
+    ..writeln('  floor  cover  exact  mirex  pieces');
+  for (final point in sweep) {
+    buffer.writeln(
+      [
+        '  ${(point['marginFloor'] as num).toStringAsFixed(2).padLeft(5)}',
+        (point['coverage'] as num).toStringAsFixed(2).padLeft(5),
+        ((point['exactOnClaimed'] as num?)?.toStringAsFixed(2) ?? '-').padLeft(
+          5,
+        ),
+        ((point['mirexOnClaimed'] as num?)?.toStringAsFixed(2) ?? '-').padLeft(
+          5,
+        ),
+        '${point['piecesWithClaims']}'.padLeft(6),
+      ].join('  '),
+    );
+  }
+  return buffer.toString();
+}
+
 /// Renders whole numbers without a trailing ".0".
 String _trimNum(Object? value) {
   final number = value as num;
@@ -295,6 +419,8 @@ class _Options {
   final String? splitFile;
   final String split;
   final String? claimsFile;
+  final String? restrictTo;
+  final List<double> sweepMarginFloors;
   final KeyProfilePair profiles;
   final bool durationWeighted;
   final int decayHalfLifeSeconds;
@@ -307,6 +433,8 @@ class _Options {
     required this.splitFile,
     required this.split,
     required this.claimsFile,
+    required this.restrictTo,
+    required this.sweepMarginFloors,
     required this.profiles,
     required this.durationWeighted,
     required this.decayHalfLifeSeconds,
@@ -315,15 +443,16 @@ class _Options {
     required this.outDir,
   });
 
-  KeyDetector buildDetector() => ProfileCorrelationKeyDetector(
-    profiles: profiles,
-    durationWeighted: durationWeighted,
-    decayHalfLife: decayHalfLifeSeconds == 0
-        ? null
-        : Duration(seconds: decayHalfLifeSeconds),
-    minEvents: minEvents,
-    marginFloor: marginFloor,
-  );
+  KeyDetector buildDetector({double? marginFloorOverride}) =>
+      ProfileCorrelationKeyDetector(
+        profiles: profiles,
+        durationWeighted: durationWeighted,
+        decayHalfLife: decayHalfLifeSeconds == 0
+            ? null
+            : Duration(seconds: decayHalfLifeSeconds),
+        minEvents: minEvents,
+        marginFloor: marginFloorOverride ?? marginFloor,
+      );
 
   static _Options parse(List<String> arguments) {
     final values = <String, String>{};
@@ -353,6 +482,13 @@ class _Options {
       splitFile: splitFile,
       split: split,
       claimsFile: values.remove('claims-file'),
+      restrictTo: values.remove('restrict-to'),
+      sweepMarginFloors: [
+        for (final floor in (values.remove('sweep-margin-floors') ?? '').split(
+          ',',
+        ))
+          if (floor.trim().isNotEmpty) double.parse(floor),
+      ],
       profiles: KeyProfilePair.values.byName(
         values.remove('profiles') ?? 'albrechtShanahan',
       ),
@@ -366,6 +502,9 @@ class _Options {
     );
     if (values.isNotEmpty) {
       throw ArgumentError('Unknown flags: ${values.keys.toList()}');
+    }
+    if (options.sweepMarginFloors.isNotEmpty && options.claimsFile != null) {
+      throw ArgumentError('--sweep-margin-floors needs detector mode');
     }
     return options;
   }

@@ -198,6 +198,41 @@ class ClaimsFile {
   }
 }
 
+/// Which events a previous run claimed on, loaded from the per-event
+/// `claims.json` artifact the harness writes next to every report. Used for
+/// matched-coverage comparisons: scoring one detector restricted to exactly
+/// the events another one claimed on.
+class ClaimMask {
+  final Map<String, List<bool>> _byFixtureId;
+
+  ClaimMask._(this._byFixtureId);
+
+  static ClaimMask load(File file) {
+    final raw = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+    return ClaimMask._({
+      for (final entry in (raw['claims'] as Map).entries)
+        entry.key as String: [
+          for (final wire in (entry.value as Map)['events'] as List)
+            wire != null,
+        ],
+    });
+  }
+
+  List<bool> maskFor(LabeledFixture fixture) {
+    final mask = _byFixtureId[fixture.id];
+    if (mask == null) {
+      throw StateError('Claim mask has no entry for ${fixture.id}');
+    }
+    if (mask.length != fixture.events.length) {
+      throw StateError(
+        'Claim mask length ${mask.length} does not match '
+        '${fixture.events.length} events for ${fixture.id}',
+      );
+    }
+    return mask;
+  }
+}
+
 class SplitFile {
   final Map<String, dynamic> raw;
 
