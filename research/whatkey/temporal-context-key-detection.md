@@ -513,6 +513,30 @@ Questions to resolve before implementing any algorithm:
   is an active research area (see the Bouquillard & Jacquemard reference),
   reinforcing that spelling and key are one inference problem, deferred here on
   purpose.
+- **Future model directions (post-HMM, added 2026-07-07).** The shipped detector
+  is a causal filtered HMM over profile-correlation emissions, at measured
+  parity with offline whole-piece baselines on section-scale labels (log entries
+  2026-07-07-18/-19), and the ablations established that the problem is
+  section-scale persistence over noisy-but-unbiased per-event evidence. Given
+  that, the credible next rungs if headroom appears:
+  - **HSMM (explicit-duration HMM).** The HMM's self-transition implies
+    geometric key-dwell times; real sections have long, non-geometric durations.
+    Modeling dwell explicitly is the probabilistic form of the timescale finding
+    (log entry 2026-07-07-16) and stays causal-compatible.
+  - **Bayesian online changepoint detection.** Maintains a posterior over "when
+    did the current key section start," handling the timescale question natively
+    instead of via a fixed decay, and composes naturally with abstention.
+  - **Ruled out for this setting**: neural sequence models (offline,
+    score-hungry, heavy for on-device causal inference; the accuracy state of
+    the art for symbolic local key, but the wrong tool here), particle filters
+    (pointless over 24 exact states), and spiral-array tracking (approximated
+    already by the decayed histogram).
+  - **The ceiling argument**: at parity with systems that read the whole song in
+    advance, part of the residual error is label quirkiness and genuine
+    ambiguity, not model error. Pursue smarter temporal models only if the
+    test-split evaluation or performed-input mode accuracy reveals headroom
+    worth the complexity; the higher-expected-value work is data-side and
+    product-side.
 
 ---
 
