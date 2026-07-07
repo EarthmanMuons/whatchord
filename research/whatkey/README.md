@@ -45,9 +45,12 @@ versioned fixtures, external baselines, and dated logs.
    the source of truth.
 3. [PROTOCOL.md](PROTOCOL.md): how results will be evaluated. Draft until
    frozen; frozen before the first tuning experiment.
-4. [log/](log/): dated entries recording what was tried, what happened, and what
+4. [REPRODUCING.md](REPRODUCING.md): exact steps for rebuilding the Phase 2
+   fixture inputs, external corpus checkout, local machine-state prep, and
+   frozen split.
+5. [log/](log/): dated entries recording what was tried, what happened, and what
    was decided, so nobody has to comb through git history.
-5. [data/](data/): fixture and split conventions (no data carved yet).
+6. [data/](data/): fixture, split, and provenance conventions.
 
 ## Where the code lives
 
