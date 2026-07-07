@@ -1,3 +1,4 @@
+export 'domain/chord_event_segmenter.dart';
 export 'models/chord_event.dart';
 export 'providers/app_chord_history_lifecycle_provider.dart';
 export 'providers/chord_history_notifier.dart';
