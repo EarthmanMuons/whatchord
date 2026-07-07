@@ -1,10 +1,16 @@
 # WhatKey Evaluation Protocol
 
-**Status: DRAFT.** This protocol must be frozen before the first tuning
-experiment runs. After the freeze, changes are amendments: append a dated entry
-to the Amendments section and a log entry explaining why, and never retune
-against data the amendment exposes. Tuning before freezing invalidates the
-held-out split, which is the one mistake this document exists to prevent.
+**Status: FROZEN 2026-07-07** (log entry 2026-07-07-06). Changes from here are
+amendments: append a dated entry to the Amendments section and a log entry
+explaining why, and never retune against data the amendment exposes. The
+held-out test split has not been evaluated as of the freeze.
+
+Frozen against: fixture set `when-in-rome-v1` (When in Rome corpus commit
+`aa7539f1`, contrapunctus-bench commit `b9e011c8`), split
+`data/splits/when-in-rome-v1.json`, behavioral suite `pop-jazz-v1`. The scoring
+implementation in `tool/src/whatkey/whatkey_scoring.dart` at the freeze commit
+is the normative operational definition of every metric; this document states
+the rules in prose.
 
 ## Task definition
 
@@ -17,8 +23,8 @@ never sees the future and is never re-run on edited history.
 
 Two evaluation views over the same outputs:
 
-- **Global key:** the detector's final (or converged) claim per piece, for
-  comparability with the published literature.
+- **Global key:** one claim per piece (the duration-weighted majority claim; see
+  Metrics), for comparability with the published literature.
 - **Local key:** the claim at each event, scored against time-aligned
   annotations, which is what the app actually displays.
 
@@ -33,8 +39,7 @@ counts once regardless of its duration.
 
 ## Metrics
 
-Exact operational definitions (tie handling, alignment windows, smoothing) are
-pinned at freeze time; the metric set is:
+The metric set:
 
 - **[MIREX-weighted](https://music-ir.org/mirex/wiki/2019:Audio_Key_Detection)
   key score** for near misses: exact 1.0, perfect fifth 0.5, relative
@@ -70,26 +75,37 @@ Detectors whose confidence has no threshold report their one point.
 
 **Switches.** Stability counts a switch only between consecutive claims with
 different keys; an abstention followed by a claim of the same key as before is
-not a switch. Abstaining under uncertainty must not be charged twice.
+not a switch. Abstaining under uncertainty must not be charged twice. A switch
+is **spurious** only when the annotated local key did not change between the two
+claims' events AND the new claim does not land on the annotated key; a lagged
+catch-up switch onto the annotated key is never spurious.
+
+**Modulation alignment** (pinned at freeze): every annotated local-key change
+counts, with no minimum segment length. A change is **matched** when the
+detector claims the new key at or after the change and before the next annotated
+change (or the piece end); its lag is the event count from change to that claim.
+Unmatched changes are **censored**, reported as a separate count and never
+averaged into lag. Context for reading absolute rates: on the development split,
+27% of annotated key segments last 2 events or fewer (tonicization-scale areas a
+causal detector has essentially no window to claim), so censored counts include
+a structural floor; comparisons between detectors are unaffected since all face
+the same segments. A minimum-segment filter was rejected because it adds a
+tunable threshold to a frozen metric.
+
+**Global key** (pinned at freeze): the duration-weighted majority claim (the key
+holding the largest duration-weighted share of a piece's claims), scored with
+the MIREX weighting against the piece's first annotated local key. It is robust
+to end-of-piece wobble and was empirically equal to or better than the
+final-event claim everywhere observed; the final-event claim stays in the
+per-piece report output as a diagnostic only.
 
 Lag, stability, and time-to-first-claim trade off against each other; report all
 three, never a single blended score.
 
-**Deferred to freeze** (deliberately unpinned until the harness runs on the
-development split; each needs a dated amendment when pinned):
-
-- Modulation-lag alignment: the censoring rule when a detector never reaches the
-  new key before the next change, and whether annotated key segments below a
-  minimum length count as modulations for lag and stability.
-- The global-key operationalization: the harness reports both the final-event
-  claim and the duration-weighted majority claim until one is pinned.
-
-(Resolved early: abstain calibration presentation, pinned above on 2026-07-07.)
-
 ## Corpora and splits
 
 - **When in Rome** (RomanText annotations): time-aligned local keys and
-  modulation boundaries. Corpus commit pin recorded at freeze.
+  modulation boundaries. Corpus commit pinned in the freeze header above.
 - **Hand-authored pop/jazz set**: I-V-vi-IV loops, ii-V-I chains, 12-bar blues,
   modal vamps, deliberately ambiguous progressions. Authored with labels before
   any detector sees them. This set is a directed behavioral suite, not a
