@@ -89,6 +89,8 @@ def main() -> int:
         payload = {
             "schema": "whatkey-claims/1",
             "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "command": "python tool/whatkey_external_baseline.py "
+            + " ".join(sys.argv[1:]),
             "detector": {
                 "name": f"music21-{analyzer_name}",
                 "configuration": (
