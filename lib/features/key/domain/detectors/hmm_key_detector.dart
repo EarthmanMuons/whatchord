@@ -29,16 +29,20 @@ import 'key_space.dart';
 /// (relative keys are at distance zero) and discounted by [modeSwitchFactor]
 /// when the mode changes.
 class HmmKeyDetector implements KeyDetector {
-  /// Emissions must be memoryless: the hybrid's decay already integrates
-  /// history, so long-memory emissions double-count evidence and the
-  /// posterior both saturates and lags (log entry 2026-07-07-12). One second
-  /// is effectively per-event at chord-commit rates. The harness references
-  /// this constant so the CLI default cannot silently diverge.
-  static const int defaultEmissionHalfLifeSeconds = 1;
+  /// The emission memory selects which timescale of key structure the
+  /// detector reports (log entry 2026-07-07-16): one-second, effectively
+  /// per-event emissions win on tonicization-scale labels (When in Rome),
+  /// while long memory wins accuracy and stability on section-scale labels
+  /// (Isophonics, ASAP). WhatChord's key indicator means the settled,
+  /// section-level key (product decision, log entry 2026-07-07-17), so the
+  /// shipped default is long memory; pass one second to evaluate against
+  /// tonicization-scale ground truth. The harness references this constant
+  /// so the CLI default cannot silently diverge.
+  static const int defaultEmissionHalfLifeSeconds = 30;
 
-  /// Shipped operating point on the calibration curve (log entry
-  /// 2026-07-07-12): clean behavioral suite, MIREX significantly above the
-  /// prior champion.
+  /// Shipped operating point on the calibration curve (log entries
+  /// 2026-07-07-12 and -17): clean behavioral suite at the section-scale
+  /// default.
   static const double defaultMarginFloor = 0.3;
 
   final HybridKeyDetector _emissions;
