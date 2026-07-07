@@ -12,6 +12,7 @@
 //     [--profiles krumhanslKessler|temperley|temperleyKostkaPayne|
 //                 albrechtShanahan] \
 //     [--confidence-weighting on|off] [--functional-blend X] \
+//     [--hysteresis N] \
 //     [--weighting duration|flat] [--decay-half-life-seconds N] \
 //     [--min-events N] [--margin-floor X] [--out <dir>] \
 //     [--claims-file <claims.json>] [--restrict-to <claims.json>] \
@@ -429,6 +430,7 @@ class _Options {
   final String detectorName;
   final bool confidenceWeighted;
   final double functionalBlend;
+  final int hysteresis;
   final KeyProfilePair profiles;
   final bool durationWeighted;
   final int decayHalfLifeSeconds;
@@ -446,6 +448,7 @@ class _Options {
     required this.detectorName,
     required this.confidenceWeighted,
     required this.functionalBlend,
+    required this.hysteresis,
     required this.profiles,
     required this.durationWeighted,
     required this.decayHalfLifeSeconds,
@@ -455,6 +458,13 @@ class _Options {
   });
 
   KeyDetector buildDetector({double? marginFloorOverride}) {
+    final base = _buildBase(marginFloorOverride: marginFloorOverride);
+    return hysteresis <= 1
+        ? base
+        : ClaimHysteresisDetector(inner: base, minStreak: hysteresis);
+  }
+
+  KeyDetector _buildBase({double? marginFloorOverride}) {
     final decay = decayHalfLifeSeconds == 0
         ? null
         : Duration(seconds: decayHalfLifeSeconds);
@@ -521,6 +531,7 @@ class _Options {
       confidenceWeighted:
           (values.remove('confidence-weighting') ?? 'on') != 'off',
       functionalBlend: double.parse(values.remove('functional-blend') ?? '0.1'),
+      hysteresis: int.parse(values.remove('hysteresis') ?? '1'),
       sweepMarginFloors: [
         for (final floor in (values.remove('sweep-margin-floors') ?? '').split(
           ',',
@@ -546,6 +557,12 @@ class _Options {
     }
     if (options.sweepMarginFloors.isNotEmpty && options.claimsFile != null) {
       throw ArgumentError('--sweep-margin-floors needs detector mode');
+    }
+    if (options.sweepMarginFloors.isNotEmpty && options.hysteresis > 1) {
+      // The sweep applies the margin floor post hoc, which is only valid when
+      // claims do not feed back into detector state; hysteresis feeds claims
+      // into its streak state.
+      throw ArgumentError('--sweep-margin-floors cannot combine --hysteresis');
     }
     return options;
   }
