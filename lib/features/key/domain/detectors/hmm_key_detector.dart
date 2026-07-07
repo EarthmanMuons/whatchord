@@ -69,6 +69,18 @@ class HmmKeyDetector implements KeyDetector {
   /// genre; strengths 2-4 are a plateau, so the gentlest plateau value ships.
   static const double defaultModeTilt = 2;
 
+  /// Log-odds tilts within the relative pair of the event chord's home key
+  /// (same key signature, so neither can add evidence for any other
+  /// signature; the relative analog of [modeTilt], design plan mode
+  /// disambiguation). Relative twins share every pitch class, and the
+  /// rival's tonic chord is common diatonic harmony (vi/III), so isolated
+  /// chord quality is weak evidence; each variant gates on a sharper cue.
+  /// [relativeTilt] fires when the chord's root is also its bass;
+  /// [relativeCadenceTilt] fires when the previous event was a
+  /// dominant-quality chord a fifth above (a cadential resolution).
+  static const double defaultRelativeTilt = 0;
+  static const double defaultRelativeCadenceTilt = 0;
+
   final HybridKeyDetector _emissions;
   final double selfTransition;
   final double fifthsDecay;
@@ -77,6 +89,9 @@ class HmmKeyDetector implements KeyDetector {
   final int minEvents;
   final double marginFloor;
   final double modeTilt;
+  final double relativeTilt;
+  final double relativeCadenceTilt;
+  ChordIdentity? _previousIdentity;
 
   late final List<List<double>> _transition = _buildTransitionMatrix();
   final List<double> _posterior = List.filled(24, 1 / 24);
@@ -99,6 +114,8 @@ class HmmKeyDetector implements KeyDetector {
     this.minEvents = 3,
     this.marginFloor = defaultMarginFloor,
     this.modeTilt = defaultModeTilt,
+    this.relativeTilt = defaultRelativeTilt,
+    this.relativeCadenceTilt = defaultRelativeCadenceTilt,
   }) : assert(selfTransition > 0 && selfTransition < 1),
        _emissions = HybridKeyDetector(
          profiles: profiles,
@@ -121,6 +138,7 @@ class HmmKeyDetector implements KeyDetector {
       'modeSwitchFactor=$modeSwitchFactor '
       'emissionTemperature=$emissionTemperature '
       'minEvents=$minEvents marginFloor=$marginFloor modeTilt=$modeTilt '
+      'relativeTilt=$relativeTilt relativeCadenceTilt=$relativeCadenceTilt '
       '| emissions: ${_emissions.configuration}';
 
   @override
@@ -128,6 +146,7 @@ class HmmKeyDetector implements KeyDetector {
     _emissions.reset();
     _posterior.fillRange(0, 24, 1 / 24);
     _eventCount = 0;
+    _previousIdentity = null;
   }
 
   @override
@@ -152,6 +171,7 @@ class HmmKeyDetector implements KeyDetector {
     if (emissionFrame.ranked.isNotEmpty) {
       final emission = _emissionDistribution(emissionFrame.ranked);
       _applyModeTilt(emission, event);
+      _applyRelativeTilt(emission, event);
       var total = 0.0;
       for (var k = 0; k < 24; k++) {
         predicted[k] *= emission[k];
@@ -166,6 +186,7 @@ class HmmKeyDetector implements KeyDetector {
       }
     }
     _posterior.setAll(0, predicted);
+    _previousIdentity = event.identity;
 
     final ranked = [
       for (var k = 0; k < 24; k++)
@@ -205,6 +226,51 @@ class HmmKeyDetector implements KeyDetector {
     final rescale = pairSum / (major + minor);
     emission[majorK] = major * rescale;
     emission[minorK] = minor * rescale;
+  }
+
+  /// Redistributes emission mass within the relative pair of the event
+  /// chord's home key (same signature): [relativeTilt] log-odds when the
+  /// chord's root is also its bass, plus [relativeCadenceTilt] when the
+  /// previous event was a dominant-quality chord a fifth above. The pair sum
+  /// is unchanged, so no other key signature gains or loses emission
+  /// evidence (posterior near-tie crossings between signatures can still
+  /// shift timing, since priors differ within a pair).
+  void _applyRelativeTilt(List<double> emission, ChordEvent event) {
+    if (relativeTilt == 0 && relativeCadenceTilt == 0) return;
+    final identity = event.identity;
+    final quality = identity.quality;
+    final root = identity.rootPc;
+    final int homeK;
+    final int twinK;
+    if (KeySpace.majorTonicQualities.contains(quality)) {
+      homeK = root * 2;
+      twinK = ((root + 9) % 12) * 2 + 1;
+    } else if (KeySpace.minorTonicQualities.contains(quality)) {
+      homeK = root * 2 + 1;
+      twinK = ((root + 3) % 12) * 2;
+    } else {
+      return;
+    }
+    var strength = 0.0;
+    if (relativeTilt != 0 && identity.bassPc == root) {
+      strength += relativeTilt;
+    }
+    final previous = _previousIdentity;
+    if (relativeCadenceTilt != 0 &&
+        previous != null &&
+        KeySpace.dominantQualities.contains(previous.quality) &&
+        previous.rootPc == (root + 7) % 12) {
+      strength += relativeCadenceTilt;
+    }
+    if (strength == 0) return;
+    final pairSum = emission[homeK] + emission[twinK];
+    if (pairSum == 0) return;
+    final factor = math.exp(strength);
+    final home = emission[homeK] * factor;
+    final twin = emission[twinK] / factor;
+    final rescale = pairSum / (home + twin);
+    emission[homeK] = home * rescale;
+    emission[twinK] = twin * rescale;
   }
 
   /// Softmax of the hybrid's scores at [emissionTemperature], as a 24-vector

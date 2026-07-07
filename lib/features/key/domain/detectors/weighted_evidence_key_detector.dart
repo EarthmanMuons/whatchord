@@ -234,13 +234,8 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
     return estimates;
   }
 
-  static const Set<ChordQualityToken> _dominantFamily = {
-    ChordQualityToken.dominant7,
-    ChordQualityToken.dominant7sus2,
-    ChordQualityToken.dominant7sus4,
-    ChordQualityToken.dominant7Flat5,
-    ChordQualityToken.dominant7Sharp5,
-  };
+  static const Set<ChordQualityToken> _dominantFamily =
+      KeySpace.dominantQualities;
 
   static const Set<ChordQualityToken> _leadingToneFamily = {
     ChordQualityToken.diminished,

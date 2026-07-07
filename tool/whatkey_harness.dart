@@ -16,7 +16,8 @@
 //     [--hysteresis N] [--self-transition X] [--emission-temperature X] \
 //     [--weighting duration|flat] [--decay-half-life-seconds N] \
 //     [--decay-half-life-events N] \
-//     [--min-events N] [--margin-floor X] [--mode-tilt X] [--out <dir>] \
+//     [--min-events N] [--margin-floor X] [--mode-tilt X] \
+//     [--relative-tilt X] [--relative-cadence-tilt X] [--out <dir>] \
 //     [--claims-file <claims.json>] [--restrict-to <claims.json>] \
 //     [--sweep-margin-floors 0,0.02,0.05,...]
 //
@@ -443,6 +444,8 @@ class _Options {
   final int minEvents;
   final double? marginFloor;
   final double modeTilt;
+  final double relativeTilt;
+  final double relativeCadenceTilt;
   final String? outDir;
 
   _Options._({
@@ -466,6 +469,8 @@ class _Options {
     required this.minEvents,
     required this.marginFloor,
     required this.modeTilt,
+    required this.relativeTilt,
+    required this.relativeCadenceTilt,
     required this.outDir,
   });
 
@@ -546,6 +551,8 @@ class _Options {
             marginFloor ??
             HmmKeyDetector.defaultMarginFloor,
         modeTilt: modeTilt,
+        relativeTilt: relativeTilt,
+        relativeCadenceTilt: relativeCadenceTilt,
       ),
       'hybrid' => HybridKeyDetector(
         profiles: profiles,
@@ -636,6 +643,14 @@ class _Options {
       },
       modeTilt: double.parse(
         values.remove('mode-tilt') ?? '${HmmKeyDetector.defaultModeTilt}',
+      ),
+      relativeTilt: double.parse(
+        values.remove('relative-tilt') ??
+            '${HmmKeyDetector.defaultRelativeTilt}',
+      ),
+      relativeCadenceTilt: double.parse(
+        values.remove('relative-cadence-tilt') ??
+            '${HmmKeyDetector.defaultRelativeCadenceTilt}',
       ),
       outDir: values.remove('out'),
     );

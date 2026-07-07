@@ -188,6 +188,77 @@ void main() {
     expect(claim.tonality.isMinor, isTrue);
   });
 
+  test('relative tilt preserves the signature trajectory', () {
+    // The tilt adds no emission evidence for other signatures (pair sums
+    // are preserved), but posterior near-tie crossings can shift by an
+    // event, so the invariant to hold is the sequence of distinct claimed
+    // signatures through a modulation, not per-event equality.
+    int signaturePc(Tonality t) =>
+        t.isMajor ? t.tonicPitchClass : (t.tonicPitchClass + 3) % 12;
+    List<int> trajectory(List<KeyEstimateFrame> frames) {
+      final path = <int>[];
+      for (final frame in frames) {
+        final pc = signaturePc(frame.ranked.first.tonality);
+        if (path.isEmpty || path.last != pc) path.add(pc);
+      }
+      return path;
+    }
+
+    final events = [
+      ...cCadence,
+      for (var i = 0; i < 6; i++) ...[
+        _event(4 + 2 * i, [2, 6, 9, 0], ChordQualityToken.dominant7),
+        _event(5 + 2 * i, [7, 11, 2], ChordQualityToken.major),
+      ],
+    ];
+    final plain = _run(HmmKeyDetector(), events);
+    final tilted = _run(
+      HmmKeyDetector(relativeTilt: 1, relativeCadenceTilt: 2),
+      events,
+    );
+    expect(trajectory(tilted), trajectory(plain));
+  });
+
+  test('bass-gated relative tilt favors the twin whose tonic is played', () {
+    // Fully diatonic to the shared C/Am signature; the home chord is a
+    // root-position A minor triad, so the tilt should push A minor over its
+    // relative major.
+    final vamp = [
+      for (var i = 0; i < 4; i++) ...[
+        _event(3 * i, [9, 0, 4], ChordQualityToken.minor),
+        _event(3 * i + 1, [2, 5, 9], ChordQualityToken.minor),
+        _event(3 * i + 2, [9, 0, 4], ChordQualityToken.minor),
+      ],
+    ];
+    double aMinorConfidence(List<KeyEstimateFrame> frames) => frames.last.ranked
+        .firstWhere(
+          (e) => e.tonality.tonicPitchClass == 9 && e.tonality.isMinor,
+        )
+        .confidence;
+    final plain = _run(HmmKeyDetector(), vamp);
+    final tilted = _run(HmmKeyDetector(relativeTilt: 1), vamp);
+    expect(aMinorConfidence(tilted), greaterThan(aMinorConfidence(plain)));
+  });
+
+  test('cadence tilt reads a dominant resolving onto its tonic', () {
+    // E7 -> Am is A minor's cadence; the bigram should push A minor over C
+    // major relative to the untilted run.
+    final phrase = [
+      for (var i = 0; i < 4; i++) ...[
+        _event(2 * i, [4, 8, 11, 2], ChordQualityToken.dominant7),
+        _event(2 * i + 1, [9, 0, 4], ChordQualityToken.minor),
+      ],
+    ];
+    double aMinorConfidence(List<KeyEstimateFrame> frames) => frames.last.ranked
+        .firstWhere(
+          (e) => e.tonality.tonicPitchClass == 9 && e.tonality.isMinor,
+        )
+        .confidence;
+    final plain = _run(HmmKeyDetector(), phrase);
+    final tilted = _run(HmmKeyDetector(relativeCadenceTilt: 2), phrase);
+    expect(aMinorConfidence(tilted), greaterThan(aMinorConfidence(plain)));
+  });
+
   test('transition rows are proper distributions', () {
     final detector = HmmKeyDetector();
     // Exercised indirectly: run one event and confirm the posterior stays

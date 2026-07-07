@@ -606,7 +606,12 @@ Questions to resolve before implementing any algorithm:
     and MIREX's most forgivable miss at 0.3), genuine-ambiguity ceiling
     (relative twins share every pitch class; the Am-F-C-G probe's abstention
     must survive), and a relative flip moves the displayed tonic letter, the
-    most visible possible wobble.
+    most visible possible wobble. **Attempted the same day, not adopted** (log
+    entry 2026-07-07-24): the cadence cue is inert under the HMM, and the
+    bass-gated cue shrinks relative confusion (6% to 4%) but misses paired
+    significance on the primary ruler while trending negative on the other and
+    doubling spurious p90; both parameters remain in the detector at default 0
+    as a measured negative.
   - Measurement path: tune on the Isophonics and When in Rome development splits
     (both mode-resolved), add mode-mixture probes to the pop-jazz behavioral
     suite, verify once on the ASAP overlap set. For relative-pair work the
