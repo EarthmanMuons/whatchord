@@ -251,13 +251,14 @@ class SplitFile {
   /// pieces. Throws with a full diff on any mismatch.
   void validateAgainst(FixtureSet fixtureSet) {
     final source = (raw['source'] as Map).cast<String, dynamic>();
-    for (final pin in ['benchCommit', 'corpusCommit']) {
-      final splitPin = source[pin];
-      final manifestPin = fixtureSet.source[pin];
-      if (splitPin != manifestPin) {
+    // Every commit pin the split records must match the fixture manifest.
+    for (final entry in source.entries) {
+      if (!entry.key.endsWith('Commit')) continue;
+      final manifestPin = fixtureSet.source[entry.key];
+      if (entry.value != manifestPin) {
         throw StateError(
-          'Split/fixture version skew on $pin: '
-          'split=$splitPin fixtures=$manifestPin',
+          'Split/fixture version skew on ${entry.key}: '
+          'split=${entry.value} fixtures=$manifestPin',
         );
       }
     }

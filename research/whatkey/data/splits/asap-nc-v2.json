@@ -1,0 +1,444 @@
+{
+  "counts": {
+    "development": {
+      "byComposer": {
+        "Bach": 5,
+        "Balakirev": 1,
+        "Beethoven": 5,
+        "Brahms": 1,
+        "Chopin": 5,
+        "Debussy": 2,
+        "Glinka": 1,
+        "Haydn": 5,
+        "Liszt": 4,
+        "Mozart": 4,
+        "Prokofiev": 1,
+        "Rachmaninoff": 3,
+        "Ravel": 3,
+        "Schubert": 4,
+        "Schumann": 4,
+        "Scriabin": 2
+      },
+      "events": 15407,
+      "pieces": 50
+    },
+    "test": {
+      "byComposer": {
+        "Bach": 1,
+        "Beethoven": 1,
+        "Chopin": 1,
+        "Haydn": 1,
+        "Liszt": 1,
+        "Mozart": 1,
+        "Rachmaninoff": 1,
+        "Ravel": 1,
+        "Schubert": 1,
+        "Schumann": 1
+      },
+      "events": 4139,
+      "pieces": 10
+    },
+    "total": {
+      "byComposer": {
+        "Bach": 6,
+        "Balakirev": 1,
+        "Beethoven": 6,
+        "Brahms": 1,
+        "Chopin": 6,
+        "Debussy": 2,
+        "Glinka": 1,
+        "Haydn": 6,
+        "Liszt": 5,
+        "Mozart": 5,
+        "Prokofiev": 1,
+        "Rachmaninoff": 4,
+        "Ravel": 4,
+        "Schubert": 5,
+        "Schumann": 5,
+        "Scriabin": 2
+      },
+      "events": 19546,
+      "pieces": 60
+    }
+  },
+  "frozenAt": "2026-07-07",
+  "method": {
+    "seed": "whatkey-asap-nc-v2-split-2026-07-07",
+    "selection": "Piece folders ranked by SHA-256 of seed plus folder within each composer; the top testRatio share per composer is held out. Every performance of a piece folder lands on one side.",
+    "testRatio": 0.2
+  },
+  "schema": "whatkey-split/1",
+  "set": "asap-nc-v2",
+  "source": {
+    "asapCommit": "afc815c75c42e83a79c03feb6da8a35e77d4c6b8",
+    "fixtureManifest": "build/whatkey-fixtures/asap-nc-v2/manifest.json",
+    "license": "NONCOMMERCIAL-GATED: ASAP is CC BY-NC-SA 4.0; local uncommitted experiments only (research/whatkey/data/NOTICE.md)",
+    "type": "asap"
+  },
+  "splits": {
+    "development": [
+      {
+        "composer": "Bach",
+        "events": 260,
+        "folder": "Bach/Fugue/bwv_846",
+        "id": "Bach/Fugue/bwv_846/Shi05M"
+      },
+      {
+        "composer": "Bach",
+        "events": 3,
+        "folder": "Bach/Fugue/bwv_848",
+        "id": "Bach/Fugue/bwv_848/Denisova06M"
+      },
+      {
+        "composer": "Bach",
+        "events": 8,
+        "folder": "Bach/Fugue/bwv_854",
+        "id": "Bach/Fugue/bwv_854/LuA01M"
+      },
+      {
+        "composer": "Bach",
+        "events": 303,
+        "folder": "Bach/Fugue/bwv_857",
+        "id": "Bach/Fugue/bwv_857/Bult-ItoS02M"
+      },
+      {
+        "composer": "Bach",
+        "events": 158,
+        "folder": "Bach/Fugue/bwv_858",
+        "id": "Bach/Fugue/bwv_858/VuV01M"
+      },
+      {
+        "composer": "Balakirev",
+        "events": 691,
+        "folder": "Balakirev/Islamey",
+        "id": "Balakirev/Islamey/CHEN04"
+      },
+      {
+        "composer": "Beethoven",
+        "events": 208,
+        "folder": "Beethoven/Piano_Sonatas/10-1",
+        "id": "Beethoven/Piano_Sonatas/10-1/Hou02M"
+      },
+      {
+        "composer": "Beethoven",
+        "events": 300,
+        "folder": "Beethoven/Piano_Sonatas/11-1",
+        "id": "Beethoven/Piano_Sonatas/11-1/Arciglione03"
+      },
+      {
+        "composer": "Beethoven",
+        "events": 467,
+        "folder": "Beethoven/Piano_Sonatas/11-2",
+        "id": "Beethoven/Piano_Sonatas/11-2/MaximovI04"
+      },
+      {
+        "composer": "Beethoven",
+        "events": 104,
+        "folder": "Beethoven/Piano_Sonatas/11-3",
+        "id": "Beethoven/Piano_Sonatas/11-3/MaximovI05"
+      },
+      {
+        "composer": "Beethoven",
+        "events": 245,
+        "folder": "Beethoven/Piano_Sonatas/12-1",
+        "id": "Beethoven/Piano_Sonatas/12-1/Garritson01"
+      },
+      {
+        "composer": "Brahms",
+        "events": 465,
+        "folder": "Brahms/Six_Pieces_op_118/2",
+        "id": "Brahms/Six_Pieces_op_118/2/Shilyaev03"
+      },
+      {
+        "composer": "Chopin",
+        "events": 607,
+        "folder": "Chopin/Ballades/1",
+        "id": "Chopin/Ballades/1/Ali01"
+      },
+      {
+        "composer": "Chopin",
+        "events": 552,
+        "folder": "Chopin/Ballades/2",
+        "id": "Chopin/Ballades/2/Denisova17M"
+      },
+      {
+        "composer": "Chopin",
+        "events": 729,
+        "folder": "Chopin/Ballades/3",
+        "id": "Chopin/Ballades/3/Ko11M"
+      },
+      {
+        "composer": "Chopin",
+        "events": 767,
+        "folder": "Chopin/Barcarolle",
+        "id": "Chopin/Barcarolle/Kociuban13"
+      },
+      {
+        "composer": "Chopin",
+        "events": 319,
+        "folder": "Chopin/Berceuse_op_57",
+        "id": "Chopin/Berceuse_op_57/LeungM07M"
+      },
+      {
+        "composer": "Debussy",
+        "events": 285,
+        "folder": "Debussy/Images_Book_1/1_Reflets_dans_lEau",
+        "id": "Debussy/Images_Book_1/1_Reflets_dans_lEau/Kleisen11M"
+      },
+      {
+        "composer": "Debussy",
+        "events": 259,
+        "folder": "Debussy/Pour_le_Piano/1",
+        "id": "Debussy/Pour_le_Piano/1/MunA12M"
+      },
+      {
+        "composer": "Glinka",
+        "events": 308,
+        "folder": "Glinka/The_Lark",
+        "id": "Glinka/The_Lark/Denisova10M"
+      },
+      {
+        "composer": "Haydn",
+        "events": 101,
+        "folder": "Haydn/Keyboard_Sonatas/31-1",
+        "id": "Haydn/Keyboard_Sonatas/31-1/Masycheva01"
+      },
+      {
+        "composer": "Haydn",
+        "events": 137,
+        "folder": "Haydn/Keyboard_Sonatas/32-1_no_repeat",
+        "id": "Haydn/Keyboard_Sonatas/32-1_no_repeat/Goldberg01"
+      },
+      {
+        "composer": "Haydn",
+        "events": 64,
+        "folder": "Haydn/Keyboard_Sonatas/39-1",
+        "id": "Haydn/Keyboard_Sonatas/39-1/Yarden02"
+      },
+      {
+        "composer": "Haydn",
+        "events": 390,
+        "folder": "Haydn/Keyboard_Sonatas/39-2",
+        "id": "Haydn/Keyboard_Sonatas/39-2/Yarden07"
+      },
+      {
+        "composer": "Haydn",
+        "events": 92,
+        "folder": "Haydn/Keyboard_Sonatas/39-3",
+        "id": "Haydn/Keyboard_Sonatas/39-3/Yarden07M"
+      },
+      {
+        "composer": "Liszt",
+        "events": 308,
+        "folder": "Liszt/Annees_de_pelerinage_2/1_Gondoliera",
+        "id": "Liszt/Annees_de_pelerinage_2/1_Gondoliera/LeungM08M"
+      },
+      {
+        "composer": "Liszt",
+        "events": 371,
+        "folder": "Liszt/Concert_Etude_S145/1",
+        "id": "Liszt/Concert_Etude_S145/1/FEINER03"
+      },
+      {
+        "composer": "Liszt",
+        "events": 150,
+        "folder": "Liszt/Concert_Etude_S145/2",
+        "id": "Liszt/Concert_Etude_S145/2/Lo02"
+      },
+      {
+        "composer": "Liszt",
+        "events": 170,
+        "folder": "Liszt/Gran_Etudes_de_Paganini/2_La_campanella",
+        "id": "Liszt/Gran_Etudes_de_Paganini/2_La_campanella/Albright04"
+      },
+      {
+        "composer": "Mozart",
+        "events": 78,
+        "folder": "Mozart/Piano_Sonatas/11-3",
+        "id": "Mozart/Piano_Sonatas/11-3/Stahievitch02"
+      },
+      {
+        "composer": "Mozart",
+        "events": 182,
+        "folder": "Mozart/Piano_Sonatas/12-1",
+        "id": "Mozart/Piano_Sonatas/12-1/ADIG01"
+      },
+      {
+        "composer": "Mozart",
+        "events": 316,
+        "folder": "Mozart/Piano_Sonatas/12-2",
+        "id": "Mozart/Piano_Sonatas/12-2/MunA04"
+      },
+      {
+        "composer": "Mozart",
+        "events": 132,
+        "folder": "Mozart/Piano_Sonatas/12-3",
+        "id": "Mozart/Piano_Sonatas/12-3/BLINOV01"
+      },
+      {
+        "composer": "Prokofiev",
+        "events": 196,
+        "folder": "Prokofiev/Toccata",
+        "id": "Prokofiev/Toccata/Colafelice11"
+      },
+      {
+        "composer": "Rachmaninoff",
+        "events": 291,
+        "folder": "Rachmaninoff/Preludes_op_23/6",
+        "id": "Rachmaninoff/Preludes_op_23/6/Nikiforov14M"
+      },
+      {
+        "composer": "Rachmaninoff",
+        "events": 191,
+        "folder": "Rachmaninoff/Preludes_op_32/10",
+        "id": "Rachmaninoff/Preludes_op_32/10/FONG08"
+      },
+      {
+        "composer": "Rachmaninoff",
+        "events": 155,
+        "folder": "Rachmaninoff/Preludes_op_32/5",
+        "id": "Rachmaninoff/Preludes_op_32/5/KorchinskayaKogan03"
+      },
+      {
+        "composer": "Ravel",
+        "events": 347,
+        "folder": "Ravel/Gaspard_de_la_Nuit/1_Ondine",
+        "id": "Ravel/Gaspard_de_la_Nuit/1_Ondine/Albright01"
+      },
+      {
+        "composer": "Ravel",
+        "events": 191,
+        "folder": "Ravel/Miroirs/3_Une_Barque",
+        "id": "Ravel/Miroirs/3_Une_Barque/DupreeF20"
+      },
+      {
+        "composer": "Ravel",
+        "events": 268,
+        "folder": "Ravel/Miroirs/4_Alborada_del_gracioso",
+        "id": "Ravel/Miroirs/4_Alborada_del_gracioso/CHOE02"
+      },
+      {
+        "composer": "Schubert",
+        "events": 602,
+        "folder": "Schubert/Impromptu_op.90_D.899/1",
+        "id": "Schubert/Impromptu_op.90_D.899/1/Duepree08M"
+      },
+      {
+        "composer": "Schubert",
+        "events": 364,
+        "folder": "Schubert/Impromptu_op.90_D.899/3",
+        "id": "Schubert/Impromptu_op.90_D.899/3/Hou06M"
+      },
+      {
+        "composer": "Schubert",
+        "events": 441,
+        "folder": "Schubert/Impromptu_op.90_D.899/4",
+        "id": "Schubert/Impromptu_op.90_D.899/4/Dossin04"
+      },
+      {
+        "composer": "Schubert",
+        "events": 482,
+        "folder": "Schubert/Impromptu_op.90_D.899/4_no_repeat",
+        "id": "Schubert/Impromptu_op.90_D.899/4_no_repeat/Huang10M"
+      },
+      {
+        "composer": "Schumann",
+        "events": 571,
+        "folder": "Schumann/Arabeske",
+        "id": "Schumann/Arabeske/Min09M"
+      },
+      {
+        "composer": "Schumann",
+        "events": 331,
+        "folder": "Schumann/Kreisleriana/1",
+        "id": "Schumann/Kreisleriana/1/ParkJH04M"
+      },
+      {
+        "composer": "Schumann",
+        "events": 195,
+        "folder": "Schumann/Kreisleriana/1_no_first_repeat",
+        "id": "Schumann/Kreisleriana/1_no_first_repeat/JohannsonP02M"
+      },
+      {
+        "composer": "Schumann",
+        "events": 291,
+        "folder": "Schumann/Kreisleriana/3",
+        "id": "Schumann/Kreisleriana/3/JohannsonP04"
+      },
+      {
+        "composer": "Scriabin",
+        "events": 297,
+        "folder": "Scriabin/Etudes_op_8/11",
+        "id": "Scriabin/Etudes_op_8/11/Shi03"
+      },
+      {
+        "composer": "Scriabin",
+        "events": 665,
+        "folder": "Scriabin/Sonatas/5",
+        "id": "Scriabin/Sonatas/5/ChernovA06M"
+      }
+    ],
+    "test": [
+      {
+        "composer": "Bach",
+        "events": 11,
+        "folder": "Bach/Fugue/bwv_856",
+        "id": "Bach/Fugue/bwv_856/LuoJ01M"
+      },
+      {
+        "composer": "Beethoven",
+        "events": 33,
+        "folder": "Beethoven/Piano_Sonatas/1-1",
+        "id": "Beethoven/Piano_Sonatas/1-1/KimG01"
+      },
+      {
+        "composer": "Chopin",
+        "events": 807,
+        "folder": "Chopin/Ballades/4",
+        "id": "Chopin/Ballades/4/ChenC04M"
+      },
+      {
+        "composer": "Haydn",
+        "events": 175,
+        "folder": "Haydn/Keyboard_Sonatas/32-1",
+        "id": "Haydn/Keyboard_Sonatas/32-1/Pavlovic02"
+      },
+      {
+        "composer": "Liszt",
+        "events": 842,
+        "folder": "Liszt/Ballade_2",
+        "id": "Liszt/Ballade_2/Broberg03"
+      },
+      {
+        "composer": "Mozart",
+        "events": 630,
+        "folder": "Mozart/Fantasie_475",
+        "id": "Mozart/Fantasie_475/Huangci05M"
+      },
+      {
+        "composer": "Rachmaninoff",
+        "events": 313,
+        "folder": "Rachmaninoff/Preludes_op_23/4",
+        "id": "Rachmaninoff/Preludes_op_23/4/ChenGuang12M"
+      },
+      {
+        "composer": "Ravel",
+        "events": 321,
+        "folder": "Ravel/Pavane",
+        "id": "Ravel/Pavane/ChenS03"
+      },
+      {
+        "composer": "Schubert",
+        "events": 353,
+        "folder": "Schubert/Impromptu_op.90_D.899/2",
+        "id": "Schubert/Impromptu_op.90_D.899/2/Denisova11M"
+      },
+      {
+        "composer": "Schumann",
+        "events": 654,
+        "folder": "Schumann/Kreisleriana/2",
+        "id": "Schumann/Kreisleriana/2/JohannsonP03"
+      }
+    ]
+  }
+}
