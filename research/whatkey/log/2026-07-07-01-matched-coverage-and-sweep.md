@@ -58,6 +58,31 @@ Coverage-accuracy sweep (ours, default config, floor varied post hoc):
   warmup. And the matched runs show per-piece mean coverage 0.95 rather than
   1.00 because the 3 never-claiming pieces contribute empty subsets.
 
+**Plain-English reading.**
+
+- The margin floor gates every claim, not just key changes: at each chord the
+  detector ranks all 24 keys, and if the leader is not ahead of the runner-up by
+  at least the floor, it says nothing rather than naming a narrow leader. A
+  higher floor means a pickier detector: fewer claims, but more accurate ones.
+  The sweep measured exactly that trade, and it works, just weakly: making the
+  detector twice as quiet only nudged its accuracy from 0.41 to 0.48. So a
+  stricter mouth cannot fix a mediocre ear; the next accuracy gains have to come
+  from a smarter detector, not a higher bar for speaking.
+- Before this session, TemperleyKostkaPayne's lead over us had two possible
+  explanations: its numbers covered every event while ours covered only the 67%
+  we chose to answer, so maybe we were comparing different exams. The matched
+  comparison graded everyone on the identical exam, only the events we answered,
+  and TKP still won while KrumhanslSchmuckler and Aarden-Essen still lost. So
+  the differences are real and come from the profile vectors themselves (each
+  pair's 12-number template of what a key sounds like), not from who skipped
+  which questions.
+- "Revisit the default with paired statistics" means: our profile A/B compared
+  averages over 59 pieces, and an average can be won by doing great on a few
+  long pieces while losing on most. The paired approach asks, piece by piece,
+  which profile won on this piece, then checks (Wilcoxon signed-rank) whether
+  one wins consistently across pieces. Only that kind of win changes the
+  default.
+
 **Decisions.**
 
 - `claims.json` is written unconditionally so any past run can anchor a future
