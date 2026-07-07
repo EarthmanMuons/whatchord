@@ -32,9 +32,18 @@ versioned fixtures, external baselines, and dated logs.
   sliding window of committed chord events (identity, ranked candidates,
   voicing, tonality context, hold duration) from live MIDI play. In-memory only,
   never persisted; no user data is ever collected.
-- **Phase 2 (next):** labeled fixtures, the offline evaluation harness, and the
-  first detection algorithms (profile correlation as the floor, then a weighted
-  evidence model).
+- **Phase 2 (in progress, July 2026):** the evaluation infrastructure is
+  complete: labeled fixtures (hand-authored pop/jazz suite plus license-gated
+  When in Rome sets), a frozen development/test split, the offline harness with
+  the protocol metrics, matched-coverage comparison, and coverage-accuracy
+  sweeps. The profile-correlation floor is implemented and anchored against
+  music21's offline analyzers: it beats KrumhanslSchmuckler and Aarden-Essen at
+  matched coverage, trails TemperleyKostkaPayne, and misses most annotated
+  modulations, which is the gap the next detector targets. See `log/` for the
+  numbers.
+- **Next:** the weighted evidence model (design plan section 2d), the first
+  detector that uses chord identities and recognizer confidence rather than
+  pitch-class histograms alone.
 
 ## Reading order
 
@@ -45,12 +54,14 @@ versioned fixtures, external baselines, and dated logs.
    the source of truth.
 3. [PROTOCOL.md](PROTOCOL.md): how results will be evaluated. Draft until
    frozen; frozen before the first tuning experiment.
-4. [REPRODUCING.md](REPRODUCING.md): exact steps for rebuilding the Phase 2
+4. [GLOSSARY.md](GLOSSARY.md): plain-English definitions of the measurement
+   terms the log entries and reports use.
+5. [REPRODUCING.md](REPRODUCING.md): exact steps for rebuilding the Phase 2
    fixture inputs, external corpus checkout, local machine-state prep, and
    frozen split.
-5. [log/](log/): dated entries recording what was tried, what happened, and what
+6. [log/](log/): dated entries recording what was tried, what happened, and what
    was decided, so nobody has to comb through git history.
-6. [data/](data/): fixture, split, and provenance conventions.
+7. [data/](data/): fixture, split, and provenance conventions.
 
 ## Where the code lives
 

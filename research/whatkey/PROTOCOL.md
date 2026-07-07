@@ -62,6 +62,12 @@ errors; they reduce coverage. On events labeled ambiguous (`localKey` null with
 acceptable key is correct; such events are excluded from corpus-set accuracy
 pools.
 
+**Abstain calibration presentation** (pinned 2026-07-07, from the first sweep;
+see log entry 2026-07-07-01): report the coverage-accuracy curve swept over the
+detector's confidence threshold (`--sweep-margin-floors` in the harness), with
+the shipped operating point marked on it, not a single operating point alone.
+Detectors whose confidence has no threshold report their one point.
+
 **Switches.** Stability counts a switch only between consecutive claims with
 different keys; an abstention followed by a claim of the same key as before is
 not a switch. Abstaining under uncertainty must not be charged twice.
@@ -77,8 +83,8 @@ development split; each needs a dated amendment when pinned):
   minimum length count as modulations for lag and stability.
 - The global-key operationalization: the harness reports both the final-event
   claim and the duration-weighted majority claim until one is pinned.
-- Abstain calibration presentation: single operating point vs. a
-  coverage-accuracy curve swept over the confidence threshold.
+
+(Resolved early: abstain calibration presentation, pinned above on 2026-07-07.)
 
 ## Corpora and splits
 
