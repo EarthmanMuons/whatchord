@@ -113,6 +113,20 @@ tymo2019:
     type: proceedings
     title: Proceedings of the 20th International Society for Music Information Retrieval Conference (ISMIR)
 
+guo2017:
+  type: article
+  title: On Calibration of Modern Neural Networks
+  author:
+    - Guo, Chuan
+    - Pleiss, Geoff
+    - Sun, Yu
+    - Weinberger, Kilian Q.
+  date: 2017
+  parent:
+    type: proceedings
+    title: Proceedings of the 34th International Conference on Machine Learning (ICML)
+  url: https://proceedings.mlr.press/v70/guo17a.html
+
 adams2007:
   type: article
   title: Bayesian Online Changepoint Detection

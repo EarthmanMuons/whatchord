@@ -174,6 +174,12 @@ labeled key did not change across the window and the detector's new claim does
 not land on it. The stability metric counts these per piece; a lagged catch-up
 switch onto the annotated key is not spurious.
 
+**Temperature scaling.** The one-knob calibration fix: raise every probability
+to 1/T and renormalize. T above 1 flattens an overconfident distribution toward
+honesty without ever reordering the candidates, so rankings, claims, and
+abstention are untouched. WhatKey applies it only to displayed probabilities
+(fit in log entry 2026-07-08-03); the detector's internal numbers stay raw.
+
 **Time to first claim.** How many events pass before the detector commits to any
 key at all. Trades off against stability and lag, which is why all three are
 reported and never blended.

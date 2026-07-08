@@ -719,13 +719,14 @@ Test splits are small (10 to 41 pieces), which the paired statistics respect
 but cannot cure. Stronger neural local-key systems are offline and score-hungry;
 we compare only against baselines runnable on our fixtures.
 
-The posterior probabilities should not yet be read as empirically calibrated
-confidence. A development-set reliability diagnostic on the selected Isophonics
-configuration shows overconfidence: on claimed exact-labeled events, mean top
-posterior is 0.929 while exact accuracy is 0.772 (expected calibration error,
-ECE, 0.157). This does not affect ranking, abstention, or the paired accuracy
-claims, but a user-facing confidence display should receive a separate
-calibration pass.
+Raw posteriors are overconfident: on claimed exact-labeled development events,
+mean top posterior is 0.929 while exact accuracy is 0.772 (expected calibration
+error, ECE, 0.157). This does not affect ranking, abstention, or paired accuracy
+claims. For display only, post-hoc temperature scaling @guo2017 fit on the
+development split (T = 1.55, negative log-likelihood argmin) reduces held-out
+claimed-event ECE from 0.192 to 0.041 without changing any claim (byte-identical
+to the one-shot artifacts). Calibration remains task-relative: against
+local-key labels, the same display remains overconfident.
 
 = Conclusion
 
@@ -748,15 +749,15 @@ the task definition rather than a detail of the dataset.
   #v(0.6em)
   #line(length: 100%, stroke: 0.5pt)
   #text(size: 8pt)[
-    Reproducibility: the protocol, dated experiment log, corpus pins, split
-    definitions, harness, and the committed one-shot artifacts live in the
-    WhatChord repository under
+    Reproducibility: protocol, logs, corpus pins, splits, harness, and one-shot
+    artifacts live in the WhatChord repository under
     #link("https://github.com/EarthmanMuons/whatchord/tree/main/research/whatkey")[
       github.com/EarthmanMuons/whatchord/tree/main/research/whatkey
     ].
-    Every number in this paper traces to a dated log entry and a report that
-    embeds its own generating command.
+    Every number traces to a dated log entry and a report with its generating
+    command.
   ]
 ]
 
+#show bibliography: set text(size: 9pt)
 #bibliography("refs.yml", style: "ieee")
