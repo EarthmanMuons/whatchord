@@ -318,6 +318,7 @@ Map<String, Object?> posteriorCalibration(
   List<LabeledFixture> fixtures,
   Map<String, List<KeyEstimateFrame>> framesByFixture, {
   int binCount = 10,
+  double temperature = 1,
 }) {
   final all = _CalibrationAccumulator(binCount);
   final claimed = _CalibrationAccumulator(binCount);
@@ -334,14 +335,16 @@ Map<String, Object?> posteriorCalibration(
         continue;
       }
       final frame = frames[i];
-      final distribution = _probabilityDistribution(frame);
+      var distribution = _probabilityDistribution(frame);
       if (distribution == null) {
         skippedNonProbabilistic += 1;
         continue;
       }
+      distribution = applyDisplayTemperature(distribution, temperature);
       final top = frame.ranked.first;
       final topKey = KeyLabel.of(top.tonality);
       final correct = topKey.matches(truth);
+      final topProbability = distribution[topKey.toString()] ?? 0.0;
       final truthProbability = distribution[truth.toString()] ?? 0.0;
       var brier = 0.0;
       for (final entry in distribution.entries) {
@@ -353,7 +356,7 @@ Map<String, Object?> posteriorCalibration(
         brier += 1.0;
       }
       all.add(
-        confidence: top.confidence,
+        confidence: topProbability,
         correct: correct,
         truthProbability: truthProbability,
         brier: brier,
@@ -361,7 +364,9 @@ Map<String, Object?> posteriorCalibration(
       );
       if (frame.claim != null) {
         claimed.add(
-          confidence: frame.claim!.confidence,
+          confidence:
+              distribution[KeyLabel.of(frame.claim!.tonality).toString()] ??
+              0.0,
           correct: KeyLabel.of(frame.claim!.tonality).matches(truth),
           truthProbability: truthProbability,
           brier: brier,
@@ -374,6 +379,7 @@ Map<String, Object?> posteriorCalibration(
   return {
     'schema': 'whatkey-posterior-calibration/1',
     'binCount': binCount,
+    'temperature': temperature,
     'allExactLabeledEvents': all.toJson(),
     'claimedExactLabeledEvents': claimed.toJson(),
     'skipped': {
@@ -381,6 +387,27 @@ Map<String, Object?> posteriorCalibration(
       'nonProbabilisticFrame': skippedNonProbabilistic,
     },
   };
+}
+
+/// Display-layer temperature scaling: raises every probability to 1/T and
+/// renormalizes. Monotone, so it never reorders keys; T > 1 flattens an
+/// overconfident distribution. T = 1 is the identity. Applied only to
+/// displayed probabilities, never to the detector's internal margins.
+Map<String, double> applyDisplayTemperature(
+  Map<String, double> distribution,
+  double temperature,
+) {
+  if (temperature == 1) return distribution;
+  var total = 0.0;
+  final scaled = <String, double>{
+    for (final entry in distribution.entries)
+      entry.key: math.pow(entry.value, 1 / temperature).toDouble(),
+  };
+  for (final value in scaled.values) {
+    total += value;
+  }
+  if (total <= 0) return distribution;
+  return {for (final entry in scaled.entries) entry.key: entry.value / total};
 }
 
 Map<String, double>? _probabilityDistribution(KeyEstimateFrame frame) {

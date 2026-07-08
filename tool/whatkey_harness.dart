@@ -18,7 +18,9 @@
 //     [--decay-half-life-events N] \
 //     [--min-events N] [--margin-floor X] [--mode-tilt X] \
 //     [--relative-tilt X] [--relative-cadence-tilt X] \
-//     [--hazard X] [--max-run-length N] [--out <dir>] \
+//     [--hazard X] [--max-run-length N] \
+//     [--calibration-temperature X] \
+//     [--sweep-calibration-temperatures 1,2,3,...] [--out <dir>] \
 //     [--claims-file <claims.json>] [--restrict-to <claims.json>] \
 //     [--sweep-margin-floors 0,0.02,0.05,...]
 //
@@ -97,8 +99,22 @@ void main(List<String> arguments) {
   }
   final summary = summarize(pieces);
   final calibration = claims == null
-      ? posteriorCalibration(fixtures, framesByFixture)
+      ? posteriorCalibration(
+          fixtures,
+          framesByFixture,
+          temperature: options.calibrationTemperature,
+        )
       : null;
+  final calibrationSweep = claims == null
+      ? [
+          for (final temperature in options.sweepCalibrationTemperatures)
+            posteriorCalibration(
+              fixtures,
+              framesByFixture,
+              temperature: temperature,
+            ),
+        ]
+      : const <Map<String, Object?>>[];
   final sweep = options.sweepMarginFloors.isEmpty
       ? null
       : _sweep(options, fixtures);
@@ -122,6 +138,7 @@ void main(List<String> arguments) {
     'restrictedTo': options.restrictTo,
     'sweep': sweep,
     'posteriorCalibration': calibration,
+    'calibrationSweep': calibrationSweep.isEmpty ? null : calibrationSweep,
     'protocol': 'research/whatkey/PROTOCOL.md, frozen 2026-07-07',
     'summary': summary,
     'perPiece': [for (final piece in pieces) piece.toJson()],
@@ -487,6 +504,8 @@ class _Options {
   final double relativeCadenceTilt;
   final double hazard;
   final int maxRunLength;
+  final double calibrationTemperature;
+  final List<double> sweepCalibrationTemperatures;
   final String? outDir;
 
   _Options._({
@@ -514,6 +533,8 @@ class _Options {
     required this.relativeCadenceTilt,
     required this.hazard,
     required this.maxRunLength,
+    required this.calibrationTemperature,
+    required this.sweepCalibrationTemperatures,
     required this.outDir,
   });
 
@@ -716,6 +737,16 @@ class _Options {
         values.remove('max-run-length') ??
             '${BocpdKeyDetector.defaultMaxRunLength}',
       ),
+      calibrationTemperature: double.parse(
+        values.remove('calibration-temperature') ?? '1',
+      ),
+      sweepCalibrationTemperatures: [
+        for (final value
+            in (values.remove('sweep-calibration-temperatures') ?? '').split(
+              ',',
+            ))
+          if (value.trim().isNotEmpty) double.parse(value),
+      ],
       outDir: values.remove('out'),
     );
     if (values.isNotEmpty) {
