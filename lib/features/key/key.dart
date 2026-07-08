@@ -12,3 +12,4 @@ export 'domain/detectors/weighted_evidence_key_detector.dart';
 export 'domain/models/key_estimate.dart';
 export 'models/inferred_key_state.dart';
 export 'providers/inferred_key_notifier.dart';
+export 'providers/key_mode_notifier.dart';
