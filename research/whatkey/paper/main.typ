@@ -50,12 +50,13 @@
   ]
 
   #v(0.2em)
-  #text(size: 9pt)[Draft, July 2026. Project name WhatKey.]
+  #text(size: 9pt)[Draft v2026.7.8. Project name WhatKey.]
   #v(0.6em)
 ]
 
-*Abstract.* Most key-detection research estimates a global or local key from
-a complete score or recording. We study a stricter interactive setting: a
+*Abstract.* Most key-detection research estimates key from a complete score or
+recording, either as a whole-piece label or as an offline local analysis. We
+study a stricter interactive setting: a
 musician plays a MIDI keyboard, a chord recognizer emits a causal stream of
 symbolic chord hypotheses, and the key detector must update after each chord
 while abstaining when the evidence is insufficient. We define an evaluation
@@ -65,9 +66,9 @@ statistics, and evaluate a family of causal detectors on four corpus-derived
 fixture sets. The final system is a filtered hidden Markov model (HMM) over
 profile-correlation emissions, with one constrained symbolic cue that
 redistributes evidence within same-tonic major/minor pairs. Three results are
-central. First, the emission-memory half-life is not merely a smoothing
-parameter: it selects the timescale of key structure being reported, and
-local-key and section-key annotations prefer opposite settings.
+central. First, the memory dial is a timescale selector, not a noise-accuracy
+tradeoff: short memory fits local-key labels, while longer memory fits
+section-key labels.
 Second, same-tonic mode confusions can be reduced without disturbing tonic
 selection when symbolic chord-quality evidence is confined to parallel-key
 pairs. Third, adaptive temporal alternatives trade stability for faster key
@@ -294,6 +295,9 @@ voting on cadential transition patterns. These layers form a three-way hybrid
 the floor on early local-key development runs (+0.096 exact per
 piece, p = 0.003), but later ablations show that the selected section-key
 configuration should remove them.
+Thus, except for the selected same-tonic mode cue below, chord-identity features
+proved useful mainly for the local-key version of the task; the section-key
+configuration is deliberately closer to a profile model.
 
 #colbreak()
 
@@ -350,11 +354,11 @@ state persistence and the emission scorer's context window are distinct: the
 decayed histogram defines the current observation, while the HMM supplies
 temporal persistence over hidden keys. Reintroducing history both as an
 emission blend and as state persistence double-counts evidence. Second, the
-emission half-life is not merely a noise-smoothing parameter; it determines the
-musical timescale represented by each observation. The next section measures
-that timescale effect directly.
+emission memory controls how local each observation is. The next section shows
+that this setting selects between annotation targets.
 
 #figure(
+  placement: none,
   lq.diagram(
     width: 7.4cm,
     height: 4.6cm,
@@ -412,8 +416,15 @@ development annotation scales gives the dose-response curves of @fig-dose. On th
 local-key labels, accuracy falls essentially monotonically with memory and
 modulation matching halves; on the section-key labels, accuracy climbs to a broad
 plateau from 8 s outward while coverage and stability keep improving
-(spurious p90 falls from 7 to 1). The dial is a timescale selector, not a
-noise-accuracy tradeoff with a sweet spot.
+(spurious p90 falls from 7 to 1). The relevant result is the crossover between
+annotation targets, not a single best smoothing value.
+
+Three controls close the alternative explanations. The crossover survives
+noise: on the evaluation-only overlap corpus, identical performed
+recordings scored against analyst keys prefer short memory (0.59 vs 0.47
+exact), matching the clean-score result. It reproduces *within* one corpus
+as a function of segment length (@fig-segment). And it holds on held-out
+data with significance in both directions (Section 8).
 
 #figure(
   lq.diagram(
@@ -429,14 +440,14 @@ noise-accuracy tradeoff with a sweet spot.
       (50, 60, 63, 65),
       mark: "s",
       color: fig-blue,
-      label: [30 s memory (selected)],
+      label: [30 s memory (section-key)],
     ),
     lq.plot(
       (0, 12, 20, 32),
       (60, 62, 62, 62),
       mark: "o",
       color: fig-orange,
-      label: [1 s memory (local key)],
+      label: [1 s memory (local-key)],
     ),
   ),
   caption: [The crossover within a single corpus on identical performed
@@ -445,13 +456,6 @@ noise-accuracy tradeoff with a sweet spot.
     20-measure segments, which stays flat. The same recordings, sliced by
     label granularity, reorder the two configurations.],
 ) <fig-segment>
-
-Three controls close the alternative explanations. The crossover survives
-noise: on the evaluation-only overlap corpus, identical performed
-recordings scored against analyst keys prefer short memory (0.59 vs 0.47
-exact), matching the clean-score result. It reproduces *within* one corpus
-as a function of segment length (@fig-segment). And it holds on held-out
-data with significance in both directions (Section 8).
 
 The application conclusion is a choice, not a claim that one timescale is
 universally better: a glanceable key indicator should report the section, so
@@ -462,7 +466,12 @@ moves by tens of points when the annotation scale changes.
 
 *Ablations.* Two full 16-cell factorials (functional blend, progression
 blend, duration weighting, recognizer-confidence weighting) ran on each
-annotation scale. The functional blend flips sign with the annotation scale:
+annotation scale. The functional blend adds key-relative chord-function points
+to the profile score; the progression blend adds cadential-transition points;
+duration weighting uses hold duration instead of one vote per event; and
+recognizer-confidence weighting downweights near-tied chord recognitions using
+the best-to-second explanation-cost gap. The functional blend flips sign with
+the annotation scale:
 removing it is a significant paired win for section-key annotations, while for
 local-key annotations it is load-bearing (+0.061 exact, CI95 [+0.019, +0.108],
 p = 0.010).
@@ -500,9 +509,11 @@ any added mechanism.
   ),
   caption: [Selective-prediction behavior: the coverage-accuracy curve of the selected
     configuration on the Isophonics development split, swept over the
-    posterior-margin floor (0 to 0.6). The marked point is the selected
-    operating point (floor 0.3). The curve rises monotonically as the
-    detector grows choosier: abstentions are informative, not random.],
+    posterior-margin floor (0 to 0.6). Moving left raises the margin required
+    to speak, so coverage falls; moving up means the remaining claims are more
+    often correct. The marked point is the selected operating point (floor
+    0.3). The curve rises monotonically as the detector grows choosier:
+    abstentions are informative, not random.],
 ) <fig-sweep>
 
 = Mode disambiguation
@@ -533,6 +544,8 @@ plateau: paired exact wins on both annotation scales (Isophonics +0.016,
 p = 0.030; When in Rome +0.030, p = 0.029), parallel confusion roughly halved
 everywhere measured (4% to 2% of claims on Isophonics), and no stability cost
 on the section-key development set.
+
+#colbreak()
 
 *Relative pairs (measured negative).* The same pattern generalizes with the
 key signature as the conserved quantity. But the evidence is structurally
@@ -587,16 +600,17 @@ HMM (including the mode tilt), so differences isolate the window
   table(
     columns: (auto, auto, auto, auto, auto),
     align: (left, center, center, center, center),
-    table.header([config (Isophonics dev)], [cov], [exact], [modulations],
+    table.header([config], [cov], [exact], [modulations],
       [spur med/p90]),
     [HMM, selected], [0.92], [0.775], [94/192], [0/1],
-    [BOCPD, hazard 1/200], [0.88], [0.715], [161/192], [5/14],
-    [BOCPD, temperature 0.5], [0.89], [0.765], [135/192], [2/7],
-    [BOCPD, temperature 1.0], [0.90], [0.769], [115/192], [0/4],
+    [BOCPD h=1/200], [0.88], [0.715], [161/192], [5/14],
+    [BOCPD T=0.5], [0.89], [0.765], [135/192], [2/7],
+    [BOCPD T=1.0], [0.90], [0.769], [115/192], [0/4],
   ),
   caption: [BOCPD versus the selected HMM on the section-key development
-    set. The adaptive window improves modulation detection but no tuning
-    recovers the selected stability point.],
+    set (Isophonics dev). Here `h` is the constant changepoint hazard and `T`
+    is emission temperature. The adaptive window improves modulation detection
+    but no tuning recovers the selected stability point.],
 ) <tab-bocpd>
 
 The adaptive window delivers its promise: modulation matching jumps by 70%,
@@ -607,14 +621,13 @@ frontier without reaching the HMM (best cell: exact wash, p = 0.51, spurious
 p90 still 4 versus 1). One finding worth keeping: at matched reactivity
 BOCPD dominates the HMM's fast settings (0.765 exact at 135 modulations
 versus 0.736 at 141 for the HMM at a 2 s half-life), so adaptive windowing
-has value in the reactive regime; it was not selected for the section-key
-regime studied here.
-The false alarms are within-section harmonic movement violating the
-independent-given-key assumption, the failure mode that autoregressive BOCPD
-extensions @tsaknaki2024 target for continuous series; those Gaussian
-remedies have no analog for categorical chord emissions, and our domain's
-version of within-regime dependence modeling (the progression layer) is
-measured inert.
+has value for local-key tracking; it was not selected for the section-key task
+studied here. The false alarms are within-section harmonic movements, exactly
+where BOCPD's independent-given-key assumption is weakest. Autoregressive BOCPD
+extensions target analogous within-regime dependence in continuous series
+@tsaknaki2024, but those Gaussian remedies do not transfer directly to
+categorical chord emissions, and our domain-specific substitute (the
+progression layer) is measured inert.
 
 = Held-out evaluation
 
@@ -629,13 +642,15 @@ project.
   table(
     columns: (auto, auto, auto, auto, auto, auto),
     align: (left, right, center, center, center, center),
-    table.header([held-out split], [pieces], [cov], [exact], [modulations],
-      [spur med/p90]),
+    table.header([split], [pieces], [cov], [exact], [mods], [spur]),
     [Isophonics], [41], [0.88], [0.732], [10/22], [0/3],
-    [When in Rome], [18], [0.81], [0.587], [39/115], [0/1],
-    [ASAP (acceptable-keys)], [10], [0.83], [0.683], [-], [0/0],
+    [WiR], [18], [0.81], [0.587], [39/115], [0/1],
+    [ASAP], [10], [0.83], [0.683], [-], [0/0],
   ),
-  caption: [The selected configuration on the three held-out splits.],
+  caption: [The selected configuration on the three held-out splits. `mods` is
+    matched annotated modulations; `spur` is median/p90 spurious switches. WiR
+    is When in Rome; ASAP is scored with acceptable keys because labels are
+    mode-unknown key signatures.],
 ) <tab-test>
 
 Generalization is clean (@tab-test): Isophonics dips modestly from
@@ -644,12 +659,13 @@ development (0.775 to 0.732), When in Rome comes in far above it (0.434 to
 differences run in both directions, not the uniform degradation a
 tuned-to-development configuration would show.
 
-*The crossover holds with significance in both directions.* On the
-local-key split the local-key configuration beats the selected one (0.649 vs
-0.587 exact, paired +0.062, CI95 [+0.004, +0.121], p = 0.047); on the
-section-key split the selected configuration wins by a wide margin (0.732 vs
-0.556, paired +0.175, CI95 [+0.040, +0.315], p = 0.039), with the local-key
-configuration paying spurious 5/11 versus 0/3.
+*The held-out crossover is significant in both directions.* The short-memory
+local-key configuration is better when judged against local-key labels (0.649 vs
+0.587 exact, paired +0.062, CI95 [+0.004, +0.121], p = 0.047). The selected
+section-key configuration is better when judged against section-key labels
+(0.732 vs 0.556, paired +0.175, CI95 [+0.040, +0.315], p = 0.039), while also
+avoiding the local-key configuration's spurious switches (0/3 vs 5/11
+med/p90).
 
 *External comparison.* @tab-baselines compares against music21's offline
 whole-piece analyzers on the held-out songs.
@@ -677,33 +693,39 @@ answering; this detector never sees the future, abstains on the ambiguous
 12%, and reports posterior probabilities and streaming stability
 metrics offline systems do not have.
 
-Mode confusion on held-out songs (descriptive): exact 72%, fifth 7%,
-relative 5%, parallel 2%, other 14%. The parallel row matches the mode
-tilt's development effect exactly.
+The descriptive confusion mix is: exact 72%, fifth 7%, relative 5%, parallel
+2%, other 14%. This pooled exact rate differs from the per-piece mean in
+@tab-test; the parallel row matches the mode tilt's development effect exactly.
 
 = Limitations
 
 The label timescale is a construct of the annotation culture, and our
 central finding is precisely that results are relative to it; we mitigate
 by reporting both annotation scales, but neither scale is "the truth."
+
 Residual error contains genuine ambiguity (relative twins share every pitch
-class; analysts disagree on mode-mixture passages and on "on the dominant"
-versus "in the dominant"), so ceilings are below 1.0 and unknown. The
-recognizer sits inside the loop: fixtures embed its rankings, and detector
-results are only comparable within a fixture version. Corpus licensing
-constrains redistribution (two corpora are noncommercial- or research-gated;
-we commit derived facts, splits, and evaluation artifacts, not the gated
-fixtures). Test splits are small (10 to 41 pieces), which the paired
-statistics respect but cannot cure. And the strongest published neural
-local-key systems are offline and score-hungry; we compare only against
-baselines that can be run reproducibly on our fixtures.
+class; mode-mixture passages and dominant prolongations can reasonably be
+notated different ways), so ceilings are below 1.0 and unknown.
+
+The recognizer sits inside the loop: fixtures embed its rankings, so recognizer
+changes can change detector results and require regenerating fixtures before
+comparison.
+
+Corpus licensing constrains redistribution (two corpora are noncommercial- or
+research-gated; we commit derived facts, splits, and evaluation artifacts, not
+the gated fixtures).
+
+Test splits are small (10 to 41 pieces), which the paired statistics respect
+but cannot cure. Stronger neural local-key systems are offline and score-hungry;
+we compare only against baselines runnable on our fixtures.
 
 The posterior probabilities should not yet be read as empirically calibrated
 confidence. A development-set reliability diagnostic on the selected Isophonics
 configuration shows overconfidence: on claimed exact-labeled events, mean top
-posterior is 0.929 while exact accuracy is 0.772 (ECE 0.157). This does not
-affect ranking, abstention, or the paired accuracy claims, but a user-facing
-confidence display should receive a separate calibration pass.
+posterior is 0.929 while exact accuracy is 0.772 (expected calibration error,
+ECE, 0.157). This does not affect ranking, abstention, or the paired accuracy
+claims, but a user-facing confidence display should receive a separate
+calibration pass.
 
 = Conclusion
 
