@@ -70,8 +70,19 @@ pools.
 **Abstain calibration presentation** (pinned 2026-07-07, from the first sweep;
 see log entry 2026-07-07-01): report the coverage-accuracy curve swept over the
 detector's confidence threshold (`--sweep-margin-floors` in the harness), with
-the shipped operating point marked on it, not a single operating point alone.
+the selected operating point marked on it, not a single operating point alone.
 Detectors whose confidence has no threshold report their one point.
+
+**Posterior reliability diagnostic** (added 2026-07-08; log entry
+2026-07-08-01): for detectors whose ranked output is a probability distribution
+over keys (HMM, BOCPD), report top-label reliability on exact-labeled events:
+mean top posterior, exact accuracy, expected calibration error (ECE), negative
+log likelihood, and Brier score, both over all exact-labeled events and over
+claimed exact-labeled events. Acceptable-key-only events are skipped because
+they define a set of correct answers rather than a single probability target. In
+plain terms, this asks whether a posterior of 0.8 is right about 80% of the
+time. This diagnostic does not replace the coverage-accuracy abstention sweep
+and must not be used to retune a spent test split.
 
 **Switches.** Stability counts a switch only between consecutive claims with
 different keys; an abstention followed by a claim of the same key as before is
@@ -221,3 +232,7 @@ in Rome, RomanText, ASAP) is cited with links in the
   recorded as unmeasurable in this environment (unreproducible build); the
   external anchor obligation is met by the music21 analyzers alone, and no
   comparison claim against justkeydding is made in either direction.
+- **2026-07-08** (log entry 2026-07-08-01): posterior reliability diagnostics
+  added to the harness reports for probability-distribution detectors. This is a
+  reporting diagnostic only: no detector parameters, splits, adoption rules, or
+  existing accuracy/stability metrics change.

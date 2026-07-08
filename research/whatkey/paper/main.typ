@@ -204,6 +204,12 @@ time-to-first-claim. Ambiguity-labeled events (hand-authored fixtures only)
 accept abstention or any acceptable key. Selective-prediction behavior is
 reported as the coverage-accuracy curve swept over the abstention threshold,
 with the selected operating point marked (@fig-sweep).
+For probabilistic detectors, we also report top-label posterior reliability:
+events are binned by the posterior probability of the leading key and compared
+with exact correctness, alongside expected calibration error (ECE), negative
+log likelihood, and Brier score. This diagnostic is separate from abstention
+behavior: a detector can abstain informatively while still being overconfident
+in its posterior probabilities.
 
 *Statistics.* Every adoption decision uses piece-level paired comparisons:
 Wilcoxon signed-rank tests with seeded-bootstrap 95% confidence intervals on
@@ -683,6 +689,13 @@ fixtures). Test splits are small (10 to 41 pieces), which the paired
 statistics respect but cannot cure. And the strongest published neural
 local-key systems are offline and score-hungry; we compare only against
 baselines that can be run reproducibly on our fixtures.
+
+The posterior probabilities should not yet be read as empirically calibrated
+confidence. A development-set reliability diagnostic on the selected Isophonics
+configuration shows overconfidence: on claimed exact-labeled events, mean top
+posterior is 0.929 while exact accuracy is 0.772 (ECE 0.157). This does not
+affect ranking, abstention, or the paired accuracy claims, but a user-facing
+confidence display should receive a separate calibration pass.
 
 = Conclusion
 

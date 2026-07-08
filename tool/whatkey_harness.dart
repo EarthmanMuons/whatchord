@@ -96,6 +96,9 @@ void main(List<String> arguments) {
     );
   }
   final summary = summarize(pieces);
+  final calibration = claims == null
+      ? posteriorCalibration(fixtures, framesByFixture)
+      : null;
   final sweep = options.sweepMarginFloors.isEmpty
       ? null
       : _sweep(options, fixtures);
@@ -118,6 +121,7 @@ void main(List<String> arguments) {
     'detector': detectorInfo,
     'restrictedTo': options.restrictTo,
     'sweep': sweep,
+    'posteriorCalibration': calibration,
     'protocol': 'research/whatkey/PROTOCOL.md, frozen 2026-07-07',
     'summary': summary,
     'perPiece': [for (final piece in pieces) piece.toJson()],
@@ -246,6 +250,13 @@ String _textReport(Map<String, Object?> report, List<PieceScore> pieces) {
       ..write(_sweepTable(sweep.cast<Map<String, Object?>>()))
       ..writeln();
   }
+  final calibration = report['posteriorCalibration'] as Map<String, Object?>?;
+  if (calibration != null) {
+    buffer
+      ..writeln('Posterior calibration (exact-labeled events)')
+      ..write(_calibrationBlock(calibration))
+      ..writeln();
+  }
   buffer
     ..writeln('Per piece')
     ..writeln(
@@ -259,6 +270,33 @@ String _textReport(Map<String, Object?> report, List<PieceScore> pieces) {
       '  amb-ok: ambiguous events handled acceptably\n',
     )
     ..write(_pieceTable(pieces));
+  return buffer.toString();
+}
+
+String _calibrationBlock(Map<String, Object?> calibration) {
+  final all = calibration['allExactLabeledEvents'] as Map<String, Object?>;
+  final claimed =
+      calibration['claimedExactLabeledEvents'] as Map<String, Object?>;
+  final skipped = calibration['skipped'] as Map<String, Object?>;
+
+  String num3(Object? value) =>
+      value == null ? '-' : (value as num).toStringAsFixed(3);
+  String row(String label, Map<String, Object?> source) =>
+      '  ${label.padRight(8)}'
+      '  n=${'${source['events']}'.padLeft(5)}'
+      '  conf=${num3(source['meanConfidence']).padLeft(5)}'
+      '  acc=${num3(source['accuracy']).padLeft(5)}'
+      '  ece=${num3(source['expectedCalibrationError']).padLeft(5)}'
+      '  nll=${num3(source['meanNegativeLogLikelihood']).padLeft(5)}'
+      '  brier=${num3(source['meanBrier']).padLeft(5)}';
+
+  final buffer = StringBuffer()
+    ..writeln(row('all', all))
+    ..writeln(row('claimed', claimed))
+    ..writeln(
+      '  skipped: ${skipped['noExactLocalKey']} without exact local key, '
+      '${skipped['nonProbabilisticFrame']} non-probabilistic frames',
+    );
   return buffer.toString();
 }
 
