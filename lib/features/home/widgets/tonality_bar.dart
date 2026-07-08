@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:whatchord/features/key/key.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'adaptive_side_sheet.dart';
@@ -26,6 +27,10 @@ class TonalityBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final autoKey = ref.watch(keyModeProvider) == KeyMode.auto;
+    // Watching here is what activates live key detection; the inferred state
+    // stays warm for the picker's auto view even in manual mode.
+    final inferred = ref.watch(inferredKeyProvider);
     return TonalityBarView(
       height: height,
       horizontalInset: horizontalInset,
@@ -34,6 +39,9 @@ class TonalityBar extends ConsumerWidget {
       tonality: ref.watch(selectedTonalityProvider),
       scaleDegreeAnalysis: ref.watch(detectedScaleDegreeAnalysisProvider),
       onScaleDegreesTap: onScaleDegreesTap,
+      autoKey: autoKey,
+      autoKeyTonality: inferred.displayKey?.tonality,
+      autoKeyDimmed: inferred.displayKey != null && !inferred.emphasized,
       onOpenPicker: () => openTonalityPicker(
         context,
         useSideSheet: useHomeSideSheet(context),

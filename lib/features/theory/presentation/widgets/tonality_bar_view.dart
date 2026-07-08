@@ -29,6 +29,9 @@ class TonalityBarView extends ConsumerWidget {
     this.horizontalInset = 16,
     this.keyTextScaleMultiplier = 1.0,
     this.scaleDegreesTextScaleMultiplier = 1.0,
+    this.autoKey = false,
+    this.autoKeyTonality,
+    this.autoKeyDimmed = false,
   });
 
   final double height;
@@ -39,6 +42,15 @@ class TonalityBarView extends ConsumerWidget {
   final double horizontalInset;
   final double keyTextScaleMultiplier;
   final double scaleDegreesTextScaleMultiplier;
+
+  /// When true the key button renders auto-mode detection state instead of
+  /// the selected tonality: [autoKeyTonality] (or an unknown marker when
+  /// null), dimmed per [autoKeyDimmed], with an auto glyph in place of the
+  /// note icon. Passed as plain values so this view stays independent of the
+  /// key-detection feature.
+  final bool autoKey;
+  final Tonality? autoKeyTonality;
+  final bool autoKeyDimmed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -52,10 +64,17 @@ class TonalityBarView extends ConsumerWidget {
     final effectiveMinButtonHeight = minButtonHeight < 48.0
         ? 48.0
         : minButtonHeight;
-    final keySemanticLabel =
-        'Key: ${tonalitySemanticLabel(tonality, noteNameSystem: noteNameSystem)}';
-    final keyLabel =
-        'Key: ${tonalityDisplayLabel(tonality, noteNameSystem: noteNameSystem)}';
+    final displayTonality = autoKey ? autoKeyTonality : tonality;
+    final keySemanticLabel = autoKey
+        ? (displayTonality == null
+              ? 'Detected key: not enough evidence yet'
+              : 'Detected key: '
+                    '${tonalitySemanticLabel(displayTonality, noteNameSystem: noteNameSystem)}'
+                    '${autoKeyDimmed ? ', uncertain' : ''}')
+        : 'Key: ${tonalitySemanticLabel(tonality, noteNameSystem: noteNameSystem)}';
+    final keyLabel = displayTonality == null
+        ? 'Key: ?'
+        : 'Key: ${tonalityDisplayLabel(displayTonality, noteNameSystem: noteNameSystem)}';
 
     TextStyle? scaledKeyLabelStyle(TextStyle? baseStyle) {
       final fontSize = baseStyle?.fontSize;
@@ -108,20 +127,37 @@ class TonalityBarView extends ConsumerWidget {
                       ),
                       visualDensity: VisualDensity.standard,
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.music_note),
-                        const SizedBox(width: 4),
-                        Text(
-                          keyLabel,
-                          style: scaledKeyLabelStyle(textTheme.labelLarge),
-                          textScaler: clampLabelScaler(textTheme.labelLarge),
-                          maxLines: 1,
-                          overflow: TextOverflow.clip,
-                          softWrap: false,
-                        ),
-                      ],
+                    child: AnimatedOpacity(
+                      opacity: autoKey && autoKeyDimmed ? 0.55 : 1.0,
+                      duration: const Duration(milliseconds: 400),
+                      curve: Curves.easeInOut,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(autoKey ? Icons.hdr_auto : Icons.music_note),
+                          const SizedBox(width: 4),
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 400),
+                            curve: Curves.easeInOut,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 400),
+                              child: Text(
+                                keyLabel,
+                                key: ValueKey(keyLabel),
+                                style: scaledKeyLabelStyle(
+                                  textTheme.labelLarge,
+                                ),
+                                textScaler: clampLabelScaler(
+                                  textTheme.labelLarge,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.clip,
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
