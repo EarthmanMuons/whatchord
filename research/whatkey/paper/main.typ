@@ -67,11 +67,11 @@ profile-correlation emissions, with one constrained symbolic cue that
 redistributes evidence within same-tonic major/minor pairs. Three results are
 central. First, the emission-memory half-life is not merely a smoothing
 parameter: it selects the timescale of key structure being reported, and
-tonicization-scale and section-scale annotations prefer opposite settings.
+local-key and section-key annotations prefer opposite settings.
 Second, same-tonic mode confusions can be reduced without disturbing tonic
 selection when symbolic chord-quality evidence is confined to parallel-key
 pairs. Third, adaptive temporal alternatives trade stability for faster key
-change detection and do not improve the selected section-scale operating
+change detection and do not improve the selected section-key operating
 point. On held-out pop-song fixtures, the causal abstaining detector reaches
 statistical parity with standard offline music21 key finders that read the
 whole song before answering, while providing posterior probabilities,
@@ -134,6 +134,8 @@ The contributions are:
   with offline whole-piece baselines, with point estimates ahead on every
   comparison, while abstaining and reporting streaming stability metrics.
 
+#pagebreak()
+
 = Related work
 
 Distributional key finding begins with the Krumhansl-Schmuckler probe-tone
@@ -169,7 +171,7 @@ posterior and is the natural adaptive-memory alternative to a fixed decay.
 Recent extensions model within-regime dynamics to suppress false alarms
 @tsaknaki2024. We build the constant-hazard version for the 24-key space and
 measure where its adaptivity helps and where it conflicts with the selected
-section-scale operating point.
+section-key operating point.
 
 Evaluation practice follows the MIREX audio key task's weighted scoring
 @mirex for near misses, applied to our own corpora (scores are not comparable
@@ -247,13 +249,13 @@ timescale effect survives on identical performed input.
       align: (left, left, left, right, right),
       table.header([corpus], [input], [labels], [pieces], [events]),
       [When in Rome @wheninrome], [quantized scores],
-        [analyst local keys (tonicization-scale)], [77], [5,207],
+        [analyst local keys (local-key)], [77], [5,207],
       [ASAP @asap2020], [performed piano MIDI],
-        [key signatures (section-scale, mode-unknown)], [60], [19,546],
+        [key signatures (section-key, mode-unknown)], [60], [19,546],
       [Isophonics @isophonics2009 @choco2023], [synthesized voicings],
-        [song keys (section-scale, mode-resolved)], [224], [19,062],
+        [song keys (section-key, mode-resolved)], [224], [19,062],
       [ASAP-WiR overlap], [performed piano MIDI],
-        [analyst local keys (tonicization-scale)], [36], [10,395],
+        [analyst local keys (local-key)], [36], [10,395],
     ),
     caption: [Evaluation corpora. Development/test splits are frozen for the
       first three; the overlap corpus is evaluation-only (every configuration
@@ -289,9 +291,11 @@ a weighted-evidence layer scoring key-relative chord functions (diatonic
 membership, dominant and leading-tone function), and a progression layer
 voting on cadential transition patterns. These layers form a three-way hybrid
 (correlation base plus small functional and progression blend terms) that beat
-the floor on early tonicization-scale development runs (+0.096 exact per
-piece, p = 0.003), but later ablations show that the selected section-scale
+the floor on early local-key development runs (+0.096 exact per
+piece, p = 0.003), but later ablations show that the selected section-key
 configuration should remove them.
+
+#colbreak()
 
 The selected detector is a causal HMM over the 24 major and minor keys. It
 keeps a filtered posterior and updates it by the forward algorithm only; no
@@ -299,6 +303,7 @@ Viterbi decoding or future context is used. At each event, the update is:
 
 #block(
   width: 100%,
+  breakable: false,
   inset: 4pt,
   stroke: (paint: luma(70%), thickness: 0.4pt),
   radius: 2pt,
@@ -367,43 +372,45 @@ that timescale effect directly.
       (0.724, 0.736, 0.753, 0.760, 0.758, 0.759, 0.759),
       mark: "s",
       color: fig-blue,
-      label: [Isophonics (section)],
+      label: [Isoph. (section key)],
     ),
     lq.plot(
       (1, 2, 4, 8, 15, 30, 60),
       (0.590, 0.550, 0.493, 0.476, 0.459, 0.486, 0.483),
       mark: "o",
       color: fig-orange,
-      label: [WiR (tonicization), +func.],
+      label: [WiR (local key), +func.],
     ),
     lq.plot(
       (1, 2, 4, 8, 15, 30, 60),
       (0.538, 0.497, 0.434, 0.382, 0.372, 0.404, 0.401),
       mark: "^",
       color: fig-red,
-      label: [WiR (tonicization), pure],
+      label: [WiR (local key), pure],
     ),
   ),
   caption: [Emission-memory dose-response on the two development annotation
     scales.
     The curves run in opposite directions with no interior optimum: the
     dial selects the reported timescale. Coverage rises with memory on both
-    scales (0.77 to 0.93 on Isophonics); the section-scale plateau spans
-    8-60 s.],
+    scales (0.77 to 0.93 on Isophonics); the section-key plateau spans
+    8-60 s. "Pure" means profile-correlation emissions only; "+func." adds the
+    early chord-function evidence term.],
 ) <fig-dose>
 
 = The timescale finding
 
 Key annotations come in two cultures. Analyst local keys (When in Rome) mark
 every tonicization, about seven key regions per piece at a few events each.
-Song keys and key signatures (Isophonics, ASAP) name the section-level
-center and absorb excursions. We call these the *tonicization-scale* and
-*section-scale* annotation scales.
+Song keys and key signatures (Isophonics, ASAP) name the section key and absorb
+excursions. We call these *local-key* and *section-key* annotations: the former
+reward immediate response to local key assertions, while the latter reward
+stability around the longer musical home.
 
 Sweeping the emission-memory half-life across 1 to 60 seconds on both
 development annotation scales gives the dose-response curves of @fig-dose. On the
-tonicization-scale labels, accuracy falls essentially monotonically with memory and
-modulation matching halves; on the section-scale labels, accuracy climbs to a broad
+local-key labels, accuracy falls essentially monotonically with memory and
+modulation matching halves; on the section-key labels, accuracy climbs to a broad
 plateau from 8 s outward while coverage and stability keep improving
 (spurious p90 falls from 7 to 1). The dial is a timescale selector, not a
 noise-accuracy tradeoff with a sweet spot.
@@ -429,7 +436,7 @@ noise-accuracy tradeoff with a sweet spot.
       (60, 62, 62, 62),
       mark: "o",
       color: fig-orange,
-      label: [1 s memory (reflex)],
+      label: [1 s memory (local key)],
     ),
   ),
   caption: [The crossover within a single corpus on identical performed
@@ -456,8 +463,9 @@ moves by tens of points when the annotation scale changes.
 *Ablations.* Two full 16-cell factorials (functional blend, progression
 blend, duration weighting, recognizer-confidence weighting) ran on each
 annotation scale. The functional blend flips sign with the annotation scale:
-removing it is a significant paired win at section scale, while at reflex
-scale it is load-bearing (+0.061 exact, CI95 [+0.019, +0.108], p = 0.010).
+removing it is a significant paired win for section-key annotations, while for
+local-key annotations it is load-bearing (+0.061 exact, CI95 [+0.019, +0.108],
+p = 0.010).
 This is direct evidence that the functional rules primarily detect brief
 excursions. The progression blend's earlier value was architecture-specific
 and washes out under the HMM. Duration weighting helps on both scales (+0.02
@@ -524,7 +532,7 @@ tracking. Strength 2 was selected after a 0.25-to-4 sweep with a 2-to-4
 plateau: paired exact wins on both annotation scales (Isophonics +0.016,
 p = 0.030; When in Rome +0.030, p = 0.029), parallel confusion roughly halved
 everywhere measured (4% to 2% of claims on Isophonics), and no stability cost
-on the section-scale development set.
+on the section-key development set.
 
 *Relative pairs (measured negative).* The same pattern generalizes with the
 key signature as the conserved quantity. But the evidence is structurally
@@ -586,20 +594,20 @@ HMM (including the mode tilt), so differences isolate the window
     [BOCPD, temperature 0.5], [0.89], [0.765], [135/192], [2/7],
     [BOCPD, temperature 1.0], [0.90], [0.769], [115/192], [0/4],
   ),
-  caption: [BOCPD versus the selected HMM on the section-scale development
+  caption: [BOCPD versus the selected HMM on the section-key development
     set. The adaptive window improves modulation detection but no tuning
     recovers the selected stability point.],
 ) <tab-bocpd>
 
 The adaptive window delivers its promise: modulation matching jumps by 70%,
 because evidence resets at inferred section starts. But the same reactivity
-breaks section-scale stability, and no tuning recovers the selected
+breaks section-key stability, and no tuning recovers the selected
 operating point: softening the per-event evidence walks BOCPD back along the
 frontier without reaching the HMM (best cell: exact wash, p = 0.51, spurious
 p90 still 4 versus 1). One finding worth keeping: at matched reactivity
 BOCPD dominates the HMM's fast settings (0.765 exact at 135 modulations
 versus 0.736 at 141 for the HMM at a 2 s half-life), so adaptive windowing
-has value in the reactive regime; it was not selected for the section-scale
+has value in the reactive regime; it was not selected for the section-key
 regime studied here.
 The false alarms are within-section harmonic movement violating the
 independent-given-key assumption, the failure mode that autoregressive BOCPD
@@ -612,7 +620,7 @@ measured inert.
 
 The test splits were evaluated exactly once, with the result set declared
 before any run: the selected configuration on all three splits, the
-reflex reference on the two mode-resolved splits, the music21 baselines on
+local-key reference on the two mode-resolved splits, the music21 baselines on
 Isophonics with paired and matched-coverage comparisons, and a descriptive
 mode-confusion breakdown. The complete artifacts are committed with the
 project.
@@ -637,10 +645,10 @@ differences run in both directions, not the uniform degradation a
 tuned-to-development configuration would show.
 
 *The crossover holds with significance in both directions.* On the
-tonicization-scale split the reflex configuration beats the selected one (0.649 vs
+local-key split the local-key configuration beats the selected one (0.649 vs
 0.587 exact, paired +0.062, CI95 [+0.004, +0.121], p = 0.047); on the
-section-scale split the selected configuration wins by a wide margin (0.732 vs
-0.556, paired +0.175, CI95 [+0.040, +0.315], p = 0.039), with the reflex
+section-key split the selected configuration wins by a wide margin (0.732 vs
+0.556, paired +0.175, CI95 [+0.040, +0.315], p = 0.039), with the local-key
 configuration paying spurious 5/11 versus 0/3.
 
 *External comparison.* @tab-baselines compares against music21's offline
@@ -703,15 +711,15 @@ This paper defines and evaluates streaming key estimation with abstention from
 live chord-recognition output. Under a frozen protocol with paired statistics
 and a one-shot held-out evaluation, a causal HMM over profile-correlation
 emissions, augmented by one mass-preserving same-tonic mode cue, reports
-section-level keys on live-style chord streams at statistical parity with
+section keys on live-style chord streams at statistical parity with
 offline whole-piece baselines. The route to that detector was largely
 measurement-guided simplification: functional and progression rules were useful
-for tonicization-scale tracking but harmful or unnecessary for the selected
-section-scale setting; recognizer-confidence weighting was inert; and adaptive
+for local-key tracking but harmful or unnecessary for the selected
+section-key setting; recognizer-confidence weighting was inert; and adaptive
 temporal models traded stability for reactivity. The central methodological
 lesson is that key-detection accuracy is label-timescale dependent. A detector
 can appear better or worse depending on whether the reference labels ask for
-brief tonicizations or section-level key, so the annotation scale is part of
+brief tonicizations or section key, so the annotation scale is part of
 the task definition rather than a detail of the dataset.
 
 #if not anonymous [

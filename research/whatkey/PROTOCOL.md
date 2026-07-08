@@ -97,9 +97,9 @@ detector claims the new key at or after the change and before the next annotated
 change (or the piece end); its lag is the event count from change to that claim.
 Unmatched changes are **censored**, reported as a separate count and never
 averaged into lag. Context for reading absolute rates: on the development split,
-27% of annotated key segments last 2 events or fewer (tonicization-scale areas a
-causal detector has essentially no window to claim), so censored counts include
-a structural floor; comparisons between detectors are unaffected since all face
+27% of annotated key segments last 2 events or fewer (local-key regions a causal
+detector has essentially no window to claim), so censored counts include a
+structural floor; comparisons between detectors are unaffected since all face
 the same segments. A minimum-segment filter was rejected because it adds a
 tunable threshold to a frozen metric.
 
@@ -222,7 +222,7 @@ in Rome, RomanText, ASAP) is cited with links in the
   (ASAP performed piano MIDI, key-signature labels mode-unknown via
   `acceptableKeys`; split `data/splits/asap-nc-v2.json` frozen before any tuning
   on the set) and `isophonics-nc-v1` (Isophonics pop songs via ChoCo,
-  section-scale tonic-and-mode song keys; split
+  section-key tonic-and-mode song keys; split
   `data/splits/isophonics-nc-v1.json`, likewise frozen first). Both are
   license-gated to `build/` (see `data/NOTICE.md`). `asap-wir-nc-v1` (ASAP
   performances labeled with When in Rome analyst keys) is evaluation-only: no
