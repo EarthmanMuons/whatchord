@@ -58,8 +58,8 @@ scorer integrates when judging "the chords we just heard": pitch-class evidence
 decays exponentially with this half-life. Short memory makes each emission a
 snapshot of the immediate harmony, quick to see excursions; long memory makes it
 a summary of the current section. Log entries 2026-07-07-16/17 found this dial
-selects which timescale of key structure the detector reports (see Section scale
-vs. tonicization scale).
+selects which timescale of key structure the detector reports (see Section-key
+vs. local-key annotations).
 
 **Event.** One committed chord from the history capture: a held identity with
 its ranked candidates, voicing, timing, and duration. The unit everything is
@@ -152,14 +152,16 @@ the whole probability distribution; lower is better. This is different from the
 coverage-accuracy curve: abstentions can be useful even when the raw posterior
 probabilities are overconfident.
 
-**Section scale vs. tonicization scale.** Two granularities of "the key," both
-legitimate. Section scale is the home key of a stretch of music, what a song's
-key or a movement's key names; tonicization scale additionally tracks brief
-excursions, the few measures an analyst marks as V-of or the relative minor.
-Corpus labels come at different scales (Isophonics song keys and ASAP key
-signatures are section-scale; When in Rome analyst local keys are
-tonicization-scale), so accuracy numbers are only comparable against the same
-ruler. WhatChord ships the section scale (log entry 2026-07-07-17).
+**Section-key vs. local-key annotations.** Two granularities of "the key," both
+legitimate. Section-key annotations name the home key of a stretch of music,
+what a song's key or a movement's key names. Local-key annotations also track
+brief local assertions: the few measures an analyst marks as V-of, a
+tonicization, or the relative minor. Corpus labels come at different
+granularities (Isophonics song keys and ASAP key signatures are section-key;
+When in Rome analyst local keys are local-key), so accuracy numbers are only
+comparable against the same ruler. WhatChord ships the section-key setting (log
+entry 2026-07-07-17). Older logs sometimes call the local-key setting
+"tonicization-scale" or "reflex-scale."
 
 **Self-transition.** The HMM's probability that the key this event is the same
 as the key last event. Higher values mean a steadier detector that needs more

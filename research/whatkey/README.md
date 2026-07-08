@@ -56,10 +56,10 @@ claim.
 
 ## What the paper argues
 
-**Memory controls timescale.** A short memory reports local tonicizations; a
-longer memory reports section-level key. Both are musically defensible, and
+**Memory controls timescale.** A short memory reports local-key changes; a
+longer memory reports section-key stability. Both are musically defensible, and
 different annotation traditions reward different answers, even on the same
-performances. The selected default favors section-level stability because the
+performances. The selected default favors section-key stability because the
 target interface is a glanceable key indicator, but the broader result is about
 evaluation: key detectors can only be compared fairly when they are graded
 against the same kind of answer key.
@@ -71,8 +71,8 @@ preserving evidence for the tonic itself. That roughly halves parallel-mode
 confusion without pulling the detector toward unrelated keys.
 
 **Negative results are part of the record.** Additional chord-function rules
-help only when the goal is tracking brief tonicizations; weighting evidence by
-the chord recognizer's own confidence did not help in the tested settings; and
+help only when the goal is local-key tracking; weighting evidence by the chord
+recognizer's own confidence did not help in the tested settings; and
 adaptive-memory models react faster but make more wrong switches. Each negative
 result has a reproducible experiment behind it in the log.
 
