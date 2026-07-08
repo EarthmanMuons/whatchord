@@ -1,0 +1,75 @@
+import 'package:flutter/material.dart';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:whatchord/features/theory/theory.dart';
+
+import '../domain/detectors/display_calibration.dart';
+import '../models/inferred_key_state.dart';
+import '../providers/inferred_key_notifier.dart';
+
+/// Headline for the auto key view: the detected key with its calibrated
+/// confidence, or a plain-language account of why there is no claim.
+class AutoKeyStatus extends ConsumerWidget {
+  const AutoKeyStatus({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(inferredKeyProvider);
+    final noteNameSystem = ref.watch(noteNameSystemProvider);
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    final displayKey = state.displayKey;
+    final String headline;
+    final String detail;
+    if (displayKey == null) {
+      headline = 'Listening…';
+      detail = state.freshness == InferredKeyFreshness.none
+          ? 'Play a few chords to detect the key.'
+          : 'Not enough evidence yet. Keep playing.';
+    } else {
+      headline = tonalityDisplayLabel(
+        displayKey.tonality,
+        noteNameSystem: noteNameSystem,
+      );
+      final confidence = _calibratedConfidence(state, displayKey.tonality);
+      final percent = confidence == null
+          ? null
+          : '${(confidence * 100).round()}% confident';
+      detail = switch ((state.claim != null, state.freshness)) {
+        (true, InferredKeyFreshness.fresh) => percent ?? '',
+        (true, _) => '${percent ?? ''} · evidence fading',
+        (false, _) => 'Uncertain · showing the last detected key',
+      };
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          headline,
+          style: theme.textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: displayKey == null ? cs.onSurfaceVariant : cs.onSurface,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          detail,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: cs.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
+  double? _calibratedConfidence(InferredKeyState state, Tonality tonality) {
+    final calibrated = DisplayCalibration.calibrate(state.ranked);
+    for (final estimate in calibrated) {
+      if (estimate.tonality == tonality) return estimate.confidence;
+    }
+    return null;
+  }
+}

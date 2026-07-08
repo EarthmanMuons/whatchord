@@ -199,23 +199,8 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                                   presentation.scaleDegreeAnalysis,
                               onScaleDegreesTap: () =>
                                   _openScaleExplorer(presentation),
-                              onOpenPicker: () => openTonalityPicker(
-                                context,
-                                useSideSheet: useHomeSideSheet(context),
-                                showSideSheet:
-                                    ({
-                                      required context,
-                                      required barrierLabel,
-                                      required builder,
-                                    }) {
-                                      unawaited(
-                                        showHomeSideSheet<void>(
-                                          context: context,
-                                          barrierLabel: barrierLabel,
-                                          builder: builder,
-                                        ),
-                                      );
-                                    },
+                              onOpenPicker: () => unawaited(
+                                Navigator.of(context).push(KeyPage.route()),
                               ),
                               horizontalInset: horizontalInset,
                               keyTextScaleMultiplier:
