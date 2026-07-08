@@ -5,6 +5,8 @@ It listens to the chords a musician plays on a MIDI keyboard, updates its belief
 after each chord, and reports the current key when the evidence supports a
 claim.
 
+Read the current draft: [paper/main.pdf](paper/main.pdf).
+
 ## Research question
 
 This is not ordinary whole-piece key finding. Much of the key-detection
@@ -78,8 +80,8 @@ result has a reproducible experiment behind it in the log.
 
 ## Repository map
 
-- [paper/](paper/): the full writeup (`mise research:whatkey-paper` builds the
-  PDF).
+- [paper/](paper/): the paper source and tracked PDF
+  (`mise research:whatkey-paper` rebuilds it).
 - [log/](log/): dated experiment entries with exact commands, results, and
   plain-English readings.
 - [GLOSSARY.md](GLOSSARY.md): plain-English definitions of the measurement
