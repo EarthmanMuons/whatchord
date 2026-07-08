@@ -3,7 +3,8 @@
 WhatKey is a streaming key-estimation system for [WhatChord](../../README.md).
 It listens to the chords a musician plays on a MIDI keyboard, updates its belief
 after each chord, and reports the current key when the evidence supports a
-claim.
+claim. Displayed probabilities are calibrated separately from the detector's
+internal ranking.
 
 Read the current draft: [paper/main.pdf](paper/main.pdf).
 
@@ -34,7 +35,8 @@ held-out evaluation.
 The final detector is a compact hidden Markov model run strictly forward in
 time. It keeps a probability distribution over the 24 major and minor keys,
 updates it from recent chord evidence, and abstains when the leading candidates
-are too close.
+are too close. The detector uses raw posterior probabilities for ranking and
+abstention; numbers shown to users pass through a display-only calibration step.
 
 On held-out pop-song fixtures, it reached parity with standard offline music21
 key finders that read the whole song before answering. Its point estimates were
@@ -58,8 +60,8 @@ claim.
 
 ## What the paper argues
 
-**Memory controls timescale.** A short memory reports local-key changes; a
-longer memory reports section-key stability. Both are musically defensible, and
+**Memory selects an annotation target.** A short memory fits local-key labels; a
+longer memory fits section-key labels. Both are musically defensible, and
 different annotation traditions reward different answers, even on the same
 performances. The selected default favors section-key stability because the
 target interface is a glanceable key indicator, but the broader result is about
@@ -77,6 +79,11 @@ help only when the goal is local-key tracking; weighting evidence by the chord
 recognizer's own confidence did not help in the tested settings; and
 adaptive-memory models react faster but make more wrong switches. Each negative
 result has a reproducible experiment behind it in the log.
+
+**Confidence needs its own calibration.** The detector's raw posteriors are
+overconfident, so WhatKey applies post-hoc temperature scaling only to displayed
+probabilities. This makes the user-facing confidence number more honest without
+changing the detector's ranked keys, abstention decisions, or paper results.
 
 ## Repository map
 
