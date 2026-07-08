@@ -65,6 +65,54 @@ napoles2019:
   serial-number:
     doi: 10.1145/3358664.3358675
 
+chew2000:
+  type: book
+  title: Towards a Mathematical Model of Tonality
+  author: Chew, Elaine
+  date: 2000
+  publisher: Massachusetts Institute of Technology
+
+micchi2020:
+  type: article
+  title: "Not All Roads Lead to Rome: Pitch Representation and Model Architecture for Automatic Harmonic Analysis"
+  author:
+    - Micchi, Gianluca
+    - Gotham, Mark
+    - Giraud, Mathieu
+  date: 2020
+  parent:
+    type: periodical
+    title: Transactions of the International Society for Music Information Retrieval
+    volume: 3
+    issue: 1
+  serial-number:
+    doi: 10.5334/tismir.45
+
+napoles2021:
+  type: article
+  title: "AugmentedNet: A Roman Numeral Analysis Network with Synthetic Training Examples and Additional Tonal Tasks"
+  author:
+    - Nápoles López, Néstor
+    - Gotham, Mark
+    - Fujinaga, Ichiro
+  date: 2021
+  parent:
+    type: proceedings
+    title: Proceedings of the 22nd International Society for Music Information Retrieval Conference (ISMIR)
+
+tymo2019:
+  type: article
+  title: "The RomanText Format: A Flexible and Standard Method for Representing Roman Numeral Analyses"
+  author:
+    - Tymoczko, Dmitri
+    - Gotham, Mark
+    - Cuthbert, Michael Scott
+    - Ariza, Christopher
+  date: 2019
+  parent:
+    type: proceedings
+    title: Proceedings of the 20th International Society for Music Information Retrieval Conference (ISMIR)
+
 adams2007:
   type: article
   title: Bayesian Online Changepoint Detection
