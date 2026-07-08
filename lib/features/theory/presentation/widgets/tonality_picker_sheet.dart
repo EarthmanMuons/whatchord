@@ -29,27 +29,139 @@ class TonalityPickerSheet extends ConsumerStatefulWidget {
 }
 
 class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
-  static const double _rowHeight = 62.0;
   static const double _headerHeight = 184.0;
   static const double _sideSheetHeaderHeight = 196.0;
+
+  bool? _lastIsLandscape;
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSideSheet =
+            widget.presentation == TonalityPickerPresentation.sideSheet;
+        final isLandscape = isSideSheet
+            ? true
+            : constraints.maxWidth > constraints.maxHeight;
+        final headerHeight = isSideSheet
+            ? _sideSheetHeaderHeight
+            : _headerHeight;
+
+        final didOrientationChange =
+            _lastIsLandscape != null && _lastIsLandscape != isLandscape;
+        _lastIsLandscape = isLandscape;
+
+        final mq = MediaQuery.of(context);
+
+        // Always strip left/right for full-width expansion (existing behavior)
+        final mqAdjusted = isLandscape
+            ? mq.copyWith(
+                padding: mq.padding.copyWith(left: 0, right: 0),
+                viewPadding: mq.viewPadding.copyWith(left: 0, right: 0),
+              )
+            : mq;
+
+        final sideSheetContentHeight =
+            _sideSheetHeaderHeight +
+            (TonalityPickerBody.rowCount * TonalityPickerBody.rowHeight) +
+            12.0;
+        final bottomSheetHeight = modalBottomSheetMaxHeight(
+          context,
+          portraitFraction: 0.56,
+          landscapeFraction: 0.92,
+        );
+        final sheetHeight = isSideSheet
+            ? sideSheetContentHeight.clamp(0.0, constraints.maxHeight)
+            : bottomSheetHeight.clamp(0.0, constraints.maxHeight);
+
+        return MediaQuery(
+          data: mqAdjusted,
+          child: SafeArea(
+            top: false,
+            left: !isLandscape && !isSideSheet,
+            right: !isLandscape && !isSideSheet,
+            child: ColoredBox(
+              color: cs.surfaceContainerLow,
+              child: SizedBox(
+                height: sheetHeight,
+                child: TonalityPickerBody(
+                  headerHeight: headerHeight,
+                  showPanelTitle: true,
+                  showCloseButton: isSideSheet,
+                  listBottomPadding: isLandscape || isSideSheet ? 0 : 12,
+                  recenterSignal: didOrientationChange,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// The key-signature picker's header and scrolling key list, shared by the
+/// modal sheet presentations and the full Key page.
+class TonalityPickerBody extends ConsumerStatefulWidget {
+  const TonalityPickerBody({
+    super.key,
+    this.headerHeight = 144.0,
+    this.showPanelTitle = false,
+    this.showCloseButton = false,
+    this.listBottomPadding = 12.0,
+    this.recenterSignal = false,
+  });
+
+  static const double rowHeight = 62.0;
+  static const int rowCount = 15;
+
+  /// Height of the header block (staff preview and column labels, plus the
+  /// panel title when [showPanelTitle] is set).
+  final double headerHeight;
+
+  final bool showPanelTitle;
+  final bool showCloseButton;
+  final double listBottomPadding;
+
+  /// Toggling to true re-centers the selected row on the next frame (the
+  /// sheet uses this on orientation changes).
+  final bool recenterSignal;
+
+  @override
+  ConsumerState<TonalityPickerBody> createState() => _TonalityPickerBodyState();
+}
+
+class _TonalityPickerBodyState extends ConsumerState<TonalityPickerBody> {
   static const double _chipWidth = 64.0;
 
   late final ScrollController _controller;
   late final List<KeySignature> _rows;
-
-  bool? _lastIsLandscape;
 
   @override
   void initState() {
     super.initState();
 
     _rows = _buildOrderedRows();
+    assert(_rows.length == TonalityPickerBody.rowCount);
     _controller = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _centerSelectedRow(animated: false);
     });
+  }
+
+  @override
+  void didUpdateWidget(TonalityPickerBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.recenterSignal && !oldWidget.recenterSignal) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _centerSelectedRow(animated: false);
+      });
+    }
   }
 
   @override
@@ -74,184 +186,109 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
       surface: cs.surfaceContainerLow,
     );
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isSideSheet =
-            widget.presentation == TonalityPickerPresentation.sideSheet;
-        final isLandscape = isSideSheet
-            ? true
-            : constraints.maxWidth > constraints.maxHeight;
-        final headerHeight = isSideSheet
-            ? _sideSheetHeaderHeight
-            : _headerHeight;
+    return Column(
+      children: [
+        _TonalityPickerHeader(
+          height: widget.headerHeight,
+          chipWidth: _chipWidth,
+          keySignature: selectedKeySignature,
+          showPanelTitle: widget.showPanelTitle,
+          showCloseButton: widget.showCloseButton,
+          backgroundColor: cs.surfaceContainerLow,
+        ),
+        Expanded(
+          child: ListView.builder(
+            controller: _controller,
+            itemExtent: TonalityPickerBody.rowHeight,
+            padding: EdgeInsets.only(bottom: widget.listBottomPadding),
+            itemCount: _rows.length,
+            itemBuilder: (context, index) {
+              final row = _rows[index];
+              final major = row.relativeMajor;
+              final minor = row.relativeMinor;
 
-        final didOrientationChange =
-            _lastIsLandscape != null && _lastIsLandscape != isLandscape;
-        _lastIsLandscape = isLandscape;
+              final rowSelected = selected == major || selected == minor;
+              final majorSelected = selected == major;
+              final minorSelected = selected == minor;
 
-        if (didOrientationChange) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            _centerSelectedRow(animated: false);
-          });
-        }
-
-        final mq = MediaQuery.of(context);
-
-        // Always strip left/right for full-width expansion (existing behavior)
-        final mqAdjusted = isLandscape
-            ? mq.copyWith(
-                padding: mq.padding.copyWith(left: 0, right: 0),
-                viewPadding: mq.viewPadding.copyWith(left: 0, right: 0),
-              )
-            : mq;
-
-        final sideSheetContentHeight =
-            _sideSheetHeaderHeight + (_rows.length * _rowHeight) + 12.0;
-        final bottomSheetHeight = modalBottomSheetMaxHeight(
-          context,
-          portraitFraction: 0.56,
-          landscapeFraction: 0.92,
-        );
-        final sheetHeight = isSideSheet
-            ? sideSheetContentHeight.clamp(0.0, constraints.maxHeight)
-            : bottomSheetHeight.clamp(0.0, constraints.maxHeight);
-
-        return MediaQuery(
-          data: mqAdjusted,
-          child: SafeArea(
-            top: false,
-            left: !isLandscape && !isSideSheet,
-            right: !isLandscape && !isSideSheet,
-            child: ColoredBox(
-              color: cs.surfaceContainerLow,
-              child: SizedBox(
-                height: sheetHeight,
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                  color: rowSelected ? selectedRowBg : Colors.transparent,
+                ),
                 child: Column(
                   children: [
-                    _TonalityPickerHeader(
-                      height: headerHeight,
-                      chipWidth: _chipWidth,
-                      keySignature: selectedKeySignature,
-                      showCloseButton: isSideSheet,
-                      backgroundColor: cs.surfaceContainerLow,
-                    ),
                     Expanded(
-                      child: ListView.builder(
-                        controller: _controller,
-                        itemExtent: _rowHeight,
-                        padding: EdgeInsets.only(
-                          bottom: isLandscape || isSideSheet ? 0 : 12,
-                        ),
-                        itemCount: _rows.length,
-                        itemBuilder: (context, index) {
-                          final row = _rows[index];
-                          final major = row.relativeMajor;
-                          final minor = row.relativeMinor;
-
-                          final rowSelected =
-                              selected == major || selected == minor;
-                          final majorSelected = selected == major;
-                          final minorSelected = selected == minor;
-
-                          return DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: rowSelected
-                                  ? selectedRowBg
-                                  : Colors.transparent,
-                            ),
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                    ),
-                                    child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            row.label,
-                                            style: theme.textTheme.bodyMedium
-                                                ?.copyWith(
-                                                  color: rowSelected
-                                                      ? SelectionColors.selectedRowText(
-                                                          cs,
-                                                        )
-                                                      : cs.onSurfaceVariant,
-                                                  fontWeight: rowSelected
-                                                      ? FontWeight.w600
-                                                      : null,
-                                                ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: _chipWidth,
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            child: _TonalityChoiceChip(
-                                              label: _tonalityDisplayLabel(
-                                                major,
-                                                noteNameSystem,
-                                              ),
-                                              semanticsLabel:
-                                                  _tonalitySemanticsLabel(
-                                                    major,
-                                                    noteNameSystem,
-                                                  ),
-                                              selected: majorSelected,
-                                              onTap: () =>
-                                                  _selectTonality(major),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        SizedBox(
-                                          width: _chipWidth,
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            child: _TonalityChoiceChip(
-                                              label: _tonalityDisplayLabel(
-                                                minor,
-                                                noteNameSystem,
-                                              ),
-                                              semanticsLabel:
-                                                  _tonalitySemanticsLabel(
-                                                    minor,
-                                                    noteNameSystem,
-                                                  ),
-                                              selected: minorSelected,
-                                              onTap: () =>
-                                                  _selectTonality(minor),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                row.label,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: rowSelected
+                                      ? SelectionColors.selectedRowText(cs)
+                                      : cs.onSurfaceVariant,
+                                  fontWeight: rowSelected
+                                      ? FontWeight.w600
+                                      : null,
                                 ),
-                                if (index < _rows.length - 1)
-                                  const Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                    ),
-                                    child: Divider(height: 1),
-                                  ),
-                              ],
+                              ),
                             ),
-                          );
-                        },
+                            SizedBox(
+                              width: _chipWidth,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: _TonalityChoiceChip(
+                                  label: _tonalityDisplayLabel(
+                                    major,
+                                    noteNameSystem,
+                                  ),
+                                  semanticsLabel: _tonalitySemanticsLabel(
+                                    major,
+                                    noteNameSystem,
+                                  ),
+                                  selected: majorSelected,
+                                  onTap: () => _selectTonality(major),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            SizedBox(
+                              width: _chipWidth,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: _TonalityChoiceChip(
+                                  label: _tonalityDisplayLabel(
+                                    minor,
+                                    noteNameSystem,
+                                  ),
+                                  semanticsLabel: _tonalitySemanticsLabel(
+                                    minor,
+                                    noteNameSystem,
+                                  ),
+                                  selected: minorSelected,
+                                  onTap: () => _selectTonality(minor),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
+                    if (index < _rows.length - 1)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Divider(height: 1),
+                      ),
                   ],
                 ),
-              ),
-            ),
+              );
+            },
           ),
-        );
-      },
+        ),
+      ],
     );
   }
 
@@ -284,7 +321,10 @@ class _TonalityPickerSheetState extends ConsumerState<TonalityPickerSheet> {
 
     final index = _indexForSelected(selected);
 
-    final target = (index * _rowHeight) - (viewport / 2) + (_rowHeight / 2);
+    final target =
+        (index * TonalityPickerBody.rowHeight) -
+        (viewport / 2) +
+        (TonalityPickerBody.rowHeight / 2);
 
     final clamped = target.clamp(
       _controller.position.minScrollExtent,
@@ -345,6 +385,7 @@ class _TonalityPickerHeader extends StatelessWidget {
   final double height;
   final double chipWidth;
   final KeySignature keySignature;
+  final bool showPanelTitle;
   final bool showCloseButton;
   final Color backgroundColor;
 
@@ -352,6 +393,7 @@ class _TonalityPickerHeader extends StatelessWidget {
     required this.height,
     required this.chipWidth,
     required this.keySignature,
+    required this.showPanelTitle,
     required this.showCloseButton,
     required this.backgroundColor,
   });
@@ -371,10 +413,11 @@ class _TonalityPickerHeader extends StatelessWidget {
         color: backgroundColor,
         child: Column(
           children: [
-            ModalPanelHeader(
-              title: 'Key Signature',
-              showCloseButton: showCloseButton,
-            ),
+            if (showPanelTitle)
+              ModalPanelHeader(
+                title: 'Key Signature',
+                showCloseButton: showCloseButton,
+              ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
               child: Center(

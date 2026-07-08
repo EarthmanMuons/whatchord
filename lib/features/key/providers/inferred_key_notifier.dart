@@ -54,7 +54,7 @@ class InferredKeyNotifier extends Notifier<InferredKeyState> {
   void reset() {
     _cancelTimers();
     _detector.reset();
-    state = const InferredKeyState.initial();
+    state = InferredKeyState.initial(resetAt: ref.read(historyClockProvider)());
   }
 
   void _onHistory(List<ChordEvent>? previous, List<ChordEvent> next) {
@@ -80,6 +80,7 @@ class InferredKeyNotifier extends Notifier<InferredKeyState> {
       lastClaim: frame.claim ?? state.lastClaim,
       lastEventAt: ref.read(historyClockProvider)(),
       freshness: InferredKeyFreshness.fresh,
+      resetAt: state.resetAt,
     );
     _rescheduleTimers();
   }

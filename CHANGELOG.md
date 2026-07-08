@@ -10,6 +10,16 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- Automatic key detection. A new Key page (opened from the key button) offers
+  Manual and Auto modes: Auto listens to the chords you play and keeps the
+  selected key following your playing, with a confidence readout, a
+  circle-of-fifths likelihood wheel, and the recent chords it heard. The key
+  button shows the detected key live, dims as evidence fades, and admits
+  uncertainty rather than guessing. Choosing a key manually always wins and
+  switches back to Manual mode.
+
 ## [2026.7.6] - 2026-07-06
 
 ### Added

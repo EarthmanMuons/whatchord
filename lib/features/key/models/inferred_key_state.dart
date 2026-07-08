@@ -26,9 +26,10 @@ class InferredKeyState {
     required this.lastClaim,
     required this.lastEventAt,
     required this.freshness,
+    this.resetAt,
   });
 
-  const InferredKeyState.initial()
+  const InferredKeyState.initial({this.resetAt})
     : ranked = const [],
       claim = null,
       lastClaim = null,
@@ -50,6 +51,11 @@ class InferredKeyState {
 
   final InferredKeyFreshness freshness;
 
+  /// When the detector last forgot everything; history events from before
+  /// this moment no longer contribute to the belief (the recent-chords
+  /// display uses this to drop them).
+  final DateTime? resetAt;
+
   /// What the key button should render: the current claim, else the retained
   /// last claim (shown dimmed), else nothing (the unknown marker).
   KeyEstimate? get displayKey => claim ?? lastClaim;
@@ -66,5 +72,6 @@ class InferredKeyState {
         lastClaim: lastClaim,
         lastEventAt: lastEventAt,
         freshness: freshness ?? this.freshness,
+        resetAt: resetAt,
       );
 }

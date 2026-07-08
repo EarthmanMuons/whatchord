@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord/features/key/key.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
-import 'adaptive_side_sheet.dart';
+import '../pages/key_page.dart';
 
 class TonalityBar extends ConsumerWidget {
   const TonalityBar({
@@ -29,7 +29,7 @@ class TonalityBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final autoKey = ref.watch(keyModeProvider) == KeyMode.auto;
     // Watching here is what activates live key detection; the inferred state
-    // stays warm for the picker's auto view even in manual mode.
+    // stays warm for the Key page's auto view even in manual mode.
     final inferred = ref.watch(inferredKeyProvider);
     return TonalityBarView(
       height: height,
@@ -42,20 +42,8 @@ class TonalityBar extends ConsumerWidget {
       autoKey: autoKey,
       autoKeyTonality: inferred.displayKey?.tonality,
       autoKeyDimmed: inferred.displayKey != null && !inferred.emphasized,
-      onOpenPicker: () => openTonalityPicker(
-        context,
-        useSideSheet: useHomeSideSheet(context),
-        showSideSheet:
-            ({required context, required barrierLabel, required builder}) {
-              unawaited(
-                showHomeSideSheet<void>(
-                  context: context,
-                  barrierLabel: barrierLabel,
-                  builder: builder,
-                ),
-              );
-            },
-      ),
+      onOpenPicker: () =>
+          unawaited(Navigator.of(context).push(KeyPage.route())),
     );
   }
 }
