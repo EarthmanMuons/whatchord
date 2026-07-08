@@ -70,6 +70,19 @@ KeyEstimateFrame _claim(String wire) {
   return KeyEstimateFrame(ranked: [estimate], claim: estimate);
 }
 
+KeyEstimateFrame _posteriorFrame(
+  Map<String, double> posterior, {
+  bool claim = true,
+}) {
+  final ranked = [
+    for (final entry in posterior.entries)
+      KeyEstimate(tonality: parseTonality(entry.key), confidence: entry.value),
+  ]..sort((a, b) => b.confidence.compareTo(a.confidence));
+  return claim
+      ? KeyEstimateFrame(ranked: ranked, claim: ranked.first)
+      : KeyEstimateFrame.abstain(ranked);
+}
+
 const _abstain = KeyEstimateFrame.abstain([]);
 
 void main() {
@@ -316,6 +329,40 @@ void main() {
       expect(score.globalTruth?.matches(cMajor), isTrue);
       expect(score.globalFinalMirex, 0.5);
       expect(score.globalMajorityMirex, 1.0);
+    });
+
+    test('posterior calibration reports top-label reliability', () {
+      final fixture = _fixture([
+        _eventJson(0, localKey: 'C:maj'),
+        _eventJson(1, localKey: 'C:maj'),
+        _eventJson(2, localKey: 'C:maj'),
+        _eventJson(3, acceptableKeys: ['C:maj', 'A:min']),
+      ]);
+      final calibration = posteriorCalibration(
+        [fixture],
+        {
+          fixture.id: [
+            _posteriorFrame({'C:maj': 0.9, 'G:maj': 0.1}),
+            _posteriorFrame({'G:maj': 0.8, 'C:maj': 0.2}),
+            _posteriorFrame({'C:maj': 0.6, 'G:maj': 0.4}, claim: false),
+            _posteriorFrame({'C:maj': 0.7, 'A:min': 0.3}),
+          ],
+        },
+      );
+
+      final all = calibration['allExactLabeledEvents'] as Map<String, Object?>;
+      final claimed =
+          calibration['claimedExactLabeledEvents'] as Map<String, Object?>;
+      final skipped = calibration['skipped'] as Map<String, Object?>;
+
+      expect(all['events'], 3);
+      expect(all['accuracy'], closeTo(2 / 3, 1e-9));
+      expect(all['meanConfidence'], closeTo((0.9 + 0.8 + 0.6) / 3, 1e-9));
+      expect(all['meanTruthProbability'], closeTo((0.9 + 0.2 + 0.6) / 3, 1e-9));
+      expect(claimed['events'], 2);
+      expect(claimed['accuracy'], 0.5);
+      expect(skipped['noExactLocalKey'], 1);
+      expect(skipped['nonProbabilisticFrame'], 0);
     });
   });
 }

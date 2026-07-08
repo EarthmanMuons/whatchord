@@ -135,6 +135,23 @@ for each pair are cited in the
 their values are verified against reference implementations (log entry
 2026-07-06-08).
 
+**Posterior calibration / reliability.** Whether a probability number should be
+taken literally. If the detector says "C major, 80%" on 100 events, a calibrated
+detector should be right on about 80 of them. The harness checks this by putting
+events into confidence bands (0-10%, 10-20%, ..., 90-100%) and comparing each
+band's average confidence with its actual accuracy.
+
+The summary numbers are compact ways to read the same idea:
+[expected calibration error](https://en.wikipedia.org/wiki/Expected_calibration_error)
+(ECE) is the average confidence-vs-accuracy gap across the bands; lower is
+better.
+[Negative log likelihood](<https://en.wikipedia.org/wiki/Loss_functions_for_classification#Cross_entropy_loss_(log_loss)>)
+penalizes putting too little probability on the true key; lower is better. The
+[Brier score](https://en.wikipedia.org/wiki/Brier_score) is the squared error of
+the whole probability distribution; lower is better. This is different from the
+coverage-accuracy curve: abstentions can be useful even when the raw posterior
+probabilities are overconfident.
+
 **Section scale vs. tonicization scale.** Two granularities of "the key," both
 legitimate. Section scale is the home key of a stretch of music, what a song's
 key or a movement's key names; tonicization scale additionally tracks brief
