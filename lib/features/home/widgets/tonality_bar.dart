@@ -17,6 +17,8 @@ class TonalityBar extends ConsumerWidget {
     this.keyTextScaleMultiplier = 1.0,
     this.scaleDegreesTextScaleMultiplier = 1.0,
     this.onScaleDegreesTap,
+    this.scaleDegreeAnalysis,
+    this.useDetectedScaleDegrees = true,
   });
 
   final double height;
@@ -24,6 +26,12 @@ class TonalityBar extends ConsumerWidget {
   final double keyTextScaleMultiplier;
   final double scaleDegreesTextScaleMultiplier;
   final VoidCallback? onScaleDegreesTap;
+
+  /// Scale degrees to render when [useDetectedScaleDegrees] is false; the
+  /// Explore pages pass their example chord's analysis instead of the live
+  /// detection.
+  final ScaleDegreeAnalysis? scaleDegreeAnalysis;
+  final bool useDetectedScaleDegrees;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,7 +45,9 @@ class TonalityBar extends ConsumerWidget {
       keyTextScaleMultiplier: keyTextScaleMultiplier,
       scaleDegreesTextScaleMultiplier: scaleDegreesTextScaleMultiplier,
       tonality: ref.watch(selectedTonalityProvider),
-      scaleDegreeAnalysis: ref.watch(detectedScaleDegreeAnalysisProvider),
+      scaleDegreeAnalysis: useDetectedScaleDegrees
+          ? ref.watch(detectedScaleDegreeAnalysisProvider)
+          : scaleDegreeAnalysis,
       onScaleDegreesTap: onScaleDegreesTap,
       autoKey: autoKey,
       autoKeyTonality: inferred.displayKey?.tonality,

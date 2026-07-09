@@ -192,16 +192,13 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
                             normalHighlightPitchClasses:
                                 example.memberPitchClasses,
                             hasTonalityBar: true,
-                            topBar: TonalityBarView(
+                            topBar: TonalityBar(
                               height: kToolbarHeight,
-                              tonality: tonality,
                               scaleDegreeAnalysis:
                                   presentation.scaleDegreeAnalysis,
+                              useDetectedScaleDegrees: false,
                               onScaleDegreesTap: () =>
                                   _openScaleExplorer(presentation),
-                              onOpenPicker: () => unawaited(
-                                Navigator.of(context).push(KeyPage.route()),
-                              ),
                               horizontalInset: horizontalInset,
                               keyTextScaleMultiplier:
                                   config.tonalityButtonTextScale,

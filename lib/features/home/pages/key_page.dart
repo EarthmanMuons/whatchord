@@ -251,7 +251,31 @@ class _LandscapeBody extends ConsumerWidget {
     final inferred = ref.watch(inferredKeyProvider);
     final selected = ref.watch(selectedTonalityProvider);
 
-    final left = Column(
+    // Pane content centers in whatever height the keyboard leaves, so the
+    // layout rebalances as the keyboard is resized; it degrades to a plain
+    // scroll when the content no longer fits.
+    Widget balanced({
+      required List<Widget> children,
+      required CrossAxisAlignment crossAxisAlignment,
+    }) {
+      return LayoutBuilder(
+        builder: (context, paneConstraints) => FadedScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: math.max(0, paneConstraints.maxHeight - 16),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: crossAxisAlignment,
+              children: children,
+            ),
+          ),
+        ),
+      );
+    }
+
+    final left = balanced(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _ModeSegments(mode: mode),
@@ -268,32 +292,30 @@ class _LandscapeBody extends ConsumerWidget {
     );
 
     final right = mode == KeyMode.auto
-        ? FadedScrollView(
-            padding: const EdgeInsets.only(top: 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                KeyPosteriorStrip(
-                  ranked: inferred.ranked,
-                  claim: inferred.displayKey?.tonality,
-                ),
-                const SizedBox(height: 12),
-                const RecentChordsStrip(),
-              ],
-            ),
+        ? balanced(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              KeyPosteriorStrip(
+                ranked: inferred.ranked,
+                claim: inferred.displayKey?.tonality,
+              ),
+              const SizedBox(height: 12),
+              const RecentChordsStrip(),
+            ],
           )
         : const TonalityPickerBody(
             showStaffPreview: false,
+            compact: true,
             headerHeight: TonalityPickerBody.slimHeaderHeight,
             listBottomPadding: 0,
           );
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(horizontalInset, 10, horizontalInset, 4),
+      padding: EdgeInsets.symmetric(horizontal: horizontalInset),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(flex: 5, child: FadedScrollView(child: left)),
+          Expanded(flex: 5, child: left),
           const SizedBox(width: 16),
           Expanded(flex: 7, child: right),
         ],
