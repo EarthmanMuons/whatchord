@@ -126,6 +126,17 @@ If you build on this work, please cite the paper draft:
 }
 ```
 
+## AI assistance disclosure
+
+This is a human-led research project developed with assistance from AI tools. AI
+tools were used for implementation support, code review, editing suggestions,
+plain-language explanation, and critique of the paper's structure and wording.
+They were not treated as authors or as sources of evidence. The author remains
+responsible for the research questions, experiments, statistical claims,
+interpretation, data provenance decisions, and final text. Numerical results in
+the paper trace to committed code, fixtures, logs, and generated reports rather
+than to AI-generated assertions.
+
 ## License and data
 
 The code is free, the committed data carries its sources' terms, and the gated
