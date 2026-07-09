@@ -17,26 +17,14 @@ from pathlib import Path
 
 
 DEFAULT_ROOT = Path("research/whatkey/results/test-split-2026-07-07")
-EXPECTED_ROWS = (
-    ("WhatKey (causal, abstaining)", "0.88", "0.732", "0.782"),
-    ("music21 Temperley-Kostka-Payne", "1.00", "0.637", "0.740"),
-    ("music21 Krumhansl-Schmuckler", "1.00", "0.624", "0.726"),
-    ("music21 Aarden-Essen", "1.00", "0.558", "0.690"),
-)
+DEFAULT_MANIFEST = DEFAULT_ROOT / "MANIFEST.json"
 
 
 @dataclass(frozen=True)
 class HeadlineRow:
     label: str
     report_dir: str
-
-
-ROWS = (
-    HeadlineRow("WhatKey (causal, abstaining)", "test-iso-hmm-shipped"),
-    HeadlineRow("music21 Temperley-Kostka-Payne", "test-iso-m21-temperleykostkapayne"),
-    HeadlineRow("music21 Krumhansl-Schmuckler", "test-iso-m21-krumhanslschmuckler"),
-    HeadlineRow("music21 Aarden-Essen", "test-iso-m21-aardenessen"),
-)
+    expected: tuple[str, str, str] | None = None
 
 
 def parse_args() -> argparse.Namespace:
@@ -44,8 +32,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--root",
         type=Path,
-        default=DEFAULT_ROOT,
         help="Directory containing the headline report subdirectories.",
+    )
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        default=DEFAULT_MANIFEST,
+        help="Machine-readable result manifest with headline rows and expectations.",
     )
     parser.add_argument(
         "--check",
@@ -57,18 +50,47 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    rows = tuple(read_row(args.root, row) for row in ROWS)
+    row_specs = load_rows(args.manifest)
+    root = args.root or args.manifest.parent
+    rows = tuple(read_row(root, row) for row in row_specs)
     print(render_markdown(rows))
 
-    if args.check and rows != EXPECTED_ROWS:
+    expected = tuple(
+        (row.label, *row.expected) for row in row_specs if row.expected is not None
+    )
+    if args.check and expected and rows != expected:
         print("Headline table mismatch.", file=sys.stderr)
         print("Expected:", file=sys.stderr)
-        print(render_markdown(EXPECTED_ROWS), file=sys.stderr)
+        print(render_markdown(expected), file=sys.stderr)
         return 1
 
     if args.check:
-        print("Headline table matches committed report artifacts.")
+        print("Headline table matches expected report artifacts.")
     return 0
+
+
+def load_rows(manifest_path: Path) -> tuple[HeadlineRow, ...]:
+    try:
+        manifest = json.loads(manifest_path.read_text())
+    except FileNotFoundError:
+        raise SystemExit(f"Missing manifest: {manifest_path}") from None
+    rows = []
+    for row in manifest["headlineTable"]["rows"]:
+        expected = row.get("expected")
+        rows.append(
+            HeadlineRow(
+                label=row["label"],
+                report_dir=row["reportDir"],
+                expected=None
+                if expected is None
+                else (
+                    expected["coverage"],
+                    expected["exact"],
+                    expected["mirex"],
+                ),
+            )
+        )
+    return tuple(rows)
 
 
 def read_row(root: Path, row: HeadlineRow) -> tuple[str, str, str, str]:

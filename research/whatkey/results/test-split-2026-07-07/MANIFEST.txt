@@ -4,9 +4,17 @@ WhatKey one-shot test result manifest
 These committed artifacts are the source of the headline table in
 research/whatkey/README.md.
 
-Quick verification:
+MANIFEST.json is the machine-readable source for the headline report paths,
+expected rounded metrics, toolchain pins, and upstream corpus commits.
 
-    mise install && mise research:whatkey-headline-test
+Fast artifact verification:
+
+    mise install && mise research:whatkey-headline-verify
+
+Full headline rerun:
+
+    mise install
+    mise research:whatkey-headline-rerun -- --yes
 
 The check reads these report files and compares their rounded metrics with the
 published table:
@@ -24,6 +32,7 @@ Recorded research environment:
 
     Python 3.12.13
     uv 0.11.16
+    tool/requirements-research.txt
     music21 10.1.0
     Isophonics fixtures rebuilt from ChoCo commit
       5fe168fd55be5c84512abcfbc4e6f1b1f8f0092a

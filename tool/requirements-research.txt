@@ -1,0 +1,26 @@
+# Pinned Python dependencies for WhatKey research reproduction tasks.
+# Generated from tool/requirements-research.in and committed so research tasks
+# do not resolve floating transitive dependencies.
+certifi==2026.5.20
+chardet==7.4.3
+charset-normalizer==3.4.7
+contourpy==1.3.3
+cycler==0.12.1
+fonttools==4.63.0
+idna==3.16
+joblib==1.5.3
+jsonpickle==4.1.1
+kiwisolver==1.5.0
+matplotlib==3.10.9
+more-itertools==11.1.0
+music21==10.1.0
+numpy==2.4.6
+packaging==26.2
+pillow==12.2.0
+pychord==1.4.0
+pyparsing==3.3.2
+python-dateutil==2.9.0.post0
+requests==2.34.2
+six==1.17.0
+urllib3==2.7.0
+webcolors==25.10.0
