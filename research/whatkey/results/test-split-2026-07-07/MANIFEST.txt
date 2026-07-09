@@ -1,0 +1,35 @@
+WhatKey one-shot test result manifest
+=====================================
+
+These committed artifacts are the source of the headline table in
+research/whatkey/README.md.
+
+Quick verification:
+
+    mise install && mise research:whatkey-headline-test
+
+The check reads these report files and compares their rounded metrics with the
+published table:
+
+    WhatKey (causal, abstaining)
+      test-iso-hmm-shipped/report.json
+    music21 Temperley-Kostka-Payne
+      test-iso-m21-temperleykostkapayne/report.json
+    music21 Krumhansl-Schmuckler
+      test-iso-m21-krumhanslschmuckler/report.json
+    music21 Aarden-Essen
+      test-iso-m21-aardenessen/report.json
+
+Recorded research environment:
+
+    Python 3.12.13
+    uv 0.11.16
+    music21 10.1.0
+    Isophonics fixtures rebuilt from ChoCo commit
+      5fe168fd55be5c84512abcfbc4e6f1b1f8f0092a
+    Harness engine commit recorded in each report.json
+
+The complete one-shot result set also includes the When-in-Rome and ASAP held
+out runs, reflex reference runs, matched-coverage baseline report, and generated
+music21 baseline claims. The license-gated fixtures themselves are not
+committed; see research/whatkey/REPRODUCING.md.
