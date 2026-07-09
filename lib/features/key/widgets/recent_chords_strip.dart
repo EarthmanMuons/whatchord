@@ -80,13 +80,40 @@ class _RecentChordsStripState extends ConsumerState<RecentChordsStrip> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AnimatedOpacity(
-          opacity: empty ? 0 : 1,
-          duration: const Duration(milliseconds: 400),
-          child: Text(
-            'Recent chords',
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: cs.onSurfaceVariant,
+        IgnorePointer(
+          ignoring: empty,
+          child: ExcludeSemantics(
+            excluding: empty,
+            child: AnimatedOpacity(
+              opacity: empty ? 0 : 1,
+              duration: const Duration(milliseconds: 400),
+              child: Row(
+                children: [
+                  Text(
+                    'Recent chords',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  const Spacer(),
+                  TextButton.icon(
+                    onPressed: () =>
+                        ref.read(inferredKeyProvider.notifier).reset(),
+                    // Visually compact, but the tap target stays at the
+                    // 48px accessibility minimum via the padded hit area.
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: const Size(0, 28),
+                      tapTargetSize: MaterialTapTargetSize.padded,
+                    ),
+                    icon: const Icon(Icons.refresh, size: 16),
+                    label: const Text(
+                      'Reset',
+                      semanticsLabel: 'Reset key detection',
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -166,58 +166,39 @@ class _PortraitAutoPane extends ConsumerWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // The wheel absorbs whatever height remains, so growing the keyboard
-        // eats slack around the wheel before shrinking it; below the wheel's
-        // readable minimum the pane falls back to scrolling.
-        final content = Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const AutoKeyStatus(),
-            const SizedBox(height: 8),
-            Expanded(
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxWidth: 300,
-                      maxHeight: 300,
-                    ),
-                    child: KeyPosteriorWheel(
-                      ranked: inferred.ranked,
-                      claim: inferred.displayKey?.tonality,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const RecentChordsStrip(),
-          ],
-        );
+        // One layout for every height: the wheel absorbs whatever remains,
+        // so growing the keyboard eats slack around the wheel before
+        // shrinking it. Below [minPaneHeight] the content height freezes and
+        // the pane scrolls instead, so the wheel shrinks smoothly to its
+        // floor rather than snapping between layouts.
+        const minPaneHeight = 340.0;
+        const verticalPadding = 8.0;
+        final contentHeight =
+            math.max(constraints.maxHeight, minPaneHeight) - verticalPadding;
 
-        const surroundingContent = 190.0;
-        const minWheel = 150.0;
-        if (constraints.maxHeight < surroundingContent + minWheel) {
-          return FadedScrollView(
-            padding: EdgeInsets.fromLTRB(
-              horizontalInset,
-              4,
-              horizontalInset,
-              4,
-            ),
+        return FadedScrollView(
+          padding: EdgeInsets.fromLTRB(horizontalInset, 4, horizontalInset, 4),
+          child: SizedBox(
+            height: contentHeight,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const AutoKeyStatus(),
                 const SizedBox(height: 8),
-                Center(
-                  child: SizedBox(
-                    width: minWheel,
-                    height: minWheel,
-                    child: KeyPosteriorWheel(
-                      ranked: inferred.ranked,
-                      claim: inferred.displayKey?.tonality,
+                Expanded(
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxWidth: 300,
+                          maxHeight: 300,
+                        ),
+                        child: KeyPosteriorWheel(
+                          ranked: inferred.ranked,
+                          claim: inferred.displayKey?.tonality,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -225,12 +206,7 @@ class _PortraitAutoPane extends ConsumerWidget {
                 const RecentChordsStrip(),
               ],
             ),
-          );
-        }
-
-        return Padding(
-          padding: EdgeInsets.fromLTRB(horizontalInset, 4, horizontalInset, 4),
-          child: content,
+          ),
         );
       },
     );

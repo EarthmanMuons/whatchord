@@ -17,8 +17,9 @@ import '../domain/models/key_estimate.dart';
 /// Same single-hue calibrated ramp as the wheel; the claim carries a border
 /// so it is never marked by color alone. Cells grow with the available width.
 /// Touching scrubs across cells, floating that key's calibrated probability
-/// over the top row, offset left of the finger so it stays visible; the
-/// readout lingers briefly after release.
+/// just above the rows (overlapping the space there rather than reserving
+/// it), offset left of the finger so it stays visible; the readout lingers
+/// briefly after release.
 class KeyPosteriorStrip extends ConsumerStatefulWidget {
   const KeyPosteriorStrip({super.key, required this.ranked, this.claim});
 
@@ -29,6 +30,9 @@ class KeyPosteriorStrip extends ConsumerStatefulWidget {
   @override
   ConsumerState<KeyPosteriorStrip> createState() => _KeyPosteriorStripState();
 }
+
+const _readoutLaneHeight = 28.0;
+const _readoutLeftShift = 56.0;
 
 class _KeyPosteriorStripState extends ConsumerState<KeyPosteriorStrip> {
   static const _gap = 2.0;
@@ -70,12 +74,13 @@ class _KeyPosteriorStripState extends ConsumerState<KeyPosteriorStrip> {
         final cellHeight = (cellWidth * 0.72).clamp(30.0, 48.0);
         final fontSize = (cellWidth * 0.34).clamp(12.0, 15.0);
 
-        Widget cell(Tonality tonality, {required bool isMajor}) {
+        Widget cell(Tonality tonality) {
           final index = KeySpace.index(tonality);
           final confidence = byIndex[index] ?? 0.0;
           final t = math.sqrt(confidence).clamp(0.0, 1.0);
           final fill = Color.lerp(cs.surfaceContainerHighest, cs.primary, t)!;
-          final tonic = tonalityPickerTonicLabel(
+          // Uppercase majors, lowercase minors; the rows disambiguate.
+          final label = tonalityPickerTonicLabel(
             tonality,
             noteNameSystem: noteNameSystem,
           );
@@ -97,7 +102,7 @@ class _KeyPosteriorStripState extends ConsumerState<KeyPosteriorStrip> {
                     : null,
               ),
               child: Text(
-                isMajor ? tonic : '${tonic}m',
+                label,
                 maxLines: 1,
                 overflow: TextOverflow.clip,
                 style: theme.textTheme.labelMedium?.copyWith(
@@ -119,16 +124,12 @@ class _KeyPosteriorStripState extends ConsumerState<KeyPosteriorStrip> {
               Expanded(
                 child: Column(
                   children: [
-                    cell(
-                      KeySpace.canonicalTonalities[((7 * i) % 12) * 2],
-                      isMajor: true,
-                    ),
+                    cell(KeySpace.canonicalTonalities[((7 * i) % 12) * 2]),
                     const SizedBox(height: _gap),
                     cell(
                       KeySpace.canonicalTonalities[(((7 * i) % 12 + 9) % 12) *
                               2 +
                           1],
-                      isMajor: false,
                     ),
                   ],
                 ),
@@ -138,55 +139,54 @@ class _KeyPosteriorStripState extends ConsumerState<KeyPosteriorStrip> {
         );
 
         final inspected = _inspectedIndex;
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: (details) =>
-              _scrub(details.localPosition, cellWidth, cellHeight),
-          onTapUp: (_) => _release(),
-          onTapCancel: _release,
-          onPanStart: (details) =>
-              _scrub(details.localPosition, cellWidth, cellHeight),
-          onPanUpdate: (details) =>
-              _scrub(details.localPosition, cellWidth, cellHeight),
-          onPanEnd: (_) => _release(),
-          onPanCancel: _release,
-          child: Stack(
-            children: [
-              rows,
-              if (inspected != null)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: cellHeight,
-                  child: IgnorePointer(
-                    child: Align(
-                      alignment: Alignment(
-                        (2 * (_fingerX - 56) / width - 1).clamp(-1.0, 1.0),
-                        0,
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTapDown: (details) =>
+                  _scrub(details.localPosition, cellWidth, cellHeight),
+              onTapUp: (_) => _release(),
+              onTapCancel: _release,
+              onPanStart: (details) =>
+                  _scrub(details.localPosition, cellWidth, cellHeight),
+              onPanUpdate: (details) =>
+                  _scrub(details.localPosition, cellWidth, cellHeight),
+              onPanEnd: (_) => _release(),
+              onPanCancel: _release,
+              child: rows,
+            ),
+            if (inspected != null)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: cellHeight * 2 + _gap + 4,
+                child: IgnorePointer(
+                  child: CustomSingleChildLayout(
+                    delegate: _ReadoutLayoutDelegate(
+                      centerX: _fingerX - _readoutLeftShift,
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
                       ),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: cs.inverseSurface,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '${tonalityDisplayLabel(KeySpace.canonicalTonalities[inspected], noteNameSystem: noteNameSystem)}'
-                          ' · ${percentLabel(inspected)}',
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color: cs.onInverseSurface,
-                          ),
+                      decoration: BoxDecoration(
+                        color: cs.inverseSurface,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '${tonalityDisplayLabel(KeySpace.canonicalTonalities[inspected], noteNameSystem: noteNameSystem)}'
+                        ' · ${percentLabel(inspected)}',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: cs.onInverseSurface,
                         ),
                       ),
                     ),
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         );
       },
     );
@@ -212,4 +212,34 @@ class _KeyPosteriorStripState extends ConsumerState<KeyPosteriorStrip> {
       if (mounted) setState(() => _inspectedIndex = null);
     });
   }
+}
+
+/// Centers the readout at [centerX], clamped so it never leaves the strip's
+/// bounds (anything further left would be clipped away by the enclosing
+/// scroll viewport). Bottom-aligned in its lane so the gap above the rows
+/// stays constant.
+class _ReadoutLayoutDelegate extends SingleChildLayoutDelegate {
+  _ReadoutLayoutDelegate({required this.centerX});
+
+  final double centerX;
+
+  @override
+  Size getSize(BoxConstraints constraints) =>
+      Size(constraints.maxWidth, _readoutLaneHeight);
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
+      constraints.loosen();
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    final dx = (centerX - childSize.width / 2)
+        .clamp(0.0, math.max(0.0, size.width - childSize.width))
+        .toDouble();
+    return Offset(dx, size.height - childSize.height);
+  }
+
+  @override
+  bool shouldRelayout(_ReadoutLayoutDelegate oldDelegate) =>
+      oldDelegate.centerX != centerX;
 }
