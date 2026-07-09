@@ -6,18 +6,20 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <title>WhatChord - Chord Identification and Harmony Exploration</title>
+    <title>
+      WhatChord - Chord Identification, Key Detection, and Harmony Exploration
+    </title>
     <meta
       name="description"
-      content="Identify chords from live MIDI or manual note entry, then explore chords, scales, voicings, and harmonic context. Free, no ads, all on-device."
+      content="Identify chords from live MIDI or manual note entry, follow the key as you play, then explore chords, scales, voicings, and harmonic context. Free, no ads, all on-device."
     />
     <meta
       property="og:title"
-      content="WhatChord - Chord Identification and Harmony Exploration"
+      content="WhatChord - Chord Identification, Key Detection, and Harmony Exploration"
     />
     <meta
       property="og:description"
-      content="Play it. Explore it. Learn it. Identify chords and understand their harmonic context with WhatChord."
+      content="Play it. Explore it. Learn it. Identify chords, follow the key, and understand harmonic context with WhatChord."
     />
     <meta
       property="og:image"
@@ -103,8 +105,9 @@
           <p class="hero-sub">
             Identify chords instantly as you play a Bluetooth or USB MIDI
             keyboard, or enter notes manually. WhatChord names the voicing,
-            explains close alternatives, and connects it to chord structures,
-            scales, and key context. Available on iOS and Android.
+            follows the key from recent live chords, explains close
+            alternatives, and connects it to chord structures, scales, and key
+            context. Available on iOS and Android.
           </p>
           <div class="store-badges">
             <a href="https://apps.apple.com/us/app/whatchord-midi/id6758409779">
@@ -402,9 +405,8 @@
           <div class="section-label">Go deeper</div>
           <h2 class="section-title">How it works.</h2>
           <p class="section-sub">
-            Three in-depth pieces: one for musicians curious about why chord
-            naming is hard, one for engineers who want to see the algorithm, and
-            one about how real chord data guides development.
+            Practical articles and research notes for musicians, engineers, and
+            anyone curious about the evidence behind WhatChord's analysis.
           </p>
           <div class="articles-grid">
             <a
@@ -425,7 +427,7 @@
               href="articles/chord-recognition-algorithm.html"
             >
               <div class="article-tag">Technical deep-dive</div>
-              <h3>Under the Hood: Building a Real-Time Chord Recognizer</h3>
+              <h3>Building a Real-Time Chord Recognizer</h3>
               <p>
                 A detailed look at the bitmasks, chord-quality templates,
                 explanation costs, ranking heuristics, and LRU cache that power
@@ -445,6 +447,19 @@
                 evidence rather than guesswork.
               </p>
               <span class="read-more">Read the article →</span>
+            </a>
+            <a
+              class="article-card"
+              href="https://github.com/EarthmanMuons/whatchord/tree/main/research/whatkey"
+            >
+              <div class="article-tag">Key Detection</div>
+              <h3>Streaming Key Estimation Research</h3>
+              <p>
+                The research project behind automatic key detection: a frozen
+                evaluation protocol, versioned fixtures, external baselines,
+                dated experiment logs, and held-out results.
+              </p>
+              <span class="read-more">Read the research notes →</span>
             </a>
           </div>
         </div>
