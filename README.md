@@ -21,11 +21,12 @@
   /></a>
 </p>
 
-WhatChord is an interactive chord identification and harmony exploration app.
-Identify voicings from live Bluetooth or USB MIDI input or manual note entry,
-then explore chords, scales, keyboard patterns, and harmonic context. It is
-optimized for speed, accuracy, and musician-expected naming, favoring stable,
-conventional interpretations over simple note-matching.
+WhatChord is an interactive chord identification, key detection, and harmony
+exploration app. Identify voicings from live Bluetooth or USB MIDI input or
+manual note entry, follow the key as you play, then explore chords, scales,
+keyboard patterns, and harmonic context. It is optimized for speed, accuracy,
+and musician-expected naming, favoring stable, conventional interpretations over
+simple note-matching.
 
 **Website:** <https://whatchord.earthmanmuons.com>
 
@@ -38,6 +39,12 @@ conventional interpretations over simple note-matching.
 - **Live chord identification**  
   Connect a Bluetooth or USB MIDI keyboard and see chords update instantly as
   you play.
+
+- **Automatic key detection**\
+  Auto mode listens to your recent live chords, estimates the current key, shows
+  confidence across all 24 major and minor keys, and can keep the app's key
+  context following your playing. When the evidence is ambiguous, it waits
+  instead of guessing.
 
 - **Manual chord lookup**  
   Enter notes directly to identify a chord from any instrument, sheet music, or
@@ -68,6 +75,15 @@ conventional interpretations over simple note-matching.
 - **Notation style preferences**  
   Choose between text-based and traditional symbolic chord notation conventions
   so chord names read naturally to you.
+
+## Research-Backed Key Detection
+
+Automatic key detection is documented as [WhatKey][WHATKEY], a streaming
+key-estimation research project with a frozen evaluation protocol, versioned
+fixtures, external baselines, dated experiment logs, and a one-shot held-out
+evaluation.
+
+[WHATKEY]: https://github.com/EarthmanMuons/whatchord/tree/main/research/whatkey
 
 ## Screenshots
 

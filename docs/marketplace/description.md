@@ -1,17 +1,20 @@
-Identify chords from live MIDI or manual note entry, then explore the harmony behind them.
+Identify chords from live MIDI or manual note entry, follow the key as you play, then explore the harmony behind them.
 
 Stop guessing what chord you're playing.
 
-WhatChord gives musicians fast, musically informed chord names. Connect a Bluetooth or USB MIDI keyboard for instant feedback, or use the lookup pad to enter notes from any instrument, sheet music, or recording. Explore Chords and Explore Scales let you build and hear chords, browse a wide range of scales, inspect keyboard patterns, and understand diatonic harmony.
+WhatChord gives musicians fast, musically informed chord names and live key context. Connect a Bluetooth or USB MIDI keyboard for instant feedback, or use the lookup pad to enter notes from any instrument, sheet music, or recording. Auto key detection listens to your recent live chords, shows confidence, and waits when the evidence is ambiguous. Explore Chords and Explore Scales let you build and hear chords, browse a wide range of scales, inspect keyboard patterns, and understand diatonic harmony.
 
 Play it. Explore it. Learn it.
 
-WhatChord goes beyond simple note matching. Its musically informed analysis considers inversions, extensions, slash chords, altered tones, harmonic context, and conventional naming practices so chord names appear the way musicians expect to see them.
+WhatChord goes beyond simple note matching. Its musically informed analysis considers inversions, extensions, slash chords, altered tones, key context, and conventional naming practices so chord names appear the way musicians expect to see them.
 
 FEATURES
 
 - Real-time chord recognition  
   Chord names update immediately as you play.
+
+- Automatic key detection
+  Auto mode estimates the current key from recent live chords, shows confidence across major and minor keys, and can keep the app's key context following your playing.
 
 - Manual chord lookup
   Enter notes directly to identify a chord, choose its bass note, and inspect alternative interpretations without connecting a MIDI device.
@@ -39,7 +42,7 @@ FEATURES
 
 RECOGNITION
 
-WhatChord identifies everything from simple triads to rich extended harmony. Whether you're practicing theory, learning progressions, exploring altered dominants, or working through dense extended chords, the app names what you play with accuracy and musical intent.
+WhatChord identifies everything from simple triads to rich extended harmony and follows key context from real playing. Whether you're practicing theory, learning progressions, exploring altered dominants, or working through dense extended chords, the app names what you play with accuracy and musical intent.
 
 PRIVACY
 
@@ -47,4 +50,4 @@ WhatChord is free, contains no ads, and collects no personal data. All analysis 
 
 GET STARTED
 
-Play through MIDI, enter notes manually, or start exploring chords and scales right away.
+Play through MIDI, enter notes manually, or start exploring chords, keys, and scales right away.
