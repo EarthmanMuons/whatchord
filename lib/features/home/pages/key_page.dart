@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +15,7 @@ import 'package:whatchord/features/settings/settings.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/home_layout_config.dart';
+import '../widgets/app_bar_title.dart';
 import '../widgets/resizable_keyboard_area.dart';
 
 /// The key page: manual key-signature selection and the auto-detected key,
@@ -342,7 +345,7 @@ class _LandscapeBody extends ConsumerWidget {
   }
 }
 
-class _KeyTopBar extends StatelessWidget {
+class _KeyTopBar extends ConsumerWidget {
   const _KeyTopBar({
     required this.toolbarHeight,
     required this.contentBottomInset,
@@ -354,7 +357,7 @@ class _KeyTopBar extends StatelessWidget {
   final double horizontalInset;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final titleStyle = Theme.of(
       context,
@@ -363,6 +366,25 @@ class _KeyTopBar extends StatelessWidget {
     // Match the standard AppBar leading-control position while the title and
     // content retain their shared horizontal inset.
     const arrowIconDx = -12.0;
+
+    Widget title = Text(
+      'Key Signature',
+      style: titleStyle,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+    // Same gating as the home title's demo gestures: long-pressing the title
+    // toggles the screenshot seed for reproducible emulator captures.
+    if (kDebugMode || kProfileMode || AppBarTitle.kForceDemoSupport) {
+      title = GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onLongPress: () {
+          ref.read(keyScreenshotSeedProvider.notifier).toggle();
+          unawaited(HapticFeedback.lightImpact());
+        },
+        child: title,
+      );
+    }
 
     return Material(
       color: cs.surfaceContainerLow,
@@ -390,16 +412,7 @@ class _KeyTopBar extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Semantics(
-                  header: true,
-                  namesRoute: true,
-                  child: Text(
-                    'Key Signature',
-                    style: titleStyle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+                child: Semantics(header: true, namesRoute: true, child: title),
               ),
               const SizedBox(width: 4),
               const MidiStatusIcon(),
