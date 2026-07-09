@@ -1,10 +1,21 @@
 # Reproducing WhatKey Data
 
 This document describes how to rebuild the WhatKey Phase 2 data inputs from a
-fresh checkout. It covers fixture generation and split regeneration, not
-detector results. Generated corpus-derived fixtures stay under `build/` unless a
-separate commit explicitly packages them with the required provenance and
-notices.
+fresh checkout and how to verify the headline result table. Generated
+corpus-derived fixtures stay under `build/` unless a separate commit explicitly
+packages them with the required provenance and notices.
+
+## Quick Headline Verification
+
+The README headline table can be checked without downloading any gated corpus
+data because the one-shot result artifacts are committed:
+
+```sh
+mise install && mise research:whatkey-headline-test
+```
+
+The task reads `research/whatkey/results/test-split-2026-07-07/` and verifies
+the rounded coverage, exact, and MIREX values printed in the landing page.
 
 ## Required Tools
 
@@ -13,13 +24,50 @@ Use the repository's normal toolchain:
 - `git`
 - `mise`
 - Flutter/Dart, as used by the app
-- Python 3.12 and `uv`, both managed by `mise.toml`
+- Python 3.12.13 and `uv` 0.11.16, both managed by `mise.toml`
+
+The research tasks pin optional Python packages that affect results:
+
+- `music21==10.1.0`
+- `pychord==1.4.0`
 
 From the repository root, make sure the mise environment is active:
 
 ```sh
 mise install
 ```
+
+## Automated Fixture Preparation
+
+The manual steps below are wrapped by:
+
+```sh
+mise research:whatkey-prepare-data
+```
+
+By default this prepares the Isophonics/ChoCo fixtures needed to rerun the
+headline table. The script downloads pinned external checkouts into
+`build/whatkey-corpora/` and writes generated fixtures under
+`build/whatkey-fixtures/`, so nothing is installed system-wide and no gated
+fixture data is committed.
+
+The script asks for confirmation before external downloads and license-gated
+fixture preparation. For unattended one-shot use:
+
+```sh
+mise research:whatkey-prepare-data -- --headline --run-headline --yes
+```
+
+Useful variants:
+
+```sh
+mise research:whatkey-prepare-data -- --all --verify-splits --yes
+mise research:whatkey-prepare-data -- --when-in-rome --yes
+mise research:whatkey-prepare-data -- --isophonics --run-headline --yes
+```
+
+The manual commands remain documented below so the exact pins and intermediate
+states are visible.
 
 ## External Corpus Checkout
 

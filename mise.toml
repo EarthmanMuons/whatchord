@@ -1,7 +1,7 @@
 [tools]
 node = "22"
-python = "3.12"
-uv = "latest"
+python = "3.12.13"
+uv = "0.11.16"
 
 [env]
 _.python.venv = { path = ".venv", create = true }
@@ -28,10 +28,14 @@ run = "uvx ruff@latest format tool"
 description = "Lint Python tooling with Ruff"
 run = "uvx ruff@latest check tool"
 
+[tasks."research:python-install"]
+description = "Install pinned optional Python dependencies for research tasks"
+run = "uv pip install music21==10.1.0 pychord==1.4.0"
+
 [tasks."research:oracle-install"]
 description = "Install optional chord oracle dependencies for local comparison runs"
+depends = ["research:python-install"]
 run = [
-  "uv pip install music21 pychord",
   "npm install --no-package-lock",
 ]
 
@@ -70,7 +74,8 @@ python tool/choco/common_name_prior.py "$choco_root" --jams-version converted
 
 [tasks."research:when-in-rome-install"]
 description = "Install optional dependencies for the When-in-Rome benchmark"
-run = "uv pip install music21"
+depends = ["research:python-install"]
+run = "true"
 
 [tasks."research:when-in-rome"]
 description = "Run the expanded When-in-Rome chord benchmark"
@@ -159,6 +164,15 @@ description = "Compile the WhatKey paper (research/whatkey/paper/main.pdf)"
 run = """
 typst compile research/whatkey/paper/main.typ
 """
+
+[tasks."research:whatkey-headline-test"]
+description = "Verify the README headline table from committed WhatKey result artifacts"
+run = "python tool/whatkey_headline_table.py --check"
+
+[tasks."research:whatkey-prepare-data"]
+description = "Download pinned WhatKey research corpora into build/ and regenerate fixtures"
+depends = ["research:python-install"]
+run = "python tool/whatkey_prepare_data.py \"$@\""
 
 [tasks."symbols:install"]
 description = "Install Python dependencies for regenerating WhatChord Symbols fonts"

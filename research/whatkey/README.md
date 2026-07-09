@@ -105,10 +105,28 @@ changing the detector's ranked keys, abstention decisions, or paper results.
 
 ## Reproducing and data access
 
+To verify the headline table above from committed artifacts, run this from a
+fresh checkout:
+
+```sh
+mise install && mise research:whatkey-headline-test
+```
+
+That check does not download any gated corpus data; it recomputes the rounded
+table from `results/test-split-2026-07-07/`.
+
 [REPRODUCING.md](REPRODUCING.md) has exact steps for rebuilding every fixture
 set from pinned upstream checkouts, including the license-gated corpora that are
 never committed, and for verifying the frozen development/test splits. Common
-invocations are wrapped as `mise research:whatkey-*` tasks.
+invocations are wrapped as `mise research:whatkey-*` tasks. For an automated
+local rebuild of the headline Isophonics fixtures and headline test run, use:
+
+```sh
+mise research:whatkey-prepare-data -- --headline --run-headline --yes
+```
+
+Omit `--yes` to review the download and license-gated fixture warning before the
+script proceeds.
 
 ## Citation
 
