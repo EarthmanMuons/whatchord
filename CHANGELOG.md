@@ -20,6 +20,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   uncertainty rather than guessing. Choosing a key manually always wins and
   switches back to Manual mode.
 
+### Fixed
+
+- The piano keyboard recenters on active notes (or middle C when idle) after
+  rotating the device or resizing the window, instead of sometimes ending up
+  scrolled to an unexpected octave.
+
 ## [2026.7.6] - 2026-07-06
 
 ### Added

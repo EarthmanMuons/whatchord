@@ -914,6 +914,16 @@ class _ScrollablePianoKeyboardState
             if (!mounted) return;
             _updateIndicatorState(viewportWidth: viewportWidth);
           });
+          // A viewport width change also invalidates the preserved pixel
+          // offset, which would land on arbitrary keys; recenter like the
+          // explicit center action (active notes, middle C when idle). The
+          // first layout is handled by the initial center instead. Pinch
+          // zoom is unaffected: it changes the key count, not this width.
+          if (previousWidth != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) _centerNow();
+            });
+          }
         }
 
         final whiteKeyWidth = PianoGeometry.whiteKeyWidthForViewport(
