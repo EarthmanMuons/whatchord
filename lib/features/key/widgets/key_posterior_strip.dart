@@ -31,7 +31,7 @@ class KeyPosteriorStrip extends ConsumerStatefulWidget {
   ConsumerState<KeyPosteriorStrip> createState() => _KeyPosteriorStripState();
 }
 
-const _readoutLaneHeight = 28.0;
+const _readoutLaneHeight = 36.0;
 const _readoutLeftShift = 56.0;
 
 class _KeyPosteriorStripState extends ConsumerState<KeyPosteriorStrip> {
@@ -166,20 +166,35 @@ class _KeyPosteriorStripState extends ConsumerState<KeyPosteriorStrip> {
                     delegate: _ReadoutLayoutDelegate(
                       centerX: _fingerX - _readoutLeftShift,
                     ),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
+                    // Mirrors the framework's default mobile tooltip styling
+                    // so the readout matches the app's other tooltips.
+                    child: DecoratedBox(
                       decoration: BoxDecoration(
-                        color: cs.inverseSurface,
-                        borderRadius: BorderRadius.circular(6),
+                        color: theme.brightness == Brightness.dark
+                            ? Colors.white.withValues(alpha: 0.9)
+                            : Colors.grey.shade700.withValues(alpha: 0.9),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(4),
+                        ),
                       ),
-                      child: Text(
-                        '${tonalityDisplayLabel(KeySpace.canonicalTonalities[inspected], noteNameSystem: noteNameSystem)}'
-                        ' · ${percentLabel(inspected)}',
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: cs.onInverseSurface,
+                      child: Container(
+                        constraints: const BoxConstraints(minHeight: 32),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
+                        child: Center(
+                          widthFactor: 1,
+                          child: Text(
+                            '${tonalityDisplayLabel(KeySpace.canonicalTonalities[inspected], noteNameSystem: noteNameSystem)}'
+                            ' · ${percentLabel(inspected)}',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontSize: 14,
+                              color: theme.brightness == Brightness.dark
+                                  ? Colors.black
+                                  : Colors.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),

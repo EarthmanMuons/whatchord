@@ -176,7 +176,9 @@ class _TonalityPickerBodyState extends ConsumerState<TonalityPickerBody> {
   @override
   void didUpdateWidget(TonalityPickerBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.recenterSignal && !oldWidget.recenterSignal) {
+    // A compact change alters the row height, invalidating the offset.
+    if ((widget.recenterSignal && !oldWidget.recenterSignal) ||
+        widget.compact != oldWidget.compact) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         _centerSelectedRow(animated: false);
@@ -435,7 +437,7 @@ class _TonalityPickerHeader extends StatelessWidget {
     return SizedBox(
       height: height,
       child: Material(
-        color: backgroundColor,
+        type: MaterialType.transparency,
         child: Column(
           children: [
             if (showPanelTitle)
@@ -451,48 +453,54 @@ class _TonalityPickerHeader extends StatelessWidget {
                 ),
               ),
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Semantics(
-                        header: true,
-                        child: Text('Accidentals', style: headerStyle),
-                      ),
-                    ),
-                    SizedBox(
-                      width: chipWidth,
-                      child: Semantics(
-                        header: true,
-                        child: Text(
-                          'Major',
-                          textAlign: TextAlign.center,
-                          style: headerStyle,
+              child: ColoredBox(
+                color: backgroundColor,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Semantics(
+                          header: true,
+                          child: Text('Accidentals', style: headerStyle),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    SizedBox(
-                      width: chipWidth,
-                      child: Semantics(
-                        header: true,
-                        child: Text(
-                          'Minor',
-                          textAlign: TextAlign.center,
-                          style: headerStyle,
+                      SizedBox(
+                        width: chipWidth,
+                        child: Semantics(
+                          header: true,
+                          child: Text(
+                            'Major',
+                            textAlign: TextAlign.center,
+                            style: headerStyle,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: chipWidth,
+                        child: Semantics(
+                          header: true,
+                          child: Text(
+                            'Minor',
+                            textAlign: TextAlign.center,
+                            style: headerStyle,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            Padding(
-              padding: fullBleedDivider
-                  ? EdgeInsets.zero
-                  : const EdgeInsets.symmetric(horizontal: 16),
-              child: const Divider(height: 1, thickness: 2),
+            ColoredBox(
+              color: backgroundColor,
+              child: Padding(
+                padding: fullBleedDivider
+                    ? EdgeInsets.zero
+                    : const EdgeInsets.symmetric(horizontal: 16),
+                child: const Divider(height: 1, thickness: 2),
+              ),
             ),
           ],
         ),
