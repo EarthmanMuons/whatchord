@@ -215,8 +215,8 @@ class _WheelPainter extends CustomPainter {
     final middle = outer * _middleFraction;
     final inner = outer * _innerFraction;
 
-    final majorFontSize = (outer * 0.115).clamp(11.0, 18.0);
-    final minorFontSize = (outer * 0.095).clamp(9.0, 15.0);
+    final majorFontSize = (outer * 0.115).clamp(11.0, 26.0);
+    final minorFontSize = (outer * 0.095).clamp(9.0, 21.0);
 
     final gap = Paint()
       ..style = PaintingStyle.stroke
@@ -332,7 +332,7 @@ class _WheelPainter extends CustomPainter {
         text: TextSpan(
           text: centerTitle,
           style: labelBase.copyWith(
-            fontSize: (outer * 0.16).clamp(13.0, 22.0),
+            fontSize: (outer * 0.16).clamp(13.0, 30.0),
             fontWeight: FontWeight.w600,
             color: ink,
           ),
@@ -343,7 +343,7 @@ class _WheelPainter extends CustomPainter {
         text: TextSpan(
           text: centerDetail,
           style: labelBase.copyWith(
-            fontSize: (outer * 0.12).clamp(11.0, 17.0),
+            fontSize: (outer * 0.12).clamp(11.0, 22.0),
             fontWeight: FontWeight.w400,
             color: inkMuted,
           ),

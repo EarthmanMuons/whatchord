@@ -193,15 +193,9 @@ class _PortraitAutoPane extends ConsumerWidget {
                   child: Center(
                     child: AspectRatio(
                       aspectRatio: 1,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          maxWidth: 300,
-                          maxHeight: 300,
-                        ),
-                        child: KeyPosteriorWheel(
-                          ranked: inferred.ranked,
-                          claim: inferred.displayKey?.tonality,
-                        ),
+                      child: KeyPosteriorWheel(
+                        ranked: inferred.ranked,
+                        claim: inferred.displayKey?.tonality,
                       ),
                     ),
                   ),
@@ -237,7 +231,13 @@ class _LandscapeBody extends ConsumerWidget {
     Widget balanced({
       required List<Widget> children,
       required CrossAxisAlignment crossAxisAlignment,
+      bool centerGroup = false,
     }) {
+      final column = Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: crossAxisAlignment,
+        children: children,
+      );
       return LayoutBuilder(
         builder: (context, paneConstraints) => FadedScrollView(
           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -245,17 +245,16 @@ class _LandscapeBody extends ConsumerWidget {
             constraints: BoxConstraints(
               minHeight: math.max(0, paneConstraints.maxHeight - 16),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: crossAxisAlignment,
-              children: children,
-            ),
+            // centerGroup shrink-wraps the column and centers it in the
+            // pane; the children stay edge-aligned to each other.
+            child: centerGroup ? Center(child: column) : column,
           ),
         ),
       );
     }
 
     final left = balanced(
+      centerGroup: true,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _ModeSegments(mode: mode),
@@ -263,7 +262,12 @@ class _LandscapeBody extends ConsumerWidget {
         if (mode == KeyMode.auto)
           const AutoKeyStatus()
         else
-          Center(
+          // Bounded so the card's internal centering has no slack and the
+          // staff lines up with the mode control above it.
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: KeySignatureStaffPreview.previewWidth,
+            ),
             child: KeySignatureStaffPreview(
               keySignature: selected.keySignature,
             ),
@@ -271,24 +275,58 @@ class _LandscapeBody extends ConsumerWidget {
       ],
     );
 
-    final right = mode == KeyMode.auto
-        ? balanced(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              KeyPosteriorStrip(
-                ranked: inferred.ranked,
-                claim: inferred.displayKey?.tonality,
-              ),
-              const SizedBox(height: 12),
-              const RecentChordsStrip(),
-            ],
-          )
-        : const TonalityPickerBody(
+    final right = LayoutBuilder(
+      builder: (context, paneConstraints) {
+        // Roomy landscape (tablets): the full wheel replaces the unrolled
+        // strip and the key list keeps its regular row height.
+        final roomy = paneConstraints.maxHeight >= 380;
+
+        if (mode == KeyMode.manual) {
+          return TonalityPickerBody(
             showStaffPreview: false,
-            compact: true,
+            compact: !roomy,
             headerHeight: TonalityPickerBody.slimHeaderHeight,
             listBottomPadding: 0,
           );
+        }
+
+        if (roomy) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: KeyPosteriorWheel(
+                        ranked: inferred.ranked,
+                        claim: inferred.displayKey?.tonality,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const RecentChordsStrip(),
+              ],
+            ),
+          );
+        }
+
+        return balanced(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            KeyPosteriorStrip(
+              ranked: inferred.ranked,
+              claim: inferred.displayKey?.tonality,
+            ),
+            const SizedBox(height: 12),
+            const RecentChordsStrip(),
+          ],
+        );
+      },
+    );
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontalInset),

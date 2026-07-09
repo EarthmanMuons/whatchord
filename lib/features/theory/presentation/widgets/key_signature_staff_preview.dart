@@ -11,6 +11,11 @@ class KeySignatureStaffPreview extends StatelessWidget {
     this.height = 96,
   });
 
+  /// Natural width of the staff card; narrower hosts shrink to fit. Exposed
+  /// so layouts can bound the widget (whose card centers itself) when they
+  /// need edge alignment instead.
+  static const double previewWidth = 360.0;
+
   final KeySignature keySignature;
   final double height;
 
@@ -34,11 +39,11 @@ class KeySignatureStaffPreview extends StatelessWidget {
       child: ExcludeSemantics(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final previewWidth =
+            final effectiveWidth =
                 constraints.hasBoundedWidth &&
-                    constraints.maxWidth < _previewWidth
+                    constraints.maxWidth < previewWidth
                 ? constraints.maxWidth
-                : _previewWidth;
+                : previewWidth;
 
             return Center(
               child: DecoratedBox(
@@ -49,7 +54,7 @@ class KeySignatureStaffPreview extends StatelessWidget {
                 ),
                 child: SizedBox(
                   height: height,
-                  width: previewWidth,
+                  width: effectiveWidth,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(7),
                     child: CustomPaint(
@@ -69,7 +74,6 @@ class KeySignatureStaffPreview extends StatelessWidget {
   }
 }
 
-const _previewWidth = 360.0;
 const _staffInkColor = Color(0xFF101214);
 const _symbolFontFamily = 'WhatChord Symbols';
 const _gClef = '\u{1D11E}';
