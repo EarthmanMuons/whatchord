@@ -10,6 +10,7 @@ corpus path.
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -85,9 +86,14 @@ def parse_args() -> argparse.Namespace:
         help="Regenerate split files under build/whatkey-splits for comparison.",
     )
     parser.add_argument(
+        "--verify-only",
+        action="store_true",
+        help="Check existing checkout pins, fixture manifests, and split counts.",
+    )
+    parser.add_argument(
         "--run-headline",
         action="store_true",
-        help="After preparing Isophonics fixtures, rerun the README headline table.",
+        help="Prepare Isophonics fixtures and rerun the README headline table.",
     )
     return parser.parse_args()
 
@@ -95,6 +101,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     selected = selected_sets(args)
+    if args.verify_only:
+        verify_prepared_data(args, selected)
+        return 0
+
     confirm(args, selected)
     args.root.mkdir(parents=True, exist_ok=True)
 
@@ -131,17 +141,53 @@ def main() -> int:
         extract_overlap(asap_root, bench_root)
 
     if args.run_headline:
-        if not selected["isophonics"]:
-            print(
-                "--run-headline requires Isophonics fixtures; adding --headline.",
-                file=sys.stderr,
-            )
-            choco_root = ensure_checkout(args.root, CHOCO)
-            extract_isophonics(choco_root)
         run_headline()
 
     print("WhatKey data preparation complete.")
     return 0
+
+
+def verify_prepared_data(args: argparse.Namespace, selected: dict[str, bool]) -> None:
+    checks = 0
+    if selected["when_in_rome"] or selected["overlap"]:
+        bench_root = verify_checkout(args.root, CONTRAPUNCTUS)
+        actual = git_output(bench_root / "corpus/When-in-Rome", "rev-parse", "HEAD")
+        require(
+            actual == WHEN_IN_ROME_COMMIT,
+            "When-in-Rome submodule commit",
+            f"expected {WHEN_IN_ROME_COMMIT}, got {actual}",
+        )
+        checks += 2
+        if selected["when_in_rome"]:
+            verify_fixture_set(
+                "when-in-rome-v1",
+                REPO_ROOT / "research/whatkey/data/splits/when-in-rome-v1.json",
+            )
+            checks += 1
+
+    if selected["asap"] or selected["overlap"]:
+        verify_checkout(args.root, ASAP)
+        checks += 1
+        if selected["asap"]:
+            verify_fixture_set(
+                "asap-nc-v2",
+                REPO_ROOT / "research/whatkey/data/splits/asap-nc-v2.json",
+            )
+            checks += 1
+
+    if selected["isophonics"]:
+        verify_checkout(args.root, CHOCO)
+        verify_fixture_set(
+            "isophonics-nc-v1",
+            REPO_ROOT / "research/whatkey/data/splits/isophonics-nc-v1.json",
+        )
+        checks += 2
+
+    if selected["overlap"]:
+        verify_fixture_set("asap-wir-nc-v1", None)
+        checks += 1
+
+    print(f"Verified prepared WhatKey data ({checks} checks).")
 
 
 def selected_sets(args: argparse.Namespace) -> dict[str, bool]:
@@ -171,6 +217,17 @@ def confirm(args: argparse.Namespace, selected: dict[str, bool]) -> None:
     answer = input(message).strip().lower()
     if answer not in {"y", "yes"}:
         raise SystemExit("Canceled.")
+
+
+def verify_checkout(root: Path, source: GitSource) -> Path:
+    path = root / source.path_name
+    require((path / ".git").exists(), source.name, f"missing checkout at {path}")
+    actual = git_output(path, "rev-parse", "HEAD")
+    require(
+        actual == source.commit, source.name, f"expected {source.commit}, got {actual}"
+    )
+    print(f"ok: {source.name} at {actual}")
+    return path
 
 
 def ensure_contrapunctus(root: Path) -> Path:
@@ -209,6 +266,45 @@ def ensure_checkout(root: Path, source: GitSource) -> Path:
             f"{source.name} pin mismatch: expected {source.commit}, got {actual}"
         )
     return path
+
+
+def verify_fixture_set(set_name: str, split_path: Path | None) -> None:
+    manifest_path = FIXTURE_ROOT / set_name / "manifest.json"
+    require(
+        manifest_path.exists(), set_name, f"missing fixture manifest at {manifest_path}"
+    )
+    manifest = json.loads(manifest_path.read_text())
+    require(manifest["set"] == set_name, set_name, f"manifest set is {manifest['set']}")
+
+    fixture_count = 0
+    event_count = 0
+    for entry in manifest["fixtures"]:
+        fixture_path = manifest_path.parent / entry["file"]
+        require(fixture_path.exists(), set_name, f"missing fixture file {fixture_path}")
+        fixture_count += 1
+        event_count += int(entry["events"])
+
+    if split_path is not None:
+        split = json.loads(split_path.read_text())
+        counts = split["counts"]["total"]
+        require(
+            fixture_count == counts["pieces"],
+            set_name,
+            f"manifest has {fixture_count} pieces, split expects {counts['pieces']}",
+        )
+        require(
+            event_count == counts["events"],
+            set_name,
+            f"manifest has {event_count} events, split expects {counts['events']}",
+        )
+        print(
+            f"ok: {set_name} manifest matches split total "
+            f"({fixture_count} pieces, {event_count} events)"
+        )
+    else:
+        print(
+            f"ok: {set_name} manifest ({fixture_count} fixtures, {event_count} events)"
+        )
 
 
 def prepare_when_in_rome(bench_root: Path) -> None:
@@ -405,6 +501,11 @@ def git_output(path: Path, *args: str) -> str:
 def run(command: list[str], cwd: Path | None = None) -> None:
     print("+ " + " ".join(command))
     subprocess.run(command, cwd=cwd, check=True)
+
+
+def require(condition: bool, label: str, message: str) -> None:
+    if not condition:
+        raise SystemExit(f"{label}: {message}")
 
 
 if __name__ == "__main__":

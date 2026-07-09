@@ -105,28 +105,39 @@ changing the detector's ranked keys, abstention decisions, or paper results.
 
 ## Reproducing and data access
 
-To verify the headline table above from committed artifacts, run this from a
-fresh checkout:
+To reproduce the headline table above by rerunning the detector and music21
+baseline code, run this from a fresh checkout:
 
 ```sh
-mise install && mise research:whatkey-headline-test
+mise install
+mise research:whatkey-headline-rerun -- --yes
 ```
 
-That check does not download any gated corpus data; it recomputes the rounded
-table from `results/test-split-2026-07-07/`.
+This downloads pinned external checkouts into `build/whatkey-corpora/`,
+regenerates the Isophonics headline fixtures under `build/whatkey-fixtures/`,
+runs the Dart detector and music21 baselines, and compares the regenerated
+metrics with the committed expectations. Omit `--yes` to review the download and
+license-gated fixture warning before the script proceeds.
+
+For a fast no-download check that the README table still matches the committed
+one-shot artifacts, run:
+
+```sh
+mise install && mise research:whatkey-headline-verify
+```
+
+That command only parses `results/test-split-2026-07-07/`; it does not rerun the
+detector or baselines.
 
 [REPRODUCING.md](REPRODUCING.md) has exact steps for rebuilding every fixture
 set from pinned upstream checkouts, including the license-gated corpora that are
 never committed, and for verifying the frozen development/test splits. Common
-invocations are wrapped as `mise research:whatkey-*` tasks. For an automated
-local rebuild of the headline Isophonics fixtures and headline test run, use:
+invocations are wrapped as `mise research:whatkey-*` tasks. To audit
+already-prepared local data without downloading or regenerating anything, use:
 
 ```sh
-mise research:whatkey-prepare-data -- --headline --run-headline --yes
+mise research:whatkey-prepare-data -- --headline --verify-only
 ```
-
-Omit `--yes` to review the download and license-gated fixture warning before the
-script proceeds.
 
 ## Citation
 

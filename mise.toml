@@ -30,7 +30,7 @@ run = "uvx ruff@latest check tool"
 
 [tasks."research:python-install"]
 description = "Install pinned optional Python dependencies for research tasks"
-run = "uv pip install music21==10.1.0 pychord==1.4.0"
+run = "uv pip install -r tool/requirements-research.txt"
 
 [tasks."research:oracle-install"]
 description = "Install optional chord oracle dependencies for local comparison runs"
@@ -165,9 +165,14 @@ run = """
 typst compile research/whatkey/paper/main.typ
 """
 
-[tasks."research:whatkey-headline-test"]
-description = "Verify the README headline table from committed WhatKey result artifacts"
+[tasks."research:whatkey-headline-verify"]
+description = "Verify the README headline table from committed WhatKey result artifacts without rerunning detectors"
 run = "python tool/whatkey_headline_table.py --check"
+
+[tasks."research:whatkey-headline-rerun"]
+description = "Prepare gated headline fixtures locally and rerun the detector/baseline code"
+depends = ["research:python-install"]
+run = "python tool/whatkey_prepare_data.py --run-headline \"$@\""
 
 [tasks."research:whatkey-prepare-data"]
 description = "Download pinned WhatKey research corpora into build/ and regenerate fixtures"

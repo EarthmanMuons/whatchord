@@ -5,17 +5,31 @@ fresh checkout and how to verify the headline result table. Generated
 corpus-derived fixtures stay under `build/` unless a separate commit explicitly
 packages them with the required provenance and notices.
 
-## Quick Headline Verification
+## Headline Reproduction
 
-The README headline table can be checked without downloading any gated corpus
-data because the one-shot result artifacts are committed:
+To reproduce the README headline table by rerunning the detector and music21
+baseline code:
 
 ```sh
-mise install && mise research:whatkey-headline-test
+mise install
+mise research:whatkey-headline-rerun -- --yes
 ```
 
-The task reads `research/whatkey/results/test-split-2026-07-07/` and verifies
-the rounded coverage, exact, and MIREX values printed in the landing page.
+This downloads pinned external checkouts into `build/whatkey-corpora/`,
+regenerates the Isophonics fixtures under `build/whatkey-fixtures/`, reruns the
+Dart detector and music21 baselines, and checks the rounded coverage, exact, and
+MIREX values against the committed result manifest. Omit `--yes` to review the
+download and license-gated fixture warning before proceeding.
+
+For a fast no-download verification that only checks the committed one-shot
+artifacts against the landing-page table:
+
+```sh
+mise install && mise research:whatkey-headline-verify
+```
+
+That task reads `research/whatkey/results/test-split-2026-07-07/` and
+`MANIFEST.json`; it does not rerun detectors or baselines.
 
 ## Required Tools
 
@@ -30,6 +44,10 @@ The research tasks pin optional Python packages that affect results:
 
 - `music21==10.1.0`
 - `pychord==1.4.0`
+
+The complete direct and transitive Python pin set is committed at
+`tool/requirements-research.txt`; `mise research:python-install` installs from
+that file into the repository-local `.venv`.
 
 From the repository root, make sure the mise environment is active:
 
@@ -52,10 +70,10 @@ headline table. The script downloads pinned external checkouts into
 fixture data is committed.
 
 The script asks for confirmation before external downloads and license-gated
-fixture preparation. For unattended one-shot use:
+fixture preparation. For unattended one-shot reruns of the headline table:
 
 ```sh
-mise research:whatkey-prepare-data -- --headline --run-headline --yes
+mise research:whatkey-headline-rerun -- --yes
 ```
 
 Useful variants:
@@ -63,8 +81,13 @@ Useful variants:
 ```sh
 mise research:whatkey-prepare-data -- --all --verify-splits --yes
 mise research:whatkey-prepare-data -- --when-in-rome --yes
-mise research:whatkey-prepare-data -- --isophonics --run-headline --yes
+mise research:whatkey-headline-rerun -- --yes
+mise research:whatkey-prepare-data -- --headline --verify-only
 ```
+
+`--verify-only` is read-only: it checks existing checkout commits, fixture
+manifests, fixture files, and split counts, but it does not clone, fetch,
+download, or regenerate data.
 
 The manual commands remain documented below so the exact pins and intermediate
 states are visible.

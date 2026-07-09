@@ -1,0 +1,67 @@
+{
+  "schema": "whatkey-result-manifest/1",
+  "resultSet": "test-split-2026-07-07",
+  "description": "Committed one-shot WhatKey test artifacts used by the research landing page headline table.",
+  "artifactVerificationCommand": "mise install && mise research:whatkey-headline-verify",
+  "headlineRerunCommand": "mise install && mise research:whatkey-headline-rerun -- --yes",
+  "toolchain": {
+    "python": "3.12.13",
+    "uv": "0.11.16",
+    "researchRequirements": "tool/requirements-research.txt",
+    "packages": {
+      "music21": "10.1.0",
+      "pychord": "1.4.0"
+    }
+  },
+  "sources": {
+    "chocoCommit": "5fe168fd55be5c84512abcfbc4e6f1b1f8f0092a",
+    "contrapunctusBenchCommit": "b9e011c8cf34c5e76691dcf2c835b8c99ebd9d59",
+    "whenInRomeCommit": "aa7539f1cf480997a68998405c0783ebf6339c16",
+    "asapCommit": "afc815c75c42e83a79c03feb6da8a35e77d4c6b8"
+  },
+  "headlineTable": {
+    "rounding": {
+      "coverage": 2,
+      "exact": 3,
+      "mirex": 3
+    },
+    "rows": [
+      {
+        "label": "WhatKey (causal, abstaining)",
+        "reportDir": "test-iso-hmm-shipped",
+        "expected": {
+          "coverage": "0.88",
+          "exact": "0.732",
+          "mirex": "0.782"
+        }
+      },
+      {
+        "label": "music21 Temperley-Kostka-Payne",
+        "reportDir": "test-iso-m21-temperleykostkapayne",
+        "expected": {
+          "coverage": "1.00",
+          "exact": "0.637",
+          "mirex": "0.740"
+        }
+      },
+      {
+        "label": "music21 Krumhansl-Schmuckler",
+        "reportDir": "test-iso-m21-krumhanslschmuckler",
+        "expected": {
+          "coverage": "1.00",
+          "exact": "0.624",
+          "mirex": "0.726"
+        }
+      },
+      {
+        "label": "music21 Aarden-Essen",
+        "reportDir": "test-iso-m21-aardenessen",
+        "expected": {
+          "coverage": "1.00",
+          "exact": "0.558",
+          "mirex": "0.690"
+        }
+      }
+    ]
+  }
+}
