@@ -7,6 +7,7 @@ import 'package:whatchord/core/providers/shared_preferences_provider.dart';
 import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/chords/chords.dart';
 import 'package:whatchord/features/demo/demo.dart';
+import 'package:whatchord/features/key/key.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/onboarding/onboarding.dart';
 import 'package:whatchord/features/piano/piano.dart';
@@ -41,6 +42,10 @@ class SettingsResetService {
     // Explore preferences
     await prefs.remove(ExplorePreferencesKeys.showChordMemberDegrees);
 
+    // Key preferences
+    await prefs.remove(KeyPreferencesKeys.autoModeEnabled);
+    await prefs.remove(KeyPreferencesKeys.behavior);
+
     // Cancel any reconnect/backoff workflow before mutating persisted MIDI data.
     // This immediately normalizes connection UI to "Not connected" when idle.
     final connectionState = _ref.read(midiConnectionStateProvider.notifier);
@@ -59,6 +64,10 @@ class SettingsResetService {
     _ref.invalidate(noteNameSystemProvider);
     _ref.invalidate(selectedTonalityProvider);
     _ref.invalidate(exploreChordMemberDegreesProvider);
+    _ref.invalidate(keyModeProvider);
+    // Rebuilding the behavior also rebuilds the key detector, so detection
+    // restarts clean along with everything else.
+    _ref.invalidate(keyBehaviorProvider);
     _ref.invalidate(audioMonitorSettingsNotifier);
     _ref.invalidate(pianoViewSettingsProvider);
     _ref.invalidate(onboardingTourProvider);

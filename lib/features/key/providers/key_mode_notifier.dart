@@ -6,6 +6,7 @@ import 'package:whatchord/core/providers/shared_preferences_provider.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/inferred_key_state.dart';
+import '../persistence/key_preferences_keys.dart';
 import 'inferred_key_notifier.dart';
 
 /// Who drives the selected tonality: the user through the picker, or the key
@@ -33,8 +34,6 @@ final keyModeProvider = NotifierProvider<KeyModeNotifier, KeyMode>(
 /// (the picker, a settings restore) drops the mode back to manual so the
 /// user always wins.
 class KeyModeNotifier extends Notifier<KeyMode> {
-  static const _autoModeKey = 'key.autoModeEnabled';
-
   Tonality? _lastAutoWrite;
   Tonality? _streakTonality;
   int _streak = 0;
@@ -44,7 +43,7 @@ class KeyModeNotifier extends Notifier<KeyMode> {
     ref.listen(inferredKeyProvider, _onInferredKey);
     ref.listen(selectedTonalityProvider, _onTonalityChanged);
     final prefs = ref.watch(sharedPreferencesProvider);
-    return (prefs.getBool(_autoModeKey) ?? false)
+    return (prefs.getBool(KeyPreferencesKeys.autoModeEnabled) ?? false)
         ? KeyMode.auto
         : KeyMode.manual;
   }
@@ -60,7 +59,10 @@ class KeyModeNotifier extends Notifier<KeyMode> {
       }
     }
     final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setBool(_autoModeKey, mode == KeyMode.auto);
+    await prefs.setBool(
+      KeyPreferencesKeys.autoModeEnabled,
+      mode == KeyMode.auto,
+    );
   }
 
   void _onInferredKey(InferredKeyState? previous, InferredKeyState next) {
@@ -101,6 +103,10 @@ class KeyModeNotifier extends Notifier<KeyMode> {
   void _onTonalityChanged(Tonality? previous, Tonality next) {
     if (state != KeyMode.auto || next == _lastAutoWrite) return;
     state = KeyMode.manual;
-    unawaited(ref.read(sharedPreferencesProvider).setBool(_autoModeKey, false));
+    unawaited(
+      ref
+          .read(sharedPreferencesProvider)
+          .setBool(KeyPreferencesKeys.autoModeEnabled, false),
+    );
   }
 }

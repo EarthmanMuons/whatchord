@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:whatchord/core/providers/shared_preferences_provider.dart';
 import 'package:whatchord/features/history/history.dart';
 import 'package:whatchord/features/key/key.dart';
+import 'package:whatchord/features/midi/midi_input_source.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 const _cMajorTonality = Tonality(Tonic.c, TonalityMode.major);
@@ -44,12 +47,20 @@ List<ChordEvent> _cCadence() => [
 ];
 
 void main() {
-  (ProviderContainer, InferredKeyNotifier) setUpContainer({
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  Future<(ProviderContainer, InferredKeyNotifier)> setUpContainer({
     Duration staleAfter = const Duration(seconds: 30),
     Duration resetAfter = const Duration(minutes: 2),
-  }) {
+  }) async {
+    SharedPreferences.setMockInitialValues(const {});
+    final prefs = await SharedPreferences.getInstance();
     final container = ProviderContainer(
       overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+        // Sever the live MIDI chain so the capture providers never reach the
+        // real device manager; events are recorded directly in these tests.
+        midiSoundingNoteNumbersProvider.overrideWith((ref) => const <int>{}),
         inferredKeyStaleAfterProvider.overrideWithValue(staleAfter),
         inferredKeyResetAfterProvider.overrideWithValue(resetAfter),
       ],
@@ -64,8 +75,8 @@ void main() {
     events.forEach(history.record);
   }
 
-  test('claims the key from committed history events', () {
-    final (container, _) = setUpContainer();
+  test('claims the key from committed history events', () async {
+    final (container, _) = await setUpContainer();
     record(container, _cCadence());
 
     final state = container.read(inferredKeyProvider);
@@ -78,8 +89,8 @@ void main() {
     expect(state.emphasized, isTrue);
   });
 
-  test('shows no key during warmup abstention', () {
-    final (container, _) = setUpContainer();
+  test('shows no key during warmup abstention', () async {
+    final (container, _) = await setUpContainer();
     record(container, _cCadence().take(2));
 
     final state = container.read(inferredKeyProvider);
@@ -93,7 +104,7 @@ void main() {
   test(
     'dims after the stale window and forgets after the reset window',
     () async {
-      final (container, _) = setUpContainer(
+      final (container, _) = await setUpContainer(
         staleAfter: const Duration(milliseconds: 40),
         resetAfter: const Duration(milliseconds: 120),
       );
@@ -115,7 +126,7 @@ void main() {
   );
 
   test('a new event within the windows keeps the state fresh', () async {
-    final (container, _) = setUpContainer(
+    final (container, _) = await setUpContainer(
       staleAfter: const Duration(milliseconds: 80),
       resetAfter: const Duration(seconds: 10),
     );
@@ -133,7 +144,7 @@ void main() {
   });
 
   test('reset after silence restarts the detector warmup', () async {
-    final (container, _) = setUpContainer(
+    final (container, _) = await setUpContainer(
       staleAfter: const Duration(milliseconds: 20),
       resetAfter: const Duration(milliseconds: 40),
     );
@@ -154,8 +165,8 @@ void main() {
     expect(state.claim, isNull);
   });
 
-  test('clearing history resets the inferred key', () {
-    final (container, _) = setUpContainer();
+  test('clearing history resets the inferred key', () async {
+    final (container, _) = await setUpContainer();
     record(container, _cCadence());
     expect(container.read(inferredKeyProvider).claim, isNotNull);
 
@@ -165,8 +176,8 @@ void main() {
     expect(state.displayKey, isNull);
   });
 
-  test('retains the last claim through a later abstention', () {
-    final (container, notifier) = setUpContainer();
+  test('retains the last claim through a later abstention', () async {
+    final (container, notifier) = await setUpContainer();
     record(container, _cCadence());
     final claimed = container.read(inferredKeyProvider).claim;
     expect(claimed, isNotNull);
@@ -196,5 +207,29 @@ void main() {
 
     notifier.reset();
     expect(container.read(inferredKeyProvider).lastClaim, isNull);
+  });
+
+  test('switching the behavior preset restarts detection', () async {
+    final (container, _) = await setUpContainer();
+    record(container, _cCadence());
+    expect(container.read(inferredKeyProvider).claim, isNotNull);
+
+    await container
+        .read(keyBehaviorProvider.notifier)
+        .setBehavior(KeyBehavior.reactive);
+
+    var state = container.read(inferredKeyProvider);
+    expect(state.freshness, InferredKeyFreshness.none);
+    expect(state.displayKey, isNull);
+    // The rebuild marks a reset so stale recent chords drop from the display.
+    expect(state.resetAt, isNotNull);
+
+    // Warmup applies again: the fresh detector heard none of the history.
+    record(container, [
+      _event(9, [0, 4, 7], ChordQualityToken.major),
+    ]);
+    state = container.read(inferredKeyProvider);
+    expect(state.freshness, InferredKeyFreshness.fresh);
+    expect(state.claim, isNull);
   });
 }

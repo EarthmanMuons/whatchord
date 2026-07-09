@@ -13,4 +13,5 @@ export 'domain/detectors/key_space.dart';
 export 'domain/detectors/profile_correlation_key_detector.dart';
 export 'domain/detectors/progression_key_detector.dart';
 export 'domain/detectors/weighted_evidence_key_detector.dart';
+export 'domain/models/key_behavior.dart';
 export 'domain/models/key_estimate.dart';

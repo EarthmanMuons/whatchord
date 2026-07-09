@@ -19,6 +19,10 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   button shows the detected key live, dims as evidence fades, and admits
   uncertainty rather than guessing. Choosing a key manually always wins and
   switches back to Manual mode.
+- A Key Detection behavior setting (Stable, Balanced, or Reactive) in Settings
+  controls how quickly automatic key detection follows key changes: from
+  steadily naming the song's key to closely tracking your current tonal
+  center. Confidence readouts stay honest in every mode.
 
 ### Fixed
 

@@ -10,6 +10,7 @@ import 'package:whatchord/features/theory/theory.dart';
 import '../domain/detectors/display_calibration.dart';
 import '../domain/detectors/key_space.dart';
 import '../domain/models/key_estimate.dart';
+import '../providers/key_behavior_notifier.dart';
 
 /// The circle of fifths unrolled for height-constrained layouts: one column
 /// per pitch class in fifths order, major above its relative minor, so the
@@ -52,7 +53,10 @@ class _KeyPosteriorStripState extends ConsumerState<KeyPosteriorStrip> {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final noteNameSystem = ref.watch(noteNameSystemProvider);
-    final calibrated = DisplayCalibration.calibrate(widget.ranked);
+    final calibrated = DisplayCalibration.calibrate(
+      widget.ranked,
+      temperature: ref.watch(keyBehaviorProvider).displayTemperature,
+    );
 
     final byIndex = <int, double>{
       for (final estimate in calibrated)

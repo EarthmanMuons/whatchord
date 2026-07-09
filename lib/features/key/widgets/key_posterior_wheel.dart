@@ -9,6 +9,7 @@ import 'package:whatchord/features/theory/theory.dart';
 import '../domain/detectors/display_calibration.dart';
 import '../domain/detectors/key_space.dart';
 import '../domain/models/key_estimate.dart';
+import '../providers/key_behavior_notifier.dart';
 
 /// The detector's belief over all 24 keys, drawn on the circle of fifths:
 /// majors on the outer ring, each relative minor directly inside it, so the
@@ -43,7 +44,10 @@ class _KeyPosteriorWheelState extends ConsumerState<KeyPosteriorWheel> {
     // stack (accidental glyphs come from the symbols font).
     final labelBase = theme.textTheme.labelMedium ?? const TextStyle();
     final noteNameSystem = ref.watch(noteNameSystemProvider);
-    final calibrated = DisplayCalibration.calibrate(widget.ranked);
+    final calibrated = DisplayCalibration.calibrate(
+      widget.ranked,
+      temperature: ref.watch(keyBehaviorProvider).displayTemperature,
+    );
 
     final byIndex = <int, double>{
       for (final estimate in calibrated)
