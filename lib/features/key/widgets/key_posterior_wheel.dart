@@ -18,7 +18,8 @@ import '../domain/models/key_estimate.dart';
 /// current claim carries a ring so it is never marked by color alone.
 ///
 /// Tapping a segment shows that key's calibrated probability in the wheel's
-/// center; tapping the center (or the same segment again) clears it.
+/// center; dragging scrubs across segments. Tapping the center (or the same
+/// segment again) clears it.
 class KeyPosteriorWheel extends ConsumerStatefulWidget {
   const KeyPosteriorWheel({super.key, required this.ranked, this.claim});
 
@@ -35,7 +36,11 @@ class _KeyPosteriorWheelState extends ConsumerState<KeyPosteriorWheel> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    // Base label style from the theme so painted text keeps the app's font
+    // stack (accidental glyphs come from the symbols font).
+    final labelBase = theme.textTheme.labelMedium ?? const TextStyle();
     final noteNameSystem = ref.watch(noteNameSystemProvider);
     final calibrated = DisplayCalibration.calibrate(widget.ranked);
 
@@ -55,7 +60,7 @@ class _KeyPosteriorWheelState extends ConsumerState<KeyPosteriorWheel> {
     final inspected = _inspectedIndex;
     String? centerTitle;
     String? centerDetail;
-    if (inspected != null && byIndex.isNotEmpty) {
+    if (inspected != null) {
       final tonality = KeySpace.canonicalTonalities[inspected];
       centerTitle = tonality.isMajor
           ? tonicLabel(tonality)
@@ -81,6 +86,8 @@ class _KeyPosteriorWheelState extends ConsumerState<KeyPosteriorWheel> {
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTapUp: (details) => _onTap(details.localPosition, size),
+              onPanStart: (details) => _inspectAt(details.localPosition, size),
+              onPanUpdate: (details) => _inspectAt(details.localPosition, size),
               child: CustomPaint(
                 size: size,
                 painter: _WheelPainter(
@@ -93,6 +100,7 @@ class _KeyPosteriorWheelState extends ConsumerState<KeyPosteriorWheel> {
                   centerDetail: centerDetail,
                   majorLabel: tonicLabel,
                   minorLabel: (tonality) => '${tonicLabel(tonality)}m',
+                  labelBase: labelBase,
                   surface: cs.surfaceContainerLow,
                   rampFrom: cs.surfaceContainerHighest,
                   rampTo: cs.primary,
@@ -116,6 +124,12 @@ class _KeyPosteriorWheelState extends ConsumerState<KeyPosteriorWheel> {
       _inspectedIndex = index == _inspectedIndex ? null : index;
     });
   }
+
+  void _inspectAt(Offset position, Size size) {
+    final index = _WheelPainter.segmentIndexAt(position, size);
+    if (index == null || index == _inspectedIndex) return;
+    setState(() => _inspectedIndex = index);
+  }
 }
 
 class _WheelPainter extends CustomPainter {
@@ -127,6 +141,7 @@ class _WheelPainter extends CustomPainter {
     required this.centerDetail,
     required this.majorLabel,
     required this.minorLabel,
+    required this.labelBase,
     required this.surface,
     required this.rampFrom,
     required this.rampTo,
@@ -144,6 +159,7 @@ class _WheelPainter extends CustomPainter {
   final String? centerDetail;
   final String Function(Tonality) majorLabel;
   final String Function(Tonality) minorLabel;
+  final TextStyle labelBase;
   final Color surface;
   final Color rampFrom;
   final Color rampTo;
@@ -243,7 +259,7 @@ class _WheelPainter extends CustomPainter {
         final painter = TextPainter(
           text: TextSpan(
             text: isMajor ? majorLabel(tonality) : minorLabel(tonality),
-            style: TextStyle(
+            style: labelBase.copyWith(
               fontSize: isMajor ? majorFontSize : minorFontSize,
               fontWeight: index == claimIndex
                   ? FontWeight.w700
@@ -285,7 +301,7 @@ class _WheelPainter extends CustomPainter {
       final title = TextPainter(
         text: TextSpan(
           text: centerTitle,
-          style: TextStyle(
+          style: labelBase.copyWith(
             fontSize: (outer * 0.16).clamp(13.0, 22.0),
             fontWeight: FontWeight.w600,
             color: ink,
@@ -296,8 +312,9 @@ class _WheelPainter extends CustomPainter {
       final detail = TextPainter(
         text: TextSpan(
           text: centerDetail,
-          style: TextStyle(
+          style: labelBase.copyWith(
             fontSize: (outer * 0.12).clamp(11.0, 17.0),
+            fontWeight: FontWeight.w400,
             color: inkMuted,
           ),
         ),
@@ -318,6 +335,7 @@ class _WheelPainter extends CustomPainter {
       oldDelegate.claimIndex != claimIndex ||
       oldDelegate.inspectedIndex != inspectedIndex ||
       oldDelegate.centerDetail != centerDetail ||
+      oldDelegate.labelBase != labelBase ||
       oldDelegate.rampTo != rampTo ||
       oldDelegate.rampFrom != rampFrom ||
       oldDelegate.surface != surface;

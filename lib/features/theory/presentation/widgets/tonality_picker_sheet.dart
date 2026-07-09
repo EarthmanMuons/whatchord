@@ -111,15 +111,17 @@ class TonalityPickerBody extends ConsumerStatefulWidget {
     this.showPanelTitle = false,
     this.showCloseButton = false,
     this.showStaffPreview = true,
+    this.compact = false,
     this.listBottomPadding = 12.0,
     this.recenterSignal = false,
   });
 
   /// Header height with neither panel title nor staff preview: just the
   /// column labels and their divider.
-  static const double slimHeaderHeight = 44.0;
+  static const double slimHeaderHeight = 36.0;
 
   static const double rowHeight = 62.0;
+  static const double compactRowHeight = 52.0;
   static const int rowCount = 15;
 
   /// Height of the header block (staff preview and column labels, plus the
@@ -133,6 +135,10 @@ class TonalityPickerBody extends ConsumerStatefulWidget {
   /// that show the staff elsewhere (the Key page in landscape) disable it
   /// and pass [slimHeaderHeight].
   final bool showStaffPreview;
+
+  /// Tighter metrics for height-constrained layouts: shorter rows
+  /// ([compactRowHeight]) and full-bleed dividers.
+  final bool compact;
   final double listBottomPadding;
 
   /// Toggling to true re-centers the selected row on the next frame (the
@@ -148,6 +154,10 @@ class _TonalityPickerBodyState extends ConsumerState<TonalityPickerBody> {
 
   late final ScrollController _controller;
   late final List<KeySignature> _rows;
+
+  double get _rowHeight => widget.compact
+      ? TonalityPickerBody.compactRowHeight
+      : TonalityPickerBody.rowHeight;
 
   @override
   void initState() {
@@ -205,12 +215,13 @@ class _TonalityPickerBodyState extends ConsumerState<TonalityPickerBody> {
           showPanelTitle: widget.showPanelTitle,
           showCloseButton: widget.showCloseButton,
           showStaffPreview: widget.showStaffPreview,
+          fullBleedDivider: widget.compact,
           backgroundColor: cs.surfaceContainerLow,
         ),
         Expanded(
           child: ListView.builder(
             controller: _controller,
-            itemExtent: TonalityPickerBody.rowHeight,
+            itemExtent: _rowHeight,
             padding: EdgeInsets.only(bottom: widget.listBottomPadding),
             itemCount: _rows.length,
             itemBuilder: (context, index) {
@@ -289,9 +300,11 @@ class _TonalityPickerBodyState extends ConsumerState<TonalityPickerBody> {
                       ),
                     ),
                     if (index < _rows.length - 1)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Divider(height: 1),
+                      Padding(
+                        padding: widget.compact
+                            ? EdgeInsets.zero
+                            : const EdgeInsets.symmetric(horizontal: 16),
+                        child: const Divider(height: 1),
                       ),
                   ],
                 ),
@@ -332,10 +345,7 @@ class _TonalityPickerBodyState extends ConsumerState<TonalityPickerBody> {
 
     final index = _indexForSelected(selected);
 
-    final target =
-        (index * TonalityPickerBody.rowHeight) -
-        (viewport / 2) +
-        (TonalityPickerBody.rowHeight / 2);
+    final target = (index * _rowHeight) - (viewport / 2) + (_rowHeight / 2);
 
     final clamped = target.clamp(
       _controller.position.minScrollExtent,
@@ -399,6 +409,7 @@ class _TonalityPickerHeader extends StatelessWidget {
   final bool showPanelTitle;
   final bool showCloseButton;
   final bool showStaffPreview;
+  final bool fullBleedDivider;
   final Color backgroundColor;
 
   const _TonalityPickerHeader({
@@ -408,6 +419,7 @@ class _TonalityPickerHeader extends StatelessWidget {
     required this.showPanelTitle,
     required this.showCloseButton,
     required this.showStaffPreview,
+    required this.fullBleedDivider,
     required this.backgroundColor,
   });
 
@@ -476,9 +488,11 @@ class _TonalityPickerHeader extends StatelessWidget {
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Divider(height: 1, thickness: 2),
+            Padding(
+              padding: fullBleedDivider
+                  ? EdgeInsets.zero
+                  : const EdgeInsets.symmetric(horizontal: 16),
+              child: const Divider(height: 1, thickness: 2),
             ),
           ],
         ),

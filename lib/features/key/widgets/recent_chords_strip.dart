@@ -73,25 +73,32 @@ class _RecentChordsStripState extends ConsumerState<RecentChordsStrip> {
     final notation = ref.watch(chordNotationStyleProvider);
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
+    final empty = _events.isEmpty;
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 400),
-      child: _events.isEmpty
-          ? const SizedBox.shrink()
-          : Column(
-              key: ValueKey('strip$_generation'),
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Recent chords',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 36,
-                  child: ShaderMask(
+    // Height stays reserved even before the first chord arrives so the rest
+    // of the page does not reflow when the strip appears.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AnimatedOpacity(
+          opacity: empty ? 0 : 1,
+          duration: const Duration(milliseconds: 400),
+          child: Text(
+            'Recent chords',
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 36,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 400),
+            child: empty
+                ? const SizedBox.expand()
+                : ShaderMask(
+                    key: ValueKey('strip$_generation'),
                     shaderCallback: (bounds) => LinearGradient(
                       colors: [
                         _showLeftFade ? Colors.transparent : Colors.white,
@@ -106,14 +113,18 @@ class _RecentChordsStripState extends ConsumerState<RecentChordsStrip> {
                       key: _listKey,
                       controller: _scrollController,
                       scrollDirection: Axis.horizontal,
+                      // Without explicit padding a scrollable adopts the
+                      // ambient safe-area insets, indenting the newest chip
+                      // in landscape.
+                      padding: EdgeInsets.zero,
                       initialItemCount: _events.length,
                       itemBuilder: (context, index, animation) =>
                           _chip(context, _events[index], animation, notation),
                     ),
                   ),
-                ),
-              ],
-            ),
+          ),
+        ),
+      ],
     );
   }
 
