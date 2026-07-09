@@ -13,6 +13,7 @@ export 'domain/models/key_estimate.dart';
 export 'models/inferred_key_state.dart';
 export 'providers/inferred_key_notifier.dart';
 export 'providers/key_mode_notifier.dart';
+export 'providers/key_screenshot_seed_notifier.dart';
 export 'widgets/auto_key_status.dart';
 export 'widgets/key_posterior_strip.dart';
 export 'widgets/key_posterior_wheel.dart';
