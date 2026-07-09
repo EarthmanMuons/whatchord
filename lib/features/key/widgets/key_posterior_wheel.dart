@@ -17,9 +17,10 @@ import '../domain/models/key_estimate.dart';
 /// theme primary; probabilities are display-calibrated before drawing. The
 /// current claim carries a ring so it is never marked by color alone.
 ///
+/// Keys with two common spellings (D flat/C sharp, e flat/d sharp, and
+/// friends) carry both names, the more common first; minors are lowercase.
 /// Tapping a segment shows that key's calibrated probability in the wheel's
-/// center; dragging scrubs across segments. Tapping the center (or the same
-/// segment again) clears it.
+/// center; dragging scrubs across segments. Tapping anywhere else clears it.
 class KeyPosteriorWheel extends ConsumerStatefulWidget {
   const KeyPosteriorWheel({super.key, required this.ranked, this.claim});
 
@@ -52,6 +53,20 @@ class _KeyPosteriorWheelState extends ConsumerState<KeyPosteriorWheel> {
     String tonicLabel(Tonality tonality) =>
         tonalityPickerTonicLabel(tonality, noteNameSystem: noteNameSystem);
 
+    // Both spellings for keys with an enharmonic twin, the more common
+    // (fewer accidentals) first. Detection is pitch-class based, so which
+    // spelling the detector picked carries no information.
+    String keyLabel(Tonality tonality) {
+      final spellings = [
+        for (final row in keySignatureRows)
+          for (final spelled in [row.relativeMajor, row.relativeMinor])
+            if (spelled.mode == tonality.mode &&
+                spelled.tonicPitchClass == tonality.tonicPitchClass)
+              (row.accidentalCount.abs(), spelled),
+      ]..sort((a, b) => a.$1.compareTo(b.$1));
+      return spellings.map((s) => tonicLabel(s.$2)).join('/');
+    }
+
     String percentLabel(double confidence) {
       final percent = confidence * 100;
       return percent >= 0.5 ? '${percent.round()}%' : '<1%';
@@ -62,9 +77,7 @@ class _KeyPosteriorWheelState extends ConsumerState<KeyPosteriorWheel> {
     String? centerDetail;
     if (inspected != null) {
       final tonality = KeySpace.canonicalTonalities[inspected];
-      centerTitle = tonality.isMajor
-          ? tonicLabel(tonality)
-          : '${tonicLabel(tonality)}m';
+      centerTitle = keyLabel(tonality);
       centerDetail = percentLabel(byIndex[inspected] ?? 0);
     }
 
@@ -78,41 +91,48 @@ class _KeyPosteriorWheelState extends ConsumerState<KeyPosteriorWheel> {
 
     return Semantics(
       label: semanticLabel,
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final size = constraints.biggest;
-            return GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTapUp: (details) => _onTap(details.localPosition, size),
-              onPanStart: (details) => _inspectAt(details.localPosition, size),
-              onPanUpdate: (details) => _inspectAt(details.localPosition, size),
-              child: CustomPaint(
-                size: size,
-                painter: _WheelPainter(
-                  confidenceByIndex: byIndex,
-                  claimIndex: widget.claim == null
-                      ? null
-                      : KeySpace.index(widget.claim!),
-                  inspectedIndex: inspected,
-                  centerTitle: centerTitle,
-                  centerDetail: centerDetail,
-                  majorLabel: tonicLabel,
-                  minorLabel: (tonality) => '${tonicLabel(tonality)}m',
-                  labelBase: labelBase,
-                  surface: cs.surfaceContainerLow,
-                  rampFrom: cs.surfaceContainerHighest,
-                  rampTo: cs.primary,
-                  inkMuted: cs.onSurfaceVariant,
-                  ink: cs.onSurface,
-                  inkOnFill: cs.onPrimary,
-                  claimRing: cs.onSurface,
-                  inspectRing: cs.tertiary,
+      child: TapRegion(
+        onTapOutside: (_) {
+          if (_inspectedIndex == null) return;
+          setState(() => _inspectedIndex = null);
+        },
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final size = constraints.biggest;
+              return GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTapUp: (details) => _onTap(details.localPosition, size),
+                onPanStart: (details) =>
+                    _inspectAt(details.localPosition, size),
+                onPanUpdate: (details) =>
+                    _inspectAt(details.localPosition, size),
+                child: CustomPaint(
+                  size: size,
+                  painter: _WheelPainter(
+                    confidenceByIndex: byIndex,
+                    claimIndex: widget.claim == null
+                        ? null
+                        : KeySpace.index(widget.claim!),
+                    inspectedIndex: inspected,
+                    centerTitle: centerTitle,
+                    centerDetail: centerDetail,
+                    keyLabel: keyLabel,
+                    labelBase: labelBase,
+                    surface: cs.surfaceContainerLow,
+                    rampFrom: cs.surfaceContainerHighest,
+                    rampTo: cs.primary,
+                    inkMuted: cs.onSurfaceVariant,
+                    ink: cs.onSurface,
+                    inkOnFill: cs.onPrimary,
+                    claimRing: cs.onSurface,
+                    inspectRing: cs.tertiary,
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -139,8 +159,7 @@ class _WheelPainter extends CustomPainter {
     required this.inspectedIndex,
     required this.centerTitle,
     required this.centerDetail,
-    required this.majorLabel,
-    required this.minorLabel,
+    required this.keyLabel,
     required this.labelBase,
     required this.surface,
     required this.rampFrom,
@@ -157,8 +176,7 @@ class _WheelPainter extends CustomPainter {
   final int? inspectedIndex;
   final String? centerTitle;
   final String? centerDetail;
-  final String Function(Tonality) majorLabel;
-  final String Function(Tonality) minorLabel;
+  final String Function(Tonality) keyLabel;
   final TextStyle labelBase;
   final Color surface;
   final Color rampFrom;
@@ -256,11 +274,12 @@ class _WheelPainter extends CustomPainter {
         final angle = start + _sweep / 2;
         final labelCenter =
             center + Offset(math.cos(angle), math.sin(angle)) * labelRadius;
-        final painter = TextPainter(
+        final text = keyLabel(tonality);
+        TextPainter layoutLabel(double fontSize) => TextPainter(
           text: TextSpan(
-            text: isMajor ? majorLabel(tonality) : minorLabel(tonality),
+            text: text,
             style: labelBase.copyWith(
-              fontSize: isMajor ? majorFontSize : minorFontSize,
+              fontSize: fontSize,
               fontWeight: index == claimIndex
                   ? FontWeight.w700
                   : FontWeight.w500,
@@ -269,6 +288,17 @@ class _WheelPainter extends CustomPainter {
           ),
           textDirection: TextDirection.ltr,
         )..layout();
+        var painter = layoutLabel(isMajor ? majorFontSize : minorFontSize);
+        // Enharmonic pair labels can outgrow their segment; shrink to fit
+        // the chord width at the label radius.
+        final maxLabelWidth = 2 * labelRadius * math.sin(_sweep / 2) * 0.92;
+        if (painter.width > maxLabelWidth) {
+          painter = layoutLabel(
+            (isMajor ? majorFontSize : minorFontSize) *
+                maxLabelWidth /
+                painter.width,
+          );
+        }
         painter.paint(
           canvas,
           labelCenter - Offset(painter.width / 2, painter.height / 2),

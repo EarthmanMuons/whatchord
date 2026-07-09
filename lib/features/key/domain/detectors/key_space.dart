@@ -6,12 +6,23 @@ abstract final class KeySpace {
   /// One canonical `Tonality` per (pitch class, mode) pair, taken from the key
   /// signature table and ordered so that a tonality's list position equals
   /// [index] of it. Detection is pitch-class based; enharmonic spelling is a
-  /// presentation concern.
+  /// presentation concern. Where two spellings exist the one with fewer
+  /// accidentals wins (B over C flat); the six-accidental tie prefers flats
+  /// (G flat major, e flat minor), keeping relative pairs consistent.
   static final List<Tonality> canonicalTonalities = _canonicalTonalities();
 
   static List<Tonality> _canonicalTonalities() {
+    final rows = [...keySignatureRows]
+      ..sort((a, b) {
+        final byCount = a.accidentalCount.abs().compareTo(
+          b.accidentalCount.abs(),
+        );
+        return byCount != 0
+            ? byCount
+            : a.accidentalCount.compareTo(b.accidentalCount);
+      });
     final byKey = <int, Tonality>{};
-    for (final row in keySignatureRows) {
+    for (final row in rows) {
       for (final tonality in [row.relativeMajor, row.relativeMinor]) {
         byKey.putIfAbsent(index(tonality), () => tonality);
       }
