@@ -172,19 +172,23 @@ class _PortraitAutoPane extends ConsumerWidget {
         // the pane scrolls instead, so the wheel shrinks smoothly to its
         // floor rather than snapping between layouts.
         const minPaneHeight = 340.0;
-        const verticalPadding = 8.0;
+        const verticalPadding = 4.0;
         final contentHeight =
             math.max(constraints.maxHeight, minPaneHeight) - verticalPadding;
 
         return FadedScrollView(
-          padding: EdgeInsets.fromLTRB(horizontalInset, 4, horizontalInset, 4),
+          // No top padding: the segments row's 12px bottom padding is the
+          // full gap above the status block.
+          padding: EdgeInsets.fromLTRB(horizontalInset, 0, horizontalInset, 4),
           child: SizedBox(
             height: contentHeight,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const AutoKeyStatus(),
-                const SizedBox(height: 8),
+                // Matches the 12px above the status block so the wheel does
+                // not crowd the confidence line.
+                const SizedBox(height: 12),
                 Expanded(
                   child: Center(
                     child: AspectRatio(
