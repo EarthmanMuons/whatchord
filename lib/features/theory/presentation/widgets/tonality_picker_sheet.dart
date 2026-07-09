@@ -110,9 +110,14 @@ class TonalityPickerBody extends ConsumerStatefulWidget {
     this.headerHeight = 144.0,
     this.showPanelTitle = false,
     this.showCloseButton = false,
+    this.showStaffPreview = true,
     this.listBottomPadding = 12.0,
     this.recenterSignal = false,
   });
+
+  /// Header height with neither panel title nor staff preview: just the
+  /// column labels and their divider.
+  static const double slimHeaderHeight = 44.0;
 
   static const double rowHeight = 62.0;
   static const int rowCount = 15;
@@ -123,6 +128,11 @@ class TonalityPickerBody extends ConsumerStatefulWidget {
 
   final bool showPanelTitle;
   final bool showCloseButton;
+
+  /// Whether the header includes the key-signature staff preview; layouts
+  /// that show the staff elsewhere (the Key page in landscape) disable it
+  /// and pass [slimHeaderHeight].
+  final bool showStaffPreview;
   final double listBottomPadding;
 
   /// Toggling to true re-centers the selected row on the next frame (the
@@ -194,6 +204,7 @@ class _TonalityPickerBodyState extends ConsumerState<TonalityPickerBody> {
           keySignature: selectedKeySignature,
           showPanelTitle: widget.showPanelTitle,
           showCloseButton: widget.showCloseButton,
+          showStaffPreview: widget.showStaffPreview,
           backgroundColor: cs.surfaceContainerLow,
         ),
         Expanded(
@@ -387,6 +398,7 @@ class _TonalityPickerHeader extends StatelessWidget {
   final KeySignature keySignature;
   final bool showPanelTitle;
   final bool showCloseButton;
+  final bool showStaffPreview;
   final Color backgroundColor;
 
   const _TonalityPickerHeader({
@@ -395,6 +407,7 @@ class _TonalityPickerHeader extends StatelessWidget {
     required this.keySignature,
     required this.showPanelTitle,
     required this.showCloseButton,
+    required this.showStaffPreview,
     required this.backgroundColor,
   });
 
@@ -418,12 +431,13 @@ class _TonalityPickerHeader extends StatelessWidget {
                 title: 'Key Signature',
                 showCloseButton: showCloseButton,
               ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-              child: Center(
-                child: KeySignatureStaffPreview(keySignature: keySignature),
+            if (showStaffPreview)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                child: Center(
+                  child: KeySignatureStaffPreview(keySignature: keySignature),
+                ),
               ),
-            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),

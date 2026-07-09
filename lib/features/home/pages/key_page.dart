@@ -76,23 +76,30 @@ class KeyPage extends ConsumerWidget {
                     builder: (context, bodyConstraints) {
                       return Column(
                         children: [
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              horizontalInset,
-                              12,
-                              horizontalInset,
-                              12,
+                          if (!isLandscape) ...[
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                horizontalInset,
+                                12,
+                                horizontalInset,
+                                12,
+                              ),
+                              child: _ModeSegments(mode: mode),
                             ),
-                            child: _ModeSegments(mode: mode),
-                          ),
-                          Expanded(
-                            child: mode == KeyMode.auto
-                                ? _AutoPane(
-                                    isLandscape: isLandscape,
-                                    horizontalInset: horizontalInset,
-                                  )
-                                : const TonalityPickerBody(),
-                          ),
+                            Expanded(
+                              child: mode == KeyMode.auto
+                                  ? _PortraitAutoPane(
+                                      horizontalInset: horizontalInset,
+                                    )
+                                  : const TonalityPickerBody(),
+                            ),
+                          ] else
+                            Expanded(
+                              child: _LandscapeBody(
+                                mode: mode,
+                                horizontalInset: horizontalInset,
+                              ),
+                            ),
                           ResizableKeyboardArea(
                             config: config,
                             maxKeyboardHeight: maxKeyboardHeightForLayout(
@@ -148,73 +155,149 @@ class _ModeSegments extends ConsumerWidget {
   }
 }
 
-class _AutoPane extends ConsumerWidget {
-  const _AutoPane({required this.isLandscape, required this.horizontalInset});
+class _PortraitAutoPane extends ConsumerWidget {
+  const _PortraitAutoPane({required this.horizontalInset});
 
-  final bool isLandscape;
   final double horizontalInset;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final inferred = ref.watch(inferredKeyProvider);
 
-    // Landscape has no room for the wheel; the strip is the circle of fifths
-    // unrolled, keeping the same adjacency story in a short wide band.
-    if (isLandscape) {
-      return FadedScrollView(
-        padding: EdgeInsets.fromLTRB(horizontalInset, 0, horizontalInset, 8),
-        child: Column(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // The wheel absorbs whatever height remains, so growing the keyboard
+        // eats slack around the wheel before shrinking it; below the wheel's
+        // readable minimum the pane falls back to scrolling.
+        final content = Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const AutoKeyStatus(),
-            const SizedBox(height: 12),
-            KeyPosteriorStrip(
-              ranked: inferred.ranked,
-              claim: inferred.displayKey?.tonality,
-            ),
-            const SizedBox(height: 12),
-            const RecentChordsStrip(),
-          ],
-        ),
-      );
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Shrink the wheel before letting it hide behind the keyboard: leave
-        // room for the status header and the recent-chords strip, and fall
-        // back to scrolling only below the wheel's readable minimum.
-        const surroundingContent = 220.0;
-        final wheelSize = math
-            .min(
-              constraints.maxWidth - 2 * horizontalInset,
-              constraints.maxHeight - surroundingContent,
-            )
-            .clamp(160.0, 300.0);
-
-        return FadedScrollView(
-          padding: EdgeInsets.fromLTRB(horizontalInset, 4, horizontalInset, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const AutoKeyStatus(),
-              const SizedBox(height: 12),
-              Center(
-                child: SizedBox(
-                  width: wheelSize,
-                  height: wheelSize,
-                  child: KeyPosteriorWheel(
-                    ranked: inferred.ranked,
-                    claim: inferred.displayKey?.tonality,
+            const SizedBox(height: 8),
+            Expanded(
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: 300,
+                      maxHeight: 300,
+                    ),
+                    child: KeyPosteriorWheel(
+                      ranked: inferred.ranked,
+                      claim: inferred.displayKey?.tonality,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
-              const RecentChordsStrip(),
-            ],
-          ),
+            ),
+            const SizedBox(height: 8),
+            const RecentChordsStrip(),
+          ],
+        );
+
+        const surroundingContent = 190.0;
+        const minWheel = 150.0;
+        if (constraints.maxHeight < surroundingContent + minWheel) {
+          return FadedScrollView(
+            padding: EdgeInsets.fromLTRB(
+              horizontalInset,
+              4,
+              horizontalInset,
+              4,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const AutoKeyStatus(),
+                const SizedBox(height: 8),
+                Center(
+                  child: SizedBox(
+                    width: minWheel,
+                    height: minWheel,
+                    child: KeyPosteriorWheel(
+                      ranked: inferred.ranked,
+                      claim: inferred.displayKey?.tonality,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const RecentChordsStrip(),
+              ],
+            ),
+          );
+        }
+
+        return Padding(
+          padding: EdgeInsets.fromLTRB(horizontalInset, 4, horizontalInset, 4),
+          child: content,
         );
       },
+    );
+  }
+}
+
+/// Landscape splits like the Explore pages: mode control and context on the
+/// left, the working surface (posterior strip and chords, or the key list)
+/// on the right.
+class _LandscapeBody extends ConsumerWidget {
+  const _LandscapeBody({required this.mode, required this.horizontalInset});
+
+  final KeyMode mode;
+  final double horizontalInset;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final inferred = ref.watch(inferredKeyProvider);
+    final selected = ref.watch(selectedTonalityProvider);
+
+    final left = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ModeSegments(mode: mode),
+        const SizedBox(height: 14),
+        if (mode == KeyMode.auto)
+          const AutoKeyStatus()
+        else
+          Center(
+            child: KeySignatureStaffPreview(
+              keySignature: selected.keySignature,
+            ),
+          ),
+      ],
+    );
+
+    final right = mode == KeyMode.auto
+        ? FadedScrollView(
+            padding: const EdgeInsets.only(top: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                KeyPosteriorStrip(
+                  ranked: inferred.ranked,
+                  claim: inferred.displayKey?.tonality,
+                ),
+                const SizedBox(height: 12),
+                const RecentChordsStrip(),
+              ],
+            ),
+          )
+        : const TonalityPickerBody(
+            showStaffPreview: false,
+            headerHeight: TonalityPickerBody.slimHeaderHeight,
+            listBottomPadding: 0,
+          );
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(horizontalInset, 10, horizontalInset, 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(flex: 5, child: FadedScrollView(child: left)),
+          const SizedBox(width: 16),
+          Expanded(flex: 7, child: right),
+        ],
+      ),
     );
   }
 }
