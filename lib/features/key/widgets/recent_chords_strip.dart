@@ -76,82 +76,87 @@ class _RecentChordsStripState extends ConsumerState<RecentChordsStrip> {
     final empty = _events.isEmpty;
 
     // Height stays reserved even before the first chord arrives so the rest
-    // of the page does not reflow when the strip appears.
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    // of the page does not reflow when the strip appears. The reset control
+    // overlays the top-right corner rather than sitting in the title row so
+    // its 48px accessibility tap target (extending down over the header gap
+    // and the untappable end of the chips lane) never disturbs the layout.
+    return Stack(
+      // The reset pill overflows 4px above the title line to stay centered
+      // on it.
+      clipBehavior: Clip.none,
       children: [
-        IgnorePointer(
-          ignoring: empty,
-          child: ExcludeSemantics(
-            excluding: empty,
-            child: AnimatedOpacity(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AnimatedOpacity(
               opacity: empty ? 0 : 1,
               duration: const Duration(milliseconds: 400),
-              child: Row(
-                children: [
-                  Text(
-                    'Recent chords',
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      color: cs.onSurfaceVariant,
-                    ),
-                  ),
-                  const Spacer(),
-                  TextButton.icon(
-                    onPressed: () =>
-                        ref.read(inferredKeyProvider.notifier).reset(),
-                    // Visually compact, but the tap target stays at the
-                    // 48px accessibility minimum via the padded hit area.
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      minimumSize: const Size(0, 28),
-                      tapTargetSize: MaterialTapTargetSize.padded,
-                    ),
-                    icon: const Icon(Icons.refresh, size: 16),
-                    label: const Text(
-                      'Reset',
-                      semanticsLabel: 'Reset key detection',
-                    ),
-                  ),
-                ],
+              child: Text(
+                'Recent chords',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  color: cs.onSurfaceVariant,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            _chipsLane(notation, empty),
+          ],
+        ),
+        Positioned(
+          top: -4,
+          right: 0,
+          child: IgnorePointer(
+            ignoring: empty,
+            child: ExcludeSemantics(
+              excluding: empty,
+              child: AnimatedOpacity(
+                opacity: empty ? 0 : 1,
+                duration: const Duration(milliseconds: 400),
+                child: _ResetButton(
+                  onPressed: () =>
+                      ref.read(inferredKeyProvider.notifier).reset(),
+                ),
               ),
             ),
           ),
         ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 36,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
-            child: empty
-                ? const SizedBox.expand()
-                : ShaderMask(
-                    key: ValueKey('strip$_generation'),
-                    shaderCallback: (bounds) => LinearGradient(
-                      colors: [
-                        _showLeftFade ? Colors.transparent : Colors.white,
-                        Colors.white,
-                        Colors.white,
-                        Colors.transparent,
-                      ],
-                      stops: const [0, 0.06, 0.92, 1],
-                    ).createShader(bounds),
-                    blendMode: BlendMode.dstIn,
-                    child: AnimatedList(
-                      key: _listKey,
-                      controller: _scrollController,
-                      scrollDirection: Axis.horizontal,
-                      // Without explicit padding a scrollable adopts the
-                      // ambient safe-area insets, indenting the newest chip
-                      // in landscape.
-                      padding: EdgeInsets.zero,
-                      initialItemCount: _events.length,
-                      itemBuilder: (context, index, animation) =>
-                          _chip(context, _events[index], animation, notation),
-                    ),
-                  ),
-          ),
-        ),
       ],
+    );
+  }
+
+  Widget _chipsLane(ChordNotationStyle notation, bool empty) {
+    return SizedBox(
+      height: 36,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 400),
+        child: empty
+            ? const SizedBox.expand()
+            : ShaderMask(
+                key: ValueKey('strip$_generation'),
+                shaderCallback: (bounds) => LinearGradient(
+                  colors: [
+                    _showLeftFade ? Colors.transparent : Colors.white,
+                    Colors.white,
+                    Colors.white,
+                    Colors.transparent,
+                  ],
+                  stops: const [0, 0.06, 0.92, 1],
+                ).createShader(bounds),
+                blendMode: BlendMode.dstIn,
+                child: AnimatedList(
+                  key: _listKey,
+                  controller: _scrollController,
+                  scrollDirection: Axis.horizontal,
+                  // Without explicit padding a scrollable adopts the
+                  // ambient safe-area insets, indenting the newest chip
+                  // in landscape.
+                  padding: EdgeInsets.zero,
+                  initialItemCount: _events.length,
+                  itemBuilder: (context, index, animation) =>
+                      _chip(context, _events[index], animation, notation),
+                ),
+              ),
+      ),
     );
   }
 
@@ -223,5 +228,40 @@ class _RecentChordsStripState extends ConsumerState<RecentChordsStrip> {
       _events.clear();
       _generation += 1; // rebuild the AnimatedList empty
     });
+  }
+}
+
+/// Compact reset affordance: the ink stays a small pill centered on the
+/// label, while an invisible surrounding box (taps there also reset, without
+/// a ripple) brings the effective target up to the 48px accessibility
+/// minimum.
+class _ResetButton extends StatelessWidget {
+  const _ResetButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: onPressed,
+      child: Container(
+        height: 52,
+        constraints: const BoxConstraints(minWidth: 48),
+        alignment: Alignment.topCenter,
+        child: TextButton.icon(
+          onPressed: onPressed,
+          style: TextButton.styleFrom(
+            // The icon glyph carries built-in whitespace, so the trailing
+            // side needs extra padding to look optically even.
+            padding: const EdgeInsetsDirectional.fromSTEB(8, 0, 12, 0),
+            minimumSize: const Size(0, 28),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          icon: const Icon(Icons.refresh, size: 16),
+          label: const Text('Reset', semanticsLabel: 'Reset key detection'),
+        ),
+      ),
+    );
   }
 }
