@@ -23,12 +23,27 @@ class RecentChordsStrip extends ConsumerStatefulWidget {
 
 class _RecentChordsStripState extends ConsumerState<RecentChordsStrip> {
   final _listKey = GlobalKey<AnimatedListState>();
+  final _scrollController = ScrollController();
   final List<ChordEvent> _events = []; // newest first
   var _generation = 0;
+  var _showLeftFade = false;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(() {
+      final scrolled =
+          _scrollController.hasClients && _scrollController.offset > 4;
+      if (scrolled != _showLeftFade) {
+        setState(() => _showLeftFade = scrolled);
+      }
+    });
     // Seed from the events already contributing to the current belief (the
     // page can open mid-session).
     final inferred = ref.read(inferredKeyProvider);
@@ -77,13 +92,19 @@ class _RecentChordsStripState extends ConsumerState<RecentChordsStrip> {
                 SizedBox(
                   height: 36,
                   child: ShaderMask(
-                    shaderCallback: (bounds) => const LinearGradient(
-                      colors: [Colors.white, Colors.white, Colors.transparent],
-                      stops: [0, 0.92, 1],
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [
+                        _showLeftFade ? Colors.transparent : Colors.white,
+                        Colors.white,
+                        Colors.white,
+                        Colors.transparent,
+                      ],
+                      stops: const [0, 0.06, 0.92, 1],
                     ).createShader(bounds),
                     blendMode: BlendMode.dstIn,
                     child: AnimatedList(
                       key: _listKey,
+                      controller: _scrollController,
                       scrollDirection: Axis.horizontal,
                       initialItemCount: _events.length,
                       itemBuilder: (context, index, animation) =>
