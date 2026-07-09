@@ -7,6 +7,7 @@ import 'package:whatchord/features/theory/theory.dart';
 import '../domain/detectors/display_calibration.dart';
 import '../models/inferred_key_state.dart';
 import '../providers/inferred_key_notifier.dart';
+import '../providers/key_behavior_notifier.dart';
 
 /// Headline for the auto key view: the detected key with its calibrated
 /// confidence, or a plain-language account of why there is no claim.
@@ -33,7 +34,11 @@ class AutoKeyStatus extends ConsumerWidget {
         displayKey.tonality,
         noteNameSystem: noteNameSystem,
       );
-      final confidence = _calibratedConfidence(state, displayKey.tonality);
+      final confidence = _calibratedConfidence(
+        state,
+        displayKey.tonality,
+        ref.watch(keyBehaviorProvider).displayTemperature,
+      );
       final percent = confidence == null
           ? null
           : '${(confidence * 100).round()}% confident';
@@ -65,8 +70,15 @@ class AutoKeyStatus extends ConsumerWidget {
     );
   }
 
-  double? _calibratedConfidence(InferredKeyState state, Tonality tonality) {
-    final calibrated = DisplayCalibration.calibrate(state.ranked);
+  double? _calibratedConfidence(
+    InferredKeyState state,
+    Tonality tonality,
+    double temperature,
+  ) {
+    final calibrated = DisplayCalibration.calibrate(
+      state.ranked,
+      temperature: temperature,
+    );
     for (final estimate in calibrated) {
       if (estimate.tonality == tonality) return estimate.confidence;
     }

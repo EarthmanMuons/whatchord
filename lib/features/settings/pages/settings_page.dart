@@ -10,6 +10,7 @@ import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/audio/audio.dart';
 import 'package:whatchord/features/demo/demo.dart';
 import 'package:whatchord/features/home/home.dart';
+import 'package:whatchord/features/key/key.dart';
 import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
@@ -322,6 +323,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ),
 
               const SizedBox(height: 16),
+              const SectionHeader(title: 'Key Detection', icon: Icons.key),
+
+              _KeyBehaviorControl(
+                behavior: ref.watch(keyBehaviorProvider),
+                onChanged: (behavior) {
+                  unawaited(
+                    ref
+                        .read(keyBehaviorProvider.notifier)
+                        .setBehavior(behavior),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 16),
               const SectionHeader(
                 title: 'Appearance',
                 icon: Icons.palette_outlined,
@@ -598,6 +613,131 @@ class _AudioMonitorModeControl extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _KeyBehaviorControl extends StatelessWidget {
+  const _KeyBehaviorControl({required this.behavior, required this.onChanged});
+
+  final KeyBehavior behavior;
+  final ValueChanged<KeyBehavior> onChanged;
+
+  static String _label(KeyBehavior behavior) => switch (behavior) {
+    KeyBehavior.stable => 'Stable',
+    KeyBehavior.balanced => 'Balanced',
+    KeyBehavior.reactive => 'Reactive',
+  };
+
+  String get _description => switch (behavior) {
+    KeyBehavior.stable => "Holds the song's key steady through detours",
+    KeyBehavior.balanced => 'Follows key changes within a few chords',
+    KeyBehavior.reactive => 'Closely tracks your current tonal center',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Behavior', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 2),
+          Text(
+            _description,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: cs.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Semantics(
+            label: 'Key detection behavior',
+            child: Slider(
+              value: behavior.index.toDouble(),
+              max: (KeyBehavior.values.length - 1).toDouble(),
+              divisions: KeyBehavior.values.length - 1,
+              semanticFormatterCallback: (value) =>
+                  _label(KeyBehavior.values[value.round()]),
+              onChanged: (value) {
+                final next = KeyBehavior.values[value.round()];
+                if (next != behavior) {
+                  onChanged(next);
+                  unawaited(HapticFeedback.selectionClick());
+                }
+              },
+            ),
+          ),
+          // Stop labels aligned under the slider track ends and center;
+          // tapping one selects it directly.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                for (final option in KeyBehavior.values)
+                  Expanded(
+                    child: _KeyBehaviorStopLabel(
+                      label: _label(option),
+                      selected: option == behavior,
+                      alignment: switch (option.index) {
+                        0 => Alignment.centerLeft,
+                        _ when option.index == KeyBehavior.values.length - 1 =>
+                          Alignment.centerRight,
+                        _ => Alignment.center,
+                      },
+                      onTap: () => onChanged(option),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _KeyBehaviorStopLabel extends StatelessWidget {
+  const _KeyBehaviorStopLabel({
+    required this.label,
+    required this.selected,
+    required this.alignment,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final Alignment alignment;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    return Semantics(
+      button: true,
+      selected: selected,
+      onTapHint: 'Set key detection to $label',
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: onTap,
+        child: Align(
+          alignment: alignment,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Text(
+              label,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: selected ? cs.primary : cs.onSurfaceVariant,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
