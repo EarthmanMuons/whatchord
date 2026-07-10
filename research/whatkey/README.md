@@ -1,10 +1,10 @@
 # WhatKey
 
 WhatKey is a streaming key-estimation system for [WhatChord](../../README.md).
-It listens to the chords a musician plays on a MIDI keyboard, updates its belief
-after each chord, and reports the current key when the evidence supports a
-claim. Displayed probabilities are calibrated separately from the detector's
-internal ranking.
+It listens to the recent chords you play, keeps track of which keys best explain
+them, and only shows a key when the evidence is strong enough instead of
+guessing. The confidence shown in the app is adjusted to be mathematically
+honest, without changing which key the detector chooses.
 
 Read the current draft: [paper/main.pdf](paper/main.pdf).
 
@@ -32,16 +32,20 @@ held-out evaluation.
 
 ## Main result
 
-The final detector is a compact hidden Markov model run strictly forward in
-time. It keeps a probability distribution over the 24 major and minor keys,
-updates it from recent chord evidence, and abstains when the leading candidates
-are too close. The detector uses raw posterior probabilities for ranking and
-abstention; numbers shown to users pass through a display-only calibration step.
+The final detector is a compact
+[hidden Markov model](https://en.wikipedia.org/wiki/Hidden_Markov_model) run
+strictly forward in time. It keeps a probability distribution over the 24 major
+and minor keys, updates it from recent chord evidence, and abstains when the
+leading candidates are too close. The detector uses raw posterior probabilities
+for ranking and abstention; numbers shown to users pass through a display-only
+calibration step. The measurement terms used below are defined in the
+[glossary](GLOSSARY.md).
 
-On held-out pop-song fixtures, it reached parity with standard offline music21
-key finders that read the whole song before answering. Its point estimates were
-higher in this evaluation, but the paired statistics support the more
-conservative claim: parity under stricter operating constraints.
+On held-out pop-song fixtures, it reached parity with standard offline
+[music21](https://www.music21.org/) key finders that read the whole song before
+answering. Its point estimates were higher in this evaluation, but the paired
+statistics support the more conservative claim: parity under stricter operating
+constraints.
 
 | system                         | coverage | exact | MIREX |
 | ------------------------------ | -------- | ----- | ----- |
@@ -51,12 +55,13 @@ conservative claim: parity under stricter operating constraints.
 | music21 Aarden-Essen           | 1.00     | 0.558 | 0.690 |
 
 Reading the table: **coverage** is how often the system names a key, **exact**
-is how often that key is exactly right, and **MIREX** is the field's weighted
-score for musically close misses. The offline systems always answer, so their
-coverage is 1.00. WhatKey declined to answer on the most ambiguous 12% of
-moments and was exactly right 73% of the time when it did. The evaluation also
-tracks wrong key switches, real key-change detection and lag, and time to first
-claim.
+is how often that key is exactly right, and
+[**MIREX**](https://music-ir.org/mirex/wiki/2019:Audio_Key_Detection) is the
+field's weighted score for musically close misses. The offline systems always
+answer, so their coverage is 1.00. WhatKey declined to answer on the most
+ambiguous 12% of moments and was exactly right 73% of the time when it did. The
+evaluation also tracks wrong key switches, real key-change detection and lag,
+and time to first claim.
 
 ## What the paper argues
 
