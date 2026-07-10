@@ -6,7 +6,7 @@ them, and only shows a key when the evidence is strong enough instead of
 guessing. The confidence shown in the app is adjusted to be mathematically
 honest, without changing which key the detector chooses.
 
-Read the current draft: [paper/main.pdf](paper/main.pdf).
+Read the current preprint: [paper/main.pdf](paper/main.pdf).
 
 ## Research question
 
@@ -151,7 +151,7 @@ mise research:whatkey-prepare-data -- --headline --verify-only
 
 ## Citation
 
-If you build on this work, please cite the paper draft:
+If you build on this work, please cite the preprint:
 
 ```bibtex
 @misc{bullschaefer2026whatkey,
@@ -160,8 +160,8 @@ If you build on this work, please cite the paper draft:
             Chord-Recognition Output},
   year   = {2026},
   url    = {https://github.com/EarthmanMuons/whatchord/tree/main/research/whatkey},
-  note   = {Draft. Protocol, experiment log, and evaluation artifacts in the
-            linked repository directory.}
+  note   = {Preprint. Protocol, experiment log, and evaluation artifacts in
+            the linked repository directory.}
 }
 ```
 
