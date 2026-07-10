@@ -65,30 +65,32 @@ and time to first claim.
 
 ## What the paper argues
 
-**Memory selects an annotation target.** A short memory fits local-key labels; a
-longer memory fits section-key labels. Both are musically defensible, and
-different annotation traditions reward different answers, even on the same
-performances. The selected default favors section-key stability because the
-target interface is a glanceable key indicator, but the broader result is about
-evaluation: key detectors can only be compared fairly when they are graded
-against the same kind of answer key.
+**Memory selects the kind of key being answered.** Short memory follows brief
+local-key assertions; longer memory absorbs those excursions and reports the
+stable section key. Neither setting is simply "more accurate" in isolation: each
+comes out ahead when scored on the kind of key it reports, even on the same
+recordings. The selected default favors section-key stability because the target
+interface is a glanceable key indicator, but the broader result is about
+evaluation: key-detection numbers are only meaningful when the task says which
+timescale of key counts as correct.
 
 **Mode evidence can be isolated.** The most visible residual mistake is showing
-the wrong mode, such as C minor instead of C major. The adopted rule uses the
-quality of a home chord to choose within a same-tonic major/minor pair, while
-preserving evidence for the tonic itself. That roughly halves parallel-mode
-confusion without pulling the detector toward unrelated keys.
+the wrong mode, such as C minor instead of C major. The adopted rule looks at
+chords built on the tonic: a clearly major or clearly minor C chord helps decide
+between the two keys, and by construction it cannot shift support toward any
+other key. That roughly halves parallel-mode confusion.
 
 **Negative results are part of the record.** Additional chord-function rules
 help only when the goal is local-key tracking; weighting evidence by the chord
-recognizer's own confidence did not help in the tested settings; and
+recognizer's own confidence never helped in any tested setting; and
 adaptive-memory models react faster but make more wrong switches. Each negative
 result has a reproducible experiment behind it in the log.
 
 **Confidence needs its own calibration.** The detector's raw posteriors are
-overconfident, so WhatKey applies post-hoc temperature scaling only to displayed
-probabilities. This makes the user-facing confidence number more honest without
-changing the detector's ranked keys, abstention decisions, or paper results.
+overconfident (claiming 91% where it earned 72% on the held-out split), so
+WhatKey applies post-hoc temperature scaling only to displayed probabilities.
+This makes the user-facing confidence number more honest without changing the
+detector's ranked keys, abstention decisions, or paper results.
 
 ## Repository map
 
