@@ -64,6 +64,13 @@ a value known only to exceed what was observed.)
 The detector's top-ranked key at one event, when it is confident enough to
 speak. Every metric scores the claim; the rest of the ranked list is diagnostic.
 
+## Confidence weighting
+
+Weighting each chord event by how sure the chord recognizer was about its
+reading, so confidently identified chords would count more than ambiguous ones.
+Tested repeatedly across detectors and timescales and never helped; the logs
+record it as a no-op, permanently off.
+
 ## Coverage
 
 The fraction of events where the detector made a claim rather than abstaining.
@@ -72,9 +79,9 @@ The partner number to accuracy on claimed events.
 ## Coverage-accuracy curve
 
 What happens to both numbers as the confidence threshold sweeps from lax to
-strict: coverage falls, accuracy should rise. The curve describes a detector's
-calibration without depending on any one threshold choice, which is why the
-protocol reports it rather than a single operating point.
+strict: coverage falls, accuracy should rise. The curve describes the whole menu
+of trades a detector offers without depending on any one threshold choice, which
+is why the protocol reports it rather than a single operating point.
 
 ## Development split and held-out split
 
@@ -85,15 +92,24 @@ are fixed, then evaluated once to check whether the result generalizes. If a
 held-out result changes the model, constants, or reporting choices, it has been
 used for tuning and is no longer a clean held-out test.
 
+## Duration weighting
+
+Weighting each chord event by how long it was held, so a whole-note chord
+influences the key estimate more than a passing eighth. The one ingredient that
+measured as helpful on every ruler tested; on by default.
+
 ## Emission
 
 In the HMM, the per-event observation model: how likely the chords we just heard
-would be under each candidate key. Ours converts the hybrid detector's per-key
-scores (both blend terms at zero in the shipped configuration, so pure profile
-correlation) into a probability distribution with a
-[softmax](https://en.wikipedia.org/wiki/Softmax_function); its temperature sets
-how decisive one event is allowed to be. Emissions must be memoryless (one
-event's worth of evidence), or history gets counted twice.
+would be under each candidate key. Ours scores each key by how well the recent
+pitch classes match its profile, then converts those scores into a probability
+distribution with a [softmax](https://en.wikipedia.org/wiki/Softmax_function);
+its temperature sets how decisive one event is allowed to be. In the textbook
+HMM an emission is memoryless (one event's worth of evidence), because the
+transition model already carries the history and would otherwise count it twice;
+ours deliberately relaxes that with the emission-memory window below, treating
+the window as the detector's timescale selector rather than as a pure textbook
+HMM emission.
 
 ## Emission memory (decay half-life)
 
@@ -106,9 +122,10 @@ structure the detector reports (see Section-key vs. local-key annotations).
 
 ## Event
 
-One committed chord from the history capture: a held identity with its ranked
-candidates, voicing, timing, and duration. The unit everything is scored over,
-each counting once regardless of how long it was held.
+One committed chord from live play: the chord the player held, with the
+recognizer's ranked readings of it, its voicing, timing, and duration. The unit
+everything is scored over, each counting once regardless of how long it was
+held.
 
 ## Exact vs. MIREX-weighted
 
@@ -122,15 +139,24 @@ numbers means the errors are mostly neighboring keys, not random ones.
 
 The [forward algorithm](https://en.wikipedia.org/wiki/Forward_algorithm) run
 causally: after each event, the probability of each key given everything heard
-so far, and nothing from the future (unlike Viterbi, which needs the whole
-piece). This is what the HMM claims from, and why its confidence is a true
-probability.
+so far, and nothing from the future (unlike
+[Viterbi decoding](#viterbi-decoding), which waits for the ending before
+explaining the beginning). This is what the HMM claims from, and why its
+confidence is a true probability.
 
 ## Fixture
 
 A stored, labeled event stream the harness replays: what the detector would have
 seen live, plus the ground-truth keys only the scorer may read. Versioned like a
 dataset because fixtures embed engine output.
+
+## Functional blend
+
+Mixes a second signal into the emission: instead of only asking which key's
+scale the notes fit, it also asks which key the chord would have a familiar job
+in (a V7 wants to be the dominant of somewhere). Valuable when the target is
+tracking brief excursions, harmful when it is naming the section's key, and it
+misreads blues harmony, so the shipped configuration leaves it at zero.
 
 ## Global vs. local key
 
@@ -148,9 +174,10 @@ momentary contradictions but yields to sustained ones.
 
 ## Hysteresis
 
-A rule that makes the detector wait for repeated evidence before changing what
-it reports. In WhatKey's early experiments, claim hysteresis meant "do not adopt
-a new key until it has appeared for several consecutive claiming events." It can
+A rule that makes the detector wait for repeated evidence before changing its
+answer, like a thermostat that will not flip the furnace on and off for every
+draft. In WhatKey's early experiments, claim hysteresis meant "do not adopt a
+new key until it has appeared for several consecutive claiming events." It can
 reduce flicker, but it also delays real modulations; the logs record it as a
 mostly negative result for this detector.
 
@@ -170,12 +197,12 @@ difference.
 
 ## Mode tilt
 
-A per-event nudge applied within one parallel pair of keys (same tonic, major
-vs. minor): when the chord just played is rooted on that tonic and has a clearly
-major or minor home quality, emission mass shifts toward the matching mode. The
-pair's total is preserved, so the tilt can pick between a key's twins but can
-never favor a different tonic, which is why it avoids the problems that removed
-its parent rules (log entry 2026-07-07-23).
+A per-event nudge within one parallel pair of keys (same tonic, major vs.
+minor): when the chord just played is rooted on that tonic and is clearly major
+or clearly minor, some probability shifts toward the matching twin. The pair's
+total is preserved, so the tilt can pick between a key's twins but can never
+favor a different tonic, which is why it avoids the problems that got its
+broader ancestors removed (log entry 2026-07-07-23).
 
 ## Modulation lag
 
@@ -221,26 +248,6 @@ event's evidence, and normalizes the result so all key probabilities add to 1.
 This is the distribution the detector claims from: if C major is the top
 posterior key, C major is the current best guess.
 
-## Prior
-
-The detector's probabilities before the newest chord event is used. In the HMM,
-the prior is made by carrying the previous posterior forward through the
-transition model: mostly keep the same key, but allow some chance of moving to a
-nearby or distant key. Plainly, the prior is "what we expected before hearing
-this chord"; the posterior is "what we believe after hearing it."
-
-## Profile pair
-
-A published pair of 12-number templates (one major, one minor) describing how
-strongly each scale degree characterizes a key. The profile-correlation detector
-matches the recent pitch histogram against all 24 rotations of the pair by
-[Pearson correlation](https://en.wikipedia.org/wiki/Pearson_correlation_coefficient);
-which pair is used matters more than the matching formula. The published sources
-for each pair are cited in the
-[design doc's references](temporal-context-key-detection.md#references), and
-their values are verified against reference implementations (log entry
-2026-07-06-08).
-
 ## Posterior calibration / reliability
 
 Whether a probability number should be taken literally. If the detector says "C
@@ -260,17 +267,45 @@ the whole probability distribution; lower is better. This is different from the
 coverage-accuracy curve: abstentions can be useful even when the raw posterior
 probabilities are overconfident.
 
+## Prior
+
+The detector's probabilities before the newest chord event is used. In the HMM,
+the prior is made by carrying the previous posterior forward through the
+transition model: mostly keep the same key, but allow some chance of moving to a
+nearby or distant key. Plainly, the prior is "what we expected before hearing
+this chord"; the posterior is "what we believe after hearing it."
+
+## Profile pair
+
+A published pair of 12-number templates (one major, one minor) describing how
+strongly each scale degree characterizes a key. The profile-correlation detector
+tries the pair at every tonic in both modes (24 candidate keys) and asks which
+best matches the recent pitch histogram by
+[Pearson correlation](https://en.wikipedia.org/wiki/Pearson_correlation_coefficient);
+which pair is used matters more than the matching formula. The published sources
+for each pair are cited in the
+[design doc's references](temporal-context-key-detection.md#references), and
+their values are verified against reference implementations (log entry
+2026-07-06-08).
+
+## Progression blend
+
+Mixes cadence patterns into the emission: short chord-to-chord moves (like V7 to
+I) vote for the key they resolve into. It helped an older detector's abstention
+decisions but measured as a wash under the HMM, so the shipped configuration
+leaves it at zero.
+
 ## Section-key vs. local-key annotations
 
 Two granularities of "the key," both legitimate. Section-key annotations name
-the home key of a stretch of music, what a song's key or a movement's key names.
-Local-key annotations also track brief local assertions: the few measures an
-analyst marks as V-of, a tonicization, or the relative minor. Corpus labels come
-at different granularities (Isophonics song keys and ASAP key signatures are
-section-key; When in Rome analyst local keys are local-key), so accuracy numbers
-are only comparable against the same ruler. WhatChord ships the section-key
-setting (log entry 2026-07-07-17). Older logs sometimes call the local-key
-setting "tonicization-scale" or "reflex-scale."
+the home key of a stretch of music, the sense in which a whole song or movement
+is "in G." Local-key annotations also track brief local assertions: the few
+measures an analyst marks as V-of, a tonicization, or the relative minor. Corpus
+labels come at different granularities (Isophonics song keys and ASAP key
+signatures are section-key; When in Rome analyst local keys are local-key), so
+accuracy numbers are only comparable against the same ruler. WhatChord ships the
+section-key setting (log entry 2026-07-07-17). Older logs sometimes call the
+local-key setting "tonicization-scale" or "reflex-scale."
 
 ## Self-transition
 
@@ -283,9 +318,9 @@ keys, nearer ones on the circle of fifths getting more.
 ## Spurious switch
 
 A key switch the annotation gives no reason for: the labeled key did not change
-across the window and the detector's new claim does not land on it. The
-stability metric counts these per piece; a lagged catch-up switch onto the
-annotated key is not spurious.
+between the detector's previous claim and this one, and the new claim does not
+land on the labeled key. The stability metric counts these per piece; a lagged
+catch-up switch onto the annotated key is not spurious.
 
 ## Temperature scaling
 
@@ -308,6 +343,16 @@ probability stays on the same key; the rest spreads to other keys, with closer
 keys on the circle of fifths favored over distant ones. The transition model is
 what turns the previous posterior into the next prior before the newest chord
 evidence is added.
+
+## Viterbi decoding
+
+The offline counterpart to the filtered posterior: given a complete piece, the
+[Viterbi algorithm](https://en.wikipedia.org/wiki/Viterbi_algorithm) finds the
+single most probable key sequence over the whole thing at once, letting the
+ending explain the beginning. Powerful for after-the-fact analysis, but not
+causal: the protocol rules it out for the live detector, and offline Viterbi
+results are not directly comparable with streaming ones (the paper cites offline
+systems only as caveated anchors).
 
 ## Warmup
 
