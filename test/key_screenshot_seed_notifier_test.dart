@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whatchord/core/providers/shared_preferences_provider.dart';
 import 'package:whatchord/features/history/history.dart';
 import 'package:whatchord/features/key/key.dart';
-import 'package:whatchord/features/midi/midi_input_source.dart';
+import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 void main() {
@@ -76,6 +76,15 @@ void main() {
     );
     expect(container.read(keyModeProvider), KeyMode.manual);
     expect(container.read(selectedTonalityProvider), tonalityBefore);
+  });
+
+  test('the seed poses as a live MIDI connection', () async {
+    final container = await makeContainer();
+    container.read(keyScreenshotSeedProvider.notifier).toggle();
+
+    final status = container.read(midiConnectionStatusProvider);
+    expect(status.phase, MidiConnectionPhase.connected);
+    expect(status.deviceName, 'Demo MIDI');
   });
 
   test('a pre-seed auto mode survives the round trip', () async {
