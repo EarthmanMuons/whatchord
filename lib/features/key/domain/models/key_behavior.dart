@@ -13,19 +13,29 @@ enum KeyBehavior {
       seconds: HmmKeyDetector.defaultEmissionHalfLifeSeconds,
     ),
     displayTemperature: DisplayCalibration.temperature,
+    staleAfter: Duration(seconds: 30),
   ),
 
   /// Follows section-scale key changes within a few chords at section
   /// accuracy statistically matching [stable].
-  balanced(emissionHalfLife: Duration(seconds: 4), displayTemperature: 1.5),
+  balanced(
+    emissionHalfLife: Duration(seconds: 4),
+    displayTemperature: 1.5,
+    staleAfter: Duration(seconds: 20),
+  ),
 
   /// Local-scale reading: re-bases on the current tonal center quickly, at
   /// the cost of more switching and more abstention.
-  reactive(emissionHalfLife: Duration(seconds: 1), displayTemperature: 1.75);
+  reactive(
+    emissionHalfLife: Duration(seconds: 1),
+    displayTemperature: 1.75,
+    staleAfter: Duration(seconds: 10),
+  );
 
   const KeyBehavior({
     required this.emissionHalfLife,
     required this.displayTemperature,
+    required this.staleAfter,
   });
 
   /// Emission memory for the detector: how far back chord evidence counts.
@@ -34,4 +44,11 @@ enum KeyBehavior {
   /// Temperature for [DisplayCalibration.calibrate], fitted per mode so the
   /// displayed confidence stays honest for what this mode's claims mean.
   final double displayTemperature;
+
+  /// Silence before the displayed key dims. For [stable] this matches the
+  /// emission half-life (the frozen rationale); the faster modes dim sooner
+  /// because their evidence genuinely fades sooner, but not at the literal
+  /// half-life, which would flicker during ordinary phrase breaks. A feel
+  /// compromise, not a fitted value. The two-minute full reset is shared.
+  final Duration staleAfter;
 }

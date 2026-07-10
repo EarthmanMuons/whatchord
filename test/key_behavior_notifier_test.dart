@@ -57,5 +57,22 @@ void main() {
       KeyBehavior.stable.displayTemperature,
       DisplayCalibration.temperature,
     );
+    expect(KeyBehavior.stable.staleAfter, const Duration(seconds: 30));
+  });
+
+  test('the stale window scales with the selected behavior', () async {
+    final container = await makeContainer();
+    expect(
+      container.read(inferredKeyStaleAfterProvider),
+      const Duration(seconds: 30),
+    );
+
+    await container
+        .read(keyBehaviorProvider.notifier)
+        .setBehavior(KeyBehavior.reactive);
+    expect(
+      container.read(inferredKeyStaleAfterProvider),
+      const Duration(seconds: 10),
+    );
   });
 }

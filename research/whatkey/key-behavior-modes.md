@@ -145,13 +145,16 @@ halves selected-tonality flips for one event of delay, and the posterior wheel
 and strip react instantly regardless, since write-back only affects spelling and
 scale degrees. Keep 2 in all modes.
 
-The freshness timers (30 s stale, 2 min reset) cannot be evaluated by the
-harness: they govern silence behavior, and fixtures are continuous. One
-principled observation: the stale timer's doc rationale ("matches the detector's
-emission half-life") holds only for the stable preset. Under reactive, evidence
-has genuinely half-faded after 1 s of silence, so a claim still shown bold at 25
-s overstates support. If reactive ships, consider scaling the stale window down
-(10-15 s) as an on-device feel decision; the 2 min reset can likely stay shared.
+The freshness timers cannot be evaluated by the harness: they govern silence
+behavior, and fixtures are continuous. One principled observation: the stale
+timer's original rationale ("matches the detector's emission half-life") holds
+only for the stable preset. Under reactive, evidence has genuinely half-faded
+after 1 s of silence, so a claim still shown bold at 25 s overstates support.
+The shipped presets therefore scale the stale window (stable 30 s, balanced 20
+s, reactive 10 s), a feel compromise rather than literal half-life honesty,
+which would dim during ordinary phrase breaks (4 s / 1 s). The 2 min full reset
+stays shared across modes. The exact faster-mode values remain an on-device feel
+decision.
 
 ## Calibration
 
@@ -206,8 +209,8 @@ where stable rarely moves:
 - The local ruler is classical (When in Rome); reactive's +0.10 exact may not
   transfer to pop excursions, where no local-key labels exist.
 - The adoption streak was simulated from claims artifacts (keep 2, above), but
-  the freshness timers remain untestable offline; the stale-window scaling
-  suggested above is an on-device feel decision still to be made.
+  the freshness timers remain untestable offline; the shipped stale windows
+  (30/20/10 s) are a feel compromise and may need on-device adjustment.
 - ASAP fixtures were not regenerated for this pass (license-gated, build-only);
   Isophonics dev + When in Rome dev + the behavioral suite were judged
   sufficient for a product-default decision.
