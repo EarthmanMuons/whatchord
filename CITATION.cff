@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+message: >-
+  If you use this software or build on the WhatKey research, please cite it
+  using the metadata below. For the key-estimation research specifically,
+  please cite the preferred-citation preprint.
+title: "WhatChord"
+abstract: >-
+  An interactive chord identification, key detection, and harmony exploration
+  app for live MIDI input, including the WhatKey research project on streaming
+  key estimation with abstention (evaluation protocol, harness, fixtures, and
+  preprint under research/whatkey/).
+type: software
+authors:
+  - family-names: Bull Schaefer
+    given-names: Aaron
+    orcid: https://orcid.org/0009-0007-9030-7469
+repository-code: https://github.com/EarthmanMuons/whatchord
+url: https://whatchord.earthmanmuons.com
+license: 0BSD
+keywords:
+  - music-information-retrieval
+  - key-detection
+  - chord-recognition
+  - hidden-markov-model
+  - midi
+  - flutter
+preferred-citation:
+  type: report
+  title: >-
+    Streaming Key Estimation with Abstention from Live Chord-Recognition
+    Output
+  authors:
+    - family-names: Bull Schaefer
+      given-names: Aaron
+      orcid: https://orcid.org/0009-0007-9030-7469
+  year: 2026
+  url: https://github.com/EarthmanMuons/whatchord/tree/main/research/whatkey
+  notes: >-
+    Preprint. Protocol, experiment log, and evaluation artifacts in the
+    linked repository directory.
