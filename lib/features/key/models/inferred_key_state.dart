@@ -8,10 +8,10 @@ import '../domain/models/key_estimate.dart';
 /// - [none]: no events since startup or the last reset; the button shows the
 ///   unknown marker.
 /// - [fresh]: evidence is current; a claim displays at full emphasis.
-/// - [stale]: no chords for the stale window (the detector's 30 s emission
-///   half-life, so the claim's evidence has genuinely half-faded); the button
-///   dims. After the reset window the detector forgets entirely and returns
-///   to [none].
+/// - [stale]: no chords for the stale window (scaled with the behavior
+///   preset, since shorter emission memory fades sooner); the button dims.
+///   After the reset window the detector forgets entirely and returns to
+///   [none].
 enum InferredKeyFreshness { none, fresh, stale }
 
 /// Live output of the key detector for the UI.

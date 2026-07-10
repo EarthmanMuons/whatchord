@@ -9,10 +9,11 @@ import '../models/inferred_key_state.dart';
 import 'key_behavior_notifier.dart';
 
 /// How long without a committed chord before the inferred key is displayed
-/// dimmed. Matches the detector's emission half-life: by this point the
-/// evidence behind the claim has genuinely half-faded.
+/// dimmed. Scales with the behavior preset: shorter emission memory means
+/// the evidence behind a claim genuinely fades sooner, so faster modes dim
+/// sooner (see [KeyBehavior.staleAfter]).
 final inferredKeyStaleAfterProvider = Provider<Duration>(
-  (ref) => const Duration(seconds: 30),
+  (ref) => ref.watch(keyBehaviorProvider).staleAfter,
 );
 
 /// How long without a committed chord before the detector forgets entirely.
