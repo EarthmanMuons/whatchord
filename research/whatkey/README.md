@@ -104,6 +104,9 @@ detector's ranked keys, abstention decisions, or paper results.
   amendments.
 - [temporal-context-key-detection.md](temporal-context-key-detection.md): the
   design-time plan and algorithm reference.
+- [key-behavior-modes.md](key-behavior-modes.md): informal post-paper
+  exploration behind the app's stable/balanced/reactive setting, with its own
+  one-shot held-out audit; separate from the frozen record above.
 - [data/](data/) and [results/](results/): fixture, split, provenance, and
   committed one-shot test artifacts.
 - Code: detectors in `lib/features/key/` (the code the harness benchmarks is the
