@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord/features/demo/demo.dart';
+import 'package:whatchord/features/key/key.dart';
 
 import '../models/bluetooth_unavailability.dart';
 import '../models/midi_connection.dart';
@@ -14,10 +15,13 @@ import 'midi_connection_notifier.dart';
 final midiConnectionStatusProvider = Provider<MidiConnectionStatus>((ref) {
   final demoEnabled = ref.watch(demoModeProvider);
   final demoVariant = ref.watch(demoModeVariantProvider);
+  // The key page screenshot seed poses as live play, so it shows the same
+  // demo connection the screenshot variants do.
   final showDemoConnection =
-      demoEnabled &&
-      (demoVariant == DemoModeVariant.screenshot ||
-          demoVariant == DemoModeVariant.animation);
+      ref.watch(keyScreenshotSeedProvider) ||
+      (demoEnabled &&
+          (demoVariant == DemoModeVariant.screenshot ||
+              demoVariant == DemoModeVariant.animation));
   if (showDemoConnection) {
     return const MidiConnectionStatus(
       phase: MidiConnectionPhase.connected,
