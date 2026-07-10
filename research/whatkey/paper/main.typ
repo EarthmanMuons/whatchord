@@ -58,7 +58,7 @@
   ]
 
   #v(0.2em)
-  #text(size: 9pt)[Draft #draft-version. Project name WhatKey.]
+  #text(size: 9pt)[Preprint #draft-version. Project name WhatKey.]
   #v(0.6em)
 ]
 
@@ -84,7 +84,7 @@ abstaining detector reaches statistical parity with standard offline music21 key
 finders that read the whole song before answering, while providing posterior
 probabilities, abstention, and stability measurements.
 
-= Introduction
+= Introduction <sec-intro>
 
 An interactive music application identifies the chords a musician plays on a
 MIDI keyboard in real time. A natural next feature is a key indicator: the tonal
@@ -141,7 +141,7 @@ The contributions are:
 
 #pagebreak()
 
-= Related work
+= Related work <sec-related>
 
 Distributional key finding begins with the Krumhansl-Schmuckler probe-tone
 profiles @krumhansl1990 and their revisions @temperley1999, with corpus-trained
@@ -186,7 +186,7 @@ RomanText annotations @wheninrome @tymo2019, the ASAP corpus of aligned
 performed piano MIDI @asap2020, and Isophonics song-level keys via the ChoCo
 chord corpus @choco2023 @isophonics2009.
 
-= Task and evaluation protocol
+= Task and evaluation protocol <sec-protocol>
 
 *Task.* The input is a causal stream of chord events from the application's
 capture path: each event carries ranked chord candidates with explanation costs,
@@ -226,10 +226,10 @@ changes recorded as dated amendments. Development/test splits were frozen per
 corpus before the first experiment on it (by piece, and by composer where the
 corpus allows); all tuning, ablation, and model selection ran on development
 splits; the test splits were evaluated exactly once, with the result set
-declared in advance (Section 8). The evaluation harness structurally strips
+declared in advance (@sec-heldout). The evaluation harness structurally strips
 labels before events reach a detector.
 
-= Data and reproducibility
+= Data and reproducibility <sec-data>
 
 Evaluation uses *fixtures*: versioned event streams containing the chord
 recognizer's candidate rankings, the observed voicings, timing metadata, and a
@@ -298,7 +298,7 @@ pinned upstream checkouts. This means the paper's reported numbers are auditable
 from committed reports and commands, while redistribution remains bounded by
 each source corpus's terms.
 
-= Model family and selected detector
+= Model family and selected detector <sec-model>
 
 The detector family was deliberately interpretable. The profile-correlation
 floor maintains a duration-weighted, exponentially decaying pitch-class
@@ -425,7 +425,7 @@ setting selects between annotation targets.
     chord-function evidence term.],
 ) <fig-dose>
 
-= The timescale finding
+= The timescale finding <sec-timescale>
 
 Key annotations come in two cultures. Analyst local keys (When in Rome) mark
 every tonicization, about seven key regions per piece at a few events each. Song
@@ -447,7 +447,7 @@ on the evaluation-only overlap corpus, identical performed recordings scored
 against analyst keys prefer short memory (0.59 vs 0.47 exact), matching the
 clean-score result. It reproduces *within* one corpus as a function of segment
 length (@fig-segment). And it holds on held-out data with significance in both
-directions (Section 8).
+directions (@sec-heldout).
 
 #figure(
   lq.diagram(
@@ -561,7 +561,7 @@ rules rather than through any added mechanism.
     are informative, not random.],
 ) <fig-sweep>
 
-= Mode disambiguation
+= Mode disambiguation <sec-mode>
 
 On mode-resolved corpora the residual errors sort into MIREX classes:
 fifth-neighbor confusions, relative-pair confusions (shared signature), and
@@ -617,7 +617,7 @@ The pattern explains an adoption, a failure, and a non-adoption: the tilt's
 value tracks the strength and exclusivity of the invariant it preserves (tonic:
 strong; signature: weak; none: unavailable).
 
-= Adaptive temporal models
+= Adaptive temporal models <sec-adaptive>
 
 *Explicit-duration modeling (HSMM).* The HMM's self-transition implies geometric
 key-dwell times; an HSMM's contribution is a richer dwell family. Before
@@ -667,7 +667,7 @@ within-regime dependence in continuous series @tsaknaki2025, but those Gaussian
 remedies do not transfer directly to categorical chord emissions, and our
 domain-specific substitute (the progression layer) is measured inert.
 
-= Held-out evaluation
+= Held-out evaluation <sec-heldout>
 
 The test splits were evaluated exactly once, with the result set declared before
 any run: the selected configuration on all three splits, the local-key reference
@@ -732,7 +732,7 @@ The descriptive confusion mix is: exact 72%, fifth 7%, relative 5%, parallel 2%,
 other 14%. This pooled exact rate differs from the per-piece mean in @tab-test;
 the parallel row matches the mode tilt's development effect exactly.
 
-= Limitations
+= Limitations <sec-limitations>
 
 The label timescale is a construct of the annotation culture, and our central
 finding is precisely that results are relative to it; we mitigate by reporting
@@ -763,7 +763,7 @@ claimed-event ECE from 0.192 to 0.041 without changing any claim (byte-identical
 to the one-shot artifacts). Calibration remains task-relative: against local-key
 labels, the same display remains overconfident.
 
-= Conclusion
+= Conclusion <sec-conclusion>
 
 This paper defines and evaluates streaming key estimation with abstention from
 live chord-recognition output. Under a frozen protocol with paired statistics
