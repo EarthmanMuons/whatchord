@@ -1,11 +1,12 @@
 # Key behavior modes: stable / balanced / reactive (informal)
 
 2026-07-09. Product exploration, not part of the frozen Phase 1 record: no
-frozen artifact, split, fixture, or log entry was modified, and no test-split
-run was performed. Everything here uses the existing harness on the two
-development rulers, with outputs under `build/whatkey-local/` (regenerable,
-untracked). Statistical comparisons use `tool/whatkey_compare.py` (paired
-per-piece Wilcoxon on exact-on-claimed).
+frozen artifact, split, fixture, or log entry was modified, and the exploration
+itself ran on development splits only. Everything here uses the existing
+harness, with outputs under `build/whatkey-local/` (regenerable, untracked).
+Statistical comparisons use `tool/whatkey_compare.py` (paired per-piece Wilcoxon
+on exact-on-claimed). A one-shot held-out audit of the locked presets was added
+2026-07-10 (below).
 
 ## Question
 
@@ -201,6 +202,66 @@ where stable rarely moves:
   effectively sees the same stream regardless of what the app adopted. Offering
   the mode setting does not open a feedback-stability risk.
 
+## Held-out audit (one shot, 2026-07-10)
+
+With the presets locked in shipped code (emission half-life 30/4/1 s, blend 0,
+display temperatures 1.55/1.5/1.75, stale windows 30/20/10 s), a single held-out
+audit against the frozen test splits, declared before running:
+
+- One run per preset per ruler: Isophonics test (41 tracks) and When in Rome
+  test (18 pieces), each with the preset's calibration temperature. No reruns,
+  no post-hoc tuning; whatever comes out is recorded here.
+- Validity check: the stable runs must reproduce the committed one-shot claims
+  byte for byte on both rulers, proving no engine or wiring drift since the
+  freeze.
+- Expectations, declared from the development results: balanced within noise of
+  stable on section exact with materially more modulations matched; reactive
+  above stable on local exact; coverage ordered stable > balanced > reactive.
+- Protocol note: the frozen protocol asks for a dated log entry per test-split
+  run; per the owner's decision this product audit is recorded here instead,
+  outside the frozen Phase 1 record, which stays untouched.
+
+Results (cov / exact-on-claimed / MIREX / modulations / spurious med/p90 / lag
+med/p90, with the calibrated confidence view at each preset's temperature):
+
+| preset, ruler      | cov  | exact | mods   | spur | lag  | conf/acc    | ECE   |
+| ------------------ | ---- | ----- | ------ | ---- | ---- | ----------- | ----- |
+| stable, Iso test   | 0.88 | 0.732 | 10/22  | 0/3  | 2/14 | 0.759/0.732 | 0.041 |
+| balanced, Iso test | 0.85 | 0.723 | 15/22  | 2/6  | 2/4  | 0.740/0.723 | 0.063 |
+| reactive, Iso test | 0.79 | 0.698 | 18/22  | 4/12 | 0/2  | 0.598/0.698 | 0.084 |
+| stable, WiR test   | 0.81 | 0.587 | 39/115 | 0/1  | 0/4  | 0.814/0.587 | 0.142 |
+| balanced, WiR test | 0.76 | 0.576 | 43/115 | 1/2  | 0/8  | 0.786/0.576 | 0.120 |
+| reactive, WiR test | 0.71 | 0.574 | 55/115 | 1/5  | 3/6  | 0.644/0.574 | 0.068 |
+
+**Validity.** Both stable runs are byte-identical to the committed one-shot
+claims artifacts, and stable's Isophonics numbers reproduce the frozen headline
+row (0.88 / 0.732 / 0.782) and the frozen calibration verification (conf 0.759,
+ECE 0.041) exactly. No engine or wiring drift since the freeze.
+
+**Declared expectations, scored.**
+
+- Balanced within noise of stable on section exact, with more modulations:
+  **met**. Paired -0.009, CI95 [-0.068, +0.056], p = 0.23 (8/19/11), and
+  modulations 15/22 vs 10/22, the same +50% relative gain as development (141 vs
+  94 of 192). The spurious cost is visible held-out too (med 0 to 2 per track).
+- Reactive above stable on local exact: **not met**. Paired -0.013, CI95
+  [-0.093, +0.063], p = 0.98 (7/9/0) on the 18-piece test split; the development
+  gain (+0.104, p = 0.0089 on 56 pieces) did not transfer. What did transfer is
+  the responsiveness: 55/115 modulations vs 39 (+41%, vs +53% on development)
+  and Isophonics lag p90 of 2 events vs 14.
+- Coverage ordered stable > balanced > reactive: **met** on both rulers.
+
+**Reading.** The held-out audit narrows the product story: the behavior modes
+are responsiveness presets, not accuracy presets. Balanced keeps section
+accuracy at stable's level while catching half again as many modulations;
+reactive catches most of them with near-zero lag but buys no extra local
+accuracy on held-out classical data, and gives up coverage and stability for the
+speed. That is still exactly what the setting advertises, and the numbers users
+see stay honest: the per-mode temperatures hold up held-out, with each preset
+best-calibrated on its home ruler (stable 0.041 on Isophonics, reactive 0.068 on
+When in Rome; the display never overstates by more than about eight points in
+any cell, versus 0.14-0.19 raw).
+
 ## Future comparison anchors
 
 This document is enough to justify product-facing behavior modes, but not enough
@@ -235,11 +296,11 @@ become evidence.
 
 ## Caveats before shipping
 
-- Development splits only. If a mode setting ships and we want headline claims
-  about it, the reactive/balanced presets deserve their own one-shot test-split
-  entry under the protocol; this document is not that.
-- The local ruler is classical (When in Rome); reactive's +0.10 exact may not
-  transfer to pop excursions, where no local-key labels exist.
+- The exploration was development-split only; the one-shot held-out audit above
+  covers the locked presets. Any future preset change reopens both.
+- The local ruler is classical (When in Rome); reactive's development-split
+  +0.10 exact did not survive the held-out audit (a wash on 18 pieces), so the
+  mode's case rests on responsiveness, which did replicate.
 - The adoption streak was simulated from claims artifacts (keep 2, above), but
   the freshness timers remain untestable offline; the shipped stale windows
   (30/20/10 s) are a feel compromise and may need on-device adjustment.
