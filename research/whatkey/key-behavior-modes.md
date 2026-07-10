@@ -201,6 +201,38 @@ where stable rarely moves:
   effectively sees the same stream regardless of what the app adopted. Offering
   the mode setting does not open a feedback-stability risk.
 
+## Future comparison anchors
+
+This document is enough to justify product-facing behavior modes, but not enough
+to claim a research-grade local-key benchmark. If this line of work becomes a
+separate local-key study, the most useful next comparison set is not more
+whole-piece key profiles, but offline score-based analysis systems such as
+AugmentedNet and AnalysisGNN. They are fair future anchors precisely because the
+question would shift from "can the shipped section-key detector remain stable?"
+to "how well can a practical detector follow local tonality?"
+
+That comparison needs its own protocol entry before results should be cited:
+
+- Reconstruct comparable event streams from score input, rather than giving the
+  score-based systems more musical information than the app-side detector sees
+  without saying so.
+- Align outputs onto a shared event grid and decide how Roman-numeral/global-key
+  predictions map onto local-key claims.
+- Audit training-corpus overlap, especially for learned systems that may have
+  seen common DCML or When in Rome material.
+- Keep the resulting numbers separate from the frozen Phase 1 section-key paper
+  unless a new predeclared split and one-shot evaluation are made.
+
+The [DCMLab Distant Listening Corpus][distant-listening-corpus] looks like the
+most promising corpus lead for that follow-up: it is large, score-based, and
+harmony-annotated, which makes it a better fit for
+AugmentedNet/AnalysisGNN-style comparison than the current live-output fixtures.
+It would still be build-only/untracked unless the license and size constraints
+change, and it would need a dedicated extractor plus label mapping before it can
+become evidence.
+
+[distant-listening-corpus]: https://github.com/DCMLab/distant_listening_corpus
+
 ## Caveats before shipping
 
 - Development splits only. If a mode setting ships and we want headline claims
