@@ -9,7 +9,7 @@
 #import "@preview/lilaq:0.4.0" as lq
 
 // Bump for committed/shareable paper drafts; use +1, +2 for same-day drafts.
-#let draft-version = "v2026.7.8+1"
+#let draft-version = "v2026.7.10"
 
 #let anonymous = false
 
@@ -164,8 +164,8 @@ metrics.
 
 Real-time tonal tracking has also been studied outside the profile/HMM family.
 Chew's Spiral Array and Center of Effect Generator frame key finding as movement
-in a geometric tonal space and explicitly address streaming tonal center
-estimation @chew2000. Our setting differs in the observation layer: rather than
+in a geometric tonal space, tracking an evolving tonal center as notes
+accumulate @chew2000. Our setting differs in the observation layer: rather than
 raw pitch collections, the detector receives symbolic chord identities and
 candidate rankings produced by an upstream recognizer. That makes chord quality
 a usable signal, but it also means recognizer errors and candidate uncertainty
@@ -174,7 +174,7 @@ are part of the input distribution.
 Bayesian online changepoint detection @adams2007 maintains a run-length
 posterior and is the natural adaptive-memory alternative to a fixed decay.
 Recent extensions model within-regime dynamics to suppress false alarms
-@tsaknaki2024. We build the constant-hazard version for the 24-key space and
+@tsaknaki2025. We build the constant-hazard version for the 24-key space and
 measure where its adaptivity helps and where it conflicts with the selected
 section-key operating point.
 
@@ -302,13 +302,14 @@ each source corpus's terms.
 
 The detector family was deliberately interpretable. The profile-correlation
 floor maintains a duration-weighted, exponentially decaying pitch-class
-histogram and ranks all 24 rotations of a major/minor profile pair @albrecht2013
-by Pearson correlation. Two symbolic additions were also built: a
-weighted-evidence layer scoring key-relative chord functions (diatonic
-membership, dominant and leading-tone function), and a progression layer voting
-on cadential transition patterns. These layers form a three-way hybrid
-(correlation base plus small functional and progression blend terms) that beat
-the floor on early local-key development runs (+0.096 exact per piece, p =
+histogram and ranks all 24 rotations of a major/minor profile pair by Pearson
+correlation, using the corpus-trained profile values of @albrecht2013 (whose
+original algorithm pairs them with Euclidean distance). Two symbolic additions
+were also built: a weighted-evidence layer scoring key-relative chord functions
+(diatonic membership, dominant and leading-tone function), and a progression
+layer voting on cadential transition patterns. These layers form a three-way
+hybrid (correlation base plus small functional and progression blend terms) that
+beat the floor on early local-key development runs (+0.096 exact per piece, p =
 0.003), but later ablations show that the selected section-key configuration
 should remove them. Thus, except for the selected same-tonic mode cue below,
 chord-identity features proved useful mainly for the local-key version of the
@@ -662,7 +663,7 @@ HMM at a 2 s half-life), so adaptive windowing has value for local-key tracking;
 it was not selected for the section-key task studied here. The false alarms are
 within-section harmonic movements, exactly where BOCPD's independent-given-key
 assumption is weakest. Autoregressive BOCPD extensions target analogous
-within-regime dependence in continuous series @tsaknaki2024, but those Gaussian
+within-regime dependence in continuous series @tsaknaki2025, but those Gaussian
 remedies do not transfer directly to categorical chord emissions, and our
 domain-specific substitute (the progression layer) is measured inert.
 
@@ -793,5 +794,5 @@ definition rather than a detail of the dataset.
   ]
 ]
 
-#show bibliography: set text(size: 9pt)
+#show bibliography: set text(size: 8.5pt)
 #bibliography("refs.yml", style: "ieee")

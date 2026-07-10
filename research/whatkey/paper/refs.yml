@@ -15,12 +15,13 @@ temperley1999:
     title: Music Perception
     volume: 17
     issue: 1
+  page-range: 65-100
   serial-number:
     doi: 10.2307/40285812
 
 albrecht2013:
   type: article
-  title: The Use of Large Corpora to Train a New Type of Key-Finding Algorithm
+  title: "The Use of Large Corpora to Train a New Type of Key-Finding Algorithm: An Improved Treatment of the Minor Mode"
   author:
     - Albrecht, Joshua
     - Shanahan, Daniel
@@ -30,6 +31,9 @@ albrecht2013:
     title: Music Perception
     volume: 31
     issue: 1
+  page-range: 59-67
+  serial-number:
+    doi: 10.1525/mp.2013.31.1.59
 
 temperley2007:
   type: book
@@ -50,6 +54,9 @@ raphael2004:
     title: Computer Music Journal
     volume: 28
     issue: 3
+  page-range: 45-52
+  serial-number:
+    doi: 10.1162/0148926041790676
 
 napoles2019:
   type: article
@@ -61,16 +68,18 @@ napoles2019:
   date: 2019
   parent:
     type: proceedings
-    title: 6th International Conference on Digital Libraries for Musicology (DLfM)
+    title: Proceedings of the 6th International Conference on Digital Libraries for Musicology (DLfM)
+  page-range: 33-37
   serial-number:
     doi: 10.1145/3358664.3358675
 
 chew2000:
-  type: book
+  type: thesis
   title: Towards a Mathematical Model of Tonality
   author: Chew, Elaine
   date: 2000
   publisher: Massachusetts Institute of Technology
+  url: https://dspace.mit.edu/handle/1721.1/9139
 
 micchi2020:
   type: article
@@ -85,6 +94,7 @@ micchi2020:
     title: Transactions of the International Society for Music Information Retrieval
     volume: 3
     issue: 1
+  page-range: 42-54
   serial-number:
     doi: 10.5334/tismir.45
 
@@ -99,6 +109,10 @@ napoles2021:
   parent:
     type: proceedings
     title: Proceedings of the 22nd International Society for Music Information Retrieval Conference (ISMIR)
+  page-range: 404-411
+  serial-number:
+    doi: 10.5281/zenodo.5624533
+  url: https://archives.ismir.net/ismir2021/paper/000050.pdf
 
 tymo2019:
   type: article
@@ -112,6 +126,10 @@ tymo2019:
   parent:
     type: proceedings
     title: Proceedings of the 20th International Society for Music Information Retrieval Conference (ISMIR)
+  page-range: 123-129
+  serial-number:
+    doi: 10.5281/zenodo.3527756
+  url: https://archives.ismir.net/ismir2019/paper/000012.pdf
 
 guo2017:
   type: article
@@ -125,6 +143,7 @@ guo2017:
   parent:
     type: proceedings
     title: Proceedings of the 34th International Conference on Machine Learning (ICML)
+  page-range: 1321-1330
   url: https://proceedings.mlr.press/v70/guo17a.html
 
 adams2007:
@@ -138,20 +157,22 @@ adams2007:
     arxiv: "0710.3742"
   url: https://arxiv.org/abs/0710.3742
 
-tsaknaki2024:
+tsaknaki2025:
   type: article
   title: Bayesian Autoregressive Online Change-Point Detection with Time-Varying Parameters
   author:
     - Tsaknaki, Ioanna-Yvonni
     - Lillo, Fabrizio
     - Mazzarisi, Piero
-  date: 2024
+  date: 2025
   parent:
     type: periodical
     title: Communications in Nonlinear Science and Numerical Simulation
+    volume: 142
+  page-range: 108500
   serial-number:
+    doi: 10.1016/j.cnsns.2024.108500
     arxiv: "2407.16376"
-  url: https://www.sciencedirect.com/science/article/pii/S1007570424006853
 
 mirex:
   type: web
@@ -178,6 +199,10 @@ asap2020:
   parent:
     type: proceedings
     title: Proceedings of the 21st International Society for Music Information Retrieval Conference (ISMIR)
+  page-range: 534-541
+  serial-number:
+    doi: 10.5281/zenodo.4245490
+  url: https://archives.ismir.net/ismir2020/paper/000127.pdf
 
 choco2023:
   type: article
@@ -192,6 +217,9 @@ choco2023:
     type: periodical
     title: Scientific Data
     volume: 10
+  page-range: 641
+  serial-number:
+    doi: 10.1038/s41597-023-02410-w
 
 isophonics2009:
   type: article
@@ -209,3 +237,4 @@ isophonics2009:
   parent:
     type: proceedings
     title: Late-Breaking Session, 10th International Society for Music Information Retrieval Conference (ISMIR)
+  url: https://ismir2009.ismir.net/proceedings/LBD-18.pdf
