@@ -48,13 +48,14 @@ that match the task: coverage, accuracy on claimed events, MIREX-weighted near
 misses, modulation matching and lag, spurious switches, time to first claim,
 paired statistics by piece, and posterior reliability diagnostics.
 
-The second major contribution is the timescale finding. A short memory follows
-brief local-key assertions; a longer memory absorbs those excursions and reports
-the stable section key. Neither setting is simply "more accurate" by itself.
-Each comes out ahead when scored on the kind of key it reports, even on the same
-recordings. This means a key-detection score is under-specified unless the task
-says whether brief tonicizations or the broader section key count as the right
-answer.
+The second major contribution is the timescale finding, measured across pop and
+classical corpora (Isophonics, When in Rome, ASAP) whose annotations encode
+different kinds of key. A short memory follows brief local-key assertions; a
+longer memory absorbs those excursions and reports the stable section key.
+Neither setting is simply "more accurate" by itself. Each comes out ahead when
+scored on the kind of key it reports, even on the same recordings. This means a
+key-detection score is under-specified unless the task says whether brief
+tonicizations or the broader section key count as the right answer.
 
 The third contribution is reproducibility discipline. Fixtures are generated
 from real app chord-recognition output under a neutral context, labels are
@@ -149,9 +150,10 @@ are more correct than local-key annotations.
 
 The defensible claim is narrower and stronger: under live-style, causal,
 abstaining constraints, a simple measured HMM reaches statistical parity with
-standard offline whole-piece baselines on held-out pop-song fixtures, while
-making visible the abstention, stability, calibration, and label-timescale
-tradeoffs that ordinary key-finding evaluations often hide.
+standard offline whole-piece baselines on held-out pop-song fixtures (the one
+held-out split with a like-for-like offline baseline; the classical splits test
+generalization), while making visible the abstention, stability, calibration,
+and label-timescale tradeoffs that ordinary key-finding evaluations often hide.
 
 ## Bottom line
 
