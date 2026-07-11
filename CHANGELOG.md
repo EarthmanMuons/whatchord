@@ -12,18 +12,14 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- Automatic key detection. A new Key page (opened from the key button) offers
-  Manual and Auto modes: Auto listens to the chords you play and keeps the
-  selected key following your playing, with a confidence readout, a
-  circle-of-fifths likelihood wheel, and the recent chords it heard. The key
-  button shows the detected key live, dims as evidence fades, and admits
-  uncertainty rather than guessing. Choosing a key manually always wins and
-  switches back to Manual mode.
-- A Key Detection behavior setting (Stable, Balanced, or Reactive) in Settings
-  controls how quickly automatic key detection follows key changes: from
-  steadily naming the song's key to closely tracking your current tonal center.
-  Confidence readouts stay honest in every mode, and faster modes dim the
-  detected key sooner after you stop playing.
+- Automatic key detection. Open the Key Signature page from the key button and
+  switch to Auto to follow the chords you play, with a confidence readout,
+  circle-of-fifths view, and recent-chords list. The key button updates live,
+  fades as evidence ages, and shows when the result is uncertain. Choosing a key
+  manually always returns to Manual mode.
+- A Key Detection behavior setting in Settings. Choose Stable, Balanced, or
+  Reactive to favor a settled song key or more closely follow changes in tonal
+  center. Faster modes also clear their result sooner after you stop playing.
 
 ### Fixed
 
