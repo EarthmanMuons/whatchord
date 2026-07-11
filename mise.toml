@@ -165,6 +165,10 @@ run = """
 typst compile research/whatkey/paper/main.typ
 """
 
+[tasks."research:whatkey-zenodo-bundle"]
+description = "Bundle a tagged source archive and the WhatKey preprint for a manual Zenodo deposit"
+run = "bash tool/whatkey_zenodo_bundle.sh \"$@\""
+
 [tasks."research:whatkey-headline-verify"]
 description = "Verify the README headline table from committed WhatKey result artifacts without rerunning detectors"
 run = "python tool/whatkey_headline_table.py --check"
