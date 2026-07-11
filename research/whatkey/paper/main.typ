@@ -9,7 +9,7 @@
 #import "@preview/lilaq:0.4.0" as lq
 
 // Bump for committed/shareable paper drafts; use +1, +2 for same-day drafts.
-#let draft-version = "v2026.7.10"
+#let draft-version = "v2026.7.11"
 
 #let anonymous = false
 
@@ -115,7 +115,8 @@ The contributions are:
 
 + *A protocol for streaming key estimation with abstention*: metrics in the
   selective-prediction frame, frozen before tuning, with piece-level paired
-  statistics for every adoption decision and one-shot held-out evaluation.
+  statistics for every adoption decision and a held-out evaluation performed
+  exactly once.
 + *An explicit fixture-based data and reproducibility design*: chord streams are
   generated under a fixed neutral context, labels are stripped before detector
   calls, split files and result artifacts are versioned, and license-gated
@@ -138,8 +139,6 @@ The contributions are:
 + *A held-out comparison*: the final causal detector reaches at least parity
   with offline whole-piece baselines, with point estimates ahead on every
   comparison, while abstaining and reporting streaming stability metrics.
-
-#pagebreak()
 
 = Related work <sec-related>
 
@@ -210,16 +209,20 @@ accept abstention or any acceptable key. Selective-prediction behavior is
 reported as the coverage-accuracy curve swept over the abstention threshold,
 with the selected operating point marked (@fig-sweep). For probabilistic
 detectors, we also report top-label posterior reliability: events are binned by
-the posterior probability of the leading key and compared with exact
-correctness, alongside expected calibration error (ECE), negative log
+the posterior probability of the leading key (ten equal-width bins) and compared
+with exact correctness, alongside expected calibration error (ECE), negative log
 likelihood, and Brier score. This diagnostic is separate from abstention
 behavior: a detector can abstain informatively while still being overconfident
 in its posterior probabilities.
 
 *Statistics.* Every adoption decision uses piece-level paired comparisons:
 Wilcoxon signed-rank tests with seeded-bootstrap 95% confidence intervals on the
-per-piece mean delta. Pooled event accuracy alone is never decisive, a few long
-pieces dominate pools.
+per-piece mean delta. Events within a piece are strongly dependent and a few
+long pieces dominate pools, so the piece is the unit of analysis and pooled
+event accuracy is never decisive. The signed-rank test assumes no distributional
+form for these small delta samples. Development p-values served model selection,
+uncorrected for multiplicity; confirmatory weight rests on the pre-declared
+held-out evaluation, performed exactly once (@sec-heldout).
 
 *Protocol discipline.* The protocol was frozen before detector tuning, with
 changes recorded as dated amendments. Development/test splits were frozen per
@@ -291,12 +294,12 @@ capture code (pedal-aware sounding sets, debounce, minimum-duration commit), so
 detectors see the events they would see live.
 
 The repository contains the open fixtures, split files, evaluation harness,
-paired-comparison script, dated experiment logs, and the one-shot held-out
-result artifacts. License-gated corpora are not committed: their extractors
-refuse to write inside the research directory and must be rerun locally from
-pinned upstream checkouts. This means the paper's reported numbers are auditable
-from committed reports and commands, while redistribution remains bounded by
-each source corpus's terms.
+paired-comparison script, dated experiment logs, and the committed artifacts of
+the single held-out evaluation. License-gated corpora are not committed: their
+extractors refuse to write inside the research directory and must be rerun
+locally from pinned upstream checkouts. This means the paper's reported numbers
+are auditable from committed reports and commands, while redistribution remains
+bounded by each source corpus's terms.
 
 = Model family and selected detector <sec-model>
 
@@ -315,7 +318,6 @@ should remove them. Thus, except for the selected same-tonic mode cue below,
 chord-identity features proved useful mainly for the local-key version of the
 task; the section-key configuration is deliberately closer to a profile model.
 
-#colbreak()
 
 The selected detector is a causal HMM over the 24 major and minor keys. It keeps
 a filtered posterior and updates it by the forward algorithm only; no Viterbi
@@ -374,7 +376,7 @@ memory controls how local each observation is. The next section shows that this
 setting selects between annotation targets.
 
 #figure(
-  placement: none,
+  placement: auto,
   lq.diagram(
     width: 7.4cm,
     height: 4.6cm,
@@ -589,7 +591,6 @@ both annotation scales (Isophonics +0.016, p = 0.030; When in Rome +0.030, p =
 0.029), parallel confusion roughly halved everywhere measured (4% to 2% of
 claims on Isophonics), and no stability cost on the section-key development set.
 
-#colbreak()
 
 *Relative pairs (measured negative).* The same pattern generalizes with the key
 signature as the conserved quantity. But the evidence is structurally weaker:
@@ -760,21 +761,21 @@ error, ECE, 0.157). This does not affect ranking, abstention, or paired accuracy
 claims. For display only, post-hoc temperature scaling @guo2017 fit on the
 development split (T = 1.55, negative log-likelihood argmin) reduces held-out
 claimed-event ECE from 0.192 to 0.041 without changing any claim (byte-identical
-to the one-shot artifacts). Calibration remains task-relative: against local-key
-labels, the same display remains overconfident.
+to the committed held-out artifacts). Calibration remains task-relative: against
+local-key labels, the same display remains overconfident.
 
 = Conclusion <sec-conclusion>
 
 This paper defines and evaluates streaming key estimation with abstention from
 live chord-recognition output. Under a frozen protocol with paired statistics
-and a one-shot held-out evaluation, a causal HMM over profile-correlation
-emissions, augmented by one mass-preserving same-tonic mode cue, reports section
-keys on live-style chord streams at statistical parity with offline whole-piece
-baselines. The route to that detector was largely measurement-guided
-simplification: functional and progression rules were useful for local-key
-tracking but harmful or unnecessary for the selected section-key setting;
-recognizer-confidence weighting was inert; and adaptive temporal models traded
-stability for reactivity. The central methodological lesson is that
+and a held-out evaluation performed exactly once, a causal HMM over
+profile-correlation emissions, augmented by one mass-preserving same-tonic mode
+cue, reports section keys on live-style chord streams at statistical parity with
+offline whole-piece baselines. The route to that detector was largely
+measurement-guided simplification: functional and progression rules were useful
+for local-key tracking but harmful or unnecessary for the selected section-key
+setting; recognizer-confidence weighting was inert; and adaptive temporal models
+traded stability for reactivity. The central methodological lesson is that
 key-detection accuracy is label-timescale dependent. A detector can appear
 better or worse depending on whether the reference labels ask for brief
 tonicizations or section key, so the annotation scale is part of the task
@@ -784,8 +785,8 @@ definition rather than a detail of the dataset.
   #v(0.6em)
   #line(length: 100%, stroke: 0.5pt)
   #text(size: 8pt)[
-    Reproducibility: protocol, logs, corpus pins, splits, harness, and one-shot
-    artifacts live in the WhatChord repository under #link(
+    Reproducibility: protocol, logs, corpus pins, splits, harness, and held-out
+    evaluation artifacts live in the WhatChord repository under #link(
       "https://github.com/EarthmanMuons/whatchord/tree/main/research/whatkey",
     )[
       github.com/EarthmanMuons/whatchord/tree/main/research/whatkey
