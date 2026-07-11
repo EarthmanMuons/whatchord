@@ -1,0 +1,3 @@
+- Automatic key detection is here. On the Key Signature page, switch to Auto to see the detected key, confidence, recent chords, and a circle-of-fifths view as you play.
+- Choose Stable, Balanced, or Reactive in Settings to control how quickly automatic key detection follows changes.
+- The on-screen keyboard now reliably recenters after you rotate or resize the app.
