@@ -96,12 +96,14 @@ detector's ranked keys, abstention decisions, or paper results.
 
 - [paper/](paper/): the paper source and tracked PDF
   (`mise research:whatkey-paper` rebuilds it).
-- [log/](log/): dated experiment entries with exact commands, results, and
-  plain-English readings.
+- [CONTRIBUTION.md](CONTRIBUTION.md): a plain-English overview of what the work
+  contributes, what it does not claim, and why the negative results matter.
 - [GLOSSARY.md](GLOSSARY.md): plain-English definitions of the measurement
   terms.
 - [PROTOCOL.md](PROTOCOL.md): how results are evaluated; frozen, with dated
   amendments.
+- [log/](log/): dated experiment entries with exact commands, results, and
+  plain-English readings.
 - [temporal-context-key-detection.md](temporal-context-key-detection.md): the
   design-time plan and algorithm reference.
 - [key-behavior-modes.md](key-behavior-modes.md): informal post-paper
