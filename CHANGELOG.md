@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+## [2026.7.11] - 2026-07-11
+
 ### Added
 
 - Automatic key detection. Open the Key Signature page from the key button and
@@ -866,7 +868,9 @@ This is a pre-1.0 release intended as a stable public preview.
 - Signed Android APK distribution via GitHub Releases.
 
 [Unreleased]:
-  https://github.com/EarthmanMuons/whatchord/compare/v2026.7.6...HEAD
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.7.11...HEAD
+[2026.7.11]:
+  https://github.com/EarthmanMuons/whatchord/compare/v2026.7.6...v2026.7.11
 [2026.7.6]:
   https://github.com/EarthmanMuons/whatchord/compare/v2026.6.28...v2026.7.6
 [2026.6.28]:
