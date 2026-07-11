@@ -27,8 +27,8 @@ setting differs in three ways that compound:
 
 That combination is an underexplored setting, so the work is organized as a
 research project rather than only an app feature: a frozen evaluation protocol,
-versioned fixtures, external baselines, dated experiment logs, and a one-shot
-held-out evaluation.
+versioned fixtures, external baselines, dated experiment logs, and a held-out
+evaluation declared before running.
 
 ## Main result
 
@@ -94,10 +94,10 @@ detector's ranked keys, abstention decisions, or paper results.
 
 ## Repository map
 
-- [paper/](paper/): the paper source and tracked PDF
-  (`mise research:whatkey-paper` rebuilds it).
+- [paper/main.pdf](paper/main.pdf): the current preprint
+  (`mise research:whatkey-paper` rebuilds it from `paper/main.typ`).
 - [CONTRIBUTION.md](CONTRIBUTION.md): a plain-English overview of what the work
-  contributes, what it does not claim, and why the negative results matter.
+  contributes.
 - [GLOSSARY.md](GLOSSARY.md): plain-English definitions of the measurement
   terms.
 - [PROTOCOL.md](PROTOCOL.md): how results are evaluated; frozen, with dated
@@ -108,12 +108,17 @@ detector's ranked keys, abstention decisions, or paper results.
   design-time plan and algorithm reference.
 - [key-behavior-modes.md](key-behavior-modes.md): informal post-paper
   exploration behind the app's stable/balanced/reactive setting, with its own
-  one-shot held-out audit; separate from the frozen record above.
-- [data/](data/) and [results/](results/): fixture, split, provenance, and
-  committed one-shot test artifacts.
-- Code: detectors in `lib/features/key/` (the code the harness benchmarks is the
-  code the app runs), chord-event capture in `lib/features/history/`, and the
-  harness, extractors, and paired statistics in `tool/`.
+  fixed-preset held-out audit; separate from the frozen record above.
+- [data/](data/): fixture manifests, split files, provenance, and data access
+  notes.
+- [results/](results/): committed held-out evaluation artifacts and reports.
+- Code:
+  - [lib/features/key/](../../lib/features/key/): detectors and key-behavior
+    presets; this is the same code the harness benchmarks and the app runs.
+  - [lib/features/history/](../../lib/features/history/): chord-event capture
+    and segmentation.
+  - [tool/](../../tool/): harnesses, extractors, baseline runners, and paired
+    statistics.
 
 ## Reproducing and data access
 
@@ -132,7 +137,7 @@ metrics with the committed expectations. Omit `--yes` to review the download and
 license-gated fixture warning before the script proceeds.
 
 For a fast no-download check that the README table still matches the committed
-one-shot artifacts, run:
+held-out evaluation artifacts, run:
 
 ```sh
 mise install && mise research:whatkey-headline-verify
