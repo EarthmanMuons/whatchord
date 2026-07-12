@@ -22,7 +22,8 @@ Two upstream defects combine:
    For never-bonded peripherals it never appears, the handoff times out, and no
    data path remains.
 
-Patches (proposed upstream as a PR; these copies match the PR branch exactly):
+Patches (merged upstream in 1.0.3; these copies match the PR branch, plus one
+local debug diagnostic noted below):
 
 - `flutter_midi_command_ble`: when `isPaired` returns null, read the MIDI
   characteristic once (per the BLE MIDI spec; also triggers OS pairing when
@@ -34,6 +35,17 @@ Patches (proposed upstream as a PR; these copies match the PR branch exactly):
   endpoint authoritative. The handoff also now connects the endpoint even when a
   concurrent `devices()` refresh already flipped the route, since routing alone
   never opens the endpoint.
+
+Local debug diagnostic (not part of the upstream PR):
+`flutter_midi_command_ble` logs `UniversalBle.onConnectionChange` events in
+debug and profile builds, including the OS-provided disconnect reason, which
+nothing else in the stack records.
+
+Note on upstream 1.0.3: it merged both patches but also made the CoreMIDI
+handoff required on iOS/macOS (`connectToDevice` throws when no CoreMIDI
+counterpart appears), which breaks never-bonding peripherals again. Do not
+upgrade to 1.0.3; wait for a release where the handoff falls back to the BLE
+data path.
 
 To update: diff these copies against the matching version in
 `~/.pub-cache/hosted/pub.dev/`, re-vendor `lib/`, `pubspec.yaml`, and `LICENSE`,
