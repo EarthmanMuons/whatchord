@@ -33,6 +33,8 @@ void main() {
   test('seeding records evidence and claims G major in auto mode', () async {
     final container = await makeContainer();
     container.read(keyScreenshotSeedProvider.notifier).toggle();
+    // Adoption lands a microtask after the claim (see KeyModeNotifier._adopt).
+    await pumpEventQueue();
 
     expect(container.read(keyScreenshotSeedProvider), isTrue);
     expect(container.read(chordHistoryProvider), isNotEmpty);

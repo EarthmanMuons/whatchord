@@ -95,9 +95,18 @@ class KeyModeNotifier extends Notifier<KeyMode> {
   void _adopt(Tonality tonality) {
     _lastAutoWrite = tonality;
     if (tonality == ref.read(selectedTonalityProvider)) return;
-    unawaited(
-      ref.read(selectedTonalityProvider.notifier).setTonality(tonality),
-    );
+    // Adoption fires inside provider notifications (history -> inferred key),
+    // while a refresh pass may still be flushing. Writing the tonality
+    // synchronously re-dirties display providers that already rebuilt in that
+    // pass (Riverpod's same-frame rebuild assertion), so land the write
+    // between passes instead.
+    scheduleMicrotask(() {
+      if (!ref.mounted) return;
+      if (state != KeyMode.auto || _lastAutoWrite != tonality) return;
+      unawaited(
+        ref.read(selectedTonalityProvider.notifier).setTonality(tonality),
+      );
+    });
   }
 
   void _onTonalityChanged(Tonality? previous, Tonality next) {
