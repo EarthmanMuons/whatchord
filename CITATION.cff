@@ -17,13 +17,21 @@ authors:
 repository-code: https://github.com/EarthmanMuons/whatchord
 url: https://whatchord.earthmanmuons.com
 license: 0BSD
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.21322675
+    description: >-
+      Zenodo archive of the repository source and the WhatKey preprint;
+      this concept DOI always resolves to the latest archived version.
 keywords:
-  - music-information-retrieval
-  - key-detection
-  - chord-recognition
-  - hidden-markov-model
-  - midi
-  - flutter
+  - music information retrieval
+  - key detection
+  - chord recognition
+  - hidden Markov model
+  - MIDI
+  - selective prediction
+  - streaming algorithms
+  - Flutter
 preferred-citation:
   type: report
   title: >-
@@ -34,6 +42,7 @@ preferred-citation:
       given-names: Aaron
       orcid: https://orcid.org/0009-0007-9030-7469
   year: 2026
+  doi: 10.5281/zenodo.21322675
   url: https://github.com/EarthmanMuons/whatchord/tree/main/research/whatkey
   notes: >-
     Preprint. Protocol, experiment log, and evaluation artifacts in the
