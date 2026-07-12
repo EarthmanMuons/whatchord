@@ -15,10 +15,17 @@ final midiCommandProvider = Provider<fmc.MidiCommand>((ref) {
   // As of flutter_midi_command 1.0, BLE is an injectable transport rather than
   // built in; without one, all Bluetooth operations throw StateError.
   final cmd = fmc.MidiCommand(bleTransport: UniversalBleMidiTransport());
-  if (kDebugMode) {
+  if (!kReleaseMode) {
     // Surfaces the plugin's device merge, route, and BLE-to-CoreMIDI handoff
-    // diagnostics while we chase connection issues.
+    // diagnostics while we chase connection issues (debug and profile builds).
     cmd.logHandler = debugPrint;
+    // Timestamped setup events (deviceConnected, deviceDisconnected, ...) to
+    // pin down when a mid-session drop happens relative to launch.
+    final setupSub = cmd.onMidiSetupChanged?.listen((change) {
+      final ts = DateTime.now().toIso8601String().substring(11, 23);
+      debugPrint('[MIDI] $ts setup change: ${change.name}');
+    });
+    ref.onDispose(() => setupSub?.cancel());
   }
   return cmd;
 });

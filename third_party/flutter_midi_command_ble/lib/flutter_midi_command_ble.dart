@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_midi_command_platform_interface/flutter_midi_command_platform_interface.dart';
 import 'package:universal_ble/universal_ble.dart';
 
@@ -62,6 +63,14 @@ class UniversalBleMidiTransport implements MidiBleTransport {
     };
 
     UniversalBle.onConnectionChange = (deviceId, isConnected, error) {
+      // Local WhatChord diagnostic (not part of the upstream PR): the error
+      // carries the OS disconnect reason, which nothing else in the stack logs.
+      if (!kReleaseMode) {
+        debugPrint(
+          '[flutter_midi_command_ble] connection change $deviceId '
+          'connected=$isConnected${error == null ? '' : ' error=$error'}',
+        );
+      }
       final device = _devices[deviceId];
       if (device == null) {
         return;
