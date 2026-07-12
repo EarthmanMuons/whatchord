@@ -100,6 +100,8 @@ void main() {
   test('auto mode adopts a persistent claim into the tonality', () async {
     final container = await makeContainer({'key.autoModeEnabled': true});
     record(container, _gMajorPhrase());
+    // Adoption lands a microtask after the claim (see KeyModeNotifier._adopt).
+    await pumpEventQueue();
 
     final selected = container.read(selectedTonalityProvider);
     expect(selected.tonic, Tonic.g);
@@ -145,10 +147,13 @@ void main() {
     // Three events produce exactly one claim (warmup is three events), which
     // is below the streak threshold of two.
     record(container, _gMajorPhrase().take(3));
+    await pumpEventQueue();
     expect(container.read(inferredKeyProvider).claim, isNotNull);
     expect(container.read(selectedTonalityProvider), _cMajorTonality);
 
     record(container, _gMajorPhrase().skip(3).take(1));
+    // Adoption lands a microtask after the claim (see KeyModeNotifier._adopt).
+    await pumpEventQueue();
     expect(container.read(selectedTonalityProvider).tonic, Tonic.g);
   });
 }
