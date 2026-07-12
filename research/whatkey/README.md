@@ -166,6 +166,7 @@ If you build on this work, please cite the preprint:
   title  = {Streaming Key Estimation with Abstention from Live
             Chord-Recognition Output},
   year   = {2026},
+  doi    = {10.5281/zenodo.21322675},
   url    = {https://github.com/EarthmanMuons/whatchord/tree/main/research/whatkey},
   note   = {Preprint. Protocol, experiment log, and evaluation artifacts in
             the linked repository directory.}
