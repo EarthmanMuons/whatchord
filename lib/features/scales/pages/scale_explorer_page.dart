@@ -16,10 +16,8 @@ import 'package:whatchord/features/theory/theory.dart';
 
 import '../models/scale_menu.dart';
 import '../providers/scale_preferences_notifier.dart';
-import '../services/scale_degree_chord_symbol.dart';
 import '../services/scale_explorer_selection.dart';
 import '../services/scale_preview_animation_controller.dart';
-import '../services/scale_voicing.dart';
 import '../widgets/scale_degree_chord_list.dart';
 import '../widgets/scale_explorer_content_layout.dart';
 import '../widgets/scale_explorer_top_bar.dart';

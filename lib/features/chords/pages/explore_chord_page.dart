@@ -12,11 +12,7 @@ import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/scales/scales.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
-import '../models/explore_chord_example.dart';
-import '../models/explore_chord_state.dart';
 import '../providers/explore_preferences_notifier.dart';
-import '../services/explore_chord_example_builder.dart';
-import '../services/explore_chord_state_transitions.dart';
 import '../services/explore_preview_animation_controller.dart';
 import '../widgets/explore_chord_members_section.dart';
 import '../widgets/explore_controls.dart';

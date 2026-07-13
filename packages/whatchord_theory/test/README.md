@@ -27,6 +27,14 @@ narrowest file that explains why the case exists.
 - `scale_degree_golden_test.dart`: strict scale-degree classification, source
   selection, and roman-numeral rendering for analyzed chords.
 
+## Explore
+
+- `explore_chord_options_test.dart`: spec option availability, extension
+  compatibility rules, and example building for selected chord specs.
+- `explore_seed_derivation_test.dart`: deriving an Explore seed spec from an
+  analyzed chord identity.
+- `scale_voicing_test.dart`: canonical MIDI voicings for scale degrees.
+
 ## Shared Helpers
 
 - `package:whatchord_theory/testing.dart`: factories for analysis contexts,

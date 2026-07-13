@@ -1,8 +1,4 @@
-import 'package:whatchord/features/theory/theory.dart';
-
-import '../models/explore_chord_example.dart';
-import '../models/explore_chord_state.dart';
-import 'explore_chord_derivation.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 abstract final class ExploreChordExampleBuilder {
   static Set<int> canonicalBassPitchClasses(ExploreChordState state) {

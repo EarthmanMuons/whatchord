@@ -1,6 +1,4 @@
-import 'package:whatchord/features/theory/theory.dart';
-
-import 'explore_extension_rules.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 enum ExploreExtensionControlRole { highestExtension, addedTones, alterations }
 

@@ -1,6 +1,4 @@
-import 'package:whatchord/features/theory/theory.dart';
-
-import '../models/explore_chord_state.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 ChordIdentity buildExploreChordIdentity(ExploreChordState state) {
   final presentIntervalsMask = canonicalPresentIntervalsMask(

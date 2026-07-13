@@ -1,7 +1,5 @@
 import 'package:whatchord/features/theory/theory.dart';
 
-import 'scale_voicing.dart';
-
 Set<int> selectedDegreeChordMidi({
   required Scale scale,
   required ScaleHarmony? harmony,
