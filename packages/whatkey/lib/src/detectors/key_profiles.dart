@@ -64,7 +64,10 @@ enum KeyProfilePair {
     ],
   );
 
+  /// Weight per pitch class (0..11 relative to the tonic) for major keys.
   final List<double> major;
+
+  /// Weight per pitch class (0..11 relative to the tonic) for minor keys.
   final List<double> minor;
 
   const KeyProfilePair({required this.major, required this.minor});

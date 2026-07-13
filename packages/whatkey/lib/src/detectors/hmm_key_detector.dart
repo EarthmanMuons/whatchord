@@ -52,7 +52,11 @@ class HmmKeyDetector implements KeyDetector {
   /// detector keeps its own nonzero blend defaults for tonicization-scale
   /// work; these constants configure only the HMM's emissions.
   static const double defaultEmissionFunctionalBlend = 0;
+
+  /// See [defaultEmissionFunctionalBlend].
   static const double defaultEmissionProgressionBlend = 0;
+
+  /// See [defaultEmissionFunctionalBlend].
   static const bool defaultEmissionConfidenceWeighted = false;
 
   /// Log-odds tilt applied within the parallel-key pair rooted on the event's
@@ -78,17 +82,38 @@ class HmmKeyDetector implements KeyDetector {
   /// [relativeCadenceTilt] fires when the previous event was a
   /// dominant-quality chord a fifth above (a cadential resolution).
   static const double defaultRelativeTilt = 0;
+
+  /// See [defaultRelativeTilt].
   static const double defaultRelativeCadenceTilt = 0;
 
   final HybridKeyDetector _emissions;
+
+  /// Probability mass of staying in the current key per event.
   final double selfTransition;
+
+  /// Off-key transition weight per step of circle-of-fifths distance.
   final double fifthsDecay;
+
+  /// Discount on transitions that change mode.
   final double modeSwitchFactor;
+
+  /// Softmax temperature converting hybrid scores into emissions.
   final double emissionTemperature;
+
+  /// Events required before the detector may claim a key.
   final int minEvents;
+
+  /// Minimum posterior margin between the top two keys to claim; below it
+  /// the detector abstains.
   final double marginFloor;
+
+  /// Parallel-pair mode tilt strength (see [defaultModeTilt]).
   final double modeTilt;
+
+  /// Relative-pair tilt strength (see [defaultRelativeTilt]).
   final double relativeTilt;
+
+  /// Cadence-gated relative-pair tilt strength (see [defaultRelativeTilt]).
   final double relativeCadenceTilt;
   ChordIdentity? _previousIdentity;
 

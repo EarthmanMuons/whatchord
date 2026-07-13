@@ -32,15 +32,32 @@ class BocpdKeyDetector implements KeyDetector {
   /// length in the neighborhood the corpora show.
   static const double defaultHazard = 1 / 64;
 
+  /// Run-length truncation bound; the tail folds into the last bin.
   static const int defaultMaxRunLength = 128;
 
+  /// Pitch-class profiles scoring each event against the 24 keys.
   final KeyProfilePair profiles;
+
+  /// Whether an event's evidence is weighted by how long it was held.
   final bool durationWeighted;
+
+  /// Per-event changepoint probability (see [defaultHazard]).
   final double hazard;
+
+  /// Maximum tracked run length (see [defaultMaxRunLength]).
   final int maxRunLength;
+
+  /// Softmax temperature converting profile correlations into likelihoods.
   final double emissionTemperature;
+
+  /// Parallel-pair mode tilt strength (see [HmmKeyDetector.defaultModeTilt]).
   final double modeTilt;
+
+  /// Events required before the detector may claim a key.
   final int minEvents;
+
+  /// Minimum posterior margin between the top two keys to claim; below it
+  /// the detector abstains.
   final double marginFloor;
 
   /// Parallel lists indexed by run length: posterior weight and accumulated
