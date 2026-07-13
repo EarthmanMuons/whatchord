@@ -6,7 +6,7 @@ import 'selected_tonality_notifier.dart';
 final selectedKeySignatureProvider = Provider<KeySignature>((ref) {
   final tonality = ref.watch(selectedTonalityProvider);
 
-  for (final ks in keySignatureRows) {
+  for (final ks in keySignatures) {
     if (tonality.mode == TonalityMode.major && ks.relativeMajor == tonality) {
       return ks;
     }
@@ -15,5 +15,5 @@ final selectedKeySignatureProvider = Provider<KeySignature>((ref) {
     }
   }
 
-  return keySignatureRows.firstWhere((k) => k.accidentalCount == 0);
+  return keySignatures.firstWhere((k) => k.accidentalCount == 0);
 });

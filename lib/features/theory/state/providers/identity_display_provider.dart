@@ -33,7 +33,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
     case AnalysisMode.single:
       {
         final pc = midis.first % 12;
-        final name = pcToName(pc, tonality: tonality);
+        final name = noteNameForPitchClass(pc, tonality: tonality);
         final displayName = noteDisplayLabel(
           name,
           noteNameSystem: noteNameSystem,
@@ -71,7 +71,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         );
 
         final bassPc = bassMidi % 12;
-        final root = pcToName(bassPc, tonality: tonality);
+        final root = noteNameForPitchClass(bassPc, tonality: tonality);
         final displayRoot = noteDisplayLabel(
           root,
           noteNameSystem: noteNameSystem,
@@ -126,7 +126,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
 
         final extensionLabels = extensions
-            .map((e) => theoryTokenDisplayLabel(e.shortLabel))
+            .map((e) => toGlyphAccidentals(e.shortLabel))
             .toList();
         final debugText = _debugForChord(
           midis: midis,
@@ -144,9 +144,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           members: presentation.members
               .map((m) => noteDisplayLabel(m, noteNameSystem: noteNameSystem))
               .toList(),
-          degrees: presentation.memberDegrees
-              .map(theoryTokenDisplayLabel)
-              .toList(),
+          degrees: presentation.memberDegrees.map(toGlyphAccidentals).toList(),
           appVersion: appVersion,
         );
 

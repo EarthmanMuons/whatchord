@@ -8,7 +8,7 @@ const _cMajorTonality = Tonality(Tonic.c, TonalityMode.major);
 ChordEvent _event(
   int index,
   List<int> pcs,
-  ChordQualityToken quality, {
+  ChordQuality quality, {
   double alternativeCostGap = double.infinity,
 }) {
   var mask = 0;
@@ -36,7 +36,7 @@ ChordEvent _event(
           identity: ChordIdentity(
             rootPc: (pcs.first + 3) % 12,
             bassPc: pcs.first % 12,
-            quality: ChordQualityToken.major,
+            quality: ChordQuality.major,
             presentIntervalsMask: 1,
           ),
           cost: alternativeCostGap,
@@ -57,10 +57,10 @@ List<KeyEstimateFrame> _run(
 
 void main() {
   final cCadence = [
-    _event(0, [0, 4, 7], ChordQualityToken.major),
-    _event(1, [5, 9, 0], ChordQualityToken.major),
-    _event(2, [7, 11, 2, 5], ChordQualityToken.dominant7),
-    _event(3, [0, 4, 7], ChordQualityToken.major),
+    _event(0, [0, 4, 7], ChordQuality.major),
+    _event(1, [5, 9, 0], ChordQuality.major),
+    _event(2, [7, 11, 2, 5], ChordQuality.dominant7),
+    _event(3, [0, 4, 7], ChordQuality.major),
   ];
 
   test('claims C major for a C major cadence', () {
@@ -80,10 +80,10 @@ void main() {
 
   test('claims A minor for a harmonic-minor cadence with E7', () {
     final frames = _run(WeightedEvidenceKeyDetector(), [
-      _event(0, [9, 0, 4], ChordQualityToken.minor),
-      _event(1, [2, 5, 9], ChordQualityToken.minor),
-      _event(2, [4, 8, 11, 2], ChordQualityToken.dominant7),
-      _event(3, [9, 0, 4], ChordQualityToken.minor),
+      _event(0, [9, 0, 4], ChordQuality.minor),
+      _event(1, [2, 5, 9], ChordQuality.minor),
+      _event(2, [4, 8, 11, 2], ChordQuality.dominant7),
+      _event(3, [9, 0, 4], ChordQuality.minor),
     ]);
     final claim = frames.last.claim;
     expect(claim, isNotNull);
@@ -97,7 +97,7 @@ void main() {
     // carries the dominant bonus, so a lone E7 must rank A minor at the top
     // alongside A major (where it is also V7), never below it.
     final frames = _run(WeightedEvidenceKeyDetector(minEvents: 1), [
-      _event(0, [4, 8, 11, 2], ChordQualityToken.dominant7),
+      _event(0, [4, 8, 11, 2], ChordQuality.dominant7),
     ]);
     final ranked = frames.single.ranked;
     final aMinorRank = ranked.indexWhere(
@@ -118,15 +118,10 @@ void main() {
     () {
       // The C cadence, but every identity reported as a dead tie.
       final ambiguous = [
-        _event(0, [0, 4, 7], ChordQualityToken.major, alternativeCostGap: 0),
-        _event(1, [5, 9, 0], ChordQualityToken.major, alternativeCostGap: 0),
-        _event(
-          2,
-          [7, 11, 2, 5],
-          ChordQualityToken.dominant7,
-          alternativeCostGap: 0,
-        ),
-        _event(3, [0, 4, 7], ChordQualityToken.major, alternativeCostGap: 0),
+        _event(0, [0, 4, 7], ChordQuality.major, alternativeCostGap: 0),
+        _event(1, [5, 9, 0], ChordQuality.major, alternativeCostGap: 0),
+        _event(2, [7, 11, 2, 5], ChordQuality.dominant7, alternativeCostGap: 0),
+        _event(3, [0, 4, 7], ChordQuality.major, alternativeCostGap: 0),
       ];
       final weighted = _run(WeightedEvidenceKeyDetector(), ambiguous);
       expect(weighted.every((frame) => frame.isAbstention), isTrue);
@@ -143,8 +138,8 @@ void main() {
     final frames = _run(WeightedEvidenceKeyDetector(), [
       ...cCadence,
       for (var i = 0; i < 6; i++) ...[
-        _event(4 + 2 * i, [2, 6, 9, 0], ChordQualityToken.dominant7),
-        _event(5 + 2 * i, [7, 11, 2], ChordQualityToken.major),
+        _event(4 + 2 * i, [2, 6, 9, 0], ChordQuality.dominant7),
+        _event(5 + 2 * i, [7, 11, 2], ChordQuality.major),
       ],
     ]);
     final claim = frames.last.claim;
@@ -157,7 +152,7 @@ void main() {
     // A lone C7: without the tonic bonus, F major scores +9 (diatonic root,
     // all tones diatonic, dominant-on-V) while C major scores +1 (root
     // diatonic, Bb chromatic). The bonus must narrow that structural gap.
-    final event = _event(0, [0, 4, 7, 10], ChordQualityToken.dominant7);
+    final event = _event(0, [0, 4, 7, 10], ChordQuality.dominant7);
     double gap(WeightedEvidenceKeyDetector detector) {
       detector.reset();
       final ranked = detector.onEvent(event).ranked;

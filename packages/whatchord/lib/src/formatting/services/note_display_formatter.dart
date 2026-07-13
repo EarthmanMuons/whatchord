@@ -96,7 +96,7 @@ String tonalitySemanticLabel(
 }
 
 /// Just the tonic label for a key, in the given note-name system.
-String tonalityPickerTonicLabel(
+String tonalityTonicLabel(
   Tonality tonality, {
   NoteNameSystem noteNameSystem = NoteNameSystem.international,
 }) {
@@ -104,9 +104,6 @@ String tonalityPickerTonicLabel(
     noteNameSystem,
   ).tonalityTonic(tonality.tonic.label, isMajor: tonality.isMajor);
 }
-
-/// Converts a canonical ASCII token such as b9, #11, or m7(b5) to UI text.
-String theoryTokenDisplayLabel(String token) => toGlyphAccidentals(token);
 
 /// Converts a canonical chord symbol to compact UI text.
 String chordSymbolDisplayLabel(
@@ -136,7 +133,7 @@ ChordSymbolDisplayParts chordSymbolDisplayParts(
   NoteNameSystem noteNameSystem = NoteNameSystem.international,
 }) {
   final formatter = _NoteNameFormatter(noteNameSystem);
-  final quality = theoryTokenDisplayLabel(symbol.quality);
+  final quality = toGlyphAccidentals(symbol.quality);
   return ChordSymbolDisplayParts(
     root: formatter.compact(symbol.root),
     quality: quality,

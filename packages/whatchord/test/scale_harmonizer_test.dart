@@ -319,10 +319,10 @@ void main() {
   });
 
   group('Diatonic chord qualities', () {
-    List<ChordQualityToken> triads(Scale scale) => [
+    List<ChordQuality> triads(Scale scale) => [
       for (final d in ScaleHarmonizer.harmonize(scale).degrees) d.triadQuality,
     ];
-    List<ChordQualityToken> sevenths(Scale scale) => [
+    List<ChordQuality> sevenths(Scale scale) => [
       for (final d in ScaleHarmonizer.harmonize(scale).degrees)
         d.seventhQuality,
     ];
@@ -330,68 +330,68 @@ void main() {
     test('major scale triads and sevenths', () {
       const cMajor = Scale(Tonic.c, ScaleKind.major);
       expect(triads(cMajor), const [
-        ChordQualityToken.major,
-        ChordQualityToken.minor,
-        ChordQualityToken.minor,
-        ChordQualityToken.major,
-        ChordQualityToken.major,
-        ChordQualityToken.minor,
-        ChordQualityToken.diminished,
+        ChordQuality.major,
+        ChordQuality.minor,
+        ChordQuality.minor,
+        ChordQuality.major,
+        ChordQuality.major,
+        ChordQuality.minor,
+        ChordQuality.diminished,
       ]);
       expect(sevenths(cMajor), const [
-        ChordQualityToken.major7,
-        ChordQualityToken.minor7,
-        ChordQualityToken.minor7,
-        ChordQualityToken.major7,
-        ChordQualityToken.dominant7,
-        ChordQualityToken.minor7,
-        ChordQualityToken.halfDiminished7,
+        ChordQuality.major7,
+        ChordQuality.minor7,
+        ChordQuality.minor7,
+        ChordQuality.major7,
+        ChordQuality.dominant7,
+        ChordQuality.minor7,
+        ChordQuality.halfDiminished7,
       ]);
     });
 
     test('harmonic minor sevenths include maj7#5 and a fully diminished 7', () {
       expect(sevenths(const Scale(Tonic.a, ScaleKind.harmonicMinor)), const [
-        ChordQualityToken.minorMajor7,
-        ChordQualityToken.halfDiminished7,
-        ChordQualityToken.major7Sharp5,
-        ChordQualityToken.minor7,
-        ChordQualityToken.dominant7,
-        ChordQualityToken.major7,
-        ChordQualityToken.diminished7,
+        ChordQuality.minorMajor7,
+        ChordQuality.halfDiminished7,
+        ChordQuality.major7Sharp5,
+        ChordQuality.minor7,
+        ChordQuality.dominant7,
+        ChordQuality.major7,
+        ChordQuality.diminished7,
       ]);
     });
 
     test('melodic minor sevenths', () {
       expect(sevenths(const Scale(Tonic.a, ScaleKind.melodicMinor)), const [
-        ChordQualityToken.minorMajor7,
-        ChordQualityToken.minor7,
-        ChordQualityToken.major7Sharp5,
-        ChordQualityToken.dominant7,
-        ChordQualityToken.dominant7,
-        ChordQualityToken.halfDiminished7,
-        ChordQualityToken.halfDiminished7,
+        ChordQuality.minorMajor7,
+        ChordQuality.minor7,
+        ChordQuality.major7Sharp5,
+        ChordQuality.dominant7,
+        ChordQuality.dominant7,
+        ChordQuality.halfDiminished7,
+        ChordQuality.halfDiminished7,
       ]);
     });
 
     test('harmonic major triads and sevenths map cleanly', () {
       const cHarmonicMajor = Scale(Tonic.c, ScaleKind.harmonicMajor);
       expect(triads(cHarmonicMajor), const [
-        ChordQualityToken.major,
-        ChordQualityToken.diminished,
-        ChordQualityToken.minor,
-        ChordQualityToken.minor,
-        ChordQualityToken.major,
-        ChordQualityToken.augmented,
-        ChordQualityToken.diminished,
+        ChordQuality.major,
+        ChordQuality.diminished,
+        ChordQuality.minor,
+        ChordQuality.minor,
+        ChordQuality.major,
+        ChordQuality.augmented,
+        ChordQuality.diminished,
       ]);
       expect(sevenths(cHarmonicMajor), const [
-        ChordQualityToken.major7,
-        ChordQualityToken.halfDiminished7,
-        ChordQualityToken.minor7,
-        ChordQualityToken.minorMajor7,
-        ChordQualityToken.dominant7,
-        ChordQualityToken.major7Sharp5,
-        ChordQualityToken.diminished7,
+        ChordQuality.major7,
+        ChordQuality.halfDiminished7,
+        ChordQuality.minor7,
+        ChordQuality.minorMajor7,
+        ChordQuality.dominant7,
+        ChordQuality.major7Sharp5,
+        ChordQuality.diminished7,
       ]);
     });
   });

@@ -43,7 +43,7 @@ class KeySignature {
   /// The signature for [tonality]; throws for tonalities without a
   /// conventional key signature.
   static KeySignature fromTonality(Tonality tonality) {
-    for (final ks in keySignatureRows) {
+    for (final ks in keySignatures) {
       if (tonality.isMajor && ks.relativeMajor == tonality) {
         return ks;
       }
@@ -56,14 +56,14 @@ class KeySignature {
 }
 
 /// Convenient, non-cyclic access: Tonality -> KeySignature.
-extension TonalityKeySignatureX on Tonality {
+extension TonalityKeySignature on Tonality {
   /// The key signature for this tonality.
   KeySignature get keySignature => KeySignature.fromTonality(this);
 }
 
 /// Circle-of-fifths-ish ordering that also includes the "full" 15 signatures:
 /// 7 flats ... 0 ... 7 sharps
-const keySignatureRows = <KeySignature>[
+const keySignatures = <KeySignature>[
   KeySignature(
     accidentalCount: -7,
     relativeMajor: Tonality(Tonic.cFlat, TonalityMode.major),

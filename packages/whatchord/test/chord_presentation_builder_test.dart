@@ -9,7 +9,7 @@ void main() {
   test('builds presentation for a diatonic triad', () {
     final identity = _identity(
       root: 'C',
-      quality: ChordQualityToken.major,
+      quality: ChordQuality.major,
       intervals: const [0, 4, 7],
     );
 
@@ -31,7 +31,7 @@ void main() {
     final identity = _identity(
       root: 'C',
       bass: 'E',
-      quality: ChordQualityToken.major,
+      quality: ChordQuality.major,
       intervals: const [0, 4, 7],
     );
 
@@ -50,7 +50,7 @@ void main() {
     final identity = _identity(
       root: 'C',
       bass: 'G',
-      quality: ChordQualityToken.major,
+      quality: ChordQuality.major,
       intervals: const [0, 4, 7],
     );
 
@@ -67,7 +67,7 @@ void main() {
     final identity = _identity(
       root: 'C',
       bass: 'Bb',
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       intervals: const [0, 4, 7, 10],
     );
 
@@ -84,7 +84,7 @@ void main() {
     final identity = _identity(
       root: 'C',
       bass: 'E',
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       extensions: const {ChordExtension.nine},
       intervals: const [0, 2, 4, 7, 10],
     );
@@ -102,7 +102,7 @@ void main() {
     final identity = _identity(
       root: 'G',
       bass: 'A',
-      quality: ChordQualityToken.major,
+      quality: ChordQuality.major,
       extensions: const {ChordExtension.add9},
       intervals: const [0, 2, 4, 7],
     );
@@ -124,7 +124,7 @@ void main() {
   test('keeps root-position add9 triads explicit', () {
     final identity = _identity(
       root: 'G',
-      quality: ChordQualityToken.major,
+      quality: ChordQuality.major,
       extensions: const {ChordExtension.add9},
       intervals: const [0, 2, 4, 7],
     );
@@ -144,7 +144,7 @@ void main() {
     final identity = _identity(
       root: 'C',
       bass: 'D',
-      quality: ChordQualityToken.major6,
+      quality: ChordQuality.major6,
       extensions: const {ChordExtension.add9},
       intervals: const [0, 2, 4, 7, 9],
     );
@@ -168,14 +168,14 @@ void main() {
       final dominant = _identity(
         root: 'C',
         bass: 'D',
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         extensions: const {ChordExtension.nine},
         intervals: const [0, 2, 4, 7, 10],
       );
       final major = _identity(
         root: 'C',
         bass: 'D',
-        quality: ChordQualityToken.major7,
+        quality: ChordQuality.major7,
         extensions: const {ChordExtension.nine},
         intervals: const [0, 2, 4, 7, 11],
       );
@@ -209,7 +209,7 @@ void main() {
       final identity = _identity(
         root: 'A',
         bass: 'D',
-        quality: ChordQualityToken.minor7,
+        quality: ChordQuality.minor7,
         extensions: const {ChordExtension.add11},
         intervals: const [0, 3, 5, 7, 10],
       );
@@ -230,13 +230,13 @@ void main() {
   test('uses conventional long labels for root-position six-nine chords', () {
     final major = _identity(
       root: 'C',
-      quality: ChordQualityToken.major6,
+      quality: ChordQuality.major6,
       extensions: const {ChordExtension.add9},
       intervals: const [0, 2, 4, 7, 9],
     );
     final minor = _identity(
       root: 'C',
-      quality: ChordQualityToken.minor6,
+      quality: ChordQuality.minor6,
       extensions: const {ChordExtension.add9},
       intervals: const [0, 2, 3, 7, 9],
     );
@@ -262,7 +262,7 @@ void main() {
     final identity = _identity(
       root: 'G',
       bass: 'A',
-      quality: ChordQualityToken.major,
+      quality: ChordQuality.major,
       extensions: const {ChordExtension.add9},
       intervals: const [0, 2, 4],
     );
@@ -284,7 +284,7 @@ void main() {
   test('stacks root-position seventh extensions above the core chord', () {
     final identity = _identity(
       root: 'C',
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       extensions: const {ChordExtension.nine},
       intervals: const [0, 2, 4, 7, 10],
     );
@@ -301,7 +301,7 @@ void main() {
   test('includes extension labels and altered member degrees', () {
     final identity = _identity(
       root: 'G',
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
       intervals: const [0, 4, 6, 7, 10, 1],
     );
@@ -334,7 +334,7 @@ void main() {
   test('promotes symbolic major seventh sus ninths into the headline', () {
     final identity = _identity(
       root: 'C',
-      quality: ChordQualityToken.major7sus4,
+      quality: ChordQuality.major7sus4,
       extensions: const {ChordExtension.nine},
       intervals: const [0, 2, 5, 7, 11],
     );
@@ -351,12 +351,12 @@ void main() {
   test('groups textual minor-major markers with other modifiers', () {
     final minorMajorSeventh = _identity(
       root: 'C',
-      quality: ChordQualityToken.minorMajor7,
+      quality: ChordQuality.minorMajor7,
       intervals: const [0, 3, 7, 11],
     );
     final minorMajorNinthFlatThirteenth = _identity(
       root: 'C',
-      quality: ChordQualityToken.minorMajor7,
+      quality: ChordQuality.minorMajor7,
       extensions: const {ChordExtension.nine, ChordExtension.flat13},
       intervals: const [0, 2, 3, 7, 8, 11],
     );
@@ -379,7 +379,7 @@ void main() {
   test('groups lone modifiers after dense promoted major-family labels', () {
     final majorEleventhFlatThirteenth = _identity(
       root: 'C',
-      quality: ChordQualityToken.major7,
+      quality: ChordQuality.major7,
       extensions: const {
         ChordExtension.nine,
         ChordExtension.eleven,
@@ -389,7 +389,7 @@ void main() {
     );
     final majorThirteenthSharpEleventh = _identity(
       root: 'C',
-      quality: ChordQualityToken.major7,
+      quality: ChordQuality.major7,
       extensions: const {
         ChordExtension.nine,
         ChordExtension.sharp11,
@@ -399,7 +399,7 @@ void main() {
     );
     final dominantThirteenthSharpEleventh = _identity(
       root: 'C',
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       extensions: const {
         ChordExtension.nine,
         ChordExtension.sharp11,
@@ -435,7 +435,7 @@ void main() {
       final identity = _identity(
         root: 'G',
         bass: 'B',
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
         intervals: const [0, 4, 6, 7, 10, 1],
       );
@@ -454,19 +454,19 @@ void main() {
   test('promotes seventh-family natural extensions in long labels', () {
     final dominantNinth = _identity(
       root: 'C',
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       extensions: const {ChordExtension.nine},
       intervals: const [0, 2, 4, 7, 10],
     );
     final minorEleventh = _identity(
       root: 'D',
-      quality: ChordQualityToken.minor7,
+      quality: ChordQuality.minor7,
       extensions: const {ChordExtension.nine, ChordExtension.eleven},
       intervals: const [0, 2, 3, 5, 7, 10],
     );
     final majorThirteenth = _identity(
       root: 'F',
-      quality: ChordQualityToken.major7,
+      quality: ChordQuality.major7,
       extensions: const {
         ChordExtension.nine,
         ChordExtension.eleven,
@@ -501,13 +501,13 @@ void main() {
   test('keeps added tones and alterations as long-label modifiers', () {
     final minorAddEleventh = _identity(
       root: 'D',
-      quality: ChordQualityToken.minor7,
+      quality: ChordQuality.minor7,
       extensions: const {ChordExtension.add11},
       intervals: const [0, 3, 5, 7, 10],
     );
     final dominantSharpEleventh = _identity(
       root: 'G',
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       extensions: const {
         ChordExtension.nine,
         ChordExtension.sharp11,
@@ -535,7 +535,7 @@ void main() {
   test('returns null scale degree for non-diatonic presentation', () {
     final identity = _identity(
       root: 'Db',
-      quality: ChordQualityToken.major,
+      quality: ChordQuality.major,
       intervals: const [0, 4, 7],
     );
 
@@ -553,7 +553,7 @@ void main() {
 
 ChordIdentity _identity({
   required String root,
-  required ChordQualityToken quality,
+  required ChordQuality quality,
   required List<int> intervals,
   String? bass,
   Set<ChordExtension> extensions = const {},

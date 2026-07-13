@@ -11,7 +11,7 @@ import 'package:whatchord_app/features/theory/theory.dart';
 const _cMajorTonality = Tonality(Tonic.c, TonalityMode.major);
 const _aMinorTonality = Tonality(Tonic.a, TonalityMode.minor);
 
-ChordEvent _event(int index, List<int> pcs, ChordQualityToken quality) {
+ChordEvent _event(int index, List<int> pcs, ChordQuality quality) {
   var mask = 0;
   for (final pc in pcs) {
     mask |= 1 << (pc % 12);
@@ -51,7 +51,7 @@ List<ChordEvent> _gMajorPhrase([int start = 0]) => [
         [2, 6, 9, 0],
         [7, 11, 2],
       ][i % 4],
-      i % 4 == 2 ? ChordQualityToken.dominant7 : ChordQualityToken.major,
+      i % 4 == 2 ? ChordQuality.dominant7 : ChordQuality.major,
     ),
 ];
 

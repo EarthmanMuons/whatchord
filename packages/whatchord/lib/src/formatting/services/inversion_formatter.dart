@@ -25,7 +25,7 @@ abstract final class InversionFormatter {
       final role = id.toneRolesByInterval[bassInterval];
       return role == null
           ? 'non-root bass'
-          : 'non-root bass: ${theoryTokenDisplayLabel(role.label)}';
+          : 'non-root bass: ${toGlyphAccidentals(role.label)}';
     }
 
     // Bass is a core chord tone -> classical inversion naming is appropriate.
@@ -34,85 +34,85 @@ abstract final class InversionFormatter {
         : _triadInversion(bassInterval);
   }
 
-  static Set<int> _coreMemberIntervals(ChordQualityToken q) {
+  static Set<int> _coreMemberIntervals(ChordQuality q) {
     switch (q) {
       // Triad-family
-      case ChordQualityToken.major:
-      case ChordQualityToken.major6:
+      case ChordQuality.major:
+      case ChordQuality.major6:
         return const {0, 4, 7}; // 1, 3, 5
 
-      case ChordQualityToken.majorFlat5:
+      case ChordQuality.majorFlat5:
         return const {0, 4, 6}; // 1, 3, b5
 
-      case ChordQualityToken.minor:
-      case ChordQualityToken.minor6:
+      case ChordQuality.minor:
+      case ChordQuality.minor6:
         return const {0, 3, 7}; // 1, b3, 5
 
-      case ChordQualityToken.minorSharp5:
+      case ChordQuality.minorSharp5:
         return const {0, 3, 8}; // 1, b3, #5
 
-      case ChordQualityToken.diminished:
+      case ChordQuality.diminished:
         return const {0, 3, 6}; // 1, b3, b5
 
-      case ChordQualityToken.augmented:
+      case ChordQuality.augmented:
         return const {0, 4, 8}; // 1, 3, #5
 
-      case ChordQualityToken.power:
+      case ChordQuality.power:
         return const {0, 7}; // 1, 5
 
-      case ChordQualityToken.sus2:
+      case ChordQuality.sus2:
         return const {0, 2, 7}; // 1, 2, 5
 
-      case ChordQualityToken.sus4:
+      case ChordQuality.sus4:
         return const {0, 5, 7}; // 1, 4, 5
 
-      case ChordQualityToken.sus2sus4:
+      case ChordQuality.sus2sus4:
         return const {0, 2, 5, 7}; // 1, 2, 4, 5
 
       // Seventh-family (include the seventh as core)
-      case ChordQualityToken.dominant7:
+      case ChordQuality.dominant7:
         return const {0, 4, 7, 10}; // 1, 3, 5, b7
 
-      case ChordQualityToken.dominant7sus2:
+      case ChordQuality.dominant7sus2:
         return const {0, 2, 7, 10}; // 1, 2, 5, b7
 
-      case ChordQualityToken.dominant7sus4:
+      case ChordQuality.dominant7sus4:
         return const {0, 5, 7, 10}; // 1, 4, 5, b7
 
-      case ChordQualityToken.dominant7Flat5:
+      case ChordQuality.dominant7Flat5:
         return const {0, 4, 6, 10}; // 1, 3, b5, b7
 
-      case ChordQualityToken.dominant7Sharp5:
+      case ChordQuality.dominant7Sharp5:
         return const {0, 4, 8, 10}; // 1, 3, #5, b7
 
-      case ChordQualityToken.major7:
+      case ChordQuality.major7:
         return const {0, 4, 7, 11}; // 1, 3, 5, 7
 
-      case ChordQualityToken.major7sus2:
+      case ChordQuality.major7sus2:
         return const {0, 2, 7, 11}; // 1, 2, 5, 7
 
-      case ChordQualityToken.major7sus4:
+      case ChordQuality.major7sus4:
         return const {0, 5, 7, 11}; // 1, 4, 5, 7
 
-      case ChordQualityToken.major7Flat5:
+      case ChordQuality.major7Flat5:
         return const {0, 4, 6, 11}; // 1, 3, b5, 7
 
-      case ChordQualityToken.major7Sharp5:
+      case ChordQuality.major7Sharp5:
         return const {0, 4, 8, 11}; // 1, 3, #5, 7
 
-      case ChordQualityToken.minor7:
+      case ChordQuality.minor7:
         return const {0, 3, 7, 10}; // 1, b3, 5, b7
 
-      case ChordQualityToken.minor7Sharp5:
+      case ChordQuality.minor7Sharp5:
         return const {0, 3, 8, 10}; // 1, b3, #5, b7
 
-      case ChordQualityToken.minorMajor7:
+      case ChordQuality.minorMajor7:
         return const {0, 3, 7, 11}; // 1, b3, 5, 7
 
-      case ChordQualityToken.halfDiminished7:
+      case ChordQuality.halfDiminished7:
         return const {0, 3, 6, 10}; // 1, b3, b5, b7
 
-      case ChordQualityToken.diminished7:
+      case ChordQuality.diminished7:
         return const {0, 3, 6, 9}; // 1, b3, b5, bb7(=6)
     }
   }

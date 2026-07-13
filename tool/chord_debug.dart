@@ -436,7 +436,7 @@ String _formatTones(
   ], identity: id);
   for (final interval in intervals) {
     final pc = {(id.rootPc + interval) % 12};
-    final degree = theoryTokenDisplayLabel(
+    final degree = toGlyphAccidentals(
       ChordMemberDegreeFormatter.formatDegrees(
         identity: id,
         pitchClasses: pc,
@@ -921,7 +921,7 @@ String _formatIdentityCompact(ChordIdentity id) {
   var s = id.toString();
 
   // Strip enum type prefixes for readability.
-  s = s.replaceAll('ChordQualityToken.', '');
+  s = s.replaceAll('ChordQuality.', '');
   s = s.replaceAll('ChordExtension.', '');
   s = s.replaceAll('ChordToneRole.', '');
 

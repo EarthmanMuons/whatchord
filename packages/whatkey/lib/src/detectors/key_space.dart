@@ -12,7 +12,7 @@ abstract final class KeySpace {
   static final List<Tonality> canonicalTonalities = _canonicalTonalities();
 
   static List<Tonality> _canonicalTonalities() {
-    final rows = [...keySignatureRows]
+    final rows = [...keySignatures]
       ..sort((a, b) {
         final byCount = a.accidentalCount.abs().compareTo(
           b.accidentalCount.abs(),
@@ -53,31 +53,31 @@ abstract final class KeySpace {
   /// Chord qualities that read as "home" over a major tonic. Includes
   /// dominant7 so a blues I7 counts as tonic rather than only as V-of-IV
   /// (log entry 2026-07-07-10).
-  static const Set<ChordQualityToken> majorTonicQualities = {
-    ChordQualityToken.major,
-    ChordQualityToken.major6,
-    ChordQualityToken.major7,
-    ChordQualityToken.dominant7,
+  static const Set<ChordQuality> majorTonicQualities = {
+    ChordQuality.major,
+    ChordQuality.major6,
+    ChordQuality.major7,
+    ChordQuality.dominant7,
   };
 
   /// Chord qualities that read as "home" over a minor tonic.
-  static const Set<ChordQualityToken> minorTonicQualities = {
-    ChordQualityToken.minor,
-    ChordQualityToken.minor6,
-    ChordQualityToken.minor7,
-    ChordQualityToken.minorMajor7,
+  static const Set<ChordQuality> minorTonicQualities = {
+    ChordQuality.minor,
+    ChordQuality.minor6,
+    ChordQuality.minor7,
+    ChordQuality.minorMajor7,
   };
 
   /// The tonic quality set for [tonality]'s mode.
-  static Set<ChordQualityToken> tonicQualities(Tonality tonality) =>
+  static Set<ChordQuality> tonicQualities(Tonality tonality) =>
       tonality.isMajor ? majorTonicQualities : minorTonicQualities;
 
   /// Chord qualities that read as dominant function on any root.
-  static const Set<ChordQualityToken> dominantQualities = {
-    ChordQualityToken.dominant7,
-    ChordQualityToken.dominant7sus2,
-    ChordQualityToken.dominant7sus4,
-    ChordQualityToken.dominant7Flat5,
-    ChordQualityToken.dominant7Sharp5,
+  static const Set<ChordQuality> dominantQualities = {
+    ChordQuality.dominant7,
+    ChordQuality.dominant7sus2,
+    ChordQuality.dominant7sus4,
+    ChordQuality.dominant7Flat5,
+    ChordQuality.dominant7Sharp5,
   };
 }

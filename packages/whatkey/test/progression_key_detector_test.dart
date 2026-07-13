@@ -8,7 +8,7 @@ const _cMajorTonality = Tonality(Tonic.c, TonalityMode.major);
 ChordEvent _event(
   int index,
   List<int> pcs,
-  ChordQualityToken quality, {
+  ChordQuality quality, {
   int? bassPc,
 }) {
   var mask = 0;
@@ -51,8 +51,8 @@ KeyEstimate _estimateFor(KeyEstimateFrame frame, int tonicPc, bool isMinor) =>
 void main() {
   test('a G7 to C cadence tops the ranking with C major', () {
     final frames = _run(ProgressionKeyDetector(minEvents: 2), [
-      _event(0, [7, 11, 2, 5], ChordQualityToken.dominant7),
-      _event(1, [0, 4, 7], ChordQualityToken.major),
+      _event(0, [7, 11, 2, 5], ChordQuality.dominant7),
+      _event(1, [0, 4, 7], ChordQuality.major),
     ]);
     final top = frames.last.ranked.first;
     expect(top.tonality.tonicPitchClass, 0);
@@ -61,13 +61,13 @@ void main() {
 
   test('ii-V-I completion scores above a bare V-I', () {
     final bare = _run(ProgressionKeyDetector(minEvents: 2), [
-      _event(0, [7, 11, 2, 5], ChordQualityToken.dominant7),
-      _event(1, [0, 4, 7], ChordQualityToken.major),
+      _event(0, [7, 11, 2, 5], ChordQuality.dominant7),
+      _event(1, [0, 4, 7], ChordQuality.major),
     ]);
     final complete = _run(ProgressionKeyDetector(minEvents: 2), [
-      _event(0, [2, 5, 9, 0], ChordQualityToken.minor7),
-      _event(1, [7, 11, 2, 5], ChordQualityToken.dominant7),
-      _event(2, [0, 4, 7], ChordQualityToken.major),
+      _event(0, [2, 5, 9, 0], ChordQuality.minor7),
+      _event(1, [7, 11, 2, 5], ChordQuality.dominant7),
+      _event(2, [0, 4, 7], ChordQuality.major),
     ]);
     final bareC = _estimateFor(bare.last, 0, false).confidence;
     final completeC = _estimateFor(complete.last, 0, false).confidence;
@@ -78,8 +78,8 @@ void main() {
     // G7 -> C7: with dominant7 in the tonic quality set, this is V7 -> I7 in
     // C, not motion toward F.
     final frames = _run(ProgressionKeyDetector(minEvents: 2), [
-      _event(0, [7, 11, 2, 5], ChordQualityToken.dominant7),
-      _event(1, [0, 4, 7, 10], ChordQualityToken.dominant7),
+      _event(0, [7, 11, 2, 5], ChordQuality.dominant7),
+      _event(1, [0, 4, 7, 10], ChordQuality.dominant7),
     ]);
     final top = frames.last.ranked.first;
     expect(top.tonality.tonicPitchClass, 0);
@@ -88,8 +88,8 @@ void main() {
 
   test('E7 to Am cadence supports A minor', () {
     final frames = _run(ProgressionKeyDetector(minEvents: 2), [
-      _event(0, [4, 8, 11, 2], ChordQualityToken.dominant7),
-      _event(1, [9, 0, 4], ChordQualityToken.minor),
+      _event(0, [4, 8, 11, 2], ChordQuality.dominant7),
+      _event(1, [9, 0, 4], ChordQuality.minor),
     ]);
     final top = frames.last.ranked.first;
     expect(top.tonality.tonicPitchClass, 9);
@@ -99,7 +99,7 @@ void main() {
   test('repeated identical chords accumulate no transition evidence', () {
     final frames = _run(ProgressionKeyDetector(minEvents: 1), [
       for (var i = 0; i < 4; i++)
-        _event(i, [0, 4, 7, 10], ChordQualityToken.dominant7),
+        _event(i, [0, 4, 7, 10], ChordQuality.dominant7),
     ]);
     expect(frames.every((frame) => frame.isAbstention), isTrue);
   });
@@ -107,15 +107,15 @@ void main() {
   test('hybrid with progression blend claims C on the blues loop', () {
     // I7 I7 IV7 I7 V7 IV7 I7 V7, roughly the 12-bar skeleton.
     final blues = [
-      _event(0, [0, 4, 7, 10], ChordQualityToken.dominant7),
-      _event(1, [0, 4, 7, 10], ChordQualityToken.dominant7),
-      _event(2, [5, 9, 0, 3], ChordQualityToken.dominant7),
-      _event(3, [0, 4, 7, 10], ChordQualityToken.dominant7),
-      _event(4, [7, 11, 2, 5], ChordQualityToken.dominant7),
-      _event(5, [5, 9, 0, 3], ChordQualityToken.dominant7),
-      _event(6, [0, 4, 7, 10], ChordQualityToken.dominant7),
-      _event(7, [7, 11, 2, 5], ChordQualityToken.dominant7),
-      _event(8, [0, 4, 7, 10], ChordQualityToken.dominant7),
+      _event(0, [0, 4, 7, 10], ChordQuality.dominant7),
+      _event(1, [0, 4, 7, 10], ChordQuality.dominant7),
+      _event(2, [5, 9, 0, 3], ChordQuality.dominant7),
+      _event(3, [0, 4, 7, 10], ChordQuality.dominant7),
+      _event(4, [7, 11, 2, 5], ChordQuality.dominant7),
+      _event(5, [5, 9, 0, 3], ChordQuality.dominant7),
+      _event(6, [0, 4, 7, 10], ChordQuality.dominant7),
+      _event(7, [7, 11, 2, 5], ChordQuality.dominant7),
+      _event(8, [0, 4, 7, 10], ChordQuality.dominant7),
     ];
     final without = _run(HybridKeyDetector(progressionBlend: 0), blues);
     final with_ = _run(HybridKeyDetector(progressionBlend: 0.1), blues);
@@ -135,10 +135,10 @@ void main() {
 
   test('explicit progression blend of zero is deterministic across runs', () {
     final cadence = [
-      _event(0, [0, 4, 7], ChordQualityToken.major),
-      _event(1, [5, 9, 0], ChordQualityToken.major),
-      _event(2, [7, 11, 2, 5], ChordQualityToken.dominant7),
-      _event(3, [0, 4, 7], ChordQualityToken.major),
+      _event(0, [0, 4, 7], ChordQuality.major),
+      _event(1, [5, 9, 0], ChordQuality.major),
+      _event(2, [7, 11, 2, 5], ChordQuality.dominant7),
+      _event(3, [0, 4, 7], ChordQuality.major),
     ];
     final base = _run(
       HybridKeyDetector(functionalBlend: 0.1, progressionBlend: 0),

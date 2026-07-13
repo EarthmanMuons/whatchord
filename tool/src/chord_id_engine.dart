@@ -213,7 +213,7 @@ ChordIdResult identifyChord(
   final bassLabel = noteDisplayLabel(
     bassPreserved != null
         ? normalizeNoteNameToAscii(bassPreserved)
-        : pcToName(bassPc, tonality: tonality),
+        : noteNameForPitchClass(bassPc, tonality: tonality),
   );
 
   // Register evidence applies only when actual MIDI numbers were given; bare
@@ -342,7 +342,7 @@ Tonality parseTonality(String raw) {
 /// Normalizes theoretical enharmonic key spellings to the supported 15
 /// conventional key signatures while preserving mode and tonic pitch class.
 Tonality normalizeTonalityForKeySignature(Tonality tonality) {
-  for (final keySignature in keySignatureRows) {
+  for (final keySignature in keySignatures) {
     final rowTonality = tonality.isMajor
         ? keySignature.relativeMajor
         : keySignature.relativeMinor;
@@ -351,7 +351,7 @@ Tonality normalizeTonalityForKeySignature(Tonality tonality) {
 
   final candidates =
       [
-        for (final keySignature in keySignatureRows)
+        for (final keySignature in keySignatures)
           (
             accidentalDistance: keySignature.accidentalCount.abs(),
             tonality: tonality.isMajor
@@ -447,7 +447,7 @@ List<String> inputNoteLabels(NoteParse parsed, {required Tonality tonality}) {
         noteDisplayLabel(
           n.name != null
               ? normalizeNoteNameToAscii(n.name!)
-              : pcToName(n.pc, tonality: tonality),
+              : noteNameForPitchClass(n.pc, tonality: tonality),
         ),
   ];
 }
@@ -492,7 +492,7 @@ String _spellAlsoPlayedTones(
         noteDisplayLabel(
           note.name != null
               ? normalizeNoteNameToAscii(note.name!)
-              : pcToName(note.pc, tonality: tonality),
+              : noteNameForPitchClass(note.pc, tonality: tonality),
         ),
   ].join(' ');
 }

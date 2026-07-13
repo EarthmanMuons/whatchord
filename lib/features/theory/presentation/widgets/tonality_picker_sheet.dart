@@ -318,7 +318,7 @@ class _TonalityPickerBodyState extends ConsumerState<TonalityPickerBody> {
 
   List<KeySignature> _buildOrderedRows() {
     KeySignature rowFor(int acc) =>
-        keySignatureRows.firstWhere((r) => r.accidentalCount == acc);
+        keySignatures.firstWhere((r) => r.accidentalCount == acc);
 
     return <KeySignature>[
       for (var n = 7; n >= 1; n--) rowFor(n), // 7# … 1#
@@ -392,7 +392,7 @@ class _TonalityPickerBodyState extends ConsumerState<TonalityPickerBody> {
 }
 
 String _tonalityDisplayLabel(Tonality tonality, NoteNameSystem noteNameSystem) {
-  return tonalityPickerTonicLabel(tonality, noteNameSystem: noteNameSystem);
+  return tonalityTonicLabel(tonality, noteNameSystem: noteNameSystem);
 }
 
 String _tonalitySemanticsLabel(

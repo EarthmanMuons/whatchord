@@ -22,7 +22,7 @@ class ChordIdentity {
   /// This captures the primary quality used by the analysis engine
   /// (e.g., major, minor, dominant seventh) independent of naming
   /// or display conventions.
-  final ChordQualityToken quality;
+  final ChordQuality quality;
 
   /// Additional chord extensions or alterations, expressed as semitone
   /// offsets above the root (0–11).
@@ -129,7 +129,7 @@ class ChordIdentity {
 /// Each token is a complete base quality (triad, sixth, or seventh chord,
 /// including suspended and altered-fifth variants); colors beyond the base
 /// quality are carried separately as [ChordExtension]s.
-enum ChordQualityToken {
+enum ChordQuality {
   major,
   majorFlat5,
   minor,
@@ -162,26 +162,26 @@ enum ChordQualityToken {
 /// Whether a quality is a triad-like or seventh-bearing chord.
 enum ChordQualityFamily { triad, seventh }
 
-/// Structural predicates over [ChordQualityToken].
-extension ChordQualityTokenSemantics on ChordQualityToken {
+/// Structural predicates over [ChordQuality].
+extension ChordQualitySemantics on ChordQuality {
   /// The [ChordQualityFamily] this quality belongs to.
   ChordQualityFamily get family {
     switch (this) {
-      case ChordQualityToken.dominant7:
-      case ChordQualityToken.dominant7sus2:
-      case ChordQualityToken.dominant7sus4:
-      case ChordQualityToken.dominant7Flat5:
-      case ChordQualityToken.dominant7Sharp5:
-      case ChordQualityToken.major7:
-      case ChordQualityToken.major7sus2:
-      case ChordQualityToken.major7sus4:
-      case ChordQualityToken.major7Flat5:
-      case ChordQualityToken.major7Sharp5:
-      case ChordQualityToken.minor7:
-      case ChordQualityToken.minor7Sharp5:
-      case ChordQualityToken.minorMajor7:
-      case ChordQualityToken.halfDiminished7:
-      case ChordQualityToken.diminished7:
+      case ChordQuality.dominant7:
+      case ChordQuality.dominant7sus2:
+      case ChordQuality.dominant7sus4:
+      case ChordQuality.dominant7Flat5:
+      case ChordQuality.dominant7Sharp5:
+      case ChordQuality.major7:
+      case ChordQuality.major7sus2:
+      case ChordQuality.major7sus4:
+      case ChordQuality.major7Flat5:
+      case ChordQuality.major7Sharp5:
+      case ChordQuality.minor7:
+      case ChordQuality.minor7Sharp5:
+      case ChordQuality.minorMajor7:
+      case ChordQuality.halfDiminished7:
+      case ChordQuality.diminished7:
         return ChordQualityFamily.seventh;
 
       default:
@@ -195,8 +195,8 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
   /// Whether this quality is a sixth chord (major6 or minor6).
   bool get isSixFamily {
     switch (this) {
-      case ChordQualityToken.major6:
-      case ChordQualityToken.minor6:
+      case ChordQuality.major6:
+      case ChordQuality.minor6:
         return true;
       default:
         return false;
@@ -206,13 +206,13 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
   /// Whether this quality suspends its third (sus2, sus4, or both).
   bool get isSus {
     switch (this) {
-      case ChordQualityToken.sus2:
-      case ChordQualityToken.sus4:
-      case ChordQualityToken.sus2sus4:
-      case ChordQualityToken.dominant7sus2:
-      case ChordQualityToken.dominant7sus4:
-      case ChordQualityToken.major7sus2:
-      case ChordQualityToken.major7sus4:
+      case ChordQuality.sus2:
+      case ChordQuality.sus4:
+      case ChordQuality.sus2sus4:
+      case ChordQuality.dominant7sus2:
+      case ChordQuality.dominant7sus4:
+      case ChordQuality.major7sus2:
+      case ChordQuality.major7sus4:
         return true;
       default:
         return false;
@@ -224,12 +224,12 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
   /// pricing tier).
   bool get isRareVocabulary {
     switch (this) {
-      case ChordQualityToken.minorSharp5:
-      case ChordQualityToken.minor7Sharp5:
-      case ChordQualityToken.majorFlat5:
-      case ChordQualityToken.major7Flat5:
-      case ChordQualityToken.dominant7sus2:
-      case ChordQualityToken.major7sus2:
+      case ChordQuality.minorSharp5:
+      case ChordQuality.minor7Sharp5:
+      case ChordQuality.majorFlat5:
+      case ChordQuality.major7Flat5:
+      case ChordQuality.dominant7sus2:
+      case ChordQuality.major7sus2:
         return true;
       default:
         return false;
@@ -249,9 +249,9 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
   /// separately.
   bool get sharp11IsNaturalColor {
     switch (this) {
-      case ChordQualityToken.major:
-      case ChordQualityToken.major6:
-      case ChordQualityToken.major7:
+      case ChordQuality.major:
+      case ChordQuality.major6:
+      case ChordQuality.major7:
         return true;
       default:
         return false;

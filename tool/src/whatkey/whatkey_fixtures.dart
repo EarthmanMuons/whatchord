@@ -106,9 +106,7 @@ class LabeledFixture {
       identity: ChordIdentity(
         rootPc: candidate['rootPc'] as int,
         bassPc: candidate['bassPc'] as int,
-        quality: ChordQualityToken.values.byName(
-          candidate['quality'] as String,
-        ),
+        quality: ChordQuality.values.byName(candidate['quality'] as String),
         extensions: {
           for (final name in (candidate['extensions'] as List).cast<String>())
             ChordExtension.values.byName(name),

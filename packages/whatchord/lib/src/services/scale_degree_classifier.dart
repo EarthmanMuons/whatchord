@@ -12,7 +12,7 @@ import 'scale_degree_roman_numerals.dart';
 /// See notes in this file: strict classification requires the real voicing mask.
 abstract final class ScaleDegreeClassifier {
   // Single source of truth: chordTemplates.
-  static final Map<ChordQualityToken, ChordTemplate> _templateByQuality = {
+  static final Map<ChordQuality, ChordTemplate> _templateByQuality = {
     for (final t in chordTemplates) t.quality: t,
   };
 
@@ -271,10 +271,10 @@ abstract final class ScaleDegreeClassifier {
     return _degreeLetters[(start + degree.index) % 7];
   }
 
-  static ChordQualityToken? _baseQualityForSix(ChordQualityToken q) {
+  static ChordQuality? _baseQualityForSix(ChordQuality q) {
     return switch (q) {
-      ChordQualityToken.major6 => ChordQualityToken.major,
-      ChordQualityToken.minor6 => ChordQualityToken.minor,
+      ChordQuality.major6 => ChordQuality.major,
+      ChordQuality.minor6 => ChordQuality.minor,
       _ => null,
     };
   }
@@ -332,103 +332,67 @@ abstract final class ScaleDegreeClassifier {
     return mask & 0xFFF;
   }
 
-  static Set<ChordQualityToken> _allowedQualitiesForDegree(
+  static Set<ChordQuality> _allowedQualitiesForDegree(
     ScaleDegreeSource source,
     ScaleDegree d,
   ) {
     switch (source) {
       case ScaleDegreeSource.major:
         return switch (d) {
-          ScaleDegree.one => const {
-            ChordQualityToken.major,
-            ChordQualityToken.major7,
-          },
-          ScaleDegree.two => const {
-            ChordQualityToken.minor,
-            ChordQualityToken.minor7,
-          },
-          ScaleDegree.three => const {
-            ChordQualityToken.minor,
-            ChordQualityToken.minor7,
-          },
-          ScaleDegree.four => const {
-            ChordQualityToken.major,
-            ChordQualityToken.major7,
-          },
+          ScaleDegree.one => const {ChordQuality.major, ChordQuality.major7},
+          ScaleDegree.two => const {ChordQuality.minor, ChordQuality.minor7},
+          ScaleDegree.three => const {ChordQuality.minor, ChordQuality.minor7},
+          ScaleDegree.four => const {ChordQuality.major, ChordQuality.major7},
           ScaleDegree.five => const {
-            ChordQualityToken.major,
-            ChordQualityToken.dominant7,
+            ChordQuality.major,
+            ChordQuality.dominant7,
           },
-          ScaleDegree.six => const {
-            ChordQualityToken.minor,
-            ChordQualityToken.minor7,
-          },
+          ScaleDegree.six => const {ChordQuality.minor, ChordQuality.minor7},
           ScaleDegree.seven => const {
-            ChordQualityToken.diminished,
-            ChordQualityToken.halfDiminished7,
+            ChordQuality.diminished,
+            ChordQuality.halfDiminished7,
           },
         };
       case ScaleDegreeSource.naturalMinor:
         return switch (d) {
-          ScaleDegree.one => const {
-            ChordQualityToken.minor,
-            ChordQualityToken.minor7,
-          },
+          ScaleDegree.one => const {ChordQuality.minor, ChordQuality.minor7},
           ScaleDegree.two => const {
-            ChordQualityToken.diminished,
-            ChordQualityToken.halfDiminished7,
+            ChordQuality.diminished,
+            ChordQuality.halfDiminished7,
           },
-          ScaleDegree.three => const {
-            ChordQualityToken.major,
-            ChordQualityToken.major7,
-          },
-          ScaleDegree.four => const {
-            ChordQualityToken.minor,
-            ChordQualityToken.minor7,
-          },
-          ScaleDegree.five => const {
-            ChordQualityToken.minor,
-            ChordQualityToken.minor7,
-          },
-          ScaleDegree.six => const {
-            ChordQualityToken.major,
-            ChordQualityToken.major7,
-          },
+          ScaleDegree.three => const {ChordQuality.major, ChordQuality.major7},
+          ScaleDegree.four => const {ChordQuality.minor, ChordQuality.minor7},
+          ScaleDegree.five => const {ChordQuality.minor, ChordQuality.minor7},
+          ScaleDegree.six => const {ChordQuality.major, ChordQuality.major7},
           ScaleDegree.seven => const {
-            ChordQualityToken.major,
-            ChordQualityToken.dominant7,
+            ChordQuality.major,
+            ChordQuality.dominant7,
           },
         };
       case ScaleDegreeSource.harmonicMinor:
         return switch (d) {
           ScaleDegree.one => const {
-            ChordQualityToken.minor,
-            ChordQualityToken.minorMajor7,
+            ChordQuality.minor,
+            ChordQuality.minorMajor7,
           },
           ScaleDegree.two => const {
-            ChordQualityToken.diminished,
-            ChordQualityToken.halfDiminished7,
+            ChordQuality.diminished,
+            ChordQuality.halfDiminished7,
           },
           ScaleDegree.three => const {
-            ChordQualityToken.augmented,
-            ChordQualityToken.major7Sharp5,
+            ChordQuality.augmented,
+            ChordQuality.major7Sharp5,
           },
-          ScaleDegree.four => const {
-            ChordQualityToken.minor,
-            ChordQualityToken.minor7,
-          },
+          ScaleDegree.four => const {ChordQuality.minor, ChordQuality.minor7},
           ScaleDegree.five => const {
-            ChordQualityToken.major,
-            ChordQualityToken.dominant7,
-            ChordQualityToken.dominant7Sharp5,
+            ChordQuality.major,
+            ChordQuality.dominant7,
+            ChordQuality.dominant7Sharp5,
           },
-          ScaleDegree.six => const {
-            ChordQualityToken.major,
-            ChordQualityToken.major7,
-          },
+          ScaleDegree.six => const {ChordQuality.major, ChordQuality.major7},
           ScaleDegree.seven => const {
-            ChordQualityToken.diminished,
-            ChordQualityToken.diminished7,
+            ChordQuality.diminished,
+            ChordQuality.diminished7,
           },
         };
     }
@@ -469,7 +433,7 @@ abstract final class ScaleDegreeClassifier {
   static String _romanNumeralFor(
     ScaleDegree degree,
     ScaleDegreeSource source,
-    ChordQualityToken quality,
+    ChordQuality quality,
   ) {
     final base = degree.romanNumeralForSource(source);
     return romanNumeralForQuality(base, quality);

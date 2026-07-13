@@ -613,7 +613,7 @@ class _CandidateCostBack extends StatelessWidget {
     for (final interval in intervals) {
       final pitchClass = (identity.rootPc + interval) % 12;
       final pc = {pitchClass};
-      final degree = theoryTokenDisplayLabel(
+      final degree = toGlyphAccidentals(
         ChordMemberDegreeFormatter.formatDegrees(
           identity: identity,
           pitchClasses: pc,
@@ -1020,7 +1020,7 @@ String _evidenceFor(ExplainedCandidate row) {
       rootPc: id.rootPc,
       presentIntervalsMask: id.presentIntervalsMask,
     ),
-  ).map(theoryTokenDisplayLabel).toList(growable: false);
+  ).map(toGlyphAccidentals).toList(growable: false);
   final bassRole = _bassRoleLabel(id);
   final requiredCount = _reasonCount(row, 'required tones');
   final optionalCount = _reasonCount(row, 'optional tones');

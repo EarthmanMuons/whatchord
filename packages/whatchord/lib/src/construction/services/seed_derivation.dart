@@ -31,19 +31,19 @@ ChordIdentity buildSeedIdentity({
   return _seedIdentity(rootPc: rootPc, quality: quality);
 }
 
-ChordQualityToken _defaultQualityForTonality(Tonality tonality) {
-  return tonality.isMinor ? ChordQualityToken.minor : ChordQualityToken.major;
+ChordQuality _defaultQualityForTonality(Tonality tonality) {
+  return tonality.isMinor ? ChordQuality.minor : ChordQuality.major;
 }
 
-ChordQualityToken _qualityForDyad(ChordInput input, Tonality tonality) {
+ChordQuality _qualityForDyad(ChordInput input, Tonality tonality) {
   final upperInterval = _upperIntervalFromBass(input);
 
   return switch (upperInterval) {
-    2 => ChordQualityToken.sus2,
-    3 => ChordQualityToken.minor,
-    4 => ChordQualityToken.major,
-    5 => ChordQualityToken.sus4,
-    6 => ChordQualityToken.diminished,
+    2 => ChordQuality.sus2,
+    3 => ChordQuality.minor,
+    4 => ChordQuality.major,
+    5 => ChordQuality.sus4,
+    6 => ChordQuality.diminished,
     _ => _defaultQualityForTonality(tonality),
   };
 }
@@ -58,7 +58,7 @@ int? _upperIntervalFromBass(ChordInput input) {
 
 ChordIdentity _seedIdentity({
   required int rootPc,
-  required ChordQualityToken quality,
+  required ChordQuality quality,
 }) {
   return buildConstructionIdentity(
     ChordConstruction(

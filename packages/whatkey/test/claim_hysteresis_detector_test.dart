@@ -49,7 +49,7 @@ ChordEvent _event(int index) => ChordEvent(
       identity: const ChordIdentity(
         rootPc: 0,
         bassPc: 0,
-        quality: ChordQualityToken.major,
+        quality: ChordQuality.major,
         presentIntervalsMask: 0x91,
       ),
       cost: 0,

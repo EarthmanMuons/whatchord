@@ -14,7 +14,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.major,
+          quality: ChordQuality.major,
           intervals: const [0, 4, 7],
         ),
       ),
@@ -24,7 +24,7 @@ void main() {
       spoken(
         _identity(
           root: 'A',
-          quality: ChordQualityToken.minor,
+          quality: ChordQuality.minor,
           intervals: const [0, 3, 7],
         ),
       ),
@@ -34,7 +34,7 @@ void main() {
       spoken(
         _identity(
           root: 'B',
-          quality: ChordQualityToken.diminished,
+          quality: ChordQuality.diminished,
           intervals: const [0, 3, 6],
         ),
       ),
@@ -44,7 +44,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.augmented,
+          quality: ChordQuality.augmented,
           intervals: const [0, 4, 8],
         ),
       ),
@@ -57,7 +57,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.sus2,
+          quality: ChordQuality.sus2,
           intervals: const [0, 2, 7],
         ),
       ),
@@ -67,7 +67,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.sus4,
+          quality: ChordQuality.sus4,
           intervals: const [0, 5, 7],
         ),
       ),
@@ -77,7 +77,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.sus2sus4,
+          quality: ChordQuality.sus2sus4,
           intervals: const [0, 2, 5, 7],
         ),
       ),
@@ -90,7 +90,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.major6,
+          quality: ChordQuality.major6,
           intervals: const [0, 4, 7, 9],
         ),
       ),
@@ -100,7 +100,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.minor6,
+          quality: ChordQuality.minor6,
           intervals: const [0, 3, 7, 9],
         ),
       ),
@@ -113,7 +113,7 @@ void main() {
       spoken(
         _identity(
           root: 'G',
-          quality: ChordQualityToken.dominant7,
+          quality: ChordQuality.dominant7,
           intervals: const [0, 4, 7, 10],
         ),
       ),
@@ -126,7 +126,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.major7,
+          quality: ChordQuality.major7,
           intervals: const [0, 4, 7, 11],
         ),
       ),
@@ -136,7 +136,7 @@ void main() {
       spoken(
         _identity(
           root: 'D',
-          quality: ChordQualityToken.minor7,
+          quality: ChordQuality.minor7,
           intervals: const [0, 3, 7, 10],
         ),
       ),
@@ -146,7 +146,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.halfDiminished7,
+          quality: ChordQuality.halfDiminished7,
           intervals: const [0, 3, 6, 10],
         ),
       ),
@@ -156,7 +156,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.diminished7,
+          quality: ChordQuality.diminished7,
           intervals: const [0, 3, 6, 9],
         ),
       ),
@@ -166,7 +166,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.minorMajor7,
+          quality: ChordQuality.minorMajor7,
           intervals: const [0, 3, 7, 11],
         ),
       ),
@@ -179,7 +179,7 @@ void main() {
       spoken(
         _identity(
           root: 'G',
-          quality: ChordQualityToken.dominant7,
+          quality: ChordQuality.dominant7,
           extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
           intervals: const [0, 4, 6, 7, 10, 1],
         ),
@@ -195,7 +195,7 @@ void main() {
         spoken(
           _identity(
             root: 'C',
-            quality: ChordQualityToken.dominant7,
+            quality: ChordQuality.dominant7,
             extensions: const {ChordExtension.nine},
             intervals: const [0, 2, 4, 7, 10],
           ),
@@ -206,7 +206,7 @@ void main() {
         spoken(
           _identity(
             root: 'D',
-            quality: ChordQualityToken.minor7,
+            quality: ChordQuality.minor7,
             extensions: const {ChordExtension.nine, ChordExtension.eleven},
             intervals: const [0, 2, 3, 5, 7, 10],
           ),
@@ -217,7 +217,7 @@ void main() {
         spoken(
           _identity(
             root: 'F',
-            quality: ChordQualityToken.major7,
+            quality: ChordQuality.major7,
             extensions: const {
               ChordExtension.nine,
               ChordExtension.eleven,
@@ -236,7 +236,7 @@ void main() {
       spoken(
         _identity(
           root: 'G',
-          quality: ChordQualityToken.dominant7,
+          quality: ChordQuality.dominant7,
           extensions: const {
             ChordExtension.nine,
             ChordExtension.sharp11,
@@ -254,7 +254,7 @@ void main() {
       spoken(
         _identity(
           root: 'G',
-          quality: ChordQualityToken.major,
+          quality: ChordQuality.major,
           extensions: const {ChordExtension.add9},
           intervals: const [0, 2, 4, 7],
         ),
@@ -265,7 +265,7 @@ void main() {
       spoken(
         _identity(
           root: 'D',
-          quality: ChordQualityToken.minor7,
+          quality: ChordQuality.minor7,
           extensions: const {ChordExtension.add11},
           intervals: const [0, 3, 5, 7, 10],
         ),
@@ -279,7 +279,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.major6,
+          quality: ChordQuality.major6,
           extensions: const {ChordExtension.add9},
           intervals: const [0, 2, 4, 7, 9],
         ),
@@ -290,7 +290,7 @@ void main() {
       spoken(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.minor6,
+          quality: ChordQuality.minor6,
           extensions: const {ChordExtension.add9},
           intervals: const [0, 2, 3, 7, 9],
         ),
@@ -305,7 +305,7 @@ void main() {
         _identity(
           root: 'C',
           bass: 'E',
-          quality: ChordQualityToken.major7,
+          quality: ChordQuality.major7,
           intervals: const [0, 4, 7, 11],
         ),
       ),
@@ -316,7 +316,7 @@ void main() {
         _identity(
           root: 'G',
           bass: 'F',
-          quality: ChordQualityToken.dominant7,
+          quality: ChordQuality.dominant7,
           extensions: const {ChordExtension.flat9, ChordExtension.sharp11},
           intervals: const [0, 4, 6, 7, 10, 1],
         ),
@@ -328,7 +328,7 @@ void main() {
 
 ChordIdentity _identity({
   required String root,
-  required ChordQualityToken quality,
+  required ChordQuality quality,
   required List<int> intervals,
   String? bass,
   Set<ChordExtension> extensions = const {},

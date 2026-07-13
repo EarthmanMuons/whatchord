@@ -104,10 +104,10 @@ class ScaleDegreeHarmony {
   final String degreeLabel;
 
   /// Quality of the stacked triad on this degree.
-  final ChordQualityToken triadQuality;
+  final ChordQuality triadQuality;
 
   /// Quality of the stacked seventh chord on this degree.
-  final ChordQualityToken seventhQuality;
+  final ChordQuality seventhQuality;
 
   /// Triad roman numeral, e.g. "ii°", "♭III", "♯iv°".
   final String triadRoman;
@@ -143,7 +143,7 @@ class ScaleHarmony {
 /// canonical chord-quality sets; roman numerals are computed from each degree's
 /// deviation against the parallel major rather than from a per-scale table.
 abstract final class ScaleHarmonizer {
-  static final Map<int, ChordQualityToken> _qualityByMask = {
+  static final Map<int, ChordQuality> _qualityByMask = {
     for (final set in chordQualityIntervalSets) set.canonicalMask: set.quality,
   };
 
@@ -218,7 +218,7 @@ abstract final class ScaleHarmonizer {
     return rel < 0 ? rel + 12 : rel;
   }
 
-  static ChordQualityToken _qualityForMask(int mask, Scale scale, int index) {
+  static ChordQuality _qualityForMask(int mask, Scale scale, int index) {
     final quality = _qualityByMask[mask];
     if (quality == null) {
       throw StateError(
@@ -247,7 +247,7 @@ abstract final class ScaleHarmonizer {
     int index,
     int rootInterval,
     int thirdRel,
-    ChordQualityToken triad,
+    ChordQuality triad,
   ) {
     final prefix = _accidentalPrefix(index, rootInterval);
 
@@ -255,8 +255,8 @@ abstract final class ScaleHarmonizer {
     final base = (upper ? _upperNumerals : _lowerNumerals)[index];
 
     final decoration = switch (triad) {
-      ChordQualityToken.diminished => '°',
-      ChordQualityToken.augmented => '+',
+      ChordQuality.diminished => '°',
+      ChordQuality.augmented => '+',
       _ => '',
     };
 

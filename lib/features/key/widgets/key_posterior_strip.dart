@@ -82,7 +82,7 @@ class _KeyPosteriorStripState extends ConsumerState<KeyPosteriorStrip> {
           final t = math.sqrt(confidence).clamp(0.0, 1.0);
           final fill = Color.lerp(cs.surfaceContainerHighest, cs.primary, t)!;
           // Uppercase majors, lowercase minors; the rows disambiguate.
-          final label = tonalityPickerTonicLabel(
+          final label = tonalityTonicLabel(
             tonality,
             noteNameSystem: noteNameSystem,
           );

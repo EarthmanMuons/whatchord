@@ -65,7 +65,7 @@ class ExplainedCandidate {
   final RankingDecision? vsPrevious;
 
   /// The quality of the template that generated this candidate.
-  final ChordQualityToken templateQuality;
+  final ChordQuality templateQuality;
 
   const ExplainedCandidate({
     required this.candidate,
@@ -208,7 +208,7 @@ abstract final class ChordAnalyzer {
     );
     final cached = _cache[key];
     if (cached != null) {
-      if (kEngineCountersEnabled) EngineCounters.cacheHits++;
+      if (engineCountersEnabled) EngineCounters.cacheHits++;
       // Promote cache hits so eviction removes the least recently used entry,
       // not merely the oldest inserted entry.
       _cache
@@ -216,7 +216,7 @@ abstract final class ChordAnalyzer {
         ..[key] = cached;
       return cached;
     }
-    if (kEngineCountersEnabled) EngineCounters.cacheMisses++;
+    if (engineCountersEnabled) EngineCounters.cacheMisses++;
 
     final eval = _evaluateAll(
       input,
@@ -302,13 +302,13 @@ abstract final class ChordAnalyzer {
     // This prevents generating "ghost root" interpretations.
     for (var rootPc = 0; rootPc < 12; rootPc++) {
       if ((pcMask & (1 << rootPc)) == 0) continue;
-      if (kEngineCountersEnabled) EngineCounters.rootsConsidered++;
+      if (engineCountersEnabled) EngineCounters.rootsConsidered++;
 
       final relMask = _rotateMaskToRoot(pcMask, rootPc);
       final bassInterval = intervalAboveRoot(input.bassPc, rootPc);
 
       for (final tmpl in chordTemplates) {
-        if (kEngineCountersEnabled) EngineCounters.templatesEvaluated++;
+        if (engineCountersEnabled) EngineCounters.templatesEvaluated++;
         final reasons = debug ? <CostReason>[] : null;
 
         final priced = _priceTemplate(
@@ -333,7 +333,7 @@ abstract final class ChordAnalyzer {
           cost: priced.cost,
         );
 
-        if (kEngineCountersEnabled) EngineCounters.candidatesProduced++;
+        if (engineCountersEnabled) EngineCounters.candidatesProduced++;
         out.add(
           _Evaluated(candidate: candidate, template: tmpl, reasons: reasons),
         );
@@ -344,7 +344,7 @@ abstract final class ChordAnalyzer {
     // Costs are a pure function of the input, so this is transposition-invariant
     // (both a chord and its transposition prune to the same set).
     final toRank = _pruneForRanking(out, take);
-    if (kEngineCountersEnabled) {
+    if (engineCountersEnabled) {
       EngineCounters.candidatesRanked += toRank.length;
     }
 
@@ -451,7 +451,7 @@ abstract final class ChordAnalyzer {
     // More than 1 missing tone suggests wrong template entirely. A power
     // chord is nothing but its fifth, so it gets no such allowance.
     if (missCount > 1) return null;
-    if (missCount > 0 && template.quality == ChordQualityToken.power) {
+    if (missCount > 0 && template.quality == ChordQuality.power) {
       return null;
     }
 
@@ -468,8 +468,8 @@ abstract final class ChordAnalyzer {
     // reading survives as the conventional triad-over-sixth symbol (A-C-E as
     // C/A), so only tones above the bass trigger the rejection.
     final isBareTriad =
-        template.quality == ChordQualityToken.major ||
-        template.quality == ChordQualityToken.minor;
+        template.quality == ChordQuality.major ||
+        template.quality == ChordQuality.minor;
     if (isBareTriad &&
         (extrasMask & (1 << majorSixthInterval)) != 0 &&
         bassInterval != majorSixthInterval) {
@@ -537,8 +537,8 @@ abstract final class ChordAnalyzer {
     // upper-structure slash idiom (D/E, C#/D#): the bass reads as an
     // independent pedal, not as chord color the name must justify.
     final isUpperTriadOverNinthBass =
-        (template.quality == ChordQualityToken.major ||
-            template.quality == ChordQualityToken.minor) &&
+        (template.quality == ChordQuality.major ||
+            template.quality == ChordQuality.minor) &&
         bassInterval == majorSecondInterval &&
         extensions.length == 1 &&
         extensions.contains(ChordExtension.add9) &&
@@ -603,7 +603,7 @@ abstract final class ChordAnalyzer {
     // A power chord is only a credible reading when the bare fifth plus its
     // named colors account for every sounding tone; a leftover tone means
     // some other harmony is in play.
-    if (unexplainedMask != 0 && template.quality == ChordQualityToken.power) {
+    if (unexplainedMask != 0 && template.quality == ChordQuality.power) {
       return null;
     }
 
@@ -648,32 +648,32 @@ abstract final class ChordAnalyzer {
   /// How readily a musician reaches for this quality name. Everyday names
   /// (major, minor, 7, m7, maj7, sus4, 6ths) are free; a rare name has to be
   /// much cheaper at explaining the tones than a common one to win.
-  static double _vocabularyCost(ChordQualityToken quality) {
+  static double _vocabularyCost(ChordQuality quality) {
     return switch (quality) {
-      ChordQualityToken.sus2 ||
-      ChordQualityToken.sus2sus4 ||
-      ChordQualityToken.diminished ||
-      ChordQualityToken.augmented ||
-      ChordQualityToken.diminished7 ||
-      ChordQualityToken.halfDiminished7 ||
-      ChordQualityToken.minorMajor7 ||
-      ChordQualityToken.dominant7sus4 => _vocabularyMarked,
-      ChordQualityToken.dominant7Flat5 ||
-      ChordQualityToken.dominant7Sharp5 ||
-      ChordQualityToken.major7sus4 ||
-      ChordQualityToken.major7Sharp5 => _vocabularyUncommon,
+      ChordQuality.sus2 ||
+      ChordQuality.sus2sus4 ||
+      ChordQuality.diminished ||
+      ChordQuality.augmented ||
+      ChordQuality.diminished7 ||
+      ChordQuality.halfDiminished7 ||
+      ChordQuality.minorMajor7 ||
+      ChordQuality.dominant7sus4 => _vocabularyMarked,
+      ChordQuality.dominant7Flat5 ||
+      ChordQuality.dominant7Sharp5 ||
+      ChordQuality.major7sus4 ||
+      ChordQuality.major7Sharp5 => _vocabularyUncommon,
       _ when quality.isRareVocabulary => _vocabularyRare,
       _ => 0,
     };
   }
 
-  static bool _isDominantFamily(ChordQualityToken quality) {
+  static bool _isDominantFamily(ChordQuality quality) {
     return switch (quality) {
-      ChordQualityToken.dominant7 ||
-      ChordQualityToken.dominant7sus2 ||
-      ChordQualityToken.dominant7sus4 ||
-      ChordQualityToken.dominant7Flat5 ||
-      ChordQualityToken.dominant7Sharp5 => true,
+      ChordQuality.dominant7 ||
+      ChordQuality.dominant7sus2 ||
+      ChordQuality.dominant7sus4 ||
+      ChordQuality.dominant7Flat5 ||
+      ChordQuality.dominant7Sharp5 => true,
       _ => false,
     };
   }
@@ -682,26 +682,26 @@ abstract final class ChordAnalyzer {
   /// alteration: Lydian majors, dominants, minor family (Dorian #11), and
   /// sus4 frames (where the split-fourth surcharge prices the clash
   /// separately). On diminished and sus2 hosts it stays multiplied.
-  static bool _isSharpElevenFriendly(ChordQualityToken quality) {
+  static bool _isSharpElevenFriendly(ChordQuality quality) {
     return _isDominantFamily(quality) ||
         switch (quality) {
-          ChordQualityToken.major ||
-          ChordQualityToken.major6 ||
-          ChordQualityToken.major7 ||
-          ChordQualityToken.minor ||
-          ChordQualityToken.minor6 ||
-          ChordQualityToken.minor7 ||
-          ChordQualityToken.minorMajor7 ||
-          ChordQualityToken.sus4 ||
-          ChordQualityToken.major7sus4 ||
-          ChordQualityToken.sus2sus4 => true,
+          ChordQuality.major ||
+          ChordQuality.major6 ||
+          ChordQuality.major7 ||
+          ChordQuality.minor ||
+          ChordQuality.minor6 ||
+          ChordQuality.minor7 ||
+          ChordQuality.minorMajor7 ||
+          ChordQuality.sus4 ||
+          ChordQuality.major7sus4 ||
+          ChordQuality.sus2sus4 => true,
           _ => false,
         };
   }
 
   static double _tonePrice({
     required ChordToneRole role,
-    required ChordQualityToken quality,
+    required ChordQuality quality,
     required int relMask,
     required Map<int, ChordToneRole> roles,
     required bool isBassTone,
@@ -767,7 +767,7 @@ abstract final class ChordAnalyzer {
 
   static double _alteredTonePrice({
     required ChordToneRole role,
-    required ChordQualityToken quality,
+    required ChordQuality quality,
     required int relMask,
     required Map<int, ChordToneRole> roles,
     required bool isStackedColor,
@@ -794,9 +794,9 @@ abstract final class ChordAnalyzer {
     final majorFamilyLydianStack =
         has(majorSecondInterval) &&
         switch (quality) {
-          ChordQualityToken.major ||
-          ChordQualityToken.major6 ||
-          ChordQualityToken.major7 => true,
+          ChordQuality.major ||
+          ChordQuality.major6 ||
+          ChordQuality.major7 => true,
           _ => false,
         };
     if (role == ChordToneRole.sharp11 &&
@@ -821,7 +821,7 @@ abstract final class ChordAnalyzer {
     if (role == ChordToneRole.flat13 &&
         !has(perfectFifthInterval) &&
         !flatFiveMinorHost &&
-        quality != ChordQualityToken.minorMajor7) {
+        quality != ChordQuality.minorMajor7) {
       price += _flatThirteenEmptyFifthSurcharge;
     }
     if ((role == ChordToneRole.flat9 || role == ChordToneRole.sharp9) &&
@@ -838,16 +838,16 @@ abstract final class ChordAnalyzer {
     if (role == ChordToneRole.flat9 &&
         isStackedColor &&
         switch (quality) {
-          ChordQualityToken.major6 ||
-          ChordQualityToken.major7 ||
-          ChordQualityToken.major7Flat5 ||
-          ChordQualityToken.major7Sharp5 => true,
+          ChordQuality.major6 ||
+          ChordQuality.major7 ||
+          ChordQuality.major7Flat5 ||
+          ChordQuality.major7Sharp5 => true,
           _ => false,
         }) {
       price += _flatNineMajorHostSurcharge;
     }
     if (role == ChordToneRole.flat9 &&
-        quality == ChordQualityToken.minorMajor7 &&
+        quality == ChordQuality.minorMajor7 &&
         roles[perfectFifthInterval] != ChordToneRole.perfect5 &&
         roles.containsValue(ChordToneRole.eleven)) {
       price += _minorMajorFlatNineElevenSurcharge;
@@ -870,7 +870,7 @@ abstract final class ChordAnalyzer {
     return multiplied ? price * _offDominantAlterationMultiplier : price;
   }
 
-  static double _naturalExtensionPrice(double base, ChordQualityToken quality) {
+  static double _naturalExtensionPrice(double base, ChordQuality quality) {
     return _isMarkedExtensionHost(quality)
         ? base * _markedHostExtensionMultiplier
         : base;
@@ -880,22 +880,22 @@ abstract final class ChordAnalyzer {
   /// added color tone reads as a stretch rather than everyday vocabulary.
   /// Dominants (including sus dominants), plain major/minor sevenths, and
   /// sixth chords keep flat extension prices.
-  static bool _isMarkedExtensionHost(ChordQualityToken quality) {
+  static bool _isMarkedExtensionHost(ChordQuality quality) {
     return switch (quality) {
-      ChordQualityToken.diminished ||
-      ChordQualityToken.augmented ||
-      ChordQualityToken.diminished7 ||
-      ChordQualityToken.halfDiminished7 ||
-      ChordQualityToken.minorMajor7 ||
-      ChordQualityToken.minorSharp5 ||
-      ChordQualityToken.minor7Sharp5 ||
-      ChordQualityToken.majorFlat5 ||
-      ChordQualityToken.major7Flat5 ||
-      ChordQualityToken.major7Sharp5 ||
-      ChordQualityToken.major7sus2 ||
-      ChordQualityToken.sus2 ||
-      ChordQualityToken.sus2sus4 ||
-      ChordQualityToken.dominant7sus2 => true,
+      ChordQuality.diminished ||
+      ChordQuality.augmented ||
+      ChordQuality.diminished7 ||
+      ChordQuality.halfDiminished7 ||
+      ChordQuality.minorMajor7 ||
+      ChordQuality.minorSharp5 ||
+      ChordQuality.minor7Sharp5 ||
+      ChordQuality.majorFlat5 ||
+      ChordQuality.major7Flat5 ||
+      ChordQuality.major7Sharp5 ||
+      ChordQuality.major7sus2 ||
+      ChordQuality.sus2 ||
+      ChordQuality.sus2sus4 ||
+      ChordQuality.dominant7sus2 => true,
       _ => false,
     };
   }
@@ -957,15 +957,15 @@ abstract final class ChordAnalyzer {
 
   static double _bassPlacementCost(
     ChordToneRole? bassRole,
-    ChordQualityToken quality,
+    ChordQuality quality,
   ) {
     // Diminished and augmented chords invert freely; their fifth in the bass
     // is a plain core tone, unlike the altered fifth of a m#5 or 7#5.
     final fifthIsDefinitional = switch (quality) {
-      ChordQualityToken.diminished ||
-      ChordQualityToken.diminished7 ||
-      ChordQualityToken.halfDiminished7 ||
-      ChordQualityToken.augmented => true,
+      ChordQuality.diminished ||
+      ChordQuality.diminished7 ||
+      ChordQuality.halfDiminished7 ||
+      ChordQuality.augmented => true,
       _ => false,
     };
     if (bassRole == null) return _bassUnexplainedCost;
@@ -1007,15 +1007,15 @@ abstract final class ChordAnalyzer {
       return 1 << minorThirdInterval;
     }
 
-    if (quality == ChordQualityToken.major7 &&
+    if (quality == ChordQuality.major7 &&
         _hasMajorSeventhSharpNineColor(relMask)) {
       return 1 << minorThirdInterval;
     }
 
     final isSharpNineDominantQuality =
-        quality == ChordQualityToken.dominant7 ||
-        quality == ChordQualityToken.dominant7Flat5 ||
-        quality == ChordQualityToken.dominant7Sharp5;
+        quality == ChordQuality.dominant7 ||
+        quality == ChordQuality.dominant7Flat5 ||
+        quality == ChordQuality.dominant7Sharp5;
     if (!isSharpNineDominantQuality) return 0;
 
     final hasDominantShell =
@@ -1054,16 +1054,13 @@ abstract final class ChordAnalyzer {
     return isConventionalInversion && hasPerfectFifth;
   }
 
-  static bool _allowsAddSharpNine(ChordQualityToken quality) {
-    return quality == ChordQualityToken.major ||
-        quality == ChordQualityToken.major6 ||
-        quality == ChordQualityToken.augmented;
+  static bool _allowsAddSharpNine(ChordQuality quality) {
+    return quality == ChordQuality.major ||
+        quality == ChordQuality.major6 ||
+        quality == ChordQuality.augmented;
   }
 
-  static bool _isSplitThirdMajorQuality(
-    ChordQualityToken quality,
-    int relMask,
-  ) {
+  static bool _isSplitThirdMajorQuality(ChordQuality quality, int relMask) {
     if (!_allowsAddSharpNine(quality)) return false;
     const majorThirdBit = 1 << majorThirdInterval;
     const minorThirdBit = 1 << minorThirdInterval;
@@ -1071,14 +1068,14 @@ abstract final class ChordAnalyzer {
   }
 
   static bool _flatFiveConflictsWithNaturalThirteenth({
-    required ChordQualityToken quality,
+    required ChordQuality quality,
     required Set<ChordExtension> extensions,
     required int relMask,
     required int bassInterval,
   }) {
     final isFlatFiveQuality =
-        quality == ChordQualityToken.dominant7Flat5 ||
-        quality == ChordQualityToken.major7Flat5;
+        quality == ChordQuality.dominant7Flat5 ||
+        quality == ChordQuality.major7Flat5;
     if (!isFlatFiveQuality) return false;
 
     // With a natural thirteenth present, the tritone usually functions as #11
@@ -1121,7 +1118,7 @@ abstract final class ChordAnalyzer {
   static Set<ChordExtension> _extensionsFromExtras(
     int extrasMask, {
     required bool has7,
-    required ChordQualityToken quality,
+    required ChordQuality quality,
   }) {
     final out = <ChordExtension>{};
 

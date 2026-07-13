@@ -17,7 +17,7 @@ class ChordConstruction {
   /// [ChordSpec].
   factory ChordConstruction({
     required int rootPc,
-    required ChordQualityToken quality,
+    required ChordQuality quality,
     required Set<ChordExtension> extensions,
     required int bassPc,
   }) {
@@ -66,7 +66,9 @@ class ChordConstruction {
     );
   }
 
-  /// The spelled chord root.
+  /// The spelled chord root, drawn from the [Tonic] vocabulary: chord
+  /// symbols conventionally spell roots with the same 21 single-accidental
+  /// names used for tonal centers.
   final Tonic root;
 
   /// The selected quality parts.
@@ -82,7 +84,7 @@ class ChordConstruction {
   int get rootPc => root.pitchClass;
 
   /// The complete quality named by [spec].
-  ChordQualityToken get quality => spec.quality;
+  ChordQuality get quality => spec.quality;
 
   /// Shorthand for `spec.baseQuality`.
   BaseQuality get baseQuality => spec.baseQuality;

@@ -175,7 +175,7 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
     if (rootInterval == 7 && _dominantFamily.contains(identity.quality)) {
       points += dominantBonusPoints;
     }
-    if (rootInterval == 7 && identity.quality == ChordQualityToken.major) {
+    if (rootInterval == 7 && identity.quality == ChordQuality.major) {
       points += dominantTriadBonusPoints;
     }
     if (rootInterval == 11 && _leadingToneFamily.contains(identity.quality)) {
@@ -241,13 +241,12 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
     return estimates;
   }
 
-  static const Set<ChordQualityToken> _dominantFamily =
-      KeySpace.dominantQualities;
+  static const Set<ChordQuality> _dominantFamily = KeySpace.dominantQualities;
 
-  static const Set<ChordQualityToken> _leadingToneFamily = {
-    ChordQualityToken.diminished,
-    ChordQualityToken.halfDiminished7,
-    ChordQualityToken.diminished7,
+  static const Set<ChordQuality> _leadingToneFamily = {
+    ChordQuality.diminished,
+    ChordQuality.halfDiminished7,
+    ChordQuality.diminished7,
   };
 
   static int _bitCount(int mask) {

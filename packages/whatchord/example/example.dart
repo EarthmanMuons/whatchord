@@ -46,7 +46,7 @@ void main() {
   // root, quality, and extensions, produce a canonical example.
   final construction = ChordConstruction(
     rootPc: Tonic.d.pitchClass,
-    quality: ChordQualityToken.minor7,
+    quality: ChordQuality.minor7,
     extensions: {ChordExtension.eleven},
     bassPc: Tonic.d.pitchClass,
   );

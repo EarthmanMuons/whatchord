@@ -51,7 +51,7 @@ export 'src/formatting/models/chord_symbol.dart';
 // Formatters
 export 'src/formatting/services/chord_long_form_formatter.dart';
 export 'src/formatting/services/chord_presentation_builder.dart';
-export 'src/formatting/services/chord_quality_token_labels.dart';
+export 'src/formatting/services/chord_quality_labels.dart';
 export 'src/formatting/services/chord_spoken_name_formatter.dart';
 export 'src/formatting/services/chord_symbol_builder.dart';
 export 'src/formatting/services/harte_chord_formatter.dart';

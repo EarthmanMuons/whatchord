@@ -34,7 +34,7 @@ class GoldenCase {
   final String? expectedBass;
 
   /// Expected winning quality.
-  final ChordQualityToken? expectedQuality;
+  final ChordQuality? expectedQuality;
 
   /// Extensions that must appear on the winning identity.
   final Set<ChordExtension> expectedExtensions;
@@ -77,7 +77,7 @@ GoldenCase golden({
   Tonality? tonality,
   String? expectedRoot,
   String? expectedBass,
-  ChordQualityToken? expectedQuality,
+  ChordQuality? expectedQuality,
   Set<ChordExtension> expectedExtensions = const {},
   bool expectNoExtensions = false,
   Set<ChordExtension> unexpectedExtensions = const {},

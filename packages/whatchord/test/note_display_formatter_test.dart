@@ -43,12 +43,12 @@ void main() {
     });
   });
 
-  group('theoryTokenDisplayLabel', () {
-    test('converts canonical ASCII role and quality tokens for UI', () {
-      expect(theoryTokenDisplayLabel('b9'), '♭9');
-      expect(theoryTokenDisplayLabel('#11'), '♯11');
-      expect(theoryTokenDisplayLabel('bb7'), '𝄫7');
-      expect(theoryTokenDisplayLabel('m7(b5)'), 'm7(♭5)');
+  group('toGlyphAccidentals', () {
+    test('converts canonical ASCII role and quality labels for UI', () {
+      expect(toGlyphAccidentals('b9'), '♭9');
+      expect(toGlyphAccidentals('#11'), '♯11');
+      expect(toGlyphAccidentals('bb7'), '𝄫7');
+      expect(toGlyphAccidentals('m7(b5)'), 'm7(♭5)');
     });
   });
 

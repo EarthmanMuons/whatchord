@@ -5,7 +5,7 @@ import 'package:whatkey/whatkey.dart';
 
 const _cMajorTonality = Tonality(Tonic.c, TonalityMode.major);
 
-ChordEvent _event(int index, List<int> pcs, ChordQualityToken quality) {
+ChordEvent _event(int index, List<int> pcs, ChordQuality quality) {
   var mask = 0;
   for (final pc in pcs) {
     mask |= 1 << (pc % 12);
@@ -41,10 +41,10 @@ List<KeyEstimateFrame> _run(KeyDetector detector, List<ChordEvent> events) {
 
 void main() {
   final cCadence = [
-    _event(0, [0, 4, 7], ChordQualityToken.major),
-    _event(1, [5, 9, 0], ChordQualityToken.major),
-    _event(2, [7, 11, 2, 5], ChordQualityToken.dominant7),
-    _event(3, [0, 4, 7], ChordQualityToken.major),
+    _event(0, [0, 4, 7], ChordQuality.major),
+    _event(1, [5, 9, 0], ChordQuality.major),
+    _event(2, [7, 11, 2, 5], ChordQuality.dominant7),
+    _event(3, [0, 4, 7], ChordQuality.major),
   ];
 
   test('claims C major for a C major cadence', () {
@@ -76,8 +76,8 @@ void main() {
     final frames = _run(BocpdKeyDetector(), [
       ...cCadence,
       for (var i = 0; i < 6; i++) ...[
-        _event(4 + 2 * i, [2, 6, 9, 0], ChordQualityToken.dominant7),
-        _event(5 + 2 * i, [7, 11, 2], ChordQualityToken.major),
+        _event(4 + 2 * i, [2, 6, 9, 0], ChordQuality.dominant7),
+        _event(5 + 2 * i, [7, 11, 2], ChordQuality.major),
       ],
     ]);
     final claim = frames.last.claim;
@@ -89,9 +89,9 @@ void main() {
   test('an established key persists through a single tonicization', () {
     final frames = _run(BocpdKeyDetector(), [
       ...cCadence,
-      _event(4, [2, 6, 9, 0], ChordQualityToken.dominant7), // V7/V
-      _event(5, [7, 11, 2, 5], ChordQualityToken.dominant7),
-      _event(6, [0, 4, 7], ChordQualityToken.major),
+      _event(4, [2, 6, 9, 0], ChordQuality.dominant7), // V7/V
+      _event(5, [7, 11, 2, 5], ChordQuality.dominant7),
+      _event(6, [0, 4, 7], ChordQuality.major),
     ]);
     for (final frame in frames.skip(3)) {
       final claim = frame.claim;
@@ -104,8 +104,7 @@ void main() {
   test('run-length truncation keeps the posterior normalized', () {
     final detector = BocpdKeyDetector(maxRunLength: 8);
     final frames = _run(detector, [
-      for (var i = 0; i < 40; i++)
-        _event(i, [0, 4, 7], ChordQualityToken.major),
+      for (var i = 0; i < 40; i++) _event(i, [0, 4, 7], ChordQuality.major),
     ]);
     final total = frames.last.ranked.fold(0.0, (s, e) => s + e.confidence);
     expect(total, closeTo(1.0, 1e-9));

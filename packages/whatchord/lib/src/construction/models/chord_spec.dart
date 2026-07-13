@@ -34,7 +34,7 @@ enum FifthAlteration { natural, flat, sharp }
 ///
 /// Not every combination is a real chord; [normalized] snaps invalid
 /// combinations to the nearest valid spec, and [quality] maps the result to
-/// its [ChordQualityToken].
+/// its [ChordQuality].
 @immutable
 class ChordSpec {
   const ChordSpec({
@@ -44,139 +44,139 @@ class ChordSpec {
   });
 
   /// Decomposes [quality] into its spec parts.
-  factory ChordSpec.fromQuality(ChordQualityToken quality) {
+  factory ChordSpec.fromQuality(ChordQuality quality) {
     return switch (quality) {
-      ChordQualityToken.major => const ChordSpec(
+      ChordQuality.major => const ChordSpec(
         baseQuality: BaseQuality.major,
         seventhKind: SeventhKind.none,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.majorFlat5 => const ChordSpec(
+      ChordQuality.majorFlat5 => const ChordSpec(
         baseQuality: BaseQuality.major,
         seventhKind: SeventhKind.none,
         fifthAlteration: FifthAlteration.flat,
       ),
-      ChordQualityToken.minor => const ChordSpec(
+      ChordQuality.minor => const ChordSpec(
         baseQuality: BaseQuality.minor,
         seventhKind: SeventhKind.none,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.minorSharp5 => const ChordSpec(
+      ChordQuality.minorSharp5 => const ChordSpec(
         baseQuality: BaseQuality.minor,
         seventhKind: SeventhKind.none,
         fifthAlteration: FifthAlteration.sharp,
       ),
-      ChordQualityToken.diminished => const ChordSpec(
+      ChordQuality.diminished => const ChordSpec(
         baseQuality: BaseQuality.diminished,
         seventhKind: SeventhKind.none,
         fifthAlteration: FifthAlteration.flat,
       ),
-      ChordQualityToken.augmented => const ChordSpec(
+      ChordQuality.augmented => const ChordSpec(
         baseQuality: BaseQuality.augmented,
         seventhKind: SeventhKind.none,
         fifthAlteration: FifthAlteration.sharp,
       ),
-      ChordQualityToken.sus2 => const ChordSpec(
+      ChordQuality.sus2 => const ChordSpec(
         baseQuality: BaseQuality.sus2,
         seventhKind: SeventhKind.none,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.sus4 => const ChordSpec(
+      ChordQuality.sus4 => const ChordSpec(
         baseQuality: BaseQuality.sus4,
         seventhKind: SeventhKind.none,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.sus2sus4 => const ChordSpec(
+      ChordQuality.sus2sus4 => const ChordSpec(
         baseQuality: BaseQuality.sus2sus4,
         seventhKind: SeventhKind.none,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.power => const ChordSpec(
+      ChordQuality.power => const ChordSpec(
         baseQuality: BaseQuality.power,
         seventhKind: SeventhKind.none,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.major6 => const ChordSpec(
+      ChordQuality.major6 => const ChordSpec(
         baseQuality: BaseQuality.major,
         seventhKind: SeventhKind.sixth,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.minor6 => const ChordSpec(
+      ChordQuality.minor6 => const ChordSpec(
         baseQuality: BaseQuality.minor,
         seventhKind: SeventhKind.sixth,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.dominant7 => const ChordSpec(
+      ChordQuality.dominant7 => const ChordSpec(
         baseQuality: BaseQuality.major,
         seventhKind: SeventhKind.dominant7,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.dominant7sus2 => const ChordSpec(
+      ChordQuality.dominant7sus2 => const ChordSpec(
         baseQuality: BaseQuality.sus2,
         seventhKind: SeventhKind.dominant7,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.dominant7sus4 => const ChordSpec(
+      ChordQuality.dominant7sus4 => const ChordSpec(
         baseQuality: BaseQuality.sus4,
         seventhKind: SeventhKind.dominant7,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.dominant7Flat5 => const ChordSpec(
+      ChordQuality.dominant7Flat5 => const ChordSpec(
         baseQuality: BaseQuality.major,
         seventhKind: SeventhKind.dominant7,
         fifthAlteration: FifthAlteration.flat,
       ),
-      ChordQualityToken.dominant7Sharp5 => const ChordSpec(
+      ChordQuality.dominant7Sharp5 => const ChordSpec(
         baseQuality: BaseQuality.major,
         seventhKind: SeventhKind.dominant7,
         fifthAlteration: FifthAlteration.sharp,
       ),
-      ChordQualityToken.major7 => const ChordSpec(
+      ChordQuality.major7 => const ChordSpec(
         baseQuality: BaseQuality.major,
         seventhKind: SeventhKind.major7,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.major7sus2 => const ChordSpec(
+      ChordQuality.major7sus2 => const ChordSpec(
         baseQuality: BaseQuality.sus2,
         seventhKind: SeventhKind.major7,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.major7sus4 => const ChordSpec(
+      ChordQuality.major7sus4 => const ChordSpec(
         baseQuality: BaseQuality.sus4,
         seventhKind: SeventhKind.major7,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.major7Flat5 => const ChordSpec(
+      ChordQuality.major7Flat5 => const ChordSpec(
         baseQuality: BaseQuality.major,
         seventhKind: SeventhKind.major7,
         fifthAlteration: FifthAlteration.flat,
       ),
-      ChordQualityToken.major7Sharp5 => const ChordSpec(
+      ChordQuality.major7Sharp5 => const ChordSpec(
         baseQuality: BaseQuality.major,
         seventhKind: SeventhKind.major7,
         fifthAlteration: FifthAlteration.sharp,
       ),
-      ChordQualityToken.minor7 => const ChordSpec(
+      ChordQuality.minor7 => const ChordSpec(
         baseQuality: BaseQuality.minor,
         seventhKind: SeventhKind.minor7,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.minor7Sharp5 => const ChordSpec(
+      ChordQuality.minor7Sharp5 => const ChordSpec(
         baseQuality: BaseQuality.minor,
         seventhKind: SeventhKind.minor7,
         fifthAlteration: FifthAlteration.sharp,
       ),
-      ChordQualityToken.minorMajor7 => const ChordSpec(
+      ChordQuality.minorMajor7 => const ChordSpec(
         baseQuality: BaseQuality.minor,
         seventhKind: SeventhKind.minorMajor7,
         fifthAlteration: FifthAlteration.natural,
       ),
-      ChordQualityToken.halfDiminished7 => const ChordSpec(
+      ChordQuality.halfDiminished7 => const ChordSpec(
         baseQuality: BaseQuality.diminished,
         seventhKind: SeventhKind.halfDiminished7,
         fifthAlteration: FifthAlteration.flat,
       ),
-      ChordQualityToken.diminished7 => const ChordSpec(
+      ChordQuality.diminished7 => const ChordSpec(
         baseQuality: BaseQuality.diminished,
         seventhKind: SeventhKind.diminished7,
         fifthAlteration: FifthAlteration.flat,
@@ -217,7 +217,7 @@ class ChordSpec {
   }
 
   /// The chord quality this spec names, after normalization.
-  ChordQualityToken get quality {
+  ChordQuality get quality {
     final spec = normalized();
     return _qualityFromSpec(
       baseQuality: spec.baseQuality,
@@ -326,59 +326,55 @@ FifthAlteration defaultFifthAlterationFor(BaseQuality baseQuality) {
   };
 }
 
-ChordQualityToken _qualityFromSpec({
+ChordQuality _qualityFromSpec({
   required BaseQuality baseQuality,
   required SeventhKind seventhKind,
   required FifthAlteration fifthAlteration,
 }) {
   if (seventhKind == SeventhKind.halfDiminished7) {
-    return ChordQualityToken.halfDiminished7;
+    return ChordQuality.halfDiminished7;
   }
   if (seventhKind == SeventhKind.diminished7) {
-    return ChordQualityToken.diminished7;
+    return ChordQuality.diminished7;
   }
   if (seventhKind == SeventhKind.minor7) {
     return fifthAlteration == FifthAlteration.sharp
-        ? ChordQualityToken.minor7Sharp5
-        : ChordQualityToken.minor7;
+        ? ChordQuality.minor7Sharp5
+        : ChordQuality.minor7;
   }
   if (seventhKind == SeventhKind.minorMajor7) {
-    return ChordQualityToken.minorMajor7;
+    return ChordQuality.minorMajor7;
   }
 
   return switch ((baseQuality, seventhKind, fifthAlteration)) {
     (BaseQuality.major, SeventhKind.none, FifthAlteration.flat) =>
-      ChordQualityToken.majorFlat5,
-    (BaseQuality.major, SeventhKind.none, _) => ChordQualityToken.major,
-    (BaseQuality.major, SeventhKind.sixth, _) => ChordQualityToken.major6,
+      ChordQuality.majorFlat5,
+    (BaseQuality.major, SeventhKind.none, _) => ChordQuality.major,
+    (BaseQuality.major, SeventhKind.sixth, _) => ChordQuality.major6,
     (BaseQuality.major, SeventhKind.dominant7, FifthAlteration.flat) =>
-      ChordQualityToken.dominant7Flat5,
+      ChordQuality.dominant7Flat5,
     (BaseQuality.major, SeventhKind.dominant7, FifthAlteration.sharp) =>
-      ChordQualityToken.dominant7Sharp5,
-    (BaseQuality.major, SeventhKind.dominant7, _) =>
-      ChordQualityToken.dominant7,
+      ChordQuality.dominant7Sharp5,
+    (BaseQuality.major, SeventhKind.dominant7, _) => ChordQuality.dominant7,
     (BaseQuality.major, SeventhKind.major7, FifthAlteration.flat) =>
-      ChordQualityToken.major7Flat5,
+      ChordQuality.major7Flat5,
     (BaseQuality.major, SeventhKind.major7, FifthAlteration.sharp) =>
-      ChordQualityToken.major7Sharp5,
-    (BaseQuality.major, SeventhKind.major7, _) => ChordQualityToken.major7,
+      ChordQuality.major7Sharp5,
+    (BaseQuality.major, SeventhKind.major7, _) => ChordQuality.major7,
     (BaseQuality.minor, SeventhKind.none, FifthAlteration.sharp) =>
-      ChordQualityToken.minorSharp5,
-    (BaseQuality.minor, SeventhKind.none, _) => ChordQualityToken.minor,
-    (BaseQuality.minor, SeventhKind.sixth, _) => ChordQualityToken.minor6,
-    (BaseQuality.diminished, SeventhKind.none, _) =>
-      ChordQualityToken.diminished,
-    (BaseQuality.augmented, SeventhKind.none, _) => ChordQualityToken.augmented,
-    (BaseQuality.power, _, _) => ChordQualityToken.power,
-    (BaseQuality.sus2, SeventhKind.none, _) => ChordQualityToken.sus2,
-    (BaseQuality.sus2, SeventhKind.dominant7, _) =>
-      ChordQualityToken.dominant7sus2,
-    (BaseQuality.sus2, SeventhKind.major7, _) => ChordQualityToken.major7sus2,
-    (BaseQuality.sus4, SeventhKind.none, _) => ChordQualityToken.sus4,
-    (BaseQuality.sus4, SeventhKind.dominant7, _) =>
-      ChordQualityToken.dominant7sus4,
-    (BaseQuality.sus4, SeventhKind.major7, _) => ChordQualityToken.major7sus4,
-    (BaseQuality.sus2sus4, SeventhKind.none, _) => ChordQualityToken.sus2sus4,
-    _ => ChordQualityToken.major,
+      ChordQuality.minorSharp5,
+    (BaseQuality.minor, SeventhKind.none, _) => ChordQuality.minor,
+    (BaseQuality.minor, SeventhKind.sixth, _) => ChordQuality.minor6,
+    (BaseQuality.diminished, SeventhKind.none, _) => ChordQuality.diminished,
+    (BaseQuality.augmented, SeventhKind.none, _) => ChordQuality.augmented,
+    (BaseQuality.power, _, _) => ChordQuality.power,
+    (BaseQuality.sus2, SeventhKind.none, _) => ChordQuality.sus2,
+    (BaseQuality.sus2, SeventhKind.dominant7, _) => ChordQuality.dominant7sus2,
+    (BaseQuality.sus2, SeventhKind.major7, _) => ChordQuality.major7sus2,
+    (BaseQuality.sus4, SeventhKind.none, _) => ChordQuality.sus4,
+    (BaseQuality.sus4, SeventhKind.dominant7, _) => ChordQuality.dominant7sus4,
+    (BaseQuality.sus4, SeventhKind.major7, _) => ChordQuality.major7sus4,
+    (BaseQuality.sus2sus4, SeventhKind.none, _) => ChordQuality.sus2sus4,
+    _ => ChordQuality.major,
   };
 }
