@@ -1,6 +1,9 @@
 name: whatchord_app
 description: Real-time chord identification via Bluetooth MIDI.
 
+workspace:
+  - packages/whatchord
+
 publish_to: none
 version: 2026.7.11+26
 
