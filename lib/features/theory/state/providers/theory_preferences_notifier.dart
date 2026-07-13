@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatchord_theory/presentation/models/chord_symbol.dart';
 
 import 'package:whatchord/core/providers/shared_preferences_provider.dart';
 
-import '../../presentation/models/chord_symbol.dart';
 import '../persistence/theory_preferences_keys.dart';
 
 final chordNotationStyleProvider =

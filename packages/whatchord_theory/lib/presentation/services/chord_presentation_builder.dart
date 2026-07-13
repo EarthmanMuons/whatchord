@@ -1,11 +1,5 @@
 import 'package:whatchord_theory/whatchord_theory.dart';
 
-import '../models/chord_presentation.dart';
-import '../models/chord_symbol.dart';
-import 'chord_long_form_formatter.dart';
-import 'chord_spoken_name_formatter.dart';
-import 'chord_symbol_builder.dart';
-
 abstract final class ChordPresentationBuilder {
   static ChordPresentation fromIdentity({
     required ChordIdentity identity,

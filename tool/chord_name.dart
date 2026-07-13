@@ -10,11 +10,6 @@
 import 'dart:io';
 
 import 'package:whatchord_theory/whatchord_theory.dart';
-import 'package:whatchord/features/theory/presentation/models/chord_symbol.dart';
-import 'package:whatchord/features/theory/presentation/services/chord_long_form_formatter.dart';
-import 'package:whatchord/features/theory/presentation/services/chord_spoken_name_formatter.dart';
-import 'package:whatchord/features/theory/presentation/services/chord_symbol_builder.dart';
-import 'package:whatchord/features/theory/presentation/services/note_display_formatter.dart';
 
 import 'src/chord_id_engine.dart';
 

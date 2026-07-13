@@ -6,13 +6,6 @@ import 'package:whatchord_theory/whatchord_theory.dart';
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/input/input.dart';
 
-import '../../presentation/models/identity_display.dart';
-import '../../presentation/services/chord_quality_token_labels.dart';
-import '../../presentation/services/chord_symbol_builder.dart';
-import '../../presentation/services/interval_formatter.dart';
-import '../../presentation/services/inversion_formatter.dart';
-import '../../presentation/services/note_display_formatter.dart';
-import '../../presentation/services/note_long_form_formatter.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
 import 'chord_candidates_providers.dart';

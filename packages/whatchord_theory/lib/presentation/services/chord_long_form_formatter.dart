@@ -1,9 +1,6 @@
 import 'package:whatchord_theory/whatchord_theory.dart';
 
-import '../models/chord_symbol.dart';
 import 'chord_display_conventions.dart';
-import 'chord_quality_token_labels.dart';
-import 'note_display_formatter.dart';
 
 class ChordLongFormFormatter {
   static String format({
