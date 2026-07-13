@@ -31,6 +31,10 @@ export 'src/services/scale_harmonizer.dart';
 export 'src/services/scale_tonic_choices.dart';
 export 'src/services/scale_voicing.dart';
 
+// Temporal context: committed chords from live play
+export 'src/temporal/chord_event.dart';
+export 'src/temporal/chord_event_segmenter.dart';
+
 // Construction: canonical chord examples from a selected spec
 export 'src/construction/models/chord_example.dart';
 export 'src/construction/models/chord_spec.dart';

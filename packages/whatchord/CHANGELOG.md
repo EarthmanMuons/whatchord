@@ -17,3 +17,6 @@ The format is based on [Keep a Changelog][1], and this package adheres to
   explanation traces, note spelling, scale harmonization and degree
   classification, chord construction from a selected spec, and formatters for
   chord symbols, spoken names, long-form names, and Harte notation.
+- Temporal module: `ChordEvent` (a committed chord from live play) and
+  `ChordEventSegmenter`, the capture model that feeds key detection and future
+  temporal-context analysis.

@@ -24,9 +24,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord_app/features/history/history_domain.dart';
-import 'package:whatchord_app/features/key/key_domain.dart';
 import 'package:whatchord/whatchord.dart';
+import 'package:whatchord_app/features/key/key_domain.dart';
 
 import '../../tool/src/chord_id_engine.dart';
 import '../../tool/src/whatkey/whatkey_fixtures.dart';

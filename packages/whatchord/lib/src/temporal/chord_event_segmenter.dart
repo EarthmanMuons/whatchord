@@ -1,7 +1,11 @@
 import 'package:meta/meta.dart';
-import 'package:whatchord/whatchord.dart';
 
-import '../models/chord_event.dart';
+import '../models/chord_candidate.dart';
+import '../models/chord_identity.dart';
+import '../models/chord_input.dart';
+import '../models/observed_voicing.dart';
+import '../models/tonality.dart';
+import 'chord_event.dart';
 
 /// One analyzed live chord eligible for capture: the data a [ChordEvent]
 /// snapshots at identity onset.
