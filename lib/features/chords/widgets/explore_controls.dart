@@ -19,21 +19,21 @@ class ExploreControls extends StatelessWidget {
     required this.onBassChanged,
   });
 
-  final ExploreChordState state;
+  final ChordConstruction state;
   final ChordIdentity identity;
   final Tonality tonality;
   final NoteNameSystem noteNameSystem;
   final bool isLandscape;
   final ValueChanged<Tonic> onRootChanged;
-  final ValueChanged<ExploreBaseQuality> onBaseQualityChanged;
-  final ValueChanged<ExploreSeventhKind> onSeventhKindChanged;
-  final ValueChanged<ExploreFifthAlteration> onFifthAlterationChanged;
+  final ValueChanged<BaseQuality> onBaseQualityChanged;
+  final ValueChanged<SeventhKind> onSeventhKindChanged;
+  final ValueChanged<FifthAlteration> onFifthAlterationChanged;
   final ValueChanged<Set<ChordExtension>> onExtensionsChanged;
   final ValueChanged<int> onBassChanged;
 
   @override
   Widget build(BuildContext context) {
-    final extensionGroups = buildExploreExtensionControlGroups(state.quality);
+    final extensionGroups = buildExtensionControlGroups(state.quality);
     final seventhKindChoices = availableSeventhKindsFor(state.baseQuality);
     final fifthAlterationChoices = availableFifthAlterationsFor(
       baseQuality: state.baseQuality,
@@ -97,7 +97,7 @@ class ExploreControls extends StatelessWidget {
                     selectedExtensions: state.extensions,
                     onChoiceSelected: (group, choice) {
                       onExtensionsChanged(
-                        selectExploreExtensionChoice(
+                        selectExtensionChoice(
                           quality: state.quality,
                           currentExtensions: state.extensions,
                           group: group,
@@ -206,14 +206,14 @@ class ExploreControls extends StatelessWidget {
 class _BaseQualitySelector extends StatelessWidget {
   const _BaseQualitySelector({required this.value, required this.onChanged});
 
-  static const _choices = ExploreBaseQuality.values;
+  static const _choices = BaseQuality.values;
 
-  final ExploreBaseQuality value;
-  final ValueChanged<ExploreBaseQuality> onChanged;
+  final BaseQuality value;
+  final ValueChanged<BaseQuality> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return _OptionWheel<ExploreBaseQuality>(
+    return _OptionWheel<BaseQuality>(
       label: 'Quality',
       value: value,
       choices: _choices,
@@ -235,13 +235,13 @@ class _CoreTonesSelector extends StatelessWidget {
     required this.onFifthAlterationChanged,
   });
 
-  final ExploreBaseQuality baseQuality;
-  final ExploreSeventhKind seventhKind;
-  final List<ExploreSeventhKind> seventhKindChoices;
-  final ExploreFifthAlteration fifthAlteration;
-  final List<ExploreFifthAlteration> fifthAlterationChoices;
-  final ValueChanged<ExploreSeventhKind> onSeventhKindChanged;
-  final ValueChanged<ExploreFifthAlteration> onFifthAlterationChanged;
+  final BaseQuality baseQuality;
+  final SeventhKind seventhKind;
+  final List<SeventhKind> seventhKindChoices;
+  final FifthAlteration fifthAlteration;
+  final List<FifthAlteration> fifthAlterationChoices;
+  final ValueChanged<SeventhKind> onSeventhKindChanged;
+  final ValueChanged<FifthAlteration> onFifthAlterationChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -410,77 +410,74 @@ class _OptionWheel<T> extends StatelessWidget {
   }
 }
 
-String _baseQualityLabel(ExploreBaseQuality quality) {
+String _baseQualityLabel(BaseQuality quality) {
   return switch (quality) {
-    ExploreBaseQuality.major => 'maj',
-    ExploreBaseQuality.minor => 'min',
-    ExploreBaseQuality.power => '5',
-    ExploreBaseQuality.diminished => 'dim',
-    ExploreBaseQuality.augmented => 'aug',
-    ExploreBaseQuality.sus2 => 'sus2',
-    ExploreBaseQuality.sus4 => 'sus4',
-    ExploreBaseQuality.sus2sus4 => 'sus2/4',
+    BaseQuality.major => 'maj',
+    BaseQuality.minor => 'min',
+    BaseQuality.power => '5',
+    BaseQuality.diminished => 'dim',
+    BaseQuality.augmented => 'aug',
+    BaseQuality.sus2 => 'sus2',
+    BaseQuality.sus4 => 'sus4',
+    BaseQuality.sus2sus4 => 'sus2/4',
   };
 }
 
-String _baseQualitySemanticLabel(ExploreBaseQuality quality) {
+String _baseQualitySemanticLabel(BaseQuality quality) {
   return switch (quality) {
-    ExploreBaseQuality.major => 'Major',
-    ExploreBaseQuality.minor => 'Minor',
-    ExploreBaseQuality.power => 'Power chord',
-    ExploreBaseQuality.diminished => 'Diminished',
-    ExploreBaseQuality.augmented => 'Augmented',
-    ExploreBaseQuality.sus2 => 'Suspended second',
-    ExploreBaseQuality.sus4 => 'Suspended fourth',
-    ExploreBaseQuality.sus2sus4 => 'Suspended second and fourth',
+    BaseQuality.major => 'Major',
+    BaseQuality.minor => 'Minor',
+    BaseQuality.power => 'Power chord',
+    BaseQuality.diminished => 'Diminished',
+    BaseQuality.augmented => 'Augmented',
+    BaseQuality.sus2 => 'Suspended second',
+    BaseQuality.sus4 => 'Suspended fourth',
+    BaseQuality.sus2sus4 => 'Suspended second and fourth',
   };
 }
 
-String _seventhKindLabel(
-  ExploreSeventhKind kind,
-  ExploreBaseQuality baseQuality,
-) {
+String _seventhKindLabel(SeventhKind kind, BaseQuality baseQuality) {
   return switch (kind) {
-    ExploreSeventhKind.none => 'None',
-    ExploreSeventhKind.sixth => switch (baseQuality) {
-      ExploreBaseQuality.minor => 'min6',
+    SeventhKind.none => 'None',
+    SeventhKind.sixth => switch (baseQuality) {
+      BaseQuality.minor => 'min6',
       _ => 'maj6',
     },
-    ExploreSeventhKind.dominant7 => '7',
-    ExploreSeventhKind.major7 => 'maj7',
-    ExploreSeventhKind.minor7 => 'min7',
-    ExploreSeventhKind.minorMajor7 => 'minmaj7',
-    ExploreSeventhKind.halfDiminished7 => 'hdim7',
-    ExploreSeventhKind.diminished7 => 'dim7',
+    SeventhKind.dominant7 => '7',
+    SeventhKind.major7 => 'maj7',
+    SeventhKind.minor7 => 'min7',
+    SeventhKind.minorMajor7 => 'minmaj7',
+    SeventhKind.halfDiminished7 => 'hdim7',
+    SeventhKind.diminished7 => 'dim7',
   };
 }
 
-String _seventhKindSemanticLabel(ExploreSeventhKind kind) {
+String _seventhKindSemanticLabel(SeventhKind kind) {
   return switch (kind) {
-    ExploreSeventhKind.none => 'No sixth or seventh',
-    ExploreSeventhKind.sixth => 'Sixth',
-    ExploreSeventhKind.dominant7 => 'Dominant seventh',
-    ExploreSeventhKind.major7 => 'Major seventh',
-    ExploreSeventhKind.minor7 => 'Minor seventh',
-    ExploreSeventhKind.minorMajor7 => 'Minor-major seventh',
-    ExploreSeventhKind.halfDiminished7 => 'Half-diminished seventh',
-    ExploreSeventhKind.diminished7 => 'Diminished seventh',
+    SeventhKind.none => 'No sixth or seventh',
+    SeventhKind.sixth => 'Sixth',
+    SeventhKind.dominant7 => 'Dominant seventh',
+    SeventhKind.major7 => 'Major seventh',
+    SeventhKind.minor7 => 'Minor seventh',
+    SeventhKind.minorMajor7 => 'Minor-major seventh',
+    SeventhKind.halfDiminished7 => 'Half-diminished seventh',
+    SeventhKind.diminished7 => 'Diminished seventh',
   };
 }
 
-String _fifthAlterationLabel(ExploreFifthAlteration alteration) {
+String _fifthAlterationLabel(FifthAlteration alteration) {
   return switch (alteration) {
-    ExploreFifthAlteration.natural => '5',
-    ExploreFifthAlteration.flat => 'b5',
-    ExploreFifthAlteration.sharp => '#5',
+    FifthAlteration.natural => '5',
+    FifthAlteration.flat => 'b5',
+    FifthAlteration.sharp => '#5',
   };
 }
 
-String _fifthAlterationSemanticLabel(ExploreFifthAlteration alteration) {
+String _fifthAlterationSemanticLabel(FifthAlteration alteration) {
   return switch (alteration) {
-    ExploreFifthAlteration.natural => 'Natural fifth',
-    ExploreFifthAlteration.flat => 'Flat fifth',
-    ExploreFifthAlteration.sharp => 'Sharp fifth',
+    FifthAlteration.natural => 'Natural fifth',
+    FifthAlteration.flat => 'Flat fifth',
+    FifthAlteration.sharp => 'Sharp fifth',
   };
 }
 
@@ -583,12 +580,9 @@ class _ExtensionBuilder extends StatelessWidget {
     required this.onChoiceSelected,
   });
 
-  final List<ExploreExtensionControlGroup> groups;
+  final List<ExtensionControlGroup> groups;
   final Set<ChordExtension> selectedExtensions;
-  final void Function(
-    ExploreExtensionControlGroup group,
-    ExploreExtensionChoice choice,
-  )
+  final void Function(ExtensionControlGroup group, ExtensionChoice choice)
   onChoiceSelected;
 
   @override
@@ -657,10 +651,7 @@ class _ExtensionBuilder extends StatelessWidget {
     );
   }
 
-  bool _isSelected(
-    ExploreExtensionControlGroup group,
-    ExploreExtensionChoice choice,
-  ) {
+  bool _isSelected(ExtensionControlGroup group, ExtensionChoice choice) {
     final extension = choice.extension;
     if (extension != null) return selectedExtensions.contains(extension);
 
@@ -671,7 +662,7 @@ class _ExtensionBuilder extends StatelessWidget {
         );
   }
 
-  int _selectedIndex(ExploreExtensionControlGroup group) {
+  int _selectedIndex(ExtensionControlGroup group) {
     for (var index = 0; index < group.choices.length; index++) {
       if (_isSelected(group, group.choices[index])) return index;
     }

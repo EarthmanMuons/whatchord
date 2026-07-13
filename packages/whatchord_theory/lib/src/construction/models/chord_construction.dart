@@ -3,31 +3,31 @@ import 'package:meta/meta.dart';
 import '../../models/chord_extension.dart';
 import '../../models/chord_identity.dart';
 import '../../models/tonic.dart';
-import 'explore_chord_spec.dart';
+import 'chord_spec.dart';
 
 @immutable
-class ExploreChordState {
-  factory ExploreChordState({
+class ChordConstruction {
+  factory ChordConstruction({
     required int rootPc,
     required ChordQualityToken quality,
     required Set<ChordExtension> extensions,
     required int bassPc,
   }) {
-    return ExploreChordState.fromSpec(
+    return ChordConstruction.fromSpec(
       rootPc: rootPc,
-      spec: ExploreChordSpec.fromQuality(quality),
+      spec: ChordSpec.fromQuality(quality),
       extensions: extensions,
       bassPc: bassPc,
     );
   }
 
-  factory ExploreChordState.fromSpec({
+  factory ChordConstruction.fromSpec({
     required int rootPc,
-    required ExploreChordSpec spec,
+    required ChordSpec spec,
     required Set<ChordExtension> extensions,
     required int bassPc,
   }) {
-    return ExploreChordState._(
+    return ChordConstruction._(
       root: Tonic.forPitchClass(rootPc),
       spec: spec,
       extensions: Set<ChordExtension>.unmodifiable(extensions),
@@ -35,27 +35,27 @@ class ExploreChordState {
     );
   }
 
-  const ExploreChordState._({
+  const ChordConstruction._({
     required this.root,
     required this.spec,
     required this.extensions,
     required this.bassPc,
   });
 
-  factory ExploreChordState.fromIdentity(
+  factory ChordConstruction.fromIdentity(
     ChordIdentity identity, {
     Tonic? root,
   }) {
-    return ExploreChordState._(
+    return ChordConstruction._(
       root: root ?? Tonic.forPitchClass(identity.rootPc),
-      spec: ExploreChordSpec.fromQuality(identity.quality),
+      spec: ChordSpec.fromQuality(identity.quality),
       extensions: Set<ChordExtension>.unmodifiable(identity.extensions),
       bassPc: identity.bassPc,
     );
   }
 
   final Tonic root;
-  final ExploreChordSpec spec;
+  final ChordSpec spec;
   final Set<ChordExtension> extensions;
   final int bassPc;
 
@@ -63,19 +63,19 @@ class ExploreChordState {
 
   ChordQualityToken get quality => spec.quality;
 
-  ExploreBaseQuality get baseQuality => spec.baseQuality;
+  BaseQuality get baseQuality => spec.baseQuality;
 
-  ExploreSeventhKind get seventhKind => spec.seventhKind;
+  SeventhKind get seventhKind => spec.seventhKind;
 
-  ExploreFifthAlteration get fifthAlteration => spec.fifthAlteration;
+  FifthAlteration get fifthAlteration => spec.fifthAlteration;
 
-  ExploreChordState copyWith({
+  ChordConstruction copyWith({
     Tonic? root,
-    ExploreChordSpec? spec,
+    ChordSpec? spec,
     Set<ChordExtension>? extensions,
     int? bassPc,
   }) {
-    return ExploreChordState._(
+    return ChordConstruction._(
       root: root ?? this.root,
       spec: spec ?? this.spec,
       extensions: Set<ChordExtension>.unmodifiable(
@@ -88,7 +88,7 @@ class ExploreChordState {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ExploreChordState &&
+      other is ChordConstruction &&
           other.root == root &&
           other.spec == spec &&
           other.bassPc == bassPc &&

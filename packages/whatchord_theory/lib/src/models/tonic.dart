@@ -8,8 +8,8 @@
 /// its pitch-class neighbor. Consumers that want chromatic order sort by
 /// [pitchClass].
 ///
-/// This is the shared root vocabulary for both Explore Chords and the Scale
-/// Explorer; which subset a scale offers is decided by its tonic policy.
+/// This is the shared root vocabulary for chord construction and scale
+/// browsing; which subset a scale offers is decided by its tonic policy.
 enum Tonic {
   cFlat('Cb', 'C', 11),
   c('C', 'C', 0),

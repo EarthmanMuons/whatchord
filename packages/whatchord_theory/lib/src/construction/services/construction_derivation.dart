@@ -3,9 +3,9 @@ import '../../models/chord_extension.dart';
 import '../../models/chord_identity.dart';
 import '../../services/chord_quality_intervals.dart';
 import '../../services/chord_tone_roles.dart';
-import '../models/explore_chord_state.dart';
+import '../models/chord_construction.dart';
 
-ChordIdentity buildExploreChordIdentity(ExploreChordState state) {
+ChordIdentity buildConstructionIdentity(ChordConstruction state) {
   final presentIntervalsMask = canonicalPresentIntervalsMask(
     quality: state.quality,
     extensions: state.extensions,

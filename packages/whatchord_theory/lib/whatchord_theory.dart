@@ -34,15 +34,15 @@ export 'src/services/scale_tonic_choices.dart';
 export 'src/services/scale_voicing.dart';
 
 // Construction: canonical chord examples from a selected spec
-export 'src/construction/models/explore_chord_example.dart';
-export 'src/construction/models/explore_chord_spec.dart';
-export 'src/construction/models/explore_chord_state.dart';
-export 'src/construction/services/explore_chord_derivation.dart';
-export 'src/construction/services/explore_chord_example_builder.dart';
-export 'src/construction/services/explore_chord_options.dart';
-export 'src/construction/services/explore_chord_state_transitions.dart';
-export 'src/construction/services/explore_extension_rules.dart';
-export 'src/construction/services/explore_seed_derivation.dart';
+export 'src/construction/models/chord_example.dart';
+export 'src/construction/models/chord_spec.dart';
+export 'src/construction/models/chord_construction.dart';
+export 'src/construction/services/construction_derivation.dart';
+export 'src/construction/services/chord_example_builder.dart';
+export 'src/construction/services/extension_options.dart';
+export 'src/construction/services/construction_transitions.dart';
+export 'src/construction/services/extension_rules.dart';
+export 'src/construction/services/seed_derivation.dart';
 
 // Presentation models
 export 'src/formatting/models/chord_presentation.dart';
