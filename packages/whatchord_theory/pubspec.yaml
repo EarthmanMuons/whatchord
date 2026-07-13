@@ -1,5 +1,8 @@
 name: whatchord_theory
 description: Chord identification and harmony analysis engine for WhatChord.
+homepage: https://whatchord.earthmanmuons.com/
+repository: https://github.com/EarthmanMuons/whatchord/tree/main/packages/whatchord_theory
+issue_tracker: https://github.com/EarthmanMuons/whatchord/issues
 
 publish_to: none
 version: 0.1.0
