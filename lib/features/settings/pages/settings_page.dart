@@ -15,6 +15,7 @@ import 'package:whatchord/features/midi/midi.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import '../services/settings_reset_service.dart';
+import 'debug_log_page.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -486,6 +487,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   },
                 ),
               ),
+
+              if (!kReleaseMode)
+                Semantics(
+                  onTapHint: 'Open console logs',
+                  child: ListTile(
+                    leading: const Icon(Icons.terminal),
+                    title: const Text('Console Logs'),
+                    subtitle: const Text('Captured debug output'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      unawaited(
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const DebugLogPage(),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
 
               ListTile(
                 leading: const Icon(Icons.restart_alt),
