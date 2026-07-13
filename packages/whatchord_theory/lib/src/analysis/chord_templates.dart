@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../models/chord_identity.dart';
 import '../services/chord_quality_intervals.dart';
+import '../services/interval_constants.dart';
 
 /// Chord structure templates for pitch-class matching.
 ///

@@ -1,5 +1,7 @@
 export 'package:whatchord_theory/whatchord_theory.dart';
 
+export 'presentation/models/identity_display.dart';
+
 export 'presentation/widgets/alternative_chord_candidates_list.dart';
 export 'presentation/widgets/key_signature_staff_preview.dart';
 export 'presentation/widgets/scale_degree_roman_text.dart';

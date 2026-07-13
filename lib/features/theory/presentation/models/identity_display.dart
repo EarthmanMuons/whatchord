@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
-
-import 'chord_symbol.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 /// UI-facing identity produced by analysis, depending on input cardinality.
 ///
