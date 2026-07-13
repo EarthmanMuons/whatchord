@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
-import '../services/scale_degree_chord_symbol.dart';
 import 'scale_list_style.dart';
 
 // Shared column metrics so the pinned [ScaleDegreeColumnHeaders] line up with

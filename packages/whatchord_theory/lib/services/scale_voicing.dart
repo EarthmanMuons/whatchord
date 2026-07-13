@@ -1,4 +1,4 @@
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 /// MIDI voicings for the Scale Explorer's keyboard highlighting and playback.
 ///

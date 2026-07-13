@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 @immutable
 class ExploreChordExample {

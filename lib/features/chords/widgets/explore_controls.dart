@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
-import '../models/explore_chord_spec.dart';
-import '../models/explore_chord_state.dart';
-import '../services/explore_chord_options.dart';
-
 class ExploreControls extends StatelessWidget {
   const ExploreControls({
     super.key,

@@ -1,7 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 
-import 'package:whatchord/features/chords/services/explore_seed_derivation.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 void main() {
   group('buildExploreSeedIdentity', () {

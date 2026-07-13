@@ -31,6 +31,18 @@ export 'services/scale_degree_function.dart';
 export 'services/scale_degree_roman_numerals.dart';
 export 'services/scale_harmonizer.dart';
 export 'services/scale_tonic_choices.dart';
+export 'services/scale_voicing.dart';
+
+// Explore: canonical chord construction from a selected spec
+export 'explore/models/explore_chord_example.dart';
+export 'explore/models/explore_chord_spec.dart';
+export 'explore/models/explore_chord_state.dart';
+export 'explore/services/explore_chord_derivation.dart';
+export 'explore/services/explore_chord_example_builder.dart';
+export 'explore/services/explore_chord_options.dart';
+export 'explore/services/explore_chord_state_transitions.dart';
+export 'explore/services/explore_extension_rules.dart';
+export 'explore/services/explore_seed_derivation.dart';
 
 // Presentation models
 export 'presentation/models/chord_presentation.dart';
@@ -48,3 +60,4 @@ export 'presentation/services/interval_formatter.dart';
 export 'presentation/services/inversion_formatter.dart';
 export 'presentation/services/note_display_formatter.dart';
 export 'presentation/services/note_long_form_formatter.dart';
+export 'presentation/services/scale_degree_chord_symbol.dart';

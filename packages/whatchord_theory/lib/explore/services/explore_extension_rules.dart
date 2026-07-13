@@ -1,4 +1,4 @@
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 /// Keeps Explore selections musically meaningful when the base quality changes.
 ///
