@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:whatchord/whatchord.dart';
-import 'package:whatchord_app/features/key/key_domain.dart';
+import 'package:whatkey/whatkey.dart';
 
 import '../chord_id_engine.dart';
 

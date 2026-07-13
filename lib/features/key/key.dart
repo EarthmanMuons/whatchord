@@ -1,4 +1,6 @@
-export 'key_domain.dart';
+export 'package:whatchord/whatchord.dart';
+export 'package:whatkey/whatkey.dart';
+
 export 'models/inferred_key_state.dart';
 export 'persistence/key_preferences_keys.dart';
 export 'providers/inferred_key_notifier.dart';

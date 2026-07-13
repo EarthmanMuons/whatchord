@@ -4,12 +4,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatkey/whatkey.dart';
 
 import 'package:whatchord_app/features/theory/theory.dart';
 
-import '../domain/detectors/display_calibration.dart';
-import '../domain/detectors/key_space.dart';
-import '../domain/models/key_estimate.dart';
 import '../providers/key_behavior_notifier.dart';
 
 /// The circle of fifths unrolled for height-constrained layouts: one column
