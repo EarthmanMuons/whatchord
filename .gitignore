@@ -70,6 +70,3 @@ app.*.map.json
 
 # Cloudflare Workers local dev state (wrangler dev / Miniflare)
 .wrangler/
-
-# Lockfiles for local path packages (library convention: apps commit, packages do not)
-packages/*/pubspec.lock
