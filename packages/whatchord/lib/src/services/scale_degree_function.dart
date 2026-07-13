@@ -9,11 +9,16 @@ import '../models/tonality.dart';
 /// [name] is the degree's role name (e.g. "dominant"); [tendency] is a short
 /// resolution clause (e.g. "pulls toward I") that is only musically honest in
 /// major and minor keys, so it is null for the church modes.
+/// A scale degree's functional description.
 @immutable
 class ScaleDegreeFunction {
   const ScaleDegreeFunction({required this.name, this.tendency});
 
+  /// Function name (e.g. "dominant").
   final String name;
+
+  /// Melodic tendency note, when the degree has one (e.g. "resolves up to
+  /// the tonic").
   final String? tendency;
 }
 

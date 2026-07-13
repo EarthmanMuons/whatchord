@@ -1,6 +1,7 @@
 import '../models/chord_identity.dart';
 import 'interval_constants.dart';
 
+/// The interval content that defines one [ChordQualityToken].
 class ChordQualityIntervals {
   const ChordQualityIntervals({
     required this.quality,
@@ -8,17 +9,27 @@ class ChordQualityIntervals {
     this.omittableMask = 0,
   });
 
+  /// The quality these intervals define.
   final ChordQualityToken quality;
+
+  /// 12-bit mask of the quality's canonical tones, root included.
   final int canonicalMask;
+
+  /// Tones a voicing may omit while still reading as this quality
+  /// (typically the perfect fifth).
   final int omittableMask;
 
+  /// [canonicalMask] without the root bit.
   int get templateBaseMask => canonicalMask & ~chordRootBit;
 
+  /// The tones a voicing must contain to claim this quality.
   int get templateRequiredMask => templateBaseMask & ~omittableMask;
 
+  /// [canonicalMask] as a set of semitone intervals above the root.
   Set<int> get canonicalIntervals => _intervalsFromMask(canonicalMask);
 }
 
+/// The interval definitions for every supported [ChordQualityToken].
 const chordQualityIntervalSets = <ChordQualityIntervals>[
   ChordQualityIntervals(
     quality: ChordQualityToken.major,
@@ -232,19 +243,24 @@ const chordQualityIntervalSets = <ChordQualityIntervals>[
   ),
 ];
 
+/// [chordQualityIntervalSets] indexed by quality.
 final Map<ChordQualityToken, ChordQualityIntervals>
 chordQualityIntervalsByQuality = {
   for (final intervals in chordQualityIntervalSets)
     intervals.quality: intervals,
 };
 
+/// Interval lookups on [ChordQualityToken].
 extension ChordQualityTokenIntervals on ChordQualityToken {
+  /// The interval definition for this quality.
   ChordQualityIntervals get intervals {
     return chordQualityIntervalsByQuality[this]!;
   }
 
+  /// Shorthand for `intervals.canonicalIntervals`.
   Set<int> get canonicalIntervals => intervals.canonicalIntervals;
 
+  /// Shorthand for `intervals.canonicalMask`.
   int get canonicalMask => intervals.canonicalMask;
 }
 

@@ -4,7 +4,9 @@ import 'chord_display_conventions.dart';
 import 'chord_tone_role_token_labels.dart';
 import 'note_display_formatter.dart';
 
+/// Describes a slash bass in words (e.g. "1st inversion", "non-root bass").
 abstract final class InversionFormatter {
+  /// The inversion description for [id], or null without a slash bass.
   static String? format(ChordIdentity id) {
     if (!id.hasSlashBass) return null;
 

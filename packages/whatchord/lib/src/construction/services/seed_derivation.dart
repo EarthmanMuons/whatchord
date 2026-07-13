@@ -4,6 +4,9 @@ import '../../models/tonality.dart';
 import '../models/chord_construction.dart';
 import 'construction_derivation.dart';
 
+/// The identity a chord builder should start from: the current analyzed
+/// chord when one exists, else a simple reading of the held notes, else the
+/// tonic triad of [tonality].
 ChordIdentity buildSeedIdentity({
   required ChordInput? input,
   required Tonality tonality,

@@ -5,20 +5,30 @@ import 'chord_identity.dart';
 import 'scale_degree.dart';
 import 'tonic.dart';
 
+/// Major or minor.
 enum TonalityMode { major, minor }
 
+/// A key: a spelled [Tonic] plus a [TonalityMode] (e.g. Eb major, f# minor).
 @immutable
 class Tonality {
+  /// The spelled tonic of the key.
   final Tonic tonic;
+
+  /// Whether the key is major or minor.
   final TonalityMode mode;
 
   const Tonality(this.tonic, this.mode);
 
+  /// Whether [mode] is major.
   bool get isMajor => mode == TonalityMode.major;
+
+  /// Whether [mode] is minor.
   bool get isMinor => mode == TonalityMode.minor;
 
+  /// Compact case-coded label: "C" for C major, "c" for C minor.
   String get label => isMajor ? tonic.label : tonic.label.toLowerCase();
 
+  /// Full name: "C major", "F# minor".
   String get displayName =>
       isMajor ? '${tonic.label} major' : '${tonic.label} minor';
 

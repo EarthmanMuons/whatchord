@@ -1,7 +1,9 @@
 import '../../models/chord_identity.dart';
 
-// Example for major seventh -- symbolic: "Δ7", textual: "maj7",
-//   academic: "major seventh", idiomatic: "major seven"
+/// Which naming register a quality label is rendered for.
+///
+/// Example for major seventh -- symbolic: "Δ7", textual: "maj7",
+/// academic: "major seventh", idiomatic: "major seven".
 enum ChordQualityLabelForm { symbolic, textual, academic, idiomatic }
 
 /// How a quality's altered fifth relates to its perfect fifth.

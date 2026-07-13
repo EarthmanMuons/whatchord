@@ -2,10 +2,12 @@ import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
 import 'pitch_class.dart';
 
-/// Role-aware degree tokens for currently sounding chord members.
+/// Role-aware degree tokens for sounding chord members.
 ///
 /// Examples: 1, b3, 5, b9, #11, 13.
 abstract final class ChordMemberDegreeFormatter {
+  /// Degree labels for [pitchClasses] as members of [identity], in ascending
+  /// interval order.
   static List<String> formatDegrees({
     required ChordIdentity identity,
     required Set<int> pitchClasses, // unique 0..11

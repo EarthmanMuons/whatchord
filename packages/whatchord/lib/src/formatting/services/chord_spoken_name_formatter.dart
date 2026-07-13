@@ -7,7 +7,10 @@ import 'chord_display_conventions.dart';
 import 'chord_quality_token_labels.dart';
 import 'note_display_formatter.dart';
 
+/// Renders a chord identity as its idiomatic spoken name
+/// (e.g. "C minor major seven").
 class ChordSpokenNameFormatter {
+  /// Renders [identity] in the key of [tonality].
   static String format({
     required ChordIdentity identity,
     required Tonality tonality,

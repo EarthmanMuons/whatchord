@@ -55,7 +55,7 @@ class NamedRule {
 // bottom and the first one to return a non-zero result decides the pair. Order
 // is therefore significant; read these lists to audit ranking behavior.
 //
-// NOTE: docs/site/articles/chord-recognition-algorithm.html documents these
+// NOTE: https://whatchord.earthmanmuons.com/articles/chord-recognition-algorithm.html documents these
 // rules and their order in detail. Update the article when rules or their order
 // change.
 

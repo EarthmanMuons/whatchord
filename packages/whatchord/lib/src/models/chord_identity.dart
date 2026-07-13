@@ -58,6 +58,7 @@ class ChordIdentity {
     required this.presentIntervalsMask,
   });
 
+  /// Whether the bass is a different pitch class than the root.
   bool get hasSlashBass => bassPc != rootPc;
 
   @override
@@ -123,6 +124,11 @@ class ChordIdentity {
   }
 }
 
+/// The core chord qualities the analyzer can name.
+///
+/// Each token is a complete base quality (triad, sixth, or seventh chord,
+/// including suspended and altered-fifth variants); colors beyond the base
+/// quality are carried separately as [ChordExtension]s.
 enum ChordQualityToken {
   major,
   majorFlat5,
@@ -153,9 +159,12 @@ enum ChordQualityToken {
   diminished7,
 }
 
+/// Whether a quality is a triad-like or seventh-bearing chord.
 enum ChordQualityFamily { triad, seventh }
 
+/// Structural predicates over [ChordQualityToken].
 extension ChordQualityTokenSemantics on ChordQualityToken {
+  /// The [ChordQualityFamily] this quality belongs to.
   ChordQualityFamily get family {
     switch (this) {
       case ChordQualityToken.dominant7:
@@ -180,8 +189,10 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
     }
   }
 
+  /// Whether this quality carries a seventh.
   bool get isSeventhFamily => family == ChordQualityFamily.seventh;
 
+  /// Whether this quality is a sixth chord (major6 or minor6).
   bool get isSixFamily {
     switch (this) {
       case ChordQualityToken.major6:
@@ -192,6 +203,7 @@ extension ChordQualityTokenSemantics on ChordQualityToken {
     }
   }
 
+  /// Whether this quality suspends its third (sus2, sus4, or both).
   bool get isSus {
     switch (this) {
       case ChordQualityToken.sus2:

@@ -3,11 +3,16 @@ import 'package:meta/meta.dart';
 import 'tonality.dart';
 import 'tonic.dart';
 
+/// A key signature and the relative major/minor pair it belongs to.
 @immutable
 class KeySignature {
   /// Negative = flats, positive = sharps. e.g. -2 means 2 flats, +3 means 3 sharps.
   final int accidentalCount;
+
+  /// The major key with this signature.
   final Tonality relativeMajor;
+
+  /// The minor key with this signature.
   final Tonality relativeMinor;
 
   const KeySignature({
@@ -19,6 +24,7 @@ class KeySignature {
   /// Alias that matches common theory naming: circle-of-fifths index.
   int get fifths => accidentalCount;
 
+  /// Human-readable accidental count (e.g. "2 flats", "1 sharp").
   String get label {
     if (accidentalCount == 0) return 'no sharps/flats';
     final n = accidentalCount.abs();
@@ -28,9 +34,14 @@ class KeySignature {
         : '$countText flat${n == 1 ? '' : 's'}';
   }
 
+  /// Whether this signature spells accidentals as flats.
   bool get prefersFlats => accidentalCount < 0;
+
+  /// Whether this signature spells accidentals as sharps.
   bool get prefersSharps => accidentalCount > 0;
 
+  /// The signature for [tonality]; throws for tonalities without a
+  /// conventional key signature.
   static KeySignature fromTonality(Tonality tonality) {
     for (final ks in keySignatureRows) {
       if (tonality.isMajor && ks.relativeMajor == tonality) {
@@ -46,6 +57,7 @@ class KeySignature {
 
 /// Convenient, non-cyclic access: Tonality -> KeySignature.
 extension TonalityKeySignatureX on Tonality {
+  /// The key signature for this tonality.
   KeySignature get keySignature => KeySignature.fromTonality(this);
 }
 

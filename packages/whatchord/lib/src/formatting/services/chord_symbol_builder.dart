@@ -5,7 +5,10 @@ import '../models/chord_symbol.dart';
 import 'chord_display_conventions.dart';
 import 'chord_quality_formatter.dart';
 
+/// Renders a chord identity as a structured [ChordSymbol].
 class ChordSymbolBuilder {
+  /// Builds the symbol for [identity], spelling the root and bass for
+  /// [tonality] unless [rootName] overrides the root.
   static ChordSymbol fromIdentity({
     required ChordIdentity identity,
     required Tonality tonality,
@@ -35,6 +38,7 @@ class ChordSymbolBuilder {
     return ChordSymbol(root: root, quality: quality, bass: bass);
   }
 
+  /// [fromIdentity] rendered to a plain string (e.g. "Cm7/Eb").
   static String formatIdentity({
     required ChordIdentity identity,
     required Tonality tonality,

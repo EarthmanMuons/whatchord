@@ -10,7 +10,10 @@ import 'chord_long_form_formatter.dart';
 import 'chord_spoken_name_formatter.dart';
 import 'chord_symbol_builder.dart';
 
+/// Renders a chord identity into a complete [ChordPresentation]: symbol,
+/// spoken and long-form names, spelled members, and an example voicing.
 abstract final class ChordPresentationBuilder {
+  /// Builds the presentation for [identity] in the key of [tonality].
   static ChordPresentation fromIdentity({
     required ChordIdentity identity,
     required Tonality tonality,
@@ -74,6 +77,7 @@ abstract final class ChordPresentationBuilder {
     );
   }
 
+  /// The pitch classes present in a chord, from its root and interval mask.
   static Set<int> chordMemberPitchClassesFromMask({
     required int rootPc,
     required int presentIntervalsMask,
@@ -87,6 +91,7 @@ abstract final class ChordPresentationBuilder {
     return Set<int>.unmodifiable(pitchClasses);
   }
 
+  /// The chord's present intervals in ascending stack order.
   static List<int> sortedIntervalsForIdentity(ChordIdentity identity) {
     final intervals = <int>[];
     for (var interval = 0; interval < 12; interval++) {
@@ -109,6 +114,7 @@ abstract final class ChordPresentationBuilder {
     return List<int>.unmodifiable(intervals);
   }
 
+  /// An example MIDI voicing for the chord in a playable register.
   static List<int> normalizedVoicingForIdentity(ChordIdentity identity) {
     final intervals = sortedIntervalsForIdentity(identity);
     if (intervals.isEmpty) return const <int>[];

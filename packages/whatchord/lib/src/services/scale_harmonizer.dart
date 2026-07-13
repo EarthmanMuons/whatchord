@@ -19,8 +19,14 @@ class ScaleTone {
 
   /// 1-based position in the scale's ordered tone list.
   final int ordinal;
+
+  /// Pitch class (0..11).
   final int pitchClass;
+
+  /// Spelled note name (e.g. "Eb").
   final String name;
+
+  /// Formula label relative to the parallel major scale (e.g. "♭3").
   final String degreeLabel;
 }
 
@@ -29,18 +35,25 @@ class ScaleTone {
 class ScaleToneSet {
   const ScaleToneSet({required this.scale, required this.tones});
 
+  /// The scale these tones belong to.
   final Scale scale;
+
+  /// The tones in ascending scale order.
   final List<ScaleTone> tones;
 
+  /// Tone pitch classes, aligned with [tones].
   List<int> get pitchClasses => [for (final tone in tones) tone.pitchClass];
 
+  /// Spelled tone names, aligned with [tones].
   List<String> get toneNames => [for (final tone in tones) tone.name];
 
+  /// Formula labels, aligned with [tones].
   List<String> get degreeLabels => [for (final tone in tones) tone.degreeLabel];
 }
 
 /// Builds scale-tone metadata for any supported scale cardinality.
 abstract final class ScaleToneBuilder {
+  /// Spells and labels the tones of [scale].
   static ScaleToneSet build(Scale scale) {
     final pcs = scale.pitchClasses;
     final names = spellScaleTones(
@@ -81,13 +94,19 @@ class ScaleDegreeHarmony {
   /// 1-based scale degree (1 = tonic).
   final int ordinal;
 
+  /// Pitch class of the degree's root (0..11).
   final int rootPc;
+
+  /// Spelled root name (e.g. "Eb").
   final String rootName;
 
   /// Scale-degree formula relative to the major scale, e.g. "1", "♭3", "♯4".
   final String degreeLabel;
 
+  /// Quality of the stacked triad on this degree.
   final ChordQualityToken triadQuality;
+
+  /// Quality of the stacked seventh chord on this degree.
   final ChordQualityToken seventhQuality;
 
   /// Triad roman numeral, e.g. "ii°", "♭III", "♯iv°".
@@ -102,11 +121,19 @@ class ScaleDegreeHarmony {
 class ScaleHarmony {
   const ScaleHarmony({required this.tones, required this.degrees});
 
+  /// The spelled scale tones.
   final ScaleToneSet tones;
+
+  /// Per-degree diatonic chords, in scale order.
   final List<ScaleDegreeHarmony> degrees;
 
+  /// The harmonized scale.
   Scale get scale => tones.scale;
+
+  /// Shorthand for `tones.pitchClasses`.
   List<int> get pitchClasses => tones.pitchClasses;
+
+  /// Shorthand for `tones.toneNames`.
   List<String> get toneNames => tones.toneNames;
 }
 
@@ -141,6 +168,8 @@ abstract final class ScaleHarmonizer {
     'vii',
   ];
 
+  /// Harmonizes [scale]; throws [UnsupportedError] for scale kinds without a
+  /// tertian chord stack (see `ScaleKind.supportsChordHarmony`).
   static ScaleHarmony harmonize(Scale scale) {
     if (!scale.kind.supportsChordHarmony) {
       throw UnsupportedError(

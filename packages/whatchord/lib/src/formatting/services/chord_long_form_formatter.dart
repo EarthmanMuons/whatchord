@@ -7,7 +7,10 @@ import 'chord_display_conventions.dart';
 import 'chord_quality_token_labels.dart';
 import 'note_display_formatter.dart';
 
+/// Renders a chord identity as its long-form academic name
+/// (e.g. "C dominant seventh, flat nine").
 class ChordLongFormFormatter {
+  /// Renders [identity] in the key of [tonality].
   static String format({
     required ChordIdentity identity,
     required Tonality tonality,
@@ -75,8 +78,12 @@ class ChordLongFormFormatter {
   }
 }
 
+/// Whether long-form names write accidentals as glyphs ("♭9") or words
+/// ("flat nine").
 enum ChordLongFormAccidentalStyle { glyph, plainText }
 
+/// The long-form phrase for an extension set (e.g. "flat nine, sharp
+/// eleven").
 String extensionsLongPhrase(Set<ChordExtension> exts) {
   return _extensionsLongPhrase(exts);
 }

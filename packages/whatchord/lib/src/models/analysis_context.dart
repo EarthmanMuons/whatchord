@@ -6,11 +6,16 @@ import '../models/tonality.dart';
 
 /// Context that can bias chord analysis and control spelling/formatting.
 ///
-/// This keeps the analyzer signature stable even as we add more bias sources.
+/// This keeps the analyzer signature stable as new bias sources are added.
 @immutable
 class AnalysisContext {
+  /// The prevailing key, used to bias ranking and spelling.
   final Tonality tonality;
+
+  /// The key signature, used for enharmonic spelling decisions.
   final KeySignature keySignature;
+
+  /// Fallback spelling preference where the key signature does not decide.
   final NoteSpellingPolicy spellingPolicy;
 
   const AnalysisContext({

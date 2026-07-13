@@ -1,5 +1,7 @@
 import 'tonality.dart';
 
+/// A diatonic scale degree (1..7), labeled relative to the parallel major
+/// scale in minor keys.
 enum ScaleDegree {
   one,
   two,
@@ -9,6 +11,8 @@ enum ScaleDegree {
   six,
   seven;
 
+  /// Roman numeral for this degree in [mode], cased by chord quality
+  /// (e.g. "IV", "vii°", "♭III").
   String romanNumeralForMode(TonalityMode mode) {
     if (mode == TonalityMode.major) {
       return switch (this) {
@@ -36,6 +40,8 @@ enum ScaleDegree {
     };
   }
 
+  /// Roman numeral for this degree in the scale named by [source], which
+  /// distinguishes harmonic-minor spellings (e.g. "V", "vii°" in minor).
   String romanNumeralForSource(ScaleDegreeSource source) {
     return switch (source) {
       ScaleDegreeSource.major => romanNumeralForMode(TonalityMode.major),
@@ -52,6 +58,7 @@ enum ScaleDegree {
     };
   }
 
+  /// Spoken ordinal for this degree in [mode] (e.g. "flat third").
   String spokenScaleDegreeForMode(TonalityMode mode) {
     if (mode == TonalityMode.major) {
       return switch (this) {
@@ -76,6 +83,7 @@ enum ScaleDegree {
     };
   }
 
+  /// Harmonic function name (e.g. "tonic", "dominant", "leading tone").
   String functionNameForMode(TonalityMode mode) {
     return switch (this) {
       ScaleDegree.one => 'tonic',
@@ -90,11 +98,13 @@ enum ScaleDegree {
   }
 }
 
+/// Which scale a degree classification was matched against.
 enum ScaleDegreeSource {
   major,
   naturalMinor,
   harmonicMinor;
 
+  /// Human-readable scale name (e.g. "natural minor").
   String get displayLabel {
     return switch (this) {
       ScaleDegreeSource.major => 'major',
@@ -104,6 +114,7 @@ enum ScaleDegreeSource {
   }
 }
 
+/// A chord's classified scale degree with its rendered labels.
 class ScaleDegreeAnalysis {
   const ScaleDegreeAnalysis({
     required this.degree,
@@ -113,11 +124,21 @@ class ScaleDegreeAnalysis {
     required this.functionName,
   });
 
+  /// The classified degree.
   final ScaleDegree degree;
+
+  /// The scale the chord matched.
   final ScaleDegreeSource source;
+
+  /// Rendered roman numeral (e.g. "V7", "ii°").
   final String romanNumeral;
+
+  /// Spoken ordinal (e.g. "fifth").
   final String spokenScaleDegree;
+
+  /// Harmonic function name (e.g. "dominant").
   final String functionName;
 
+  /// Whether the match required the harmonic-minor scale.
   bool get isHarmonicMinor => source == ScaleDegreeSource.harmonicMinor;
 }

@@ -1,14 +1,23 @@
 import 'package:meta/meta.dart';
 
+/// How chord qualities render: compact symbols ("Δ7") or spelled text
+/// ("maj7").
 enum ChordNotationStyle { symbolic, textual }
 
+/// Note naming system for rendered names (C vs. H vs. Do).
 enum NoteNameSystem { international, german, fixedDo }
 
+/// A structured chord symbol: root, quality suffix, and optional slash bass.
 @immutable
 class ChordSymbol {
-  final String root; // canonical ASCII, e.g. "C", "F#", "Bb"
-  final String quality; // e.g. "maj", "m7(b5)", "" (optional)
-  final String? bass; // normalized: null or non-empty, trimmed
+  /// Canonical ASCII root name (e.g. "C", "F#", "Bb").
+  final String root;
+
+  /// Quality suffix as rendered (e.g. "maj", "m7(b5)"; may be empty).
+  final String quality;
+
+  /// Slash bass name; null when absent, non-empty and trimmed when present.
+  final String? bass;
 
   const ChordSymbol._({
     required this.root,
@@ -16,18 +25,16 @@ class ChordSymbol {
     required this.bass,
   });
 
-  /// Use this constructor for normal app code to ensure invariants.
+  /// Builds a symbol, normalizing [bass] so it is null or non-empty.
   factory ChordSymbol({
     required String root,
     String quality = '',
     String? bass,
   }) {
-    final normalizedBass = _normalizeOptionalToken(bass);
-    final normalizedQuality = quality; // optional: normalize if you want
     return ChordSymbol._(
       root: root,
-      quality: normalizedQuality,
-      bass: normalizedBass,
+      quality: quality,
+      bass: _normalizeOptionalToken(bass),
     );
   }
 
