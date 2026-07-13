@@ -4,7 +4,7 @@ import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
 import '../models/scale_degree.dart';
 import '../models/tonality.dart';
-import '../services/chord_quality_intervals.dart';
+import '../services/interval_constants.dart';
 import '../services/note_spelling.dart';
 import '../services/pitch_class.dart';
 import 'candidate_features.dart';

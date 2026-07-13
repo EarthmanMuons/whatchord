@@ -1,5 +1,7 @@
 import 'package:test/test.dart';
 
+import 'package:whatchord_theory/src/construction/services/construction_derivation.dart';
+import 'package:whatchord_theory/src/construction/services/extension_rules.dart';
 import 'package:whatchord_theory/whatchord_theory.dart';
 
 void main() {

@@ -25,6 +25,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:whatchord_theory/whatchord_theory.dart';
+import 'package:whatchord_theory/diagnostics.dart';
 
 import 'src/allocation_probe.dart';
 import 'src/common_voicings.dart';

@@ -1,5 +1,6 @@
 import 'package:test/test.dart';
 
+import 'package:whatchord_theory/src/services/chord_tone_roles.dart';
 import 'package:whatchord_theory/whatchord_theory.dart';
 
 void main() {

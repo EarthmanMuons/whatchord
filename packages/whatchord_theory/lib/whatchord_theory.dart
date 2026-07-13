@@ -1,7 +1,6 @@
 // Analysis engine
 export 'src/analysis/chord_analyzer.dart';
 export 'src/analysis/chord_candidate_ranking.dart';
-export 'src/analysis/engine_counters.dart';
 
 // Domain models
 export 'src/models/analysis_context.dart';
@@ -23,7 +22,6 @@ export 'src/services/chord_member_degree_formatter.dart';
 export 'src/services/chord_member_speller.dart';
 export 'src/services/chord_quality_intervals.dart';
 export 'src/services/chord_tone_ordering.dart';
-export 'src/services/chord_tone_roles.dart';
 export 'src/services/note_spelling.dart';
 export 'src/services/pitch_class.dart';
 export 'src/services/scale_degree_classifier.dart';
@@ -37,17 +35,14 @@ export 'src/services/scale_voicing.dart';
 export 'src/construction/models/chord_example.dart';
 export 'src/construction/models/chord_spec.dart';
 export 'src/construction/models/chord_construction.dart';
-export 'src/construction/services/construction_derivation.dart';
 export 'src/construction/services/chord_example_builder.dart';
 export 'src/construction/services/extension_options.dart';
 export 'src/construction/services/construction_transitions.dart';
-export 'src/construction/services/extension_rules.dart';
 export 'src/construction/services/seed_derivation.dart';
 
 // Presentation models
 export 'src/formatting/models/chord_presentation.dart';
 export 'src/formatting/models/chord_symbol.dart';
-export 'src/formatting/models/identity_display.dart';
 
 // Formatters
 export 'src/formatting/services/chord_long_form_formatter.dart';

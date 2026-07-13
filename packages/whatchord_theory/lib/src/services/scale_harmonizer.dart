@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../models/chord_identity.dart';
 import '../models/scale.dart';
 import 'chord_quality_intervals.dart';
+import 'interval_constants.dart';
 import 'note_spelling.dart';
 import 'scale_degree_roman_numerals.dart';
 
