@@ -55,7 +55,7 @@ void main() {
       return;
     }
 
-    final results = ChordAnalyzer.analyzeDebug(
+    final results = ChordAnalyzer.explain(
       prepared.input,
       context: context,
       take: top,

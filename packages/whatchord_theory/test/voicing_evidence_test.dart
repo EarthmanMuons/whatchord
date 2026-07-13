@@ -61,7 +61,7 @@ void main() {
     test('the promotion is decided by the voicing rule', () {
       final voicing = ObservedVoicing.fromMidi([38, 45, 48, 52, 55]);
 
-      final debug = ChordAnalyzer.analyzeDebug(
+      final debug = ChordAnalyzer.explain(
         input,
         context: context,
         voicing: voicing,
