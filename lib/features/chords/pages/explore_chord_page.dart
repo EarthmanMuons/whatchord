@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/core/core.dart';
-import 'package:whatchord/features/audio/audio.dart';
-import 'package:whatchord/features/home/home.dart';
-import 'package:whatchord/features/input/input.dart';
-import 'package:whatchord/features/scales/scales.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/core/core.dart';
+import 'package:whatchord_app/features/audio/audio.dart';
+import 'package:whatchord_app/features/home/home.dart';
+import 'package:whatchord_app/features/input/input.dart';
+import 'package:whatchord_app/features/scales/scales.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import '../providers/explore_preferences_notifier.dart';
 import '../services/explore_preview_animation_controller.dart';

@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/demo/demo.dart';
-import 'package:whatchord/features/midi/midi_input_source.dart';
+import 'package:whatchord_app/features/demo/demo.dart';
+import 'package:whatchord_app/features/midi/midi_input_source.dart';
 
 import '../lookup_voicing.dart';
 

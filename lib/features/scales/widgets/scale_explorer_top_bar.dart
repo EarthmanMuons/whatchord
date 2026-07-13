@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'package:whatchord/features/midi/midi.dart';
-import 'package:whatchord/features/settings/settings.dart';
+import 'package:whatchord_app/features/midi/midi.dart';
+import 'package:whatchord_app/features/settings/settings.dart';
 
 class ScaleExplorerTopBar extends StatelessWidget {
   const ScaleExplorerTopBar({

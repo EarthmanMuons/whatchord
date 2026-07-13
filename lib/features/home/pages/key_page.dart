@@ -7,12 +7,12 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/core/core.dart';
-import 'package:whatchord/features/input/input.dart';
-import 'package:whatchord/features/key/key.dart';
-import 'package:whatchord/features/midi/midi.dart';
-import 'package:whatchord/features/settings/settings.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/core/core.dart';
+import 'package:whatchord_app/features/input/input.dart';
+import 'package:whatchord_app/features/key/key.dart';
+import 'package:whatchord_app/features/midi/midi.dart';
+import 'package:whatchord_app/features/settings/settings.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import '../models/home_layout_config.dart';
 import '../widgets/app_bar_title.dart';

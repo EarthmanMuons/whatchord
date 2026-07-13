@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:whatchord_theory/whatchord_theory.dart';
+import 'package:whatchord/whatchord.dart';
 
 import 'scale_degree_roman_text.dart';
 

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
-import 'package:whatchord/core/core.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/core/core.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import 'adaptive_side_sheet.dart';
 

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/history/history.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/history/history.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import 'inferred_key_notifier.dart';
 import 'key_mode_notifier.dart';

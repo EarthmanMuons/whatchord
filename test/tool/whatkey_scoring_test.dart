@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/key/key.dart';
+import 'package:whatchord_app/features/key/key.dart';
 
 import '../../tool/src/chord_id_engine.dart';
 import '../../tool/src/whatkey/whatkey_fixtures.dart';

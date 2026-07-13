@@ -1,8 +1,8 @@
 import 'package:flutter_midi_command/flutter_midi_command_messages.dart' as msg;
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/midi/models/midi_message.dart';
-import 'package:whatchord/features/midi/services/midi_ble_service.dart';
+import 'package:whatchord_app/features/midi/models/midi_message.dart';
+import 'package:whatchord_app/features/midi/services/midi_ble_service.dart';
 
 void main() {
   group('MidiBleService.mapMessage', () {

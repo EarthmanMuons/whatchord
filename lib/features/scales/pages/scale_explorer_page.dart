@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/core/core.dart';
-import 'package:whatchord/features/audio/audio.dart';
-import 'package:whatchord/features/chords/chords.dart';
-import 'package:whatchord/features/home/home.dart';
-import 'package:whatchord/features/input/input.dart';
-import 'package:whatchord/features/piano/piano.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/core/core.dart';
+import 'package:whatchord_app/features/audio/audio.dart';
+import 'package:whatchord_app/features/chords/chords.dart';
+import 'package:whatchord_app/features/home/home.dart';
+import 'package:whatchord_app/features/input/input.dart';
+import 'package:whatchord_app/features/piano/piano.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import '../models/scale_menu.dart';
 import '../providers/scale_preferences_notifier.dart';

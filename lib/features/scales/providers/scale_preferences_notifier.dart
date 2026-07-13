@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/core/providers/shared_preferences_provider.dart';
+import 'package:whatchord_app/core/providers/shared_preferences_provider.dart';
 
 import '../persistence/scale_preferences_keys.dart';
 

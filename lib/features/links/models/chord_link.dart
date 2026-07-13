@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 /// Canonical website link grammar, shared by link building and deep-link
 /// parsing so the two can never drift.

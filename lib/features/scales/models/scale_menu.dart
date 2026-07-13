@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 /// A grouping of scales in the Scale Explorer menu. Each section presents one
 /// lens on the catalog: [essential] lists the practical names a musician

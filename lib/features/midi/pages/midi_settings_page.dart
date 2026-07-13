@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'package:whatchord/core/core.dart';
-import 'package:whatchord/features/home/home.dart';
+import 'package:whatchord_app/core/core.dart';
+import 'package:whatchord_app/features/home/home.dart';
 
 import '../models/midi_device.dart';
 import '../providers/midi_connection_notifier.dart';

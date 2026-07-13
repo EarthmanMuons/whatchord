@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatchord_theory/whatchord_theory.dart';
+import 'package:whatchord/whatchord.dart';
 
-import 'package:whatchord/core/core.dart';
-import 'package:whatchord/features/input/input.dart';
-import 'package:whatchord/features/theory/presentation/models/identity_display.dart';
+import 'package:whatchord_app/core/core.dart';
+import 'package:whatchord_app/features/input/input.dart';
+import 'package:whatchord_app/features/theory/presentation/models/identity_display.dart';
 
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';

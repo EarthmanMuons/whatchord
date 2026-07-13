@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/demo/demo.dart';
+import 'package:whatchord_app/features/demo/demo.dart';
 
 class DemoModeExplanation extends ConsumerWidget {
   const DemoModeExplanation({

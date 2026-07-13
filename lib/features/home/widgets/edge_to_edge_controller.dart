@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:whatchord/core/core.dart';
+import 'package:whatchord_app/core/core.dart';
 
 class EdgeToEdgeController extends StatefulWidget {
   const EdgeToEdgeController({super.key, required this.child});

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/input/input.dart';
+import 'package:whatchord_app/features/input/input.dart';
 
 import 'demo_mode_notifier.dart';
 import 'demo_note_state_notifier.dart';

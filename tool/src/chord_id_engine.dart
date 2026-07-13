@@ -9,7 +9,7 @@
 // as the bass when only pitch names are given; with MIDI numbers the lowest
 // note is the bass.
 
-import 'package:whatchord_theory/whatchord_theory.dart';
+import 'package:whatchord/whatchord.dart';
 
 /// Maximum number of note tokens accepted by a single identification request.
 const maxChordIdNoteTokens = 128;

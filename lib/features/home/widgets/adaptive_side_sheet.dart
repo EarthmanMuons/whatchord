@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:whatchord/core/core.dart';
+import 'package:whatchord_app/core/core.dart';
 
 import '../models/home_layout_config.dart';
 

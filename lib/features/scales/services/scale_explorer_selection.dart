@@ -1,4 +1,4 @@
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 Set<int> selectedDegreeChordMidi({
   required Scale scale,

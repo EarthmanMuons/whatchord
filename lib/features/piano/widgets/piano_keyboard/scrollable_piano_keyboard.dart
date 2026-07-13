@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/input/input.dart';
+import 'package:whatchord_app/features/input/input.dart';
 
 import '../../models/piano_key_decoration.dart';
 import '../../providers/piano_view_settings_notifier.dart';

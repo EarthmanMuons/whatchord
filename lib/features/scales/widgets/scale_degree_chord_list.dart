@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import 'scale_list_style.dart';
 

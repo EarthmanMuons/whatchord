@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatchord_theory/whatchord_theory.dart';
+import 'package:whatchord/whatchord.dart';
 
 import 'analysis_mode_provider.dart';
 import 'chord_presentation_provider.dart';

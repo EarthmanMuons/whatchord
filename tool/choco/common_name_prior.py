@@ -19,7 +19,7 @@ from chord_label_stats import choco_jams_files, iter_chord_observations, parse_l
 
 
 OUTPUT_PATH = Path(
-    "packages/whatchord_theory/lib/analysis/choco_common_name_prior.dart"
+    "packages/whatchord/lib/analysis/choco_common_name_prior.dart"
 )
 
 QUALITY_BASES = [

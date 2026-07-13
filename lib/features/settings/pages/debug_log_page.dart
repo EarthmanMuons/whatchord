@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:whatchord/core/core.dart';
+import 'package:whatchord_app/core/core.dart';
 
 /// Viewer for [DebugLogBuffer]: captured debugPrint diagnostics with a
 /// copy-to-clipboard action, so untethered profile-build sessions can be
