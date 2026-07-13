@@ -1,6 +1,6 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 List<String> _labels(ScaleKind kind) =>
     tonicChoicesForKind(kind).map((tonic) => tonic.label).toList();

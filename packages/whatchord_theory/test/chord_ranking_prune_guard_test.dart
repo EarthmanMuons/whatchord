@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
-import 'helpers/theory_test_helpers.dart';
+import 'package:whatchord_theory/testing.dart';
 
 // Guards ChordAnalyzer.rankingPruneMargin. The prune drops candidates priced
 // more than the margin above the cheapest raw reading before the O(n^2) ranking,

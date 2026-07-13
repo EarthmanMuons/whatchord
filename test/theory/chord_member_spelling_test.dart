@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
 
-import 'helpers/theory_test_helpers.dart';
+import 'package:whatchord_theory/testing.dart';
 
 void main() {
   // Regression: a non-diatonic chord root must be spelled with chord context,

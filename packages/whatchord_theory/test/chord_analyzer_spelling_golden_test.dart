@@ -1,4 +1,4 @@
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 import 'helpers/chord_analyzer_golden_helpers.dart';
 

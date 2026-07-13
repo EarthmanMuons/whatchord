@@ -1,9 +1,9 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 
 import 'package:whatchord_theory/analysis/candidate_features.dart';
 import 'package:whatchord_theory/whatchord_theory.dart';
 
-import 'helpers/theory_test_helpers.dart';
+import 'package:whatchord_theory/testing.dart';
 
 void main() {
   test('sharp-nine bass is not treated as a stable inversion', () {
