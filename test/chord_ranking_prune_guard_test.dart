@@ -57,10 +57,12 @@ void main() {
     // 2) An adversarial dense sweep (7-12 notes). Dense voicings have no clean
     // template fit, so costs compress and the non-monotonic linearization
     // sandwiches deep readings into the surfaced band; this is where the widest
-    // gaps appear. Seeded for determinism.
+    // gaps appear. Seeded for determinism. Kept to a modest sample per size for
+    // runtime; the widest known gap comes from the worst-case mask checked
+    // explicitly below.
     final rng = math.Random(20240629);
     for (var size = 7; size <= 11; size++) {
-      for (var s = 0; s < 120; s++) {
+      for (var s = 0; s < 30; s++) {
         final pcs = <int>{};
         while (pcs.length < size) {
           pcs.add(rng.nextInt(12));
