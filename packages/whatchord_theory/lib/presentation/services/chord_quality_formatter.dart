@@ -1,8 +1,5 @@
 import 'package:whatchord_theory/whatchord_theory.dart';
 
-import '../../presentation/models/chord_symbol.dart';
-import 'chord_quality_token_labels.dart';
-
 /// Formats the "quality+extensions" portion of a chord symbol.
 class ChordQualityFormatter {
   static String format({

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatchord_theory/presentation/services/chord_long_form_formatter.dart';
+import 'package:whatchord_theory/presentation/services/chord_symbol_builder.dart';
+import 'package:whatchord_theory/presentation/services/note_display_formatter.dart';
 
 import '../../state/providers/analysis_context_provider.dart';
 import '../../state/providers/chord_candidates_providers.dart';
 import '../../state/providers/theory_preferences_notifier.dart';
-import '../services/chord_long_form_formatter.dart';
-import '../services/chord_symbol_builder.dart';
-import '../services/note_display_formatter.dart';
 
 class AlternativeChordCandidatesList extends ConsumerStatefulWidget {
   const AlternativeChordCandidatesList({

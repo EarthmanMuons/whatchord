@@ -12,7 +12,7 @@
 import 'dart:convert';
 import 'dart:js_interop';
 
-import 'package:whatchord/features/theory/presentation/models/chord_symbol.dart';
+import 'package:whatchord_theory/presentation/models/chord_symbol.dart';
 
 import '../src/chord_id_engine.dart';
 

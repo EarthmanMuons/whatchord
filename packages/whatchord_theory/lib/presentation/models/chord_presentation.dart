@@ -1,8 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:whatchord_theory/whatchord_theory.dart';
 
-import 'chord_symbol.dart';
-
 @immutable
 class ChordPresentation {
   const ChordPresentation({

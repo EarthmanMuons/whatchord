@@ -9,8 +9,6 @@ import 'package:whatchord/core/core.dart';
 
 import '../../state/providers/selected_tonality_notifier.dart';
 import '../../state/providers/theory_preferences_notifier.dart';
-import '../models/chord_symbol.dart';
-import '../services/note_display_formatter.dart';
 import 'key_signature_staff_preview.dart';
 
 enum TonalityPickerPresentation { bottomSheet, sideSheet }

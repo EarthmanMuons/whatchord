@@ -7,7 +7,8 @@ The pure Dart chord identification and harmony analysis engine behind
 `AnalysisContext` and returns ranked `ChordCandidate` results, using ranking
 heuristics that encode musician-expected naming conventions. Supporting services
 cover note spelling, chord quality intervals, scale harmonization, and scale
-degree classification.
+degree classification. Formatters render identities as chord symbols, spoken
+names, long-form academic names, and Harte notation.
 
 This package is consumed by the WhatChord app via a path dependency and is not
 yet published; its public API is still being curated as part of the extraction

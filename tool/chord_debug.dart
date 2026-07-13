@@ -10,10 +10,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:whatchord_theory/whatchord_theory.dart';
-import 'package:whatchord/features/theory/presentation/models/chord_symbol.dart';
-import 'package:whatchord/features/theory/presentation/services/chord_symbol_builder.dart';
-import 'package:whatchord/features/theory/presentation/services/harte_chord_formatter.dart';
-import 'package:whatchord/features/theory/presentation/services/note_display_formatter.dart';
 
 import 'src/chord_id_engine.dart';
 

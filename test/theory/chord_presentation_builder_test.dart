@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:whatchord/features/theory/theory.dart';
-import 'package:whatchord/features/theory/presentation/services/inversion_formatter.dart';
 
 void main() {
   const notation = ChordNotationStyle.textual;

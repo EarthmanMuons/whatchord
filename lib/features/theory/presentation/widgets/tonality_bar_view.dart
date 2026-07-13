@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord_theory/models/scale_degree.dart';
 import 'package:whatchord_theory/models/tonality.dart';
+import 'package:whatchord_theory/presentation/services/note_display_formatter.dart';
 
 import '../../state/providers/theory_preferences_notifier.dart';
-import '../services/note_display_formatter.dart';
 import 'scale_degrees.dart';
 import 'tonality_picker_sheet.dart';
 
