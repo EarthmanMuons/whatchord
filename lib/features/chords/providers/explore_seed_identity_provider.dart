@@ -9,7 +9,7 @@ final exploreSeedIdentityProvider = Provider<ChordIdentity>((ref) {
   final input = ref.watch(chordInputProvider);
   final tonality = ref.watch(selectedTonalityProvider);
 
-  return buildExploreSeedIdentity(
+  return buildSeedIdentity(
     input: input,
     tonality: tonality,
     currentChordIdentity: currentChordIdentity,

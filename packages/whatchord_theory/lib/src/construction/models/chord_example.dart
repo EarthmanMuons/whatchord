@@ -4,8 +4,8 @@ import '../../formatting/models/chord_presentation.dart';
 import '../../models/chord_identity.dart';
 
 @immutable
-class ExploreChordExample {
-  const ExploreChordExample({
+class ChordExample {
+  const ChordExample({
     required this.presentation,
     required this.identity,
     required this.members,

@@ -8,25 +8,25 @@ import '../../services/chord_member_degree_formatter.dart';
 import '../../services/chord_member_speller.dart';
 import '../../services/chord_quality_intervals.dart';
 import '../../services/chord_tone_roles.dart';
-import '../models/explore_chord_example.dart';
-import '../models/explore_chord_state.dart';
-import 'explore_chord_derivation.dart';
+import '../models/chord_construction.dart';
+import '../models/chord_example.dart';
+import 'construction_derivation.dart';
 
-abstract final class ExploreChordExampleBuilder {
-  static Set<int> canonicalBassPitchClasses(ExploreChordState state) {
+abstract final class ChordExampleBuilder {
+  static Set<int> canonicalBassPitchClasses(ChordConstruction state) {
     final intervals = _canonicalExampleParts(state).intervals;
     return Set<int>.unmodifiable(
       intervals.map((interval) => (state.rootPc + interval) % 12),
     );
   }
 
-  static ExploreChordExample build({
-    required ExploreChordState state,
+  static ChordExample build({
+    required ChordConstruction state,
     required Tonality tonality,
     required ChordNotationStyle notation,
     NoteNameSystem noteNameSystem = NoteNameSystem.international,
   }) {
-    final displayIdentity = buildExploreChordIdentity(state);
+    final displayIdentity = buildConstructionIdentity(state);
     final presentation = ChordPresentationBuilder.fromIdentity(
       identity: displayIdentity,
       tonality: tonality,
@@ -58,7 +58,7 @@ abstract final class ExploreChordExampleBuilder {
 
     final explicitRootName = state.root.label;
 
-    return ExploreChordExample(
+    return ChordExample(
       presentation: presentation,
       identity: canonicalExampleIdentity,
       members: _spellMembersInIntervalOrder(
@@ -83,7 +83,7 @@ abstract final class ExploreChordExampleBuilder {
   }
 
   static List<int> _canonicalExampleIntervals(
-    ExploreChordState state,
+    ChordConstruction state,
     Set<ChordExtension> extensions,
   ) {
     final intervals = <int>{...state.quality.canonicalIntervals};
@@ -110,7 +110,7 @@ abstract final class ExploreChordExampleBuilder {
   }
 
   static _CanonicalExampleParts _canonicalExampleParts(
-    ExploreChordState state,
+    ChordConstruction state,
   ) {
     final extensions = _canonicalExampleExtensions(
       state.quality,

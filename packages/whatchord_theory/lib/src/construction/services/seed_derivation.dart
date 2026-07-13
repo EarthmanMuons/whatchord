@@ -1,10 +1,10 @@
 import '../../models/chord_identity.dart';
 import '../../models/chord_input.dart';
 import '../../models/tonality.dart';
-import '../models/explore_chord_state.dart';
-import 'explore_chord_derivation.dart';
+import '../models/chord_construction.dart';
+import 'construction_derivation.dart';
 
-ChordIdentity buildExploreSeedIdentity({
+ChordIdentity buildSeedIdentity({
   required ChordInput? input,
   required Tonality tonality,
   ChordIdentity? currentChordIdentity,
@@ -57,8 +57,8 @@ ChordIdentity _seedIdentity({
   required int rootPc,
   required ChordQualityToken quality,
 }) {
-  return buildExploreChordIdentity(
-    ExploreChordState(
+  return buildConstructionIdentity(
+    ChordConstruction(
       rootPc: rootPc,
       bassPc: rootPc,
       quality: quality,

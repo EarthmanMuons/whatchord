@@ -3,9 +3,9 @@ import 'package:test/test.dart';
 import 'package:whatchord_theory/whatchord_theory.dart';
 
 void main() {
-  group('buildExploreSeedIdentity', () {
+  group('buildSeedIdentity', () {
     test('uses the selected major-key tonic when idle', () {
-      final seed = buildExploreSeedIdentity(
+      final seed = buildSeedIdentity(
         input: null,
         tonality: const Tonality(Tonic.c, TonalityMode.major),
       );
@@ -16,7 +16,7 @@ void main() {
     });
 
     test('uses the selected minor-key tonic when idle', () {
-      final seed = buildExploreSeedIdentity(
+      final seed = buildSeedIdentity(
         input: null,
         tonality: const Tonality(Tonic.a, TonalityMode.minor),
       );
@@ -27,7 +27,7 @@ void main() {
     });
 
     test('uses a single note as root with the current key-mode quality', () {
-      final seed = buildExploreSeedIdentity(
+      final seed = buildSeedIdentity(
         input: _input([64]),
         tonality: const Tonality(Tonic.d, TonalityMode.major),
       );
@@ -46,11 +46,11 @@ void main() {
     });
 
     test('maps perfect fifths to the current key-mode quality', () {
-      final majorSeed = buildExploreSeedIdentity(
+      final majorSeed = buildSeedIdentity(
         input: _input([60, 67]),
         tonality: const Tonality(Tonic.c, TonalityMode.major),
       );
-      final minorSeed = buildExploreSeedIdentity(
+      final minorSeed = buildSeedIdentity(
         input: _input([60, 67]),
         tonality: const Tonality(Tonic.a, TonalityMode.minor),
       );
@@ -60,11 +60,11 @@ void main() {
     });
 
     test('falls back deterministically for ambiguous dyads', () {
-      final majorSeed = buildExploreSeedIdentity(
+      final majorSeed = buildSeedIdentity(
         input: _input([60, 70]),
         tonality: const Tonality(Tonic.c, TonalityMode.major),
       );
-      final minorSeed = buildExploreSeedIdentity(
+      final minorSeed = buildSeedIdentity(
         input: _input([60, 70]),
         tonality: const Tonality(Tonic.a, TonalityMode.minor),
       );
@@ -87,7 +87,7 @@ void main() {
         presentIntervalsMask: 0x493,
       );
 
-      final seed = buildExploreSeedIdentity(
+      final seed = buildSeedIdentity(
         input: _input([62, 66, 69, 72, 75]),
         tonality: const Tonality(Tonic.c, TonalityMode.major),
         currentChordIdentity: current,
@@ -99,7 +99,7 @@ void main() {
 }
 
 ChordQualityToken _dyadQuality(int bassMidi, int upperMidi) {
-  final seed = buildExploreSeedIdentity(
+  final seed = buildSeedIdentity(
     input: _input([bassMidi, upperMidi]),
     tonality: const Tonality(Tonic.c, TonalityMode.major),
   );

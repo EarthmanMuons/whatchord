@@ -2,7 +2,7 @@ import '../../models/chord_extension.dart';
 import '../../models/chord_identity.dart';
 import '../../services/chord_quality_intervals.dart';
 
-/// Keeps Explore selections musically meaningful when the base quality changes.
+/// Keeps extension selections musically meaningful when the base quality changes.
 ///
 /// The same pitch can be notated differently depending on context: triad-like
 /// chords use add tones, while seventh-family chords can use stacked 9/11/13

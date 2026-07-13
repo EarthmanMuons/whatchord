@@ -1,23 +1,23 @@
 import '../../models/chord_extension.dart';
 import '../../models/chord_identity.dart';
 import '../../models/tonic.dart';
-import '../models/explore_chord_spec.dart';
-import '../models/explore_chord_state.dart';
-import 'explore_chord_example_builder.dart';
-import 'explore_extension_rules.dart';
+import '../models/chord_construction.dart';
+import '../models/chord_spec.dart';
+import 'chord_example_builder.dart';
+import 'extension_rules.dart';
 
-ExploreChordState normalizeExploreChordState(ExploreChordState state) {
+ChordConstruction normalizeChordConstruction(ChordConstruction state) {
   final spec = state.spec.normalized();
   return _withSpec(state, spec);
 }
 
-ExploreChordState exploreStateWithRoot(ExploreChordState state, Tonic root) {
+ChordConstruction constructionWithRoot(ChordConstruction state, Tonic root) {
   return _withValidBass(state.copyWith(root: root));
 }
 
-ExploreChordState exploreStateWithBaseQuality(
-  ExploreChordState state,
-  ExploreBaseQuality baseQuality,
+ChordConstruction constructionWithBaseQuality(
+  ChordConstruction state,
+  BaseQuality baseQuality,
 ) {
   final nextSpec = state.spec.copyWith(
     baseQuality: baseQuality,
@@ -26,31 +26,31 @@ ExploreChordState exploreStateWithBaseQuality(
   return _withSpec(state, nextSpec);
 }
 
-ExploreChordState exploreStateWithSeventhKind(
-  ExploreChordState state,
-  ExploreSeventhKind seventhKind,
+ChordConstruction constructionWithSeventhKind(
+  ChordConstruction state,
+  SeventhKind seventhKind,
 ) {
   final nextSpec = state.spec.copyWith(seventhKind: seventhKind);
   return _withSpec(state, nextSpec);
 }
 
-ExploreChordState exploreStateWithFifthAlteration(
-  ExploreChordState state,
-  ExploreFifthAlteration fifthAlteration,
+ChordConstruction constructionWithFifthAlteration(
+  ChordConstruction state,
+  FifthAlteration fifthAlteration,
 ) {
   final nextSpec = state.spec.copyWith(fifthAlteration: fifthAlteration);
   return _withSpec(state, nextSpec);
 }
 
-ExploreChordState exploreStateWithQuality(
-  ExploreChordState state,
+ChordConstruction constructionWithQuality(
+  ChordConstruction state,
   ChordQualityToken quality,
 ) {
-  final nextSpec = ExploreChordSpec.fromQuality(quality);
+  final nextSpec = ChordSpec.fromQuality(quality);
   return _withSpec(state, nextSpec);
 }
 
-ExploreChordState _withSpec(ExploreChordState state, ExploreChordSpec spec) {
+ChordConstruction _withSpec(ChordConstruction state, ChordSpec spec) {
   return _withValidBass(
     state.copyWith(
       spec: spec,
@@ -62,8 +62,8 @@ ExploreChordState _withSpec(ExploreChordState state, ExploreChordSpec spec) {
   );
 }
 
-ExploreChordState exploreStateWithExtensions(
-  ExploreChordState state,
+ChordConstruction constructionWithExtensions(
+  ChordConstruction state,
   Set<ChordExtension> extensions,
 ) {
   return _withValidBass(
@@ -76,14 +76,12 @@ ExploreChordState exploreStateWithExtensions(
   );
 }
 
-ExploreChordState exploreStateWithBass(ExploreChordState state, int bassPc) {
+ChordConstruction constructionWithBass(ChordConstruction state, int bassPc) {
   return _withValidBass(state.copyWith(bassPc: bassPc));
 }
 
-ExploreChordState _withValidBass(ExploreChordState state) {
-  final pitchClasses = ExploreChordExampleBuilder.canonicalBassPitchClasses(
-    state,
-  );
+ChordConstruction _withValidBass(ChordConstruction state) {
+  final pitchClasses = ChordExampleBuilder.canonicalBassPitchClasses(state);
 
   final bassPc = pitchClasses.contains(state.bassPc)
       ? state.bassPc

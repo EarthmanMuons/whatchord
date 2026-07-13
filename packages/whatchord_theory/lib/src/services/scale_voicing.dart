@@ -2,7 +2,7 @@ import '../models/scale.dart';
 import 'chord_quality_intervals.dart';
 import 'scale_harmonizer.dart';
 
-/// MIDI voicings for the Scale Explorer's keyboard highlighting and playback.
+/// MIDI voicings for scale keyboard highlighting and playback.
 ///
 /// The tonic is anchored near middle C: C through G# use the C4 octave (so a C
 /// major scale starts on middle C), while A and above drop to the C3 octave to

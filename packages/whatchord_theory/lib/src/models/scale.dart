@@ -212,7 +212,7 @@ enum ScaleKind {
   });
 
   /// Conventional name used when describing a built scale (e.g. "C major").
-  /// The Scale Explorer menu supplies its own per-section labels, so a single
+  /// Menu UIs may supply their own per-section labels, so a single
   /// kind can surface under more than one name (Major vs. Ionian).
   final String label;
 
@@ -245,7 +245,7 @@ enum ScaleKind {
   bool get supportsChordHarmony =>
       harmonization == ScaleHarmonization.heptatonicTertian;
 
-  /// How the Scale Explorer decides which spelled roots to offer for this kind.
+  /// How scale browsing decides which spelled roots to offer for this kind.
   final TonicPolicy tonicPolicy;
 }
 

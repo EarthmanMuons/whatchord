@@ -52,7 +52,7 @@ class ExploreChordPage extends ConsumerStatefulWidget {
 }
 
 class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
-  late ExploreChordState _state;
+  late ChordConstruction _state;
   late final ExplorePreviewAnimationController _previewAnimationController;
   ExplorePreviewAnimationState _previewAnimation =
       ExplorePreviewAnimationState.idle;
@@ -80,8 +80,8 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
             tonality: tonality,
           ),
         );
-    _state = normalizeExploreChordState(
-      ExploreChordState.fromIdentity(widget.seedIdentity, root: seedRoot),
+    _state = normalizeChordConstruction(
+      ChordConstruction.fromIdentity(widget.seedIdentity, root: seedRoot),
     );
   }
 
@@ -97,7 +97,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
     final notation = ref.watch(chordNotationStyleProvider);
     final noteNameSystem = ref.watch(noteNameSystemProvider);
     final showChordMemberDegrees = ref.watch(exploreChordMemberDegreesProvider);
-    final example = ExploreChordExampleBuilder.build(
+    final example = ChordExampleBuilder.build(
       state: _state,
       tonality: tonality,
       notation: notation,
@@ -233,7 +233,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
   }
 
   Widget _buildMainContent({
-    required ExploreChordExample example,
+    required ChordExample example,
     required ChordPresentation presentation,
     required Tonality tonality,
     required NoteNameSystem noteNameSystem,
@@ -309,7 +309,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
   }
 
   Widget _buildSummaryAndMembers({
-    required ExploreChordExample example,
+    required ChordExample example,
     required ChordPresentation presentation,
     required NoteNameSystem noteNameSystem,
     required bool showChordMemberDegrees,
@@ -354,7 +354,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
   }
 
   Widget _buildControls({
-    required ExploreChordExample example,
+    required ChordExample example,
     required Tonality tonality,
     required NoteNameSystem noteNameSystem,
     required bool isLandscape,
@@ -366,21 +366,21 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
       noteNameSystem: noteNameSystem,
       isLandscape: isLandscape,
       onRootChanged: (value) =>
-          _updateState(exploreStateWithRoot(_state, value)),
+          _updateState(constructionWithRoot(_state, value)),
       onBaseQualityChanged: (value) =>
-          _updateState(exploreStateWithBaseQuality(_state, value)),
+          _updateState(constructionWithBaseQuality(_state, value)),
       onSeventhKindChanged: (value) =>
-          _updateState(exploreStateWithSeventhKind(_state, value)),
+          _updateState(constructionWithSeventhKind(_state, value)),
       onFifthAlterationChanged: (value) =>
-          _updateState(exploreStateWithFifthAlteration(_state, value)),
+          _updateState(constructionWithFifthAlteration(_state, value)),
       onExtensionsChanged: (value) =>
-          _updateState(exploreStateWithExtensions(_state, value)),
+          _updateState(constructionWithExtensions(_state, value)),
       onBassChanged: (value) =>
-          _updateState(exploreStateWithBass(_state, value)),
+          _updateState(constructionWithBass(_state, value)),
     );
   }
 
-  void _updateState(ExploreChordState next) {
+  void _updateState(ChordConstruction next) {
     _previewAnimationController.cancel();
     setState(() {
       _state = next;
