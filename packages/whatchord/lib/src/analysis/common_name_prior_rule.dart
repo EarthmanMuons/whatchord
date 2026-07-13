@@ -57,8 +57,8 @@ bool _isSharpFiveDominantOverFlatFiveDominant(
   ChordIdentity preferred,
   ChordIdentity other,
 ) {
-  return preferred.quality == ChordQualityToken.dominant7Sharp5 &&
-      other.quality == ChordQualityToken.dominant7Flat5;
+  return preferred.quality == ChordQuality.dominant7Sharp5 &&
+      other.quality == ChordQuality.dominant7Flat5;
 }
 
 int _commonNamePriorCount(ChordIdentity identity) {

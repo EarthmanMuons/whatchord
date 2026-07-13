@@ -9,7 +9,7 @@ import 'pitch_class.dart';
 /// - If [role] and [chordRootName] are provided, the letter is chosen by
 ///   diatonic degree above the chord root (e.g. "#11" uses the 4th letter,
 ///   "b5" uses the 5th letter), then accidentals are computed to hit [pc].
-/// - Otherwise, falls back to tonality-aware [pcToName].
+/// - Otherwise, falls back to tonality-aware [noteNameForPitchClass].
 String spellPitchClass(
   int pc, {
   required Tonality tonality,
@@ -17,14 +17,14 @@ String spellPitchClass(
   ChordToneRole? role,
 }) {
   if (role == null || chordRootName == null || chordRootName.trim().isEmpty) {
-    return pcToName(pc, tonality: tonality);
+    return noteNameForPitchClass(pc, tonality: tonality);
   }
 
   final rootAscii = normalizeNoteNameToAscii(chordRootName);
   final rootLetter = rootAscii[0].toUpperCase();
 
   final rootIndex = _letters.indexOf(rootLetter);
-  if (rootIndex == -1) return pcToName(pc, tonality: tonality);
+  if (rootIndex == -1) return noteNameForPitchClass(pc, tonality: tonality);
 
   final degree = role.degreeFromRoot; // 1..7
   final targetLetter = _letters[(rootIndex + (degree - 1)) % 7];
@@ -38,7 +38,7 @@ String spellPitchClass(
 
   // Keep current system conservative: allow up to double accidentals.
   if (delta < -2 || delta > 2) {
-    return pcToName(pc, tonality: tonality);
+    return noteNameForPitchClass(pc, tonality: tonality);
   }
 
   return targetLetter + _accidentalToAscii(delta);
@@ -75,7 +75,7 @@ String spellSlashBass(
 
   if (_isReadableBassSpelling(functional)) return functional;
 
-  return pcToName(pc, tonality: tonality);
+  return noteNameForPitchClass(pc, tonality: tonality);
 }
 
 /// Roles whose conventional slash spelling should always be preserved, even as
@@ -110,7 +110,7 @@ bool _isReadableBassSpelling(String name) {
 /// chromatic tie. For example, pitch class 8 in C major is ambiguous as G# or
 /// Ab; a major triad rooted there spells cleanly as Ab-C-Eb, not G#-B#-D#.
 String spellChordRoot(ChordIdentity identity, {required Tonality tonality}) {
-  final tonalName = pcToName(identity.rootPc, tonality: tonality);
+  final tonalName = noteNameForPitchClass(identity.rootPc, tonality: tonality);
   if (_isDiatonicName(tonalName, tonality: tonality)) return tonalName;
 
   final candidates = _candidateNamesForPc(identity.rootPc);
@@ -143,7 +143,7 @@ bool _isDiatonicName(String name, {required Tonality tonality}) {
 }
 
 /// Tonality-aware pitch-class spelling (key-signature correct).
-String pcToName(int pc, {required Tonality tonality}) {
+String noteNameForPitchClass(int pc, {required Tonality tonality}) {
   final i = pc % 12;
 
   final ks = tonality.keySignature;
@@ -262,16 +262,16 @@ Map<int, String> _buildDiatonicPcToName({
     growable: false,
   );
 
-  final pcToName = <int, String>{};
+  final noteNameForPitchClass = <int, String>{};
 
   for (final letter in diatonicLetters) {
     final naturalPc = _naturalPcByLetter[letter]!;
     final acc = accByLetter[letter]!;
     final spelledPc = (naturalPc + acc) % 12;
-    pcToName[spelledPc] = letter + _accidentalToAscii(acc);
+    noteNameForPitchClass[spelledPc] = letter + _accidentalToAscii(acc);
   }
 
-  return pcToName;
+  return noteNameForPitchClass;
 }
 
 String _spellChromaticPc(

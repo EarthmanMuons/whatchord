@@ -38,7 +38,7 @@ ChordIdentity buildConstructionIdentity(ChordConstruction state) {
 }
 
 int canonicalPresentIntervalsMask({
-  required ChordQualityToken quality,
+  required ChordQuality quality,
   required Set<ChordExtension> extensions,
 }) {
   var mask = 0;

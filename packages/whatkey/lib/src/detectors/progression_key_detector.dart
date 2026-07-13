@@ -193,7 +193,7 @@ class ProgressionKeyDetector implements KeyDetector {
     if (toIsTonic && fromInterval == 7) {
       if (_dominantFamily.contains(from.quality)) {
         points += cadencePoints;
-      } else if (from.quality == ChordQualityToken.major) {
+      } else if (from.quality == ChordQuality.major) {
         points += cadenceTriadPoints;
       }
       if (points > 0 && !from.hasSlashBass && !to.hasSlashBass) {
@@ -218,15 +218,15 @@ class ProgressionKeyDetector implements KeyDetector {
         toInterval == 7 &&
         _predominantFamily.contains(from.quality) &&
         (_dominantFamily.contains(to.quality) ||
-            to.quality == ChordQualityToken.major)) {
+            to.quality == ChordQuality.major)) {
       points += iiToVPoints;
     }
 
     if (toIsTonic &&
         fromInterval == 5 &&
-        (from.quality == ChordQualityToken.major ||
-            from.quality == ChordQualityToken.dominant7 ||
-            from.quality == ChordQualityToken.minor)) {
+        (from.quality == ChordQuality.major ||
+            from.quality == ChordQuality.dominant7 ||
+            from.quality == ChordQuality.minor)) {
       points += plagalPoints;
     }
 
@@ -234,8 +234,8 @@ class ProgressionKeyDetector implements KeyDetector {
         fromInterval == 7 &&
         toInterval == 9 &&
         _dominantFamily.contains(from.quality) &&
-        (to.quality == ChordQualityToken.minor ||
-            to.quality == ChordQualityToken.minor7)) {
+        (to.quality == ChordQuality.minor ||
+            to.quality == ChordQuality.minor7)) {
       points += deceptivePoints;
     }
 
@@ -304,26 +304,26 @@ class ProgressionKeyDetector implements KeyDetector {
     return estimates;
   }
 
-  static const Set<ChordQualityToken> _dominantFamily = {
-    ChordQualityToken.dominant7,
-    ChordQualityToken.dominant7sus2,
-    ChordQualityToken.dominant7sus4,
-    ChordQualityToken.dominant7Flat5,
-    ChordQualityToken.dominant7Sharp5,
+  static const Set<ChordQuality> _dominantFamily = {
+    ChordQuality.dominant7,
+    ChordQuality.dominant7sus2,
+    ChordQuality.dominant7sus4,
+    ChordQuality.dominant7Flat5,
+    ChordQuality.dominant7Sharp5,
   };
 
   /// Pre-dominant qualities on the second degree: ii/ii7 in major, ii°/ii-7b5
   /// in minor.
-  static const Set<ChordQualityToken> _predominantFamily = {
-    ChordQualityToken.minor,
-    ChordQualityToken.minor7,
-    ChordQualityToken.diminished,
-    ChordQualityToken.halfDiminished7,
+  static const Set<ChordQuality> _predominantFamily = {
+    ChordQuality.minor,
+    ChordQuality.minor7,
+    ChordQuality.diminished,
+    ChordQuality.halfDiminished7,
   };
 
-  static const Set<ChordQualityToken> _leadingToneFamily = {
-    ChordQualityToken.diminished,
-    ChordQualityToken.diminished7,
-    ChordQualityToken.halfDiminished7,
+  static const Set<ChordQuality> _leadingToneFamily = {
+    ChordQuality.diminished,
+    ChordQuality.diminished7,
+    ChordQuality.halfDiminished7,
   };
 }

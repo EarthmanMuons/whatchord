@@ -138,7 +138,7 @@ abstract final class ChordExampleBuilder {
   }
 
   static Set<ChordExtension> _canonicalExampleExtensions(
-    ChordQualityToken quality,
+    ChordQuality quality,
     Set<ChordExtension> selected,
   ) {
     if (!quality.isSeventhFamily) {
@@ -160,7 +160,7 @@ abstract final class ChordExampleBuilder {
   }
 
   static Set<ChordExtension> _canonicalTriadLikeExampleExtensions(
-    ChordQualityToken quality,
+    ChordQuality quality,
     Set<ChordExtension> selected,
   ) {
     return Set<ChordExtension>.unmodifiable(selected);

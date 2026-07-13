@@ -4,7 +4,7 @@ import '../../models/tonality.dart';
 import '../../services/note_spelling.dart';
 import '../models/chord_symbol.dart';
 import 'chord_display_conventions.dart';
-import 'chord_quality_token_labels.dart';
+import 'chord_quality_labels.dart';
 import 'note_display_formatter.dart';
 
 /// Renders a chord identity as its long-form academic name
@@ -143,7 +143,7 @@ String _extensionsLongPhrase(
 }
 
 String _qualityLongPhrase({
-  required ChordQualityToken quality,
+  required ChordQuality quality,
   required Set<ChordExtension> extensions,
 }) {
   final base = quality.coreLabel(ChordQualityLabelForm.academic);
@@ -165,17 +165,17 @@ String _qualityLongPhrase({
 }
 
 ChordExtension? _absorbedLongFormExtensionForParts({
-  required ChordQualityToken quality,
+  required ChordQuality quality,
   required Set<ChordExtension> extensions,
 }) {
   return _headlineExtensionForParts(quality: quality, extensions: extensions);
 }
 
 ChordExtension? _headlineExtensionForParts({
-  required ChordQualityToken quality,
+  required ChordQuality quality,
   required Set<ChordExtension> extensions,
 }) {
-  if (!quality.isSeventhFamily || quality == ChordQualityToken.diminished7) {
+  if (!quality.isSeventhFamily || quality == ChordQuality.diminished7) {
     return null;
   }
 

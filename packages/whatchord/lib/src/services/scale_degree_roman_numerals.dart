@@ -2,20 +2,20 @@ import '../models/chord_identity.dart';
 
 /// Decorates a triad roman numeral [base] for a seventh-chord [quality]
 /// (e.g. "ii" + minor7 -> "ii7", halfDiminished7 -> "iiø7").
-String romanNumeralForQuality(String base, ChordQualityToken quality) {
+String romanNumeralForQuality(String base, ChordQuality quality) {
   return switch (quality) {
-    ChordQualityToken.dominant7 => '${base}7',
-    ChordQualityToken.dominant7Flat5 => '${base}7b5',
-    ChordQualityToken.dominant7Sharp5 => '${base}7#5',
-    ChordQualityToken.minorSharp5 => '$base#5',
-    ChordQualityToken.major7 => '${base}maj7',
-    ChordQualityToken.major7Flat5 => '${base}maj7b5',
-    ChordQualityToken.major7Sharp5 => '${base}maj7#5',
-    ChordQualityToken.minor7 => '${base}7',
-    ChordQualityToken.minor7Sharp5 => '${base}7#5',
-    ChordQualityToken.minorMajor7 => '$base(maj7)',
-    ChordQualityToken.halfDiminished7 => '${_withoutDiminishedSymbol(base)}ø7',
-    ChordQualityToken.diminished7 => '${base}7',
+    ChordQuality.dominant7 => '${base}7',
+    ChordQuality.dominant7Flat5 => '${base}7b5',
+    ChordQuality.dominant7Sharp5 => '${base}7#5',
+    ChordQuality.minorSharp5 => '$base#5',
+    ChordQuality.major7 => '${base}maj7',
+    ChordQuality.major7Flat5 => '${base}maj7b5',
+    ChordQuality.major7Sharp5 => '${base}maj7#5',
+    ChordQuality.minor7 => '${base}7',
+    ChordQuality.minor7Sharp5 => '${base}7#5',
+    ChordQuality.minorMajor7 => '$base(maj7)',
+    ChordQuality.halfDiminished7 => '${_withoutDiminishedSymbol(base)}ø7',
+    ChordQuality.diminished7 => '${base}7',
     _ => base,
   };
 }

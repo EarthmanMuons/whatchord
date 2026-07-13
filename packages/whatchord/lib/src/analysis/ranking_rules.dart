@@ -69,15 +69,15 @@ final List<NamedRule> hardRules = <NamedRule>[
     gate: (c, f, _) =>
         _isStableDominantFlatNineShell(c.identity, f) ||
         f.isDimFamily ||
-        c.identity.quality == ChordQualityToken.diminished,
+        c.identity.quality == ChordQuality.diminished,
   ),
   NamedRule(
     'prefer flat-nine-bass dominant over remote reinterpretation',
     _preferFlatNineBassDominantOverRemoteReinterpretation,
     gate: (c, f, _) =>
         f.isFifthlessFlatNineBassDominant ||
-        c.identity.quality == ChordQualityToken.minorMajor7 ||
-        c.identity.quality == ChordQualityToken.diminished,
+        c.identity.quality == ChordQuality.minorMajor7 ||
+        c.identity.quality == ChordQuality.diminished,
   ),
   NamedRule(
     'prefer complete dominant sharp-nine over non-seventh color',
@@ -149,8 +149,8 @@ final List<NamedRule> hardRules = <NamedRule>[
     _preferRootMinor7Add11ShellOverSusSlash,
     gate: (c, f, _) =>
         f.isRootPositionMinor7Add11Shell ||
-        c.identity.quality == ChordQualityToken.dominant7sus4 ||
-        c.identity.quality == ChordQualityToken.sus2sus4,
+        c.identity.quality == ChordQuality.dominant7sus4 ||
+        c.identity.quality == ChordQuality.sus2sus4,
   ),
   NamedRule(
     'prefer simple triad add-tone over seventh-family unusual quality',
@@ -163,10 +163,10 @@ final List<NamedRule> hardRules = <NamedRule>[
     'prefer readable sharp-eleven major over flat-five spelling',
     _preferReadableSharpElevenMajorOverFlatFive,
     gate: (c, _, _) =>
-        c.identity.quality == ChordQualityToken.major ||
-        c.identity.quality == ChordQualityToken.major7 ||
-        c.identity.quality == ChordQualityToken.major7Flat5 ||
-        c.identity.quality == ChordQualityToken.majorFlat5,
+        c.identity.quality == ChordQuality.major ||
+        c.identity.quality == ChordQuality.major7 ||
+        c.identity.quality == ChordQuality.major7Flat5 ||
+        c.identity.quality == ChordQuality.majorFlat5,
   ),
 ];
 
@@ -202,14 +202,14 @@ int? _preferConventionalSplitNineTritoneDominant(
 }
 
 bool _isSplitNineFlatFiveDominant(ChordIdentity id) {
-  return id.quality == ChordQualityToken.dominant7Flat5 &&
+  return id.quality == ChordQuality.dominant7Flat5 &&
       id.extensions.length == 2 &&
       id.extensions.contains(ChordExtension.flat9) &&
       id.extensions.contains(ChordExtension.nine);
 }
 
 bool _isSharp11Flat13Dominant(ChordIdentity id) {
-  return id.quality == ChordQualityToken.dominant7 &&
+  return id.quality == ChordQuality.dominant7 &&
       id.extensions.length == 2 &&
       id.extensions.contains(ChordExtension.sharp11) &&
       id.extensions.contains(ChordExtension.flat13);
@@ -236,10 +236,9 @@ int? _preferRootMinor7Add11ShellOverSusSlash(
   final fOther = aIsPreferred ? fb : fa;
   final otherIsInvertedDominantSus =
       !fOther.isRootPosition &&
-      other.identity.quality == ChordQualityToken.dominant7sus4;
+      other.identity.quality == ChordQuality.dominant7sus4;
   final otherIsInvertedDoubleSus =
-      !fOther.isRootPosition &&
-      other.identity.quality == ChordQualityToken.sus2sus4;
+      !fOther.isRootPosition && other.identity.quality == ChordQuality.sus2sus4;
   if (!otherIsInvertedDominantSus && !otherIsInvertedDoubleSus) return null;
 
   final preferred = aIsPreferred ? a : b;
@@ -475,7 +474,7 @@ bool _isMajorSeventhUpperStructureSusSlash(
 ) {
   if (!otherFeatures.isRootDominantSus) return false;
   if (slash.rootPc == slash.bassPc) return false;
-  if (slash.quality != ChordQualityToken.major7) return false;
+  if (slash.quality != ChordQuality.major7) return false;
   if (intervalAboveRoot(slash.bassPc, slash.rootPc) != majorSecondInterval) {
     return false;
   }
@@ -530,8 +529,8 @@ int? _preferCompleteDominantSharp9OverNonSeventhColor(
 
 bool _isCompleteDominantSharpNineReading(ChordIdentity id) {
   final fifthRole = switch (id.quality) {
-    ChordQualityToken.dominant7 => ChordToneRole.perfect5,
-    ChordQualityToken.dominant7Sharp5 => ChordToneRole.sharp5,
+    ChordQuality.dominant7 => ChordToneRole.perfect5,
+    ChordQuality.dominant7Sharp5 => ChordToneRole.sharp5,
     _ => null,
   };
   if (fifthRole == null) return false;
@@ -573,7 +572,7 @@ int? _preferCompleteFlatNineFlatThirteenthDominantOverRemoteSpelling(
 }
 
 bool _isCompleteFlatNineFlatThirteenthDominant(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.dominant7) return false;
+  if (id.quality != ChordQuality.dominant7) return false;
   if (!id.extensions.contains(ChordExtension.flat9) ||
       !id.extensions.contains(ChordExtension.flat13)) {
     return false;
@@ -665,7 +664,7 @@ bool _isStableDominantFlatNineShell(
   ChordIdentity id,
   CandidateFeatures features,
 ) {
-  if (id.quality != ChordQualityToken.dominant7) return false;
+  if (id.quality != ChordQuality.dominant7) return false;
   if (!features.hasStableBassRole) return false;
   if (!id.extensions.contains(ChordExtension.flat9)) return false;
   for (final extension in id.extensions) {
@@ -684,7 +683,7 @@ bool _isStableDominantFlatNineShell(
 }
 
 bool _isColoredDiminishedReading(ChordIdentity id, CandidateFeatures features) {
-  if (!features.isDimFamily && id.quality != ChordQualityToken.diminished) {
+  if (!features.isDimFamily && id.quality != ChordQuality.diminished) {
     return false;
   }
   if (features.extensionCount == 0) return false;
@@ -720,9 +719,9 @@ int? _preferFlatNineBassDominantOverRemoteReinterpretation(
   final fOther = aIsPreferred ? fb : fa;
   final otherIsBassRootedMinorMajor7 =
       fOther.isRootPosition &&
-      other.identity.quality == ChordQualityToken.minorMajor7;
+      other.identity.quality == ChordQuality.minorMajor7;
   final otherIsDiminishedTriad =
-      other.identity.quality == ChordQualityToken.diminished;
+      other.identity.quality == ChordQuality.diminished;
   if (!otherIsBassRootedMinorMajor7 && !otherIsDiminishedTriad) return null;
 
   if (tonality.isMinor &&
@@ -881,8 +880,8 @@ int? _preferRootDominantSusOverSlash(
   // favor it, so resolve directly here.
   final slashQuality = aIsPreferred ? b.identity.quality : a.identity.quality;
   final isConventionalSlash =
-      (slashQuality == ChordQualityToken.major ||
-          slashQuality == ChordQualityToken.minor) &&
+      (slashQuality == ChordQuality.major ||
+          slashQuality == ChordQuality.minor) &&
       fOther.extPref.alterationCount == 0 &&
       fOther.extPref.naturalCount == 0;
   if (isConventionalSlash) return aIsPreferred ? 1 : -1;
@@ -892,7 +891,7 @@ int? _preferRootDominantSusOverSlash(
 
 bool _isRootDominantSusFlatNine(ChordIdentity id) {
   return id.bassPc == id.rootPc &&
-      id.quality == ChordQualityToken.dominant7sus4 &&
+      id.quality == ChordQuality.dominant7sus4 &&
       id.extensions.length == 1 &&
       id.extensions.contains(ChordExtension.flat9);
 }
@@ -939,7 +938,7 @@ bool _isCompleteMajorSharpElevenInversion(
 }
 
 bool _isSparseMajorThirteenSusFour(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.major7sus4) return false;
+  if (id.quality != ChordQuality.major7sus4) return false;
   if (!id.extensions.contains(ChordExtension.thirteen)) return false;
 
   final roles = id.toneRolesByInterval.values;
@@ -1021,7 +1020,7 @@ int? _preferCompleteAlteredThirteenthDominantOverAlteredMinorThirteenth(
 }
 
 bool _isCompleteSharpNineSharpElevenThirteenthDominant(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.dominant7) return false;
+  if (id.quality != ChordQuality.dominant7) return false;
   if (id.extensions.length != 3 ||
       !id.extensions.contains(ChordExtension.sharp9) ||
       !id.extensions.contains(ChordExtension.sharp11) ||
@@ -1040,7 +1039,7 @@ bool _isCompleteSharpNineSharpElevenThirteenthDominant(ChordIdentity id) {
 }
 
 bool _isAlteredMinorThirteenth(ChordIdentity id, CandidateFeatures features) {
-  if (id.quality != ChordQualityToken.minor7 || !features.hasStableBassRole) {
+  if (id.quality != ChordQuality.minor7 || !features.hasStableBassRole) {
     return false;
   }
   if (id.extensions.length != 3 ||
@@ -1102,7 +1101,7 @@ int? _preferCompleteAlteredSharpFiveDominantOverRemoteSpellings(
 }
 
 bool _isAlteredSharpFiveDominant(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.dominant7Sharp5) return false;
+  if (id.quality != ChordQuality.dominant7Sharp5) return false;
   if (!id.extensions.contains(ChordExtension.flat9)) return false;
 
   final roles = id.toneRolesByInterval.values;
@@ -1131,16 +1130,16 @@ bool _alteredSharpFiveHasDoubleAccidental(ChordIdentity id, Tonality tonality) {
 
 bool _isRemoteAlteredNonDominantReading(ChordIdentity id) {
   final isRemoteQuality = switch (id.quality) {
-    ChordQualityToken.minorMajor7 ||
-    ChordQualityToken.minor7Sharp5 ||
-    ChordQualityToken.halfDiminished7 => true,
+    ChordQuality.minorMajor7 ||
+    ChordQuality.minor7Sharp5 ||
+    ChordQuality.halfDiminished7 => true,
     _ => false,
   };
   return isRemoteQuality && id.extensions.isNotEmpty;
 }
 
 bool _isNaturalEleventhSharpFiveDominant(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.dominant7Sharp5) return false;
+  if (id.quality != ChordQuality.dominant7Sharp5) return false;
   if (!id.extensions.contains(ChordExtension.eleven)) return false;
 
   final roles = id.toneRolesByInterval.values;
@@ -1287,8 +1286,8 @@ bool _isWholeToneAlteredFifthRootVsNinthSlash(
   final slashIsNinthAlteredFifth =
       slashExtensions.length == 1 &&
       slashExtensions.contains(ChordExtension.nine) &&
-      (slashCandidate.identity.quality == ChordQualityToken.dominant7Sharp5 ||
-          slashCandidate.identity.quality == ChordQualityToken.dominant7Flat5);
+      (slashCandidate.identity.quality == ChordQuality.dominant7Sharp5 ||
+          slashCandidate.identity.quality == ChordQuality.dominant7Flat5);
   if (!slashIsNinthAlteredFifth) return false;
 
   return slashCandidate.cost <= rootCandidate.cost;
@@ -1597,7 +1596,7 @@ bool _isSparseSharpElevenMajor(ChordIdentity id) {
 }
 
 bool _isSparseSharpElevenMajorTriad(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.major) return false;
+  if (id.quality != ChordQuality.major) return false;
   if (id.extensions.length != 1 ||
       !id.extensions.contains(ChordExtension.sharp11)) {
     return false;
@@ -1611,7 +1610,7 @@ bool _isSparseSharpElevenMajorTriad(ChordIdentity id) {
 }
 
 bool _isFifthlessSharpElevenMajorSeventh(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.major7) return false;
+  if (id.quality != ChordQuality.major7) return false;
   if (id.extensions.length != 1 ||
       !id.extensions.contains(ChordExtension.sharp11)) {
     return false;
@@ -1630,7 +1629,7 @@ bool _isMatchingMajorFlatFiveCounterpart(ChordIdentity id) {
 }
 
 bool _isPlainMajorFlatFive(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.majorFlat5) return false;
+  if (id.quality != ChordQuality.majorFlat5) return false;
   if (id.extensions.isNotEmpty) return false;
 
   final roles = id.toneRolesByInterval.values;
@@ -1641,7 +1640,7 @@ bool _isPlainMajorFlatFive(ChordIdentity id) {
 }
 
 bool _isPlainMajorSeventhFlatFive(ChordIdentity id) {
-  if (id.quality != ChordQualityToken.major7Flat5) return false;
+  if (id.quality != ChordQuality.major7Flat5) return false;
   if (id.extensions.isNotEmpty) return false;
 
   final roles = id.toneRolesByInterval.values;
@@ -1801,15 +1800,15 @@ bool _shouldNotPreferDecoratedReadingOverLowerCostNinthShell(
 }
 
 bool _isMajorSeventhSplitNinth(ChordIdentity id) {
-  return id.quality == ChordQualityToken.major7 &&
+  return id.quality == ChordQuality.major7 &&
       id.extensions.length == 2 &&
       id.extensions.contains(ChordExtension.flat9) &&
       id.extensions.contains(ChordExtension.sharp9);
 }
 
 bool _isDominantOrMinorSeventhNinthShell(ChordIdentity id) {
-  if ((id.quality != ChordQualityToken.dominant7 &&
-          id.quality != ChordQualityToken.minor7) ||
+  if ((id.quality != ChordQuality.dominant7 &&
+          id.quality != ChordQuality.minor7) ||
       !id.extensions.contains(ChordExtension.nine)) {
     return false;
   }
@@ -1823,8 +1822,7 @@ bool _isDominantOrMinorSeventhNinthShell(ChordIdentity id) {
 }
 
 bool _isMajorMinorAddChord(ChordIdentity id, CandidateFeatures features) {
-  if (id.quality != ChordQualityToken.major &&
-      id.quality != ChordQualityToken.minor) {
+  if (id.quality != ChordQuality.major && id.quality != ChordQuality.minor) {
     return false;
   }
   return features.hasOnlyAddColor;
@@ -1878,7 +1876,7 @@ int? _preferHarmonicMinorTonicOverSplitThirdInversion(
 
   bool isHarmonicMinorTonic(ChordCandidate candidate, CandidateFeatures f) {
     if (!f.isRootPosition ||
-        candidate.identity.quality != ChordQualityToken.minorMajor7 ||
+        candidate.identity.quality != ChordQuality.minorMajor7 ||
         candidate.identity.extensions.length != 1 ||
         !candidate.identity.extensions.contains(ChordExtension.flat13)) {
       return false;
@@ -1979,8 +1977,8 @@ int? _preferRootMinor7OverMajor6Slash(
   CandidateFeatures fb,
   Tonality _,
 ) {
-  final aIsMinor7 = a.identity.quality == ChordQualityToken.minor7;
-  final bIsMinor7 = b.identity.quality == ChordQualityToken.minor7;
+  final aIsMinor7 = a.identity.quality == ChordQuality.minor7;
+  final bIsMinor7 = b.identity.quality == ChordQuality.minor7;
   if (aIsMinor7 == bIsMinor7) return null;
 
   final minor7 = aIsMinor7 ? a : b;
@@ -1989,7 +1987,7 @@ int? _preferRootMinor7OverMajor6Slash(
   final fMajor6 = aIsMinor7 ? fb : fa;
 
   if (!fMinor7.isRootPosition ||
-      major6.identity.quality != ChordQualityToken.major6 ||
+      major6.identity.quality != ChordQuality.major6 ||
       !fMajor6.isSlashBass ||
       major6.identity.bassPc != minor7.identity.rootPc) {
     return null;
@@ -2221,8 +2219,8 @@ int? _preferCleanerTritoneFlatFiveDominantSpelling(
 }
 
 bool _isPlainTritoneFlatFiveDominantPair(ChordIdentity a, ChordIdentity b) {
-  return a.quality == ChordQualityToken.dominant7Flat5 &&
-      b.quality == ChordQualityToken.dominant7Flat5 &&
+  return a.quality == ChordQuality.dominant7Flat5 &&
+      b.quality == ChordQuality.dominant7Flat5 &&
       a.extensions.isEmpty &&
       b.extensions.isEmpty &&
       intervalAboveRoot(a.rootPc, b.rootPc) == tritoneInterval;

@@ -53,14 +53,14 @@ class _KeyPosteriorWheelState extends ConsumerState<KeyPosteriorWheel> {
     };
 
     String tonicLabel(Tonality tonality) =>
-        tonalityPickerTonicLabel(tonality, noteNameSystem: noteNameSystem);
+        tonalityTonicLabel(tonality, noteNameSystem: noteNameSystem);
 
     // Both spellings for keys with an enharmonic twin, the more common
     // (fewer accidentals) first. Detection is pitch-class based, so which
     // spelling the detector picked carries no information.
     String keyLabel(Tonality tonality) {
       final spellings = [
-        for (final row in keySignatureRows)
+        for (final row in keySignatures)
           for (final spelled in [row.relativeMajor, row.relativeMinor])
             if (spelled.mode == tonality.mode &&
                 spelled.tonicPitchClass == tonality.tonicPitchClass)

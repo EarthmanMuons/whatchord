@@ -13,7 +13,7 @@ void main() {
 
       expect(seed.rootPc, 0);
       expect(seed.bassPc, 0);
-      expect(seed.quality, ChordQualityToken.major);
+      expect(seed.quality, ChordQuality.major);
     });
 
     test('uses the selected minor-key tonic when idle', () {
@@ -24,7 +24,7 @@ void main() {
 
       expect(seed.rootPc, 9);
       expect(seed.bassPc, 9);
-      expect(seed.quality, ChordQualityToken.minor);
+      expect(seed.quality, ChordQuality.minor);
     });
 
     test('uses a single note as root with the current key-mode quality', () {
@@ -35,15 +35,15 @@ void main() {
 
       expect(seed.rootPc, 4);
       expect(seed.bassPc, 4);
-      expect(seed.quality, ChordQualityToken.major);
+      expect(seed.quality, ChordQuality.major);
     });
 
     test('maps dyad intervals to simple chord qualities', () {
-      expect(_dyadQuality(60, 62), ChordQualityToken.sus2);
-      expect(_dyadQuality(60, 63), ChordQualityToken.minor);
-      expect(_dyadQuality(60, 64), ChordQualityToken.major);
-      expect(_dyadQuality(60, 65), ChordQualityToken.sus4);
-      expect(_dyadQuality(60, 66), ChordQualityToken.diminished);
+      expect(_dyadQuality(60, 62), ChordQuality.sus2);
+      expect(_dyadQuality(60, 63), ChordQuality.minor);
+      expect(_dyadQuality(60, 64), ChordQuality.major);
+      expect(_dyadQuality(60, 65), ChordQuality.sus4);
+      expect(_dyadQuality(60, 66), ChordQuality.diminished);
     });
 
     test('maps perfect fifths to the current key-mode quality', () {
@@ -56,8 +56,8 @@ void main() {
         tonality: const Tonality(Tonic.a, TonalityMode.minor),
       );
 
-      expect(majorSeed.quality, ChordQualityToken.major);
-      expect(minorSeed.quality, ChordQualityToken.minor);
+      expect(majorSeed.quality, ChordQuality.major);
+      expect(minorSeed.quality, ChordQuality.minor);
     });
 
     test('falls back deterministically for ambiguous dyads', () {
@@ -70,18 +70,18 @@ void main() {
         tonality: const Tonality(Tonic.a, TonalityMode.minor),
       );
 
-      expect(majorSeed.quality, ChordQualityToken.major);
-      expect(minorSeed.quality, ChordQualityToken.minor);
+      expect(majorSeed.quality, ChordQuality.major);
+      expect(minorSeed.quality, ChordQuality.minor);
     });
 
     test('preserves the current full-chord identity', () {
       final current = ChordIdentity(
         rootPc: 2,
         bassPc: 6,
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         extensions: const {ChordExtension.flat9},
         toneRolesByInterval: ChordToneRoles.build(
-          quality: ChordQualityToken.dominant7,
+          quality: ChordQuality.dominant7,
           extensions: const {ChordExtension.flat9},
           relMask: 0x493,
         ),
@@ -99,7 +99,7 @@ void main() {
   });
 }
 
-ChordQualityToken _dyadQuality(int bassMidi, int upperMidi) {
+ChordQuality _dyadQuality(int bassMidi, int upperMidi) {
   final seed = buildSeedIdentity(
     input: _input([bassMidi, upperMidi]),
     tonality: const Tonality(Tonic.c, TonalityMode.major),

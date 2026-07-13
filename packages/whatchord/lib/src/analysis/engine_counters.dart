@@ -2,7 +2,7 @@
 ///
 /// When `whatchord.counters` is not defined (the default, which includes every
 /// release build), this resolves to a `const false`. Each guarded
-/// `if (kEngineCountersEnabled) ...` call site then folds to `if (false)` and is
+/// `if (engineCountersEnabled) ...` call site then folds to `if (false)` and is
 /// dead-code eliminated by the compiler, so the counters cost nothing in normal
 /// builds.
 ///
@@ -11,14 +11,14 @@
 /// ```
 /// dart run --define=whatchord.counters=true benchmark/analyze_benchmark.dart
 /// ```
-const bool kEngineCountersEnabled = bool.fromEnvironment('whatchord.counters');
+const bool engineCountersEnabled = bool.fromEnvironment('whatchord.counters');
 
 /// Deterministic, hardware-independent tallies of analysis work.
 ///
 /// These count algorithmic steps (cache lookups, roots considered, templates
 /// evaluated, candidates produced, candidates ranked) rather than wall-clock
 /// time, so they are a reproducible regression signal regardless of the machine.
-/// Only mutated when [kEngineCountersEnabled] is true; otherwise the increments
+/// Only mutated when [engineCountersEnabled] is true; otherwise the increments
 /// compile away.
 abstract final class EngineCounters {
   /// Analysis results served from the cache.

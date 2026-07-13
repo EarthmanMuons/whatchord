@@ -22,7 +22,7 @@ import '../services/interval_constants.dart';
 @immutable
 class ChordTemplate {
   /// Quality token for this template.
-  final ChordQualityToken quality;
+  final ChordQuality quality;
 
   /// Required intervals (as a 12-bit mask relative to root).
   final int requiredMask;
@@ -88,7 +88,7 @@ final chordTemplates = <ChordTemplate>[
   // - P5 optional for sparse voicings
   // - Penalty: m3, b7, M7 (would suggest minor/seventh chords)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.major.intervals,
+    ChordQuality.major.intervals,
     penaltyMask:
         (1 << minorThirdInterval) |
         (1 << minorSeventhInterval) |
@@ -100,7 +100,7 @@ final chordTemplates = <ChordTemplate>[
   // - No optional tones (all three intervals are the chord)
   // - Penalty: P5 (contradicts b5), m3 (contradicts major), b7/M7 (would suggest seventh chords)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.majorFlat5.intervals,
+    ChordQuality.majorFlat5.intervals,
     penaltyMask:
         (1 << perfectFifthInterval) |
         (1 << minorThirdInterval) |
@@ -112,7 +112,7 @@ final chordTemplates = <ChordTemplate>[
   // - m3 defines minor quality
   // - Penalty: M3, b7, M7 (would suggest major/seventh chords)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.minor.intervals,
+    ChordQuality.minor.intervals,
     penaltyMask:
         (1 << majorThirdInterval) |
         (1 << minorSeventhInterval) |
@@ -124,7 +124,7 @@ final chordTemplates = <ChordTemplate>[
   // - No optional tones; the altered fifth is the distinguishing tone
   // - Penalty: M3, P5, b7, M7 (would suggest other minor/seventh qualities)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.minorSharp5.intervals,
+    ChordQuality.minorSharp5.intervals,
     penaltyMask:
         (1 << majorThirdInterval) |
         (1 << perfectFifthInterval) |
@@ -137,7 +137,7 @@ final chordTemplates = <ChordTemplate>[
   // - No optional tones (tight structure)
   // - Penalty: M3, P5 (would contradict diminished quality)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.diminished.intervals,
+    ChordQuality.diminished.intervals,
     penaltyMask: (1 << majorThirdInterval) | (1 << perfectFifthInterval),
   ),
 
@@ -146,7 +146,7 @@ final chordTemplates = <ChordTemplate>[
   // - No optional tones (symmetric structure)
   // - Penalty: m3, P5 (would contradict augmented quality)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.augmented.intervals,
+    ChordQuality.augmented.intervals,
     penaltyMask: (1 << minorThirdInterval) | (1 << perfectFifthInterval),
   ),
 
@@ -158,7 +158,7 @@ final chordTemplates = <ChordTemplate>[
   // - Second and fourth extras stay nameable so sparse fifth-plus-color
   //   voicings can be read directly (C-Db-G as C5(addb9))
   ChordTemplate.fromIntervals(
-    ChordQualityToken.power.intervals,
+    ChordQuality.power.intervals,
     penaltyMask:
         (1 << minorThirdInterval) |
         (1 << majorThirdInterval) |
@@ -174,7 +174,7 @@ final chordTemplates = <ChordTemplate>[
   // - P5 required (standard triad definition; prevents ambiguous two-note matches)
   // - Penalty: any third (would resolve the suspension) or seventh (would suggest 7sus2)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.sus2.intervals,
+    ChordQuality.sus2.intervals,
     penaltyMask:
         (1 << minorThirdInterval) |
         (1 << majorThirdInterval) |
@@ -187,7 +187,7 @@ final chordTemplates = <ChordTemplate>[
   // - P5 required (standard triad definition)
   // - Penalty: any third (would resolve the suspension) or seventh (would suggest 7sus4)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.sus4.intervals,
+    ChordQuality.sus4.intervals,
     penaltyMask:
         (1 << minorThirdInterval) |
         (1 << majorThirdInterval) |
@@ -199,7 +199,7 @@ final chordTemplates = <ChordTemplate>[
   // - Both suspended tones replace the third
   // - Exact match prevents incomplete or extended double-sus readings
   ChordTemplate.fromIntervals(
-    ChordQualityToken.sus2sus4.intervals,
+    ChordQuality.sus2sus4.intervals,
     penaltyMask: 0,
     requiresExactMatch: true,
   ),
@@ -210,7 +210,7 @@ final chordTemplates = <ChordTemplate>[
   // - Penalty: b7/M7 (ambiguous with inverted minor7/major7)
   //            m3 (would suggest minor6)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.major6.intervals,
+    ChordQuality.major6.intervals,
     penaltyMask:
         (1 << minorSeventhInterval) |
         (1 << majorSeventhInterval) |
@@ -223,7 +223,7 @@ final chordTemplates = <ChordTemplate>[
   // - Penalty: b7/M7 (ambiguous with seventh chords)
   //            M3 (would suggest major6)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.minor6.intervals,
+    ChordQuality.minor6.intervals,
     penaltyMask:
         (1 << minorSeventhInterval) |
         (1 << majorSeventhInterval) |
@@ -235,7 +235,7 @@ final chordTemplates = <ChordTemplate>[
   // - P5 optional (shell voicing: R-3-b7)
   // - Penalty: M7 (would suggest major7), m3 (would suggest minor7)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.dominant7.intervals,
+    ChordQuality.dominant7.intervals,
     penaltyMask: (1 << majorSeventhInterval) | (1 << minorThirdInterval),
   ),
 
@@ -244,7 +244,7 @@ final chordTemplates = <ChordTemplate>[
   // - P5 optional (common voicings omit it: R-2-b7)
   // - Penalty: any third (would resolve suspension), P4 (sus4), M7
   ChordTemplate.fromIntervals(
-    ChordQualityToken.dominant7sus2.intervals,
+    ChordQuality.dominant7sus2.intervals,
     penaltyMask:
         (1 << minorThirdInterval) |
         (1 << majorThirdInterval) |
@@ -257,7 +257,7 @@ final chordTemplates = <ChordTemplate>[
   // - P5 optional (common voicings omit it: R-4-b7)
   // - Penalty: any third (would resolve suspension), M7 (would suggest maj7 color)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.dominant7sus4.intervals,
+    ChordQuality.dominant7sus4.intervals,
     penaltyMask:
         (1 << minorThirdInterval) |
         (1 << majorThirdInterval) |
@@ -268,7 +268,7 @@ final chordTemplates = <ChordTemplate>[
   // - Diminished fifth is a defining chord tone, not a #11 color
   // - Penalty: P5 (would suggest plain dominant7), M7, m3
   ChordTemplate.fromIntervals(
-    ChordQualityToken.dominant7Flat5.intervals,
+    ChordQuality.dominant7Flat5.intervals,
     penaltyMask:
         (1 << perfectFifthInterval) |
         (1 << majorSeventhInterval) |
@@ -279,7 +279,7 @@ final chordTemplates = <ChordTemplate>[
   // - Augmented fifth is a defining chord tone, not a b13 color
   // - Penalty: P5 (would suggest plain dominant7), M7, m3
   ChordTemplate.fromIntervals(
-    ChordQualityToken.dominant7Sharp5.intervals,
+    ChordQuality.dominant7Sharp5.intervals,
     penaltyMask:
         (1 << perfectFifthInterval) |
         (1 << majorSeventhInterval) |
@@ -291,7 +291,7 @@ final chordTemplates = <ChordTemplate>[
   // - P5 optional
   // - Penalty: b7 (would suggest dominant7), m3 (would suggest minor-major7)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.major7.intervals,
+    ChordQuality.major7.intervals,
     penaltyMask: (1 << minorSeventhInterval) | (1 << minorThirdInterval),
   ),
 
@@ -300,7 +300,7 @@ final chordTemplates = <ChordTemplate>[
   // - P5 optional
   // - Penalty: any third (would resolve suspension), P4 (sus4), b7
   ChordTemplate.fromIntervals(
-    ChordQualityToken.major7sus2.intervals,
+    ChordQuality.major7sus2.intervals,
     penaltyMask:
         (1 << minorThirdInterval) |
         (1 << majorThirdInterval) |
@@ -314,7 +314,7 @@ final chordTemplates = <ChordTemplate>[
   // - Penalty: any third (would resolve suspension), b7
   // - M2 is allowed as natural ninth color, e.g. maj9sus4
   ChordTemplate.fromIntervals(
-    ChordQualityToken.major7sus4.intervals,
+    ChordQuality.major7sus4.intervals,
     penaltyMask:
         (1 << minorThirdInterval) |
         (1 << majorThirdInterval) |
@@ -325,7 +325,7 @@ final chordTemplates = <ChordTemplate>[
   // - Diminished fifth is a defining chord tone, not a #11 color
   // - Penalty: P5 (would suggest plain major7), b7, m3
   ChordTemplate.fromIntervals(
-    ChordQualityToken.major7Flat5.intervals,
+    ChordQuality.major7Flat5.intervals,
     penaltyMask:
         (1 << perfectFifthInterval) |
         (1 << minorSeventhInterval) |
@@ -336,7 +336,7 @@ final chordTemplates = <ChordTemplate>[
   // - Augmented major seventh color, common as maj7#5
   // - Penalty: P5 (would suggest plain major7), b7, m3
   ChordTemplate.fromIntervals(
-    ChordQualityToken.major7Sharp5.intervals,
+    ChordQuality.major7Sharp5.intervals,
     penaltyMask:
         (1 << perfectFifthInterval) |
         (1 << minorSeventhInterval) |
@@ -348,7 +348,7 @@ final chordTemplates = <ChordTemplate>[
   // - P5 optional
   // - Penalty: M7 (would suggest minor-major7), M3 (would suggest dominant7)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.minor7.intervals,
+    ChordQuality.minor7.intervals,
     penaltyMask: (1 << majorSeventhInterval) | (1 << majorThirdInterval),
   ),
 
@@ -356,7 +356,7 @@ final chordTemplates = <ChordTemplate>[
   // - Augmented fifth is a defining chord tone, not a b13 color
   // - Penalty: P5 (would suggest plain minor7), M7, M3
   ChordTemplate.fromIntervals(
-    ChordQualityToken.minor7Sharp5.intervals,
+    ChordQuality.minor7Sharp5.intervals,
     penaltyMask:
         (1 << perfectFifthInterval) |
         (1 << majorSeventhInterval) |
@@ -368,7 +368,7 @@ final chordTemplates = <ChordTemplate>[
   // - P5 optional (shell voicings)
   // - Penalty: M3 (contradicts m3), b7 (would suggest minor7)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.minorMajor7.intervals,
+    ChordQuality.minorMajor7.intervals,
     penaltyMask: (1 << majorThirdInterval) | (1 << minorSeventhInterval),
   ),
 
@@ -377,7 +377,7 @@ final chordTemplates = <ChordTemplate>[
   // - No optional tones (all intervals define the quality)
   // - Penalty: P5 (contradicts b5), M3 (contradicts m3), M7 (contradicts b7)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.halfDiminished7.intervals,
+    ChordQuality.halfDiminished7.intervals,
     penaltyMask:
         (1 << perfectFifthInterval) |
         (1 << majorThirdInterval) |
@@ -390,7 +390,7 @@ final chordTemplates = <ChordTemplate>[
   // - No optional tones (tight, symmetrical structure)
   // - Penalty: b7 (would suggest half-diminished), P5/M3/M7 (contradict structure)
   ChordTemplate.fromIntervals(
-    ChordQualityToken.diminished7.intervals,
+    ChordQuality.diminished7.intervals,
     penaltyMask:
         (1 << minorSeventhInterval) |
         (1 << perfectFifthInterval) |

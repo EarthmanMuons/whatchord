@@ -147,7 +147,7 @@ Future<Map<String, Object?>> _runBenchmark() async {
       'targetRelCi95': _targetRelCi,
       'referenceIterations': referenceIterations,
       'referenceDisplayScale': referenceDisplayScale,
-      'countersEnabled': kEngineCountersEnabled,
+      'countersEnabled': engineCountersEnabled,
     },
     'referenceUs': reference.toJson(targetRelCi: _targetRelCi),
     // Compare normalized values across runs, not raw microseconds.

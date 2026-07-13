@@ -27,7 +27,7 @@ void main() {
       final results = ChordAnalyzer.analyze(input, context: context);
 
       expect(results.first.identity.rootPc, pc('D'));
-      expect(results.first.identity.quality, ChordQualityToken.dominant7sus4);
+      expect(results.first.identity.quality, ChordQuality.dominant7sus4);
     });
 
     test('an isolated bass below a complete upper chord promotes Am7/D', () {
@@ -41,7 +41,7 @@ void main() {
       );
 
       expect(results.first.identity.rootPc, pc('A'));
-      expect(results.first.identity.quality, ChordQualityToken.minor7);
+      expect(results.first.identity.quality, ChordQuality.minor7);
       expect(results.first.identity.hasSlashBass, isTrue);
       expect(results.first.identity.bassPc, pc('D'));
 
@@ -52,7 +52,7 @@ void main() {
           alternatives,
           (c) =>
               c.identity.rootPc == pc('D') &&
-              c.identity.quality == ChordQualityToken.dominant7sus4,
+              c.identity.quality == ChordQuality.dominant7sus4,
         ),
         isNotNull,
       );
@@ -85,7 +85,7 @@ void main() {
       );
 
       expect(results.first.identity.rootPc, pc('D'));
-      expect(results.first.identity.quality, ChordQualityToken.dominant7sus4);
+      expect(results.first.identity.quality, ChordQuality.dominant7sus4);
     });
   });
 
@@ -115,7 +115,7 @@ void main() {
     const identity = ChordIdentity(
       rootPc: 9,
       bassPc: 2,
-      quality: ChordQualityToken.minor7,
+      quality: ChordQuality.minor7,
       presentIntervalsMask: 0,
     );
 

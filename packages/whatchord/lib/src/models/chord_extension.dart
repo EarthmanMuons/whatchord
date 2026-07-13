@@ -202,7 +202,7 @@ typedef ExtensionPreference = ({
 /// [sharp11AsNaturalColor] reclassifies a raised eleventh as a natural
 /// (stacked) extension instead of an alteration. Callers set it for qualities
 /// where the #11 is the Lydian color rather than a tension (see
-/// `ChordQualityToken.sharp11IsNaturalColor`).
+/// `ChordQuality.sharp11IsNaturalColor`).
 ExtensionPreference extensionPreference(
   Set<ChordExtension> exts, {
   bool sharp11AsNaturalColor = false,

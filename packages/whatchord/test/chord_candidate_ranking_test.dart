@@ -9,7 +9,7 @@ import 'package:whatchord/testing.dart';
 void main() {
   test('sharp-nine bass is not treated as a stable inversion', () {
     final candidate = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'C',
       bass: 'Eb',
       presentIntervals: const {0, 3, 4, 7, 10},
@@ -25,7 +25,7 @@ void main() {
 
   test('generic seventh preference requires a sounding seventh', () {
     final missingSeventh = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'C',
       bass: 'C',
       presentIntervals: const {0, 4, 7},
@@ -33,7 +33,7 @@ void main() {
     );
 
     final triad = _candidate(
-      quality: ChordQualityToken.major,
+      quality: ChordQuality.major,
       root: 'C',
       bass: 'C',
       presentIntervals: const {0, 4, 7},
@@ -51,7 +51,7 @@ void main() {
 
   test('complete dominant sharp-nine beats sixth flat-nine', () {
     final dominant = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'C',
       bass: 'Eb',
       presentIntervals: const {0, 3, 4, 7, 10},
@@ -60,7 +60,7 @@ void main() {
     );
 
     final sixthFlat9 = _candidate(
-      quality: ChordQualityToken.major6,
+      quality: ChordQuality.major6,
       root: 'Eb',
       bass: 'Eb',
       presentIntervals: const {0, 1, 4, 7, 9},
@@ -77,7 +77,7 @@ void main() {
 
   test('complete sharp-nine sharp-eleven dominant beats split-third sixth', () {
     final dominant = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'A',
       bass: 'C',
       presentIntervals: const {0, 3, 4, 6, 7, 10},
@@ -86,7 +86,7 @@ void main() {
     );
 
     final splitThirdSixth = _candidate(
-      quality: ChordQualityToken.major6,
+      quality: ChordQuality.major6,
       root: 'C',
       bass: 'C',
       presentIntervals: const {0, 1, 3, 4, 7, 9},
@@ -105,7 +105,7 @@ void main() {
     'complete thirteenth sharp-nine dominant beats colored split-third sixth',
     () {
       final dominant = _candidate(
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         root: 'A',
         bass: 'C',
         presentIntervals: const {0, 3, 4, 6, 7, 9, 10},
@@ -118,7 +118,7 @@ void main() {
       );
 
       final splitThirdSixth = _candidate(
-        quality: ChordQualityToken.major6,
+        quality: ChordQuality.major6,
         root: 'C',
         bass: 'C',
         presentIntervals: const {0, 1, 3, 4, 6, 7, 9},
@@ -142,7 +142,7 @@ void main() {
     'complete flat-thirteenth sharp-nine dominant beats add-eleven split-third sixth',
     () {
       final dominant = _candidate(
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         root: 'F#',
         bass: 'E',
         presentIntervals: const {0, 3, 4, 6, 7, 8, 10},
@@ -155,7 +155,7 @@ void main() {
       );
 
       final splitThirdSixth = _candidate(
-        quality: ChordQualityToken.major6,
+        quality: ChordQuality.major6,
         root: 'A',
         bass: 'E',
         presentIntervals: const {0, 1, 3, 4, 5, 7, 9},
@@ -177,7 +177,7 @@ void main() {
 
   test('complete sharp-five sharp-nine dominant beats sus flat-nine color', () {
     final dominant = _candidate(
-      quality: ChordQualityToken.dominant7Sharp5,
+      quality: ChordQuality.dominant7Sharp5,
       root: 'A',
       bass: 'C',
       presentIntervals: const {0, 3, 4, 8, 10},
@@ -186,7 +186,7 @@ void main() {
     );
 
     final susColor = _candidate(
-      quality: ChordQualityToken.sus4,
+      quality: ChordQuality.sus4,
       root: 'C',
       bass: 'C',
       presentIntervals: const {0, 1, 5, 7, 9},
@@ -205,7 +205,7 @@ void main() {
     'complete flat-nine flat-thirteen dominant beats remote seventh spelling',
     () {
       final dominant = _candidate(
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         root: 'F',
         bass: 'Eb',
         presentIntervals: const {0, 1, 4, 7, 8, 10},
@@ -214,7 +214,7 @@ void main() {
       );
 
       final remoteMinor = _candidate(
-        quality: ChordQualityToken.halfDiminished7,
+        quality: ChordQuality.halfDiminished7,
         root: 'D#',
         bass: 'D#',
         presentIntervals: const {0, 2, 3, 6, 9, 10},
@@ -233,7 +233,7 @@ void main() {
   test('split-nine tritone dominants follow the conventional bass role', () {
     ChordCandidate splitNine({required String bass, required double cost}) =>
         _candidate(
-          quality: ChordQualityToken.dominant7Flat5,
+          quality: ChordQuality.dominant7Flat5,
           root: 'C',
           bass: bass,
           presentIntervals: const {0, 1, 2, 4, 6, 10},
@@ -242,7 +242,7 @@ void main() {
         );
     ChordCandidate tritoneColor({required String bass, required double cost}) =>
         _candidate(
-          quality: ChordQualityToken.dominant7,
+          quality: ChordQuality.dominant7,
           root: 'F#',
           bass: bass,
           presentIntervals: const {0, 4, 6, 7, 8, 10},
@@ -268,7 +268,7 @@ void main() {
 
   test('complete dominant flat-nine beats colored diminished7', () {
     final dominant = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'C',
       bass: 'G',
       presentIntervals: const {0, 1, 4, 7, 10},
@@ -277,7 +277,7 @@ void main() {
     );
 
     final diminished = _candidate(
-      quality: ChordQualityToken.diminished7,
+      quality: ChordQuality.diminished7,
       root: 'G',
       bass: 'G',
       presentIntervals: const {0, 3, 5, 6, 9},
@@ -296,7 +296,7 @@ void main() {
     'complete dominant flat-nine sharp-eleven beats colored diminished7',
     () {
       final dominant = _candidate(
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         root: 'F#',
         bass: 'Db',
         presentIntervals: const {0, 1, 4, 6, 7, 10},
@@ -305,7 +305,7 @@ void main() {
       );
 
       final diminished = _candidate(
-        quality: ChordQualityToken.diminished7,
+        quality: ChordQuality.diminished7,
         root: 'A#',
         bass: 'Db',
         presentIntervals: const {0, 2, 3, 6, 8},
@@ -323,7 +323,7 @@ void main() {
 
   test('third-inversion dominant flat-nine does not override diminished7', () {
     final dominant = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'C',
       bass: 'Bb',
       presentIntervals: const {0, 1, 4, 7, 10},
@@ -332,7 +332,7 @@ void main() {
     );
 
     final diminished = _candidate(
-      quality: ChordQualityToken.diminished7,
+      quality: ChordQuality.diminished7,
       root: 'Bb',
       bass: 'Bb',
       presentIntervals: const {0, 2, 3, 6, 9},
@@ -356,7 +356,7 @@ void main() {
 
   test('complete dominant flat-nine beats diminished add-nine', () {
     final dominant = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'C',
       bass: 'E',
       presentIntervals: const {0, 1, 4, 10},
@@ -365,7 +365,7 @@ void main() {
     );
 
     final diminished = _candidate(
-      quality: ChordQualityToken.diminished,
+      quality: ChordQuality.diminished,
       root: 'A#',
       bass: 'E',
       presentIntervals: const {0, 2, 3, 6},
@@ -382,7 +382,7 @@ void main() {
 
   group('fifthless flat-nine-bass dominant ambiguity', () {
     final dominant = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'C',
       bass: 'Db',
       presentIntervals: const {0, 1, 4, 10},
@@ -391,7 +391,7 @@ void main() {
     );
 
     final minorMajor7 = _candidate(
-      quality: ChordQualityToken.minorMajor7,
+      quality: ChordQuality.minorMajor7,
       root: 'Db',
       bass: 'Db',
       presentIntervals: const {0, 3, 9, 11},
@@ -400,7 +400,7 @@ void main() {
     );
 
     final diminishedTriad = _candidate(
-      quality: ChordQualityToken.diminished,
+      quality: ChordQuality.diminished,
       root: 'Bb',
       bass: 'Db',
       presentIntervals: const {0, 2, 3, 6},
@@ -425,7 +425,7 @@ void main() {
       'also applies when the dominant has split flat and natural ninths',
       () {
         final splitNinthDominant = _candidate(
-          quality: ChordQualityToken.dominant7,
+          quality: ChordQuality.dominant7,
           root: 'C',
           bass: 'Db',
           presentIntervals: const {0, 1, 2, 4, 10},
@@ -433,7 +433,7 @@ void main() {
           cost: 1.70,
         );
         final splitNinthMinorMajor = _candidate(
-          quality: ChordQualityToken.minorMajor7,
+          quality: ChordQuality.minorMajor7,
           root: 'Db',
           bass: 'Db',
           presentIntervals: const {0, 1, 3, 9, 11},
@@ -481,7 +481,7 @@ void main() {
 
     test('does not apply when the dominant fifth is present', () {
       final completeDominant = _candidate(
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         root: 'C',
         bass: 'Db',
         presentIntervals: const {0, 1, 4, 7, 10},
@@ -503,7 +503,7 @@ void main() {
 
   test('altered dominant7 beats dim7 slash outside the near-tie window', () {
     final dominant = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'C',
       bass: 'C',
       presentIntervals: const {0, 1, 4, 10},
@@ -512,7 +512,7 @@ void main() {
     );
 
     final diminishedSlash = _candidate(
-      quality: ChordQualityToken.diminished7,
+      quality: ChordQuality.diminished7,
       root: 'Bb',
       bass: 'C',
       presentIntervals: const {0, 2, 3, 6, 9},
@@ -534,7 +534,7 @@ void main() {
 
   test('conventional altered seventh beats non-dominant add11 slash', () {
     final conventional = _candidate(
-      quality: ChordQualityToken.minorMajor7,
+      quality: ChordQuality.minorMajor7,
       root: 'F',
       bass: 'Ab',
       presentIntervals: const {0, 3, 6, 7, 11},
@@ -543,7 +543,7 @@ void main() {
     );
 
     final add11Slash = _candidate(
-      quality: ChordQualityToken.major7Sharp5,
+      quality: ChordQuality.major7Sharp5,
       root: 'C',
       bass: 'Ab',
       presentIntervals: const {0, 4, 5, 8, 11},
@@ -562,7 +562,7 @@ void main() {
     'natural dominant color does not trigger altered seventh add11 rule',
     () {
       final naturalDominant = _candidate(
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         root: 'Eb',
         bass: 'Db',
         presentIntervals: const {0, 4, 5, 9, 10},
@@ -571,7 +571,7 @@ void main() {
       );
 
       final add11Slash = _candidate(
-        quality: ChordQualityToken.major7,
+        quality: ChordQuality.major7,
         root: 'Ab',
         bass: 'Db',
         presentIntervals: const {0, 4, 5, 7, 11},
@@ -595,7 +595,7 @@ void main() {
 
   test('root-position dominant7 beats close non-dominant slash', () {
     final dominant = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'C',
       bass: 'C',
       presentIntervals: const {0, 1, 4, 6, 8, 10},
@@ -608,7 +608,7 @@ void main() {
     );
 
     final remoteSlash = _candidate(
-      quality: ChordQualityToken.minorMajor7,
+      quality: ChordQuality.minorMajor7,
       root: 'Db',
       bass: 'C',
       presentIntervals: const {0, 3, 7, 11},
@@ -624,7 +624,7 @@ void main() {
 
   test('root-position altered-fifth dominant beats close slash reading', () {
     final rootPosition = _candidate(
-      quality: ChordQualityToken.dominant7Flat5,
+      quality: ChordQuality.dominant7Flat5,
       root: 'C',
       bass: 'C',
       presentIntervals: const {0, 3, 4, 6, 10},
@@ -633,7 +633,7 @@ void main() {
     );
 
     final slash = _candidate(
-      quality: ChordQualityToken.dominant7Flat5,
+      quality: ChordQuality.dominant7Flat5,
       root: 'F#',
       bass: 'C',
       presentIntervals: const {0, 2, 4, 6, 10},
@@ -652,7 +652,7 @@ void main() {
     'ninth altered-fifth slash can beat whole-tone root-position spelling',
     () {
       final ninthSlash = _candidate(
-        quality: ChordQualityToken.dominant7Sharp5,
+        quality: ChordQuality.dominant7Sharp5,
         root: 'E',
         bass: 'G#',
         presentIntervals: const {0, 2, 4, 8, 10},
@@ -661,7 +661,7 @@ void main() {
       );
 
       final rootPosition = _candidate(
-        quality: ChordQualityToken.dominant7Sharp5,
+        quality: ChordQuality.dominant7Sharp5,
         root: 'G#',
         bass: 'G#',
         presentIntervals: const {0, 4, 6, 8, 10},
@@ -681,7 +681,7 @@ void main() {
     'lower-cost major-seventh-bass inversion beats remote color-bass slash',
     () {
       final conventionalInversion = _candidate(
-        quality: ChordQualityToken.major7,
+        quality: ChordQuality.major7,
         root: 'Ab',
         bass: 'G',
         presentIntervals: const {0, 4, 5, 7, 8, 11},
@@ -690,7 +690,7 @@ void main() {
       );
 
       final colorBassSlash = _candidate(
-        quality: ChordQualityToken.minorMajor7,
+        quality: ChordQuality.minorMajor7,
         root: 'Db',
         bass: 'G',
         presentIntervals: const {0, 2, 3, 6, 7, 11},
@@ -710,7 +710,7 @@ void main() {
     'root-position extended dominant beats altered-fifth slash near-tie',
     () {
       final rootPosition = _candidate(
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         root: 'C',
         bass: 'C',
         presentIntervals: const {0, 2, 4, 6, 7, 10},
@@ -719,7 +719,7 @@ void main() {
       );
 
       final slash = _candidate(
-        quality: ChordQualityToken.dominant7Sharp5,
+        quality: ChordQuality.dominant7Sharp5,
         root: 'D',
         bass: 'C',
         presentIntervals: const {0, 2, 4, 5, 8, 10},
@@ -739,7 +739,7 @@ void main() {
     'complete altered thirteenth dominant beats altered minor thirteenth near-tie',
     () {
       final dominant = _candidate(
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         root: 'A',
         bass: 'F#',
         presentIntervals: const {0, 3, 4, 6, 7, 9, 10},
@@ -752,7 +752,7 @@ void main() {
       );
 
       final minor = _candidate(
-        quality: ChordQualityToken.minor7,
+        quality: ChordQuality.minor7,
         root: 'F#',
         bass: 'F#',
         presentIntervals: const {0, 1, 3, 6, 7, 9, 10},
@@ -776,7 +776,7 @@ void main() {
     'altered sharp-five dominant beats natural-eleventh sharp-five near-tie',
     () {
       final alteredDominant = _candidate(
-        quality: ChordQualityToken.dominant7Sharp5,
+        quality: ChordQuality.dominant7Sharp5,
         root: 'C',
         bass: 'Ab',
         presentIntervals: const {0, 1, 4, 6, 8, 10},
@@ -785,7 +785,7 @@ void main() {
       );
 
       final naturalEleventhSharpFive = _candidate(
-        quality: ChordQualityToken.dominant7Sharp5,
+        quality: ChordQuality.dominant7Sharp5,
         root: 'Ab',
         bass: 'Ab',
         presentIntervals: const {0, 2, 4, 5, 8, 10},
@@ -803,7 +803,7 @@ void main() {
 
   test('flat-nine sharp-five dominant beats remote minor-major thirteenth', () {
     final alteredDominant = _candidate(
-      quality: ChordQualityToken.dominant7Sharp5,
+      quality: ChordQuality.dominant7Sharp5,
       root: 'C',
       bass: 'C',
       presentIntervals: const {0, 1, 4, 8, 10},
@@ -812,7 +812,7 @@ void main() {
     );
 
     final remoteMinorMajor = _candidate(
-      quality: ChordQualityToken.minorMajor7,
+      quality: ChordQuality.minorMajor7,
       root: 'C#',
       bass: 'C',
       presentIntervals: const {0, 3, 7, 9, 11},
@@ -829,7 +829,7 @@ void main() {
 
   test('root-position dominant sus beats slash reinterpretation near-tie', () {
     final rootPositionSus = _candidate(
-      quality: ChordQualityToken.dominant7sus4,
+      quality: ChordQuality.dominant7sus4,
       root: 'D',
       bass: 'D',
       presentIntervals: const {0, 2, 5, 7, 10},
@@ -838,7 +838,7 @@ void main() {
     );
 
     final alteredSlash = _candidate(
-      quality: ChordQualityToken.minor7Sharp5,
+      quality: ChordQuality.minor7Sharp5,
       root: 'E',
       bass: 'D',
       presentIntervals: const {0, 3, 5, 8, 10},
@@ -855,7 +855,7 @@ void main() {
 
   test('major-seventh upper-structure slash beats dominant sus label', () {
     final upperStructureSlash = _candidate(
-      quality: ChordQualityToken.major7,
+      quality: ChordQuality.major7,
       root: 'Db',
       bass: 'Eb',
       presentIntervals: const {0, 2, 4, 7, 11},
@@ -864,7 +864,7 @@ void main() {
     );
 
     final rootPositionSus = _candidate(
-      quality: ChordQualityToken.dominant7sus4,
+      quality: ChordQuality.dominant7sus4,
       root: 'Eb',
       bass: 'Eb',
       presentIntervals: const {0, 2, 5, 9, 10},
@@ -881,7 +881,7 @@ void main() {
 
   test('root-position minor-eleventh shell beats inverted sus readings', () {
     final minor11Shell = _candidate(
-      quality: ChordQualityToken.minor7,
+      quality: ChordQuality.minor7,
       root: 'D',
       bass: 'D',
       presentIntervals: const {0, 3, 5, 10},
@@ -890,14 +890,14 @@ void main() {
     );
 
     final dominantSusSlash = _candidate(
-      quality: ChordQualityToken.dominant7sus4,
+      quality: ChordQuality.dominant7sus4,
       root: 'G',
       bass: 'D',
       presentIntervals: const {0, 5, 7, 10},
       cost: 2.63,
     );
     final doubleSusSlash = _candidate(
-      quality: ChordQualityToken.sus2sus4,
+      quality: ChordQuality.sus2sus4,
       root: 'C',
       bass: 'D',
       presentIntervals: const {0, 2, 5, 7},
@@ -915,7 +915,7 @@ void main() {
 
   test('ninth-bass seventh chord beats altered slash outside near-tie', () {
     final ninthBassSeventh = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'C',
       bass: 'D',
       presentIntervals: const {0, 2, 4, 7, 10},
@@ -924,7 +924,7 @@ void main() {
     );
 
     final alteredSlash = _candidate(
-      quality: ChordQualityToken.minor7Sharp5,
+      quality: ChordQuality.minor7Sharp5,
       root: 'E',
       bass: 'D',
       presentIntervals: const {0, 3, 6, 8, 10},
@@ -941,7 +941,7 @@ void main() {
 
   test('minor-major ninth bass chord beats altered major7 slash', () {
     final ninthBassSeventh = _candidate(
-      quality: ChordQualityToken.minorMajor7,
+      quality: ChordQuality.minorMajor7,
       root: 'C#',
       bass: 'D#',
       presentIntervals: const {0, 2, 3, 7, 11},
@@ -950,7 +950,7 @@ void main() {
     );
 
     final alteredSlash = _candidate(
-      quality: ChordQualityToken.major7Sharp5,
+      quality: ChordQuality.major7Sharp5,
       root: 'E',
       bass: 'D#',
       presentIntervals: const {0, 4, 8, 9, 11},
@@ -967,7 +967,7 @@ void main() {
 
   test('ninth-bass seventh chord does not override conventional slash', () {
     final ninthBassSeventh = _candidate(
-      quality: ChordQualityToken.minorMajor7,
+      quality: ChordQuality.minorMajor7,
       root: 'C#',
       bass: 'D#',
       presentIntervals: const {0, 2, 3, 7, 11},
@@ -976,7 +976,7 @@ void main() {
     );
 
     final conventionalSlash = _candidate(
-      quality: ChordQualityToken.minor7,
+      quality: ChordQuality.minor7,
       root: 'E',
       bass: 'D#',
       presentIntervals: const {0, 3, 7, 10},
@@ -996,7 +996,7 @@ void main() {
 
   test('complete triad beats incomplete 6th in a near-tie', () {
     final completeTriad = _candidate(
-      quality: ChordQualityToken.minor,
+      quality: ChordQuality.minor,
       root: 'E',
       bass: 'B',
       presentIntervals: const {0, 3, 7},
@@ -1004,7 +1004,7 @@ void main() {
     );
 
     final incompleteSixth = _candidate(
-      quality: ChordQualityToken.major6,
+      quality: ChordQuality.major6,
       root: 'G',
       bass: 'B',
       presentIntervals: const {0, 4, 9},
@@ -1020,7 +1020,7 @@ void main() {
 
   test('complete diminished triad beats root-position fifthless minor 6th', () {
     final diminishedTriad = _candidate(
-      quality: ChordQualityToken.diminished,
+      quality: ChordQuality.diminished,
       root: 'C',
       bass: 'Eb',
       presentIntervals: const {0, 3, 6},
@@ -1028,7 +1028,7 @@ void main() {
     );
 
     final fifthlessMinorSixth = _candidate(
-      quality: ChordQualityToken.minor6,
+      quality: ChordQuality.minor6,
       root: 'Eb',
       bass: 'Eb',
       presentIntervals: const {0, 3, 9},
@@ -1044,7 +1044,7 @@ void main() {
 
   test('complete triad rule preserves root-position six-nine color', () {
     final rootSixNine = _candidate(
-      quality: ChordQualityToken.major6,
+      quality: ChordQuality.major6,
       root: 'C',
       bass: 'C',
       presentIntervals: const {0, 2, 4, 9},
@@ -1053,7 +1053,7 @@ void main() {
     );
 
     final completeTriad = _candidate(
-      quality: ChordQualityToken.minor,
+      quality: ChordQuality.minor,
       root: 'A',
       bass: 'C',
       presentIntervals: const {0, 3, 5, 7},
@@ -1076,7 +1076,7 @@ void main() {
 
   group('harmonic-minor tonic versus split-third inversion', () {
     final tonicMinorMajor7 = _candidate(
-      quality: ChordQualityToken.minorMajor7,
+      quality: ChordQuality.minorMajor7,
       root: 'C#',
       bass: 'C#',
       presentIntervals: const {0, 3, 8, 11},
@@ -1084,7 +1084,7 @@ void main() {
       cost: 3.84,
     );
     final splitThirdInversion = _candidate(
-      quality: ChordQualityToken.major,
+      quality: ChordQuality.major,
       root: 'A',
       bass: 'C#',
       presentIntervals: const {0, 3, 4, 7},
@@ -1139,7 +1139,7 @@ void main() {
     // The sus reading earns a lower raw cost (clean template fit with 3
     // required tones) but is a remote, convoluted name for a simple voicing.
     final addChord = _candidate(
-      quality: ChordQualityToken.major,
+      quality: ChordQuality.major,
       root: 'C',
       bass: 'C',
       presentIntervals: const {0, 4, 5, 7},
@@ -1148,7 +1148,7 @@ void main() {
     );
 
     final susSlash = _candidate(
-      quality: ChordQualityToken.major7sus2,
+      quality: ChordQuality.major7sus2,
       root: 'F',
       bass: 'C',
       presentIntervals: const {0, 2, 7, 11},
@@ -1164,7 +1164,7 @@ void main() {
 
   test('common naming prior can resolve full near-tie cost gap', () {
     final commonMinorNinth = _candidate(
-      quality: ChordQualityToken.minor7,
+      quality: ChordQuality.minor7,
       root: 'Bb',
       bass: 'F',
       presentIntervals: const {0, 2, 3, 7, 10},
@@ -1173,7 +1173,7 @@ void main() {
     );
 
     final rarerMajorThirteenth = _candidate(
-      quality: ChordQualityToken.major7,
+      quality: ChordQuality.major7,
       root: 'Db',
       bass: 'F',
       presentIntervals: const {0, 4, 7, 9, 11},
@@ -1192,7 +1192,7 @@ void main() {
     'common naming prior does not promote sharp-five dominant over flat-five',
     () {
       final alteredFifthDominant = _candidate(
-        quality: ChordQualityToken.dominant7Sharp5,
+        quality: ChordQuality.dominant7Sharp5,
         root: 'G',
         bass: 'A',
         presentIntervals: const {0, 2, 4, 8, 10},
@@ -1201,7 +1201,7 @@ void main() {
       );
 
       final flatFiveDominant = _candidate(
-        quality: ChordQualityToken.dominant7Flat5,
+        quality: ChordQuality.dominant7Flat5,
         root: 'F',
         bass: 'A',
         presentIntervals: const {0, 2, 4, 6, 10},
@@ -1225,7 +1225,7 @@ void main() {
 
   test('clean spelling beats awkward tritone flat-five dominant inversion', () {
     final cleanSeventhBass = _candidate(
-      quality: ChordQualityToken.dominant7Flat5,
+      quality: ChordQuality.dominant7Flat5,
       root: 'D',
       bass: 'C',
       presentIntervals: const {0, 4, 6, 10},
@@ -1233,7 +1233,7 @@ void main() {
     );
 
     final awkwardThirdBass = _candidate(
-      quality: ChordQualityToken.dominant7Flat5,
+      quality: ChordQuality.dominant7Flat5,
       root: 'Ab',
       bass: 'C',
       presentIntervals: const {0, 4, 6, 10},
@@ -1249,7 +1249,7 @@ void main() {
 
   test('common naming preference breaks complete sixth and minor7 tie', () {
     final minor7 = _candidate(
-      quality: ChordQualityToken.minor7,
+      quality: ChordQuality.minor7,
       root: 'D',
       bass: 'A',
       presentIntervals: const {0, 3, 7, 10},
@@ -1257,7 +1257,7 @@ void main() {
     );
 
     final major6 = _candidate(
-      quality: ChordQualityToken.major6,
+      quality: ChordQuality.major6,
       root: 'F',
       bass: 'A',
       presentIntervals: const {0, 4, 7, 9},
@@ -1271,7 +1271,7 @@ void main() {
     // Same root, same extension load, nothing structural separates them; the
     // C#maj7 reading spells its third as E# while the minor reading uses E.
     final minorMajor = _candidate(
-      quality: ChordQualityToken.minorMajor7,
+      quality: ChordQuality.minorMajor7,
       root: 'C#',
       bass: 'C#',
       presentIntervals: const {0, 1, 3, 11},
@@ -1280,7 +1280,7 @@ void main() {
     );
 
     final major7 = _candidate(
-      quality: ChordQualityToken.major7,
+      quality: ChordQuality.major7,
       root: 'C#',
       bass: 'C#',
       presentIntervals: const {0, 1, 4, 11},
@@ -1296,7 +1296,7 @@ void main() {
     // settles it toward the major6 (its #11 is natural; the minor7's add13 is
     // an add tone).
     final major6Sharp11 = _candidate(
-      quality: ChordQualityToken.major6,
+      quality: ChordQuality.major6,
       root: 'Eb',
       bass: 'Eb',
       presentIntervals: const {0, 4, 6, 7, 9},
@@ -1304,7 +1304,7 @@ void main() {
       cost: 2.92,
     );
     final minor7Add13 = _candidate(
-      quality: ChordQualityToken.minor7,
+      quality: ChordQuality.minor7,
       root: 'C',
       bass: 'Eb',
       presentIntervals: const {0, 3, 7, 9, 10},
@@ -1321,7 +1321,7 @@ void main() {
 
   test('does not use natural extensions to promote deficient slash chords', () {
     final diminishedAdd9 = _candidate(
-      quality: ChordQualityToken.diminished,
+      quality: ChordQuality.diminished,
       root: 'A#',
       bass: 'A#',
       presentIntervals: const {0, 2, 3, 6},
@@ -1330,7 +1330,7 @@ void main() {
     );
 
     final minorMajor13Slash = _candidate(
-      quality: ChordQualityToken.minorMajor7,
+      quality: ChordQuality.minorMajor7,
       root: 'C#',
       bass: 'A#',
       presentIntervals: const {0, 3, 9, 11},
@@ -1343,7 +1343,7 @@ void main() {
 
   test('allows natural extensions for fifthless dominant shell slash', () {
     final dominant9Slash = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'D',
       bass: 'C',
       presentIntervals: const {0, 2, 4, 10},
@@ -1352,7 +1352,7 @@ void main() {
     );
 
     final majorFlat5Add9 = _candidate(
-      quality: ChordQualityToken.majorFlat5,
+      quality: ChordQuality.majorFlat5,
       root: 'C',
       bass: 'C',
       presentIntervals: const {0, 2, 4, 6},
@@ -1371,7 +1371,7 @@ void main() {
     'full coverage does not promote altered major7 over lower-cost minor ninth shell',
     () {
       final minorNinthShell = _candidate(
-        quality: ChordQualityToken.minor7,
+        quality: ChordQuality.minor7,
         root: 'D',
         bass: 'C',
         presentIntervals: const {0, 2, 3, 10},
@@ -1380,7 +1380,7 @@ void main() {
       );
 
       final majorSeventhSplitNinth = _candidate(
-        quality: ChordQualityToken.major7,
+        quality: ChordQuality.major7,
         root: 'Db',
         bass: 'C',
         presentIntervals: const {0, 1, 3, 4, 11},
@@ -1406,7 +1406,7 @@ void main() {
     'decorated seventh reading does not promote over lower-cost dominant ninth shell',
     () {
       final dominantNinthShell = _candidate(
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         root: 'D',
         bass: 'E',
         presentIntervals: const {0, 2, 4, 10},
@@ -1415,7 +1415,7 @@ void main() {
       );
 
       final alteredThirteenth = _candidate(
-        quality: ChordQualityToken.dominant7Sharp5,
+        quality: ChordQuality.dominant7Sharp5,
         root: 'E',
         bass: 'E',
         presentIntervals: const {0, 2, 8, 9, 10},
@@ -1440,14 +1440,14 @@ void main() {
 
   group('root-position relative minor7 versus major6 slash', () {
     final minor7 = _candidate(
-      quality: ChordQualityToken.minor7,
+      quality: ChordQuality.minor7,
       root: 'A',
       bass: 'A',
       presentIntervals: const {0, 3, 7, 10},
       cost: 2.63,
     );
     final major6Slash = _candidate(
-      quality: ChordQualityToken.major6,
+      quality: ChordQuality.major6,
       root: 'C',
       bass: 'A',
       presentIntervals: const {0, 4, 7, 9},
@@ -1470,7 +1470,7 @@ void main() {
 
     test('extends to matching add11 and add9 color', () {
       final coloredMinor7 = _candidate(
-        quality: ChordQualityToken.minor7,
+        quality: ChordQuality.minor7,
         root: 'A',
         bass: 'A',
         presentIntervals: const {0, 3, 5, 7, 10},
@@ -1478,7 +1478,7 @@ void main() {
         cost: 2.92,
       );
       final coloredMajor6Slash = _candidate(
-        quality: ChordQualityToken.major6,
+        quality: ChordQuality.major6,
         root: 'C',
         bass: 'A',
         presentIntervals: const {0, 2, 4, 7, 9},
@@ -1501,14 +1501,14 @@ void main() {
 
     test('does not override a root-position major6', () {
       final rootMajor6 = _candidate(
-        quality: ChordQualityToken.major6,
+        quality: ChordQuality.major6,
         root: 'C',
         bass: 'C',
         presentIntervals: const {0, 4, 7, 9},
         cost: 2.63,
       );
       final minor7Slash = _candidate(
-        quality: ChordQualityToken.minor7,
+        quality: ChordQuality.minor7,
         root: 'A',
         bass: 'C',
         presentIntervals: const {0, 3, 7, 10},
@@ -1536,7 +1536,7 @@ void main() {
       // C# has a lower raw cost but the F dominant reading is what musicians
       // expect for this voicing.
       final dom7Slash = _candidate(
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         root: 'F',
         bass: 'G#',
         // intervals: root=0, sharp9=3, major3=4, perfect5=7, flat13=8, flat7=10
@@ -1546,7 +1546,7 @@ void main() {
       );
 
       final maj7Slash = _candidate(
-        quality: ChordQualityToken.major7,
+        quality: ChordQuality.major7,
         root: 'C#',
         bass: 'G#',
         // intervals: root=0, nine=2, major3=4, perfect5=7, flat13=8, major7=11
@@ -1567,7 +1567,7 @@ void main() {
     'complete add-nine triad inversion beats sparse major-thirteenth shell',
     () {
       final triadAddNine = _candidate(
-        quality: ChordQualityToken.minor,
+        quality: ChordQuality.minor,
         root: 'Bb',
         bass: 'Db',
         presentIntervals: const {0, 2, 3, 7},
@@ -1576,7 +1576,7 @@ void main() {
       );
 
       final sparseMajorThirteenth = _candidate(
-        quality: ChordQualityToken.major7,
+        quality: ChordQuality.major7,
         root: 'Db',
         bass: 'Db',
         presentIntervals: const {0, 4, 9, 11},
@@ -1596,7 +1596,7 @@ void main() {
     'root-position split-ninth add triad beats remote unusual seventh slash',
     () {
       final splitNinthTriad = _candidate(
-        quality: ChordQualityToken.major,
+        quality: ChordQuality.major,
         root: 'C',
         bass: 'C',
         presentIntervals: const {0, 1, 2, 4, 7},
@@ -1605,7 +1605,7 @@ void main() {
       );
 
       final remoteMinorSharpFive = _candidate(
-        quality: ChordQualityToken.minor7Sharp5,
+        quality: ChordQuality.minor7Sharp5,
         root: 'E',
         bass: 'C',
         presentIntervals: const {0, 3, 8, 9, 10},
@@ -1628,7 +1628,7 @@ void main() {
     // being cheaper; B beats C and C beats A on cost alone (gaps exceed the
     // near-tie window). That is a cycle: A > B > C > A.
     final a = _candidate(
-      quality: ChordQualityToken.dominant7,
+      quality: ChordQuality.dominant7,
       root: 'C',
       bass: 'C',
       presentIntervals: const {0, 1, 4, 10},
@@ -1636,7 +1636,7 @@ void main() {
       cost: 10.0,
     );
     final b = _candidate(
-      quality: ChordQualityToken.diminished7,
+      quality: ChordQuality.diminished7,
       root: 'Bb',
       bass: 'C',
       presentIntervals: const {0, 2, 3, 6, 9},
@@ -1644,7 +1644,7 @@ void main() {
       cost: 1.0,
     );
     final c = _candidate(
-      quality: ChordQualityToken.major,
+      quality: ChordQuality.major,
       root: 'E',
       bass: 'E',
       presentIntervals: const {0, 4, 7},
@@ -1710,7 +1710,7 @@ void main() {
     });
 
     ChordCandidate plain(String root, double cost) => _candidate(
-      quality: ChordQualityToken.major,
+      quality: ChordQuality.major,
       root: root,
       bass: root,
       presentIntervals: const {0, 4, 7},
@@ -1803,7 +1803,7 @@ void _expectTieRule(
 }
 
 ChordCandidate _candidate({
-  required ChordQualityToken quality,
+  required ChordQuality quality,
   required String root,
   required String bass,
   required Set<int> presentIntervals,
@@ -1823,7 +1823,7 @@ ChordCandidate _candidate({
 }
 
 ChordIdentity _identity({
-  required ChordQualityToken quality,
+  required ChordQuality quality,
   required int rootPc,
   required int bassPc,
   required Set<int> presentIntervals,

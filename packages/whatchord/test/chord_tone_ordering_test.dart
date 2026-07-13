@@ -7,7 +7,7 @@ void main() {
     const identity = ChordIdentity(
       rootPc: 1,
       bassPc: 7,
-      quality: ChordQualityToken.minorMajor7,
+      quality: ChordQuality.minorMajor7,
       toneRolesByInterval: {
         0: ChordToneRole.root,
         2: ChordToneRole.nine,

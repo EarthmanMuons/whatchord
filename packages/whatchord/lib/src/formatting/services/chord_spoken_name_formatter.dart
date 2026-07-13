@@ -4,7 +4,7 @@ import '../../models/tonality.dart';
 import '../../services/note_spelling.dart';
 import '../models/chord_symbol.dart';
 import 'chord_display_conventions.dart';
-import 'chord_quality_token_labels.dart';
+import 'chord_quality_labels.dart';
 import 'note_display_formatter.dart';
 
 /// Renders a chord identity as its idiomatic spoken name
@@ -59,13 +59,13 @@ class ChordSpokenNameFormatter {
 }
 
 (String quality, ChordExtension? absorbed) _qualitySpokenPhraseAndHeadline({
-  required ChordQualityToken quality,
+  required ChordQuality quality,
   required Set<ChordExtension> extensions,
 }) {
   if (quality.isSixFamily && extensions.contains(ChordExtension.add9)) {
     final q = switch (quality) {
-      ChordQualityToken.major6 => 'six-nine',
-      ChordQualityToken.minor6 => 'minor six-nine',
+      ChordQuality.major6 => 'six-nine',
+      ChordQuality.minor6 => 'minor six-nine',
       _ => quality.label(ChordQualityLabelForm.idiomatic),
     };
     return (q, ChordExtension.add9);
@@ -102,10 +102,10 @@ String _extensionsSpokenPhrase(
 }
 
 ChordExtension? _headlineExtension({
-  required ChordQualityToken quality,
+  required ChordQuality quality,
   required Set<ChordExtension> extensions,
 }) {
-  if (!quality.isSeventhFamily || quality == ChordQualityToken.diminished7) {
+  if (!quality.isSeventhFamily || quality == ChordQuality.diminished7) {
     return null;
   }
   if (extensions.contains(ChordExtension.thirteen)) {

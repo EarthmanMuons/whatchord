@@ -10,7 +10,7 @@ final pitchClassNamesProvider = Provider<List<String>>((ref) {
 
   return List<String>.generate(
     12,
-    (pc) => pcToName(pc, tonality: tonality),
+    (pc) => noteNameForPitchClass(pc, tonality: tonality),
     growable: false,
   );
 });

@@ -23,7 +23,7 @@ ChordEvent _event(int index, List<int> pcs) {
         identity: ChordIdentity(
           rootPc: pcs.first % 12,
           bassPc: pcs.first % 12,
-          quality: ChordQualityToken.major,
+          quality: ChordQuality.major,
           presentIntervalsMask: 1,
         ),
         cost: 0,

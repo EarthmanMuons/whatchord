@@ -9,7 +9,7 @@ import 'package:whatchord_app/features/midi/midi_input_source.dart';
 
 const _cMajorTonality = Tonality(Tonic.c, TonalityMode.major);
 
-ChordEvent _event(int index, List<int> pcs, ChordQualityToken quality) {
+ChordEvent _event(int index, List<int> pcs, ChordQuality quality) {
   var mask = 0;
   for (final pc in pcs) {
     mask |= 1 << (pc % 12);
@@ -39,10 +39,10 @@ ChordEvent _event(int index, List<int> pcs, ChordQualityToken quality) {
 }
 
 List<ChordEvent> _cCadence() => [
-  _event(0, [0, 4, 7], ChordQualityToken.major),
-  _event(1, [5, 9, 0], ChordQualityToken.major),
-  _event(2, [7, 11, 2, 5], ChordQualityToken.dominant7),
-  _event(3, [0, 4, 7], ChordQualityToken.major),
+  _event(0, [0, 4, 7], ChordQuality.major),
+  _event(1, [5, 9, 0], ChordQuality.major),
+  _event(2, [7, 11, 2, 5], ChordQuality.dominant7),
+  _event(3, [0, 4, 7], ChordQuality.major),
 ];
 
 void main() {
@@ -132,7 +132,7 @@ void main() {
     record(container, _cCadence());
     await Future<void>.delayed(const Duration(milliseconds: 50));
     record(container, [
-      _event(4, [0, 4, 7], ChordQualityToken.major),
+      _event(4, [0, 4, 7], ChordQuality.major),
     ]);
     await Future<void>.delayed(const Duration(milliseconds: 50));
 
@@ -157,7 +157,7 @@ void main() {
     // One event after a reset must not produce a claim: warmup applies again,
     // proving the detector state was truly discarded.
     record(container, [
-      _event(9, [0, 4, 7], ChordQualityToken.major),
+      _event(9, [0, 4, 7], ChordQuality.major),
     ]);
     final state = container.read(inferredKeyProvider);
     expect(state.freshness, InferredKeyFreshness.fresh);
@@ -185,20 +185,7 @@ void main() {
     // the detector abstains, the display keeps the last claim (dimmed).
     record(container, [
       for (var i = 4; i < 10; i++)
-        _event(i, [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11,
-        ], ChordQualityToken.major),
+        _event(i, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], ChordQuality.major),
     ]);
     final state = container.read(inferredKeyProvider);
     expect(state.lastClaim, isNotNull);
@@ -225,7 +212,7 @@ void main() {
 
     // Warmup applies again: the fresh detector heard none of the history.
     record(container, [
-      _event(9, [0, 4, 7], ChordQualityToken.major),
+      _event(9, [0, 4, 7], ChordQuality.major),
     ]);
     state = container.read(inferredKeyProvider);
     expect(state.freshness, InferredKeyFreshness.fresh);

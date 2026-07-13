@@ -5,7 +5,7 @@ import 'package:whatkey/whatkey.dart';
 
 const _cMajorTonality = Tonality(Tonic.c, TonalityMode.major);
 
-ChordEvent _event(int index, List<int> pcs, ChordQualityToken quality) {
+ChordEvent _event(int index, List<int> pcs, ChordQuality quality) {
   var mask = 0;
   for (final pc in pcs) {
     mask |= 1 << (pc % 12);
@@ -41,10 +41,10 @@ List<KeyEstimateFrame> _run(KeyDetector detector, List<ChordEvent> events) {
 
 void main() {
   final cCadence = [
-    _event(0, [0, 4, 7], ChordQualityToken.major),
-    _event(1, [5, 9, 0], ChordQualityToken.major),
-    _event(2, [7, 11, 2, 5], ChordQualityToken.dominant7),
-    _event(3, [0, 4, 7], ChordQualityToken.major),
+    _event(0, [0, 4, 7], ChordQuality.major),
+    _event(1, [5, 9, 0], ChordQuality.major),
+    _event(2, [7, 11, 2, 5], ChordQuality.dominant7),
+    _event(3, [0, 4, 7], ChordQuality.major),
   ];
 
   test('claims C major for a C major cadence', () {
@@ -74,10 +74,10 @@ void main() {
 
   test('claims A minor for a harmonic-minor cadence with E7', () {
     final frames = _run(HybridKeyDetector(), [
-      _event(0, [9, 0, 4], ChordQualityToken.minor),
-      _event(1, [2, 5, 9], ChordQualityToken.minor),
-      _event(2, [4, 8, 11, 2], ChordQualityToken.dominant7),
-      _event(3, [9, 0, 4], ChordQualityToken.minor),
+      _event(0, [9, 0, 4], ChordQuality.minor),
+      _event(1, [2, 5, 9], ChordQuality.minor),
+      _event(2, [4, 8, 11, 2], ChordQuality.dominant7),
+      _event(3, [9, 0, 4], ChordQuality.minor),
     ]);
     final claim = frames.last.claim;
     expect(claim, isNotNull);
@@ -88,10 +88,10 @@ void main() {
   test('claims C major on the diatonic pop loop where evidence alone ties', () {
     final frames = _run(HybridKeyDetector(), [
       for (var repeat = 0; repeat < 2; repeat++) ...[
-        _event(repeat * 4, [0, 4, 7], ChordQualityToken.major),
-        _event(repeat * 4 + 1, [7, 11, 2], ChordQualityToken.major),
-        _event(repeat * 4 + 2, [9, 0, 4], ChordQualityToken.minor),
-        _event(repeat * 4 + 3, [5, 9, 0], ChordQualityToken.major),
+        _event(repeat * 4, [0, 4, 7], ChordQuality.major),
+        _event(repeat * 4 + 1, [7, 11, 2], ChordQuality.major),
+        _event(repeat * 4 + 2, [9, 0, 4], ChordQuality.minor),
+        _event(repeat * 4 + 3, [5, 9, 0], ChordQuality.major),
       ],
     ]);
     final claim = frames.last.claim;

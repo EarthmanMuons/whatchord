@@ -98,7 +98,7 @@ void main() {
     final events = container.read(chordHistoryProvider);
     expect(events, hasLength(2));
     expect(events.first.identity.rootPc, 0);
-    expect(events.first.identity.quality, ChordQualityToken.major);
+    expect(events.first.identity.quality, ChordQuality.major);
     expect(events.first.timestamp, startedAt);
     // C ended when the F challenger began, not when it stabilized.
     expect(events.first.duration, const Duration(seconds: 2));
@@ -119,7 +119,7 @@ void main() {
 
     final events = container.read(chordHistoryProvider);
     expect(events, hasLength(1));
-    expect(events.single.identity.quality, ChordQualityToken.major);
+    expect(events.single.identity.quality, ChordQuality.major);
     // The blip folds into the held chord instead of splitting it.
     expect(
       events.single.duration,
@@ -199,7 +199,7 @@ void main() {
 
     var events = container.read(chordHistoryProvider);
     expect(events, hasLength(1));
-    expect(events.single.identity.quality, ChordQualityToken.major7);
+    expect(events.single.identity.quality, ChordQuality.major7);
     expect(events.single.duration, const Duration(seconds: 1));
 
     advance(const Duration(seconds: 1));

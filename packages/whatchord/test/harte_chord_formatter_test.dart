@@ -9,7 +9,7 @@ void main() {
       HarteChordFormatter.format(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.major,
+          quality: ChordQuality.major,
           intervals: const [0, 4, 7],
         ),
       ),
@@ -20,7 +20,7 @@ void main() {
       HarteChordFormatter.format(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.diminished7,
+          quality: ChordQuality.diminished7,
           intervals: const [0, 3, 6, 9],
         ),
       ),
@@ -31,7 +31,7 @@ void main() {
       HarteChordFormatter.format(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.minor7Sharp5,
+          quality: ChordQuality.minor7Sharp5,
           intervals: const [0, 3, 8, 10],
         ),
       ),
@@ -42,7 +42,7 @@ void main() {
   test('adds extra degrees to official shorthands', () {
     final identity = _identity(
       root: 'C',
-      quality: ChordQualityToken.major7,
+      quality: ChordQuality.major7,
       extensions: const {ChordExtension.sharp11},
       intervals: const [0, 4, 7, 11, 6],
     );
@@ -55,7 +55,7 @@ void main() {
       HarteChordFormatter.format(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.sus2,
+          quality: ChordQuality.sus2,
           intervals: const [0, 2, 7],
         ),
       ),
@@ -66,7 +66,7 @@ void main() {
       HarteChordFormatter.format(
         _identity(
           root: 'C',
-          quality: ChordQualityToken.dominant7Flat5,
+          quality: ChordQuality.dominant7Flat5,
           intervals: const [0, 4, 6, 10],
         ),
       ),
@@ -78,7 +78,7 @@ void main() {
     final identity = _identity(
       root: 'D#',
       bass: 'A#',
-      quality: ChordQualityToken.minor7,
+      quality: ChordQuality.minor7,
       extensions: const {ChordExtension.nine},
       intervals: const [0, 3, 7, 10, 2],
     );
@@ -89,7 +89,7 @@ void main() {
   test('preserves an explicit enharmonic root spelling', () {
     final identity = _identity(
       root: 'C#',
-      quality: ChordQualityToken.minor,
+      quality: ChordQuality.minor,
       intervals: const [0, 3, 7],
     );
 
@@ -100,7 +100,7 @@ void main() {
   test('keeps suspended fourth as official shorthand with extra degrees', () {
     final identity = _identity(
       root: 'Bb',
-      quality: ChordQualityToken.dominant7sus4,
+      quality: ChordQuality.dominant7sus4,
       intervals: const [0, 5, 7, 10],
     );
 
@@ -110,7 +110,7 @@ void main() {
 
 ChordIdentity _identity({
   required String root,
-  required ChordQualityToken quality,
+  required ChordQuality quality,
   required List<int> intervals,
   String? bass,
   Set<ChordExtension> extensions = const {},

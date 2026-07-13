@@ -7,12 +7,12 @@ import 'package:whatchord/testing.dart';
 
 void main() {
   // Regression: a non-diatonic chord root must be spelled with chord context,
-  // not the plain chromatic pcToName. Bbmaj9/D in C major identifies with root
-  // pitch class 10; pcToName(10) is "A#", which would spell every member
+  // not the plain chromatic noteNameForPitchClass. Bbmaj9/D in C major identifies with root
+  // pitch class 10; noteNameForPitchClass(10) is "A#", which would spell every member
   // relative to A# (Cx, E#, Gx, B#). The chips must match the identity card's
   // Bb spelling instead.
   test(
-    'member chips use the chord-aware root spelling, not plain pcToName',
+    'member chips use the chord-aware root spelling, not plain noteNameForPitchClass',
     () {
       const cMajor = Tonality(Tonic.c, TonalityMode.major);
 
@@ -27,7 +27,7 @@ void main() {
 
       // Guard the underlying contract both call sites depend on.
       expect(identity.rootPc, 10);
-      expect(pcToName(identity.rootPc, tonality: cMajor), 'A#');
+      expect(noteNameForPitchClass(identity.rootPc, tonality: cMajor), 'A#');
       expect(spellChordRoot(identity, tonality: cMajor), 'Bb');
 
       final presentation = ChordPresentationBuilder.fromIdentity(

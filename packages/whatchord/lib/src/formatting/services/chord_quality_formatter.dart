@@ -1,12 +1,12 @@
 import '../../models/chord_extension.dart';
 import '../../models/chord_identity.dart';
 import '../models/chord_symbol.dart';
-import 'chord_quality_token_labels.dart';
+import 'chord_quality_labels.dart';
 
 /// Formats the "quality+extensions" portion of a chord symbol.
 class ChordQualityFormatter {
   static String format({
-    required ChordQualityToken quality,
+    required ChordQuality quality,
     required Set<ChordExtension> extensions,
     required ChordNotationStyle notation,
     ChordQualityLabelForm? qualityFormOverride,
@@ -14,7 +14,7 @@ class ChordQualityFormatter {
     final form = qualityFormOverride ?? _defaultQualityFormFor(notation);
 
     final textualMinorMajor =
-        quality == ChordQualityToken.minorMajor7 &&
+        quality == ChordQuality.minorMajor7 &&
         form == ChordQualityLabelForm.textual;
 
     var base = textualMinorMajor ? 'm' : quality.coreLabel(form);
@@ -136,25 +136,25 @@ class ChordQualityFormatter {
   /// Whether it is conventional to "promote" 9/11/13 into the headline
   /// (C9, C11, C13, Cmaj9, Cm11, etc.) for this quality/form.
   static bool _allowsHeadlinePromotion({
-    required ChordQualityToken quality,
+    required ChordQuality quality,
     required ChordQualityLabelForm form,
   }) {
     // Seventh-family qualities are the ones that headline 9/11/13.
     switch (quality) {
-      case ChordQualityToken.dominant7:
-      case ChordQualityToken.dominant7sus2:
-      case ChordQualityToken.dominant7sus4:
-      case ChordQualityToken.dominant7Flat5:
-      case ChordQualityToken.dominant7Sharp5:
-      case ChordQualityToken.major7:
-      case ChordQualityToken.major7sus2:
-      case ChordQualityToken.major7sus4:
-      case ChordQualityToken.major7Flat5:
-      case ChordQualityToken.major7Sharp5:
-      case ChordQualityToken.minor7:
-      case ChordQualityToken.minor7Sharp5:
-      case ChordQualityToken.minorMajor7:
-      case ChordQualityToken.halfDiminished7:
+      case ChordQuality.dominant7:
+      case ChordQuality.dominant7sus2:
+      case ChordQuality.dominant7sus4:
+      case ChordQuality.dominant7Flat5:
+      case ChordQuality.dominant7Sharp5:
+      case ChordQuality.major7:
+      case ChordQuality.major7sus2:
+      case ChordQuality.major7sus4:
+      case ChordQuality.major7Flat5:
+      case ChordQuality.major7Sharp5:
+      case ChordQuality.minor7:
+      case ChordQuality.minor7Sharp5:
+      case ChordQuality.minorMajor7:
+      case ChordQuality.halfDiminished7:
         return true;
       default:
         return false;
@@ -162,12 +162,12 @@ class ChordQualityFormatter {
   }
 
   static ChordExtension _displayExtensionFor({
-    required ChordQualityToken quality,
+    required ChordQuality quality,
     required ChordExtension ext,
   }) {
     // For fully diminished seventh chords, natural extensions are commonly
     // rendered as added tones: Cdim7(add9), Cdim7(add11), etc.
-    if (quality == ChordQualityToken.diminished7 && ext.isNaturalExtension) {
+    if (quality == ChordQuality.diminished7 && ext.isNaturalExtension) {
       switch (ext) {
         case ChordExtension.nine:
           return ChordExtension.add9;
@@ -210,14 +210,14 @@ class ChordQualityFormatter {
   }
 
   static bool _shouldUseParens({
-    required ChordQualityToken quality,
+    required ChordQuality quality,
     required ChordNotationStyle notation,
     required List<ChordExtension> mods,
     required ChordExtension? headline,
     required bool textualMinorMajor,
   }) {
     if (textualMinorMajor) return true;
-    if (quality == ChordQualityToken.diminished7) return true;
+    if (quality == ChordQuality.diminished7) return true;
     if (mods.isEmpty) return false;
 
     // Suspended seventh-family chords group their modifiers instead of running
@@ -236,8 +236,8 @@ class ChordQualityFormatter {
       if (ext.isAddTone) {
         if (quality.isSeventhFamily) return true;
         return notation == ChordNotationStyle.textual &&
-            (quality == ChordQualityToken.augmented ||
-                quality == ChordQualityToken.diminished);
+            (quality == ChordQuality.augmented ||
+                quality == ChordQuality.diminished);
       }
 
       if (_isDensePromotedMajorFamilyLabel(quality, headline)) return true;
@@ -250,7 +250,7 @@ class ChordQualityFormatter {
   }
 
   static bool _isDensePromotedMajorFamilyLabel(
-    ChordQualityToken quality,
+    ChordQuality quality,
     ChordExtension? headline,
   ) {
     if (headline != ChordExtension.eleven &&
@@ -259,9 +259,9 @@ class ChordQualityFormatter {
     }
 
     switch (quality) {
-      case ChordQualityToken.major7:
-      case ChordQualityToken.major7Flat5:
-      case ChordQualityToken.major7Sharp5:
+      case ChordQuality.major7:
+      case ChordQuality.major7Flat5:
+      case ChordQuality.major7Sharp5:
         return true;
       default:
         return false;

@@ -17,7 +17,7 @@ class ScaleDegreeCase {
   final String? expectedRomanNumeral;
 
   /// Sanity-checks for the winning analyzer identity.
-  final ChordQualityToken? expectedQuality;
+  final ChordQuality? expectedQuality;
   final Set<ChordExtension> expectedExtensions;
 
   const ScaleDegreeCase({
@@ -43,7 +43,7 @@ ScaleDegreeCase deg({
   required ScaleDegree? expected,
   ScaleDegreeSource? expectedSource,
   String? expectedRomanNumeral,
-  ChordQualityToken? expectedQuality,
+  ChordQuality? expectedQuality,
   Set<ChordExtension> expectedExtensions = const {},
 }) {
   return ScaleDegreeCase(
@@ -88,7 +88,7 @@ void main() {
       description: 'major tonic seventh',
       pcs: ['C', 'E', 'G', 'B'],
       expected: ScaleDegree.one,
-      expectedQuality: ChordQualityToken.major7,
+      expectedQuality: ChordQuality.major7,
     ),
     deg(
       description: 'supertonic minor triad',
@@ -99,20 +99,20 @@ void main() {
       description: 'supertonic minor seventh',
       pcs: ['D', 'F', 'A', 'C'],
       expected: ScaleDegree.two,
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
     ),
     deg(
       description: 'dominant seventh',
       pcs: ['G', 'B', 'D', 'F'],
       expected: ScaleDegree.five,
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
     ),
     deg(
       description: 'leading-tone half-diminished seventh',
       pcs: ['B', 'D', 'F', 'A'],
       expected: ScaleDegree.seven,
       expectedRomanNumeral: 'viiø7',
-      expectedQuality: ChordQualityToken.halfDiminished7,
+      expectedQuality: ChordQuality.halfDiminished7,
     ),
 
     // -------------------------
@@ -124,7 +124,7 @@ void main() {
       description: 'suspended chord has no strict degree',
       pcs: ['C', 'F', 'G'],
       expected: null,
-      expectedQuality: ChordQualityToken.sus4,
+      expectedQuality: ChordQuality.sus4,
     ),
 
     // Altered dominants are non-diatonic under natural major/minor strictness.
@@ -132,7 +132,7 @@ void main() {
       description: 'chromatic altered dominant has no strict major degree',
       pcs: ['C', 'E', 'G', 'Bb', 'Db'],
       expected: null,
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.flat9},
     ),
 
@@ -141,14 +141,14 @@ void main() {
       description: 'diatonic added-sixth tonic',
       pcs: ['C', 'E', 'G', 'A'],
       expected: ScaleDegree.one,
-      expectedQuality: ChordQualityToken.major6,
+      expectedQuality: ChordQuality.major6,
     ),
     deg(
       description: 'non-diatonic minor sixth has no strict major degree',
       pcs: ['A', 'C', 'E', 'F#'],
       expected: null,
       // The analyzer still returns Am6; the classifier rejects the degree.
-      expectedQuality: ChordQualityToken.minor6,
+      expectedQuality: ChordQuality.minor6,
     ),
 
     // Diminished7 is not diatonic in C major natural scale.
@@ -193,7 +193,7 @@ void main() {
       expected: ScaleDegree.five,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'V7',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
     ),
     deg(
       description: 'harmonic-minor dominant flat ninth',
@@ -202,7 +202,7 @@ void main() {
       expected: ScaleDegree.five,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'V7',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.flat9},
     ),
     deg(
@@ -212,7 +212,7 @@ void main() {
       expected: ScaleDegree.five,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'V7#5',
-      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedQuality: ChordQuality.dominant7Sharp5,
     ),
     deg(
       description: 'natural-minor flat seventh dominant seventh',
@@ -237,7 +237,7 @@ void main() {
       expected: ScaleDegree.seven,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'vii°7',
-      expectedQuality: ChordQualityToken.diminished7,
+      expectedQuality: ChordQuality.diminished7,
     ),
     deg(
       description: 'harmonic-minor augmented mediant',
@@ -246,7 +246,7 @@ void main() {
       expected: ScaleDegree.three,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: '♭III+',
-      expectedQuality: ChordQualityToken.augmented,
+      expectedQuality: ChordQuality.augmented,
     ),
     deg(
       description: 'harmonic-minor augmented mediant seventh',
@@ -255,7 +255,7 @@ void main() {
       expected: ScaleDegree.three,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: '♭III+maj7#5',
-      expectedQuality: ChordQualityToken.major7Sharp5,
+      expectedQuality: ChordQuality.major7Sharp5,
     ),
     deg(
       description: 'harmonic-minor tonic major seventh',
@@ -264,7 +264,7 @@ void main() {
       expected: ScaleDegree.one,
       expectedSource: ScaleDegreeSource.harmonicMinor,
       expectedRomanNumeral: 'i(maj7)',
-      expectedQuality: ChordQualityToken.minorMajor7,
+      expectedQuality: ChordQuality.minorMajor7,
     ),
   ];
 

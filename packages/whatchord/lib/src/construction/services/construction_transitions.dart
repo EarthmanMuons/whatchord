@@ -51,7 +51,7 @@ ChordConstruction constructionWithFifthAlteration(
 /// [state] respecified to a complete [quality], renormalized.
 ChordConstruction constructionWithQuality(
   ChordConstruction state,
-  ChordQualityToken quality,
+  ChordQuality quality,
 ) {
   final nextSpec = ChordSpec.fromQuality(quality);
   return _withSpec(state, nextSpec);

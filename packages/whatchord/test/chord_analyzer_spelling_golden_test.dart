@@ -15,7 +15,7 @@ void main() {
       pcs: ['E#', 'G#', 'B'],
       tonality: const Tonality(Tonic.fSharp, TonalityMode.major),
       expectedRoot: 'E#',
-      expectedQuality: ChordQualityToken.diminished,
+      expectedQuality: ChordQuality.diminished,
     ),
 
     // In Cb major (7 flats), we should prefer Fb over E for the subdominant chord.
@@ -25,7 +25,7 @@ void main() {
       pcs: ['Fb', 'Ab', 'Cb'],
       tonality: const Tonality(Tonic.cFlat, TonalityMode.major),
       expectedRoot: 'Fb',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
     ),
 
     // -------------------------------------------------------------------------
@@ -40,7 +40,7 @@ void main() {
       tonality: const Tonality(Tonic.d, TonalityMode.major), // sharp-leaning
       expectedRoot: 'C',
       expectedBass: 'Gb',
-      expectedQuality: ChordQualityToken.diminished,
+      expectedQuality: ChordQuality.diminished,
     ),
 
     // Complete flat-five dominant sevenths should use the core b5 quality.
@@ -51,7 +51,7 @@ void main() {
       tonality: const Tonality(Tonic.dFlat, TonalityMode.major), // flat-leaning
       expectedRoot: 'F#',
       expectedBass: 'F#',
-      expectedQuality: ChordQualityToken.dominant7Flat5,
+      expectedQuality: ChordQuality.dominant7Flat5,
     ),
 
     // Augmented triads are symmetric by pitch class, but root spelling should
@@ -63,7 +63,7 @@ void main() {
       bass: 'Ab',
       expectedRoot: 'Ab',
       expectedBass: 'Ab',
-      expectedQuality: ChordQualityToken.augmented,
+      expectedQuality: ChordQuality.augmented,
     ),
 
     // -------------------------------------------------------------------------
@@ -80,7 +80,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'A',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
     ),
 
     // A #9 in the bass would functionally spell as Cx (double sharp); prefer D.
@@ -91,7 +91,7 @@ void main() {
       bass: 'D',
       expectedRoot: 'B',
       expectedBass: 'D',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
     ),
 
     // Stacked tensions in the bass stay readable while the body names the roles.
@@ -102,7 +102,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'A',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
     ),
 
     // Contrast: a genuine chord-tone inversion keeps its functional spelling
@@ -115,7 +115,7 @@ void main() {
       tonality: const Tonality(Tonic.cSharp, TonalityMode.major),
       expectedRoot: 'C#',
       expectedBass: 'B#',
-      expectedQuality: ChordQualityToken.major7,
+      expectedQuality: ChordQuality.major7,
     ),
 
     // Contrast: the major third in the bass keeps its sharp inversion spelling.
@@ -126,7 +126,7 @@ void main() {
       bass: 'A#',
       expectedRoot: 'F#',
       expectedBass: 'A#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
     ),
   ];
 

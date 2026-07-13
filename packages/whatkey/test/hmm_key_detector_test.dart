@@ -5,7 +5,7 @@ import 'package:whatkey/whatkey.dart';
 
 const _cMajorTonality = Tonality(Tonic.c, TonalityMode.major);
 
-ChordEvent _event(int index, List<int> pcs, ChordQualityToken quality) {
+ChordEvent _event(int index, List<int> pcs, ChordQuality quality) {
   var mask = 0;
   for (final pc in pcs) {
     mask |= 1 << (pc % 12);
@@ -47,16 +47,16 @@ List<ChordEvent> _bluesChorus(int startIndex) {
   final bars = [i7, i7, i7, i7, iv7, iv7, i7, i7, v7, iv7, i7, v7];
   return [
     for (var bar = 0; bar < bars.length; bar++)
-      _event(startIndex + bar, bars[bar], ChordQualityToken.dominant7),
+      _event(startIndex + bar, bars[bar], ChordQuality.dominant7),
   ];
 }
 
 void main() {
   final cCadence = [
-    _event(0, [0, 4, 7], ChordQualityToken.major),
-    _event(1, [5, 9, 0], ChordQualityToken.major),
-    _event(2, [7, 11, 2, 5], ChordQualityToken.dominant7),
-    _event(3, [0, 4, 7], ChordQualityToken.major),
+    _event(0, [0, 4, 7], ChordQuality.major),
+    _event(1, [5, 9, 0], ChordQuality.major),
+    _event(2, [7, 11, 2, 5], ChordQuality.dominant7),
+    _event(3, [0, 4, 7], ChordQuality.major),
   ];
 
   test('claims C major for a C major cadence', () {
@@ -86,10 +86,10 @@ void main() {
 
   test('claims A minor for a harmonic-minor cadence with E7', () {
     final frames = _run(HmmKeyDetector(), [
-      _event(0, [9, 0, 4], ChordQualityToken.minor),
-      _event(1, [2, 5, 9], ChordQualityToken.minor),
-      _event(2, [4, 8, 11, 2], ChordQualityToken.dominant7),
-      _event(3, [9, 0, 4], ChordQualityToken.minor),
+      _event(0, [9, 0, 4], ChordQuality.minor),
+      _event(1, [2, 5, 9], ChordQuality.minor),
+      _event(2, [4, 8, 11, 2], ChordQuality.dominant7),
+      _event(3, [9, 0, 4], ChordQuality.minor),
     ]);
     final claim = frames.last.claim;
     expect(claim, isNotNull);
@@ -100,9 +100,9 @@ void main() {
   test('an established key persists through a single tonicization', () {
     final frames = _run(HmmKeyDetector(), [
       ...cCadence,
-      _event(4, [2, 6, 9, 0], ChordQualityToken.dominant7), // V7/V
-      _event(5, [7, 11, 2, 5], ChordQualityToken.dominant7),
-      _event(6, [0, 4, 7], ChordQualityToken.major),
+      _event(4, [2, 6, 9, 0], ChordQuality.dominant7), // V7/V
+      _event(5, [7, 11, 2, 5], ChordQuality.dominant7),
+      _event(6, [0, 4, 7], ChordQuality.major),
     ]);
     for (final frame in frames.skip(3)) {
       final claim = frame.claim;
@@ -116,8 +116,8 @@ void main() {
     final frames = _run(HmmKeyDetector(), [
       ...cCadence,
       for (var i = 0; i < 6; i++) ...[
-        _event(4 + 2 * i, [2, 6, 9, 0], ChordQualityToken.dominant7),
-        _event(5 + 2 * i, [7, 11, 2], ChordQualityToken.major),
+        _event(4 + 2 * i, [2, 6, 9, 0], ChordQuality.dominant7),
+        _event(5 + 2 * i, [7, 11, 2], ChordQuality.major),
       ],
     ]);
     final claim = frames.last.claim;
@@ -135,7 +135,7 @@ void main() {
     final frames = _run(HmmKeyDetector(), [
       ..._bluesChorus(0),
       ..._bluesChorus(12),
-      _event(24, [0, 4, 7, 10], ChordQualityToken.dominant7),
+      _event(24, [0, 4, 7, 10], ChordQuality.dominant7),
     ]);
     final lastClaim = frames.last.claim;
     expect(lastClaim, isNotNull);
@@ -146,8 +146,8 @@ void main() {
     final events = [
       ...cCadence,
       for (var i = 0; i < 6; i++) ...[
-        _event(4 + 2 * i, [2, 6, 9, 0], ChordQualityToken.dominant7),
-        _event(5 + 2 * i, [7, 11, 2], ChordQualityToken.major),
+        _event(4 + 2 * i, [2, 6, 9, 0], ChordQuality.dominant7),
+        _event(5 + 2 * i, [7, 11, 2], ChordQuality.major),
       ],
     ];
     final plain = _run(HmmKeyDetector(modeTilt: 0), events);
@@ -167,10 +167,10 @@ void main() {
     // tonic chord's quality, which is exactly what the tilt reads.
     final vamp = [
       for (var i = 0; i < 4; i++) ...[
-        _event(4 * i, [0, 3, 7], ChordQualityToken.minor),
-        _event(4 * i + 1, [5, 9, 0], ChordQualityToken.major),
-        _event(4 * i + 2, [7, 11, 2], ChordQualityToken.major),
-        _event(4 * i + 3, [0, 3, 7], ChordQualityToken.minor),
+        _event(4 * i, [0, 3, 7], ChordQuality.minor),
+        _event(4 * i + 1, [5, 9, 0], ChordQuality.major),
+        _event(4 * i + 2, [7, 11, 2], ChordQuality.major),
+        _event(4 * i + 3, [0, 3, 7], ChordQuality.minor),
       ],
     ];
     double cMinorConfidence(List<KeyEstimateFrame> frames) => frames.last.ranked
@@ -206,8 +206,8 @@ void main() {
     final events = [
       ...cCadence,
       for (var i = 0; i < 6; i++) ...[
-        _event(4 + 2 * i, [2, 6, 9, 0], ChordQualityToken.dominant7),
-        _event(5 + 2 * i, [7, 11, 2], ChordQualityToken.major),
+        _event(4 + 2 * i, [2, 6, 9, 0], ChordQuality.dominant7),
+        _event(5 + 2 * i, [7, 11, 2], ChordQuality.major),
       ],
     ];
     final plain = _run(HmmKeyDetector(), events);
@@ -224,9 +224,9 @@ void main() {
     // relative major.
     final vamp = [
       for (var i = 0; i < 4; i++) ...[
-        _event(3 * i, [9, 0, 4], ChordQualityToken.minor),
-        _event(3 * i + 1, [2, 5, 9], ChordQualityToken.minor),
-        _event(3 * i + 2, [9, 0, 4], ChordQualityToken.minor),
+        _event(3 * i, [9, 0, 4], ChordQuality.minor),
+        _event(3 * i + 1, [2, 5, 9], ChordQuality.minor),
+        _event(3 * i + 2, [9, 0, 4], ChordQuality.minor),
       ],
     ];
     double aMinorConfidence(List<KeyEstimateFrame> frames) => frames.last.ranked
@@ -244,8 +244,8 @@ void main() {
     // major relative to the untilted run.
     final phrase = [
       for (var i = 0; i < 4; i++) ...[
-        _event(2 * i, [4, 8, 11, 2], ChordQualityToken.dominant7),
-        _event(2 * i + 1, [9, 0, 4], ChordQualityToken.minor),
+        _event(2 * i, [4, 8, 11, 2], ChordQuality.dominant7),
+        _event(2 * i + 1, [9, 0, 4], ChordQuality.minor),
       ],
     ];
     double aMinorConfidence(List<KeyEstimateFrame> frames) => frames.last.ranked
@@ -263,7 +263,7 @@ void main() {
     // Exercised indirectly: run one event and confirm the posterior stays
     // normalized after prediction with an uninformative start.
     final frames = _run(detector, [
-      _event(0, [0, 4, 7], ChordQualityToken.major),
+      _event(0, [0, 4, 7], ChordQuality.major),
     ]);
     final total = frames.single.ranked.fold(0.0, (s, e) => s + e.confidence);
     expect(total, closeTo(1.0, 1e-9));

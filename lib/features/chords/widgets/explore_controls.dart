@@ -33,7 +33,7 @@ class ExploreControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final extensionGroups = buildExtensionControlGroups(state.quality);
+    final extensionGroups = buildExtensionOptionGroups(state.quality);
     final seventhKindChoices = availableSeventhKindsFor(state.baseQuality);
     final fifthAlterationChoices = availableFifthAlterationsFor(
       baseQuality: state.baseQuality,
@@ -280,9 +280,7 @@ class _CoreTonesSelector extends StatelessWidget {
                         ),
                         labels: [
                           for (final choice in fifthAlterationChoices)
-                            theoryTokenDisplayLabel(
-                              _fifthAlterationLabel(choice),
-                            ),
+                            toGlyphAccidentals(_fifthAlterationLabel(choice)),
                         ],
                         semanticLabels: [
                           for (final choice in fifthAlterationChoices)
@@ -304,7 +302,7 @@ class _CoreTonesSelector extends StatelessWidget {
                   ),
                   labels: [
                     for (final choice in seventhKindChoices)
-                      theoryTokenDisplayLabel(
+                      toGlyphAccidentals(
                         _seventhKindLabel(choice, baseQuality),
                       ),
                   ],
@@ -403,7 +401,7 @@ class _OptionWheel<T> extends StatelessWidget {
       label: label,
       value: value,
       choices: choices,
-      displayLabelFor: (value) => theoryTokenDisplayLabel(labelFor(value)),
+      displayLabelFor: (value) => toGlyphAccidentals(labelFor(value)),
       semanticLabelFor: semanticLabelFor,
       onChanged: onChanged,
     );
@@ -580,9 +578,9 @@ class _ExtensionBuilder extends StatelessWidget {
     required this.onChoiceSelected,
   });
 
-  final List<ExtensionControlGroup> groups;
+  final List<ExtensionOptionGroup> groups;
   final Set<ChordExtension> selectedExtensions;
-  final void Function(ExtensionControlGroup group, ExtensionChoice choice)
+  final void Function(ExtensionOptionGroup group, ExtensionChoice choice)
   onChoiceSelected;
 
   @override
@@ -651,7 +649,7 @@ class _ExtensionBuilder extends StatelessWidget {
     );
   }
 
-  bool _isSelected(ExtensionControlGroup group, ExtensionChoice choice) {
+  bool _isSelected(ExtensionOptionGroup group, ExtensionChoice choice) {
     final extension = choice.extension;
     if (extension != null) return selectedExtensions.contains(extension);
 
@@ -662,7 +660,7 @@ class _ExtensionBuilder extends StatelessWidget {
         );
   }
 
-  int _selectedIndex(ExtensionControlGroup group) {
+  int _selectedIndex(ExtensionOptionGroup group) {
     for (var index = 0; index < group.choices.length; index++) {
       if (_isSelected(group, group.choices[index])) return index;
     }

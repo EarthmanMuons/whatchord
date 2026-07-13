@@ -8,7 +8,7 @@ import '../../services/chord_quality_intervals.dart';
 /// chords use add tones, while seventh-family chords can use stacked 9/11/13
 /// extensions once the lower stack is present.
 Set<ChordExtension> normalizeExtensionsForQuality({
-  required ChordQualityToken quality,
+  required ChordQuality quality,
   required Set<ChordExtension> extensions,
 }) {
   final normalized = <ChordExtension>{};
@@ -315,13 +315,13 @@ void removeSeventhConflicts(
 }
 
 /// Extensions available before splitting them into add-tone and alteration UI.
-Set<ChordExtension> triadLikeExtensions(ChordQualityToken quality) {
+Set<ChordExtension> triadLikeExtensions(ChordQuality quality) {
   return Set<ChordExtension>.unmodifiable(
     _triadLikeExtensionsByQuality[quality] ?? const <ChordExtension>{},
   );
 }
 
-Set<ChordExtension> triadLikeAddTones(ChordQualityToken quality) {
+Set<ChordExtension> triadLikeAddTones(ChordQuality quality) {
   final available = triadLikeExtensions(quality);
   return {
     for (final extension in const {
@@ -333,7 +333,7 @@ Set<ChordExtension> triadLikeAddTones(ChordQualityToken quality) {
   };
 }
 
-Set<ChordExtension> triadLikeAlterations(ChordQualityToken quality) {
+Set<ChordExtension> triadLikeAlterations(ChordQuality quality) {
   final available = triadLikeExtensions(quality);
   return {
     if (available.contains(ChordExtension.flat9)) ChordExtension.flat9,
@@ -344,7 +344,7 @@ Set<ChordExtension> triadLikeAlterations(ChordQualityToken quality) {
   };
 }
 
-Set<ChordExtension> seventhStackExtensions(ChordQualityToken quality) {
+Set<ChordExtension> seventhStackExtensions(ChordQuality quality) {
   return _extensionsNotInCore(quality, _seventhStackExtensionOrder);
 }
 
@@ -352,16 +352,16 @@ Set<ChordExtension> seventhStackExtensions(ChordQualityToken quality) {
 ///
 /// In this UI, choosing an added ninth on a seventh chord promotes directly to
 /// the stacked ninth.
-Set<ChordExtension> seventhAddTones(ChordQualityToken quality) {
+Set<ChordExtension> seventhAddTones(ChordQuality quality) {
   return _extensionsNotInCore(quality, _seventhAddToneOrder);
 }
 
-Set<ChordExtension> seventhAlterations(ChordQualityToken quality) {
+Set<ChordExtension> seventhAlterations(ChordQuality quality) {
   return _extensionsNotInCore(quality, _seventhAlterationOrder);
 }
 
 Set<ChordExtension> _extensionsNotInCore(
-  ChordQualityToken quality,
+  ChordQuality quality,
   List<ChordExtension> candidates,
 ) {
   final canonicalIntervals = quality.canonicalIntervals;
@@ -378,10 +378,10 @@ void _replaceWithStackedEleventh(Set<ChordExtension> extensions) {
   extensions.add(ChordExtension.eleven);
 }
 
-const _triadLikeExtensionsByQuality = <ChordQualityToken, Set<ChordExtension>>{
+const _triadLikeExtensionsByQuality = <ChordQuality, Set<ChordExtension>>{
   // Major/minor 6ths and diminished sevenths are core-tone choices, so plain
   // major, minor, and diminished triads do not expose add13 duplicates.
-  ChordQualityToken.major: {
+  ChordQuality.major: {
     ChordExtension.add9,
     ChordExtension.add11,
     ChordExtension.addFlat9,
@@ -389,51 +389,51 @@ const _triadLikeExtensionsByQuality = <ChordQualityToken, Set<ChordExtension>>{
     ChordExtension.sharp11,
     ChordExtension.flat13,
   },
-  ChordQualityToken.minor: {
+  ChordQuality.minor: {
     ChordExtension.add9,
     ChordExtension.add11,
     ChordExtension.addFlat9,
     ChordExtension.sharp11,
     ChordExtension.flat13,
   },
-  ChordQualityToken.minorSharp5: {
+  ChordQuality.minorSharp5: {
     ChordExtension.add9,
     ChordExtension.add11,
     ChordExtension.add13,
     ChordExtension.sharp11,
   },
-  ChordQualityToken.diminished: {
+  ChordQuality.diminished: {
     ChordExtension.add9,
     ChordExtension.add11,
     ChordExtension.flat13,
   },
-  ChordQualityToken.augmented: {
+  ChordQuality.augmented: {
     ChordExtension.add9,
     ChordExtension.add11,
     ChordExtension.add13,
     ChordExtension.addSharp9,
     ChordExtension.sharp11,
   },
-  ChordQualityToken.sus2: {
+  ChordQuality.sus2: {
     ChordExtension.add11,
     ChordExtension.add13,
     ChordExtension.flat13,
   },
-  ChordQualityToken.sus4: {
+  ChordQuality.sus4: {
     ChordExtension.add9,
     ChordExtension.add13,
     ChordExtension.addFlat9,
     ChordExtension.flat13,
   },
-  ChordQualityToken.sus2sus4: {ChordExtension.add13, ChordExtension.flat13},
-  ChordQualityToken.major6: {
+  ChordQuality.sus2sus4: {ChordExtension.add13, ChordExtension.flat13},
+  ChordQuality.major6: {
     ChordExtension.add9,
     ChordExtension.add11,
     ChordExtension.flat9,
     ChordExtension.addSharp9,
     ChordExtension.sharp11,
   },
-  ChordQualityToken.minor6: {
+  ChordQuality.minor6: {
     ChordExtension.add9,
     ChordExtension.add11,
     ChordExtension.flat9,

@@ -118,15 +118,15 @@ class CandidateFeatures {
     final realExt = (pref.naturalCount + pref.alterationCount) > 0;
     final bassRoleRank = _bassRoleRank(id);
 
-    final isDim7 = q == ChordQualityToken.diminished7;
-    final isDimFamily = isDim7 || q == ChordQualityToken.halfDiminished7;
+    final isDim7 = q == ChordQuality.diminished7;
+    final isDimFamily = isDim7 || q == ChordQuality.halfDiminished7;
     final isSlashBass = !rootPos;
     final bassIsColorTone = isSlashBass ? _bassIsColorTone(id) : false;
 
-    final isDom7 = q == ChordQualityToken.dominant7;
-    final isFlatFiveDom7 = q == ChordQualityToken.dominant7Flat5;
+    final isDom7 = q == ChordQuality.dominant7;
+    final isFlatFiveDom7 = q == ChordQuality.dominant7Flat5;
     final isAlteredFifthDom7 =
-        isFlatFiveDom7 || q == ChordQualityToken.dominant7Sharp5;
+        isFlatFiveDom7 || q == ChordQuality.dominant7Sharp5;
     final isDom7RootPosition = isDom7 && rootPos;
     final isDom7Slash = isDom7 && isSlashBass;
 
@@ -159,10 +159,10 @@ class CandidateFeatures {
       isRootDominantSus: _isRootDominantSus(id, rootPos),
       isRootPositionNaturalAddChord:
           rootPos &&
-          (q == ChordQualityToken.major ||
-              q == ChordQualityToken.minor ||
-              q == ChordQualityToken.major6 ||
-              q == ChordQualityToken.minor6) &&
+          (q == ChordQuality.major ||
+              q == ChordQuality.minor ||
+              q == ChordQuality.major6 ||
+              q == ChordQuality.minor6) &&
           pref.alterationCount == 0 &&
           pref.naturalCount == 0,
       isStructurallyDeficient: _isStructurallyDeficient(id, rootPos),
@@ -176,7 +176,7 @@ class CandidateFeatures {
       dom7SlashHasNonBassAlterations: dom7SlashHasNonBassAlterations,
       isCompleteDominantFlat9: _isCompleteDominantWithAlteration(
         id,
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         alteration: ChordExtension.flat9,
         alterationRole: ChordToneRole.flat9,
         fifthRole: ChordToneRole.perfect5,
@@ -187,7 +187,7 @@ class CandidateFeatures {
       ),
       isCompleteDominantSharp9: _isCompleteDominantWithAlteration(
         id,
-        quality: ChordQualityToken.dominant7,
+        quality: ChordQuality.dominant7,
         alteration: ChordExtension.sharp9,
         alterationRole: ChordToneRole.sharp9,
         fifthRole: ChordToneRole.perfect5,
@@ -223,7 +223,7 @@ class CandidateFeatures {
 
   static bool _isCompleteDominantWithAlteration(
     ChordIdentity id, {
-    required ChordQualityToken quality,
+    required ChordQuality quality,
     required ChordExtension alteration,
     required ChordToneRole alterationRole,
     required ChordToneRole fifthRole,
@@ -255,7 +255,7 @@ class CandidateFeatures {
   /// This identifies the narrow ambiguous shape that can be heard as a familiar
   /// altered-dominant shell or as a more remote chord rooted on the bass.
   static bool _isFifthlessFlatNineBassDominant(ChordIdentity id) {
-    if (id.quality != ChordQualityToken.dominant7) return false;
+    if (id.quality != ChordQuality.dominant7) return false;
     if (!id.extensions.contains(ChordExtension.flat9)) {
       return false;
     }
@@ -281,8 +281,8 @@ class CandidateFeatures {
 
   static bool _isCompleteAlteredFifthDominant(ChordIdentity id) {
     final quality = id.quality;
-    if (quality != ChordQualityToken.dominant7Flat5 &&
-        quality != ChordQualityToken.dominant7Sharp5) {
+    if (quality != ChordQuality.dominant7Flat5 &&
+        quality != ChordQuality.dominant7Sharp5) {
       return false;
     }
 
@@ -296,16 +296,16 @@ class CandidateFeatures {
         roles.contains(ChordToneRole.flat7);
   }
 
-  static bool _isUnusualSeventhQuality(ChordQualityToken quality) {
-    return quality == ChordQualityToken.minor7Sharp5 ||
-        quality == ChordQualityToken.dominant7sus2 ||
-        quality == ChordQualityToken.dominant7sus4 ||
-        quality == ChordQualityToken.dominant7Flat5 ||
-        quality == ChordQualityToken.dominant7Sharp5 ||
-        quality == ChordQualityToken.major7sus2 ||
-        quality == ChordQualityToken.major7sus4 ||
-        quality == ChordQualityToken.major7Flat5 ||
-        quality == ChordQualityToken.major7Sharp5;
+  static bool _isUnusualSeventhQuality(ChordQuality quality) {
+    return quality == ChordQuality.minor7Sharp5 ||
+        quality == ChordQuality.dominant7sus2 ||
+        quality == ChordQuality.dominant7sus4 ||
+        quality == ChordQuality.dominant7Flat5 ||
+        quality == ChordQuality.dominant7Sharp5 ||
+        quality == ChordQuality.major7sus2 ||
+        quality == ChordQuality.major7sus4 ||
+        quality == ChordQuality.major7Flat5 ||
+        quality == ChordQuality.major7Sharp5;
   }
 
   static bool _isRootPositionMinor7Add11Shell(
@@ -313,7 +313,7 @@ class CandidateFeatures {
     bool rootPosition,
   ) {
     if (!rootPosition ||
-        id.quality != ChordQualityToken.minor7 ||
+        id.quality != ChordQuality.minor7 ||
         id.extensions.length != 1 ||
         !_hasNaturalEleventhColor(id.extensions)) {
       return false;
@@ -335,7 +335,7 @@ class CandidateFeatures {
 
   static bool _isCompleteMajorMinorTriadCore(ChordIdentity id) {
     final q = id.quality;
-    if (q != ChordQualityToken.major && q != ChordQualityToken.minor) {
+    if (q != ChordQuality.major && q != ChordQuality.minor) {
       return false;
     }
     if (id.extensions.any(
@@ -345,7 +345,7 @@ class CandidateFeatures {
     }
 
     final roles = id.toneRolesByInterval.values;
-    final hasThird = q == ChordQualityToken.major
+    final hasThird = q == ChordQuality.major
         ? roles.contains(ChordToneRole.major3)
         : roles.contains(ChordToneRole.minor3);
 
@@ -356,7 +356,7 @@ class CandidateFeatures {
 
   static bool _isCompleteTriadCore(ChordIdentity id) {
     final q = id.quality;
-    if (q == ChordQualityToken.diminished) {
+    if (q == ChordQuality.diminished) {
       if (id.extensions.isNotEmpty) return false;
 
       final roles = id.toneRolesByInterval.values;
@@ -370,7 +370,7 @@ class CandidateFeatures {
 
   static bool _isCompleteMajorTriadInversion(ChordIdentity id, bool rootPos) {
     if (rootPos) return false;
-    if (id.quality != ChordQualityToken.major) return false;
+    if (id.quality != ChordQuality.major) return false;
     if (_bassRoleRank(id) > 2) return false;
 
     final roles = id.toneRolesByInterval.values;
@@ -381,10 +381,9 @@ class CandidateFeatures {
 
   static bool _isTriadCoreDestabilizingExtension(
     ChordExtension extension, {
-    required ChordQualityToken quality,
+    required ChordQuality quality,
   }) {
-    if (quality == ChordQualityToken.major &&
-        extension == ChordExtension.add11) {
+    if (quality == ChordQuality.major && extension == ChordExtension.add11) {
       return true;
     }
 
@@ -433,13 +432,12 @@ class CandidateFeatures {
   static bool _isRootDominantSus(ChordIdentity id, bool rootPos) {
     if (!rootPos) return false;
     final q = id.quality;
-    if (q != ChordQualityToken.dominant7sus2 &&
-        q != ChordQualityToken.dominant7sus4) {
+    if (q != ChordQuality.dominant7sus2 && q != ChordQuality.dominant7sus4) {
       return false;
     }
 
     final roles = id.toneRolesByInterval.values;
-    final hasSuspension = q == ChordQualityToken.dominant7sus2
+    final hasSuspension = q == ChordQuality.dominant7sus2
         ? roles.contains(ChordToneRole.sus2)
         : roles.contains(ChordToneRole.sus4);
     return hasSuspension && roles.contains(ChordToneRole.flat7);
@@ -454,7 +452,7 @@ class CandidateFeatures {
     // Plain suspended triad: no third, and no seventh that would make it a real
     // dominant/major sus. Dominant7sus/major7sus keep their seventh and are not
     // deficient.
-    if (q == ChordQualityToken.sus2 || q == ChordQualityToken.sus4) {
+    if (q == ChordQuality.sus2 || q == ChordQuality.sus4) {
       return true;
     }
 
@@ -482,9 +480,9 @@ class CandidateFeatures {
     bool hasMaj3Nat11,
   ) {
     if (rootPos) return false;
-    if (id.quality == ChordQualityToken.dominant7 ||
-        id.quality == ChordQualityToken.dominant7Flat5 ||
-        id.quality == ChordQualityToken.dominant7Sharp5) {
+    if (id.quality == ChordQuality.dominant7 ||
+        id.quality == ChordQuality.dominant7Flat5 ||
+        id.quality == ChordQuality.dominant7Sharp5) {
       return false;
     }
     return hasMaj3Nat11;
@@ -523,7 +521,7 @@ class CandidateFeatures {
   }
 
   static bool _dom7SlashHasNonBassAlterations(ChordIdentity id) {
-    if (id.quality != ChordQualityToken.dominant7) return false;
+    if (id.quality != ChordQuality.dominant7) return false;
     if (id.rootPc == id.bassPc) return false;
 
     // Identify which extension token corresponds to the bass role (if any),

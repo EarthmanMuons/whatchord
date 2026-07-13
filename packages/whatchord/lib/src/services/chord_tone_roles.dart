@@ -6,7 +6,7 @@ import '../models/chord_tone_role.dart';
 /// This is the key mechanism that enables "#11 vs b5" spelling decisions.
 abstract final class ChordToneRoles {
   static Map<int, ChordToneRole> build({
-    required ChordQualityToken quality,
+    required ChordQuality quality,
     required Set<ChordExtension> extensions,
     required int
     relMask, // 12-bit mask of intervals above root present in voicing
@@ -24,153 +24,153 @@ abstract final class ChordToneRoles {
     }
 
     switch (quality) {
-      case ChordQualityToken.major:
+      case ChordQuality.major:
         addBase(4, ChordToneRole.major3);
         addBase(7, ChordToneRole.perfect5);
         break;
 
-      case ChordQualityToken.majorFlat5:
+      case ChordQuality.majorFlat5:
         addBase(4, ChordToneRole.major3);
         addBase(6, ChordToneRole.flat5);
         break;
 
-      case ChordQualityToken.minor:
+      case ChordQuality.minor:
         addBase(3, ChordToneRole.minor3);
         addBase(7, ChordToneRole.perfect5);
         break;
 
-      case ChordQualityToken.minorSharp5:
+      case ChordQuality.minorSharp5:
         addBase(3, ChordToneRole.minor3);
         addBase(8, ChordToneRole.sharp5);
         break;
 
-      case ChordQualityToken.diminished:
+      case ChordQuality.diminished:
         addBase(3, ChordToneRole.minor3);
         addBase(6, ChordToneRole.flat5);
         break;
 
-      case ChordQualityToken.augmented:
+      case ChordQuality.augmented:
         addBase(4, ChordToneRole.major3);
         addBase(8, ChordToneRole.sharp5);
         break;
 
-      case ChordQualityToken.power:
+      case ChordQuality.power:
         addBase(7, ChordToneRole.perfect5);
         break;
 
-      case ChordQualityToken.sus2:
+      case ChordQuality.sus2:
         addBase(2, ChordToneRole.sus2);
         addBase(7, ChordToneRole.perfect5);
         break;
 
-      case ChordQualityToken.sus4:
+      case ChordQuality.sus4:
         addBase(5, ChordToneRole.sus4);
         addBase(7, ChordToneRole.perfect5);
         break;
 
-      case ChordQualityToken.sus2sus4:
+      case ChordQuality.sus2sus4:
         addBase(2, ChordToneRole.sus2);
         addBase(5, ChordToneRole.sus4);
         addBase(7, ChordToneRole.perfect5);
         break;
 
-      case ChordQualityToken.major6:
+      case ChordQuality.major6:
         addBase(4, ChordToneRole.major3);
         addBase(7, ChordToneRole.perfect5);
         addBase(9, ChordToneRole.sixth);
         break;
 
-      case ChordQualityToken.minor6:
+      case ChordQuality.minor6:
         addBase(3, ChordToneRole.minor3);
         addBase(7, ChordToneRole.perfect5);
         addBase(9, ChordToneRole.sixth);
         break;
 
-      case ChordQualityToken.dominant7:
+      case ChordQuality.dominant7:
         addBase(4, ChordToneRole.major3);
         addBase(7, ChordToneRole.perfect5);
         addBase(10, ChordToneRole.flat7);
         break;
 
-      case ChordQualityToken.dominant7sus2:
+      case ChordQuality.dominant7sus2:
         addBase(2, ChordToneRole.sus2);
         addBase(7, ChordToneRole.perfect5);
         addBase(10, ChordToneRole.flat7);
         break;
 
-      case ChordQualityToken.dominant7sus4:
+      case ChordQuality.dominant7sus4:
         addBase(5, ChordToneRole.sus4);
         addBase(7, ChordToneRole.perfect5);
         addBase(10, ChordToneRole.flat7);
         break;
 
-      case ChordQualityToken.dominant7Flat5:
+      case ChordQuality.dominant7Flat5:
         addBase(4, ChordToneRole.major3);
         addBase(6, ChordToneRole.flat5);
         addBase(10, ChordToneRole.flat7);
         break;
 
-      case ChordQualityToken.dominant7Sharp5:
+      case ChordQuality.dominant7Sharp5:
         addBase(4, ChordToneRole.major3);
         addBase(8, ChordToneRole.sharp5);
         addBase(10, ChordToneRole.flat7);
         break;
 
-      case ChordQualityToken.major7:
+      case ChordQuality.major7:
         addBase(4, ChordToneRole.major3);
         addBase(7, ChordToneRole.perfect5);
         addBase(11, ChordToneRole.major7);
         break;
 
-      case ChordQualityToken.major7sus2:
+      case ChordQuality.major7sus2:
         addBase(2, ChordToneRole.sus2);
         addBase(7, ChordToneRole.perfect5);
         addBase(11, ChordToneRole.major7);
         break;
 
-      case ChordQualityToken.major7sus4:
+      case ChordQuality.major7sus4:
         addBase(5, ChordToneRole.sus4);
         addBase(7, ChordToneRole.perfect5);
         addBase(11, ChordToneRole.major7);
         break;
 
-      case ChordQualityToken.major7Flat5:
+      case ChordQuality.major7Flat5:
         addBase(4, ChordToneRole.major3);
         addBase(6, ChordToneRole.flat5);
         addBase(11, ChordToneRole.major7);
         break;
 
-      case ChordQualityToken.major7Sharp5:
+      case ChordQuality.major7Sharp5:
         addBase(4, ChordToneRole.major3);
         addBase(8, ChordToneRole.sharp5);
         addBase(11, ChordToneRole.major7);
         break;
 
-      case ChordQualityToken.minor7:
+      case ChordQuality.minor7:
         addBase(3, ChordToneRole.minor3);
         addBase(7, ChordToneRole.perfect5);
         addBase(10, ChordToneRole.flat7);
         break;
 
-      case ChordQualityToken.minor7Sharp5:
+      case ChordQuality.minor7Sharp5:
         addBase(3, ChordToneRole.minor3);
         addBase(8, ChordToneRole.sharp5);
         addBase(10, ChordToneRole.flat7);
         break;
 
-      case ChordQualityToken.minorMajor7:
+      case ChordQuality.minorMajor7:
         addBase(3, ChordToneRole.minor3);
         addBase(7, ChordToneRole.perfect5);
         addBase(11, ChordToneRole.major7);
         break;
 
-      case ChordQualityToken.halfDiminished7:
+      case ChordQuality.halfDiminished7:
         addBase(3, ChordToneRole.minor3);
         addBase(6, ChordToneRole.flat5);
         addBase(10, ChordToneRole.flat7);
         break;
 
-      case ChordQualityToken.diminished7:
+      case ChordQuality.diminished7:
         addBase(3, ChordToneRole.minor3);
         addBase(6, ChordToneRole.flat5);
         // Fully diminished seventh is "bb7" (interval 9 above root).

@@ -12,8 +12,8 @@ const _supportedExtensionIntervals = <int>[1, 2, 3, 5, 6, 8, 9];
 const _analysisTake = 256;
 
 final List<Tonality> _supportedTonalities = <Tonality>[
-  for (final keySignature in keySignatureRows) keySignature.relativeMajor,
-  for (final keySignature in keySignatureRows) keySignature.relativeMinor,
+  for (final keySignature in keySignatures) keySignature.relativeMajor,
+  for (final keySignature in keySignatures) keySignature.relativeMinor,
 ];
 
 class _GeneratedChordCase {

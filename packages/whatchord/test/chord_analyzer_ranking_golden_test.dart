@@ -15,7 +15,7 @@ void main() {
       expectedSymbol: 'C9#11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F#'],
       expectedRoot: 'C',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
     ),
 
@@ -26,7 +26,7 @@ void main() {
       bass: 'Bb',
       expectedRoot: 'C',
       expectedBass: 'Bb',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
     ),
 
@@ -35,7 +35,7 @@ void main() {
       expectedSymbol: 'C13#11',
       pcs: ['C', 'E', 'G', 'Bb', 'D', 'F#', 'A'],
       expectedRoot: 'C',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.nine,
         ChordExtension.sharp11,
@@ -53,7 +53,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'A',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.minor,
+      expectedQuality: ChordQuality.minor,
       expectedExtensions: {ChordExtension.sharp11},
     ),
 
@@ -66,7 +66,7 @@ void main() {
       tonality: const Tonality(Tonic.d, TonalityMode.major),
       expectedRoot: 'E',
       expectedBass: 'B',
-      expectedQuality: ChordQualityToken.minor,
+      expectedQuality: ChordQuality.minor,
     ),
 
     golden(
@@ -76,7 +76,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'Ab',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
     ),
 
     golden(
@@ -87,7 +87,7 @@ void main() {
       bass: 'Eb',
       expectedRoot: 'Ab',
       expectedBass: 'Eb',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
     ),
 
     golden(
@@ -98,7 +98,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'C',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
       expectedExtensions: {ChordExtension.add9},
     ),
 
@@ -111,7 +111,7 @@ void main() {
       bass: 'G',
       expectedRoot: 'C',
       expectedBass: 'G',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
       expectedExtensions: {ChordExtension.addFlat9},
     ),
 
@@ -123,7 +123,7 @@ void main() {
       tonality: const Tonality(Tonic.cSharp, TonalityMode.major),
       expectedRoot: 'C#',
       expectedBass: 'D#',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
       expectedExtensions: {ChordExtension.add9},
     ),
 
@@ -136,7 +136,7 @@ void main() {
       bass: 'G',
       expectedRoot: 'G',
       expectedBass: 'G',
-      expectedQuality: ChordQualityToken.dominant7sus4,
+      expectedQuality: ChordQuality.dominant7sus4,
     ),
 
     golden(
@@ -147,7 +147,7 @@ void main() {
       bass: 'D',
       expectedRoot: 'D',
       expectedBass: 'D',
-      expectedQuality: ChordQualityToken.dominant7sus4,
+      expectedQuality: ChordQuality.dominant7sus4,
       expectedExtensions: {ChordExtension.nine},
     ),
 
@@ -158,7 +158,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'C',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.dominant7sus4,
+      expectedQuality: ChordQuality.dominant7sus4,
       expectedExtensions: {ChordExtension.flat9},
     ),
 
@@ -170,7 +170,7 @@ void main() {
       bass: 'D',
       expectedRoot: 'C',
       expectedBass: 'D',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.nine},
     ),
 
@@ -182,7 +182,7 @@ void main() {
       bass: 'Eb',
       expectedRoot: 'C#',
       expectedBass: 'D#',
-      expectedQuality: ChordQualityToken.minorMajor7,
+      expectedQuality: ChordQuality.minorMajor7,
       expectedExtensions: {ChordExtension.nine},
     ),
 
@@ -193,7 +193,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'C#',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.minorMajor7,
+      expectedQuality: ChordQuality.minorMajor7,
       expectedExtensions: {ChordExtension.nine},
     ),
 
@@ -205,7 +205,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'C#',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.minorMajor7,
+      expectedQuality: ChordQuality.minorMajor7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.flat13},
     ),
 
@@ -216,7 +216,7 @@ void main() {
       bass: 'G',
       expectedRoot: 'C',
       expectedBass: 'G',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.flat9},
     ),
 
@@ -227,7 +227,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'C',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.flat9},
     ),
 
@@ -240,7 +240,7 @@ void main() {
       bass: 'G',
       expectedRoot: 'C',
       expectedBass: 'G',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.flat9, ChordExtension.sharp9},
     ),
 
@@ -252,7 +252,7 @@ void main() {
       bass: 'Db',
       expectedRoot: 'F#',
       expectedBass: 'C#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.flat9, ChordExtension.sharp11},
     ),
 
@@ -264,7 +264,7 @@ void main() {
       bass: 'G',
       expectedRoot: 'C',
       expectedBass: 'G',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.flat9, ChordExtension.sharp11},
     ),
 
@@ -277,7 +277,7 @@ void main() {
       bass: 'Bb',
       expectedRoot: 'C',
       expectedBass: 'Bb',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.flat9, ChordExtension.sharp11},
     ),
 
@@ -289,7 +289,7 @@ void main() {
       expectedSymbol: 'Gm6',
       pcs: ['G', 'Bb', 'D', 'E'],
       expectedRoot: 'G',
-      expectedQuality: ChordQualityToken.minor6,
+      expectedQuality: ChordQuality.minor6,
     ),
 
     golden(
@@ -299,7 +299,7 @@ void main() {
       tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expectedRoot: 'A',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
       expectedExtensions: {ChordExtension.eleven},
     ),
 
@@ -313,7 +313,7 @@ void main() {
       tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expectedRoot: 'A',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
     ),
 
     // The symmetric augmented triad has three equal-cost spellings; the
@@ -327,7 +327,7 @@ void main() {
       tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expectedRoot: 'C',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.augmented,
+      expectedQuality: ChordQuality.augmented,
     ),
 
     golden(
@@ -339,7 +339,7 @@ void main() {
       tonality: const Tonality(Tonic.c, TonalityMode.major),
       expectedRoot: 'D',
       expectedBass: 'A',
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
     ),
 
     golden(
@@ -351,7 +351,7 @@ void main() {
       tonality: const Tonality(Tonic.c, TonalityMode.major),
       expectedRoot: 'A',
       expectedBass: 'A',
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
     ),
 
     golden(
@@ -364,7 +364,7 @@ void main() {
       tonality: const Tonality(Tonic.c, TonalityMode.major),
       expectedRoot: 'A',
       expectedBass: 'A',
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
       expectedExtensions: {ChordExtension.eleven},
     ),
 
@@ -383,7 +383,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'A',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.minor,
+      expectedQuality: ChordQuality.minor,
       expectedExtensions: {ChordExtension.add11},
     ),
 
@@ -395,7 +395,7 @@ void main() {
       tonality: const Tonality(Tonic.a, TonalityMode.minor),
       expectedRoot: 'A',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.minor,
+      expectedQuality: ChordQuality.minor,
       expectedExtensions: {ChordExtension.add11},
     ),
 
@@ -407,7 +407,7 @@ void main() {
       tonality: const Tonality(Tonic.f, TonalityMode.major),
       expectedRoot: 'D',
       expectedBass: 'A',
-      expectedQuality: ChordQualityToken.minor,
+      expectedQuality: ChordQuality.minor,
       expectedExtensions: {ChordExtension.add11},
     ),
 
@@ -420,7 +420,7 @@ void main() {
       expectedSymbol: 'Fm(maj7,#11)/Ab',
       pcs: ['Ab', 'B', 'C', 'E', 'F'],
       expectedRoot: 'F',
-      expectedQuality: ChordQualityToken.minorMajor7,
+      expectedQuality: ChordQuality.minorMajor7,
       expectedExtensions: {ChordExtension.sharp11},
     ),
 
@@ -438,7 +438,7 @@ void main() {
       bass: 'Ab',
       expectedRoot: 'F',
       expectedBass: 'G#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.sharp9, ChordExtension.flat13},
     ),
 
@@ -450,7 +450,7 @@ void main() {
       bass: 'Db',
       expectedRoot: 'C#',
       expectedBass: 'C#',
-      expectedQuality: ChordQualityToken.major7,
+      expectedQuality: ChordQuality.major7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.flat13},
     ),
 
@@ -462,7 +462,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'F',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.flat13},
     ),
 
@@ -474,7 +474,7 @@ void main() {
       bass: 'G',
       expectedRoot: 'Eb',
       expectedBass: 'G',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.nine,
         ChordExtension.sharp11,
@@ -489,7 +489,7 @@ void main() {
       bass: 'A',
       expectedRoot: 'F',
       expectedBass: 'A',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.flat13},
     ),
 
@@ -505,7 +505,7 @@ void main() {
       bass: 'Db',
       expectedRoot: 'Eb',
       expectedBass: 'Db',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.nine,
         ChordExtension.sharp11,
@@ -522,7 +522,7 @@ void main() {
       bass: 'Eb',
       expectedRoot: 'F',
       expectedBass: 'Eb',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.flat9, ChordExtension.flat13},
     ),
 
@@ -535,7 +535,7 @@ void main() {
       bass: 'F#',
       expectedRoot: 'F',
       expectedBass: 'Gb',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.flat9, ChordExtension.flat13},
     ),
 
@@ -546,7 +546,7 @@ void main() {
       bass: 'Db',
       expectedRoot: 'A',
       expectedBass: 'C#',
-      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedQuality: ChordQuality.dominant7Sharp5,
       expectedExtensions: {ChordExtension.sharp9},
     ),
 
@@ -558,7 +558,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'A',
       expectedBass: 'B#',
-      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedQuality: ChordQuality.dominant7Sharp5,
       expectedExtensions: {ChordExtension.sharp9},
     ),
 
@@ -569,7 +569,7 @@ void main() {
       bass: 'Eb',
       expectedRoot: 'C',
       expectedBass: 'D#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.sharp9},
     ),
 
@@ -581,7 +581,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'A',
       expectedBass: 'B#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.sharp9, ChordExtension.sharp11},
     ),
 
@@ -593,7 +593,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'A',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.sharp9, ChordExtension.sharp11},
     ),
 
@@ -605,7 +605,7 @@ void main() {
       bass: 'G',
       expectedRoot: 'A',
       expectedBass: 'G',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.sharp9, ChordExtension.sharp11},
     ),
 
@@ -618,7 +618,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'A',
       expectedBass: 'B#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.sharp9,
         ChordExtension.sharp11,
@@ -634,7 +634,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'A',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.sharp9,
         ChordExtension.sharp11,
@@ -650,7 +650,7 @@ void main() {
       bass: 'G',
       expectedRoot: 'A',
       expectedBass: 'G',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.sharp9,
         ChordExtension.sharp11,
@@ -667,7 +667,7 @@ void main() {
       bass: 'F#',
       expectedRoot: 'A',
       expectedBass: 'F#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.sharp9,
         ChordExtension.sharp11,
@@ -683,7 +683,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'F#',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.sharp9,
         ChordExtension.sharp11,
@@ -699,7 +699,7 @@ void main() {
       bass: 'A',
       expectedRoot: 'F#',
       expectedBass: 'Gx',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.sharp9,
         ChordExtension.sharp11,
@@ -715,7 +715,7 @@ void main() {
       bass: 'Db',
       expectedRoot: 'Eb',
       expectedBass: 'Db',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.sharp9, ChordExtension.thirteen},
     ),
 
@@ -727,7 +727,7 @@ void main() {
       bass: 'F#',
       expectedRoot: 'Eb',
       expectedBass: 'F#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.sharp9, ChordExtension.thirteen},
     ),
 
@@ -739,7 +739,7 @@ void main() {
       bass: 'Bb',
       expectedRoot: 'Eb',
       expectedBass: 'Bb',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.sharp9, ChordExtension.thirteen},
     ),
 
@@ -750,7 +750,7 @@ void main() {
       bass: 'Bb',
       expectedRoot: 'F#',
       expectedBass: 'A#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.sharp11, ChordExtension.flat13},
     ),
 
@@ -762,7 +762,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'F#',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.sharp11, ChordExtension.flat13},
     ),
 
@@ -774,7 +774,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'D',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.dominant7Flat5,
+      expectedQuality: ChordQuality.dominant7Flat5,
     ),
 
     // -------------------------------------------------------------------------
@@ -787,7 +787,7 @@ void main() {
       bass: 'G',
       expectedRoot: 'C',
       expectedBass: 'G',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
       expectedExtensions: {ChordExtension.add9},
     ),
 
@@ -798,7 +798,7 @@ void main() {
       pcs: ['C', 'Db', 'D', 'E', 'G'],
       bass: 'C',
       expectedRoot: 'C',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
       expectedExtensions: {ChordExtension.addFlat9, ChordExtension.add9},
     ),
 
@@ -810,7 +810,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'C',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
       expectedExtensions: {ChordExtension.addFlat9, ChordExtension.add9},
     ),
 
@@ -823,7 +823,7 @@ void main() {
       bass: 'Db',
       expectedRoot: 'Bb',
       expectedBass: 'Db',
-      expectedQuality: ChordQualityToken.minor,
+      expectedQuality: ChordQuality.minor,
       expectedExtensions: {ChordExtension.add9},
     ),
 
@@ -834,7 +834,7 @@ void main() {
       pcs: ['C', 'E', 'Ab', 'Bb'],
       bass: 'Ab',
       expectedRoot: 'Ab',
-      expectedQuality: ChordQualityToken.augmented,
+      expectedQuality: ChordQuality.augmented,
       expectedExtensions: {ChordExtension.add9},
     ),
 
@@ -846,7 +846,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'C',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedQuality: ChordQuality.dominant7Sharp5,
     ),
 
     golden(
@@ -856,7 +856,7 @@ void main() {
       bass: 'G',
       tonality: const Tonality(Tonic.d, TonalityMode.major),
       expectedRoot: 'G',
-      expectedQuality: ChordQualityToken.sus2sus4,
+      expectedQuality: ChordQuality.sus2sus4,
       expectedToneRolesByInterval: {
         2: ChordToneRole.sus2,
         5: ChordToneRole.sus4,
@@ -869,7 +869,7 @@ void main() {
       pcs: ['C', 'D', 'F', 'G'],
       bass: 'D',
       expectedRoot: 'D',
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
       expectedExtensions: {ChordExtension.eleven},
     ),
 
@@ -883,7 +883,7 @@ void main() {
       bass: 'Bb',
       expectedRoot: 'C',
       expectedBass: 'Bb',
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
       expectedExtensions: {ChordExtension.eleven},
     ),
 
@@ -893,7 +893,7 @@ void main() {
       pcs: ['C', 'Db', 'F', 'G', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'Bb',
-      expectedQuality: ChordQualityToken.minor6,
+      expectedQuality: ChordQuality.minor6,
       expectedExtensions: {ChordExtension.add9},
     ),
 
@@ -905,7 +905,7 @@ void main() {
       bass: 'A',
       expectedRoot: 'C',
       expectedBass: 'A',
-      expectedQuality: ChordQualityToken.minor6,
+      expectedQuality: ChordQuality.minor6,
       expectedExtensions: {ChordExtension.flat9},
     ),
 
@@ -918,7 +918,7 @@ void main() {
       pcs: ['C', 'Db', 'Eb', 'F#', 'Ab', 'Bb'],
       bass: 'Eb',
       expectedRoot: 'Eb',
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
       expectedExtensions: {ChordExtension.eleven, ChordExtension.thirteen},
     ),
 
@@ -933,7 +933,7 @@ void main() {
       bass: 'Db',
       expectedRoot: 'Db',
       expectedBass: 'Db',
-      expectedQuality: ChordQualityToken.major7sus4,
+      expectedQuality: ChordQuality.major7sus4,
       expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
     ),
 
@@ -948,7 +948,7 @@ void main() {
       bass: 'Bb',
       expectedRoot: 'Eb',
       expectedBass: 'Bb',
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
       expectedExtensions: {ChordExtension.eleven, ChordExtension.thirteen},
     ),
 
@@ -959,7 +959,7 @@ void main() {
       pcs: ['C', 'Eb', 'G', 'A', 'Bb'],
       bass: 'Eb',
       expectedRoot: 'Eb',
-      expectedQuality: ChordQualityToken.major6,
+      expectedQuality: ChordQuality.major6,
       expectedExtensions: {ChordExtension.sharp11},
     ),
 
@@ -973,7 +973,7 @@ void main() {
       bass: 'B',
       expectedRoot: 'G#',
       expectedBass: 'B',
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
       expectedExtensions: {ChordExtension.eleven, ChordExtension.thirteen},
     ),
 
@@ -985,7 +985,7 @@ void main() {
       pcs: ['C', 'Db', 'Eb', 'F', 'G'],
       bass: 'Db',
       expectedRoot: 'Db',
-      expectedQuality: ChordQualityToken.major7,
+      expectedQuality: ChordQuality.major7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
       expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
     ),
@@ -998,7 +998,7 @@ void main() {
       pcs: ['C', 'Db', 'F', 'G'],
       bass: 'Db',
       expectedRoot: 'Db',
-      expectedQuality: ChordQualityToken.major7,
+      expectedQuality: ChordQuality.major7,
       expectedExtensions: {ChordExtension.sharp11},
       expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
     ),
@@ -1011,7 +1011,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'Ab',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
       expectedExtensions: {ChordExtension.sharp11},
       expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
     ),
@@ -1025,7 +1025,7 @@ void main() {
       bass: 'Db',
       expectedRoot: 'Gb',
       expectedBass: 'Db',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
       expectedExtensions: {ChordExtension.sharp11},
       expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
     ),
@@ -1039,7 +1039,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'Db',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.major7sus4,
+      expectedQuality: ChordQuality.major7sus4,
       expectedExtensions: {ChordExtension.thirteen},
     ),
 
@@ -1051,7 +1051,7 @@ void main() {
       bass: 'Gb',
       expectedRoot: 'Gb',
       expectedBass: 'Gb',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
       expectedExtensions: {ChordExtension.sharp11, ChordExtension.add9},
     ),
 
@@ -1062,7 +1062,7 @@ void main() {
       bass: 'G',
       expectedRoot: 'G',
       expectedBass: 'G',
-      expectedQuality: ChordQualityToken.sus4,
+      expectedQuality: ChordQuality.sus4,
       expectedExtensions: {ChordExtension.sharp11},
       expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
     ),
@@ -1076,7 +1076,7 @@ void main() {
       bass: 'Db',
       expectedRoot: 'A',
       expectedBass: 'C#',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
       expectedExtensions: {ChordExtension.add11},
     ),
 
@@ -1088,7 +1088,7 @@ void main() {
       bass: 'D',
       expectedRoot: 'A',
       expectedBass: 'D',
-      expectedQuality: ChordQualityToken.minor,
+      expectedQuality: ChordQuality.minor,
       expectedExtensions: {ChordExtension.add11},
     ),
 
@@ -1100,7 +1100,7 @@ void main() {
       bass: 'Eb',
       expectedRoot: 'Db',
       expectedBass: 'Eb',
-      expectedQuality: ChordQualityToken.major7,
+      expectedQuality: ChordQuality.major7,
       expectedExtensions: {ChordExtension.nine},
     ),
 
@@ -1112,7 +1112,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'Db',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.major7,
+      expectedQuality: ChordQuality.major7,
       expectedExtensions: {ChordExtension.nine},
     ),
 
@@ -1126,7 +1126,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'Eb',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
       expectedToneRolesByInterval: {9: ChordToneRole.thirteen},
     ),
@@ -1140,7 +1140,7 @@ void main() {
       bass: 'G',
       expectedRoot: 'Db',
       expectedBass: 'G',
-      expectedQuality: ChordQualityToken.major7,
+      expectedQuality: ChordQuality.major7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
       expectedToneRolesByInterval: {6: ChordToneRole.sharp11},
     ),
@@ -1153,7 +1153,7 @@ void main() {
       bass: 'Db',
       expectedRoot: 'Eb',
       expectedBass: 'Db',
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
     ),
 
@@ -1166,7 +1166,7 @@ void main() {
       bass: 'Db',
       expectedRoot: 'Eb',
       expectedBass: 'Db',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
     ),
 
@@ -1178,7 +1178,7 @@ void main() {
       bass: 'F',
       expectedRoot: 'Eb',
       expectedBass: 'F',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
     ),
 
@@ -1189,7 +1189,7 @@ void main() {
       pcs: ['C', 'D', 'E', 'F#', 'Ab'],
       bass: 'D',
       expectedRoot: 'D',
-      expectedQuality: ChordQualityToken.dominant7Flat5,
+      expectedQuality: ChordQuality.dominant7Flat5,
       expectedExtensions: {ChordExtension.nine},
       expectedToneRolesByInterval: {6: ChordToneRole.flat5},
     ),
@@ -1203,7 +1203,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'D',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.dominant7Flat5,
+      expectedQuality: ChordQuality.dominant7Flat5,
       expectedExtensions: {ChordExtension.nine},
       expectedToneRolesByInterval: {6: ChordToneRole.flat5},
     ),
@@ -1214,7 +1214,7 @@ void main() {
       pcs: ['C', 'Db', 'Eb', 'F', 'G'],
       bass: 'Eb',
       expectedRoot: 'Eb',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.thirteen},
     ),
 
@@ -1225,7 +1225,7 @@ void main() {
       pcs: ['C', 'D', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'C',
       expectedRoot: 'C',
-      expectedQuality: ChordQualityToken.dominant7Sharp5,
+      expectedQuality: ChordQuality.dominant7Sharp5,
       expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
       expectedToneRolesByInterval: {8: ChordToneRole.sharp5},
     ),
@@ -1238,7 +1238,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'F#',
       expectedBass: 'B#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.nine,
         ChordExtension.sharp11,
@@ -1254,7 +1254,7 @@ void main() {
       bass: 'D',
       expectedRoot: 'F#',
       expectedBass: 'D',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.nine,
         ChordExtension.sharp11,
@@ -1270,7 +1270,7 @@ void main() {
       bass: 'Bb',
       expectedRoot: 'F#',
       expectedBass: 'A#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.nine,
         ChordExtension.sharp11,
@@ -1286,7 +1286,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'F#',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.nine,
         ChordExtension.sharp11,
@@ -1302,7 +1302,7 @@ void main() {
       bass: 'Bb',
       expectedRoot: 'F#',
       expectedBass: 'A#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.nine,
         ChordExtension.sharp11,
@@ -1319,7 +1319,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'C',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.flat9,
         ChordExtension.nine,
@@ -1336,7 +1336,7 @@ void main() {
       bass: 'D',
       expectedRoot: 'C',
       expectedBass: 'D',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.flat9,
         ChordExtension.nine,
@@ -1352,7 +1352,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'F#',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.flat9,
         ChordExtension.sharp11,
@@ -1368,7 +1368,7 @@ void main() {
       bass: 'Bb',
       expectedRoot: 'F#',
       expectedBass: 'A#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {
         ChordExtension.flat9,
         ChordExtension.sharp11,
@@ -1384,7 +1384,7 @@ void main() {
       bass: 'E',
       expectedRoot: 'F#',
       expectedBass: 'E',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
     ),
 
@@ -1396,7 +1396,7 @@ void main() {
       bass: 'Ab',
       expectedRoot: 'F#',
       expectedBass: 'G#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
     ),
 
@@ -1408,7 +1408,7 @@ void main() {
       bass: 'Bb',
       expectedRoot: 'F#',
       expectedBass: 'A#',
-      expectedQuality: ChordQualityToken.dominant7,
+      expectedQuality: ChordQuality.dominant7,
       expectedExtensions: {ChordExtension.nine, ChordExtension.sharp11},
     ),
 
@@ -1421,7 +1421,7 @@ void main() {
       bass: 'C',
       expectedRoot: 'Eb',
       expectedBass: 'C',
-      expectedQuality: ChordQualityToken.minor7,
+      expectedQuality: ChordQuality.minor7,
       expectedExtensions: {
         ChordExtension.nine,
         ChordExtension.eleven,
@@ -1439,7 +1439,7 @@ void main() {
       tonality: const Tonality(Tonic.b, TonalityMode.minor),
       expectedRoot: 'F',
       expectedBass: 'A',
-      expectedQuality: ChordQualityToken.dominant7Flat5,
+      expectedQuality: ChordQuality.dominant7Flat5,
       expectedExtensions: {ChordExtension.nine},
     ),
 
@@ -1452,7 +1452,7 @@ void main() {
       pcs: ['C', 'Eb', 'Ab', 'Bb'],
       bass: 'Ab',
       expectedRoot: 'Ab',
-      expectedQuality: ChordQualityToken.major,
+      expectedQuality: ChordQuality.major,
       expectedExtensions: {ChordExtension.add9},
     ),
 
@@ -1467,7 +1467,7 @@ void main() {
       bass: 'Eb',
       expectedRoot: 'Eb',
       expectedBass: 'Eb',
-      expectedQuality: ChordQualityToken.dominant7sus4,
+      expectedQuality: ChordQuality.dominant7sus4,
       expectedExtensions: {ChordExtension.thirteen},
     ),
   ];

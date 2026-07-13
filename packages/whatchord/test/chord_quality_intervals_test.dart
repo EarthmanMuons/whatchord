@@ -7,7 +7,7 @@ void main() {
   test('canonical interval definitions cover every chord quality', () {
     expect(
       chordQualityIntervalSets.map((intervals) => intervals.quality).toSet(),
-      ChordQualityToken.values.toSet(),
+      ChordQuality.values.toSet(),
     );
   });
 
