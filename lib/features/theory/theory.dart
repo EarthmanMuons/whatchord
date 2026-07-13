@@ -1,4 +1,4 @@
-export 'package:whatchord_theory/whatchord_theory.dart';
+export 'package:whatchord/whatchord.dart';
 
 export 'presentation/models/identity_display.dart';
 

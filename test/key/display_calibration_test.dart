@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/key/key.dart';
+import 'package:whatchord_app/features/key/key.dart';
 
 void main() {
   List<KeyEstimate> posterior(Map<int, double> byIndex) => [

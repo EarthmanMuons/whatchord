@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:whatchord/core/providers/shared_preferences_provider.dart';
+import 'package:whatchord_app/core/providers/shared_preferences_provider.dart';
 
 import '../models/audio_monitor_mode.dart';
 import '../models/audio_monitor_settings.dart';

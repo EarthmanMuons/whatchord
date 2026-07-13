@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/demo/demo.dart';
-import 'package:whatchord/features/input/input.dart';
-import 'package:whatchord/features/links/links.dart';
-import 'package:whatchord/features/lookup/lookup.dart';
-import 'package:whatchord/features/midi/midi.dart';
-import 'package:whatchord/features/onboarding/onboarding.dart';
-import 'package:whatchord/features/scales/scales.dart';
-import 'package:whatchord/features/settings/settings.dart';
+import 'package:whatchord_app/features/demo/demo.dart';
+import 'package:whatchord_app/features/input/input.dart';
+import 'package:whatchord_app/features/links/links.dart';
+import 'package:whatchord_app/features/lookup/lookup.dart';
+import 'package:whatchord_app/features/midi/midi.dart';
+import 'package:whatchord_app/features/onboarding/onboarding.dart';
+import 'package:whatchord_app/features/scales/scales.dart';
+import 'package:whatchord_app/features/settings/settings.dart';
 
 import '../models/home_layout_config.dart';
 import '../widgets/analysis_section.dart';

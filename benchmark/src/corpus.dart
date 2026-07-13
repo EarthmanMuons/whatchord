@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:whatchord_theory/whatchord_theory.dart';
+import 'package:whatchord/whatchord.dart';
 
 /// The benchmark workload: every reviewed-oracle voicing, decoded straight from
 /// the case keys. A key like `0-4-7-10_b0` means pitch classes {0,4,7,10} with

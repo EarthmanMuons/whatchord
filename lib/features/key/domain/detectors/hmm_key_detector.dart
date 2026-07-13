@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:whatchord_theory/whatchord_theory.dart';
+import 'package:whatchord/whatchord.dart';
 
-import 'package:whatchord/features/history/history_domain.dart';
+import 'package:whatchord_app/features/history/history_domain.dart';
 
 import '../models/key_estimate.dart';
 import 'hybrid_key_detector.dart';

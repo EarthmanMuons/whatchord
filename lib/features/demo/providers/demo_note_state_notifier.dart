@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/core/services/cancelable_timer_sequence.dart';
+import 'package:whatchord_app/core/services/cancelable_timer_sequence.dart';
 
 import 'demo_mode_notifier.dart';
 import 'demo_mode_variant_notifier.dart';

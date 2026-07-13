@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:whatchord/features/piano/piano.dart';
+import 'package:whatchord_app/features/piano/piano.dart';
 
 // Android keeps the system status bar visible in landscape, leaving less
 // vertical room than iOS. These constants reclaim pixels from the chrome.

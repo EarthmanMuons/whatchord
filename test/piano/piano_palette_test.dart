@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:whatchord/core/models/app_palette.dart';
-import 'package:whatchord/core/services/app_theme_builder.dart';
-import 'package:whatchord/features/piano/models/piano_palette.dart';
+import 'package:whatchord_app/core/models/app_palette.dart';
+import 'package:whatchord_app/core/services/app_theme_builder.dart';
+import 'package:whatchord_app/features/piano/models/piano_palette.dart';
 
 void main() {
   group('buildPianoPalette', () {

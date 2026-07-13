@@ -25,4 +25,4 @@ and published methods.
 
 Supporting code lives with the rest of the project: batch drivers and corpus
 tooling in `tool/`, performance benchmarks in `benchmark/`, and the engine
-itself under `packages/whatchord_theory/`.
+itself under `packages/whatchord/`.

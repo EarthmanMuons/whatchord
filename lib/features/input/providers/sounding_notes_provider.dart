@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/demo/demo.dart';
-import 'package:whatchord/features/midi/midi.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/demo/demo.dart';
+import 'package:whatchord_app/features/midi/midi.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import '../models/sounding_note.dart';
 import 'sounding_note_numbers_providers.dart';

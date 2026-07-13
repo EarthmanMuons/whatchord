@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/history/history.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/history/history.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import '../models/inferred_key_state.dart';
 import '../providers/inferred_key_notifier.dart';

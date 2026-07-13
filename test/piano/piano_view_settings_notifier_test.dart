@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:whatchord/core/providers/shared_preferences_provider.dart';
-import 'package:whatchord/features/piano/piano.dart';
+import 'package:whatchord_app/core/providers/shared_preferences_provider.dart';
+import 'package:whatchord_app/features/piano/piano.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

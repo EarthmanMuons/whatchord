@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import 'package:whatchord_theory/whatchord_theory.dart';
+import 'package:whatchord/whatchord.dart';
 
 /// UI-facing identity produced by analysis, depending on input cardinality.
 ///

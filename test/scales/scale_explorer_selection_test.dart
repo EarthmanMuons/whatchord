@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/scales/services/scale_explorer_selection.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/scales/services/scale_explorer_selection.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 void main() {
   group('scale explorer selection helpers', () {

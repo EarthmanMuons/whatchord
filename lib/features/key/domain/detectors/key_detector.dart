@@ -1,4 +1,4 @@
-import 'package:whatchord/features/history/history_domain.dart';
+import 'package:whatchord_app/features/history/history_domain.dart';
 
 import '../models/key_estimate.dart';
 

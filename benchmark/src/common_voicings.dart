@@ -25,7 +25,7 @@
 // altered dominants (dominant7|flat9, dominant7Sharp5, dominant7sus4): they lean
 // adversarial and belong with the oracle corpus, not the common pool.
 
-import 'package:whatchord_theory/whatchord_theory.dart';
+import 'package:whatchord/whatchord.dart';
 
 /// Common chord qualities as semitone intervals above the root.
 const Map<String, List<int>> commonChordQualities = {

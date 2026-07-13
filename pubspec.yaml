@@ -1,4 +1,4 @@
-name: whatchord
+name: whatchord_app
 description: Real-time chord identification via Bluetooth MIDI.
 
 publish_to: none
@@ -31,8 +31,8 @@ dependencies:
   shared_preferences: ^2.5.4
   url_launcher: ^6.3.2
   wakelock_plus: ^1.4.0
-  whatchord_theory:
-    path: packages/whatchord_theory
+  whatchord:
+    path: packages/whatchord
 
 # Vendored copies of upstream 1.0.2 carrying two iOS BLE patches (see
 # third_party/README.md); drop once upstream ships equivalent fixes.

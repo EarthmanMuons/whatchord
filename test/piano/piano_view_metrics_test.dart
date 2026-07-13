@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/piano/piano.dart';
+import 'package:whatchord_app/features/piano/piano.dart';
 
 void main() {
   group('resolvePianoViewMetrics', () {

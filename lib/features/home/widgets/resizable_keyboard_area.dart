@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/piano/piano.dart';
+import 'package:whatchord_app/features/piano/piano.dart';
 
 import '../models/home_layout_config.dart';
 

@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/demo/demo.dart';
+import 'package:whatchord_app/features/demo/demo.dart';
 
 class AppBarTitle extends ConsumerWidget {
   const AppBarTitle({super.key, this.maxHeight});

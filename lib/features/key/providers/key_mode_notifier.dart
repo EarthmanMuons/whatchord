@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/core/providers/shared_preferences_provider.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/core/providers/shared_preferences_provider.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import '../models/inferred_key_state.dart';
 import '../persistence/key_preferences_keys.dart';

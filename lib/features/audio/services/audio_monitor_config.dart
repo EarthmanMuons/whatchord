@@ -1,4 +1,4 @@
-import 'package:whatchord/core/audio/soundfont_assets.dart';
+import 'package:whatchord_app/core/audio/soundfont_assets.dart';
 
 const String audioMonitorSoundFontAssetPath = SoundFontAssets.defaultPiano;
 

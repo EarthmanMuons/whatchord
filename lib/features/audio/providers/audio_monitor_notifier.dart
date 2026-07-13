@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/core/services/cancelable_timer_sequence.dart';
-import 'package:whatchord/features/input/input.dart';
-import 'package:whatchord/features/midi/midi.dart';
+import 'package:whatchord_app/core/services/cancelable_timer_sequence.dart';
+import 'package:whatchord_app/features/input/input.dart';
+import 'package:whatchord_app/features/midi/midi.dart';
 
 import '../audio_debug.dart';
 import '../models/audio_monitor_settings.dart';

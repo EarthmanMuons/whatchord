@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:whatchord/core/providers/shared_preferences_provider.dart';
-import 'package:whatchord/features/demo/demo.dart';
-import 'package:whatchord/features/history/history.dart';
-import 'package:whatchord/features/lookup/lookup.dart';
-import 'package:whatchord/features/midi/midi_input_source.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/core/providers/shared_preferences_provider.dart';
+import 'package:whatchord_app/features/demo/demo.dart';
+import 'package:whatchord_app/features/history/history.dart';
+import 'package:whatchord_app/features/lookup/lookup.dart';
+import 'package:whatchord_app/features/midi/midi_input_source.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 class _NotesNotifier extends Notifier<Set<int>> {
   @override
