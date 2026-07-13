@@ -1,5 +1,4 @@
-import 'package:whatchord_theory/models/tonality.dart';
-
+import '../../models/tonality.dart';
 import '../models/chord_symbol.dart';
 
 class ChordSymbolDisplayParts {

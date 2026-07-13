@@ -1,4 +1,16 @@
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../formatting/models/chord_symbol.dart';
+import '../../formatting/services/chord_presentation_builder.dart';
+import '../../models/chord_extension.dart';
+import '../../models/chord_identity.dart';
+import '../../models/chord_tone_role.dart';
+import '../../models/tonality.dart';
+import '../../services/chord_member_degree_formatter.dart';
+import '../../services/chord_member_speller.dart';
+import '../../services/chord_quality_intervals.dart';
+import '../../services/chord_tone_roles.dart';
+import '../models/explore_chord_example.dart';
+import '../models/explore_chord_state.dart';
+import 'explore_chord_derivation.dart';
 
 abstract final class ExploreChordExampleBuilder {
   static Set<int> canonicalBassPitchClasses(ExploreChordState state) {

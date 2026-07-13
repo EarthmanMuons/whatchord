@@ -1,7 +1,8 @@
-import 'package:whatchord_theory/whatchord_theory.dart';
-
+import '../../models/chord_extension.dart';
+import '../../models/chord_identity.dart';
 import 'chord_display_conventions.dart';
 import 'chord_tone_role_token_labels.dart';
+import 'note_display_formatter.dart';
 
 abstract final class InversionFormatter {
   static String? format(ChordIdentity id) {

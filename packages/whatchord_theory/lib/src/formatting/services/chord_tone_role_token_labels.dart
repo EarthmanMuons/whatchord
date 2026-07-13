@@ -1,4 +1,4 @@
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../models/chord_tone_role.dart';
 
 /// Formatting-only labels for chord tone role tokens.
 extension ChordToneRoleTokenLabels on ChordToneRole {

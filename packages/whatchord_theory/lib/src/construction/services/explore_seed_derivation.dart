@@ -1,4 +1,8 @@
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../models/chord_identity.dart';
+import '../../models/chord_input.dart';
+import '../../models/tonality.dart';
+import '../models/explore_chord_state.dart';
+import 'explore_chord_derivation.dart';
 
 ChordIdentity buildExploreSeedIdentity({
   required ChordInput? input,

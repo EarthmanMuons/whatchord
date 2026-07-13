@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../formatting/models/chord_presentation.dart';
+import '../../models/chord_identity.dart';
 
 @immutable
 class ExploreChordExample {

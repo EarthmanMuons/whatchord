@@ -1,4 +1,4 @@
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../models/chord_identity.dart';
 
 // Example for major seventh -- symbolic: "Δ7", textual: "maj7",
 //   academic: "major seventh", idiomatic: "major seven"

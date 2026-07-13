@@ -1,4 +1,10 @@
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../models/chord_extension.dart';
+import '../../models/chord_identity.dart';
+import '../../models/tonic.dart';
+import '../models/explore_chord_spec.dart';
+import '../models/explore_chord_state.dart';
+import 'explore_chord_example_builder.dart';
+import 'explore_extension_rules.dart';
 
 ExploreChordState normalizeExploreChordState(ExploreChordState state) {
   final spec = state.spec.normalized();

@@ -2,7 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-import 'package:whatchord_theory/models/key_signature.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 class KeySignatureStaffPreview extends StatelessWidget {
   const KeySignatureStaffPreview({

@@ -1,4 +1,7 @@
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../formatting/services/note_display_formatter.dart';
+import '../../models/chord_extension.dart';
+import '../../models/chord_identity.dart';
+import 'explore_extension_rules.dart';
 
 enum ExploreExtensionControlRole { highestExtension, addedTones, alterations }
 
