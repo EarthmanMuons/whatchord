@@ -186,12 +186,12 @@ coverage, reactive 0.57 but claim-free; both handled acceptably).
 
 ## Closed loop (write-back feeding recognition)
 
-The temporary closed-loop probe (`test/_whatkey_closed_loop_probe_test.dart`,
-run with `--run-skipped`) re-ranks each fixture event's candidates from its raw
-voicing under the tonality the write-back engine would have adopted, then feeds
-the detector, versus the neutral-context recorded candidates. Re-run under all
-three mode presets, since reactive adopts a new context several times per piece
-where stable rarely moves:
+The temporary closed-loop probe
+(`test/probes/_whatkey_closed_loop_probe_test.dart`, run with `--run-skipped`)
+re-ranks each fixture event's candidates from its raw voicing under the tonality
+the write-back engine would have adopted, then feeds the detector, versus the
+neutral-context recorded candidates. Re-run under all three mode presets, since
+reactive adopts a new context several times per piece where stable rarely moves:
 
 - Identity churn is ~0.4% of events (14-16 of 3694) in every mode, both under
   streak-2 adoption and instant adoption, and none of it moves any summary
