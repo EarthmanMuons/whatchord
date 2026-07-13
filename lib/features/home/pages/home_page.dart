@@ -133,8 +133,8 @@ class _HomePageState extends ConsumerState<HomePage> {
             ? math.max(mq.viewPadding.left, mq.viewPadding.right)
             : 0.0;
 
-        // Symmetric rail inset for top bar and tonality bar.
-        // In landscape we draw full-bleed horizontally, so we add the largest system cutout inset.
+        // Symmetric rail inset for top bar and tonality bar. Landscape draws
+        // full-bleed horizontally, so add the largest system cutout inset.
         final horizontalInset = barBaseInset + maxHorizontalCutout;
 
         return EdgeToEdgeController(
@@ -421,7 +421,7 @@ class _HomePortrait extends ConsumerWidget {
                   maxKeyboardHeight: maxKeyboardHeightForLayout(
                     availableHeight: bodyConstraints.maxHeight,
                     isLandscape: false,
-                    // tonality bar + separator band + 1px felt line, plus the
+                    // Tonality bar + separator band + 1px felt line, plus the
                     // input display / demo prompt above.
                     reservedChrome:
                         _tonalityBarHeight +

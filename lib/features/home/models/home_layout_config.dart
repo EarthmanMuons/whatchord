@@ -105,7 +105,7 @@ class HomeLayoutConfig {
   });
 }
 
-/// Largest height the resizable keyboard may occupy on a page right now.
+/// Largest height the resizable keyboard may occupy in the current layout.
 ///
 /// [availableHeight] is the body region shared by the page content and the
 /// keyboard. [reservedChrome] is the height of everything the keyboard region

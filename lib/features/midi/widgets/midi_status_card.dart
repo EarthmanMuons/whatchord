@@ -27,7 +27,6 @@ class MidiStatusCard extends StatelessWidget {
       if (status.phase == MidiConnectionPhase.retrying &&
           status.nextDelay != null)
         'Next retry in ${status.nextDelay!.inSeconds}s',
-      // If you later want error details etc, add more lines here.
     ];
 
     // Text() requires a non-null String.

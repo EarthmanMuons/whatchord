@@ -5,7 +5,7 @@ import 'piano_geometry.dart';
 
 /// Resolved keyboard dimensions for a viewport, after applying the user's
 /// [PianoViewSettings]. Shared by every page that renders the keyboard so the
-/// sizing math (previously copy-pasted) lives in one place.
+/// sizing math lives in one place.
 @immutable
 class PianoViewMetrics {
   const PianoViewMetrics({

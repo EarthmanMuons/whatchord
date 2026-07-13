@@ -21,20 +21,20 @@ class InputIdleState {
 
   final Duration cooldown;
 
-  /// True once we have ever observed engagement (notes) at least once.
+  /// True once engagement (notes) has been observed at least once.
   final bool hasSeenEngagement;
 
   /// True while user currently has any keys down (or pedal down if included).
   final bool isEngagedNow;
 
   /// Timestamp of the most recent "fully released" moment (notes empty + pedal up).
-  /// Null until we have ever observed a full release after activity.
+  /// Null until a full release after activity has been observed.
   final DateTime? lastReleaseAt;
 
-  /// Convenience: "eligible to show idle UI"
-  /// - True on first load (before any activity)
-  /// - False while engaged
-  /// - True only after cooldown since lastReleaseAt
+  /// Convenience: whether idle UI is eligible to show.
+  /// - True on first load (before any activity).
+  /// - False while engaged.
+  /// - True only after the cooldown since [lastReleaseAt].
   final bool isEligible;
 
   InputIdleState copyWith({
@@ -54,6 +54,7 @@ class InputIdleState {
   }
 }
 
+/// Quiet time after the last full release before idle UI may show.
 final inputIdleCooldownProvider = Provider<Duration>((ref) {
   return const Duration(seconds: 8);
 });
@@ -62,7 +63,7 @@ final inputIdleProvider = NotifierProvider<InputIdleNotifier, InputIdleState>(
   InputIdleNotifier.new,
 );
 
-/// If you prefer a boolean-only API for consumers:
+/// The [InputIdleState.isEligible] flag alone, for boolean-only consumers.
 final inputIdleEligibleProvider = Provider<bool>((ref) {
   return ref.watch(inputIdleProvider).isEligible;
 });
@@ -94,8 +95,8 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
 
     state = initial;
 
-    // When demo mode toggles, force idle immediately so we do not wait for
-    // any existing MIDI cooldown to expire before showing the glyph.
+    // When demo mode toggles, force idle immediately rather than waiting for
+    // an existing MIDI cooldown to expire before showing the glyph.
     ref.listen<bool>(demoModeProvider, (prev, next) {
       if ((prev == false && next == true) || (prev == true && next == false)) {
         markIdleNow();
@@ -160,7 +161,7 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
     // If state didn't actually change, do nothing.
     if (wasEngaged == engagedNow) return;
 
-    // Transition: idle/released -> engaged
+    // Transition: idle/released -> engaged.
     if (engagedNow) {
       _timer?.cancel();
       _timer = null;
@@ -174,7 +175,7 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
       return;
     }
 
-    // Transition: engaged -> fully released
+    // Transition: engaged -> fully released.
     final releaseAt = DateTime.now();
 
     state = state.copyWith(
@@ -192,7 +193,7 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
     _timer?.cancel();
     _timer = null;
 
-    // If we haven't seen any activity ever, stay eligible.
+    // With no activity observed yet, stay eligible.
     if (!state.hasSeenEngagement) {
       state = state.copyWith(isEligible: true);
       return;
@@ -206,7 +207,7 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
 
     final releaseAt = state.lastReleaseAt;
     if (releaseAt == null) {
-      // We have seen activity but no recorded release yet; be conservative.
+      // Activity observed but no release recorded yet; be conservative.
       state = state.copyWith(isEligible: false);
       return;
     }
@@ -220,8 +221,8 @@ class InputIdleNotifier extends Notifier<InputIdleState> {
     }
 
     _timer = Timer(remaining, () {
-      // Only flip eligible if we are still not engaged and the release timestamp
-      // hasn't changed under us (i.e., no re-engagement since scheduling).
+      // Only flip eligible if still not engaged and the release timestamp is
+      // unchanged (no re-engagement since scheduling).
       final currentReleaseAt = state.lastReleaseAt;
       if (state.isEngagedNow) return;
       if (currentReleaseAt == null) return;

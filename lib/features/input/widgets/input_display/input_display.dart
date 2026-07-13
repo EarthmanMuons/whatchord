@@ -45,8 +45,8 @@ class _InputDisplayState extends ConsumerState<InputDisplay>
   static const double _followMargin = _fadeWidth;
   // Trailing gap between chips; the chip box carries it on its right side only.
   static const double _chipTrailingGap = 8.0;
-  // Wait for the insert animation to settle so the chip is full-size before we
-  // measure it; also coalesces rapid note-ons to a single follow.
+  // Wait for the insert animation to settle so the chip is full-size before
+  // it is measured; also coalesces rapid note-ons to a single follow.
   static const Duration _followSettleDelay = Duration(milliseconds: 160);
 
   late List<SoundingNote> _notes;

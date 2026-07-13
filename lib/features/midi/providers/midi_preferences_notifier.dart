@@ -29,7 +29,7 @@ final lastConnectedMidiDeviceIdProvider = Provider<String?>((ref) {
   );
 });
 
-/// Whether we have a non-empty last-connected device id.
+/// Whether a non-empty last-connected device id is stored.
 final hasLastConnectedMidiDeviceProvider = Provider<bool>((ref) {
   final id = ref.watch(lastConnectedMidiDeviceIdProvider);
   return id != null && id.trim().isNotEmpty;

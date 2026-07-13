@@ -67,7 +67,7 @@ class _AudioMonitorLifecycleController with WidgetsBindingObserver {
         break;
       case AppLifecycleState.inactive:
         // iOS system interruptions (alarms/calls) can leave the output unit in
-        // a bad state unless we rebuild on resume.
+        // a bad state unless it is rebuilt on resume.
         if (defaultTargetPlatform == TargetPlatform.iOS) {
           monitor.setBackgrounded(true);
         }

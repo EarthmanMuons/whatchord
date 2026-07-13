@@ -1,5 +1,7 @@
 name: whatchord_app
-description: Real-time chord identification via Bluetooth MIDI.
+description:
+  Chord identification, key detection, and harmony exploration from live MIDI
+  or manual note entry.
 
 workspace:
   - packages/whatchord

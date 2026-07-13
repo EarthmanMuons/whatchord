@@ -373,7 +373,7 @@ class _MidiDevicePickerState extends ConsumerState<MidiDevicePicker> {
             ),
           ),
 
-          // Footer with refresh button
+          // Footer with the refresh button.
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(

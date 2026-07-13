@@ -37,7 +37,7 @@ final soundingNoteNumbersProvider = Provider<Set<int>>((ref) {
   return ref.watch(liveSoundingNoteNumbersProvider);
 });
 
-/// Sorted sounding note numbers (e.g. bassMidi = first),
+/// Sorted sounding note numbers; the first entry is the lowest (bass).
 final soundingNoteNumbersSortedProvider = Provider<UnmodifiableListView<int>>((
   ref,
 ) {

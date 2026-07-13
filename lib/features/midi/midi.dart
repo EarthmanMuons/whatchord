@@ -1,32 +1,31 @@
-// ignore: dangling_library_doc_comments
-///
 /// MIDI device connection infrastructure (Bluetooth + wired/native).
 ///
 /// ## Architecture Layers
 ///
 /// 1. **Transport** ([MidiDeviceManager]):
-///    - Bluetooth central management, scanning, and device discovery
-///    - Low-level connect/disconnect operations
+///    - Bluetooth central management, scanning, and device discovery.
+///    - Low-level connect/disconnect operations.
 ///
 /// 2. **Connection Workflow** ([MidiConnectionNotifier]):
-///    - Retry logic, auto-reconnect, backoff
-///    - User-facing connection state machine
+///    - Retry logic, auto-reconnect, backoff.
+///    - User-facing connection state machine.
 ///
 /// 3. **Presentation** ([MidiConnectionStatus]):
-///    - UI-friendly status labels and details
-///    - Computed from connection state
+///    - UI-friendly status labels and details.
+///    - Computed from connection state.
 ///
 /// 4. **Message Parsing** ([MidiParser], [MidiNoteStateNotifier]):
-///    - Raw MIDI byte stream → domain events
-///    - Note on/off tracking, sustain pedal handling
+///    - Raw MIDI byte stream to domain events.
+///    - Note on/off tracking, sustain pedal handling.
 ///
 /// ## Usage
 ///
 /// Most app code should interact with:
-/// - [midiConnectionStateProvider] for connection state
-/// - [midiSoundingNoteNumbersProvider] for sounding note numbers
-/// - [MidiSettingsPage] for user-facing controls
-///
+/// - [midiConnectionStateProvider] for connection state.
+/// - [midiSoundingNoteNumbersProvider] for sounding note numbers.
+/// - [MidiSettingsPage] for user-facing controls.
+library;
+
 export 'models/midi_connection.dart';
 export 'models/midi_connection_status.dart';
 

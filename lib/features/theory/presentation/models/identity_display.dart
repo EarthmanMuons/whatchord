@@ -3,9 +3,9 @@ import 'package:whatchord/whatchord.dart';
 
 /// UI-facing identity produced by analysis, depending on input cardinality.
 ///
-/// - 1 note -> NoteDisplay
-/// - 2 notes -> IntervalDisplay
-/// - 3+ notes -> ChordDisplay
+/// - 1 note -> [NoteDisplay].
+/// - 2 notes -> [IntervalDisplay].
+/// - 3+ notes -> [ChordDisplay].
 @immutable
 sealed class IdentityDisplay {
   const IdentityDisplay({

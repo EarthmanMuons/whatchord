@@ -123,7 +123,8 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   bool _centralStarted = false;
   Future<void>? _centralStartInFlight;
 
-  // Internal coordination: signals whenever we publish a new device snapshot.
+  // Internal coordination: signals whenever a new device snapshot is
+  // published.
   final StreamController<void> _devicesChanged =
       StreamController<void>.broadcast();
 
@@ -133,8 +134,8 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   MidiDeviceManagerState build() {
     state = MidiDeviceManagerState.initial;
 
-    // IMPORTANT: We install listeners early, but we do NOT prime Bluetooth here.
-    // Bluetooth will be primed lazily when scanning/connecting/reconnecting.
+    // Listeners install early, but Bluetooth is not primed here; priming
+    // happens lazily on scanning, connecting, or reconnecting.
     _setupListeners();
 
     ref.onDispose(() {
@@ -189,7 +190,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   // Forcefully restart scanning (stop then start) as a recovery action.
   // Intended for "Refresh" / "Try again" UI when scanning stalls on some platforms.
   Future<void> restartScanning() async {
-    // If scan isn't running, just start.
+    // If no scan is running, start one.
     if (!state.isScanning) {
       await startScanning();
       return;
@@ -233,6 +234,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       // the new device (the message stream is not filtered by device).
       final previous = state.connectedDevice;
       if (previous != null && previous.id != device.id) {
+        // Best-effort; the stale link may already be gone.
         try {
           await _disconnectBestEffort(
             previous.id,
@@ -243,17 +245,19 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       }
 
       // Do not stop scanning until after connection is verified.
-      // With the Bluetooth service boundary, we connect by id and verify by querying state.
+      // With the Bluetooth service boundary, connecting is by id and verified
+      // by querying state.
       await _cleanupStaleConnection(device.id);
       await _performConnection(device.id);
       await _verifyConnection(device.id);
 
-      // A disconnect (or newer connect) landed while we were connecting: tear
-      // down the link we just made and do not publish it.
+      // A disconnect (or newer connect) landed mid-connect: tear down the
+      // link this attempt made and do not publish it.
       if (generation != _connectGeneration) {
         if (_debugLog) {
           debugPrint('[MGR] connect superseded id=${device.id}; aborting');
         }
+        // Best-effort teardown of the superseded link.
         try {
           await _disconnectBestEffort(device.id, transport: device.transport);
         } catch (_) {}
@@ -270,8 +274,8 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   }
 
   Future<void> disconnect() async {
-    // Invalidate any in-flight connect (synchronously, before any await) so it
-    // self-aborts instead of re-publishing a connection after we drop it.
+    // Invalidate any in-flight connect (synchronously, before any await) so
+    // it self-aborts instead of re-publishing a connection after the drop.
     _connectGeneration++;
 
     final current = state.connectedDevice;
@@ -279,8 +283,8 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
     try {
       if (_debugLog) debugPrint('[MGR] disconnect id=${current.id}');
-      // Best-effort; do not force a prime just to disconnect.
-      // If central was never started, this should simply no-op.
+      // Best-effort; do not force a prime only to disconnect. If the central
+      // was never started, this is a no-op.
       await _disconnectBestEffort(current.id, transport: current.transport);
     } catch (e) {
       debugPrint('Warning: Error disconnecting MIDI device: $e');
@@ -372,8 +376,8 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   Future<BluetoothAccessResult> ensureBluetoothAccess() =>
       _bluetoothPerms.ensureBluetoothAccess();
 
-  /// Foreground reconciliation: confirms whether our last-known connected device
-  /// is still actually connected at the plugin level.
+  /// Foreground reconciliation: confirms whether the last-known connected
+  /// device is still actually connected at the plugin level.
   ///
   /// This is particularly important on iOS where the OS may drop Bluetooth connections
   /// while the app is backgrounded without producing a timely setup-change event.
@@ -411,12 +415,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     }
 
     try {
-      // If we believe we are connected, it is reasonable to prime the central
-      // on foreground so we can validate the connection.
+      // When a connection is believed live, prime the central on foreground
+      // to validate it.
       await _ensureBluetoothCentralReady();
     } catch (e) {
-      // If Bluetooth is off/unauthorized, our BT state listener should clear the
-      // connection anyway. If we cannot prime, don't blindly clear here.
+      // If Bluetooth is off/unauthorized, the Bluetooth state listener clears
+      // the connection anyway. If priming fails, do not blindly clear here.
       debugPrint('reconcileConnectedDevice($reason): prime failed: $e');
       return;
     }
@@ -439,7 +443,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         );
         _setConnectedDevice(null);
       } else {
-        // Keep the flag fresh in case our stored snapshot drifted.
+        // Keep the flag fresh in case the stored snapshot drifted.
         _setConnectedDevice(current.copyWith(isConnected: true));
       }
     } catch (e) {
@@ -695,7 +699,8 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       unawaited(_safeRefreshDevices(bypassThrottle: true));
     });
 
-    // Absolute timeout: do not reset just because device snapshots keep arriving.
+    // Absolute timeout: do not reset merely because device snapshots keep
+    // arriving.
     deadline = Timer(timeout, () {
       if (completer.isCompleted) return;
       if (_debugLog) {
@@ -738,6 +743,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       }
       if (!connected) return;
 
+      // Best-effort; the reconnect proceeds regardless.
       await _ble.disconnect(deviceId);
       await Future<void>.delayed(_disconnectBeforeReconnectDelay);
     } catch (_) {}

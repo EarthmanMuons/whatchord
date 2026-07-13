@@ -92,7 +92,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       next,
     ) {
       // A disconnected device cannot receive note-offs; drop the tracked notes
-      // so we never treat its notes as still sounding.
+      // so they are never treated as still sounding.
       if (previous?.isConnected == true && !next.isConnected) {
         _enqueueAudioOperation(() async {
           _midiNotesOn.clear();

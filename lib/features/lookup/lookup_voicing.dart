@@ -1,7 +1,7 @@
 /// Pure helpers for turning entered pitch classes into a MIDI voicing.
 ///
-/// The selection is an ordered list (first entry is the bass). We build an
-/// ascending stack: each note after the bass is placed at the lowest octave
+/// The selection is an ordered list (first entry is the bass). The voicing is
+/// an ascending stack: each note after the bass is placed at the lowest octave
 /// strictly above the previous note. This preserves the order notes were
 /// tapped (MIDI order tracks press order) and lets repeats climb to the next
 /// octave instead of collapsing. Chord identity is unaffected since analysis
@@ -12,7 +12,8 @@ class LookupVoicing {
   /// Bass octave (C3..B3). The first note lands here.
   static const int bassOctaveBase = 48;
 
-  /// Highest note we will climb to (C8), to keep voicings on the keyboard.
+  /// Highest note the stack may climb to (C8), keeping voicings on the
+  /// keyboard.
   static const int _maxMidi = 108;
 
   /// Builds the ascending MIDI voicing for [orderedPitchClasses].
