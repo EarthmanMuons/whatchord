@@ -1,4 +1,6 @@
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../models/scale.dart';
+import 'chord_quality_intervals.dart';
+import 'scale_harmonizer.dart';
 
 /// MIDI voicings for the Scale Explorer's keyboard highlighting and playback.
 ///

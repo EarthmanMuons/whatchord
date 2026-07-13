@@ -1,6 +1,9 @@
 import 'package:meta/meta.dart';
 
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../models/chord_extension.dart';
+import '../../models/chord_identity.dart';
+import '../../models/tonic.dart';
+import 'explore_chord_spec.dart';
 
 @immutable
 class ExploreChordState {

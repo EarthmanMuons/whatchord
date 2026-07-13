@@ -1,5 +1,8 @@
 import 'package:meta/meta.dart';
-import 'package:whatchord_theory/whatchord_theory.dart';
+
+import '../../models/chord_identity.dart';
+import '../../models/scale_degree.dart';
+import 'chord_symbol.dart';
 
 @immutable
 class ChordPresentation {

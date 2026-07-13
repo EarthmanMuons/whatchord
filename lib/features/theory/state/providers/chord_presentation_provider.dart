@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatchord_theory/presentation/models/chord_presentation.dart';
-import 'package:whatchord_theory/presentation/services/chord_presentation_builder.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 import 'analysis_context_provider.dart';
 import 'chord_candidates_providers.dart';

@@ -1,4 +1,10 @@
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../models/chord_identity.dart';
+import '../../models/tonality.dart';
+import '../../services/chord_quality_intervals.dart';
+import '../../services/scale_harmonizer.dart';
+import '../models/chord_symbol.dart';
+import 'chord_symbol_builder.dart';
+import 'note_display_formatter.dart';
 
 /// The display chord symbol for one diatonic scale degree, honoring the 7ths
 /// toggle. Shared by the degree list and the scale copy menu so both spell the

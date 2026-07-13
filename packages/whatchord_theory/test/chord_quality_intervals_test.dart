@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 
-import 'package:whatchord_theory/analysis/chord_templates.dart';
+import 'package:whatchord_theory/src/analysis/chord_templates.dart';
 import 'package:whatchord_theory/whatchord_theory.dart';
 
 void main() {

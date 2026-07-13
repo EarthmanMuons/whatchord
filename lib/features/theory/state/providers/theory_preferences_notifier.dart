@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatchord_theory/presentation/models/chord_symbol.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 import 'package:whatchord/core/providers/shared_preferences_provider.dart';
 

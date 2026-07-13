@@ -1,4 +1,7 @@
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../models/chord_extension.dart';
+import '../../models/chord_identity.dart';
+import '../../models/chord_tone_role.dart';
+import '../../services/pitch_class.dart';
 
 abstract final class ChordDisplayConventions {
   /// True when a seventh-family chord carries a single natural extension

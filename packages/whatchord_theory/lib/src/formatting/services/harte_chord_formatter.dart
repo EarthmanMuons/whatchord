@@ -1,4 +1,6 @@
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../models/chord_identity.dart';
+import '../../models/chord_tone_role.dart';
+import '../../services/pitch_class.dart';
 
 /// Formats chord identities using Harte-style chord syntax.
 ///

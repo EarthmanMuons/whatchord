@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../models/chord_identity.dart';
 
 enum ExploreBaseQuality {
   major,

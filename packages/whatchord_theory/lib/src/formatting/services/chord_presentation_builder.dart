@@ -1,4 +1,14 @@
-import 'package:whatchord_theory/whatchord_theory.dart';
+import '../../models/chord_identity.dart';
+import '../../models/chord_tone_role.dart';
+import '../../models/tonality.dart';
+import '../../services/chord_member_degree_formatter.dart';
+import '../../services/chord_member_speller.dart';
+import '../../services/note_spelling.dart';
+import '../models/chord_presentation.dart';
+import '../models/chord_symbol.dart';
+import 'chord_long_form_formatter.dart';
+import 'chord_spoken_name_formatter.dart';
+import 'chord_symbol_builder.dart';
 
 abstract final class ChordPresentationBuilder {
   static ChordPresentation fromIdentity({

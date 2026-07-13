@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 
-import 'package:whatchord_theory/analysis/voicing_evidence.dart';
+import 'package:whatchord_theory/src/analysis/voicing_evidence.dart';
 import 'package:whatchord_theory/whatchord_theory.dart';
 
 import 'package:whatchord_theory/testing.dart';
