@@ -8,7 +8,7 @@ clean data.
 
 ## The bug
 
-`tool/whatkey_harness.dart` defaulted `--progression-blend` to `0` while
+`tool/whatkey/harness.dart` defaulted `--progression-blend` to `0` while
 `HybridKeyDetector`'s class default was `0.02`: the edit that should have
 updated the CLI default when 0.02 was adopted (entry 08) was a multi-line text
 replacement that silently failed to match after the formatter reflowed the code.
@@ -52,11 +52,11 @@ Dose-response at +4 and +2 on the true champion base:
 
 ```sh
 # (temporary default edits; the parameter is not CLI-exposed)
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json \
   --detector hybrid --out build/whatkey-harness/wir-dev-hybrid-true-tonic4
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/wir-dev-hybrid-true-tonic4/report.json \
   build/whatkey-harness/wir-dev-parity-check/report.json
 ```

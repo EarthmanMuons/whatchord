@@ -13,12 +13,12 @@ but 30x in optimal half-life, so rate normalization cannot close the gap.
 
 ```sh
 for ev in 1 2 4 8 16 32; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --detector hmm --decay-half-life-events "$ev" \
     --out "build/whatkey-harness/wir-dev-hmm-ev$ev"
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/asap-nc-v2 \
     --split-file research/whatkey/data/splits/asap-nc-v2.json \
     --detector hmm --decay-half-life-events "$ev" \

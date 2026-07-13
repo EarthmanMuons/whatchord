@@ -5,10 +5,10 @@ Two sources:
 
   charts        Hand-authored chord charts (JSON) with per-chord key labels.
   when-in-rome  When-in-Rome pieces via the contrapunctus-bench checkout,
-                reusing tool/when_in_rome_chord_benchmark.py's extraction.
+                reusing tool/chord/when_in_rome_benchmark.py's extraction.
                 RomanText annotations supply the local key and figure labels.
 
-Both run every event through the real engine (tool/whatkey_fixture_batch.dart)
+Both run every event through the real engine (tool/whatkey/fixture_batch.dart)
 under a fixed, neutral analysis context (default C:maj) so tonality-gated
 ranking tie-breakers cannot leak ground-truth key knowledge into the recorded
 candidates. Score offsets and chart beats become wall-clock times at a fixed
@@ -30,7 +30,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from statistics import median
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_SCHEMA = "whatkey-fixture/1"
 MANIFEST_SCHEMA = "whatkey-manifest/1"
 NOTE_NAME = re.compile(r"^([A-Ga-g])([#b]*)(-?\d)$")
@@ -112,7 +112,7 @@ def main() -> int:
             git(REPO_ROOT, "status", "--porcelain", "--", "lib", "pubspec.yaml")
         ),
         "generator": {
-            "script": "tool/whatkey_fixture_extract.py",
+            "script": "tool/whatkey/fixture_extract.py",
             "arguments": sys.argv[1:],
         },
         "context": args.context,
@@ -171,8 +171,8 @@ def load_charts(args: argparse.Namespace) -> tuple[list[dict], dict]:
 
 
 def load_when_in_rome(args: argparse.Namespace) -> tuple[list[dict], dict]:
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
-    import when_in_rome_chord_benchmark as wir
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "chord"))
+    import when_in_rome_benchmark as wir
 
     bench_root = args.bench_root.resolve()
     sys.path.insert(0, str(bench_root / "harness"))
@@ -316,7 +316,7 @@ def attach_candidates(fixtures: list[dict], context: str) -> None:
             )
     payload = "".join(json.dumps(request) + "\n" for request in requests)
     process = subprocess.run(
-        ["dart", "run", "tool/whatkey_fixture_batch.dart"],
+        ["dart", "run", "tool/whatkey/fixture_batch.dart"],
         input=payload,
         capture_output=True,
         text=True,

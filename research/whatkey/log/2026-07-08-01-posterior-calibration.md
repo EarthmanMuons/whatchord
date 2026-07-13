@@ -14,7 +14,7 @@ acceptable-key-only events because they do not define a single probability
 target.
 
 ```sh
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
   --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
   --detector hmm \

@@ -6,7 +6,7 @@
 // research/whatkey/log/.
 //
 // Usage:
-//   dart run tool/whatkey_harness.dart --fixtures <set-dir> \
+//   dart run tool/whatkey/harness.dart --fixtures <set-dir> \
 //     [--split-file <split.json>] [--split development|test] \
 //     [--detector profile|evidence|progression|hybrid|hmm|bocpd] \
 //     [--profiles krumhanslKessler|temperley|temperleyKostkaPayne|
@@ -24,7 +24,7 @@
 //     [--claims-file <claims.json>] [--restrict-to <claims.json>] \
 //     [--sweep-margin-floors 0,0.02,0.05,...]
 //
-// With --claims-file (see tool/whatkey_external_baseline.py), detector flags
+// With --claims-file (see tool/whatkey/external_baseline.py), detector flags
 // are ignored and the externally produced global claims are scored as a
 // constant claim per event through the same metrics.
 //
@@ -38,8 +38,8 @@ import 'dart:io';
 
 import 'package:whatkey/whatkey.dart';
 
-import 'src/whatkey/whatkey_fixtures.dart';
-import 'src/whatkey/whatkey_scoring.dart';
+import 'src/fixtures.dart';
+import 'src/scoring.dart';
 
 void main(List<String> arguments) {
   final options = _Options.parse(arguments);
@@ -122,7 +122,7 @@ void main(List<String> arguments) {
   final report = <String, Object?>{
     'schema': 'whatkey-harness-report/1',
     'generatedAt': DateTime.now().toUtc().toIso8601String(),
-    'command': 'dart run tool/whatkey_harness.dart ${arguments.join(' ')}',
+    'command': 'dart run tool/whatkey/harness.dart ${arguments.join(' ')}',
     'engineCommit': _git(['rev-parse', 'HEAD']),
     'engineLibDirty': _git(['status', '--porcelain', '--', 'lib']).isNotEmpty,
     'fixtures': {

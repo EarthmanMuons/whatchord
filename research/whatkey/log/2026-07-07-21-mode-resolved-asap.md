@@ -5,7 +5,7 @@ verification): real tonic-and-mode analyst keys on performed input, measuring
 the app's most user-visible error class (displayed mode) where it was previously
 unmeasurable, and running the controlled same-input timescale experiment.
 
-**Setup.** `tool/whatkey_asap_wir_extract.py`: ASAP's performed Beethoven piano
+**Setup.** `tool/whatkey/asap_wir_extract.py`: ASAP's performed Beethoven piano
 sonatas labeled with When in Rome's analyst local keys, transferred through
 ASAP's performance-to-score downbeat alignment (`downbeats_score_map`, with span
 entries and inconsistent measure bases handled, and a per-piece offset
@@ -20,17 +20,17 @@ outside our verified When in Rome groups); `build/` only. Corpus
 both configurations pre-committed, so no split is required).
 
 ```sh
-python3 tool/whatkey_asap_wir_extract.py \
+python3 tool/whatkey/asap_wir_extract.py \
   --asap-root /private/tmp/asap-dataset \
   --bench-root /private/tmp/contrapunctus-bench
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/asap-wir-nc-v1 --detector hmm \
   --out build/whatkey-harness/asap-wir-hmm-shipped
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/asap-wir-nc-v1 --detector hmm \
   --decay-half-life-seconds 1 --functional-blend 0.1 \
   --out build/whatkey-harness/asap-wir-hmm-reflex
-python3 tool/whatkey_mode_confusion.py \
+python3 tool/whatkey/mode_confusion.py \
   --fixtures build/whatkey-fixtures/asap-wir-nc-v1 \
   --claims build/whatkey-harness/asap-wir-hmm-shipped/claims.json
 ```

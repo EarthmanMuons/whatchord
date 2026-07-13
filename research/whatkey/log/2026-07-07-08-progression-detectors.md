@@ -30,19 +30,19 @@ Harness: `--detector progression` (standalone, diagnostic) and
 
 ```sh
 for pb in 0.02 0.05 0.1; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --detector hybrid --progression-blend "$pb" \
     --out "build/whatkey-harness/wir-dev-hybrid-p$pb"
 done
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/wir-dev-hybrid-p0.02/report.json \
   build/whatkey-harness/wir-dev-hybrid-b0.1/report.json
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/wir-dev-hybrid-p0.02/report.json \
   build/whatkey-harness/wir-dev-hybrid-b0.1/report.json --metric coverage
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures research/whatkey/data/fixtures/pop-jazz-v1 \
   --detector hybrid --progression-blend 0.02 \
   --out build/whatkey-harness/pop-jazz-v1-hybrid-p0.02

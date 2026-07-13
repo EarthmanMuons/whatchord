@@ -7,7 +7,7 @@ import tempfile
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / "docs/site/images/homepage_social.png"
 LOGO = ROOT / "docs/site/images/whatchord_logo.webp"
 FONT = ROOT / "assets/fonts/InterVariable.ttf"

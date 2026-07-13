@@ -15,13 +15,13 @@ tonicization-scale evaluation. Defaults-only parity verified on the Isophonics
 development split.
 
 ```sh
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/iso-dev-hmm-hl30/report.json \
   build/whatkey-harness/iso-dev-hybrid/report.json
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/iso-dev-hmm-hl30/report.json \
   build/whatkey-harness/iso-dev-hmm-hl1/report.json
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures research/whatkey/data/fixtures/pop-jazz-v2 \
   --detector hmm --decay-half-life-seconds 30 \
   --out build/whatkey-harness/pop-jazz-v2-hmm-hl30

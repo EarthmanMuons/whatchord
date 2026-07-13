@@ -16,14 +16,14 @@ harm within +/-0.02 and no significant coverage or stability loss.
 ```sh
 for f in 0 0.1; do for p in 0 0.02; do
   for w in duration flat; do for c in on off; do
-    dart run tool/whatkey_harness.dart \
+    dart run tool/whatkey/harness.dart \
       --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
       --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
       --detector hmm --functional-blend "$f" --progression-blend "$p" \
       --weighting "$w" --confidence-weighting "$c" \
       --out "build/whatkey-harness/iso-abl-f$f-p$p-$w-$c"
 done; done; done; done
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/iso-abl-f0-p0-duration-off/report.json \
   build/whatkey-harness/iso-abl-f0.1-p0.02-duration-on/report.json
 ```

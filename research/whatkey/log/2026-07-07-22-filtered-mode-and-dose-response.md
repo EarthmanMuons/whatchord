@@ -13,7 +13,7 @@ section-scale development ruler (Isophonics) with a significant paired exact
 win.
 
 **Experiment 1: section-scale filtering of the mode-resolved corpus.**
-`tool/whatkey_mode_confusion.py` gained `--min-segment-measures N`: pool only
+`tool/whatkey/mode_confusion.py` gained `--min-segment-measures N`: pool only
 events inside analyst key segments spanning at least N measures, where the
 tonicization-scale and section-scale answers coincide. No new detector runs;
 this re-scores entry 21's existing claims artifacts, so the evaluation-only rule
@@ -22,7 +22,7 @@ single cutoff is doing the arguing.
 
 ```sh
 for t in 12 20 32; do for n in shipped reflex; do
-  python3 tool/whatkey_mode_confusion.py \
+  python3 tool/whatkey/mode_confusion.py \
     --fixtures build/whatkey-fixtures/asap-wir-nc-v1 \
     --claims "build/whatkey-harness/asap-wir-hmm-$n/claims.json" \
     --min-segment-measures "$t"
@@ -53,23 +53,23 @@ evaluation-only overlap set was deliberately excluded.
 
 ```sh
 for hl in 1 2 4 8 15 30 60; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --detector hmm --decay-half-life-seconds "$hl" \
     --out "build/whatkey-harness/wir-dose-pure-hl$hl"
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --detector hmm --decay-half-life-seconds "$hl" --functional-blend 0.1 \
     --out "build/whatkey-harness/wir-dose-f01-hl$hl"
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
     --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
     --detector hmm --decay-half-life-seconds "$hl" \
     --out "build/whatkey-harness/iso-dose-pure-hl$hl"
 done
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/iso-dose-pure-hl8/report.json \
   build/whatkey-harness/iso-dose-pure-hl30/report.json
 ```

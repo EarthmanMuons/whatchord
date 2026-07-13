@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ROOT = REPO_ROOT / "build/whatkey-corpora"
 FIXTURE_ROOT = REPO_ROOT / "build/whatkey-fixtures"
 SPLIT_VERIFY_ROOT = REPO_ROOT / "build/whatkey-splits"
@@ -315,7 +315,7 @@ def extract_when_in_rome(bench_root: Path) -> None:
     run(
         [
             sys.executable,
-            "tool/whatkey_fixture_extract.py",
+            "tool/whatkey/fixture_extract.py",
             "--set",
             "when-in-rome-v1",
             "--out",
@@ -337,7 +337,7 @@ def extract_asap(asap_root: Path) -> None:
     run(
         [
             sys.executable,
-            "tool/whatkey_asap_extract.py",
+            "tool/whatkey/asap_extract.py",
             "--asap-root",
             str(asap_root),
             "--set",
@@ -353,7 +353,7 @@ def extract_isophonics(choco_root: Path) -> None:
     run(
         [
             sys.executable,
-            "tool/whatkey_isophonics_extract.py",
+            "tool/whatkey/isophonics_extract.py",
             "--choco-root",
             str(choco_root),
             "--set",
@@ -367,7 +367,7 @@ def extract_overlap(asap_root: Path, bench_root: Path) -> None:
     run(
         [
             sys.executable,
-            "tool/whatkey_asap_wir_extract.py",
+            "tool/whatkey/asap_wir_extract.py",
             "--asap-root",
             str(asap_root),
             "--bench-root",
@@ -382,7 +382,7 @@ def verify_when_in_rome_split(bench_root: Path) -> None:
     run(
         [
             sys.executable,
-            "tool/whatkey_freeze_split.py",
+            "tool/whatkey/freeze_split.py",
             "--bench-root",
             str(bench_root),
             "--fixtures-manifest",
@@ -399,7 +399,7 @@ def verify_asap_split() -> None:
     run(
         [
             sys.executable,
-            "tool/whatkey_asap_split.py",
+            "tool/whatkey/asap_split.py",
             "--fixtures-manifest",
             str(FIXTURE_ROOT / "asap-nc-v2/manifest.json"),
             "--seed",
@@ -416,7 +416,7 @@ def verify_isophonics_split() -> None:
     run(
         [
             sys.executable,
-            "tool/whatkey_asap_split.py",
+            "tool/whatkey/asap_split.py",
             "--fixtures-manifest",
             str(FIXTURE_ROOT / "isophonics-nc-v1/manifest.json"),
             "--seed",
@@ -433,7 +433,7 @@ def run_headline() -> None:
     run(
         [
             sys.executable,
-            "tool/whatkey_external_baseline.py",
+            "tool/whatkey/external_baseline.py",
             "--fixtures",
             str(FIXTURE_ROOT / "isophonics-nc-v1"),
             "--split-file",
@@ -449,7 +449,7 @@ def run_headline() -> None:
         [
             "dart",
             "run",
-            "tool/whatkey_harness.dart",
+            "tool/whatkey/harness.dart",
             "--fixtures",
             str(FIXTURE_ROOT / "isophonics-nc-v1"),
             "--split-file",
@@ -468,7 +468,7 @@ def run_headline() -> None:
             [
                 "dart",
                 "run",
-                "tool/whatkey_harness.dart",
+                "tool/whatkey/harness.dart",
                 "--fixtures",
                 str(FIXTURE_ROOT / "isophonics-nc-v1"),
                 "--split-file",
@@ -485,7 +485,7 @@ def run_headline() -> None:
     run(
         [
             sys.executable,
-            "tool/whatkey_headline_table.py",
+            "tool/whatkey/headline_table.py",
             "--root",
             str(HEADLINE_ROOT),
             "--check",

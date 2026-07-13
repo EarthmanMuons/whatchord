@@ -3,7 +3,7 @@
 
 Rebuilds each fixture's event stream as a music21 score (chords with their
 fixture durations) and runs music21's whole-piece key analyzers over it. The
-output is a claims file per analyzer that tool/whatkey_harness.dart scores
+output is a claims file per analyzer that tool/whatkey/harness.dart scores
 with --claims-file, so external baselines go through exactly the same metric
 code as our detectors.
 
@@ -89,7 +89,7 @@ def main() -> int:
         payload = {
             "schema": "whatkey-claims/1",
             "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-            "command": "python tool/whatkey_external_baseline.py "
+            "command": "python tool/whatkey/external_baseline.py "
             + " ".join(sys.argv[1:]),
             "detector": {
                 "name": f"music21-{analyzer_name}",

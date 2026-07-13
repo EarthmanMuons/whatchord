@@ -23,17 +23,17 @@ adding the parameters.
 
 ```sh
 for s in 0.5 1 2; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
     --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
     --detector hmm --relative-tilt "$s" \
     --out "build/whatkey-harness/iso-relbass-s$s"
 done   # same for when-in-rome-v1, and both corpora with
        # --relative-cadence-tilt 1|2|4 (dirs *-relcad-s*)
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/iso-relbass-s1/report.json \
   build/whatkey-harness/iso-tilt-s2/report.json
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/wir-relbass-s1/report.json \
   build/whatkey-harness/wir-tilt-s2/report.json
 ```

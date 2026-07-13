@@ -10,7 +10,7 @@ controlled same-input timescale comparison (identical performances, analyst
 labels, both emission-memory configurations).
 
 Pipeline per performance: pedal-aware sounding snapshots replayed through the
-real capture path (reusing tool/whatkey_asap_extract.py), then each event is
+real capture path (reusing tool/whatkey/asap_extract.py), then each event is
 labeled with the analyst key of the score measure active at its start
 (performance downbeat -> downbeats_score_map -> measure -> RomanText key).
 
@@ -30,7 +30,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import whatkey_asap_extract as asap_x  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "chord"))
+import asap_extract as asap_x  # noqa: E402
 
 REPO_ROOT = asap_x.REPO_ROOT
 
@@ -64,7 +65,7 @@ def main() -> int:
 
     sys.path.insert(0, str(args.bench_root.resolve() / "harness"))
     import music21_comparison as cbench
-    import when_in_rome_chord_benchmark as wir
+    import when_in_rome_benchmark as wir
 
     annotations = json.loads((args.asap_root / "asap_annotations.json").read_text())
     corpus = (
@@ -174,13 +175,13 @@ def main() -> int:
         "schema": asap_x.MANIFEST_SCHEMA,
         "set": args.set_name,
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "command": "python tool/whatkey_asap_wir_extract.py " + " ".join(sys.argv[1:]),
+        "command": "python tool/whatkey/asap_wir_extract.py " + " ".join(sys.argv[1:]),
         "engineCommit": asap_x.git(REPO_ROOT, "rev-parse", "HEAD"),
         "engineLibDirty": bool(
             asap_x.git(REPO_ROOT, "status", "--porcelain", "--", "lib", "pubspec.yaml")
         ),
         "generator": {
-            "script": "tool/whatkey_asap_wir_extract.py",
+            "script": "tool/whatkey/asap_wir_extract.py",
             "arguments": sys.argv[1:],
         },
         "context": args.context,

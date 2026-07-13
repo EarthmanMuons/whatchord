@@ -49,12 +49,12 @@ observation carrying a `value`, `time`, and `duration`.
 ## Method
 
 The extraction script lives in
-[`tool/choco/chord_label_stats.py`](../tool/choco/chord_label_stats.py).
+[`tool/chord/choco/chord_label_stats.py`](../tool/chord/choco/chord_label_stats.py).
 
 The command used for this snapshot was:
 
 ```sh
-python3 tool/choco/chord_label_stats.py /private/tmp/choco --jams-version converted --top 50
+python3 tool/chord/choco/chord_label_stats.py /private/tmp/choco --jams-version converted --top 50
 ```
 
 The script:
@@ -214,7 +214,7 @@ git clone --depth 1 https://github.com/smashub/choco.git /private/tmp/choco
 Run the report:
 
 ```sh
-python3 tool/choco/chord_label_stats.py /private/tmp/choco --jams-version converted --top 50
+python3 tool/chord/choco/chord_label_stats.py /private/tmp/choco --jams-version converted --top 50
 ```
 
 If you use `mise`, `mise run research:choco-coverage` runs the same pass and

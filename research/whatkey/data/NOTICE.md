@@ -28,8 +28,8 @@ for local, uncommitted experiments under `build/` until a dated WhatKey log
 entry records a separate redistribution decision. The ASAP dataset (CC BY-NC-SA
 4.0), the Isophonics annotations (research use only), and the ASAP plus
 When-in-Rome overlap set (ASAP terms plus Beethoven-sonata analyses outside the
-verified group set) are all gated this way: `tool/whatkey_asap_extract.py`,
-`tool/whatkey_isophonics_extract.py`, and `tool/whatkey_asap_wir_extract.py`
+verified group set) are all gated this way: `tool/whatkey/asap_extract.py`,
+`tool/whatkey/isophonics_extract.py`, and `tool/whatkey/asap_wir_extract.py`
 refuse to write under `research/`, and none of their fixtures are committed.
 
 ## Results Artifacts

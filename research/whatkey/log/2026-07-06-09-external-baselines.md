@@ -6,10 +6,10 @@ profile-pair choice inside our own detector.
 
 **Setup.**
 
-- `tool/whatkey_external_baseline.py` rebuilds each fixture's event stream as a
+- `tool/whatkey/external_baseline.py` rebuilds each fixture's event stream as a
   music21 score (chords with fixture durations) and runs music21 10.1.0's
   whole-piece key analyzers; the resulting claims files are scored by
-  `tool/whatkey_harness.dart --claims-file`, so external baselines run through
+  `tool/whatkey/harness.dart --claims-file`, so external baselines run through
   exactly the same metric code as our detectors. Offline and non-abstaining: one
   global key per piece, scored as a constant claim on every event.
 - Fixtures `when-in-rome-v1` (engine `aed5ea8b`, corpus `aa7539f1`), development

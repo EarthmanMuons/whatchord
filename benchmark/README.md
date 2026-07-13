@@ -38,7 +38,7 @@ CI is just noise.
 
 Two corpora are replayed through `analyze()`:
 
-- the **oracle corpus** -- every voicing in `tool/chord_oracle_reviewed.json`,
+- the **oracle corpus** -- every voicing in `tool/chord/oracle_reviewed.json`,
   deliberately adversarial edge cases;
 - the **common voicing pool** (`src/common_voicings.dart`) -- the common chord
   qualities with inversions, approximating real-playing structures.

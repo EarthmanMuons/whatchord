@@ -20,7 +20,7 @@ is robust to the emission-memory setting.
 ```sh
 for f in 0 0.1; do for p in 0 0.02; do
   for w in duration flat; do for c in on off; do
-    dart run tool/whatkey_harness.dart \
+    dart run tool/whatkey/harness.dart \
       --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
       --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
       --detector hmm --decay-half-life-seconds 15 \
@@ -28,10 +28,10 @@ for f in 0 0.1; do for p in 0 0.02; do
       --weighting "$w" --confidence-weighting "$c" \
       --out "build/whatkey-harness/iso-abl15-f$f-p$p-$w-$c"
 done; done; done; done
-python3 tool/whatkey_external_baseline.py \
+python3 tool/whatkey/external_baseline.py \
   --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
   --split-file research/whatkey/data/splits/isophonics-nc-v1.json
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/iso-dev-hmm-shipped/report.json \
   build/whatkey-harness/iso-dev-m21-krumhanslschmuckler/report.json
 ```

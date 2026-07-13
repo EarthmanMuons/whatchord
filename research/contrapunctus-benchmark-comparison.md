@@ -68,8 +68,8 @@ WhatChord accuracy target.
 
 The research harnesses are:
 
-- [`tool/when_in_rome_chord_benchmark.py`](../tool/when_in_rome_chord_benchmark.py)
-- [`tool/when_in_rome_chord_batch.dart`](../tool/when_in_rome_chord_batch.dart)
+- [`tool/chord/when_in_rome_benchmark.py`](../tool/chord/when_in_rome_benchmark.py)
+- [`tool/chord/when_in_rome_batch.dart`](../tool/chord/when_in_rome_batch.dart)
 
 The Python harness reuses Contrapunctus's public alignment helpers to:
 
@@ -342,7 +342,7 @@ Set `CONTRAPUNCTUS_BENCH_ROOT=/another/path` to use a different checkout. The
 equivalent direct command is:
 
 ```sh
-python tool/when_in_rome_chord_benchmark.py \
+python tool/chord/when_in_rome_benchmark.py \
   /private/tmp/contrapunctus-bench \
   --groups bach-wtc mozart-sonatas-dcml brahms-lieder schubert-lieder \
     chorales tavern \

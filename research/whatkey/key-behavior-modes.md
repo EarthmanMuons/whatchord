@@ -4,7 +4,7 @@
 frozen artifact, split, fixture, or log entry was modified, and the exploration
 itself ran on development splits only. Everything here uses the existing
 harness, with outputs under `build/whatkey-local/` (regenerable, untracked).
-Statistical comparisons use `tool/whatkey_compare.py` (paired per-piece Wilcoxon
+Statistical comparisons use `tool/whatkey/compare.py` (paired per-piece Wilcoxon
 on exact-on-claimed). A one-shot held-out audit of the locked presets was added
 2026-07-10 (below).
 
@@ -312,7 +312,7 @@ become evidence.
 
 ```sh
 # Presets (swap --decay-half-life-seconds 30|4|1):
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
   --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
   --detector hmm --decay-half-life-seconds 4 \
@@ -321,5 +321,5 @@ dart run tool/whatkey_harness.dart \
 # Calibration fits add:
 #   --sweep-calibration-temperatures 1,1.25,1.5,1.75,2,2.25,2.5,2.75,3,3.5,4
 # Paired tests:
-python3 tool/whatkey_compare.py <candidate>/report.json <baseline>/report.json
+python3 tool/whatkey/compare.py <candidate>/report.json <baseline>/report.json
 ```

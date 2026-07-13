@@ -486,16 +486,16 @@ Questions to resolve before implementing any algorithm:
   replays serialized `List<ChordEvent>` fixtures through each estimator. That
   makes the comparison reproducible and keeps tuning out of live-playing
   guesswork. Most of the fixture pipeline already exists:
-  `tool/when_in_rome_chord_benchmark.py` parses When in Rome pieces (RomanText
+  `tool/chord/when_in_rome_benchmark.py` parses When in Rome pieces (RomanText
   annotations via music21) and drives the real engine in batch through
-  `tool/when_in_rome_chord_batch.dart`. RomanText carries the analyst's local
+  `tool/chord/when_in_rome_batch.dart`. RomanText carries the analyst's local
   key at every annotation, so the same corpus yields time-aligned key ground
   truth with explicit modulation boundaries, and the Roman numerals themselves
   are the functional labels (cadence points, applied dominants) that 2e's
   detectors need scoring against. Extend that tooling to emit `ChordEvent`
   fixtures (chord stream and durations from the score, candidates from the real
   engine, labeled local key per event) and check in a curated subset as test
-  fixtures. Follow the `tool/chord_rule_ablation.py` pattern for the compare
+  fixtures. Follow the `tool/chord/rule_ablation.py` pattern for the compare
   loop.
 - **Corpus balance.** When in Rome skews common-practice classical. Complement
   it with a small set of hand-authored pop/jazz fixtures (I-V-vi-IV loops,
@@ -796,8 +796,8 @@ the most cited artifact of this kind of paper.
 ### Phase 2 (future PRs, in order)
 
 1. Build fixtures: extend the When in Rome tooling
-   (`tool/when_in_rome_chord_benchmark.py` / `when_in_rome_chord_batch.dart`) to
-   emit labeled `ChordEvent` fixtures; hand-author the pop/jazz set
+   (`tool/chord/when_in_rome_benchmark.py` / `when_in_rome_batch.dart`) to emit
+   labeled `ChordEvent` fixtures; hand-author the pop/jazz set
 2. Build the offline harness and metrics (MIREX weighting, local-key accuracy,
    modulation lag, stability, time-to-first-claim)
 3. Implement profile correlation (`KeyEstimator.ksProfile`) as the floor, with
@@ -911,7 +911,7 @@ Ground-truth corpora:
   ["When in Rome: A Meta-corpus of Functional Harmony"](https://transactions.ismir.net/articles/10.5334/tismir.165).
   _TISMIR_. Repo:
   [MarkGotham/When-in-Rome](https://github.com/MarkGotham/When-in-Rome). Already
-  wired into `tool/when_in_rome_chord_benchmark.py`; RomanText annotations carry
+  wired into `tool/chord/when_in_rome_benchmark.py`; RomanText annotations carry
   per-event local keys and modulation boundaries.
 - Tymoczko, D., Gotham, M., Cuthbert, M. S., & Ariza, C. (2019).
   ["The RomanText Format: A Flexible and Standard Method for Representing Roman Numeral Analyses"](https://dspace.mit.edu/bitstream/handle/1721.1/137847/romantext.pdf)

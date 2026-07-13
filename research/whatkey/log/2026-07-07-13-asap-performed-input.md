@@ -14,10 +14,10 @@ rolls.
   retention. All 14 history tests pass unchanged, so behavior is preserved, and
   offline replay now runs the literal capture code rather than a
   reimplementation.
-- **`tool/whatkey_replay_batch.dart`**: JSON-lines of pedal-aware sounding
+- **`tool/whatkey/replay_batch.dart`**: JSON-lines of pedal-aware sounding
   snapshots in, committed `ChordEvent`s out, via the app's analyzer, the
   three-note capture gate, and the real segmenter.
-- **`tool/whatkey_asap_extract.py`** (mido): parses ASAP performance MIDI with
+- **`tool/whatkey/asap_extract.py`** (mido): parses ASAP performance MIDI with
   sustain-pedal semantics into sounding snapshots, replays them, and labels
   events from ASAP's key-signature annotations. ASAP does not annotate mode
   (signatures only, per its README), so every event carries `localKey: null`
@@ -35,12 +35,12 @@ git clone --depth 1 https://github.com/fosfrancesco/asap-dataset.git \
   /private/tmp/asap-dataset
 mise research:whatkey-fixtures-asap   # 24 performances, one per piece,
                                       # round-robin across composers
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/asap-nc-v1 --detector hmm
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/asap-nc-v1 --detector hybrid
 for hl in 5 10 30; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/asap-nc-v1 --detector hmm \
     --decay-half-life-seconds "$hl" \
     --out "build/whatkey-harness/asap-nc-v1-hmm-hl$hl"

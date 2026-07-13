@@ -3,7 +3,7 @@
 
 Parses ASAP performance MIDI (mido) into pedal-aware sounding-set snapshots
 and replays them through the real Phase 1 capture path
-(tool/whatkey_replay_batch.dart: the app's analyzer plus the actual
+(tool/whatkey/replay_batch.dart: the app's analyzer plus the actual
 ChordEventSegmenter), so fixture events reflect genuine capture behavior on
 performed input, finger rolls and pedal blur included.
 
@@ -30,7 +30,7 @@ from pathlib import Path
 
 import mido
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_SCHEMA = "whatkey-fixture/1"
 MANIFEST_SCHEMA = "whatkey-manifest/1"
 PEDAL_CONTROLLER = 64
@@ -117,13 +117,13 @@ def main() -> int:
         "schema": MANIFEST_SCHEMA,
         "set": args.set_name,
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "command": "python tool/whatkey_asap_extract.py " + " ".join(sys.argv[1:]),
+        "command": "python tool/whatkey/asap_extract.py " + " ".join(sys.argv[1:]),
         "engineCommit": git(REPO_ROOT, "rev-parse", "HEAD"),
         "engineLibDirty": bool(
             git(REPO_ROOT, "status", "--porcelain", "--", "lib", "pubspec.yaml")
         ),
         "generator": {
-            "script": "tool/whatkey_asap_extract.py",
+            "script": "tool/whatkey/asap_extract.py",
             "arguments": sys.argv[1:],
         },
         "context": args.context,
@@ -136,7 +136,7 @@ def main() -> int:
                 "NONCOMMERCIAL-GATED: ASAP is CC BY-NC-SA 4.0; local "
                 "uncommitted experiments only (research/whatkey/data/NOTICE.md)"
             ),
-            "captureReplay": "tool/whatkey_replay_batch.dart",
+            "captureReplay": "tool/whatkey/replay_batch.dart",
         },
         "fixtures": fixtures_meta,
     }
@@ -231,7 +231,7 @@ def replay(
         for p in pieces
     )
     process = subprocess.run(
-        ["dart", "run", "tool/whatkey_replay_batch.dart"],
+        ["dart", "run", "tool/whatkey/replay_batch.dart"],
         input=payload,
         capture_output=True,
         text=True,

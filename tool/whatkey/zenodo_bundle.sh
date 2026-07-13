@@ -2,7 +2,7 @@
 # Bundle a tagged source archive plus the WhatKey preprint for a manual
 # Zenodo deposit, so the paper is visible on the record without untarring.
 #
-# Usage: tool/whatkey_zenodo_bundle.sh [tag]   (defaults to the latest tag)
+# Usage: tool/whatkey/zenodo_bundle.sh [tag]   (defaults to the latest tag)
 #
 # Everything is taken from the tag, not the working tree, so the bundle
 # matches the released state exactly; git archive output is deterministic

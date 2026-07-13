@@ -28,8 +28,8 @@ import 'package:whatchord/whatchord.dart';
 import 'package:whatkey/whatkey.dart';
 
 import '../../tool/src/chord_id_engine.dart';
-import '../../tool/src/whatkey/whatkey_fixtures.dart';
-import '../../tool/src/whatkey/whatkey_scoring.dart';
+import '../../tool/whatkey/src/fixtures.dart';
+import '../../tool/whatkey/src/scoring.dart';
 
 // Kept out of the normal suite; run explicitly with:
 //   flutter test test/probes/_whatkey_closed_loop_probe_test.dart --run-skipped

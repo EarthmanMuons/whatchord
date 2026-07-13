@@ -12,7 +12,7 @@ rules require, so the win (if any) is claimed properly.
   `correlation + functionalBlend * points per weighted event`. Blend zero
   reduces exactly to profile correlation (unit-tested), which is the ablation
   anchor. Harness: `--detector hybrid`, `--functional-blend`.
-- New `tool/whatkey_compare.py`: paired per-piece comparison of two harness
+- New `tool/whatkey/compare.py`: paired per-piece comparison of two harness
   reports with Wilcoxon signed-rank (normal approximation, tie and continuity
   corrections), seeded-bootstrap CI95 of the mean delta, and win/loss/tie
   counts. Pure stdlib.

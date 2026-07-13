@@ -8,7 +8,7 @@ Rome's tonicization-scale ruler, mirroring entry 18's section-scale factorial.
 ```sh
 for f in 0 0.1; do for p in 0 0.02; do
   for w in duration flat; do for c in on off; do
-    dart run tool/whatkey_harness.dart \
+    dart run tool/whatkey/harness.dart \
       --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
       --split-file research/whatkey/data/splits/when-in-rome-v1.json \
       --detector hmm --decay-half-life-seconds 1 \
@@ -16,7 +16,7 @@ for f in 0 0.1; do for p in 0 0.02; do
       --weighting "$w" --confidence-weighting "$c" \
       --out "build/whatkey-harness/wir-abl1-f$f-p$p-$w-$c"
 done; done; done; done
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/wir-abl1-f0.1-p0-duration-on/report.json \
   build/whatkey-harness/wir-abl1-f0-p0-duration-on/report.json
 ```

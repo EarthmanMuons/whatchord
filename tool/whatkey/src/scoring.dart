@@ -17,7 +17,7 @@ import 'dart:math' as math;
 
 import 'package:whatkey/whatkey.dart';
 
-import 'whatkey_fixtures.dart';
+import 'fixtures.dart';
 
 /// MIREX near-miss weighting (see PROTOCOL.md references).
 double mirexWeight(KeyLabel claim, KeyLabel truth) {
