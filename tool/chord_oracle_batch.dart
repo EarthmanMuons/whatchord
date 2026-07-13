@@ -15,7 +15,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 import 'package:whatchord/features/theory/presentation/models/chord_symbol.dart';
 
 import 'chord_debug.dart';

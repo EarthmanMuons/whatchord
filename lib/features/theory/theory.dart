@@ -1,4 +1,4 @@
-export 'domain/theory_domain.dart';
+export 'package:whatchord_theory/whatchord_theory.dart';
 
 export 'presentation/models/chord_presentation.dart';
 export 'presentation/models/chord_symbol.dart';

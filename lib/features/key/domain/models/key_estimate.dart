@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
-
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 /// One key hypothesis with the detector's confidence in it.
 ///

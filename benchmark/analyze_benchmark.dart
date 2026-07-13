@@ -24,7 +24,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 import 'src/allocation_probe.dart';
 import 'src/common_voicings.dart';

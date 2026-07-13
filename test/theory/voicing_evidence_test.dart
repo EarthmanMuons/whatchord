@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/theory/domain/analysis/voicing_evidence.dart';
+import 'package:whatchord_theory/analysis/voicing_evidence.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'helpers/theory_test_helpers.dart';

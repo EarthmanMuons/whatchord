@@ -1,4 +1,4 @@
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 /// The 24-key space shared by every detector: canonical tonalities and the
 /// per-key scale membership masks.

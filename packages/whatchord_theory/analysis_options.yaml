@@ -1,0 +1,8 @@
+include: package:lints/recommended.yaml
+
+linter:
+  rules:
+    discarded_futures: true
+    prefer_final_in_for_each: true
+    prefer_final_locals: true
+    unawaited_futures: true

@@ -1,4 +1,5 @@
-import '../../domain/theory_domain.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
+
 import '../models/chord_presentation.dart';
 import '../models/chord_symbol.dart';
 import 'chord_long_form_formatter.dart';

@@ -1,5 +1,6 @@
+import 'package:whatchord_theory/whatchord_theory.dart';
+
 import 'package:whatchord/features/history/history_domain.dart';
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
 
 import '../models/key_estimate.dart';
 import 'key_detector.dart';

@@ -1,9 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 import 'package:whatchord/features/input/input.dart';
 import 'package:whatchord/features/lookup/lookup.dart';
-
-import '../../domain/theory_domain.dart';
 
 /// Converts currently sounding notes into a minimal [ChordInput].
 final chordInputProvider = Provider<ChordInput?>((ref) {

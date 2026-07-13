@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/theory/domain/analysis/candidate_features.dart';
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord_theory/analysis/candidate_features.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 import 'helpers/theory_test_helpers.dart';
 

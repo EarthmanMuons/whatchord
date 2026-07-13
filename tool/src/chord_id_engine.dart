@@ -9,7 +9,7 @@
 // as the bass when only pitch names are given; with MIDI numbers the lowest
 // note is the bass.
 
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 import 'package:whatchord/features/theory/presentation/models/chord_symbol.dart';
 import 'package:whatchord/features/theory/presentation/services/chord_long_form_formatter.dart';
 import 'package:whatchord/features/theory/presentation/services/chord_symbol_builder.dart';
