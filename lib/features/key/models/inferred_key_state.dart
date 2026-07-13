@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../domain/models/key_estimate.dart';
+import 'package:whatkey/whatkey.dart';
 
 /// Evidence age for the inferred key, driving the key button's states
 /// (Phase 2 integration spec):

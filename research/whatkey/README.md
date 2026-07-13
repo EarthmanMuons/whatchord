@@ -113,11 +113,10 @@ detector's ranked keys, abstention decisions, or paper results.
   notes.
 - [results/](results/): committed held-out evaluation artifacts and reports.
 - Code:
-  - [lib/features/key/](../../lib/features/key/): detectors and key-behavior
+  - [packages/whatkey/](../../packages/whatkey/): detectors and key-behavior
     presets; this is the same code the harness benchmarks and the app runs.
-  - [packages/whatchord/](../../packages/whatchord/): chord-event model and
-    segmentation (the engine's temporal module); the app's history feature holds
-    the capture providers.
+  - [packages/whatchord/](../../packages/whatchord/): the chord engine,
+    including the chord-event model and segmentation the detectors consume.
   - [tool/](../../tool/): harnesses, extractors, baseline runners, and paired
     statistics.
 

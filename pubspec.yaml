@@ -3,6 +3,7 @@ description: Real-time chord identification via Bluetooth MIDI.
 
 workspace:
   - packages/whatchord
+  - packages/whatkey
 
 publish_to: none
 version: 2026.7.11+26
@@ -36,6 +37,8 @@ dependencies:
   wakelock_plus: ^1.4.0
   whatchord:
     path: packages/whatchord
+  whatkey:
+    path: packages/whatkey
 
 # Vendored copies of upstream 1.0.2 carrying two iOS BLE patches (see
 # third_party/README.md); drop once upstream ships equivalent fixes.

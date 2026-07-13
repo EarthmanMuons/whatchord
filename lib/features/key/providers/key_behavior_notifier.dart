@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatkey/whatkey.dart';
 
 import 'package:whatchord_app/core/providers/shared_preferences_provider.dart';
 
-import '../domain/models/key_behavior.dart';
 import '../persistence/key_preferences_keys.dart';
 
 final keyBehaviorProvider = NotifierProvider<KeyBehaviorNotifier, KeyBehavior>(
