@@ -12,7 +12,7 @@ import 'adaptive_side_sheet.dart';
 
 class ChordRankingDetailsSnapshot {
   ChordRankingDetailsSnapshot._({
-    required List<RankedCandidateDebug> candidates,
+    required List<ExplainedCandidate> candidates,
     required this.tonality,
     required this.notation,
     required this.noteNameSystem,
@@ -27,7 +27,7 @@ class ChordRankingDetailsSnapshot {
     );
   }
 
-  final List<RankedCandidateDebug> candidates;
+  final List<ExplainedCandidate> candidates;
   final Tonality tonality;
   final ChordNotationStyle notation;
   final NoteNameSystem noteNameSystem;
@@ -134,7 +134,7 @@ class _RankingDetailsBody extends StatefulWidget {
     required this.noteNameSystem,
   });
 
-  final List<RankedCandidateDebug> candidates;
+  final List<ExplainedCandidate> candidates;
   final Tonality tonality;
   final ChordNotationStyle notation;
   final NoteNameSystem noteNameSystem;
@@ -347,8 +347,8 @@ class _FadedVerticalScrollViewState extends State<_FadedVerticalScrollView> {
   }
 }
 
-List<RankedCandidateDebug> _visibleCandidates(
-  List<RankedCandidateDebug> candidates,
+List<ExplainedCandidate> _visibleCandidates(
+  List<ExplainedCandidate> candidates,
 ) {
   return candidates.take(5).toList(growable: false);
 }
@@ -369,7 +369,7 @@ class _CandidateRankCard extends StatefulWidget {
   });
 
   final int rank;
-  final RankedCandidateDebug row;
+  final ExplainedCandidate row;
   final ChordCandidate thisCandidate;
   final RankingDecision? nextDecision;
   final bool isAlternative;
@@ -497,7 +497,7 @@ class _CandidateExplanationFront extends StatelessWidget {
   });
 
   final int rank;
-  final RankedCandidateDebug row;
+  final ExplainedCandidate row;
   final String symbol;
   final String longLabel;
   final _CandidateTier tier;
@@ -566,7 +566,7 @@ class _CandidateCostBack extends StatelessWidget {
 
   final int rank;
   final _CandidateTier tier;
-  final RankedCandidateDebug row;
+  final ExplainedCandidate row;
   final String symbol;
   final Tonality tonality;
   final NoteNameSystem noteNameSystem;
@@ -1012,7 +1012,7 @@ class _EmptyRankingDetails extends StatelessWidget {
   }
 }
 
-String _evidenceFor(RankedCandidateDebug row) {
+String _evidenceFor(ExplainedCandidate row) {
   final id = row.candidate.identity;
   final degrees = ChordMemberDegreeFormatter.formatDegrees(
     identity: id,
@@ -1125,7 +1125,7 @@ String _roleLabel(ChordToneRole role) {
   };
 }
 
-int? _reasonCount(RankedCandidateDebug row, String label) {
+int? _reasonCount(ExplainedCandidate row, String label) {
   for (final reason in row.costReasons) {
     if (reason.label != label) continue;
     final detail = reason.detail;

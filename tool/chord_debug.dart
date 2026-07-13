@@ -148,7 +148,7 @@ void main(List<String> args) {
     spellingMode: spellingMode,
     hasRootFilter: rootFilter != null,
   );
-  final baseResults = ChordAnalyzer.analyzeDebug(
+  final baseResults = ChordAnalyzer.explain(
     input,
     context: context,
     voicing: voicing,
@@ -529,8 +529,8 @@ ChordDebugPrepared? prepareChordDebugInput({
   );
 }
 
-List<RankedCandidateDebug> _applySpellingMode(
-  List<RankedCandidateDebug> baseResults, {
+List<ExplainedCandidate> _applySpellingMode(
+  List<ExplainedCandidate> baseResults, {
   required NoteParse parsed,
   required AnalysisContext context,
   required ChordDebugSpellingMode spellingMode,
@@ -560,11 +560,11 @@ List<RankedCandidateDebug> _applySpellingMode(
 
   return [
     for (var i = 0; i < ranked.length; i++)
-      RankedCandidateDebug(
+      ExplainedCandidate(
         candidate: ranked[i].candidate,
         originalRank: i + 1,
         costReasons: ranked[i].costReasons,
-        template: ranked[i].template,
+        templateQuality: ranked[i].templateQuality,
         vsPrevious: i == 0
             ? null
             : ChordCandidateRanking.explain(
@@ -577,8 +577,8 @@ List<RankedCandidateDebug> _applySpellingMode(
   ];
 }
 
-RankedCandidateDebug _adjustCandidateForSpelling(
-  RankedCandidateDebug result, {
+ExplainedCandidate _adjustCandidateForSpelling(
+  ExplainedCandidate result, {
   required NoteParse parsed,
   required AnalysisContext context,
   required ChordDebugSpellingMode spellingMode,
@@ -591,7 +591,7 @@ RankedCandidateDebug _adjustCandidateForSpelling(
   );
   if (evidence.costAdjustment == 0) return result;
 
-  return RankedCandidateDebug(
+  return ExplainedCandidate(
     candidate: ChordCandidate(
       identity: result.candidate.identity,
       cost: result.candidate.cost + evidence.costAdjustment,
@@ -599,7 +599,7 @@ RankedCandidateDebug _adjustCandidateForSpelling(
     originalRank: result.originalRank,
     costReasons: result.costReasons,
     vsPrevious: result.vsPrevious,
-    template: result.template,
+    templateQuality: result.templateQuality,
   );
 }
 
@@ -615,8 +615,8 @@ int _analysisTake({
   return top < 24 ? 24 : top;
 }
 
-List<RankedCandidateDebug> _filterResultsByRoot(
-  List<RankedCandidateDebug> results, {
+List<ExplainedCandidate> _filterResultsByRoot(
+  List<ExplainedCandidate> results, {
   required ChordDebugRootFilter? rootFilter,
   required int take,
 }) {
@@ -627,12 +627,12 @@ List<RankedCandidateDebug> _filterResultsByRoot(
   ].take(take).toList(growable: false);
 }
 
-int _candidateRank(RankedCandidateDebug result, {required int fallbackIndex}) {
+int _candidateRank(ExplainedCandidate result, {required int fallbackIndex}) {
   return result.originalRank ?? fallbackIndex + 1;
 }
 
 bool _isAlternativeCandidate(
-  RankedCandidateDebug result,
+  ExplainedCandidate result,
   int alternativeCount, {
   required int fallbackIndex,
 }) {
@@ -766,7 +766,7 @@ Map<String, Object?> chordDebugJsonPayload({
   required ChordNotationStyle notation,
   required List<({String label, int pc})> pcDisplays,
   required String bassLabel,
-  required List<RankedCandidateDebug> results,
+  required List<ExplainedCandidate> results,
   ChordDebugSpellingMode spellingMode = ChordDebugSpellingMode.pc,
   NoteParse? parsed,
   ChordDebugRootFilter? rootFilter,
@@ -824,7 +824,7 @@ void _writeJsonOutput({
   required String bassLabel,
   required ChordDebugSpellingMode spellingMode,
   required NoteParse parsed,
-  required List<RankedCandidateDebug> results,
+  required List<ExplainedCandidate> results,
   ChordDebugRootFilter? rootFilter,
   double? chosenCost,
   int? alternativeCount,
@@ -850,7 +850,7 @@ void _writeJsonOutput({
 
 Map<String, Object?> _candidateJson({
   required int rank,
-  required RankedCandidateDebug result,
+  required ExplainedCandidate result,
   required double? chosenCost,
   required bool isAlternative,
   required AnalysisContext context,
@@ -898,7 +898,7 @@ Map<String, Object?> _candidateJson({
     'toneRolesByInterval': {
       for (final entry in sortedRoles) entry.key.toString(): entry.value.name,
     },
-    'template': result.template.quality.name,
+    'template': result.templateQuality.name,
     if (spelling != null &&
         spelling.mode != ChordDebugSpellingMode.pc &&
         spelling.hasNamedInput)

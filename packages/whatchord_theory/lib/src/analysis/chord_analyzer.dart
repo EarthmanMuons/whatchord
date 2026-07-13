@@ -39,29 +39,30 @@ class CostReason {
 }
 
 @immutable
-class RankedCandidateDebug {
+class ExplainedCandidate {
   final ChordCandidate candidate;
 
-  /// Rank in the full list returned by the ranking pass. Debug tools can
-  /// filter candidates while still showing where each row originally landed.
+  /// Rank in the full list returned by the ranking pass. Explanation views
+  /// can filter candidates while still showing where each row originally
+  /// landed.
   final int? originalRank;
 
-  /// High-signal cost deltas; intended for CLI explanation.
+  /// High-signal cost deltas explaining this candidate's price.
   final List<CostReason> costReasons;
 
   /// Why this candidate is ordered where it is relative to the previous one.
   /// (Null for the first result.)
   final RankingDecision? vsPrevious;
 
-  /// The template that generated this candidate (useful for diagnostics).
-  final ChordTemplate template;
+  /// The quality of the template that generated this candidate.
+  final ChordQualityToken templateQuality;
 
-  const RankedCandidateDebug({
+  const ExplainedCandidate({
     required this.candidate,
     this.originalRank,
     required this.costReasons,
     required this.vsPrevious,
-    required this.template,
+    required this.templateQuality,
   });
 }
 
@@ -229,7 +230,7 @@ abstract final class ChordAnalyzer {
   ///
   /// Uses the exact same evaluation + ranking logic as [analyze], but also
   /// returns human-readable cost reasons and tie-break explanations.
-  static List<RankedCandidateDebug> analyzeDebug(
+  static List<ExplainedCandidate> explain(
     ChordInput input, {
     required AnalysisContext context,
     ObservedVoicing? voicing,
@@ -243,16 +244,16 @@ abstract final class ChordAnalyzer {
       take: take,
     ).take(take).toList(growable: false);
 
-    final out = <RankedCandidateDebug>[];
+    final out = <ExplainedCandidate>[];
     for (var i = 0; i < eval.length; i++) {
       final current = eval[i];
       final prev = i == 0 ? null : eval[i - 1];
 
       out.add(
-        RankedCandidateDebug(
+        ExplainedCandidate(
           candidate: current.candidate,
           originalRank: i + 1,
-          template: current.template,
+          templateQuality: current.template.quality,
           costReasons: current.reasons ?? const <CostReason>[],
           vsPrevious: prev == null
               ? null

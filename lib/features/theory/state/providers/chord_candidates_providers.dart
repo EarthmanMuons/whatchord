@@ -31,18 +31,18 @@ final alternativeChordCandidatesProvider = Provider<List<ChordCandidate>>((
   return ChordCandidateRanking.alternatives(candidates);
 });
 
-final rankedChordCandidateDebugProvider = Provider<List<RankedCandidateDebug>>((
+final rankedChordCandidateDebugProvider = Provider<List<ExplainedCandidate>>((
   ref,
 ) {
   final input = ref.watch(chordInputProvider);
-  if (input == null) return const <RankedCandidateDebug>[];
+  if (input == null) return const <ExplainedCandidate>[];
 
   final mode = ref.watch(analysisModeProvider);
-  if (mode != AnalysisMode.chord) return const <RankedCandidateDebug>[];
+  if (mode != AnalysisMode.chord) return const <ExplainedCandidate>[];
 
   final context = ref.watch(analysisContextProvider);
   final voicing = ref.watch(observedVoicingProvider);
-  return ChordAnalyzer.analyzeDebug(
+  return ChordAnalyzer.explain(
     input,
     context: context,
     voicing: voicing,
