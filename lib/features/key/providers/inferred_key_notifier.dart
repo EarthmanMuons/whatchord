@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/history/history.dart';
+import 'package:whatchord_app/features/history/history.dart';
 
 import '../domain/detectors/hmm_key_detector.dart';
 import '../models/inferred_key_state.dart';

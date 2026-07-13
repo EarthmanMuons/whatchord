@@ -6,10 +6,10 @@ import 'package:flutter/rendering.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/core/core.dart';
-import 'package:whatchord/features/demo/demo.dart';
-import 'package:whatchord/features/lookup/lookup.dart';
-import 'package:whatchord/features/midi/midi.dart';
+import 'package:whatchord_app/core/core.dart';
+import 'package:whatchord_app/features/demo/demo.dart';
+import 'package:whatchord_app/features/lookup/lookup.dart';
+import 'package:whatchord_app/features/midi/midi.dart';
 
 import '../../models/sounding_note.dart';
 import '../../providers/input_idle_notifier.dart';

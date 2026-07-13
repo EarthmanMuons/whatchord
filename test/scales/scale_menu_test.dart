@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/scales/scales.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/scales/scales.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 void main() {
   group('Scale menu catalog', () {

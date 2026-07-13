@@ -6,13 +6,13 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/core/core.dart';
-import 'package:whatchord/features/audio/audio.dart';
-import 'package:whatchord/features/demo/demo.dart';
-import 'package:whatchord/features/home/home.dart';
-import 'package:whatchord/features/key/key.dart';
-import 'package:whatchord/features/midi/midi.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/core/core.dart';
+import 'package:whatchord_app/features/audio/audio.dart';
+import 'package:whatchord_app/features/demo/demo.dart';
+import 'package:whatchord_app/features/home/home.dart';
+import 'package:whatchord_app/features/key/key.dart';
+import 'package:whatchord_app/features/midi/midi.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import '../services/settings_reset_service.dart';
 import 'debug_log_page.dart';

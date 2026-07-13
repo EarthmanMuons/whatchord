@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/input/input.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/input/input.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import '../models/chord_link.dart';
 

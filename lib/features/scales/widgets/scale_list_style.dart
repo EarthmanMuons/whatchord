@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:whatchord/core/core.dart';
+import 'package:whatchord_app/core/core.dart';
 
 /// Shared divider treatment for the Scale Explorer's chord and scale lists, so
 /// both panes look the same: a slightly thicker rule beneath a section header,

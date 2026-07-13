@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatchord_theory/whatchord_theory.dart';
+import 'package:whatchord/whatchord.dart';
 
-import 'package:whatchord/core/providers/shared_preferences_provider.dart';
+import 'package:whatchord_app/core/providers/shared_preferences_provider.dart';
 
 import '../persistence/theory_preferences_keys.dart';
 

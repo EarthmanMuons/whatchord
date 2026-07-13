@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import '../domain/detectors/display_calibration.dart';
 import '../domain/detectors/key_space.dart';

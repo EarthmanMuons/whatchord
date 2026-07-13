@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/demo/demo.dart';
-import 'package:whatchord/features/key/key.dart';
+import 'package:whatchord_app/features/demo/demo.dart';
+import 'package:whatchord_app/features/key/key.dart';
 
 import '../models/bluetooth_unavailability.dart';
 import '../models/midi_connection.dart';

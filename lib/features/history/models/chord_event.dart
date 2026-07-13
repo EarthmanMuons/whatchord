@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import 'package:whatchord_theory/whatchord_theory.dart';
+import 'package:whatchord/whatchord.dart';
 
 /// One committed chord from live play: what sounded, how it was identified,
 /// and how long it was held.

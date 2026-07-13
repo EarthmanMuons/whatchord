@@ -1,4 +1,4 @@
-// Pure-Dart seam for the key feature, mirroring the whatchord_theory package barrel: the
+// Pure-Dart seam for the key feature, mirroring the whatchord package barrel: the
 // detectors and estimate models only, no Riverpod or Flutter imports, so CLI
 // tooling and the WhatKey harness can compile against them without pulling
 // in the app.

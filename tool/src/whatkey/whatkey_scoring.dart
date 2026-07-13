@@ -15,7 +15,7 @@
 
 import 'dart:math' as math;
 
-import 'package:whatchord/features/key/key_domain.dart';
+import 'package:whatchord_app/features/key/key_domain.dart';
 
 import 'whatkey_fixtures.dart';
 

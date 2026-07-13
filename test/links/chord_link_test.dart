@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/links/links.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/links/links.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 void main() {
   group('ChordLink.build', () {

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:whatchord/features/lookup/lookup_voicing.dart';
+import 'package:whatchord_app/features/lookup/lookup_voicing.dart';
 
 void main() {
   group('LookupVoicing.midiFromPitchClasses', () {

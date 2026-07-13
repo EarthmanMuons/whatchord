@@ -3,8 +3,8 @@ import 'package:flutter/widgets.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/input/input.dart';
-import 'package:whatchord/features/lookup/lookup.dart';
+import 'package:whatchord_app/features/input/input.dart';
+import 'package:whatchord_app/features/lookup/lookup.dart';
 
 import 'audio_monitor_notifier.dart';
 import 'audio_monitor_settings_notifier.dart';

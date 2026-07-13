@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:whatchord/core/core.dart';
-import 'package:whatchord/features/audio/audio.dart';
-import 'package:whatchord/features/history/history.dart';
-import 'package:whatchord/features/home/home.dart';
-import 'package:whatchord/features/links/links.dart';
-import 'package:whatchord/features/midi/midi.dart';
+import 'package:whatchord_app/core/core.dart';
+import 'package:whatchord_app/features/audio/audio.dart';
+import 'package:whatchord_app/features/history/history.dart';
+import 'package:whatchord_app/features/home/home.dart';
+import 'package:whatchord_app/features/links/links.dart';
+import 'package:whatchord_app/features/midi/midi.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

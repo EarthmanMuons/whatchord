@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/features/demo/demo.dart';
-import 'package:whatchord/features/lookup/lookup.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/features/demo/demo.dart';
+import 'package:whatchord_app/features/lookup/lookup.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import '../domain/chord_event_segmenter.dart';
 import '../models/chord_event.dart';

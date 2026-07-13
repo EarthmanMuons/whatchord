@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/core/core.dart';
-import 'package:whatchord/features/chords/chords.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/core/core.dart';
+import 'package:whatchord_app/features/chords/chords.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 import 'adaptive_side_sheet.dart';
 

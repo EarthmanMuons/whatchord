@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/core/core.dart';
+import 'package:whatchord_app/core/core.dart';
 
 import '../models/midi_connection.dart';
 import '../models/midi_device.dart';

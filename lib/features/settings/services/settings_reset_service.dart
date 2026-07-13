@@ -1,17 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:whatchord/core/persistence/core_preferences_keys.dart';
-import 'package:whatchord/core/providers/app_palette_notifier.dart';
-import 'package:whatchord/core/providers/app_theme_mode_notifier.dart';
-import 'package:whatchord/core/providers/shared_preferences_provider.dart';
-import 'package:whatchord/features/audio/audio.dart';
-import 'package:whatchord/features/chords/chords.dart';
-import 'package:whatchord/features/demo/demo.dart';
-import 'package:whatchord/features/key/key.dart';
-import 'package:whatchord/features/midi/midi.dart';
-import 'package:whatchord/features/onboarding/onboarding.dart';
-import 'package:whatchord/features/piano/piano.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_app/core/persistence/core_preferences_keys.dart';
+import 'package:whatchord_app/core/providers/app_palette_notifier.dart';
+import 'package:whatchord_app/core/providers/app_theme_mode_notifier.dart';
+import 'package:whatchord_app/core/providers/shared_preferences_provider.dart';
+import 'package:whatchord_app/features/audio/audio.dart';
+import 'package:whatchord_app/features/chords/chords.dart';
+import 'package:whatchord_app/features/demo/demo.dart';
+import 'package:whatchord_app/features/key/key.dart';
+import 'package:whatchord_app/features/midi/midi.dart';
+import 'package:whatchord_app/features/onboarding/onboarding.dart';
+import 'package:whatchord_app/features/piano/piano.dart';
+import 'package:whatchord_app/features/theory/theory.dart';
 
 final settingsResetProvider = Provider<SettingsResetService>((ref) {
   return SettingsResetService(ref);

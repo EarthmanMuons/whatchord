@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import 'package:whatchord/core/core.dart';
+import 'package:whatchord_app/core/core.dart';
 
 @immutable
 class ExplorePreviewAnimationState {

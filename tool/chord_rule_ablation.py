@@ -31,7 +31,7 @@ from chord_oracle_compare import generate_cases, run_whatchord_batch
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CHORD_BATCH = REPO_ROOT / "tool" / "chord_oracle_batch.dart"
-RULES_PATH = REPO_ROOT / "packages/whatchord_theory/lib/analysis/ranking_rules.dart"
+RULES_PATH = REPO_ROOT / "packages/whatchord/lib/analysis/ranking_rules.dart"
 HARD_DECL = "final List<NamedRule> hardRules = <NamedRule>["
 TIE_DECL = "final List<NamedRule> tieBreakerRules = <NamedRule>["
 

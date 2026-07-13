@@ -36,7 +36,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:whatchord/features/key/key_domain.dart';
+import 'package:whatchord_app/features/key/key_domain.dart';
 
 import 'src/whatkey/whatkey_fixtures.dart';
 import 'src/whatkey/whatkey_scoring.dart';

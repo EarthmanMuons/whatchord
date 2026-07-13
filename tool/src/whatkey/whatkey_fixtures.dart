@@ -7,9 +7,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:whatchord/features/history/history_domain.dart';
-import 'package:whatchord/features/key/key_domain.dart';
-import 'package:whatchord_theory/whatchord_theory.dart';
+import 'package:whatchord_app/features/history/history_domain.dart';
+import 'package:whatchord_app/features/key/key_domain.dart';
+import 'package:whatchord/whatchord.dart';
 
 import '../chord_id_engine.dart';
 
