@@ -37,18 +37,41 @@ import 'key_space.dart';
 /// cadence must keep its full vote until decay fades it rather than being
 /// diluted by pattern-less transitions.
 class ProgressionKeyDetector implements KeyDetector {
+  /// Points for an authentic cadence with a seventh (V7 to tonic).
   final double cadencePoints;
+
+  /// Points for an authentic cadence from a plain major triad on V.
   final double cadenceTriadPoints;
+
+  /// Bonus when a cadence resolves with both chords in root position.
   final double rootPositionBonusPoints;
+
+  /// Points for a leading-tone diminished chord resolving to the tonic.
   final double leadingTonePoints;
+
+  /// Points for ii to V motion.
   final double iiToVPoints;
+
+  /// Completion bonus when ii-V lands on I.
   final double iiVICompletionPoints;
+
+  /// Points for a deceptive cadence (V to vi in major).
   final double deceptivePoints;
+
+  /// Points for a plagal return (IV to I, including blues IV7 to I7).
   final double plagalPoints;
+
+  /// Points for a secondary dominant resolving onto a diatonic degree.
   final double secondaryResolutionPoints;
+
+  /// Points for the bass falling a fifth onto the tonic, any quality.
   final double bassFifthPoints;
 
+  /// Whether pattern points are weighted by recognizer confidence.
   final bool confidenceWeighted;
+
+  /// Whether pattern points are weighted by the resolving chord's hold
+  /// duration.
   final bool durationWeighted;
 
   /// Score half-life; null disables decay.
@@ -59,7 +82,12 @@ class ProgressionKeyDetector implements KeyDetector {
   /// dial across corpora with different event rates (log entry
   /// 2026-07-07-15).
   final double? decayHalfLifeEvents;
+
+  /// Events required before the detector may claim a key.
   final int minEvents;
+
+  /// Minimum score margin between the top two keys to claim; below it the
+  /// detector abstains.
   final double marginFloor;
 
   final List<double> _scores = List.filled(24, 0);

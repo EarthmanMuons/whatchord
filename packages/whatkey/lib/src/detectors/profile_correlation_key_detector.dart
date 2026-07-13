@@ -21,7 +21,10 @@ import 'key_space.dart';
 /// correlation margin between the best and second-best key falls below
 /// [marginFloor]. Estimate confidence is the correlation coefficient.
 class ProfileCorrelationKeyDetector implements KeyDetector {
+  /// Pitch-class profiles the histogram correlates against.
   final KeyProfilePair profiles;
+
+  /// Whether an event's pitch classes are weighted by hold duration.
   final bool durationWeighted;
 
   /// Histogram half-life; null disables decay.
@@ -32,7 +35,12 @@ class ProfileCorrelationKeyDetector implements KeyDetector {
   /// dial across corpora with different event rates (log entry
   /// 2026-07-07-15).
   final double? decayHalfLifeEvents;
+
+  /// Events required before the detector may claim a key.
   final int minEvents;
+
+  /// Minimum correlation margin between the top two keys to claim; below it
+  /// the detector abstains.
   final double marginFloor;
 
   final List<double> _histogram = List.filled(12, 0);

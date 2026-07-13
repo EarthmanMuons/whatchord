@@ -19,6 +19,8 @@ import '../models/key_estimate.dart';
 /// question the key indicator answers; against local-scale analyst
 /// labels it remains overconfident by design (the timescale trade).
 abstract final class DisplayCalibration {
+  /// Temperature fitted on the held-out split for the shipped section-scale
+  /// configuration.
   static const double temperature = 1.55;
 
   /// The [ranked] posterior with display calibration applied; order and

@@ -58,7 +58,10 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
   /// Tonic bonus for a diminished-family chord on the leading tone.
   final double leadingToneBonusPoints;
 
+  /// Whether an event's evidence is weighted by recognizer confidence.
   final bool confidenceWeighted;
+
+  /// Whether an event's evidence is weighted by how long it was held.
   final bool durationWeighted;
 
   /// Score half-life; null disables decay.
@@ -69,7 +72,12 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
   /// dial across corpora with different event rates (log entry
   /// 2026-07-07-15).
   final double? decayHalfLifeEvents;
+
+  /// Events required before the detector may claim a key.
   final int minEvents;
+
+  /// Minimum score margin between the top two keys to claim; below it the
+  /// detector abstains.
   final double marginFloor;
 
   final List<double> _scores = List.filled(24, 0);

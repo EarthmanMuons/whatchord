@@ -31,6 +31,8 @@ class HybridKeyDetector implements KeyDetector {
   /// 2026-07-07-04 and -08). The harness parse defaults reference these
   /// constants so the CLI cannot silently diverge from the class defaults.
   static const double defaultFunctionalBlend = 0.1;
+
+  /// See [defaultFunctionalBlend].
   static const double defaultProgressionBlend = 0.02;
 
   final ProfileCorrelationKeyDetector _profile;
@@ -43,7 +45,12 @@ class HybridKeyDetector implements KeyDetector {
   /// Weight of one progression point per weighted event, in correlation
   /// units. Zero disables the progression term entirely.
   final double progressionBlend;
+
+  /// Events required before the detector may claim a key.
   final int minEvents;
+
+  /// Minimum blended-score margin between the top two keys to claim; below
+  /// it the detector abstains.
   final double marginFloor;
 
   int _eventCount = 0;

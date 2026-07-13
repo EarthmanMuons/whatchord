@@ -15,7 +15,10 @@ import 'key_detector.dart';
 /// as abstentions (the wrapper never invents claims) and reset the
 /// challenger's streak, but leave the committed key in place.
 class ClaimHysteresisDetector implements KeyDetector {
+  /// The wrapped detector whose claims are debounced.
   final KeyDetector inner;
+
+  /// Consecutive claiming frames a challenger key needs to take over.
   final int minStreak;
 
   Tonality? _committed;
