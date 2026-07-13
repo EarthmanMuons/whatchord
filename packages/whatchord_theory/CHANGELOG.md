@@ -1,0 +1,19 @@
+# Changelog
+
+All notable changes to this package will be documented in this file.
+
+The format is based on [Keep a Changelog][1], and this package adheres to
+[Semantic Versioning][2].
+
+[1]: https://keepachangelog.com/en/1.1.0/
+[2]: https://semver.org/
+
+## [Unreleased]
+
+### Added
+
+- Initial extraction of the WhatChord analysis engine into a standalone pure
+  Dart package: chord identification (`ChordAnalyzer`), ranked candidates with
+  explanation traces, note spelling, scale harmonization and degree
+  classification, chord construction from a selected spec, and formatters for
+  chord symbols, spoken names, long-form names, and Harte notation.
