@@ -82,8 +82,10 @@ class RankedCandidateDebug {
 /// pipeline in detail. Update the article when prices or algorithm structure
 /// change.
 abstract final class ChordAnalyzer {
+  // Not const so the cache test can shrink capacity and exercise eviction
+  // without hundreds of analyses.
   @visibleForTesting
-  static const int cacheCapacity = 512;
+  static int cacheCapacity = 512;
 
   static final LinkedHashMap<int, List<ChordCandidate>> _cache =
       LinkedHashMap<int, List<ChordCandidate>>();
