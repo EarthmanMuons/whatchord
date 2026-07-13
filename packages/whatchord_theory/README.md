@@ -1,7 +1,7 @@
 # whatchord_theory
 
 The pure Dart chord identification and harmony analysis engine behind
-[WhatChord](https://whatchord.app). No Flutter dependencies.
+[WhatChord](https://whatchord.earthmanmuons.com/). No Flutter dependencies.
 
 `ChordAnalyzer.analyze()` takes a `ChordInput` (set of pitch classes) plus an
 `AnalysisContext` and returns ranked `ChordCandidate` results, using ranking
