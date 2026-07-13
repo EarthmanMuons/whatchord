@@ -14,14 +14,14 @@ amendment swaps the behavioral-suite pin, with both blues fixtures retained;
 mise tasks point at v2.
 
 ```sh
-python tool/whatkey_fixture_extract.py \
+python tool/whatkey/fixture_extract.py \
   --set pop-jazz-v2 \
   --out research/whatkey/data/fixtures \
   charts --charts-dir research/whatkey/data/sources/pop-jazz
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures research/whatkey/data/fixtures/pop-jazz-v2 \
   --detector hybrid --out build/whatkey-harness/pop-jazz-v2-hybrid
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures research/whatkey/data/fixtures/pop-jazz-v2 \
   --detector progression --out build/whatkey-harness/pop-jazz-v2-progression
 ```

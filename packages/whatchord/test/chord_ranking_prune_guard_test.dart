@@ -140,7 +140,7 @@ double _surfacedGap(ChordInput input, AnalysisContext ctx) {
 /// Loads the reviewed-oracle voicings, decoded from their case keys (a key like
 /// `0-4-7-10_b0` is pitch classes {0,4,7,10} with bass pitch class 0).
 Iterable<MapEntry<String, ChordInput>> _oracleVoicings() sync* {
-  final file = File('tool/chord_oracle_reviewed.json');
+  final file = File('../../tool/chord/oracle_reviewed.json');
   if (!file.existsSync()) return;
   final json = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
   for (final key in json.keys) {

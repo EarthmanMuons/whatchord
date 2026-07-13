@@ -24,7 +24,7 @@ profile-correlation floor.
 
 New code: `lib/features/key/` (KeyDetector interface, KeyEstimate/Frame,
 ProfileCorrelationKeyDetector with the three published profile pairs) and
-`tool/whatkey_harness.dart` with `tool/src/whatkey/` (loader with structural
+`tool/whatkey/harness.dart` with `tool/whatkey/src/` (loader with structural
 label isolation, protocol metrics, per-piece aggregation). 18 unit tests cover
 the MIREX weighting, selective-prediction scoring, switch and lag rules, and
 detector behavior on synthetic cadences.

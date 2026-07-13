@@ -22,7 +22,7 @@ import 'dart:io';
 
 import 'package:whatchord/whatchord.dart';
 
-import 'src/chord_id_engine.dart';
+import '../src/chord_id_engine.dart';
 
 void main() {
   stdin.transform(utf8.decoder).transform(const LineSplitter()).listen((line) {

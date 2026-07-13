@@ -42,11 +42,11 @@ run = [
 [tasks."research:oracle-compare"]
 description = "Run the full chord oracle comparison pass with reviewed audit"
 depends = ["research:oracle-install"]
-run = "python tool/chord_oracle_compare.py"
+run = "python tool/chord/oracle_compare.py"
 
 [tasks."research:rule-ablation"]
 description = "Measure whether each ranking rule still changes any pool outcome"
-run = "python tool/chord_rule_ablation.py"
+run = "python tool/chord/rule_ablation.py"
 
 [tasks."research:choco-coverage"]
 description = "Summarize ChoCo chord-label coverage against WhatChord support"
@@ -57,7 +57,7 @@ if [ ! -d "$choco_root/partitions" ]; then
   echo "Set CHOCO_ROOT or follow research/choco-chord-coverage.md" >&2
   exit 1
 fi
-python tool/choco/chord_label_stats.py "$choco_root" --jams-version converted --top 50
+python tool/chord/choco/chord_label_stats.py "$choco_root" --jams-version converted --top 50
 """
 
 [tasks."research:choco-prior"]
@@ -69,7 +69,7 @@ if [ ! -d "$choco_root/partitions" ]; then
   echo "Set CHOCO_ROOT or follow research/choco-chord-coverage.md" >&2
   exit 1
 fi
-python tool/choco/common_name_prior.py "$choco_root" --jams-version converted
+python tool/chord/choco/common_name_prior.py "$choco_root" --jams-version converted
 """
 
 [tasks."research:when-in-rome-install"]
@@ -87,7 +87,7 @@ if [ ! -f "$bench_root/corpus/manifest.json" ]; then
   echo "Set CONTRAPUNCTUS_BENCH_ROOT or follow research/contrapunctus-benchmark-comparison.md" >&2
   exit 1
 fi
-python tool/when_in_rome_chord_benchmark.py \
+python tool/chord/when_in_rome_benchmark.py \
   "$bench_root" \
   --groups bach-wtc mozart-sonatas-dcml brahms-lieder schubert-lieder \
     chorales tavern \
@@ -97,7 +97,7 @@ python tool/when_in_rome_chord_benchmark.py \
 [tasks."research:whatkey-fixtures-pop-jazz"]
 description = "Regenerate the WhatKey hand-authored pop/jazz fixture set (current version)"
 run = """
-python tool/whatkey_fixture_extract.py \
+python tool/whatkey/fixture_extract.py \
   --set pop-jazz-v2 \
   --out research/whatkey/data/fixtures \
   charts --charts-dir research/whatkey/data/sources/pop-jazz
@@ -113,7 +113,7 @@ if [ ! -f "$bench_root/corpus/manifest.json" ]; then
   echo "Set CONTRAPUNCTUS_BENCH_ROOT or follow research/contrapunctus-benchmark-comparison.md" >&2
   exit 1
 fi
-python tool/whatkey_fixture_extract.py \
+python tool/whatkey/fixture_extract.py \
   --set when-in-rome-v1 \
   --out build/whatkey-fixtures \
   when-in-rome --bench-root "$bench_root" \
@@ -129,17 +129,17 @@ if [ ! -f "$asap_root/asap_annotations.json" ]; then
   echo "Set ASAP_ROOT or: git clone --depth 1 https://github.com/fosfrancesco/asap-dataset.git $asap_root" >&2
   exit 1
 fi
-python tool/whatkey_asap_extract.py --asap-root "$asap_root" --set asap-nc-v2 --max-performances 60
+python tool/whatkey/asap_extract.py --asap-root "$asap_root" --set asap-nc-v2 --max-performances 60
 """
 
 [tasks."research:whatkey-harness-pop-jazz"]
 description = "Run the WhatKey harness on the hand-authored behavioral suite"
-run = "dart run tool/whatkey_harness.dart --fixtures research/whatkey/data/fixtures/pop-jazz-v2"
+run = "dart run tool/whatkey/harness.dart --fixtures research/whatkey/data/fixtures/pop-jazz-v2"
 
 [tasks."research:whatkey-harness-dev"]
 description = "Run the WhatKey harness on the When-in-Rome development split"
 run = """
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json
 """
@@ -148,11 +148,11 @@ dart run tool/whatkey_harness.dart \
 description = "Score music21 external key baselines on the When-in-Rome development split"
 depends = ["research:when-in-rome-install"]
 run = """
-python tool/whatkey_external_baseline.py \
+python tool/whatkey/external_baseline.py \
   --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json
 for f in build/whatkey-baselines/when-in-rome-v1-development/*.claims.json; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --claims-file "$f"
@@ -167,21 +167,21 @@ typst compile research/whatkey/paper/main.typ
 
 [tasks."research:whatkey-zenodo-bundle"]
 description = "Bundle a tagged source archive and the WhatKey preprint for a manual Zenodo deposit"
-run = "bash tool/whatkey_zenodo_bundle.sh \"$@\""
+run = "bash tool/whatkey/zenodo_bundle.sh \"$@\""
 
 [tasks."research:whatkey-headline-verify"]
 description = "Verify the README headline table from committed WhatKey result artifacts without rerunning detectors"
-run = "python tool/whatkey_headline_table.py --check"
+run = "python tool/whatkey/headline_table.py --check"
 
 [tasks."research:whatkey-headline-rerun"]
 description = "Prepare gated headline fixtures locally and rerun the detector/baseline code"
 depends = ["research:python-install"]
-run = "python tool/whatkey_prepare_data.py --run-headline \"$@\""
+run = "python tool/whatkey/prepare_data.py --run-headline \"$@\""
 
 [tasks."research:whatkey-prepare-data"]
 description = "Download pinned WhatKey research corpora into build/ and regenerate fixtures"
 depends = ["research:python-install"]
-run = "python tool/whatkey_prepare_data.py \"$@\""
+run = "python tool/whatkey/prepare_data.py \"$@\""
 
 [tasks."symbols:install"]
 description = "Install Python dependencies for regenerating WhatChord Symbols fonts"

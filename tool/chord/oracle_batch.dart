@@ -1,7 +1,7 @@
-// tool/chord_oracle_batch.dart
+// tool/chord/oracle_batch.dart
 //
 // Persistent batch entry point for the oracle comparison harness
-// (tool/chord_oracle_compare.py). Reads one JSON request per stdin line and
+// (tool/chord/oracle_compare.py). Reads one JSON request per stdin line and
 // writes one JSON response per stdout line, keeping a single warm Dart VM for
 // the whole run instead of paying `dart run` startup per case.
 //
@@ -17,8 +17,8 @@ import 'dart:io';
 
 import 'package:whatchord/whatchord.dart';
 
-import 'chord_debug.dart';
-import 'src/chord_id_engine.dart';
+import '../chord_debug.dart';
+import '../src/chord_id_engine.dart';
 
 void main() {
   stdin.transform(utf8.decoder).transform(const LineSplitter()).listen((line) {

@@ -44,7 +44,7 @@ marks a passage where abstention is the best outcome).
 Conventions:
 
 - Keys use the wire format `Tonic:mode`, e.g. `C:maj`, `F#:min`.
-- Candidates are ranked by the real engine (`tool/whatkey_fixture_batch.dart`)
+- Candidates are ranked by the real engine (`tool/whatkey/fixture_batch.dart`)
   with voicing evidence, mirroring the app's live capture path.
 - The ranking runs under a fixed neutral analysis context (default `C:maj`,
   recorded in the manifest), never the annotated key, so tonality-gated ranking

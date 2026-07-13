@@ -4,8 +4,8 @@
 offline harness can replay, from both When in Rome and hand-authored charts.
 
 **Setup.** Engine at commit `349fb2c4` (lib/ unchanged since `8aff5fb7`). New
-tooling: `tool/whatkey_fixture_batch.dart` (engine driver) and
-`tool/whatkey_fixture_extract.py` (extractor); mise tasks
+tooling: `tool/whatkey/fixture_batch.dart` (engine driver) and
+`tool/whatkey/fixture_extract.py` (extractor); mise tasks
 `research:whatkey-fixtures-pop-jazz` and
 `research:whatkey-fixtures-when-in-rome`.
 

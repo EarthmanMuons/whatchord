@@ -13,7 +13,7 @@ emissions?
   and counts only, not corpus content): 50 development / 10 test performances,
   piece folders hashed within composer so every performance of a piece lands on
   one side. Seed `whatkey-asap-nc-v2-split-2026-07-07`; generator
-  `tool/whatkey_asap_split.py`.
+  `tool/whatkey/asap_split.py`.
 - Harness split validation generalized: every `*Commit` pin the split file
   records must match the fixture manifest (previously only the When in Rome pin
   names were checked, which would have passed vacuously for ASAP).
@@ -22,11 +22,11 @@ emissions?
   segmenter, not fork the fixture pipeline.
 
 ```sh
-python3 tool/whatkey_asap_extract.py --asap-root /private/tmp/asap-dataset \
+python3 tool/whatkey/asap_extract.py --asap-root /private/tmp/asap-dataset \
   --set asap-nc-v2 --max-performances 60
-python3 tool/whatkey_asap_split.py
+python3 tool/whatkey/asap_split.py
 for seg in 50 100 400 800; do
-  python3 tool/whatkey_asap_extract.py --asap-root /private/tmp/asap-dataset \
+  python3 tool/whatkey/asap_extract.py --asap-root /private/tmp/asap-dataset \
     --set "asap-nc-v2-seg$seg" --max-performances 60 \
     --segmenter-min-ms "$seg"
 done
@@ -34,13 +34,13 @@ for cfg in asap-nc-v2:1 asap-nc-v2:30 asap-nc-v2-seg50:1 \
     asap-nc-v2-seg50:30 asap-nc-v2-seg100:1 asap-nc-v2-seg100:30 \
     asap-nc-v2-seg400:1 asap-nc-v2-seg400:30 asap-nc-v2-seg800:1 \
     asap-nc-v2-seg800:30; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures "build/whatkey-fixtures/${cfg%:*}" \
     --split-file research/whatkey/data/splits/asap-nc-v2.json \
     --detector hmm --decay-half-life-seconds "${cfg#*:}" \
     --out "build/whatkey-harness/${cfg%:*}-dev-hmm-hl${cfg#*:}"
 done
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/asap-nc-v2 \
   --split-file research/whatkey/data/splits/asap-nc-v2.json \
   --detector hybrid --out build/whatkey-harness/asap-nc-v2-dev-hybrid

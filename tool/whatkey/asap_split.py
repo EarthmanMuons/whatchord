@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Freeze a development/test split for a slash-titled WhatKey fixture set.
 
-Mirrors tool/whatkey_freeze_split.py's rules for any fixture manifest whose
+Mirrors tool/whatkey/freeze_split.py's rules for any fixture manifest whose
 titles are slash paths grouped as top-level-group/.../piece (ASAP:
 composer/piece/performance; Isophonics via ChoCo: performer/album/track).
 The split unit is the parent folder (so every performance of a piece, or
@@ -20,7 +20,7 @@ from collections import defaultdict
 from datetime import date
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SPLIT_SCHEMA = "whatkey-split/1"
 DEFAULT_SEED = "whatkey-asap-nc-v2-split-2026-07-07"
 ISOPHONICS_SEED = "whatkey-isophonics-nc-v1-split-2026-07-07"

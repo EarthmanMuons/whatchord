@@ -19,7 +19,7 @@ fi
 ##### MAIN
 
 if [[ -z ${WHATCHORD_CHORD_ORACLE_MISE-} ]] && command -v mise >/dev/null 2>&1; then
-	exec env WHATCHORD_CHORD_ORACLE_MISE=1 mise exec -- python "$repo_root/tool/chord_oracle.py" "$@"
+	exec env WHATCHORD_CHORD_ORACLE_MISE=1 mise exec -- python "$repo_root/tool/chord/oracle.py" "$@"
 fi
 
-exec python3 "$repo_root/tool/chord_oracle.py" "$@"
+exec python3 "$repo_root/tool/chord/oracle.py" "$@"

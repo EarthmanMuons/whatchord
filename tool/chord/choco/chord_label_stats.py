@@ -2,8 +2,8 @@
 """Summarize ChoCo/JAMS chord-label frequencies against WhatChord support.
 
 Usage:
-  python3 tool/choco/chord_label_stats.py /path/to/choco
-  python3 tool/choco/chord_label_stats.py /path/to/choco --jams-version original
+  python3 tool/chord/choco/chord_label_stats.py /path/to/choco
+  python3 tool/chord/choco/chord_label_stats.py /path/to/choco --jams-version original
 """
 
 from __future__ import annotations

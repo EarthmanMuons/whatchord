@@ -468,7 +468,7 @@ typedef ChordDebugRootFilter = ({String label, int pc});
 /// Parses [noteTokens] (with an optional explicit [bassName]) into the
 /// [ChordInput], per-pitch display labels, and bass label used by every output
 /// path. Returns null when no notes could be parsed. Shared with the batch
-/// entry point (tool/chord_oracle_batch.dart) so its results match the CLI.
+/// entry point (tool/chord/oracle_batch.dart) so its results match the CLI.
 ChordDebugPrepared? prepareChordDebugInput({
   required List<String> noteTokens,
   String? bassName,
@@ -759,7 +759,7 @@ class _SpellingEvidence {
 }
 
 /// Builds the JSON payload emitted by `--format=json`. Shared with the batch
-/// entry point (tool/chord_oracle_batch.dart) so both produce identical output.
+/// entry point (tool/chord/oracle_batch.dart) so both produce identical output.
 Map<String, Object?> chordDebugJsonPayload({
   required ChordInput input,
   required AnalysisContext context,

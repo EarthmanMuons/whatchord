@@ -9,7 +9,7 @@ Frozen against: fixture set `when-in-rome-v1` (When in Rome corpus commit
 `aa7539f1`, contrapunctus-bench commit `b9e011c8`), split
 `data/splits/when-in-rome-v1.json`, behavioral suite `pop-jazz-v2` (at freeze:
 `pop-jazz-v1`; see Amendments). The scoring implementation in
-`tool/src/whatkey/whatkey_scoring.dart` at the freeze commit is the normative
+`tool/whatkey/src/scoring.dart` at the freeze commit is the normative
 operational definition of every metric; this document states the rules in prose.
 
 ## Task definition
@@ -202,7 +202,7 @@ The MIREX weighting comes from the
 [MIREX Audio Key Detection task](https://music-ir.org/mirex/wiki/2019:Audio_Key_Detection),
 whose evaluation table is stable across task years. The paired test is the
 [Wilcoxon signed-rank test](https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test)
-(implemented in `tool/whatkey_compare.py`; plain-English explanation in
+(implemented in `tool/whatkey/compare.py`; plain-English explanation in
 [GLOSSARY.md](GLOSSARY.md)). Every other system, profile set, and corpus named
 here (Krumhansl-Schmuckler variants and their profile pairs, justkeydding, When
 in Rome, RomanText, ASAP) is cited with links in the

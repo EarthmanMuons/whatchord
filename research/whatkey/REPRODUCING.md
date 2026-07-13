@@ -97,7 +97,7 @@ states are visible.
 WhatKey uses the Contrapunctus benchmark checkout as the prepared access layer
 for When-in-Rome. The benchmark provides the pinned When-in-Rome submodule,
 piece manifest, common-subset flags, provenance fields, and score-alignment
-helpers used by `tool/whatkey_fixture_extract.py`.
+helpers used by `tool/whatkey/fixture_extract.py`.
 
 Clone the benchmark outside this repository:
 
@@ -207,7 +207,7 @@ The split is frozen before detector tuning. Regenerate it only to verify the
 recorded file or before tuning has begun for a new fixture version.
 
 ```sh
-python3 tool/whatkey_freeze_split.py \
+python3 tool/whatkey/freeze_split.py \
   --bench-root "${CONTRAPUNCTUS_BENCH_ROOT:-/private/tmp/contrapunctus-bench}" \
   --fixtures-manifest build/whatkey-fixtures/when-in-rome-v1/manifest.json
 ```
@@ -254,7 +254,7 @@ Regenerate the fixtures (or `mise research:whatkey-fixtures-asap` with
 `ASAP_ROOT` exported):
 
 ```sh
-python3 tool/whatkey_asap_extract.py \
+python3 tool/whatkey/asap_extract.py \
   --asap-root /private/tmp/asap-dataset \
   --set asap-nc-v2 --max-performances 60
 ```
@@ -263,7 +263,7 @@ Regenerate the frozen split (verification only; the committed file is
 normative):
 
 ```sh
-python3 tool/whatkey_asap_split.py \
+python3 tool/whatkey/asap_split.py \
   --fixtures-manifest build/whatkey-fixtures/asap-nc-v2/manifest.json \
   --seed whatkey-asap-nc-v2-split-2026-07-07 \
   --out research/whatkey/data/splits/asap-nc-v2.json
@@ -288,9 +288,9 @@ git -C /private/tmp/choco checkout 5fe168fd55be5c84512abcfbc4e6f1b1f8f0092a
 Regenerate the fixtures and the frozen split:
 
 ```sh
-python3 tool/whatkey_isophonics_extract.py \
+python3 tool/whatkey/isophonics_extract.py \
   --choco-root /private/tmp/choco --set isophonics-nc-v1
-python3 tool/whatkey_asap_split.py \
+python3 tool/whatkey/asap_split.py \
   --fixtures-manifest build/whatkey-fixtures/isophonics-nc-v1/manifest.json \
   --seed whatkey-isophonics-nc-v1-split-2026-07-07 \
   --out research/whatkey/data/splits/isophonics-nc-v1.json
@@ -310,7 +310,7 @@ set is evaluation-only (no tuning, configurations committed beforehand), so it
 has no split file:
 
 ```sh
-python3 tool/whatkey_asap_wir_extract.py \
+python3 tool/whatkey/asap_wir_extract.py \
   --asap-root /private/tmp/asap-dataset \
   --bench-root "${CONTRAPUNCTUS_BENCH_ROOT:-/private/tmp/contrapunctus-bench}"
 ```

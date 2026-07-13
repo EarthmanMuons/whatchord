@@ -14,17 +14,17 @@ entries 04-06.
 
 ```sh
 for hl in 10 15 20 30 45; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --detector hybrid --decay-half-life-seconds "$hl" \
     --out "build/whatkey-harness/wir-dev-hybrid-hl$hl"
 done
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/wir-dev-hybrid-hl10/report.json \
   build/whatkey-harness/wir-dev-hybrid-hl30/report.json
 for cfg in 10:2 10:3 15:2; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --detector hybrid --decay-half-life-seconds "${cfg%:*}" \

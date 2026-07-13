@@ -18,9 +18,9 @@ engine commit; reports embed the commit they ran at.
 Entry 2026-07-06-07 (profile floor baselines):
 
 ```sh
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures research/whatkey/data/fixtures/pop-jazz-v1
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/when-in-rome-v1 \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json
 ```
@@ -28,17 +28,17 @@ dart run tool/whatkey_harness.dart \
 Entry 2026-07-06-09 (external baselines and profile A/B):
 
 ```sh
-python tool/whatkey_external_baseline.py \
+python tool/whatkey/external_baseline.py \
   --fixtures build/whatkey-fixtures/when-in-rome-v1 \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json
 for f in build/whatkey-baselines/when-in-rome-v1-development/*.claims.json; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --claims-file "$f"
 done
 for p in temperleyKostkaPayne temperley krumhanslKessler; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --profiles "$p" \
@@ -52,14 +52,14 @@ first, it writes the `claims.json` the `--restrict-to` runs anchor to):
 ```sh
 for f in build/whatkey-baselines/when-in-rome-v1-development/*.claims.json; do
   name=$(basename "$f" .claims.json)
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --claims-file "$f" \
     --restrict-to build/whatkey-harness/when-in-rome-v1-development/claims.json \
     --out "build/whatkey-harness/when-in-rome-v1-development-$name-matched"
 done
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/when-in-rome-v1 \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json \
   --sweep-margin-floors 0,0.01,0.02,0.05,0.1,0.15,0.2,0.3 \
@@ -69,18 +69,18 @@ dart run tool/whatkey_harness.dart \
 Entry 2026-07-07-03 (weighted evidence model):
 
 ```sh
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures research/whatkey/data/fixtures/pop-jazz-v1 --detector evidence
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/when-in-rome-v1 \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json \
   --detector evidence --sweep-margin-floors 0,0.1,0.25,0.5,0.75,1,1.5,2
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/when-in-rome-v1 \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json \
   --detector evidence --confidence-weighting off \
   --out build/whatkey-harness/when-in-rome-v1-development-evidence-nocw
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/when-in-rome-v1 \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json \
   --detector evidence \
@@ -94,16 +94,16 @@ to 0.1 does not affect reproduction):
 
 ```sh
 for b in 0.01 0.02 0.05 0.1 0.15 0.25; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --detector hybrid --functional-blend "$b" \
     --out "build/whatkey-harness/wir-dev-hybrid-b$b"
 done
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/wir-dev-hybrid-b0.1/report.json \
   build/whatkey-harness/when-in-rome-v1-development/report.json
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures research/whatkey/data/fixtures/pop-jazz-v1 \
   --detector hybrid --functional-blend 0.1 \
   --out build/whatkey-harness/pop-jazz-v1-hybrid-b0.1

@@ -7,7 +7,7 @@ goal is to find places where reasonable tools disagree, because those rows are
 good candidates for closer musical review.
 
 The comparison harness lives in
-[`tool/chord_oracle_compare.py`](../tool/chord_oracle_compare.py).
+[`tool/chord/oracle_compare.py`](../tool/chord/oracle_compare.py).
 
 It compares WhatChord against optional third-party libraries:
 
@@ -82,7 +82,7 @@ By default the harness analyzes every case in a single warm Dart VM through a
 persistent batch process:
 
 ```sh
-dart run tool/chord_oracle_batch.dart
+dart run tool/chord/oracle_batch.dart
 ```
 
 It reads one JSON request per line and emits one chord-debug-shaped payload per
@@ -129,7 +129,7 @@ Then run the full comparison pass:
 ```sh
 mise run research:oracle-compare
 # equivalent to:
-python3 tool/chord_oracle_compare.py
+python3 tool/chord/oracle_compare.py
 ```
 
 This runs the entire canonical pool (around sixteen hundred cases) in a few tens
@@ -138,7 +138,7 @@ of seconds and produces the complete reviewed-entry audit.
 To include every transposition instead of canonical representatives:
 
 ```sh
-python3 tool/chord_oracle_compare.py --all-transpositions
+python3 tool/chord/oracle_compare.py --all-transpositions
 ```
 
 For quick manual exploration of a single voicing:
@@ -168,7 +168,7 @@ two sections above it are the better entry points for broad work.
 
 ### Reviewed Audit
 
-The audit re-evaluates every `tool/chord_oracle_reviewed.json` entry against the
+The audit re-evaluates every `tool/chord/oracle_reviewed.json` entry against the
 current engine and sorts them into buckets:
 
 - `resolved` -- the case now agrees with the oracles; remove it from the JSON.
@@ -245,7 +245,7 @@ expressed where they generalize instead of as a pairwise exception.
    cost-independent convention that cannot be priced. Add positive and negative
    boundary tests; do not encode one exact pitch set.
 5. Measure the blast radius of any price change against the full canonical pool
-   before trusting it, using `tool/chord_pool_diff.py` (see below). Zero flips
+   before trusting it, using `tool/chord/pool_diff.py` (see below). Zero flips
    on `clearly-correct` reviewed entries is a hard constraint. Agreement changes
    on 3-5 note cases are trusted signal; 6-7 note flips need musical eyeballing
    rather than tally-keeping, because the previous engine's dense-voicing output
@@ -266,7 +266,7 @@ expressed where they generalize instead of as a pairwise exception.
    diff the top pick and surfaced alternative set. Rules whose removal changes
    neither (alternatives order below the top pick is not a contract) should be
    deleted, verified as a joint removal across all transpositions.
-8. Add unresolved-but-reviewed cases to `tool/chord_oracle_reviewed.json`. Prune
+8. Add unresolved-but-reviewed cases to `tool/chord/oracle_reviewed.json`. Prune
    entries the Reviewed Audit lists as `resolved`, `no-longer-comparable`, or
    `orphaned`, and re-check anything it lists as `drifted`.
 
@@ -306,14 +306,14 @@ The main engineering value is prioritization. The harness should help answer:
 Two companion tools reuse the same batch entry point and pool generation to make
 the workflow's measurement steps one-command operations.
 
-`tool/chord_pool_diff.py` measures a change's blast radius. Snapshot the pool
+`tool/chord/pool_diff.py` measures a change's blast radius. Snapshot the pool
 before and after an engine change, then diff:
 
 ```sh
-python3 tool/chord_pool_diff.py snapshot --out build/pool-diff/before.json
+python3 tool/chord/pool_diff.py snapshot --out build/pool-diff/before.json
 # ...make the engine change...
-python3 tool/chord_pool_diff.py snapshot --out build/pool-diff/after.json
-python3 tool/chord_pool_diff.py diff build/pool-diff/before.json \
+python3 tool/chord/pool_diff.py snapshot --out build/pool-diff/after.json
+python3 tool/chord/pool_diff.py diff build/pool-diff/before.json \
   build/pool-diff/after.json
 ```
 
@@ -322,7 +322,7 @@ change, or an order-only change below the top pick, stratified by note count.
 The `census` subcommand counts which rule decides each case's top pair, which
 shows where the rule layer still carries load.
 
-`tool/chord_rule_ablation.py` (also `mise run research:rule-ablation`) answers
+`tool/chord/rule_ablation.py` (also `mise run research:rule-ablation`) answers
 whether each ranking rule still changes any outcome: it removes one rule at a
 time from `ranking_rules.dart`, re-runs the pool, and diffs against the
 unmodified engine, always restoring the file. Rules whose removal changes no top

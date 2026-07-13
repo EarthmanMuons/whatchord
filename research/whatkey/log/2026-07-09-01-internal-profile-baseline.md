@@ -21,7 +21,7 @@ Commands:
 ```sh
 mise research:whatkey-prepare-data -- --headline --yes
 
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
   --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
   --split test \
@@ -29,7 +29,7 @@ dart run tool/whatkey_harness.dart \
   --profiles albrechtShanahan \
   --out build/whatkey-harness-extra/test-iso-profile-albrechtShanahan
 
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
   --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
   --split test \

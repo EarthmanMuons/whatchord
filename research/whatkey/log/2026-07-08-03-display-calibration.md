@@ -20,19 +20,19 @@ one detector pass. The frozen constant ships as `DisplayCalibration.temperature`
 in the key domain with unit tests.
 
 ```sh
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
   --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
   --detector hmm \
   --sweep-calibration-temperatures 1,1.25,1.5,1.75,2,2.25,2.5,2.75,3,3.5,4,5 \
   --out build/whatkey-harness/iso-dev-calfit
 # refined with 1.35..1.7 in steps of 0.05 (iso-dev-calfit2)
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json \
   --detector hmm --calibration-temperature 1.55 \
   --out build/whatkey-harness/wir-dev-caltransfer
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
   --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
   --split test --detector hmm --calibration-temperature 1.55 \

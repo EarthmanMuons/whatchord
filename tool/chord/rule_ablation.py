@@ -13,9 +13,9 @@ The C-major pool cannot exercise tonality-gated rules (diatonic, tonic,
 harmonic-minor); re-run with --key for those before trusting a zero.
 
 Examples:
-  python3 tool/chord_rule_ablation.py
-  python3 tool/chord_rule_ablation.py --rules "prefer tonic chord" --key A:min
-  python3 tool/chord_rule_ablation.py --joint --all-transpositions \\
+  python3 tool/chord/rule_ablation.py
+  python3 tool/chord/rule_ablation.py --rules "prefer tonic chord" --key A:min
+  python3 tool/chord/rule_ablation.py --joint --all-transpositions \\
       --rules "rule one" "rule two"
 """
 
@@ -27,9 +27,9 @@ import re
 import sys
 from pathlib import Path
 
-from chord_oracle_compare import generate_cases, run_whatchord_batch
+from oracle_compare import generate_cases, run_whatchord_batch
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 CHORD_BATCH = REPO_ROOT / "tool" / "chord_oracle_batch.dart"
 RULES_PATH = REPO_ROOT / "packages/whatchord/lib/analysis/ranking_rules.dart"
 HARD_DECL = "final List<NamedRule> hardRules = <NamedRule>["

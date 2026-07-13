@@ -11,16 +11,16 @@ Albrecht-Shanahan run.
 
 ```sh
 for p in temperley temperleyKostkaPayne krumhanslKessler; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/when-in-rome-v1 \
     --split-file research/whatkey/data/splits/when-in-rome-v1.json \
     --detector hybrid --profiles "$p" \
     --out "build/whatkey-harness/wir-dev-hybrid-p0.02-$p"
 done
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/wir-dev-hybrid-p0.02-temperley/report.json \
   build/whatkey-harness/wir-dev-hybrid-p0.02/report.json
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/wir-dev-hybrid-p0.02-temperleyKostkaPayne/report.json \
   build/whatkey-harness/wir-dev-hybrid-p0.02/report.json
 ```
@@ -60,7 +60,7 @@ strongest candidate), functional {0.05, 0.1, 0.15} x progression {0.01, 0.02,
 ```sh
 for fb in 0.05 0.1 0.15; do
   for pb in 0.01 0.02 0.05; do
-    dart run tool/whatkey_harness.dart \
+    dart run tool/whatkey/harness.dart \
       --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
       --split-file research/whatkey/data/splits/when-in-rome-v1.json \
       --detector hybrid --profiles temperleyKostkaPayne \
@@ -68,7 +68,7 @@ for fb in 0.05 0.1 0.15; do
       --out "build/whatkey-harness/wir-dev-hybrid-tkp-f$fb-p$pb"
   done
 done
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/wir-dev-hybrid-tkp-f0.15-p0.02/report.json \
   build/whatkey-harness/wir-dev-hybrid-p0.02/report.json
 ```

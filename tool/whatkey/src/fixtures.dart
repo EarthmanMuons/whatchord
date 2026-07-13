@@ -10,7 +10,7 @@ import 'dart:io';
 import 'package:whatchord/whatchord.dart';
 import 'package:whatkey/whatkey.dart';
 
-import '../chord_id_engine.dart';
+import '../../src/chord_id_engine.dart';
 
 class FixtureSet {
   final Directory directory;
@@ -166,7 +166,7 @@ class KeyLabel {
   }
 }
 
-/// Externally produced key claims (see tool/whatkey_external_baseline.py):
+/// Externally produced key claims (see tool/whatkey/external_baseline.py):
 /// one global key per fixture, scored as a constant claim on every event so
 /// offline, non-abstaining baselines run through the same metrics as our
 /// detectors.

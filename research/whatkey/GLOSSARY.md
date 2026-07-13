@@ -370,4 +370,4 @@ one-sided? The answer is the p-value; a small one (conventionally below 0.05)
 means the win is unlikely to be corpus noise. It makes no assumption about the
 differences following any particular distribution, which is why it is the
 standard choice for this kind of comparison. Implemented in
-`tool/whatkey_compare.py`.
+`tool/whatkey/compare.py`.

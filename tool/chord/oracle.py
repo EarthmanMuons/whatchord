@@ -15,7 +15,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from chord_oracle_compare import (
+from oracle_compare import (
     DEFAULT_ORACLES,
     DEFAULT_REVIEWED_PATH,
     NOTE_NAMES,
@@ -54,7 +54,7 @@ def main() -> int:
     if len(passthrough) == 1 and (expanded := _expand_case_id(passthrough[0])):
         passthrough = expanded
 
-    repo_root = Path(__file__).resolve().parents[1]
+    repo_root = Path(__file__).resolve().parents[2]
     chord_debug = repo_root / "bin/chord-debug"
     debug_args = [
         *passthrough,
@@ -186,7 +186,7 @@ Examples:
   bin/chord-oracle 60 64 67 70 --top=2
   bin/chord-oracle 0-1-4-7-10_b1
 
-A case ID (e.g. from chord_oracle_compare reports) is expanded to note names
+A case ID (e.g. from oracle_compare reports) is expanded to note names
 automatically. Common chord-debug options such as --bass, --key, and --notation
 are forwarded. Use --top=N to show multiple ranked WhatChord and oracle labels
 where available. Use --oracles music21 tonal pychord to limit external oracle

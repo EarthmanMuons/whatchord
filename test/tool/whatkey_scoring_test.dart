@@ -6,8 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:whatchord_app/features/key/key.dart';
 
 import '../../tool/src/chord_id_engine.dart';
-import '../../tool/src/whatkey/whatkey_fixtures.dart';
-import '../../tool/src/whatkey/whatkey_scoring.dart';
+import '../../tool/whatkey/src/fixtures.dart';
+import '../../tool/whatkey/src/scoring.dart';
 
 Map<String, Object?> _eventJson(
   int index, {

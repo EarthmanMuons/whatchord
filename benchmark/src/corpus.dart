@@ -7,7 +7,7 @@ import 'package:whatchord/whatchord.dart';
 /// the case keys. A key like `0-4-7-10_b0` means pitch classes {0,4,7,10} with
 /// bass pitch class 0. Reusing this corpus ties the benchmark to real, vetted
 /// voicings and grows automatically as more oracle cases are reviewed.
-List<ChordInput> loadCorpus({String path = 'tool/chord_oracle_reviewed.json'}) {
+List<ChordInput> loadCorpus({String path = 'tool/chord/oracle_reviewed.json'}) {
   final file = File(path);
   if (!file.existsSync()) {
     throw StateError(

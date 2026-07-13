@@ -6,7 +6,7 @@ building anything adaptive on the wrong premise.
 
 **Setup.**
 
-- **`tool/whatkey_isophonics_extract.py`**: fixtures from ChoCo's normalized
+- **`tool/whatkey/isophonics_extract.py`**: fixtures from ChoCo's normalized
   Isophonics partition (sparse clone of `smashub/choco`). Harte chord labels are
   parsed to interval sets (shorthand table plus degree lists) and rendered to
   voicings with the annotated bass honored (inversions survive); events come
@@ -31,19 +31,19 @@ building anything adaptive on the wrong premise.
 git clone --filter=blob:none --sparse https://github.com/smashub/choco.git \
   /private/tmp/choco
 cd /private/tmp/choco && git sparse-checkout set partitions/isophonics
-python3 tool/whatkey_isophonics_extract.py --choco-root /private/tmp/choco \
+python3 tool/whatkey/isophonics_extract.py --choco-root /private/tmp/choco \
   --set isophonics-nc-v1
-python3 tool/whatkey_asap_split.py \
+python3 tool/whatkey/asap_split.py \
   --fixtures-manifest build/whatkey-fixtures/isophonics-nc-v1/manifest.json \
   --seed whatkey-isophonics-nc-v1-split-2026-07-07
 for hl in 1 5 30; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
     --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
     --detector hmm --decay-half-life-seconds "$hl" \
     --out "build/whatkey-harness/iso-dev-hmm-hl$hl"
 done
-dart run tool/whatkey_harness.dart \
+dart run tool/whatkey/harness.dart \
   --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
   --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
   --detector hybrid --out build/whatkey-harness/iso-dev-hybrid

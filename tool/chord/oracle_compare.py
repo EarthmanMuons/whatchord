@@ -5,9 +5,9 @@ This is a discovery harness, not a test oracle. Disagreement rows are prompts
 for musical review, especially when mature tools disagree with each other.
 
 Examples:
-  python3 tool/chord_oracle_compare.py
-  python3 tool/chord_oracle_compare.py --min-notes 3 --max-notes 5 --basses all
-  python3 tool/chord_oracle_compare.py --oracles music21 tonal pychord
+  python3 tool/chord/oracle_compare.py
+  python3 tool/chord/oracle_compare.py --min-notes 3 --max-notes 5 --basses all
+  python3 tool/chord/oracle_compare.py --oracles music21 tonal pychord
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ from typing import Iterable
 
 NOTE_NAMES = ["C", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"]
 DEFAULT_ORACLES = ("music21", "tonal", "pychord")
-DEFAULT_REVIEWED_PATH = Path(__file__).with_name("chord_oracle_reviewed.json")
+DEFAULT_REVIEWED_PATH = Path(__file__).with_name("oracle_reviewed.json")
 ORACLE_NAME_WIDTH = max(len(name) for name in DEFAULT_ORACLES)
 DEFAULT_MIN_NOTES = 3
 DEFAULT_MAX_NOTES = 7
@@ -258,7 +258,7 @@ def main() -> int:
     parser.add_argument(
         "--chord-batch",
         type=Path,
-        default=Path("tool/chord_oracle_batch.dart"),
+        default=Path("tool/chord/oracle_batch.dart"),
         help="Dart batch entry point used by --whatchord-mode=batch.",
     )
     parser.add_argument(
@@ -275,7 +275,7 @@ def main() -> int:
     if args.jobs < 1:
         parser.error("--jobs must be at least 1")
 
-    repo_root = Path(__file__).resolve().parents[1]
+    repo_root = Path(__file__).resolve().parents[2]
     chord_debug = args.chord_debug
     if not chord_debug.is_absolute():
         chord_debug = repo_root / chord_debug
@@ -693,7 +693,7 @@ def run_whatchord_batch(
 ) -> list[dict]:
     """Analyze every case in a single warm Dart VM.
 
-    Streams one JSON request per line into tool/chord_oracle_batch.dart, which
+    Streams one JSON request per line into tool/chord/oracle_batch.dart, which
     emits one chord-debug-shaped payload per line. Output is matched back to
     cases by id, so results are identical to the per-case CLI path but without
     paying `dart run` startup for each case.
@@ -1517,7 +1517,7 @@ def write_report(
     )
     if suppressed:
         lines.append(
-            f"({suppressed} previously reviewed cases suppressed -- see tool/chord_oracle_reviewed.json)"
+            f"({suppressed} previously reviewed cases suppressed -- see tool/chord/oracle_reviewed.json)"
         )
         lines.append("")
 

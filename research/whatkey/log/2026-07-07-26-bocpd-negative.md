@@ -20,14 +20,14 @@ tests.
 
 ```sh
 for hz in 0.005 0.015625 0.03125 0.0625; do
-  dart run tool/whatkey_harness.dart \
+  dart run tool/whatkey/harness.dart \
     --fixtures build/whatkey-fixtures/isophonics-nc-v1 \
     --split-file research/whatkey/data/splits/isophonics-nc-v1.json \
     --detector bocpd --hazard "$hz" \
     --out "build/whatkey-harness/iso-bocpd-h$hz"
 done   # same for when-in-rome-v1; rescue runs add
        # --emission-temperature 0.5|1.0 at hazard 0.005
-python3 tool/whatkey_compare.py \
+python3 tool/whatkey/compare.py \
   build/whatkey-harness/iso-bocpd-h0.005-t1.0/report.json \
   build/whatkey-harness/iso-tilt-s2/report.json
 ```

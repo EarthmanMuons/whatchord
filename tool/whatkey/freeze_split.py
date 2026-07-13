@@ -17,7 +17,7 @@ from datetime import date
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SPLIT_SCHEMA = "whatkey-split/1"
 DEFAULT_GROUPS = ("bach-wtc", "brahms-lieder", "schubert-lieder", "tavern")
 DEFAULT_SEED = "whatkey-when-in-rome-v1-split-2026-07-06"

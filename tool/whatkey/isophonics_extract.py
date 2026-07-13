@@ -32,7 +32,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_SCHEMA = "whatkey-fixture/1"
 MANIFEST_SCHEMA = "whatkey-manifest/1"
 
@@ -134,14 +134,14 @@ def main() -> int:
         "schema": MANIFEST_SCHEMA,
         "set": args.set_name,
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "command": "python tool/whatkey_isophonics_extract.py "
+        "command": "python tool/whatkey/isophonics_extract.py "
         + " ".join(sys.argv[1:]),
         "engineCommit": git(REPO_ROOT, "rev-parse", "HEAD"),
         "engineLibDirty": bool(
             git(REPO_ROOT, "status", "--porcelain", "--", "lib", "pubspec.yaml")
         ),
         "generator": {
-            "script": "tool/whatkey_isophonics_extract.py",
+            "script": "tool/whatkey/isophonics_extract.py",
             "arguments": sys.argv[1:],
         },
         "context": args.context,
@@ -315,7 +315,7 @@ def attach_candidates(fixtures: list[dict], context: str) -> None:
             )
     payload = "".join(json.dumps(request) + "\n" for request in requests)
     process = subprocess.run(
-        ["dart", "run", "tool/whatkey_fixture_batch.dart"],
+        ["dart", "run", "tool/whatkey/fixture_batch.dart"],
         input=payload,
         capture_output=True,
         text=True,

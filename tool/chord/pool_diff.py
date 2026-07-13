@@ -10,10 +10,10 @@ note flips deserve individual attention, dense-set flips need musical
 eyeballing.
 
 Examples:
-  python3 tool/chord_pool_diff.py snapshot --out build/pool-diff/before.json
-  python3 tool/chord_pool_diff.py snapshot --out after.json --all-transpositions
-  python3 tool/chord_pool_diff.py diff before.json after.json
-  python3 tool/chord_pool_diff.py census before.json
+  python3 tool/chord/pool_diff.py snapshot --out build/pool-diff/before.json
+  python3 tool/chord/pool_diff.py snapshot --out after.json --all-transpositions
+  python3 tool/chord/pool_diff.py diff before.json after.json
+  python3 tool/chord/pool_diff.py census before.json
 """
 
 from __future__ import annotations
@@ -24,9 +24,9 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from chord_oracle_compare import generate_cases, run_whatchord_batch
+from oracle_compare import generate_cases, run_whatchord_batch
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parents[2]
 CHORD_BATCH = REPO_ROOT / "tool" / "chord_oracle_batch.dart"
 DEFAULT_TOP = 5
 

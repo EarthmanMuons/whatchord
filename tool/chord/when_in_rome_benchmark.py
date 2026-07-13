@@ -226,7 +226,7 @@ def analyze(events: list[dict]) -> dict[str, dict]:
         for event in events
     )
     process = subprocess.run(
-        ["dart", "run", "tool/when_in_rome_chord_batch.dart"],
+        ["dart", "run", "tool/chord/when_in_rome_batch.dart"],
         input=payload,
         capture_output=True,
         text=True,
