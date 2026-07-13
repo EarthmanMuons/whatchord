@@ -9,8 +9,10 @@ version: 0.1.0
 resolution: workspace
 
 environment:
-  # matches the root app's pinned Dart SDK
-  sdk: ^3.12.2
+  # Library floor: the oldest SDK this package works on (null-aware
+  # elements require 3.8). Widen or raise deliberately; the app pins its
+  # own toolchain separately.
+  sdk: ^3.8.0
 
 dependencies:
   meta: ^1.17.0
