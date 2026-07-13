@@ -6,7 +6,6 @@ import 'package:whatchord_app/core/providers/shared_preferences_provider.dart';
 import 'package:whatchord_app/features/history/history.dart';
 import 'package:whatchord_app/features/key/key.dart';
 import 'package:whatchord_app/features/midi/midi_input_source.dart';
-import 'package:whatchord_app/features/theory/theory.dart';
 
 const _cMajorTonality = Tonality(Tonic.c, TonalityMode.major);
 

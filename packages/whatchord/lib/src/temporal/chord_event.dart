@@ -1,5 +1,10 @@
 import 'package:meta/meta.dart';
-import 'package:whatchord/whatchord.dart';
+
+import '../models/chord_candidate.dart';
+import '../models/chord_identity.dart';
+import '../models/chord_input.dart';
+import '../models/observed_voicing.dart';
+import '../models/tonality.dart';
 
 /// One committed chord from live play: what sounded, how it was identified,
 /// and how long it was held.

@@ -115,8 +115,9 @@ detector's ranked keys, abstention decisions, or paper results.
 - Code:
   - [lib/features/key/](../../lib/features/key/): detectors and key-behavior
     presets; this is the same code the harness benchmarks and the app runs.
-  - [lib/features/history/](../../lib/features/history/): chord-event capture
-    and segmentation.
+  - [packages/whatchord/](../../packages/whatchord/): chord-event model and
+    segmentation (the engine's temporal module); the app's history feature holds
+    the capture providers.
   - [tool/](../../tool/): harnesses, extractors, baseline runners, and paired
     statistics.
 

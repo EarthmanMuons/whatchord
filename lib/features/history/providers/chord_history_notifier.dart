@@ -6,9 +6,6 @@ import 'package:whatchord_app/features/demo/demo.dart';
 import 'package:whatchord_app/features/lookup/lookup.dart';
 import 'package:whatchord_app/features/theory/theory.dart';
 
-import '../domain/chord_event_segmenter.dart';
-import '../models/chord_event.dart';
-
 /// Memory cap on stored events; the oldest are dropped beyond this count.
 final historyCapacityProvider = Provider<int>((ref) => 100);
 
