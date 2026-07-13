@@ -6,6 +6,7 @@ issue_tracker: https://github.com/EarthmanMuons/whatchord/issues
 
 publish_to: none
 version: 0.1.0
+resolution: workspace
 
 environment:
   # matches the root app's pinned Dart SDK
