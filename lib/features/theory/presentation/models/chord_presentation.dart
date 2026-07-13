@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
-import '../../domain/theory_domain.dart';
 import 'chord_symbol.dart';
 
 @immutable

@@ -1251,6 +1251,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"
+  whatchord_theory:
+    dependency: "direct main"
+    description:
+      path: "packages/whatchord_theory"
+      relative: true
+    source: path
+    version: "0.1.0"
   win32:
     dependency: transitive
     description:

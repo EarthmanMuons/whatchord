@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatchord_theory/models/scale_degree.dart';
+import 'package:whatchord_theory/models/tonality.dart';
 
-import '../../domain/models/scale_degree.dart';
-import '../../domain/models/tonality.dart';
 import '../../state/providers/theory_preferences_notifier.dart';
 import '../services/note_display_formatter.dart';
 import 'scale_degrees.dart';

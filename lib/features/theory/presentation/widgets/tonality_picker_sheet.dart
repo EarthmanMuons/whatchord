@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 import 'package:whatchord/core/core.dart';
 
-import '../../domain/theory_domain.dart';
 import '../../state/providers/selected_tonality_notifier.dart';
 import '../../state/providers/theory_preferences_notifier.dart';
 import '../models/chord_symbol.dart';

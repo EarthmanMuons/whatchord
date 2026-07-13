@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/theory_domain.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
+
 import 'scale_degree_roman_text.dart';
 
 class ScaleDegrees extends StatefulWidget {

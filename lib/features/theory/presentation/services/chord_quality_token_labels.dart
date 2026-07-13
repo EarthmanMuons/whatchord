@@ -1,4 +1,4 @@
-import '../../domain/theory_domain.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 // Example for major seventh -- symbolic: "Δ7", textual: "maj7",
 //   academic: "major seventh", idiomatic: "major seven"

@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 import 'package:whatchord/core/core.dart';
 import 'package:whatchord/features/input/input.dart';
 
-import '../../domain/theory_domain.dart';
 import '../../presentation/models/identity_display.dart';
 import '../../presentation/services/chord_quality_token_labels.dart';
 import '../../presentation/services/chord_symbol_builder.dart';

@@ -1,4 +1,4 @@
-import '../../domain/theory_domain.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 abstract final class ChordDisplayConventions {
   /// True when a seventh-family chord carries a single natural extension

@@ -9,7 +9,7 @@ import 'dart:io';
 
 import 'package:whatchord/features/history/history_domain.dart';
 import 'package:whatchord/features/key/key_domain.dart';
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 import '../chord_id_engine.dart';
 

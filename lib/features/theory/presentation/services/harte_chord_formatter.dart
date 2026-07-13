@@ -1,4 +1,4 @@
-import '../../domain/theory_domain.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 /// Formats chord identities using Harte-style chord syntax.
 ///

@@ -1,0 +1,15 @@
+name: whatchord_theory
+description: Chord identification and harmony analysis engine for WhatChord.
+
+publish_to: none
+version: 0.1.0
+
+environment:
+  # matches the root app's pinned Dart SDK
+  sdk: ^3.12.2
+
+dependencies:
+  meta: ^1.17.0
+
+dev_dependencies:
+  lints: ^6.0.0

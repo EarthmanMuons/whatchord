@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kiri_check/kiri_check.dart';
 
-import 'package:whatchord/features/theory/domain/analysis/chord_templates.dart';
+import 'package:whatchord_theory/analysis/chord_templates.dart';
 import 'package:whatchord/features/theory/theory.dart';
 
 import 'helpers/theory_test_helpers.dart';

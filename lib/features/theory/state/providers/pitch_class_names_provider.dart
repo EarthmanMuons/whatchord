@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
-import '../../domain/theory_domain.dart';
 import 'selected_tonality_notifier.dart';
 
 /// 12 pitch-class display names (0..11) based on the current tonality.

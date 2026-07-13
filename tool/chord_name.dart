@@ -9,7 +9,7 @@
 
 import 'dart:io';
 
-import 'package:whatchord/features/theory/domain/theory_domain.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 import 'package:whatchord/features/theory/presentation/models/chord_symbol.dart';
 import 'package:whatchord/features/theory/presentation/services/chord_long_form_formatter.dart';
 import 'package:whatchord/features/theory/presentation/services/chord_spoken_name_formatter.dart';
