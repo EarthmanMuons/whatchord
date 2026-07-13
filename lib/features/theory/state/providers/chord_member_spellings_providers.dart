@@ -19,7 +19,7 @@ final chordMemberDegreesProvider = Provider<List<String>>((ref) {
 
 /// Role-aware spelled chord members keyed by pitch class (0..11).
 ///
-/// This is preferred over a list of strings when we need a stable label per key/note.
+/// Preferred over a list of strings when a stable label per key is needed.
 final chordMemberSpellingsByPcProvider = Provider<Map<int, String>>((ref) {
   final presentation = ref.watch(chordPresentationProvider);
   if (presentation == null) return const <int, String>{};

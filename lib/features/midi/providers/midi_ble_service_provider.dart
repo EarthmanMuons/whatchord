@@ -17,7 +17,7 @@ final midiCommandProvider = Provider<fmc.MidiCommand>((ref) {
   final cmd = fmc.MidiCommand(bleTransport: UniversalBleMidiTransport());
   if (!kReleaseMode) {
     // Surfaces the plugin's device merge, route, and BLE-to-CoreMIDI handoff
-    // diagnostics while we chase connection issues (debug and profile builds).
+    // diagnostics for connection debugging (debug and profile builds).
     cmd.logHandler = debugPrint;
     // Timestamped setup events (deviceConnected, deviceDisconnected, ...) to
     // pin down when a mid-session drop happens relative to launch.

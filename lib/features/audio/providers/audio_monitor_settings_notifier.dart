@@ -44,8 +44,8 @@ class AudioMonitorSettingsNotifier extends Notifier<AudioMonitorSettings> {
     );
   }
 
-  /// Resolves the output mode and muted state, migrating the legacy on/off flag.
-  /// Since mute is now the off switch, a prior disabled monitor maps to muted.
+  /// Resolves the output mode and muted state, migrating the legacy on/off
+  /// flag. Mute is the off switch, so a prior disabled monitor maps to muted.
   (AudioMonitorMode, bool) _readModeAndMuted(
     SharedPreferences prefs,
     AudioMonitorSettings defaults,

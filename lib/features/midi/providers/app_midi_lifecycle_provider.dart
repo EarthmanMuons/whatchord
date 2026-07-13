@@ -75,9 +75,10 @@ class _MidiLifecycleController with WidgetsBindingObserver {
         midi.setBackgrounded(false);
         connectionState.setBackgrounded(false);
 
-        // IMPORTANT: On iOS especially, the OS may drop Bluetooth connections while the
-        // app is backgrounded without our watchdog running. Reconcile first so
-        // we don't keep showing a stale "Connected" state and short-circuit reconnect.
+        // On iOS especially, the OS may drop Bluetooth connections while the
+        // app is backgrounded with no watchdog running. Reconcile first so a
+        // stale "Connected" state does not persist and short-circuit
+        // reconnect.
         unawaited(
           Future<void>.microtask(() async {
             await midi.reconcileConnectedDevice(
@@ -98,7 +99,8 @@ class _MidiLifecycleController with WidgetsBindingObserver {
       case AppLifecycleState.detached:
         midi.setBackgrounded(true);
         connectionState.setBackgrounded(true);
-        // Fire-and-forget: we only need best-effort scan stop while backgrounding.
+        // Fire-and-forget: best-effort scan stop is enough while
+        // backgrounding.
         unawaited(connectionState.stopScanning());
         break;
     }

@@ -1,3 +1,8 @@
+/// Streaming key detection from live chord evidence: [KeyDetector]
+/// implementations consume committed chord events and maintain a claim over
+/// the 24 major and minor keys, abstaining when evidence is thin.
+library;
+
 // Detectors
 export 'src/detectors/bocpd_key_detector.dart';
 export 'src/detectors/claim_hysteresis_detector.dart';

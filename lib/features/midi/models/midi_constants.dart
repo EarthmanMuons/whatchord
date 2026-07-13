@@ -4,7 +4,7 @@ abstract class MidiConstants {
   static const int maxNote = 127;
   static const int middleC = 60;
 
-  /// Control Change (CC) numbers
+  /// Control Change (CC) numbers.
   static const int ccSustainPedal = 64;
   static const int ccAllSoundOff = 120;
   static const int ccAllNotesOff = 123;

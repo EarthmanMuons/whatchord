@@ -434,8 +434,9 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
 
   /// The scale to seed onto for [tonality]. Major keys seed the major scale and
   /// minor keys seed natural minor, except when the seeding chord matched the
-  /// key's harmonic minor harmony: there we seed harmonic minor so the explorer
-  /// opens on the same scale the home page's scale-degree strip adjusted to.
+  /// key's harmonic minor harmony: then harmonic minor is seeded so the
+  /// explorer opens on the same scale the home page's scale-degree strip
+  /// adjusted to.
   static ScaleKind _seedKindFor(
     Tonality tonality,
     ScaleDegreeAnalysis? analysis,

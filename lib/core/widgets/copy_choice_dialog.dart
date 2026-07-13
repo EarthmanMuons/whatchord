@@ -61,8 +61,8 @@ Future<void> showCopyChoiceDialog(
   );
   if (choice == null || !context.mounted) return;
 
-  // iOS gives no system confirmation for clipboard writes, so surface our own;
-  // Android already shows one, so avoid a duplicate there.
+  // iOS gives no system confirmation for clipboard writes, so surface one;
+  // Android already shows its own, so avoid a duplicate there.
   final messenger = Theme.of(context).platform == TargetPlatform.iOS
       ? ScaffoldMessenger.maybeOf(context)
       : null;

@@ -114,7 +114,7 @@ class TonalityPickerBody extends ConsumerStatefulWidget {
     this.recenterSignal = false,
   });
 
-  /// Header height with neither panel title nor staff preview: just the
+  /// Header height with neither panel title nor staff preview: only the
   /// column labels and their divider.
   static const double slimHeaderHeight = 36.0;
 

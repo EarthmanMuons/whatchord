@@ -94,7 +94,7 @@ class PianoGeometry {
     final out = <int>[];
     int midi = firstWhiteMidi;
 
-    // Determine which white PC we start on.
+    // Determine the starting white pitch class.
     final normalizedStartPos = _computeStartPos(firstWhiteMidi);
 
     out.add(midi);

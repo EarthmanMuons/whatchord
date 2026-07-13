@@ -52,8 +52,9 @@ class _ScrollIndicatorState {
 ///
 /// A single finger is left entirely to the scroll view (its movement is
 /// ignored), so one-finger drags scroll as usual. As soon as a second finger
-/// lands we claim the gesture arena outright: otherwise the scroll view's
-/// (greedy) horizontal drag recognizer wins the moment a finger crosses touch
+/// lands, the recognizer claims the gesture arena outright: otherwise the
+/// scroll view's (greedy) horizontal drag recognizer wins the moment a finger
+/// crosses touch
 /// slop, stealing the pinch before its scale delta grows enough to assert
 /// itself. Two fingers always means zoom; one finger always means scroll.
 class _PinchScaleGestureRecognizer extends ScaleGestureRecognizer {
@@ -648,7 +649,7 @@ class _ScrollablePianoKeyboardState
     final added = next.difference(prev);
     final removed = prev.difference(next);
 
-    // Update the set now that we've captured diffs.
+    // Update the set now that diffs are captured.
     _previousHighlightedNotes = Set<int>.from(next);
 
     // Decide whether anything is actually offscreen.

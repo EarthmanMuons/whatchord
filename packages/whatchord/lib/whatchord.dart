@@ -1,3 +1,9 @@
+/// Chord identification and harmony analysis: [ChordAnalyzer] names and
+/// explains voicings, construction derives canonical examples from a
+/// [ChordSpec], and formatters render identities as symbols, spoken names,
+/// long-form names, and Harte notation.
+library;
+
 // Analysis engine
 export 'src/analysis/chord_analyzer.dart';
 export 'src/analysis/chord_candidate_ranking.dart';
