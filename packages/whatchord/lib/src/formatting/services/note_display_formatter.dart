@@ -1,6 +1,7 @@
 import '../../models/tonality.dart';
 import '../models/chord_symbol.dart';
 
+/// A chord symbol's rendered display strings, split for styled layout.
 class ChordSymbolDisplayParts {
   const ChordSymbolDisplayParts({
     required this.root,
@@ -8,16 +9,25 @@ class ChordSymbolDisplayParts {
     required this.bass,
   });
 
+  /// Rendered root (e.g. "F♯").
   final String root;
+
+  /// Rendered quality suffix (e.g. "m7(♭5)").
   final String quality;
+
+  /// Rendered slash bass, or null when absent.
   final String? bass;
 
+  /// Whether a slash bass is present.
   bool get hasBass => bass != null;
 
+  /// The bass, assuming [hasBass].
   String get bassRequired => bass!;
 
+  /// Root and quality joined (no bass).
   String get base => '$root$quality';
 
+  /// Full symbol with a compact slash (e.g. "C7/E").
   String get compactSlash => bass == null ? base : '$base/$bass';
 
   @override
@@ -44,6 +54,7 @@ String noteDisplayLabel(
   return _NoteNameFormatter(noteNameSystem).compact(noteName);
 }
 
+/// Spoken/accessibility form of a note name (e.g. "F sharp").
 String noteSemanticLabel(
   String noteName, {
   NoteNameSystem noteNameSystem = NoteNameSystem.international,
@@ -54,6 +65,7 @@ String noteSemanticLabel(
   ).spoken(noteName, includeNatural: includeNatural);
 }
 
+/// Compact UI label for a key (e.g. "E♭ major", "Fis-Dur").
 String tonalityDisplayLabel(
   Tonality tonality, {
   NoteNameSystem noteNameSystem = NoteNameSystem.international,
@@ -68,6 +80,7 @@ String tonalityDisplayLabel(
   };
 }
 
+/// Spoken/accessibility label for a key (e.g. "E flat major").
 String tonalitySemanticLabel(
   Tonality tonality, {
   NoteNameSystem noteNameSystem = NoteNameSystem.international,
@@ -82,6 +95,7 @@ String tonalitySemanticLabel(
   };
 }
 
+/// Just the tonic label for a key, in the given note-name system.
 String tonalityPickerTonicLabel(
   Tonality tonality, {
   NoteNameSystem noteNameSystem = NoteNameSystem.international,
@@ -116,6 +130,7 @@ String chordSymbolTextLabel(
   ).compactSlash;
 }
 
+/// Renders [symbol] into styled display parts in the given note-name system.
 ChordSymbolDisplayParts chordSymbolDisplayParts(
   ChordSymbol symbol, {
   NoteNameSystem noteNameSystem = NoteNameSystem.international,

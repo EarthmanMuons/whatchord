@@ -12,7 +12,10 @@ import '../models/chord_construction.dart';
 import '../models/chord_example.dart';
 import 'construction_derivation.dart';
 
+/// Renders a [ChordConstruction] into a canonical [ChordExample].
 abstract final class ChordExampleBuilder {
+  /// The pitch classes that are valid bass choices for [state] (its chord
+  /// members).
   static Set<int> canonicalBassPitchClasses(ChordConstruction state) {
     final intervals = _canonicalExampleParts(state).intervals;
     return Set<int>.unmodifiable(
@@ -20,6 +23,8 @@ abstract final class ChordExampleBuilder {
     );
   }
 
+  /// Builds the canonical example for [state]: names, spelled members,
+  /// degree labels, and a playable voicing.
   static ChordExample build({
     required ChordConstruction state,
     required Tonality tonality,

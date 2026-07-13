@@ -6,3 +6,8 @@ linter:
     prefer_final_in_for_each: true
     prefer_final_locals: true
     unawaited_futures: true
+    # Enable temporarily to audit dartdoc coverage. Expect residual hits that
+    # are deliberate skips (self-describing enum values, constructors with
+    # documented fields) and noise from src-private files, which dart doc
+    # never renders; `dart doc` staying warning-free is the real gate.
+    # public_member_api_docs: true

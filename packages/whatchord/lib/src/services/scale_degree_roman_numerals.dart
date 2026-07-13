@@ -1,5 +1,7 @@
 import '../models/chord_identity.dart';
 
+/// Decorates a triad roman numeral [base] for a seventh-chord [quality]
+/// (e.g. "ii" + minor7 -> "ii7", halfDiminished7 -> "iiø7").
 String romanNumeralForQuality(String base, ChordQualityToken quality) {
   return switch (quality) {
     ChordQualityToken.dominant7 => '${base}7',

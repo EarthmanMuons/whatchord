@@ -12,11 +12,12 @@ enum IntervalLabelDirection {
   smallestDistance,
 }
 
+/// A labeled interval between two notes.
 @immutable
 class IntervalLabel {
   /// Semitone distance (>= 0).
   ///
-  /// - Pitch class labeling: [0..11]
+  /// - Pitch class labeling: 0..11
   /// - MIDI labeling: any non-negative value (e.g., 12 = octave)
   final int semitones;
 
@@ -38,6 +39,7 @@ class IntervalLabel {
 
 /// Utility to label dyads (exactly two notes / pitch classes).
 abstract final class IntervalFormatter {
+  /// Labels the interval between two pitch classes.
   static IntervalLabel forPitchClasses({
     required int bassPc,
     required int otherPc,
@@ -54,6 +56,8 @@ abstract final class IntervalFormatter {
     return _labelMod12(s);
   }
 
+  /// Labels the interval between two MIDI notes, preserving compound
+  /// intervals (e.g. m9 rather than m2).
   static IntervalLabel forMidiNotes({
     required int bassMidi,
     required int upperMidi,

@@ -44,7 +44,10 @@ enum Tonic {
   /// Pitch class 0..11.
   final int pitchClass;
 
+  /// Whether this spelling uses a sharp.
   bool get isSharp => label.length > 1 && label[1] == '#';
+
+  /// Whether this spelling uses a flat.
   bool get isFlat => label.length > 1 && label[1] == 'b';
 
   /// Ranks a spelling for a default pick or an enharmonic tiebreak: natural (0)

@@ -4,11 +4,11 @@ import '../models/tonality.dart';
 import 'note_spelling.dart';
 import 'pitch_class.dart';
 
-/// Role-aware spelling for the *currently sounding* chord members.
+/// Role-aware spelling for the *sounding* chord members.
 abstract final class ChordMemberSpeller {
   /// Returns spelled chord members for the given voicing pitch classes.
   ///
-  /// - Uses [identity.toneRolesByInterval] to choose the correct *letter*
+  /// - Uses [ChordIdentity.toneRolesByInterval] to choose the correct *letter*
   ///   (e.g., dim7 => "bb7" letter, so D# becomes Eb in an F#dim7 context).
   /// - Falls back to tonality-aware pc spelling if role is unknown.
   static List<String> spellMembers({

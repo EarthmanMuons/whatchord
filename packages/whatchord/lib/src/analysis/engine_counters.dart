@@ -21,10 +21,19 @@ const bool kEngineCountersEnabled = bool.fromEnvironment('whatchord.counters');
 /// Only mutated when [kEngineCountersEnabled] is true; otherwise the increments
 /// compile away.
 abstract final class EngineCounters {
+  /// Analysis results served from the cache.
   static int cacheHits = 0;
+
+  /// Analyses that had to run the full pipeline.
   static int cacheMisses = 0;
+
+  /// Candidate roots enumerated across analyses.
   static int rootsConsidered = 0;
+
+  /// Quality templates priced across analyses.
   static int templatesEvaluated = 0;
+
+  /// Candidates produced before pruning.
   static int candidatesProduced = 0;
 
   /// Candidates that survive the pre-ranking prune and enter the O(n^2)
@@ -33,6 +42,7 @@ abstract final class EngineCounters {
   /// quietly defeats it).
   static int candidatesRanked = 0;
 
+  /// Zeroes all counters.
   static void reset() {
     cacheHits = 0;
     cacheMisses = 0;
@@ -42,6 +52,7 @@ abstract final class EngineCounters {
     candidatesRanked = 0;
   }
 
+  /// The current counter values by name.
   static Map<String, int> snapshot() => <String, int>{
     'cacheHits': cacheHits,
     'cacheMisses': cacheMisses,

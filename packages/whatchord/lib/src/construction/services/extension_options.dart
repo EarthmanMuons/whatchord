@@ -3,8 +3,10 @@ import '../../models/chord_extension.dart';
 import '../../models/chord_identity.dart';
 import 'extension_rules.dart';
 
+/// How a group of extension choices behaves for a quality.
 enum ExtensionControlRole { highestExtension, addedTones, alterations }
 
+/// A labeled group of extension choices that are valid together on a quality.
 class ExtensionControlGroup {
   const ExtensionControlGroup({
     required this.label,
@@ -13,12 +15,21 @@ class ExtensionControlGroup {
     required this.choices,
   });
 
+  /// Display heading for the group (e.g. "Alterations").
   final String label;
+
+  /// The group's selection behavior.
   final ExtensionControlRole role;
+
+  /// Whether multiple choices may be selected at once.
   final bool allowsMultiple;
+
+  /// The selectable choices, in display order.
   final List<ExtensionChoice> choices;
 }
 
+/// One selectable extension option, or the "none" option when [extension] is
+/// null.
 class ExtensionChoice {
   const ExtensionChoice({
     required this.label,
@@ -26,11 +37,17 @@ class ExtensionChoice {
     this.extension,
   });
 
+  /// Compact display label (e.g. "#11").
   final String label;
+
+  /// Spoken/accessibility label (e.g. "sharp eleven").
   final String semanticLabel;
+
+  /// The extension this choice selects, or null for "none".
   final ChordExtension? extension;
 }
 
+/// The extension choice groups that make musical sense on [quality].
 List<ExtensionControlGroup> buildExtensionControlGroups(
   ChordQualityToken quality,
 ) {
@@ -39,6 +56,8 @@ List<ExtensionControlGroup> buildExtensionControlGroups(
       : _triadLikeExtensionGroups(quality);
 }
 
+/// Applies picking [choice] from [group] to [currentExtensions], resolving
+/// conflicts so the result stays musically coherent on [quality].
 Set<ChordExtension> selectExtensionChoice({
   required ChordQualityToken quality,
   required Set<ChordExtension> currentExtensions,

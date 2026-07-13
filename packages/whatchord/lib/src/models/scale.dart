@@ -2,6 +2,8 @@ import 'package:meta/meta.dart';
 
 import 'tonic.dart';
 
+/// A scale type: its interval formula, spelling rules, and harmonization
+/// support, independent of any tonic.
 enum ScaleKind {
   major('Major', [
     ScaleToneSpec(0, '1', 0),
@@ -242,6 +244,7 @@ enum ScaleKind {
   /// The chord-stack strategy that is musically meaningful for this scale.
   final ScaleHarmonization harmonization;
 
+  /// Whether this scale supports stacked-third degree chords.
   bool get supportsChordHarmony =>
       harmonization == ScaleHarmonization.heptatonicTertian;
 
@@ -249,6 +252,7 @@ enum ScaleKind {
   final TonicPolicy tonicPolicy;
 }
 
+/// The chord-stack strategy that is musically meaningful for a scale kind.
 enum ScaleHarmonization { none, heptatonicTertian }
 
 /// How a scale kind chooses the spelled tonics to offer as roots.
@@ -270,6 +274,7 @@ enum TonicPolicy {
   allSpellings,
 }
 
+/// One tone in a [ScaleKind] formula.
 @immutable
 class ScaleToneSpec {
   const ScaleToneSpec(
@@ -278,20 +283,31 @@ class ScaleToneSpec {
     this.spellingLetterOffset,
   );
 
+  /// Semitones above the tonic (0..11).
   final int interval;
+
+  /// Formula label relative to the parallel major scale (e.g. "♭3", "♯4").
   final String degreeLabel;
+
+  /// Letter position above the tonic (0..6) used to spell this tone.
   final int spellingLetterOffset;
 }
 
+/// A concrete scale: a spelled [Tonic] applied to a [ScaleKind].
 @immutable
 class Scale {
+  /// The spelled root of the scale.
   final Tonic tonic;
+
+  /// The scale type.
   final ScaleKind kind;
 
   const Scale(this.tonic, this.kind);
 
+  /// Ascending semitone offsets from the tonic (tonic = 0).
   List<int> get intervals => kind.intervals;
 
+  /// Pitch class of the tonic (0..11).
   int get tonicPitchClass => tonic.pitchClass;
 
   /// Scale-tone pitch classes (0..11) in ascending scale order from the tonic.
@@ -299,11 +315,13 @@ class Scale {
     for (final interval in intervals) (tonic.pitchClass + interval) % 12,
   ];
 
+  /// Whether pitch class [pc] is a scale tone.
   bool containsPitchClass(int pc) {
     final norm = ((pc % 12) + 12) % 12;
     return pitchClasses.contains(norm);
   }
 
+  /// Full name (e.g. "C major", "Eb minor pentatonic").
   String get displayName => '${tonic.label} ${kind.label.toLowerCase()}';
 
   @override

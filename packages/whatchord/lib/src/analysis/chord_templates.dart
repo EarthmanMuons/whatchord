@@ -79,7 +79,7 @@ class ChordTemplate {
 /// The analyzer tests all templates; order doesn't affect results.
 /// Organized by complexity: triads -> 6ths -> 7ths
 ///
-/// NOTE: docs/site/articles/chord-recognition-algorithm.html lists and
+/// NOTE: https://whatchord.earthmanmuons.com/articles/chord-recognition-algorithm.html lists and
 /// describes each template. Update the article when templates are added,
 /// removed, or changed.
 final chordTemplates = <ChordTemplate>[

@@ -40,7 +40,9 @@ enum ChordToneRole {
   major7,
 }
 
+/// Chord-stack ordering for [ChordToneRole].
 extension ChordToneRoleDegreeOrder on ChordToneRole {
+  /// Position in the conventional chord stack (1, 2, 3, 5, 7, 9, 11, 13).
   int get degreeOrder => switch (this) {
     ChordToneRole.root => 1,
     ChordToneRole.sus2 => 2,
@@ -61,6 +63,7 @@ extension ChordToneRoleDegreeOrder on ChordToneRole {
   };
 }
 
+/// Letter selection for [ChordToneRole].
 extension ChordToneRoleDegree on ChordToneRole {
   /// Diatonic scale degree above the chord root (1..7) used to select the letter.
   int get degreeFromRoot {

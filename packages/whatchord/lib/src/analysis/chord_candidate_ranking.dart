@@ -5,9 +5,17 @@ import 'candidate_features.dart';
 import 'ranking_policy.dart' as ranking_policy;
 import 'ranking_rules.dart';
 
+/// The outcome of comparing two candidates, with the rule that decided it.
 class RankingDecision {
+  /// Comparator result: negative if the first candidate ranks higher,
+  /// positive if the second does.
   final int result;
+
+  /// Name of the tie-break or override rule that decided, or null when raw
+  /// cost decided.
   final String? decidedByRule;
+
+  /// Cost difference between the two candidates (first minus second).
   final double costDelta;
 
   /// Whether [decidedByRule] was one of the hard rules (a cost-independent
@@ -33,7 +41,7 @@ class RankingDecision {
 /// `candidate_features.dart`; this class is just the comparator and the
 /// linearizer that turns pairwise decisions into a stable ranking.
 ///
-/// NOTE: docs/site/articles/chord-recognition-algorithm.html documents the
+/// NOTE: https://whatchord.earthmanmuons.com/articles/chord-recognition-algorithm.html documents the
 /// ranking rules in detail. Update the article when rules, their order, or
 /// nearTieWindow changes.
 abstract final class ChordCandidateRanking {

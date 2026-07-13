@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../models/chord_identity.dart';
 
+/// The triad-level foundation of a [ChordSpec].
 enum BaseQuality {
   major,
   minor,
@@ -13,6 +14,7 @@ enum BaseQuality {
   sus2sus4,
 }
 
+/// The sixth or seventh a [ChordSpec] stacks on its base quality, if any.
 enum SeventhKind {
   none,
   sixth,
@@ -24,8 +26,15 @@ enum SeventhKind {
   diminished7,
 }
 
+/// Chromatic adjustment of a [ChordSpec]'s fifth.
 enum FifthAlteration { natural, flat, sharp }
 
+/// A chord quality decomposed into independently selectable parts: base
+/// quality, sixth/seventh, and fifth alteration.
+///
+/// Not every combination is a real chord; [normalized] snaps invalid
+/// combinations to the nearest valid spec, and [quality] maps the result to
+/// its [ChordQualityToken].
 @immutable
 class ChordSpec {
   const ChordSpec({
@@ -34,6 +43,7 @@ class ChordSpec {
     required this.fifthAlteration,
   });
 
+  /// Decomposes [quality] into its spec parts.
   factory ChordSpec.fromQuality(ChordQualityToken quality) {
     return switch (quality) {
       ChordQualityToken.major => const ChordSpec(
@@ -174,10 +184,18 @@ class ChordSpec {
     };
   }
 
+  /// The triad-level foundation.
   final BaseQuality baseQuality;
+
+  /// The stacked sixth or seventh, if any.
   final SeventhKind seventhKind;
+
+  /// The fifth's chromatic adjustment.
   final FifthAlteration fifthAlteration;
 
+  /// This spec with invalid part combinations snapped to valid ones: an
+  /// unavailable seventh drops to none, an unavailable fifth alteration
+  /// falls back to the base quality's default.
   ChordSpec normalized() {
     final seventh = availableSeventhKindsFor(baseQuality).contains(seventhKind)
         ? seventhKind
@@ -198,6 +216,7 @@ class ChordSpec {
     );
   }
 
+  /// The chord quality this spec names, after normalization.
   ChordQualityToken get quality {
     final spec = normalized();
     return _qualityFromSpec(
@@ -207,6 +226,7 @@ class ChordSpec {
     );
   }
 
+  /// A normalized copy with the given parts replaced.
   ChordSpec copyWith({
     BaseQuality? baseQuality,
     SeventhKind? seventhKind,
@@ -231,6 +251,7 @@ class ChordSpec {
   int get hashCode => Object.hash(baseQuality, seventhKind, fifthAlteration);
 }
 
+/// The seventh kinds that form real chords on [baseQuality].
 List<SeventhKind> availableSeventhKindsFor(BaseQuality baseQuality) {
   return switch (baseQuality) {
     BaseQuality.major => const [
@@ -261,6 +282,8 @@ List<SeventhKind> availableSeventhKindsFor(BaseQuality baseQuality) {
   };
 }
 
+/// The fifth alterations that form real chords on the given base quality and
+/// seventh kind.
 List<FifthAlteration> availableFifthAlterationsFor({
   required BaseQuality baseQuality,
   required SeventhKind seventhKind,
@@ -293,6 +316,8 @@ List<FifthAlteration> availableFifthAlterationsFor({
   };
 }
 
+/// The fifth alteration implied by [baseQuality] itself (flat for diminished,
+/// sharp for augmented, natural otherwise).
 FifthAlteration defaultFifthAlterationFor(BaseQuality baseQuality) {
   return switch (baseQuality) {
     BaseQuality.diminished => FifthAlteration.flat,

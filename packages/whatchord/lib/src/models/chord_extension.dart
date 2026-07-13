@@ -15,6 +15,7 @@ enum ChordExtension {
   addFlat9,
 }
 
+/// Display ordering for [ChordExtension].
 extension ChordExtensionOrdering on ChordExtension {
   /// Stable musical ordering for display/debug purposes.
   ///
@@ -49,6 +50,7 @@ extension ChordExtensionOrdering on ChordExtension {
   }
 }
 
+/// Rendered labels for [ChordExtension] in each naming style.
 extension ChordExtensionLabels on ChordExtension {
   /// Compact token for symbolic/textual chord formatters.
   String get shortLabel {
@@ -141,7 +143,10 @@ extension ChordExtensionLabels on ChordExtension {
   }
 }
 
+/// Classification predicates over [ChordExtension].
 extension ChordExtensionSemantics on ChordExtension {
+  /// Whether this is an added tone (add9, add11, ...) rather than a stacked
+  /// extension or alteration.
   bool get isAddTone {
     switch (this) {
       case ChordExtension.add9:
@@ -155,6 +160,7 @@ extension ChordExtensionSemantics on ChordExtension {
     }
   }
 
+  /// Whether this is an unaltered stacked extension (9, 11, or 13).
   bool get isNaturalExtension {
     switch (this) {
       case ChordExtension.nine:
@@ -166,6 +172,7 @@ extension ChordExtensionSemantics on ChordExtension {
     }
   }
 
+  /// Whether this is a chromatically altered color (b9, #9, #11, b13).
   bool get isAlteration {
     switch (this) {
       case ChordExtension.flat9:
@@ -182,6 +189,7 @@ extension ChordExtensionSemantics on ChordExtension {
   bool get isRealExtension => !isAddTone;
 }
 
+/// Counts of an extension set by classification, used to compare readings.
 typedef ExtensionPreference = ({
   int alterationCount,
   int naturalCount,
@@ -189,6 +197,8 @@ typedef ExtensionPreference = ({
   int totalCount,
 });
 
+/// Tallies [exts] into an [ExtensionPreference].
+///
 /// [sharp11AsNaturalColor] reclassifies a raised eleventh as a natural
 /// (stacked) extension instead of an alteration. Callers set it for qualities
 /// where the #11 is the Lydian color rather than a tension (see
@@ -221,6 +231,7 @@ ExtensionPreference extensionPreference(
   );
 }
 
+/// Pitch mapping for [ChordExtension].
 extension ChordExtensionInterval on ChordExtension {
   /// Semitone interval above the chord root that this extension represents (0..11).
   ///
@@ -250,5 +261,6 @@ extension ChordExtensionInterval on ChordExtension {
     }
   }
 
+  /// [intervalAboveRoot] as a bit in a 12-bit interval mask.
   int get intervalBit => 1 << intervalAboveRoot;
 }

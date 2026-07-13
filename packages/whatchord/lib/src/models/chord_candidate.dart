@@ -5,6 +5,7 @@ import 'chord_identity.dart';
 /// A ranked candidate result from chord analysis.
 @immutable
 class ChordCandidate {
+  /// The chord identity this candidate names.
   final ChordIdentity identity;
 
   /// Explanation cost is intentionally unitless; lower is better.

@@ -22,6 +22,8 @@ List<int> scaleRunMidi(Scale scale) {
   return [...ascending, ...ascending.reversed.skip(1)];
 }
 
+/// MIDI notes for the stacked triad or seventh chord on [degree] of [scale],
+/// in a playable register.
 List<int> degreeChordMidi(
   Scale scale,
   ScaleDegreeHarmony degree, {

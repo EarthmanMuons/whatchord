@@ -16,10 +16,16 @@ import 'chord_candidate_ranking.dart';
 import 'chord_templates.dart';
 import 'engine_counters.dart';
 
+/// One labeled component of a candidate's explanation cost.
 @immutable
 class CostReason {
+  /// Short label for the priced aspect (e.g. "vocabulary", "bass").
   final String label;
+
+  /// The cost delta; positive makes the reading less likely.
   final double cost;
+
+  /// Optional elaboration on what was priced.
   final String? detail;
 
   /// Root-relative interval mask for the notes in this category, when the
@@ -38,8 +44,12 @@ class CostReason {
   }
 }
 
+/// A ranked candidate together with the reasons for its cost and position.
+///
+/// Produced by [ChordAnalyzer.explain]; powers "why this name" explanations.
 @immutable
 class ExplainedCandidate {
+  /// The ranked candidate being explained.
   final ChordCandidate candidate;
 
   /// Rank in the full list returned by the ranking pass. Explanation views
@@ -79,12 +89,13 @@ class ExplainedCandidate {
 /// pays for its rarity, appended colors, missing essentials, unexplained tones,
 /// and awkward bass placement.
 ///
-/// NOTE: docs/site/articles/chord-recognition-algorithm.html documents this
+/// NOTE: https://whatchord.earthmanmuons.com/articles/chord-recognition-algorithm.html documents this
 /// pipeline in detail. Update the article when prices or algorithm structure
 /// change.
 abstract final class ChordAnalyzer {
-  // Not const so the cache test can shrink capacity and exercise eviction
-  // without hundreds of analyses.
+  /// Maximum cached analysis results (LRU eviction). Not const so the cache
+  /// test can shrink capacity and exercise eviction without hundreds of
+  /// analyses.
   @visibleForTesting
   static int cacheCapacity = 512;
 
@@ -97,7 +108,7 @@ abstract final class ChordAnalyzer {
   // rarity, each color tone it appends, essential tones it lacks, tones it
   // cannot account for, and awkward bass placement. Lower is better. Prices are
   // musician-judged priors calibrated against the reviewed oracle pool.
-  // See docs/site/articles/chord-recognition-algorithm.html.
+  // See https://whatchord.earthmanmuons.com/articles/chord-recognition-algorithm.html.
 
   // Vocabulary rarity: how readily a musician reaches for the quality name.
   static const _vocabularyMarked = 0.1; // dim, aug, sus2, dim7, m7b5, ...
@@ -165,15 +176,21 @@ abstract final class ChordAnalyzer {
   static const _bassAlteredColorCost = 0.5;
   static const _bassUnexplainedCost = 1.0;
 
-  // Candidates priced more than this above the cheapest reading are dropped
-  // before the O(n^2) ranking. A reading this far down can never surface as
-  // the #1 pick or an alternative; chord_ranking_prune_guard_test measures
-  // the widest surfaced gap and asserts it stays under this margin.
-  // Not const so that guard test can disable pruning (raise to infinity) and
-  // measure the unpruned surfaced gap.
+  /// Candidates priced more than this above the cheapest reading are dropped
+  /// before the O(n^2) ranking. A reading this far down can never surface as
+  /// the #1 pick or an alternative; chord_ranking_prune_guard_test measures
+  /// the widest surfaced gap and asserts it stays under this margin.
+  /// Not const so that guard test can disable pruning (raise to infinity) and
+  /// measure the unpruned surfaced gap.
   @visibleForTesting
   static double rankingPruneMargin = 2.0;
 
+  /// Names [input], returning up to [take] candidates ranked most plausible
+  /// first.
+  ///
+  /// [context] biases ranking and spelling toward the prevailing key, and
+  /// [voicing] lets register evidence (e.g. a low bass) nudge close calls.
+  /// Results are cached.
   static List<ChordCandidate> analyze(
     ChordInput input, {
     required AnalysisContext context,
@@ -221,15 +238,15 @@ abstract final class ChordAnalyzer {
     return result;
   }
 
+  /// Empties the analysis result cache.
   static void clearCache() => _cache.clear();
 
+  /// Current number of cached results.
   @visibleForTesting
   static int get cacheSize => _cache.length;
 
-  /// Debug entrypoint for CLI tooling.
-  ///
-  /// Uses the exact same evaluation + ranking logic as [analyze], but also
-  /// returns human-readable cost reasons and tie-break explanations.
+  /// Like [analyze], but each candidate carries its cost breakdown and the
+  /// reason it is ordered relative to the previous one.
   static List<ExplainedCandidate> explain(
     ChordInput input, {
     required AnalysisContext context,

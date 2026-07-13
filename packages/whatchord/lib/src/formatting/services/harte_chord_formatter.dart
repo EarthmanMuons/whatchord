@@ -9,6 +9,7 @@ import '../../services/pitch_class.dart';
 /// The formatter uses official shorthand labels when their component set is
 /// present, and writes unsupported chord types as explicit degree lists.
 abstract final class HarteChordFormatter {
+  /// Renders [identity] in Harte syntax (e.g. "C:maj7/3").
   static String format(ChordIdentity identity, {String? rootName}) {
     final root = _rootName(identity.rootPc, preferredName: rootName);
     final degrees = _degrees(identity);

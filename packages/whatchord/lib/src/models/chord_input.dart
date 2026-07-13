@@ -1,14 +1,16 @@
 import 'package:meta/meta.dart';
 
 /// Minimal, cacheable input to chord analysis.
-///
-/// - [pcMask]: 12-bit pitch-class mask (bit i set means pitch class i present).
-/// - [bassPc]: pitch class (0..11) of the lowest sounding MIDI note.
-/// - [noteCount]: number of sounding MIDI notes (voicing density heuristic).
 @immutable
 class ChordInput {
+  /// 12-bit pitch-class mask (bit `i` set means pitch class `i` is present).
   final int pcMask;
+
+  /// Pitch class (0..11) of the lowest sounding note.
   final int bassPc;
+
+  /// Number of sounding notes (voicing density heuristic, counts octave
+  /// duplicates).
   final int noteCount;
 
   const ChordInput({
