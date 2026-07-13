@@ -1,4 +1,7 @@
-import 'package:whatchord/features/theory/theory.dart';
+/// Test-support factories for analysis contexts and chord inputs.
+library;
+
+import 'package:whatchord_theory/whatchord_theory.dart';
 
 const defaultTestTonality = Tonality(Tonic.c, TonalityMode.major);
 

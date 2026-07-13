@@ -1,12 +1,12 @@
 import 'dart:math' as math;
 
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:kiri_check/kiri_check.dart';
 
 import 'package:whatchord_theory/analysis/chord_templates.dart';
-import 'package:whatchord/features/theory/theory.dart';
+import 'package:whatchord_theory/whatchord_theory.dart';
 
-import 'helpers/theory_test_helpers.dart';
+import 'package:whatchord_theory/testing.dart';
 
 const _supportedExtensionIntervals = <int>[1, 2, 3, 5, 6, 8, 9];
 const _analysisTake = 256;
