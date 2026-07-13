@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,14 @@ import 'package:whatchord/features/midi/midi.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (!kReleaseMode) {
+    // Capture debugPrint diagnostics and unhandled errors for the in-app
+    // console log viewer (Settings > About), so untethered profile-build
+    // sessions can be inspected.
+    DebugLogBuffer.instance.install();
+    DebugLogBuffer.instance.captureUnhandledErrors();
+  }
 
   final prefs = await SharedPreferences.getInstance();
 
