@@ -19,9 +19,11 @@ and published methods.
 
 ## Initiatives
 
-- [WhatKey](whatkey/): automatic key (tonal center) detection from live playing.
-  The only initiative with its own directory so far; it holds the design plan,
-  evaluation protocol, dated logs, and data conventions in one place.
+- [WhatKey](whatkey/): automatic key (tonal center) detection from live playing,
+  studied as streaming key estimation with abstention and written up as a
+  preprint. The only initiative with its own directory so far; it holds the
+  design plan, evaluation protocol, dated logs, data conventions, and paper in
+  one place.
 
 Supporting code lives with the rest of the project: batch drivers and corpus
 tooling in `tool/`, performance benchmarks in `benchmark/`, and the engine

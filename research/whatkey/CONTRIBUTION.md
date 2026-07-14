@@ -13,16 +13,22 @@ Markov model (HMM) over profile-correlation evidence, with abstention and one
 carefully constrained mode cue.
 
 The contribution is the task definition, measurement discipline, and empirical
-characterization around that detector:
+characterization around that detector. The paper claims five things, in this
+order:
 
-- streaming key estimation from live-style chord-recognition output;
-- abstention, coverage, stability, modulation lag, and posterior reliability as
-  first-class measurements;
-- a frozen fixture/split/protocol design with one held-out evaluation;
+- a task definition and evaluation protocol for streaming key estimation with
+  abstention, where coverage, stability, modulation lag, and posterior
+  reliability are first-class measurements;
+- a fixture-based reproducibility design with frozen splits and one held-out
+  evaluation;
 - evidence that key-detection scores only mean something once the task says
   which timescale of key should count as correct;
-- measured negative results showing which plausible additions do not help this
-  setting.
+- an empirical map of symbolic and temporal additions: one adopted mode cue, and
+  measured negative results showing which plausible additions do not help this
+  setting;
+- a validated interpretable baseline: a causal, abstaining HMM that reaches at
+  least parity with standard offline whole-piece key finders on held-out data,
+  with an honesty-checked confidence display.
 
 That combination is useful even if the final algorithm is simple.
 
