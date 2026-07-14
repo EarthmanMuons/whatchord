@@ -1,12 +1,7 @@
 # WhatKey
 
-<img src="../../docs/site/images/whatkey.webp" align="right" width="260"
-  alt="WhatChord's automatic Key Signature indicator showing G major at 82%
-  confidence on a circle-of-fifths display, with the recent chords that led
-  there.">
-
 WhatKey is a streaming key-estimation system for [WhatChord](../../README.md),
-pictured here as the app's automatic Key Signature indicator. It listens to the
+pictured below as the app's automatic Key Signature indicator. It listens to the
 recent chords you play, keeps track of which keys best explain them, and only
 shows a key when the evidence is strong enough instead of guessing. The
 confidence shown in the app is adjusted to be mathematically honest, without
@@ -21,7 +16,12 @@ Start here, depending on what you want:
 - **Want to check our work?** [REPRODUCING.md](REPRODUCING.md) rebuilds every
   reported number from pinned upstream sources.
 
-<br clear="right">
+<p align="center">
+  <img src="../../docs/site/images/whatkey.webp" width="320"
+    alt="WhatChord's automatic Key Signature indicator showing G major at 82%
+    confidence on a circle-of-fifths display, with the recent chords that led
+    there.">
+</p>
 
 ## Research question
 
