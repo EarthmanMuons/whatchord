@@ -30,6 +30,15 @@ Of the events where the detector was willing to name a key, the fraction it got
 right. Always reported together with coverage; either number alone is
 meaningless, because a detector can trade one for the other.
 
+## Bayesian online changepoint detection (BOCPD)
+
+An adaptive-memory alternative to the HMM's fixed decay: instead of letting
+evidence fade on a fixed half-life, it maintains a belief about where the
+current musical section started and pools evidence back to that point. Built and
+measured for the 24-key space; it catches more key changes but makes more false
+switches on the section-key task, so it was not adopted (log entry
+2026-07-07-26).
+
 ## Bootstrap CI95
 
 A 95% confidence interval computed by
@@ -135,6 +144,14 @@ partial credit for musically close misses: the key a fifth away 0.5, the
 relative major/minor 0.3, the parallel major/minor 0.2. A gap between the two
 numbers means the errors are mostly neighboring keys, not random ones.
 
+## Explanation cost
+
+The chord recognizer's internal penalty for how awkwardly the sounding notes fit
+one candidate chord reading; lower is better, and every event carries its ranked
+candidates with their costs. The gap between the best and second-best cost is
+the recognizer-confidence signal that confidence weighting tried, and failed, to
+exploit.
+
 ## Filtered posterior (forward algorithm)
 
 The [forward algorithm](https://en.wikipedia.org/wiki/Forward_algorithm) run
@@ -162,7 +179,10 @@ misreads blues harmony, so the shipped configuration leaves it at zero.
 
 Global: one key per piece, the whole-piece answer the older literature reports.
 Local: the key at each moment, which is what the app displays and what
-modulation tracking is about.
+modulation tracking is about. This is a different distinction from annotation
+granularity; a moment-by-moment detector can still report either kind of key
+described under
+[Section-key vs. local-key annotations](#section-key-vs-local-key-annotations).
 
 ## Hidden Markov model (HMM)
 
@@ -281,9 +301,10 @@ A published pair of 12-number templates (one major, one minor) describing how
 strongly each scale degree characterizes a key. The profile-correlation detector
 tries the pair at every tonic in both modes (24 candidate keys) and asks which
 best matches the recent pitch histogram by
-[Pearson correlation](https://en.wikipedia.org/wiki/Pearson_correlation_coefficient);
-which pair is used matters more than the matching formula. The published sources
-for each pair are cited in the
+[Pearson correlation](https://en.wikipedia.org/wiki/Pearson_correlation_coefficient).
+The choice of pair measurably matters on the bare profile floor, though it
+washed out inside the full detector (log entry 2026-07-07-09). The published
+sources for each pair are cited in the
 [design doc's references](temporal-context-key-detection.md#references), and
 their values are verified against reference implementations (log entry
 2026-07-06-08).

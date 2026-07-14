@@ -19,7 +19,7 @@ setting differs in three ways that compound:
    blur, and wrong notes.
 2. **Uncertain observations.** The input is not ground-truth notes but the
    output of WhatChord's chord recognizer: ranked candidates with explanation
-   costs.
+   costs (the recognizer's own measure of how well the notes fit each reading).
 3. **Abstention as part of the task.** A modal vamp has no single right answer;
    the detector must sometimes say "not enough evidence" rather than force a key
    label onto ambiguous music, so stability and knowing when not to answer are
@@ -44,11 +44,11 @@ for ranking and abstention; numbers shown to users pass through a display-only
 calibration step. The measurement terms used below are defined in the
 [glossary](GLOSSARY.md).
 
-On held-out pop-song fixtures, it reached parity with standard offline
+On held-out pop-song fixtures, it held its own against standard offline
 [music21](https://www.music21.org/) key finders that read the whole song before
 answering. Its point estimates were higher in this evaluation, but the paired
-statistics support the more conservative claim: parity under stricter operating
-constraints.
+statistics support only the more conservative claim: at least parity, under
+stricter operating constraints.
 
 | system                         | coverage | exact | MIREX |
 | ------------------------------ | -------- | ----- | ----- |
