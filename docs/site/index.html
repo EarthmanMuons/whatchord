@@ -44,13 +44,16 @@
           <span>What<span class="logo-bold">Chord</span></span>
         </a>
         <div class="nav-spacer"></div>
-        <input
-          type="checkbox"
-          id="nav-toggle"
-          class="nav-toggle"
+        <button
+          class="nav-burger"
+          type="button"
           aria-label="Menu"
-        />
-        <div class="nav-menu">
+          aria-expanded="false"
+          aria-controls="nav-menu"
+        >
+          <span></span>
+        </button>
+        <div class="nav-menu" id="nav-menu">
           <a class="btn btn-ghost" href="articles/"
             ><svg
               class="nav-icon"
@@ -86,7 +89,6 @@
           href="https://apps.apple.com/us/app/whatchord-midi/id6758409779"
           >Get the app</a
         >
-        <label class="nav-burger" for="nav-toggle"><span></span></label>
       </div>
     </nav>
 

@@ -81,9 +81,7 @@
 
     function resolvedPageUrl() {
       var pageUrl =
-        (canonicalLink && canonicalLink.href) ||
-        (ogUrl && ogUrl.content) ||
-        "";
+        (canonicalLink && canonicalLink.href) || (ogUrl && ogUrl.content) || "";
 
       if (/^https?:$/.test(window.location.protocol)) {
         return window.location.href;
@@ -135,31 +133,27 @@
     window.addEventListener("beforeprint", syncPrintUrls);
   }
 
-  // The mobile nav menu opens and closes via a CSS-only checkbox toggle. Add
-  // the conveniences CSS can't: close on an outside click, on Escape, or after
-  // choosing an item, and keep aria-expanded in sync.
-  var navToggle = document.getElementById("nav-toggle");
-  var navMenu = document.querySelector(".nav-menu");
+  // The mobile nav menu is a disclosure: the hamburger button toggles the
+  // menu and reports its state via aria-expanded. Also close on an outside
+  // click, on Escape, or after choosing an item.
   var navBurger = document.querySelector(".nav-burger");
-  if (navToggle && navMenu) {
-    function setNavOpen(open) {
-      navToggle.checked = open;
-      navToggle.setAttribute("aria-expanded", String(open));
+  var navMenu = document.querySelector(".nav-menu");
+  if (navBurger && navMenu) {
+    function navOpen() {
+      return navBurger.getAttribute("aria-expanded") === "true";
     }
 
-    setNavOpen(navToggle.checked);
+    function setNavOpen(open) {
+      navBurger.setAttribute("aria-expanded", String(open));
+      navMenu.classList.toggle("is-open", open);
+    }
+
+    navBurger.addEventListener("click", function () {
+      setNavOpen(!navOpen());
+    });
 
     document.addEventListener("click", function (event) {
-      // Let the checkbox and its label toggle themselves. (Clicking the label
-      // also fires a synthetic click on the hidden checkbox; ignoring it here
-      // is what keeps the menu from snapping shut the instant it opens.)
-      if (
-        event.target === navToggle ||
-        (navBurger && navBurger.contains(event.target))
-      ) {
-        return;
-      }
-      if (!navToggle.checked) return;
+      if (!navOpen() || navBurger.contains(event.target)) return;
       // A chosen menu link closes the menu (then navigates); any other outside
       // click just closes it.
       if (navMenu.contains(event.target)) {
@@ -170,9 +164,9 @@
     });
 
     document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && navToggle.checked) {
+      if (event.key === "Escape" && navOpen()) {
         setNavOpen(false);
-        navToggle.focus();
+        navBurger.focus();
       }
     });
   }
