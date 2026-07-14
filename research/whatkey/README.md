@@ -30,9 +30,12 @@ research project rather than only an app feature: a frozen evaluation protocol,
 versioned fixtures, external baselines, dated experiment logs, and a held-out
 evaluation declared before running.
 
-## Main result
+## Headline result
 
-The final detector is a compact
+The paper's primary contribution is the task definition and measurement
+discipline described above (see [CONTRIBUTION.md](CONTRIBUTION.md) for the full
+claim list); the headline number below validates the detector that came out of
+it. The final detector is a compact
 [hidden Markov model](https://en.wikipedia.org/wiki/Hidden_Markov_model) run
 strictly forward in time. It keeps a probability distribution over the 24 major
 and minor keys, updates it from recent chord evidence, and abstains when the

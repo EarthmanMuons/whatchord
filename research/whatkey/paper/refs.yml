@@ -41,6 +41,8 @@ temperley2007:
   author: Temperley, David
   date: 2007
   publisher: MIT Press
+  serial-number:
+    doi: 10.7551/mitpress/4807.001.0001
 
 raphael2004:
   type: article
@@ -72,6 +74,28 @@ napoles2019:
   page-range: 33-37
   serial-number:
     doi: 10.1145/3358664.3358675
+
+aarden2003:
+  type: thesis
+  title: Dynamic Melodic Expectancy
+  author: Aarden, Bret J.
+  date: 2003
+  publisher: The Ohio State University
+  url: http://rave.ohiolink.edu/etdc/view?acc_num=osu1060969388
+
+music21:
+  type: article
+  title: "music21: A Toolkit for Computer-Aided Musicology and Symbolic Music Data"
+  author:
+    - Cuthbert, Michael Scott
+    - Ariza, Christopher
+  date: 2010
+  parent:
+    type: proceedings
+    title: Proceedings of the 11th International Society for Music Information Retrieval Conference (ISMIR)
+  page-range: 637-642
+  serial-number:
+    doi: 10.5281/zenodo.1416114
 
 chew2000:
   type: thesis
@@ -130,6 +154,20 @@ tymo2019:
   serial-number:
     doi: 10.5281/zenodo.3527756
   url: https://archives.ismir.net/ismir2019/paper/000012.pdf
+
+elyaniv2010:
+  type: article
+  title: On the Foundations of Noise-Free Selective Classification
+  author:
+    - El-Yaniv, Ran
+    - Wiener, Yair
+  date: 2010
+  parent:
+    type: periodical
+    title: Journal of Machine Learning Research
+    volume: 11
+  page-range: 1605-1641
+  url: https://jmlr.org/papers/v11/el-yaniv10a.html
 
 guo2017:
   type: article
