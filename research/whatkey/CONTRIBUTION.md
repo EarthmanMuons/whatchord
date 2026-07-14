@@ -155,7 +155,7 @@ does not train a neural model, and does not claim that section-key annotations
 are more correct than local-key annotations.
 
 The defensible claim is narrower and stronger: under live-style, causal,
-abstaining constraints, a simple measured HMM reaches statistical parity with
+abstaining constraints, a simple measured HMM reaches at least parity with
 standard offline whole-piece baselines on held-out pop-song fixtures (the one
 held-out split with a like-for-like offline baseline; the classical splits test
 generalization), while making visible the abstention, stability, calibration,
