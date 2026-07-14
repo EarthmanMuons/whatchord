@@ -535,8 +535,8 @@ probes finally read correctly.
 
 Abstention earns its place at this operating point. Sweeping the
 posterior-margin floor traces the coverage-accuracy curve of @fig-sweep, which
-rises monotonically as the detector grows choosier: the events it declines are
-disproportionately ones it would have called wrong.
+rises monotonically as the detector grows choosier: abstentions are informative,
+not random.
 
 #figure(
   lq.diagram(
@@ -588,9 +588,8 @@ disproportionately ones it would have called wrong.
     selected configuration on the Isophonics development split, swept over the
     posterior-margin floor (0 to 0.6). Moving left raises the margin required to
     speak, so coverage falls; moving up means the remaining claims are more
-    often correct. The marked point is the selected operating point (floor 0.3).
-    The curve rises monotonically as the detector grows choosier: abstentions
-    are informative, not random.],
+    often correct. The marked point is the selected operating point (floor
+    0.3).],
 ) <fig-sweep>
 
 = Mode disambiguation <sec-mode>
