@@ -1,18 +1,35 @@
 # WhatKey
 
-WhatKey is a streaming key-estimation system for [WhatChord](../../README.md).
-It listens to the recent chords you play, keeps track of which keys best explain
-them, and only shows a key when the evidence is strong enough instead of
-guessing. The confidence shown in the app is adjusted to be mathematically
-honest, without changing which key the detector chooses.
+<img src="../../docs/site/images/whatkey.webp" align="right" width="260"
+  alt="WhatChord's automatic Key Signature indicator showing G major at 82%
+  confidence on a circle-of-fifths display, with the recent chords that led
+  there.">
 
-Read the current preprint: [paper/main.pdf](paper/main.pdf).
+WhatKey is a streaming key-estimation system for [WhatChord](../../README.md),
+pictured here as the app's automatic Key Signature indicator. It listens to the
+recent chords you play, keeps track of which keys best explain them, and only
+shows a key when the evidence is strong enough instead of guessing. The
+confidence shown in the app is adjusted to be mathematically honest, without
+changing which key the detector chooses.
+
+Start here, depending on what you want:
+
+- **Skimming?** [CONTRIBUTION.md](CONTRIBUTION.md) explains in plain English
+  what this work claims and why it is worth reading.
+- **Want the science?** Read the current preprint:
+  [paper/main.pdf](paper/main.pdf).
+- **Want to check our work?** [REPRODUCING.md](REPRODUCING.md) rebuilds every
+  reported number from pinned upstream sources.
+
+<br clear="right">
 
 ## Research question
 
-This is not ordinary whole-piece key finding. Much of the key-detection
-literature asks for a single key from a complete score or recording. WhatKey's
-setting differs in three ways that compound:
+"What key am I in right now?" Answering that question live turns out to be a
+different problem from the one most key-detection research solves. The
+literature usually asks for a single key after reading a complete score or
+recording; WhatKey has to answer while the music is still happening, which
+changes the problem in three ways that compound:
 
 1. **Causal and streaming.** The detector only ever sees the past, and it must
    update as each chord arrives from live MIDI playing with finger rolls, pedal
@@ -39,16 +56,16 @@ it. The final detector is a compact
 [hidden Markov model](https://en.wikipedia.org/wiki/Hidden_Markov_model) run
 strictly forward in time. It keeps a probability distribution over the 24 major
 and minor keys, updates it from recent chord evidence, and abstains when the
-leading candidates are too close. The detector uses raw posterior probabilities
-for ranking and abstention; numbers shown to users pass through a display-only
-calibration step. The measurement terms used below are defined in the
-[glossary](GLOSSARY.md).
+leading candidates are too close. The detector ranks keys and decides when to
+abstain using its raw probabilities; the number shown to users passes through a
+display-only calibration step. The measurement terms used below are defined in
+the [glossary](GLOSSARY.md).
 
-On held-out pop-song fixtures, it held its own against standard offline
+On a held-out set of pop songs, it held its own against standard offline
 [music21](https://www.music21.org/) key finders that read the whole song before
-answering. Its point estimates were higher in this evaluation, but the paired
-statistics support only the more conservative claim: at least parity, under
-stricter operating constraints.
+answering. Its scores were higher in this evaluation, but the paired statistics
+support only the more conservative claim: at least parity, under stricter
+operating constraints.
 
 | system                         | coverage | exact | MIREX |
 | ------------------------------ | -------- | ----- | ----- |
@@ -89,11 +106,12 @@ recognizer's own confidence never helped in any tested setting; and
 adaptive-memory models react faster but make more wrong switches. Each negative
 result has a reproducible experiment behind it in the log.
 
-**Confidence needs its own calibration.** The detector's raw posteriors are
+**Confidence needs its own calibration.** The detector's raw probabilities are
 overconfident (claiming 91% where it earned 72% on the held-out split), so
-WhatKey applies post-hoc temperature scaling only to displayed probabilities.
-This makes the user-facing confidence number more honest without changing the
-detector's ranked keys, abstention decisions, or paper results.
+WhatKey applies temperature scaling, a standard one-knob correction, only to
+displayed probabilities. This makes the user-facing confidence number more
+honest without changing the detector's ranked keys, abstention decisions, or
+paper results.
 
 ## Repository map
 
