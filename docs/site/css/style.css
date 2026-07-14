@@ -259,11 +259,9 @@ img {
   color: #bfbfd0;
 }
 
-/* The checkbox drives the CSS-only menu, but it is only meaningful on narrow
-   screens. Off by default (no phantom tab stop on desktop, where the menu is
-   always open); the hamburger breakpoint restores it as a focusable,
-   visually-hidden control. */
-.nav-toggle,
+/* The hamburger button only matters on narrow screens. Off by default (no
+   phantom tab stop on desktop, where the menu is always open); the hamburger
+   breakpoint restores it. */
 .nav-burger {
   display: none;
 }
@@ -1668,7 +1666,6 @@ a.heading-anchor svg {
   }
 
   .article-page .nav-spacer,
-  .article-page .nav-toggle,
   .article-page .nav-menu,
   .article-page .btn-get-app,
   .article-page .nav-burger {
@@ -2034,7 +2031,6 @@ a.heading-anchor svg {
   }
 
   .articles-index-page .nav-spacer,
-  .articles-index-page .nav-toggle,
   .articles-index-page .nav-menu,
   .articles-index-page .btn-get-app,
   .articles-index-page .nav-burger,
@@ -2192,23 +2188,16 @@ a.heading-anchor svg {
 /* Collapse Articles + Source into a hamburger menu on phones, keeping the
    logo and the primary "Get the app" CTA visible inline. */
 @media (width <= 640px) {
-  /* Visually hidden but focusable, so keyboard and AT users can operate it. */
-  .nav-toggle {
-    position: absolute;
-    display: block;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    white-space: nowrap;
-    clip-path: inset(50%);
-  }
-
+  /* The button sits before the menu in the DOM (so tab order flows from the
+     trigger into the disclosed links); order places it visually last. */
   .nav-burger {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    order: 1;
     width: 40px;
     height: 40px;
+    padding: 0;
     color: var(--text-2);
     cursor: pointer;
     background: transparent;
@@ -2258,11 +2247,11 @@ a.heading-anchor svg {
     box-shadow: var(--shadow);
   }
 
-  .nav-toggle:checked ~ .nav-menu {
+  .nav-menu.is-open {
     display: flex;
   }
 
-  .nav-toggle:focus-visible ~ .nav-burger {
+  .nav-burger:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
