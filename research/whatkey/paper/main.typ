@@ -22,6 +22,7 @@
 #set document(
   title: "Streaming Key Estimation with Abstention from Live Chord-Recognition Output",
   author: if anonymous { "Anonymous" } else { "Aaron Bull Schaefer" },
+  date: none,
 )
 #set page(
   paper: "us-letter",
