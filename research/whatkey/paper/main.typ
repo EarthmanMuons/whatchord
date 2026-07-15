@@ -9,7 +9,7 @@
 #import "@preview/lilaq:0.4.0" as lq
 
 // Bump for committed/shareable paper drafts; use +1, +2 for same-day drafts.
-#let draft-version = "v2026.7.14"
+#let draft-version = "v2026.7.15"
 
 // Override without editing: typst compile --input anonymous=true main.typ
 #let anonymous = sys.inputs.at("anonymous", default: "false") == "true"
@@ -840,6 +840,10 @@ leaves open a closed-loop question, whether feeding the detector's tonality
 belief back into chord recognition improves the chord identities enough to
 change key tracking, which requires evaluating the coupled system rather than a
 fixed event stream.
+
+#heading(numbering: none)[Competing Interests]
+
+The author has no competing interests to declare.
 
 #v(0.6em)
 #line(length: 100%, stroke: 0.5pt)
