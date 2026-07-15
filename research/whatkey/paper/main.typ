@@ -11,7 +11,8 @@
 // Bump for committed/shareable paper drafts; use +1, +2 for same-day drafts.
 #let draft-version = "v2026.7.14"
 
-#let anonymous = false
+// Override without editing: typst compile --input anonymous=true main.typ
+#let anonymous = sys.inputs.at("anonymous", default: "false") == "true"
 
 // Shared figure palette (Tol vibrant, colorblind- and print-safe): every
 // series color in every figure comes from here, never a package default.
@@ -59,7 +60,11 @@
   ]
 
   #v(0.2em)
-  #text(size: 9pt)[Preprint #draft-version. Project name WhatKey.]
+  #if anonymous [
+    #text(size: 9pt)[Preprint #draft-version.]
+  ] else [
+    #text(size: 9pt)[Preprint #draft-version. Project name WhatKey.]
+  ]
   #v(0.6em)
 ]
 
@@ -836,9 +841,17 @@ belief back into chord recognition improves the chord identities enough to
 change key tracking, which requires evaluating the coupled system rather than a
 fixed event stream.
 
-#if not anonymous [
-  #v(0.6em)
-  #line(length: 100%, stroke: 0.5pt)
+#v(0.6em)
+#line(length: 100%, stroke: 0.5pt)
+#if anonymous [
+  #text(size: 8pt)[
+    Reproducibility: protocol, dated experiment logs, corpus pins, frozen
+    splits, evaluation harness, and held-out evaluation artifacts live in the
+    project repository. Every number traces to a dated log entry and a report
+    with its generating command. The repository link is withheld for
+    double-blind review and will appear here upon acceptance.
+  ]
+] else [
   #text(size: 8pt)[
     Reproducibility: protocol, logs, corpus pins, splits, harness, and held-out
     evaluation artifacts live under #link(
