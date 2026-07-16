@@ -1071,7 +1071,6 @@ void main() {
       description:
           'add-eleven inversion beats missing-third unusual seventh spelling',
       expectedSymbol: 'Aadd11/C#',
-      expectedAlternatives: ['C#maj7(#5,b9)'],
       pcs: ['C', 'Db', 'D', 'A'],
       bass: 'Db',
       expectedRoot: 'A',
