@@ -139,6 +139,66 @@
     "label": "clearly-correct",
     "note": "D7/E is defensible because D-F♯-C forms the upper D dominant-seventh shell and E is explicitly named as the slash bass, which is a normal musician-facing way to write the ninth in the bass without redundantly headlining D9/E. Music21's D9/E add C♯, omit A is a fuller analysis annotation of the same D-rooted sonority, not evidence that the compact slash label is wrong."
   },
+  "0-1-2-4-7_b0": {
+    "label": "clearly-correct",
+    "note": "C(add♭9,add9) is correct because C-E-G supplies a complete root-position C major triad, with D♭ and D named directly as adjacent flat-nine and natural-nine color. Music21 agrees semantically as C add D,C♯. The G suspended rotation is structurally possible, but it asks the bass/root C to function as suspended-fourth color instead of preserving the complete C triad."
+  },
+  "0-1-2-4-7_b1": {
+    "label": "context-dependent",
+    "note": "Gsus4(♯11,add13)/C♯ is defensible because G-C-D forms a complete G sus4 structure and E is ordinary thirteenth color, with the D♭/C♯ bass acting as sharp-eleventh color. Music21's C♯dim add D,B♯ follows the bass as root and names the C♯-E-G diminished subset, but it requires the same C pitch to be spelled as B♯ major-seventh color plus D as flat-nine color. This is a context-dependent choice between bass-root chromatic diminished bookkeeping and a cleaner upper sus stack, not a reason to force a narrow ranking rule."
+  },
+  "0-1-2-4-7_b2": {
+    "label": "genuine-ambiguity",
+    "note": "Gsus4(♯11,add13)/D is defensible because D is the fifth in the bass of a complete G-C-D sus structure, with C♯/D♭ as sharp-eleventh color and E as thirteenth color. Music21's C/D add C♯ instead preserves the complete C-E-G upper triad with adjacent D♭/D ninth color over D in the bass. Both names explain the same compact pitch collection cleanly; the preferred root depends on harmonic context."
+  },
+  "0-1-2-4-7_b4": {
+    "label": "clearly-correct",
+    "note": "C(add♭9,add9)/E is correct because E is the third in the bass of a complete C-E-G major triad, and D♭/D are explicit adjacent flat-nine and natural-nine color. Music21 agrees semantically as C/E add D,C♯. The G suspended reading is possible, but it obscures the plain C major-triad inversion."
+  },
+  "0-1-2-4-7_b7": {
+    "label": "context-dependent",
+    "note": "Gsus4(♯11,add13) is defensible with G in the bass because G-C-D is a complete root-position sus4 chord and E is natural thirteenth color, while C♯/D♭ is readable sharp-eleventh color. Music21's C/G add D,C♯ keeps the complete C major triad and names the adjacent ninth colors instead. In isolation the G-rooted sus label is musician-readable and bass-supported, but a C-rooted analysis can be right when context establishes C as the harmonic root."
+  },
+  "0-1-2-4-8_b0": {
+    "label": "context-dependent",
+    "note": "C♯m(maj7,♭9)/B♯ is defensible because D♭-E-A♭-C gives a complete C♯ minor-major seventh stack, with D as flat-nine color and C correctly spelled as B♯ when it functions as the major seventh in the bass. Music21's A♭ augmented reading follows the visible A♭-C-E augmented triad and treats D♭/D as eleventh/sharp-eleventh color. Both organizations are structurally real; the C♯ reading is the more compact explanation-cost result, while the slash-bass spelling may merit a separate display-policy revisit."
+  },
+  "0-1-2-4-8_b1": {
+    "label": "clearly-correct",
+    "note": "C♯m(maj7,♭9) is correct because C♯-E-G♯-B♯ forms the minor-major seventh chord and D is direct flat-nine color. Music21 agrees semantically as C♯mM7 add D. The augmented-triad rotations are possible subsets, but they do not explain the full minor-major seventh structure as directly."
+  },
+  "0-1-2-4-8_b2": {
+    "label": "clearly-correct",
+    "note": "C♯m(maj7,♭9)/D is correct because D is the flat ninth in the bass of the complete C♯-E-G♯-B♯ minor-major seventh stack. Music21 agrees semantically with the same C♯ minor-major seventh identity over D."
+  },
+  "0-1-2-4-8_b4": {
+    "label": "clearly-correct",
+    "note": "C♯m(maj7,♭9)/E is correct because E is the minor third in the bass of the complete C♯ minor-major seventh chord and D is flat-nine color. Music21 agrees semantically as C♯mM7/E add D."
+  },
+  "0-1-2-4-8_b8": {
+    "label": "clearly-correct",
+    "note": "C♯m(maj7,♭9)/G♯ is correct because G♯ is the fifth in the bass of the complete C♯ minor-major seventh chord, with D as flat-nine color. Music21 agrees semantically as C♯mM7/G♯ add D."
+  },
+  "0-1-2-4-9_b0": {
+    "label": "context-dependent",
+    "note": "Amadd11/C is defensible because A-C-E supplies a complete A minor triad with C as the minor third in the bass and D as normal added-eleventh color. Music21's Am/C add C♯,D names the same A minor upper structure but explicitly keeps C♯/D♭ as added major-third or split-third color. That exact chromatic spelling may be useful in analysis, but as a neutral chord symbol the compact Amadd11/C reading is clearer than promoting the fifthless C♯ minor-major alternate."
+  },
+  "0-1-2-4-9_b1": {
+    "label": "genuine-ambiguity",
+    "note": "C♯m(maj7,♭9,♭13) is defensible with C♯ in the bass because C♯-E-C forms the minor-major seventh shell, while D and A are flat-nine and flat-thirteen color. Music21's A/C♯ add D,C instead preserves the complete A-C♯-E major triad and treats C as split-third sharp-nine color plus D as added eleventh; WhatChord surfaces that A-rooted reading as a possible alternative. The row is a real ambiguity between bass-root harmonic-minor color and first-inversion A triad with split-third color."
+  },
+  "0-1-2-4-9_b2": {
+    "label": "context-dependent",
+    "note": "E13sus4(♭13)/D is defensible because E-A-D gives a dominant-sus shell with the flat seventh in the bass, and C/C♯ are named explicitly as split flat-thirteenth and thirteenth color. Music21's Am/D add C♯ keeps the simpler A-C-E upper triad over D and treats C♯ as chromatic split-third color. That A-minor slash spelling can be right in context, but it leaves the chromatic C♯ as add-tone annotation, while the E sus label accounts for the full pitch collection."
+  },
+  "0-1-2-4-9_b4": {
+    "label": "context-dependent",
+    "note": "E13sus4(♭13) is defensible with E in the bass because E-A-D forms the root-position dominant-sus core and C/C♯ are explicit split flat-thirteenth and thirteenth color. Music21's Am/E add C♯,D instead hears the complete A minor triad over E with C♯ and D as added color, and WhatChord keeps related A-rooted readings in the possible range. The E-rooted name is the exact split-color explanation, while the A-minor slash label is a plausible upper-structure simplification."
+  },
+  "0-1-2-4-9_b9": {
+    "label": "clearly-correct",
+    "note": "A(add♯9,add11) is correct with A in the bass because A-C♯-E supplies the root-position A major triad, C supplies split-third sharp-nine color, and D is added eleventh. Music21 agrees semantically as A minor add C♯,D; the difference is only whether the split C/C♯ color is described from the major-triad side or the minor-triad side."
+  },
   "0-1-2-4-10_b0": {
     "label": "clearly-correct",
     "note": "C9♭9 is correct because C is the bass/root and C-E-B♭ supplies the dominant shell, with adjacent D♭ and D as split flat/natural ninth color. Music21 agrees semantically as C9 add D♭, omit G; WhatChord leaves the routine omitted fifth implicit and keeps the conventional split-ninth dominant label."
@@ -190,6 +250,10 @@
   "0-1-2-4-6-8-10_b2": {
     "label": "oracle-limitation",
     "note": "F♯9(♯11,♭13)/D is preferred because D is the flat thirteenth of a complete F♯ Lydian-dominant-flat-thirteen sonority. Tonal agrees. Music21's C9♯5/D add C♯,F♯ preserves some altered-dominant color but misses the complete F♯ dominant organization."
+  },
+  "0-1-2-4-6-8-10_b4": {
+    "label": "oracle-limitation",
+    "note": "F♯9(♯11,♭13)/E is preferred because E is the flat seventh of a complete F♯ dominant stack with ninth, sharp-eleventh, and flat-thirteenth color. Tonal agrees. Music21's E9♯5 add A♯,C♯ is a pitch-valid root-position altered dominant, but it depends on the rarer sharp-five dominant vocabulary and loses the direct F♯ Lydian-dominant-flat-thirteen organization."
   },
   "0-1-2-4-6-8-10_b8": {
     "label": "oracle-limitation",
