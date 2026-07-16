@@ -207,6 +207,50 @@
     "label": "oracle-limitation",
     "note": "C9♭9/D♭ is preferred because the voicing preserves the familiar C dominant shell C-E-B♭ with the flat ninth in the bass and the natural ninth also present. Music21's A♯ diminished add-tone spelling is pitch-valid bookkeeping, and the C♯ minor-major reading remains surfaced as a possible alternative, but both re-root away from the dominant sonority most players would expect from this flat-nine-bass voicing."
   },
+  "0-1-2-5-10_b0": {
+    "label": "clearly-correct",
+    "note": "C9sus4(♭9) is correct because C is the bass/root and the voicing supplies the complete C dominant-sus shell C-F-B♭, with D♭ and D as adjacent flat-nine and natural-nine color. Music21's B♭/C add D♭ follows the upper B♭ triad, but it leaves the C bass as add-nine pedal color and treats D♭ as split-third annotation rather than preserving the bass-root dominant-sus sonority."
+  },
+  "0-1-2-5-10_b1": {
+    "label": "context-dependent",
+    "note": "C♯maj13(♭9) is defensible with D♭/C♯ in the bass because the label names every pitch as root, major third, major seventh, flat ninth, or thirteenth. Music21's A♯m/C♯ add B♯,D preserves the complete A♯ minor triad and treats D as split-third color, while WhatChord also keeps C9sus4(♭9)/D♭ close as a possible alternative. The row is a context-dependent choice between bass-root major-seventh color, upper minor-triad bookkeeping, and dominant-sus slash analysis."
+  },
+  "0-1-2-5-10_b2": {
+    "label": "clearly-correct",
+    "note": "B♭(add♯9,add9)/D is correct because B♭-D-F supplies a complete B♭ major triad with the third in the bass, C is the added ninth, and D♭ is split-third sharp-nine color. Music21 agrees semantically as B♭/D add D♭,C."
+  },
+  "0-1-2-5-10_b5": {
+    "label": "clearly-correct",
+    "note": "B♭(add♯9,add9)/F is correct because F is the fifth in the bass of a complete B♭-D-F major triad, with C as added ninth and D♭ as split-third sharp-nine color. Music21 agrees semantically as B♭/F add D♭,C."
+  },
+  "0-1-2-5-10_b10": {
+    "label": "clearly-correct",
+    "note": "B♭(add♯9,add9) is correct with B♭ in the bass because B♭-D-F is a complete root-position major triad, C is added ninth, and D♭ is split-third sharp-nine color. Music21 agrees semantically as B♭ add D♭,C."
+  },
+  "0-1-2-5-7_b1": {
+    "label": "oracle-limitation",
+    "note": "G7sus4(♯11)/C♯ is preferred because G-C-D-F forms a complete G dominant-sus shell and D♭/C♯ is explicit sharp-eleventh bass color. Music21's C♯ Neapolitan-sixth add-tone label is analysis-specific notation rather than musician-facing chord-symbol vocabulary, while the previous C♯maj7(♭5,♭9) bookkeeping now ranks below the complete G sus-dominant reading."
+  },
+  "0-1-2-5-9_b0": {
+    "label": "genuine-ambiguity",
+    "note": "D♭maj7(♯5,♭9)/C is defensible because it names every pitch as a D♭ augmented-major-seventh color stack, with C as the major seventh in the bass and D/E𝄫 as flat-nine color. Music21's Dm7/C add C♯ preserves the very common D-F-A-C minor-seventh shell and treats D♭/C♯ as chromatic major-seventh color. After the altered-major-seventh flat-nine pricing update, WhatChord keeps that Dm7/C reading surfaced as a possible alternative, so this is a genuine ambiguity between exact chromatic spelling and common-shell shorthand."
+  },
+  "0-1-2-5-9_b1": {
+    "label": "genuine-ambiguity",
+    "note": "D♭maj7(♯5,♭9) is defensible in root position because D♭-F-A-C forms an augmented-major-seventh stack and D/E𝄫 is flat-nine color. Music21's Dm(maj7)/C♯ add C follows the neighboring D minor-major/minor-seventh family instead, treating D♭/C♯ and C as split seventh colors around D. That D-rooted reading is structurally real and ranked next, but it is not surfaced as a possible alternative because the root-position D♭ label explains every pitch with a lower cost."
+  },
+  "0-1-2-5-9_b2": {
+    "label": "clearly-correct",
+    "note": "Dm7 is the expected compact reading with D in the bass because D-F-A-C supplies a complete root-position D minor-seventh shell. Music21 agrees on the Dm7 identity and only adds the chromatic D♭/C♯ major-seventh neighbor explicitly. The revised scoring keeps D♭maj7(♯5,♭9)/D available as a possible alternative rather than letting the rarer exact spelling displace the common Dm7 shell."
+  },
+  "0-1-2-5-9_b5": {
+    "label": "genuine-ambiguity",
+    "note": "D♭maj7(♯5,♭9)/F is defensible because F is the major third of the exact D♭ augmented-major-seventh-flat-nine stack. Music21's Dm7/F add D♭ instead preserves the common D minor-seventh shell with F in the bass and treats D♭ as chromatic major-seventh color. WhatChord surfaces Dm7/F as a possible alternative, so the row is an ambiguity between exact altered-major spelling and common-shell shorthand."
+  },
+  "0-1-2-5-9_b9": {
+    "label": "genuine-ambiguity",
+    "note": "D♭maj7(♯5,♭9)/A is defensible because A is the sharp fifth of the exact D♭ augmented-major-seventh-flat-nine stack. Music21's Dm7/A add C♯ follows the common D minor-seventh shell and treats D♭/C♯ as chromatic major-seventh color. WhatChord surfaces the Dm7/A reading as a possible alternative, so this remains a genuine ambiguity rather than a reason for another narrow ranking rule."
+  },
   "0-1-2-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C9(♭5,♭9) is preferred because C is the bass/root and the voicing supplies a complete C dominant-flat-five shell C-E-G♭-B♭, with D♭/D as split flat/natural ninth color. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the sharp eleventh in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the C altered/split-ninth family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."

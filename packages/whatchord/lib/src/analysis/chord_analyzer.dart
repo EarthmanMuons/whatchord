@@ -143,8 +143,9 @@ abstract final class ChordAnalyzer {
   static const _elevenOverMajorThirdSurcharge = 0.5; // avoid-tone clash
   static const _splitFourthSurcharge = 0.6; // natural 4 and #11 at once
   static const _splitSecondSurcharge = 0.4; // natural 2 and b9/#9 at once
-  static const _splitSixthSurcharge = 0.4; // natural 6/13 and b13 at once
+  static const _splitSixthSurcharge = 0.8; // natural 6/13 and b13 at once
   static const _splitSharpFiveThirteenSurcharge = 0.8; // #5 and 13 at once
+  static const _alteredMajorSeventhFlatNineSurcharge = 0.25; // b9 on maj7#5/b5
   static const _sharpElevenEmptyFifthSurcharge = 0.75; // #11 with no 5th tone
   static const _flatThirteenEmptyFifthSurcharge = 0.5; // b13 with no 5th
   static const _sixChordNoFifthSurcharge = 0.45; // bare R-3-6 set as a 6th
@@ -830,6 +831,14 @@ abstract final class ChordAnalyzer {
     }
     if (role == ChordToneRole.flat13 && _hasNaturalSixthRole(roles)) {
       price += _splitSixthSurcharge;
+    }
+    // Flat-nine color on altered major-seventh hosts is much rarer than the
+    // same alteration on a dominant. The off-dominant multiplier below doubles
+    // this surcharge along with the base alteration price.
+    if (role == ChordToneRole.flat9 &&
+        (quality == ChordQuality.major7Flat5 ||
+            quality == ChordQuality.major7Sharp5)) {
+      price += _alteredMajorSeventhFlatNineSurcharge;
     }
     // A b9 stacked among other colors on a major sixth or seventh chord is
     // the alt sound without its dominant context; musicians do not write
