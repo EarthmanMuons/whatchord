@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Improved recognition of rare altered major-seventh flat-nine colors so they
+  are less likely to displace simpler common-shell readings unless the voicing
+  strongly supports them.
+
 ## [2026.7.11] - 2026-07-11
 
 ### Added
