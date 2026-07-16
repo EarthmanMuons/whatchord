@@ -251,6 +251,110 @@
     "label": "genuine-ambiguity",
     "note": "D♭maj7(♯5,♭9)/A is defensible because A is the sharp fifth of the exact D♭ augmented-major-seventh-flat-nine stack. Music21's Dm7/A add C♯ follows the common D minor-seventh shell and treats D♭/C♯ as chromatic major-seventh color. WhatChord surfaces the Dm7/A reading as a possible alternative, so this remains a genuine ambiguity rather than a reason for another narrow ranking rule."
   },
+  "0-1-2-6-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "C♯maj13sus4(♭9)/B♯ is defensible because it names every pitch as a C♯ suspended-major-seventh color stack: F♯ as sus4, C/B♯ as major seventh in the bass, D as flat nine, and B♭/A♯ as thirteenth. Music21's B♭aug/C add D♭ follows the complete B♭ augmented upper structure, while WhatChord surfaces the complete F♯ major-triad reading F♯(♯11,♭13)/C as a possible alternative. The collection supports multiple exact chromatic organizations, so this is a genuine ambiguity rather than a ranking issue."
+  },
+  "0-1-2-6-10_b10": {
+    "label": "clearly-correct",
+    "note": "B♭aug(add♯9,add9) is correct with B♭ in the bass because B♭-D-F♯ forms a complete root-position augmented triad, C is added ninth, and D♭ is split-third sharp-nine color. Music21's G♭ augmented slash reading is another augmented-triad rotation of the same symmetric material, but it moves away from the observed bass/root and treats the B♭ bass as the third."
+  },
+  "0-1-2-6-10_b2": {
+    "label": "genuine-ambiguity",
+    "note": "F♯(♯11,♭13)/D is defensible because F♯-A♯-C♯ supplies a complete F♯ major triad, with C/B♯ as sharp-eleventh color and D as flat-thirteenth bass color. Music21's B♭ augmented add-tone spelling preserves the alternate B♭-D-F♯ augmented triad and is structurally valid. The D bass also makes D7♯5 plausible, but that reading leaves C♯ outside the compact label, so the row is a real upper-structure ambiguity."
+  },
+  "0-1-2-6-7_b1": {
+    "label": "oracle-limitation",
+    "note": "Gmaj7sus4(♯11)/C♯ is preferred because G-C-D-F♯ supplies the G suspended-major-seventh shell and D♭/C♯ is explicit sharp-eleventh bass color. Music21 agrees on the G-rooted identity but prints it as a power/add spelling with both B♯ and C♯ annotations, so the residual flag is oracle label normalization rather than a naming disagreement."
+  },
+  "0-1-2-6-7_b6": {
+    "label": "oracle-limitation",
+    "note": "Gmaj7sus4(♯11)/F♯ is preferred because F♯ is the major seventh in the bass of the G-C-D-F♯ suspended-major-seventh shell, with C♯/D♭ as sharp-eleventh color. Music21 agrees semantically through its G power/add label, and the next candidates are more than a point higher in cost, so this is only a vocabulary-normalization mismatch."
+  },
+  "0-1-2-6-8_b1": {
+    "label": "oracle-limitation",
+    "note": "G♯7♭5/C♯ is preferred because G♯-B♯-D-F♯ forms the complete dominant-flat-five shell and C♯ is conventional eleventh slash color. Music21 agrees semantically as G♯dom7dim5/C♯. The C♯maj7sus4(♭9) reading is also possible, but the dominant-flat-five label is the clearer compact spelling of the same pitch collection."
+  },
+  "0-1-2-6-8_b2": {
+    "label": "oracle-limitation",
+    "note": "G♯11♭5/D is preferred because D is the flat fifth in the bass of the complete G♯ dominant-flat-five shell, with C♯ as eleventh color. Music21 agrees semantically as G♯dom7dim5/D add C♯; the flag is only the oracle's add-tone wording rather than a substantive disagreement."
+  },
+  "0-1-2-6-8_b6": {
+    "label": "oracle-limitation",
+    "note": "G♯11♭5/F♯ is preferred because F♯ is the flat seventh in the bass of the complete G♯ dominant-flat-five shell and C♯ is the eleventh. Music21 agrees semantically as G♯dom7dim5/F♯ add C♯, so this is an oracle vocabulary-normalization issue."
+  },
+  "0-1-2-6-8_b8": {
+    "label": "oracle-limitation",
+    "note": "G♯11♭5 is correct with A♭/G♯ in the bass because the voicing supplies the complete G♯ dominant-flat-five shell G♯-B♯-D-F♯ plus C♯ as eleventh color. Music21 agrees semantically as G♯dom7dim5 add C♯."
+  },
+  "0-1-2-6-9_b0": {
+    "label": "genuine-ambiguity",
+    "note": "F♯m(♯11,♭13)/C is defensible because F♯-A-C♯ supplies a complete F♯ minor triad, with C/B♯ as sharp-eleventh bass color and D as flat-thirteenth color. Music21's D7/C add C♯ captures the competing complete D dominant-seventh shell plus chromatic major-seventh neighbor, and WhatChord surfaces D7/C as a possible alternative. This is a genuine exact upper-structure label versus common dominant-shell shorthand ambiguity."
+  },
+  "0-1-2-6-9_b1": {
+    "label": "context-dependent",
+    "note": "F♯m(♯11,♭13)/C♯ is defensible because C♯ is the fifth in the bass of a complete F♯ minor triad, while C/B♯ and D are sharp-eleventh and flat-thirteenth color. Music21's Dmaj7/C♯ add C follows the D-F♯-A-C♯ major-seventh shell and treats C as a chromatic flat-seventh neighbor. That D-rooted analysis can be right in context, but the F♯ minor slash spelling explains all five pitch classes without requiring simultaneous seventh colors on D."
+  },
+  "0-1-2-6-9_b2": {
+    "label": "genuine-ambiguity",
+    "note": "F♯m(♯11,♭13)/D is defensible because it exactly names the complete F♯ minor triad plus C/B♯ sharp-eleventh color and D as flat-thirteenth bass color. Music21's D7 add C♯ and the surfaced D7/Dmaj7 alternatives reflect the more common bass-root hearing of D-F♯-A with both C and C♯ seventh colors. The D-rooted shorthand is musically salient, but without a normal compact symbol for simultaneous minor and major sevenths on D, the exact F♯ upper-structure reading remains defensible."
+  },
+  "0-1-2-6-9_b6": {
+    "label": "genuine-ambiguity",
+    "note": "F♯m(♯11,♭13) is defensible in root position because F♯-A-C♯ is a complete minor triad and C/B♯ plus D are explicit sharp-eleventh and flat-thirteenth colors. Music21's D7/F♯ add C♯ follows the complete D dominant-seventh shell with F♯ in the bass and treats C♯ as chromatic major-seventh neighbor. Both are structurally real, but the F♯ root-position label is the exact pitch-class explanation in the current vocabulary."
+  },
+  "0-1-2-6-9_b9": {
+    "label": "genuine-ambiguity",
+    "note": "A6(add♯9,add11) is defensible with A in the bass because A-C♯-F♯ gives the root, major third, and sixth, while C is split-third sharp-nine color and D is added eleventh. Music21's D7/A add C♯ names the complete D dominant-seventh shell plus chromatic major-seventh neighbor, and WhatChord keeps both D7/A and Dmaj7/A in the possible range. The row is a genuine split-third/sixth label versus D-rooted seventh-neighbor shorthand ambiguity."
+  },
+  "0-1-2-7-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "C7sus2(♭9) is defensible because C is the bass/root and the voicing supplies C-D-G-B♭ as a complete dominant-sus2 shell, with D♭ as flat-nine color. Music21's Gm/C add D♭ preserves the complete G minor upper triad and treats C/C♯ as adjacent eleventh color; WhatChord surfaces that G-rooted reading as a possible alternative. The row is a genuine bass-root sus-dominant versus upper-structure minor-triad ambiguity."
+  },
+  "0-1-2-7-10_b1": {
+    "label": "oracle-limitation",
+    "note": "Gm(♯11,add11)/C♯ is preferred because G-B♭-D is a complete G minor triad, while C and C♯/D♭ are explicit eleventh and sharp-eleventh color with C♯ in the bass. Music21 agrees on the G-rooted identity through a power/add label, so the residual flag is the oracle's incomplete-triad wording rather than a substantive disagreement."
+  },
+  "0-1-2-7-10_b10": {
+    "label": "genuine-ambiguity",
+    "note": "B♭6/9add♯9 is defensible with B♭ in the bass because B♭-D-G-C gives root, major third, sixth, and ninth, with D♭ as split-third sharp-nine color. Music21's Gm/B♭ add C,D♭ follows the complete G minor triad with B♭ as the third in the bass, and WhatChord keeps that reading in the possible range. Both are musician-plausible organizations of the same split-color sonority."
+  },
+  "0-1-2-7-10_b2": {
+    "label": "oracle-limitation",
+    "note": "Gm(♯11,add11)/D is preferred because D is the fifth in the bass of the complete G-B♭-D minor triad, with C and D♭/C♯ as eleventh and sharp-eleventh color. Music21 agrees semantically as Gm/D add C,D♭, so this is only an add-tone vocabulary mismatch."
+  },
+  "0-1-2-7-10_b7": {
+    "label": "oracle-limitation",
+    "note": "Gm(♯11,add11) is correct with G in the bass because G-B♭-D is a complete root-position minor triad, with C and D♭/C♯ as eleventh and sharp-eleventh color. Music21 agrees semantically as Gm add C,D♭."
+  },
+  "0-1-2-8-10_b10": {
+    "label": "oracle-limitation",
+    "note": "B♭9♯9 is correct because B♭ is the bass/root and B♭-D-A♭ supplies the dominant shell, with C as the ninth and D♭/C♯ as split-third sharp-nine color. Music21 agrees semantically as B♭9 add D♭ with the fifth omitted; WhatChord leaves the routine omitted fifth implicit."
+  },
+  "0-1-2-8-9_b0": {
+    "label": "context-dependent",
+    "note": "Amaj11(♯9)/C is defensible because A-C♯-G♯ gives the A major-seventh color stack, C/B♯ is split-third sharp-nine color in the bass, and D is eleventh color. Music21's D power/add spelling reflects a possible D-A no-third fifth with C/C♯ as competing seventh colors and A♭/G♯ as sharp-eleventh color. That can be meaningful in a D-rooted context, but it is less direct as neutral chord-symbol vocabulary than the exact A-rooted major-seventh color spelling."
+  },
+  "0-1-2-8-9_b1": {
+    "label": "oracle-limitation",
+    "note": "Amaj11(♯9)/C♯ is preferred because C♯ is the third in the bass of the A-C♯-G♯ major-seventh color stack, with C/B♯ as sharp-nine color and D as eleventh color. Music21's G♯ Neapolitan-sixth label is analysis-specific vocabulary for a related pitch-class organization, not the musician-facing chord-symbol spelling WhatChord is targeting."
+  },
+  "0-1-2-8-9_b2": {
+    "label": "context-dependent",
+    "note": "Amaj11(♯9)/D is defensible because the voicing supplies A-C♯-G♯ as a major-seventh color stack, with C/B♯ as sharp-nine color and D as eleventh bass color. Music21's G♯ Neapolitan-sixth add-tone label is a valid analysis-style organization when G♯ is contextual, but as a standalone chord symbol it is less readable than the A-rooted major-seventh stack."
+  },
+  "0-1-2-8-9_b8": {
+    "label": "oracle-limitation",
+    "note": "Amaj11(♯9)/G♯ is preferred because G♯ is the major seventh in the bass of the A major-seventh color stack, with C/B♯ as sharp-nine color and D as eleventh color. Music21's G♯ Neapolitan-sixth add-tone spelling is theory-analysis vocabulary rather than a clearer chord-symbol label for this isolated voicing."
+  },
+  "0-1-2-9-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "C13sus2(♭9) is defensible because C is the bass/root and the voicing supplies C-D-B♭-A as a dominant-sus2-thirteenth sonority, with D♭ as flat-nine color. Music21's B♭maj9♯9/C follows the complete B♭ major-seventh upper structure, and WhatChord surfaces that reading as a possible alternative only 0.07 cost higher. This is a genuine bass-root sus-dominant versus upper-structure major-seventh ambiguity."
+  },
+  "0-1-2-9-10_b10": {
+    "label": "oracle-limitation",
+    "note": "B♭maj9♯9 is correct with B♭ in the bass because B♭-D-A supplies the major-seventh shell, C is the ninth, and D♭/C♯ is split-third sharp-nine color. Music21 agrees semantically as B♭maj9 add D♭ with the fifth omitted; WhatChord leaves the omitted fifth implicit."
+  },
   "0-1-2-4-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "C9(♭5,♭9) is preferred because C is the bass/root and the voicing supplies a complete C dominant-flat-five shell C-E-G♭-B♭, with D♭/D as split flat/natural ninth color. Tonal's F♯7♯11♭13/C is the valid tritone-related dominant, but it puts the sharp eleventh in the bass and has only 2 exact ChoCo observations for dominant7|sharp11,flat13, while the C altered/split-ninth family has stronger nearby support via dominant7Flat5|flat9 (509), dominant7|flat9,sharp11 (56), and dominant7Flat5|nine (292). The root-position bass makes the C-rooted label defensible, but the row remains a genuine tritone-dominant ambiguity."
