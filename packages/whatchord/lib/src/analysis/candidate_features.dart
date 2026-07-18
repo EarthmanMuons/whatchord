@@ -23,9 +23,7 @@ class CandidateFeatures {
   final bool isCompleteTriad;
   final bool isCompleteMajorMinorTriad;
   final bool isCompleteMajorTriadInversion;
-  final bool isIncompleteInvertedSixth;
   final bool isCompleteNinthBassSeventhChord;
-  final bool isSecondInversion;
   final bool isRootDominantSus;
   final bool isRootPositionNaturalAddChord;
   final bool isStructurallyDeficient;
@@ -33,13 +31,10 @@ class CandidateFeatures {
 
   final bool isDom7;
   final bool isAlteredFifthDom7;
-  final bool isFlatFiveDom7;
   final bool isDom7RootPosition;
   final bool isDom7Slash;
   final bool dom7HasShell;
   final bool dom7SlashHasNonBassAlterations;
-  final bool isCompleteDominantFlat9;
-  final bool isCompleteDominantSharp9;
   final bool isCompleteAlteredFifthDominant;
   final bool isFifthlessFlatNineBassDominant;
 
@@ -72,22 +67,17 @@ class CandidateFeatures {
     required this.isCompleteTriad,
     required this.isCompleteMajorMinorTriad,
     required this.isCompleteMajorTriadInversion,
-    required this.isIncompleteInvertedSixth,
     required this.isCompleteNinthBassSeventhChord,
-    required this.isSecondInversion,
     required this.isRootDominantSus,
     required this.isRootPositionNaturalAddChord,
     required this.isStructurallyDeficient,
     required this.isUnusualSeventhQuality,
     required this.isDom7,
     required this.isAlteredFifthDom7,
-    required this.isFlatFiveDom7,
     required this.isDom7RootPosition,
     required this.isDom7Slash,
     required this.dom7HasShell,
     required this.dom7SlashHasNonBassAlterations,
-    required this.isCompleteDominantFlat9,
-    required this.isCompleteDominantSharp9,
     required this.isCompleteAlteredFifthDominant,
     required this.isFifthlessFlatNineBassDominant,
     required this.isSlashBass,
@@ -124,9 +114,8 @@ class CandidateFeatures {
     final bassIsColorTone = isSlashBass ? _bassIsColorTone(id) : false;
 
     final isDom7 = q == ChordQuality.dominant7;
-    final isFlatFiveDom7 = q == ChordQuality.dominant7Flat5;
     final isAlteredFifthDom7 =
-        isFlatFiveDom7 || q == ChordQuality.dominant7Sharp5;
+        q == ChordQuality.dominant7Flat5 || q == ChordQuality.dominant7Sharp5;
     final isDom7RootPosition = isDom7 && rootPos;
     final isDom7Slash = isDom7 && isSlashBass;
 
@@ -153,9 +142,7 @@ class CandidateFeatures {
         id,
         rootPos,
       ),
-      isIncompleteInvertedSixth: _isIncompleteInvertedSixth(id, rootPos),
       isCompleteNinthBassSeventhChord: _isCompleteNinthBassSeventhChord(id),
-      isSecondInversion: _bassRoleRank(id) == 2,
       isRootDominantSus: _isRootDominantSus(id, rootPos),
       isRootPositionNaturalAddChord:
           rootPos &&
@@ -169,29 +156,10 @@ class CandidateFeatures {
       isUnusualSeventhQuality: _isUnusualSeventhQuality(q),
       isDom7: isDom7,
       isAlteredFifthDom7: isAlteredFifthDom7,
-      isFlatFiveDom7: isFlatFiveDom7,
       isDom7RootPosition: isDom7RootPosition,
       isDom7Slash: isDom7Slash,
       dom7HasShell: dom7HasShell,
       dom7SlashHasNonBassAlterations: dom7SlashHasNonBassAlterations,
-      isCompleteDominantFlat9: _isCompleteDominantWithAlteration(
-        id,
-        quality: ChordQuality.dominant7,
-        alteration: ChordExtension.flat9,
-        alterationRole: ChordToneRole.flat9,
-        fifthRole: ChordToneRole.perfect5,
-        allowedAdditionalExtensions: const {
-          ChordExtension.sharp9,
-          ChordExtension.sharp11,
-        },
-      ),
-      isCompleteDominantSharp9: _isCompleteDominantWithAlteration(
-        id,
-        quality: ChordQuality.dominant7,
-        alteration: ChordExtension.sharp9,
-        alterationRole: ChordToneRole.sharp9,
-        fifthRole: ChordToneRole.perfect5,
-      ),
       isCompleteAlteredFifthDominant: _isCompleteAlteredFifthDominant(id),
       isFifthlessFlatNineBassDominant: _isFifthlessFlatNineBassDominant(id),
       isSlashBass: isSlashBass,
@@ -219,33 +187,6 @@ class CandidateFeatures {
           voicing != null &&
           VoicingEvidence.supportsUpperStructureSlash(id, voicing),
     );
-  }
-
-  static bool _isCompleteDominantWithAlteration(
-    ChordIdentity id, {
-    required ChordQuality quality,
-    required ChordExtension alteration,
-    required ChordToneRole alterationRole,
-    required ChordToneRole fifthRole,
-    Set<ChordExtension> allowedAdditionalExtensions = const {},
-  }) {
-    if (id.quality != quality) return false;
-    if (!id.extensions.contains(alteration)) {
-      return false;
-    }
-    for (final extension in id.extensions) {
-      if (extension != alteration &&
-          !allowedAdditionalExtensions.contains(extension)) {
-        return false;
-      }
-    }
-
-    final roles = id.toneRolesByInterval.values;
-    return roles.contains(ChordToneRole.root) &&
-        roles.contains(alterationRole) &&
-        roles.contains(ChordToneRole.major3) &&
-        roles.contains(fifthRole) &&
-        roles.contains(ChordToneRole.flat7);
   }
 
   /// Returns true for a fifthless dominant7 flat-nine shell whose flat-ninth is
@@ -392,14 +333,6 @@ class CandidateFeatures {
         extension == ChordExtension.addSharp9 ||
         extension == ChordExtension.sharp11 ||
         extension == ChordExtension.flat13;
-  }
-
-  static bool _isIncompleteInvertedSixth(ChordIdentity id, bool rootPos) {
-    if (!id.quality.isSixFamily) return false;
-    if (rootPos) return false;
-
-    final roles = id.toneRolesByInterval.values;
-    return !roles.contains(ChordToneRole.perfect5);
   }
 
   static bool _isCompleteNinthBassSeventhChord(ChordIdentity id) {
