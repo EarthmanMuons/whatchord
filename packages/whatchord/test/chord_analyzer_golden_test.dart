@@ -515,14 +515,14 @@ void main() {
       expectedQuality: ChordQuality.major,
     ),
 
-    // The same inversion-over-minorSharp5 preference that produces F#11/A for
+    // The same inversion-over-minorSharp5 preference that produces F(#11)/A for
     // {A, C, F, B} also applies here: Ab major (Ab, C, Eb) is a complete triad
     // in first inversion with D as #11, which is more natural than reading D as
     // add9 on the less common Cm#5 quality.
     golden(
       description:
           'major triad inversion beats minor sharp-five with added ninth',
-      expectedSymbol: 'Ab#11/C',
+      expectedSymbol: 'Ab(#11)/C',
       pcs: ['C', 'Eb', 'G#', 'D'],
       expectedRoot: 'Ab',
       expectedBass: 'C',
@@ -604,7 +604,7 @@ void main() {
     golden(
       description:
           'major flat fifth triad with P5 present reverts to major #11',
-      expectedSymbol: 'Ab#11',
+      expectedSymbol: 'Ab(#11)',
       pcs: ['Ab', 'C', 'Eb', 'D'],
       bass: 'Ab',
       expectedRoot: 'Ab',

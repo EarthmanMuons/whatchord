@@ -177,7 +177,7 @@ void main() {
     golden(
       description: 'minor-major ninth bass chord beats altered major7 slash',
       expectedSymbol: 'C#m(maj7)/D#',
-      expectedAlternatives: ['D#13sus4(b9)'],
+      expectedAlternatives: ['D#(13sus4,b9)'],
       pcs: ['C', 'Db', 'Eb', 'E', 'Ab'],
       bass: 'Eb',
       expectedRoot: 'C#',
@@ -235,7 +235,7 @@ void main() {
       description:
           'complete dominant flat-nine sharp-nine beats colored diminished7',
       expectedSymbol: 'C7(b9,#9)/G',
-      expectedAlternatives: ['A#dim7(add9,add11)/G', 'Eb13b9/G'],
+      expectedAlternatives: ['A#dim7(add9,add11)/G', 'Eb(13,b9)/G'],
       pcs: ['C', 'Db', 'Eb', 'E', 'G', 'Bb'],
       bass: 'G',
       expectedRoot: 'C',
@@ -468,7 +468,7 @@ void main() {
 
     golden(
       description: 'third-bass lydian thirteenth beats nine flat-thirteen twin',
-      expectedSymbol: 'Eb13#11/G',
+      expectedSymbol: 'Eb(13,#11)/G',
       expectedAlternatives: ['F9b13/G', 'Cm6(b9,add11)/G'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G', 'A'],
       bass: 'G',
@@ -499,8 +499,8 @@ void main() {
       // plainly and matches the other basses of this collection.
       description:
           'complete dominant nine flat-thirteen handles flat-thirteenth bass',
-      expectedSymbol: 'Eb13#11/Db',
-      expectedAlternatives: ['F9b13/Db', 'Eb13b5/Db'],
+      expectedSymbol: 'Eb(13,#11)/Db',
+      expectedAlternatives: ['F9b13/Db', 'Eb(13,b5)/Db'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G', 'A'],
       bass: 'Db',
       expectedRoot: 'Eb',
@@ -613,7 +613,7 @@ void main() {
       description:
           'complete altered dominant thirteenth beats colored split-third sixth',
       expectedSymbol: 'A13(#9,#11)/C',
-      expectedAlternatives: ['Eb13(b9,#9,#11)/C'],
+      expectedAlternatives: ['Eb(13,b9,#9,#11)/C'],
       pcs: ['C', 'Db', 'Eb', 'E', 'F#', 'G', 'A'],
       bass: 'C',
       expectedRoot: 'A',
@@ -710,7 +710,7 @@ void main() {
     golden(
       description:
           'complete sharp-nine thirteenth dominant beats colored sixth',
-      expectedSymbol: 'Eb13#9/Db',
+      expectedSymbol: 'Eb(13,#9)/Db',
       pcs: ['C', 'Db', 'Eb', 'F#', 'G', 'Bb'],
       bass: 'Db',
       expectedRoot: 'Eb',
@@ -722,7 +722,7 @@ void main() {
     golden(
       description:
           'complete sharp-nine thirteenth dominant beats root-position colored sixth',
-      expectedSymbol: 'Eb13#9/F#',
+      expectedSymbol: 'Eb(13,#9)/F#',
       pcs: ['C', 'Db', 'Eb', 'F#', 'G', 'Bb'],
       bass: 'F#',
       expectedRoot: 'Eb',
@@ -734,7 +734,7 @@ void main() {
     golden(
       description:
           'complete sharp-nine thirteenth dominant beats third-bass colored sixth',
-      expectedSymbol: 'Eb13#9/Bb',
+      expectedSymbol: 'Eb(13,#9)/Bb',
       pcs: ['C', 'Db', 'Eb', 'F#', 'G', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'Eb',
@@ -943,7 +943,7 @@ void main() {
       // sibling case.
       description: 'minor-thirteenth fifth bass beats lydian six-nine slash',
       expectedSymbol: 'Ebm13/Bb',
-      expectedAlternatives: ['Gb6/9#11/Bb', 'Ab11/Bb', 'Dbmaj13sus4/Bb'],
+      expectedAlternatives: ['Gb6/9#11/Bb', 'Ab(11)/Bb', 'Dbmaj13sus4/Bb'],
       pcs: ['C', 'Db', 'Eb', 'F#', 'Ab', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'Eb',
@@ -968,7 +968,7 @@ void main() {
     golden(
       description: 'minor-thirteenth slash beats lydian six-nine sharp-eleven',
       expectedSymbol: 'G#m13/B',
-      expectedAlternatives: ['B6/9#11', 'C#11/B'],
+      expectedAlternatives: ['B6/9#11', 'C#(11)/B'],
       pcs: ['B', 'C#', 'D#', 'E#', 'F#', 'G#'],
       bass: 'B',
       expectedRoot: 'G#',
@@ -981,7 +981,7 @@ void main() {
       description:
           'fifthless major-nine sharp-eleven beats major-nine flat-five',
       expectedSymbol: 'Dbmaj9#11',
-      expectedAlternatives: ['Eb13/Db'],
+      expectedAlternatives: ['Eb(13)/Db'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G'],
       bass: 'Db',
       expectedRoot: 'Db',
@@ -1005,7 +1005,7 @@ void main() {
 
     golden(
       description: 'readable sharp-eleven major beats flat-five respelling',
-      expectedSymbol: 'Ab#11/C',
+      expectedSymbol: 'Ab(#11)/C',
       expectedAlternatives: ['G#(b5)/B#'],
       pcs: ['C', 'D', 'Ab'],
       bass: 'C',
@@ -1019,7 +1019,7 @@ void main() {
     golden(
       description:
           'major sharp-eleven inversion beats sparse major-thirteen sus4',
-      expectedSymbol: 'Gb#11/Db',
+      expectedSymbol: 'Gb(#11)/Db',
       expectedAlternatives: ['Dbmaj13sus4'],
       pcs: ['C', 'Db', 'Gb', 'Bb'],
       bass: 'Db',
@@ -1034,7 +1034,7 @@ void main() {
       description:
           'sharp-eleven color bass does not displace sparse major-thirteen sus4',
       expectedSymbol: 'Dbmaj13sus4/C',
-      expectedAlternatives: ['Gb#11/C'],
+      expectedAlternatives: ['Gb(#11)/C'],
       pcs: ['C', 'Db', 'Gb', 'Bb'],
       bass: 'C',
       expectedRoot: 'Db',
@@ -1119,7 +1119,7 @@ void main() {
       description:
           'seventh-bass thirteenth beats fifthless major-nine '
           'sharp-eleven inversion',
-      expectedSymbol: 'Eb13/C',
+      expectedSymbol: 'Eb(13)/C',
       expectedAlternatives: ['Dbmaj9#11/C'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G'],
       bass: 'C',
@@ -1159,7 +1159,7 @@ void main() {
     golden(
       description:
           'dominant thirteenth inversion beats fifthless lydian major thirteenth',
-      expectedSymbol: 'Eb13/Db',
+      expectedSymbol: 'Eb(13)/Db',
       expectedAlternatives: ['Bbm6/9add11/Db'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G', 'Bb'],
       bass: 'Db',
@@ -1171,7 +1171,7 @@ void main() {
 
     golden(
       description: 'dominant thirteenth ninth bass beats minor-six added tones',
-      expectedSymbol: 'Eb13/F',
+      expectedSymbol: 'Eb(13)/F',
       expectedAlternatives: ['Bbm6/9add11/F', 'F9sus4(b13)'],
       pcs: ['C', 'Db', 'Eb', 'F', 'G', 'Bb'],
       bass: 'F',
@@ -1209,7 +1209,7 @@ void main() {
 
     golden(
       description: 'fifthless thirteenth beats altered sus slash',
-      expectedSymbol: 'Eb13',
+      expectedSymbol: 'Eb(13)',
       pcs: ['C', 'Db', 'Eb', 'F', 'G'],
       bass: 'Eb',
       expectedRoot: 'Eb',
@@ -1220,7 +1220,7 @@ void main() {
     golden(
       description: 'altered fifth dominant beats flat-thirteen stack',
       expectedSymbol: 'C9(#5,#11)',
-      expectedAlternatives: ['Ab9(#5,#11)/C'],
+      expectedAlternatives: ['Ab(9,#5,#11)/C'],
       pcs: ['C', 'D', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'C',
       expectedRoot: 'C',
@@ -1232,7 +1232,7 @@ void main() {
     golden(
       description:
           'complete lydian flat-thirteen dominant beats remote altered fifth dominant',
-      expectedSymbol: 'F#9(#11,b13)/C',
+      expectedSymbol: 'F#(9,#11,b13)/C',
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'C',
       expectedRoot: 'F#',
@@ -1248,7 +1248,7 @@ void main() {
     golden(
       description:
           'complete lydian flat-thirteen dominant handles flat-thirteen bass',
-      expectedSymbol: 'F#9(#11,b13)/D',
+      expectedSymbol: 'F#(9,#11,b13)/D',
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'D',
       expectedRoot: 'F#',
@@ -1264,7 +1264,7 @@ void main() {
     golden(
       description:
           'complete lydian flat-thirteen dominant handles major-third bass',
-      expectedSymbol: 'F#9(#11,b13)/A#',
+      expectedSymbol: 'F#(9,#11,b13)/A#',
       pcs: ['C', 'Db', 'D', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'F#',
@@ -1280,7 +1280,7 @@ void main() {
     golden(
       description:
           'complete lydian thirteenth dominant handles flat-seventh bass',
-      expectedSymbol: 'F#13#11/E',
+      expectedSymbol: 'F#(13,#11)/E',
       pcs: ['C', 'Db', 'Eb', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'E',
       expectedRoot: 'F#',
@@ -1296,7 +1296,7 @@ void main() {
     golden(
       description:
           'complete lydian thirteenth dominant handles major-third bass',
-      expectedSymbol: 'F#13#11/A#',
+      expectedSymbol: 'F#(13,#11)/A#',
       pcs: ['C', 'Db', 'Eb', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'F#',
@@ -1378,7 +1378,7 @@ void main() {
     golden(
       description:
           'altered sharp-five dominant beats natural-eleventh sharp-five dominant',
-      expectedSymbol: 'F#9#11/E',
+      expectedSymbol: 'F#(9,#11)/E',
       pcs: ['C', 'Db', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'E',
       expectedRoot: 'F#',
@@ -1390,7 +1390,7 @@ void main() {
     golden(
       description:
           'altered sharp-five dominant beats root-position natural-eleventh sharp-five dominant',
-      expectedSymbol: 'F#9#11/G#',
+      expectedSymbol: 'F#(9,#11)/G#',
       pcs: ['C', 'Db', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'Ab',
       expectedRoot: 'F#',
@@ -1402,7 +1402,7 @@ void main() {
     golden(
       description:
           'altered sharp-five dominant beats ninth-bass natural-eleventh sharp-five dominant',
-      expectedSymbol: 'F#9#11/A#',
+      expectedSymbol: 'F#(9,#11)/A#',
       pcs: ['C', 'Db', 'E', 'F#', 'Ab', 'Bb'],
       bass: 'Bb',
       expectedRoot: 'F#',
@@ -1461,7 +1461,7 @@ void main() {
     golden(
       description:
           'root-position dominant sus beats conventional add-tone slash',
-      expectedSymbol: 'Eb13sus4',
+      expectedSymbol: 'Eb(13sus4)',
       pcs: ['C', 'Db', 'Eb', 'Ab'],
       bass: 'Eb',
       expectedRoot: 'Eb',
@@ -1496,6 +1496,6 @@ void main() {
     expect(symbols, contains('Gm6/C'));
     expect(symbols, isNot(contains('Gm13/C')));
     expect(symbols, isNot(contains('Gm(maj13)/C')));
-    expect(symbols, isNot(contains('Bb13#11/C')));
+    expect(symbols, isNot(contains('Bb(13,#11)/C')));
   });
 }

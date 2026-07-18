@@ -10,6 +10,7 @@ class ChordQualityFormatter {
     required Set<ChordExtension> extensions,
     required ChordNotationStyle notation,
     ChordQualityLabelForm? qualityFormOverride,
+    bool rootEndsInSharpOrFlat = false,
   }) {
     final form = qualityFormOverride ?? _defaultQualityFormFor(notation);
 
@@ -45,9 +46,11 @@ class ChordQualityFormatter {
       }
     }
 
+    var bareHeadline = false;
     if (headline != null && !textualMinorMajor) {
       final promoted = _replaceSeventhWithExtension(base, headline.shortLabel);
       if (promoted != base) {
+        bareHeadline = base == '7' || base.startsWith('7sus');
         base = promoted;
       } else {
         // Promotion not supported for this base form; keep headline as a modifier.
@@ -85,6 +88,14 @@ class ChordQualityFormatter {
       if (textualMinorMajor) _minorMajorModifierLabel(headline),
       ...mods.map((e) => e.shortLabel),
     ];
+
+    // A bare promoted headline after a sharp or flat root reads ambiguously
+    // (C#11 could be C# plus 11 or C plus #11), so the whole label becomes
+    // one group: C#(11), Eb(13,b9), F#(13,#11).
+    if (bareHeadline && rootEndsInSharpOrFlat) {
+      final parts = [base, ?fifth, ...labels];
+      return '(${parts.join(_modsSeparator(notation))})';
+    }
 
     if (mods.isEmpty && !textualMinorMajor) {
       if (fifth == null) return base;
@@ -242,7 +253,9 @@ class ChordQualityFormatter {
 
       if (_isDensePromotedMajorFamilyLabel(quality, headline)) return true;
 
-      return false; // b9, #11, 9, 11, 13 inline when alone
+      if (quality == ChordQuality.major && ext.isAlteration) return true;
+
+      return false; // Delimited qualities keep lone modifiers inline.
     }
 
     // Multiple modifiers: group them.

@@ -1274,7 +1274,7 @@ void main() {
         extensions: const {ChordExtension.sharp11},
       );
 
-      expect(example.presentation.symbol.toString(), 'C#11');
+      expect(example.presentation.symbol.toString(), 'C(#11)');
       expect(example.members, ['C', 'E', 'G', 'F#']);
       expect(example.memberDegrees, ['1', '3', '5', '#11']);
       expect(example.normalizedVoicing, [60, 64, 67, 78]);

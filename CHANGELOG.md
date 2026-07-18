@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Disambiguated compact chord symbols such as C(♯11) and C♯(11), making it clear
+  whether an accidental belongs to the root or the extension.
 - Improved recognition of rare altered major-seventh flat-nine colors so they
   are less likely to displace simpler common-shell readings unless the voicing
   strongly supports them.

@@ -429,6 +429,85 @@ void main() {
     expect(dominantPresentation.symbol.toString(), 'C13#11');
   });
 
+  test('groups lone altered extensions after plain major labels', () {
+    final majorSharpEleventh = _identity(
+      root: 'C',
+      quality: ChordQuality.major,
+      extensions: const {ChordExtension.sharp11},
+      intervals: const [0, 4, 6, 7],
+    );
+    final majorFlatThirteenth = _identity(
+      root: 'C',
+      quality: ChordQuality.major,
+      extensions: const {ChordExtension.flat13},
+      intervals: const [0, 4, 7, 8],
+    );
+
+    final sharpEleventhPresentation = ChordPresentationBuilder.fromIdentity(
+      identity: majorSharpEleventh,
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
+      notation: notation,
+    );
+    final flatThirteenthPresentation = ChordPresentationBuilder.fromIdentity(
+      identity: majorFlatThirteenth,
+      tonality: const Tonality(Tonic.c, TonalityMode.major),
+      notation: notation,
+    );
+
+    expect(sharpEleventhPresentation.symbol.toString(), 'C(#11)');
+    expect(flatThirteenthPresentation.symbol.toString(), 'C(b13)');
+  });
+
+  test('groups promoted extensions after accidental roots', () {
+    final dominantEleventh = _identity(
+      root: 'C#',
+      quality: ChordQuality.dominant7,
+      extensions: const {ChordExtension.eleven},
+      intervals: const [0, 4, 5, 7, 10],
+    );
+    final dominantThirteenthSharpEleventh = _identity(
+      root: 'F#',
+      quality: ChordQuality.dominant7,
+      extensions: const {ChordExtension.sharp11, ChordExtension.thirteen},
+      intervals: const [0, 4, 6, 7, 9, 10],
+    );
+
+    final eleventhPresentation = ChordPresentationBuilder.fromIdentity(
+      identity: dominantEleventh,
+      tonality: const Tonality(Tonic.cSharp, TonalityMode.major),
+      notation: notation,
+      rootName: 'C#',
+    );
+    final thirteenthPresentation = ChordPresentationBuilder.fromIdentity(
+      identity: dominantThirteenthSharpEleventh,
+      tonality: const Tonality(Tonic.fSharp, TonalityMode.major),
+      notation: notation,
+      rootName: 'F#',
+    );
+
+    expect(eleventhPresentation.symbol.toString(), 'C#(11)');
+    expect(thirteenthPresentation.symbol.toString(), 'F#(13,#11)');
+
+    final symbolicThirteenthPresentation =
+        ChordPresentationBuilder.fromIdentity(
+          identity: dominantThirteenthSharpEleventh,
+          tonality: const Tonality(Tonic.fSharp, TonalityMode.major),
+          notation: ChordNotationStyle.symbolic,
+          rootName: 'F#',
+        );
+
+    expect(symbolicThirteenthPresentation.symbol.toString(), 'F#(13#11)');
+
+    final glyphRootPresentation = ChordPresentationBuilder.fromIdentity(
+      identity: dominantEleventh,
+      tonality: const Tonality(Tonic.cSharp, TonalityMode.major),
+      notation: notation,
+      rootName: 'C♯',
+    );
+
+    expect(glyphRootPresentation.symbol.toString(), 'C♯(11)');
+  });
+
   test(
     'inserts comma before bass connector when multiple modifiers present',
     () {

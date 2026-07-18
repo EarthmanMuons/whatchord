@@ -131,6 +131,33 @@ void main() {
       expect(chordSymbolDisplayLabel(symbol), 'B♭7(♯11) / F♯');
     });
 
+    test('renders grouped accidental-root quality suffixes', () {
+      final symbol = ChordSymbol(root: 'C#', quality: '(11)', bass: 'B');
+
+      expect(chordSymbolDisplayLabel(symbol), 'C♯(11) / B');
+    });
+
+    test('unwraps a lone grouped headline when the localized root has '
+        'no trailing accidental', () {
+      final lone = ChordSymbol(root: 'Eb', quality: '(13)');
+      final sus = ChordSymbol(root: 'Eb', quality: '(13sus4)');
+      final multi = ChordSymbol(root: 'Eb', quality: '(13,#11)');
+
+      expect(
+        chordSymbolDisplayLabel(lone, noteNameSystem: NoteNameSystem.german),
+        'Es13',
+      );
+      expect(
+        chordSymbolDisplayLabel(sus, noteNameSystem: NoteNameSystem.german),
+        'Es13sus4',
+      );
+      expect(
+        chordSymbolDisplayLabel(multi, noteNameSystem: NoteNameSystem.german),
+        'Es(13,♯11)',
+      );
+      expect(chordSymbolDisplayLabel(lone), 'E♭(13)');
+    });
+
     test('uses compact fixed-Do chord names', () {
       final symbol = ChordSymbol(root: 'F#', quality: 'm7(b5)', bass: 'C#');
 
