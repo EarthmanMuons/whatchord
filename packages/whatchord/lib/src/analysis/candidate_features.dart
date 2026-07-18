@@ -3,6 +3,7 @@ import '../models/chord_extension.dart';
 import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
 import '../models/observed_voicing.dart';
+import '../services/bit_count.dart';
 import '../services/interval_constants.dart';
 import '../services/pitch_class.dart';
 import 'voicing_evidence.dart';

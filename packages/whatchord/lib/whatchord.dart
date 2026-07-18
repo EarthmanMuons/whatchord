@@ -28,6 +28,7 @@ export 'src/services/chord_member_degree_formatter.dart';
 export 'src/services/chord_member_speller.dart';
 export 'src/services/chord_quality_intervals.dart';
 export 'src/services/chord_tone_ordering.dart';
+export 'src/services/bit_count.dart';
 export 'src/services/note_spelling.dart';
 export 'src/services/pitch_class.dart';
 export 'src/services/scale_degree_classifier.dart';

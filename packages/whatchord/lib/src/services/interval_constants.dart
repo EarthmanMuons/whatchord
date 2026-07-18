@@ -18,13 +18,3 @@ const int minorSeventhInterval = 10;
 const int majorSeventhInterval = 11;
 
 const int chordRootBit = 1 << chordRootInterval;
-
-/// Bitwise popcount for small interval masks (Kernighan algorithm).
-int popCount(int v) {
-  var c = 0;
-  while (v != 0) {
-    v &= v - 1; // clear lowest set bit
-    c++;
-  }
-  return c;
-}

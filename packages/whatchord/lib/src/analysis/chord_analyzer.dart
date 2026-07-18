@@ -9,6 +9,7 @@ import '../models/chord_identity.dart';
 import '../models/chord_input.dart';
 import '../models/chord_tone_role.dart';
 import '../models/observed_voicing.dart';
+import '../services/bit_count.dart';
 import '../services/chord_tone_roles.dart';
 import '../services/interval_constants.dart';
 import '../services/pitch_class.dart';
