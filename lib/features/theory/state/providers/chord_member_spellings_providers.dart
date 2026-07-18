@@ -36,9 +36,7 @@ final chordMemberSpellingsByPcProvider = Provider<Map<int, String>>((ref) {
   // (Even if a given pc isn't currently sounding, this is still cheap.)
   final map = <int, String>{};
   for (var pc = 0; pc < 12; pc++) {
-    final interval = (pc - id.rootPc) % 12;
-    final normInterval = interval < 0 ? interval + 12 : interval;
-    final role = id.toneRolesByInterval[normInterval];
+    final role = id.toneRolesByInterval[intervalAboveRoot(pc, id.rootPc)];
 
     map[pc] = spellPitchClass(
       pc,
