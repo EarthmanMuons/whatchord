@@ -160,7 +160,7 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
       points += rootDiatonicPoints;
     }
 
-    final chromatic = _bitCount(pcMask & ~scaleMask);
+    final chromatic = popCount(pcMask & ~scaleMask);
     if (chromatic == 0) {
       points += allTonesDiatonicPoints;
     } else {
@@ -248,14 +248,4 @@ class WeightedEvidenceKeyDetector implements KeyDetector {
     ChordQuality.halfDiminished7,
     ChordQuality.diminished7,
   };
-
-  static int _bitCount(int mask) {
-    var count = 0;
-    var current = mask;
-    while (current != 0) {
-      current &= current - 1;
-      count += 1;
-    }
-    return count;
-  }
 }
