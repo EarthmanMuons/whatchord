@@ -11,6 +11,7 @@ import 'package:whatchord_app/features/key/key.dart';
 import 'package:whatchord_app/features/midi/midi.dart';
 import 'package:whatchord_app/features/onboarding/onboarding.dart';
 import 'package:whatchord_app/features/piano/piano.dart';
+import 'package:whatchord_app/features/scales/scales.dart';
 import 'package:whatchord_app/features/theory/theory.dart';
 
 final settingsResetProvider = Provider<SettingsResetService>((ref) {
@@ -42,6 +43,9 @@ class SettingsResetService {
     // Explore preferences
     await prefs.remove(ExplorePreferencesKeys.showChordMemberDegrees);
 
+    // Scale preferences
+    await prefs.remove(ScalePreferencesKeys.showScaleDegrees);
+
     // Key preferences
     await prefs.remove(KeyPreferencesKeys.autoModeEnabled);
     await prefs.remove(KeyPreferencesKeys.behavior);
@@ -64,6 +68,7 @@ class SettingsResetService {
     _ref.invalidate(noteNameSystemProvider);
     _ref.invalidate(selectedTonalityProvider);
     _ref.invalidate(exploreChordMemberDegreesProvider);
+    _ref.invalidate(showScaleDegreesProvider);
     _ref.invalidate(keyModeProvider);
     // Rebuilding the behavior also rebuilds the key detector, so detection
     // restarts clean along with everything else.
