@@ -123,10 +123,7 @@ abstract final class ChordPresentationBuilder {
     final bassInterval = identity.hasSlashBass
         ? _normalizedInterval(identity.bassPc - identity.rootPc)
         : 0;
-    final bassMidi = _bassMidiForNormalizedVoicing(
-      rootMidi: rootMidi,
-      bassInterval: bassInterval,
-    );
+    final bassMidi = rootMidi + bassInterval;
     final voicingIntervals = identity.hasSlashBass
         ? _compactIntervalsAboveBass(
             intervals: intervals,
@@ -210,13 +207,6 @@ abstract final class ChordPresentationBuilder {
       10 || 11 => 7,
       _ => 99,
     };
-  }
-
-  static int _bassMidiForNormalizedVoicing({
-    required int rootMidi,
-    required int bassInterval,
-  }) {
-    return rootMidi + bassInterval;
   }
 
   static int _normalizedInterval(int value) {
