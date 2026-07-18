@@ -29,11 +29,23 @@ class CostReason {
   final String? detail;
 
   /// Root-relative interval mask for the notes in this category, when the
-  /// reason describes a tone set (required, optional, penalty, extras,
-  /// missing). Null for contextual modifiers that have no note set.
+  /// reason describes a tone set (required, optional, penalty, missing).
+  /// Null for contextual modifiers that have no note set.
   final int? intervals;
 
-  const CostReason(this.label, this.cost, {this.detail, this.intervals});
+  /// Number of tones in [intervals], when this reason describes a tone set.
+  ///
+  /// This remains separate from [intervals] so consumers do not need to parse
+  /// [detail] to render a count.
+  final int? count;
+
+  const CostReason(
+    this.label,
+    this.cost, {
+    this.detail,
+    this.intervals,
+    this.count,
+  });
 
   @override
   String toString() {
@@ -42,6 +54,32 @@ class CostReason {
         : cost.toStringAsFixed(2);
     return detail == null ? '$label $d' : '$label $d ($detail)';
   }
+}
+
+/// Stable labels emitted in [CostReason.label].
+///
+/// Keep [values] synchronized with the labels emitted by [ChordAnalyzer].
+abstract final class CostReasonLabel {
+  static const requiredTones = 'required tones';
+  static const optionalTones = 'optional tones';
+  static const vocabularyRarity = 'vocabulary rarity';
+  static const colorTones = 'color tones';
+  static const fifthlessSixth = 'fifthless sixth';
+  static const penaltyTones = 'penalty tones';
+  static const missingRequired = 'missing required';
+  static const bassFit = 'bass fit';
+
+  /// Every label the analyzer can emit in a [CostReason].
+  static const Set<String> values = <String>{
+    requiredTones,
+    optionalTones,
+    vocabularyRarity,
+    colorTones,
+    fifthlessSixth,
+    penaltyTones,
+    missingRequired,
+    bassFit,
+  };
 }
 
 /// A ranked candidate together with the reasons for its cost and position.
@@ -414,6 +452,7 @@ abstract final class ChordAnalyzer {
       double costContribution, {
       String? detail,
       int? intervals,
+      int? count,
     }) {
       reasons?.add(
         CostReason(
@@ -421,6 +460,7 @@ abstract final class ChordAnalyzer {
           costContribution,
           detail: detail,
           intervals: intervals,
+          count: count,
         ),
       );
     }
@@ -514,23 +554,25 @@ abstract final class ChordAnalyzer {
     final vocabulary = _vocabularyCost(template.quality);
     if (vocabulary != 0) {
       cost += vocabulary;
-      add('vocabulary rarity', vocabulary);
+      add(CostReasonLabel.vocabularyRarity, vocabulary);
     }
 
     // Core tones are free; report them so downstream tone ledgers can show
     // what the name accounts for.
     add(
-      'required tones',
+      CostReasonLabel.requiredTones,
       0,
       detail: 'count=${popCount(presentRequiredMask)}',
       intervals: presentRequiredMask,
+      count: popCount(presentRequiredMask),
     );
     if (presentOptionalMask != 0) {
       add(
-        'optional tones',
+        CostReasonLabel.optionalTones,
         0,
         detail: 'count=${popCount(presentOptionalMask)}',
         intervals: presentOptionalMask,
+        count: popCount(presentOptionalMask),
       );
     }
 
@@ -583,7 +625,7 @@ abstract final class ChordAnalyzer {
     if (colorCost != 0) {
       cost += colorCost;
       add(
-        'color tones',
+        CostReasonLabel.colorTones,
         colorCost,
         detail: colorDetails?.join(' '),
         intervals: colorMask,
@@ -598,7 +640,7 @@ abstract final class ChordAnalyzer {
         popCount(relMask) == 3;
     if (isBareFifthlessSixChord) {
       cost += _sixChordNoFifthSurcharge;
-      add('fifthless sixth', _sixChordNoFifthSurcharge);
+      add(CostReasonLabel.fifthlessSixth, _sixChordNoFifthSurcharge);
     }
 
     // A power chord is only a credible reading when the bare fifth plus its
@@ -612,10 +654,11 @@ abstract final class ChordAnalyzer {
       final unexplainedCost = popCount(unexplainedMask) * _unexplainedToneCost;
       cost += unexplainedCost;
       add(
-        'penalty tones',
+        CostReasonLabel.penaltyTones,
         unexplainedCost,
         detail: 'count=${popCount(unexplainedMask)}',
         intervals: unexplainedMask,
+        count: popCount(unexplainedMask),
       );
     }
 
@@ -628,10 +671,11 @@ abstract final class ChordAnalyzer {
       }
       cost += missingCost;
       add(
-        'missing required',
+        CostReasonLabel.missingRequired,
         missingCost,
         detail: 'count=$missCount',
         intervals: missingRequiredMask,
+        count: missCount,
       );
     }
 
@@ -640,7 +684,7 @@ abstract final class ChordAnalyzer {
         : _bassPlacementCost(roles[bassInterval], template.quality);
     if (bassCost != 0) {
       cost += bassCost;
-      add('bass fit', bassCost, detail: 'interval=$bassInterval');
+      add(CostReasonLabel.bassFit, bassCost, detail: 'interval=$bassInterval');
     }
 
     return _PricedTemplate(cost: cost, extensions: extensions, roles: roles);

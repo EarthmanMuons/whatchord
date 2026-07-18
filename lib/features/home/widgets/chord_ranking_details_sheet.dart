@@ -541,7 +541,10 @@ class _CandidateExplanationFront extends StatelessWidget {
         if (nextDecision?.decidedByRule != null) ...[
           const SizedBox(height: 6),
           Text(
-            _plainDecision(nextDecision!.decidedByRule, winner: winner),
+            ChordRankingExplanations.decision(
+              nextDecision!.decidedByRule,
+              winner: winner,
+            ),
             style: theme.textTheme.bodySmall?.copyWith(
               color: cs.onSurfaceVariant,
             ),
@@ -673,7 +676,10 @@ class _CandidateCostBack extends StatelessWidget {
         ),
         const Divider(height: 16),
         for (final reason in costContributions)
-          _CostRow(label: _costReasonLabel(reason.label), value: reason.cost),
+          _CostRow(
+            label: ChordRankingExplanations.costReasonLabel(reason.label),
+            value: reason.cost,
+          ),
         _CostRow(
           label: 'Explanation cost',
           value: row.candidate.cost,
@@ -683,7 +689,10 @@ class _CandidateCostBack extends StatelessWidget {
         if (decision?.decidedByRule != null) ...[
           const SizedBox(height: 10),
           Text(
-            _plainDecision(decision!.decidedByRule, winner: winner),
+            ChordRankingExplanations.decision(
+              decision!.decidedByRule,
+              winner: winner,
+            ),
             style: theme.textTheme.bodySmall?.copyWith(
               color: cs.onSurfaceVariant,
             ),
@@ -1128,112 +1137,7 @@ String _roleLabel(ChordToneRole role) {
 int? _reasonCount(ExplainedCandidate row, String label) {
   for (final reason in row.costReasons) {
     if (reason.label != label) continue;
-    final detail = reason.detail;
-    if (detail == null) return null;
-    final match = RegExp(r'count=(\d+)').firstMatch(detail);
-    if (match == null) return null;
-    return int.tryParse(match.group(1)!);
+    return reason.count;
   }
   return null;
-}
-
-String _costReasonLabel(String label) {
-  return switch (label) {
-    'required tones' => 'Required notes present',
-    'missing required' => 'Missing essential notes',
-    'optional tones' => 'Optional color tones',
-    'penalty tones' => 'Conflicting tones',
-    'color tones' => 'Named color tones',
-    'vocabulary rarity' => 'Uncommon chord name',
-    'fifthless sixth' => 'Sixth chord missing fifth',
-    'extras' => 'Added complexity',
-    'bass fit' => 'Bass placement',
-    'm#5 bass' => 'Sharp-five bass',
-    'sus-tone bass' => 'Suspended-tone bass',
-    'alterations penalty' => 'Altered spelling',
-    'dominant stack' => 'Dominant-stack fit',
-    'add9 bass triad' => 'Upper-triad fit',
-    'sixNo5' => 'Missing fifth in sixth chord',
-    _ => label,
-  };
-}
-
-String _plainDecision(String? rule, {ChordCandidate? winner}) {
-  final sentence = switch (rule) {
-    'cost difference beyond tie-break range' =>
-      'its explanation cost was clearly lower.',
-    'prefer root-position 6th over inverted 7th' =>
-      'the sixth-chord name is in root position, while the alternative reading puts another chord over a non-root bass.',
-    'prefer complete triad over incomplete 6th' =>
-      'a complete triad is clearer than a sixth chord missing its fifth.',
-    'prefer upper-structure dominant7 slash' => _upperStructureDominantReason(
-      winner,
-    ),
-    'prefer major-seventh upper-structure sus slash' =>
-      'a complete major-seventh upper-structure slash is a clearer spelling for this suspended dominant color.',
-    'prefer voicing-supported upper-structure slash' =>
-      'the way it was played stacks a complete chord above an isolated bass note, so this slash name reads more naturally than a root-position reading.',
-    'prefer stable extended dominant over double-accidental altered-fifth slash' =>
-      'the extended dominant inversion avoids the double-accidental spelling required by the altered-fifth slash reading.',
-    'prefer stable extended dominant over altered-fifth slash' =>
-      'the extended dominant name keeps the bass, seventh shell, and upper extensions in a stable inversion more naturally than an altered-fifth slash reading.',
-    'prefer complete altered thirteenth dominant over altered minor thirteenth' =>
-      'the altered dominant-thirteenth name keeps the complete dominant shell together, while the minor-thirteenth reading needs rarer flat-nine and sharp-eleven minor color.',
-    'prefer complete natural thirteenth dominant over minor-six add-eleven' =>
-      'the dominant-thirteenth name keeps the complete seventh shell and natural extensions together, while the minor-six reading needs stacked added tones.',
-    'prefer dominant flat-nine shell over colored diminished' =>
-      'the dominant-flat-nine name keeps the complete dominant shell together, while the diminished reading treats one of the dominant tones as added color.',
-    'prefer complete dominant sharp-nine over non-seventh color' =>
-      'the dominant-sharp-nine name keeps the complete dominant shell together, while the other reading treats the same tension as non-seventh color.',
-    'prefer root-position diminished7' =>
-      'the diminished seventh is clearest when the bass is named as the root.',
-    'prefer dominant7 over dim7 slash' ||
-    'prefer altered dominant7 over dim7 slash' =>
-      'the dominant-seventh shell gives the voicing a clearer dominant reading.',
-    'prefer lower-cost major-seventh-bass inversion over color-bass slash' =>
-      'the better-fitting name gives the bass a conventional major-seventh inversion role instead of treating it as a remote color tone.',
-    'prefer half-diminished flat-color spelling over minor sharp-five' =>
-      'the half-diminished name uses the flatter, more conventional spelling for this diminished-fifth color stack.',
-    'prefer fewer altered/tension colors' =>
-      'it needs fewer altered color tones.',
-    'prefer diatonic chords' => 'it fits the selected key more directly.',
-    'prefer tonic chord' => 'it is the tonic chord in the selected key.',
-    'prefer I chord when bass is tonic' =>
-      'with the tonic in the bass, it gives the clearest I-chord reading.',
-    'prefer complete triad add-tone over sparse seventh-family color' =>
-      'the complete triad with a simple added tone is clearer than a sparse seventh-chord name that treats the same pitch as remote color.',
-    'prefer natural extensions over adds, then fewer total' =>
-      'natural extensions give a cleaner chord name than added-tone spellings.',
-    'prefer root position' => 'its bass is the chord root.',
-    'prefer common naming preference' =>
-      'common naming practice favors this chord name for the same kind of sonority.',
-    'prefer 1st inversion over 2nd inversion' =>
-      'its bass note is a more stable chord tone.',
-    'prefer 7th chords over triads' =>
-      'the seventh-chord reading explains more of the voicing.',
-    'prefer fewer extensions' => 'it needs fewer extensions.',
-    'avoid suspended chords' =>
-      'a chord with a clear third is a more specific match than a suspended reading.',
-    'prefer close root-position dominant7 over non-dominant slash' =>
-      'a root-position dominant seventh is clearer than the alternative slash-chord name for these notes.',
-    'prefer root-position altered-fifth dominant over slash' =>
-      'the root-position altered dominant name is clearer than the slash reading.',
-    'prefer conventional altered seventh over add11 slash' =>
-      'the altered seventh chord is more conventional than the add-eleven slash reading.',
-    'prefer complete minor sharp11 over altered maj7sus4' =>
-      'the complete minor sharp-eleven reading is clearer than the altered suspended reading.',
-    'deterministic fallback: rootPc' =>
-      'these interpretations were essentially equivalent, so the app chose a consistent spelling.',
-    _ => 'the ranking rules made it the clearest name for this voicing.',
-  };
-
-  return 'Ranked better than the next option because $sentence';
-}
-
-String _upperStructureDominantReason(ChordCandidate? winner) {
-  if (winner?.identity.hasSlashBass ?? false) {
-    return 'the bass note sounds like an intentional color note rather than a separate chord root.';
-  }
-
-  return 'the root-position dominant reading is clearer than the slash-bass alternative.';
 }

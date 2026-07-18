@@ -1,6 +1,7 @@
 export 'package:whatchord/whatchord.dart';
 
 export 'presentation/models/identity_display.dart';
+export 'presentation/models/chord_ranking_explanations.dart';
 
 export 'presentation/widgets/alternative_chord_candidates_list.dart';
 export 'presentation/widgets/key_signature_staff_preview.dart';

@@ -48,6 +48,18 @@ abstract final class ChordCandidateRanking {
   /// Cost difference threshold for engaging tie-breaker rules.
   static const double nearTieWindow = ranking_policy.nearTieWindow;
 
+  /// Every stable decision name that can appear in
+  /// [RankingDecision.decidedByRule].
+  ///
+  /// Consumers use this to keep their explanations synchronized with the
+  /// analyzer's ranking policy.
+  static final Set<String> decisionRuleNames = Set<String>.unmodifiable({
+    'cost difference beyond tie-break range',
+    for (final rule in hardRules) rule.name,
+    for (final rule in tieBreakerRules) rule.name,
+    'deterministic fallback: rootPc',
+  });
+
   /// Compares two candidates. Returns -1 if a ranks higher, 1 if b ranks higher.
   static int compare(
     ChordCandidate a,
