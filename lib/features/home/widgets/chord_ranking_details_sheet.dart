@@ -162,7 +162,8 @@ class _RankingDetailsBodyState extends State<_RankingDetailsBody> {
       for (final row in widget.candidates) row.candidate,
     ]);
 
-    return _FadedVerticalScrollView(
+    return FadedScrollView(
+      fadeColor: Theme.of(context).colorScheme.surfaceContainerLow,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -225,124 +226,6 @@ class _RankingDetailsBodyState extends State<_RankingDetailsBody> {
         notation: widget.notation,
       ),
       noteNameSystem: widget.noteNameSystem,
-    );
-  }
-}
-
-class _FadedVerticalScrollView extends StatefulWidget {
-  const _FadedVerticalScrollView({required this.child});
-
-  final Widget child;
-
-  @override
-  State<_FadedVerticalScrollView> createState() =>
-      _FadedVerticalScrollViewState();
-}
-
-class _FadedVerticalScrollViewState extends State<_FadedVerticalScrollView> {
-  static const _fadeHeight = 24.0;
-
-  late final ScrollController _controller = ScrollController();
-
-  bool _showTopFade = false;
-  bool _showBottomFade = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller.addListener(_updateFades);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _updateFades();
-    });
-  }
-
-  @override
-  void didUpdateWidget(covariant _FadedVerticalScrollView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _updateFades();
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.removeListener(_updateFades);
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _updateFades() {
-    if (!_controller.hasClients) return;
-
-    final position = _controller.position;
-    if (!position.hasContentDimensions) return;
-
-    const epsilon = 0.5;
-    final maxExtent = position.maxScrollExtent;
-    final pixels = position.pixels;
-    final nextTop = maxExtent > epsilon && pixels > epsilon;
-    final nextBottom = maxExtent > epsilon && pixels < maxExtent - epsilon;
-
-    if (nextTop == _showTopFade && nextBottom == _showBottomFade) return;
-
-    setState(() {
-      _showTopFade = nextTop;
-      _showBottomFade = nextBottom;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final fadeColor = Theme.of(context).colorScheme.surfaceContainerLow;
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _updateFades();
-        });
-
-        return Stack(
-          children: [
-            SingleChildScrollView(controller: _controller, child: widget.child),
-            if (_showTopFade)
-              Positioned(
-                left: 0,
-                top: 0,
-                right: 0,
-                height: _fadeHeight,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [fadeColor, fadeColor.withValues(alpha: 0)],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            if (_showBottomFade)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                height: _fadeHeight,
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [fadeColor, fadeColor.withValues(alpha: 0)],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        );
-      },
     );
   }
 }
