@@ -719,6 +719,78 @@
     "label": "oracle-limitation",
     "note": "A7(♭5,♯9) is correct with A in the bass because A-C♯-E♭-G forms the dominant-flat-five shell and C/B♯ is split-third sharp-nine color. Music21 agrees semantically through its A half-diminished add C♯ spelling; WhatChord's label keeps the major third explicit and treats C as the chromatic sharp ninth."
   },
+  "0-1-3-8-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "B♭m11/C is defensible because B♭-D♭-A♭ forms the minor-seventh shell, with C and E♭ as ninth and eleventh color and C in the bass. Music21's A♭/C add B♭,D♭ follows the complete A♭ major triad with ninth and eleventh color, but that reading places a natural eleventh against A♭'s major third. WhatChord also surfaces E♭7sus4/C as an equal-cost possible alternative, so the row is a real minor-eleventh, dominant-sus, and major add-color ambiguity."
+  },
+  "0-1-3-8-10_b1": {
+    "label": "genuine-ambiguity",
+    "note": "B♭m11/D♭ is defensible because D♭ is the minor third in the bass of the B♭ minor-eleventh shell. Music21's G♯/C♯ add A♯ names the alternate A♭ major add-nine/add-eleven structure over D♭, while WhatChord surfaces E♭13sus4/D♭ at equal cost. The current primary avoids treating D♭ as a natural eleventh against an A♭ major third, but the upper-structure reading is contextually plausible."
+  },
+  "0-1-3-8-10_b10": {
+    "label": "clearly-correct",
+    "note": "B♭m11 is the expected root-position label because B♭ is the bass/root and B♭-D♭-A♭ supplies the minor-seventh shell, with C and E♭ as ninth and eleventh color. Music21's A♭/B♭ add D♭ is a valid upper-structure slash view, but it moves away from the observed root and makes B♭ the ninth in the bass."
+  },
+  "0-1-3-8-10_b3": {
+    "label": "genuine-ambiguity",
+    "note": "E♭13sus4 is defensible because E♭ is the bass/root and E♭-A♭-B♭-D♭-C supplies a complete suspended-dominant thirteenth sonority. Music21's A♭/E♭ add B♭,D♭ preserves the complete A♭ major upper structure, while WhatChord ranks B♭m11/E♭ next. All three are practical organizations of the same collection; the root-position dominant-sus label is a strong neutral-context primary."
+  },
+  "0-1-3-8-10_b8": {
+    "label": "genuine-ambiguity",
+    "note": "B♭m11/A♭ is defensible because A♭ is the flat seventh in the bass of a B♭ minor-eleventh shell. Music21's G♯ add A♯,C♯ names the root-position A♭ major add-nine/add-eleven alternate, which is contextually valid but includes the loaded natural-eleventh color against A♭'s major third. The B♭ minor-eleventh spelling is the more idiomatic compact label for the full collection."
+  },
+  "0-1-3-8-9_b0": {
+    "label": "genuine-ambiguity",
+    "note": "C♯maj7sus2(♭13)/B♯ is defensible because it names every pitch as a D♭/C♯ suspended-major-seventh color stack, with C/B♯ as the major seventh in the bass and A as flat-thirteenth color. Music21's A diminished add-tone label captures the A-C-E♭ subset, while WhatChord also surfaces G♯(add♭9,add11)/B♯ and E♭13sus4(♯11)/C as possible alternatives. The row is a rare but real chromatic ambiguity rather than a broad reason to suppress major7sus2 vocabulary."
+  },
+  "0-1-3-8-9_b1": {
+    "label": "genuine-ambiguity",
+    "note": "C♯maj7sus2(♭13) is defensible in root position because C♯-D♯-G♯-B♯ forms a suspended-major-seventh shell and A is explicit flat-thirteenth color. Music21's G♯/C♯ add A follows the complete G♯ major triad with flat-nine and added-eleventh color, while WhatChord surfaces E♭13sus4(♯11)/D♭ as a possible alternative. The exact D♭-rooted label is rare, but the competing G♯ add-color spelling is not clearly more idiomatic because it carries a flat ninth plus natural eleventh against a major triad."
+  },
+  "0-1-3-8-9_b3": {
+    "label": "oracle-limitation",
+    "note": "E♭13sus4(♯11) is preferred because E♭ is the bass/root and the voicing supplies a suspended-dominant shell with D♭ as flat seventh, A as sharp eleventh, and C as thirteenth. Music21's A diminished slash/add-tone label is a pitch-valid subset analysis, but it is less direct than the root-position dominant-sus color stack."
+  },
+  "0-1-3-8-9_b8": {
+    "label": "genuine-ambiguity",
+    "note": "C♯maj7sus2(♭13)/G♯ is defensible because G♯ is the fifth in the bass of the D♭/C♯ suspended-major-seventh-flat-thirteenth stack. Music21's G♯ add C♯,A matches WhatChord's lower-cost possible alternative and gives a complete root-position G♯ major triad with flat-nine and added-eleventh color. Both spellings are awkward but structurally real; the current result reflects the preference for stacked seventh-family color over add-tone bookkeeping inside a close ambiguity."
+  },
+  "0-1-4-5-10_b0": {
+    "label": "genuine-ambiguity",
+    "note": "Fmaj7sus4(♭13)/C is defensible because F-B♭-C-E forms a suspended-major-seventh shell, with D♭ as flat-thirteenth color and C as the fifth in the bass. Music21's B♭ diminished slash spelling follows the B♭-D♭-E subset, while WhatChord surfaces C11♭9 and D♭maj13(♯9)/C as possible alternatives. This is a dense chromatic ambiguity, and the possible C-rooted dominant reading keeps the musician-salient bass-root option visible."
+  },
+  "0-1-4-5-10_b1": {
+    "label": "oracle-limitation",
+    "note": "B♭m(♯11,add9)/D♭ is preferred because B♭-D♭-F supplies a complete minor triad with the third in the bass, C is added ninth, and E is sharp-eleventh color. Music21's A♯ diminished add-tone spelling is semantically aligned after fifth normalization, but the B♭ minor-triad label is the clearer chord-symbol spelling."
+  },
+  "0-1-4-5-10_b10": {
+    "label": "oracle-limitation",
+    "note": "B♭m(♯11,add9) is correct with B♭ in the bass because B♭-D♭-F is a complete root-position minor triad, with C as added ninth and E as sharp-eleventh color. Music21 agrees semantically through its B♭ diminished add-tone spelling, which treats the same E as flat-five color rather than the more readable sharp eleven."
+  },
+  "0-1-4-5-10_b5": {
+    "label": "oracle-limitation",
+    "note": "B♭m(♯11,add9)/F is correct because F is the fifth in the bass of the complete B♭ minor triad, with C as added ninth and E as sharp-eleventh color. Music21 agrees semantically as B♭m/F add E,C."
+  },
+  "0-1-4-5-9_b0": {
+    "label": "oracle-limitation",
+    "note": "Fmaj7♭13/C is preferred because F-A-C-E forms a complete F major-seventh shell with C as the fifth in the bass and D♭ as flat-thirteenth color. Music21's Am/C add C♯,E♯ follows a related A-rooted augmented-color spelling, but it is less direct than the complete F major-seventh-flat-thirteenth label."
+  },
+  "0-1-4-5-9_b1": {
+    "label": "oracle-limitation",
+    "note": "Fmaj7♭13/D♭ is preferred because the voicing contains the complete F-A-C-E major-seventh shell and D♭ is explicit flat-thirteenth bass color. Music21's A/C♯ add C,E♯ re-roots the same pitch material as an A major add-color spelling, but it requires split-third and sharp-fifth bookkeeping rather than naming the complete F major-seventh sonority."
+  },
+  "0-1-4-5-9_b4": {
+    "label": "oracle-limitation",
+    "note": "Fmaj7♭13/E is preferred because E is the major seventh in the bass of the complete F major-seventh-flat-thirteenth shell. Music21's Am/E add C♯,E♯ describes a related A minor/augmented-color subset, but the F label names every tone with a lower explanation cost and a clearer seventh-chord identity."
+  },
+  "0-1-4-5-9_b5": {
+    "label": "clearly-correct",
+    "note": "Fmaj7♭13 is correct in root position because F-A-C-E supplies the complete major-seventh shell and D♭ is flat-thirteenth color. Music21's D♭ augmented-major-seventh slash label is a remote enharmonic reinterpretation and costs substantially more than the direct F-rooted label."
+  },
+  "0-1-4-5-9_b9": {
+    "label": "oracle-limitation",
+    "note": "Fmaj7♭13/A is correct because A is the third in the bass of the complete F major-seventh shell, with D♭ as flat-thirteenth color. Music21 agrees semantically as Fmaj7/A add C♯; WhatChord's label keeps D♭ as the theoretical flat thirteenth rather than an added sharp fifth."
+  },
   "0-1-3-5-6-10_b0": {
     "label": "genuine-ambiguity",
     "note": "Cm11(♭5,♭9) is preferred because C is the bass/root and C-E♭-G♭-B♭ forms a complete half-diminished seventh shell, with D♭ as flat-ninth color and F as eleventh color. Music21 agrees semantically. Tonal's E♭m13/C is a valid rotation and names a complete E♭ minor-thirteenth collection, but it makes the observed C bass the thirteenth rather than the root. ChoCo broadly supports minor-thirteenth vocabulary more than these rare half-diminished color combinations, so this remains a genuine ambiguity, but the bass-rooted half-diminished label is the more direct musician-facing name for this voicing."
