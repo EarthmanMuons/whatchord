@@ -1,4 +1,5 @@
 import '../../models/tonality.dart';
+import '../../services/note_spelling.dart';
 import '../models/chord_symbol.dart';
 
 /// A chord symbol's rendered display strings, split for styled layout.
@@ -133,12 +134,24 @@ ChordSymbolDisplayParts chordSymbolDisplayParts(
   NoteNameSystem noteNameSystem = NoteNameSystem.international,
 }) {
   final formatter = _NoteNameFormatter(noteNameSystem);
-  final quality = toGlyphAccidentals(symbol.quality);
+  final root = formatter.compact(symbol.root);
   return ChordSymbolDisplayParts(
-    root: formatter.compact(symbol.root),
-    quality: quality,
+    root: root,
+    quality: _localizedQuality(symbol.quality, root: root),
     bass: symbol.hasBass ? formatter.compact(symbol.bassRequired) : null,
   );
+}
+
+final RegExp _loneGroupedHeadline = RegExp(r'^\(((?:9|11|13)(?:sus[24])?)\)$');
+
+/// A lone grouped headline exists only to keep a trailing root accidental
+/// apart from the extension (C♯(11)). When the localized root ends without an
+/// accidental (German Cis, Es), the group is unnecessary and unwraps.
+String _localizedQuality(String quality, {required String root}) {
+  final glyphQuality = toGlyphAccidentals(quality);
+  if (endsInSharpOrFlat(root)) return glyphQuality;
+  final lone = _loneGroupedHeadline.firstMatch(glyphQuality);
+  return lone == null ? glyphQuality : lone.group(1)!;
 }
 
 class _NoteNameFormatter {

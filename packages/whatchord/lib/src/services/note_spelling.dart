@@ -93,6 +93,17 @@ bool _isConventionalInversionTone(ChordToneRole role) {
   };
 }
 
+/// Whether [noteName] ends with a sharp or flat, ASCII or glyph, so a bare
+/// extension numeral right after it could be misread (C#11, Eb13, Ebb13).
+/// Double sharps ('x', 𝄪) cannot fuse with extension text and are excluded.
+bool endsInSharpOrFlat(String noteName) {
+  return noteName.endsWith('#') ||
+      noteName.endsWith('b') ||
+      noteName.endsWith('♯') ||
+      noteName.endsWith('♭') ||
+      noteName.endsWith('𝄫');
+}
+
 /// A bass spelling reads cleanly unless it needs a double accidental or is a
 /// wrap enharmonic (B#, E#, Cb, Fb).
 bool _isReadableBassSpelling(String name) {
