@@ -78,7 +78,7 @@ class AppActivityNotifier extends Notifier<AppActivityState> {
     }
 
     _idleTimer = Timer(remaining, () {
-      debugPrint('Idle timer fired; entering idle');
+      if (!kReleaseMode) debugPrint('Idle timer fired; entering idle');
       state = state.copyWith(isIdle: true);
     });
   }
