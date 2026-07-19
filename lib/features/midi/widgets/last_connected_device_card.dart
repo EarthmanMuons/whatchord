@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
 import '../providers/midi_connection_notifier.dart';
 import '../providers/midi_device_manager.dart';
@@ -100,7 +101,7 @@ class LastConnectedDeviceCard extends ConsumerWidget {
         ? () async {
             await ref
                 .read(midiConnectionStateProvider.notifier)
-                .tryAutoReconnect(reason: 'manual');
+                .tryAutoReconnect(reason: MidiReconnectTrigger.manual);
           }
         : null;
 
@@ -135,7 +136,7 @@ class LastConnectedDeviceCard extends ConsumerWidget {
 
       await ref
           .read(midiConnectionStateProvider.notifier)
-          .cancel(reason: 'forget_device');
+          .cancel(reason: MidiCancelReason.forgetDevice);
       await ref.read(midiConnectionStateProvider.notifier).disconnect();
 
       await ref

@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../midi_debug.dart';
+import '../models/midi_connection.dart';
 import '../providers/midi_connection_notifier.dart';
 import '../providers/midi_device_manager.dart';
 import '../providers/midi_preferences_notifier.dart';
@@ -51,7 +52,7 @@ class _MidiLifecycleController with WidgetsBindingObserver {
         unawaited(
           _ref
               .read(midiConnectionStateProvider.notifier)
-              .tryAutoReconnect(reason: 'startup'),
+              .tryAutoReconnect(reason: MidiReconnectTrigger.startup),
         );
       }
     });
@@ -85,7 +86,9 @@ class _MidiLifecycleController with WidgetsBindingObserver {
               reason: 'resume',
               scanIfNeeded: true,
             );
-            await connectionState.tryAutoReconnect(reason: 'resume');
+            await connectionState.tryAutoReconnect(
+              reason: MidiReconnectTrigger.resume,
+            );
           }),
         );
         break;

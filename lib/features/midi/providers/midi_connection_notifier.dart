@@ -57,8 +57,10 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   /// - cancels reconnect/backoff loops.
   /// - stops scanning.
   /// - normalizes UI state.
-  Future<void> cancel({String reason = 'user_cancel'}) async {
-    if (_debugLog) debugPrint('[CONN] cancel reason=$reason');
+  Future<void> cancel({
+    MidiCancelReason reason = MidiCancelReason.userCancel,
+  }) async {
+    if (_debugLog) debugPrint('[CONN] cancel reason=${reason.name}');
     _cancelRequested = true;
     _cancelRetry();
     // Do not clear `_attemptInFlight` here: cancel only requests early exit.
@@ -70,7 +72,8 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     // Backgrounding must not drop a live connection; only pause scanning. A
     // network session's local endpoint always reads connected even when its
     // peer is gone, so only trust the snapshot for the background case.
-    if (reason == 'background' && connected?.isConnected == true) {
+    if (reason == MidiCancelReason.background &&
+        connected?.isConnected == true) {
       // Best-effort; the plugin may throw when the central is down.
       try {
         await _midi.stopScanning();
@@ -217,7 +220,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
               Future<void>.microtask(() {
                 if (_backgrounded) return;
                 if (_attemptInFlight) return;
-                unawaited(tryAutoReconnect(reason: 'bt-ready'));
+                unawaited(
+                  tryAutoReconnect(reason: MidiReconnectTrigger.bluetoothReady),
+                );
               }),
             );
           } else {
@@ -251,7 +256,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     }
     if (_backgrounded) {
       // Controller-owned policy: background cancels attempts and stops scanning.
-      unawaited(cancel(reason: 'background'));
+      unawaited(cancel(reason: MidiCancelReason.background));
     }
   }
 
@@ -269,10 +274,10 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     }
   }
 
-  Future<void> tryAutoReconnect({required String reason}) async {
+  Future<void> tryAutoReconnect({required MidiReconnectTrigger reason}) async {
     if (_debugLog) {
       debugPrint(
-        '[CONN] tryAutoReconnect reason=$reason '
+        '[CONN] tryAutoReconnect reason=${reason.name} '
         'bg=$_backgrounded inflight=$_attemptInFlight cancel=$_cancelRequested',
       );
     }
@@ -285,7 +290,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     // immediately and UI can remain stuck in "Connecting…".
     _cancelRequested = false;
 
-    final isManual = reason == 'manual';
+    final isManual = reason == MidiReconnectTrigger.manual;
 
     // Manual reconnect clears suppression; automatic triggers stay suppressed
     // until then so an explicit disconnect is respected.
@@ -293,13 +298,13 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       _autoReconnectSuppressed = false;
     } else if (_autoReconnectSuppressed) {
       if (_debugLog) {
-        debugPrint('[CONN] auto-reconnect suppressed reason=$reason');
+        debugPrint('[CONN] auto-reconnect suppressed reason=${reason.name}');
       }
       return;
     }
 
     // Only run the startup auto-reconnect sequence once per app run.
-    if (reason == 'startup') {
+    if (reason == MidiReconnectTrigger.startup) {
       if (_startupAttempted) return;
       _startupAttempted = true;
     }
@@ -309,7 +314,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     final last = _lastAutoReconnectAt;
 
     if (!isManual &&
-        reason != 'startup' &&
+        reason != MidiReconnectTrigger.startup &&
         last != null &&
         now.difference(last) < const Duration(seconds: 5)) {
       return;
@@ -349,7 +354,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       // If already connected to the last connected device, do nothing.
       final current = ref.read(midiDeviceManagerProvider).connectedDevice;
       final forceResumeReconnect =
-          reason == 'resume' &&
+          reason == MidiReconnectTrigger.resume &&
           (_lastBackgroundDuration ?? Duration.zero) >=
               _longBackgroundReconnectThreshold;
       if (current?.id == lastConnectedDeviceId &&
@@ -387,7 +392,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         phase: MidiConnectionPhase.connecting,
         message: isManual
             ? 'Connecting to last connected device…'
-            : (reason == 'startup'
+            : (reason == MidiReconnectTrigger.startup
                   ? 'Reconnecting to last connected device…'
                   : 'Reconnecting…'),
         nextDelay: null,
@@ -745,7 +750,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   /// Manually trigger a reconnection attempt.
   Future<bool> reconnect() async {
     if (_debugLog) debugPrint('[CONN] manual reconnect');
-    await tryAutoReconnect(reason: 'manual');
+    await tryAutoReconnect(reason: MidiReconnectTrigger.manual);
 
     final connected = ref.read(midiDeviceManagerProvider).connectedDevice;
     return connected?.isConnected == true;
