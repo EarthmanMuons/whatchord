@@ -184,9 +184,11 @@ class PianoGeometry {
 
     final blackW = whiteKeyWidth * blackKeyWidthRatio;
 
-    // Identify the white key preceding this black key.
+    // Identify the white key preceding this black key. The final white key
+    // counts: a black key hanging off the span's end clamps flush against
+    // the keyboard edge below.
     int? whiteIndex;
-    for (int i = 0; i < whiteMidis.length - 1; i++) {
+    for (int i = 0; i < whiteMidis.length; i++) {
       if (whiteMidis[i] + 1 != midi) continue;
 
       final whitePc = whitePitchClassForIndex(i);
@@ -196,7 +198,7 @@ class PianoGeometry {
       break;
     }
 
-    // Fallback: treat as preceding white key.
+    // Fallback for out-of-span notes: treat as the nearest white key.
     if (whiteIndex == null) {
       final idx = whiteIndexForMidi(midi);
       final l = idx * whiteKeyWidth;

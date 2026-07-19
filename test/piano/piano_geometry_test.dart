@@ -105,31 +105,22 @@ void main() {
         expect(gSharp.left, closeTo(500 - 31, 0.001));
       });
 
-      test('a black key after the last white key falls back to that white '
-          'rect', () {
-        // The preceding-white scan excludes the final white key, so a black
-        // key hanging off the keyboard's end renders as the last white rect
-        // instead of poking past the edge.
+      test('a black key hanging off the span end clamps flush to the edge', () {
         final narrow = PianoGeometry(firstWhiteMidi: c4, whiteKeyCount: 2);
         final dSharp = narrow.keyRectForMidi(
           midi: 63,
           whiteKeyWidth: w,
           totalWidth: 2 * w,
         );
-        expect(dSharp.left, w);
-        expect(dSharp.width, w);
+        // Unclamped left would be 200 + 10 - 31 = 179; clamped to 200 - 62.
+        expect(dSharp.left, closeTo(138, 0.001));
+        expect(dSharp.right, closeTo(200, 0.001));
       });
 
-      test('a black key with no in-range preceding white falls back to the '
-          'nearest white rect', () {
-        final single = PianoGeometry(firstWhiteMidi: c4, whiteKeyCount: 1);
-        final cSharp = single.keyRectForMidi(
-          midi: 61,
-          whiteKeyWidth: w,
-          totalWidth: w,
-        );
-        expect(cSharp.left, 0);
-        expect(cSharp.width, w);
+      test('an out-of-span note falls back to the nearest white rect', () {
+        final dSharp5 = rect(75);
+        expect(dSharp5.left, 6 * w);
+        expect(dSharp5.width, w);
       });
     });
 
