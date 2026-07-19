@@ -79,7 +79,14 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   // ---- Tunables ----------------------------------------------------------
 
   static const Duration _minRefreshInterval = Duration(milliseconds: 700);
-  static const Duration _watchdogInterval = Duration(seconds: 16);
+
+  /// Cadence of the connected-link watchdog (a pulse scan plus an
+  /// isConnected check). Since flutter_midi_command 1.0.6, drops are
+  /// normally detected in about a second by disconnect events, so this only
+  /// bounds detection of silent drops the event path misses; 60s keeps that
+  /// safety net at a quarter of the old 16s radio cost. Candidate for
+  /// further relaxation once 1.x has more real-world time.
+  static const Duration _watchdogInterval = Duration(seconds: 60);
   static const Duration _setupDebounceDelay = Duration(milliseconds: 250);
 
   static const Duration _connectTimeout = Duration(seconds: 6);

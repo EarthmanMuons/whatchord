@@ -25,6 +25,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Connecting to a MIDI device completes about a second faster: the engine now
   confirms readiness itself, so the app's extra verification poll, settling
   delay, and pre-connect cleanup were removed.
+- Reduced Bluetooth scanning while connected: the connection health check now
+  runs once a minute instead of every 16 seconds, since device drops are
+  normally detected immediately by disconnect events.
 
 ### Fixed
 
