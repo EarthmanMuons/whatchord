@@ -153,9 +153,28 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         // Allow persisting the same device id again after disconnect/forget.
         _lastPersistedDeviceId = null;
 
-        // On a connected-to-disconnected transition, fall back to idle.
+        // On a connected-to-disconnected transition, fall back to idle and,
+        // when the loss was unexpected (no user disconnect, cancel, or
+        // backgrounding behind it), start the reconnect loop so a device
+        // powered back on within the backoff window rejoins by itself.
         if (state.phase == MidiConnectionPhase.connected) {
           state = const MidiConnectionState.idle();
+          final wasConnected = prev != null && prev.isConnected;
+          if (wasConnected &&
+              !_backgrounded &&
+              !_cancelRequested &&
+              !_autoReconnectSuppressed) {
+            unawaited(
+              Future<void>.microtask(() {
+                if (_backgrounded || _cancelRequested || _attemptInFlight) {
+                  return;
+                }
+                unawaited(
+                  tryAutoReconnect(reason: MidiReconnectTrigger.connectionLost),
+                );
+              }),
+            );
+          }
         }
       },
     );
@@ -707,6 +726,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     _cancelRetry();
     // Explicit connect clears any prior disconnect suppression.
     _autoReconnectSuppressed = false;
+    // Mark the attempt in flight so the device-switch teardown (previous
+    // device dropping mid-connect) does not read as an unexpected loss.
+    _attemptInFlight = true;
     if (_debugLog) debugPrint('[CONN] connect id=${device.id}');
 
     if (device.transport == MidiTransportType.ble) {
@@ -743,6 +765,8 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         message: 'Connection failed: $e',
       );
       rethrow;
+    } finally {
+      _attemptInFlight = false;
     }
   }
 

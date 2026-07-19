@@ -10,6 +10,13 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- The app now reconnects automatically when a connected MIDI device drops
+  unexpectedly, such as being powered off or moving out of range: turning the
+  device back on within the retry window rejoins without any taps. Explicit
+  disconnects and backgrounding still behave as before.
+
 ### Changed
 
 - Updated the Bluetooth MIDI engine to the latest upstream release, adopting its
