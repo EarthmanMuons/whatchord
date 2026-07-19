@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import 'package:flutter_midi_command/flutter_midi_command.dart' as fmc;
 import 'package:flutter_midi_command/flutter_midi_command_messages.dart' as msg;
 
@@ -130,7 +132,33 @@ class MidiBleService {
     // throws a typed MidiConnectionException on any failure, up to
     // awaitConnectionTimeout. Own that budget here so it matches the
     // caller's rather than racing a separate outer timer.
-    await _midi.connectToDevice(native, awaitConnectionTimeout: timeout);
+    try {
+      await _midi.connectToDevice(native, awaitConnectionTimeout: timeout);
+    } on fmc.MidiConnectionException catch (e) {
+      throw BleServiceException(connectionFailureMessage(e), e);
+    }
+  }
+
+  /// User-facing description of a typed connection failure.
+  ///
+  /// Falls back to the plugin's own stage message for subtypes without a
+  /// friendlier wording here (including MidiPairingInfoRemovedException,
+  /// which the plugin does not export by name).
+  @visibleForTesting
+  static String connectionFailureMessage(fmc.MidiConnectionException e) {
+    return switch (e) {
+      fmc.MidiConnectionTimeoutException() =>
+        'Connection timed out. Make sure the device is powered on and nearby.',
+      fmc.MidiPairingRejectedException() =>
+        'Pairing was declined. Try again and accept the pairing request.',
+      fmc.MidiPairingFailedException() =>
+        'Pairing failed. Try again, or forget the device in system Bluetooth settings first.',
+      fmc.MidiServiceDiscoveryException() =>
+        'This device does not offer MIDI over Bluetooth.',
+      fmc.MidiNotificationSubscriptionException() =>
+        'Connected, but could not start receiving notes. Try again.',
+      _ => e.message,
+    };
   }
 
   Future<void> disconnect(String deviceId) async {

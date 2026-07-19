@@ -304,6 +304,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       _setConnectedDevice(device.copyWith(isConnected: true));
 
       await stopScanning();
+    } on BleServiceException catch (e) {
+      // Preserve the transport's user-facing failure description.
+      throw MidiException(e.message, e);
     } catch (e) {
       throw MidiException('Failed to connect to device', e);
     }

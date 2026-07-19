@@ -6,9 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:whatchord_app/core/providers/shared_preferences_provider.dart';
 import 'package:whatchord_app/features/midi/models/midi_device.dart';
+import 'package:whatchord_app/features/midi/models/midi_exception.dart';
 import 'package:whatchord_app/features/midi/providers/bluetooth_permission_service_provider.dart';
 import 'package:whatchord_app/features/midi/providers/midi_ble_service_provider.dart';
 import 'package:whatchord_app/features/midi/providers/midi_device_manager.dart';
+import 'package:whatchord_app/features/midi/services/midi_ble_service.dart';
 
 import 'fake_midi_ble_service.dart';
 
@@ -72,6 +74,25 @@ void main() {
     expect(connected?.isConnected, isTrue);
     expect(ble.connectedIds, {deviceA.id});
     expect(ble.stopScanningCalls, greaterThanOrEqualTo(0));
+  });
+
+  test('a connect failure surfaces the transport message', () async {
+    ble.discoverable = const [deviceA];
+    ble.connectError = const BleServiceException(
+      'Pairing was declined. Try again and accept the pairing request.',
+    );
+
+    await expectLater(
+      manager().connect(deviceA),
+      throwsA(
+        isA<MidiException>().having(
+          (e) => e.message,
+          'message',
+          contains('Pairing was declined'),
+        ),
+      ),
+    );
+    expect(managerState().connectedDevice, isNull);
   });
 
   test('a disconnect during an in-flight connect wins the race', () async {
