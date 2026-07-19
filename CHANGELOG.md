@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Updated the Bluetooth MIDI engine to the latest upstream release, adopting its
   fixes for silent iOS BLE connections, safer device teardown, and more reliable
   connect/disconnect behavior that previously required our own patched copies.
+- Connecting to a MIDI device completes about a second faster: the engine now
+  confirms readiness itself, so the app's extra verification poll, settling
+  delay, and pre-connect cleanup were removed.
 
 ### Fixed
 

@@ -61,8 +61,8 @@ void main() {
     await setUpContainer();
   });
 
-  test('connect publishes the device only after verification and stops '
-      'scanning', () async {
+  test('connect publishes the device once the transport confirms it, and '
+      'stops scanning', () async {
     ble.discoverable = const [deviceA];
 
     await manager().connect(deviceA);
