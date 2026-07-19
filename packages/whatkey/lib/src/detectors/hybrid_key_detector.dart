@@ -1,6 +1,7 @@
 import 'package:whatchord/whatchord.dart';
 
 import '../models/key_estimate.dart';
+import 'detector_support.dart';
 import 'key_detector.dart';
 import 'key_profiles.dart';
 import 'key_space.dart';
@@ -140,22 +141,22 @@ class HybridKeyDetector implements KeyDetector {
     blend(progressionFrame.ranked, progressionBlend);
     if (combined.isEmpty) return const KeyEstimateFrame.abstain([]);
 
-    final byIndex = {
-      for (final tonality in KeySpace.canonicalTonalities)
-        KeySpace.index(tonality): tonality,
-    };
     final ranked = [
+      // A tonality's position in canonicalTonalities equals its KeySpace
+      // index, so the combined map's keys index the list directly.
       for (final entry in combined.entries)
-        KeyEstimate(tonality: byIndex[entry.key]!, confidence: entry.value),
+        KeyEstimate(
+          tonality: KeySpace.canonicalTonalities[entry.key],
+          confidence: entry.value,
+        ),
     ]..sort((a, b) => b.confidence.compareTo(a.confidence));
 
-    if (_eventCount < minEvents) return KeyEstimateFrame.abstain(ranked);
-    final margin = ranked.length < 2
-        ? double.infinity
-        : ranked[0].confidence - ranked[1].confidence;
-    if (ranked[0].confidence <= 0 || margin < marginFloor) {
-      return KeyEstimateFrame.abstain(ranked);
-    }
-    return KeyEstimateFrame(ranked: ranked, claim: ranked.first);
+    return claimOrAbstain(
+      ranked,
+      eventCount: _eventCount,
+      minEvents: minEvents,
+      marginFloor: marginFloor,
+      requirePositiveTop: true,
+    );
   }
 }

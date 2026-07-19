@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:whatchord/whatchord.dart';
 
 import '../models/key_estimate.dart';
+import 'detector_support.dart';
 import 'hybrid_key_detector.dart';
 import 'key_detector.dart';
 import 'key_profiles.dart';
@@ -220,10 +221,12 @@ class HmmKeyDetector implements KeyDetector {
         ),
     ]..sort((a, b) => b.confidence.compareTo(a.confidence));
 
-    if (_eventCount < minEvents) return KeyEstimateFrame.abstain(ranked);
-    final margin = ranked[0].confidence - ranked[1].confidence;
-    if (margin < marginFloor) return KeyEstimateFrame.abstain(ranked);
-    return KeyEstimateFrame(ranked: ranked, claim: ranked.first);
+    return claimOrAbstain(
+      ranked,
+      eventCount: _eventCount,
+      minEvents: minEvents,
+      marginFloor: marginFloor,
+    );
   }
 
   /// Redistributes emission mass within the parallel pair rooted on the

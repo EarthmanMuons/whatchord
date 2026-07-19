@@ -1,8 +1,7 @@
-import 'dart:math' as math;
-
 import 'package:whatchord/whatchord.dart';
 
 import '../models/key_estimate.dart';
+import 'detector_support.dart';
 import 'key_detector.dart';
 import 'key_profiles.dart';
 import 'key_space.dart';
@@ -46,7 +45,10 @@ class ProfileCorrelationKeyDetector implements KeyDetector {
 
   final List<double> _histogram = List.filled(12, 0);
   int _eventCount = 0;
-  DateTime? _lastTimestamp;
+  late final DecayClock _decay = DecayClock(
+    halfLife: decayHalfLife,
+    halfLifeEvents: decayHalfLifeEvents,
+  );
 
   ProfileCorrelationKeyDetector({
     this.profiles = KeyProfilePair.albrechtShanahan,
@@ -71,42 +73,24 @@ class ProfileCorrelationKeyDetector implements KeyDetector {
   void reset() {
     _histogram.fillRange(0, 12, 0);
     _eventCount = 0;
-    _lastTimestamp = null;
+    _decay.reset();
   }
 
   @override
   KeyEstimateFrame onEvent(ChordEvent event) {
-    _decayTo(event.timestamp);
+    final decay = _decay.advance(event.timestamp);
+    if (decay != null) _applyDecay(decay);
     _accumulate(event);
     _eventCount += 1;
 
     final ranked = _rankKeys();
-    if (ranked.isEmpty || _eventCount < minEvents) {
-      return KeyEstimateFrame.abstain(ranked);
-    }
-    final margin = ranked.length < 2
-        ? double.infinity
-        : ranked[0].confidence - ranked[1].confidence;
-    if (ranked[0].confidence <= 0 || margin < marginFloor) {
-      return KeyEstimateFrame.abstain(ranked);
-    }
-    return KeyEstimateFrame(ranked: ranked, claim: ranked.first);
-  }
-
-  void _decayTo(DateTime timestamp) {
-    final last = _lastTimestamp;
-    _lastTimestamp = timestamp;
-    if (last == null) return;
-    final eventHalfLife = decayHalfLifeEvents;
-    if (eventHalfLife != null) {
-      _applyDecay(math.pow(0.5, 1 / eventHalfLife) as double);
-      return;
-    }
-    final halfLife = decayHalfLife;
-    if (halfLife == null) return;
-    final elapsedMs = timestamp.difference(last).inMilliseconds;
-    if (elapsedMs <= 0) return;
-    _applyDecay(math.pow(0.5, elapsedMs / halfLife.inMilliseconds) as double);
+    return claimOrAbstain(
+      ranked,
+      eventCount: _eventCount,
+      minEvents: minEvents,
+      marginFloor: marginFloor,
+      requirePositiveTop: true,
+    );
   }
 
   void _applyDecay(double factor) {
