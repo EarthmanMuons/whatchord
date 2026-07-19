@@ -25,8 +25,8 @@ dependencies:
   auto_size_text: ^3.0.0
   collection: ^1.19.1
   dart_melty_soundfont: ^2.0.0
-  flutter_midi_command: ^1.0.2
-  flutter_midi_command_ble: ^1.0.2
+  flutter_midi_command: ^1.0.6
+  flutter_midi_command_ble: ^1.0.6
   flutter_pcm_sound: ^3.3.3
   flutter_riverpod: ^3.0.3
   flutter_svg: ^2.2.3
@@ -41,14 +41,6 @@ dependencies:
     path: packages/whatchord
   whatkey:
     path: packages/whatkey
-
-# Vendored copies of upstream 1.0.2 carrying two iOS BLE patches (see
-# third_party/README.md); drop once upstream ships equivalent fixes.
-dependency_overrides:
-  flutter_midi_command:
-    path: third_party/flutter_midi_command
-  flutter_midi_command_ble:
-    path: third_party/flutter_midi_command_ble
 
 dev_dependencies:
   flutter_test:
