@@ -154,7 +154,7 @@ class CandidateFeatures {
           pref.alterationCount == 0 &&
           pref.naturalCount == 0,
       isStructurallyDeficient: _isStructurallyDeficient(id, rootPos),
-      isUnusualSeventhQuality: _isUnusualSeventhQuality(q),
+      isUnusualSeventhQuality: q.isUnusualSeventhQuality,
       isDom7: isDom7,
       isAlteredFifthDom7: isAlteredFifthDom7,
       isDom7RootPosition: isDom7RootPosition,
@@ -236,18 +236,6 @@ class CandidateFeatures {
         roles.contains(ChordToneRole.major3) &&
         hasAlteredFifth &&
         roles.contains(ChordToneRole.flat7);
-  }
-
-  static bool _isUnusualSeventhQuality(ChordQuality quality) {
-    return quality == ChordQuality.minor7Sharp5 ||
-        quality == ChordQuality.dominant7sus2 ||
-        quality == ChordQuality.dominant7sus4 ||
-        quality == ChordQuality.dominant7Flat5 ||
-        quality == ChordQuality.dominant7Sharp5 ||
-        quality == ChordQuality.major7sus2 ||
-        quality == ChordQuality.major7sus4 ||
-        quality == ChordQuality.major7Flat5 ||
-        quality == ChordQuality.major7Sharp5;
   }
 
   static bool _isRootPositionMinor7Add11Shell(

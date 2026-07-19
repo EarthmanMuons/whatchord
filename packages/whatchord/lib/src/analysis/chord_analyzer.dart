@@ -695,54 +695,12 @@ abstract final class ChordAnalyzer {
   /// (major, minor, 7, m7, maj7, sus4, 6ths) are free; a rare name has to be
   /// much cheaper at explaining the tones than a common one to win.
   static double _vocabularyCost(ChordQuality quality) {
-    return switch (quality) {
-      ChordQuality.sus2 ||
-      ChordQuality.sus2sus4 ||
-      ChordQuality.diminished ||
-      ChordQuality.augmented ||
-      ChordQuality.diminished7 ||
-      ChordQuality.halfDiminished7 ||
-      ChordQuality.minorMajor7 ||
-      ChordQuality.dominant7sus4 => _vocabularyMarked,
-      ChordQuality.dominant7Flat5 ||
-      ChordQuality.dominant7Sharp5 ||
-      ChordQuality.major7sus4 ||
-      ChordQuality.major7Sharp5 => _vocabularyUncommon,
-      _ when quality.isRareVocabulary => _vocabularyRare,
-      _ => 0,
+    return switch (quality.vocabularyTier) {
+      ChordVocabularyTier.common => 0,
+      ChordVocabularyTier.marked => _vocabularyMarked,
+      ChordVocabularyTier.uncommon => _vocabularyUncommon,
+      ChordVocabularyTier.rare => _vocabularyRare,
     };
-  }
-
-  static bool _isDominantFamily(ChordQuality quality) {
-    return switch (quality) {
-      ChordQuality.dominant7 ||
-      ChordQuality.dominant7sus2 ||
-      ChordQuality.dominant7sus4 ||
-      ChordQuality.dominant7Flat5 ||
-      ChordQuality.dominant7Sharp5 => true,
-      _ => false,
-    };
-  }
-
-  /// Hosts where a sharp eleven is idiomatic color rather than a marked
-  /// alteration: Lydian majors, dominants, minor family (Dorian #11), and
-  /// sus4 frames (where the split-fourth surcharge prices the clash
-  /// separately). On diminished and sus2 hosts it stays multiplied.
-  static bool _isSharpElevenFriendly(ChordQuality quality) {
-    return _isDominantFamily(quality) ||
-        switch (quality) {
-          ChordQuality.major ||
-          ChordQuality.major6 ||
-          ChordQuality.major7 ||
-          ChordQuality.minor ||
-          ChordQuality.minor6 ||
-          ChordQuality.minor7 ||
-          ChordQuality.minorMajor7 ||
-          ChordQuality.sus4 ||
-          ChordQuality.major7sus4 ||
-          ChordQuality.sus2sus4 => true,
-          _ => false,
-        };
   }
 
   static double _tonePrice({
@@ -917,41 +875,17 @@ abstract final class ChordAnalyzer {
     // whose flat seventh is missing is a phantom host, and its alterations
     // pay the off-dominant rate like any other quality's.
     final soundingDominant =
-        _isDominantFamily(quality) && has(minorSeventhInterval);
+        quality.isDominantFamily && has(minorSeventhInterval);
     final multiplied =
         !soundingDominant &&
-        !(role == ChordToneRole.sharp11 && _isSharpElevenFriendly(quality));
+        !(role == ChordToneRole.sharp11 && quality.isSharpElevenFriendly);
     return multiplied ? price * _offDominantAlterationMultiplier : price;
   }
 
   static double _naturalExtensionPrice(double base, ChordQuality quality) {
-    return _isMarkedExtensionHost(quality)
+    return quality.isMarkedExtensionHost
         ? base * _markedHostExtensionMultiplier
         : base;
-  }
-
-  /// Qualities on which upper extensions are rare enough that a stacked or
-  /// added color tone reads as a stretch rather than everyday vocabulary.
-  /// Dominants (including sus dominants), plain major/minor sevenths, and
-  /// sixth chords keep flat extension prices.
-  static bool _isMarkedExtensionHost(ChordQuality quality) {
-    return switch (quality) {
-      ChordQuality.diminished ||
-      ChordQuality.augmented ||
-      ChordQuality.diminished7 ||
-      ChordQuality.halfDiminished7 ||
-      ChordQuality.minorMajor7 ||
-      ChordQuality.minorSharp5 ||
-      ChordQuality.minor7Sharp5 ||
-      ChordQuality.majorFlat5 ||
-      ChordQuality.major7Flat5 ||
-      ChordQuality.major7Sharp5 ||
-      ChordQuality.major7sus2 ||
-      ChordQuality.sus2 ||
-      ChordQuality.sus2sus4 ||
-      ChordQuality.dominant7sus2 => true,
-      _ => false,
-    };
   }
 
   static bool _hasNaturalFourthRole(Map<int, ChordToneRole> roles) {
