@@ -1,10 +1,10 @@
-import '../models/chord_candidate.dart';
-import '../models/chord_extension.dart';
-import '../models/chord_identity.dart';
-import '../models/tonality.dart';
-import 'candidate_features.dart';
-import 'choco_common_name_prior.dart';
-import 'ranking_policy.dart' as ranking_policy;
+import '../../models/chord_candidate.dart';
+import '../../models/chord_extension.dart';
+import '../../models/chord_identity.dart';
+import '../../models/tonality.dart';
+import '../candidate_features.dart';
+import '../choco_common_name_prior.dart';
+import '../ranking_policy.dart' as ranking_policy;
 
 /// Uses ChoCo chord-label frequency as a weak common-name prior for otherwise
 /// equivalent near-ties.
