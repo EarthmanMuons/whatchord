@@ -3,49 +3,41 @@ import 'package:test/test.dart';
 import 'package:whatchord/whatchord.dart';
 
 void main() {
-  late int productionCapacity;
+  // Small capacity exercises eviction without hundreds of analyses.
+  const capacity = 16;
+  late ChordAnalyzer analyzer;
 
   setUp(() {
-    productionCapacity = ChordAnalyzer.cacheCapacity;
-    ChordAnalyzer.cacheCapacity = 16;
-    ChordAnalyzer.clearCache();
-  });
-
-  tearDown(() {
-    ChordAnalyzer.cacheCapacity = productionCapacity;
-    ChordAnalyzer.clearCache();
+    analyzer = ChordAnalyzer(cacheCapacity: capacity);
   });
 
   test('analyzer cache is bounded to its configured capacity', () {
     final context = _context();
 
-    for (var i = 0; i < ChordAnalyzer.cacheCapacity + 32; i++) {
-      ChordAnalyzer.analyze(_inputFor(i), context: context);
+    for (var i = 0; i < capacity + 32; i++) {
+      analyzer.analyze(_inputFor(i), context: context);
     }
 
-    expect(ChordAnalyzer.cacheSize, ChordAnalyzer.cacheCapacity);
+    expect(analyzer.cacheSize, capacity);
   });
 
   test('cache hits promote entries before eviction', () {
     final context = _context();
     final first = _inputFor(0);
 
-    final firstResult = ChordAnalyzer.analyze(first, context: context);
+    final firstResult = analyzer.analyze(first, context: context);
 
-    for (var i = 1; i < ChordAnalyzer.cacheCapacity; i++) {
-      ChordAnalyzer.analyze(_inputFor(i), context: context);
+    for (var i = 1; i < capacity; i++) {
+      analyzer.analyze(_inputFor(i), context: context);
     }
 
-    expect(ChordAnalyzer.cacheSize, ChordAnalyzer.cacheCapacity);
-    expect(ChordAnalyzer.analyze(first, context: context), same(firstResult));
+    expect(analyzer.cacheSize, capacity);
+    expect(analyzer.analyze(first, context: context), same(firstResult));
 
-    ChordAnalyzer.analyze(
-      _inputFor(ChordAnalyzer.cacheCapacity),
-      context: context,
-    );
+    analyzer.analyze(_inputFor(capacity), context: context);
 
-    expect(ChordAnalyzer.cacheSize, ChordAnalyzer.cacheCapacity);
-    expect(ChordAnalyzer.analyze(first, context: context), same(firstResult));
+    expect(analyzer.cacheSize, capacity);
+    expect(analyzer.analyze(first, context: context), same(firstResult));
   });
 }
 

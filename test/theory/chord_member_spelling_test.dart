@@ -5,6 +5,8 @@ import 'package:whatchord_app/features/theory/theory.dart';
 
 import 'package:whatchord/testing.dart';
 
+final _analyzer = ChordAnalyzer();
+
 void main() {
   // Regression: a non-diatonic chord root must be spelled with chord context,
   // not the plain chromatic noteNameForPitchClass. Bbmaj9/D in C major identifies with root
@@ -20,10 +22,10 @@ void main() {
         names: ['D', 'F', 'A', 'C', 'Bb'],
         bass: 'D',
       );
-      final identity = ChordAnalyzer.analyze(
-        input,
-        context: makeAnalysisContext(tonality: cMajor),
-      ).first.identity;
+      final identity = _analyzer
+          .analyze(input, context: makeAnalysisContext(tonality: cMajor))
+          .first
+          .identity;
 
       // Guard the underlying contract both call sites depend on.
       expect(identity.rootPc, 10);

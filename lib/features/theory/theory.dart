@@ -17,6 +17,7 @@ export 'state/providers/analysis_context_provider.dart';
 export 'state/providers/chord_candidates_providers.dart';
 export 'state/providers/chord_input_provider.dart';
 export 'state/providers/chord_member_spellings_providers.dart';
+export 'state/providers/chord_analyzer_provider.dart';
 export 'state/providers/chord_presentation_provider.dart';
 export 'state/providers/detected_scale_degree_provider.dart';
 export 'state/providers/identity_display_provider.dart';

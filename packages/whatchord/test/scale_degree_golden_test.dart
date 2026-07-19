@@ -4,6 +4,8 @@ import 'package:whatchord/whatchord.dart';
 
 import 'package:whatchord/testing.dart';
 
+final _analyzer = ChordAnalyzer();
+
 class ScaleDegreeCase {
   final String description;
   final List<String> pcs;
@@ -277,7 +279,7 @@ void main() {
       );
 
       final ctx = makeAnalysisContext(tonality: c.tonality);
-      final results = ChordAnalyzer.analyze(input, context: ctx);
+      final results = _analyzer.analyze(input, context: ctx);
 
       expect(results, isNotEmpty, reason: 'No candidates returned');
       final top = results.first.identity;

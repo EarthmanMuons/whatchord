@@ -6,6 +6,8 @@ library;
 
 import 'package:whatchord/whatchord.dart';
 
+final _analyzer = ChordAnalyzer();
+
 void main() {
   final context = contextForKey(const Tonality(Tonic.c, TonalityMode.major));
 
@@ -14,7 +16,7 @@ void main() {
   // which one is in the bass, and how many notes are held.
   // C E G A reads as C6 or as Am7 over C; the engine weighs both.
   final input = inputFromNames(['C', 'E', 'G', 'A']);
-  final candidates = ChordAnalyzer.analyze(input, context: context);
+  final candidates = _analyzer.analyze(input, context: context);
 
   final top = present(candidates.first, context);
   print('symbol:   ${chordSymbolTextLabel(top.symbol)}');
@@ -33,7 +35,7 @@ void main() {
   // --- Explain the ranking ---------------------------------------------------
   // explain() returns the same ranking with each candidate's cost breakdown
   // and the rule that ordered it against the previous one.
-  final explained = ChordAnalyzer.explain(input, context: context);
+  final explained = _analyzer.explain(input, context: context);
   print('\nwhy ${chordSymbolTextLabel(top.symbol)} wins:');
   for (final reason in explained.first.costReasons) {
     print('  $reason');

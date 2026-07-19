@@ -4,11 +4,11 @@ import 'package:whatchord/whatchord.dart';
 
 import 'package:whatchord/testing.dart';
 
-void main() {
-  setUp(ChordAnalyzer.clearCache);
+final _analyzer = ChordAnalyzer();
 
+void main() {
   test('tone-set reasons expose their count as structured data', () {
-    final results = ChordAnalyzer.explain(
+    final results = _analyzer.explain(
       chordInputFromNames(names: ['C', 'E', 'G'], bass: 'C'),
       context: makeAnalysisContext(),
     );

@@ -4,6 +4,8 @@ import 'package:whatchord/src/construction/services/construction_derivation.dart
 import 'package:whatchord/src/construction/services/extension_rules.dart';
 import 'package:whatchord/whatchord.dart';
 
+final _analyzer = ChordAnalyzer();
+
 void main() {
   group('ChordSpec', () {
     test(
@@ -1454,7 +1456,7 @@ void main() {
           quality: ChordQuality.dominant7,
           extensions: entry.value,
         );
-        final analyzed = ChordAnalyzer.analyze(
+        final analyzed = _analyzer.analyze(
           _inputFromVoicing(example.normalizedVoicing),
           context: _context(),
         );

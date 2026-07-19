@@ -4,6 +4,8 @@ import 'package:whatchord/whatchord.dart';
 
 import 'package:whatchord/testing.dart';
 
+final _analyzer = ChordAnalyzer();
+
 class GoldenCase {
   final String description;
 
@@ -116,7 +118,7 @@ void runChordAnalyzerGoldenCases(Iterable<GoldenCase> cases) {
       final count = input.noteCount;
       final tonality = c.tonality ?? defaultTestTonality;
       final ctx = makeAnalysisContext(tonality: tonality);
-      final results = ChordAnalyzer.analyze(input, context: ctx);
+      final results = _analyzer.analyze(input, context: ctx);
 
       expect(results, isNotEmpty, reason: 'No candidates returned');
       final top = results.first.identity;

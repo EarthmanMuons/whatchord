@@ -5,9 +5,9 @@ import 'package:whatchord/whatchord.dart';
 
 import 'package:whatchord/testing.dart';
 
-void main() {
-  setUp(ChordAnalyzer.clearCache);
+final _analyzer = ChordAnalyzer();
 
+void main() {
   // D A C E G: an Am7 (A C E G) over a D bass. Pitch-class-only, the engine
   // reads this as a root-position D9sus4; an isolated D below the Am7 says it is
   // really Am7/D.
@@ -24,7 +24,7 @@ void main() {
 
   group('voicing evidence', () {
     test('pitch-class-only analysis keeps the conventional D9sus4', () {
-      final results = ChordAnalyzer.analyze(input, context: context);
+      final results = _analyzer.analyze(input, context: context);
 
       expect(results.first.identity.rootPc, pc('D'));
       expect(results.first.identity.quality, ChordQuality.dominant7sus4);
@@ -34,7 +34,7 @@ void main() {
       // D2 A2 C3 E3 G3: D sits a fifth below the Am7 stacked above it.
       final voicing = ObservedVoicing.fromMidi([38, 45, 48, 52, 55]);
 
-      final results = ChordAnalyzer.analyze(
+      final results = _analyzer.analyze(
         input,
         context: context,
         voicing: voicing,
@@ -61,7 +61,7 @@ void main() {
     test('the promotion is decided by the voicing rule', () {
       final voicing = ObservedVoicing.fromMidi([38, 45, 48, 52, 55]);
 
-      final debug = ChordAnalyzer.explain(
+      final debug = _analyzer.explain(
         input,
         context: context,
         voicing: voicing,
@@ -78,7 +78,7 @@ void main() {
       // D4 E4 G4 A4 C5: the bass is one step below its neighbor, no isolation.
       final voicing = ObservedVoicing.fromMidi([62, 64, 67, 69, 72]);
 
-      final results = ChordAnalyzer.analyze(
+      final results = _analyzer.analyze(
         input,
         context: context,
         voicing: voicing,

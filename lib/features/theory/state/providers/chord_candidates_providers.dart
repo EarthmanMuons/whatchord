@@ -3,6 +3,7 @@ import 'package:whatchord/whatchord.dart';
 
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
+import 'chord_analyzer_provider.dart';
 import 'chord_input_provider.dart';
 
 const _rankingDetailsCandidateLimit = 5;
@@ -16,7 +17,8 @@ final chordCandidatesProvider = Provider<List<ChordCandidate>>((ref) {
 
   final context = ref.watch(analysisContextProvider);
   final voicing = ref.watch(observedVoicingProvider);
-  return ChordAnalyzer.analyze(input, context: context, voicing: voicing);
+  final analyzer = ref.watch(chordAnalyzerProvider);
+  return analyzer.analyze(input, context: context, voicing: voicing);
 });
 
 final bestChordCandidateProvider = Provider<ChordCandidate?>((ref) {
@@ -42,10 +44,12 @@ final rankedChordCandidateDebugProvider = Provider<List<ExplainedCandidate>>((
 
   final context = ref.watch(analysisContextProvider);
   final voicing = ref.watch(observedVoicingProvider);
-  return ChordAnalyzer.explain(
-    input,
-    context: context,
-    voicing: voicing,
-    take: _rankingDetailsCandidateLimit,
-  );
+  return ref
+      .watch(chordAnalyzerProvider)
+      .explain(
+        input,
+        context: context,
+        voicing: voicing,
+        take: _rankingDetailsCandidateLimit,
+      );
 });

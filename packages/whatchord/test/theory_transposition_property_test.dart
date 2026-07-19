@@ -8,6 +8,8 @@ import 'package:whatchord/whatchord.dart';
 
 import 'package:whatchord/testing.dart';
 
+final _analyzer = ChordAnalyzer();
+
 const _supportedExtensionIntervals = <int>[1, 2, 3, 5, 6, 8, 9];
 const _analysisTake = 256;
 
@@ -39,7 +41,7 @@ void main() {
           final originalContext = makeAnalysisContext(
             tonality: testCase.tonality,
           );
-          final originalResults = ChordAnalyzer.analyze(
+          final originalResults = _analyzer.analyze(
             testCase.input,
             context: originalContext,
             take: _analysisTake,
@@ -58,7 +60,7 @@ void main() {
           final transposedContext = makeAnalysisContext(
             tonality: transposedTonality,
           );
-          final transposedResults = ChordAnalyzer.analyze(
+          final transposedResults = _analyzer.analyze(
             transposedInput,
             context: transposedContext,
             take: _analysisTake,

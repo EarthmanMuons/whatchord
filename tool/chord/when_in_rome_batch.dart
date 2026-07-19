@@ -5,6 +5,8 @@ import 'package:whatchord/whatchord.dart';
 
 import '../src/chord_id_engine.dart';
 
+final _analyzer = ChordAnalyzer();
+
 void main() {
   stdin.transform(utf8.decoder).transform(const LineSplitter()).listen((line) {
     if (line.trim().isEmpty) return;
@@ -23,7 +25,7 @@ void main() {
         preferFlats: keySignature.prefersFlats,
       ),
     );
-    final allCandidates = ChordAnalyzer.analyze(
+    final allCandidates = _analyzer.analyze(
       ChordInput(pcMask: pcMask, bassPc: bassPc, noteCount: noteCount),
       context: context,
       take: 10000,

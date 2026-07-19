@@ -8,6 +8,8 @@ library;
 import 'package:whatchord/whatchord.dart';
 import 'package:whatkey/whatkey.dart';
 
+final _analyzer = ChordAnalyzer();
+
 void main() {
   // The KeyBehavior presets package the research-tuned timescales; balanced
   // follows section-scale key changes within a few chords.
@@ -58,7 +60,7 @@ ChordEvent eventFromNames({required int index, required List<String> names}) {
     for (final pc in pcs.skip(1)) 60 + pc,
   ]);
   final keySignature = KeySignature.fromTonality(_context);
-  final candidates = ChordAnalyzer.analyze(
+  final candidates = _analyzer.analyze(
     input,
     context: AnalysisContext(
       tonality: _context,
