@@ -125,10 +125,11 @@ class MidiBleService {
     Duration timeout = const Duration(seconds: 6),
   }) async {
     final native = await _findNativeDevice(deviceId);
-    // As of flutter_midi_command 1.0, connectToDevice blocks until the device
-    // reports connected or fails, up to awaitConnectionTimeout, and throws on
-    // timeout. Own that budget here so it matches the caller's rather than
-    // racing a separate outer timer.
+    // As of flutter_midi_command 1.0.6, connectToDevice blocks through
+    // pairing and notification setup until the device reports connected, and
+    // throws a typed MidiConnectionException on any failure, up to
+    // awaitConnectionTimeout. Own that budget here so it matches the
+    // caller's rather than racing a separate outer timer.
     await _midi.connectToDevice(native, awaitConnectionTimeout: timeout);
   }
 

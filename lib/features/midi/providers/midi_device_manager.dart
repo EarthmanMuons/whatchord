@@ -82,10 +82,6 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   static const Duration _watchdogInterval = Duration(seconds: 16);
   static const Duration _setupDebounceDelay = Duration(milliseconds: 250);
 
-  static const Duration _disconnectBeforeReconnectDelay = Duration(
-    milliseconds: 300,
-  );
-  static const Duration _postConnectSettleDelay = Duration(milliseconds: 800);
   static const Duration _connectTimeout = Duration(seconds: 6);
 
   static const Duration _waitForDeviceTimeout = Duration(seconds: 6);
@@ -279,12 +275,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         _setConnectedDevice(null);
       }
 
-      // Do not stop scanning until after connection is verified.
-      // With the Bluetooth service boundary, connecting is by id and verified
-      // by querying state.
-      await _cleanupStaleConnection(device.id);
+      // Since flutter_midi_command 1.0.6, connect blocks through pairing and
+      // notification setup and returns only once the device reports
+      // connected (or throws a typed failure), so no post-connect verify,
+      // settle delay, or stale-link cleanup is needed: connecting an
+      // already-live link is an idempotent no-op at the transport level.
       await _performConnection(device.id);
-      await _verifyConnection(device.id);
 
       // A disconnect (or newer connect) landed mid-connect: tear down the
       // link this attempt made and do not publish it.
@@ -773,25 +769,6 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   // ---- Connection helpers ------------------------------------------------
 
-  Future<void> _cleanupStaleConnection(String deviceId) async {
-    // If it's already connected at plugin level, disconnect first.
-    // This is best-effort; failure should not prevent a fresh attempt.
-    try {
-      final connected = await _withTimeout(
-        _ble.isConnected(deviceId),
-        timeout: _bleQueryTimeout,
-      );
-      if (_debugLog) {
-        debugPrint('[MGR] cleanupStale id=$deviceId connected=$connected');
-      }
-      if (!connected) return;
-
-      // Best-effort; the reconnect proceeds regardless.
-      await _ble.disconnect(deviceId);
-      await Future<void>.delayed(_disconnectBeforeReconnectDelay);
-    } catch (_) {}
-  }
-
   Future<void> _performConnection(String deviceId) async {
     if (_debugLog) debugPrint('[MGR] performConnection id=$deviceId');
     // The plugin blocks until connected/failed within _connectTimeout and
@@ -806,23 +783,6 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
             throw const MidiException('Connection timed out');
           },
         );
-    await Future<void>.delayed(_postConnectSettleDelay);
-  }
-
-  Future<void> _verifyConnection(String deviceId) async {
-    // Since flutter_midi_command 1.0, connect() only returns on a confirmed
-    // connection, so this poll is now mostly redundant. Kept as cheap insurance
-    // against a plugin that reports success without a live link.
-    final connected = await _withTimeout(
-      _ble.isConnected(deviceId),
-      timeout: _bleQueryTimeout,
-    );
-    if (_debugLog) {
-      debugPrint('[MGR] verifyConnection id=$deviceId ok=$connected');
-    }
-    if (!connected) {
-      throw const MidiException('Connection failed - device not responding');
-    }
   }
 
   void _setConnectedDevice(MidiDevice? device) {
