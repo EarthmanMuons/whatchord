@@ -9,6 +9,8 @@ import '../../models/tonality.dart';
 import '../../services/interval_constants.dart';
 import '../../services/pitch_class.dart';
 import '../candidate_features.dart';
+import 'named_rule.dart';
+import 'rule_scaffold.dart';
 
 /// Prefers the reading the voicing presents as an upper-structure slash: a
 /// complete chord stacked above an isolated color-tone bass (e.g. an Am7 over a
@@ -31,28 +33,12 @@ int? preferVoicingUpperStructureSlash(
 ///
 /// Example: {C, E, G, A} could be C6 or Am7/C. Prefer C6 in root position
 /// when the 7th chord interpretation would be inverted with no extensions.
-int? prefer6thInRoot(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  if (fa.isSixFamily == fb.isSixFamily) return null;
-
-  final aIs6 = fa.isSixFamily;
-  final fsix = aIs6 ? fa : fb;
-  final fother = aIs6 ? fb : fa;
-
-  if (fsix.isRootPosition &&
-      !_isFifthlessSixth((aIs6 ? a : b).identity) &&
-      !fother.isRootPosition &&
-      fother.extensionCount == 0) {
-    return aIs6 ? -1 : 1;
-  }
-
-  return null;
-}
+final RuleFn prefer6thInRoot = preferOver(
+  isPreferred: (_, f, _) => f.isSixFamily,
+  preferredQualifies: (c, f, _) =>
+      f.isRootPosition && !_isFifthlessSixth(c.identity),
+  competitorQualifies: (_, f, _) => !f.isRootPosition && f.extensionCount == 0,
+);
 
 /// Prefers a complete triad core over an incomplete 6th chord.
 ///

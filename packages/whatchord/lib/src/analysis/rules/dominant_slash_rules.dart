@@ -13,6 +13,8 @@ import '../../services/pitch_class.dart';
 import '../candidate_features.dart';
 import '../ranking_policy.dart' as ranking_policy;
 import 'coverage_simplicity_rules.dart';
+import 'named_rule.dart';
+import 'rule_scaffold.dart';
 
 /// Resolves an exact tritone-dominant ambiguity by bass role.
 ///
@@ -67,33 +69,14 @@ bool isSharp11Flat13Dominant(ChordIdentity id) {
 /// standard minor-eleventh shell with an omitted fifth, rather than G7sus4/D
 /// or Csus2sus4/D. The competing sus readings remain appropriate when their
 /// own roots are in the bass.
-int? preferRootMinor7Add11ShellOverSusSlash(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = fa.isRootPositionMinor7Add11Shell;
-  final bIsPreferred = fb.isRootPositionMinor7Add11Shell;
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final other = aIsPreferred ? b : a;
-  final fOther = aIsPreferred ? fb : fa;
-  final otherIsInvertedDominantSus =
-      !fOther.isRootPosition &&
-      other.identity.quality == ChordQuality.dominant7sus4;
-  final otherIsInvertedDoubleSus =
-      !fOther.isRootPosition && other.identity.quality == ChordQuality.sus2sus4;
-  if (!otherIsInvertedDominantSus && !otherIsInvertedDoubleSus) return null;
-
-  final preferred = aIsPreferred ? a : b;
-  if (preferred.cost > other.cost + ranking_policy.m7Add11ShellCap) {
-    return null;
-  }
-
-  return aIsPreferred ? -1 : 1;
-}
+final RuleFn preferRootMinor7Add11ShellOverSusSlash = preferOver(
+  isPreferred: (_, f, _) => f.isRootPositionMinor7Add11Shell,
+  competitorQualifies: (c, f, _) =>
+      !f.isRootPosition &&
+      (c.identity.quality == ChordQuality.dominant7sus4 ||
+          c.identity.quality == ChordQuality.sus2sus4),
+  costCap: ranking_policy.m7Add11ShellCap,
+);
 
 /// Prefers a complete dominant sharp-nine over a root-position non-seventh
 /// chord carrying destabilizing altered color.
@@ -111,30 +94,12 @@ int? preferRootMinor7Add11ShellOverSusSlash(
 /// complete root/third/altered-fifth/seventh/#9 organization. A complete
 /// A7#5#9 is more idiomatic than a root-position sus or add chord whose main
 /// evidence is flat-nine and added-thirteenth color.
-int? preferCompleteDominantSharp9OverNonSeventhColor(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = isCompleteDominantSharpNineReading(a.identity);
-  final bIsPreferred = isCompleteDominantSharpNineReading(b.identity);
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final other = aIsPreferred ? b : a;
-  final fOther = aIsPreferred ? fb : fa;
-  if (!isStableNonSeventhSharpNineCompetitor(other.identity, fOther)) {
-    return null;
-  }
-
-  final preferredCandidate = aIsPreferred ? a : b;
-  if (preferredCandidate.cost > other.cost + ranking_policy.dom7Sharp9Cap) {
-    return null;
-  }
-
-  return aIsPreferred ? -1 : 1;
-}
+final RuleFn preferCompleteDominantSharp9OverNonSeventhColor = preferOver(
+  isPreferred: (c, _, _) => isCompleteDominantSharpNineReading(c.identity),
+  competitorQualifies: (c, f, _) =>
+      isStableNonSeventhSharpNineCompetitor(c.identity, f),
+  costCap: ranking_policy.dom7Sharp9Cap,
+);
 
 bool isCompleteDominantSharpNineReading(ChordIdentity id) {
   final fifthRole = switch (id.quality) {
@@ -162,23 +127,13 @@ bool isCompleteDominantSharpNineReading(ChordIdentity id) {
       roles.contains(ChordToneRole.flat7);
 }
 
-int? preferCompleteFlatNineFlatThirteenthDominantOverRemoteSpelling(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = _isCompleteFlatNineFlatThirteenthDominant(a.identity);
-  final bIsPreferred = _isCompleteFlatNineFlatThirteenthDominant(b.identity);
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final fOther = aIsPreferred ? fb : fa;
-  if (fOther.isDom7) return null;
-  if (!fOther.isDimFamily && !fOther.isSeventhFamily) return null;
-
-  return aIsPreferred ? -1 : 1;
-}
+final RuleFn preferCompleteFlatNineFlatThirteenthDominantOverRemoteSpelling =
+    preferOver(
+      isPreferred: (c, _, _) =>
+          _isCompleteFlatNineFlatThirteenthDominant(c.identity),
+      competitorQualifies: (_, f, _) =>
+          !f.isDom7 && (f.isDimFamily || f.isSeventhFamily),
+    );
 
 bool _isCompleteFlatNineFlatThirteenthDominant(ChordIdentity id) {
   if (id.quality != ChordQuality.dominant7) return false;
@@ -247,30 +202,11 @@ bool isStableNonSeventhSharpNineCompetitor(
 /// Keep this bounded to root, first, and second inversion. With the dominant
 /// seventh or a color tone in the bass, the diminished interpretation can be
 /// the clearer reading.
-int? preferCompleteDom7Flat9OverColoredDim7(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = isStableDominantFlatNineShell(a.identity, fa);
-  final bIsPreferred = isStableDominantFlatNineShell(b.identity, fb);
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final other = aIsPreferred ? b : a;
-  final fOther = aIsPreferred ? fb : fa;
-  if (!_isColoredDiminishedReading(other.identity, fOther)) return null;
-
-  final preferredCandidate = aIsPreferred ? a : b;
-  final otherCandidate = aIsPreferred ? b : a;
-  if (preferredCandidate.cost >
-      otherCandidate.cost + ranking_policy.dom7Flat9Cap) {
-    return null;
-  }
-
-  return aIsPreferred ? -1 : 1;
-}
+final RuleFn preferCompleteDom7Flat9OverColoredDim7 = preferOver(
+  isPreferred: (c, f, _) => isStableDominantFlatNineShell(c.identity, f),
+  competitorQualifies: (c, f, _) => _isColoredDiminishedReading(c.identity, f),
+  costCap: ranking_policy.dom7Flat9Cap,
+);
 
 bool isStableDominantFlatNineShell(
   ChordIdentity id,
@@ -316,39 +252,23 @@ bool _isColoredDiminishedReading(ChordIdentity id, CandidateFeatures features) {
 /// This remains an ambiguity preference, not an absolute analysis: when the
 /// bass-rooted minor-major7 reading is rooted on the selected tonic, context
 /// provides enough evidence to leave that lower-cost reading ahead.
-int? preferFlatNineBassDominantOverRemoteReinterpretation(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality tonality,
-) {
-  final aIsPreferred = fa.isFifthlessFlatNineBassDominant;
-  final bIsPreferred = fb.isFifthlessFlatNineBassDominant;
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final other = aIsPreferred ? b : a;
-  final fOther = aIsPreferred ? fb : fa;
-  final otherIsBassRootedMinorMajor7 =
-      fOther.isRootPosition &&
-      other.identity.quality == ChordQuality.minorMajor7;
-  final otherIsDiminishedTriad =
-      other.identity.quality == ChordQuality.diminished;
-  if (!otherIsBassRootedMinorMajor7 && !otherIsDiminishedTriad) return null;
-
-  if (tonality.isMinor &&
-      otherIsBassRootedMinorMajor7 &&
-      other.identity.rootPc == tonality.tonicPitchClass) {
-    return null;
-  }
-
-  final preferredCandidate = aIsPreferred ? a : b;
-  if (preferredCandidate.cost > other.cost + ranking_policy.flatNineBassCap) {
-    return null;
-  }
-
-  return aIsPreferred ? -1 : 1;
-}
+final RuleFn preferFlatNineBassDominantOverRemoteReinterpretation = preferOver(
+  isPreferred: (_, f, _) => f.isFifthlessFlatNineBassDominant,
+  competitorQualifies: (c, f, tonality) {
+    final isBassRootedMinorMajor7 =
+        f.isRootPosition && c.identity.quality == ChordQuality.minorMajor7;
+    if (isBassRootedMinorMajor7 &&
+        tonality.isMinor &&
+        c.identity.rootPc == tonality.tonicPitchClass) {
+      // Context provides enough evidence to leave the lower-cost tonic
+      // minor-major reading ahead.
+      return false;
+    }
+    return isBassRootedMinorMajor7 ||
+        c.identity.quality == ChordQuality.diminished;
+  },
+  costCap: ranking_policy.flatNineBassCap,
+);
 
 /// Resolves C7#9 vs Eb°7 ambiguity by preferring the dominant reading when:
 /// - Dominant is in root position with shell tones (3rd + b7) present
@@ -356,39 +276,16 @@ int? preferFlatNineBassDominantOverRemoteReinterpretation(
 /// - Diminished reading would be a slash chord with color-tone bass
 ///
 /// Example: {C, E, Bb, Eb} → prefer C7b9 over Eb°7/C
-int? preferAlteredDom7(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  // Engage only for (dominant7) vs (fully diminished7) comparisons.
-  final aIsDom7 = fa.isDom7;
-  final bIsDom7 = fb.isDom7;
-  final aIsDimFamily = fa.isDimFamily;
-  final bIsDimFamily = fb.isDimFamily;
-
-  final domVsDim = (aIsDom7 && bIsDimFamily) || (bIsDom7 && aIsDimFamily);
-  if (!domVsDim) return null;
-
-  final fDom = aIsDom7 ? fa : fb;
-  final fDim = aIsDom7 ? fb : fa;
-  final domIsA = aIsDom7;
-
-  if (!fDom.isDom7RootPosition) return null;
-  if (!fDom.dom7HasShell) return null;
-  if (!fDim.isSlashBass) return null;
-  if (!fDim.bassIsColorTone) return null;
-
+final RuleFn preferAlteredDom7 = preferOver(
+  isPreferred: (_, f, _) => f.isDom7,
   // Require that the dominant is actually "doing something dominant-ish",
-  // i.e. it has at least one real extension/alteration.
-  // This is what keeps plain C7 from always beating (say) Cdim7 contexts.
-  if (!fDom.hasNaturalOrAlteredColor) return null;
-
-  // If all of the above holds: prefer dominant7 interpretation.
-  return domIsA ? -1 : 1;
-}
+  // i.e. it has at least one real extension/alteration. This is what keeps
+  // plain C7 from always beating (say) Cdim7 contexts.
+  preferredQualifies: (_, f, _) =>
+      f.isDom7RootPosition && f.dom7HasShell && f.hasNaturalOrAlteredColor,
+  competitorQualifies: (_, f, _) =>
+      f.isDimFamily && f.isSlashBass && f.bassIsColorTone,
+);
 
 /// Distinguishes upper-structure dominants from inversions.
 ///
@@ -441,24 +338,11 @@ int? preferUpperStructureDom7(
 /// Example: {C, E, G, Bb, D, F#} is better read as C9#11 than D11#5/C.
 /// The same applies to C9#11/Bb: the altered-fifth spelling is possible, but it
 /// respells the stable dominant seventh as A# and loses the direct inversion.
-int? preferRootExtendedDom7OverAlteredFifthSlash(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = _isStableExtendedDom7(a.identity, fa);
-  final bIsPreferred = _isStableExtendedDom7(b.identity, fb);
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final fOther = aIsPreferred ? fb : fa;
-  if (!fOther.isAlteredFifthDom7) return null;
-  if (!fOther.isSlashBass) return null;
-  if (!fOther.dom7HasShell) return null;
-
-  return aIsPreferred ? -1 : 1;
-}
+final RuleFn preferRootExtendedDom7OverAlteredFifthSlash = preferOver(
+  isPreferred: (c, f, _) => _isStableExtendedDom7(c.identity, f),
+  competitorQualifies: (_, f, _) =>
+      f.isAlteredFifthDom7 && f.isSlashBass && f.dom7HasShell,
+);
 
 /// Prefers a bass-rooted suspended dominant over remote slash spellings.
 ///
@@ -517,22 +401,13 @@ bool _isRootDominantSusFlatNine(ChordIdentity id) {
 /// G♭-B♭-D♭ is a complete major triad with C as Lydian color. The D♭maj13sus4
 /// spelling is possible, but it has neither the major third nor fifth of D♭ and
 /// turns the G♭ triad root into a suspended tone.
-int? preferCompleteMajorSharpElevenInversionOverMajor13Sus4(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = _isCompleteMajorSharpElevenInversion(a.identity, fa);
-  final bIsPreferred = _isCompleteMajorSharpElevenInversion(b.identity, fb);
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final other = aIsPreferred ? b : a;
-  if (!_isSparseMajorThirteenSusFour(other.identity)) return null;
-
-  return aIsPreferred ? -1 : 1;
-}
+final RuleFn preferCompleteMajorSharpElevenInversionOverMajor13Sus4 =
+    preferOver(
+      isPreferred: (c, f, _) =>
+          _isCompleteMajorSharpElevenInversion(c.identity, f),
+      competitorQualifies: (c, _, _) =>
+          _isSparseMajorThirteenSusFour(c.identity),
+    );
 
 bool _isCompleteMajorSharpElevenInversion(
   ChordIdentity id,
@@ -572,22 +447,10 @@ bool _isSparseMajorThirteenSusFour(ChordIdentity id) {
 /// merely a thirteenth on an unrelated root. The inversion reading keeps
 /// all four tones in a single coherent chord name without borrowing the bass
 /// as an ornament.
-int? preferCompleteMajorInversionOverSeventhColorBassSlash(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsMajorInversion = fa.isCompleteMajorTriadInversion;
-  final bIsMajorInversion = fb.isCompleteMajorTriadInversion;
-  if (aIsMajorInversion == bIsMajorInversion) return null;
-
-  final fOther = aIsMajorInversion ? fb : fa;
-  if (!fOther.isSeventhFamily || !fOther.bassIsColorTone) return null;
-
-  return aIsMajorInversion ? -1 : 1;
-}
+final RuleFn preferCompleteMajorInversionOverSeventhColorBassSlash = preferOver(
+  isPreferred: (_, f, _) => f.isCompleteMajorTriadInversion,
+  competitorQualifies: (_, f, _) => f.isSeventhFamily && f.bassIsColorTone,
+);
 
 bool _isStableExtendedDom7(ChordIdentity id, CandidateFeatures features) {
   if (!features.isDom7RootPosition && !features.isDom7Slash) return false;
@@ -611,27 +474,13 @@ bool _isStableExtendedDom7(ChordIdentity id, CandidateFeatures features) {
 /// complete A-C#-E-G shell and uses standard altered-dominant vocabulary, while
 /// the minor reading depends on the much less idiomatic b9/#11 minor color
 /// combination.
-int? preferCompleteAlteredThirteenthDominantOverAlteredMinorThirteenth(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = _isCompleteSharpNineSharpElevenThirteenthDominant(
-    a.identity,
-  );
-  final bIsPreferred = _isCompleteSharpNineSharpElevenThirteenthDominant(
-    b.identity,
-  );
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final other = aIsPreferred ? b : a;
-  final fOther = aIsPreferred ? fb : fa;
-  if (!_isAlteredMinorThirteenth(other.identity, fOther)) return null;
-
-  return aIsPreferred ? -1 : 1;
-}
+final RuleFn preferCompleteAlteredThirteenthDominantOverAlteredMinorThirteenth =
+    preferOver(
+      isPreferred: (c, _, _) =>
+          _isCompleteSharpNineSharpElevenThirteenthDominant(c.identity),
+      competitorQualifies: (c, f, _) =>
+          _isAlteredMinorThirteenth(c.identity, f),
+    );
 
 bool _isCompleteSharpNineSharpElevenThirteenthDominant(ChordIdentity id) {
   if (id.quality != ChordQuality.dominant7) return false;
@@ -808,48 +657,28 @@ int? preferDim7InRoot(
 /// This catches cases like:
 ///   {C, E, Bb, Db, F#, Ab, G} -> prefer C7(b9,#11,b13)
 /// over remote minor-major / extended slash readings.
-int? preferDom7RootOverNonDomSlash(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = fa.isDom7RootPosition && fa.dom7HasShell;
-  final bIsPreferred = fb.isDom7RootPosition && fb.dom7HasShell;
-  if (aIsPreferred == bIsPreferred) return null;
+final RuleFn preferDom7RootOverNonDomSlash = preferOver(
+  isPreferred: (_, f, _) => f.isDom7RootPosition && f.dom7HasShell,
+  preferredQualifies: (c, f, _) {
+    // Ensure the dominant reading is not "plain"; it should have some color.
+    if (!f.hasNaturalOrAlteredColor) return false;
 
-  final fDom = aIsPreferred ? fa : fb;
-  final fOther = aIsPreferred ? fb : fa;
-  final domCandidate = aIsPreferred ? a : b;
-  final otherCandidate = aIsPreferred ? b : a;
-
-  // Only when the competing interpretation is a slash and not itself dominant7.
-  if (!fOther.isSlashBass) return null;
-  if (fOther.isDom7) return null;
-  if (fOther.isAlteredFifthDom7) return null;
-
-  // Ensure the dominant reading is not "plain"; it should have some color.
-  if (!fDom.hasNaturalOrAlteredColor) return null;
-
-  // Do not promote a fifthless dominant whose natural 11 clashes with its
-  // major third (Ab11 shells); without the fifth the 11 reads as a
-  // suspension and the avoid-tone price is there for a reason. A complete
-  // eleventh with its fifth (C11 over C-E-G-Bb-F) stays promotable.
-  final domRoles = domCandidate.identity.toneRolesByInterval.values;
-  if (domRoles.contains(ChordToneRole.major3) &&
-      !domRoles.contains(ChordToneRole.perfect5) &&
-      (domRoles.contains(ChordToneRole.eleven) ||
-          domRoles.contains(ChordToneRole.add11))) {
-    return null;
-  }
-
-  if (domCandidate.cost > otherCandidate.cost + ranking_policy.dom7RootCap) {
-    return null;
-  }
-
-  return aIsPreferred ? -1 : 1;
-}
+    // Do not promote a fifthless dominant whose natural 11 clashes with its
+    // major third (Ab11 shells); without the fifth the 11 reads as a
+    // suspension and the avoid-tone price is there for a reason. A complete
+    // eleventh with its fifth (C11 over C-E-G-Bb-F) stays promotable.
+    final roles = c.identity.toneRolesByInterval.values;
+    return !(roles.contains(ChordToneRole.major3) &&
+        !roles.contains(ChordToneRole.perfect5) &&
+        (roles.contains(ChordToneRole.eleven) ||
+            roles.contains(ChordToneRole.add11)));
+  },
+  // Only when the competing interpretation is a slash and not itself
+  // dominant7.
+  competitorQualifies: (_, f, _) =>
+      f.isSlashBass && !f.isDom7 && !f.isAlteredFifthDom7,
+  costCap: ranking_policy.dom7RootCap,
+);
 
 /// Prefers root-position altered-fifth dominants over close slash readings.
 ///
@@ -920,32 +749,13 @@ bool _isWholeToneAlteredFifthRootVsNinthSlash(
 /// Dbm(maj9)/Eb is preferred over Emaj13#5/D#. The competing spellings
 /// are pitch-class valid, but reinterpret a complete natural ninth chord as a
 /// remote altered chord.
-int? preferNinthBassSeventhOverAlteredSlash(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = fa.isCompleteNinthBassSeventhChord;
-  final bIsPreferred = fb.isCompleteNinthBassSeventhChord;
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final fOther = aIsPreferred ? fb : fa;
-  final preferredCandidate = aIsPreferred ? a : b;
-  final otherCandidate = aIsPreferred ? b : a;
-
-  if (!fOther.isSlashBass) return null;
-  if (fOther.extensionTensionCount == 0 && !fOther.isUnusualSeventhQuality) {
-    return null;
-  }
-  if (preferredCandidate.cost >
-      otherCandidate.cost + ranking_policy.ninthBassCap) {
-    return null;
-  }
-
-  return aIsPreferred ? -1 : 1;
-}
+final RuleFn preferNinthBassSeventhOverAlteredSlash = preferOver(
+  isPreferred: (_, f, _) => f.isCompleteNinthBassSeventhChord,
+  competitorQualifies: (_, f, _) =>
+      f.isSlashBass &&
+      (f.extensionTensionCount > 0 || f.isUnusualSeventhQuality),
+  costCap: ranking_policy.ninthBassCap,
+);
 
 /// Avoids promoting remote, non-dominant slash readings whose "simple" color
 /// is a natural 11 against a major third.
@@ -1001,31 +811,12 @@ int? preferConventionalAlteredSeventhOverAdd11Slash(
 ///
 /// The cost guard lets the sus reading win when the cost difference is
 /// decisive rather than merely a template-complexity artifact.
-int? preferRootAddChordOverSusSlash(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsPreferred = fa.isRootPositionNaturalAddChord;
-  final bIsPreferred = fb.isRootPositionNaturalAddChord;
-  if (aIsPreferred == bIsPreferred) return null;
-
-  final fSus = aIsPreferred ? fb : fa;
-  if (!fSus.isSus || !fSus.isSlashBass) return null;
-
-  final preferredCandidate = aIsPreferred ? a : b;
-  final susCandidate = aIsPreferred ? b : a;
-  if (!_hasOnlyNaturalAddTones(preferredCandidate.identity)) return null;
-
-  if (preferredCandidate.cost >
-      susCandidate.cost + ranking_policy.addChordCap) {
-    return null;
-  }
-
-  return aIsPreferred ? -1 : 1;
-}
+final RuleFn preferRootAddChordOverSusSlash = preferOver(
+  isPreferred: (_, f, _) => f.isRootPositionNaturalAddChord,
+  preferredQualifies: (c, _, _) => _hasOnlyNaturalAddTones(c.identity),
+  competitorQualifies: (_, f, _) => f.isSus && f.isSlashBass,
+  costCap: ranking_policy.addChordCap,
+);
 
 bool _hasOnlyNaturalAddTones(ChordIdentity id) {
   return id.extensions.every(
@@ -1049,33 +840,15 @@ bool _hasOnlyNaturalAddTones(ChordIdentity id) {
 /// not as C♯maj9♭13/A♭. The F dominant interpretation has shell tones (A +
 /// E♭) and a color-tone bass (A♭ = ♯9 of F), while the C♯ reading requires
 /// an unusual root and treats the same A♭ as a structural fifth inversion.
-int? preferDom7ShellSlashOverSeventhFamilySlash(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsDom7Slash = fa.isDom7Slash;
-  final bIsDom7Slash = fb.isDom7Slash;
-  if (aIsDom7Slash == bIsDom7Slash) return null;
-
-  final domIsA = aIsDom7Slash;
-  final fDom = domIsA ? fa : fb;
-  final fOther = domIsA ? fb : fa;
-
-  if (!fDom.dom7HasShell) return null;
-  if (fDom.bassIsColorTone) {
-    // Color-bass dominant slashes are the original target of this rule.
-  } else if (fDom.hasStableBassRole) {
-    final dom = domIsA ? a : b;
-    if (!isStableDominantFlatNineShell(dom.identity, fDom)) return null;
-  } else {
-    return null;
-  }
-  if (!fOther.isSeventhFamily) return null;
-  if (fOther.isDom7) return null;
-  if (!fOther.isSlashBass) return null;
-
-  return domIsA ? -1 : 1;
-}
+final RuleFn preferDom7ShellSlashOverSeventhFamilySlash = preferOver(
+  isPreferred: (_, f, _) => f.isDom7Slash,
+  // Color-bass dominant slashes are the original target of this rule; a
+  // stable-bass slash qualifies only as a complete flat-nine shell.
+  preferredQualifies: (c, f, _) =>
+      f.dom7HasShell &&
+      (f.bassIsColorTone ||
+          (f.hasStableBassRole &&
+              isStableDominantFlatNineShell(c.identity, f))),
+  competitorQualifies: (_, f, _) =>
+      f.isSeventhFamily && !f.isDom7 && f.isSlashBass,
+);
