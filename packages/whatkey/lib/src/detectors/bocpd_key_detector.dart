@@ -7,6 +7,7 @@ import 'hmm_key_detector.dart';
 import 'key_detector.dart';
 import 'key_profiles.dart';
 import 'key_space.dart';
+import 'rotated_correlation.dart';
 
 /// Bayesian online changepoint detection over the 24-key space (Adams &
 /// MacKay 2007, arXiv:0710.3742; design plan, future model directions):
@@ -183,12 +184,15 @@ class BocpdKeyDetector implements KeyDetector {
     for (var pc = 0; pc < 12; pc++) {
       if ((mask & (1 << pc)) != 0) histogram[pc] = 1;
     }
+    final histogramStats = VectorStats.of(histogram);
     final scores = List<double>.filled(24, 0);
     for (var k = 0; k < 24; k++) {
       final tonality = KeySpace.canonicalTonalities[k];
-      scores[k] = _rotatedCorrelation(
-        histogram,
-        tonality.isMajor ? profiles.major : profiles.minor,
+      scores[k] = rotatedCorrelation(
+        histogramStats,
+        VectorStats.ofProfile(
+          tonality.isMajor ? profiles.major : profiles.minor,
+        ),
         tonality.tonicPitchClass,
       );
     }
@@ -249,26 +253,5 @@ class BocpdKeyDetector implements KeyDetector {
       result[i] /= total;
     }
     return result;
-  }
-
-  static double _rotatedCorrelation(
-    List<double> histogram,
-    List<double> profile,
-    int tonicPc,
-  ) {
-    final histogramMean = histogram.reduce((a, b) => a + b) / histogram.length;
-    final profileMean = profile.reduce((a, b) => a + b) / profile.length;
-    var covariance = 0.0;
-    var histogramSquares = 0.0;
-    var profileSquares = 0.0;
-    for (var pc = 0; pc < 12; pc++) {
-      final h = histogram[pc] - histogramMean;
-      final p = profile[(pc - tonicPc + 12) % 12] - profileMean;
-      covariance += h * p;
-      histogramSquares += h * h;
-      profileSquares += p * p;
-    }
-    final scale = math.sqrt(histogramSquares) * math.sqrt(profileSquares);
-    return scale == 0 ? 0 : covariance / scale;
   }
 }
