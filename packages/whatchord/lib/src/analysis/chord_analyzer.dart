@@ -248,12 +248,13 @@ final class ChordAnalyzer {
       context,
       take,
     );
-    final cached = _cache[key];
+    final cache = _cache;
+    final cached = cache[key];
     if (cached != null) {
       if (engineCountersEnabled) EngineCounters.cacheHits++;
       // Promote cache hits so eviction removes the least recently used entry,
       // not merely the oldest inserted entry.
-      _cache
+      cache
         ..remove(key)
         ..[key] = cached;
       return cached;
@@ -273,9 +274,9 @@ final class ChordAnalyzer {
         .map((e) => e.candidate)
         .toList(growable: false);
 
-    _cache[key] = result;
-    if (_cache.length > cacheCapacity) {
-      _cache.remove(_cache.keys.first);
+    cache[key] = result;
+    if (cache.length > cacheCapacity) {
+      cache.remove(cache.keys.first);
     }
     return result;
   }

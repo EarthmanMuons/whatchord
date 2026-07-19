@@ -117,8 +117,11 @@ Future<Map<String, Object?>> _runBenchmark() async {
 
   // --- Memory + counters: oracle corpus (the adversarial stress case) -------
   void oraclePass() {
+    // Hoisted so the timed loop measures analyze(), not the lazy top-level
+    // initialization check on every access.
+    final analyzer = _analyzer;
     for (final input in oracle) {
-      _analyzer.analyze(input, context: context);
+      analyzer.analyze(input, context: context);
     }
   }
 
@@ -176,9 +179,10 @@ Future<Map<String, Object?>> _runBenchmark() async {
   AnalysisContext context,
 ) {
   final n = corpus.length;
+  final analyzer = _analyzer;
   void pass() {
     for (final input in corpus) {
-      _analyzer.analyze(input, context: context);
+      analyzer.analyze(input, context: context);
     }
   }
 
