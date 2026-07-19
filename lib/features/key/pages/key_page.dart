@@ -8,15 +8,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord_app/core/core.dart';
+import 'package:whatchord_app/features/home/home.dart';
 import 'package:whatchord_app/features/input/input.dart';
-import 'package:whatchord_app/features/key/key.dart';
 import 'package:whatchord_app/features/midi/midi.dart';
 import 'package:whatchord_app/features/settings/settings.dart';
 import 'package:whatchord_app/features/theory/theory.dart';
 
-import '../models/home_layout_config.dart';
-import '../widgets/app_bar_title.dart';
-import '../widgets/resizable_keyboard_area.dart';
+import '../providers/inferred_key_notifier.dart';
+import '../providers/key_mode_notifier.dart';
+import '../providers/key_screenshot_seed_notifier.dart';
+import '../widgets/auto_key_status.dart';
+import '../widgets/key_posterior_strip.dart';
+import '../widgets/key_posterior_wheel.dart';
+import '../widgets/recent_chords_strip.dart';
 
 /// The key page: manual key-signature selection and the auto-detected key,
 /// as one surface with the live keyboard below, so the detector can be
