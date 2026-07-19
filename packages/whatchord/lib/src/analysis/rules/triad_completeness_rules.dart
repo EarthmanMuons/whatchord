@@ -8,6 +8,7 @@ import '../../models/chord_identity.dart';
 import '../../models/chord_tone_role.dart';
 import '../../models/tonality.dart';
 import '../candidate_features.dart';
+import '../ranking_policy.dart' as ranking_policy;
 import 'coverage_simplicity_rules.dart';
 
 /// Prefers a complete major/minor triad with add-tone extensions over a sparse
@@ -129,7 +130,10 @@ int? preferSimpleTriadAddToneOverSeventhFamilyUnusualQuality(
   // through when the gap exceeds what structural inflation explains.
   final preferredCandidate = aIsTriadAddTone ? a : b;
   final otherCandidate = aIsTriadAddTone ? b : a;
-  if (preferredCandidate.cost > otherCandidate.cost + 1.50) return null;
+  if (preferredCandidate.cost >
+      otherCandidate.cost + ranking_policy.triadAddToneCap) {
+    return null;
+  }
 
   return aIsTriadAddTone ? -1 : 1;
 }
@@ -185,7 +189,9 @@ int? preferReadableSharpElevenMajorOverFlatFive(
     return null;
   }
 
-  if (preferred.cost > other.cost + 1.50) return null;
+  if (preferred.cost > other.cost + ranking_policy.sharpElevenMajorCap) {
+    return null;
+  }
 
   return aIsPreferred ? -1 : 1;
 }
@@ -284,7 +290,10 @@ int? preferCompleteTriadOverDeficientReading(
 
   final triadCandidate = aIsTriad ? a : b;
   final otherCandidate = aIsTriad ? b : a;
-  if (triadCandidate.cost > otherCandidate.cost + 0.45) return null;
+  if (triadCandidate.cost >
+      otherCandidate.cost + ranking_policy.completeTriadCap) {
+    return null;
+  }
 
   return aIsTriad ? -1 : 1;
 }

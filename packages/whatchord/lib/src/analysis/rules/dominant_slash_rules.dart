@@ -40,7 +40,9 @@ int? preferConventionalSplitNineTritoneDominant(
     return null;
   }
   if (fa.bassRoleRank == fb.bassRoleRank) return null;
-  if ((a.cost - b.cost).abs() > 0.30) return null;
+  if ((a.cost - b.cost).abs() > ranking_policy.splitNineTritoneWindow) {
+    return null;
+  }
 
   return fa.bassRoleRank < fb.bassRoleRank ? -1 : 1;
 }
@@ -86,7 +88,9 @@ int? preferRootMinor7Add11ShellOverSusSlash(
   if (!otherIsInvertedDominantSus && !otherIsInvertedDoubleSus) return null;
 
   final preferred = aIsPreferred ? a : b;
-  if (preferred.cost > other.cost + 1.30) return null;
+  if (preferred.cost > other.cost + ranking_policy.m7Add11ShellCap) {
+    return null;
+  }
 
   return aIsPreferred ? -1 : 1;
 }
@@ -125,7 +129,9 @@ int? preferCompleteDominantSharp9OverNonSeventhColor(
   }
 
   final preferredCandidate = aIsPreferred ? a : b;
-  if (preferredCandidate.cost > other.cost + 0.30) return null;
+  if (preferredCandidate.cost > other.cost + ranking_policy.dom7Sharp9Cap) {
+    return null;
+  }
 
   return aIsPreferred ? -1 : 1;
 }
@@ -258,7 +264,10 @@ int? preferCompleteDom7Flat9OverColoredDim7(
 
   final preferredCandidate = aIsPreferred ? a : b;
   final otherCandidate = aIsPreferred ? b : a;
-  if (preferredCandidate.cost > otherCandidate.cost + 0.30) return null;
+  if (preferredCandidate.cost >
+      otherCandidate.cost + ranking_policy.dom7Flat9Cap) {
+    return null;
+  }
 
   return aIsPreferred ? -1 : 1;
 }
@@ -334,7 +343,9 @@ int? preferFlatNineBassDominantOverRemoteReinterpretation(
   }
 
   final preferredCandidate = aIsPreferred ? a : b;
-  if (preferredCandidate.cost > other.cost + 0.35) return null;
+  if (preferredCandidate.cost > other.cost + ranking_policy.flatNineBassCap) {
+    return null;
+  }
 
   return aIsPreferred ? -1 : 1;
 }
@@ -833,7 +844,9 @@ int? preferDom7RootOverNonDomSlash(
     return null;
   }
 
-  if (domCandidate.cost > otherCandidate.cost + 0.45) return null;
+  if (domCandidate.cost > otherCandidate.cost + ranking_policy.dom7RootCap) {
+    return null;
+  }
 
   return aIsPreferred ? -1 : 1;
 }
@@ -868,7 +881,10 @@ int? preferRootAlteredFifthDom7(
     return null;
   }
 
-  if (rootCandidate.cost > slashCandidate.cost + 0.30) return null;
+  if (rootCandidate.cost >
+      slashCandidate.cost + ranking_policy.alteredFifthCap) {
+    return null;
+  }
 
   return rootIsA ? -1 : 1;
 }
@@ -923,7 +939,10 @@ int? preferNinthBassSeventhOverAlteredSlash(
   if (fOther.extensionTensionCount == 0 && !fOther.isUnusualSeventhQuality) {
     return null;
   }
-  if (preferredCandidate.cost > otherCandidate.cost + 0.60) return null;
+  if (preferredCandidate.cost >
+      otherCandidate.cost + ranking_policy.ninthBassCap) {
+    return null;
+  }
 
   return aIsPreferred ? -1 : 1;
 }
@@ -962,7 +981,10 @@ int? preferConventionalAlteredSeventhOverAdd11Slash(
 
   // Keep this rule bounded to close structural ambiguities. Wider gaps should
   // still be decided by the raw template fit.
-  if (conventional.cost > questionable.cost + 0.70) return null;
+  if (conventional.cost >
+      questionable.cost + ranking_policy.alteredSeventhCap) {
+    return null;
+  }
 
   return aIsQuestionableSlash ? 1 : -1;
 }
@@ -977,7 +999,7 @@ int? preferConventionalAlteredSeventhOverAdd11Slash(
 /// the two-required-tone major template, even though musicians universally hear
 /// the simpler root-position reading.
 ///
-/// The 1.50-point guard lets the sus reading win when the cost difference is
+/// The cost guard lets the sus reading win when the cost difference is
 /// decisive rather than merely a template-complexity artifact.
 int? preferRootAddChordOverSusSlash(
   ChordCandidate a,
@@ -997,7 +1019,10 @@ int? preferRootAddChordOverSusSlash(
   final susCandidate = aIsPreferred ? b : a;
   if (!_hasOnlyNaturalAddTones(preferredCandidate.identity)) return null;
 
-  if (preferredCandidate.cost > susCandidate.cost + 1.50) return null;
+  if (preferredCandidate.cost >
+      susCandidate.cost + ranking_policy.addChordCap) {
+    return null;
+  }
 
   return aIsPreferred ? -1 : 1;
 }
