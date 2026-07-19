@@ -22,6 +22,15 @@ final audioMonitorNotifier =
       AudioMonitorNotifier.new,
     );
 
+/// Builds the synth engine on demand; overridable so tests can observe the
+/// notifier's note bookkeeping through a fake engine.
+final audioMonitorEngineFactoryProvider =
+    Provider<AudioMonitorEngine Function()>((ref) {
+      return () => AudioMonitorEngine(
+        soundFontAssetPath: audioMonitorSoundFontAssetPath,
+      );
+    });
+
 final audioMonitorStatusProvider = Provider<AudioMonitorStatus>((ref) {
   return ref.watch(audioMonitorNotifier.select((state) => state.status));
 });
@@ -234,9 +243,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
       clearError: true,
     );
 
-    final engine = _engine ??= AudioMonitorEngine(
-      soundFontAssetPath: audioMonitorSoundFontAssetPath,
-    );
+    final engine = _engine ??= ref.read(audioMonitorEngineFactoryProvider)();
 
     try {
       var startedNow = false;
@@ -519,9 +526,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   }
 
   Future<AudioMonitorEngine?> _ensureEngineStarted() async {
-    final engine = _engine ??= AudioMonitorEngine(
-      soundFontAssetPath: audioMonitorSoundFontAssetPath,
-    );
+    final engine = _engine ??= ref.read(audioMonitorEngineFactoryProvider)();
 
     try {
       if (!engine.isRunning) {
