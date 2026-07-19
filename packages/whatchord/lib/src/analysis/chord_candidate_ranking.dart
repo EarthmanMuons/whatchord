@@ -36,10 +36,10 @@ class RankingDecision {
 ///
 /// When explanation costs are within [nearTieWindow], applies heuristics to choose the
 /// most musically appropriate interpretation (e.g., preferring root position,
-/// diatonic chords, natural extensions, etc.). The rules themselves, their
-/// order, and the features they read live in `ranking_rules.dart` and
-/// `candidate_features.dart`; this class is just the comparator and the
-/// linearizer that turns pairwise decisions into a stable ranking.
+/// diatonic chords, natural extensions, etc.). The ordered rule lists live in
+/// `ranking_rules.dart`, the rule functions in `rules/`, and the features they
+/// read in `candidate_features.dart`; this class is just the comparator and
+/// the linearizer that turns pairwise decisions into a stable ranking.
 ///
 /// NOTE: https://whatchord.earthmanmuons.com/articles/chord-recognition-algorithm.html documents the
 /// ranking rules in detail. Update the article when rules, their order, or
