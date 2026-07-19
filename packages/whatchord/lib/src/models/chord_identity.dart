@@ -162,6 +162,11 @@ enum ChordQuality {
 /// Whether a quality is a triad-like or seventh-bearing chord.
 enum ChordQualityFamily { triad, seventh }
 
+/// How readily a musician reaches for a quality name: everyday vocabulary is
+/// free, and each later tier has to explain the tones that much more cheaply
+/// to win (the analyzer maps tiers to prices).
+enum ChordVocabularyTier { common, marked, uncommon, rare }
+
 /// Structural predicates over [ChordQuality].
 extension ChordQualitySemantics on ChordQuality {
   /// The [ChordQualityFamily] this quality belongs to.
@@ -219,21 +224,109 @@ extension ChordQualitySemantics on ChordQuality {
     }
   }
 
+  /// The vocabulary pricing tier for this quality name.
+  ChordVocabularyTier get vocabularyTier {
+    return switch (this) {
+      ChordQuality.sus2 ||
+      ChordQuality.sus2sus4 ||
+      ChordQuality.diminished ||
+      ChordQuality.augmented ||
+      ChordQuality.diminished7 ||
+      ChordQuality.halfDiminished7 ||
+      ChordQuality.minorMajor7 ||
+      ChordQuality.dominant7sus4 => ChordVocabularyTier.marked,
+      ChordQuality.dominant7Flat5 ||
+      ChordQuality.dominant7Sharp5 ||
+      ChordQuality.major7sus4 ||
+      ChordQuality.major7Sharp5 => ChordVocabularyTier.uncommon,
+      ChordQuality.minorSharp5 ||
+      ChordQuality.minor7Sharp5 ||
+      ChordQuality.majorFlat5 ||
+      ChordQuality.major7Flat5 ||
+      ChordQuality.dominant7sus2 ||
+      ChordQuality.major7sus2 => ChordVocabularyTier.rare,
+      _ => ChordVocabularyTier.common,
+    };
+  }
+
   /// Whether musicians almost never reach for this quality name because it
   /// usually respells a more common chord (the analyzer's rare vocabulary
   /// pricing tier).
-  bool get isRareVocabulary {
-    switch (this) {
-      case ChordQuality.minorSharp5:
-      case ChordQuality.minor7Sharp5:
-      case ChordQuality.majorFlat5:
-      case ChordQuality.major7Flat5:
-      case ChordQuality.dominant7sus2:
-      case ChordQuality.major7sus2:
-        return true;
-      default:
-        return false;
-    }
+  bool get isRareVocabulary => vocabularyTier == ChordVocabularyTier.rare;
+
+  /// Whether this quality is a dominant seventh or one of its sus and
+  /// altered-fifth variants.
+  bool get isDominantFamily {
+    return switch (this) {
+      ChordQuality.dominant7 ||
+      ChordQuality.dominant7sus2 ||
+      ChordQuality.dominant7sus4 ||
+      ChordQuality.dominant7Flat5 ||
+      ChordQuality.dominant7Sharp5 => true,
+      _ => false,
+    };
+  }
+
+  /// Whether this seventh-family quality is an unusual name (altered-fifth,
+  /// suspended, or flat-five sevenths) rather than an everyday seventh chord.
+  bool get isUnusualSeventhQuality {
+    return switch (this) {
+      ChordQuality.minor7Sharp5 ||
+      ChordQuality.dominant7sus2 ||
+      ChordQuality.dominant7sus4 ||
+      ChordQuality.dominant7Flat5 ||
+      ChordQuality.dominant7Sharp5 ||
+      ChordQuality.major7sus2 ||
+      ChordQuality.major7sus4 ||
+      ChordQuality.major7Flat5 ||
+      ChordQuality.major7Sharp5 => true,
+      _ => false,
+    };
+  }
+
+  /// Hosts where a sharp eleven is idiomatic color rather than a marked
+  /// alteration: Lydian majors, dominants, minor family (Dorian #11), and
+  /// sus4 frames (where the split-fourth surcharge prices the clash
+  /// separately). On diminished and sus2 hosts it stays multiplied.
+  bool get isSharpElevenFriendly {
+    return isDominantFamily ||
+        switch (this) {
+          ChordQuality.major ||
+          ChordQuality.major6 ||
+          ChordQuality.major7 ||
+          ChordQuality.minor ||
+          ChordQuality.minor6 ||
+          ChordQuality.minor7 ||
+          ChordQuality.minorMajor7 ||
+          ChordQuality.sus4 ||
+          ChordQuality.major7sus4 ||
+          ChordQuality.sus2sus4 => true,
+          _ => false,
+        };
+  }
+
+  /// Qualities on which upper extensions are rare enough that a stacked or
+  /// added color tone reads as a stretch rather than everyday vocabulary.
+  /// Dominants (including sus dominants), plain major/minor sevenths, and
+  /// sixth chords keep flat extension prices.
+  bool get isMarkedExtensionHost {
+    return switch (this) {
+      ChordQuality.diminished ||
+      ChordQuality.augmented ||
+      ChordQuality.diminished7 ||
+      ChordQuality.halfDiminished7 ||
+      ChordQuality.minorMajor7 ||
+      ChordQuality.minorSharp5 ||
+      ChordQuality.minor7Sharp5 ||
+      ChordQuality.majorFlat5 ||
+      ChordQuality.major7Flat5 ||
+      ChordQuality.major7Sharp5 ||
+      ChordQuality.major7sus2 ||
+      ChordQuality.sus2 ||
+      ChordQuality.sus2sus4 ||
+      ChordQuality.dominant7sus2 => true,
+      _ => false,
+    };
   }
 
   /// Whether a raised eleventh is the natural Lydian color on this quality
