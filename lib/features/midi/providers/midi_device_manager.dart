@@ -9,6 +9,7 @@ import '../midi_debug.dart';
 import '../models/bluetooth_access.dart';
 import '../models/bluetooth_state.dart';
 import '../models/midi_device.dart';
+import '../models/midi_exception.dart';
 import '../services/bluetooth_permission_service.dart';
 import '../services/midi_ble_service.dart';
 import 'bluetooth_permission_service_provider.dart';
@@ -91,6 +92,19 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   static const Duration _btPrimeTimeout = Duration(seconds: 2);
   static const Duration _btPrimeHardTimeout = Duration(seconds: 3);
+
+  /// Budget for quick BLE state queries (isConnected, device lookups).
+  static const Duration _bleQueryTimeout = Duration(seconds: 2);
+
+  /// Slack past the plugin's own connect timeout before treating the native
+  /// call as wedged.
+  static const Duration _connectHangGuardSlack = Duration(seconds: 2);
+
+  static const Duration _scanRestartSettleDelay = Duration(milliseconds: 100);
+  static const Duration _waitForDevicePumpInterval = Duration(
+    milliseconds: 250,
+  );
+  static const Duration _pulseScanDwell = Duration(milliseconds: 350);
   static const bool _debugLog = midiDebug;
 
   // ---- Runtime -----------------------------------------------------------
@@ -113,6 +127,10 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   BluetoothState? _lastPublishedBtState;
   bool _backgrounded = false;
+
+  // Debounce for transiently empty device snapshots while connected; see
+  // _syncConnectedDeviceState.
+  int _emptySnapshotsWhileConnected = 0;
 
   // Bumped whenever an in-flight connect should be abandoned (a newer connect,
   // a disconnect, or Bluetooth becoming unavailable). connect() captures this
@@ -201,7 +219,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     await stopScanning();
 
     // Small delay can help some stacks settle.
-    await Future<void>.delayed(const Duration(milliseconds: 100));
+    await Future<void>.delayed(_scanRestartSettleDelay);
 
     await startScanning();
   }
@@ -473,7 +491,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       await _ensureBluetoothCentralReady();
       return await _withTimeout(
         _ble.isConnected(deviceId),
-        timeout: const Duration(seconds: 2),
+        timeout: _bleQueryTimeout,
       );
     } catch (_) {
       return false;
@@ -597,8 +615,6 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     _devicesChanged.add(null);
   }
 
-  int _emptySnapshotsWhileConnected = 0;
-
   Future<void> _syncConnectedDeviceState(List<MidiDevice> devices) async {
     final current = state.connectedDevice;
     if (current == null) return;
@@ -619,7 +635,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
       final actuallyConnected = await _withTimeout(
         _ble.isConnected(current.id),
-        timeout: const Duration(seconds: 2),
+        timeout: _bleQueryTimeout,
       );
       if (_debugLog) {
         debugPrint(
@@ -706,7 +722,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     StreamSubscription<void>? sub;
     final completer = Completer<MidiDevice?>();
 
-    pump = Timer.periodic(const Duration(milliseconds: 250), (_) {
+    pump = Timer.periodic(_waitForDevicePumpInterval, (_) {
       // Fire-and-forget; refresh is already coalesced by _deviceRefreshInFlight.
       unawaited(_safeRefreshDevices(bypassThrottle: true));
     });
@@ -748,7 +764,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     try {
       final connected = await _withTimeout(
         _ble.isConnected(deviceId),
-        timeout: const Duration(seconds: 2),
+        timeout: _bleQueryTimeout,
       );
       if (_debugLog) {
         debugPrint('[MGR] cleanupStale id=$deviceId connected=$connected');
@@ -770,7 +786,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     await _ble
         .connect(deviceId, timeout: _connectTimeout)
         .timeout(
-          _connectTimeout + const Duration(seconds: 2),
+          _connectTimeout + _connectHangGuardSlack,
           onTimeout: () {
             throw const MidiException('Connection timed out');
           },
@@ -784,7 +800,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     // against a plugin that reports success without a live link.
     final connected = await _withTimeout(
       _ble.isConnected(deviceId),
-      timeout: const Duration(seconds: 2),
+      timeout: _bleQueryTimeout,
     );
     if (_debugLog) {
       debugPrint('[MGR] verifyConnection id=$deviceId ok=$connected');
@@ -879,7 +895,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   Future<void> _pulseScan({
     required String reason,
-    Duration dwell = const Duration(milliseconds: 350),
+    Duration dwell = _pulseScanDwell,
   }) async {
     if (state.isScanning) return;
     if (_scanInFlight != null) return;
@@ -944,16 +960,4 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     if (nameOnlyMatches.length == 1) return nameOnlyMatches.first;
     return null;
   }
-}
-
-/// Exception thrown by MIDI operations.
-class MidiException implements Exception {
-  final String message;
-  final Object? cause;
-
-  const MidiException(this.message, [this.cause]);
-
-  @override
-  String toString() =>
-      'MidiException: $message${cause != null ? ' ($cause)' : ''}';
 }

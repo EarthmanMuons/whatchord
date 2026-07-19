@@ -10,6 +10,7 @@ import '../models/bluetooth_state.dart';
 import '../models/bluetooth_unavailability.dart';
 import '../models/midi_connection.dart';
 import '../models/midi_device.dart';
+import '../models/midi_exception.dart';
 import 'midi_device_manager.dart';
 import 'midi_preferences_notifier.dart';
 
@@ -26,6 +27,17 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   static const Duration _connectedPublishTimeout = Duration(seconds: 3);
   static const Duration _longBackgroundReconnectThreshold = Duration(
     minutes: 3,
+  );
+
+  /// Minimum spacing between automatic reconnect triggers (resume, bt-ready);
+  /// startup and manual triggers bypass it.
+  static const Duration _autoReconnectRateLimit = Duration(seconds: 5);
+
+  static const Duration _stillConnectedTimeout = Duration(seconds: 2);
+  static const Duration _bluetoothAccessTimeout = Duration(seconds: 3);
+  static const Duration _bluetoothPrimeTimeout = Duration(seconds: 2);
+  static const Duration _bluetoothStateWaitTimeout = Duration(
+    milliseconds: 800,
   );
   static const bool _debugLog = midiDebug;
 
@@ -261,8 +273,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   }
 
   /// Await [future] with a hard timeout.
-  /// Returns [onTimeout] if the timeout elapses instead of throwing.
-  Future<T?> _withTimeout<T>(
+  /// Returns [onTimeout] if the timeout elapses instead of throwing; unlike
+  /// the device manager's propagating `_withTimeout`, this never throws.
+  Future<T?> _withTimeoutOr<T>(
     Future<T> future, {
     required Duration timeout,
     T? onTimeout,
@@ -316,7 +329,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     if (!isManual &&
         reason != MidiReconnectTrigger.startup &&
         last != null &&
-        now.difference(last) < const Duration(seconds: 5)) {
+        now.difference(last) < _autoReconnectRateLimit) {
       return;
     }
 
@@ -361,9 +374,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
           current?.isConnected == true) {
         final stillConnected = forceResumeReconnect
             ? false
-            : await _withTimeout(
+            : await _withTimeoutOr(
                 _midi.isStillConnected(lastConnectedDeviceId),
-                timeout: const Duration(seconds: 2),
+                timeout: _stillConnectedTimeout,
                 onTimeout: false,
               );
         if (stillConnected == true) {
@@ -404,9 +417,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
           MidiTransportType.ble;
       if (requiresBluetooth) {
         final ok =
-            await _withTimeout(
+            await _withTimeoutOr(
               _ensureBluetoothAccessOrSetUnavailable(),
-              timeout: const Duration(seconds: 3),
+              timeout: _bluetoothAccessTimeout,
               onTimeout: false,
             ) ??
             false;
@@ -438,9 +451,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         // then wait briefly for a non-unknown state.
         if (bt == BluetoothState.unknown) {
           try {
-            await _withTimeout(
+            await _withTimeoutOr(
               ref.read(midiDeviceManagerProvider.notifier).ensureReady(),
-              timeout: const Duration(seconds: 2),
+              timeout: _bluetoothPrimeTimeout,
               onTimeout: null,
             );
           } catch (_) {
@@ -491,6 +504,10 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     }
   }
 
+  /// Whether the active reconnect run should stop at the next checkpoint:
+  /// re-checked after every await in [_reconnectWithBackoff].
+  bool get _reconnectAborted => _backgrounded || _cancelRequested;
+
   Future<void> _reconnectWithBackoff(
     String deviceId, {
     MidiDevice? hint,
@@ -503,18 +520,17 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     var currentHint = hint;
 
     for (var attempt = 1; attempt <= _maxAttempts; attempt++) {
-      if (_backgrounded) return;
-      if (_cancelRequested) return;
+      if (_reconnectAborted) return;
       if (_debugLog) {
         debugPrint('[CONN] reconnect attempt=$attempt id=$currentId');
       }
 
-      final target = await _withTimeout(
+      final target = await _withTimeoutOr(
         _midi.findReconnectTarget(deviceId: currentId, hint: currentHint),
         timeout: _findTargetTimeout,
         onTimeout: null,
       );
-      if (_backgrounded || _cancelRequested) return;
+      if (_reconnectAborted) return;
 
       if (target == null) {
         if (_debugLog) {
@@ -534,7 +550,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
           );
         }
       }
-      if (_backgrounded || _cancelRequested) return;
+      if (_reconnectAborted) return;
 
       state = MidiConnectionState(
         phase: attempt == 1
@@ -549,7 +565,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
       final ok = target == null
           ? false
-          : await _withTimeout(
+          : await _withTimeoutOr(
                   _midi.reconnect(currentId),
                   timeout: _reconnectAttemptTimeout,
                   onTimeout: false,
@@ -558,13 +574,13 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       if (_debugLog) {
         debugPrint('[CONN] reconnect result ok=$ok attempt=$attempt');
       }
-      if (_backgrounded || _cancelRequested) return;
+      if (_reconnectAborted) return;
       if (ok) {
         final published = await _awaitConnectedPublish(
           currentId,
           timeout: _connectedPublishTimeout,
         );
-        if (_backgrounded || _cancelRequested) return;
+        if (_reconnectAborted) return;
         if (published) return;
         if (_debugLog) {
           debugPrint(
@@ -582,13 +598,13 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
         message: 'Retrying in ${delay.inSeconds}s…',
       );
 
-      if (_backgrounded || _cancelRequested) return;
+      if (_reconnectAborted) return;
       await _sleep(delay);
-      if (_backgrounded || _cancelRequested) return;
+      if (_reconnectAborted) return;
     }
 
     // Terminal state after max attempts.
-    if (!_backgrounded && !_cancelRequested) {
+    if (!_reconnectAborted) {
       state = MidiConnectionState(
         phase: MidiConnectionPhase.deviceUnavailable,
         message:
@@ -780,7 +796,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   }
 
   Future<BluetoothState?> _awaitBluetoothState({
-    Duration timeout = const Duration(milliseconds: 800),
+    Duration timeout = _bluetoothStateWaitTimeout,
   }) async {
     final current = ref.read(midiDeviceManagerProvider).bluetoothState;
     if (current != BluetoothState.unknown) return current;
@@ -809,7 +825,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
   Future<bool> _awaitConnectedPublish(
     String expectedDeviceId, {
-    Duration timeout = const Duration(seconds: 3),
+    Duration timeout = _connectedPublishTimeout,
   }) async {
     final current = ref.read(midiDeviceManagerProvider).connectedDevice;
     if (current?.id == expectedDeviceId && current?.isConnected == true) {

@@ -28,6 +28,7 @@ library;
 
 export 'models/midi_connection.dart';
 export 'models/midi_connection_status.dart';
+export 'models/midi_exception.dart';
 
 export 'providers/app_midi_lifecycle_provider.dart';
 export 'providers/midi_connection_notifier.dart';
