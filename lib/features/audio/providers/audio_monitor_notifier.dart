@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:whatchord_app/core/services/cancelable_timer_sequence.dart';
+import 'package:whatchord_app/core/services/preview_timings.dart';
 import 'package:whatchord_app/features/input/input.dart';
 import 'package:whatchord_app/features/midi/midi.dart';
 
@@ -27,20 +28,7 @@ final audioMonitorStatusProvider = Provider<AudioMonitorStatus>((ref) {
 
 class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
   static const bool _debugLog = audioDebug;
-  static const Duration _previewDuration = Duration(milliseconds: 1400);
   static const Duration _volumePreviewDuration = Duration(milliseconds: 350);
-  static const Duration _rolledPreviewStep = Duration(milliseconds: 180);
-  static const Duration _rolledPreviewNoteDuration = Duration(
-    milliseconds: 220,
-  );
-  static const Duration _rolledPreviewBlockGap = Duration(milliseconds: 260);
-  static const Duration _rolledPreviewBlockDuration = Duration(
-    milliseconds: 1400,
-  );
-  static const Duration _sequencePreviewStep = Duration(milliseconds: 200);
-  static const Duration _sequencePreviewNoteDuration = Duration(
-    milliseconds: 200,
-  );
 
   AudioMonitorEngine? _engine;
   MidiOutputSender? _midiSender;
@@ -351,7 +339,7 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
   Future<void> _playPreviewNotes(
     List<int> midiNotes, {
-    Duration duration = _previewDuration,
+    Duration duration = PreviewTimings.hold,
   }) async {
     final generation = _previewSequence.restart();
 
@@ -379,13 +367,15 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
     for (var i = 0; i < midiNotes.length; i++) {
       final midiNote = midiNotes[i];
-      final noteStart = _rolledPreviewStep * i;
+      final noteStart = PreviewTimings.rolledStep * i;
       _previewSequence.schedule(noteStart, (_) {
         _enqueuePreviewControl(generation, () async {
           await sink.noteOn(midiNote);
         });
       }, generation: generation);
-      _previewSequence.schedule(noteStart + _rolledPreviewNoteDuration, (_) {
+      _previewSequence.schedule(noteStart + PreviewTimings.rolledNoteDuration, (
+        _,
+      ) {
         _enqueuePreviewControl(generation, () async {
           await sink.noteOff(midiNote);
         });
@@ -393,7 +383,8 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
     }
 
     final blockStart =
-        _rolledPreviewStep * midiNotes.length + _rolledPreviewBlockGap;
+        PreviewTimings.rolledStep * midiNotes.length +
+        PreviewTimings.rolledBlockGap;
     _previewSequence.schedule(blockStart, (_) {
       _enqueuePreviewControl(generation, () async {
         await sink.allNotesOff();
@@ -402,7 +393,9 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
         }
       });
     }, generation: generation);
-    _previewSequence.schedule(blockStart + _rolledPreviewBlockDuration, (_) {
+    _previewSequence.schedule(blockStart + PreviewTimings.rolledBlockDuration, (
+      _,
+    ) {
       _enqueuePreviewControl(generation, _finishPreview);
     }, generation: generation);
   }
@@ -417,21 +410,27 @@ class AudioMonitorNotifier extends Notifier<AudioMonitorState> {
 
     for (var i = 0; i < midiNotes.length; i++) {
       final midiNote = midiNotes[i];
-      final noteStart = _sequencePreviewStep * i;
+      final noteStart = PreviewTimings.sequenceStep * i;
       _previewSequence.schedule(noteStart, (_) {
         _enqueuePreviewControl(generation, () async {
           await sink.noteOn(midiNote);
         });
       }, generation: generation);
-      _previewSequence.schedule(noteStart + _sequencePreviewNoteDuration, (_) {
-        _enqueuePreviewControl(generation, () async {
-          await sink.noteOff(midiNote);
-        });
-      }, generation: generation);
+      _previewSequence.schedule(
+        noteStart + PreviewTimings.sequenceNoteDuration,
+        (_) {
+          _enqueuePreviewControl(generation, () async {
+            await sink.noteOff(midiNote);
+          });
+        },
+        generation: generation,
+      );
     }
 
-    final endStart = _sequencePreviewStep * midiNotes.length;
-    _previewSequence.schedule(endStart + _sequencePreviewNoteDuration, (_) {
+    final endStart = PreviewTimings.sequenceStep * midiNotes.length;
+    _previewSequence.schedule(endStart + PreviewTimings.sequenceNoteDuration, (
+      _,
+    ) {
       _enqueuePreviewControl(generation, _finishPreview);
     }, generation: generation);
   }

@@ -17,6 +17,8 @@ export 'services/app_theme_builder.dart';
 export 'services/cancelable_timer_sequence.dart';
 export 'services/debug_log_buffer.dart';
 export 'services/open_url.dart';
+export 'services/preview_animation_controller.dart';
+export 'services/preview_timings.dart';
 export 'services/system_ui_overlay_styles.dart';
 
 export 'widgets/adaptive_side_sheet.dart';

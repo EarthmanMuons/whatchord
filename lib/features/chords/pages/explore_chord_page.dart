@@ -13,7 +13,6 @@ import 'package:whatchord_app/features/scales/scales.dart';
 import 'package:whatchord_app/features/theory/theory.dart';
 
 import '../providers/explore_preferences_notifier.dart';
-import '../services/explore_preview_animation_controller.dart';
 import '../widgets/explore_chord_members_section.dart';
 import '../widgets/explore_controls.dart';
 import '../widgets/explore_summary.dart';
@@ -53,16 +52,15 @@ class ExploreChordPage extends ConsumerStatefulWidget {
 
 class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
   late ChordConstruction _state;
-  late final ExplorePreviewAnimationController _previewAnimationController;
-  ExplorePreviewAnimationState _previewAnimation =
-      ExplorePreviewAnimationState.idle;
+  late final PreviewAnimationController _previewAnimationController;
+  PreviewAnimationState _previewAnimation = PreviewAnimationState.idle;
   late bool _hasExploreParent;
 
   @override
   void initState() {
     super.initState();
     _hasExploreParent = widget.hasExploreParent;
-    _previewAnimationController = ExplorePreviewAnimationController(
+    _previewAnimationController = PreviewAnimationController(
       onChanged: (state) {
         if (!mounted) return;
         setState(() {
@@ -388,7 +386,7 @@ class _ExploreChordPageState extends ConsumerState<ExploreChordPage> {
   }
 
   void _playChord(List<int> notes) {
-    _previewAnimationController.start(notes);
+    _previewAnimationController.startChord(notes);
     ref.read(audioMonitorNotifier.notifier).playRolledPreviewNotes(notes);
   }
 }
