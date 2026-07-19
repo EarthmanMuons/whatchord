@@ -1,6 +1,7 @@
 import '../../models/chord_identity.dart';
 import '../../models/chord_tone_role.dart';
 import '../../models/tonality.dart';
+import '../../services/bit_masks.dart';
 import '../../services/chord_member_degree_formatter.dart';
 import '../../services/chord_member_speller.dart';
 import '../../services/note_spelling.dart';
@@ -82,23 +83,15 @@ abstract final class ChordPresentationBuilder {
     required int rootPc,
     required int presentIntervalsMask,
   }) {
-    final pitchClasses = <int>{};
-    for (var interval = 0; interval < 12; interval++) {
-      final bit = 1 << interval;
-      if ((presentIntervalsMask & bit) == 0) continue;
-      pitchClasses.add((rootPc + interval) % 12);
-    }
-    return Set<int>.unmodifiable(pitchClasses);
+    return Set<int>.unmodifiable({
+      for (final interval in intervalsFromMask(presentIntervalsMask))
+        (rootPc + interval) % 12,
+    });
   }
 
   /// The chord's present intervals in ascending stack order.
   static List<int> sortedIntervalsForIdentity(ChordIdentity identity) {
-    final intervals = <int>[];
-    for (var interval = 0; interval < 12; interval++) {
-      final bit = 1 << interval;
-      if ((identity.presentIntervalsMask & bit) == 0) continue;
-      intervals.add(interval);
-    }
+    final intervals = intervalsFromMask(identity.presentIntervalsMask);
 
     intervals.sort((a, b) {
       final roleA = identity.toneRolesByInterval[a];
