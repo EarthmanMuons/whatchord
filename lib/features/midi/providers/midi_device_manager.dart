@@ -212,7 +212,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     try {
       await _ble.stopScanning();
     } catch (e) {
-      debugPrint('Warning: Error stopping MIDI scan: $e');
+      if (!kReleaseMode) {
+        debugPrint('Warning: Error stopping MIDI scan: $e');
+      }
     } finally {
       if (_debugLog) debugPrint('[MGR] stopScanning');
       state = state.copyWith(isScanning: false);
@@ -288,7 +290,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       // was never started, this is a no-op.
       await _disconnectBestEffort(current.id, transport: current.transport);
     } catch (e) {
-      debugPrint('Warning: Error disconnecting MIDI device: $e');
+      if (!kReleaseMode) {
+        debugPrint('Warning: Error disconnecting MIDI device: $e');
+      }
     } finally {
       _setConnectedDevice(null);
     }
@@ -322,7 +326,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       await connect(device);
       return true;
     } catch (e) {
-      debugPrint('Auto-reconnect failed: $e');
+      if (!kReleaseMode) debugPrint('Auto-reconnect failed: $e');
       return false;
     }
   }
@@ -369,7 +373,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       }
       return byHint;
     } catch (e) {
-      debugPrint('findReconnectTarget failed: $e');
+      if (!kReleaseMode) debugPrint('findReconnectTarget failed: $e');
       return null;
     }
   }
@@ -422,7 +426,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     } catch (e) {
       // If Bluetooth is off/unauthorized, the Bluetooth state listener clears
       // the connection anyway. If priming fails, do not blindly clear here.
-      debugPrint('reconcileConnectedDevice($reason): prime failed: $e');
+      if (!kReleaseMode) {
+        debugPrint('reconcileConnectedDevice($reason): prime failed: $e');
+      }
       return;
     }
 
@@ -439,9 +445,12 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         );
       }
       if (!actuallyConnected) {
-        debugPrint(
-          'reconcileConnectedDevice($reason): stale connection cleared id=${current.id}',
-        );
+        if (!kReleaseMode) {
+          debugPrint(
+            'reconcileConnectedDevice($reason): stale connection cleared '
+            'id=${current.id}',
+          );
+        }
         _setConnectedDevice(null);
       } else {
         // Keep the flag fresh in case the stored snapshot drifted.
@@ -449,7 +458,9 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       }
     } catch (e) {
       // If the plugin can't answer reliably, do not oscillate UI.
-      debugPrint('reconcileConnectedDevice($reason): isConnected failed: $e');
+      if (!kReleaseMode) {
+        debugPrint('reconcileConnectedDevice($reason): isConnected failed: $e');
+      }
     }
   }
 
@@ -542,7 +553,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       }
       await _refreshDeviceList(bypassThrottle: bypassThrottle);
     } catch (e) {
-      debugPrint('Device refresh failed: $e');
+      if (!kReleaseMode) debugPrint('Device refresh failed: $e');
     }
   }
 
@@ -785,9 +796,11 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   void _setConnectedDevice(MidiDevice? device) {
     final prev = state.connectedDevice;
-    if (prev?.id != device?.id || prev?.isConnected != device?.isConnected) {
+    if (!kReleaseMode &&
+        (prev?.id != device?.id || prev?.isConnected != device?.isConnected)) {
       debugPrint(
-        '[MGR] connected ${prev?.id}/${prev?.isConnected} -> ${device?.id}/${device?.isConnected}',
+        '[MGR] connected ${prev?.id}/${prev?.isConnected} -> '
+        '${device?.id}/${device?.isConnected}',
       );
     }
     if (device == null) _emptySnapshotsWhileConnected = 0;
@@ -878,12 +891,14 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       await Future<void>.delayed(dwell);
       await _refreshDeviceList(bypassThrottle: true);
     } catch (e) {
-      debugPrint('pulseScan($reason) failed: $e');
+      if (!kReleaseMode) debugPrint('pulseScan($reason) failed: $e');
     } finally {
       try {
         await _ble.stopScanning();
       } catch (e) {
-        debugPrint('pulseScan($reason) stop failed: $e');
+        if (!kReleaseMode) {
+          debugPrint('pulseScan($reason) stop failed: $e');
+        }
       } finally {
         if (_debugLog) debugPrint('[MGR] pulseScan end reason=$reason');
         state = state.copyWith(isScanning: false);
