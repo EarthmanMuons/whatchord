@@ -40,7 +40,9 @@ class MidiNoteStateNotifier extends Notifier<MidiNoteState> {
         data: _handleMidiMessage,
         loading: () {},
         error: (error, stack) {
-          debugPrint('MIDI message error: $error');
+          if (!kReleaseMode) {
+            debugPrint('MIDI message error: $error');
+          }
         },
       );
     });

@@ -120,7 +120,9 @@ class MidiPreferencesNotifier extends Notifier<MidiPreferences> {
       final map = jsonDecode(json) as Map<String, dynamic>;
       return MidiDevice.fromJson(map);
     } catch (e) {
-      debugPrint('Error decoding last connected MIDI device: $e');
+      if (!kReleaseMode) {
+        debugPrint('Error decoding last connected MIDI device: $e');
+      }
       return null;
     }
   }
