@@ -10,6 +10,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Updated the Bluetooth MIDI engine to the latest upstream release, adopting its
+  fixes for silent iOS BLE connections, safer device teardown, and more reliable
+  connect/disconnect behavior that previously required our own patched copies.
+
 ### Fixed
 
 - "Reset all settings" now also resets the Scale Explorer's scale degrees
