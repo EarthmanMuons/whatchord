@@ -242,4 +242,21 @@ void main() {
       expect(target?.id, deviceA.id);
     });
   });
+
+  test(
+    'concurrent stop-scanning calls coalesce into one transport stop',
+    () async {
+      await manager().startScanning();
+      expect(managerState().isScanning, isTrue);
+
+      await Future.wait([
+        manager().stopScanning(),
+        manager().stopScanning(),
+        manager().stopScanning(),
+      ]);
+
+      expect(ble.stopScanningCalls, 1);
+      expect(managerState().isScanning, isFalse);
+    },
+  );
 }

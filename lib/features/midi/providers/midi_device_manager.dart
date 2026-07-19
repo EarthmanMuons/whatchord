@@ -130,6 +130,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   Future<void>? _reconcileInFlight;
 
   Future<void>? _scanInFlight;
+  Future<void>? _stopScanInFlight;
   Future<void>? _deviceRefreshInFlight;
   DateTime? _lastDeviceRefreshAt;
 
@@ -245,9 +246,20 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     await startScanning();
   }
 
-  Future<void> stopScanning() async {
-    if (!state.isScanning) return;
+  Future<void> stopScanning() {
+    if (!state.isScanning) return Future.value();
 
+    // Coalesce concurrent stops: backgrounding can issue several at once
+    // (lifecycle hidden and paused, plus the connection notifier's cancel).
+    final inflight = _stopScanInFlight;
+    if (inflight != null) return inflight;
+
+    final fut = _stopScanImpl();
+    _stopScanInFlight = fut;
+    return fut.whenComplete(() => _stopScanInFlight = null);
+  }
+
+  Future<void> _stopScanImpl() async {
     try {
       await _ble.stopScanning();
     } catch (e) {
