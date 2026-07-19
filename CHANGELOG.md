@@ -21,6 +21,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Fixed
 
+- Connecting and reconnecting to Bluetooth MIDI adapters no longer needs a
+  second attempt: reconnect now waits for the scan to rediscover the device
+  instead of giving up on the first empty device list.
 - "Reset all settings" now also resets the Scale Explorer's scale degrees
   toggle, which previously survived a full reset.
 - Disambiguated compact chord symbols such as C(♯11) and C♯(11), making it clear
