@@ -17,7 +17,6 @@ import 'package:whatchord_app/features/theory/theory.dart';
 import '../models/scale_menu.dart';
 import '../providers/scale_preferences_notifier.dart';
 import '../services/scale_explorer_selection.dart';
-import '../services/scale_preview_animation_controller.dart';
 import '../widgets/scale_degree_chord_list.dart';
 import '../widgets/scale_explorer_content_layout.dart';
 import '../widgets/scale_explorer_top_bar.dart';
@@ -70,8 +69,8 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
   _ScaleView _view = _ScaleView.chords;
   late bool _hasExploreParent;
 
-  late final ScalePreviewAnimationController _preview;
-  ScalePreviewState _previewState = ScalePreviewState.idle;
+  late final PreviewAnimationController _preview;
+  PreviewAnimationState _previewState = PreviewAnimationState.idle;
 
   ScaleKind get _kind => _scale.kind;
 
@@ -92,7 +91,7 @@ class _ScaleExplorerPageState extends ConsumerState<ScaleExplorerPage> {
       preferFlat: tonality.keySignature.prefersFlats,
     );
     _seedSelectionFromChord(presentation, analysis);
-    _preview = ScalePreviewAnimationController(
+    _preview = PreviewAnimationController(
       onChanged: (state) {
         if (!mounted) return;
         setState(() => _previewState = state);
