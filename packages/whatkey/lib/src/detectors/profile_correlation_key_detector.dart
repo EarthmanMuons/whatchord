@@ -6,6 +6,7 @@ import '../models/key_estimate.dart';
 import 'key_detector.dart';
 import 'key_profiles.dart';
 import 'key_space.dart';
+import 'rotated_correlation.dart';
 
 /// Profile-correlation key detection (Krumhansl-Schmuckler family): the floor
 /// every later model must beat.
@@ -126,18 +127,18 @@ class ProfileCorrelationKeyDetector implements KeyDetector {
   }
 
   List<KeyEstimate> _rankKeys() {
-    final stats = _VectorStats.of(_histogram);
+    final stats = VectorStats.of(_histogram);
     if (stats.deviation == 0) return const [];
 
     final estimates = <KeyEstimate>[];
-    for (final tonality in canonicalTonalities) {
+    for (final tonality in KeySpace.canonicalTonalities) {
       final profile = tonality.isMajor ? profiles.major : profiles.minor;
       estimates.add(
         KeyEstimate(
           tonality: tonality,
-          confidence: _rotatedCorrelation(
+          confidence: rotatedCorrelation(
             stats,
-            profile,
+            VectorStats.ofProfile(profile),
             tonality.tonicPitchClass,
           ),
         ),
@@ -145,48 +146,5 @@ class ProfileCorrelationKeyDetector implements KeyDetector {
     }
     estimates.sort((a, b) => b.confidence.compareTo(a.confidence));
     return estimates;
-  }
-
-  /// Pearson correlation between the histogram and [profile] rotated so its
-  /// index 0 lands on [tonicPc].
-  double _rotatedCorrelation(
-    _VectorStats histogram,
-    List<double> profile,
-    int tonicPc,
-  ) {
-    final profileStats = _VectorStats.of(profile);
-    if (profileStats.deviation == 0) return 0;
-    var covariance = 0.0;
-    for (var pc = 0; pc < 12; pc++) {
-      final profileValue = profile[(pc - tonicPc + 12) % 12];
-      covariance +=
-          (histogram.values[pc] - histogram.mean) *
-          (profileValue - profileStats.mean);
-    }
-    return covariance / (histogram.deviation * profileStats.deviation);
-  }
-
-  /// See [KeySpace.canonicalTonalities]; kept here as the historical access
-  /// point.
-  static List<Tonality> get canonicalTonalities => KeySpace.canonicalTonalities;
-}
-
-class _VectorStats {
-  final List<double> values;
-  final double mean;
-
-  /// Root of the summed squared deviations (not the standard deviation; the
-  /// 1/n factors cancel in Pearson correlation).
-  final double deviation;
-
-  _VectorStats._(this.values, this.mean, this.deviation);
-
-  factory _VectorStats.of(List<double> values) {
-    final mean = values.reduce((a, b) => a + b) / values.length;
-    var sumSquares = 0.0;
-    for (final value in values) {
-      sumSquares += (value - mean) * (value - mean);
-    }
-    return _VectorStats._(values, mean, math.sqrt(sumSquares));
   }
 }
