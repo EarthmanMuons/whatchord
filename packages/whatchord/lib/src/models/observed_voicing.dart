@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 /// Optional voicing evidence for chord analysis.
@@ -65,17 +66,9 @@ class ObservedVoicing {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ObservedVoicing && _listEquals(other.midiNotes, midiNotes);
+      other is ObservedVoicing &&
+          const ListEquality<int>().equals(other.midiNotes, midiNotes);
 
   @override
   int get hashCode => signature;
-
-  static bool _listEquals(List<int> a, List<int> b) {
-    if (identical(a, b)) return true;
-    if (a.length != b.length) return false;
-    for (var i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
-  }
 }

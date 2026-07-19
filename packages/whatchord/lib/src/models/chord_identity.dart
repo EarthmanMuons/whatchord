@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 import 'chord_extension.dart';
@@ -72,8 +73,11 @@ class ChordIdentity {
           other.rootPc == rootPc &&
           other.bassPc == bassPc &&
           other.quality == quality &&
-          _setEquals(other.extensions, extensions) &&
-          _mapEquals(other.toneRolesByInterval, toneRolesByInterval) &&
+          _extensionsEquality.equals(other.extensions, extensions) &&
+          _rolesEquality.equals(
+            other.toneRolesByInterval,
+            toneRolesByInterval,
+          ) &&
           other.presentIntervalsMask == presentIntervalsMask;
 
   @override
@@ -81,47 +85,13 @@ class ChordIdentity {
     rootPc,
     bassPc,
     quality,
-    _setHash(extensions),
-    _mapHash(toneRolesByInterval),
+    _extensionsEquality.hash(extensions),
+    _rolesEquality.hash(toneRolesByInterval),
     presentIntervalsMask,
   );
 
-  static bool _setEquals<T>(Set<T> a, Set<T> b) {
-    if (identical(a, b)) return true;
-    if (a.length != b.length) return false;
-    for (final v in a) {
-      if (!b.contains(v)) return false;
-    }
-    return true;
-  }
-
-  static int _setHash<T>(Set<T> s) {
-    // Order-independent hash for small sets.
-    var h = 0;
-    for (final v in s) {
-      h ^= v.hashCode;
-    }
-    return h;
-  }
-
-  static bool _mapEquals<K, V>(Map<K, V> a, Map<K, V> b) {
-    if (identical(a, b)) return true;
-    if (a.length != b.length) return false;
-    for (final e in a.entries) {
-      if (!b.containsKey(e.key)) return false;
-      if (b[e.key] != e.value) return false;
-    }
-    return true;
-  }
-
-  static int _mapHash<K, V>(Map<K, V> m) {
-    // Order-independent hash.
-    var h = 0;
-    for (final e in m.entries) {
-      h ^= Object.hash(e.key, e.value);
-    }
-    return h;
-  }
+  static const _extensionsEquality = SetEquality<ChordExtension>();
+  static const _rolesEquality = MapEquality<int, ChordToneRole>();
 }
 
 /// The core chord qualities the analyzer can name.

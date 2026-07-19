@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../midi_debug.dart';
@@ -623,7 +624,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
     _emptySnapshotsWhileConnected = 0;
 
-    final match = _firstWhereOrNull(devices, (d) => d.id == current.id);
+    final match = devices.firstWhereOrNull((d) => d.id == current.id);
 
     if (match == null || !match.isConnected) {
       final actuallyConnected = await _ble.isConnected(current.id);
@@ -926,14 +927,6 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         .toList();
 
     if (nameOnlyMatches.length == 1) return nameOnlyMatches.first;
-    return null;
-  }
-
-  T? _firstWhereOrNull<T>(List<T>? items, bool Function(T) test) {
-    if (items == null) return null;
-    for (final item in items) {
-      if (test(item)) return item;
-    }
     return null;
   }
 }
