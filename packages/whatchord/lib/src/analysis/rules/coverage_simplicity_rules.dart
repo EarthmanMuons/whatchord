@@ -492,7 +492,9 @@ int? preferCleanerTritoneFlatFiveDominantSpelling(
   if (!_isPlainTritoneFlatFiveDominantPair(a.identity, b.identity)) {
     return null;
   }
-  if ((a.cost - b.cost).abs() > 0.05) return null;
+  if ((a.cost - b.cost).abs() > ranking_policy.tritoneSpellingWindow) {
+    return null;
+  }
 
   return cleanerSpelledSide(a, b, tonality, margin: 0);
 }
