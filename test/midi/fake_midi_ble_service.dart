@@ -30,6 +30,7 @@ void silenceDebugPrint() {
 class FakeMidiBleService implements MidiBleService {
   final _bluetoothStates = StreamController<BluetoothState>.broadcast();
   final _setupChanges = StreamController<void>.broadcast();
+  final _messages = StreamController<MidiMessage>.broadcast();
 
   BluetoothState currentBluetoothState = BluetoothState.poweredOn;
 
@@ -59,9 +60,12 @@ class FakeMidiBleService implements MidiBleService {
 
   void emitSetupChanged() => _setupChanges.add(null);
 
+  void emitMessage(MidiMessage message) => _messages.add(message);
+
   void dispose() {
     unawaited(_bluetoothStates.close());
     unawaited(_setupChanges.close());
+    unawaited(_messages.close());
   }
 
   @override
@@ -71,7 +75,7 @@ class FakeMidiBleService implements MidiBleService {
   Stream<void> get onMidiSetupChanged => _setupChanges.stream;
 
   @override
-  Stream<MidiMessage> get onMidiMessages => const Stream<MidiMessage>.empty();
+  Stream<MidiMessage> get onMidiMessages => _messages.stream;
 
   @override
   BluetoothState get bluetoothState => currentBluetoothState;
