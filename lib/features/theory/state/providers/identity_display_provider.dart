@@ -1,12 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord/whatchord.dart';
 
 import 'package:whatchord_app/core/core.dart';
 import 'package:whatchord_app/features/input/input.dart';
-import 'package:whatchord_app/features/theory/presentation/models/identity_display.dart';
 
+import '../../presentation/models/identity_display.dart';
+import '../../presentation/services/analysis_details_formatter.dart';
 import 'analysis_context_provider.dart';
 import 'analysis_mode_provider.dart';
 import 'chord_candidates_providers.dart';
@@ -47,7 +46,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           noteName: displayName,
           longLabel: longLabel,
           secondaryLabel: 'Note',
-          debugText: _debugForNote(
+          debugText: analysisDetailsForNote(
             midis: midis,
             keyName: keyName,
             noteName: displayName,
@@ -82,7 +81,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
           intervalLabel: interval.long,
           longLabel: interval.long,
           secondaryLabel: 'Interval · above $displayRoot',
-          debugText: _debugForInterval(
+          debugText: analysisDetailsForInterval(
             midis: midis,
             keyName: keyName,
             bassMidi: bassMidi,
@@ -128,7 +127,7 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
         final extensionLabels = extensions
             .map((e) => toGlyphAccidentals(e.shortLabel))
             .toList();
-        final debugText = _debugForChord(
+        final debugText = analysisDetailsForChord(
           midis: midis,
           keyName: keyName,
           chosenSymbol: chordSymbolTextLabel(
@@ -161,149 +160,3 @@ final identityDisplayProvider = Provider<IdentityDisplay?>((ref) {
       return null;
   }
 });
-
-// ---- Analysis details formatting -----------------------------------------
-
-String _debugForNote({
-  required List<int> midis,
-  required String keyName,
-  required String noteName,
-  required String longLabel,
-  required String? appVersion,
-}) {
-  return _debugDoc(
-    sections: [
-      _debugSection('Note Identity', [
-        'Displayed: $noteName',
-        'Full name: $longLabel',
-      ]),
-      _debugContext(keyName: keyName),
-      _debugInput(midis: midis),
-      _debugApp(appVersion: appVersion),
-    ],
-  );
-}
-
-String _debugForInterval({
-  required List<int> midis,
-  required String keyName,
-  required int bassMidi,
-  required int upperMidi,
-  required int semitones,
-  required String fromRoot,
-  required String intervalLong,
-  required String? appVersion,
-}) {
-  return _debugDoc(
-    sections: [
-      _debugSection('Interval Identity', [
-        'Full name: $intervalLong',
-        'Reference: from $fromRoot',
-      ]),
-      _debugContext(keyName: keyName),
-      _debugInput(midis: midis),
-      _debugSection('Details', [
-        'Bass MIDI: $bassMidi',
-        'Upper MIDI: $upperMidi',
-        'Semitones: $semitones',
-      ]),
-      _debugApp(appVersion: appVersion),
-    ],
-  );
-}
-
-String _debugForChord({
-  required List<int> midis,
-  required String keyName,
-  required String chosenSymbol,
-  required String longLabel,
-  required int rootPc,
-  required String quality,
-  required List<String> extensions,
-  required List<String> alternatives,
-  required ScaleDegreeAnalysis? scaleDegreeAnalysis,
-  required List<String> members,
-  required List<String> degrees,
-  required String? appVersion,
-}) {
-  final realizedBassPc = midis.first % 12;
-
-  return _debugDoc(
-    sections: [
-      _debugSection('Chord Identity', [
-        'Displayed: $chosenSymbol',
-        'Full name: $longLabel',
-        'Degrees: ${degrees.isEmpty ? '(none)' : degrees.join(', ')}',
-        'Members: ${members.isEmpty ? '(none)' : members.join('-')}',
-      ]),
-      _debugAlternatives(alternatives),
-      _debugContext(keyName: keyName),
-      _debugInput(midis: midis),
-      _debugSection('Details', [
-        'Root pitch class: $rootPc',
-        'Quality: $quality',
-        'Extensions: ${_fmtList(extensions)}',
-        'Bass pitch class: $realizedBassPc',
-        'Scale degree: ${_scaleDegreeDebugLabel(scaleDegreeAnalysis)}',
-      ]),
-      _debugApp(appVersion: appVersion),
-    ],
-  );
-}
-
-String _scaleDegreeDebugLabel(ScaleDegreeAnalysis? analysis) {
-  if (analysis == null) return '(none)';
-  return '${analysis.romanNumeral} (${analysis.functionName}, '
-      '${analysis.source.displayLabel})';
-}
-
-String _fmtList<T>(Iterable<T> items, {String empty = '(none)'}) {
-  final list = items.toList();
-  return list.isEmpty ? empty : '[${list.join(', ')}]';
-}
-
-String _debugSection(String title, List<String> lines) {
-  return [title, ...lines.map((l) => '• $l')].join('\n');
-}
-
-String _debugAlternatives(List<String> alternatives) {
-  final lines = alternatives.isEmpty ? const ['(none)'] : alternatives;
-  return _debugSection('Alternatives', lines);
-}
-
-String _debugContext({required String keyName}) {
-  return _debugSection('Context', ['Key: $keyName']);
-}
-
-String _debugInput({required List<int> midis}) {
-  final pcs = (midis.map((m) => m % 12).toSet().toList()..sort());
-
-  return _debugSection('Input', [
-    'MIDI notes: ${_fmtList(midis)}',
-    'Pitch classes (C=0): ${_fmtList(pcs)}',
-    'Note count: ${midis.length}',
-  ]);
-}
-
-String _debugApp({required String? appVersion}) {
-  final String title;
-  if (Platform.isAndroid) {
-    title = 'Android App';
-  } else if (Platform.isIOS) {
-    title = 'iOS App';
-  } else {
-    title = 'App';
-  }
-
-  final versionLine = appVersion != null
-      ? 'WhatChord v$appVersion'
-      : 'WhatChord v(loading)';
-
-  return _debugSection(title, [versionLine]);
-}
-
-String _debugDoc({required List<String> sections}) {
-  return [
-    ...sections.expand((s) => [s, '']).toList()..removeLast(),
-  ].join('\n');
-}
