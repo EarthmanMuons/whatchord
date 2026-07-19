@@ -935,10 +935,11 @@ abstract final class ChordAnalyzer {
   /// defines a suspension or altered fifth is the name's identity.
   static double _missingEssentialCost(int interval) {
     return switch (interval) {
-      2 || 5 => _missingSusToneCost,
-      3 || 4 => _missingThirdCost,
-      6 || 8 => _missingAlteredFifthCost,
-      7 => _missingFifthCost,
+      majorSecondInterval || perfectFourthInterval => _missingSusToneCost,
+      minorThirdInterval || majorThirdInterval => _missingThirdCost,
+      diminishedFifthInterval ||
+      augmentedFifthInterval => _missingAlteredFifthCost,
+      perfectFifthInterval => _missingFifthCost,
       _ => _missingSeventhCost,
     };
   }
@@ -1111,7 +1112,7 @@ abstract final class ChordAnalyzer {
     final out = <ChordExtension>{};
 
     // Alterations.
-    if ((extrasMask & (1 << 1)) != 0) {
+    if ((extrasMask & (1 << minorSecondInterval)) != 0) {
       // Without a seventh (or sixth) to anchor a stacked ♭9, the flat ninth is
       // an added tone: C-E-G-D♭ is Cadd♭9, not C♭9. Mirrors add9/add#9.
       out.add(
@@ -1120,24 +1121,28 @@ abstract final class ChordAnalyzer {
             : ChordExtension.addFlat9,
       );
     }
-    if ((extrasMask & (1 << 3)) != 0) {
+    if ((extrasMask & (1 << minorThirdInterval)) != 0) {
       out.add(
         has7 || !_allowsAddSharpNine(quality)
             ? ChordExtension.sharp9
             : ChordExtension.addSharp9,
       );
     }
-    if ((extrasMask & (1 << 6)) != 0) out.add(ChordExtension.sharp11);
-    if ((extrasMask & (1 << 8)) != 0) out.add(ChordExtension.flat13);
+    if ((extrasMask & (1 << sharpEleventhInterval)) != 0) {
+      out.add(ChordExtension.sharp11);
+    }
+    if ((extrasMask & (1 << minorSixthInterval)) != 0) {
+      out.add(ChordExtension.flat13);
+    }
 
     // Natural extensions/add tones. A natural 9, 11, or 13 reads as a stacked
     // upper extension (eligible to headline) whenever the chord has a seventh;
     // the lower stack members are optional, so C-E-G-B♭-A is C13 and
     // C-E-G-B♭-F is C11, not C7(addN). Without a seventh the tone is an added
     // color (and a plain triad plus a sixth is a sixth chord).
-    final has9 = (extrasMask & (1 << 2)) != 0;
-    final has11 = (extrasMask & (1 << 5)) != 0;
-    final has13 = (extrasMask & (1 << 9)) != 0;
+    final has9 = (extrasMask & (1 << majorSecondInterval)) != 0;
+    final has11 = (extrasMask & (1 << perfectFourthInterval)) != 0;
+    final has13 = (extrasMask & (1 << majorSixthInterval)) != 0;
 
     if (has9) out.add(has7 ? ChordExtension.nine : ChordExtension.add9);
     if (has11) out.add(has7 ? ChordExtension.eleven : ChordExtension.add11);

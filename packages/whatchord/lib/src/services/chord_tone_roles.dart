@@ -1,6 +1,7 @@
 import '../models/chord_extension.dart';
 import '../models/chord_identity.dart';
 import '../models/chord_tone_role.dart';
+import 'interval_constants.dart';
 
 /// Builds chord-tone roles for tones present in the voicing, relative to the root.
 /// This is the key mechanism that enables "#11 vs b5" spelling decisions.
@@ -16,7 +17,9 @@ abstract final class ChordToneRoles {
     bool hasInterval(int i) => (relMask & (1 << (i % 12))) != 0;
 
     // Always include root if present (it should be, by analyzer invariant).
-    if (hasInterval(0)) out[0] = ChordToneRole.root;
+    if (hasInterval(chordRootInterval)) {
+      out[chordRootInterval] = ChordToneRole.root;
+    }
 
     // ---- Base chord tones (quality) -----------------------------------------
     void addBase(int interval, ChordToneRole role) {
@@ -25,156 +28,156 @@ abstract final class ChordToneRoles {
 
     switch (quality) {
       case ChordQuality.major:
-        addBase(4, ChordToneRole.major3);
-        addBase(7, ChordToneRole.perfect5);
+        addBase(majorThirdInterval, ChordToneRole.major3);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
         break;
 
       case ChordQuality.majorFlat5:
-        addBase(4, ChordToneRole.major3);
-        addBase(6, ChordToneRole.flat5);
+        addBase(majorThirdInterval, ChordToneRole.major3);
+        addBase(diminishedFifthInterval, ChordToneRole.flat5);
         break;
 
       case ChordQuality.minor:
-        addBase(3, ChordToneRole.minor3);
-        addBase(7, ChordToneRole.perfect5);
+        addBase(minorThirdInterval, ChordToneRole.minor3);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
         break;
 
       case ChordQuality.minorSharp5:
-        addBase(3, ChordToneRole.minor3);
-        addBase(8, ChordToneRole.sharp5);
+        addBase(minorThirdInterval, ChordToneRole.minor3);
+        addBase(augmentedFifthInterval, ChordToneRole.sharp5);
         break;
 
       case ChordQuality.diminished:
-        addBase(3, ChordToneRole.minor3);
-        addBase(6, ChordToneRole.flat5);
+        addBase(minorThirdInterval, ChordToneRole.minor3);
+        addBase(diminishedFifthInterval, ChordToneRole.flat5);
         break;
 
       case ChordQuality.augmented:
-        addBase(4, ChordToneRole.major3);
-        addBase(8, ChordToneRole.sharp5);
+        addBase(majorThirdInterval, ChordToneRole.major3);
+        addBase(augmentedFifthInterval, ChordToneRole.sharp5);
         break;
 
       case ChordQuality.power:
-        addBase(7, ChordToneRole.perfect5);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
         break;
 
       case ChordQuality.sus2:
-        addBase(2, ChordToneRole.sus2);
-        addBase(7, ChordToneRole.perfect5);
+        addBase(majorSecondInterval, ChordToneRole.sus2);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
         break;
 
       case ChordQuality.sus4:
-        addBase(5, ChordToneRole.sus4);
-        addBase(7, ChordToneRole.perfect5);
+        addBase(perfectFourthInterval, ChordToneRole.sus4);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
         break;
 
       case ChordQuality.sus2sus4:
-        addBase(2, ChordToneRole.sus2);
-        addBase(5, ChordToneRole.sus4);
-        addBase(7, ChordToneRole.perfect5);
+        addBase(majorSecondInterval, ChordToneRole.sus2);
+        addBase(perfectFourthInterval, ChordToneRole.sus4);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
         break;
 
       case ChordQuality.major6:
-        addBase(4, ChordToneRole.major3);
-        addBase(7, ChordToneRole.perfect5);
-        addBase(9, ChordToneRole.sixth);
+        addBase(majorThirdInterval, ChordToneRole.major3);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
+        addBase(majorSixthInterval, ChordToneRole.sixth);
         break;
 
       case ChordQuality.minor6:
-        addBase(3, ChordToneRole.minor3);
-        addBase(7, ChordToneRole.perfect5);
-        addBase(9, ChordToneRole.sixth);
+        addBase(minorThirdInterval, ChordToneRole.minor3);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
+        addBase(majorSixthInterval, ChordToneRole.sixth);
         break;
 
       case ChordQuality.dominant7:
-        addBase(4, ChordToneRole.major3);
-        addBase(7, ChordToneRole.perfect5);
-        addBase(10, ChordToneRole.flat7);
+        addBase(majorThirdInterval, ChordToneRole.major3);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
+        addBase(minorSeventhInterval, ChordToneRole.flat7);
         break;
 
       case ChordQuality.dominant7sus2:
-        addBase(2, ChordToneRole.sus2);
-        addBase(7, ChordToneRole.perfect5);
-        addBase(10, ChordToneRole.flat7);
+        addBase(majorSecondInterval, ChordToneRole.sus2);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
+        addBase(minorSeventhInterval, ChordToneRole.flat7);
         break;
 
       case ChordQuality.dominant7sus4:
-        addBase(5, ChordToneRole.sus4);
-        addBase(7, ChordToneRole.perfect5);
-        addBase(10, ChordToneRole.flat7);
+        addBase(perfectFourthInterval, ChordToneRole.sus4);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
+        addBase(minorSeventhInterval, ChordToneRole.flat7);
         break;
 
       case ChordQuality.dominant7Flat5:
-        addBase(4, ChordToneRole.major3);
-        addBase(6, ChordToneRole.flat5);
-        addBase(10, ChordToneRole.flat7);
+        addBase(majorThirdInterval, ChordToneRole.major3);
+        addBase(diminishedFifthInterval, ChordToneRole.flat5);
+        addBase(minorSeventhInterval, ChordToneRole.flat7);
         break;
 
       case ChordQuality.dominant7Sharp5:
-        addBase(4, ChordToneRole.major3);
-        addBase(8, ChordToneRole.sharp5);
-        addBase(10, ChordToneRole.flat7);
+        addBase(majorThirdInterval, ChordToneRole.major3);
+        addBase(augmentedFifthInterval, ChordToneRole.sharp5);
+        addBase(minorSeventhInterval, ChordToneRole.flat7);
         break;
 
       case ChordQuality.major7:
-        addBase(4, ChordToneRole.major3);
-        addBase(7, ChordToneRole.perfect5);
-        addBase(11, ChordToneRole.major7);
+        addBase(majorThirdInterval, ChordToneRole.major3);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
+        addBase(majorSeventhInterval, ChordToneRole.major7);
         break;
 
       case ChordQuality.major7sus2:
-        addBase(2, ChordToneRole.sus2);
-        addBase(7, ChordToneRole.perfect5);
-        addBase(11, ChordToneRole.major7);
+        addBase(majorSecondInterval, ChordToneRole.sus2);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
+        addBase(majorSeventhInterval, ChordToneRole.major7);
         break;
 
       case ChordQuality.major7sus4:
-        addBase(5, ChordToneRole.sus4);
-        addBase(7, ChordToneRole.perfect5);
-        addBase(11, ChordToneRole.major7);
+        addBase(perfectFourthInterval, ChordToneRole.sus4);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
+        addBase(majorSeventhInterval, ChordToneRole.major7);
         break;
 
       case ChordQuality.major7Flat5:
-        addBase(4, ChordToneRole.major3);
-        addBase(6, ChordToneRole.flat5);
-        addBase(11, ChordToneRole.major7);
+        addBase(majorThirdInterval, ChordToneRole.major3);
+        addBase(diminishedFifthInterval, ChordToneRole.flat5);
+        addBase(majorSeventhInterval, ChordToneRole.major7);
         break;
 
       case ChordQuality.major7Sharp5:
-        addBase(4, ChordToneRole.major3);
-        addBase(8, ChordToneRole.sharp5);
-        addBase(11, ChordToneRole.major7);
+        addBase(majorThirdInterval, ChordToneRole.major3);
+        addBase(augmentedFifthInterval, ChordToneRole.sharp5);
+        addBase(majorSeventhInterval, ChordToneRole.major7);
         break;
 
       case ChordQuality.minor7:
-        addBase(3, ChordToneRole.minor3);
-        addBase(7, ChordToneRole.perfect5);
-        addBase(10, ChordToneRole.flat7);
+        addBase(minorThirdInterval, ChordToneRole.minor3);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
+        addBase(minorSeventhInterval, ChordToneRole.flat7);
         break;
 
       case ChordQuality.minor7Sharp5:
-        addBase(3, ChordToneRole.minor3);
-        addBase(8, ChordToneRole.sharp5);
-        addBase(10, ChordToneRole.flat7);
+        addBase(minorThirdInterval, ChordToneRole.minor3);
+        addBase(augmentedFifthInterval, ChordToneRole.sharp5);
+        addBase(minorSeventhInterval, ChordToneRole.flat7);
         break;
 
       case ChordQuality.minorMajor7:
-        addBase(3, ChordToneRole.minor3);
-        addBase(7, ChordToneRole.perfect5);
-        addBase(11, ChordToneRole.major7);
+        addBase(minorThirdInterval, ChordToneRole.minor3);
+        addBase(perfectFifthInterval, ChordToneRole.perfect5);
+        addBase(majorSeventhInterval, ChordToneRole.major7);
         break;
 
       case ChordQuality.halfDiminished7:
-        addBase(3, ChordToneRole.minor3);
-        addBase(6, ChordToneRole.flat5);
-        addBase(10, ChordToneRole.flat7);
+        addBase(minorThirdInterval, ChordToneRole.minor3);
+        addBase(diminishedFifthInterval, ChordToneRole.flat5);
+        addBase(minorSeventhInterval, ChordToneRole.flat7);
         break;
 
       case ChordQuality.diminished7:
-        addBase(3, ChordToneRole.minor3);
-        addBase(6, ChordToneRole.flat5);
+        addBase(minorThirdInterval, ChordToneRole.minor3);
+        addBase(diminishedFifthInterval, ChordToneRole.flat5);
         // Fully diminished seventh is "bb7" (interval 9 above root).
-        addBase(9, ChordToneRole.dim7);
+        addBase(majorSixthInterval, ChordToneRole.dim7);
         break;
     }
 
@@ -192,38 +195,38 @@ abstract final class ChordToneRoles {
       switch (e) {
         case ChordExtension.flat9:
         case ChordExtension.addFlat9:
-          addExt(1, ChordToneRole.flat9);
+          addExt(minorSecondInterval, ChordToneRole.flat9);
           break;
         case ChordExtension.nine:
-          addExt(2, ChordToneRole.nine);
+          addExt(majorSecondInterval, ChordToneRole.nine);
           break;
         case ChordExtension.sharp9:
-          addExt(3, ChordToneRole.sharp9);
+          addExt(minorThirdInterval, ChordToneRole.sharp9);
           break;
         case ChordExtension.addSharp9:
-          addExt(3, ChordToneRole.splitMinor3);
+          addExt(minorThirdInterval, ChordToneRole.splitMinor3);
           break;
         case ChordExtension.eleven:
-          addExt(5, ChordToneRole.eleven);
+          addExt(perfectFourthInterval, ChordToneRole.eleven);
           break;
         case ChordExtension.sharp11:
-          addExt(6, ChordToneRole.sharp11);
+          addExt(sharpEleventhInterval, ChordToneRole.sharp11);
           break;
         case ChordExtension.flat13:
-          addExt(8, ChordToneRole.flat13);
+          addExt(minorSixthInterval, ChordToneRole.flat13);
           break;
         case ChordExtension.thirteen:
-          addExt(9, ChordToneRole.thirteen);
+          addExt(majorSixthInterval, ChordToneRole.thirteen);
           break;
 
         case ChordExtension.add9:
-          addExt(2, ChordToneRole.add9);
+          addExt(majorSecondInterval, ChordToneRole.add9);
           break;
         case ChordExtension.add11:
-          addExt(5, ChordToneRole.add11);
+          addExt(perfectFourthInterval, ChordToneRole.add11);
           break;
         case ChordExtension.add13:
-          addExt(9, ChordToneRole.add13);
+          addExt(majorSixthInterval, ChordToneRole.add13);
           break;
       }
     }
