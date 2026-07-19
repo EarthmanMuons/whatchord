@@ -13,6 +13,8 @@ import '../../services/note_spelling.dart';
 import '../../services/pitch_class.dart';
 import '../candidate_features.dart';
 import '../ranking_policy.dart' as ranking_policy;
+import 'named_rule.dart';
+import 'rule_scaffold.dart';
 
 /// Prefers a reading that names every sounding tone over one that drops a
 /// tone as added complexity outside the base template.
@@ -117,24 +119,11 @@ bool isUnusualSeventhMissingThird(ChordIdentity id) {
       !roles.contains(ChordToneRole.sus4);
 }
 
-int? preferLowerCostAddChordOverMissingThirdUnusualSeventh(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsAddChord = _isMajorMinorAddChord(a.identity, fa);
-  final bIsAddChord = _isMajorMinorAddChord(b.identity, fb);
-  if (aIsAddChord == bIsAddChord) return null;
-
-  final addChord = aIsAddChord ? a : b;
-  final unusual = aIsAddChord ? b : a;
-  if (!isUnusualSeventhMissingThird(unusual.identity)) return null;
-  if (addChord.cost > unusual.cost) return null;
-
-  return aIsAddChord ? -1 : 1;
-}
+final RuleFn preferLowerCostAddChordOverMissingThirdUnusualSeventh = preferOver(
+  isPreferred: (c, f, _) => _isMajorMinorAddChord(c.identity, f),
+  competitorQualifies: (c, _, _) => isUnusualSeventhMissingThird(c.identity),
+  costCap: 0,
+);
 
 /// Lets strong minor-key context resolve a split-third inversion ambiguity.
 ///
@@ -144,47 +133,24 @@ int? preferLowerCostAddChordOverMissingThirdUnusualSeventh(
 ///
 /// Keep this pair-specific so harmonic-minor context does not broadly override
 /// complete triad inversions or the generic preference for fewer tensions.
-int? preferHarmonicMinorTonicOverSplitThirdInversion(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality tonality,
-) {
-  if (!tonality.isMinor) return null;
-
-  bool isHarmonicMinorTonic(ChordCandidate candidate, CandidateFeatures f) {
-    if (!f.isRootPosition ||
-        candidate.identity.quality != ChordQuality.minorMajor7 ||
-        candidate.identity.extensions.length != 1 ||
-        !candidate.identity.extensions.contains(ChordExtension.flat13)) {
+final RuleFn preferHarmonicMinorTonicOverSplitThirdInversion = preferOver(
+  isPreferred: (c, f, tonality) {
+    if (!tonality.isMinor ||
+        !f.isRootPosition ||
+        c.identity.quality != ChordQuality.minorMajor7 ||
+        c.identity.extensions.length != 1 ||
+        !c.identity.extensions.contains(ChordExtension.flat13)) {
       return false;
     }
-
-    final analysis = tonality.scaleDegreeAnalysisForChord(candidate.identity);
+    final analysis = tonality.scaleDegreeAnalysisForChord(c.identity);
     return analysis?.degree == ScaleDegree.one &&
         analysis?.source == ScaleDegreeSource.harmonicMinor;
-  }
-
-  bool isSplitThirdMajorInversion(
-    ChordCandidate candidate,
-    CandidateFeatures f,
-  ) {
-    return f.isCompleteMajorTriadInversion &&
-        candidate.identity.extensions.length == 1 &&
-        candidate.identity.extensions.contains(ChordExtension.addSharp9);
-  }
-
-  final aIsTonic = isHarmonicMinorTonic(a, fa);
-  final bIsTonic = isHarmonicMinorTonic(b, fb);
-  if (aIsTonic == bIsTonic) return null;
-
-  final other = aIsTonic ? b : a;
-  final fOther = aIsTonic ? fb : fa;
-  if (!isSplitThirdMajorInversion(other, fOther)) return null;
-
-  return aIsTonic ? -1 : 1;
-}
+  },
+  competitorQualifies: (c, f, _) =>
+      f.isCompleteMajorTriadInversion &&
+      c.identity.extensions.length == 1 &&
+      c.identity.extensions.contains(ChordExtension.addSharp9),
+);
 
 int? preferFewerAlterations(
   ChordCandidate a,

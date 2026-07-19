@@ -10,6 +10,8 @@ import '../../models/tonality.dart';
 import '../candidate_features.dart';
 import '../ranking_policy.dart' as ranking_policy;
 import 'coverage_simplicity_rules.dart';
+import 'named_rule.dart';
+import 'rule_scaffold.dart';
 
 /// Prefers a complete major/minor triad with add-tone extensions over a sparse
 /// seventh-family chord that inflates the same pitches into remote color.
@@ -274,26 +276,8 @@ bool _isPlainMajorSeventhFlatFive(ChordIdentity id) {
 /// altered-fifth chords (which keep a flat/sharp fifth), six chords, and
 /// dominant/major suspended chords (which keep a seventh) are never demoted.
 /// A cost guard keeps a decisively lower-cost reading in front.
-int? preferCompleteTriadOverDeficientReading(
-  ChordCandidate a,
-  ChordCandidate b,
-  CandidateFeatures fa,
-  CandidateFeatures fb,
-  Tonality _,
-) {
-  final aIsTriad = fa.isCompleteMajorMinorTriad;
-  final bIsTriad = fb.isCompleteMajorMinorTriad;
-  if (aIsTriad == bIsTriad) return null;
-
-  final fOther = aIsTriad ? fb : fa;
-  if (!fOther.isStructurallyDeficient) return null;
-
-  final triadCandidate = aIsTriad ? a : b;
-  final otherCandidate = aIsTriad ? b : a;
-  if (triadCandidate.cost >
-      otherCandidate.cost + ranking_policy.completeTriadCap) {
-    return null;
-  }
-
-  return aIsTriad ? -1 : 1;
-}
+final RuleFn preferCompleteTriadOverDeficientReading = preferOver(
+  isPreferred: (_, f, _) => f.isCompleteMajorMinorTriad,
+  competitorQualifies: (_, f, _) => f.isStructurallyDeficient,
+  costCap: ranking_policy.completeTriadCap,
+);
