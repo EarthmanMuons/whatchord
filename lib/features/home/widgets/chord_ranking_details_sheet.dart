@@ -469,61 +469,6 @@ class _CandidateCostBack extends StatelessWidget {
     );
   }
 
-  int _maskFor(String label) {
-    for (final reason in row.costReasons) {
-      if (reason.label == label) return reason.intervals ?? 0;
-    }
-    return 0;
-  }
-
-  int get _representedPlayedTonesMask => row
-      .candidate
-      .identity
-      .toneRolesByInterval
-      .keys
-      .fold<int>(0, (mask, interval) => mask | (1 << interval));
-
-  int get _alsoPlayedTonesMask =>
-      row.candidate.identity.presentIntervalsMask &
-      ~_representedPlayedTonesMask;
-
-  /// Builds (degree, note) pairs for the tones in [mask], ordered by degree.
-  /// Each tone is labeled individually so the degree and note name stay paired.
-  List<_ToneEntry> _tonesFor(int mask) {
-    final identity = row.candidate.identity;
-    final entries = <_ToneEntry>[];
-    final intervals = ChordToneOrdering.byDegree([
-      for (var interval = 0; interval < 12; interval++)
-        if ((mask & (1 << interval)) != 0) interval,
-    ], identity: identity);
-    for (final interval in intervals) {
-      final pitchClass = (identity.rootPc + interval) % 12;
-      final pc = {pitchClass};
-      final degree = toGlyphAccidentals(
-        ChordMemberDegreeFormatter.formatDegrees(
-          identity: identity,
-          pitchClasses: pc,
-        ).first,
-      );
-      final note = noteDisplayLabel(
-        ChordMemberSpeller.spellMembers(
-          identity: identity,
-          pitchClasses: pc,
-          tonality: tonality,
-        ).first,
-        noteNameSystem: noteNameSystem,
-      );
-      entries.add(
-        _ToneEntry(
-          degree: degree,
-          note: note,
-          isBass: pitchClass == identity.bassPc,
-        ),
-      );
-    }
-    return entries;
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -553,9 +498,11 @@ class _CandidateCostBack extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _TemplateLedger(
-          chordTones: _tonesFor(_representedPlayedTonesMask),
-          missing: _tonesFor(_maskFor('missing required')),
-          alsoPlayed: _tonesFor(_alsoPlayedTonesMask),
+          ledger: ToneLedger.forCandidate(
+            row,
+            tonality: tonality,
+            noteNameSystem: noteNameSystem,
+          ),
         ),
         const Divider(height: 16),
         for (final reason in costContributions)
@@ -600,41 +547,23 @@ class _CandidateCostBack extends StatelessWidget {
   }
 }
 
-class _ToneEntry {
-  const _ToneEntry({
-    required this.degree,
-    required this.note,
-    this.isBass = false,
-  });
-
-  final String degree;
-  final String note;
-  final bool isBass;
-}
-
 /// Shows the candidate's template tones grouped as played chord tones, missing
 /// required tones, and any extra/conflicting tones that were played anyway.
 class _TemplateLedger extends StatelessWidget {
-  const _TemplateLedger({
-    required this.chordTones,
-    required this.missing,
-    required this.alsoPlayed,
-  });
+  const _TemplateLedger({required this.ledger});
 
-  final List<_ToneEntry> chordTones;
-  final List<_ToneEntry> missing;
-  final List<_ToneEntry> alsoPlayed;
+  final ToneLedger ledger;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _ToneGroup(label: 'Chord tones', tones: chordTones),
-        if (missing.isNotEmpty)
-          _ToneGroup(label: 'Missing', tones: missing, muted: true),
-        if (alsoPlayed.isNotEmpty)
-          _ToneGroup(label: 'Also played', tones: alsoPlayed),
+        _ToneGroup(label: 'Chord tones', tones: ledger.chordTones),
+        if (ledger.missing.isNotEmpty)
+          _ToneGroup(label: 'Missing', tones: ledger.missing, muted: true),
+        if (ledger.alsoPlayed.isNotEmpty)
+          _ToneGroup(label: 'Also played', tones: ledger.alsoPlayed),
       ],
     );
   }
@@ -648,7 +577,7 @@ class _ToneGroup extends StatelessWidget {
   });
 
   final String label;
-  final List<_ToneEntry> tones;
+  final List<ToneEntry> tones;
   final bool muted;
 
   @override
@@ -687,7 +616,7 @@ class _ToneGroup extends StatelessWidget {
 class _ToneChip extends StatelessWidget {
   const _ToneChip({required this.tone, this.muted = false});
 
-  final _ToneEntry tone;
+  final ToneEntry tone;
   final bool muted;
 
   @override
