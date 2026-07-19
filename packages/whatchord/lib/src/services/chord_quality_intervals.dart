@@ -1,4 +1,5 @@
 import '../models/chord_identity.dart';
+import 'bit_masks.dart';
 import 'interval_constants.dart';
 
 /// The interval content that defines one [ChordQuality].
@@ -26,7 +27,7 @@ class ChordQualityIntervals {
   int get templateRequiredMask => templateBaseMask & ~omittableMask;
 
   /// [canonicalMask] as a set of semitone intervals above the root.
-  Set<int> get canonicalIntervals => _intervalsFromMask(canonicalMask);
+  Set<int> get canonicalIntervals => intervalsFromMask(canonicalMask).toSet();
 }
 
 /// The interval definitions for every supported [ChordQuality].
@@ -262,11 +263,4 @@ extension ChordQualityIntervalLookup on ChordQuality {
 
   /// Shorthand for `intervals.canonicalMask`.
   int get canonicalMask => intervals.canonicalMask;
-}
-
-Set<int> _intervalsFromMask(int mask) {
-  return {
-    for (var interval = 0; interval < 12; interval++)
-      if ((mask & (1 << interval)) != 0) interval,
-  };
 }
