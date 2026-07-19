@@ -7,8 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatchord_app/features/key/key.dart';
 import 'package:whatchord_app/features/theory/theory.dart';
 
-import '../pages/key_page.dart';
-
 class TonalityBar extends ConsumerWidget {
   const TonalityBar({
     super.key,
