@@ -356,4 +356,74 @@ void main() {
       h.dispose(async);
     });
   });
+
+  test('bluetooth recovery is not throttled by the auto-reconnect rate '
+      'limit', () {
+    fakeAsync((async) {
+      final h = _Harness(async, prefs);
+      h.seedLastConnected(async, _deviceA);
+      h.ble.discoverable = const [];
+
+      // A resume attempt stamps the rate limit, then loses Bluetooth.
+      unawaited(
+        h.notifier.tryAutoReconnect(reason: MidiReconnectTrigger.resume),
+      );
+      async.flushMicrotasks();
+      h.ble.emitBluetoothState(BluetoothState.poweredOff);
+      async.flushMicrotasks();
+      expect(h.state.phase, MidiConnectionPhase.bluetoothUnavailable);
+      async.elapse(const Duration(seconds: 5));
+      async.flushMicrotasks();
+
+      // Recovery well inside the 5s rate-limit window still reconnects,
+      // because the loss cleared the stamp.
+      h.ble.discoverable = const [_deviceA];
+      h.ble.emitBluetoothState(BluetoothState.poweredOn);
+      async.flushMicrotasks();
+      async.elapse(const Duration(seconds: 2));
+      async.flushMicrotasks();
+      expect(h.state.phase, MidiConnectionPhase.connected);
+      h.dispose(async);
+    });
+  });
+
+  test('a bluetooth-ready trigger during an in-flight attempt defers until '
+      'it unwinds', () {
+    fakeAsync((async) {
+      final h = _Harness(async, prefs);
+      h.seedLastConnected(async, _deviceA);
+      h.ble.discoverable = const [];
+
+      unawaited(
+        h.notifier.tryAutoReconnect(reason: MidiReconnectTrigger.manual),
+      );
+      async.flushMicrotasks();
+
+      // Run the loop into its final attempt's discovery wait: four failed
+      // attempts (5s each) plus their backoffs (1+2+4+8s).
+      async.elapse(const Duration(seconds: 35));
+      async.flushMicrotasks();
+
+      // Bluetooth blips while attempt 5 is mid-wait: the ready trigger finds
+      // the attempt in flight and must defer rather than drop.
+      h.ble.emitBluetoothState(BluetoothState.poweredOff);
+      async.flushMicrotasks();
+      h.ble.emitBluetoothState(BluetoothState.poweredOn);
+      async.flushMicrotasks();
+
+      // Attempt 5's wait and final backoff drain; the loop exhausts, then
+      // the deferred trigger starts a fresh attempt that finds the device.
+      async.elapse(const Duration(seconds: 21));
+      async.flushMicrotasks();
+      h.ble.discoverable = const [_deviceA];
+      async.elapse(const Duration(seconds: 1));
+      async.flushMicrotasks();
+      async.elapse(const Duration(seconds: 1));
+      async.flushMicrotasks();
+
+      expect(h.state.phase, MidiConnectionPhase.connected);
+      expect(h.state.device?.id, _deviceA.id);
+      h.dispose(async);
+    });
+  });
 }
