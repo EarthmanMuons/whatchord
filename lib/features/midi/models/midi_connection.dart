@@ -3,6 +3,16 @@ import 'package:meta/meta.dart';
 import 'bluetooth_unavailability.dart';
 import 'midi_device.dart';
 
+/// Why a reconnect attempt was triggered. Reconnect policy branches on
+/// this (manual bypasses gates, startup runs once per app run, resume can
+/// force a revalidation), so it is typed rather than stringly.
+enum MidiReconnectTrigger { manual, startup, resume, bluetoothReady }
+
+/// Why an in-flight connection workflow was cancelled. Only [background]
+/// changes behavior (a live connection is kept and only scanning stops);
+/// the other values exist for logging.
+enum MidiCancelReason { userCancel, background, settingsReset, forgetDevice }
+
 enum MidiConnectionPhase {
   idle,
   connecting,

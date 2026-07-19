@@ -53,7 +53,7 @@ class SettingsResetService {
     // Cancel any reconnect/backoff workflow before mutating persisted MIDI data.
     // This immediately normalizes connection UI to "Not connected" when idle.
     final connectionState = _ref.read(midiConnectionStateProvider.notifier);
-    await connectionState.cancel(reason: 'settings_reset');
+    await connectionState.cancel(reason: MidiCancelReason.settingsReset);
 
     // MIDI preferences (delegate to MIDI's own reset)
     await _ref.read(midiPreferencesProvider.notifier).clearAllMidiData();
