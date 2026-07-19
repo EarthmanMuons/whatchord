@@ -229,8 +229,8 @@ class BocpdKeyDetector implements KeyDetector {
     } else {
       return;
     }
-    final majorK = event.identity.rootPc * 2;
-    final minorK = majorK + 1;
+    final majorK = KeySpace.majorIndex(event.identity.rootPc);
+    final minorK = KeySpace.minorIndex(event.identity.rootPc);
     final pairSum = likelihood[majorK] + likelihood[minorK];
     if (pairSum == 0) return;
     final factor = math.exp(modeTilt * direction);

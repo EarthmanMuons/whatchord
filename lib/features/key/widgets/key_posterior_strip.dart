@@ -126,12 +126,16 @@ class _KeyPosteriorStripState extends ConsumerState<KeyPosteriorStrip> {
               Expanded(
                 child: Column(
                   children: [
-                    cell(KeySpace.canonicalTonalities[((7 * i) % 12) * 2]),
+                    cell(
+                      KeySpace.majorTonality(KeySpace.pcAtFifthsPosition(i)),
+                    ),
                     const SizedBox(height: _gap),
                     cell(
-                      KeySpace.canonicalTonalities[(((7 * i) % 12 + 9) % 12) *
-                              2 +
-                          1],
+                      KeySpace.minorTonality(
+                        KeySpace.relativeMinorPc(
+                          KeySpace.pcAtFifthsPosition(i),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -212,10 +216,10 @@ class _KeyPosteriorStripState extends ConsumerState<KeyPosteriorStrip> {
   void _scrub(Offset position, double cellWidth, double cellHeight) {
     _lingerTimer?.cancel();
     final column = (position.dx / (cellWidth + _gap)).floor().clamp(0, 11);
-    final pc = (7 * column) % 12;
+    final pc = KeySpace.pcAtFifthsPosition(column);
     final index = position.dy < cellHeight + _gap / 2
-        ? pc * 2
-        : ((pc + 9) % 12) * 2 + 1;
+        ? KeySpace.majorIndex(pc)
+        : KeySpace.minorIndex(KeySpace.relativeMinorPc(pc));
     if (index == _inspectedIndex && position.dx == _fingerX) return;
     setState(() {
       _inspectedIndex = index;
