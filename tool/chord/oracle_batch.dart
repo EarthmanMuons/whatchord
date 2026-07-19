@@ -20,6 +20,8 @@ import 'package:whatchord/whatchord.dart';
 import '../chord_debug.dart';
 import '../src/chord_id_engine.dart';
 
+final _analyzer = ChordAnalyzer();
+
 void main() {
   stdin.transform(utf8.decoder).transform(const LineSplitter()).listen((line) {
     if (line.trim().isEmpty) return;
@@ -55,7 +57,7 @@ void main() {
       return;
     }
 
-    final results = ChordAnalyzer.explain(
+    final results = _analyzer.explain(
       prepared.input,
       context: context,
       take: top,

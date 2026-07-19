@@ -31,6 +31,8 @@ import '../../tool/src/chord_id_engine.dart';
 import '../../tool/whatkey/src/fixtures.dart';
 import '../../tool/whatkey/src/scoring.dart';
 
+final _analyzer = ChordAnalyzer();
+
 // Kept out of the normal suite; run explicitly with:
 //   flutter test test/probes/_whatkey_closed_loop_probe_test.dart --run-skipped
 const _skip = 'diagnostic probe, not a regression test';
@@ -193,7 +195,7 @@ ChordEvent _reRanked(ChordEvent event, Tonality tonality) {
     keySignature: keySignature,
     spellingPolicy: NoteSpellingPolicy(preferFlats: keySignature.prefersFlats),
   );
-  final ranked = ChordAnalyzer.analyze(
+  final ranked = _analyzer.analyze(
     event.input,
     context: context,
     voicing: event.voicing,

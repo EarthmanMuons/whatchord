@@ -5,6 +5,8 @@ import 'package:whatchord/whatchord.dart';
 import 'helpers/chord_analyzer_golden_helpers.dart';
 import 'package:whatchord/testing.dart';
 
+final _analyzer = ChordAnalyzer();
+
 void main() {
   final cases = <GoldenCase>[
     // -------------------------------------------------------------------------
@@ -786,7 +788,7 @@ void main() {
           names: ['C', 'Db', 'Eb', 'F', 'A'],
           bass: bass,
         );
-        final results = ChordAnalyzer.analyze(
+        final results = _analyzer.analyze(
           input,
           context: makeAnalysisContext(),
         );

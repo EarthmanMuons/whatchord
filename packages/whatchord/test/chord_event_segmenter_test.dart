@@ -3,6 +3,8 @@ import 'package:test/test.dart';
 import 'package:whatchord/testing.dart';
 import 'package:whatchord/whatchord.dart';
 
+final _analyzer = ChordAnalyzer();
+
 void main() {
   const minDuration = Duration(milliseconds: 300);
   const cMajor = {60, 64, 67};
@@ -20,7 +22,7 @@ void main() {
       bassPc: voicing.bassMidi % 12,
       noteCount: midiNotes.length,
     );
-    final candidates = ChordAnalyzer.analyze(
+    final candidates = _analyzer.analyze(
       input,
       context: context,
       voicing: voicing,

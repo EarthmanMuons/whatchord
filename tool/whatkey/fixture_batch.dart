@@ -17,6 +17,8 @@ import 'package:whatchord/whatchord.dart';
 
 import '../src/chord_id_engine.dart';
 
+final _analyzer = ChordAnalyzer();
+
 void main() {
   stdin.transform(utf8.decoder).transform(const LineSplitter()).listen((line) {
     if (line.trim().isEmpty) return;
@@ -44,11 +46,7 @@ void main() {
     );
     final voicing = ObservedVoicing.fromMidi(midiNotes);
 
-    final ranked = ChordAnalyzer.analyze(
-      input,
-      context: context,
-      voicing: voicing,
-    );
+    final ranked = _analyzer.analyze(input, context: context, voicing: voicing);
     final alternativeCount = ChordCandidateRanking.alternativeCount(ranked);
 
     stdout.writeln(

@@ -51,9 +51,15 @@ class KeyScreenshotSeedNotifier extends Notifier<bool> {
     // Strictly after the reset marker so the recent chords strip re-seeds
     // these events when the page is reopened mid-session.
     final start = ref.read(historyClockProvider)();
+    final analyzer = ref.read(chordAnalyzerProvider);
     for (final (i, (notes, duration)) in _phrase.indexed) {
       history.record(
-        _event(notes, start.add(Duration(milliseconds: i + 1)), duration),
+        _event(
+          analyzer,
+          notes,
+          start.add(Duration(milliseconds: i + 1)),
+          duration,
+        ),
       );
     }
   }
@@ -106,6 +112,7 @@ class KeyScreenshotSeedNotifier extends Notifier<bool> {
   );
 
   static ChordEvent _event(
+    ChordAnalyzer analyzer,
     List<int> midiNotes,
     DateTime timestamp,
     Duration duration,
@@ -121,7 +128,7 @@ class KeyScreenshotSeedNotifier extends Notifier<bool> {
       noteCount: sorted.length,
     );
     final voicing = ObservedVoicing.fromMidi(sorted);
-    final candidates = ChordAnalyzer.analyze(
+    final candidates = analyzer.analyze(
       input,
       context: _context,
       voicing: voicing,

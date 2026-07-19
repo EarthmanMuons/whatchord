@@ -33,6 +33,8 @@ import 'src/corpus.dart';
 import 'src/reference.dart';
 import 'src/stats.dart';
 
+final _analyzer = ChordAnalyzer();
+
 // Convergence target for adaptive sampling: stop once the mean's 95% CI is
 // within this fraction of the mean (or a budget/run cap is hit).
 const double _targetRelCi = 0.015;
@@ -116,12 +118,12 @@ Future<Map<String, Object?>> _runBenchmark() async {
   // --- Memory + counters: oracle corpus (the adversarial stress case) -------
   void oraclePass() {
     for (final input in oracle) {
-      ChordAnalyzer.analyze(input, context: context);
+      _analyzer.analyze(input, context: context);
     }
   }
 
   final probe = await AllocationProbe.connect();
-  ChordAnalyzer.clearCache();
+  _analyzer.clearCache();
   // Baseline heap with an empty cache, then reset the accumulator so churn
   // covers only the pass. Retained-by-engine is the heap growth from caching
   // the corpus (the after/before heapUsage delta), not the whole isolate heap.
@@ -133,7 +135,7 @@ Future<Map<String, Object?>> _runBenchmark() async {
   await probe.dispose();
 
   EngineCounters.reset();
-  ChordAnalyzer.clearCache();
+  _analyzer.clearCache();
   oraclePass();
   final counters = EngineCounters.snapshot();
 
@@ -176,20 +178,20 @@ Future<Map<String, Object?>> _runBenchmark() async {
   final n = corpus.length;
   void pass() {
     for (final input in corpus) {
-      ChordAnalyzer.analyze(input, context: context);
+      _analyzer.analyze(input, context: context);
     }
   }
 
   final cold = collect(
     () {
-      ChordAnalyzer.clearCache();
+      _analyzer.clearCache();
       return _timeMicros(pass) / n;
     },
     budget: const Duration(seconds: 30),
     targetRelCi: _targetRelCi,
   );
 
-  ChordAnalyzer.clearCache();
+  _analyzer.clearCache();
   pass();
   final warm = collect(
     () {

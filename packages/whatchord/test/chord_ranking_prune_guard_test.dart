@@ -17,22 +17,14 @@ import 'package:whatchord/testing.dart';
 // would have seen. If a future pricing/ranking change trips this, raise the
 // margin (or reconsider the change) rather than ship a quietly shrinking
 // alternatives set.
+// Pruning disabled so analyze() returns every candidate, letting the test
+// observe the true surfaced gap.
+final _analyzer = ChordAnalyzer(rankingPruneMargin: double.infinity);
+
+/// The margin under guard: the default a production ChordAnalyzer ships with.
+final _productionMargin = ChordAnalyzer().rankingPruneMargin;
+
 void main() {
-  late double productionMargin;
-
-  setUp(() {
-    // Disable pruning so analyze() returns every candidate, letting us observe
-    // the true surfaced gap. The cache is keyed without the margin, so clear it.
-    productionMargin = ChordAnalyzer.rankingPruneMargin;
-    ChordAnalyzer.rankingPruneMargin = double.infinity;
-    ChordAnalyzer.clearCache();
-  });
-
-  tearDown(() {
-    ChordAnalyzer.rankingPruneMargin = productionMargin;
-    ChordAnalyzer.clearCache();
-  });
-
   test('no surfaced candidate sits at or beyond the prune margin', () {
     final ctx = makeAnalysisContext();
 
@@ -97,11 +89,11 @@ void main() {
 
     expect(
       worstGap,
-      lessThan(productionMargin),
+      lessThan(_productionMargin),
       reason:
           'Widest surfaced gap was ${worstGap.toStringAsFixed(3)} at $worstKey '
           'across $tested voicings, but ChordAnalyzer.rankingPruneMargin is '
-          '$productionMargin. A candidate priced this far above the cheapest '
+          '$_productionMargin. A candidate priced this far above the cheapest '
           'raw reading still surfaces, so the prune would drop it. Raise '
           'rankingPruneMargin above the observed gap (with headroom) or revisit '
           'the change that widened it.',
@@ -113,7 +105,7 @@ void main() {
 /// candidate (the #1 plus its alternatives), for a single voicing on the
 /// unpruned engine.
 double _surfacedGap(ChordInput input, AnalysisContext ctx) {
-  final ranked = ChordAnalyzer.analyze(input, context: ctx, take: 100000);
+  final ranked = _analyzer.analyze(input, context: ctx, take: 100000);
   if (ranked.isEmpty) return 0;
   final costs = [for (final c in ranked) c.cost];
   // Candidate costs are explanation costs (lower is better); the prune anchors on the

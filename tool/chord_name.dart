@@ -13,6 +13,8 @@ import 'package:whatchord/whatchord.dart';
 
 import 'src/chord_id_engine.dart';
 
+final _analyzer = ChordAnalyzer();
+
 const _usage = '''
 Usage:
   dart run tool/chord_name.dart [notes...] [options]
@@ -127,7 +129,7 @@ void main(List<String> args) {
     spellingPolicy: spellingPolicy,
   );
 
-  final results = ChordAnalyzer.analyze(input, context: context);
+  final results = _analyzer.analyze(input, context: context);
 
   if (results.isEmpty) {
     stdout.writeln('No candidates.');

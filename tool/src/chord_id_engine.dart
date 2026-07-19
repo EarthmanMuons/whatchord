@@ -11,6 +11,8 @@
 
 import 'package:whatchord/whatchord.dart';
 
+final _analyzer = ChordAnalyzer();
+
 /// Maximum number of note tokens accepted by a single identification request.
 const maxChordIdNoteTokens = 128;
 
@@ -219,7 +221,7 @@ ChordIdResult identifyChord(
   // Register evidence applies only when actual MIDI numbers were given; bare
   // pitch names carry no octaves, so there is no voicing to reason about.
   final voicing = midi.length >= 2 ? ObservedVoicing.fromMidi(midi) : null;
-  final ranked = ChordAnalyzer.analyze(
+  final ranked = _analyzer.analyze(
     input,
     context: context,
     voicing: voicing,

@@ -128,17 +128,28 @@ class ExplainedCandidate {
 /// pays for its rarity, appended colors, missing essentials, unexplained tones,
 /// and awkward bass placement.
 ///
-/// NOTE: https://whatchord.earthmanmuons.com/articles/chord-recognition-algorithm.html documents this
-/// pipeline in detail. Update the article when prices or algorithm structure
-/// change.
-abstract final class ChordAnalyzer {
-  /// Maximum cached analysis results (LRU eviction). Not const so the cache
-  /// test can shrink capacity and exercise eviction without hundreds of
-  /// analyses.
-  @visibleForTesting
-  static int cacheCapacity = 512;
+/// NOTE: https://whatchord.earthmanmuons.com/articles/chord-recognition-algorithm.html
+/// documents this pipeline in detail. Update the article when prices or
+/// algorithm structure change.
+final class ChordAnalyzer {
+  /// Each instance owns its cache and tuning; the app shares one instance so
+  /// every feature that names chords shares the LRU cache.
+  ChordAnalyzer({this.cacheCapacity = 512, this.rankingPruneMargin = 2.0});
 
-  static final LinkedHashMap<int, List<ChordCandidate>> _cache =
+  /// Maximum cached analysis results (LRU eviction). Configurable so the
+  /// cache test can shrink capacity and exercise eviction without hundreds
+  /// of analyses.
+  final int cacheCapacity;
+
+  /// Candidates priced more than this above the cheapest reading are dropped
+  /// before the O(n^2) ranking. A reading this far down can never surface as
+  /// the #1 pick or an alternative; chord_ranking_prune_guard_test measures
+  /// the widest surfaced gap and asserts it stays under this margin.
+  /// Configurable so that guard test can disable pruning (raise to infinity)
+  /// and measure the unpruned surfaced gap.
+  final double rankingPruneMargin;
+
+  final LinkedHashMap<int, List<ChordCandidate>> _cache =
       LinkedHashMap<int, List<ChordCandidate>>();
 
   // ---- Explanation-cost prices -----------------------------------------
@@ -216,22 +227,13 @@ abstract final class ChordAnalyzer {
   static const _bassAlteredColorCost = 0.5;
   static const _bassUnexplainedCost = 1.0;
 
-  /// Candidates priced more than this above the cheapest reading are dropped
-  /// before the O(n^2) ranking. A reading this far down can never surface as
-  /// the #1 pick or an alternative; chord_ranking_prune_guard_test measures
-  /// the widest surfaced gap and asserts it stays under this margin.
-  /// Not const so that guard test can disable pruning (raise to infinity) and
-  /// measure the unpruned surfaced gap.
-  @visibleForTesting
-  static double rankingPruneMargin = 2.0;
-
   /// Names [input], returning up to [take] candidates ranked most plausible
   /// first.
   ///
   /// [context] biases ranking and spelling toward the prevailing key, and
   /// [voicing] lets register evidence (e.g. a low bass) nudge close calls.
   /// Results are cached.
-  static List<ChordCandidate> analyze(
+  List<ChordCandidate> analyze(
     ChordInput input, {
     required AnalysisContext context,
     ObservedVoicing? voicing,
@@ -279,15 +281,15 @@ abstract final class ChordAnalyzer {
   }
 
   /// Empties the analysis result cache.
-  static void clearCache() => _cache.clear();
+  void clearCache() => _cache.clear();
 
   /// Current number of cached results.
   @visibleForTesting
-  static int get cacheSize => _cache.length;
+  int get cacheSize => _cache.length;
 
   /// Like [analyze], but each candidate carries its cost breakdown and the
   /// reason it is ordered relative to the previous one.
-  static List<ExplainedCandidate> explain(
+  List<ExplainedCandidate> explain(
     ChordInput input, {
     required AnalysisContext context,
     ObservedVoicing? voicing,
@@ -326,7 +328,7 @@ abstract final class ChordAnalyzer {
     return out;
   }
 
-  static List<_Evaluated> _evaluateAll(
+  List<_Evaluated> _evaluateAll(
     ChordInput input, {
     required AnalysisContext context,
     required ObservedVoicing? voicing,
@@ -412,7 +414,7 @@ abstract final class ChordAnalyzer {
   /// engages when the margin set is smaller than [take], i.e. on clear voicings
   /// with few near-top readings, which are cheap to rank anyway; ambiguous and
   /// dense voicings keep the (larger) margin set, so the prune's win is intact.
-  static List<_Evaluated> _pruneForRanking(List<_Evaluated> out, int take) {
+  List<_Evaluated> _pruneForRanking(List<_Evaluated> out, int take) {
     if (out.length <= take) return out;
     var minCost = double.infinity;
     for (final e in out) {

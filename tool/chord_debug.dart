@@ -13,6 +13,8 @@ import 'package:whatchord/whatchord.dart';
 
 import 'src/chord_id_engine.dart';
 
+final _analyzer = ChordAnalyzer();
+
 const _rootFilterCandidateLimit = 1024;
 
 const _usage = '''
@@ -148,7 +150,7 @@ void main(List<String> args) {
     spellingMode: spellingMode,
     hasRootFilter: rootFilter != null,
   );
-  final baseResults = ChordAnalyzer.explain(
+  final baseResults = _analyzer.explain(
     input,
     context: context,
     voicing: voicing,
