@@ -63,6 +63,10 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   // user disconnect, until the user explicitly connects or reconnects again.
   bool _autoReconnectSuppressed = false;
 
+  // A bluetooth-ready trigger that arrived while an attempt was in flight;
+  // consumed when that attempt unwinds so the recovery is not lost.
+  bool _retriggerAfterAttempt = false;
+
   MidiDeviceManager get _midi => ref.read(midiDeviceManagerProvider.notifier);
 
   /// Explicit user/controller cancel:
@@ -74,6 +78,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
   }) async {
     if (_debugLog) debugPrint('[CONN] cancel reason=${reason.name}');
     _cancelRequested = true;
+    _retriggerAfterAttempt = false;
     _cancelRetry();
     // Do not clear `_attemptInFlight` here: cancel only requests early exit.
     // The active reconnect run clears the flag in tryAutoReconnect's `finally`
@@ -213,6 +218,9 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
 
           _cancelRetry();
           _cancelRequested = true;
+          // The loss aborts any stamped attempt, so recovery must not be
+          // held back by the auto-reconnect rate limit.
+          _lastAutoReconnectAt = null;
 
           final nextReason = switch (bt) {
             BluetoothState.poweredOff => BluetoothUnavailability.adapterOff,
@@ -250,7 +258,12 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
             unawaited(
               Future<void>.microtask(() {
                 if (_backgrounded) return;
-                if (_attemptInFlight) return;
+                if (_attemptInFlight) {
+                  // Defer instead of dropping: the running attempt consumes
+                  // this when it unwinds.
+                  _retriggerAfterAttempt = true;
+                  return;
+                }
                 unawaited(
                   tryAutoReconnect(reason: MidiReconnectTrigger.bluetoothReady),
                 );
@@ -520,6 +533,19 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
       );
     } finally {
       _attemptInFlight = false;
+      if (_retriggerAfterAttempt) {
+        _retriggerAfterAttempt = false;
+        if (!_backgrounded) {
+          unawaited(
+            Future<void>.microtask(() {
+              if (_backgrounded || _attemptInFlight) return;
+              unawaited(
+                tryAutoReconnect(reason: MidiReconnectTrigger.bluetoothReady),
+              );
+            }),
+          );
+        }
+      }
     }
   }
 
@@ -778,6 +804,7 @@ class MidiConnectionNotifier extends Notifier<MidiConnectionState> {
     if (_debugLog) debugPrint('[CONN] disconnect');
     _cancelRequested = true;
     _autoReconnectSuppressed = true;
+    _retriggerAfterAttempt = false;
     _cancelRetry();
 
     await _midi.disconnect();

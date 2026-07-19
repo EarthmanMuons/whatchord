@@ -37,6 +37,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - Connection failures now explain what went wrong and what to do next, such as a
   declined pairing request or a device without Bluetooth MIDI support, instead
   of a generic "Failed to connect" message.
+- Toggling Bluetooth off and on now resumes reconnecting reliably even when the
+  toggle lands mid-attempt: the recovery trigger is held until the interrupted
+  attempt unwinds instead of being dropped.
 - "Reset all settings" now also resets the Scale Explorer's scale degrees
   toggle, which previously survived a full reset.
 - Disambiguated compact chord symbols such as C(♯11) and C♯(11), making it clear
