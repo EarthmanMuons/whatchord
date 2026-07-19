@@ -6,7 +6,16 @@ import 'midi_device.dart';
 /// Why a reconnect attempt was triggered. Reconnect policy branches on
 /// this (manual bypasses gates, startup runs once per app run, resume can
 /// force a revalidation), so it is typed rather than stringly.
-enum MidiReconnectTrigger { manual, startup, resume, bluetoothReady }
+enum MidiReconnectTrigger {
+  manual,
+  startup,
+  resume,
+  bluetoothReady,
+
+  /// The link dropped unexpectedly while foregrounded (device powered off or
+  /// out of range), as opposed to a user disconnect or backgrounding.
+  connectionLost,
+}
 
 /// Why an in-flight connection workflow was cancelled. Only [background]
 /// changes behavior (a live connection is kept and only scanning stops);

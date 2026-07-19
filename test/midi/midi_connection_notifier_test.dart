@@ -12,6 +12,7 @@ import 'package:whatchord_app/features/midi/models/midi_device.dart';
 import 'package:whatchord_app/features/midi/providers/bluetooth_permission_service_provider.dart';
 import 'package:whatchord_app/features/midi/providers/midi_ble_service_provider.dart';
 import 'package:whatchord_app/features/midi/providers/midi_connection_notifier.dart';
+import 'package:whatchord_app/features/midi/providers/midi_device_manager.dart';
 import 'package:whatchord_app/features/midi/providers/midi_preferences_notifier.dart';
 
 import 'fake_midi_ble_service.dart';
@@ -298,6 +299,60 @@ void main() {
       expect(h.state.phase, MidiConnectionPhase.connected);
       expect(h.ble.connectedIds, {_deviceA.id}, reason: 'reconnected');
       expect(h.ble.connectCalls, 2);
+      h.dispose(async);
+    });
+  });
+
+  test('an unexpected link loss triggers the auto-reconnect loop', () {
+    fakeAsync((async) {
+      final h = _Harness(async, prefs);
+      h.connectNow(async, _deviceA);
+      expect(h.state.phase, MidiConnectionPhase.connected);
+      expect(h.ble.connectCalls, 1);
+
+      // The device dies at the transport level; reconciliation notices.
+      h.ble.connectedIds.clear();
+      unawaited(
+        h.container
+            .read(midiDeviceManagerProvider.notifier)
+            .reconcileConnectedDevice(reason: 'test'),
+      );
+      async.flushMicrotasks();
+
+      // The loss kicks the reconnect loop; the device is still discoverable,
+      // so the first attempt reconnects it.
+      async.elapse(const Duration(seconds: 2));
+      async.flushMicrotasks();
+      expect(h.state.phase, MidiConnectionPhase.connected);
+      expect(h.ble.connectCalls, 2);
+      h.dispose(async);
+    });
+  });
+
+  test('switching devices does not read as a link loss', () {
+    fakeAsync((async) {
+      final h = _Harness(async, prefs);
+      h.connectNow(async, _deviceA);
+
+      const deviceB = MidiDevice(
+        id: 'bbb',
+        name: 'Stage Piano',
+        transport: MidiTransportType.ble,
+        isConnected: false,
+      );
+      h.ble.discoverable = const [_deviceA, deviceB];
+      unawaited(h.notifier.connect(deviceB));
+      async.flushMicrotasks();
+      async.elapse(const Duration(seconds: 2));
+      async.flushMicrotasks();
+
+      expect(h.state.phase, MidiConnectionPhase.connected);
+      expect(h.state.device?.id, deviceB.id);
+      expect(
+        h.ble.connectCalls,
+        2,
+        reason: 'no phantom reconnect of the switched-away device',
+      );
       h.dispose(async);
     });
   });
