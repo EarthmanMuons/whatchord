@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/piano_key_decoration.dart';
@@ -685,41 +686,17 @@ class PianoKeyboardPainter extends CustomPainter {
         oldDelegate.decorationColor != decorationColor ||
         oldDelegate.decorationTextScaleMultiplier !=
             decorationTextScaleMultiplier ||
-        !_listEquals(oldDelegate.decorations, decorations) ||
-        !_setEquals(
+        !listEquals(oldDelegate.decorations, decorations) ||
+        !setEquals(
           oldDelegate.highlightedNoteNumbers,
           highlightedNoteNumbers,
         ) ||
         oldDelegate.scaleMarkerColor != scaleMarkerColor ||
         oldDelegate.tonicPitchClass != tonicPitchClass ||
-        !_nullableSetEquals(
+        !setEquals(
           oldDelegate.normalHighlightPitchClasses,
           normalHighlightPitchClasses,
         ) ||
-        !_setEquals(oldDelegate.scaleNoteNumbers, scaleNoteNumbers);
-  }
-
-  bool _nullableSetEquals(Set<int>? a, Set<int>? b) {
-    if (identical(a, b)) return true;
-    if (a == null || b == null) return false;
-    return _setEquals(a, b);
-  }
-
-  bool _setEquals(Set<int> a, Set<int> b) {
-    if (identical(a, b)) return true;
-    if (a.length != b.length) return false;
-    for (final v in a) {
-      if (!b.contains(v)) return false;
-    }
-    return true;
-  }
-
-  bool _listEquals(List<Object> a, List<Object> b) {
-    if (identical(a, b)) return true;
-    if (a.length != b.length) return false;
-    for (int i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
+        !setEquals(oldDelegate.scaleNoteNumbers, scaleNoteNumbers);
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
@@ -419,7 +420,7 @@ class _ScrollablePianoKeyboardState
     super.didUpdateWidget(oldWidget);
 
     // If notes changed, consider recentering.
-    if (!_setEquals(
+    if (!setEquals(
       oldWidget.highlightedNoteNumbers,
       widget.highlightedNoteNumbers,
     )) {
@@ -1040,15 +1041,6 @@ class _ScrollablePianoKeyboardState
         );
       },
     );
-  }
-
-  bool _setEquals(Set<int> a, Set<int> b) {
-    if (identical(a, b)) return true;
-    if (a.length != b.length) return false;
-    for (final v in a) {
-      if (!b.contains(v)) return false;
-    }
-    return true;
   }
 }
 

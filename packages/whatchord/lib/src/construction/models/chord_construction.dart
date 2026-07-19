@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
 import '../../models/chord_extension.dart';
@@ -119,18 +120,11 @@ class ChordConstruction {
           other.root == root &&
           other.spec == spec &&
           other.bassPc == bassPc &&
-          _setEquals(other.extensions, extensions);
+          _extensionsEquality.equals(other.extensions, extensions);
 
   @override
   int get hashCode =>
       Object.hash(root, spec, bassPc, Object.hashAllUnordered(extensions));
 
-  static bool _setEquals<T>(Set<T> a, Set<T> b) {
-    if (identical(a, b)) return true;
-    if (a.length != b.length) return false;
-    for (final item in a) {
-      if (!b.contains(item)) return false;
-    }
-    return true;
-  }
+  static const _extensionsEquality = SetEquality<ChordExtension>();
 }
