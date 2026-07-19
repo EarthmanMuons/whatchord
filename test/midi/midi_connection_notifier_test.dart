@@ -106,18 +106,17 @@ void main() {
       );
       async.flushMicrotasks();
 
-      expect(h.state.phase, MidiConnectionPhase.retrying);
+      // Attempt 1 waits out the discovery window before giving up.
+      expect(h.state.phase, MidiConnectionPhase.connecting);
       expect(h.state.attempt, 1);
+      async.elapse(const Duration(seconds: 5));
+      async.flushMicrotasks();
+      expect(h.state.phase, MidiConnectionPhase.retrying);
       expect(h.state.nextDelay, const Duration(seconds: 1));
 
-      async.elapse(const Duration(seconds: 1));
-      async.flushMicrotasks();
-      expect(h.state.attempt, 2, reason: 'second attempt after 1s backoff');
-      expect(h.state.nextDelay, const Duration(seconds: 2));
-
-      // The device comes back; the third attempt finds and connects it.
+      // The device comes back; the second attempt discovers and connects it.
       h.ble.discoverable = const [_deviceA];
-      async.elapse(const Duration(seconds: 2));
+      async.elapse(const Duration(seconds: 1));
       async.flushMicrotasks();
       async.elapse(const Duration(seconds: 1));
       async.flushMicrotasks();
@@ -137,6 +136,8 @@ void main() {
       unawaited(
         h.notifier.tryAutoReconnect(reason: MidiReconnectTrigger.startup),
       );
+      async.flushMicrotasks();
+      async.elapse(const Duration(seconds: 5));
       async.flushMicrotasks();
       expect(h.state.phase, MidiConnectionPhase.retrying);
 
@@ -162,6 +163,8 @@ void main() {
       unawaited(
         h.notifier.tryAutoReconnect(reason: MidiReconnectTrigger.startup),
       );
+      async.flushMicrotasks();
+      async.elapse(const Duration(seconds: 5));
       async.flushMicrotasks();
       expect(h.state.phase, MidiConnectionPhase.retrying);
 
@@ -226,11 +229,16 @@ void main() {
         h.notifier.tryAutoReconnect(reason: MidiReconnectTrigger.manual),
       );
       async.flushMicrotasks();
-      expect(h.state.phase, MidiConnectionPhase.retrying);
+      expect(h.state.phase, MidiConnectionPhase.connecting);
 
       h.ble.emitBluetoothState(BluetoothState.poweredOff);
       async.flushMicrotasks();
       expect(h.state.phase, MidiConnectionPhase.bluetoothUnavailable);
+
+      // Drain the aborted attempt's discovery wait so its in-flight flag
+      // clears before recovery arrives.
+      async.elapse(const Duration(seconds: 5));
+      async.flushMicrotasks();
 
       h.ble.discoverable = const [_deviceA];
       h.ble.emitBluetoothState(BluetoothState.poweredOn);

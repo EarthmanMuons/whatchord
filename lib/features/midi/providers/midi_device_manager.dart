@@ -86,6 +86,11 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
   static const Duration _waitForDeviceTimeout = Duration(seconds: 6);
 
+  /// How long reconnect-target resolution waits for an active scan to
+  /// rediscover the device. Sits inside the connection notifier's 8s
+  /// find-target budget.
+  static const Duration _findTargetDiscoveryTimeout = Duration(seconds: 5);
+
   static const Duration _btPrimeTimeout = Duration(seconds: 2);
   static const Duration _btPrimeHardTimeout = Duration(seconds: 3);
 
@@ -359,10 +364,18 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     }
   }
 
-  /// Resolve a reconnect target by id, or by name/transport if the id changed.
+  /// Resolve a reconnect target by id, or by name/transport if the id
+  /// changed, waiting up to [discoveryTimeout] for an active scan to surface
+  /// the device.
+  ///
+  /// Since flutter_midi_command 1.0.3, disconnected BLE devices are pruned
+  /// from the transport cache and stay hidden until a scan actually sees
+  /// them again, so the first post-disconnect snapshot is usually empty:
+  /// resolution has to wait for discovery instead of failing on it.
   Future<MidiDevice?> findReconnectTarget({
     required String deviceId,
     MidiDevice? hint,
+    Duration discoveryTimeout = _findTargetDiscoveryTimeout,
   }) async {
     try {
       final requiresBluetooth =
@@ -373,33 +386,28 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       }
       await _refreshDeviceList(bypassThrottle: true);
 
-      final byId = _findDeviceInList(state.devices, deviceId);
-      if (byId != null) {
-        if (_debugLog) debugPrint('[MGR] findReconnectTarget byId=$deviceId');
-        return byId;
-      }
+      final target = await _waitForMatch(timeout: discoveryTimeout, (devices) {
+        final byId = _findDeviceInList(devices, deviceId);
+        if (byId != null) return byId;
+        return hint != null ? _findDeviceByHint(devices, hint) : null;
+      });
 
-      if (hint == null) {
-        if (_debugLog) {
-          debugPrint('[MGR] findReconnectTarget no hint for id=$deviceId');
-        }
-        return null;
-      }
-
-      final byHint = _findDeviceByHint(hint);
-      if (byHint != null) {
-        if (_debugLog) {
+      if (_debugLog) {
+        if (target == null) {
           debugPrint(
-            '[MGR] findReconnectTarget byHint id=${byHint.id} name=${byHint.name}',
+            '[MGR] findReconnectTarget no match id=$deviceId '
+            'hint=${hint?.name}',
+          );
+        } else if (target.id == deviceId) {
+          debugPrint('[MGR] findReconnectTarget byId=$deviceId');
+        } else {
+          debugPrint(
+            '[MGR] findReconnectTarget byHint id=${target.id} '
+            'name=${target.name}',
           );
         }
-      } else if (_debugLog) {
-        debugPrint(
-          '[MGR] findReconnectTarget no match for hint name=${hint.name} '
-          'transport=${hint.transport}',
-        );
       }
-      return byHint;
+      return target;
     } catch (e) {
       if (!kReleaseMode) debugPrint('findReconnectTarget failed: $e');
       return null;
@@ -708,24 +716,31 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   Future<MidiDevice?> _waitForDevice(
     String deviceId, {
     Duration timeout = _waitForDeviceTimeout,
+  }) => _waitForMatch(
+    timeout: timeout,
+    (devices) => _findDeviceInList(devices, deviceId),
+  );
+
+  /// Waits until [match] finds a device in the published list, refreshing
+  /// while scanning so the list can actually converge (iOS can be slow to
+  /// surface devices), or returns null at [timeout].
+  Future<MidiDevice?> _waitForMatch(
+    MidiDevice? Function(List<MidiDevice> devices) match, {
+    required Duration timeout,
   }) async {
     // Fast path: already present.
-    final existing = _findDeviceInList(state.devices, deviceId);
+    final existing = match(state.devices);
     if (existing != null) return existing;
 
     // Refresh once immediately.
     await _refreshDeviceList(bypassThrottle: true);
 
     // Check again.
-    final afterRefresh = _findDeviceInList(state.devices, deviceId);
+    final afterRefresh = match(state.devices);
     if (afterRefresh != null) return afterRefresh;
 
-    // While scanning/connecting, keep refreshing so the device list can actually
-    // converge on the target device (iOS can be slow to surface it).
     if (_debugLog) {
-      debugPrint(
-        '[MGR] waitForDevice start id=$deviceId timeout=${timeout.inSeconds}s',
-      );
+      debugPrint('[MGR] waitForMatch start timeout=${timeout.inSeconds}s');
     }
 
     Timer? pump;
@@ -743,17 +758,17 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     deadline = Timer(timeout, () {
       if (completer.isCompleted) return;
       if (_debugLog) {
-        debugPrint('[MGR] waitForDevice timeout id=$deviceId');
+        debugPrint('[MGR] waitForMatch timeout');
       }
       completer.complete(null);
     });
 
     sub = _devicesChanged.stream.listen((_) {
       if (completer.isCompleted) return;
-      final found = _findDeviceInList(state.devices, deviceId);
+      final found = match(state.devices);
       if (found == null) return;
       if (_debugLog) {
-        debugPrint('[MGR] waitForDevice found id=$deviceId');
+        debugPrint('[MGR] waitForMatch found id=${found.id}');
       }
       completer.complete(found);
     });
@@ -910,11 +925,11 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     return null;
   }
 
-  MidiDevice? _findDeviceByHint(MidiDevice hint) {
+  MidiDevice? _findDeviceByHint(List<MidiDevice> devices, MidiDevice hint) {
     final hintName = hint.name.trim().toLowerCase();
     if (hintName.isEmpty) return null;
 
-    final exactTransportMatches = state.devices
+    final exactTransportMatches = devices
         .where(
           (d) =>
               d.transport == hint.transport &&
@@ -927,7 +942,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     // iOS/CoreMIDI can expose the same physical device as BLE or native across
     // sessions/resume boundaries. If transport changed, fall back to name-only
     // matching among local transports.
-    final nameOnlyMatches = state.devices
+    final nameOnlyMatches = devices
         .where(
           (d) =>
               d.transport != MidiTransportType.network &&

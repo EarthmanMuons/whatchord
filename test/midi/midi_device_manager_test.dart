@@ -190,6 +190,7 @@ void main() {
         final none = await manager().findReconnectTarget(
           deviceId: deviceA.id,
           hint: deviceA,
+          discoveryTimeout: const Duration(milliseconds: 100),
         );
         expect(none, isNull);
       },
@@ -197,8 +198,27 @@ void main() {
 
     test('returns null without a hint when the id is gone', () async {
       ble.discoverable = const [deviceB];
-      final target = await manager().findReconnectTarget(deviceId: deviceA.id);
+      final target = await manager().findReconnectTarget(
+        deviceId: deviceA.id,
+        discoveryTimeout: const Duration(milliseconds: 100),
+      );
       expect(target, isNull);
+    });
+
+    test('waits for an active scan to rediscover the device', () async {
+      // Post-disconnect, the transport prunes the device; it only reappears
+      // once scanning actually sees it (flutter_midi_command 1.0.3+).
+      ble.discoverable = const [];
+      final pending = manager().findReconnectTarget(
+        deviceId: deviceA.id,
+        discoveryTimeout: const Duration(seconds: 3),
+      );
+
+      await Future<void>.delayed(const Duration(milliseconds: 300));
+      ble.discoverable = const [deviceA];
+
+      final target = await pending;
+      expect(target?.id, deviceA.id);
     });
   });
 }
