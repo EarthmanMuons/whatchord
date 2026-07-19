@@ -1,8 +1,7 @@
-import 'dart:math' as math;
-
 import 'package:whatchord/whatchord.dart';
 
 import '../models/key_estimate.dart';
+import 'detector_support.dart';
 import 'key_detector.dart';
 import 'key_space.dart';
 
@@ -92,7 +91,10 @@ class ProgressionKeyDetector implements KeyDetector {
 
   final List<double> _scores = List.filled(24, 0);
   int _eventCount = 0;
-  DateTime? _lastTimestamp;
+  late final DecayClock _decay = DecayClock(
+    halfLife: decayHalfLife,
+    halfLifeEvents: decayHalfLifeEvents,
+  );
   ChordIdentity? _previous;
   ChordIdentity? _previous2;
 
@@ -134,14 +136,15 @@ class ProgressionKeyDetector implements KeyDetector {
   void reset() {
     _scores.fillRange(0, 24, 0);
     _eventCount = 0;
-    _lastTimestamp = null;
+    _decay.reset();
     _previous = null;
     _previous2 = null;
   }
 
   @override
   KeyEstimateFrame onEvent(ChordEvent event) {
-    _decayTo(event.timestamp);
+    final decay = _decay.advance(event.timestamp);
+    if (decay != null) _applyDecay(decay);
     _eventCount += 1;
 
     final current = event.identity;
@@ -163,16 +166,13 @@ class ProgressionKeyDetector implements KeyDetector {
     _previous = current;
 
     final ranked = _rankKeys();
-    if (ranked.isEmpty || _eventCount < minEvents) {
-      return KeyEstimateFrame.abstain(ranked);
-    }
-    final margin = ranked.length < 2
-        ? double.infinity
-        : ranked[0].confidence - ranked[1].confidence;
-    if (ranked[0].confidence <= 0 || margin < marginFloor) {
-      return KeyEstimateFrame.abstain(ranked);
-    }
-    return KeyEstimateFrame(ranked: ranked, claim: ranked.first);
+    return claimOrAbstain(
+      ranked,
+      eventCount: _eventCount,
+      minEvents: minEvents,
+      marginFloor: marginFloor,
+      requirePositiveTop: true,
+    );
   }
 
   double _transitionPoints(
@@ -260,30 +260,8 @@ class ProgressionKeyDetector implements KeyDetector {
     var weight = durationWeighted
         ? event.duration.inMilliseconds / 1000.0
         : 1.0;
-    if (confidenceWeighted) weight *= _identityConfidence(event);
+    if (confidenceWeighted) weight *= identityConfidence(event);
     return weight;
-  }
-
-  static double _identityConfidence(ChordEvent event) {
-    if (event.candidates.length < 2) return 1.0;
-    final gap = event.candidates[1].cost - event.candidates.first.cost;
-    return (gap / ChordCandidateRanking.nearTieWindow).clamp(0.0, 1.0);
-  }
-
-  void _decayTo(DateTime timestamp) {
-    final last = _lastTimestamp;
-    _lastTimestamp = timestamp;
-    if (last == null) return;
-    final eventHalfLife = decayHalfLifeEvents;
-    if (eventHalfLife != null) {
-      _applyDecay(math.pow(0.5, 1 / eventHalfLife) as double);
-      return;
-    }
-    final halfLife = decayHalfLife;
-    if (halfLife == null) return;
-    final elapsedMs = timestamp.difference(last).inMilliseconds;
-    if (elapsedMs <= 0) return;
-    _applyDecay(math.pow(0.5, elapsedMs / halfLife.inMilliseconds) as double);
   }
 
   void _applyDecay(double factor) {
