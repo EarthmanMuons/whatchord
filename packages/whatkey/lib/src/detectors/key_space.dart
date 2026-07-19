@@ -32,8 +32,35 @@ abstract final class KeySpace {
   }
 
   /// Stable index of a tonality in the 24-key space.
-  static int index(Tonality tonality) =>
-      tonality.tonicPitchClass * 2 + (tonality.isMinor ? 1 : 0);
+  static int index(Tonality tonality) => tonality.isMinor
+      ? minorIndex(tonality.tonicPitchClass)
+      : majorIndex(tonality.tonicPitchClass);
+
+  /// Index of the canonical major key with tonic [pc].
+  static int majorIndex(int pc) => pc * 2;
+
+  /// Index of the canonical minor key with tonic [pc].
+  static int minorIndex(int pc) => pc * 2 + 1;
+
+  /// The canonical major tonality with tonic [pc].
+  static Tonality majorTonality(int pc) => canonicalTonalities[majorIndex(pc)];
+
+  /// The canonical minor tonality with tonic [pc].
+  static Tonality minorTonality(int pc) => canonicalTonalities[minorIndex(pc)];
+
+  /// Tonic pitch class of the relative major of the minor key on [minorPc].
+  static int relativeMajorPc(int minorPc) => (minorPc + 3) % 12;
+
+  /// Tonic pitch class of the relative minor of the major key on [majorPc].
+  static int relativeMinorPc(int majorPc) => (majorPc + 9) % 12;
+
+  /// Position of [pc] on the circle of fifths, C at position 0 (7 fifths
+  /// span the octave, so successive positions rise by a fifth).
+  static int fifthsPosition(int pc) => (pc * 7) % 12;
+
+  /// Pitch class at [position] on the circle of fifths; the fifths mapping
+  /// is self-inverse (7 * 7 = 49 = 1 mod 12).
+  static int pcAtFifthsPosition(int position) => fifthsPosition(position);
 
   /// Scale pitch classes per key. Major keys use the major scale; minor keys
   /// use natural union harmonic minor, mirroring `ScaleDegreeClassifier`'s

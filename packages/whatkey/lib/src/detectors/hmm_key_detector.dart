@@ -243,8 +243,8 @@ class HmmKeyDetector implements KeyDetector {
     } else {
       return;
     }
-    final majorK = event.identity.rootPc * 2;
-    final minorK = majorK + 1;
+    final majorK = KeySpace.majorIndex(event.identity.rootPc);
+    final minorK = KeySpace.minorIndex(event.identity.rootPc);
     final pairSum = emission[majorK] + emission[minorK];
     if (pairSum == 0) return;
     final factor = math.exp(modeTilt * direction);
@@ -270,11 +270,11 @@ class HmmKeyDetector implements KeyDetector {
     final int homeK;
     final int twinK;
     if (KeySpace.majorTonicQualities.contains(quality)) {
-      homeK = root * 2;
-      twinK = ((root + 9) % 12) * 2 + 1;
+      homeK = KeySpace.majorIndex(root);
+      twinK = KeySpace.minorIndex(KeySpace.relativeMinorPc(root));
     } else if (KeySpace.minorTonicQualities.contains(quality)) {
-      homeK = root * 2 + 1;
-      twinK = ((root + 3) % 12) * 2;
+      homeK = KeySpace.minorIndex(root);
+      twinK = KeySpace.majorIndex(KeySpace.relativeMajorPc(root));
     } else {
       return;
     }
@@ -360,11 +360,11 @@ class HmmKeyDetector implements KeyDetector {
   }
 
   /// Position of the key's signature on the circle of fifths: the relative
-  /// major's tonic mapped through pc * 7 mod 12 (7 fifths span the octave).
+  /// major's tonic mapped through [KeySpace.fifthsPosition].
   static int _signaturePosition(Tonality tonality) {
     final relativeMajorPc = tonality.isMajor
         ? tonality.tonicPitchClass
-        : (tonality.tonicPitchClass + 3) % 12;
-    return (relativeMajorPc * 7) % 12;
+        : KeySpace.relativeMajorPc(tonality.tonicPitchClass);
+    return KeySpace.fifthsPosition(relativeMajorPc);
   }
 }

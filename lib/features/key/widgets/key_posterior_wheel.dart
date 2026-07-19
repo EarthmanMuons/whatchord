@@ -206,8 +206,10 @@ class _WheelPainter extends CustomPainter {
     angle = angle % (2 * math.pi);
     if (angle < 0) angle += 2 * math.pi;
     final i = (angle ~/ _sweep) % 12;
-    final pc = (7 * i) % 12;
-    return radius >= outer * _middleFraction ? pc * 2 : ((pc + 9) % 12) * 2 + 1;
+    final pc = KeySpace.pcAtFifthsPosition(i);
+    return radius >= outer * _middleFraction
+        ? KeySpace.majorIndex(pc)
+        : KeySpace.minorIndex(KeySpace.relativeMinorPc(pc));
   }
 
   @override
@@ -240,10 +242,9 @@ class _WheelPainter extends CustomPainter {
     Path segmentForIndex(int index) {
       final pc = index ~/ 2;
       final isMinor = index.isOdd;
-      // Invert pc -> ring position: i = 7 * pc mod 12 (7 is self-inverse mod
-      // 12); minors are drawn inside their relative major's segment.
-      final ringPc = isMinor ? (pc + 3) % 12 : pc;
-      final i = (7 * ringPc) % 12;
+      // Minors are drawn inside their relative major's segment.
+      final ringPc = isMinor ? KeySpace.relativeMajorPc(pc) : pc;
+      final i = KeySpace.fifthsPosition(ringPc);
       final start = -math.pi / 2 - _sweep / 2 + i * _sweep;
       return isMinor
           ? segment(middle, inner, start)
@@ -252,11 +253,12 @@ class _WheelPainter extends CustomPainter {
 
     // Ring i sits at pitch class 7*i mod 12, C centered at the top.
     for (var i = 0; i < 12; i++) {
-      final pc = (7 * i) % 12;
+      final pc = KeySpace.pcAtFifthsPosition(i);
       final start = -math.pi / 2 - _sweep / 2 + i * _sweep;
-      final majorTonality = KeySpace.canonicalTonalities[pc * 2];
-      final minorTonality =
-          KeySpace.canonicalTonalities[((pc + 9) % 12) * 2 + 1];
+      final majorTonality = KeySpace.majorTonality(pc);
+      final minorTonality = KeySpace.minorTonality(
+        KeySpace.relativeMinorPc(pc),
+      );
 
       for (final (tonality, rOut, rIn, isMajor) in [
         (majorTonality, outer, middle, true),
