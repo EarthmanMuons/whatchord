@@ -128,6 +128,11 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
   BluetoothState? _lastPublishedBtState;
   bool _backgrounded = false;
 
+  // Shadows of state.connectedDevice and state.isScanning for teardown:
+  // provider state is not accessible inside onDispose.
+  MidiDevice? _connectedDeviceShadow;
+  bool _isScanningShadow = false;
+
   // Debounce for transiently empty device snapshots while connected; see
   // _syncConnectedDeviceState.
   int _emptySnapshotsWhileConnected = 0;
@@ -166,11 +171,19 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
       // Best-effort stop scanning.
       try {
-        if (state.isScanning) unawaited(_ble.stopScanning());
+        if (_isScanningShadow) unawaited(_ble.stopScanning());
       } catch (_) {}
 
-      // Best-effort disconnect.
-      unawaited(disconnect());
+      // Best-effort disconnect of the live link.
+      final connected = _connectedDeviceShadow;
+      if (connected != null) {
+        unawaited(
+          _disconnectBestEffort(
+            connected.id,
+            transport: connected.transport,
+          ).catchError((_) {}),
+        );
+      }
 
       // Close internal signal last.
       unawaited(_devicesChanged.close());
@@ -235,6 +248,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       }
     } finally {
       if (_debugLog) debugPrint('[MGR] stopScanning');
+      _isScanningShadow = false;
       state = state.copyWith(isScanning: false);
       _updateConnectionWatchdog();
     }
@@ -688,6 +702,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
 
     await _ble.startScanning();
     if (_debugLog) debugPrint('[MGR] startScanning');
+    _isScanningShadow = true;
     state = state.copyWith(isScanning: true);
 
     await _refreshDeviceList(bypassThrottle: true);
@@ -820,6 +835,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
       );
     }
     if (device == null) _emptySnapshotsWhileConnected = 0;
+    _connectedDeviceShadow = device;
     state = state.copyWith(connectedDevice: device);
     _updateConnectionWatchdog();
   }
@@ -903,6 +919,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
     try {
       if (_debugLog) debugPrint('[MGR] pulseScan start reason=$reason');
       await _ble.startScanning();
+      _isScanningShadow = true;
       state = state.copyWith(isScanning: true);
       await Future<void>.delayed(dwell);
       await _refreshDeviceList(bypassThrottle: true);
@@ -917,6 +934,7 @@ class MidiDeviceManager extends Notifier<MidiDeviceManagerState> {
         }
       } finally {
         if (_debugLog) debugPrint('[MGR] pulseScan end reason=$reason');
+        _isScanningShadow = false;
         state = state.copyWith(isScanning: false);
         _updateConnectionWatchdog();
       }
