@@ -275,11 +275,28 @@ oracle headroom is as thin as the closed-loop churn result hints it might be,
 Track A shrinks or dies cheaply, and the initiative reweights toward B (which
 has clear known cases) and the Track D gate decision.
 
+(Revised 2026-07-19: Phase 0 ran as pre-protocol, dev-only scouting; see log
+entry 2026-07-19-01. The protocol freeze below now precedes all lever 0 and cue
+work, and the headroom numbers are re-established under the frozen protocol as
+its first experiment before informing any adoption decision.)
+
 ### Phase 1 protocol freeze
 
 Clone the WhatKey discipline before any tuning:
 
 - `PROTOCOL.md` frozen and amended-only; scoring code normative.
+- Ground truth defined per corpus, with no naming interpreter treated as an
+  oracle. Roman-numeral corpora: the annotation is the analyst's figure plus
+  key; the realization step (music21) is a parser that must pass the
+  sounding-set cross-check to score, backed by a stratified hand-audit of the
+  realization and quality mapping with a recorded error rate, and
+  acceptable-answer sets for contestable categories. DCML corpora: the
+  annotation standard's own decomposed columns (chord_type, root, bass_note,
+  chord_tones) are the expected identity, no interpreter involved. Symbol
+  corpora (Isophonics via ChoCo): human chord labels in Harte syntax, scored in
+  Harte space against WhatChord's `HarteChordFormatter` output with the semantic
+  normalization from the chord-oracle work, music21-free. Disagreement between
+  rulers is itself a tracked diagnostic.
 - Fixture sets versioned with manifests (engine commit, generator arguments,
   corpus pins, licenses); committed sets immutable; neutral analysis context for
   recorded rankings so annotated keys never leak into candidates. When the
@@ -287,7 +304,12 @@ Clone the WhatKey discipline before any tuning:
   own detector infers (the closed-loop arrangement the probe already
   implements), never the annotation.
 - Dev/test splits by piece and composer, frozen and committed before the first
-  experiment; test split spent sparingly with dated log entries.
+  experiment, and for every new corpus frozen from metadata alone before its
+  content is inspected or fixtures are generated. When-in-Rome, Isophonics, and
+  ASAP inherit the WhatKey frozen splits; the DCML distant-listening split was
+  frozen 2026-07-19 (`data/splits/dcml-distant-listening-v1.json`,
+  metadata-only, with the When-in-Rome overlap and the schema-validation
+  sub-corpus excluded). Test splits spent sparingly with dated log entries.
 - Adoption bar: paired per-piece Wilcoxon win with CI95 on the dev split, no
   stability regression, latency within budget. Pooled event accuracy alone is
   not acceptable.
@@ -299,13 +321,14 @@ Clone the WhatKey discipline before any tuning:
   frame-level phenomena invisible in committed-event fixtures; (b) a
   hand-authored jazz comping suite (shell and rootless voicings with labeled
   intent) to give Track D's gate and the guide-tone cue real data, since
-  When-in-Rome is classical and skews triadic; (c) evaluate the DCMLab Distant
-  Listening Corpus, already identified in
-  `research/whatkey/key-behavior-modes.md` as the most promising follow-up
-  corpus lead: large, score-based, and harmony-annotated with full chord labels,
-  so it fits chord-identity ground truth even better than it fit key detection.
-  Like ASAP and Isophonics it would stay build-only/untracked on license grounds
-  and needs a dedicated extractor plus label mapping.
+  When-in-Rome is classical and skews triadic; (c) the DCMLab Distant Listening
+  Corpus, investigated 2026-07-19 (log entry 2026-07-19-02): usable and strong,
+  with the annotation standard's own decomposed chord identities (chord_type,
+  root, bass_note, chord_tones) and pre-extracted note tables, so no naming
+  interpreter is involved; CC BY-NC-SA 4.0, so fixtures stay
+  build-only/untracked, pinned to the v3.1 tag; split frozen from metadata alone
+  before any content inspection (`data/splits/dcml-distant-listening-v1.json`).
+  Needs a dedicated extractor.
 
 Metrics, normatively defined in scoring code:
 
@@ -346,9 +369,11 @@ implicitly.
 ## Performance plan
 
 - Re-ranking is O(cues x candidates) over at most `take` candidates, pure
-  functions, no I/O, no allocation-heavy paths. Target: negligible against the
-  existing synchronous analyze-on-UI-thread cost; verified by a `benchmark/`
-  entry and on-device profiling in Phase 3.
+  functions, no I/O, no allocation-heavy paths. The normative budget lives in
+  `PROTOCOL.md`: `tool/benchmark.sh --check` stays green, a benchmark entry for
+  the layer adds at most 5% to the snapshot baseline's cold normalized time
+  (judged with the harness's combined-uncertainty rule), and on-device profiling
+  in Phase 3 shows no dropped frames on note storms.
 - No new `analyze()` calls and no cache-key changes; the snapshot LRU keeps its
   hit behavior exactly.
 - One added provider in the rebuild graph per note change; no listeners that
