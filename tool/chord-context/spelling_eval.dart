@@ -27,7 +27,8 @@ import '../whatkey/src/fixtures.dart';
 
 const _take = 10000;
 const _minNotes = 3;
-const _arms = ['neutral', 'inferred', 'annotated'];
+const _arms = ['neutral', 'inferred', 'sideChosen', 'annotated'];
+const _defaultAlpha = 0.15;
 
 final _analyzer = ChordAnalyzer();
 
@@ -81,6 +82,8 @@ void main(List<String> args) {
 
   final behavior = KeyBehavior.values.byName(options['behavior'] ?? 'stable');
   final neutral = _contextFor(fixtureSet.manifest['context'] as String);
+  final alpha = double.parse(options['alpha'] ?? '$_defaultAlpha');
+  final sides = _tonalitySides();
 
   final perPiece = <Map<String, dynamic>>[];
   final pooled = {
@@ -101,6 +104,10 @@ void main(List<String> args) {
     final entries = (pieces[fixture.id] as List).cast<Map>();
     final detector = HmmKeyDetector(decayHalfLife: behavior.emissionHalfLife);
     Tonality? inferred;
+    // Running line-of-fifths center of this piece's own spellings, the
+    // causal window that chooses the enharmonic side of ambiguous keys.
+    var fifthsCenter = 0.0;
+    Tonality? heldSide;
     var n = 0;
     final pieceTones = {for (final arm in _arms) arm: 0};
     final pieceTonesCorrect = {for (final arm in _arms) arm: 0};
@@ -111,6 +118,30 @@ void main(List<String> args) {
       final inferredBefore = inferred;
       inferred = detector.onEvent(event).claim?.tonality ?? inferred;
       if (event.input.noteCount < _minNotes) continue;
+
+      // The side-chosen tonality for this event: decided once per key
+      // episode (when the claimed pc/mode changes) from the running center
+      // at that moment, then held while the claim persists, so the side
+      // never flip-flops mid-episode. The center updates causally from the
+      // chosen arm's own spellings (every event, scored or not).
+      final Tonality sideTonality;
+      if (inferredBefore == null) {
+        sideTonality = neutral.tonality;
+      } else if (heldSide != null &&
+          heldSide.tonicPitchClass == inferredBefore.tonicPitchClass &&
+          heldSide.isMinor == inferredBefore.isMinor) {
+        sideTonality = heldSide;
+      } else {
+        sideTonality = _chooseSide(sides, inferredBefore, fifthsCenter);
+        heldSide = sideTonality;
+      }
+      fifthsCenter = _updateCenter(
+        fifthsCenter,
+        alpha,
+        event.input.pcMask,
+        sideTonality,
+      );
+
       if (entry['category'] != 'ok') continue;
       final expected = (entry['expected'] as Map).cast<String, dynamic>();
       final expectedQuality = expected['quality'] as String?;
@@ -126,6 +157,7 @@ void main(List<String> args) {
         final tonality = switch (arm) {
           'neutral' => neutral.tonality,
           'inferred' => inferredBefore ?? neutral.tonality,
+          'sideChosen' => sideTonality,
           _ => parseTonality(entry['localKey'] as String),
         };
         final ranked = _analyzer.analyze(
@@ -216,6 +248,7 @@ void main(List<String> args) {
       'take': _take,
       'minNotes': _minNotes,
       'behavior': behavior.name,
+      'alpha': alpha,
     },
     'pooled': {
       'n': pooledN,
@@ -263,6 +296,66 @@ void main(List<String> args) {
       );
     }
   }
+}
+
+/// Supported tonalities grouped by (tonic pc, mode), from the 15 key
+/// signatures; ambiguous entries are the enharmonic pairs (F#/Gb, C#/Db,
+/// B/Cb major; G#/Ab, D#/Eb, A#/Bb minor).
+Map<(int, bool), List<Tonality>> _tonalitySides() {
+  final sides = <(int, bool), List<Tonality>>{};
+  for (final signature in keySignatures) {
+    for (final tonality in [signature.relativeMajor, signature.relativeMinor]) {
+      final key = (tonality.tonicPitchClass, tonality.isMinor);
+      final list = sides.putIfAbsent(key, () => []);
+      if (!list.contains(tonality)) list.add(tonality);
+    }
+  }
+  return sides;
+}
+
+double _diatonicCenterTpc(Tonality tonality) {
+  final tonicTpc = _nameToTpc(tonality.tonic.label)!;
+  // Major diatonic set spans tonic-1..tonic+5 in fifths; natural minor
+  // spans tonic-4..tonic+2.
+  return tonicTpc + (tonality.isMinor ? -1.0 : 2.0);
+}
+
+Tonality _chooseSide(
+  Map<(int, bool), List<Tonality>> sides,
+  Tonality claim,
+  double fifthsCenter,
+) {
+  final candidates = sides[(claim.tonicPitchClass, claim.isMinor)];
+  if (candidates == null || candidates.isEmpty) return claim;
+  Tonality best = candidates.first;
+  var bestDistance = double.infinity;
+  for (final candidate in candidates) {
+    final distance = (_diatonicCenterTpc(candidate) - fifthsCenter).abs();
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = candidate;
+    }
+  }
+  return best;
+}
+
+double _updateCenter(
+  double center,
+  double alpha,
+  int pcMask,
+  Tonality tonality,
+) {
+  var sum = 0.0;
+  var count = 0;
+  for (var pc = 0; pc < 12; pc++) {
+    if (pcMask & (1 << pc) == 0) continue;
+    final tpc = _nameToTpc(noteNameForPitchClass(pc, tonality: tonality));
+    if (tpc == null) continue;
+    sum += tpc;
+    count++;
+  }
+  if (count == 0) return center;
+  return (1 - alpha) * center + alpha * (sum / count);
 }
 
 Map<String, String> _parseArgs(List<String> args) {
