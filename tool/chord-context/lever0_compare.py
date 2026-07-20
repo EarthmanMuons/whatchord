@@ -26,12 +26,29 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("report", type=Path)
     parser.add_argument("--arm", choices=["closed", "oracle"], default="closed")
+    parser.add_argument(
+        "--baseline-report",
+        type=Path,
+        help="Compare this report's arm against another report's same arm "
+        "(paired by piece) instead of against its own base arm.",
+    )
     parser.add_argument("--bootstrap", type=int, default=10000)
     parser.add_argument("--seed", default=DEFAULT_SEED)
     args = parser.parse_args()
 
     report = json.loads(args.report.read_text())
-    values = [piece[args.arm] - piece["base"] for piece in report["perPiece"]]
+    if args.baseline_report is not None:
+        baseline = json.loads(args.baseline_report.read_text())
+        b_pieces = {piece["id"]: piece for piece in baseline["perPiece"]}
+        values = [
+            piece[args.arm] - b_pieces[piece["id"]][args.arm]
+            for piece in report["perPiece"]
+            if piece["id"] in b_pieces
+        ]
+        against = f"{args.baseline_report} ({args.arm})"
+    else:
+        values = [piece[args.arm] - piece["base"] for piece in report["perPiece"]]
+        against = "own base arm"
     wins = sum(1 for v in values if v > 1e-9)
     losses = sum(1 for v in values if v < -1e-9)
     ties = len(values) - wins - losses
@@ -40,7 +57,7 @@ def main() -> int:
     ci_low, ci_high = bootstrap_ci(values, args.bootstrap, args.seed)
 
     pooled = report["pooled"]
-    print(f"lever0 paired comparison ({args.arm} - base): {report['set']}")
+    print(f"lever0 paired comparison ({args.arm} vs {against}): {report['set']}")
     print(f"  pieces: {len(values)}  pooled n: {pooled['n']}")
     print(
         f"  pooled: base {pooled['base']:.4f}  {args.arm} {pooled[args.arm]:.4f}"
