@@ -84,6 +84,7 @@ void main(List<String> args) {
   final neutral = _contextFor(fixtureSet.manifest['context'] as String);
   final alpha = double.parse(options['alpha'] ?? '$_defaultAlpha');
   final inertia = options['inertia'] == 'true';
+  final staticSides = options['static-sides'] == 'true';
   final sides = _tonalitySides();
 
   final perPiece = <Map<String, dynamic>>[];
@@ -160,7 +161,7 @@ void main(List<String> args) {
         );
         sideTonality =
             (inertia ? sideMemory[memoryKey] : null) ??
-            (episodeIndex == 0
+            (staticSides || episodeIndex == 0
                 ? _conventionalSide(sides, inferredBefore)
                 : _chooseSide(sides, inferredBefore, fifthsCenter));
         if (inertia) sideMemory[memoryKey] = sideTonality;
@@ -369,10 +370,12 @@ double _diatonicCenterTpc(Tonality tonality) {
   return tonicTpc + (tonality.isMinor ? -1.0 : 2.0);
 }
 
-/// Conventional engraving-practice sides for the six ambiguous keys, decided
-/// a priori, not fitted: fewer accidentals wins (Db over C#, B over Cb, G#
-/// minor over Ab minor, Bb minor over A# minor); at the six-accidental ties
-/// the documented conventions F# major and Eb minor.
+/// The cold-start side table used in log entries 2026-07-20-08/-09, kept for
+/// reproducibility. The non-tie cells are uncontested (fewer accidentals
+/// wins) and match the shipped KeySpace sides; the six-accidental tie cells
+/// are contested bets (see entry -09: the F# major cell measured well on the
+/// classical corpus only because that repertoire skews F# four to one, and
+/// the relabel it briefly motivated was reversed).
 const _conventionalTonics = {
   (1, false): 'Db',
   (6, false): 'F#',
