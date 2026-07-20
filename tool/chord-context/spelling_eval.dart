@@ -83,6 +83,7 @@ void main(List<String> args) {
   final behavior = KeyBehavior.values.byName(options['behavior'] ?? 'stable');
   final neutral = _contextFor(fixtureSet.manifest['context'] as String);
   final alpha = double.parse(options['alpha'] ?? '$_defaultAlpha');
+  final inertia = options['inertia'] == 'true';
   final sides = _tonalitySides();
 
   final perPiece = <Map<String, dynamic>>[];
@@ -99,6 +100,14 @@ void main(List<String> args) {
   };
   var pooledN = 0, conflictedPcs = 0, unmappedNames = 0;
   final confusions = {for (final arm in _arms) arm: <String, int>{}};
+  // Tone tallies split by key-episode type (cold-start vs modulation-
+  // reached), sizing the two halves of the side-chooser decomposition.
+  final groupTallies = {
+    for (final group in ['cold', 'mod'])
+      group: {
+        for (final arm in _arms) arm: {'tones': 0, 'correct': 0},
+      },
+  };
 
   for (final fixture in selected) {
     final entries = (pieces[fixture.id] as List).cast<Map>();
@@ -108,6 +117,9 @@ void main(List<String> args) {
     // causal window that chooses the enharmonic side of ambiguous keys.
     var fifthsCenter = 0.0;
     Tonality? heldSide;
+    final sideMemory = <(int, bool), Tonality>{};
+    var episodeIndex = -1;
+    var episodeType = 'none';
     var n = 0;
     final pieceTones = {for (final arm in _arms) arm: 0};
     final pieceTonesCorrect = {for (final arm in _arms) arm: 0};
@@ -120,19 +132,38 @@ void main(List<String> args) {
       if (event.input.noteCount < _minNotes) continue;
 
       // The side-chosen tonality for this event: decided once per key
-      // episode (when the claimed pc/mode changes) from the running center
-      // at that moment, then held while the claim persists, so the side
-      // never flip-flops mid-episode. The center updates causally from the
-      // chosen arm's own spellings (every event, scored or not).
+      // episode (when the claimed pc/mode changes) and held while the claim
+      // persists. The piece's first episode is a cold start, where a
+      // pitch-class stream carries no side information, so the
+      // conventional-practice prior decides; later (modulation-reached)
+      // episodes use the running line-of-fifths center of the arm's own
+      // spellings, which updates causally on every event.
       final Tonality sideTonality;
       if (inferredBefore == null) {
         sideTonality = neutral.tonality;
+        episodeType = 'none';
       } else if (heldSide != null &&
           heldSide.tonicPitchClass == inferredBefore.tonicPitchClass &&
           heldSide.isMinor == inferredBefore.isMinor) {
         sideTonality = heldSide;
       } else {
-        sideTonality = _chooseSide(sides, inferredBefore, fifthsCenter);
+        episodeIndex++;
+        episodeType = episodeIndex == 0 ? 'cold' : 'mod';
+        // Spelling inertia (--inertia true; rejected in log entry
+        // 2026-07-20-08, kept for reproducibility): a key already spelled
+        // in this piece keeps its side on re-arrival. The mechanism of
+        // record re-decides every episode: cold start by the conventional
+        // prior, later episodes by the window.
+        final memoryKey = (
+          inferredBefore.tonicPitchClass,
+          inferredBefore.isMinor,
+        );
+        sideTonality =
+            (inertia ? sideMemory[memoryKey] : null) ??
+            (episodeIndex == 0
+                ? _conventionalSide(sides, inferredBefore)
+                : _chooseSide(sides, inferredBefore, fifthsCenter));
+        if (inertia) sideMemory[memoryKey] = sideTonality;
         heldSide = sideTonality;
       }
       fifthsCenter = _updateCenter(
@@ -206,6 +237,11 @@ void main(List<String> args) {
           tallies['tones'] = tallies['tones']! + 1;
           pieceTones[arm] = pieceTones[arm]! + 1;
           final correct = got == truth.single;
+          if (episodeType != 'none') {
+            final group = groupTallies[episodeType]![arm]!;
+            group['tones'] = group['tones']! + 1;
+            if (correct) group['correct'] = group['correct']! + 1;
+          }
           if (correct) {
             tallies['tonesCorrect'] = tallies['tonesCorrect']! + 1;
             pieceTonesCorrect[arm] = pieceTonesCorrect[arm]! + 1;
@@ -249,6 +285,7 @@ void main(List<String> args) {
       'minNotes': _minNotes,
       'behavior': behavior.name,
       'alpha': alpha,
+      'inertia': inertia,
     },
     'pooled': {
       'n': pooledN,
@@ -256,6 +293,7 @@ void main(List<String> args) {
       'unmappedNames': unmappedNames,
       for (final arm in _arms) arm: pooled[arm],
     },
+    'episodeGroups': groupTallies,
     'confusions': {
       for (final arm in _arms)
         arm: Map.fromEntries(
@@ -296,6 +334,17 @@ void main(List<String> args) {
       );
     }
   }
+  for (final group in ['cold', 'mod']) {
+    final byArm = groupTallies[group]!;
+    stdout.writeln(
+      '  episodes[$group]: '
+      '${_arms.map((arm) {
+        final tallies = byArm[arm]!;
+        return '$arm ${pct(tallies['correct']!, tallies['tones']!)}';
+      }).join('  ')} '
+      '(n=${byArm['inferred']!['tones']})',
+    );
+  }
 }
 
 /// Supported tonalities grouped by (tonic pc, mode), from the 15 key
@@ -318,6 +367,33 @@ double _diatonicCenterTpc(Tonality tonality) {
   // Major diatonic set spans tonic-1..tonic+5 in fifths; natural minor
   // spans tonic-4..tonic+2.
   return tonicTpc + (tonality.isMinor ? -1.0 : 2.0);
+}
+
+/// Conventional engraving-practice sides for the six ambiguous keys, decided
+/// a priori, not fitted: fewer accidentals wins (Db over C#, B over Cb, G#
+/// minor over Ab minor, Bb minor over A# minor); at the six-accidental ties
+/// the documented conventions F# major and Eb minor.
+const _conventionalTonics = {
+  (1, false): 'Db',
+  (6, false): 'F#',
+  (11, false): 'B',
+  (3, true): 'Eb',
+  (8, true): 'G#',
+  (10, true): 'Bb',
+};
+
+Tonality _conventionalSide(
+  Map<(int, bool), List<Tonality>> sides,
+  Tonality claim,
+) {
+  final candidates = sides[(claim.tonicPitchClass, claim.isMinor)];
+  if (candidates == null || candidates.isEmpty) return claim;
+  if (candidates.length == 1) return candidates.single;
+  final tonic = _conventionalTonics[(claim.tonicPitchClass, claim.isMinor)];
+  return candidates.firstWhere(
+    (candidate) => candidate.tonic.label == tonic,
+    orElse: () => candidates.first,
+  );
 }
 
 Tonality _chooseSide(
