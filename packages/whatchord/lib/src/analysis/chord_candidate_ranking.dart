@@ -2,6 +2,7 @@ import '../models/chord_candidate.dart';
 import '../models/observed_voicing.dart';
 import '../models/tonality.dart';
 import 'candidate_features.dart';
+import 'chord_analysis_profile.dart';
 import 'ranking_policy.dart' as ranking_policy;
 import 'ranking_rules.dart';
 
@@ -66,6 +67,7 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b, {
     required Tonality tonality,
     ObservedVoicing? voicing,
+    ChordAnalysisProfile profile = ChordAnalysisProfile.current,
   }) {
     return _decide(
       a,
@@ -73,6 +75,7 @@ abstract final class ChordCandidateRanking {
       CandidateFeatures.from(a, voicing: voicing),
       CandidateFeatures.from(b, voicing: voicing),
       tonality: tonality,
+      tieRules: _tieRules(profile),
     ).result;
   }
 
@@ -83,6 +86,7 @@ abstract final class ChordCandidateRanking {
     ChordCandidate b, {
     required Tonality tonality,
     ObservedVoicing? voicing,
+    ChordAnalysisProfile profile = ChordAnalysisProfile.current,
   }) {
     return _decide(
       a,
@@ -90,6 +94,7 @@ abstract final class ChordCandidateRanking {
       CandidateFeatures.from(a, voicing: voicing),
       CandidateFeatures.from(b, voicing: voicing),
       tonality: tonality,
+      tieRules: _tieRules(profile),
     );
   }
 
@@ -151,11 +156,13 @@ abstract final class ChordCandidateRanking {
     ChordCandidate Function(T) candidateOf, {
     required Tonality tonality,
     ObservedVoicing? voicing,
+    ChordAnalysisProfile profile = ChordAnalysisProfile.current,
   }) {
     final n = items.length;
     if (n <= 1) return List<T>.of(items);
 
     final cands = [for (final it in items) candidateOf(it)];
+    final tieRules = _tieRules(profile);
 
     // Features (including any voicing evidence) are computed once per candidate
     // here, rather than rebuilt for each of the O(n^2) pairwise decisions below.
@@ -214,6 +221,7 @@ abstract final class ChordCandidateRanking {
           feats[j],
           tonality: tonality,
           hardRuleMask: mask,
+          tieRules: tieRules,
         );
         if (d.result < 0) {
           beats[i][j] = true;
@@ -294,6 +302,7 @@ abstract final class ChordCandidateRanking {
     CandidateFeatures fa,
     CandidateFeatures fb, {
     required Tonality tonality,
+    required List<NamedRule> tieRules,
     int? hardRuleMask,
   }) {
     // Negative when a is cheaper (better) than b, so the result mapping below
@@ -346,7 +355,7 @@ abstract final class ChordCandidateRanking {
       );
     }
 
-    for (final rule in tieBreakerRules) {
+    for (final rule in tieRules) {
       final r = rule.apply(a, b, fa, fb, tonality);
       if (r != null && r != 0) {
         return RankingDecision(
@@ -364,4 +373,11 @@ abstract final class ChordCandidateRanking {
       costDelta: costDelta,
     );
   }
+
+  static List<NamedRule> _tieRules(ChordAnalysisProfile profile) =>
+      switch (profile) {
+        ChordAnalysisProfile.current => tieBreakerRules,
+        ChordAnalysisProfile.whatKeyPaper2026 =>
+          whatKeyPaper2026TieBreakerRules,
+      };
 }

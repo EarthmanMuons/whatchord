@@ -31,6 +31,36 @@ mise install && mise research:whatkey-headline-verify
 That task reads `research/whatkey/results/test-split-2026-07-07/` and
 `MANIFEST.json`; it does not rerun detectors or baselines.
 
+## Historical Reproduction Contract
+
+The current codebase keeps the paper-era behavior behind two explicit names:
+
+- fixture extraction uses the `whatKeyPaper2026` chord-analysis profile;
+- detector reruns use the `whatKeyPaper2026` and `whatKeyPaper2026Reflex`
+  recipes, which pin every detector parameter instead of inheriting mutable
+  defaults.
+
+The app continues to use the current chord-analysis behavior. The historical
+profile is selected only by research tooling, so product improvements do not
+silently rewrite the paper's observation stream.
+
+The canonical SHA-256 values for every paper fixture set and committed result
+directory are recorded in `results/reproduction-v2026.7.14.json`. Canonical JSON
+hashing ignores object key order and whitespace. Fixture hashes cover every
+observation file. Result hashes cover `claims.json` plus the stable scored
+fields of `report.json`; additive diagnostics and run metadata are intentionally
+outside that second hash.
+
+To regenerate all license-gated fixtures and verify the complete lock:
+
+```sh
+mise research:whatkey-prepare-data -- --all --verify-splits --yes
+mise research:whatkey-reproduction-verify
+```
+
+The headline rerun performs the corresponding Isophonics fixture and result hash
+checks automatically after checking the displayed table.
+
 ## Required Tools
 
 Use the repository's normal toolchain:

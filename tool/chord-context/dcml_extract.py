@@ -47,6 +47,10 @@ FIXTURE_SCHEMA = "whatkey-fixture/1"
 MANIFEST_SCHEMA = "whatkey-manifest/1"
 LABELS_SCHEMA = "chord-context-labels/1"
 QB_MS = 500
+# Chord-context studies the app's live naming, so candidates use the current
+# production ranking. fixture_batch requires this to be explicit; if this
+# initiative ever needs a frozen set, pin a paper profile here instead.
+ANALYSIS_PROFILE = "current"
 
 CHORD_TYPE_QUALITY = {
     "M": "major",
@@ -494,6 +498,7 @@ def attach_candidates(fixtures: list[dict], context: str) -> None:
                     "id": f"{fixture['id']}#{event['index']}",
                     "midiNotes": event["midiNotes"],
                     "context": context,
+                    "analysisProfile": ANALYSIS_PROFILE,
                 }
             )
     payload = "".join(json.dumps(request) + "\n" for request in requests)

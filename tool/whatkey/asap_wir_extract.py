@@ -32,6 +32,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "chord"))
 import asap_extract as asap_x  # noqa: E402
+from reproducibility import (  # noqa: E402
+    ANALYSIS_PROFILES,
+    CANONICALIZATION,
+    DEFAULT_ANALYSIS_PROFILE,
+    fixture_hashes,
+)
 
 REPO_ROOT = asap_x.REPO_ROOT
 
@@ -55,6 +61,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--set", dest="set_name", default="asap-wir-nc-v1")
     parser.add_argument("--out", type=Path, default=Path("build/whatkey-fixtures"))
     parser.add_argument("--context", default="C:maj")
+    parser.add_argument(
+        "--analysis-profile",
+        choices=ANALYSIS_PROFILES,
+        default=DEFAULT_ANALYSIS_PROFILE,
+        help="Chord-ranking policy used before capture segmentation.",
+    )
     return parser.parse_args()
 
 
@@ -137,7 +149,12 @@ def main() -> int:
             file=sys.stderr,
         )
 
-    replayed = asap_x.replay(pieces, args.context, 200)
+    replayed = asap_x.replay(
+        pieces,
+        args.context,
+        200,
+        args.analysis_profile,
+    )
 
     set_dir = args.out / args.set_name
     set_dir.mkdir(parents=True, exist_ok=True)
@@ -171,6 +188,11 @@ def main() -> int:
             }
         )
 
+    files = [entry["file"] for entry in fixtures]
+    hashes, content_hash = fixture_hashes(set_dir, files)
+    for entry in fixtures:
+        entry["sha256"] = hashes[entry["file"]]
+
     manifest = {
         "schema": asap_x.MANIFEST_SCHEMA,
         "set": args.set_name,
@@ -185,6 +207,12 @@ def main() -> int:
             "arguments": sys.argv[1:],
         },
         "context": args.context,
+        "analysisProfile": args.analysis_profile,
+        "contentHash": {
+            "algorithm": "sha256",
+            "canonicalization": CANONICALIZATION,
+            "value": content_hash,
+        },
         "segmenterMinMs": 200,
         "source": {
             "type": "asap+when-in-rome",

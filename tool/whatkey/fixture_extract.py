@@ -30,6 +30,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from statistics import median
 
+from reproducibility import (
+    ANALYSIS_PROFILES,
+    CANONICALIZATION,
+    DEFAULT_ANALYSIS_PROFILE,
+    fixture_hashes,
+)
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_SCHEMA = "whatkey-fixture/1"
 MANIFEST_SCHEMA = "whatkey-manifest/1"
@@ -65,6 +72,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tempo", type=float, default=120.0, help="Beats per minute")
     parser.add_argument("--set", dest="set_name", required=True)
     parser.add_argument("--out", type=Path, required=True, help="Fixture output root")
+    parser.add_argument(
+        "--analysis-profile",
+        choices=ANALYSIS_PROFILES,
+        default=DEFAULT_ANALYSIS_PROFILE,
+        help="Chord-ranking policy used to generate fixture observations.",
+    )
     sub = parser.add_subparsers(dest="source", required=True)
 
     charts = sub.add_parser("charts", help="Hand-authored chord charts")
@@ -95,13 +108,16 @@ def main() -> int:
         print("No fixtures produced.", file=sys.stderr)
         return 1
 
-    attach_candidates(fixtures, args.context)
+    attach_candidates(fixtures, args.context, args.analysis_profile)
 
     set_dir = args.out / args.set_name
     set_dir.mkdir(parents=True, exist_ok=True)
     for fixture in fixtures:
         path = set_dir / f"{fixture['id'].split('/')[-1]}.json"
         path.write_text(json.dumps(fixture, indent=2, sort_keys=True) + "\n")
+
+    files = [f"{fixture['id'].split('/')[-1]}.json" for fixture in fixtures]
+    hashes, content_hash = fixture_hashes(set_dir, files)
 
     manifest = {
         "schema": MANIFEST_SCHEMA,
@@ -116,6 +132,12 @@ def main() -> int:
             "arguments": sys.argv[1:],
         },
         "context": args.context,
+        "analysisProfile": args.analysis_profile,
+        "contentHash": {
+            "algorithm": "sha256",
+            "canonicalization": CANONICALIZATION,
+            "value": content_hash,
+        },
         "tempoBpm": args.tempo,
         "source": source_info,
         "fixtures": [
@@ -123,6 +145,7 @@ def main() -> int:
                 "id": fixture["id"],
                 "title": fixture["title"],
                 "file": f"{fixture['id'].split('/')[-1]}.json",
+                "sha256": hashes[f"{fixture['id'].split('/')[-1]}.json"],
                 "events": len(fixture["events"]),
                 "provenance": fixture.get("provenance"),
             }
@@ -303,7 +326,9 @@ def event_dict(
     }
 
 
-def attach_candidates(fixtures: list[dict], context: str) -> None:
+def attach_candidates(
+    fixtures: list[dict], context: str, analysis_profile: str
+) -> None:
     requests = []
     for fixture in fixtures:
         for event in fixture["events"]:
@@ -312,6 +337,7 @@ def attach_candidates(fixtures: list[dict], context: str) -> None:
                     "id": f"{fixture['id']}#{event['index']}",
                     "midiNotes": event["midiNotes"],
                     "context": context,
+                    "analysisProfile": analysis_profile,
                 }
             )
     payload = "".join(json.dumps(request) + "\n" for request in requests)

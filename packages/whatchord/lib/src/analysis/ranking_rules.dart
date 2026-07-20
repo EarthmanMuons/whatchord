@@ -133,17 +133,17 @@ final List<NamedRule> hardRules = <NamedRule>[
 /// - Structural clarity (root position, shell tones)
 /// - Functional harmony (diatonic, dominant alterations)
 /// - Simplicity (fewer extensions/alterations, avoid suspensions)
-final List<NamedRule> tieBreakerRules = <NamedRule>[
+/// WhatKey's v2026.7.14 tie-breaker policy.
+///
+/// Production-only rules belong in [tieBreakerRules], not in this historical
+/// list. Fixture hashes guard behavior-preserving changes to shared rules.
+final List<NamedRule> whatKeyPaper2026TieBreakerRules = <NamedRule>[
   // Voicing evidence is consulted first: when the register clearly presents one
   // reading as an upper-structure slash and the other not, that observation
   // outranks the naming conventions below.
   NamedRule(
     'prefer voicing-supported upper-structure slash',
     preferVoicingUpperStructureSlash,
-  ),
-  NamedRule(
-    'prefer key-functional seventh over sixth-chord twin',
-    preferKeyFunctionalSeventhOverSixthTwin,
   ),
   NamedRule('prefer root-position 6th over inverted 7th', prefer6thInRoot),
   NamedRule(
@@ -231,3 +231,29 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
   NamedRule('avoid suspended chords', avoidSuspended),
   NamedRule('prefer cleaner spelling', preferCleanerSpelling),
 ];
+
+/// Current production policy: the historical ordering plus later improvements.
+///
+/// The key-functional-seventh rule slots in directly after the voicing rule.
+/// Anchoring by name keeps that intent stable if the historical list is later
+/// reordered, where a positional splice would silently shift the insertion.
+final List<NamedRule> tieBreakerRules = _insertAfter(
+  whatKeyPaper2026TieBreakerRules,
+  anchor: 'prefer voicing-supported upper-structure slash',
+  rule: NamedRule(
+    'prefer key-functional seventh over sixth-chord twin',
+    preferKeyFunctionalSeventhOverSixthTwin,
+  ),
+);
+
+List<NamedRule> _insertAfter(
+  List<NamedRule> rules, {
+  required String anchor,
+  required NamedRule rule,
+}) {
+  final index = rules.indexWhere((rule) => rule.name == anchor);
+  if (index < 0) {
+    throw StateError('Tie-breaker anchor rule not found: "$anchor"');
+  }
+  return [...rules.take(index + 1), rule, ...rules.skip(index + 1)];
+}

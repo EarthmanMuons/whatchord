@@ -24,13 +24,32 @@ import 'package:whatchord/whatchord.dart';
 
 import '../src/chord_id_engine.dart';
 
-final _analyzer = ChordAnalyzer();
+final _analyzers = <ChordAnalysisProfile, ChordAnalyzer>{
+  for (final profile in ChordAnalysisProfile.values)
+    profile: ChordAnalyzer(analysisProfile: profile),
+};
+
+// Every caller must declare the chord-ranking policy: a silent default would
+// let a fixture set inherit the wrong profile when a request omits the field.
+String _requireProfile(Map<String, dynamic> request) {
+  final profile = request['analysisProfile'] as String?;
+  if (profile == null) {
+    throw ArgumentError(
+      'Request is missing required "analysisProfile" '
+      '(one of ${ChordAnalysisProfile.values.map((p) => p.name).join(', ')})',
+    );
+  }
+  return profile;
+}
 
 void main() {
   stdin.transform(utf8.decoder).transform(const LineSplitter()).listen((line) {
     if (line.trim().isEmpty) return;
 
     final request = jsonDecode(line) as Map<String, dynamic>;
+    final profile = ChordAnalysisProfile.values.byName(
+      _requireProfile(request),
+    );
     final tonality = parseTonality(request['context'] as String);
     final keySignature = KeySignature.fromTonality(tonality);
     final context = AnalysisContext(
@@ -53,7 +72,9 @@ void main() {
       lastMs = snapshot['timestampMs'] as int;
       final now = DateTime.fromMillisecondsSinceEpoch(lastMs);
       final midiNotes = (snapshot['midiNotes'] as List).cast<int>()..sort();
-      events.addAll(segmenter.onFrame(_frame(midiNotes, context), now));
+      events.addAll(
+        segmenter.onFrame(_frame(midiNotes, context, profile), now),
+      );
     }
     events.addAll(
       segmenter.flush(DateTime.fromMillisecondsSinceEpoch(lastMs + 1)),
@@ -73,7 +94,11 @@ void main() {
 
 /// Mirrors `_captureFrameProvider`: null below three sounding notes, else the
 /// analyzed chord with its surfaced near-tie alternatives.
-CaptureFrame? _frame(List<int> midiNotes, AnalysisContext context) {
+CaptureFrame? _frame(
+  List<int> midiNotes,
+  AnalysisContext context,
+  ChordAnalysisProfile profile,
+) {
   if (midiNotes.length < 3) return null;
 
   var pcMask = 0;
@@ -86,7 +111,11 @@ CaptureFrame? _frame(List<int> midiNotes, AnalysisContext context) {
     noteCount: midiNotes.length,
   );
   final voicing = ObservedVoicing.fromMidi(midiNotes);
-  final ranked = _analyzer.analyze(input, context: context, voicing: voicing);
+  final ranked = _analyzers[profile]!.analyze(
+    input,
+    context: context,
+    voicing: voicing,
+  );
   if (ranked.isEmpty) return null;
 
   return CaptureFrame(

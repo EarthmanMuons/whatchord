@@ -7,6 +7,7 @@ import 'package:whatchord_app/features/key/key.dart';
 
 import '../../tool/src/chord_id_engine.dart';
 import '../../tool/whatkey/src/fixtures.dart';
+import '../../tool/whatkey/src/reproducibility.dart';
 import '../../tool/whatkey/src/scoring.dart';
 
 Map<String, Object?> _eventJson(
@@ -88,6 +89,52 @@ const _abstain = KeyEstimateFrame.abstain([]);
 void main() {
   const cMajor = KeyLabel(0, isMinor: false);
   const aMinor = KeyLabel(9, isMinor: true);
+
+  test('canonical JSON hash ignores map order', () {
+    final hash = canonicalJsonSha256({
+      'b': 2,
+      'a': [1, true],
+    });
+    expect(
+      hash,
+      canonicalJsonSha256({
+        'a': [1, true],
+        'b': 2,
+      }),
+    );
+    expect(
+      hash,
+      '16a5b9826a81dd3e37eb091f70b193b43807f6f51851ee61fc7ef0ee809b5255',
+    );
+  });
+
+  test('hashed result fields match the reproduction lock', () {
+    // The lock, Python REPORT_DATA_KEYS, and this list must stay identical or
+    // `reproducibility.py verify` reports a spurious MISMATCH. Python is checked
+    // against the lock at verify time; this pins the Dart side to the same lock.
+    final lock =
+        jsonDecode(
+              File(
+                'research/whatkey/results/reproduction-v2026.7.14.json',
+              ).readAsStringSync(),
+            )
+            as Map<String, dynamic>;
+    expect(lock['resultDataFields'], resultDataFields);
+  });
+
+  test(
+    'canonical hash rejects floats that Dart and Python format differently',
+    () {
+      expect(() => canonicalJsonSha256({'cost': 1e-5}), throwsStateError);
+      expect(() => canonicalJsonSha256({'cost': 1e16}), throwsStateError);
+      expect(() => canonicalJsonSha256({'cost': double.nan}), throwsStateError);
+      // In-band values (including zero) hash without complaint.
+      expect(
+        () => canonicalJsonSha256({'cost': 0.0, 'weight': 2.5}),
+        returnsNormally,
+      );
+    },
+  );
 
   group('mirexWeight', () {
     test('exact match scores 1.0', () {

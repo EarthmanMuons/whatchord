@@ -8,6 +8,7 @@
 // Usage:
 //   dart run tool/whatkey/harness.dart --fixtures <set-dir> \
 //     [--split-file <split.json>] [--split development|test] \
+//     [--recipe whatKeyPaper2026|whatKeyPaper2026Reflex] \
 //     [--detector profile|evidence|progression|hybrid|hmm|bocpd] \
 //     [--profiles krumhanslKessler|temperley|temperleyKostkaPayne|
 //                 albrechtShanahan] \
@@ -38,7 +39,9 @@ import 'dart:io';
 
 import 'package:whatkey/whatkey.dart';
 
+import 'src/detector_recipe.dart';
 import 'src/fixtures.dart';
+import 'src/reproducibility.dart';
 import 'src/scoring.dart';
 
 void main(List<String> arguments) {
@@ -128,6 +131,7 @@ void main(List<String> arguments) {
     'fixtures': {
       'set': fixtureSet.name,
       'directory': options.fixturesDir,
+      'contentSha256': fixtureSet.contentSha256,
       'source': fixtureSet.source,
       'engineCommit': fixtureSet.manifest['engineCommit'],
     },
@@ -135,6 +139,7 @@ void main(List<String> arguments) {
         ? null
         : {'file': options.splitFile, 'name': options.split},
     'detector': detectorInfo,
+    'detectorRecipe': options.recipe?.name,
     'restrictedTo': options.restrictTo,
     'sweep': sweep,
     'posteriorCalibration': calibration,
@@ -154,11 +159,20 @@ void main(List<String> arguments) {
                 ? ''
                 : '-${options.detectorName}'}',
   )..createSync(recursive: true);
+  final claimsArtifact = _claimsArtifact(
+    detectorInfo,
+    fixtures,
+    framesByFixture,
+  );
+  final hashes = resultArtifactHashes(report, claimsArtifact);
   File('${outDir.path}/report.json').writeAsStringSync(
     '${const JsonEncoder.withIndent('  ').convert(report)}\n',
   );
   File('${outDir.path}/claims.json').writeAsStringSync(
-    '${const JsonEncoder.withIndent('  ').convert(_claimsArtifact(detectorInfo, fixtures, framesByFixture))}\n',
+    '${const JsonEncoder.withIndent('  ').convert(claimsArtifact)}\n',
+  );
+  File('${outDir.path}/hashes.json').writeAsStringSync(
+    '${const JsonEncoder.withIndent('  ').convert({'schema': 'whatkey-result-hashes/1', 'algorithm': 'sha256', 'canonicalization': canonicalization, 'fixtureSetSha256': fixtureSet.contentSha256, ...hashes})}\n',
   );
   final text = _textReport(report, pieces);
   File('${outDir.path}/report.txt').writeAsStringSync(text);
@@ -485,6 +499,7 @@ class _Options {
   final String split;
   final String? claimsFile;
   final String? restrictTo;
+  final DetectorRecipe? recipe;
   final List<double> sweepMarginFloors;
   final String detectorName;
   final bool? confidenceWeighted;
@@ -514,6 +529,7 @@ class _Options {
     required this.split,
     required this.claimsFile,
     required this.restrictTo,
+    required this.recipe,
     required this.sweepMarginFloors,
     required this.detectorName,
     required this.confidenceWeighted,
@@ -672,64 +688,126 @@ class _Options {
     if (split != 'development' && split != 'test') {
       throw ArgumentError('--split must be development or test');
     }
+    final recipe = switch (values.remove('recipe')) {
+      null => null,
+      final name => DetectorRecipe.values.byName(name),
+    };
+    const recipeControlledFlags = <String>{
+      'detector',
+      'confidence-weighting',
+      'functional-blend',
+      'progression-blend',
+      'self-transition',
+      'emission-temperature',
+      'hysteresis',
+      'profiles',
+      'weighting',
+      'decay-half-life-seconds',
+      'decay-half-life-events',
+      'min-events',
+      'margin-floor',
+      'mode-tilt',
+      'relative-tilt',
+      'relative-cadence-tilt',
+      'hazard',
+      'max-run-length',
+    };
+    final recipeConflicts = recipe == null
+        ? const <String>[]
+        : [
+            for (final flag in recipeControlledFlags)
+              if (values.containsKey(flag)) '--$flag',
+          ];
+    if (recipeConflicts.isNotEmpty) {
+      throw ArgumentError(
+        '--recipe pins every detector option; remove: '
+        '${recipeConflicts.join(', ')}',
+      );
+    }
+    final claimsFile = values.remove('claims-file');
+    if (recipe != null && claimsFile != null) {
+      throw ArgumentError('--recipe cannot be combined with --claims-file');
+    }
     final options = _Options._(
       fixturesDir: fixturesDir,
       splitFile: splitFile,
       split: split,
-      claimsFile: values.remove('claims-file'),
+      claimsFile: claimsFile,
       restrictTo: values.remove('restrict-to'),
-      detectorName: values.remove('detector') ?? 'profile',
-      confidenceWeighted: switch (values.remove('confidence-weighting')) {
-        null => null,
-        final raw => raw != 'off',
-      },
-      functionalBlend: switch (values.remove('functional-blend')) {
-        null => null,
-        final raw => double.parse(raw),
-      },
-      progressionBlend: switch (values.remove('progression-blend')) {
-        null => null,
-        final raw => double.parse(raw),
-      },
-      selfTransition: double.parse(values.remove('self-transition') ?? '0.9'),
-      emissionTemperature: double.parse(
-        values.remove('emission-temperature') ?? '0.25',
-      ),
-      hysteresis: int.parse(values.remove('hysteresis') ?? '1'),
+      recipe: recipe,
+      detectorName:
+          recipe?.detectorName ?? values.remove('detector') ?? 'profile',
+      confidenceWeighted:
+          recipe?.confidenceWeighted ??
+          switch (values.remove('confidence-weighting')) {
+            null => null,
+            final raw => raw != 'off',
+          },
+      functionalBlend:
+          recipe?.functionalBlend ??
+          switch (values.remove('functional-blend')) {
+            null => null,
+            final raw => double.parse(raw),
+          },
+      progressionBlend:
+          recipe?.progressionBlend ??
+          switch (values.remove('progression-blend')) {
+            null => null,
+            final raw => double.parse(raw),
+          },
+      selfTransition:
+          recipe?.selfTransition ??
+          double.parse(values.remove('self-transition') ?? '0.9'),
+      emissionTemperature:
+          recipe?.emissionTemperature ??
+          double.parse(values.remove('emission-temperature') ?? '0.25'),
+      hysteresis:
+          recipe?.hysteresis ?? int.parse(values.remove('hysteresis') ?? '1'),
       sweepMarginFloors: [
         for (final floor in (values.remove('sweep-margin-floors') ?? '').split(
           ',',
         ))
           if (floor.trim().isNotEmpty) double.parse(floor),
       ],
-      profiles: KeyProfilePair.values.byName(
-        values.remove('profiles') ?? 'albrechtShanahan',
-      ),
-      durationWeighted: (values.remove('weighting') ?? 'duration') != 'flat',
+      profiles:
+          recipe?.profiles ??
+          KeyProfilePair.values.byName(
+            values.remove('profiles') ?? 'albrechtShanahan',
+          ),
+      durationWeighted:
+          recipe?.durationWeighted ??
+          (values.remove('weighting') ?? 'duration') != 'flat',
       decayHalfLifeSeconds: switch (values.remove('decay-half-life-seconds')) {
-        null => null,
+        null => recipe?.decayHalfLifeSeconds,
         final raw => int.parse(raw),
       },
       decayHalfLifeEvents: switch (values.remove('decay-half-life-events')) {
-        null => null,
+        null => recipe?.decayHalfLifeEvents,
         final raw => double.parse(raw),
       },
-      minEvents: int.parse(values.remove('min-events') ?? '3'),
+      minEvents:
+          recipe?.minEvents ?? int.parse(values.remove('min-events') ?? '3'),
       marginFloor: switch (values.remove('margin-floor')) {
-        null => null,
+        null => recipe?.marginFloor,
         final raw => double.parse(raw),
       },
-      modeTilt: double.parse(
-        values.remove('mode-tilt') ?? '${HmmKeyDetector.defaultModeTilt}',
-      ),
-      relativeTilt: double.parse(
-        values.remove('relative-tilt') ??
-            '${HmmKeyDetector.defaultRelativeTilt}',
-      ),
-      relativeCadenceTilt: double.parse(
-        values.remove('relative-cadence-tilt') ??
-            '${HmmKeyDetector.defaultRelativeCadenceTilt}',
-      ),
+      modeTilt:
+          recipe?.modeTilt ??
+          double.parse(
+            values.remove('mode-tilt') ?? '${HmmKeyDetector.defaultModeTilt}',
+          ),
+      relativeTilt:
+          recipe?.relativeTilt ??
+          double.parse(
+            values.remove('relative-tilt') ??
+                '${HmmKeyDetector.defaultRelativeTilt}',
+          ),
+      relativeCadenceTilt:
+          recipe?.relativeCadenceTilt ??
+          double.parse(
+            values.remove('relative-cadence-tilt') ??
+                '${HmmKeyDetector.defaultRelativeCadenceTilt}',
+          ),
       hazard: double.parse(
         values.remove('hazard') ?? '${BocpdKeyDetector.defaultHazard}',
       ),
