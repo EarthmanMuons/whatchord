@@ -1,0 +1,270 @@
+{
+  "schema": "chord-context-comping-suite/1",
+  "title": "Jazz comping suite: rootless and shell voicings",
+  "purpose": "Behavioral probes for the Track D gate (rootless/ensemble voicings). Pass/fail probes, excluded from pooled statistics per PROTOCOL.md. Voicings are canonical left-hand comping forms (Levine, The Jazz Theory Book, ch. 3 rootless A/B forms) written as MIDI notes exactly as a pianist would play them over a bassist.",
+  "conventions": {
+    "intent": "rootless = the chord's root is deliberately absent (a bassist supplies it); shell = guide tones plus optional color, root absent; solo = the same pitch set played with no bassist, where the bass-rooted reading is the correct one",
+    "expected": "the identity a musician in that context expects; for rootless cases the root is NOT in midiNotes by design",
+    "pairs": "cases sharing a pitchSetId have identical pitch classes and differ only in intent, so the gate's question (can a mode setting decide what the notes cannot) is directly measurable"
+  },
+  "cases": [
+    {
+      "id": "rootless-ii-V-I-C-Aform-ii",
+      "intent": "rootless",
+      "key": "C:maj",
+      "midiNotes": [65, 69, 72, 76],
+      "voicing": "F A C E",
+      "expected": {
+        "rootPc": 2,
+        "quality": "minor7",
+        "extensions": ["nine"]
+      },
+      "expectedSymbol": "Dm9 (rootless A form, 3-5-7-9)",
+      "pitchSetId": "F-A-C-E"
+    },
+    {
+      "id": "rootless-ii-V-I-C-Aform-V",
+      "intent": "rootless",
+      "key": "C:maj",
+      "midiNotes": [65, 69, 71, 76],
+      "voicing": "F A B E",
+      "expected": {
+        "rootPc": 7,
+        "quality": "dominant7",
+        "extensions": ["nine", "thirteen"]
+      },
+      "expectedSymbol": "G13 (rootless A form, 7-9-3-13)",
+      "pitchSetId": "F-A-B-E"
+    },
+    {
+      "id": "rootless-ii-V-I-C-Aform-I",
+      "intent": "rootless",
+      "key": "C:maj",
+      "midiNotes": [64, 67, 71, 74],
+      "voicing": "E G B D",
+      "expected": {
+        "rootPc": 0,
+        "quality": "major7",
+        "extensions": ["nine"]
+      },
+      "expectedSymbol": "Cmaj9 (rootless A form, 3-5-7-9)",
+      "pitchSetId": "E-G-B-D"
+    },
+    {
+      "id": "rootless-ii-V-I-C-Bform-ii",
+      "intent": "rootless",
+      "key": "C:maj",
+      "midiNotes": [60, 64, 65, 69],
+      "voicing": "C E F A",
+      "expected": {
+        "rootPc": 2,
+        "quality": "minor7",
+        "extensions": ["nine"]
+      },
+      "expectedSymbol": "Dm9 (rootless B form, 7-9-3-5)",
+      "pitchSetId": "C-E-F-A"
+    },
+    {
+      "id": "rootless-ii-V-I-C-Bform-V",
+      "intent": "rootless",
+      "key": "C:maj",
+      "midiNotes": [59, 64, 65, 69],
+      "voicing": "B E F A",
+      "expected": {
+        "rootPc": 7,
+        "quality": "dominant7",
+        "extensions": ["nine", "thirteen"]
+      },
+      "expectedSymbol": "G13 (rootless B form, 3-13-7-9)",
+      "pitchSetId": "B-E-F-A"
+    },
+    {
+      "id": "rootless-ii-V-I-C-Bform-I",
+      "intent": "rootless",
+      "key": "C:maj",
+      "midiNotes": [59, 62, 64, 67],
+      "voicing": "B D E G",
+      "expected": {
+        "rootPc": 0,
+        "quality": "major7",
+        "extensions": ["nine"]
+      },
+      "expectedSymbol": "Cmaj9 (rootless B form, 7-9-3-5)",
+      "pitchSetId": "B-D-E-G"
+    },
+    {
+      "id": "rootless-ii-V-I-Bb-Aform-ii",
+      "intent": "rootless",
+      "key": "Bb:maj",
+      "midiNotes": [63, 67, 70, 74],
+      "voicing": "Eb G Bb D",
+      "expected": {
+        "rootPc": 0,
+        "quality": "minor7",
+        "extensions": ["nine"]
+      },
+      "expectedSymbol": "Cm9 (rootless A form)",
+      "pitchSetId": "Eb-G-Bb-D"
+    },
+    {
+      "id": "rootless-ii-V-I-Bb-Aform-V",
+      "intent": "rootless",
+      "key": "Bb:maj",
+      "midiNotes": [63, 67, 69, 74],
+      "voicing": "Eb G A D",
+      "expected": {
+        "rootPc": 5,
+        "quality": "dominant7",
+        "extensions": ["nine", "thirteen"]
+      },
+      "expectedSymbol": "F13 (rootless A form)",
+      "pitchSetId": "Eb-G-A-D"
+    },
+    {
+      "id": "rootless-ii-V-I-Bb-Aform-I",
+      "intent": "rootless",
+      "key": "Bb:maj",
+      "midiNotes": [62, 65, 69, 72],
+      "voicing": "D F A C",
+      "expected": {
+        "rootPc": 10,
+        "quality": "major7",
+        "extensions": ["nine"]
+      },
+      "expectedSymbol": "Bbmaj9 (rootless A form)",
+      "pitchSetId": "D-F-A-C"
+    },
+    {
+      "id": "rootless-13-guide-tones",
+      "intent": "rootless",
+      "key": "C:maj",
+      "midiNotes": [64, 70, 74, 81],
+      "voicing": "E Bb D A",
+      "expected": {
+        "rootPc": 0,
+        "quality": "dominant7",
+        "extensions": ["nine", "thirteen"]
+      },
+      "expectedSymbol": "C13 (rootless: 3-b7-9-13)",
+      "pitchSetId": "E-Bb-D-A",
+      "note": "The worked example from rootless-voicings-notes.md."
+    },
+    {
+      "id": "guard-minor-ii\u00f865-inversion",
+      "intent": "solo",
+      "key": "C:min",
+      "midiNotes": [65, 68, 72, 74],
+      "voicing": "F Ab C D",
+      "expected": {
+        "rootPc": 2,
+        "quality": "halfDiminished7",
+        "extensions": ["eleven"]
+      },
+      "expectedSymbol": "Dm7b5/F (first inversion; root D sounds)",
+      "pitchSetId": "F-Ab-C-D",
+      "note": "Root D IS sounding, so this is an inversion, not a rootless voicing. Guards the minor-mode lever 0 cell decided in log entry 2026-07-20-01 against any gate change."
+    },
+    {
+      "id": "shell-3-7-9-Dm7",
+      "intent": "shell",
+      "key": "C:maj",
+      "midiNotes": [65, 72, 76],
+      "voicing": "F C E",
+      "expected": {
+        "rootPc": 2,
+        "quality": "minor7",
+        "extensions": ["nine"]
+      },
+      "expectedSymbol": "Dm9 shell (3-7-9)",
+      "pitchSetId": "F-C-E"
+    },
+    {
+      "id": "shell-3-7-13-G7",
+      "intent": "shell",
+      "key": "C:maj",
+      "midiNotes": [65, 71, 76],
+      "voicing": "F B E",
+      "expected": {
+        "rootPc": 7,
+        "quality": "dominant7",
+        "extensions": ["thirteen"]
+      },
+      "expectedSymbol": "G13 shell (7-3-13)",
+      "pitchSetId": "F-B-E"
+    },
+    {
+      "id": "solo-Ebmaj7-root-position",
+      "intent": "solo",
+      "key": "Eb:maj",
+      "midiNotes": [63, 67, 70, 74],
+      "voicing": "Eb G Bb D",
+      "expected": {
+        "rootPc": 3,
+        "quality": "major7",
+        "extensions": []
+      },
+      "expectedSymbol": "Ebmaj7",
+      "pitchSetId": "Eb-G-Bb-D",
+      "note": "Same pitch set as rootless-ii-V-I-Bb-Aform-ii. Solo intent: the bass-rooted reading is correct and must not regress."
+    },
+    {
+      "id": "solo-Dm7-root-position",
+      "intent": "solo",
+      "key": "C:maj",
+      "midiNotes": [62, 65, 69, 72],
+      "voicing": "D F A C",
+      "expected": {
+        "rootPc": 2,
+        "quality": "minor7",
+        "extensions": []
+      },
+      "expectedSymbol": "Dm7",
+      "pitchSetId": "D-F-A-C",
+      "note": "Same pitch set as rootless-ii-V-I-Bb-Aform-I."
+    },
+    {
+      "id": "solo-Cmaj9-with-root",
+      "intent": "solo",
+      "key": "C:maj",
+      "midiNotes": [60, 64, 67, 71, 74],
+      "voicing": "C E G B D",
+      "expected": {
+        "rootPc": 0,
+        "quality": "major7",
+        "extensions": ["nine"]
+      },
+      "expectedSymbol": "Cmaj9",
+      "note": "The rooted counterpart of rootless-ii-V-I-C-Aform-I: with the root present the engine should already be correct."
+    },
+    {
+      "id": "solo-Am7-root-position",
+      "intent": "solo",
+      "key": "C:maj",
+      "midiNotes": [57, 60, 64, 67],
+      "voicing": "A C E G",
+      "expected": {
+        "rootPc": 9,
+        "quality": "minor7",
+        "extensions": []
+      },
+      "expectedSymbol": "Am7",
+      "pitchSetId": "A-C-E-G",
+      "note": "Guards the m7/6 decision: must stay Am7, not C6/A."
+    },
+    {
+      "id": "solo-C6-tonic",
+      "intent": "solo",
+      "key": "C:maj",
+      "midiNotes": [60, 64, 67, 69],
+      "voicing": "C E G A",
+      "expected": {
+        "rootPc": 0,
+        "quality": "major6",
+        "extensions": []
+      },
+      "expectedSymbol": "C6",
+      "pitchSetId": "A-C-E-G",
+      "note": "Guards the tonic-sixth cell kept in log entry 2026-07-20-01."
+    }
+  ]
+}
