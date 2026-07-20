@@ -101,7 +101,10 @@ e.g. the German sixth is preferable to Ab7 in a C minor context before the
 resolution arrives) or to a possible future history-view product that relabels
 committed events. That product would be additive and low-risk (history is
 already a committed record, not a live display) but it is not part of this
-initiative's first pass.
+initiative's first pass. (Reviewed 2026-07-20, log entry 2026-07-20-13: kept
+open. Relabeling surfaces only in the passive history list; its primary value is
+a more accurate committed record feeding the key detectors and future context
+consumers. Data decides whether it is worth building.)
 
 ## Product contract
 
