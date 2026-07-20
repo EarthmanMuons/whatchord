@@ -16,7 +16,7 @@ more-itertools==11.1.0
 music21==10.1.0
 numpy==2.4.6
 packaging==26.2
-pillow==12.2.0
+pillow==12.3.0
 pychord==1.4.0
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
