@@ -220,6 +220,17 @@ dart run tool/chord-context/headroom.dart \
   --out build/chord-context/headroom/dcml-dev
 """
 
+[tasks."research:chord-context-spelling-dcml-dev"]
+description = "Run the chord-context spelling headroom harness on the DCML development split"
+run = """
+dart run tool/chord-context/spelling_eval.dart \
+  --fixtures build/chord-context/fixtures/dcml-distant-listening-v1-span \
+  --labels build/chord-context/labels/dcml-distant-listening-v1-span.labels.json \
+  --split-file research/chord-context/data/splits/dcml-distant-listening-v1.json \
+  --split development \
+  --out build/chord-context/spelling/dcml-dev
+"""
+
 [tasks."research:chord-context-lever0-dcml-dev"]
 description = "Run the lever0 m7/6 A/B on the DCML development split"
 run = """
