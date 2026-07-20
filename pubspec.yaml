@@ -25,8 +25,8 @@ dependencies:
   auto_size_text: ^3.0.0
   collection: ^1.19.1
   dart_melty_soundfont: ^2.0.0
-  flutter_midi_command: ^1.0.6
-  flutter_midi_command_ble: ^1.0.6
+  flutter_midi_command: ^1.0.7
+  flutter_midi_command_ble: ^1.0.7
   flutter_pcm_sound: ^3.3.3
   flutter_riverpod: ^3.0.3
   flutter_svg: ^2.2.3

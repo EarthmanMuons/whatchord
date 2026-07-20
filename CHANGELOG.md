@@ -20,6 +20,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
   shown as an alternative.
 - Google Play download links now open WhatChord's public production listing, and
   published releases now upload to the production track.
+- Connecting to a Bluetooth MIDI device that has deleted its pairing now shows
+  clearer guidance: forget the device in system Bluetooth settings, then pair
+  again.
 
 ## [2026.7.20] - 2026-07-20
 
