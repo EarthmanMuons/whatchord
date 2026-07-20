@@ -132,6 +132,14 @@ def localkey_offset(numeral: str, global_minor: bool) -> int:
     return offset
 
 
+def parse_bool(raw: str) -> bool:
+    if raw in ("1", "True", "true"):
+        return True
+    if raw in ("0", "False", "false", ""):
+        return False
+    raise ValueError(f"bad boolean {raw!r}")
+
+
 def parse_fraction(raw: str) -> Fraction | None:
     if raw in ("", "NA"):
         return None
@@ -284,9 +292,9 @@ def harmony_fields(row: dict) -> tuple | None:
         row["added_tones"],
         row["changes"],
         row["globalkey"],
-        row["globalkey_is_minor"] == "True",
+        parse_bool(row["globalkey_is_minor"]),
         row["localkey"],
-        row["localkey_is_minor"] == "True",
+        parse_bool(row["localkey_is_minor"]),
     )
 
 
@@ -401,6 +409,8 @@ def label_row(row, midi_notes: list[int], prev_chord, stats: Counter) -> dict:
         lk_minor,
     ) = row
     entry: dict = {"figure": chord or None, "prevClass": classify_figure(prev_chord)}
+    if gk_minor != globalkey[0].islower():
+        stats["globalkeyModeDisagreements"] += 1
     try:
         global_tpc = key_name_tpc(globalkey)
         local_tpc = global_tpc + localkey_offset(localkey, gk_minor)
