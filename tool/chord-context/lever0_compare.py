@@ -26,7 +26,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("report", type=Path)
     parser.add_argument(
-        "--arm", choices=["closed", "oracle", "engine"], default="closed"
+        "--arm",
+        default="closed",
+        help="Arm name present in the report's perPiece entries.",
     )
     parser.add_argument(
         "--baseline-report",
@@ -61,9 +63,10 @@ def main() -> int:
     pooled = report["pooled"]
     print(f"lever0 paired comparison ({args.arm} vs {against}): {report['set']}")
     print(f"  pieces: {len(values)}  pooled n: {pooled['n']}")
+    coverage = pooled.get("claimCoverage")
     print(
         f"  pooled: base {pooled['base']:.4f}  {args.arm} {pooled[args.arm]:.4f}"
-        f"  claim coverage {pooled['claimCoverage']:.3f}"
+        + (f"  claim coverage {coverage:.3f}" if coverage is not None else "")
     )
     print(
         f"  per-piece mean delta: {mean_delta:+.4f}"

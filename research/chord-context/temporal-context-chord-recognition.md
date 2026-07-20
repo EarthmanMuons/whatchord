@@ -199,6 +199,15 @@ loop. The inert closed-loop result says the key loop alone almost never flips
 identities, so any win these cues show over that baseline is genuinely theirs;
 but redundancy must be measured, not assumed.
 
+(Outcome 2026-07-20, log entry 2026-07-20-05: measured against the shipped lever
+0 baseline, cues 2 through 4 were inert or harmful and are rejected as naming
+cues (root continuity is re-scoped to Track C), and the one confirmed positive,
+a tonicization extension of the lever 0 twin rule, is significant but too small
+(+0.03 points) to justify building the temporal layer alone; it is banked for
+whenever that layer exists for another reason. Track A live re-ranking is
+concluded for now: lever 0 captured the addressable clean-pool market
+snapshot-side.)
+
 **App side (`lib/features/theory/`, `lib/features/history/`).** One new derived
 provider between `chordCandidatesProvider` and the presentation providers: watch
 the snapshot candidates, the live context view, the tonality, and a settings
