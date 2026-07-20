@@ -7,28 +7,33 @@ abstract final class KeySpace {
   /// signature table and ordered so that a tonality's list position equals
   /// [index] of it. Detection is pitch-class based; enharmonic spelling is a
   /// presentation concern. Where two spellings exist the one with fewer
-  /// accidentals wins (B over C flat); the six-accidental tie prefers flats
-  /// (G flat major, e flat minor), keeping relative pairs consistent.
+  /// accidentals wins (B over C flat); the six-accidental tie is broken per
+  /// mode (F sharp major, e flat minor), deliberately breaking relative-pair
+  /// consistency, per the decision in
+  /// research/chord-context/log/2026-07-20-11-f-sharp-cold-prior.md
+  /// (measured across both corpora in entries -09 and -10).
   static final List<Tonality> canonicalTonalities = _canonicalTonalities();
 
   static List<Tonality> _canonicalTonalities() {
-    final rows = [...keySignatures]
-      ..sort((a, b) {
-        final byCount = a.accidentalCount.abs().compareTo(
-          b.accidentalCount.abs(),
-        );
-        return byCount != 0
-            ? byCount
-            : a.accidentalCount.compareTo(b.accidentalCount);
-      });
     final byKey = <int, Tonality>{};
-    for (final row in rows) {
+    for (final row in keySignatures) {
       for (final tonality in [row.relativeMajor, row.relativeMinor]) {
-        byKey.putIfAbsent(index(tonality), () => tonality);
+        final k = index(tonality);
+        final incumbent = byKey[k];
+        if (incumbent == null || _preferredSpelling(tonality, incumbent)) {
+          byKey[k] = tonality;
+        }
       }
     }
     assert(byKey.length == 24);
     return List.unmodifiable([for (var k = 0; k < 24; k++) byKey[k]!]);
+  }
+
+  static bool _preferredSpelling(Tonality candidate, Tonality incumbent) {
+    final a = candidate.keySignature.accidentalCount;
+    final b = incumbent.keySignature.accidentalCount;
+    if (a.abs() != b.abs()) return a.abs() < b.abs();
+    return candidate.isMajor ? a > b : a < b;
   }
 
   /// Stable index of a tonality in the 24-key space.

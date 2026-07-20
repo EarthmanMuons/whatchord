@@ -12,6 +12,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- Automatic key detection now labels the six-sharp key as F♯ major rather than
+  G♭ major, so playing in F♯ shows F♯ spellings in the key display and chord
+  names. Annotated practice in both a classical and a pop/rock corpus prefers
+  the sharp side for this key.
+
 - Chord naming now reads the current key for the classic sixth-versus-seventh
   ambiguity: notes like D-F-A-C over an F bass display as Dm7/F in C major (the
   ii7 musicians expect mid-progression) instead of F6, and likewise for the
