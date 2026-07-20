@@ -1,4 +1,0 @@
-- Chord symbols now clearly distinguish accidentals on roots from altered extensions, such as C♯(11) and C(♯11).
-- Bluetooth MIDI reconnects automatically after unexpected dropouts and recovers more reliably when Bluetooth is toggled.
-- Connections complete about a second faster, with clearer guidance when pairing or setup fails.
-- Chord identification better favors common readings over rare altered major-seventh flat-nine names.
