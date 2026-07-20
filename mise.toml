@@ -159,6 +159,26 @@ for f in build/whatkey-baselines/when-in-rome-v1-development/*.claims.json; do
 done
 """
 
+[tasks."research:chord-context-labels"]
+description = "Generate expected-identity labels for the chord-context headroom study"
+depends = ["research:python-install"]
+run = """
+python tool/chord-context/expected_labels.py \
+  --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
+  --out build/chord-context/labels/when-in-rome-v1.labels.json
+"""
+
+[tasks."research:chord-context-headroom-dev"]
+description = "Run the chord-context headroom harness on the When-in-Rome development split"
+run = """
+dart run tool/chord-context/headroom.dart \
+  --fixtures research/whatkey/data/fixtures/when-in-rome-v1 \
+  --labels build/chord-context/labels/when-in-rome-v1.labels.json \
+  --split-file research/whatkey/data/splits/when-in-rome-v1.json \
+  --split development \
+  --out build/chord-context/headroom/wir-dev
+"""
+
 [tasks."research:whatkey-paper"]
 description = "Compile the WhatKey paper (research/whatkey/paper/main.pdf)"
 run = """
