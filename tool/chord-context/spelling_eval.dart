@@ -27,7 +27,18 @@ import '../whatkey/src/fixtures.dart';
 
 const _take = 10000;
 const _minNotes = 3;
-const _arms = ['neutral', 'inferred', 'sideChosen', 'annotated'];
+const _arms = [
+  'neutral',
+  'inferred',
+  'sideChosen',
+  // Oracle diagnostic: the inferred key's pitch class and mode, but the
+  // annotated key's enharmonic side whenever they agree on pc+mode. The gap
+  // from `inferred` to here is exactly what perfect side-following could
+  // win; the gap from here to `annotated` is key-detection error, not
+  // spelling.
+  'inferredRightSide',
+  'annotated',
+];
 const _defaultAlpha = 0.15;
 
 final _analyzer = ChordAnalyzer();
@@ -101,6 +112,7 @@ void main(List<String> args) {
   };
   var pooledN = 0, conflictedPcs = 0, unmappedNames = 0;
   final confusions = {for (final arm in _arms) arm: <String, int>{}};
+  final errorPaths = {for (final arm in _arms) arm: <String, int>{}};
   // Tone tallies split by key-episode type (cold-start vs modulation-
   // reached), sizing the two halves of the side-chooser decomposition.
   final groupTallies = {
@@ -186,11 +198,16 @@ void main(List<String> args) {
       n++;
       pooledN++;
       for (final arm in _arms) {
+        final annotatedTonality = parseTonality(entry['localKey'] as String);
         final tonality = switch (arm) {
           'neutral' => neutral.tonality,
           'inferred' => inferredBefore ?? neutral.tonality,
           'sideChosen' => sideTonality,
-          _ => parseTonality(entry['localKey'] as String),
+          'inferredRightSide' => _withAnnotatedSide(
+            inferredBefore ?? neutral.tonality,
+            annotatedTonality,
+          ),
+          _ => annotatedTonality,
         };
         final ranked = _analyzer.analyze(
           event.input,
@@ -219,16 +236,21 @@ void main(List<String> args) {
           }
           final interval = (pc - identity.rootPc) % 12;
           final role = identity.toneRolesByInterval[interval];
-          final name = pc == identity.rootPc
-              ? rootName
+          final path = pc == identity.rootPc
+              ? 'root'
               : role != null
-              ? spellPitchClass(
-                  pc,
-                  tonality: tonality,
-                  chordRootName: rootName,
-                  role: role,
-                )
-              : noteNameForPitchClass(pc, tonality: tonality);
+              ? 'role'
+              : 'fallback';
+          final name = switch (path) {
+            'root' => rootName,
+            'role' => spellPitchClass(
+              pc,
+              tonality: tonality,
+              chordRootName: rootName,
+              role: role,
+            ),
+            _ => noteNameForPitchClass(pc, tonality: tonality),
+          };
           final got = _nameToTpc(name);
           if (got == null) {
             unmappedNames++;
@@ -250,6 +272,14 @@ void main(List<String> args) {
             allCorrect = false;
             final key = '${_tpcToName(got)}->${_tpcToName(truth.single)}';
             confusions[arm]![key] = (confusions[arm]![key] ?? 0) + 1;
+            // Which speller produced the error, and whether the tone is
+            // diatonic in the ranking key: chromatic non-chord tones are
+            // the line-rule target, diatonic chord tones are not.
+            final diatonic = tonality.containsPitchClass(pc)
+                ? 'diatonic'
+                : 'chromatic';
+            final bucket = '$path/$diatonic';
+            errorPaths[arm]![bucket] = (errorPaths[arm]![bucket] ?? 0) + 1;
           }
           if (pc == identity.rootPc) {
             tallies['roots'] = tallies['roots']! + 1;
@@ -295,6 +325,7 @@ void main(List<String> args) {
       for (final arm in _arms) arm: pooled[arm],
     },
     'episodeGroups': groupTallies,
+    'errorPaths': errorPaths,
     'confusions': {
       for (final arm in _arms)
         arm: Map.fromEntries(
@@ -346,6 +377,15 @@ void main(List<String> args) {
       '(n=${byArm['inferred']!['tones']})',
     );
   }
+}
+
+/// [inferred] with its enharmonic side replaced by [annotated]'s when the two
+/// agree on tonic pitch class and mode; otherwise [inferred] unchanged. The
+/// oracle for perfect side-following.
+Tonality _withAnnotatedSide(Tonality inferred, Tonality annotated) {
+  if (inferred.tonicPitchClass != annotated.tonicPitchClass) return inferred;
+  if (inferred.isMinor != annotated.isMinor) return inferred;
+  return annotated;
 }
 
 /// Supported tonalities grouped by (tonic pc, mode), from the 15 key
