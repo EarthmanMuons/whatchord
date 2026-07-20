@@ -19,7 +19,13 @@ a non-empty `changes` field or whose `chord_tones` disagree with `chord_type`
 explicit-or-incomplete, since the decomposed identity there describes the
 functional chord, not the literal sonority; `Ger/It/Fr` are functional-label;
 `o7`/`+` symmetric-root. Only 3 rows in the whole corpus were unrealizable
-(Scarlatti labels with empty decomposed columns).
+(Scarlatti labels with empty decomposed columns). A verification pass on the
+first extraction caught a mode-parsing bug (the `*_is_minor` columns are
+`0`/`1`, not `True`/`False`, so every local key had read as major, shifting
+degrees III/VI/VII in minor-global pieces): the tell was zero minor-key misses.
+The extractor now parses both forms and cross-checks the boolean against the
+global key name's case; fixtures were regenerated and all numbers here are from
+the corrected pipeline.
 
 ```sh
 mise research:chord-context-prepare-dcml
@@ -38,37 +44,41 @@ implemented: the exact strictness level (bass), acceptable-answer sets (those
 categories are excluded, not scored), and paired A/B statistics (nothing is
 being compared yet; this is a single-system measurement).
 
-**What happened.** 182,732 development-split events. Categories: ok 27.8%,
-extra-tones 20.7%, mismatch 17.8%, explicit-or-incomplete 12.6%, below-min-notes
-8.8%, rootless 8.1%, symmetric-root 3.6%, functional-label 0.6%, unlabeled 0.1%.
+**What happened.** 182,732 development-split events. Categories: ok 29.9%,
+extra-tones 22.3%, mismatch 18.9%, explicit-or-incomplete 12.6%, below-min-notes
+8.8%, symmetric-root 3.6%, rootless 3.2%, functional-label 0.6%, unlabeled 0.1%.
 
-Clean pool (`ok`, n=50,776), root+quality, cumulative:
+Clean pool (`ok`, n=54,570), root+quality, cumulative:
 
 | context   | top1  | near-tie ceiling | prune | generated |
 | --------- | ----- | ---------------- | ----- | --------- |
-| neutral   | 97.6% | 100.0%           | 100%  | 100%      |
+| neutral   | 97.5% | 100.0%           | 100%  | 100%      |
 | annotated | 97.5% | 100.0%           | 100%  | 100%      |
 
-Per-piece means: 97.2% top1 neutral, 97.1% annotated (922 pieces with clean
-events). Every clean-pool miss is inside the near-tie window, exactly as on
-When-in-Rome.
+Per-piece means: 97.2% top1 under both contexts (923 pieces with clean events).
+Every clean-pool miss is inside the near-tie window, exactly as on When-in-Rome.
 
-The 1,237 misses are one family, cross-corpus confirmation of the scouting
-taxonomy: 824 halfDiminished7-in-inversion named minor6 on the bass (`ii%65`,
-`ii%43`, `ii%2`, `vii%43`, ...), 411 minor7-in-inversion named major6 (`ii65`,
-`iv65`, `vi65`, ...), plus 2 related dominant7Sharp5-vs-augmented readings.
-Nothing else.
+The 1,344 misses (793 in major local keys, 551 in minor) are one family,
+cross-corpus confirmation of the scouting taxonomy: 881
+halfDiminished7-in-inversion named minor6 on the bass (`ii%65`, `ii%43`, `ii%2`,
+`vii%43`, ...), 461 minor7-in-inversion named major6 (`ii65`, `iv65`, `vi65`,
+...), plus 2 related dominant7Sharp5-vs-augmented readings. Nothing else.
+Structure of the misses: the chosen sixth-chord root sits on degree IV of the
+local key in 55% of cases (the ii65-vs-IV6 pair in both modes), and 63% of miss
+events move directly to a dominant-function chord next, textbook predominant
+behavior; what precedes is spread across tonic (35%), dominant (33%), and
+predominant (27%) function.
 
 Transitions (clean pool, neutral, root+quality): after dominant 98.8% top1
-(n=23,079), after predominant 96.1% (n=8,493), after other 96.7% (n=18,934). The
+(n=24,804), after predominant 96.0% (n=9,141), after other 96.7% (n=20,355). The
 family concentrates after predominants and "other" chords, consistent with
 ii65-family chords beginning predominant spans.
 
-Extra-tones pool (n=37,760): top1 39.5%, near-tie ceiling 45.0%, prune 71.9%,
-generated 84.3%; root-only 59.7% / 72.8% / 99.5% / 100%. Unlike the clean pool,
-the near-tie window adds real mass here (+5.5 points), and the annotated key
-nudges top1 (+0.5). Mismatch pool (n=32,467, weak ground truth): 49.4% top1 at
-root+quality, 72.0% root-only.
+Extra-tones pool (n=40,834): top1 39.6%, near-tie ceiling 45.0%, prune 71.8%,
+generated 84.3%; root-only 59.8% / 72.9% / 99.5% / 100%. Unlike the clean pool,
+the near-tie window adds real mass here (+5.4 points), and the annotated key
+nudges top1 (+0.7). Mismatch pool (n=34,614, weak ground truth): 50.1% top1 at
+root+quality, 72.7% root-only.
 
 **Plain-English reading.** On a corpus 33 times larger than the scouting ruler,
 annotated by different analysts under a different standard, with ground truth
@@ -87,7 +97,7 @@ intervention.
 
 - The m7/6 inversion family is confirmed as the sole clean-pool target for lever
   0 and Track A, now with a dev-split population large enough for paired
-  per-piece statistics (1,237 events across hundreds of pieces).
+  per-piece statistics (1,344 events across hundreds of pieces).
 - Span view is the v1 fixture semantics for DCML; the instant view remains
   available in the extractor (`--view instant`) for the span-vs-instant
   comparison when a question needs it.
