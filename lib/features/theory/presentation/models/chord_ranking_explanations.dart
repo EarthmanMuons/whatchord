@@ -44,6 +44,8 @@ abstract final class ChordRankingExplanations {
         'the sharp-eleven major spelling is easier to read than the flat-five alternative.',
     'prefer voicing-supported upper-structure slash':
         'the way it was played stacks a complete chord above an isolated bass note, so this slash name reads more naturally than a root-position reading.',
+    'prefer key-functional seventh over sixth-chord twin':
+        'in the current key this reading works as the seventh chord musicians expect here, so it wins over the sixth-chord name built on the same notes.',
     'prefer root-position 6th over inverted 7th':
         'the sixth-chord name is in root position, while the alternative reading puts another chord over a non-root bass.',
     'prefer complete triad over incomplete 6th':

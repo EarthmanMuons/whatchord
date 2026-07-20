@@ -141,6 +141,10 @@ final List<NamedRule> tieBreakerRules = <NamedRule>[
     'prefer voicing-supported upper-structure slash',
     preferVoicingUpperStructureSlash,
   ),
+  NamedRule(
+    'prefer key-functional seventh over sixth-chord twin',
+    preferKeyFunctionalSeventhOverSixthTwin,
+  ),
   NamedRule('prefer root-position 6th over inverted 7th', prefer6thInRoot),
   NamedRule(
     'prefer complete triad over incomplete 6th',

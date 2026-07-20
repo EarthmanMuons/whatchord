@@ -7,7 +7,7 @@
 //           event; no claim, no flip). The evaluated system: label-isolated.
 //   oracle: the same flip under the annotated local key. Diagnostic only.
 //
-// The flip (scope per the owner decision in log entry 2026-07-20-01): when
+// The flip (scope per the decision in log entry 2026-07-20-01): when
 // the chosen candidate is a major6/minor6 and a near-tie candidate holds the
 // relative seventh-chord reading (root a minor third below, minor7 for
 // major6, halfDiminished7 for minor6), prefer the seventh reading iff its
@@ -54,6 +54,7 @@ void main(List<String> args) {
   final neutral = _contextFor(fixtureSet.manifest['context'] as String);
   final perPiece = <Map<String, dynamic>>[];
   var pooledN = 0, pooledBase = 0, pooledClosed = 0, pooledOracle = 0;
+  var pooledEngine = 0, parityDisagreements = 0;
   var flips = 0, flipsHelped = 0, flipsHurt = 0, claimed = 0;
 
   final behavior = KeyBehavior.values.byName(options['behavior'] ?? 'stable');
@@ -62,7 +63,7 @@ void main(List<String> args) {
     final entries = (pieces[fixture.id] as List).cast<Map>();
     final detector = HmmKeyDetector(decayHalfLife: behavior.emissionHalfLife);
     Tonality? inferred;
-    var n = 0, base = 0, closed = 0, oracle = 0;
+    var n = 0, base = 0, closed = 0, oracle = 0, engine = 0;
     for (var i = 0; i < fixture.events.length; i++) {
       final event = fixture.events[i];
       final entry = entries[i].cast<String, dynamic>();
@@ -94,6 +95,20 @@ void main(List<String> args) {
         ranked,
         parseTonality(entry['localKey'] as String),
       );
+      // The production path: a full re-rank under the inferred key, so the
+      // engine's own tonality-gated rules (including the new twin rule)
+      // decide. Compared against the simulated flip for parity.
+      final engineTop = inferredBefore == null
+          ? baseTop
+          : _analyzer
+                .analyze(
+                  event.input,
+                  context: _contextForTonality(inferredBefore),
+                  voicing: event.voicing,
+                  take: _take,
+                )
+                .first
+                .identity;
 
       n++;
       if (inferredBefore != null) claimed++;
@@ -102,6 +117,12 @@ void main(List<String> args) {
       if (baseRight) base++;
       if (closedRight) closed++;
       if (matches(oracleTop)) oracle++;
+      if (matches(engineTop)) engine++;
+      if (engineTop != closedTop &&
+          !(engineTop.rootPc == closedTop.rootPc &&
+              engineTop.quality == closedTop.quality)) {
+        parityDisagreements++;
+      }
       if (!identical(closedTop, baseTop) && closedTop != baseTop) {
         flips++;
         if (closedRight && !baseRight) flipsHelped++;
@@ -115,11 +136,13 @@ void main(List<String> args) {
       'base': base / n,
       'closed': closed / n,
       'oracle': oracle / n,
+      'engine': engine / n,
     });
     pooledN += n;
     pooledBase += base;
     pooledClosed += closed;
     pooledOracle += oracle;
+    pooledEngine += engine;
   }
 
   final report = {
@@ -143,6 +166,8 @@ void main(List<String> args) {
       'base': pooledBase / pooledN,
       'closed': pooledClosed / pooledN,
       'oracle': pooledOracle / pooledN,
+      'engine': pooledEngine / pooledN,
+      'parityDisagreements': parityDisagreements,
       'claimCoverage': claimed / pooledN,
       'flips': flips,
       'flipsHelped': flipsHelped,
@@ -167,7 +192,20 @@ void main(List<String> args) {
       '  closed: ${pct(pooledClosed / pooledN)}  '
       '(flips $flips, helped $flipsHelped, hurt $flipsHurt)',
     )
-    ..writeln('  oracle: ${pct(pooledOracle / pooledN)}');
+    ..writeln('  oracle: ${pct(pooledOracle / pooledN)}')
+    ..writeln(
+      '  engine: ${pct(pooledEngine / pooledN)}  '
+      '(parity disagreements with closed: $parityDisagreements)',
+    );
+}
+
+AnalysisContext _contextForTonality(Tonality tonality) {
+  final keySignature = KeySignature.fromTonality(tonality);
+  return AnalysisContext(
+    tonality: tonality,
+    keySignature: keySignature,
+    spellingPolicy: NoteSpellingPolicy(preferFlats: keySignature.prefersFlats),
+  );
 }
 
 Map<String, String> _parseArgs(List<String> args) {
