@@ -83,17 +83,22 @@ def tpc_to_name(tpc: int) -> str:
     return letter + ("#" * accidentals if accidentals > 0 else "b" * -accidentals)
 
 
-# Wire tonic names use the same 12-entry table as whatkey's KeyLabel, because
-# remote local keys can spell tonics with double accidentals (Bbb) that the
-# harness's parseTonality does not accept; the pc-level name normalizes to a
-# supported key signature and scoring compares tonic pc + mode only.
+# Wire tonic names keep the annotation's true spelling when it is a plain or
+# single-accidental name the harness's parseTonality accepts (both sides of
+# the 15 key signatures are supported, so G# minor stays G#, not Ab). Remote
+# spellings with double accidentals (Bbb) fall back to the 12-entry pc table
+# whatkey's KeyLabel uses; identity scoring compares tonic pc + mode only,
+# and spelling scoring needs the true side wherever it exists.
 _WIRE_TONIC_NAMES = [
     "C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B",
 ]  # fmt: skip
 
 
-def pc_to_wire_tonic(pc: int) -> str:
-    return _WIRE_TONIC_NAMES[pc % 12]
+def tpc_to_wire_tonic(tpc: int) -> str:
+    name = tpc_to_name(tpc)
+    if len(name) <= 2:
+        return name
+    return _WIRE_TONIC_NAMES[tpc_to_pc(tpc)]
 
 
 def key_name_tpc(name: str) -> int:
@@ -303,7 +308,7 @@ def note_fields(row: dict) -> tuple | None:
     dur = parse_fraction(row["duration_qb"])
     if qb is None or dur is None:
         return None
-    return (qb, dur, int(row["midi"]))
+    return (qb, dur, int(row["midi"]), int(row["tpc"]))
 
 
 def load_rows(path: Path, selected: set[str], extract) -> tuple[dict, int]:
@@ -335,7 +340,10 @@ def build_piece(
     note_rows.sort(key=lambda row: row[0])
     span_starts = [row[0] for row in harmony_rows]
     span_notes: list[set[int]] = [set() for _ in harmony_rows]
-    for onset, dur, midi in note_rows:
+    # Score-spelling ground truth: pitch class -> set of tpc spellings the
+    # score uses for it within the span (DCML tpc: line of fifths, 0 = C).
+    span_tpcs: list[dict[int, set[int]]] = [{} for _ in harmony_rows]
+    for onset, dur, midi, tpc in note_rows:
         index = bisect.bisect_right(span_starts, onset) - 1
         if index < 0:
             index = 0
@@ -346,10 +354,9 @@ def build_piece(
             if start >= off:
                 break
             if onset < end:
-                if view == "span":
+                if view == "span" or onset <= start < off:
                     span_notes[index].add(midi)
-                elif onset <= start < off:
-                    span_notes[index].add(midi)
+                    span_tpcs[index].setdefault(midi % 12, set()).add(tpc)
             index += 1
 
     events = []
@@ -364,6 +371,9 @@ def build_piece(
             continue
         entry = label_row(row, midi_notes, prev_chord, stats)
         entry["index"] = len(events)
+        entry["spelling"] = {
+            str(pc): sorted(tpcs) for pc, tpcs in sorted(span_tpcs[index].items())
+        }
         labeled.append(entry)
         events.append(
             {
@@ -419,9 +429,7 @@ def label_row(row, midi_notes: list[int], prev_chord, stats: Counter) -> dict:
         entry["category"] = "unrealized"
         entry["reason"] = str(exc)
         return entry
-    entry["localKey"] = (
-        f"{pc_to_wire_tonic(tpc_to_pc(local_tpc))}:{'min' if lk_minor else 'maj'}"
-    )
+    entry["localKey"] = f"{tpc_to_wire_tonic(local_tpc)}:{'min' if lk_minor else 'maj'}"
 
     if not chord or chord == "@none":
         entry["category"] = "unlabeled"
