@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- Automatic key detection now defaults to Balanced behavior, following changes
+  in the current tonal center sooner while keeping explicitly selected behavior
+  preferences unchanged.
 - Automatic key detection now labels the six-sharp key as F♯ major rather than
   G♭ major, so playing in F♯ shows F♯ spellings in the key display and chord
   names. Annotated practice in both a classical and a pop/rock corpus prefers
