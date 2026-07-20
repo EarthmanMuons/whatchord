@@ -12,6 +12,12 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
+- Chord naming now reads the current key for the classic sixth-versus-seventh
+  ambiguity: notes like D-F-A-C over an F bass display as Dm7/F in C major (the
+  ii7 musicians expect mid-progression) instead of F6, and likewise for the
+  half-diminished flavor in minor keys and on the leading tone. Tonic sixth
+  chords such as C6 keep their sixth-chord names, and the other reading is still
+  shown as an alternative.
 - Google Play download links now open WhatChord's public production listing, and
   published releases now upload to the production track.
 

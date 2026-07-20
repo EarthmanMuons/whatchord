@@ -29,6 +29,55 @@ int? preferVoicingUpperStructureSlash(
   return fa.isVoicingUpperStructureSlash ? -1 : 1;
 }
 
+/// Prefers the relative seventh-chord reading of the m7/6 pitch identity when
+/// the prevailing key gives it conventional function, per the decision in
+/// research/chord-context/log/2026-07-20-01-m7-6-policy.md.
+///
+/// A sixth chord and the seventh chord rooted a minor third below share pitch
+/// classes ({D F A C} is F6 and Dm7; {D F Ab C} is Fm6 and Dm7b5). Both
+/// traditions name the pair by context, and they agree on these cells: a
+/// minor7 rooted on degree ii of the key (either mode), a halfDiminished7
+/// rooted on degree ii in minor (the minor-key predominant), and a
+/// halfDiminished7 rooted on the leading tone. There the seventh reading is
+/// preferred whatever the bass. Everywhere else (tonic sixths, the borrowed
+/// major-key iiø65 heard as IVm6) the sixth-chord reading stands and the
+/// rules below decide as before.
+int? preferKeyFunctionalSeventhOverSixthTwin(
+  ChordCandidate a,
+  ChordCandidate b,
+  CandidateFeatures fa,
+  CandidateFeatures fb,
+  Tonality tonality,
+) {
+  final aFires = _isKeyFunctionalSeventhTwin(a.identity, b.identity, tonality);
+  final bFires = _isKeyFunctionalSeventhTwin(b.identity, a.identity, tonality);
+  if (aFires == bFires) return null;
+  return aFires ? -1 : 1;
+}
+
+bool _isKeyFunctionalSeventhTwin(
+  ChordIdentity seventh,
+  ChordIdentity sixth,
+  Tonality tonality,
+) {
+  final ChordQuality twin;
+  if (sixth.quality == ChordQuality.major6) {
+    twin = ChordQuality.minor7;
+  } else if (sixth.quality == ChordQuality.minor6) {
+    twin = ChordQuality.halfDiminished7;
+  } else {
+    return false;
+  }
+  if (seventh.quality != twin) return false;
+  if ((seventh.rootPc + minorThirdInterval) % 12 != sixth.rootPc) return false;
+
+  final degree = (seventh.rootPc - tonality.tonicPitchClass) % 12;
+  return twin == ChordQuality.minor7
+      ? degree == majorSecondInterval
+      : degree == majorSeventhInterval ||
+            (degree == majorSecondInterval && tonality.isMinor);
+}
+
 /// Resolves ambiguity between 6th chords and inverted 7th chords.
 ///
 /// Example: {C, E, G, A} could be C6 or Am7/C. Prefer C6 in root position

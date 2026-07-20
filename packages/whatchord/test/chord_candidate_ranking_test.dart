@@ -1248,6 +1248,28 @@ void main() {
   });
 
   test('common naming preference breaks complete sixth and minor7 tie', () {
+    // Rooted on iii so the key-functional seventh rule stays silent and the
+    // common-name fallback is what decides.
+    final minor7 = _candidate(
+      quality: ChordQuality.minor7,
+      root: 'E',
+      bass: 'B',
+      presentIntervals: const {0, 3, 7, 10},
+      cost: 2.63,
+    );
+
+    final major6 = _candidate(
+      quality: ChordQuality.major6,
+      root: 'G',
+      bass: 'B',
+      presentIntervals: const {0, 4, 7, 9},
+      cost: 2.63,
+    );
+
+    _expectTieRule(minor7, major6, 'prefer common naming preference');
+  });
+
+  test('key-functional seventh beats sixth twin on degree ii', () {
     final minor7 = _candidate(
       quality: ChordQuality.minor7,
       root: 'D',
@@ -1264,7 +1286,11 @@ void main() {
       cost: 2.63,
     );
 
-    _expectTieRule(minor7, major6, 'prefer common naming preference');
+    _expectTieRule(
+      minor7,
+      major6,
+      'prefer key-functional seventh over sixth-chord twin',
+    );
   });
 
   test('cleaner spelling breaks final ties', () {

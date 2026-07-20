@@ -25,7 +25,9 @@ DEFAULT_SEED = "chord-context-lever0-compare-v1"
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("report", type=Path)
-    parser.add_argument("--arm", choices=["closed", "oracle"], default="closed")
+    parser.add_argument(
+        "--arm", choices=["closed", "oracle", "engine"], default="closed"
+    )
     parser.add_argument(
         "--baseline-report",
         type=Path,
