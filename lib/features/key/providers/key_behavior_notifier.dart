@@ -9,15 +9,14 @@ final keyBehaviorProvider = NotifierProvider<KeyBehaviorNotifier, KeyBehavior>(
   KeyBehaviorNotifier.new,
 );
 
-/// Persisted key detection behavior preset; defaults to the shipped stable
-/// configuration. Changing it rebuilds the detector, so detection restarts
-/// with the new memory.
+/// Persisted key detection behavior preset; defaults to balanced. Changing it
+/// rebuilds the detector, so detection restarts with the new memory.
 class KeyBehaviorNotifier extends Notifier<KeyBehavior> {
   @override
   KeyBehavior build() {
     final prefs = ref.watch(sharedPreferencesProvider);
     final saved = prefs.getString(KeyPreferencesKeys.behavior);
-    return KeyBehavior.values.asNameMap()[saved] ?? KeyBehavior.stable;
+    return KeyBehavior.values.asNameMap()[saved] ?? KeyBehavior.balanced;
   }
 
   Future<void> setBehavior(KeyBehavior behavior) async {

@@ -20,9 +20,9 @@ void main() {
     return container;
   }
 
-  test('defaults to stable', () async {
+  test('defaults to balanced', () async {
     final container = await makeContainer();
-    expect(container.read(keyBehaviorProvider), KeyBehavior.stable);
+    expect(container.read(keyBehaviorProvider), KeyBehavior.balanced);
   });
 
   test('persists and restores the selected behavior', () async {
@@ -41,11 +41,11 @@ void main() {
     expect(restored.read(keyBehaviorProvider), KeyBehavior.reactive);
   });
 
-  test('an unknown persisted value falls back to stable', () async {
+  test('an unknown persisted value falls back to balanced', () async {
     final container = await makeContainer({
       KeyPreferencesKeys.behavior: 'frenetic',
     });
-    expect(container.read(keyBehaviorProvider), KeyBehavior.stable);
+    expect(container.read(keyBehaviorProvider), KeyBehavior.balanced);
   });
 
   test('the stable preset matches the shipped constants', () async {
@@ -64,7 +64,7 @@ void main() {
     final container = await makeContainer();
     expect(
       container.read(inferredKeyStaleAfterProvider),
-      const Duration(seconds: 30),
+      const Duration(seconds: 20),
     );
 
     await container
