@@ -10,6 +10,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Google Play download links now open WhatChord's public production listing, and
+  published releases now upload to the production track.
+
 ## [2026.7.20] - 2026-07-20
 
 ### Added

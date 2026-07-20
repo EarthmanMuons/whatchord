@@ -17,7 +17,7 @@ jobs:
     uses: EarthmanMuons/reusable-workflows/.github/workflows/upload-build-android.yml@main
     with:
       release_tag: ${{ github.event.release.tag_name }}
-      track: alpha
+      track: production
       release_status: draft
 
   upload_build_ios:

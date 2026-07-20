@@ -522,19 +522,4 @@
   } else {
     window.addEventListener("whatchord-ready", start, { once: true });
   }
-
-  // Android beta dialog (mirrors index.html behavior on this standalone page).
-  function openAndroidDialog(e) {
-    e.preventDefault();
-    document.getElementById("android-dialog").showModal();
-  }
-  document.querySelectorAll("[data-android-beta]").forEach(function (el) {
-    el.addEventListener("click", openAndroidDialog);
-  });
-  if (/android/i.test(navigator.userAgent)) {
-    document.querySelectorAll(".btn-get-app").forEach(function (el) {
-      el.href = "#";
-      el.addEventListener("click", openAndroidDialog);
-    });
-  }
 })();
