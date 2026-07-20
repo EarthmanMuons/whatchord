@@ -2,33 +2,11 @@
 (function () {
   "use strict";
 
-  var androidDialog = document.getElementById("android-dialog");
-  if (androidDialog) {
-    function openAndroidDialog(event) {
-      event.preventDefault();
-      androidDialog.showModal();
-    }
-
-    document
-      .querySelectorAll("[data-android-beta]")
-      .forEach(function (element) {
-        element.addEventListener("click", openAndroidDialog);
-      });
-
-    document
-      .querySelectorAll("[data-close-android-dialog]")
-      .forEach(function (element) {
-        element.addEventListener("click", function () {
-          androidDialog.close();
-        });
-      });
-
-    if (/android/i.test(navigator.userAgent)) {
-      document.querySelectorAll(".btn-get-app").forEach(function (element) {
-        element.href = "#";
-        element.addEventListener("click", openAndroidDialog);
-      });
-    }
+  if (/android/i.test(navigator.userAgent)) {
+    document.querySelectorAll(".btn-get-app").forEach(function (element) {
+      element.href =
+        "https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord";
+    });
   }
 
   // Give section headings GitHub-style anchor links, generating ids from the

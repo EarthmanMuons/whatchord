@@ -12,7 +12,7 @@
       style="height: 60px"
       hspace="15"
   /></a>
-  <a href="#android-google-play">
+  <a href="https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord">
     <img
       src="docs/site/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
       alt="Get it on Google Play"
@@ -121,7 +121,7 @@ WhatChord is available on the App Store for iPhone and iPad.
 WhatChord is available on the Google Play Store for supported Android devices.
 
 <p>
-  <a href="https://play.google.com/apps/testing/com.earthmanmuons.whatchord">
+  <a href="https://play.google.com/store/apps/details?id=com.earthmanmuons.whatchord">
     <img
       src="docs/site/images/GetItOnGooglePlay_Badge_Web_color_English.svg"
       alt="Get it on Google Play"
@@ -129,10 +129,6 @@ WhatChord is available on the Google Play Store for supported Android devices.
     >
   </a>
 </p>
-
-> WhatChord is currently in closed testing. To join the beta, email
-> [support@earthmanmuons.com](mailto:support@earthmanmuons.com) with your Gmail
-> address, and we'll add you to the testing pool.
 
 ### Android (GitHub APK)
 
