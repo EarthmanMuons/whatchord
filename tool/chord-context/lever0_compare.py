@@ -31,6 +31,11 @@ def main() -> int:
         help="Arm name present in the report's perPiece entries.",
     )
     parser.add_argument(
+        "--baseline-arm",
+        default="base",
+        help="Arm to pair against within the same report.",
+    )
+    parser.add_argument(
         "--baseline-report",
         type=Path,
         help="Compare this report's arm against another report's same arm "
@@ -48,11 +53,18 @@ def main() -> int:
             piece[args.arm] - b_pieces[piece["id"]][args.arm]
             for piece in report["perPiece"]
             if piece["id"] in b_pieces
+            and piece.get(args.arm) is not None
+            and b_pieces[piece["id"]].get(args.arm) is not None
         ]
         against = f"{args.baseline_report} ({args.arm})"
     else:
-        values = [piece[args.arm] - piece["base"] for piece in report["perPiece"]]
-        against = "own base arm"
+        baseline_arm = args.baseline_arm
+        values = [
+            piece[args.arm] - piece[baseline_arm]
+            for piece in report["perPiece"]
+            if piece.get(args.arm) is not None and piece.get(baseline_arm) is not None
+        ]
+        against = f"own {baseline_arm} arm"
     wins = sum(1 for v in values if v > 1e-9)
     losses = sum(1 for v in values if v < -1e-9)
     ties = len(values) - wins - losses
@@ -63,11 +75,19 @@ def main() -> int:
     pooled = report["pooled"]
     print(f"lever0 paired comparison ({args.arm} vs {against}): {report['set']}")
     print(f"  pieces: {len(values)}  pooled n: {pooled['n']}")
-    coverage = pooled.get("claimCoverage")
-    print(
-        f"  pooled: base {pooled['base']:.4f}  {args.arm} {pooled[args.arm]:.4f}"
-        + (f"  claim coverage {coverage:.3f}" if coverage is not None else "")
-    )
+
+    def pooled_num(key):
+        value = pooled.get(key)
+        return value if isinstance(value, (int, float)) else None
+
+    coverage = pooled_num("claimCoverage")
+    pooled_a = pooled_num(args.arm)
+    pooled_b = pooled_num(args.baseline_arm) or pooled_num("base")
+    if pooled_a is not None and pooled_b is not None:
+        print(
+            f"  pooled: baseline {pooled_b:.4f}  {args.arm} {pooled_a:.4f}"
+            + (f"  claim coverage {coverage:.3f}" if coverage is not None else "")
+        )
     print(
         f"  per-piece mean delta: {mean_delta:+.4f}"
         f"  CI95 [{ci_low:+.4f}, {ci_high:+.4f}]"
