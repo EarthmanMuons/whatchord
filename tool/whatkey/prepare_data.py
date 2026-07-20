@@ -16,6 +16,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from reproducibility import CANONICALIZATION, fixture_set_sha256
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_ROOT = REPO_ROOT / "build/whatkey-corpora"
@@ -284,6 +286,22 @@ def verify_fixture_set(set_name: str, split_path: Path | None) -> None:
         fixture_count += 1
         event_count += int(entry["events"])
 
+    content_hash = manifest.get("contentHash")
+    if content_hash is not None:
+        require(
+            content_hash.get("algorithm") == "sha256"
+            and content_hash.get("canonicalization") == CANONICALIZATION,
+            set_name,
+            "manifest uses an unsupported fixture hash contract",
+        )
+        actual_hash = fixture_set_sha256(manifest_path.parent)
+        require(
+            actual_hash == content_hash.get("value"),
+            set_name,
+            f"fixture content hash mismatch: {actual_hash}",
+        )
+        print(f"ok: {set_name} content hash {actual_hash}")
+
     if split_path is not None:
         split = json.loads(split_path.read_text())
         counts = split["counts"]["total"]
@@ -320,6 +338,8 @@ def extract_when_in_rome(bench_root: Path) -> None:
             "when-in-rome-v1",
             "--out",
             str(FIXTURE_ROOT),
+            "--analysis-profile",
+            "whatKeyPaper2026",
             "when-in-rome",
             "--bench-root",
             str(bench_root),
@@ -344,6 +364,8 @@ def extract_asap(asap_root: Path) -> None:
             "asap-nc-v2",
             "--max-performances",
             "60",
+            "--analysis-profile",
+            "whatKeyPaper2026",
         ],
         cwd=REPO_ROOT,
     )
@@ -358,6 +380,8 @@ def extract_isophonics(choco_root: Path) -> None:
             str(choco_root),
             "--set",
             "isophonics-nc-v1",
+            "--analysis-profile",
+            "whatKeyPaper2026",
         ],
         cwd=REPO_ROOT,
     )
@@ -372,6 +396,8 @@ def extract_overlap(asap_root: Path, bench_root: Path) -> None:
             str(asap_root),
             "--bench-root",
             str(bench_root),
+            "--analysis-profile",
+            "whatKeyPaper2026",
         ],
         cwd=REPO_ROOT,
     )
@@ -456,8 +482,8 @@ def run_headline() -> None:
             "research/whatkey/data/splits/isophonics-nc-v1.json",
             "--split",
             "test",
-            "--detector",
-            "hmm",
+            "--recipe",
+            "whatKeyPaper2026",
             "--out",
             str(HEADLINE_ROOT / "test-iso-hmm-shipped"),
         ],
@@ -489,6 +515,28 @@ def run_headline() -> None:
             "--root",
             str(HEADLINE_ROOT),
             "--check",
+        ],
+        cwd=REPO_ROOT,
+    )
+    run(
+        [
+            sys.executable,
+            "tool/whatkey/reproducibility.py",
+            "verify",
+            "--fixture",
+            "isophonics-nc-v1",
+            "--fixture-root",
+            str(FIXTURE_ROOT),
+            "--result",
+            "test-iso-hmm-shipped",
+            "--result",
+            "test-iso-m21-temperleykostkapayne",
+            "--result",
+            "test-iso-m21-krumhanslschmuckler",
+            "--result",
+            "test-iso-m21-aardenessen",
+            "--result-root",
+            str(HEADLINE_ROOT),
         ],
         cwd=REPO_ROOT,
     )

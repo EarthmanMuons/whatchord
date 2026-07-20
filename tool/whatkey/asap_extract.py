@@ -30,6 +30,13 @@ from pathlib import Path
 
 import mido
 
+from reproducibility import (
+    ANALYSIS_PROFILES,
+    CANONICALIZATION,
+    DEFAULT_ANALYSIS_PROFILE,
+    fixture_hashes,
+)
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURE_SCHEMA = "whatkey-fixture/1"
 MANIFEST_SCHEMA = "whatkey-manifest/1"
@@ -42,6 +49,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--set", dest="set_name", default="asap-nc-v1")
     parser.add_argument("--out", type=Path, default=Path("build/whatkey-fixtures"))
     parser.add_argument("--context", default="C:maj")
+    parser.add_argument(
+        "--analysis-profile",
+        choices=ANALYSIS_PROFILES,
+        default=DEFAULT_ANALYSIS_PROFILE,
+        help="Chord-ranking policy used before capture segmentation.",
+    )
     parser.add_argument(
         "--max-performances",
         type=int,
@@ -84,7 +97,9 @@ def main() -> int:
         )
         print(f"{perf_path}: {len(snapshots)} snapshots", file=sys.stderr)
 
-    replayed = replay(pieces, args.context, args.segmenter_min_ms)
+    replayed = replay(
+        pieces, args.context, args.segmenter_min_ms, args.analysis_profile
+    )
 
     set_dir = args.out / args.set_name
     set_dir.mkdir(parents=True, exist_ok=True)
@@ -113,6 +128,11 @@ def main() -> int:
             }
         )
 
+    files = [entry["file"] for entry in fixtures_meta]
+    hashes, content_hash = fixture_hashes(set_dir, files)
+    for entry in fixtures_meta:
+        entry["sha256"] = hashes[entry["file"]]
+
     manifest = {
         "schema": MANIFEST_SCHEMA,
         "set": args.set_name,
@@ -127,6 +147,12 @@ def main() -> int:
             "arguments": sys.argv[1:],
         },
         "context": args.context,
+        "analysisProfile": args.analysis_profile,
+        "contentHash": {
+            "algorithm": "sha256",
+            "canonicalization": CANONICALIZATION,
+            "value": content_hash,
+        },
         "segmenterMinMs": args.segmenter_min_ms,
         "source": {
             "type": "asap",
@@ -216,7 +242,10 @@ def sounding_snapshots(midi_path: Path) -> list[dict]:
 
 
 def replay(
-    pieces: list[dict], context: str, segmenter_min_ms: int
+    pieces: list[dict],
+    context: str,
+    segmenter_min_ms: int,
+    analysis_profile: str = DEFAULT_ANALYSIS_PROFILE,
 ) -> dict[str, list[dict]]:
     payload = "".join(
         json.dumps(
@@ -224,6 +253,7 @@ def replay(
                 "id": p["id"],
                 "context": context,
                 "segmenterMinMs": segmenter_min_ms,
+                "analysisProfile": analysis_profile,
                 "snapshots": p["snapshots"],
             }
         )

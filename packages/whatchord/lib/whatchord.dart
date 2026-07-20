@@ -6,6 +6,7 @@ library;
 
 // Analysis engine
 export 'src/analysis/chord_analyzer.dart';
+export 'src/analysis/chord_analysis_profile.dart';
 export 'src/analysis/chord_candidate_ranking.dart';
 
 // Domain models

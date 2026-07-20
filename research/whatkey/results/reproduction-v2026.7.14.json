@@ -1,0 +1,97 @@
+{
+  "schema": "whatkey-reproduction-lock/1",
+  "release": "v2026.7.14",
+  "doi": {
+    "concept": "10.5281/zenodo.21322675",
+    "version": "10.5281/zenodo.21364341"
+  },
+  "canonicalization": "whatkey-canonical-json-v1",
+  "algorithm": "sha256",
+  "resultDataFields": [
+    "schema",
+    "fixtures",
+    "split",
+    "detector",
+    "restrictedTo",
+    "summary",
+    "perPiece"
+  ],
+  "analysisProfile": "whatKeyPaper2026",
+  "detectorRecipes": [
+    "whatKeyPaper2026",
+    "whatKeyPaper2026Reflex"
+  ],
+  "fixtures": {
+    "asap-nc-v2": {
+      "path": "build/whatkey-fixtures/asap-nc-v2",
+      "sha256": "c56ac7bf2eb24a9af94980d40b49b1c3189171b7c256f0df98333208fbff21d1"
+    },
+    "asap-wir-nc-v1": {
+      "path": "build/whatkey-fixtures/asap-wir-nc-v1",
+      "sha256": "068683ab490dc8457de788172288590c0577f2c4724978d363a801cf02ba402d"
+    },
+    "isophonics-nc-v1": {
+      "path": "build/whatkey-fixtures/isophonics-nc-v1",
+      "sha256": "68e2394dd196aa999473772c73a9ade8fcea33b1aa2511bff6e61d49940d3337"
+    },
+    "pop-jazz-v1": {
+      "path": "research/whatkey/data/fixtures/pop-jazz-v1",
+      "sha256": "2046a15fb231fe609fe30ea0215ce363ed2f6d1ba813df285d6c8ad515f90ea2"
+    },
+    "pop-jazz-v2": {
+      "path": "research/whatkey/data/fixtures/pop-jazz-v2",
+      "sha256": "0219dae086be6edf777ed186cb3842c7ff9d5aa2635efc643598b65830c9f78c"
+    },
+    "when-in-rome-v1": {
+      "path": "research/whatkey/data/fixtures/when-in-rome-v1",
+      "sha256": "0bc6551265f15bc397fa5cece06a909349ac35e27d3ff2891a3dc0e721bba224"
+    }
+  },
+  "results": {
+    "test-asap-hmm-shipped": {
+      "path": "research/whatkey/results/test-split-2026-07-07/test-asap-hmm-shipped",
+      "claimsSha256": "bd70b51687a159da9723223e69453e1f3c254fd7582fa39e356609faf57cccdf",
+      "resultDataSha256": "0d636d9a97d29fb5ee72446fae560dffc0debeecbefa2a67904f62e46f28f322"
+    },
+    "test-iso-hmm-reflex": {
+      "path": "research/whatkey/results/test-split-2026-07-07/test-iso-hmm-reflex",
+      "claimsSha256": "5d02436a4dc0ebbe044f7a1f91bdfbfbd4cf54cef3adbe2a1c0052dcfc091dbf",
+      "resultDataSha256": "5c4926cb388867fb883f93a1fa76939464f2c24415da71606cc8ca0f7c310010"
+    },
+    "test-iso-hmm-shipped": {
+      "path": "research/whatkey/results/test-split-2026-07-07/test-iso-hmm-shipped",
+      "claimsSha256": "e01408a6d92ee96408ba495a9d14fbe65dcebb803ac22e2eb99437be098b1633",
+      "resultDataSha256": "50c1b8ac83fb7aadc95169af472a0bdf4800af97492f12e276d6abae51ff3c2c"
+    },
+    "test-iso-m21-aardenessen": {
+      "path": "research/whatkey/results/test-split-2026-07-07/test-iso-m21-aardenessen",
+      "claimsSha256": "ddafb5c261bf450e8e6ef79973876e21dacdf7c5f05b91db6a628705c0642b82",
+      "resultDataSha256": "d6175d9999e6d559285dadff3f49393e5bfcd7cf95c7d826705f4841541c420d"
+    },
+    "test-iso-m21-krumhanslschmuckler": {
+      "path": "research/whatkey/results/test-split-2026-07-07/test-iso-m21-krumhanslschmuckler",
+      "claimsSha256": "3bd4e5812f109a329c847f4157b1e7693dcf2452f234567ef62fd89276d2849f",
+      "resultDataSha256": "23555823658eb77264522c9a254842c5f0dee2cc0dc6a5a430442cd31aff81af"
+    },
+    "test-iso-m21-ks-matched": {
+      "path": "research/whatkey/results/test-split-2026-07-07/test-iso-m21-ks-matched",
+      "claimsSha256": "3bd4e5812f109a329c847f4157b1e7693dcf2452f234567ef62fd89276d2849f",
+      "resultDataSha256": "76bbe267227be84906bf5a9eab63ca135ba038c8dc849fec2dc3f82b52dfbb8a"
+    },
+    "test-iso-m21-temperleykostkapayne": {
+      "path": "research/whatkey/results/test-split-2026-07-07/test-iso-m21-temperleykostkapayne",
+      "claimsSha256": "a0a934f13436a96d9effe36d1197a077e6e13eb80ba859401161fafdcd9cf88b",
+      "resultDataSha256": "53411c5238b684db50c52b0e8d34f0068c2675eb70cc90aee800095a2d2faa15"
+    },
+    "test-wir-hmm-reflex": {
+      "path": "research/whatkey/results/test-split-2026-07-07/test-wir-hmm-reflex",
+      "claimsSha256": "cb6471b92ecac3dde0510c38f2eab7b220e44ba677c91aa0b280dec4f44d4188",
+      "resultDataSha256": "797c6e4712de318ddb0e8d1eceaef2d416e071d925c5280dbbdbd386e8247e5d"
+    },
+    "test-wir-hmm-shipped": {
+      "path": "research/whatkey/results/test-split-2026-07-07/test-wir-hmm-shipped",
+      "claimsSha256": "7afbea27ba5c431249d815306f8d9a99479e83e1ea534335ac1138c985f0ee7d",
+      "resultDataSha256": "c2a004075a25b701e3b734c13388cc432808f0a0b026db44fc728665b635f330"
+    }
+  }
+}

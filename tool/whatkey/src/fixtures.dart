@@ -11,13 +11,20 @@ import 'package:whatchord/whatchord.dart';
 import 'package:whatkey/whatkey.dart';
 
 import '../../src/chord_id_engine.dart';
+import 'reproducibility.dart';
 
 class FixtureSet {
   final Directory directory;
   final Map<String, dynamic> manifest;
   final List<LabeledFixture> fixtures;
+  final String contentSha256;
 
-  FixtureSet._(this.directory, this.manifest, this.fixtures);
+  FixtureSet._(
+    this.directory,
+    this.manifest,
+    this.fixtures,
+    this.contentSha256,
+  );
 
   String get name => manifest['set'] as String;
 
@@ -29,14 +36,31 @@ class FixtureSet {
         jsonDecode(File('${directory.path}/manifest.json').readAsStringSync())
             as Map<String, dynamic>;
     final context = parseTonality(manifest['context'] as String);
-    final fixtures = <LabeledFixture>[
-      for (final entry in (manifest['fixtures'] as List).cast<Map>())
-        LabeledFixture._load(
-          File('${directory.path}/${entry['file']}'),
-          context,
-        ),
-    ]..sort((a, b) => a.id.compareTo(b.id));
-    return FixtureSet._(directory, manifest, fixtures);
+    // Read and decode each fixture once, keeping the raw content for hashing so
+    // the aggregate hash does not re-read the corpus from disk.
+    final rawByFile = <String, Object?>{};
+    final fixtures = <LabeledFixture>[];
+    for (final entry in (manifest['fixtures'] as List).cast<Map>()) {
+      final file = entry['file'] as String;
+      final raw = (rawByFile[file] ??= jsonDecode(
+        File('${directory.path}/$file').readAsStringSync(),
+      ))!;
+      fixtures.add(
+        LabeledFixture._fromRaw(raw as Map<String, dynamic>, context),
+      );
+    }
+    fixtures.sort((a, b) => a.id.compareTo(b.id));
+    final contentSha256 = fixtureSetSha256FromContents(rawByFile);
+    final set = FixtureSet._(directory, manifest, fixtures, contentSha256);
+    final expectedHash =
+        ((manifest['contentHash'] as Map?)?['value'] as String?);
+    if (expectedHash != null && expectedHash != contentSha256) {
+      throw StateError(
+        'Fixture content hash mismatch: manifest=$expectedHash '
+        'actual=$contentSha256',
+      );
+    }
+    return set;
   }
 }
 
@@ -59,8 +83,7 @@ class LabeledFixture {
     this.labels,
   );
 
-  static LabeledFixture _load(File file, Tonality context) {
-    final raw = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+  static LabeledFixture _fromRaw(Map<String, dynamic> raw, Tonality context) {
     final events = <ChordEvent>[];
     final labels = <EventLabels>[];
     for (final entry in (raw['events'] as List).cast<Map>()) {

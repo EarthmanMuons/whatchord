@@ -17,13 +17,32 @@ import 'package:whatchord/whatchord.dart';
 
 import '../src/chord_id_engine.dart';
 
-final _analyzer = ChordAnalyzer();
+final _analyzers = <ChordAnalysisProfile, ChordAnalyzer>{
+  for (final profile in ChordAnalysisProfile.values)
+    profile: ChordAnalyzer(analysisProfile: profile),
+};
+
+// Every caller must declare the chord-ranking policy: a silent default would
+// let a fixture set inherit the wrong profile when a request omits the field.
+String _requireProfile(Map<String, dynamic> request) {
+  final profile = request['analysisProfile'] as String?;
+  if (profile == null) {
+    throw ArgumentError(
+      'Request is missing required "analysisProfile" '
+      '(one of ${ChordAnalysisProfile.values.map((p) => p.name).join(', ')})',
+    );
+  }
+  return profile;
+}
 
 void main() {
   stdin.transform(utf8.decoder).transform(const LineSplitter()).listen((line) {
     if (line.trim().isEmpty) return;
 
     final request = jsonDecode(line) as Map<String, dynamic>;
+    final profile = ChordAnalysisProfile.values.byName(
+      _requireProfile(request),
+    );
     final midiNotes = (request['midiNotes'] as List).cast<int>()..sort();
     final tonality = parseTonality(request['context'] as String);
     final keySignature = KeySignature.fromTonality(tonality);
@@ -46,7 +65,11 @@ void main() {
     );
     final voicing = ObservedVoicing.fromMidi(midiNotes);
 
-    final ranked = _analyzer.analyze(input, context: context, voicing: voicing);
+    final ranked = _analyzers[profile]!.analyze(
+      input,
+      context: context,
+      voicing: voicing,
+    );
     final alternativeCount = ChordCandidateRanking.alternativeCount(ranked);
 
     stdout.writeln(

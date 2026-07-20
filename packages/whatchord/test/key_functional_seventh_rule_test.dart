@@ -109,4 +109,26 @@ void main() {
     expect(identity.quality, ChordQuality.major6);
     expect(identity.rootPc, 5);
   });
+
+  test('WhatKey paper profile preserves the v2026.7.14 sixth-chord choice', () {
+    final historicalAnalyzer = ChordAnalyzer(
+      analysisProfile: ChordAnalysisProfile.whatKeyPaper2026,
+    );
+    var pcMask = 0;
+    for (final note in ii65Voicing) {
+      pcMask |= 1 << (note % 12);
+    }
+    final ranked = historicalAnalyzer.analyze(
+      ChordInput(
+        pcMask: pcMask,
+        bassPc: ii65Voicing.first % 12,
+        noteCount: ii65Voicing.length,
+      ),
+      context: context('c', TonalityMode.major),
+      voicing: ObservedVoicing.fromMidi(ii65Voicing),
+    );
+
+    expect(ranked.first.identity.quality, ChordQuality.major6);
+    expect(ranked.first.identity.rootPc, 5);
+  });
 }

@@ -43,6 +43,7 @@ dependencies:
     path: packages/whatkey
 
 dev_dependencies:
+  crypto: ^3.0.7
   flutter_test:
     sdk: flutter
 

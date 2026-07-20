@@ -13,6 +13,7 @@ import '../services/bit_masks.dart';
 import '../services/chord_tone_roles.dart';
 import '../services/interval_constants.dart';
 import '../services/pitch_class.dart';
+import 'chord_analysis_profile.dart';
 import 'chord_candidate_ranking.dart';
 import 'chord_templates.dart';
 import 'engine_counters.dart';
@@ -134,7 +135,11 @@ class ExplainedCandidate {
 final class ChordAnalyzer {
   /// Each instance owns its cache and tuning; the app shares one instance so
   /// every feature that names chords shares the LRU cache.
-  ChordAnalyzer({this.cacheCapacity = 512, this.rankingPruneMargin = 2.0});
+  ChordAnalyzer({
+    this.cacheCapacity = 512,
+    this.rankingPruneMargin = 2.0,
+    this.analysisProfile = ChordAnalysisProfile.current,
+  });
 
   /// Maximum cached analysis results (LRU eviction). Configurable so the
   /// cache test can shrink capacity and exercise eviction without hundreds
@@ -148,6 +153,12 @@ final class ChordAnalyzer {
   /// Configurable so that guard test can disable pruning (raise to infinity)
   /// and measure the unpruned surfaced gap.
   final double rankingPruneMargin;
+
+  /// Ranking policy used by this analyzer instance.
+  ///
+  /// The app leaves this at [ChordAnalysisProfile.current]. Research tooling
+  /// may request a frozen policy when rebuilding published fixtures.
+  final ChordAnalysisProfile analysisProfile;
 
   final LinkedHashMap<int, List<ChordCandidate>> _cache =
       LinkedHashMap<int, List<ChordCandidate>>();
@@ -194,6 +205,7 @@ final class ChordAnalyzer {
   static const _splitFourthSurcharge = 0.6; // natural 4 and #11 at once
   static const _splitSecondSurcharge = 0.4; // natural 2 and b9/#9 at once
   static const _splitSixthSurcharge = 0.8; // natural 6/13 and b13 at once
+  static const _paper2026SplitSixthSurcharge = 0.4;
   static const _splitSharpFiveThirteenSurcharge = 0.8; // #5 and 13 at once
   static const _alteredMajorSeventhFlatNineSurcharge = 0.25; // b9 on maj7#5/b5
   static const _sharpElevenEmptyFifthSurcharge = 0.75; // #11 with no 5th tone
@@ -322,6 +334,7 @@ final class ChordAnalyzer {
                   current.candidate,
                   tonality: context.tonality,
                   voicing: voicing,
+                  profile: analysisProfile,
                 ),
         ),
       );
@@ -399,6 +412,7 @@ final class ChordAnalyzer {
       (e) => e.candidate,
       tonality: context.tonality,
       voicing: voicing,
+      profile: analysisProfile,
     );
   }
 
@@ -443,7 +457,7 @@ final class ChordAnalyzer {
   // - Penalty for ambiguity and complexity (missing tones, extras)
   // - Bass role appropriateness
 
-  static _PricedTemplate? _priceTemplate({
+  _PricedTemplate? _priceTemplate({
     required int relMask,
     required int bassInterval,
     required ChordTemplate template,
@@ -706,7 +720,7 @@ final class ChordAnalyzer {
     };
   }
 
-  static double _tonePrice({
+  double _tonePrice({
     required ChordToneRole role,
     required ChordQuality quality,
     required int relMask,
@@ -772,7 +786,7 @@ final class ChordAnalyzer {
     }
   }
 
-  static double _alteredTonePrice({
+  double _alteredTonePrice({
     required ChordToneRole role,
     required ChordQuality quality,
     required int relMask,
@@ -836,12 +850,15 @@ final class ChordAnalyzer {
       price += _splitSecondSurcharge;
     }
     if (role == ChordToneRole.flat13 && _hasNaturalSixthRole(roles)) {
-      price += _splitSixthSurcharge;
+      price += analysisProfile == ChordAnalysisProfile.whatKeyPaper2026
+          ? _paper2026SplitSixthSurcharge
+          : _splitSixthSurcharge;
     }
     // Flat-nine color on altered major-seventh hosts is much rarer than the
     // same alteration on a dominant. The off-dominant multiplier below doubles
     // this surcharge along with the base alteration price.
     if (role == ChordToneRole.flat9 &&
+        analysisProfile == ChordAnalysisProfile.current &&
         (quality == ChordQuality.major7Flat5 ||
             quality == ChordQuality.major7Sharp5)) {
       price += _alteredMajorSeventhFlatNineSurcharge;
