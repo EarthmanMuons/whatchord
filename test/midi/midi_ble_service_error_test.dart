@@ -27,6 +27,10 @@ void main() {
       contains('forget the device'),
     );
     expect(
+      describe(fmc.MidiPairingInfoRemovedException(deviceId: 'x')),
+      contains('no longer recognizes its pairing'),
+    );
+    expect(
       describe(fmc.MidiServiceDiscoveryException(deviceId: 'x')),
       contains('does not offer MIDI'),
     );

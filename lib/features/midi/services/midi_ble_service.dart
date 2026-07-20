@@ -142,8 +142,7 @@ class MidiBleService {
   /// User-facing description of a typed connection failure.
   ///
   /// Falls back to the plugin's own stage message for subtypes without a
-  /// friendlier wording here (including MidiPairingInfoRemovedException,
-  /// which the plugin does not export by name).
+  /// friendlier wording here.
   @visibleForTesting
   static String connectionFailureMessage(fmc.MidiConnectionException e) {
     return switch (e) {
@@ -153,6 +152,8 @@ class MidiBleService {
         'Pairing was declined. Try again and accept the pairing request.',
       fmc.MidiPairingFailedException() =>
         'Pairing failed. Try again, or forget the device in system Bluetooth settings first.',
+      fmc.MidiPairingInfoRemovedException() =>
+        'This device no longer recognizes its pairing. Forget it in system Bluetooth settings, then pair again.',
       fmc.MidiServiceDiscoveryException() =>
         'This device does not offer MIDI over Bluetooth.',
       fmc.MidiNotificationSubscriptionException() =>
