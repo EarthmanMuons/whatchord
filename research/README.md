@@ -21,9 +21,12 @@ and published methods.
 
 - [WhatKey](whatkey/): automatic key (tonal center) detection from live playing,
   studied as streaming key estimation with abstention and written up as a
-  preprint. The only initiative with its own directory so far; it holds the
-  design plan, evaluation protocol, dated logs, data conventions, and paper in
-  one place.
+  preprint. It holds the design plan, evaluation protocol, dated logs, data
+  conventions, and paper in one place.
+- [Chord Context](chord-context/): using recently played chords to improve live
+  chord naming (contextual re-ranking, contextual spelling, display stability,
+  and a gate for rootless/ensemble voicings). Draft proposal; the protocol is
+  not yet frozen.
 
 Supporting code lives with the rest of the project: batch drivers and corpus
 tooling in `tool/`, performance benchmarks in `benchmark/`, and the engine
