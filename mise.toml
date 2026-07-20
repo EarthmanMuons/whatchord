@@ -159,8 +159,8 @@ for f in build/whatkey-baselines/when-in-rome-v1-development/*.claims.json; do
 done
 """
 
-[tasks."research:chord-context-labels"]
-description = "Generate expected-identity labels for the chord-context headroom study"
+[tasks."research:chord-context-labels-wir"]
+description = "Generate chord-context expected-identity labels for the When-in-Rome fixtures"
 depends = ["research:python-install"]
 run = """
 python tool/chord-context/expected_labels.py \
@@ -168,7 +168,7 @@ python tool/chord-context/expected_labels.py \
   --out build/chord-context/labels/when-in-rome-v1.labels.json
 """
 
-[tasks."research:chord-context-headroom-dev"]
+[tasks."research:chord-context-headroom-wir-dev"]
 description = "Run the chord-context headroom harness on the When-in-Rome development split"
 run = """
 dart run tool/chord-context/headroom.dart \
@@ -177,6 +177,47 @@ dart run tool/chord-context/headroom.dart \
   --split-file research/whatkey/data/splits/when-in-rome-v1.json \
   --split development \
   --out build/chord-context/headroom/wir-dev
+"""
+
+[tasks."research:chord-context-prepare-dcml"]
+description = "Download the pinned DCML distant-listening datapackage TSVs (CC BY-NC-SA; local only)"
+run = """
+data_root="${DLC_DATA_ROOT:-/private/tmp/dlc-data}"
+if [ -f "$data_root/distant_listening_corpus.expanded.tsv" ]; then
+  echo "DCML datapackage already present at $data_root"
+  exit 0
+fi
+mkdir -p "$data_root"
+curl -sL -o "$data_root/../dlc-data.zip" \
+  "https://zenodo.org/records/15150283/files/distant_listening_corpus.zip?download=1"
+unzip -o -q "$data_root/../dlc-data.zip" -d "$data_root"
+"""
+
+[tasks."research:chord-context-fixtures-dcml"]
+description = "Generate chord-context DCML fixtures and labels (to build/; license-gated, never committed)"
+run = """
+data_root="${DLC_DATA_ROOT:-/private/tmp/dlc-data}"
+if [ ! -f "$data_root/distant_listening_corpus.expanded.tsv" ]; then
+  echo "DCML datapackage not found at $data_root" >&2
+  echo "Run: mise research:chord-context-prepare-dcml" >&2
+  exit 1
+fi
+python tool/chord-context/dcml_extract.py \
+  --data-root "$data_root" \
+  --split-file research/chord-context/data/splits/dcml-distant-listening-v1.json \
+  --view span \
+  --out build/chord-context/fixtures
+"""
+
+[tasks."research:chord-context-headroom-dcml-dev"]
+description = "Run the chord-context headroom harness on the DCML development split"
+run = """
+dart run tool/chord-context/headroom.dart \
+  --fixtures build/chord-context/fixtures/dcml-distant-listening-v1-span \
+  --labels build/chord-context/labels/dcml-distant-listening-v1-span.labels.json \
+  --split-file research/chord-context/data/splits/dcml-distant-listening-v1.json \
+  --split development \
+  --out build/chord-context/headroom/dcml-dev
 """
 
 [tasks."research:whatkey-paper"]
