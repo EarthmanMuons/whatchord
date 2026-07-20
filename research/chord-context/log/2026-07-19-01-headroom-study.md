@@ -35,8 +35,8 @@ buckets the best-ranked matching candidate by cost gap: top1, near-tie (within
 three sounding notes are excluded (the app's history gate).
 
 ```sh
-mise research:chord-context-labels
-mise research:chord-context-headroom-dev
+mise research:chord-context-labels-wir
+mise research:chord-context-headroom-wir-dev
 ```
 
 Reports land in `build/chord-context/headroom/wir-dev/` (report.json embeds the
