@@ -56,9 +56,11 @@ void main(List<String> args) {
   var pooledN = 0, pooledBase = 0, pooledClosed = 0, pooledOracle = 0;
   var flips = 0, flipsHelped = 0, flipsHurt = 0, claimed = 0;
 
+  final behavior = KeyBehavior.values.byName(options['behavior'] ?? 'stable');
+
   for (final fixture in selected) {
     final entries = (pieces[fixture.id] as List).cast<Map>();
-    final detector = HmmKeyDetector();
+    final detector = HmmKeyDetector(decayHalfLife: behavior.emissionHalfLife);
     Tonality? inferred;
     var n = 0, base = 0, closed = 0, oracle = 0;
     for (var i = 0; i < fixture.events.length; i++) {
@@ -130,7 +132,10 @@ void main(List<String> args) {
       'split': options['split'] ?? 'development',
       'take': _take,
       'minNotes': _minNotes,
-      'detector': HmmKeyDetector().configuration,
+      'behavior': behavior.name,
+      'detector': HmmKeyDetector(
+        decayHalfLife: behavior.emissionHalfLife,
+      ).configuration,
       'neutralContext': fixtureSet.manifest['context'],
     },
     'pooled': {
@@ -153,8 +158,8 @@ void main(List<String> args) {
   String pct(num value) => '${(value * 100).toStringAsFixed(2)}%';
   stdout
     ..writeln(
-      'lever0 A/B: ${fixtureSet.name} (${perPiece.length} pieces, '
-      'n=$pooledN clean events, claim coverage '
+      'lever0 A/B [${behavior.name}]: ${fixtureSet.name} '
+      '(${perPiece.length} pieces, n=$pooledN clean events, claim coverage '
       '${pct(claimed / pooledN)})',
     )
     ..writeln('  base:   ${pct(pooledBase / pooledN)}')
