@@ -12,41 +12,40 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Added
 
-- The app now reconnects automatically when a connected MIDI device drops
-  unexpectedly, such as being powered off or moving out of range: turning the
-  device back on within the retry window rejoins without any taps. Explicit
-  disconnects and backgrounding still behave as before.
+- Bluetooth MIDI devices now reconnect automatically after an unexpected
+  dropout. If a device is powered off or moves out of range, turning it back on
+  within the retry window reconnects it without any taps.
 
 ### Changed
 
-- Updated the Bluetooth MIDI engine to the latest upstream release, adopting its
-  fixes for silent iOS BLE connections, safer device teardown, and more reliable
-  connect/disconnect behavior that previously required our own patched copies.
-- Connecting to a MIDI device completes about a second faster: the engine now
-  confirms readiness itself, so the app's extra verification poll, settling
-  delay, and pre-connect cleanup were removed.
-- Reduced Bluetooth scanning while connected: the connection health check now
-  runs once a minute instead of every 16 seconds, since device drops are
-  normally detected immediately by disconnect events.
+- Chord symbols now distinguish accidentals on roots from altered extensions, so
+  compact names such as C(♯11) and C♯(11) are easier to read correctly.
+- Bluetooth MIDI connections now complete about a second faster by relying on
+  the MIDI engine's readiness checks instead of repeating them in the app.
+- Bluetooth MIDI pairing, connection, and disconnection are more reliable after
+  updating the MIDI engine and removing old compatibility workarounds.
+- Reduced background Bluetooth activity while connected by checking for silent
+  dropouts once a minute instead of every 16 seconds. Most dropouts are still
+  detected immediately.
 
 ### Fixed
 
-- Connecting and reconnecting to Bluetooth MIDI adapters no longer needs a
-  second attempt: reconnect now waits for the scan to rediscover the device
-  instead of giving up on the first empty device list.
 - Connection failures now explain what went wrong and what to do next, such as a
   declined pairing request or a device without Bluetooth MIDI support, instead
   of a generic "Failed to connect" message.
-- Toggling Bluetooth off and on now resumes reconnecting reliably even when the
-  toggle lands mid-attempt: the recovery trigger is held until the interrupted
-  attempt unwinds instead of being dropped.
-- "Reset all settings" now also resets the Scale Explorer's scale degrees
-  toggle, which previously survived a full reset.
-- Disambiguated compact chord symbols such as C(♯11) and C♯(11), making it clear
-  whether an accidental belongs to the root or the extension.
+- Connecting and reconnecting to Bluetooth MIDI adapters now succeeds on the
+  first attempt by waiting for the device to reappear during scanning.
+- Toggling Bluetooth off and on during a reconnect attempt no longer leaves the
+  app disconnected.
 - Improved recognition of rare altered major-seventh flat-nine colors so they
   are less likely to displace simpler common-shell readings unless the voicing
   strongly supports them.
+- Scale Explorer previews now keep single-note chord highlights in sync with the
+  note being played.
+- Fixed the website landing page on phones so its text is no longer squeezed
+  beside the screenshot.
+- "Reset all settings" now also resets the Scale Explorer's Show Scale Degrees
+  preference.
 
 ## [2026.7.11] - 2026-07-11
 
