@@ -2,9 +2,14 @@
 locale = "en-us"
 
 [files]
-# exclude Xcode project and Interface Builder files, plus the compiled
-# Dart-to-JS bundle (minified identifiers trip the spell checker)
-extend-exclude = ["*.pbxproj", "*.xib", "docs/site/js/chord-id.js"]
+# exclude Xcode project and Interface Builder files, the compiled Dart-to-JS
+# bundle (minified identifiers trip the spell checker), and research data splits
+extend-exclude = [
+  "*.pbxproj",
+  "*.xib",
+  "docs/site/js/chord-id.js",
+  "research/chord-context/data/splits/"
+]
 
 # Don't correct these false positives
 
