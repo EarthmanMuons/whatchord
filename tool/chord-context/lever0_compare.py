@@ -1,0 +1,62 @@
+"""Paired per-piece comparison for a chord-context lever0 A/B report.
+
+Reads a report.json from tool/chord-context/lever0_eval.dart and applies the
+protocol's reporting rules to the closed-vs-base (and oracle-vs-base) arms:
+per-piece mean deltas, Wilcoxon signed-rank, and a seeded-bootstrap CI95,
+reusing the statistics implementations from tool/whatkey/compare.py.
+
+Usage:
+  python tool/chord-context/lever0_compare.py build/chord-context/lever0/dcml-dev/report.json
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "whatkey"))
+from compare import bootstrap_ci, wilcoxon_signed_rank  # noqa: E402
+
+DEFAULT_SEED = "chord-context-lever0-compare-v1"
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("report", type=Path)
+    parser.add_argument("--arm", choices=["closed", "oracle"], default="closed")
+    parser.add_argument("--bootstrap", type=int, default=10000)
+    parser.add_argument("--seed", default=DEFAULT_SEED)
+    args = parser.parse_args()
+
+    report = json.loads(args.report.read_text())
+    values = [piece[args.arm] - piece["base"] for piece in report["perPiece"]]
+    wins = sum(1 for v in values if v > 1e-9)
+    losses = sum(1 for v in values if v < -1e-9)
+    ties = len(values) - wins - losses
+    mean_delta = sum(values) / len(values)
+    p_value = wilcoxon_signed_rank(values)
+    ci_low, ci_high = bootstrap_ci(values, args.bootstrap, args.seed)
+
+    pooled = report["pooled"]
+    print(f"lever0 paired comparison ({args.arm} - base): {report['set']}")
+    print(f"  pieces: {len(values)}  pooled n: {pooled['n']}")
+    print(
+        f"  pooled: base {pooled['base']:.4f}  {args.arm} {pooled[args.arm]:.4f}"
+        f"  claim coverage {pooled['claimCoverage']:.3f}"
+    )
+    print(
+        f"  per-piece mean delta: {mean_delta:+.4f}"
+        f"  CI95 [{ci_low:+.4f}, {ci_high:+.4f}]"
+    )
+    print(f"  wins/losses/ties: {wins}/{losses}/{ties}")
+    if p_value is None:
+        print("  Wilcoxon: not applicable (all differences are zero)")
+    else:
+        print(f"  Wilcoxon signed-rank p (two-sided): {p_value:.2e}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

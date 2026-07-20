@@ -3,7 +3,10 @@
 Status: working notes, 2026-07-19. The musical-review companion to log entries
 2026-07-19-01 and -04, which established this family as the entire clean-pool
 headroom on both rulers. Sources below were fetched and verified during the
-review; URLs are the citations.
+review; URLs are the citations. Resolved 2026-07-20: option C adopted with the
+contested middle going to the lead-sheet readings (log entry 2026-07-20-01), and
+the scoped rule cleared the protocol's paired-statistics bar offline on both dev
+rulers with zero harmful flips (log entry 2026-07-20-02).
 
 ## The ambiguity
 
