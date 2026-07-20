@@ -1,11 +1,11 @@
 # Chord-Context Evaluation Protocol
 
-Status: DRAFT. Not yet frozen; freezing is an explicit owner decision recorded
-in the log, after which changes are amendments appended to the Amendments
-section, never retuned against data an amendment exposes. Once a scoring
-implementation exists under `tool/chord-context/`, that code at the freeze
-commit is the normative operational definition of every metric; this document
-states the rules in prose.
+Status: FROZEN 2026-07-19 (owner decision, log entry 2026-07-19-03). Changes are
+amendments appended to the Amendments section with a dated log entry, never
+retuned against data an amendment exposes. The scoring implementation under
+`tool/chord-context/` is the normative operational definition of each metric as
+its code lands, with each landing recorded in a dated log entry; until a
+metric's code exists, this document's prose governs it.
 
 ## Task
 
@@ -109,8 +109,7 @@ Normative definitions will live in the scoring code; in prose:
   (`benchmark/`, `tool/benchmark.sh`), which was built for exactly this ("the
   time and memory impact of future engine changes (temporal context, key
   detection)") and gates on normalized time against a committed baseline with
-  calibrated noise bands, never raw microseconds. The budget, normative once
-  frozen:
+  calibrated noise bands, never raw microseconds. The budget:
   - The snapshot path is untouched: `tool/benchmark.sh --check` passes against
     the committed baseline, analyze-call count and the deterministic operation
     counters are unchanged.
@@ -154,4 +153,4 @@ when, on the development rulers:
 
 ## Amendments
 
-None. (The protocol is not yet frozen.)
+None.
