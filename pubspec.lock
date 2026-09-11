@@ -327,66 +327,66 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_midi_command
-      sha256: "46cd2290b9c69fa33c7649c77a78d7a924c3a963dee43663ece986c77f734c4e"
+      sha256: "94d0455e08028029d88e5d9135a42c6fbb9d57dfee359a26633b7a07226153a8"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.2"
+    version: "1.2.0"
   flutter_midi_command_android:
     dependency: transitive
     description:
       name: flutter_midi_command_android
-      sha256: d83191128e7335aad19d1d88dec65f07eae86518b5135402b867e238cdadd630
+      sha256: "05bcf9d7779a26faa47dc127a73dae3cfd0c833a98a202f54b6224923b56f016"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.2"
+    version: "1.2.0"
   flutter_midi_command_ble:
     dependency: "direct main"
     description:
       name: flutter_midi_command_ble
-      sha256: "706649c3e2b4610802d1d54875e01b9532a15b4a2cdc3f5735498cf59d750283"
+      sha256: b706a967d92f951886ff0db6c314c22f09f5d0abf9e2cf6752dc5c7607ef829d
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.2"
+    version: "1.2.0"
   flutter_midi_command_darwin:
     dependency: transitive
     description:
       name: flutter_midi_command_darwin
-      sha256: "1715869fba5f70aecb313aa14dfe9c2308acd68ae541a8db15f8ba9210fa49f5"
+      sha256: ad1c9417ff92b20ebe0b5b2f8a5aa40b134fc3110d0a527c61a8a1ec7315571b
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.2"
+    version: "1.2.0"
   flutter_midi_command_linux:
     dependency: transitive
     description:
       name: flutter_midi_command_linux
-      sha256: "7863c45340ebcd18bade725dfb1ec1d469dea7b36b750d38f09112868ed0d039"
+      sha256: b1bb23b2fd04ff6b748b975ab26e1a5c27e86d37632211a44b48aa2cf0119212
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.2"
+    version: "1.2.0"
   flutter_midi_command_platform_interface:
     dependency: transitive
     description:
       name: flutter_midi_command_platform_interface
-      sha256: "30118785b7fabe925200c0f58847fd8ad2cf13eee80e96602b0edd9521e3cf0f"
+      sha256: "1ec889b004ea40f9e429ae3a9d511f396e3f951e120a69c599bc08fe712b474f"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.2"
+    version: "1.2.0"
   flutter_midi_command_web:
     dependency: transitive
     description:
       name: flutter_midi_command_web
-      sha256: "56b5ac3e927a0b0e231201f296913bf9fd611f29e7f9afae9c9fd08e9372d2d8"
+      sha256: ed05dd77a330de43e8f085160a08781a4446ab22ed6a2fa5c217ae627d97f2fd
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.2"
+    version: "1.2.0"
   flutter_midi_command_windows:
     dependency: transitive
     description:
       name: flutter_midi_command_windows
-      sha256: f01faec0b298b41de559eae377999f90cf6cbd5a6ed413af639877744481de36
+      sha256: dc436cc20444316b7e6a614f59af0dfc8bd36c2320e8dcf8c6606ce7ec7e4e20
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.2"
+    version: "1.2.0"
   flutter_pcm_sound:
     dependency: "direct main"
     description:
@@ -399,10 +399,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_riverpod
-      sha256: "56e81e662e6e54e59b231da57e90ac0d06ac67d8e3f2273c129a37ae6282b40c"
+      sha256: "2b7f9d2a3c730ac1a98221b420cef966b990fca7ab546ede324642ca57a533e3"
       url: "https://pub.dev"
     source: hosted
-    version: "3.4.2"
+    version: "3.4.3"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -761,18 +761,18 @@ packages:
     dependency: "direct main"
     description:
       name: permission_handler
-      sha256: e7317eb2eb611d1bf0386b6b974be9c50449f975f19a90a7b8ea013550302b30
+      sha256: e6bcecadfe40df6b888141f23cbaf6ba6c3da49fb33f6ff887d060dd48544fbd
       url: "https://pub.dev"
     source: hosted
-    version: "13.0.1"
+    version: "13.0.2"
   permission_handler_android:
     dependency: transitive
     description:
       name: permission_handler_android
-      sha256: d7676c6fcf2f0b92537ec41476a6ead45a00b0d8bbb852395a6f9f33f49d6242
+      sha256: b1ce660f4d0dcaffdf2605a19544c129fb5adda4e6fd039992ae356c4e437039
       url: "https://pub.dev"
     source: hosted
-    version: "14.0.0"
+    version: "14.1.0"
   permission_handler_apple:
     dependency: transitive
     description:
@@ -865,26 +865,26 @@ packages:
     dependency: transitive
     description:
       name: riverpod
-      sha256: "84351b3472a447f7b89f961f95c73287009d58c59d8cc1267425d995f78e50f1"
+      sha256: "484dfc873ea4c4f4240e5635444fa066f87b07862b7279ebd004a2b71fba4b7a"
       url: "https://pub.dev"
     source: hosted
-    version: "3.4.2"
+    version: "3.4.3"
   riverpod_analyzer_utils:
     dependency: transitive
     description:
       name: riverpod_analyzer_utils
-      sha256: "46a8dd0461080fde8f886f65f87580758dae8495e352f9ea6a09953abc3df7bd"
+      sha256: bb13cb3985815840cc103eda1027158358c5fdc00f308fc6f76574d0594107af
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0-dev.11"
+    version: "1.0.0-dev.12"
   riverpod_lint:
     dependency: "direct dev"
     description:
       name: riverpod_lint
-      sha256: "7d37414a82b0f52f3d8e440320830d9a8c59620663884b2bb5baaca26296c995"
+      sha256: "215cb3cd54a97e09bc3512535fa4e8bedd3bf2a06dc2ae015ac8e0050fc71bd1"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.8"
+    version: "3.1.9"
   share_plus:
     dependency: "direct main"
     description:
@@ -1238,18 +1238,18 @@ packages:
     dependency: "direct main"
     description:
       name: wakelock_plus
-      sha256: "7253bca0fcf40d8413ddfcf4d2a1fa0a82475e79be25a4f2c564b695c9351486"
+      sha256: "22b3e7e937721de70e63c85e7139f4ac781dc22863b9262431a53ac030eb074b"
       url: "https://pub.dev"
     source: hosted
-    version: "1.7.0"
+    version: "1.8.0"
   wakelock_plus_platform_interface:
     dependency: transitive
     description:
       name: wakelock_plus_platform_interface
-      sha256: "0618d1799f0b28bcf98255b4ee8313e6fc4d38589dc4ee5fe5840d57d1aff6da"
+      sha256: "764c25504562abc8ac3406f5d175f126b276e6ba916c7c2675690b73368ca384"
       url: "https://pub.dev"
     source: hosted
-    version: "1.6.0"
+    version: "1.7.0"
   watcher:
     dependency: transitive
     description:
