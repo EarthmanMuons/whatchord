@@ -19,6 +19,11 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 - The keyboard's "Center on active notes" action is now disabled when the
   keyboard is already centered, matching how "Reset keyboard size" behaves.
 
+### Fixed
+
+- VoiceOver and TalkBack can now resize the keyboard by swiping up or down on
+  its resize handle, which also announces the current size.
+
 ## [2026.8.28] - 2026-08-28
 
 ### Added
