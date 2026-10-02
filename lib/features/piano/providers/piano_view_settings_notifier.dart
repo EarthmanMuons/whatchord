@@ -30,6 +30,7 @@ class PianoViewSettingsNotifier extends Notifier<PianoViewSettings> {
   Future<void> setWidthScale(double widthScale) async {
     final prefs = ref.read(sharedPreferencesProvider);
     final clamped = PianoViewSettings.clampScale(widthScale);
+    if (clamped == state.widthScale) return;
 
     state = state.copyWith(widthScale: clamped);
     await prefs.setDouble(PianoPreferencesKeys.widthScale, clamped);
@@ -38,6 +39,7 @@ class PianoViewSettingsNotifier extends Notifier<PianoViewSettings> {
   Future<void> setHeightScale(double heightScale) async {
     final prefs = ref.read(sharedPreferencesProvider);
     final clamped = PianoViewSettings.clampScale(heightScale);
+    if (clamped == state.heightScale) return;
 
     state = state.copyWith(heightScale: clamped);
     await prefs.setDouble(PianoPreferencesKeys.heightScale, clamped);

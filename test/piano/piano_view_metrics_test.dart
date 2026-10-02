@@ -34,8 +34,15 @@ void main() {
       final m = resolve(
         settings: const PianoViewSettings(widthScale: 2.0, heightScale: 1.0),
       );
-      // round(21 / 2) = 11 (well above the floor of 8)
-      expect(m.visibleWhiteKeyCount, 11);
+      // 21 / 2 = 10.5 (well above the floor of 8)
+      expect(m.visibleWhiteKeyCount, 10.5);
+    });
+
+    test('width scale changes the visible key count continuously', () {
+      final m = resolve(
+        settings: const PianoViewSettings(widthScale: 1.1, heightScale: 1.0),
+      );
+      expect(m.visibleWhiteKeyCount, closeTo(21 / 1.1, 1e-9));
     });
 
     test('width scale never drops below the minimum visible count', () {
@@ -43,7 +50,7 @@ void main() {
         baseWhiteKeyCount: 21,
         settings: const PianoViewSettings(widthScale: 3.0, heightScale: 1.0),
       );
-      // round(21 / 3) = 7 -> clamped up to 8
+      // 21 / 3 = 7 -> clamped up to 8
       expect(m.visibleWhiteKeyCount, 8);
     });
 
