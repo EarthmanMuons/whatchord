@@ -62,8 +62,16 @@ class _PianoResizeHandleState extends ConsumerState<PianoResizeHandle> {
       widget.maxHeight,
     );
     _dragHeight = next;
+    _setHeight(next);
+  }
+
+  void _onDragEnd(DragEndDetails _) {
+    _dragHeight = null;
+  }
+
+  void _setHeight(double height) {
     final scale = heightScaleForHeight(
-      height: next,
+      height: height,
       baseHeight: widget.baseHeight,
     );
     unawaited(
@@ -71,9 +79,14 @@ class _PianoResizeHandleState extends ConsumerState<PianoResizeHandle> {
     );
   }
 
-  void _onDragEnd(DragEndDetails _) {
-    _dragHeight = null;
-  }
+  /// How far one assistive-technology adjustment moves the height.
+  double get _step => widget.baseHeight * 0.1;
+
+  double _stepped(double delta) =>
+      (widget.currentHeight + delta).clamp(widget.baseHeight, widget.maxHeight);
+
+  String _percent(double height) =>
+      '${(height / widget.baseHeight * 100).round()}%';
 
   void _reset() {
     unawaited(ref.read(pianoViewSettingsProvider.notifier).reset());
@@ -91,6 +104,15 @@ class _PianoResizeHandleState extends ConsumerState<PianoResizeHandle> {
       slider: true,
       label: 'Resize keyboard',
       hint: 'Drag up or down to resize. Double tap to reset.',
+      value: _percent(widget.currentHeight),
+      increasedValue: _percent(_stepped(_step)),
+      decreasedValue: _percent(_stepped(-_step)),
+      onIncrease: widget.currentHeight < widget.maxHeight
+          ? () => _setHeight(_stepped(_step))
+          : null,
+      onDecrease: widget.currentHeight > widget.baseHeight
+          ? () => _setHeight(_stepped(-_step))
+          : null,
       child: MouseRegion(
         cursor: SystemMouseCursors.resizeUpDown,
         child: GestureDetector(
