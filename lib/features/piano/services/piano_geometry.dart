@@ -50,7 +50,7 @@ class PianoGeometry {
 
   static double whiteKeyWidthForViewport({
     required double viewportWidth,
-    required int visibleWhiteKeyCount,
+    required num visibleWhiteKeyCount,
   }) {
     return viewportWidth / visibleWhiteKeyCount;
   }

@@ -10,6 +10,15 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- Pinch-to-zoom on the keyboard now scales smoothly and keeps the keys under
+  your fingers in place, instead of stepping a key at a time and then scrolling
+  back into position. Moving both fingers pans the keyboard as you zoom, even at
+  the smallest or largest size.
+- The keyboard's "Center on active notes" action is now disabled when the
+  keyboard is already centered, matching how "Reset keyboard size" behaves.
+
 ## [2026.8.28] - 2026-08-28
 
 ### Added

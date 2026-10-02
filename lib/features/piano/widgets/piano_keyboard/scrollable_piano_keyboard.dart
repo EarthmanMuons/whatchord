@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -61,7 +62,9 @@ class ScrollablePianoKeyboard extends ConsumerStatefulWidget {
 
   /// How many white keys should be visible in the viewport width.
   /// (fewer in portrait, often 52 in landscape)
-  final int visibleWhiteKeyCount;
+  ///
+  /// May be fractional, so zooming changes the key width continuously.
+  final double visibleWhiteKeyCount;
 
   final double height;
 
@@ -131,6 +134,9 @@ class _ScrollablePianoKeyboardState
   // Cached scroll indicator state; updated deterministically from scroll + note changes.
   ScrollIndicatorState _indicatorState = ScrollIndicatorState.none;
 
+  // Whether recentering would move nothing; updated alongside the indicators.
+  bool _isCentered = true;
+
   // Most recent viewport width from LayoutBuilder.
   double? _cachedViewportWidth;
 
@@ -140,13 +146,55 @@ class _ScrollablePianoKeyboardState
   // Width scale captured at the start of a pinch; deltas multiply from here.
   double _zoomStartScale = 1.0;
 
-  void _onScaleStart(ScaleStartDetails _) {
+  // The point under the pinch, in white keys from the keyboard's left edge,
+  // and where in the viewport the fingers hold it. Null while not pinching.
+  double? _pinchAnchorKeys;
+  double _pinchFocalX = 0;
+
+  void _onScaleStart(ScaleStartDetails details) {
     _zoomStartScale = widget.widthScale;
+    final width = _cachedViewportWidth;
+    if (details.pointerCount < 2 || width == null || !_ctl.hasClients) return;
+
+    // Take over from any recentering animation still running.
+    _ctl.jumpTo(_ctl.offset);
+    _pinchFocalX = details.localFocalPoint.dx;
+    final whiteKeyWidth = PianoGeometry.whiteKeyWidthForViewport(
+      viewportWidth: width,
+      visibleWhiteKeyCount: widget.visibleWhiteKeyCount,
+    );
+    _pinchAnchorKeys = (_ctl.offset + _pinchFocalX) / whiteKeyWidth;
   }
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
-    if (details.pointerCount < 2) return;
+    final anchor = _pinchAnchorKeys;
+    final width = _cachedViewportWidth;
+    if (details.pointerCount < 2 || anchor == null || width == null) return;
+    _pinchFocalX = details.localFocalPoint.dx;
+
+    // Pans by the fingers' movement whether or not the zoom changes, so a
+    // pinch held at a zoom limit still moves the keyboard. A zoom that does
+    // change is anchored again in the rebuild it causes.
+    if (_ctl.hasClients) {
+      final whiteKeyWidth = PianoGeometry.whiteKeyWidthForViewport(
+        viewportWidth: width,
+        visibleWhiteKeyCount: widget.visibleWhiteKeyCount,
+      );
+      _ctl.jumpTo(
+        (anchor * whiteKeyWidth - _pinchFocalX).clamp(
+          0.0,
+          _ctl.position.maxScrollExtent,
+        ),
+      );
+    }
     widget.onWidthScaleChanged?.call(_zoomStartScale * details.scale);
+  }
+
+  void _onScaleEnd(ScaleEndDetails _) {
+    if (_pinchAnchorKeys == null) return;
+    _pinchAnchorKeys = null;
+    _onUserScroll();
+    _updateIndicatorState();
   }
 
   Widget _wrapWithZoom(Widget child) {
@@ -159,7 +207,8 @@ class _ScrollablePianoKeyboardState
               (recognizer) {
                 recognizer
                   ..onStart = _onScaleStart
-                  ..onUpdate = _onScaleUpdate;
+                  ..onUpdate = _onScaleUpdate
+                  ..onEnd = _onScaleEnd;
               },
             ),
       },
@@ -299,9 +348,18 @@ class _ScrollablePianoKeyboardState
     );
   }
 
+  /// Whether recentering from [viewport] would move less than [_animateTo]
+  /// bothers to.
+  bool _centeredIn(KeyboardViewport? viewport) =>
+      viewport == null ||
+      (PianoScrollPolicy.centerTarget(viewport, _focusNotes) - viewport.offset)
+              .abs() <
+          1;
+
   /// Long-press context menu surfacing the keyboard's otherwise-hidden view
   /// actions: recenter (also the body double-tap) and reset size (also the
-  /// handle double-tap). Reset only appears where sizing is adjustable.
+  /// handle double-tap). Each is disabled where it would change nothing, and
+  /// reset also where sizing is not adjustable.
   Future<void> _showQuickActions(LongPressStartDetails details) async {
     if (!mounted) return;
     final overlay =
@@ -322,9 +380,10 @@ class _ScrollablePianoKeyboardState
       context: context,
       position: position,
       items: [
-        const PopupMenuItem<_PianoQuickAction>(
+        PopupMenuItem<_PianoQuickAction>(
           value: _PianoQuickAction.center,
-          child: _QuickActionRow(
+          enabled: !_centeredIn(_viewport()),
+          child: const _QuickActionRow(
             icon: Icons.center_focus_strong_outlined,
             label: 'Center on active notes',
           ),
@@ -368,8 +427,10 @@ class _ScrollablePianoKeyboardState
       });
     }
 
-    // If visible key count changed (rotation), keep things stable by recentering.
-    if (oldWidget.visibleWhiteKeyCount != widget.visibleWhiteKeyCount) {
+    // If visible key count changed (rotation, zoom), keep things stable by
+    // recentering. A pinch holds its own anchor instead.
+    if (oldWidget.visibleWhiteKeyCount != widget.visibleWhiteKeyCount &&
+        _pinchAnchorKeys == null) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => _autoCenterIfNeeded(force: true),
       );
@@ -425,8 +486,13 @@ class _ScrollablePianoKeyboardState
             previous: _indicatorState,
           );
 
-    if (next != _indicatorState) {
-      setState(() => _indicatorState = next);
+    final centered = _centeredIn(viewport);
+
+    if (next != _indicatorState || centered != _isCentered) {
+      setState(() {
+        _indicatorState = next;
+        _isCentered = centered;
+      });
     }
   }
 
@@ -517,6 +583,16 @@ class _ScrollablePianoKeyboardState
         );
         final contentWidth = whiteKeyWidth * widget.fullWhiteKeyCount;
 
+        // Keep the point under the pinch under the fingers in the same frame
+        // the keys change width, rather than correcting it afterwards.
+        final anchor = _pinchAnchorKeys;
+        if (anchor != null && _ctl.hasClients) {
+          final maxOffset = math.max(0.0, contentWidth - viewportWidth);
+          _ctl.position.correctPixels(
+            (anchor * whiteKeyWidth - _pinchFocalX).clamp(0.0, maxOffset),
+          );
+        }
+
         // Keep the middle-C label clear of the nav indicator, but only by a
         // little: the indicator is hidden most of the time and the key has room
         // below the label, so a light lift keeps it sitting low on the key.
@@ -545,9 +621,10 @@ class _ScrollablePianoKeyboardState
                 label: 'Piano keyboard',
                 hint: 'Horizontally scrollable. Use the center keyboard action to recenter on active notes.',
                 customSemanticsActions: {
-                  const CustomSemanticsAction(
-                    label: 'Center keyboard on active notes',
-                  ): _centerNow,
+                  if (!_isCentered)
+                    const CustomSemanticsAction(
+                      label: 'Center keyboard on active notes',
+                    ): _centerNow,
                   if (canResetSize)
                     const CustomSemanticsAction(label: 'Reset keyboard size'):
                         _resetKeyboardSize,

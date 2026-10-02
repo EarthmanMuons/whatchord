@@ -16,7 +16,8 @@ class PianoViewMetrics {
   });
 
   /// Number of white keys to show across the viewport (drives key width).
-  final int visibleWhiteKeyCount;
+  /// Fractional while zoomed, so the key width changes continuously.
+  final double visibleWhiteKeyCount;
 
   /// Resolved keyboard height after applying the height scale and clamping.
   final double height;
@@ -45,10 +46,9 @@ PianoViewMetrics resolvePianoViewMetrics({
   required PianoViewSettings settings,
 }) {
   // Width zoom: wider keys means fewer of them fit, so reduce the visible count.
-  final zoomedVisible = (baseWhiteKeyCount / settings.widthScale).round();
-  final visibleWhiteKeyCount = zoomedVisible.clamp(
-    _minVisibleWhiteKeyCount,
-    baseWhiteKeyCount,
+  final visibleWhiteKeyCount = (baseWhiteKeyCount / settings.widthScale).clamp(
+    _minVisibleWhiteKeyCount.toDouble(),
+    baseWhiteKeyCount.toDouble(),
   );
 
   // Base height matches the pre-zoom layout and is derived from the unzoomed

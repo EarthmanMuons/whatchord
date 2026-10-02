@@ -55,6 +55,19 @@ void main() {
     expect(prefs.getDouble('piano.widthScale'), PianoViewSettings.minScale);
   });
 
+  test('setting the scale already held changes nothing', () async {
+    final container = await makeContainer();
+    final notifier = container.read(pianoViewSettingsProvider.notifier);
+    await notifier.setWidthScale(PianoViewSettings.maxScale);
+    var notified = 0;
+    container.listen(pianoViewSettingsProvider, (_, _) => notified++);
+
+    await notifier.setWidthScale(PianoViewSettings.maxScale + 1);
+    await notifier.setHeightScale(1.0);
+
+    expect(notified, 0, reason: 'a pinch held at a limit writes nothing');
+  });
+
   test('reset restores defaults and removes the stored keys', () async {
     final container = await makeContainer({
       'piano.widthScale': 2.0,
