@@ -12,10 +12,10 @@ version: 2026.8.28+29
 
 environment:
   # pinned version used for automated testing and releases
-  flutter: 3.47.1
+  flutter: 3.47.6
   # matching dart version for the above flutter release
   # https://docs.flutter.dev/install/archive#stable-channel
-  sdk: ^3.13.1
+  sdk: ^3.13.5
 
 dependencies:
   flutter:
