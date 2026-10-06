@@ -12,17 +12,16 @@ The format is based on [Keep a Changelog][1], and this project adheres to
 
 ### Changed
 
-- Pinch-to-zoom on the keyboard now scales smoothly and keeps the keys under
-  your fingers in place, instead of stepping a key at a time and then scrolling
-  back into position. Moving both fingers pans the keyboard as you zoom, even at
-  the smallest or largest size.
-- The keyboard's "Center on active notes" action is now disabled when the
-  keyboard is already centered, matching how "Reset keyboard size" behaves.
+- The piano keyboard now scales smoothly as you pinch to zoom, keeping the keys
+  under your fingers in place. Move both fingers to pan, even at the zoom
+  limits.
+- "Center on active notes" is now disabled when the keyboard is already
+  centered.
 
 ### Fixed
 
-- VoiceOver and TalkBack can now resize the keyboard by swiping up or down on
-  its resize handle, which also announces the current size.
+- VoiceOver and TalkBack now announce the keyboard height and let you adjust it
+  using the resize handle.
 
 ## [2026.8.28] - 2026-08-28
 
