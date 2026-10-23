@@ -1,7 +1,7 @@
 # Pinned Python dependencies for WhatKey research reproduction tasks.
 # Generated from tool/requirements-research.in and committed so research tasks
 # do not resolve floating transitive dependencies.
-certifi==2026.5.20
+certifi==2026.10.19
 chardet==7.4.3
 charset-normalizer==3.4.7
 contourpy==1.3.3
