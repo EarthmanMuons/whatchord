@@ -8,14 +8,14 @@
     "site:preview": "astro preview --root docs/site"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
+    "@astrojs/check": "^0.9.12",
     "@astrojs/sitemap": "3.7.4",
     "@tonaljs/tonal": "4.10.0",
-    "astro": "^7.4.0",
+    "astro": "^7.4.2",
     "prettier": "3.9.10",
-    "prettier-plugin-astro": "1.1.1",
+    "prettier-plugin-astro": "1.1.2",
     "stylelint": "17.16.0",
-    "stylelint-config-recess-order": "7.8.0",
+    "stylelint-config-recess-order": "7.9.0",
     "stylelint-config-standard": "40.0.0",
     "typescript": "6.0.3",
     "wrangler": "^4.156.0"
