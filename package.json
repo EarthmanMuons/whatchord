@@ -14,7 +14,7 @@
     "astro": "^7.4.13",
     "prettier": "3.10.1",
     "prettier-plugin-astro": "1.1.2",
-    "stylelint": "17.16.0",
+    "stylelint": "18.1.0",
     "stylelint-config-recess-order": "7.10.1",
     "stylelint-config-standard": "40.0.0",
     "typescript": "6.0.3",
